@@ -125,7 +125,7 @@ var PieChart = function(){
 
         //Add qtip for download icon when mouse over
         $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 300, event: "mouseout"},
             position: {my:'bottom left',at:'top right', viewport: $(window)},
@@ -136,7 +136,7 @@ var PieChart = function(){
 
         //Add qtip for survival icon
         $('#'+  DIV.chartDiv+'-plot-data').qtip({
-            style:  { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style:  { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show:   {event: "mouseover"},
             hide:   {fixed:true, delay: 300, event: "mouseout"},
             position:   {my:'bottom left',at:'top right', viewport: $(window)},
@@ -146,7 +146,7 @@ var PieChart = function(){
         //Add qtip for download icon when mouse click
         $('#' + DIV.chartDiv + '-download-icon').qtip({
             id: '#' + DIV.chartDiv + "-download-icon-qtip",
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "click", delay: 0},
             hide: {fixed:true, delay: 300, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
@@ -229,7 +229,7 @@ var PieChart = function(){
         $('#' + DIV.mainDiv).qtip({
             id: DIV.mainDiv,
             style: {
-                classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex qtip-max-width study-view-qtip'
+                classes: 'qtip-light qtip-rounded qtip-shadow forceZindex qtip-max-width study-view-qtip'
             },
             show: {event: "mouseover", solo: true, delay: 0, ready: true},
             hide: {fixed:true, delay: 300, event: "mouseleave"},

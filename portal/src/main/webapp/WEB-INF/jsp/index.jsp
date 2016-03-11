@@ -38,7 +38,7 @@
     String siteTitle = GlobalProperties.getTitle();
     String popeye = GlobalProperties.getProperty("popeye");
 
-    if (popeye == null) {
+    if (popeye == null || !popeye.trim().toLowerCase().endsWith(".jsp")) {
         popeye = "preview.jsp";
     } 
     if (siteTitle == null) {

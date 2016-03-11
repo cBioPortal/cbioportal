@@ -32,7 +32,7 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml</param-value>
-	</context-param>
+    </context-param>
 
     <context-param>
         <param-name>webAppRootKey</param-name>
@@ -132,6 +132,10 @@
         <servlet-name>portal</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>portal</servlet-name>                                                                                                                                                 
+      <url-pattern>/</url-pattern>
+    </servlet-mapping>                                                                                                                                                                    
 
     <servlet>
         <servlet-name>query_builder</servlet-name>

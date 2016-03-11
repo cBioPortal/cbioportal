@@ -90,7 +90,6 @@
 	    		if (tab_init === false) {
 		        	showNetwork();
 		            tab_init = true;
-		            console.log("network tab initialized");
 		        }
 		        $(window).trigger("resize");
 	    	}
@@ -109,9 +108,9 @@
 			var genomicData = {};
 			// Send genomic data query again
 		    var geneDataQuery = {
-                cancer_study_id: "<%=cancerTypeId%>",
-		        genes: genes,
-		        geneticProfileIds: geneticProfiles,
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+		        genes: window.QuerySession.getQueryGenes().join(" "),
+		        geneticProfileIds: window.QuerySession.getGeneticProfileIds(),
 		        z_score_threshold: <%=zScoreThreshold%>,
 		        rppa_score_threshold: <%=rppaScoreThreshold%>
 		    };

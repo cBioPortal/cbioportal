@@ -201,11 +201,6 @@ public class QueryBuilder extends HttpServlet {
 
         geneList = servletXssUtil.getCleanInput(geneList);
 
-        // save the raw gene string as it was entered for other things to work on
-        httpServletRequest.setAttribute(RAW_GENE_STR, geneList);
-
-        xdebug.logMsg(this, "Gene List is set to:  " + geneList);
-
         //  Get all Cancer Types
         try {
 			List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();

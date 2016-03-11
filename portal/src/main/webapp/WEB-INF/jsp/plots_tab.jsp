@@ -177,7 +177,6 @@
 		    	if (tab_init === false) {
 		        	plotsTab.init();
 		            tab_init = true;
-		            console.log("plots tab initialized");
 		        }
 		        $(window).trigger("resize");
 	    	}

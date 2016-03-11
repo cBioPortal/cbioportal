@@ -72,7 +72,6 @@
     //Info about Genetic Profiles
     ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
-    // put geneticProfileIds into the proper form for the JSON request
     String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
     geneticProfiles = xssUtil.getCleanerInput(geneticProfiles.trim());
 
@@ -129,8 +128,6 @@
             geneSetName = geneSet.getName();
         }
     }
-    String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
-    genes = StringEscapeUtils.escapeJavaScript(genes);
 
     //Info about Patient Set(s)/Patients
     ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
@@ -259,83 +256,9 @@
     var patientCaseSelect;
 
     window.PortalGlobals = {
-
-        //cancer study
-        getCancerStudyId: function() { return '<%=cancerTypeId%>'},
-        getCancerStudyName: function() { return '<%=cancerStudyName%>'},
-
-        //query genes
-        getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
-        getGeneListString: function() { // gene list WITHOUT onco query language
-            return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
-        },
-        getGeneList: function() { //Gene Id list without onco query language
-            var _geneList = '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>';
-            return _geneList.split(/\s+/);
-        },
-        getGeneSetName: function() { return '<%=geneSetName%>'; },
-        getOqlString: (function() {     // raw gene list (as it is entered by the user, it may contain onco query language)
-            var oql = '<%=oql%>'
-                    .replace("&gt;", ">", "gm")
-                    .replace("&lt;", "<", "gm")
-                    .replace("&eq;", "=", "gm")
-                    .replace(/[\r\n]/g, "\\n");
-            return function() { return oql; };
-        })(),
-
-        //cases
-        getCaseSetId: function() { return '<%= sampleSetId %>';},  //Id for user chosen standard case set
-        getCaseSetName: function() { return '<%= sampleSetName %>'},  //Name for user chose standard case set
-        getCaseIdsKey: function() { return '<%= sampleIdsKey %>'; },   //A key arrsigned to use build case set
-        getCases: function() { return '<%= samples %>'; }, // list of queried case ids
-
-        //samples
-        setSampleIds: function(_inputArr) { global_sample_ids = _inputArr; },
-        getSampleIds: function() { return global_sample_ids; },
-        
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
-
-    
-        getPatientCaseSelect: function() {return '<%=patientCaseSelect%>';},
-        
-        //samples
-        getSampleSetName: function() { return '<%=sampleSetName%>'; },
-        getSampleSetDescription: function() {
-            var _str = '<%=sampleSetDescription%>';
-            _str = _str.substring(0, _str.indexOf("("));
-            return _str;
-        },
-        getPatientSampleIdMap: function() {
-            var _tmpPatientSampleIdMap = '<%=patientSampleIdMap%>';
-            var tmpPatientSampleIdMap = _tmpPatientSampleIdMap.substring(1, _tmpPatientSampleIdMap.length-1);
-            var _arrPatientSampleMap = tmpPatientSampleIdMap.split(",");
-            var result = {};
-            $.each(_arrPatientSampleMap, function(index, obj) {
-                var _arr = obj.split("=");
-                result[(_arr[0].replace(/\s+/, ""))] = (_arr[1].replace(/\s+/, ""));
-            });
-            return result;
-        },
-        getSampleIds: function() { return '<%=samples%>'; },
-
-        //profiles
-        getMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
-        getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
-
-        //altered vs. unaltered
-        getNumOfTotalCases: function() { return num_total_cases; },
-        getNumOfAlteredCases: function() { return num_altered_cases; },
-        getPercentageOfAlteredCases: function() { return ((num_altered_cases / num_total_cases) * 100).toFixed(1); },
-
-        //thresholds
-        getZscoreThreshold: function() { return '<%=zScoreThreshold%>'; },
-        getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
-
-        //gene data
-        setGeneData: function(_inputObj) { global_gene_data = _inputObj; },
-        getGeneData: function() { return global_gene_data; }
-
     };
+    
     (function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
@@ -403,7 +326,6 @@ $(document).ready(function() {
             });     
 
             var _sampleIds = window.QuerySession.getSampleIds();
-            window.PortalGlobals.setSampleIds(_sampleIds);
             
             var altered_samples_percentage = (100 * altered_samples.length / _sampleIds.length).toFixed(1);
 
@@ -486,46 +408,3 @@ $(document).ready(function() {
         return counter;
     }
 %>
-
-<!------------------- Duplicate Code ------------------------->
-<%
-    // plots_tab.jsp
-    String cancer_study_id = request.getParameter("cancer_study_id");
-    String sample_set_id = request.getParameter("case_set_id");
-    String genetic_profile_id = request.getParameter("genetic_profile_id");
-
-    // Translate Onco Query Language
-    ArrayList<String> _listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
-    String tmpGeneStr = "";
-    for(String gene: _listOfGenes) {
-        tmpGeneStr += gene + " ";
-    }
-    tmpGeneStr = tmpGeneStr.trim();
-
-
-%>
-<script type="text/javascript">
-    // raw gene list (as it is entered by the user, it may contain onco query language)
-    var genes = "<%=genes%>";
-
-    // gene list after being processed by the onco query language parser
-    var geneList = "<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>";
-
-    // list of samples (patient ids)
-    var samples = "<%=samples%>";
-
-    // genetic profile ids
-    var geneticProfiles = "<%=geneticProfiles%>";
-
-    // plots_tab.jsp
-    var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            sample_set_id = "<%out.print(sample_set_id);%>";
-    sample_ids_key = "";
-    if (sample_set_id === "-1") {
-        sample_ids_key = "<%out.print(sampleIdsKey);%>";
-    }
-    var genetic_profile_id = "<%out.print(genetic_profile_id);%>";
-    var gene_list_str = "<%out.print(tmpGeneStr);%>";
-    var gene_list = gene_list_str.split(/\s+/);
-
-</script>

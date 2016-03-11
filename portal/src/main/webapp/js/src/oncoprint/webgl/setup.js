@@ -503,7 +503,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'clinical_attr_id_to_sample_data': {},
 	    'clinical_attr_id_to_patient_data': {},
 	    
-	    'cell_padding_on': true,
+	    'cell_padding_on': false,
 	    'using_sample_data': (URL.getInitDataType() === 'sample'),
 	    'unaltered_cases_hidden': false,
 	    'clinical_track_legends_shown': false,
@@ -1075,6 +1075,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 
     (function initOncoprint() {
 	var def = new $.Deferred();
+	oncoprint.setCellPaddingOn(State.cell_padding_on);
 	QuerySession.getGenomicEventData().then(function (data) {
 	    var genes = window.QuerySession.getQueryGenes();
 	    (function invokeOldDataManagers() {
@@ -1087,7 +1088,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    def.reject();
 	});
 	return def.promise();
-    })().then(function addInitialClinicalTracks() {
+    })().then(function() {
 	State.clinical_attributes_fetched.then(function() {
 	    var url_clinical_attrs = URL.getInitUsedClinicalAttrs() || [];
 	    if (url_clinical_attrs.length > 0) {
@@ -1096,7 +1097,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 	    }
 	    Toolbar.refreshClinicalAttributeSelector();
-	    State.setDataType(State.using_sample_data ? 'sample' : 'patient');
+	    var populate_data_promise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
+	    
+	    $.when(QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), populate_data_promise).then(function(altered_samples, altered_patients) {
+		oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples : altered_patients);
+		oncoprint.scrollTo(0);
+	    });
 	});
     });
     window.oncoprint = oncoprint;
@@ -1268,7 +1274,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	(function setUpZoomToFit() {
 	    $.when(QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients()).then(function(altered_samples, altered_patients) {
 		setUpButton($(toolbar_selector + ' #oncoprint_zoomtofit'), [], ["Zoom to fit altered cases in screen"], null, function() {
-		    oncoprint.setHorzZoom(oncoprint.getZoomToFitHorz((State.using_sample_data ? altered_samples : altered_patients)));
+		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples : altered_patients);
 		    oncoprint.scrollTo(0);
 		});
 	    });

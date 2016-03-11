@@ -126,6 +126,10 @@ var Oncoprint = (function () {
 	this.rendering_suppressed_depth = 0;
 	
 	this.keep_sorted = false;
+	
+	this.keep_horz_zoomed_to_fit = false;
+	this.keep_horz_zoomed_to_fit_ids = [];
+	
 	// We need to handle scrolling this way because for some reason huge 
 	//  canvas elements have terrible resolution.
 	var cell_view = this.cell_view;
@@ -135,6 +139,9 @@ var Oncoprint = (function () {
 	    $cell_canvas.css('left', scroll_left);
 	    $cell_overlay_canvas.css('left', scroll_left);
 	    cell_view.scroll(model, scroll_left);
+	    
+	    self.keep_horz_zoomed_to_fit = false;
+	    self.keep_horz_zoomed_to_fit_ids = [];
 	});
 	
 	this.horz_zoom_callbacks = [];
@@ -165,6 +172,12 @@ var Oncoprint = (function () {
 	oncoprint.cell_view.setWidth(ctr_width - cell_div_left-20, oncoprint.model);
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
 	oncoprint.legend_view.setWidth(ctr_width, oncoprint.model);
+	
+	setTimeout(function() {
+	    if (oncoprint.keep_horz_zoomed_to_fit) {
+		updateHorzZoomToFit(oncoprint);
+	    }
+	}, 0);
     };
     
     var resizeAndOrganizeAfterTimeout = function(oncoprint) {
@@ -244,23 +257,32 @@ var Oncoprint = (function () {
 	resizeAndOrganizeAfterTimeout(this);
     }
 
-    Oncoprint.prototype.getZoomToFitHorz = function(ids) {
+    Oncoprint.prototype.setHorzZoomToFit = function(ids) {
+	this.keep_horz_zoomed_to_fit = true;
+	this.keep_horz_zoomed_to_fit_ids = ids;
+	updateHorzZoomToFit(this);
+    }
+    var updateHorzZoomToFit = function(oncoprint) {
+	oncoprint.setHorzZoom(getHorzZoomToFit(oncoprint, oncoprint.keep_horz_zoomed_to_fit_ids));
+    };
+    var getHorzZoomToFit = function(oncoprint, ids) {
+	ids = ids || [];
 	var width_to_fit_in;
-	if (typeof ids === 'undefined') {
-	    width_to_fit_in = this.cell_view.getTotalWidth(this.model, true);
+	if (ids.length === 0) {
+	    width_to_fit_in = oncoprint.cell_view.getTotalWidth(oncoprint.model, true);
 	} else {
 	    var furthest_right_id_index = -1;
 	    var furthest_right_id;
-	    var id_to_index_map = this.model.getIdToIndexMap();
+	    var id_to_index_map = oncoprint.model.getIdToIndexMap();
 	    for (var i=0; i<ids.length; i++) {
 		if (id_to_index_map[ids[i]] > furthest_right_id_index) {
 		    furthest_right_id_index = id_to_index_map[ids[i]];
 		    furthest_right_id = ids[i];
 		}
 	    }
-	    width_to_fit_in = this.model.getColumnLeft(furthest_right_id) + this.model.getCellWidth(true);
+	    width_to_fit_in = oncoprint.model.getColumnLeft(furthest_right_id) + oncoprint.model.getCellWidth(true);
 	}
-	var zoom = Math.min(1, this.cell_view.visible_area_width / width_to_fit_in);
+	var zoom = Math.min(1, oncoprint.cell_view.visible_area_width / width_to_fit_in);
 	return zoom;
     }
     Oncoprint.prototype.getHorzZoom = function () {
@@ -272,6 +294,8 @@ var Oncoprint = (function () {
     }
 
     Oncoprint.prototype.setHorzZoom = function (z) {
+	this.keep_zoomed_to_fit = false;
+	this.keep_zoomed_to_fit_ids = [];
 	// Update model
 	this.model.setHorzZoom(z);
 	// Update views

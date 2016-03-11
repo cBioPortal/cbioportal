@@ -188,6 +188,10 @@ var Oncoprint = (function () {
 	this.rendering_suppressed_depth = 0;
 	
 	this.keep_sorted = false;
+	
+	this.keep_horz_zoomed_to_fit = false;
+	this.keep_horz_zoomed_to_fit_ids = [];
+	
 	// We need to handle scrolling this way because for some reason huge 
 	//  canvas elements have terrible resolution.
 	var cell_view = this.cell_view;
@@ -197,6 +201,9 @@ var Oncoprint = (function () {
 	    $cell_canvas.css('left', scroll_left);
 	    $cell_overlay_canvas.css('left', scroll_left);
 	    cell_view.scroll(model, scroll_left);
+	    
+	    self.keep_horz_zoomed_to_fit = false;
+	    self.keep_horz_zoomed_to_fit_ids = [];
 	});
 	
 	this.horz_zoom_callbacks = [];
@@ -227,6 +234,12 @@ var Oncoprint = (function () {
 	oncoprint.cell_view.setWidth(ctr_width - cell_div_left-20, oncoprint.model);
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
 	oncoprint.legend_view.setWidth(ctr_width, oncoprint.model);
+	
+	setTimeout(function() {
+	    if (oncoprint.keep_horz_zoomed_to_fit) {
+		updateHorzZoomToFit(oncoprint);
+	    }
+	}, 0);
     };
     
     var resizeAndOrganizeAfterTimeout = function(oncoprint) {
@@ -306,23 +319,32 @@ var Oncoprint = (function () {
 	resizeAndOrganizeAfterTimeout(this);
     }
 
-    Oncoprint.prototype.getZoomToFitHorz = function(ids) {
+    Oncoprint.prototype.setHorzZoomToFit = function(ids) {
+	this.keep_horz_zoomed_to_fit = true;
+	this.keep_horz_zoomed_to_fit_ids = ids;
+	updateHorzZoomToFit(this);
+    }
+    var updateHorzZoomToFit = function(oncoprint) {
+	oncoprint.setHorzZoom(getHorzZoomToFit(oncoprint, oncoprint.keep_horz_zoomed_to_fit_ids));
+    };
+    var getHorzZoomToFit = function(oncoprint, ids) {
+	ids = ids || [];
 	var width_to_fit_in;
-	if (typeof ids === 'undefined') {
-	    width_to_fit_in = this.cell_view.getTotalWidth(this.model, true);
+	if (ids.length === 0) {
+	    width_to_fit_in = oncoprint.cell_view.getTotalWidth(oncoprint.model, true);
 	} else {
 	    var furthest_right_id_index = -1;
 	    var furthest_right_id;
-	    var id_to_index_map = this.model.getIdToIndexMap();
+	    var id_to_index_map = oncoprint.model.getIdToIndexMap();
 	    for (var i=0; i<ids.length; i++) {
 		if (id_to_index_map[ids[i]] > furthest_right_id_index) {
 		    furthest_right_id_index = id_to_index_map[ids[i]];
 		    furthest_right_id = ids[i];
 		}
 	    }
-	    width_to_fit_in = this.model.getColumnLeft(furthest_right_id) + this.model.getCellWidth(true);
+	    width_to_fit_in = oncoprint.model.getColumnLeft(furthest_right_id) + oncoprint.model.getCellWidth(true);
 	}
-	var zoom = Math.min(1, this.cell_view.visible_area_width / width_to_fit_in);
+	var zoom = Math.min(1, oncoprint.cell_view.visible_area_width / width_to_fit_in);
 	return zoom;
     }
     Oncoprint.prototype.getHorzZoom = function () {
@@ -334,6 +356,8 @@ var Oncoprint = (function () {
     }
 
     Oncoprint.prototype.setHorzZoom = function (z) {
+	this.keep_zoomed_to_fit = false;
+	this.keep_zoomed_to_fit_ids = [];
 	// Update model
 	this.model.setHorzZoom(z);
 	// Update views
@@ -1131,6 +1155,21 @@ var OncoprintModel = (function () {
 	this.rule_sets = {}; // map from rule set id to rule set
 	
 	// Cached and Recomputed Properties
+	this.track_id_to_datum = new CachedProperty({}, function(model, track_id) {
+	    var curr = model.track_id_to_datum.get();
+	    if (model.getContainingTrackGroup(track_id) !== null) {
+		var map = {};
+		var data = model.getTrackData(track_id) || [];
+		var data_id_key = model.getTrackDataIdKey(track_id) || '';
+		for (var i=0; i<data.length; i++) {
+		    map[data[i][data_id_key]] = data[i];
+		}
+		curr[track_id] = map;
+	    } else {
+		delete curr[track_id];
+	    }
+	    return curr;
+	});
 	this.track_present_ids = new CachedProperty(new UnionOfSets(), function(model, track_id) {
 	    var union = model.track_present_ids.get();
 	    if (model.getContainingTrackGroup(track_id) !== null) {
@@ -1155,8 +1194,6 @@ var OncoprintModel = (function () {
 	
 	this.track_groups = [];
 	this.track_group_sort_priority = [];
-	
-	this.track_id_to_datum = {};
 	
 	this.track_tops = new CachedProperty({}, function () {
 	    var tops = {};
@@ -1512,7 +1549,7 @@ var OncoprintModel = (function () {
 	
 	
 	
-	model.computeTrackIdToDatum(track_id);
+	model.track_id_to_datum.update(model, track_id);
 	model.track_present_ids.update(model, track_id);
 	model.precomputed_comparator.update(model, track_id);
 	
@@ -1572,6 +1609,7 @@ var OncoprintModel = (function () {
 	}
 	this.track_tops.update();
 	this.track_present_ids.update(this, track_id);
+	this.track_id_to_datum.update(this, track_id);
 	this.setIdOrder(Object.keys(this.present_ids.get()));
 	
 	var rule_set_used = isRuleSetUsed(this, rule_set_id);
@@ -1599,14 +1637,9 @@ var OncoprintModel = (function () {
     };
     
     OncoprintModel.prototype.getTrackDatum = function(track_id, id) {
-	var data = this.getTrackData(track_id);
-	var datum_id_key = this.getTrackDataIdKey(track_id);
-	var datum = null;
-	for (var i=0; i<data.length; i++) {
-	    if (data[i][datum_id_key] === id) {
-		datum = data[i];
-		break;
-	    }
+	var datum = this.track_id_to_datum.get()[track_id][id];
+	if (typeof datum === 'undefined') {
+	    datum = null;
 	}
 	return datum;
     }
@@ -1768,7 +1801,7 @@ var OncoprintModel = (function () {
     OncoprintModel.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.track_data[track_id] = data;
 	this.track_data_id_key[track_id] = data_id_key;
-	this.computeTrackIdToDatum(track_id);
+	this.track_id_to_datum.update(this, track_id);
 	this.track_present_ids.update(this, track_id);
 	this.setIdOrder(Object.keys(this.present_ids.get()));
 	this.precomputed_comparator.update(this, track_id);

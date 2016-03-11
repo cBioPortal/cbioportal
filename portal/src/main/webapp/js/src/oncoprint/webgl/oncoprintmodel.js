@@ -127,6 +127,21 @@ var OncoprintModel = (function () {
 	this.rule_sets = {}; // map from rule set id to rule set
 	
 	// Cached and Recomputed Properties
+	this.track_id_to_datum = new CachedProperty({}, function(model, track_id) {
+	    var curr = model.track_id_to_datum.get();
+	    if (model.getContainingTrackGroup(track_id) !== null) {
+		var map = {};
+		var data = model.getTrackData(track_id) || [];
+		var data_id_key = model.getTrackDataIdKey(track_id) || '';
+		for (var i=0; i<data.length; i++) {
+		    map[data[i][data_id_key]] = data[i];
+		}
+		curr[track_id] = map;
+	    } else {
+		delete curr[track_id];
+	    }
+	    return curr;
+	});
 	this.track_present_ids = new CachedProperty(new UnionOfSets(), function(model, track_id) {
 	    var union = model.track_present_ids.get();
 	    if (model.getContainingTrackGroup(track_id) !== null) {
@@ -151,8 +166,6 @@ var OncoprintModel = (function () {
 	
 	this.track_groups = [];
 	this.track_group_sort_priority = [];
-	
-	this.track_id_to_datum = {};
 	
 	this.track_tops = new CachedProperty({}, function () {
 	    var tops = {};
@@ -508,7 +521,7 @@ var OncoprintModel = (function () {
 	
 	
 	
-	model.computeTrackIdToDatum(track_id);
+	model.track_id_to_datum.update(model, track_id);
 	model.track_present_ids.update(model, track_id);
 	model.precomputed_comparator.update(model, track_id);
 	
@@ -568,6 +581,7 @@ var OncoprintModel = (function () {
 	}
 	this.track_tops.update();
 	this.track_present_ids.update(this, track_id);
+	this.track_id_to_datum.update(this, track_id);
 	this.setIdOrder(Object.keys(this.present_ids.get()));
 	
 	var rule_set_used = isRuleSetUsed(this, rule_set_id);
@@ -595,14 +609,9 @@ var OncoprintModel = (function () {
     };
     
     OncoprintModel.prototype.getTrackDatum = function(track_id, id) {
-	var data = this.getTrackData(track_id);
-	var datum_id_key = this.getTrackDataIdKey(track_id);
-	var datum = null;
-	for (var i=0; i<data.length; i++) {
-	    if (data[i][datum_id_key] === id) {
-		datum = data[i];
-		break;
-	    }
+	var datum = this.track_id_to_datum.get()[track_id][id];
+	if (typeof datum === 'undefined') {
+	    datum = null;
 	}
 	return datum;
     }
@@ -764,7 +773,7 @@ var OncoprintModel = (function () {
     OncoprintModel.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.track_data[track_id] = data;
 	this.track_data_id_key[track_id] = data_id_key;
-	this.computeTrackIdToDatum(track_id);
+	this.track_id_to_datum.update(this, track_id);
 	this.track_present_ids.update(this, track_id);
 	this.setIdOrder(Object.keys(this.present_ids.get()));
 	this.precomputed_comparator.update(this, track_id);

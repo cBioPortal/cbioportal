@@ -65,7 +65,7 @@ function PancancerStudySummaryHistogram()
     };
     
     var filterCriteriaChanged = function(model) {
-    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") || model.hasChanged("minTotalSamples");;
+    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") ||	model.hasChanged("minTotalSamples");
     }
     
     
@@ -83,7 +83,8 @@ function PancancerStudySummaryHistogram()
 	    
 		//if data will change, e.g. because a cancer type was added or removed to the 
 		//filter criteria, then get processed data again: 
-	    if (filterCriteriaChanged(model)) {
+	    if (!this.histogramPresenter || filterCriteriaChanged(model)) {
+	    	console.log("Initial fetch data or Filter criteria changed, filtering/processing/sorting data...");
 	    	//get data via presenter layer:
 			this.histogramPresenter = new HistogramPresenter(model, dmPresenter, geneId);
 			//Get data:
@@ -96,8 +97,8 @@ function PancancerStudySummaryHistogram()
 	    }
 	    else {
 	    	var histData = this.histogramPresenter.histData;
-	    	//only sorting/scaling has changed. Adjust/redraw histogram accordingly:
-	    	var histogram = drawHistogram(histData, model, histogramEl);
+	    	//only sorting has changed. Adjust/redraw histogram accordingly:
+	    	var histogram = continueDrawHistogram(histData, model, histogramEl);
 			//animation, sorting also the histogram:
 			sortItems(histData, model, histogram);
 	    }

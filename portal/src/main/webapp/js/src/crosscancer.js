@@ -1150,7 +1150,7 @@
                                                     _.each(tableData, function (ele, i) {
                                                         var _datum = ele[indexMap["datum"]];
                                                         var _mutation = ele[indexMap["datum"]].mutation;
-                                                        oncokbInstance.addVariant(_mutation.mutationSid, _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType, _mutation.mutationType, _mutation.cosmicCount, _mutation.isHotspot);
+                                                        oncokbInstance.addVariant(_mutation.mutationSid, '', _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType, _mutation.mutationType, _mutation.cosmicCount, _mutation.isHotspot);
                                                     });
                                                     oncokbInstance.getEvidence().done(function () {
                                                         var tableData = dataTable.fnGetData();

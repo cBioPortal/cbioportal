@@ -38,9 +38,10 @@
 <link rel="stylesheet" type="text/css" href="css/study-view.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/introjs.min.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/introjs-rtl.min.css?<%=GlobalProperties.getAppVersion()%>">
-
 <link rel="stylesheet" type="text/css" href="css/bootstrap-alert.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/animate.css?<%=GlobalProperties.getAppVersion()%>">
+<link rel="stylesheet" type="text/css" href="css/fixed-data-table.min.css?<%=GlobalProperties.getAppVersion()%>">
+<link rel="stylesheet" type="text/css" href="css/bootstrap-dropdown-checkbox.css?<%=GlobalProperties.getAppVersion()%>">
 <script src="js/lib/bootstrap-notify.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -55,6 +56,13 @@
 <script src="js/lib/jquery.dataTables.fnSetFilteringDelay.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dc.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/d3.layout.cloud.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/react.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/react-dom.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/fixed-data-table.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/react-chosen.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/ZeroClipboard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/bootstrap-dropdown-checkbox.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/EnhancedFixedDatatable.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script data-main="js/src/study-view/main.js?<%=GlobalProperties.getAppVersion()%>" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 
@@ -65,11 +73,11 @@
 
 <div id="study-view-main" style="display: none;">
     <div id="study-view-header-function"></div>
-    
+
     <div id="study-view-charts"></div>
-    
+
     <div id="study-view-update"></div>
-    
+
     <div id='data-table-chart'></div>
 
 </div>

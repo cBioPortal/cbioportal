@@ -429,50 +429,89 @@ var StudyViewInitTables = (function() {
         return genes;
     }
 
-    function redraw(data){
+
+
+    function redrawSingleTable(data, worker){
         var numSelectedCasesL = data.selectedCases.length,
-            exceptionIds = [];
-
-        if(data.hasOwnProperty('exceptionIds') && typeof data.exceptionIds === 'object'){
             exceptionIds = data.exceptionIds;
-        }
-        //Start loaders
-        workers.forEach(function(e, i){
-            if(exceptionIds.indexOf(e.opts.tableId) === -1){
-                e.tableInstance.startLoading();
-            }
-        });
 
-        workers.forEach(function (e, i) {
-            if (exceptionIds.indexOf(e.opts.tableId) === -1) {
+        // find the worker
+        // if the worker is a string, we first need to find the actual worker
+        if(typeof worker === 'string'){
+            worker = findWorker(worker);
+        }
+
+        if (exceptionIds.indexOf(worker.opts.tableId) === -1) {
+            if (exceptionIds.indexOf(worker.tableId) === -1) {
                 if (numSelectedCasesL.length !== 0) {
-                    switch (e.opts.name) {
+                    switch (worker.opts.name) {
                         case 'mutatedGenes':
-                            var selectedSequencedSamples = _.intersection(
-                                    StudyViewProxy.getSequencedSampleIds(),
-                                    data.selectedCases
-                                    );
-                            workers[i].data.arr = mutatedGenesData(StudyViewProxy.getMutatedGeneDataBasedOnSampleIds(data.selectedCases), selectedSequencedSamples.length);
+                            var selectedSequencedSamples = _.intersection(StudyViewProxy.getSequencedSampleIds(), data.selectedCases);
+                            worker.data.arr = mutatedGenesData(StudyViewProxy.getMutatedGeneDataBasedOnSampleIds(data.selectedCases), selectedSequencedSamples.length);
                             break;
                         case 'cna':
-                            var selectedCnaSamples = _.intersection(
-                                    StudyViewProxy.getCnaSampleIds(),
-                                    data.selectedCases
-                                    );
-                            workers[i].data.arr = cnaData(StudyViewProxy.getCNABasedOnSampleIds(data.selectedCases), selectedCnaSamples.length);
+                            var selectedCnaSamples = _.intersection(StudyViewProxy.getCnaSampleIds(), data.selectedCases);
+                            worker.data.arr = cnaData(StudyViewProxy.getCNABasedOnSampleIds(data.selectedCases), selectedCnaSamples.length);
                             break;
                         default:
                             break;
                     }
-                    e.tableInstance.redraw(workers[i].data, function () {
-                        e.tableInstance.stopLoading();
+                    worker.tableInstance.redraw(worker.data, function () {
+                        worker.tableInstance.stopLoading();
                     });
                 } else {
-                    workers[i].data.arr = [];
-                    e.tableInstance.redraw(workers[i].data);
+                    worker.data.arr = [];
+                    worker.tableInstance.redraw(worker.data);
                 }
             }
+        }
+    }
+
+    function redraw(data){
+        workers.forEach(function (e, i) {
+            // check whether table is visible before doing work
+            if(isTableVisible(e.opts.tableId)) {
+                redrawSingleTable(data, e.opts.tableId);
+            }
         });
+    }
+
+    // show loading icon for all workers
+    function showLoadingIcon(data){
+        //Start loaders
+        workers.forEach(function(e, i){
+            showSingleLoadingIcon(data, e);
+        });
+    }
+
+    // show loading icon for a single worker
+    function showSingleLoadingIcon(data, worker){
+        var exceptionIds = data.exceptionIds;
+
+        // if the worker is a string, we first need to find the actual worker
+        if(typeof worker === 'string'){
+            worker = findWorker(worker);
+        }
+
+        // check whether the current table is in the exceptions; if not show the loading image
+        if (exceptionIds.indexOf(worker.opts.tableId) === -1) {
+            worker.tableInstance.startLoading();
+        }
+
+    }
+
+    // find the worker for a tableId
+    function findWorker(tableId){
+        for(var i=0; i<workers.length; i++){
+            if (workers[i].opts.tableId === tableId) {
+                return workers[i];
+            }
+        }
+    }
+
+    // check whether a table is visible
+    function isTableVisible(tableId){
+        return $("#"+tableId+"-main").css("display")!="none";
     }
 
     function clearAllSelected() {
@@ -491,6 +530,9 @@ var StudyViewInitTables = (function() {
         redraw: redraw,
         clearAllSelected: clearAllSelected,
         updateGeneHighlights: updateGeneHighlights,
+        showLoadingIcon: showLoadingIcon,
+        showSingleLoadingIcon: showSingleLoadingIcon,
+        redrawSingleTable: redrawSingleTable,
         getInitStatus: function() {
             if(workers.length > 0) {
                 return true;

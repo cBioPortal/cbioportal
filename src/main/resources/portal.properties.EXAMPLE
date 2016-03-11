@@ -10,6 +10,7 @@ db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost/
 db.tomcat_resource_name=jdbc/cbioportal
+db.version=${db.version}
 
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
@@ -114,7 +115,7 @@ oncokb.url=
 show.hotspot=true
 
 # Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
-mycancergenome.show=false
+mycancergenome.show=true
 
 # igv bam linking
 igv.bam.linking=

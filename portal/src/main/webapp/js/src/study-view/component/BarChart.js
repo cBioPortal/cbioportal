@@ -132,7 +132,7 @@ var BarChart = function(){
         
         //Add qtip for download icon when mouse over
         $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'bottom left',at:'top right', viewport: $(window)},
@@ -143,7 +143,7 @@ var BarChart = function(){
         
         //Add qtip for survival icon
         $('#'+  DIV.chartDiv+'-plot-data').qtip({
-            style:  { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style:  { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show:   {event: "mouseover"},
             hide:   {fixed:true, delay: 0, event: "mouseout"},
             position:   {my:'bottom left',at:'top right', viewport: $(window)},
@@ -152,7 +152,7 @@ var BarChart = function(){
         
         //Add qtip for download icon when mouse click
         $('#' + DIV.chartDiv + '-download-icon').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "click", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
@@ -520,7 +520,7 @@ var BarChart = function(){
 //                "dc.redrawAll();'>"+
 //                "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
 //                "RESET</span></a>"+
-                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+    
                 _logCheckBox +
                 _plotDataDiv +
                 "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+ 

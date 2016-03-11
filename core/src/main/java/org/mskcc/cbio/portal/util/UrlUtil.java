@@ -37,20 +37,14 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.owasp.validator.html.PolicyException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.util.Enumeration;
-import java.io.UnsupportedEncodingException;
 
 /**
  * URL Utility Class.
  */
 public class UrlUtil {
-
-    private static final Log log = LogFactory.getLog(UrlUtil.class);
 
     /**
      * Gets Current URL.
@@ -62,24 +56,20 @@ public class UrlUtil {
         Enumeration paramEnum = request.getParameterNames();
         StringBuffer buf = new StringBuffer(request.getAttribute
                 (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
-        try {
-            while (paramEnum.hasMoreElements()) {
-                String paramName = (String) paramEnum.nextElement();
-                String values[] = request.getParameterValues(paramName);
-                if (values != null && values.length >0) {
-                    for (int i=0; i<values.length; i++) {
-                        String currentValue = values[i];
-                        if (paramName.equals(QueryBuilder.GENE_LIST)
-                                || paramName.equals(QueryBuilder.CASE_IDS)
-                            && currentValue != null) {
-                            currentValue = URLEncoder.encode(currentValue,"UTF-8");
-                        }
-                        buf.append (paramName + "=" + currentValue + "&");
+        while (paramEnum.hasMoreElements()) {
+            String paramName = (String) paramEnum.nextElement();
+            String values[] = request.getParameterValues(paramName);
+            if (values != null && values.length >0) {
+                for (int i=0; i<values.length; i++) {
+                    String currentValue = values[i];
+                    if (paramName.equals(QueryBuilder.GENE_LIST)
+                            || paramName.equals(QueryBuilder.CASE_IDS)
+                        && currentValue != null) {
+                        currentValue = URLEncoder.encode(currentValue);
                     }
+                    buf.append (paramName + "=" + currentValue + "&");
                 }
             }
-        } catch (UnsupportedEncodingException e) {
-            log.warn("UnsupportedEncodingException encountered when calling URLEncoder.encode() for encoding UTF-8");
         }
         return buf.toString();
     }
@@ -96,43 +86,60 @@ public class UrlUtil {
     		throws DaoException
     {
         Enumeration paramEnum = request.getParameterNames();
-        StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
-        ServletXssUtil xssUtil = null;
-        try {
-            xssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            //logger.error("Could not instantiate XSS Util:  " + e.toString());
-        }
-        try {
-            while (paramEnum.hasMoreElements()) {
-                String paramName = (String) paramEnum.nextElement();
-                String values[] = request.getParameterValues(paramName);
-                if (values != null && values.length >0) {
-                    for (int i=0; i<values.length; i++) {
-                        String currentValue = values[i];
-                        if (paramName.equals(QueryBuilder.GENE_LIST) && currentValue != null) {
-                            currentValue = URLEncoder.encode(currentValue,"UTF-8");
-                        } else if (paramName.equals(QueryBuilder.CASE_IDS) && currentValue != null) {
-                            paramName = QueryBuilder.CASE_IDS_KEY;
-                            // first try to get case_ids_key attribute from the request
-                            if (request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null) {
-                                currentValue = (String)request.getAttribute(QueryBuilder.CASE_IDS_KEY);
-                            } else {
-                                // if no request attribute found, then use the utility function
-                                currentValue = PatientSetUtil.shortenPatientIds(currentValue);
-                            }
-                        }
-                        // TODO remove and test...
-                        if (xssUtil != null) {
-                            currentValue = xssUtil.getCleanerInput(currentValue);
-                        }
-                        buf.append(paramName + "=" + currentValue + "&");
+        StringBuffer buf = new StringBuffer(request.getAttribute
+                (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
+	    ServletXssUtil xssUtil = null;
+
+	    try {
+		    xssUtil = ServletXssUtil.getInstance();
+	    } catch (PolicyException e) {
+		    //logger.error("Could not instantiate XSS Util:  " + e.toString());
+	    }
+
+        while (paramEnum.hasMoreElements())
+        {
+            String paramName = (String) paramEnum.nextElement();
+            String values[] = request.getParameterValues(paramName);
+            
+            if (values != null && values.length >0)
+            {
+                for (int i=0; i<values.length; i++)
+                {
+                    String currentValue = values[i];
+
+                    if (paramName.equals(QueryBuilder.GENE_LIST)
+                        && currentValue != null)
+                    {
+                        currentValue = URLEncoder.encode(currentValue);
                     }
+                    else if (paramName.equals(QueryBuilder.CASE_IDS)
+                    		&& currentValue != null)
+                    {
+                    	paramName = QueryBuilder.CASE_IDS_KEY;
+                    	
+                    	// first try to get case_ids_key attribute from the request
+                    	if (request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null)
+                    	{
+                    		currentValue = (String)request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+                    	}
+                    	// if no request attribute found, then use the utility function
+                    	else
+                    	{
+                    		currentValue = SampleSetUtil.shortenSampleIds(currentValue);
+                    	}
+                    }
+
+	                // TODO remove and test...
+	                if (xssUtil != null)
+	                {
+		                currentValue = xssUtil.getCleanerInput(currentValue);
+	                }
+
+                    buf.append(paramName + "=" + currentValue + "&");
                 }
             }
-        } catch (UnsupportedEncodingException e) {
-            log.warn("UnsupportedEncodingException encountered when calling URLEncoder.encode() for encoding UTF-8");
         }
+        
         return buf.toString();
     }
 }

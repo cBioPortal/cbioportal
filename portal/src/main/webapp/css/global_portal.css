@@ -1,20 +1,71 @@
 /* CSS THAT APPLIES TO ALLLLLL PORTALS */
 
 body {
-  font-family: verdana, arial, sans-serif;
-  table-layout:fixed;
-  text-align: center;
-  margin-top:10px !important;
-  margin-bottom:10px !important;
-  color:#666666;
-  background-color: #E0E0E0 !important;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    table-layout: fixed;
+    text-align: center;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    color: #333;
+    background-color: #E0E0E0 !important;
+    font-size: 14px;
+    line-height: 1.42857143;
 }
+
+/*
+    --------------------------------------------------------------
+        Overwrite bootstrap.min.css styles
+*/
+* {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+:after, :before {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+a {
+    color: #428bca;
+}
+
+.input-group-sm > .form-control, .input-group-sm > .input-group-btn > .btn {
+    height: 18px;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px
+}
+
+.input-group .form-control {
+    width: calc(100% - 20px);
+}
+
+fieldset {
+    padding: .35em .625em .75em;
+    margin: 0 2px;
+    border: 1px solid silver;
+}
+table {
+    border-spacing: 2px;
+    border-collapse: separate;
+}
+td, th {
+    padding: 1px;
+}
+
+/*
+    --------------------------------------------------------------
+*/
 
 #page_wrapper {
   margin-left: auto;
   margin-right: auto;
   min-width: 780px;
-  max-width: 1300px;
+  max-width: 1250px !important;
   text-align: left;
   background: #FFFFFF;
   padding: 5px;
@@ -29,6 +80,39 @@ body {
   background: #fff ;
   margin:0px; padding:0px;
   height:50px;
+}
+
+fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+fieldset#login-fieldset {
+    border: 2px groove threedface;
+}
+
+fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
+    border: 1px solid #aaaaaa;
+}
+
+fieldset#login-fieldset > legend {
+    width: 96px;
+    border-bottom: none;
+    color: #666666;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+fieldset#clinical-timeline-fieldset > legend,
+fieldset#patient-view-summary-fieldset > legend {
+    font-size: 12px !important;
+    text-align: left !important;
+    width: auto;
+    padding: 0 10px;
+    border-bottom: none;
+    color: #1974b8;
+    margin-bottom: 0px;
 }
 
 #header_site_name{
@@ -83,6 +167,14 @@ A:hover {
   text-align: left;
   background: #FFFFFF;
   border: 8px solid #FFFFFF;
+}
+
+#main_submit {
+    background-color: #e6e6e6;    
+}
+
+.wpasA {
+    font-size: 12px;
 }
 
 .error {
@@ -766,6 +858,10 @@ td.op_data_cell{
   height: 500px;
 }
 
+#plots {
+    padding: 5px;
+}
+
 #plots table {
     min-height: 500px;
 }
@@ -1006,7 +1102,7 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   margin-top: 10px;
   background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
   text-align: left;
-  margin-left:60px;
+  margin-left: 10px;
   font-size:80%;
 }
 
@@ -1156,6 +1252,10 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 }
 
 /* The Cytoscape Web container must have its dimensions set. */
+table #network_wrapper{
+    width: 1190px !important;
+}
+
 #cytoscapeweb {
     width: 100%;
     height: 100%;
@@ -1476,7 +1576,7 @@ cc-ie-message {
 
 /* right menu d3 map */
 #rightmenu-stats-box {
-    padding-left: 15px;
+    padding-left: 10px;
 }
 
 #rightmenu-stats-box rect {
@@ -1553,11 +1653,15 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 }
 
 /* OncoKB integration styles */
+/*Default max width is 280px*/
 .oncokb-qtip {
     max-width: 600px !important;
 }
 .oncokb-qtip-sm {
     max-width: 400px !important;
+}
+.oncokb-qtip-xs {
+    max-width: 330px !important;
 }
 .oncokb-qtip table.dataTable {
     font-size: 11px !important;
@@ -1578,3 +1682,25 @@ ul.oncokb li {
 .qtip-content div.oncokb{
     padding-top: 5px;
 }
+.oncokbFeedback {
+    text-decoration: underline;
+}
+.oncokbFeedback:hover, .bootstrap-dialog-close:hover {
+    cursor: pointer;
+}
+.oncokb .fa-angle-right:hover, .oncokb .fa-angle-down:hover {
+    cursor: pointer;
+}
+.bootstrap-dialog-close {
+    float: right;
+    width: 100%;
+    text-align: right;
+    color: grey;
+}
+
+/* BootstrapDialog styles*/
+.modal-dialog {
+    height:920px;
+    padding: 0;
+}
+

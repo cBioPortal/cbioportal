@@ -184,15 +184,6 @@
 	</servlet-mapping>
 
     <servlet>
-        <servlet-name>show_data</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.ShowData</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>show_data</servlet-name>
-        <url-pattern>/show_data.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
     </servlet>

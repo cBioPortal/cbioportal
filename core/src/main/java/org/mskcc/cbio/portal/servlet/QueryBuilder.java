@@ -424,10 +424,9 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(CASE_IDS_KEY, sampleIdsKey);
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
-        ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
 
         Set<String> warningUnion = new HashSet<String>();
-        ArrayList<DownloadLink> downloadLinkSet = new ArrayList<DownloadLink>();
+        //ArrayList<DownloadLink> downloadLinkSet = new ArrayList<DownloadLink>();
         ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
 
         while (profileIterator.hasNext()) {
@@ -439,12 +438,10 @@ public class QueryBuilder extends HttpServlet {
          
             GetProfileData remoteCall =
               new GetProfileData(profile, geneList, StringUtils.join(setOfSampleIds, " "));
-            ProfileData pData = remoteCall.getProfileData();
-            DownloadLink downloadLink = new DownloadLink(profile, geneList, sampleIds,
-                remoteCall.getRawContent());
-            downloadLinkSet.add(downloadLink);
+//            DownloadLink downloadLink = new DownloadLink(profile, geneList, sampleIds,
+//                remoteCall.getRawContent());
+            //downloadLinkSet.add(downloadLink);
             warningUnion.addAll(remoteCall.getWarnings());
-            profileDataList.add(pData);
 
             //  Optionally, get Extended Mutation Data.
             if (profile.getGeneticAlterationType().equals
@@ -470,13 +467,11 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(INTERNAL_EXTENDED_MUTATION_LIST, mutationList);
 
         // Store download links in session (for possible future retrieval).
-        request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
+        //request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
 
         String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
         if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
             xdebug.logMsg(this, "Merging Profile Data");
-            ProfileMerger merger = new ProfileMerger(profileDataList);
-            ProfileData mergedProfile = merger.getMergedProfile();
             request.setAttribute(WARNING_UNION, warningUnion);
 
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
@@ -485,13 +480,13 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
             // Store download links in session (for possible future retrieval).
-            request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
+            //request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
             dispatcher.forward(request, response);
         } else {
-            ShowData.showDataAtSpecifiedIndex(servletContext, request,
-                    response, 0, xdebug);
+//            ShowData.showDataAtSpecifiedIndex(servletContext, request,
+//                    response, 0, xdebug);
         }
     }
 

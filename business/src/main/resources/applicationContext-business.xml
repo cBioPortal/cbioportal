@@ -44,6 +44,11 @@
         <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
             <property name="entityAttributeMapper" ref="entityAttributeMapper" />
         </bean>
+        <bean id="gddMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GDDMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="gddService" class="org.mskcc.cbio.portal.service.GDDService" />
 
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->    
         <context:component-scan base-package="org.mskcc.cbio.portal.service" />

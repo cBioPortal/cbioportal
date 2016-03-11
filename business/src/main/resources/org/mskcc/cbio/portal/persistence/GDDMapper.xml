@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.GDDMapper">
+
+<cache/>
+
+<insert id="insertGddData" parameterType="map" useGeneratedKeys="false">
+    insert into gdd (STABLE_ID, GDD_DATA)
+    values (#{stable_id},#{gdd_data})
+</insert>
+
+<select id="getGddData" result="String">
+    select 
+        gdd.GDD_DATA
+    from gdd
+    where gdd.STABLE_ID in <foreach item="item" collection="sample_ids" open="(" separator="," close=")">#{item}</foreach>
+    
+</select>
+
+</mapper>

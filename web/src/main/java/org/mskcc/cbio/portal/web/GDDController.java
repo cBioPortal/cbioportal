@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  *
@@ -30,51 +31,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.portal.web;
 
+import org.mskcc.cbio.portal.model.DBSample;
 import org.mskcc.cbio.portal.service.GDDService;
-import org.springframework.context.support.GenericXmlApplicationContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import java.util.*;
+/**
+ * GDD Controller.
+ */
 
-import javax.sql.DataSource;
-
-public class SpringUtil
-{
-	private static final Log log = LogFactory.getLog(SpringUtil.class);
-
-	private static AccessControl accessControl;
-	private static ApplicationContext context;
-        
-      
-        public static GDDService getGddService() {
-            GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-            ctx.getEnvironment().setActiveProfiles("dbcp");
-            ctx.load("classpath:applicationContext-business.xml");
-            ctx.refresh();
-            return (GDDService)ctx.getBean("gddService");
-	}        
-        
-        
-    public static void setAccessControl(AccessControl accessControl) {
-    	log.debug("Setting access control");
-		SpringUtil.accessControl = accessControl;
+@Controller
+@RequestMapping("/gdd")
+public class GDDController {
+	@Autowired
+	private GDDService gddService;
+	
+        @Transactional
+        @RequestMapping(value="/samples", method = {RequestMethod.GET, RequestMethod.POST})
+	public @ResponseBody List<String> getGddData(@RequestParam(required = true) List<String> sampleIds) {
+            return gddService.getGddData(sampleIds);
 	}
-
-	public static AccessControl getAccessControl()
-    {
-		return accessControl;
-    }
-
-	public static synchronized void initDataSource()
-	{
-		if (SpringUtil.context == null) {
-			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
-		}
-	}
-
+//	@RequestMapping(value="/samples", method = {RequestMethod.GET, RequestMethod.POST})
+//	public @ResponseBody List<String> getGddData(@RequestParam(required = true) String studyId, @RequestParam(required = true) List<String> sampleIds) {
+//            return gddService.getGddData(studyId, sampleIds);
+//	}
 }

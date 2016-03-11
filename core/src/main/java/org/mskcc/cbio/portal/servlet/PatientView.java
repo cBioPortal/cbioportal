@@ -156,7 +156,7 @@ public class PatientView extends HttpServlet {
                 forwardToErrorPage(request, response, msg, xdebug);
             } else {
                 RequestDispatcher dispatcher =
-                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
+                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view/patient_view.jsp");
                 dispatcher.forward(request, response);
             }
         
@@ -213,11 +213,6 @@ public class PatientView extends HttpServlet {
             request.setAttribute(ERROR, "Please specify cancer study ID. ");
             return false;
         }
-
-		if (cancerStudyUpdating(cancerStudyId)) {
-			request.setAttribute(ERROR, "The selected cancer study is currently being updated, please try back later.");
-			return false;
-		}
         
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy==null) {
@@ -309,11 +304,6 @@ public class PatientView extends HttpServlet {
         return true;
     }
 
-	private boolean cancerStudyUpdating(String cancerStudyId) throws DaoException
-	{
-		return (DaoCancerStudy.getStatus(cancerStudyId) == DaoCancerStudy.Status.UNAVAILABLE);
-	}
-    
     private void sortSampleIds(int cancerStudyId, int patientId, List<String> sampleIds) {
         if (sampleIds.size()==1) {
             return;

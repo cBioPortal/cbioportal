@@ -65,7 +65,6 @@ public class ImportTabDelimData {
      */
     public static final String CONSENSUS_TARGET = "consensus";
 
-    private ProgressMonitor pMonitor;
     private File mutationFile;
     private String targetLine;
     private int geneticProfileId;
@@ -79,14 +78,11 @@ public class ImportTabDelimData {
      * @param targetLine       The line we want to import.
      *                         If null, all lines are imported.
      * @param geneticProfileId GeneticProfile ID.
-     * @param pMonitor         Progress Monitor Object.
      */
-    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId,
-            ProgressMonitor pMonitor) {
+    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId) {
         this.mutationFile = dataFile;
         this.targetLine = targetLine;
         this.geneticProfileId = geneticProfileId;
-        this.pMonitor = pMonitor;
     }
 
     /**
@@ -94,12 +90,10 @@ public class ImportTabDelimData {
      *
      * @param dataFile         Data File containing CNA data.
      * @param geneticProfileId GeneticProfile ID.
-     * @param pMonitor         Progress Monitor Object.
      */
-    public ImportTabDelimData(File dataFile, int geneticProfileId, ProgressMonitor pMonitor) {
+    public ImportTabDelimData(File dataFile, int geneticProfileId) {
         this.mutationFile = dataFile;
         this.geneticProfileId = geneticProfileId;
-        this.pMonitor = pMonitor;
     }
 
     /**
@@ -109,8 +103,6 @@ public class ImportTabDelimData {
      * @throws DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
-        DaoMicroRna daoMicroRna = new DaoMicroRna();
-        microRnaIdSet = daoMicroRna.getEntireSet();
 
         geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
@@ -134,7 +126,7 @@ public class ImportTabDelimData {
         }
         ImportDataUtil.addPatients(sampleIds, geneticProfileId);
         ImportDataUtil.addSamples(sampleIds, geneticProfileId);
-        pMonitor.setCurrentMessage("Import tab delimited data for " + sampleIds.length + " samples.");
+        ProgressMonitor.setCurrentMessage("Import tab delimited data for " + sampleIds.length + " samples.");
 
         // Add Samples to the Database
         ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
@@ -183,10 +175,8 @@ public class ImportTabDelimData {
         int lenParts = parts.length;
         
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             //  Ignore lines starting with #
             if (!line.startsWith("#") && line.trim().length() > 0) {
@@ -259,13 +249,13 @@ public class ImportTabDelimData {
 //                                        storeMicroRnaAlterations(values, daoMicroRnaAlteration, geneId);
 //                                        numRecordsStored++;
 //                                    } else {
-                                        pMonitor.logWarning("microRNA is not known to me:  [" + hugo
+                                        ProgressMonitor.logWarning("microRNA is not known to me:  [" + hugo
                                             + "]. Ignoring it "
                                             + "and all tab-delimited data associated with it!");
 //                                    }
                                 } else {
                                     String gene = (hugo != null) ? hugo : entrez;
-                                    pMonitor.logWarning("Gene not found:  [" + gene
+                                    ProgressMonitor.logWarning("Gene not found:  [" + gene
                                         + "]. Ignoring it "
                                         + "and all tab-delimited data associated with it!");
                                 }
@@ -347,7 +337,7 @@ public class ImportTabDelimData {
         
         List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         for (String symbol : symbols) {
-            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
             if (gene!=null) {
                 genes.add(gene);
             }
@@ -379,6 +369,7 @@ public class ImportTabDelimData {
             if (phosphoGene==null) {
                 phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
                 phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
+                phosphoGene.setCytoband(gene.getCytoband());
                 daoGene.addGene(phosphoGene);
             }
             phosphoGenes.add(phosphoGene);

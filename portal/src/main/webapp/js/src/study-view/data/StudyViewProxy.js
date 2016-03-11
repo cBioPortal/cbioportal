@@ -153,7 +153,12 @@ var StudyViewProxy = (function() {
                     _dataLength = _data.length,
                     _sampleIds = Object.keys(sampleToPatientMapping),
                     _sequencedSampleIds = [],
+                    _cnaSampleIds = [],
+                    _allSampleIds = [],
                     _locks=0;
+
+                //Keep original data format.
+                obtainDataObject.webserviceData = a1[0];
 
                 //Uppercase all attr_id
                 for(var i= 0; i < a1[0].attributes.length; i++){
@@ -162,8 +167,12 @@ var StudyViewProxy = (function() {
                     if(_.isString(a1[0].attributes[i].display_name)){
                         caseAttr.display_name = a1[0].attributes[i].display_name;
                     } else {
-                        //Fallback to using ID if there is no display_name
-                        caseAttr.display_name =  a1[0].attributes[i].attr_id;
+                        if (caseAttr.attr_id === 'CASE_ID') {
+                            caseAttr.display_name = "Sample ID";
+                        } else {
+                            //Fallback to using ID if there is no display_name
+                            caseAttr.display_name = caseAttr.attr_id;
+                        }
                     }
                     caseAttr.display_name = toPascalCase(caseAttr.display_name);
                     caseAttr.datatype = a1[0].attributes[i].datatype;
@@ -212,17 +221,26 @@ var StudyViewProxy = (function() {
                 var filteredA3 = removeExtraData(_sampleIds,a3[0]);
 
                 //Find sequenced sample Ids
+                // TODO: this is very hacky, we should switch to the cbioportal-client.js
                 if(a5[0]) {
                     var _lists = a5[0].split('\n');
                     for(var i = 0; i < _lists.length; i++) {
-                        if(_lists[i].indexOf('sequenced samples') !== -1) {
-                            var _info = _lists[i].split('\t');
-                            if(_info.length === 5) {
-                                _sequencedSampleIds = _info[4].split(' ');
-                            }
-                            break;
+                        var _parts = _lists[i].split('\t');
+                        if(_parts.length < 5) continue;
+                        if (_parts[0] === parObject.studyId+"_sequenced") {
+                            _sequencedSampleIds = _parts[4].trim().split(' ');
+                        } else if (_parts[0] === parObject.studyId+"_cna") {
+                            _cnaSampleIds = _parts[4].trim().split(' ');
+                        } else if (_parts[0] === parObject.studyId+"_all") {
+                            _allSampleIds = _parts[4].trim().split(' ');
                         }
                     }
+                    
+                    obtainDataObject.sequencedSampleIds = 
+                            _sequencedSampleIds.length>0 ? _sequencedSampleIds : _allSampleIds;
+                    obtainDataObject.cnaSampleIds = 
+                            _cnaSampleIds.length>0 ? _cnaSampleIds : _allSampleIds;
+                    
                 }
 
                 //Add new attribute MUTATION COUNT for each case if have any
@@ -308,7 +326,7 @@ var StudyViewProxy = (function() {
                 if(!caseidExist){
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id = 'CASE_ID';
-                    caseAttr.display_name = 'CASE_ID';
+                    caseAttr.display_name = 'Sample ID';
                     caseAttr.description = 'Sample Identifier';
                     caseAttr.datatype = 'STRING';
                     caseAttr.keys =  StudyViewParams.params.sampleIds;
@@ -320,7 +338,7 @@ var StudyViewProxy = (function() {
                 if (!patientidExist) {
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id = 'PATIENT_ID';
-                    caseAttr.display_name = 'PATIENT_ID';
+                    caseAttr.display_name = 'Patient ID';
                     caseAttr.description = 'Patient Identifier';
                     caseAttr.datatype = 'STRING';
                     caseAttr.keys =  StudyViewParams.params.patientIds;
@@ -609,6 +627,8 @@ var StudyViewProxy = (function() {
         getSampleidToPatientidMap: function(){return obtainDataObject.sampleidToPatientidMap;},
         getPatientIdsBySampleIds: getPatientIdsBySampleIds,
         getSampleIdsByPatientIds: getSampleIdsByPatientIds,
+        getSequencedSampleIds: function() {return obtainDataObject.sequencedSampleIds;},
+        getCnaSampleIds: function() {return obtainDataObject.cnaSampleIds;},
         getPatientIds: function () {
             return Object.keys(patientToSampleMapping);
         },
@@ -631,6 +651,9 @@ var StudyViewProxy = (function() {
                 }
                 return exist;
             }
+        },
+        getWebserviceData: function() {
+            return obtainDataObject.webserviceData;
         }
     };
 }());

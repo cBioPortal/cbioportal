@@ -98,7 +98,7 @@ var Table = function() {
         var _div = "<div id='"+divs.mainId+"' class='study-view-dc-chart study-view-tables h1half w2'>"+
             "<div id='"+divs.headerId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div class='titleWrapper' id='"+divs.titleWrapperId+"'>"+
-                    "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+
+                    "<img id='"+divs.reloadId+"' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+
                         "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
                         "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
                         "</div>"+
@@ -386,7 +386,7 @@ var Table = function() {
         $('#' + divs.tableId + '-download-icon-wrapper').qtip('destroy', true);
 
         $('#' + divs.tableId + '-download-icon-wrapper').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'bottom left',at:'top right', viewport: $(window)},
@@ -396,7 +396,7 @@ var Table = function() {
         });
 
         $('#' + divs.tableId + '-download-icon').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "click", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},

@@ -38,7 +38,7 @@
 <%@ page import="java.util.List" %>
 
 <%
-request.setAttribute("tumormap", true);
+request.setAttribute("standard-js-css", true);
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -91,7 +91,7 @@ if (cancerStudyViewError!=null) {
                 <b><u><%=cancerStudy.getName()%></u></b>
                 <input type="hidden" name="cancer_study_id" value="<%=cancerStudy.getCancerStudyStableId()%>">
                 <input type="hidden" name="<%=QueryBuilder.CANCER_STUDY_LIST%>" value="<%=cancerStudy.getCancerStudyStableId()%>">
-                <input type="submit" value="Query this study">
+                <input type="submit" value="Query this study" class="btn btn-primary btn-xs">
             </form>
         </td>
     </tr>
@@ -193,8 +193,6 @@ if (cancerStudyViewError!=null) {
         }
 </style>
 
-<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var cancerStudyName = '<%=StringEscapeUtils.escapeJavaScript(cancerStudy.getName())%>';
@@ -205,7 +203,7 @@ var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
-var appVersion = <%=GlobalProperties.getAppVersion()%>?<%=GlobalProperties.getAppVersion()%>:'0000001';
+var appVersion = '<%=GlobalProperties.getAppVersion()%>';
 var hasMutation = <%=hasMutation%>;
 var hasCNA = <%=hasCNA%>;
 

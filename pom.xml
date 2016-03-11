@@ -6,7 +6,7 @@
     <artifactId>master</artifactId>
     <packaging>pom</packaging>
     <name>Portal Master</name>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <description>master maven module</description>
     <scm>
         <developerConnection>scm:git:https://github.com/cBioPortal/cbioportal.git</developerConnection>
@@ -198,6 +198,10 @@
     <bundle.namespace>org.mskcc.mondrian</bundle.namespace>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+
+    <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
+    <db.version>1.1.0</db.version>
+
   </properties>
 
   <!-- modules -->
@@ -428,6 +432,22 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/portal.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/portal.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <!-- this plugin will allow us to share resources with children -->
         <plugins>
             <plugin>

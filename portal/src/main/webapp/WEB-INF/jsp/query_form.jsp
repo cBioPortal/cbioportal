@@ -148,7 +148,7 @@
         <p/>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         &nbsp;<br/>
-        <input id="main_submit" class="btn btn-default btn-xs" onclick="submitHandler()" style="height: 34px;" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <input id="main_submit" class="btn btn-default btn-lg" type="submit" onclick="submitHandler()" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
         <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
 
         </form>

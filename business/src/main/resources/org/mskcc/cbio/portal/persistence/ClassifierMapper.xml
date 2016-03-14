@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.ClassifierMapper">
+
+<cache/>
+
+<insert id="insertClassifierData" parameterType="map" useGeneratedKeys="false">
+    insert into classifier (INTERNAL_ID, CLASSIFIER_DATA)
+        values (#{internal_id},#{classifier_data})
+    
+</insert>
+
+<select id="getInternalIdBySampleId" resultType="Integer" parameterType="String">
+    select 
+        INTERNAL_ID as internalId,
+    from sample
+    where STABLE_ID = #{sampleId}
+</select>
+
+<select id="getClassifierData" resultType="Classifier" parameterType="Integer">
+    select 
+        INTERNAL_ID as internalId,
+        CLASSIFIER_DATA as classifierData
+    from classifier
+    where INTERNAL_ID = #{internalId}
+</select>
+
+</mapper>

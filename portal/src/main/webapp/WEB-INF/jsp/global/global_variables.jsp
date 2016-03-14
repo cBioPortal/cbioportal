@@ -80,24 +80,10 @@
 
     //Onco Query Language Parser Instance
     String oql = request.getParameter(QueryBuilder.GENE_LIST);
-
-    // onco print spec parser needs the raw parameter
-    if (request instanceof XssRequestWrapper)
-    {
+    if (request instanceof XssRequestWrapper) {
         oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
     }
-
-    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
-            (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
-            (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
-            zScoreThreshold, rppaScoreThreshold );
-    OncoPrintSpecification theOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
-    // make the oql variable script-safe after processing
-    //oql = StringEscapeUtils.escapeJavaScript(oql);
     oql = xssUtil.getCleanerInput(oql);
-
-    //Info from data analysis/summary
-    DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
 
     //Info about queried cancer study
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
@@ -113,21 +99,6 @@
     GeneticProfile mutationProfile = cancerStudy.getMutationProfile();
     String mutationProfileID = mutationProfile==null ? null : mutationProfile.getStableId();
 
-    //Info about Genes
-    ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
-    String geneSetChoice = xssUtil.getCleanInput(request, QueryBuilder.GENE_SET_CHOICE);
-    if (geneSetChoice == null) {
-        geneSetChoice = "user-defined-list";
-    }
-    GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
-    ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
-    String geneSetName = "";
-    for (GeneSet geneSet:  geneSetList) {
-        if (geneSetChoice.equals(geneSet.getId())) {
-            geneSetName = geneSet.getName();
-        }
-    }
-
     //Info about Patient Set(s)/Patients
     ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
@@ -140,9 +111,7 @@
         }
     }
     String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-    //cases = xssUtil.getCleanerInput(cases);
     String sampleIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
-    //caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
 
     //Vision Control Tokens
     boolean showIGVtab = cancerStudy.hasCnaSegmentData();

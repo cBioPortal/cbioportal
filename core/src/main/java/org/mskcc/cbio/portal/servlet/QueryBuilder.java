@@ -36,9 +36,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.*;
-//import org.mskcc.cbio.portal.validate.gene.*;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
 
 import org.apache.commons.lang.*;
 import org.apache.commons.logging.Log;
@@ -54,9 +52,6 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.rmi.RemoteException;
 
-// import org.codehaus.jackson.node.*;
-// import org.codehaus.jackson.JsonNode;
-// import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Central Servlet for building queries.
@@ -186,6 +181,7 @@ public class QueryBuilder extends HttpServlet {
 		    geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
 	    }
         geneList = servletXssUtil.getCleanInput(geneList);
+        httpServletRequest.setAttribute(GENE_LIST, geneList);
 
         //  Get all Cancer Types
         try {
@@ -323,23 +319,6 @@ public class QueryBuilder extends HttpServlet {
 							 ServletContext servletContext, HttpServletRequest request,
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
-
-        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
-        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-        double rppaScore = ZScoreUtil.getRPPAScore(request);
-       
-        ParserOutput theOncoPrintSpecParserOutput =
-               OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
-                geneticProfileIdSet, profileList, zScore, rppaScore );
-       
-        ArrayList<String> geneList = new ArrayList<String>();
-        geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
-        ArrayList<String> tempGeneList = new ArrayList<String>(); 
-        for (String gene : geneList){
-            tempGeneList.add(gene);
-        }
-        geneList = tempGeneList;
-        request.setAttribute(GENE_LIST, geneList);
         
         request.setAttribute(PATIENT_CASE_SELECT, patientCaseSelect);
         

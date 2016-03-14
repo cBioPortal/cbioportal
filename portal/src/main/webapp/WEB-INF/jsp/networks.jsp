@@ -36,16 +36,8 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
-    String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
-    String geneticProfileIds4Network = xssUtil.getCleanerInput(StringUtils.join(geneticProfileIdSet," "));
-    String cancerTypeId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
-// 	String caseIds4Network = ((String)request.getAttribute(QueryBuilder.CASE_IDS)).
-// 			replaceAll("\\s", " ").trim(); // convert white spaces to space (to prevent network tab to crash)
-	String caseIdsKey4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_IDS_KEY));
-    String caseSetId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_SET_ID));
     String zScoreThesholdStr4Network =
 		    xssUtil.getCleanerInput(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString());
-    //String useXDebug = xssUtil.getCleanInput(request, "xdebug");
 	String useXDebug = request.getParameter("xdebug");
     if (useXDebug==null)
         useXDebug = "0";
@@ -144,11 +136,12 @@
             }
 
             var showNetwork = function() {
-                var networkParams = {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
-                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
-                     <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
-                     <%=QueryBuilder.CASE_IDS_KEY%>:'<%=caseIdsKey4Network%>',
-                     <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
+                var networkParams = {
+                    <%=QueryBuilder.GENE_LIST%>:window.QuerySession.getQueryGenes().join(" "),
+                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:window.QuerySession.getGeneticProfileIds(),
+                     <%=QueryBuilder.CANCER_STUDY_ID%>:window.QuerySession.getCancerStudyIds()[0],
+                     <%=QueryBuilder.CASE_IDS_KEY%>:window.QuerySession.getCaseIdsKey(),
+                     <%=QueryBuilder.CASE_SET_ID%>:window.QuerySession.getCaseSetId(),
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
                      heat_map:$("#heat_map").html(),
                      xdebug:'<%=useXDebug%>',

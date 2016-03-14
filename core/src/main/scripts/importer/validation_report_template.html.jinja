@@ -29,8 +29,10 @@
   <div class="container">
     <div class="header">
       <h1>cBioPortal validation report</h1>
-      <h4>Study directory:<br />{{ study_dir }}</h4>
-      <h4>For details, please see <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>the documentation on file formats supported by cBioPortal</a></h4>
+      <div class="jumbotron">
+        <p>Study directory:<br />{{ study_dir }}</p>
+        <p>For details, please see <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>the documentation on file formats supported by cBioPortal</a></p>
+      </div>
     </div>
 
     <div class="panel panel-default">
@@ -44,110 +46,124 @@
         </p>
         <table>
           <tbody>
-            <tr class="red"><td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td></tr>
-            <tr class="yellow"><td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td></tr>
-            <tr class="blue"><td><strong>Info:</strong> this looks good, no action required (filename header will be green)</td></tr>
-            <tr class="grey"><td><strong>Verbose output:</strong> details on the progress of the validation script</td></tr>
+            <tr class="danger"><td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td></tr>
+            <tr class="warning"><td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td></tr>
+            <tr class="success"><td><strong>Info:</strong> this looks good, no action required (filename header will be green)</td></tr>
+            <tr class="info"><td><strong>Verbose output:</strong> details on the progress of the validation script</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <div class="jumbotron">
-      <!--  alert alert-danger, alert-success or alert-warning -->
-      <div class="alert {% if max_level in ['ERROR','CRITICAL'] %}alert-danger{% elif max_level == 'WARNING' %}alert-warning{% else %}alert-success{% endif %}">
-        Validation status:
-        <strong>
-        {% if max_level in ['ERROR','CRITICAL'] %}
-          Failed
-        {% elif max_level == 'WARNING' %}
-          Please check
-        {% else %}
-          Success
-        {% endif %}
-        </strong>
-      </div>
+    {% if max_level in ['ERROR','CRITICAL'] %}
+      {% set study_level = 'danger' %}
+    {% elif max_level == 'WARNING' %}
+      {% set study_level = 'warning' %}
+    {% elif max_level == 'INFO' %}
+      {% set study_level = 'success' %}
+    {% else %}
+      {% set study_level = 'info' %}
+    {% endif %}
+    <div class="alert alert-{{ study_level }}">
+      Validation status:
+      <strong>
+      {% if study_level == 'danger' %}
+        Failed
+      {% elif study_level == 'warning' %}
+        Please check
+      {% elif study_level == 'success' %}
+        Success
+      {% else %}
+        Unknown
+      {% endif %}
+      </strong>
+    </div>
 
-      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-      {% macro generate_group_html(filename, file_record_list) %}
-        {% set file_level_list = file_record_list|map(attribute='levelname')|list %}
-        {% if 'ERROR' in file_level_list or 'CRITICAL' in file_level_list %}
-          {% set file_level = 'danger' %}
-        {% elif 'WARNING' in file_level_list %}
-          {% set file_level = 'warning' %}
-        {# I can't think of a way to check if any values are not INFO right now #}
-        {% elif 'INFO' in file_level_list %}
-          {% set file_level = 'success' %}
-        {% else %}
-          {% set file_level = 'info' %}
-        {% endif %}
-        <div class="panel panel-{{ file_level }}">
-          <div class="panel-heading" role="tab">
-            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-              <h4 class="panel-title">{{ filename|e }}</h4>
-              <span class="label label-{{ file_level }}" style="position: absolute; right=2.2em">{{ file_level_list|length }}</span>
-            </a>
-          </div>
-          <div class="panel-collapse collapse in" role="tabpanel" {{ {aria-controls: 'heading-%s'|format(filename)}|xmlattr }}>
-            <table style="width:100%">
-              <tr>
-                <th>Line Number</th>
-                <th>Column Number</th>
-                <th>Message</th>
-                <th>Value Encountered</th>
-              </tr>
-              {% for record in file_record_list %}
-              {% if record.levelname  == 'ERROR' or record.levelname == 'CRITICAL' %}
-                {% set record_level = 'danger' %}
-              {% elif record.levelname == 'WARNING' %}
-                {% set record_class = 'warning' %}
-              {% elif record.levelname == 'INFO' %}
-                {% set record_class = 'success' %}
-              {% else %}
-                {% set record_class = 'info' %}
-              {% endif %}
-              <tr class="{{ record_class }}">
-                {% macro format_aggregated(record, attr_name) %}
-                    {% if record[attr_name + '_list'] is defined -%}
-                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
-                              {{ (record[attr_name + '_list'][:3]|join(', ') +
-                                  ', (' +
-                                  record[attr_name + '_list'][3:]|length|string +
-                                  ' more)')|e }}
-                          {%- else -%}
-                                  {{ (record[attr_name + '_list']|join(', '))|e }}
-                          {%- endif %}	          
-                    {%- elif record[attr_name] is defined -%}
-                      {{ record[attr_name]|e }}
-                    {%- else -%}
-                      &ndash;
-                    {%- endif %}
-                {% endmacro %}
-                <td>{{ format_aggregated(record, 'line_number') }}</td>
-                {% if record['column_name_list'] is defined %}
-                <td>{{ format_aggregated(record, 'column_number') }} <br/>Column names: {{ format_aggregated(record, 'column_name') }}</td>
-                {% else %}
-                <td>{{ format_aggregated(record, 'column_number') }}</td>
-                {% endif %}
-                <td>{{ record.getMessage()|e }}</td>
-                <td>{{ format_aggregated(record, 'cause') }}</td>
-              </tr>
-              {% endfor %}
-            </table>
-          </div>
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    {% macro generate_group_html(filename, file_record_list) %}
+      {% set file_level_list = file_record_list|map(attribute='levelname')|list %}
+      {% if 'ERROR' in file_level_list or 'CRITICAL' in file_level_list %}
+        {% set file_level = 'danger' %}
+      {% elif 'WARNING' in file_level_list %}
+        {% set file_level = 'warning' %}
+      {# I can't think of a way to check if any values are not INFO right now #}
+      {% elif 'INFO' in file_level_list %}
+        {% set file_level = 'success' %}
+      {% else %}
+        {% set file_level = 'info' %}
+      {% endif %}
+      <div class="panel panel-{{ file_level }}">
+        <div class="panel-heading" role="tab"
+             {{ {'id': 'heading-%s'|format(filename)}|xmlattr }}>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+             data-parent="#accordion"
+             {{ {'href': '#collapse-%s'|format(filename),
+                'aria-controls': 'collapse-%s'|format(filename)}|xmlattr }}>
+            <h4 class="panel-title">{{ filename|e }}</h4>
+            <span class="label label-{{ file_level }}" style="position: absolute; right=2.2em">{{ file_level_list|length }}</span>
+          </a>
         </div>
-
-      {% endmacro %}
-      {% set fileless_record_list = record_list|selectattr('filename_', 'undefined')|list -%}
-      {{ generate_group_html('General', fileless_record_list) }}
-      {% set filerelated_record_list = record_list|selectattr('filename_', 'defined') %}
-      {% for file_record_group in filerelated_record_list|groupby('filename_') -%}
-        {{ generate_group_html(
-             file_record_group.grouper.strip()|os.path.relpath(study_dir),
-             file_record_group.list) }}
-      {%- endfor %}
-
+        <div class="panel-collapse collapse" role="tabpanel"
+             {{ {'id':  'collapse-%s'|format(filename),
+                 'aria-labelledby': 'heading-%s'|format(filename)}|xmlattr }}>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            {% for record in file_record_list %}
+            {% if record.levelname  == 'ERROR' or record.levelname == 'CRITICAL' %}
+              {% set record_level = 'danger' %}
+            {% elif record.levelname == 'WARNING' %}
+              {% set record_class = 'warning' %}
+            {% elif record.levelname == 'INFO' %}
+              {% set record_class = 'success' %}
+            {% else %}
+              {% set record_class = 'info' %}
+            {% endif %}
+            <tr class="{{ record_class }}">
+              {% macro format_aggregated(record, attr_name) %}
+                  {% if record[attr_name + '_list'] is defined -%}
+                    {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
+                            {{ (record[attr_name + '_list'][:3]|join(', ') +
+                                ', (' +
+                                record[attr_name + '_list'][3:]|length|string +
+                                ' more)')|e }}
+                        {%- else -%}
+                                {{ (record[attr_name + '_list']|join(', '))|e }}
+                        {%- endif %}	          
+                  {%- elif record[attr_name] is defined -%}
+                    {{ record[attr_name]|e }}
+                  {%- else -%}
+                    &ndash;
+                  {%- endif %}
+              {% endmacro %}
+              <td>{{ format_aggregated(record, 'line_number') }}</td>
+              {% if record['column_name_list'] is defined %}
+              <td>{{ format_aggregated(record, 'column_number') }} <br/>Column names: {{ format_aggregated(record, 'column_name') }}</td>
+              {% else %}
+              <td>{{ format_aggregated(record, 'column_number') }}</td>
+              {% endif %}
+              <td>{{ record.getMessage()|e }}</td>
+              <td>{{ format_aggregated(record, 'cause') }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
       </div>
+
+    {% endmacro %}
+    {% set fileless_record_list = record_list|selectattr('filename_', 'undefined')|list -%}
+    {{ generate_group_html('General', fileless_record_list) }}
+    {% set filerelated_record_list = record_list|selectattr('filename_', 'defined') %}
+    {% for file_record_group in filerelated_record_list|groupby('filename_') -%}
+      {{ generate_group_html(
+           file_record_group.grouper.strip()|os.path.relpath(study_dir),
+           file_record_group.list) }}
+    {%- endfor %}
+
     </div>
   </div>
 </body>

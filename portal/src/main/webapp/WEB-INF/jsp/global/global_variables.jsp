@@ -57,7 +57,6 @@
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="java.lang.reflect.Array" %>
-<%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST" %>
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
 <%@ page import="org.codehaus.jackson.node.*" %>
 <%@ page import="org.codehaus.jackson.JsonNode" %>
@@ -152,7 +151,6 @@
     boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
     boolean has_survival = cancerStudy.hasSurvivalData();
     boolean includeNetworks = GlobalProperties.includeNetworks();
-    Set<String> warningUnion = (Set<String>) request.getAttribute(QueryBuilder.WARNING_UNION);
     boolean computeLogOddsRatio = true;
     Boolean mutationDetailLimitReached = (Boolean)request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 

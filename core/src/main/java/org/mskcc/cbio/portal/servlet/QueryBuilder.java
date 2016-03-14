@@ -86,7 +86,6 @@ public class QueryBuilder extends HttpServlet {
     public static final String STEP3_ERROR_MSG = "step3_error_msg";
     public static final String STEP4_ERROR_MSG = "step4_error_msg";
     public static final String PROFILE_DATA_SUMMARY = "profile_data_summary";
-    public static final String WARNING_UNION = "warning_union";
     public static final String DOWNLOAD_LINKS = "download_links";
     public static final String HTML_TITLE = "html_title";
     public static final String TAB_INDEX = "tab_index";
@@ -103,7 +102,6 @@ public class QueryBuilder extends HttpServlet {
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
     public static final String INDEX_PAGE = "index.do";
-    public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
     public static final String DATA_PRIORITY = "data_priority";
     public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     public static final String DB_VERSION = "db_version";
@@ -425,54 +423,9 @@ public class QueryBuilder extends HttpServlet {
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
 
-        Set<String> warningUnion = new HashSet<String>();
-        //ArrayList<DownloadLink> downloadLinkSet = new ArrayList<DownloadLink>();
-        ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
-
-        while (profileIterator.hasNext()) {
-            String profileId = profileIterator.next();
-            GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
-            if( null == profile ){
-               continue;
-            } 
-         
-            GetProfileData remoteCall =
-              new GetProfileData(profile, geneList, StringUtils.join(setOfSampleIds, " "));
-//            DownloadLink downloadLink = new DownloadLink(profile, geneList, sampleIds,
-//                remoteCall.getRawContent());
-            //downloadLinkSet.add(downloadLink);
-            warningUnion.addAll(remoteCall.getWarnings());
-
-            //  Optionally, get Extended Mutation Data.
-            if (profile.getGeneticAlterationType().equals
-                    (GeneticAlterationType.MUTATION_EXTENDED)) {
-                if (geneList.size() <= MUTATION_DETAIL_LIMIT) {
-                    xdebug.logMsg(this, "Number genes requested is <= " + MUTATION_DETAIL_LIMIT);
-                    xdebug.logMsg(this, "Therefore, getting extended mutation data");
-                    GetMutationData remoteCallMutation = new GetMutationData();
-                    List<ExtendedMutation> tempMutationList =
-                            remoteCallMutation.getMutationData(profile, geneList, setOfSampleIds, xdebug);
-                    if (tempMutationList != null && tempMutationList.size() > 0) {
-                        xdebug.logMsg(this, "Total number of mutation records retrieved:  "
-                            + tempMutationList.size());
-                        mutationList.addAll(tempMutationList);
-                    }
-                } else {
-                    request.setAttribute(MUTATION_DETAIL_LIMIT_REACHED, Boolean.TRUE);
-                }
-            }
-        }
-        
-        //  Store Extended Mutations
-        request.setAttribute(INTERNAL_EXTENDED_MUTATION_LIST, mutationList);
-
-        // Store download links in session (for possible future retrieval).
-        //request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
-
         String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
         if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
             xdebug.logMsg(this, "Merging Profile Data");
-            request.setAttribute(WARNING_UNION, warningUnion);
 
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
             double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
@@ -480,7 +433,6 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
             // Store download links in session (for possible future retrieval).
-            //request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
             dispatcher.forward(request, response);

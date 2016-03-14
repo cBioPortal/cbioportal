@@ -50,27 +50,6 @@
     </div>
 </div>
 
-<%
-    if (warningUnion.size() > 0) {
-        out.println ("<div class='warning'>");
-        out.println ("<h4>Errors:</h4>");
-        out.println ("<ul>");
-        Iterator<String> warningIterator = warningUnion.iterator();
-        int counter = 0;
-        while (warningIterator.hasNext()) {
-            String warning = warningIterator.next();
-            if (counter++ < 10) {
-                out.println ("<li>" +  warning + "</li>");
-            }
-        }
-        if (warningUnion.size() > 10) {
-            out.println ("<li>...</li>");
-        }
-        out.println ("</ul>");
-        out.println ("</div>");
-    }
-%>
-
 <div id="tabs">
     <ul>
     <%

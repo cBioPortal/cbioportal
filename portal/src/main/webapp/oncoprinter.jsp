@@ -157,7 +157,7 @@
             <script type="text/javascript">
             $('#load-example-data').click(function()
             {
-                document.getElementById("mutation-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-genomic-events.txt"/>";
+                document.getElementById("mutation-file-example").value="<%@ include file="WEB-INF/jsp/oncoprint/example-genomic-events.txt" %>";
             });
             </script>
             </div>
@@ -173,7 +173,7 @@
             <script type="text/javascript">
             $('#clinic-load-example-data').click(function()
             {
-                document.getElementById("clinic-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-clinic-events.txt"/>";
+                document.getElementById("clinic-file-example").value="<%@ include file="WEB-INF/jsp/oncoprint/example-clinic-events.txt" %>";
             });
             </script>
             </div>

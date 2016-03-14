@@ -210,29 +210,28 @@
         <div class="section" id="cc-overview">
 
             <div id="cctitlecontainer"></div>
-
-            <div id="customize-controls" class="ui-widget cc-hide">
-                <div class="close-customize">
-                    <a href="#">&times;</a>
-                </div>
-                <h3>Customize histogram</h3>
-                <table>
+    
+    
+            <table style="width:90%">
 
             <tr>
-                        <td>
+                        <td style="display:none">
                             Cancer type: <select id="cancerTypes"><option value="all">All</option></select>
                         </td>
                       
-           
-                    <td width="30%"><div>
+                    <td style="padding-top:20px;padding-bottom:15px;">
+                        <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
+                        <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
+                    </td>  
+                    <td width="30%" style="padding-top:20px;padding-bottom:15px;"><div>
                     Y-Axis value: <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
                      </div> 
                      </td>
-                    <td width="15%" valign="top"> 
+                    <td width="15%" valign="top" style="padding-top:20px;padding-bottom:15px;"> 
                         <span class="diagram-general-slider-text" id="sliderLabel">Min alteration </span>
                         
                     </td>
-                    <td width="15%" valign="top">  
+                    <td width="15%" valign="top" style="padding-top:25px;padding-bottom:15px;">  
                         <div style="width:100%">
                             <div id="sliderMinY"></div>
                             <span class="diagram-general-slider-min-label" id="minLabel">0</span>
@@ -240,7 +239,7 @@
                             
                         </div>
                      </td>
-                    <td valign="top">
+                    <td valign="top" style="padding-top:20px;padding-bottom:15px;padding-left:5px">
                         <input id="minY" size="4" type="text">
                     </td>
             </tr>
@@ -257,14 +256,14 @@
                 
                         <td width="30%" valign="top">Sort x-axis by: <select id="sortBy">
                                                     <option value="YAxis">Y-Axis values</option>
-                                                    <option value="CancerTypes">Cancer types</option>
+                                                    <option value="CancerTypes">Cancer studies</option>
                                             </select>
                      </td>
                        <td width="15%" valign="top"> 
                         <span class="diagram-general-slider-text" >Min total samples # </span>
                        
                     </td>
-                    <td width="15%" valign="top">  
+                    <td width="15%" valign="top" style="padding-top:5px;">  
                         <div style="width:100%">
                             <div id="totalSampleSlider"></div>
                             <span class="diagram-general-slider-min-label">0</span>
@@ -272,12 +271,12 @@
                             
                         </div>
                     </td>
-                    <td valign="top">
+                    <td valign="top" style="padding-left:5px;">
                         <input id="minTotal" size="4" type="text">
                     </td>
                     </tr>
             
-            <tr>
+            <tr style="display:none">
                     <td colspan="4">
                             <div id="show-hide-studies">
                                 <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
@@ -294,6 +293,12 @@
                    
             </tr>
                 </table>
+            <div id="customize-controls" class="ui-widget cc-hide" style="display:none">
+                <div class="close-customize">
+                    <a href="#">&times;</a>
+                </div>
+                <h3>Customize histogram</h3>
+                
             </div>
 
             <div id="cchistogram">
@@ -438,9 +443,8 @@
     <b class="cctitle">
         Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
-    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
-    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
-    <button id="histogram-customize">Customize histogram</button>
+    
+<!--    <button id="histogram-customize">Customize histogram</button>-->
 </script>
 
 <!-- Mutation views -->

@@ -53,7 +53,7 @@
         var histBottom = 400;
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
-	    var maxStudyBarWidth = 30;
+	var maxStudyBarWidth = 30;
 
         var defaultQTipOptions = {
             content: {
@@ -87,12 +87,12 @@
         var isThereGain = false;
         var filterAndSortData = function(histDataOrg, sliderValue, metaData, totalSamSliderValue) {
             var threshold = 0;
-            if(!_.isNaN(sliderValue) && !_.isUndefined(sliderValue)){
+            if(!_.isNaN(sliderValue) && !_.isUndefined(sliderValue) && sliderValue !== null){
                 threshold = sliderValue;
             }
             
             var totalSamThreshold = 0;
-            if(!_.isNaN(totalSamSliderValue) && !_.isUndefined(totalSamSliderValue)){
+            if(!_.isNaN(totalSamSliderValue) && !_.isUndefined(totalSamSliderValue) && totalSamSliderValue !== null){
                 totalSamThreshold = totalSamSliderValue;
             }
     
@@ -202,7 +202,7 @@
                                     .text(value)); 
                             });
 
-                            var histData = filterAndSortData(histDataOrg, null ,metaData);
+                            var histData = filterAndSortData(histDataOrg, null ,metaData, null);
 
                             (new DownloadSummaryView({
                                 model: {
@@ -692,9 +692,9 @@
                                }
                             })).render();
 
-
+                            //only show none zero alteration study
                             $("#sliderMinY").slider({ 
-                                value: 0,
+                                value: 1,
                                 min: 0, 
                                 max: Math.ceil(100*maxYAxis)
                              });
@@ -706,7 +706,7 @@
                                 max: maxtotalSample
                              });
                              $("#maxLabelTotalSample").text(maxtotalSample);
-                             
+                           
                             var redrawHistogram = function() { 
                                 var sliderValue = $("#sliderMinY").slider("value");
                                 var totalSamSliderValue = $("#totalSampleSlider").slider("value");
@@ -1000,6 +1000,7 @@
                                 ;
                             }; // end of redraw
                             
+                            redrawHistogram();
                             $("#histogram-show-colors, #histogram-sort-by, #cancerbycancer-controls input")
                                 .change(function() {
                                     redrawHistogram();

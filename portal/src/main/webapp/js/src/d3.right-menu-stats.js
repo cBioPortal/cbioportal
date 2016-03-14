@@ -94,8 +94,8 @@ var RightMenuStudyStatsUtil = (function($) {
 
         var treeData = convertToTree(portalData);
 
-        var w = 300 - 15,
-            h = 300 - 15,
+        var w = 330 - 15,
+            h = 330 - 15,
             x = d3.scale.linear().range([0, w]),
             y = d3.scale.linear().range([0, h]),
             color = function(cType) {

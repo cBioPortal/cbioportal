@@ -64,7 +64,7 @@ function setUpTestimonials() {
         // in right column. Append link to 'view all' to each
         // blockquote. This is done to ensure link falls
         // directly beneath each quote, as quote lengths differ
-        $('#testimonials blockquote').append("<br><a href=\"what_people_are_saying.jsp\">View All</a>");
+        $('#testimonials blockquote').append("<br><a class=\"wpasA\" href=\"what_people_are_saying.jsp\">View All</a>");
         //rotateTestimonials();
 	displayRandomTestimonial();
     }

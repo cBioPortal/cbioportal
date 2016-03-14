@@ -48,7 +48,7 @@
                 
             <div class="markdown">
 
-            <P><jsp:include page="content/networks.html" flush="true" /></p>
+            <P><%@ include file="content/networks.html" %></p>
 
             </div>
             </td>

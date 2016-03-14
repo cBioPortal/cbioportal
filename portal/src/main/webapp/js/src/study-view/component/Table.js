@@ -386,7 +386,7 @@ var Table = function() {
         $('#' + divs.tableId + '-download-icon-wrapper').qtip('destroy', true);
 
         $('#' + divs.tableId + '-download-icon-wrapper').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'bottom left',at:'top right', viewport: $(window)},
@@ -396,7 +396,7 @@ var Table = function() {
         });
 
         $('#' + divs.tableId + '-download-icon').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "click", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},

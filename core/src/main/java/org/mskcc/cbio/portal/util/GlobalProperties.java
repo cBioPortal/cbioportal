@@ -185,7 +185,6 @@ public class GlobalProperties {
             "Study View.";
 
     public static final String MYCANCERGENOME_SHOW = "mycancergenome.show";
-    public static final String MYCANCERGENOME_URL = "mycancergenome.url";
     public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
     public static final String SHOW_HOTSPOT = "show.hotspot";
     
@@ -692,11 +691,6 @@ public class GlobalProperties {
     {
         String show = properties.getProperty(MYCANCERGENOME_SHOW);
         return show != null && Boolean.parseBoolean(show);
-    }
-    
-    public static String getMyCancerGenomeUrl()
-    {
-        return properties.getProperty(MYCANCERGENOME_URL);
     }
     
     public static String getOncoKBGeneStatus()

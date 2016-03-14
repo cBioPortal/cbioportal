@@ -31,7 +31,7 @@
 --%>
 <%
     String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
-    String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
+    boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
     String userName = GlobalProperties.getAuthenticatedUserName();
@@ -66,11 +66,10 @@
     // TODO 3d Visualizer should be initialized before document get ready
     // ...due to incompatible Jmol initialization behavior
     var _mut3dVis = null;
-    var myCancerGenomeUrl = '<%=myCancerGenomeUrl%>';
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
-    var enableMyCancerGenome = myCancerGenomeUrl?true:false;
     var userName = '<%=userName%>';
+    var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
 
     _mut3dVis = new Mutation3dVis("default3dView", {
 	    pdbUri: "api/proxy/jsmol/"

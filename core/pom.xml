@@ -29,22 +29,25 @@
       <version>${project.version}</version>
     </dependency>
     <!-- antisamy -->
+
     <dependency>
       <groupId>org.owasp</groupId>
       <artifactId>antisamy</artifactId>
       <version>1.4</version>
     </dependency>
+
     <!-- antlr -->
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr-runtime</artifactId>
       <version>3.2</version>
     </dependency>
+
     <!-- apache commons -->
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
-      <version>3.2.1</version>
+      <version>3.2.2</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.bundles</groupId>
@@ -53,9 +56,9 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-      <version>1.2.2</version>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
+        <version>1.2.2</version>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>
@@ -94,11 +97,19 @@
       <artifactId>commons-lang</artifactId>
       <version>2.4</version>
     </dependency>
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-math3</artifactId>
+          <version>3.2</version>
+        </dependency>
+
+    <!-- guava -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <version>3.2</version>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>14.0.1</version>
     </dependency>
+
     <!-- jackson -->
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
@@ -110,6 +121,7 @@
       <artifactId>jackson-mapper-asl</artifactId>
       <version>1.9.3</version>
     </dependency>
+
     <!-- javax servlet -->
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -117,18 +129,21 @@
       <version>2.3</version>
       <scope>provided</scope>
     </dependency>
+
     <!-- jopt -->
     <dependency>
       <groupId>net.sf.jopt-simple</groupId>
       <artifactId>jopt-simple</artifactId>
       <version>3.0-rc2</version>
     </dependency>
+
     <!-- json simple  -->
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
       <version>1.1</version>
     </dependency>
+
     <!-- jung -->
     <dependency>
       <groupId>net.sf.jung</groupId>
@@ -140,12 +155,14 @@
       <artifactId>jung-graph-impl</artifactId>
       <version>2.0.1</version>
     </dependency>
+
     <!-- opencsv -->
     <dependency>
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>2.3</version>
     </dependency>
+
     <!-- BioJava3 -->
     <dependency>
       <groupId>org.biojava</groupId>

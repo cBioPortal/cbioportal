@@ -147,19 +147,19 @@ class ColumnOrderTestCase(DataFileTestCase):
             self.assertEqual("_checkOrderedRequiredColumns", error.funcName)
 
     def test_column_order_validation_ClinicalValidator(self):
-        """ClinicalValidator does NOT need its columns in a specific order.
+        """Sample attributes do NOT need their columns in a specific order.
 
         Here we serve files with different order and no errors or warnings
         """
         # set level according to this test case:
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_order1.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.SampleClinicalValidator)
         # we expect no errors or warnings
         self.assertEqual(0, len(record_list))
         # if the file has another order, this is also OK:
         record_list = self.validate('data_clin_order2.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.SampleClinicalValidator)
         # again, we expect no errors or warnings
         self.assertEqual(0, len(record_list))
 

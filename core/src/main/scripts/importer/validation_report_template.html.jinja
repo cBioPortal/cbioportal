@@ -11,21 +11,19 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
-  <script>
-  </script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+  <style type="text/css">
+  </style>
   <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
   <![endif]-->
-  <style type="text/css">
-  </style>
   <title>cBioPortal validation report: study in '{{ study_dir }}'</title>
 </head>
 
 <body>
+  <script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
   <div class="container">
     <div class="header">
       <h1>cBioPortal validation report</h1>
@@ -99,58 +97,60 @@
              data-parent="#accordion"
              {{ {'href': '#collapse-%s'|format(filename),
                 'aria-controls': 'collapse-%s'|format(filename)}|xmlattr }}>
+            <span class="label label-{{ file_level }}" style="float: right;">{{ file_level_list|length }}</span>
             <h4 class="panel-title">{{ filename|e }}</h4>
-            <span class="label label-{{ file_level }}" style="position: absolute; right=2.2em">{{ file_level_list|length }}</span>
           </a>
         </div>
         <div class="panel-collapse collapse" role="tabpanel"
              {{ {'id':  'collapse-%s'|format(filename),
                  'aria-labelledby': 'heading-%s'|format(filename)}|xmlattr }}>
-          <table style="width:100%">
-            <tr>
-              <th>Line Number</th>
-              <th>Column Number</th>
-              <th>Message</th>
-              <th>Value Encountered</th>
-            </tr>
-            {% for record in file_record_list %}
-            {% if record.levelname  == 'ERROR' or record.levelname == 'CRITICAL' %}
-              {% set record_level = 'danger' %}
-            {% elif record.levelname == 'WARNING' %}
-              {% set record_class = 'warning' %}
-            {% elif record.levelname == 'INFO' %}
-              {% set record_class = 'success' %}
-            {% else %}
-              {% set record_class = 'info' %}
-            {% endif %}
-            <tr class="{{ record_class }}">
-              {% macro format_aggregated(record, attr_name) %}
-                  {% if record[attr_name + '_list'] is defined -%}
-                    {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
-                            {{ (record[attr_name + '_list'][:3]|join(', ') +
-                                ', (' +
-                                record[attr_name + '_list'][3:]|length|string +
-                                ' more)')|e }}
-                        {%- else -%}
-                                {{ (record[attr_name + '_list']|join(', '))|e }}
-                        {%- endif %}	          
-                  {%- elif record[attr_name] is defined -%}
-                    {{ record[attr_name]|e }}
-                  {%- else -%}
-                    &ndash;
-                  {%- endif %}
-              {% endmacro %}
-              <td>{{ format_aggregated(record, 'line_number') }}</td>
-              {% if record['column_name_list'] is defined %}
-              <td>{{ format_aggregated(record, 'column_number') }} <br/>Column names: {{ format_aggregated(record, 'column_name') }}</td>
+          <div class="panel-body">
+            <table style="width:100%">
+              <tr>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+              {% for record in file_record_list %}
+              {% if record.levelname  == 'ERROR' or record.levelname == 'CRITICAL' %}
+                {% set record_level = 'danger' %}
+              {% elif record.levelname == 'WARNING' %}
+                {% set record_class = 'warning' %}
+              {% elif record.levelname == 'INFO' %}
+                {% set record_class = 'success' %}
               {% else %}
-              <td>{{ format_aggregated(record, 'column_number') }}</td>
+                {% set record_class = 'info' %}
               {% endif %}
-              <td>{{ record.getMessage()|e }}</td>
-              <td>{{ format_aggregated(record, 'cause') }}</td>
-            </tr>
-            {% endfor %}
-          </table>
+              <tr class="{{ record_class }}">
+                {% macro format_aggregated(record, attr_name) %}
+                    {% if record[attr_name + '_list'] is defined -%}
+                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
+                              {{ (record[attr_name + '_list'][:3]|join(', ') +
+                                  ', (' +
+                                  record[attr_name + '_list'][3:]|length|string +
+                                  ' more)')|e }}
+                          {%- else -%}
+                                  {{ (record[attr_name + '_list']|join(', '))|e }}
+                          {%- endif %}	          
+                    {%- elif record[attr_name] is defined -%}
+                      {{ record[attr_name]|e }}
+                    {%- else -%}
+                      &ndash;
+                    {%- endif %}
+                {% endmacro %}
+                <td>{{ format_aggregated(record, 'line_number') }}</td>
+                {% if record['column_name_list'] is defined %}
+                <td>{{ format_aggregated(record, 'column_number') }} <br/>Column names: {{ format_aggregated(record, 'column_name') }}</td>
+                {% else %}
+                <td>{{ format_aggregated(record, 'column_number') }}</td>
+                {% endif %}
+                <td>{{ record.getMessage()|e }}</td>
+                <td>{{ format_aggregated(record, 'cause') }}</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
         </div>
       </div>
 

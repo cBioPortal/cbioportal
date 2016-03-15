@@ -53,24 +53,34 @@ public class ApiController {
 
     @Transactional
     @RequestMapping(value = "/mutation_count", method = {RequestMethod.GET})
-    public @ResponseBody List<Map<String, String>> getMutationsCounts(HttpServletRequest request, @RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = true) List<String> gene, @RequestParam(required = true) List<Integer> start, @RequestParam(required = true) List<Integer> end, @RequestParam(required = false) List<String> echo) {
-        
+    public @ResponseBody List<Map<String, String>> getMutationsCounts(HttpServletRequest request, @RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = true) List<String> gene, @RequestParam(required = false) List<Integer> start, @RequestParam(required = false) List<Integer> end, @RequestParam(required = false) List<String> echo) {
+        Boolean startFlag = false, endFlag = false;
         Enumeration<String> parameterNames = request.getParameterNames();
         String[] fixedInput = {"type", "per_study", "gene", "start", "end", "echo"};
         Map<String,String[]> customizedAttrs = new HashMap<String,String[]>();
         while (parameterNames.hasMoreElements()) {
-
             String paramName = parameterNames.nextElement();
+            if(paramName.equals("start"))startFlag = true;
+            if(paramName.equals("end"))endFlag = true;
             if(!Arrays.asList(fixedInput).contains(paramName)){
                 
                 String[] paramValues = request.getParameterValues(paramName);
                 customizedAttrs.put(paramName, paramValues[0].split(","));
             }
-
-           
         }
-
-        return service.getMutationsCounts(customizedAttrs, type, per_study, gene, start, end, echo);
+        List<Integer> defaultStart = new ArrayList<Integer>();
+        List<Integer> defaultEnd = new ArrayList<Integer>();
+        if(!startFlag){
+            for(int i = 0;i < gene.size();i++){
+                defaultStart.add(0);
+            }
+        }
+        if(!endFlag){
+            for(int i = 0;i < gene.size();i++){
+                defaultEnd.add(1000000000);
+            }
+        }
+        return service.getMutationsCounts(customizedAttrs, type, per_study, gene, defaultStart, defaultEnd, echo);
                 
     }
     

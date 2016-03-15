@@ -619,7 +619,7 @@ var OncoprintLabelView = (function () {
 	    view.$canvas.on("mousedown", function(evt) {
 		view.tooltip.hide();
 		var track_id = isMouseOnLabel(view, evt.offsetY);
-		if (track_id !== null) {
+		if (track_id !== null && model.getContainingTrackGroup(track_id).length > 1) {
 		    startDragging(view, track_id, evt.offsetY);
 		}
 	    });
@@ -632,7 +632,7 @@ var OncoprintLabelView = (function () {
 		    renderAllLabels(view);
 		} else {
 		    var hovered_track = isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top);
-		    if (hovered_track !== null) {
+		    if (hovered_track !== null && model.getContainingTrackGroup(hovered_track).length > 1) {
 			view.$canvas.css('cursor', 'move');
 			var offset = view.$canvas.offset();
 			var tooltip_html = "<b>hold to drag</b>";

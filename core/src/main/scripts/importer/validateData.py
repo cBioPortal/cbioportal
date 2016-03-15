@@ -1263,12 +1263,6 @@ class SampleClinicalValidator(ClinicalValidator):
             if col_index < len(data):
                 value = data[col_index].strip()
             if col_name == 'SAMPLE_ID':
-                if DEFINED_SAMPLE_IDS and value not in DEFINED_SAMPLE_IDS:
-                    self.logger.error(
-                        'Defining new sample id in secondary clinical file',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
                 if value in self.sampleIds:
                     self.logger.error(
                         'Sample defined twice in clinical file',
@@ -1306,7 +1300,7 @@ class PatientClinicalValidator(ClinicalValidator):
             value = ''
             if col_index < len(data):
                 value = data[col_index].strip()
-            # TODO check the values for [CAISIS_]*_STATUS columns
+            # TODO check the values for documented columns
 
 
 class SegValidator(Validator):
@@ -2297,7 +2291,14 @@ def validate_study(study_dir, portal_instance, logger):
         return
     DEFINED_SAMPLE_IDS = defined_sample_ids
 
-    # TODO log an error if there are multiple patient attribute files
+    if len(validators_by_meta_type[
+               cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES]) > 1:
+        logger.error(
+            'Multiple patient attribute files detected',
+            extra={'cause': ', '.join(
+                validator.filenameShort for validator in
+                validators_by_meta_type[
+                    cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES])})
 
     # next validate all other data files
     for meta_file_type in validators_by_meta_type:

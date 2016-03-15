@@ -806,7 +806,7 @@ class MutationsExtendedValidator(Validator):
 
     def __init__(self, *args, **kwargs):
         super(MutationsExtendedValidator, self).__init__(*args, **kwargs)
-        # TODO consider making this attribute a local var in in checkLine(),
+        # FIXME: consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
         self.extraCols = []
         self.extra_exists = False
@@ -1172,13 +1172,15 @@ class ClinicalValidator(Validator):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': col_name})
-            # disallow homonymous patient-level and sample-level attributes
-            elif (srv_attr_properties['is_patient_attribute'] !=
-                  self.PROP_IS_PATIENT_ATTRIBUTE):
+            # disallow homonymous patient-level and sample-level attributes,
+            # except for the patient ID by which samples reference a patient
+            elif col_name != 'PATIENT_ID' and (
+                    srv_attr_properties['is_patient_attribute'] !=
+                    self.PROP_IS_PATIENT_ATTRIBUTE):
                 self.logger.error(
                     'Attribute is defined in the portal installation as a '
                     '%s-level attribute',
-                    {0: 'sample', 1: 'patient'}[
+                    {'0': 'sample', '1': 'patient'}[
                             srv_attr_properties['is_patient_attribute']],
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
@@ -1247,7 +1249,7 @@ class SampleClinicalValidator(ClinicalValidator):
     """Validator for files defining and setting sample-level attributes."""
 
     REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
-    PROP_IS_PATIENT_ATTRIBUTE = 0
+    PROP_IS_PATIENT_ATTRIBUTE = '0'
 
     def __init__(self, *args, **kwargs):
         """Initialize the validator to track sample ids defined."""
@@ -1279,7 +1281,7 @@ class PatientClinicalValidator(ClinicalValidator):
     """Validator for files defining and setting patient-level attributes."""
 
     REQUIRED_HEADERS = ['PATIENT_ID']
-    PROP_IS_PATIENT_ATTRIBUTE = 1
+    PROP_IS_PATIENT_ATTRIBUTE = '1'
 
     def __init__(self, *args, **kwargs):
         """Initialize the validator to track patient IDs referenced."""

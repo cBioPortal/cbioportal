@@ -42,6 +42,6 @@ import java.util.*;
 
 public interface GDDMapper {
     void insertGddData(Map<String, Object> map);
-    List<String> getGddData(@Param("sample_ids") List<String> sampleIds);
-    //List<String> getGddData(@Param("studyId") String studyId, @Param("stableId") List<String> stableId);
+    List<String> getGddData(@Param("internal_ids") List<String> internal_ids);
+    
 }

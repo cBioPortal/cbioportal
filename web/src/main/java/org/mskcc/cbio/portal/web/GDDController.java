@@ -33,8 +33,9 @@
 
 package org.mskcc.cbio.portal.web;
 
-import org.mskcc.cbio.portal.model.DBSample;
+//import org.mskcc.cbio.portal.model.DBSample;
 import org.mskcc.cbio.portal.service.GDDService;
+//import org.mskcc.cbio.portal.service.ApiService;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -47,18 +48,14 @@ import java.util.*;
  */
 
 @Controller
-@RequestMapping("/gdd")
 public class GDDController {
 	@Autowired
 	private GDDService gddService;
 	
         @Transactional
-        @RequestMapping(value="/samples", method = {RequestMethod.GET, RequestMethod.POST})
-	public @ResponseBody List<String> getGddData(@RequestParam(required = true) List<String> sampleIds) {
-            return gddService.getGddData(sampleIds);
-	}
-//	@RequestMapping(value="/samples", method = {RequestMethod.GET, RequestMethod.POST})
-//	public @ResponseBody List<String> getGddData(@RequestParam(required = true) String studyId, @RequestParam(required = true) List<String> sampleIds) {
-//            return gddService.getGddData(studyId, sampleIds);
-//	}
+        @RequestMapping(value="/gdd", method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json; charset=utf-8")
+	public @ResponseBody List<String> getGddData(@RequestParam(required = true) String study_id, @RequestParam(required = true) List<String> sample_ids) {
+            return gddService.getGddData(study_id, sample_ids);
+	}      
+
 }

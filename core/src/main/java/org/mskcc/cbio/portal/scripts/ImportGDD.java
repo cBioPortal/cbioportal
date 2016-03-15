@@ -48,7 +48,7 @@ public class ImportGDD {
             BufferedReader buf = new BufferedReader(reader);
             
             String column_names[] = buf.readLine().split("\t");
-            if (column_names[0].trim().equals("STABLE_ID") && column_names[1].trim().equals("GDD_DATA")) {
+            if (column_names[0].trim().equals("INTERNAL_ID") && column_names[1].trim().equals("GDD_DATA")) {
                 String line = buf.readLine();
                 while (line != null) {
                     if (line.startsWith("#")) {
@@ -56,12 +56,12 @@ public class ImportGDD {
                     }
 
                     String columns[] = line.split("\t");
-                    String stableId = columns[0];
+                    String internalId = columns[0];
                     String gddData = columns[1];
 
-                    System.out.println(stableId + " " + gddData);
+                    System.out.println(internalId + " " + gddData);
                     GDDService gddService = SpringUtil.getGddService();
-                    gddService.insertGddData(stableId, gddData);
+                    gddService.insertGddData(internalId, gddData);
 
                     line = buf.readLine();                
                 }
@@ -74,15 +74,19 @@ public class ImportGDD {
     }
     
     public static void main(String args[]) throws Exception {
+        String filename;        
         if (args.length < 1) {
-            System.out.println("Missing GDD data file.");
-            return;
+            filename = "/Users/angelica/GDDProject/data_gdd.txt";
+//            System.out.println("Missing GDD data file.");
+//            return;
+        }
+        else {
+            filename = args[0];
         }
         
         ProgressMonitor pMonitor = new ProgressMonitor();
         ProgressMonitor.setConsoleMode(true);
-        //File dataFile = new File("/Users/angelica/GDDProject/data_gdd.txt");
-        File dataFile = new File(args[0]);
+        File dataFile = new File(filename);
         
         if (dataFile.isDirectory()) {
             File files[] = dataFile.listFiles();

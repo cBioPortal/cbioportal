@@ -57,7 +57,7 @@ public class SpringUtil
             ctx.load("classpath:applicationContext-business.xml");
             ctx.refresh();
             return (GDDService)ctx.getBean("gddService");
-	}        
+	}              
         
         
     public static void setAccessControl(AccessControl accessControl) {

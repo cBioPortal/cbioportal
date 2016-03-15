@@ -49,15 +49,16 @@ import java.util.*;
 @Service
 public class GDDService {
     @Autowired
-    private GDDMapper gddMapper;
+    private GDDMapper gddMapper;   
     @Autowired
-    private SampleMapper sampleMapper;    
+    private ApiService service;
+
     
     @Transactional
-    public Map<String, Object> insertGddData(String stableId, String gddData) {
+    public Map<String, Object> insertGddData(String internalId, String gddData) {
         
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("stable_id", stableId);
+        map.put("internal_id", internalId);
         map.put("gdd_data", gddData);
         
         gddMapper.insertGddData(map);
@@ -67,27 +68,17 @@ public class GDDService {
     }
 
     @Transactional
-    public List<String> getGddData(List<String> sampleIds) {
-        return gddMapper.getGddData(sampleIds);
+    public List<String> getGddData(String study_id, List<String> sample_ids) {
+        List<DBSample> samples = service.getSamplesBySample(study_id, sample_ids);  
+        List<String> internal_ids = getInternalIds(samples);
+        return gddMapper.getGddData(internal_ids);
     }
     
-//    @Transactional
-//    public List<String> getGddData(String studyId, List<String> stableId) {
-//        return gddMapper.getGddData(studyId, stableId);
-//    }
-    
-    @Transactional
-    public List<DBSample> getSamples(String study_id) {
-            return sampleMapper.getSamplesByStudy(study_id);
-    }
-
-    @Transactional
-    public List<DBSample> getSamplesBySample(String study_id, List<String> sample_ids) {
-            return sampleMapper.getSamplesBySample(study_id, sample_ids);
-    }
-
-    @Transactional
-    public List<DBSample> getSamplesByPatient(String study_id, List<String> patient_ids) {
-            return sampleMapper.getSamplesByPatient(study_id, patient_ids);
+    private List<String> getInternalIds(List<DBSample> samples) {
+        List<String> internal_ids = new ArrayList<>();
+        for (DBSample sp : samples) {
+            internal_ids.add(sp.internal_id);            
+        }
+        return internal_ids;
     }
 }

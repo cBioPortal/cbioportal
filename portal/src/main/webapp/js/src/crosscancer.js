@@ -54,7 +54,7 @@
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
 	var maxStudyBarWidth = 30;
-
+        var firstEnterFlag = true;
         var defaultQTipOptions = {
             content: {
                 text: "Default qtip text"
@@ -694,7 +694,7 @@
 
                             //only show none zero alteration study
                             $("#sliderMinY").slider({ 
-                                value: 1,
+                                value: 0,
                                 min: 0, 
                                 max: Math.ceil(100*maxYAxis)
                              });
@@ -708,6 +708,7 @@
                              $("#maxLabelTotalSample").text(maxtotalSample);
                            
                             var redrawHistogram = function() { 
+                                
                                 var sliderValue = $("#sliderMinY").slider("value");
                                 var totalSamSliderValue = $("#totalSampleSlider").slider("value");
                                  
@@ -722,6 +723,11 @@
                                     .attr("y", labelCorY)
                                     .attr("transform", "rotate(-90, " + labelCorX + ", " + labelCorY +")")
                                 ;
+                                if(firstEnterFlag)
+                                {
+                                    sliderValue = 1e-5;
+                                    firstEnterFlag = false;
+                                }
                                 histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
                               
                                 
@@ -1000,7 +1006,7 @@
                                 ;
                             }; // end of redraw
                             
-                            redrawHistogram();
+                         
                             $("#histogram-show-colors, #histogram-sort-by, #cancerbycancer-controls input")
                                 .change(function() {
                                     redrawHistogram();
@@ -1112,7 +1118,7 @@
 
 			    // By default hide unaltered studies and animate this to warn user about this change
 			    if( $("#histogram-remove-notaltered").trigger("click") ) {
-                                setTimeout(redrawHistogram, 3000);
+                                setTimeout(redrawHistogram, 500);
 			    }
 
                             // Let's load the mutation details as well

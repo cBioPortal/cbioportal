@@ -10,6 +10,8 @@ var OncoprintToolTip = (function() {
 	this.show_timeout_id = undefined;
 	this.center = false;
 	
+	this.shown = false;
+	
 	var self = this;
 	this.$div.on("mousemove", function(evt) {
 	    evt.stopPropagation();
@@ -22,6 +24,10 @@ var OncoprintToolTip = (function() {
     }
     OncoprintToolTip.prototype.show = function(wait, page_x, page_y, html_str, fade) {
 	cancelScheduledHide(this);
+	
+	if (this.shown) {
+	    return;
+	}
 	if (typeof wait !== 'undefined') {
 	    var self = this;
 	    cancelScheduledShow(this);
@@ -45,6 +51,7 @@ var OncoprintToolTip = (function() {
 	var x = page_x - container_offset.left - (tt.center ? tt.$div.width()/2 : 0);
 	var y = page_y - container_offset.top - tt.$div.height();
 	tt.$div.css({'top':y, 'left':x, 'z-index':9999});
+	tt.shown = true;
     };
     var doHide = function(tt, fade) {
 	cancelScheduledHide(tt);
@@ -54,6 +61,7 @@ var OncoprintToolTip = (function() {
 	} else {
 	    tt.$div.fadeOut();
 	}
+	tt.shown = false;
     };
     var cancelScheduledShow = function(tt) {
 	clearTimeout(tt.show_timeout_id);
@@ -75,6 +83,11 @@ var OncoprintToolTip = (function() {
     };
     OncoprintToolTip.prototype.hide = function(wait) {
 	cancelScheduledShow(this);
+	
+	if (!this.shown) {
+	    return;
+	}
+	
 	if (typeof wait !== 'undefined') {
 	    var self = this;
 	    cancelScheduledHide(this);

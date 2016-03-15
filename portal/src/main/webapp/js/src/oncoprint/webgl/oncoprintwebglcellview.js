@@ -153,6 +153,7 @@ var OncoprintWebGLCellView = (function () {
 	    var drag_is_valid = false;
 	    var drag_is_valid_timeout = null;
 	    var drag_start_x;
+	    var prev_overlapping_cell = null;
 	    
 	    $(document).on("mousemove", function () {
 		if (self.rendering_suppressed) {
@@ -182,13 +183,20 @@ var OncoprintWebGLCellView = (function () {
 				overlayPaintRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 			    }
 			}
-			tooltip.show(0, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
+			if (!(prev_overlapping_cell !== null && overlapping_cell.track === prev_overlapping_cell.track && overlapping_cell.id === prev_overlapping_cell.id)) {
+			    tooltip.hide();
+			}
+			tooltip.show(200, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth() / 2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track) + offset.top, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
+			prev_overlapping_cell = overlapping_cell;
 		    } else {
 			tooltip.hideIfNotAlreadyGoingTo(700);
+			overlapping_cell = null;
 		    }
 		}
 		
 		if (dragging) {
+		    overlapping_cell = null;
+		    
 		    var left = Math.min(mouseX, drag_start_x);
 		    var right = Math.max(mouseX, drag_start_x);
 		    self.overlay_ctx.fillStyle = 'rgba(0,0,0,0.3)';

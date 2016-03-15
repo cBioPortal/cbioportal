@@ -532,11 +532,18 @@ var Oncoprint = (function () {
 	this.cell_view.setCellPaddingOn(this.model);
     }
     
-    Oncoprint.prototype.toSVG = function() {
+    Oncoprint.prototype.toSVG = function(with_background) {
 	var root = svgfactory.svg(10, 10);
 	this.$container.append(root);
 	var everything_group = svgfactory.group(0,0);
 	root.appendChild(everything_group);
+	
+	var bgrect = svgfactory.bgrect(10,10,'#ffffff');
+	
+	if (with_background) {
+	    everything_group.appendChild(bgrect);
+	}
+	
 	var label_view_group = this.label_view.toSVGGroup(this.model, true, 0, 0);
 	everything_group.appendChild(label_view_group);
 	var track_info_group_x = label_view_group.getBBox().width + 30;
@@ -547,8 +554,15 @@ var Oncoprint = (function () {
 	everything_group.appendChild(this.legend_view.toSVGGroup(this.model, 0, label_view_group.getBBox().y + label_view_group.getBBox().height+20));
 	
 	var everything_box = everything_group.getBBox();
-	root.setAttribute('width', everything_box.x + everything_box.width);
-	root.setAttribute('height', everything_box.y + everything_box.height);
+	var everything_width = everything_box.x + everything_box.width;
+	var everything_height = everything_box.y + everything_box.height;
+	root.setAttribute('width', everything_width);
+	root.setAttribute('height', everything_height);
+	
+	if (with_background) {
+	    bgrect.setAttribute('width', everything_width);
+	    bgrect.setAttribute('height', everything_height);
+	}
 	root.parentNode.removeChild(root);
 	
 	return root;
@@ -953,18 +967,7 @@ var OncoprintLegendView = (function() {
 		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2, 12, 'Arial', 'normal'));
 	    }
 	} else if (config.type === 'number') {
-	    var lower_str = config.range[0] + '';
-	    var upper_str = config.range[1] + '';
 	    var num_decimal_digits = 2;
-	    if (lower_str.indexOf('.') === upper_str.indexOf('.')) {
-		var lower_decimal_part = lower_str.substring(lower_str.indexOf('.')+1);
-		var upper_decimal_part = upper_str.substring(upper_str.indexOf('.')+1);
-		var i = 0;
-		while (lower_decimal_part[i] === upper_decimal_part[i]) {
-		    i++;
-		}
-		num_decimal_digits = Math.min(num_decimal_digits, i+1);
-	    }
 	    var display_range = config.range.map(function(x) {
 		var num_digit_multiplier = Math.pow(10, num_decimal_digits);
 		return Math.round(x * num_digit_multiplier) / num_digit_multiplier;
@@ -2955,19 +2958,58 @@ var makeSVGElement = function (tag, attrs) {
     return el;
 };
 
+var extractRGBA = function (str) {
+    var ret = [0, 0, 0, 1];
+    if (str[0] === "#") {
+	// hex, convert to rgba
+	var r = parseInt(str[1] + str[2], 16);
+	var g = parseInt(str[3] + str[4], 16);
+	var b = parseInt(str[5] + str[6], 16);
+	str = 'rgba('+r+','+g+','+b+',1)';
+    }
+    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
+    if (match.length === 5) {
+	ret = [parseFloat(match[1]) / 255,
+	    parseFloat(match[2]) / 255,
+	    parseFloat(match[3]) / 255,
+	    parseFloat(match[4])];
+    }
+    return ret;
+};
+
+var extractColor = function(str) {
+    if (str.indexOf("rgb(") > -1) {
+	return {
+	    'rgb': str,
+	    'opacity': 1
+	};
+    }
+    var rgba_arr = extractRGBA(str);
+    return {
+	'rgb': 'rgb('+rgba_arr[0]*255+','+rgba_arr[1]*255+','+rgba_arr[2]*255+')',
+	'opacity': rgba_arr[3]
+    };
+};
+
 var rectangleToSVG = function (params, offset_x, offset_y) {
+    var stroke_color = extractColor(params.stroke);
+    var fill_color = extractColor(params.fill);
     return makeSVGElement('rect', {
 	width: params.width,
 	height: params.height,
 	x: parseFloat(params.x) + offset_x,
 	y: parseFloat(params.y) + offset_y,
-	stroke: params.stroke,
+	stroke: stroke_color.rgb,
+	'stroke-opacity': stroke_color.opacity,
 	'stroke-width': params['stroke-width'],
-	fill: params.fill
+	fill: fill_color.rgb,
+	'fill-opacity': fill_color.opacity
     });
 };
 
 var triangleToSVG = function (params, offset_x, offset_y) {
+    var stroke_color = extractColor(params.stroke);
+    var fill_color = extractColor(params.fill);
     return makeSVGElement('polygon', {
 	points: [[parseFloat(params.x1) + offset_x, parseFloat(params.y1) + offset_y], [parseFloat(params.x2) + offset_x, parseFloat(params.y2) + offset_y], [parseFloat(params.x3) + offset_x, parseFloat(params.y3) + offset_y]].map(function (a) {
 	    return a[0] + ',' + a[1];
@@ -2979,26 +3021,31 @@ var triangleToSVG = function (params, offset_x, offset_y) {
 };
 
 var ellipseToSVG = function (params, offset_x, offset_y) {
+    var stroke_color = extractColor(params.stroke);
+    var fill_color = extractColor(params.fill);
     return makeSVGElement('ellipse', {
 	rx: parseFloat(params.width) / 2,
 	height: parseFloat(params.height) / 2,
 	cx: parseFloat(params.x) + offset_x,
 	cy: parseFloat(params.y) + offset_y,
-	stroke: params.stroke,
+	stroke: stroke_color.rgb,
+	'stroke-opacity': stroke_color.opacity,
 	'stroke-width': params['stroke-width'],
-	fill: params.fill
+	fill: fill_color.rgb,
+	'fill-opacity': fill_color.opacity
     });
 };
 
 var lineToSVG = function (params, offset_x, offset_y) {
+    var stroke_color = extractColor(params.stroke);
     return makeSVGElement('line', {
 	x1: parseFloat(params.x1) + offset_x,
 	y1: parseFloat(params.y1) + offset_y,
 	x2: parseFloat(params.x2) + offset_x,
 	y2: parseFloat(params.y2) + offset_y,
-	stroke: params.stroke,
+	stroke: stroke_color.rgb,
+	'stroke-opacity': stroke_color.opacity,
 	'stroke-width': params['stroke-width'],
-	fill: params.fill
     });
 };
 
@@ -3161,6 +3208,8 @@ var OncoprintToolTip = (function() {
 	this.show_timeout_id = undefined;
 	this.center = false;
 	
+	this.shown = false;
+	
 	var self = this;
 	this.$div.on("mousemove", function(evt) {
 	    evt.stopPropagation();
@@ -3173,6 +3222,10 @@ var OncoprintToolTip = (function() {
     }
     OncoprintToolTip.prototype.show = function(wait, page_x, page_y, html_str, fade) {
 	cancelScheduledHide(this);
+	
+	if (this.shown) {
+	    return;
+	}
 	if (typeof wait !== 'undefined') {
 	    var self = this;
 	    cancelScheduledShow(this);
@@ -3196,6 +3249,7 @@ var OncoprintToolTip = (function() {
 	var x = page_x - container_offset.left - (tt.center ? tt.$div.width()/2 : 0);
 	var y = page_y - container_offset.top - tt.$div.height();
 	tt.$div.css({'top':y, 'left':x, 'z-index':9999});
+	tt.shown = true;
     };
     var doHide = function(tt, fade) {
 	cancelScheduledHide(tt);
@@ -3205,6 +3259,7 @@ var OncoprintToolTip = (function() {
 	} else {
 	    tt.$div.fadeOut();
 	}
+	tt.shown = false;
     };
     var cancelScheduledShow = function(tt) {
 	clearTimeout(tt.show_timeout_id);
@@ -3226,6 +3281,11 @@ var OncoprintToolTip = (function() {
     };
     OncoprintToolTip.prototype.hide = function(wait) {
 	cancelScheduledShow(this);
+	
+	if (!this.shown) {
+	    return;
+	}
+	
 	if (typeof wait !== 'undefined') {
 	    var self = this;
 	    cancelScheduledHide(this);
@@ -3670,6 +3730,7 @@ var OncoprintWebGLCellView = (function () {
 	    var drag_is_valid = false;
 	    var drag_is_valid_timeout = null;
 	    var drag_start_x;
+	    var prev_overlapping_cell = null;
 	    
 	    $(document).on("mousemove", function () {
 		if (self.rendering_suppressed) {
@@ -3699,13 +3760,20 @@ var OncoprintWebGLCellView = (function () {
 				overlayPaintRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 			    }
 			}
-			tooltip.show(0, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
+			if (!(prev_overlapping_cell !== null && overlapping_cell.track === prev_overlapping_cell.track && overlapping_cell.id === prev_overlapping_cell.id)) {
+			    tooltip.hide();
+			}
+			tooltip.show(200, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth() / 2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track) + offset.top, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
+			prev_overlapping_cell = overlapping_cell;
 		    } else {
 			tooltip.hideIfNotAlreadyGoingTo(700);
+			overlapping_cell = null;
 		    }
 		}
 		
 		if (dragging) {
+		    overlapping_cell = null;
+		    
 		    var left = Math.min(mouseX, drag_start_x);
 		    var right = Math.max(mouseX, drag_start_x);
 		    self.overlay_ctx.fillStyle = 'rgba(0,0,0,0.3)';
@@ -4199,14 +4267,14 @@ var makeSVGElement = require('./makesvgelement.js');
 var shapeToSVG = require('./oncoprintshapetosvg.js');
 module.exports = {
     text: function(content,x,y,size,family,weight) {
+	size = size || 12;
 	var elt = makeSVGElement('text', {
 	    'x':(x || 0),
-	    'y':(y || 0),
-	    'font-size':(size || 12),
+	    'y':(y || 0) + size,
+	    'font-size':size,
 	    'font-family':(family || 'serif'),
 	    'font-weight':(weight || 'normal'),
 	    'text-anchor':'start',
-	    'alignment-baseline':'text-before-edge',
 	});
 	elt.textContent = content;
 	return elt;
@@ -4232,6 +4300,9 @@ module.exports = {
     polygon: function(points, fill) {
 	return makeSVGElement('polygon', {'points': points, 'fill':fill});
     },
+    bgrect: function(width, height, fill) {
+	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});
+    }
 };
 
 

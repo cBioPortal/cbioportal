@@ -2,14 +2,14 @@ var makeSVGElement = require('./makesvgelement.js');
 var shapeToSVG = require('./oncoprintshapetosvg.js');
 module.exports = {
     text: function(content,x,y,size,family,weight) {
+	size = size || 12;
 	var elt = makeSVGElement('text', {
 	    'x':(x || 0),
-	    'y':(y || 0),
-	    'font-size':(size || 12),
+	    'y':(y || 0) + size,
+	    'font-size':size,
 	    'font-family':(family || 'serif'),
 	    'font-weight':(weight || 'normal'),
 	    'text-anchor':'start',
-	    'alignment-baseline':'text-before-edge',
 	});
 	elt.textContent = content;
 	return elt;
@@ -35,6 +35,9 @@ module.exports = {
     polygon: function(points, fill) {
 	return makeSVGElement('polygon', {'points': points, 'fill':fill});
     },
+    bgrect: function(width, height, fill) {
+	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});
+    }
 };
 
 

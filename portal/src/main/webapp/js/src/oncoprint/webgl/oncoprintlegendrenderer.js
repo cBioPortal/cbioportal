@@ -111,18 +111,7 @@ var OncoprintLegendView = (function() {
 		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2, 12, 'Arial', 'normal'));
 	    }
 	} else if (config.type === 'number') {
-	    var lower_str = config.range[0] + '';
-	    var upper_str = config.range[1] + '';
 	    var num_decimal_digits = 2;
-	    if (lower_str.indexOf('.') === upper_str.indexOf('.')) {
-		var lower_decimal_part = lower_str.substring(lower_str.indexOf('.')+1);
-		var upper_decimal_part = upper_str.substring(upper_str.indexOf('.')+1);
-		var i = 0;
-		while (lower_decimal_part[i] === upper_decimal_part[i]) {
-		    i++;
-		}
-		num_decimal_digits = Math.min(num_decimal_digits, i+1);
-	    }
 	    var display_range = config.range.map(function(x) {
 		var num_digit_multiplier = Math.pow(10, num_decimal_digits);
 		return Math.round(x * num_digit_multiplier) / num_digit_multiplier;

@@ -1096,6 +1096,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    State.useAndAddAttribute(url_clinical_attrs[i]);
 		}
 	    }
+	    if (url_clinical_attrs.length > 0) {
+		$(toolbar_selector + ' #oncoprint-diagram-showlegend-icon').show();
+	    }
 	    Toolbar.refreshClinicalAttributeSelector();
 	    var populate_data_promise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
 	    
@@ -1485,6 +1488,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				content: {
 					text: function() {
 						return "<button class='oncoprint-diagram-download' type='pdf' style='cursor:pointer;width:90px;'>PDF</button> <br/>" +
+							"<button class='oncoprint-diagram-download' type='png' style='cursor:pointer;width:90px;'>PNG</button> <br/>" +
 							"<button class='oncoprint-diagram-download' type='svg' style='cursor:pointer;width:90px;'>SVG</button> <br/>" +
 							"<button class='oncoprint-sample-download'  type='txt' style='cursor:pointer;width:90px;'>"+(State.using_sample_data ? "Sample" : "Patient")+" order</button>";
 					    }
@@ -1506,6 +1510,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 							else if (fileType === 'svg')
 							{
 								cbio.download.initDownload(oncoprint.toSVG(), {filename: "oncoprint.svg"});
+							} else if (fileType === 'png')
+							{
+							    var downloadOptions = {
+									filename: "oncoprint.png",
+									contentType: "application/png",
+									servletName: "svgtopdf.do"
+							    };
+							    
+							    cbio.download.initDownload(oncoprint.toSVG(true), downloadOptions);
 							}
 						});
 

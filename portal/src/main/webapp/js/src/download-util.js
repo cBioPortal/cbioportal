@@ -253,7 +253,14 @@ cbio.download = (function() {
 				filetype: "pdf_data",
 				svgelement: content
 			};
+		} else if (options.contentType.toLowerCase().indexOf("png") != -1)
+		{
+		    options.servletParams = options.servletParams || {
+			filetype: "png_data",
+			svgelement: content
+		    };
 		}
+		
 
 		// check if a servlet name provided
 		if (options.servletName != null)

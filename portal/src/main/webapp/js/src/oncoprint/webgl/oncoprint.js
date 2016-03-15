@@ -470,11 +470,18 @@ var Oncoprint = (function () {
 	this.cell_view.setCellPaddingOn(this.model);
     }
     
-    Oncoprint.prototype.toSVG = function() {
+    Oncoprint.prototype.toSVG = function(with_background) {
 	var root = svgfactory.svg(10, 10);
 	this.$container.append(root);
 	var everything_group = svgfactory.group(0,0);
 	root.appendChild(everything_group);
+	
+	var bgrect = svgfactory.bgrect(10,10,'#ffffff');
+	
+	if (with_background) {
+	    everything_group.appendChild(bgrect);
+	}
+	
 	var label_view_group = this.label_view.toSVGGroup(this.model, true, 0, 0);
 	everything_group.appendChild(label_view_group);
 	var track_info_group_x = label_view_group.getBBox().width + 30;
@@ -485,8 +492,15 @@ var Oncoprint = (function () {
 	everything_group.appendChild(this.legend_view.toSVGGroup(this.model, 0, label_view_group.getBBox().y + label_view_group.getBBox().height+20));
 	
 	var everything_box = everything_group.getBBox();
-	root.setAttribute('width', everything_box.x + everything_box.width);
-	root.setAttribute('height', everything_box.y + everything_box.height);
+	var everything_width = everything_box.x + everything_box.width;
+	var everything_height = everything_box.y + everything_box.height;
+	root.setAttribute('width', everything_width);
+	root.setAttribute('height', everything_height);
+	
+	if (with_background) {
+	    bgrect.setAttribute('width', everything_width);
+	    bgrect.setAttribute('height', everything_height);
+	}
 	root.parentNode.removeChild(root);
 	
 	return root;

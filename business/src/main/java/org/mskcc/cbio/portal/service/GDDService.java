@@ -55,11 +55,11 @@ public class GDDService {
 
     
     @Transactional
-    public Map<String, Object> insertGddData(String internalId, String gddData) {
+    public Map<String, Object> insertGddData(String stable_id, String classification) {
         
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("internal_id", internalId);
-        map.put("gdd_data", gddData);
+        map.put("stable_id", stable_id);
+        map.put("classification", classification);
         
         gddMapper.insertGddData(map);
         
@@ -70,15 +70,15 @@ public class GDDService {
     @Transactional
     public List<String> getGddData(String study_id, List<String> sample_ids) {
         List<DBSample> samples = service.getSamplesBySample(study_id, sample_ids);  
-        List<String> internal_ids = getInternalIds(samples);
-        return gddMapper.getGddData(internal_ids);
+        List<String> stable_ids = getStableIds(samples);
+        return gddMapper.getGddData(stable_ids);
     }
     
-    private List<String> getInternalIds(List<DBSample> samples) {
-        List<String> internal_ids = new ArrayList<>();
+    private List<String> getStableIds(List<DBSample> samples) {
+        List<String> stable_ids = new ArrayList<>();
         for (DBSample sp : samples) {
-            internal_ids.add(sp.internal_id);            
+            stable_ids.add(sp.id);            
         }
-        return internal_ids;
+        return stable_ids;
     }
 }

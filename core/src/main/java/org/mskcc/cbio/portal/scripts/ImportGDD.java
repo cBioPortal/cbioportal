@@ -48,7 +48,7 @@ public class ImportGDD {
             BufferedReader buf = new BufferedReader(reader);
             
             String column_names[] = buf.readLine().split("\t");
-            if (column_names[0].trim().equals("INTERNAL_ID") && column_names[1].trim().equals("GDD_DATA")) {
+            if (column_names[0].trim().equals("STABLE_ID") && column_names[1].trim().equals("CLASSIFICATION")) {
                 String line = buf.readLine();
                 while (line != null) {
                     if (line.startsWith("#")) {
@@ -56,12 +56,12 @@ public class ImportGDD {
                     }
 
                     String columns[] = line.split("\t");
-                    String internalId = columns[0];
-                    String gddData = columns[1];
+                    String stable_id = columns[0];
+                    String classification = columns[1];
 
-                    System.out.println(internalId + " " + gddData);
+                    System.out.println(stable_id + " " + classification);
                     GDDService gddService = SpringUtil.getGddService();
-                    gddService.insertGddData(internalId, gddData);
+                    gddService.insertGddData(stable_id, classification);
 
                     line = buf.readLine();                
                 }

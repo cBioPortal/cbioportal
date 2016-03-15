@@ -5,16 +5,16 @@
 
 <cache/>
 
-<insert id="insertGddData" parameterType="map" useGeneratedKeys="true" keyProperty="internal_id" keyColumn="internal_id">
-    insert into gdd (INTERNAL_ID, GDD_DATA)
-    values (#{internal_id},#{gdd_data})
+<insert id="insertGddData" parameterType="map" useGeneratedKeys="true" keyProperty="stable_id" keyColumn="stable_id">
+    insert into gdd (STABLE_ID, CLASSIFICATION)
+    values (#{stable_id},#{classification})
 </insert>
 
 <select id="getGddData" resultType="String">
     select 
-        gdd.GDD_DATA
+        gdd.CLASSIFICATION
     from gdd
-    where gdd.INTERNAL_ID in <foreach item="item" collection="internal_ids" open="(" separator="," close=")">#{item}</foreach>
+    where gdd.STABLE_ID in <foreach item="item" collection="stable_ids" open="(" separator="," close=")">#{item}</foreach>
     
 </select>
 

@@ -1250,6 +1250,7 @@ class SampleClinicalValidator(ClinicalValidator):
     PROP_IS_PATIENT_ATTRIBUTE = 0
 
     def __init__(self, *args, **kwargs):
+        """Initialize the validator to track sample ids defined."""
         super(SampleClinicalValidator, self).__init__(*args, **kwargs)
         self.sampleIds = set()
 
@@ -1274,9 +1275,17 @@ class SampleClinicalValidator(ClinicalValidator):
 
 
 class PatientClinicalValidator(ClinicalValidator):
+
     """Validator for files defining and setting patient-level attributes."""
+
     REQUIRED_HEADERS = ['PATIENT_ID']
     PROP_IS_PATIENT_ATTRIBUTE = 1
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the validator to track patient IDs referenced."""
+        super(PatientClinicalValidator, self).__init__(*args, **kwargs)
+        self.patient_id_lines = {}
+
     def checkHeader(self, cols):
         """Validate headers in patient-specific clinical data files."""
         super(PatientClinicalValidator, self).checkHeader(self, cols)
@@ -1300,7 +1309,26 @@ class PatientClinicalValidator(ClinicalValidator):
             value = ''
             if col_index < len(data):
                 value = data[col_index].strip()
-            # TODO check the values for documented columns
+            if col_name == 'PATIENT_ID':
+                if value in self.patient_id_lines:
+                    self.patient_id_lines[value].append(self.line_number)
+                else:
+                    self.patient_id_lines[value] = [self.line_number]
+                    # TODO: warn if the patient has no samples
+            # TODO: check the values for other documented columns
+
+    def onComplete(self):
+        """Perform final validations based on the data parsed"""
+        for patient_id in self.patient_id_lines:
+            if len(self.patient_id_lines[patient_id]) > 1:
+                self.logger.error(
+                    'Patient listed multiple times in file',
+                    extra={'line_number': '(%s)' % (
+                                '/'.join(self.patient_id_lines[patient_id])),
+                           'column_number': self.cols.index('PATIENT_ID'),
+                           'cause': patient_id})
+        # TODO: warn if any patient associated with a sample lacks data
+        super(PatientClinicalValidator, self).onComplete()
 
 
 class SegValidator(Validator):

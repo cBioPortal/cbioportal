@@ -820,14 +820,14 @@ class MutationsExtendedValidator(Validator):
                               'Entrez_Gene_Id needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
-            
+
         if not 'SWISSPROT' in self.cols:
-            self.logger.warning('SWISSPROT column is recommended if you want to make ' 
-                                'sure that a specific isoform is used for the '
-                                'PFAM domains drawing in the mutations view.',
-                              extra={'line_number': self.line_number,
-                                     'cause':'SWISSPROT column not found'})
-                              
+            self.logger.warning(
+                'Including the SWISSPROT column is recommended to make sure '
+                'that the Uniprot canonical isoform is used when drawing Pfam '
+                'domains in the mutations view',
+                extra={'line_number': self.line_number})
+
         # one of these columns should be present:
         if not ('HGVSp_Short' in self.cols or 'Amino_Acid_Change' in self.cols):
             self.logger.error('At least one of the columns HGVSp_Short or '
@@ -1023,12 +1023,12 @@ class MutationsExtendedValidator(Validator):
     def checkSwissProt(self, value, data):
         """Test whether SWISSPROT string is blank and give warning if blank."""
         if value is None or value.strip() == '':
-            self.logger.warning('SWISSPROT column was given, but value is empty. ' 
-                                'This column is recommended if you want to make ' 
-                                'sure that a specific isoform is used for the '
-                                'PFAM domains drawing in the mutations view.',
-                              extra={'line_number': self.line_number,
-                                     'cause':'SWISSPROT column found empty'})
+            self.logger.warning(
+                'Missing value in SWISSPROT column; this column is '
+                'recommended to make sure that the Uniprot canonical isoform '
+                'is used when drawing Pfam domains in the mutations view',
+                extra={'line_number': self.line_number,
+                       'cause':'blank value in SWISSPROT column'})
             
         # it is just a warning, so we can return True always:
         return True

@@ -39,7 +39,6 @@ import java.util.*;
  * GDD Mapper.
  */
 
-
 public interface GDDMapper {
     void insertGddData(Map<String, Object> map);
     List<String> getGddData(@Param("stable_ids") List<String> stable_ids);

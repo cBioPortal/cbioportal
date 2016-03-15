@@ -6,16 +6,15 @@
 <cache/>
 
 <insert id="insertGddData" parameterType="map" useGeneratedKeys="true" keyProperty="stable_id" keyColumn="stable_id">
-    insert into gdd (STABLE_ID, CLASSIFICATION)
-    values (#{stable_id},#{classification})
+    insert into gdd (SAMPLE_ID, CLASSIFICATION)
+    values (#{sample_id},#{classification})
 </insert>
 
 <select id="getGddData" resultType="String">
     select 
         gdd.CLASSIFICATION
     from gdd
-    where gdd.STABLE_ID in <foreach item="item" collection="stable_ids" open="(" separator="," close=")">#{item}</foreach>
-    
+    where gdd.SAMPLE_ID in <foreach item="item" collection="stable_ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
 
 </mapper>

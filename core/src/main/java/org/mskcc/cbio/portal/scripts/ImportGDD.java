@@ -48,7 +48,7 @@ public class ImportGDD {
             BufferedReader buf = new BufferedReader(reader);
             
             String column_names[] = buf.readLine().split("\t");
-            if (column_names[0].trim().equals("STABLE_ID") && column_names[1].trim().equals("CLASSIFICATION")) {
+            if (column_names[0].trim().equals("SAMPLE_ID") && column_names[1].trim().equals("CLASSIFICATION")) {
                 String line = buf.readLine();
                 while (line != null) {
                     if (line.startsWith("#")) {
@@ -56,12 +56,12 @@ public class ImportGDD {
                     }
 
                     String columns[] = line.split("\t");
-                    String stable_id = columns[0];
+                    String sample_id = columns[0];
                     String classification = columns[1];
 
-                    System.out.println(stable_id + " " + classification);
+                    System.out.println(sample_id + " " + classification);
                     GDDService gddService = SpringUtil.getGddService();
-                    gddService.insertGddData(stable_id, classification);
+                    gddService.insertGddData(sample_id, classification);
 
                     line = buf.readLine();                
                 }
@@ -76,7 +76,7 @@ public class ImportGDD {
     public static void main(String args[]) throws Exception {
         String filename;        
         if (args.length < 1) {
-            filename = "/Users/angelica/GDDProject/data_gdd.txt";
+            filename = "/Users/angelica/Projects/GDD/data_gdd.txt";
 //            System.out.println("Missing GDD data file.");
 //            return;
         }

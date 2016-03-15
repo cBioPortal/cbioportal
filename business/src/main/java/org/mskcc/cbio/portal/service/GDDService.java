@@ -52,19 +52,14 @@ public class GDDService {
     private GDDMapper gddMapper;   
     @Autowired
     private ApiService service;
-
     
     @Transactional
-    public Map<String, Object> insertGddData(String stable_id, String classification) {
-        
+    public Map<String, Object> insertGddData(String sample_id, String classification) {        
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("stable_id", stable_id);
-        map.put("classification", classification);
-        
-        gddMapper.insertGddData(map);
-        
-        return map;
-        
+        map.put("sample_id", sample_id);
+        map.put("classification", classification);        
+        gddMapper.insertGddData(map);        
+        return map;        
     }
 
     @Transactional

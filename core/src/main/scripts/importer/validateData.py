@@ -44,7 +44,8 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
     cbioportal_common.MetaFileTypes.CANCER_TYPE:'CancerTypeValidator',
-    cbioportal_common.MetaFileTypes.CLINICAL:'ClinicalValidator',
+    cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES:' SampleClinicalValidator',
+    cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:' PatientClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
     cbioportal_common.MetaFileTypes.EXPRESSION:'ExpressionValidator',
     cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
@@ -2267,30 +2268,42 @@ def validate_study(study_dir, portal_instance, logger):
             extra={'cause': study_cancer_type})
 
     # then validate the clinical data
-    if cbioportal_common.MetaFileTypes.CLINICAL not in validators_by_meta_type:
-        logger.error('No clinical file detected')
+    if cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES not in \
+            validators_by_meta_type:
+        logger.error('No sample attribute file detected')
         return
-    if len(validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL]) > 1:
-        if logger.isEnabledFor(logging.ERROR):
-            logger.error(
-                'Multiple clinical files detected',
-                extra={'cause': ', '.join(
-                    validator.filenameShort for validator in
-                    validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL])})
-    # get the validator for the clinical data file
-    clinvalidator = validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL][0]
-    # parse the clinical data file to get defined sample ids for this study
-    clinvalidator.validate()
-    if not clinvalidator.fileCouldBeParsed:
-        logger.error("Clinical file could not be parsed. Please fix the problems found there first before continuing.")
+    if len(validators_by_meta_type[
+               cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES]) > 1:
+        logger.error(
+            'Multiple sample attribute files detected',
+            extra={'cause': ', '.join(
+                validator.filenameShort for validator in
+                validators_by_meta_type[
+                    cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES])})
+    # parse the data file(s) that define sample IDs valid for this study
+    defined_sample_ids = None
+    for sample_validator in validators_by_meta_type[
+            cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES]:
+        sample_validator.validate()
+        if sample_validator.fileCouldBeParsed:
+            if defined_sample_ids is None:
+                defined_sample_ids = set()
+            # include parsed sample IDs in the set (union)
+            defined_sample_ids |= sample_validator.sampleIds
+    # this will be set if a file was successfully parsed
+    if defined_sample_ids is None:
+        logger.error("Sample file could not be parsed. Please fix "
+                     "the problems found there first before continuing.")
         return
-    DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
+    DEFINED_SAMPLE_IDS = defined_sample_ids
 
-    # next validate non-clinical data files
+    # TODO log an error if there are multiple patient attribute files
+
+    # next validate all other data files
     for meta_file_type in validators_by_meta_type:
         # skip cancer type and clinical files, they have already been validated
         if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
-                              cbioportal_common.MetaFileTypes.CLINICAL):
+                              cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES):
             continue
         for validator in validators_by_meta_type[meta_file_type]:
             # if there was no validator for this meta file

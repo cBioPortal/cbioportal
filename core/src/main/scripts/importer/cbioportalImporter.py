@@ -93,7 +93,8 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append(meta_filename)
         args.append("--loadMode")
         args.append("bulkload")
-    if meta_file_type == MetaFileTypes.CLINICAL:
+    if importer == IMPORTER_CLASSNAME_BY_META_TYPE[
+                        MetaFileTypes.SAMPLE_ATTRIBUTES]:
         args.append(data_filename)
         args.append(meta_file_dict['cancer_study_identifier'])
     else:
@@ -151,8 +152,8 @@ def process_directory(jvm_args, study_directory):
     study_metafile = None
     study_metadata = None
     cancer_type_filepairs = []
-    clinical_filepairs = []
-    non_clinical_filepairs = []
+    sample_attr_filepair = None
+    regular_filepairs = []
 
     # read all meta files (excluding case lists) to determine what to import
     for f in meta_filenames:
@@ -166,21 +167,25 @@ def process_directory(jvm_args, study_directory):
         if study_id is None and 'cancer_study_identifier' in metadata:
             study_id = metadata['cancer_study_identifier']
 
-        if meta_file_type == MetaFileTypes.STUDY:
+        if meta_file_type == MetaFileTypes.CANCER_TYPE:
+            cancer_type_filepairs.append(
+                (f, os.path.join(study_directory, metadata['data_filename'])))
+        elif meta_file_type == MetaFileTypes.STUDY:
             if study_metafile is not None:
                 raise RuntimeError(
                     'Multiple meta_study files found: {} and {}'.format(
                         study_metafile, f))
             study_metafile = f
             study_metadata = metadata
-        elif meta_file_type == MetaFileTypes.CANCER_TYPE:
-            cancer_type_filepairs.append(
-                (f, os.path.join(study_directory, metadata['data_filename'])))
-        elif meta_file_type == MetaFileTypes.CLINICAL:
-            clinical_filepairs.append(
-                (f, os.path.join(study_directory, metadata['data_filename'])))
+        elif meta_file_type == MetaFileTypes.SAMPLE_ATTRIBUTES:
+            if sample_attr_filepair is not None:
+                raise RuntimeError(
+                    'Multiple sample attribute files found: {} and {}'.format(
+                        sample_attr_filepair[0], f))
+            sample_attr_filepair = (
+                f, os.path.join(study_directory, metadata['data_filename']))
         else:
-            non_clinical_filepairs.append(
+            regular_filepairs.append(
                 (f, os.path.join(study_directory, metadata['data_filename'])))
 
     # First, import cancer types
@@ -195,19 +200,22 @@ def process_directory(jvm_args, study_directory):
         remove_study(jvm_args, study_metafile)
         import_study(jvm_args, study_metafile)
 
-    # Next, we need to import clinical files
-    for meta_filename, data_filename in clinical_filepairs:
+    # Next, we need to import sample definitions
+    if sample_attr_filepair is None:
+        raise RuntimeError('No sample attribute file found')
+    else:
+        meta_filename, data_filename = sample_attr_filepair
         import_study_data(jvm_args, meta_filename, data_filename)
 
     # Now, import everything else
-    for meta_filename, data_filename in non_clinical_filepairs:
+    for meta_filename, data_filename in regular_filepairs:
         import_study_data(jvm_args, meta_filename, data_filename)
 
     # do the case lists
     case_list_dirname = os.path.join(study_directory, 'case_lists')
     if os.path.isdir(case_list_dirname):
         process_case_lists(jvm_args, case_list_dirname)
-    
+
     if study_metadata.get('add_global_case_list', 'false').lower() == 'true':
         add_global_case_list(jvm_args, study_id)
 

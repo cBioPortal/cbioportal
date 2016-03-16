@@ -1167,7 +1167,7 @@ class ClinicalValidator(Validator):
             if srv_attr_properties is None:
                 self.logger.warning(
                     'New %s-level attribute will be added to the portal',
-                    {0: 'sample', 1: 'patient'}[
+                    {'0': 'sample', '1': 'patient'}[
                             self.PROP_IS_PATIENT_ATTRIBUTE],
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
@@ -1290,7 +1290,7 @@ class PatientClinicalValidator(ClinicalValidator):
 
     def checkHeader(self, cols):
         """Validate headers in patient-specific clinical data files."""
-        super(PatientClinicalValidator, self).checkHeader(self, cols)
+        super(PatientClinicalValidator, self).checkHeader(cols)
         # warnings about missing optional columns
         if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
             self.logger.warning(
@@ -1313,22 +1313,21 @@ class PatientClinicalValidator(ClinicalValidator):
                 value = data[col_index].strip()
             if col_name == 'PATIENT_ID':
                 if value in self.patient_id_lines:
-                    self.patient_id_lines[value].append(self.line_number)
+                    self.logger.error(
+                        'Patient defined multiple times in file',
+                        extra={
+                            'line_number': self.line_number,
+                            'column_number': self.cols.index('PATIENT_ID') + 1,
+                            'cause': '%s (already defined on line %d)' % (
+                                    value,
+                                    self.patient_id_lines[value])})
                 else:
-                    self.patient_id_lines[value] = [self.line_number]
+                    self.patient_id_lines[value] = self.line_number
                     # TODO: warn if the patient has no samples
             # TODO: check the values for other documented columns
 
     def onComplete(self):
-        """Perform final validations based on the data parsed"""
-        for patient_id in self.patient_id_lines:
-            if len(self.patient_id_lines[patient_id]) > 1:
-                self.logger.error(
-                    'Patient listed multiple times in file',
-                    extra={'line_number': '(%s)' % (
-                                '/'.join(self.patient_id_lines[patient_id])),
-                           'column_number': self.cols.index('PATIENT_ID'),
-                           'cause': patient_id})
+        """Perform final validations based on the data parsed."""
         # TODO: warn if any patient associated with a sample lacks data
         super(PatientClinicalValidator, self).onComplete()
 

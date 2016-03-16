@@ -250,11 +250,6 @@ def check_dir(study_directory):
         print >> ERROR_FILE, 'Study cannot be found: ' + study_directory
         sys.exit(2)
 
-        print >> OUTPUT_FILE, 'This version of the portal is out of sync with the database. You must run the database migration script located at PORTAL_HOME/core/src/main/scripts/migrate_db.py before continuing'
-        print >> OUTPUT_FILE, 'Portal Version of DB: ' + portal_db_version
-        print >> OUTPUT_FILE, 'DB Version: ' + db_version
-        sys.exit()
-
 def get_portal_db_version():
     portal_home = os.environ[PORTAL_HOME]
     pom_filename = os.path.join(portal_home, POM_FILENAME)

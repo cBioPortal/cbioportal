@@ -64,6 +64,16 @@ public class ApiController {
     }
     
     @Transactional
+    @RequestMapping(value = "/clinicalattributes", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<DBClinicalField> getClinicalAttributes(@RequestParam(required = false) List<String> attr_ids) {
+	    if (attr_ids == null) {
+		    return service.getClinicalAttributes();
+	    } else {
+		    return service.getClinicalAttributes(attr_ids);
+	    }
+    }
+    
+    @Transactional
     @RequestMapping(value = "/clinicalattributes/samples", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<DBClinicalField> getSampleClinicalAttributes(@RequestParam(required = false) String study_id, @RequestParam(required = false) List<String> sample_ids) {
 	    if (sample_ids == null && study_id == null) {

@@ -56,5 +56,14 @@
 <select id="getAllPatientClinicalFields" resultMap="ClinicalFieldResult">
     select * from clinical_attribute where PATIENT_ATTRIBUTE=1
 </select>
-    
+
+<select id="getClinicalFieldsById" resultMap="ClinicalFieldResult">
+    select clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
+    where clinical_attribute.ATTR_ID in <foreach item="item" collection="attr_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
+
+<select id="getAllClinicalFields" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+</select>
+        
 </mapper>

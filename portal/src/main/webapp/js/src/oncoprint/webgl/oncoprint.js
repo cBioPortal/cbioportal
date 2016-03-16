@@ -135,12 +135,7 @@ var Oncoprint = (function () {
 	var cell_view = this.cell_view;
 	var model = this.model;
 	$cell_div.scroll(function() {
-	    var scroll_left = $cell_div.scrollLeft();
-	    $cell_canvas.css('left', scroll_left);
-	    $cell_overlay_canvas.css('left', scroll_left);
-	    cell_view.scroll(model, scroll_left);
-	    
-	    self.keep_horz_zoomed_to_fit = false;
+ 	    self.keep_horz_zoomed_to_fit = false;
 	    self.keep_horz_zoomed_to_fit_ids = [];
 	});
 	

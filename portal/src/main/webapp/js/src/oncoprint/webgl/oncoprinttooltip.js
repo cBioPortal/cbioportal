@@ -25,10 +25,7 @@ var OncoprintToolTip = (function() {
     OncoprintToolTip.prototype.show = function(wait, page_x, page_y, html_str, fade) {
 	cancelScheduledHide(this);
 	
-	if (this.shown) {
-	    return;
-	}
-	if (typeof wait !== 'undefined') {
+	if (typeof wait !== 'undefined' && !this.shown) {
 	    var self = this;
 	    cancelScheduledShow(this);
 	    this.show_timeout_id = setTimeout(function() {

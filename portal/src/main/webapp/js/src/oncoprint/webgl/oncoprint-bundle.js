@@ -197,12 +197,7 @@ var Oncoprint = (function () {
 	var cell_view = this.cell_view;
 	var model = this.model;
 	$cell_div.scroll(function() {
-	    var scroll_left = $cell_div.scrollLeft();
-	    $cell_canvas.css('left', scroll_left);
-	    $cell_overlay_canvas.css('left', scroll_left);
-	    cell_view.scroll(model, scroll_left);
-	    
-	    self.keep_horz_zoomed_to_fit = false;
+ 	    self.keep_horz_zoomed_to_fit = false;
 	    self.keep_horz_zoomed_to_fit_ids = [];
 	});
 	
@@ -701,7 +696,7 @@ var OncoprintLabelView = (function () {
 	    return;
 	}
 	var font_size = view.getFontSize();
-	view.ctx.font = 'bold '+font_size +'px serif';
+	view.ctx.font = 'bold '+font_size +'px Arial';
 	view.ctx.clearRect(0,0,view.$canvas[0].width,view.$canvas[0].height);
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
@@ -843,7 +838,7 @@ var OncoprintLabelView = (function () {
 	    var track_id = tracks[i];
 	    var y = label_tops[track_id];
 	    var label = model.getTrackLabel(track_id);
-	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(), 'serif', 'bold'); 
+	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(), 'Arial', 'bold'); 
 	    root.appendChild(text_elt);
 	}
 	return root;
@@ -2253,6 +2248,86 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS_DONT_DISTINGUISH_MUTATIONS = {
     rule_params: $.extend({}, non_mutation_rule_params, dont_distinguish_mutation_rule_params)
 };
 
+var extractRGBA = function (str) {
+    var ret = [0, 0, 0, 1];
+    if (str[0] === "#") {
+	// hex, convert to rgba
+	var r = parseInt(str[1] + str[2], 16);
+	var g = parseInt(str[3] + str[4], 16);
+	var b = parseInt(str[5] + str[6], 16);
+	str = 'rgba('+r+','+g+','+b+',1)';
+    }
+    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
+    if (match.length === 5) {
+	ret = [parseFloat(match[1]) / 255,
+	    parseFloat(match[2]) / 255,
+	    parseFloat(match[3]) / 255,
+	    parseFloat(match[4])];
+    }
+    return ret;
+};
+
+var colorToHex = function(str) {
+    var r;
+    var g;
+    var b;
+    var rgba_match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
+    if (rgba_match && rgba_match.length === 5) {
+	r = parseInt(rgba_match[1]).toString(16);
+	g = parseInt(rgba_match[2]).toString(16);
+	b = parseInt(rgba_match[3]).toString(16);
+	if (r.length === 1) {
+	    r = '0' + r;
+	}
+	if (g.length === 1) {
+	    g = '0' + g;
+	}
+	if (b.length === 1) {
+	    b = '0' + b;
+	}
+	return '#' + r + g + b;
+    }
+    
+    var rgb_match = str.match(/^[\s]*rgb\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*\)[\s]*$/);
+    if (rgb_match && rgb_match.length === 4) {
+	r = parseInt(rgb_match[1]).toString(16);
+	g = parseInt(rgb_match[2]).toString(16);
+	b = parseInt(rgb_match[3]).toString(16);
+	if (r.length === 1) {
+	    r = '0' + r;
+	}
+	if (g.length === 1) {
+	    g = '0' + g;
+	}
+	if (b.length === 1) {
+	    b = '0' + b;
+	}
+	return '#' + r + g + b;
+    }
+    
+    return str;
+};
+
+var darkenHexColor = function(str) {
+    var r = str[1] + str[2];
+    var g = str[3] + str[4];
+    var b = str[5] + str[6];
+    var darkenHexChannel = function(c) {
+	c = parseInt(c, 16);
+	c *= 0.95;
+	c = Math.round(c);
+	c = c.toString(16);
+	if (c.length === 1) {
+	    c = '0' + c;
+	}
+	return c;
+    };
+    r = darkenHexChannel(r);
+    g = darkenHexChannel(g);
+    b = darkenHexChannel(b);
+    return '#' + r + g + b;
+};
+
 var RuleSet = (function () {
     var getRuleSetId = makeIdCounter();
     var getRuleId = makeIdCounter();
@@ -2508,11 +2583,16 @@ var CategoricalRuleSet = (function () {
 	"#b77322", "#16d620", "#b91383", "#f4359e",
 	"#9c5935", "#a9c413", "#2a778d", "#668d1c",
 	"#bea413", "#0c5922", "#743411"]; // Source: D3
+	this.colors_index = 0;
+	this.used_colors = {};
+	
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
 	for (var category in this.category_to_color) {
 	    if (this.category_to_color.hasOwnProperty(category)) {
-		addCategoryRule(this, category, this.category_to_color[category]);
+		var color = this.category_to_color[category];
+		addCategoryRule(this, category, color);
+		this.used_colors[colorToHex(color)] = true;
 	    }
 	}
     }
@@ -2533,6 +2613,20 @@ var CategoricalRuleSet = (function () {
 	ruleset.addRule(ruleset.category_key, category, rule_params);
     };
 
+    var getUnusedColor = function(rule_set) {
+	var next_color = rule_set.colors[rule_set.colors_index % rule_set.colors.length];
+	while (rule_set.used_colors[next_color]) {
+	    var darker_next_color = darkenHexColor(next_color);
+	    if (darker_next_color === next_color) {
+		break;
+	    }
+	    next_color = darker_next_color;
+	}
+	rule_set.used_colors[next_color] = true;
+	rule_set.colors_index += 1;
+	
+	return next_color;
+    };
     CategoricalRuleSet.prototype.apply = function (data, cell_width, cell_height, out_active_rules) {
 	// First ensure there is a color for all categories
 	for (var i = 0, data_len = data.length; i < data_len; i++) {
@@ -2541,7 +2635,8 @@ var CategoricalRuleSet = (function () {
 	    }
 	    var category = data[i][this.category_key];
 	    if (!this.category_to_color.hasOwnProperty(category)) {
-		var color = this.colors.pop();
+		var color = getUnusedColor(this);
+		
 		this.category_to_color[category] = color;
 		addCategoryRule(this, category, color);
 	    }
@@ -2968,7 +3063,7 @@ var extractRGBA = function (str) {
 	str = 'rgba('+r+','+g+','+b+',1)';
     }
     var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match.length === 5) {
+    if (match && match.length === 5) {
 	ret = [parseFloat(match[1]) / 255,
 	    parseFloat(match[2]) / 255,
 	    parseFloat(match[3]) / 255,
@@ -3223,10 +3318,7 @@ var OncoprintToolTip = (function() {
     OncoprintToolTip.prototype.show = function(wait, page_x, page_y, html_str, fade) {
 	cancelScheduledHide(this);
 	
-	if (this.shown) {
-	    return;
-	}
-	if (typeof wait !== 'undefined') {
+	if (typeof wait !== 'undefined' && !this.shown) {
 	    var self = this;
 	    cancelScheduledShow(this);
 	    this.show_timeout_id = setTimeout(function() {
@@ -3611,7 +3703,7 @@ var extractRGBA = function (str) {
 	str = 'rgba('+r+','+g+','+b+',1)';
     }
     var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match.length === 5) {
+    if (match && match.length === 5) {
 	ret = [parseFloat(match[1]) / 255,
 	    parseFloat(match[2]) / 255,
 	    parseFloat(match[3]) / 255,
@@ -3658,6 +3750,14 @@ var OncoprintWebGLCellView = (function () {
 	getWebGLContextAndSetUpMatrices(this);
 	getOverlayContextAndClear(this);
 	this.visible_area_width = $canvas[0].width;
+	
+	var self = this;
+	this.$container.scroll(function() {
+	    var scroll_left = self.$container.scrollLeft();
+	    self.$canvas.css('left', scroll_left);
+	    self.$overlay_canvas.css('left', scroll_left);
+	    self.scroll(model, scroll_left);
+	});
 	
 	this.tooltip = tooltip;
 	this.tooltip.center = true;

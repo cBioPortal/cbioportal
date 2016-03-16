@@ -34,7 +34,7 @@ var extractRGBA = function (str) {
 	str = 'rgba('+r+','+g+','+b+',1)';
     }
     var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match.length === 5) {
+    if (match && match.length === 5) {
 	ret = [parseFloat(match[1]) / 255,
 	    parseFloat(match[2]) / 255,
 	    parseFloat(match[3]) / 255,
@@ -81,6 +81,14 @@ var OncoprintWebGLCellView = (function () {
 	getWebGLContextAndSetUpMatrices(this);
 	getOverlayContextAndClear(this);
 	this.visible_area_width = $canvas[0].width;
+	
+	var self = this;
+	this.$container.scroll(function() {
+	    var scroll_left = self.$container.scrollLeft();
+	    self.$canvas.css('left', scroll_left);
+	    self.$overlay_canvas.css('left', scroll_left);
+	    self.scroll(model, scroll_left);
+	});
 	
 	this.tooltip = tooltip;
 	this.tooltip.center = true;

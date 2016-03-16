@@ -18,7 +18,7 @@ var extractRGBA = function (str) {
 	str = 'rgba('+r+','+g+','+b+',1)';
     }
     var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match.length === 5) {
+    if (match && match.length === 5) {
 	ret = [parseFloat(match[1]) / 255,
 	    parseFloat(match[2]) / 255,
 	    parseFloat(match[3]) / 255,

@@ -110,7 +110,7 @@ var OncoprintLabelView = (function () {
 	    return;
 	}
 	var font_size = view.getFontSize();
-	view.ctx.font = 'bold '+font_size +'px serif';
+	view.ctx.font = 'bold '+font_size +'px Arial';
 	view.ctx.clearRect(0,0,view.$canvas[0].width,view.$canvas[0].height);
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
@@ -252,7 +252,7 @@ var OncoprintLabelView = (function () {
 	    var track_id = tracks[i];
 	    var y = label_tops[track_id];
 	    var label = model.getTrackLabel(track_id);
-	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(), 'serif', 'bold'); 
+	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(), 'Arial', 'bold'); 
 	    root.appendChild(text_elt);
 	}
 	return root;

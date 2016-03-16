@@ -17,9 +17,12 @@ from importer import validateData
 # globals:
 PORTAL_INFO_DIR = 'test_data/api_json_system_tests'
 
-# Test cases around running the complete validateData script (such as "does it return the correct exit status?" 
-# or "does it generate the html report when requested?", etc)
 class ValidateDataSystemTester(unittest.TestCase):
+    '''Test cases around running the complete validateData script
+
+    (such as "does it return the correct exit status?" or "does it generate
+    the html report when requested?", etc)
+    '''
 
     def tearDown(self):
         """Close logging handlers after running validator."""
@@ -42,13 +45,12 @@ class ValidateDataSystemTester(unittest.TestCase):
                 3: 'succeeded with warnings'
         '''
 
-
-        #Build up arguments and run
+        # build up the argument list
         print "===study 0"
         args = ['--study_directory','test_data/study_es_0/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v']
+        # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
-        # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         self.assertEquals(0, exit_status)
 

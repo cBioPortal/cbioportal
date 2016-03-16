@@ -44,8 +44,8 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
     cbioportal_common.MetaFileTypes.CANCER_TYPE:'CancerTypeValidator',
-    cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES:' SampleClinicalValidator',
-    cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:' PatientClinicalValidator',
+    cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES:'SampleClinicalValidator',
+    cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:'PatientClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
     cbioportal_common.MetaFileTypes.EXPRESSION:'ExpressionValidator',
     cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
@@ -2320,8 +2320,9 @@ def validate_study(study_dir, portal_instance, logger):
         return
     DEFINED_SAMPLE_IDS = defined_sample_ids
 
-    if len(validators_by_meta_type[
-               cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES]) > 1:
+    if len(validators_by_meta_type.get(
+               cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES,
+               [])) > 1:
         logger.error(
             'Multiple patient attribute files detected',
             extra={'cause': ', '.join(

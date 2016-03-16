@@ -42,9 +42,6 @@ IMPORT_CASE_LIST = "import-case-list"
 COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
 PORTAL_HOME = "PORTAL_HOME"
 
-POM_FILENAME = 'pom.xml'
-DB_VERSION = 'db.version'
-
 # ------------------------------------------------------------------------------
 # sub-routines
 
@@ -249,19 +246,6 @@ def check_dir(study_directory):
     if not os.path.exists(study_directory) and study_directory != '':
         print >> ERROR_FILE, 'Study cannot be found: ' + study_directory
         sys.exit(2)
-
-def get_portal_db_version():
-    portal_home = os.environ[PORTAL_HOME]
-    pom_filename = os.path.join(portal_home, POM_FILENAME)
-
-    if not os.path.exists(pom_filename):
-        print >> ERROR_FILE, 'could not find pom.xml. Ensure that PORTAL_HOME environment variable is set.'
-        sys.exit(1)
-    
-    for event, ele in ET.iterparse(pom_filename):
-        if DB_VERSION in ele.tag:
-            return ele.text.strip()
-        ele.clear()
 
 def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')

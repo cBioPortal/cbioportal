@@ -42,7 +42,7 @@
 	  Click on a filename below to see a table of messages about the data
 	  in the file. The colors in the tables have the following meanings:
         </p>
-        <table>
+        <table class="table">
           <tbody>
             <tr class="danger"><td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td></tr>
             <tr class="warning"><td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td></tr>
@@ -105,16 +105,19 @@
              {{ {'id':  'collapse_%s'|format(filename.__hash__()),
                  'aria-labelledby': 'heading_%s'|format(filename.__hash__())}|xmlattr }}>
           <div class="panel-body">
-            <table style="width:100%">
+            <table class="table">
+            <thead>
               <tr>
                 <th>Line Number</th>
                 <th>Column Number</th>
                 <th>Message</th>
                 <th>Value Encountered</th>
               </tr>
+            </thead>
+            <tbody>
               {% for record in file_record_list %}
               {% if record.levelname  == 'ERROR' or record.levelname == 'CRITICAL' %}
-                {% set record_level = 'danger' %}
+                {% set record_class = 'danger' %}
               {% elif record.levelname == 'WARNING' %}
                 {% set record_class = 'warning' %}
               {% elif record.levelname == 'INFO' %}
@@ -149,6 +152,7 @@
                 <td>{{ format_aggregated(record, 'cause') }}</td>
               </tr>
               {% endfor %}
+            </tbody>
             </table>
           </div>
         </div>

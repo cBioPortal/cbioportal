@@ -303,7 +303,6 @@ def main(args):
 
     # check if DB version and application version are in sync
     check_version(jvm_args)
-    exit()
 
     if study_directory != None:
         check_dir(study_directory)

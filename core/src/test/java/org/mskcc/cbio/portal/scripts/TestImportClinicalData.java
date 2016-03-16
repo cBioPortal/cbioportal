@@ -87,7 +87,7 @@ public class TestImportClinicalData {
 
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile);
+        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
         importClinicalData.importData();
 	}
 	
@@ -103,7 +103,7 @@ public class TestImportClinicalData {
 
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile);
+        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
@@ -145,7 +145,7 @@ public class TestImportClinicalData {
 
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile);
+        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
         importClinicalData.importData();
 
         List<ClinicalParameterMap> slice = DaoClinicalData.getDataSlice(study.getInternalId(), Arrays.asList("PLATINUMSTATUS"));
@@ -170,7 +170,7 @@ public class TestImportClinicalData {
 
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile);
+        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
         importClinicalData.importData();
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(study.getInternalId());

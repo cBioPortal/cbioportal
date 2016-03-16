@@ -52,12 +52,10 @@ function shallowExtend(target, source) {
 var NA_SHAPES = [
     {
 	'type': 'rectangle',
-	'fill': 'rgba(255, 255, 255, 1)',
-	'stroke': 'rgba(210,210,210,1)',
-	'stroke-width': '1',
+	'fill': 'rgba(125, 125, 125, 1)',
 	'z': 0,
     },
-    {
+    /*{
 	'type': 'line',
 	'x1': '0%',
 	'y1': '0%',
@@ -66,7 +64,7 @@ var NA_SHAPES = [
 	'stroke': 'rgba(85, 85, 85, 0.7)',
 	'stroke-width': '1',
 	'z': '1',
-    },
+    },*/
 ];
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
@@ -823,7 +821,7 @@ var BarRuleSet = (function () {
     function BarRuleSet(params) {
 	LinearInterpRuleSet.call(this, params);
 	this.bar_rule;
-	this.fill = params.fill || 'rgba(179,141,155,1)';
+	this.fill = params.fill || 'rgba(156,123,135,1)';
     }
     BarRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
 

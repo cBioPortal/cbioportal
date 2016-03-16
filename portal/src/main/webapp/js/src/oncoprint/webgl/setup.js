@@ -698,6 +698,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		// first gather the data by patient
 		for (var i=0; i<data.length; i++) {
 		    var datum = data[i];
+		    if (typeof sample_to_patient[datum.sample] === 'undefined') {
+			continue;
+		    }
 		    patient_to_data[sample_to_patient[datum.sample]] = patient_to_data[sample_to_patient[datum.sample]] || [];
 		    patient_to_data[sample_to_patient[datum.sample]].push(datum);
 		}

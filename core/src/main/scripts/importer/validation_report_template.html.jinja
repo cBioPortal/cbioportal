@@ -92,18 +92,18 @@
       {% endif %}
       <div class="panel panel-{{ file_level }}">
         <div class="panel-heading" role="tab"
-             {{ {'id': 'heading-%s'|format(filename)}|xmlattr }}>
+             {{ {'id': 'heading_%s'|format(filename.__hash__())}|xmlattr }}>
           <a role="button" data-toggle="collapse" aria-expanded="true"
              data-parent="#accordion"
-             {{ {'href': '#collapse-%s'|format(filename),
-                'aria-controls': 'collapse-%s'|format(filename)}|xmlattr }}>
+             {{ {'href': '#collapse_%s'|format(filename.__hash__()),
+                 'aria-controls': 'collapse_%s'|format(filename.__hash__())}|xmlattr }}>
             <span class="label label-{{ file_level }}" style="float: right;">{{ file_level_list|length }}</span>
             <h4 class="panel-title">{{ filename|e }}</h4>
           </a>
         </div>
         <div class="panel-collapse collapse" role="tabpanel"
-             {{ {'id':  'collapse-%s'|format(filename),
-                 'aria-labelledby': 'heading-%s'|format(filename)}|xmlattr }}>
+             {{ {'id':  'collapse_%s'|format(filename.__hash__()),
+                 'aria-labelledby': 'heading_%s'|format(filename.__hash__())}|xmlattr }}>
           <div class="panel-body">
             <table style="width:100%">
               <tr>

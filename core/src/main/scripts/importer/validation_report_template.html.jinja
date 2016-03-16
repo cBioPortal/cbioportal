@@ -94,7 +94,6 @@
         <div class="panel-heading" role="tab"
              {{ {'id': 'heading_%s'|format(filename.__hash__())}|xmlattr }}>
           <a role="button" data-toggle="collapse" aria-expanded="true"
-             data-parent="#accordion"
              {{ {'href': '#collapse_%s'|format(filename.__hash__()),
                  'aria-controls': 'collapse_%s'|format(filename.__hash__())}|xmlattr }}>
             <span class="label label-{{ file_level }}" style="float: right;">{{ file_level_list|length }}</span>

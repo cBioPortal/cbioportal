@@ -42,6 +42,7 @@ class MetaFileTypes(object):
     GISTIC_GENES = 'meta_gistic_genes'
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
+    MUTATION_SIGNIFICANCE = 'meta_mutsig'
 
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
@@ -175,6 +176,12 @@ META_FIELD_MAP = {
         'case_list_description': True,
         'case_list_ids': True,
         'case_list_category': False # TODO this is used in org.mskcc.cbio.portal.model.AnnotatedPatientSets.getDefaultPatientList(), decide whether to keeep, see #494
+    },
+    MetaFileTypes.MUTATION_SIGNIFICANCE: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'data_filename': True
     }
 }
 
@@ -194,9 +201,8 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
-    MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS
-    # TODO: enable when documented
-    #MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
+    MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS,
+    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
 }
 
 IMPORTER_REQUIRES_METADATA = {
@@ -426,9 +432,8 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("FUSION", "FUSION"): MetaFileTypes.FUSION,
         # cross-sample molecular statistics (for gene selection)
         ("GISTIC_GENES_AMP", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
-        ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES
-        # TODO
-        # MUTSIG, datatype: Q-VALUE'
+        ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
+        ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE
     }
     result = None
     if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:

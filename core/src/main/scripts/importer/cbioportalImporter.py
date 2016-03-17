@@ -93,7 +93,8 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append(meta_filename)
         args.append("--loadMode")
         args.append("bulkload")
-    if meta_file_type == MetaFileTypes.CLINICAL:
+    if meta_file_type in (MetaFileTypes.CLINICAL,
+                          MetaFileTypes.MUTATION_SIGNIFICANCE):
         args.append(data_filename)
         args.append(meta_file_dict['cancer_study_identifier'])
     else:

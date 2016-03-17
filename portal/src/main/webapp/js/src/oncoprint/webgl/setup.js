@@ -1075,8 +1075,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     (function initOncoprint() {
 	LoadingBar.show();
 	LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
-	var genetic_def = new $.Deferred();
-	var clinical_def = new $.Deferred();
+	var def = new $.Deferred();
 	oncoprint.setCellPaddingOn(State.cell_padding_on);
 	QuerySession.getGenomicEventData().then(function (data) {
 	    var genes = window.QuerySession.getQueryGenes();
@@ -1085,33 +1084,34 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		PortalDataColl.setOncoprintStat(window.OncoprintUtils.alteration_info(data));
 	    })();
 	    State.addGeneticTracks(genes);
-	    genetic_def.resolve();
 	}).fail(function() {
-	    genetic_def.reject();
-	});
-	
-	var url_clinical_attrs = URL.getInitUsedClinicalAttrs() || [];
-	if (url_clinical_attrs.length > 0) {
-	    $(toolbar_selector + ' #oncoprint-diagram-showlegend-icon').show();
-	    var attr_ids_to_query = [];
-	    var local_attrs = [];
-	    for (var i=0; i<url_clinical_attrs.length; i++) {
-		if (url_clinical_attrs[i] === '# mutations') {
-		    local_attrs.push(ClinicalData.NUMBER_MUTATIONS_ATTRIBUTE);
-		} else if (url_clinical_attrs[i] === 'FRACTION_GENOME_ALTERED') {
-		    local_attrs.push(ClinicalData.FRACTION_GENOME_ALTERED);
-		} else {
-		    attr_ids_to_query.push(url_clinical_attrs[i]);
+	    def.reject();
+	}).then(function() {
+	    var url_clinical_attrs = URL.getInitUsedClinicalAttrs() || [];
+	    if (url_clinical_attrs.length > 0) {
+		$(toolbar_selector + ' #oncoprint-diagram-showlegend-icon').show();
+		var attr_ids_to_query = [];
+		var local_attrs = [];
+		for (var i=0; i<url_clinical_attrs.length; i++) {
+		    if (url_clinical_attrs[i] === '# mutations') {
+			local_attrs.push(ClinicalData.NUMBER_MUTATIONS_ATTRIBUTE);
+		    } else if (url_clinical_attrs[i] === 'FRACTION_GENOME_ALTERED') {
+			local_attrs.push(ClinicalData.FRACTION_GENOME_ALTERED);
+		    } else {
+			attr_ids_to_query.push(url_clinical_attrs[i]);
+		    }
 		}
+		cbioportal_client.getClinicalAttributes({'attr_ids':attr_ids_to_query}).then(function(attrs) {
+		    State.addClinicalTracks(attrs.concat(local_attrs));
+		    def.resolve();
+		});
+	    } else {
+		def.resolve();
 	    }
-	    cbioportal_client.getClinicalAttributes({'attr_ids':attr_ids_to_query}).then(function(attrs) {
-		State.addClinicalTracks(attrs.concat(local_attrs));
-		clinical_def.resolve();
-	    });
-	} else {
-	    clinical_def.resolve();
-	}
-	return $.when(genetic_def, clinical_def);
+	}).fail(function() {
+	    def.reject();
+	});
+	return def.promise();
     })().then(function() {
         var populate_data_promise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
 	    

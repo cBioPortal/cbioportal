@@ -3671,10 +3671,18 @@ var svgfactory = require('./svgfactory.js');
 
 // TODO: antialiasing
 
-var getWebGLCanvasContext = function ($canvas) {
+var getNewCanvas = function(view) {
+    var old_canvas = view.$canvas[0];
+    var new_canvas = old_canvas.cloneNode();
+    var parent_node = old_canvas.parentNode;
+    parent_node.removeChild(old_canvas);
+    parent_node.insertBefore(new_canvas, view.$overlay_canvas[0]);
+    view.$canvas = $(new_canvas);
+};
+var getWebGLCanvasContext = function (view) {
     try {
-	var canvas = $canvas[0];
-	var ctx = canvas.getContext("experimental-webgl", {alpha: false});
+	var canvas = view.$canvas[0];
+	var ctx = canvas.getContext("experimental-webgl", {alpha: false, antialias: view.antialias});
 	ctx.clearColor(1.0, 1.0, 1.0, 1.0);
 	ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
 	ctx.viewportWidth = canvas.width;
@@ -3746,7 +3754,11 @@ var OncoprintWebGLCellView = (function () {
 	this.$container = $container;
 	this.$canvas = $canvas;
 	this.$overlay_canvas = $overlay_canvas;
-	getWebGLContextAndSetUpMatrices(this);
+	
+	this.antialias = true;
+	this.antialias_on_cell_width_thresh = 5;
+	
+	getWebGLContextAndSetUpMatricesAndShaders(this);
 	getOverlayContextAndClear(this);
 	this.visible_area_width = $canvas[0].width;
 	
@@ -3777,54 +3789,10 @@ var OncoprintWebGLCellView = (function () {
 	
 	this.highlight_area_callback = (typeof highlight_area_callback === 'undefined' ? function() {} : highlight_area_callback); // function(left, right) { ... }
 	
-	
-	(function initializeShaders(self) {// Initialize shaders
-	    var vertex_shader_source = ['attribute vec3 aVertexPosition;',
-		'attribute vec4 aVertexColor;',
-		'',
-		'uniform float scrollX;',
-		'uniform float zoomX;',
-		'uniform float scrollY;',
-		'uniform float zoomY;',
-		'uniform mat4 uMVMatrix;',
-		'uniform mat4 uPMatrix;',
-		'uniform float offsetY;',
-		'varying vec4 vColor;',
-		'void main(void) {',
-		'	gl_Position = vec4(aVertexPosition, 1.0);',
-		'	gl_Position[1] += offsetY;',
-		'	gl_Position[0] *= zoomX;',
-		'	gl_Position -= vec4(scrollX, 0.0, 0.0, 0.0);',
-		'	gl_Position = uPMatrix * uMVMatrix * gl_Position;',
-		'	vColor = aVertexColor;',
-		'}'].join('\n');
-	    var fragment_shader_source = ['precision mediump float;',
-		'varying vec4 vColor;',
-		'',
-		'void main(void) {',
-		'   gl_FragColor = vColor;',
-		'}'].join('\n');
-	    var vertex_shader = createShader(self, vertex_shader_source, 'VERTEX_SHADER');
-	    var fragment_shader = createShader(self, fragment_shader_source, 'FRAGMENT_SHADER');
-
-	    var shader_program = createShaderProgram(self, vertex_shader, fragment_shader);
-	    shader_program.vertexPositionAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexPosition');
-	    self.ctx.enableVertexAttribArray(shader_program.vertexPositionAttribute);
-	    shader_program.vertexColorAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexColor');
-	    self.ctx.enableVertexAttribArray(shader_program.vertexColorAttribute);
-
-	    shader_program.pMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uPMatrix');
-	    shader_program.mvMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uMVMatrix');
-	    shader_program.scrollXUniform = self.ctx.getUniformLocation(shader_program, 'scrollX');
-	    shader_program.zoomXUniform = self.ctx.getUniformLocation(shader_program, 'zoomX');
-	    shader_program.offsetYUniform = self.ctx.getUniformLocation(shader_program, 'offsetY');
-
-	    self.shader_program = shader_program;
-	})(this);
 
 	(function initializeOverlayEvents(self) {
 	    var dragging = false;
-	    var drag_time_minimum = 200;
+	    var drag_time_minimum = 100;
 	    var drag_diff_minimum = 10;
 	    var drag_is_valid = false;
 	    var drag_is_valid_timeout = null;
@@ -3930,7 +3898,7 @@ var OncoprintWebGLCellView = (function () {
     };
     
     var getWebGLContextAndSetUpMatrices = function(view) {
-	view.ctx = getWebGLCanvasContext(view.$canvas);
+	view.ctx = getWebGLCanvasContext(view);
 	(function initializeMatrices(self) {
 	    var mvMatrix = gl_matrix.mat4.create();
 	    gl_matrix.mat4.lookAt(mvMatrix, [0, 0, 1], [0, 0, 0], [0, 1, 0]);
@@ -3939,6 +3907,52 @@ var OncoprintWebGLCellView = (function () {
 	    var pMatrix = gl_matrix.mat4.create();
 	    gl_matrix.mat4.ortho(pMatrix, 0, self.ctx.viewportWidth, self.ctx.viewportHeight, 0, -5, 1000); // y axis inverted so that y increases down like SVG
 	    self.pMatrix = pMatrix;
+	})(view);
+    };
+    var getWebGLContextAndSetUpMatricesAndShaders = function(view) {
+	getWebGLContextAndSetUpMatrices(view);
+	(function initializeShaders(self) {// Initialize shaders
+	    var vertex_shader_source = ['attribute vec3 aVertexPosition;',
+		'attribute vec4 aVertexColor;',
+		'',
+		'uniform float scrollX;',
+		'uniform float zoomX;',
+		'uniform float scrollY;',
+		'uniform float zoomY;',
+		'uniform mat4 uMVMatrix;',
+		'uniform mat4 uPMatrix;',
+		'uniform float offsetY;',
+		'varying vec4 vColor;',
+		'void main(void) {',
+		'	gl_Position = vec4(aVertexPosition, 1.0);',
+		'	gl_Position[1] += offsetY;',
+		'	gl_Position[0] *= zoomX;',
+		'	gl_Position -= vec4(scrollX, 0.0, 0.0, 0.0);',
+		'	gl_Position = uPMatrix * uMVMatrix * gl_Position;',
+		'	vColor = aVertexColor;',
+		'}'].join('\n');
+	    var fragment_shader_source = ['precision mediump float;',
+		'varying vec4 vColor;',
+		'',
+		'void main(void) {',
+		'   gl_FragColor = vColor;',
+		'}'].join('\n');
+	    var vertex_shader = createShader(self, vertex_shader_source, 'VERTEX_SHADER');
+	    var fragment_shader = createShader(self, fragment_shader_source, 'FRAGMENT_SHADER');
+
+	    var shader_program = createShaderProgram(self, vertex_shader, fragment_shader);
+	    shader_program.vertexPositionAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexPosition');
+	    self.ctx.enableVertexAttribArray(shader_program.vertexPositionAttribute);
+	    shader_program.vertexColorAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexColor');
+	    self.ctx.enableVertexAttribArray(shader_program.vertexColorAttribute);
+
+	    shader_program.pMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uPMatrix');
+	    shader_program.mvMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uMVMatrix');
+	    shader_program.scrollXUniform = self.ctx.getUniformLocation(shader_program, 'scrollX');
+	    shader_program.zoomXUniform = self.ctx.getUniformLocation(shader_program, 'zoomX');
+	    shader_program.offsetYUniform = self.ctx.getUniformLocation(shader_program, 'offsetY');
+
+	    self.shader_program = shader_program;
 	})(view);
     };
 
@@ -4191,6 +4205,13 @@ var OncoprintWebGLCellView = (function () {
 	}
 	view.identified_shape_list_list[track_id] = model.getIdentifiedShapeListList(track_id, true, true);
     };
+    
+        
+    var refreshCanvas = function(view) {
+	getNewCanvas(view);
+	getWebGLContextAndSetUpMatricesAndShaders(view);
+    };
+    
     OncoprintWebGLCellView.prototype.isUsable = function () {
 	return this.ctx !== null;
     }
@@ -4282,6 +4303,18 @@ var OncoprintWebGLCellView = (function () {
     }
     
     OncoprintWebGLCellView.prototype.setHorzZoom = function(model) {
+	var cell_width = model.getCellWidth();
+	if (cell_width < this.antialias_on_cell_width_thresh) {
+	    if (!this.antialias) {
+		this.antialias = true;
+		refreshCanvas(this);
+	    }
+	} else {
+	    if (this.antialias) {
+		this.antialias = false;
+		refreshCanvas(this);
+	    }
+	}
 	clearZoneBuffers(this, model);
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {

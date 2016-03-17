@@ -4,7 +4,7 @@ var OncoprintTrackInfoView = (function() {
     function OncoprintTrackInfoView($div) {
 	this.$div = $div;
 	this.font_size = 12;
-	this.font_family = 'serif';
+	this.font_family = 'Arial';
 	this.font_weight = 'bold';
 	this.width = 0;
 	

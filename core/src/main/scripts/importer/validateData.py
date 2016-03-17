@@ -52,7 +52,8 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.METHYLATION:'MethylationValidator',
     cbioportal_common.MetaFileTypes.RPPA:'RPPAValidator',
     cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
-    cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator'
+    cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator',
+    cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator'
 }
 
 
@@ -1535,6 +1536,13 @@ class MethylationValidator(GenewiseFileValidator):
         """Check a value in a sample column."""
         # TODO check these values
         pass
+
+
+class MutationSignificanceValidator(Validator):
+
+    # TODO add checks for mutsig files
+    ALLOW_BLANKS = True
+    pass
 
 
 class RPPAValidator(FeaturewiseFileValidator):

@@ -38,7 +38,7 @@ public class VersionUtil
 {
     public static void main(String[] args)
     {
-       String versionCheck = DaoInfo.checkVersion() ? "Database in sync" : "Database out of sync";
-       System.out.println(versionCheck);
+       int versionCheck = DaoInfo.checkVersion() ? 0 : 1;
+       System.exit(versionCheck);
     }
 }

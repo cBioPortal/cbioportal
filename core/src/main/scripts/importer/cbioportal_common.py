@@ -617,4 +617,5 @@ def run_java(*args):
         if line != '' and line.endswith('\n'):
             print >> OUTPUT_FILE, line.strip()
             ret.append(line[:-1])
+    ret.append(process.returncode)
     return ret

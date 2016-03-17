@@ -510,15 +510,17 @@ var Oncoprint = (function () {
 	this.cell_view.hideIds(this.model);
     }
     
-    Oncoprint.prototype.hideTrackLegend = function(track_id) {
-	this.model.hideTrackLegend(track_id);
-	this.legend_view.hideTrackLegend(this.model);
+    Oncoprint.prototype.hideTrackLegends = function(track_ids) {
+	track_ids = [].concat(track_ids);
+	this.model.hideTrackLegends(track_ids);
+	this.legend_view.hideTrackLegends(this.model);
 	resizeLegendAfterTimeout(this);
     }
     
-    Oncoprint.prototype.showTrackLegend = function(track_id) {
-	this.model.showTrackLegend(track_id);
-	this.legend_view.showTrackLegend(this.model);
+    Oncoprint.prototype.showTrackLegends = function(track_ids) {
+	track_ids = [].concat(track_ids);
+	this.model.showTrackLegends(track_ids);
+	this.legend_view.showTrackLegends(this.model);
 	resizeLegendAfterTimeout(this);
     }
     
@@ -918,12 +920,13 @@ var OncoprintLegendView = (function() {
 	    everything_group.appendChild(rule_set_group);
 	    (function addLabel() {
 		if (rule_sets[i].legend_label && rule_sets[i].legend_label.length > 0) {
-		    var label = svgfactory.text(rule_sets[i].legend_label, 0, y, 12, 'Arial', 'bold');
+		    var label = svgfactory.text(rule_sets[i].legend_label, 0, 0, 12, 'Arial', 'bold');
 		    rule_set_group.appendChild(label);
 		}
 	    })();
 	    
 	    var x = rule_start_x + view.padding_after_rule_set_label;
+	    var in_group_y_offset = 0;
 	    
 	    var rules = model.getActiveRules(rule_sets[i].rule_set_id);
 	    for (var j=0; j<rules.length; j++) {
@@ -932,18 +935,18 @@ var OncoprintLegendView = (function() {
 		    continue;
 		}
 		var group = ruleToSVGGroup(rule, view, model);
-		group.setAttribute('transform', 'translate('+x+','+y+')');
+		group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		rule_set_group.appendChild(group);
 		if (x + group.getBBox().width > view.width) {
 		    x = rule_start_x + view.padding_after_rule_set_label;
-		    y = rule_set_group.getBBox().y + rule_set_group.getBBox().height;
-		    group.setAttribute('transform', 'translate('+x+','+y+')');
+		    in_group_y_offset = rule_set_group.getBBox().height + view.padding_between_rule_set_rows;
+		    group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		}
 		x += group.getBBox().width;
 		x += view.padding_between_rules;
 	    }
 	    y += rule_set_group.getBBox().height;
-	    y += view.padding_between_rule_set_rows;
+	    y += 3*view.padding_between_rule_set_rows;
 	}
 	var everything_box = everything_group.getBBox();
 	view.$svg[0].setAttribute('width', everything_box.width);
@@ -995,11 +998,11 @@ var OncoprintLegendView = (function() {
 	renderLegend(this, model);
     }
     
-    OncoprintLegendView.prototype.hideTrackLegend = function(model) {
+    OncoprintLegendView.prototype.hideTrackLegends = function(model) {
 	renderLegend(this, model);
     }
     
-    OncoprintLegendView.prototype.showTrackLegend = function(model) {
+    OncoprintLegendView.prototype.showTrackLegends = function(model) {
 	renderLegend(this, model);
     }
     
@@ -1323,12 +1326,18 @@ var OncoprintModel = (function () {
 	return this.vert_zoom;
     }
 
-    OncoprintModel.prototype.hideTrackLegend = function(track_id) {
-	this.getRuleSet(track_id).exclude_from_legend = true;
+    OncoprintModel.prototype.hideTrackLegends = function(track_ids) {
+	track_ids = [].concat(track_ids);
+	for (var i=0; i<track_ids.length; i++) {
+	    this.getRuleSet(track_ids[i]).exclude_from_legend = true;
+	}
     }
     
-    OncoprintModel.prototype.showTrackLegend = function(track_id) {
-	this.getRuleSet(track_id).exclude_from_legend = false;
+    OncoprintModel.prototype.showTrackLegends = function(track_ids) {
+	track_ids = [].concat(track_ids);
+	for (var i=0; i<track_ids.length; i++) {
+	    this.getRuleSet(track_ids[i]).exclude_from_legend = false;
+	}
     }
 
     OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_width, sort_by_z) {

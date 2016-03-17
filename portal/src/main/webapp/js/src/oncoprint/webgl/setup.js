@@ -1378,12 +1378,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			function() {
 			    State.clinical_track_legends_shown = !State.clinical_track_legends_shown;
 			    var clinical_track_ids = Object.keys(State.clinical_tracks);
-			    for (var i=0; i<clinical_track_ids.length; i++) {
-				if (State.clinical_track_legends_shown) {
-				    oncoprint.showTrackLegend(clinical_track_ids[i]);
-				} else {
-				    oncoprint.hideTrackLegend(clinical_track_ids[i]);
-				}
+			    if (State.clinical_track_legends_shown) {
+				oncoprint.showTrackLegends(clinical_track_ids);
+			    } else {
+				oncoprint.hideTrackLegends(clinical_track_ids);
 			    }
 			});
 	})();

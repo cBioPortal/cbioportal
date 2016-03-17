@@ -67,12 +67,13 @@ var OncoprintLegendView = (function() {
 	    everything_group.appendChild(rule_set_group);
 	    (function addLabel() {
 		if (rule_sets[i].legend_label && rule_sets[i].legend_label.length > 0) {
-		    var label = svgfactory.text(rule_sets[i].legend_label, 0, y, 12, 'Arial', 'bold');
+		    var label = svgfactory.text(rule_sets[i].legend_label, 0, 0, 12, 'Arial', 'bold');
 		    rule_set_group.appendChild(label);
 		}
 	    })();
 	    
 	    var x = rule_start_x + view.padding_after_rule_set_label;
+	    var in_group_y_offset = 0;
 	    
 	    var rules = model.getActiveRules(rule_sets[i].rule_set_id);
 	    for (var j=0; j<rules.length; j++) {
@@ -81,18 +82,18 @@ var OncoprintLegendView = (function() {
 		    continue;
 		}
 		var group = ruleToSVGGroup(rule, view, model);
-		group.setAttribute('transform', 'translate('+x+','+y+')');
+		group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		rule_set_group.appendChild(group);
 		if (x + group.getBBox().width > view.width) {
 		    x = rule_start_x + view.padding_after_rule_set_label;
-		    y = rule_set_group.getBBox().y + rule_set_group.getBBox().height;
-		    group.setAttribute('transform', 'translate('+x+','+y+')');
+		    in_group_y_offset = rule_set_group.getBBox().height + view.padding_between_rule_set_rows;
+		    group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		}
 		x += group.getBBox().width;
 		x += view.padding_between_rules;
 	    }
 	    y += rule_set_group.getBBox().height;
-	    y += view.padding_between_rule_set_rows;
+	    y += 3*view.padding_between_rule_set_rows;
 	}
 	var everything_box = everything_group.getBBox();
 	view.$svg[0].setAttribute('width', everything_box.width);
@@ -144,11 +145,11 @@ var OncoprintLegendView = (function() {
 	renderLegend(this, model);
     }
     
-    OncoprintLegendView.prototype.hideTrackLegend = function(model) {
+    OncoprintLegendView.prototype.hideTrackLegends = function(model) {
 	renderLegend(this, model);
     }
     
-    OncoprintLegendView.prototype.showTrackLegend = function(model) {
+    OncoprintLegendView.prototype.showTrackLegends = function(model) {
 	renderLegend(this, model);
     }
     

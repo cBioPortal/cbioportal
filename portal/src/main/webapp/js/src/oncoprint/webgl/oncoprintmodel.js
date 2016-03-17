@@ -296,12 +296,18 @@ var OncoprintModel = (function () {
 	return this.vert_zoom;
     }
 
-    OncoprintModel.prototype.hideTrackLegend = function(track_id) {
-	this.getRuleSet(track_id).exclude_from_legend = true;
+    OncoprintModel.prototype.hideTrackLegends = function(track_ids) {
+	track_ids = [].concat(track_ids);
+	for (var i=0; i<track_ids.length; i++) {
+	    this.getRuleSet(track_ids[i]).exclude_from_legend = true;
+	}
     }
     
-    OncoprintModel.prototype.showTrackLegend = function(track_id) {
-	this.getRuleSet(track_id).exclude_from_legend = false;
+    OncoprintModel.prototype.showTrackLegends = function(track_ids) {
+	track_ids = [].concat(track_ids);
+	for (var i=0; i<track_ids.length; i++) {
+	    this.getRuleSet(track_ids[i]).exclude_from_legend = false;
+	}
     }
 
     OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_width, sort_by_z) {

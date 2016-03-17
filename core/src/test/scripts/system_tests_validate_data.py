@@ -17,9 +17,12 @@ from importer import validateData
 # globals:
 PORTAL_INFO_DIR = 'test_data/api_json_system_tests'
 
-# Test cases around running the complete validateData script (such as "does it return the correct exit status?" 
-# or "does it generate the html report when requested?", etc)
 class ValidateDataSystemTester(unittest.TestCase):
+    '''Test cases around running the complete validateData script
+
+    (such as "does it return the correct exit status?" or "does it generate
+    the html report when requested?", etc)
+    '''
 
     def tearDown(self):
         """Close logging handlers after running validator."""
@@ -42,13 +45,12 @@ class ValidateDataSystemTester(unittest.TestCase):
                 3: 'succeeded with warnings'
         '''
 
-
-        #Build up arguments and run
+        # build up the argument list
         print "===study 0"
         args = ['--study_directory','test_data/study_es_0/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v']
+        # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
-        # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         self.assertEquals(0, exit_status)
 
@@ -162,18 +164,18 @@ class ValidateDataSystemTester(unittest.TestCase):
         self.assertEquals(exit_status, 3)
 
     def test_problem_in_clinical(self):
+        '''Test whether the script aborts if the sample file cannot be parsed.
+
+        Further files cannot be validated in this case, as all sample IDs will
+        be undefined. Validate if the script is giving the proper error.
         '''
-        When clinical file has a problem, we want the program to abort and give just this error 
-        before validating other files (because other files cannot be validated in case clinical is wrong).
-        Here we validate if script is giving proper error. 
-        '''
-        #Build up arguments and run
+        # build the argument list
         print '==test_problem_in_clinical=='
         args = ['--study_directory','test_data/study_wr_clin/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
                 '--html_table', 'test_data/study_wr_clin/result_report.html']
+        # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
-        # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         self.assertEquals(1, exit_status)
         # TODO - set logger in main_validate and read out buffer here to assert on nr of errors

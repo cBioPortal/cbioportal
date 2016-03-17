@@ -133,6 +133,10 @@ var OncoprintWebGLCellView = (function () {
 	    var prev_overlapping_cell = null;
 	    
 	    var executeDrag = function() {
+		if (!dragging) {
+		    return;
+		}
+		dragging = false;
 		clearTimeout(drag_is_valid_timeout);
 		if (!drag_is_valid) {
 		    return;
@@ -203,11 +207,9 @@ var OncoprintWebGLCellView = (function () {
 		tooltip.hide();
 	    });
 	    self.$overlay_canvas.on("mouseup", function(evt) {
-		dragging = false;
 		executeDrag();
 	    });
 	    self.$overlay_canvas.on("mouseleave", function(evt) {
-		dragging = false;
 		executeDrag();
 	    });
 	    
@@ -422,18 +424,7 @@ var OncoprintWebGLCellView = (function () {
 		    // Stroke
 		    var x = parseFloat(shape.x) + offset_x, y = parseFloat(shape.y),  height = parseFloat(shape.height), width = parseFloat(shape.width);
 		    var stroke_width = parseFloat(shape['stroke-width']);
-		    if (stroke_width > 0) {
-			vertex_position_array.push(x - stroke_width, y - stroke_width, -1);
-			vertex_position_array.push(x + width + stroke_width, y - stroke_width, -1);
-			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -1);
-
-			vertex_position_array.push(x - stroke_width, y - stroke_width, -1);
-			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -1);
-			vertex_position_array.push(x - stroke_width, y + height + stroke_width, -1);
-
-			addVertexColor(vertex_color_array, shape.stroke, 6);
-		    }
-		    
+		     		    
 		    vertex_position_array.push(x, y, j);
 		    vertex_position_array.push(x + width, y, j);
 		    vertex_position_array.push(x + width, y + height, j);
@@ -443,6 +434,47 @@ var OncoprintWebGLCellView = (function () {
 		    vertex_position_array.push(x, y + height, j);
 
 		    addVertexColor(vertex_color_array, shape.fill, 6);
+		    
+		    if (stroke_width > 0) {
+			// left side
+			vertex_position_array.push(x, y, j);
+			vertex_position_array.push(x + stroke_width, y, j);
+			vertex_position_array.push(x + stroke_width, y + height, j);
+
+			vertex_position_array.push(x, y, j);
+			vertex_position_array.push(x + stroke_width, y + height, j);
+			vertex_position_array.push(x, y + height, j);
+			
+			// right side
+			vertex_position_array.push(x + width, y, j);
+			vertex_position_array.push(x + width - stroke_width, y, j);
+			vertex_position_array.push(x + width - stroke_width, y + height, j);
+
+			vertex_position_array.push(x + width, y, j);
+			vertex_position_array.push(x + width - stroke_width, y + height, j);
+			vertex_position_array.push(x + width, y + height, j);
+			
+			// top side
+			vertex_position_array.push(x, y, j);
+			vertex_position_array.push(x+width, y, j);
+			vertex_position_array.push(x+width, y+stroke_width, j);
+			
+			vertex_position_array.push(x, y, j);
+			vertex_position_array.push(x+width, y+stroke_width, j);
+			vertex_position_array.push(x, y+stroke_width, j);
+			
+			// bottom side
+			vertex_position_array.push(x, y+height, j);
+			vertex_position_array.push(x+width, y+height, j);
+			vertex_position_array.push(x+width, y+height-stroke_width, j);
+			
+			vertex_position_array.push(x, y+height, j);
+			vertex_position_array.push(x+width, y+height-stroke_width, j);
+			vertex_position_array.push(x, y+height-stroke_width, j);
+
+			addVertexColor(vertex_color_array, shape.stroke, 6*4);
+		    }
+
 		} else if (shape.type === "triangle") {
 		    vertex_position_array.push(offset_x + parseFloat(shape.x1), parseFloat(shape.y1), j);
 		    vertex_position_array.push(offset_x + parseFloat(shape.x2), parseFloat(shape.y2), j);

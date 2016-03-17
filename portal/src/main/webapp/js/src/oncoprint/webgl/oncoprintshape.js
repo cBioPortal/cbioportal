@@ -16,6 +16,7 @@ var Shape = (function() {
 	    'stroke-width': '0'
     };
     var parameter_name_to_dimension_index = {
+	'stroke-width':0,
 	'width': 0,
 	'x':0,
 	'x1':0,

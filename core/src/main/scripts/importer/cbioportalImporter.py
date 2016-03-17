@@ -127,7 +127,6 @@ def check_version(jvm_args):
     if ret_stat[-1] != 0:
         print >> OUTPUT_FILE, 'This version of the portal is out of sync with the database. You must run the database migration script located at PORTAL_HOME/core/src/main/scripts/migrate_db.py before continuing.'
         sys.exit()
-    sys.exit()
 
 def process_case_lists(jvm_args, case_list_dir):
     case_list_files = (os.path.join(case_list_dir, x) for

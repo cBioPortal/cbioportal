@@ -729,14 +729,23 @@
                                     firstEnterFlag = false;
                                 }
                                 histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
-                              
-                                
+                            
 				studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
 				studyLocIncrements = studyWidth / .75;
                                 // Data type radius
                                 circleDTR = studyWidth / 4;
                                 // Tumor type radius
                                 circleTTR = Math.min(studyWidth, 20) / 2;
+                                //auto adjust left padding to solve the truncating x label problem
+                               var fontSize = Math.min((studyWidth * .65), 12);
+                      
+                               var maxLabelLength = 0;
+                               for(var i=0; i<histData.length; i++){
+                                   var currentName = getStudyAbbr(histData[i], metaData);
+                                   if(currentName.length > maxLabelLength) maxLabelLength = currentName.length;
+                               }
+                               var fontSpace = maxLabelLength*fontSize*0.5;
+                               paddingLeft = Math.max(fontSpace-80, paddingLeft);
 
                                 var stacked = $("#histogram-show-colors").is(":checked");
                                 var outX = width + 1000;

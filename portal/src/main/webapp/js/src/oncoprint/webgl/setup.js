@@ -1096,7 +1096,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    if (url_clinical_attrs[i] === '# mutations') {
 			local_attrs.push(ClinicalData.NUMBER_MUTATIONS_ATTRIBUTE);
 		    } else if (url_clinical_attrs[i] === 'FRACTION_GENOME_ALTERED') {
-			local_attrs.push(ClinicalData.FRACTION_GENOME_ALTERED);
+			local_attrs.push(ClinicalData.FRACTION_GENOME_ALTERED_ATTRIBUTE);
 		    } else {
 			attr_ids_to_query.push(url_clinical_attrs[i]);
 		    }
@@ -1435,6 +1435,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    );
 	})();
 	(function setUpDownload() {
+	    var xml_serializer = new XMLSerializer();
 	    addQTipTo($(toolbar_selector + ' #oncoprint-diagram-downloads-icon'), {
 				//id: "#oncoprint-diagram-downloads-icon-qtip",
 				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
@@ -1455,26 +1456,36 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 							var fileType = $(this).attr("type");
 							if (fileType === 'pdf')
 							{
+								var svg = oncoprint.toSVG();
+								if (xml_serializer.serializeToString(svg).length > 2000000) {
+								    alert("Oncoprint too big to download as PDF - please download as SVG, then convert to PDF using your program of choice.");
+								    return;
+								}
 								var downloadOptions = {
 									filename: "oncoprint.pdf",
 									contentType: "application/pdf",
 									servletName: "svgtopdf.do"
 								};
 
-								cbio.download.initDownload(oncoprint.toSVG(), downloadOptions);
+								cbio.download.initDownload(svg, downloadOptions);
 							}
 							else if (fileType === 'svg')
 							{
 								cbio.download.initDownload(oncoprint.toSVG(), {filename: "oncoprint.svg"});
 							} else if (fileType === 'png')
 							{
+							    var svg = oncoprint.toSVG(true);
+							    if (xml_serializer.serializeToString(svg).length > 2000000) {
+								    alert("Oncoprint too big to download as PNG - please download as SVG, then convert to PNG using your program of choice.");
+								    return;
+							    }
 							    var downloadOptions = {
 									filename: "oncoprint.png",
 									contentType: "application/png",
 									servletName: "svgtopdf.do"
 							    };
 							    
-							    cbio.download.initDownload(oncoprint.toSVG(true), downloadOptions);
+							    cbio.download.initDownload(svg, downloadOptions);
 							}
 						});
 

@@ -911,7 +911,7 @@ var OncoprintLegendView = (function() {
 	
 	var rule_sets = model.getRuleSets();
 	var y = 0;
-	var rule_start_x = getMaximumLabelWidth(view, model);
+	var rule_start_x = 200;
 	for (var i=0; i<rule_sets.length; i++) {
 	    if (rule_sets[i].exclude_from_legend && !show_all) {
 		continue;
@@ -922,6 +922,7 @@ var OncoprintLegendView = (function() {
 		if (rule_sets[i].legend_label && rule_sets[i].legend_label.length > 0) {
 		    var label = svgfactory.text(rule_sets[i].legend_label, 0, 0, 12, 'Arial', 'bold');
 		    rule_set_group.appendChild(label);
+		    svgfactory.wrapText(label, rule_start_x);
 		}
 	    })();
 	    
@@ -4471,6 +4472,29 @@ module.exports = {
 	    'width':(width || 0), 
 	    'height':(height || 0),
 	});
+    },
+    wrapText: function(in_dom_text_svg_elt, width) {
+	var text = in_dom_text_svg_elt.textContent;
+	in_dom_text_svg_elt.textContent = "";
+	
+	var words = text.split(" ");
+	var dy = 0;
+	var tspan = makeSVGElement('tspan', {'x':'0', 'dy':dy});
+	in_dom_text_svg_elt.appendChild(tspan);
+	
+	var curr_tspan_words = [];
+	for (var i=0; i<words.length; i++) {
+	    curr_tspan_words.push(words[i]);
+	    tspan.textContent = curr_tspan_words.join(" ");
+	    if (tspan.getComputedTextLength() > width) {
+		tspan.textContent = curr_tspan_words.slice(0, curr_tspan_words.length-1).join(" ");
+		dy = in_dom_text_svg_elt.getBBox().height;
+		curr_tspan_words = [words[i]];
+		tspan = makeSVGElement('tspan', {'x':'0', 'dy':dy});
+		in_dom_text_svg_elt.appendChild(tspan);
+		tspan.textContent = words[i];
+	    }
+	}
     },
     fromShape: function(oncoprint_shape_computed_params, offset_x, offset_y) {
 	return shapeToSVG(oncoprint_shape_computed_params, offset_x, offset_y);

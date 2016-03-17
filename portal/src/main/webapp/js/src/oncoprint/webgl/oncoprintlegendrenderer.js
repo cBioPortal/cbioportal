@@ -58,7 +58,7 @@ var OncoprintLegendView = (function() {
 	
 	var rule_sets = model.getRuleSets();
 	var y = 0;
-	var rule_start_x = getMaximumLabelWidth(view, model);
+	var rule_start_x = 200;
 	for (var i=0; i<rule_sets.length; i++) {
 	    if (rule_sets[i].exclude_from_legend && !show_all) {
 		continue;
@@ -69,6 +69,7 @@ var OncoprintLegendView = (function() {
 		if (rule_sets[i].legend_label && rule_sets[i].legend_label.length > 0) {
 		    var label = svgfactory.text(rule_sets[i].legend_label, 0, 0, 12, 'Arial', 'bold');
 		    rule_set_group.appendChild(label);
+		    svgfactory.wrapText(label, rule_start_x);
 		}
 	    })();
 	    

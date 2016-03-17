@@ -3118,9 +3118,11 @@ var triangleToSVG = function (params, offset_x, offset_y) {
 	points: [[parseFloat(params.x1) + offset_x, parseFloat(params.y1) + offset_y], [parseFloat(params.x2) + offset_x, parseFloat(params.y2) + offset_y], [parseFloat(params.x3) + offset_x, parseFloat(params.y3) + offset_y]].map(function (a) {
 	    return a[0] + ',' + a[1];
 	}).join(' '),
-	stroke: params.stroke,
+	stroke: stroke_color.rgb,
+	'stroke-opacity': stroke_color.opacity,
 	'stroke-width': params['stroke-width'],
-	fill: params.fill
+	fill: fill_color.rgb,
+	'fill-opacity': fill_color.opacity
     });
 };
 

@@ -130,7 +130,7 @@ class ValidateDataSystemTester(unittest.TestCase):
             self.assertEqual(diff_line_list, [],
                              msg='\n' + ''.join(diff_line_list))
         finally:
-            shutil.rmtree(temp_dir_path)
+            shutil.rmtree(temp_dir_path) #TODO: make compatible with Windows, so test can work on windows machine
 
     def test_portal_mismatch(self):
         '''Test if validation fails when data contradicts the portal.'''

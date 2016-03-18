@@ -14,6 +14,9 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
   <style type="text/css">
+    .panel-heading .badge {
+      float: right;
+    }
   </style>
   <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -96,7 +99,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              {{ {'href': '#collapse_%s'|format(filename.__hash__()),
                  'aria-controls': 'collapse_%s'|format(filename.__hash__())}|xmlattr }}>
-            <span class="label label-{{ file_level }}" style="float: right;">{{ file_level_list|length }}</span>
+            <span class="badge">{{ file_level_list|length }}</span>
             <h4 class="panel-title">{{ filename|e }}</h4>
           </a>
         </div>

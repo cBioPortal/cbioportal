@@ -525,7 +525,9 @@ def parse_metadata_file(filename,
                     supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
     """
-
+    
+    logger.debug('Starting validation of meta file', extra={'filename_': filename})
+    
     metaDictionary = {}
     with open(filename, 'rU') as metafile:
         for line_index, line in enumerate(metafile):
@@ -607,6 +609,7 @@ def parse_metadata_file(filename,
                        'cause': metaDictionary['reference_genome_id']})
             meta_file_type = None
 
+    logger.info('Validation of meta file complete', extra={'filename_': filename})
     return metaDictionary, meta_file_type
 
 

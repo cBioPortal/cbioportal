@@ -46,7 +46,7 @@ var stringAfterValueCheck = function (value) {
 var refreshEmptyComplexesOrCompartments = function () {
   cy.nodes().removeClass('emptyComplexOrCompartment');
   cy.nodes("[sbgnclass='complex'],[sbgnclass='compartment']").filter( function(i, ele){
-    if(ele.children().length == 0 && ele.data('expanded-collapsed') != 'collapsed'){
+    if(ele.children().length == 0){
       return true;
     }
 

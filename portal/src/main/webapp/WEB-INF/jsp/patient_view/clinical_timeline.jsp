@@ -81,7 +81,7 @@
             var circle = d3.selectAll(".timelineSeries_0").filter(function (x) {
                 if (x.tooltip_tables.length === 1) {
                     var specRefNum = x.tooltip_tables[0].filter(function(x) {
-                        return x[0] === "SpecimenReferenceNumber" || x[0] === "SPECIMEN_REFERENCE_NUMBER";
+                        return x[0] === "SpecimenReferenceNumber" || x[0] === "SPECIMEN_REFERENCE_NUMBER" || x[0] === "SAMPLE_ID";
                     })[0];
                     if (specRefNum) {
                         return compareAgainstIds.indexOf(specRefNum[1]) !== -1;
@@ -129,7 +129,7 @@
                         var sortOrder = Infinity;
 
                         var specRefNum = _.filter(x.tooltip_tables[0], function(x) {
-                            return x[0] === "SPECIMEN_REFERENCE_NUMBER" || x[0] === "SpecimenReferenceNumber";
+                            return x[0] === "SPECIMEN_REFERENCE_NUMBER" || x[0] === "SpecimenReferenceNumber" || x[0] === "SAMPLE_ID";
                         });
                         if (specRefNum) {
                             if (specRefNum.length > 1) {

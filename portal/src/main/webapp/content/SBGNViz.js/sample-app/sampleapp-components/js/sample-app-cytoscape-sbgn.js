@@ -39,8 +39,19 @@ $(document).ready(function ()
   dynamicResize();
 });
 
-var stringAfterValueCheck = function(value){
-  return value?value:'';
+var stringAfterValueCheck = function (value) {
+  return value ? value : '';
+};
+
+var refreshEmptyComplexesOrCompartments = function () {
+  cy.nodes().removeClass('emptyComplexOrCompartment');
+  cy.nodes("[sbgnclass='complex'],[sbgnclass='compartment']").filter( function(i, ele){
+    if(ele.children().length == 0 && ele.data('expanded-collapsed') != 'collapsed'){
+      return true;
+    }
+
+    return false;
+  }).addClass('emptyComplexOrCompartment');
 };
 
 var enableDragAndDropMode = function () {
@@ -58,16 +69,22 @@ var disableDragAndDropMode = function () {
   cy.autounselectify(false);
 };
 
-//Returns true for unspecified entity,
-//simple chemical, macromolecule, nucleic acid feature, and complexes
-//As they may have some specific node properties(state variables, units of information etc.)
-var isSpecialSBGNNodeClass = function (sbgnclass) {
-  if (sbgnclass == 'unspecified entity' || sbgnclass == 'simple chemical'
-  || sbgnclass == 'macromolecule' || sbgnclass == 'nucleic acid feature'
-  || sbgnclass == 'complex'
-  || sbgnclass == 'unspecified entity multimer' || sbgnclass == 'simple chemical multimer'
-  || sbgnclass == 'macromolecule multimer' || sbgnclass == 'nucleic acid feature multimer'
-  || sbgnclass == 'complex multimer') {
+var canHaveCloneMarker = function(sbgnclass) {
+   if (sbgnclass == 'simple chemical'
+          || sbgnclass == 'macromolecule' || sbgnclass == 'nucleic acid feature'
+          || sbgnclass == 'complex' || sbgnclass == 'simple chemical multimer'
+          || sbgnclass == 'macromolecule multimer' || sbgnclass == 'nucleic acid feature multimer'
+          || sbgnclass == 'complex multimer') {
+    return true;
+  }
+  return false;
+};
+
+var canHaveStateVariable = function(sbgnclass) {
+   if (sbgnclass == 'macromolecule' || sbgnclass == 'nucleic acid feature'
+          || sbgnclass == 'complex'
+          || sbgnclass == 'macromolecule multimer' || sbgnclass == 'nucleic acid feature multimer'
+          || sbgnclass == 'complex multimer') {
     return true;
   }
   return false;
@@ -334,17 +351,20 @@ var handleSBGNInspector = function () {
       + "<input id='inspector-border-width' type='number' step='0.01' min='0' style='width: " + buttonwidth + "px;' value='" + parseFloat(selected.css('border-width'))
       + "'/>" + "</td></tr>";
       html += "<tr><td style='width: " + width + "px; text-align:right; padding-right: 5px;'>" + "<font size='2'>Fill Opacity</font>" + "</td><td style='padding-left: 5px;'>"
-      + "<input id='inspector-background-opacity' type='range' step='0.01' min='0' max='1' style='width: " + buttonwidth + "px;' value='" + parseFloat(selected.data('backgroundOpacity'))
-      + "'/>" + "</td></tr>";
-      if (isSpecialSBGNNodeClass(selected.data('sbgnclass'))) {
+              + "<input id='inspector-background-opacity' type='range' step='0.01' min='0' max='1' style='width: " + buttonwidth + "px;' value='" + parseFloat(selected.data('backgroundOpacity'))
+              + "'/>" + "</td></tr>";
+      if (canHaveStateVariable(selected.data('sbgnclass'))) {
         html += "<tr><td colspan='2'><hr style='padding: 0px; margin-top: 15px; margin-bottom: 15px;' width='" + $("#sbgn-inspector").width() + "'></td></tr>";
         html += "<tr><td style='width: " + width + "px; text-align:right; padding-right: 5px;'>" + "<font size='2'>State Variables</font>" + "</td>"
-        + "<td id='inspector-state-variables' style='padding-left: 5px; width: '" + width + "'></td></tr>";
+                + "<td id='inspector-state-variables' style='padding-left: 5px; width: '" + width + "'></td></tr>";
+      }
 
+      if (canHaveCloneMarker(selected.data('sbgnclass'))) {
         html += "<tr><td colspan='2'><hr style='padding: 0px; margin-top: 15px; margin-bottom: 15px;' width='" + $("#sbgn-inspector").width() + "'></td></tr>";
         html += "<tr><td style='width: " + width + "px; text-align:right; padding-right: 5px;'>" + "<font size='2'>Units of Information</font>" + "</td>"
         + "<td id='inspector-unit-of-informations' style='padding-left: 5px; width: '" + width + "'></td></tr>";
       }
+
       var multimerCheck = canBeMultimer(selected.data('sbgnclass'));
       var clonedCheck = canBeCloned(selected.data('sbgnclass'));
 
@@ -390,7 +410,7 @@ var handleSBGNInspector = function () {
     $("#sbgn-inspector").html(html);
 
     if (type == "node") {
-      if (isSpecialSBGNNodeClass(selected.data('sbgnclass'))) {
+      if (canHaveCloneMarker(selected.data('sbgnclass')) || canHaveStateVariable(selected.data('sbgnclass'))) {
         fillInspectorStateAndInfos(selected, width);
       }
 
@@ -882,6 +902,7 @@ var truncateText = function (textProp, font) {
 
 var getElementContent = function (ele) {
   var sbgnclass = ele.data('sbgnclass');
+
   if (sbgnclass.endsWith(' multimer')) {
     sbgnclass = sbgnclass.replace(' multimer', '');
   }
@@ -892,6 +913,9 @@ var getElementContent = function (ele) {
   || sbgnclass == 'unspecified entity' || sbgnclass == 'nucleic acid feature'
   || sbgnclass == 'perturbing agent' || sbgnclass == 'tag') {
     content = ele.data('sbgnlabel') ? ele.data('sbgnlabel') : "";
+  }
+  else if(sbgnclass == 'complex'){
+    content = ele.data('sbgnlabel') && ele.children().length == 0 ? ele.data('sbgnlabel') : "";
   }
   else if (sbgnclass == 'and') {
     content = 'AND';
@@ -912,9 +936,11 @@ var getElementContent = function (ele) {
     content = 'O';
   }
 
+  var textWidth = ele.css('width') ? parseFloat(ele.css('width')) : ele.data('sbgnbbox').w;
+
   var textProp = {
     label: content,
-    width: ele.data('width') ? ele.data('width') : ele.data('sbgnbbox').w
+    width: sbgnclass==('complex'||'compartment')?textWidth * 3:textWidth
   };
 
   var font = getLabelTextSize(ele) + "px Arial";
@@ -956,252 +982,250 @@ var getDynamicLabelTextSize = function (ele) {
 };
 
 var sbgnStyleSheet = cytoscape.stylesheet()
-.selector("node")
-.css({
-  'border-width': 1.5,
-  'border-color': '#555',
-  'background-color': '#f6f6f6',
-  'font-size': 11,
-  //          'shape': 'data(sbgnclass)',
-  'background-opacity': 0.5,
-})
-.selector("node[?sbgnclonemarker][sbgnclass='perturbing agent']")
-.css({
-  'background-image': 'sampleapp-images/clone_bg.png',
-  'background-position-x': '50%',
-  'background-position-y': '100%',
-  'background-width': '100%',
-  'background-height': '25%',
-  'background-fit': 'none',
-  'background-image-opacity': function (ele) {
-    return ele._private.style['background-opacity'].value;
-  }
-})
-.selector("node[sbgnclass][sbgnclass!='complex'][sbgnclass!='process'][sbgnclass!='association'][sbgnclass!='dissociation'][sbgnclass!='compartment'][sbgnclass!='source and sink']")
-.css({
-  //          'content': 'data(sbgnlabel)',
-  'content': function (ele) {
-    return getElementContent(ele);
-  },
-  'text-valign': 'center',
-  'text-halign': 'center',
-  'font-size': function (ele) {
-    return getLabelTextSize(ele);
-  }
-})
-.selector("node[sbgnclass]")
-.css({
-  'shape': function (ele) {
-    return getCyShape(ele);
-  }
-})
-.selector("node[sbgnclass='perturbing agent']")
-.css({
-  'shape-polygon-points': '-1, -1,   -0.5, 0,  -1, 1,   1, 1,   0.5, 0, 1, -1'
-})
-.selector("node[sbgnclass='association']")
-.css({
-  'background-color': '#6B6B6B'
-})
-.selector("node[sbgnclass='tag']")
-.css({
-  'shape-polygon-points': '-1, -1,   0.25, -1,   1, 0,    0.25, 1,    -1, 1'
-})
-.selector("node[sbgnclass='complex']")
-.css({
-  'background-color': '#F4F3EE',
-  'text-valign': 'bottom',
-  'text-halign': 'center',
-  'font-size': '16'
-})
-.selector("node[sbgnclass='compartment']")
-.css({
-  'border-width': 3.75,
-  'background-opacity': 0,
-  'background-color': '#FFFFFF',
-  'content': 'data(sbgnlabel)',
-  'text-valign': 'bottom',
-  'text-halign': 'center',
-  'font-size': '16'
-})
-.selector("node[sbgnclass][sbgnclass!='complex'][sbgnclass!='compartment'][sbgnclass!='submap']")
-.css({
-  'width': 'data(sbgnbbox.w)',
-  'height': 'data(sbgnbbox.h)'
-})
-.selector("node:selected")
-.css({
-  'border-color': '#d67614',
-  'target-arrow-color': '#000',
-  'text-outline-color': '#000'})
-  .selector("node:active")
-  .css({
-    'background-opacity': 0.7, 'overlay-color': '#d67614',
-    'overlay-padding': '14'
-  })
-  .selector("edge")
-  .css({
-    'curve-style': 'bezier',
-    'line-color': '#555',
-    'target-arrow-fill': 'hollow',
-    'source-arrow-fill': 'hollow',
-    'width': 1.5,
-    'target-arrow-color': '#555',
-    'source-arrow-color': '#555',
-    //          'target-arrow-shape': 'data(sbgnclass)'
-  })
-  .selector("edge[distances][weights]")
-  .css({
-    'curve-style': 'segments',
-    'segment-distances': function(ele){
-      return sbgnBendPointUtilities.getSegmentDistancesString(ele);
-    },
-    'segment-weights': function(ele){
-      return sbgnBendPointUtilities.getSegmentWeightsString(ele);
-    }
-  })
-  .selector("edge[sbgnclass]")
-  .css({
-    'target-arrow-shape': function (ele) {
-      return getCyArrowShape(ele);
-    }
-  })
-  .selector("edge[sbgnclass='inhibition']")
-  .css({
-    'target-arrow-fill': 'filled'
-  })
-  .selector("edge[sbgnclass='consumption']")
-  .css({
-    //      'text-background-opacity': 1,
-    //      'text-background-color': 'white',
-    //      'text-background-shape': 'roundrectangle',
-    //      'text-border-color': '#000',
-    //      'text-border-width': 1,
-    //      'text-border-opacity': 1,
-    //      'label': function (ele) {
-    //        var cardinality = ele.data('sbgncardinality');
-    //        return cardinality == null || cardinality == 0 ? '' : cardinality;
-    //      }
-    'line-style': 'consumption'
-  })
-  .selector("edge[sbgnclass='production']")
-  .css({
-    'target-arrow-fill': 'filled',
-    'line-style': 'production'
-  })
-  .selector("edge:selected")
-  .css({
-    'line-color': '#d67614',
-    'source-arrow-color': '#d67614',
-    'target-arrow-color': '#d67614'
-  })
-  .selector("edge:active")
-  .css({
-    'background-opacity': 0.7, 'overlay-color': '#d67614',
-    'overlay-padding': '8'
-  })
-  .selector("core")
-  .css({
-    'selection-box-color': '#d67614',
-    'selection-box-opacity': '0.2', 'selection-box-border-color': '#d67614'
-  })
-  .selector(".ui-cytoscape-edgehandles-source")
-  .css({
-    'border-color': '#5CC2ED',
-    'border-width': 3
-  })
-  .selector(".ui-cytoscape-edgehandles-target, node.ui-cytoscape-edgehandles-preview")
-  .css({
-    'background-color': '#5CC2ED'
-  })
-  .selector("edge.ui-cytoscape-edgehandles-preview")
-  .css({
-    'line-color': '#5CC2ED'
-  })
-  .selector("node.ui-cytoscape-edgehandles-preview, node.intermediate")
-  .css({
-    'shape': 'rectangle',
-    'width': 15,
-    'height': 15
-  })
-  .selector('edge.not-highlighted')
-  .css({
-    'opacity': 0.3,
-    'text-opacity': 0.3,
-    'background-opacity': 0.3
-  })
-  .selector('node.not-highlighted')
-  .css({
-    'border-opacity': 0.3,
-    'text-opacity': 0.3,
-    'background-opacity': 0.3
-  })
-  .selector('edge.meta')
-  .css({
-    'line-color': '#C4C4C4',
-    'source-arrow-color': '#C4C4C4',
-    'target-arrow-color': '#C4C4C4'
-  })
-  .selector("edge.meta:selected")
-  .css({
-    'line-color': '#d67614',
-    'source-arrow-color': '#d67614',
-    'target-arrow-color': '#d67614'
-  })
-  .selector("node.collapsed")
-  .css({
-    'width': 60,
-    'height': 60
-  })
-  .selector("node.changeBackgroundOpacity")
-  .css({
-    'background-opacity': 'data(backgroundOpacity)'
-  })
-  .selector("node.changeLabelTextSize")
-  .css({
-    'font-size': function (ele) {
-      return getLabelTextSize(ele);
-    }
-  })
-  .selector("node.changeContent")
-  .css({
-    'content': function (ele) {
-      return getElementContent(ele);
-    }
-  })
-  .selector("node.changeBorderColor")
-  .css({
-    'border-color': 'data(borderColor)'
-  })
-  .selector("node.changeBorderColor:selected")
-  .css({
-    'border-color': '#d67614'
-  })
-  .selector("edge.changeLineColor")
-  .css({
-    'line-color': 'data(lineColor)',
-    'source-arrow-color': 'data(lineColor)',
-    'target-arrow-color': 'data(lineColor)'
-  })
-  .selector("edge.changeLineColor:selected")
-  .css({
-    'line-color': '#d67614',
-    'source-arrow-color': '#d67614',
-    'target-arrow-color': '#d67614'
-  })
-  .selector('edge.changeLineColor.meta')
-  .css({
-    'line-color': '#C4C4C4',
-    'source-arrow-color': '#C4C4C4',
-    'target-arrow-color': '#C4C4C4'
-  })
-  .selector("edge.changeLineColor.meta:selected")
-  .css({
-    'line-color': '#d67614',
-    'source-arrow-color': '#d67614',
-    'target-arrow-color': '#d67614'
-  });
-  // end of sbgnStyleSheet
+        .selector("node")
+        .css({
+          'border-width': 1.5,
+          'border-color': '#555',
+          'background-color': '#f6f6f6',
+          'font-size': 11,
+//          'shape': 'data(sbgnclass)',
+          'background-opacity': 0.5,
+        })
+        .selector("node[?sbgnclonemarker][sbgnclass='perturbing agent']")
+        .css({
+          'background-image': 'sampleapp-images/clone_bg.png',
+          'background-position-x': '50%',
+          'background-position-y': '100%',
+          'background-width': '100%',
+          'background-height': '25%',
+          'background-fit': 'none',
+          'background-image-opacity': function (ele) {
+            return ele._private.style['background-opacity'].value;
+          }
+        })
+        .selector("node[sbgnclass][sbgnclass!='complex'][sbgnclass!='process'][sbgnclass!='association'][sbgnclass!='dissociation'][sbgnclass!='compartment'][sbgnclass!='source and sink']")
+        .css({
+//          'content': 'data(sbgnlabel)',
+          'content': function (ele) {
+            return getElementContent(ele);
+          },
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'font-size': function (ele) {
+            return getLabelTextSize(ele);
+          }
+        })
+        .selector("node[sbgnclass]")
+        .css({
+          'shape': function (ele) {
+            return getCyShape(ele);
+          }
+        })
+        .selector("node[sbgnclass='perturbing agent']")
+        .css({
+          'shape-polygon-points': '-1, -1,   -0.5, 0,  -1, 1,   1, 1,   0.5, 0, 1, -1'
+        })
+        .selector("node[sbgnclass='association']")
+        .css({
+          'background-color': '#6B6B6B'
+        })
+        .selector("node[sbgnclass='tag']")
+        .css({
+          'shape-polygon-points': '-1, -1,   0.25, -1,   1, 0,    0.25, 1,    -1, 1'
+        })
+        .selector("node[sbgnclass='complex']")
+        .css({
+          'background-color': '#F4F3EE',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'font-size': '16'
+        })
+        .selector("node[sbgnclass='compartment']")
+        .css({
+          'border-width': 3.75,
+          'background-opacity': 0,
+          'background-color': '#FFFFFF',
+          'content': 'data(sbgnlabel)',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'font-size': '16'
+        })
+        .selector("node[sbgnclass][sbgnclass!='complex'][sbgnclass!='compartment'][sbgnclass!='submap']")
+        .css({
+          'width': 'data(sbgnbbox.w)',
+          'height': 'data(sbgnbbox.h)'
+        })
+        .selector("node:selected")
+        .css({
+          'border-color': '#d67614',
+          'target-arrow-color': '#000',
+          'text-outline-color': '#000'})
+        .selector("node:active")
+        .css({
+          'background-opacity': 0.7, 'overlay-color': '#d67614',
+          'overlay-padding': '14'
+        })
+        .selector("edge")
+        .css({
+          'curve-style': 'bezier',
+          'line-color': '#555',
+          'target-arrow-fill': 'hollow',
+          'source-arrow-fill': 'hollow',
+          'width': 1.5,
+          'target-arrow-color': '#555',
+          'source-arrow-color': '#555',
+//          'target-arrow-shape': 'data(sbgnclass)'
+        })
+        .selector("edge[distances][weights]")
+        .css({
+          'curve-style': 'segments',
+          'segment-distances': function (ele) {
+            return sbgnBendPointUtilities.getSegmentDistancesString(ele);
+          },
+          'segment-weights': function (ele) {
+            return sbgnBendPointUtilities.getSegmentWeightsString(ele);
+          }
+        })
+        .selector("edge[sbgnclass]")
+        .css({
+          'target-arrow-shape': function (ele) {
+            return getCyArrowShape(ele);
+          }
+        })
+        .selector("edge[sbgnclass='inhibition']")
+        .css({
+          'target-arrow-fill': 'filled'
+        })
+        .selector("edge[sbgnclass='consumption']")
+        .css({
+          'line-style': 'consumption'
+        })
+        .selector("edge[sbgnclass='production']")
+        .css({
+          'target-arrow-fill': 'filled',
+          'line-style': 'production'
+        })
+        .selector("edge:selected")
+        .css({
+          'line-color': '#d67614',
+          'source-arrow-color': '#d67614',
+          'target-arrow-color': '#d67614'
+        })
+        .selector("edge:active")
+        .css({
+          'background-opacity': 0.7, 'overlay-color': '#d67614',
+          'overlay-padding': '8'
+        })
+        .selector("core")
+        .css({
+          'selection-box-color': '#d67614',
+          'selection-box-opacity': '0.2', 'selection-box-border-color': '#d67614'
+        })
+        .selector(".ui-cytoscape-edgehandles-source")
+        .css({
+          'border-color': '#5CC2ED',
+          'border-width': 3
+        })
+        .selector(".ui-cytoscape-edgehandles-target, node.ui-cytoscape-edgehandles-preview")
+        .css({
+          'background-color': '#5CC2ED'
+        })
+        .selector("edge.ui-cytoscape-edgehandles-preview")
+        .css({
+          'line-color': '#5CC2ED'
+        })
+        .selector("node.ui-cytoscape-edgehandles-preview, node.intermediate")
+        .css({
+          'shape': 'rectangle',
+          'width': 15,
+          'height': 15
+        })
+        .selector('edge.not-highlighted')
+        .css({
+          'opacity': 0.3,
+          'text-opacity': 0.3,
+          'background-opacity': 0.3
+        })
+        .selector("node.emptyComplexOrCompartment")
+        .css({
+          'width': 36,
+          'height': 36,
+          'content': function (ele) {
+            return getElementContent(ele);
+          }
+        })
+        .selector('node.not-highlighted')
+        .css({
+          'border-opacity': 0.3,
+          'text-opacity': 0.3,
+          'background-opacity': 0.3
+        })
+        .selector('edge.meta')
+        .css({
+          'line-color': '#C4C4C4',
+          'source-arrow-color': '#C4C4C4',
+          'target-arrow-color': '#C4C4C4'
+        })
+        .selector("edge.meta:selected")
+        .css({
+          'line-color': '#d67614',
+          'source-arrow-color': '#d67614',
+          'target-arrow-color': '#d67614'
+        })
+        .selector("node.collapsed")
+        .css({
+          'width': 60,
+          'height': 60
+        })
+        .selector("node.changeBackgroundOpacity")
+        .css({
+          'background-opacity': 'data(backgroundOpacity)'
+        })
+        .selector("node.changeLabelTextSize")
+        .css({
+          'font-size': function (ele) {
+            return getLabelTextSize(ele);
+          }
+        })
+        .selector("node.changeContent")
+        .css({
+          'content': function (ele) {
+            return getElementContent(ele);
+          }
+        })
+        .selector("node.changeBorderColor")
+        .css({
+          'border-color': 'data(borderColor)'
+        })
+        .selector("node.changeBorderColor:selected")
+        .css({
+          'border-color': '#d67614'
+        })
+        .selector("edge.changeLineColor")
+        .css({
+          'line-color': 'data(lineColor)',
+          'source-arrow-color': 'data(lineColor)',
+          'target-arrow-color': 'data(lineColor)'
+        })
+        .selector("edge.changeLineColor:selected")
+        .css({
+          'line-color': '#d67614',
+          'source-arrow-color': '#d67614',
+          'target-arrow-color': '#d67614'
+        })
+        .selector('edge.changeLineColor.meta')
+        .css({
+          'line-color': '#C4C4C4',
+          'source-arrow-color': '#C4C4C4',
+          'target-arrow-color': '#C4C4C4'
+        })
+        .selector("edge.changeLineColor.meta:selected")
+        .css({
+          'line-color': '#d67614',
+          'source-arrow-color': '#d67614',
+          'target-arrow-color': '#d67614'
+        });
+// end of sbgnStyleSheet
 
   var NotyView = Backbone.View.extend({
     render: function () {
@@ -1290,12 +1314,13 @@ var sbgnStyleSheet = cytoscape.stylesheet()
             }
           }
 
-          refreshPaddings();
           initilizeUnselectedDataOfElements();
 
           cy.nodes('[sbgnclass="complex"],[sbgnclass="compartment"],[sbgnclass="submap"]').data('expanded-collapsed', 'expanded');
           //Collapse complexes before layout
           expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));
+          refreshEmptyComplexesOrCompartments();
+          refreshPaddings();
 
           cy.noderesize({
             handleColor: '#000000', // the colour of the handle and the line drawn from it
@@ -1736,10 +1761,11 @@ var sbgnStyleSheet = cytoscape.stylesheet()
                 handleSBGNInspector();
               });
 
-              cy.on('tap', function (event) {
-                $('.ctx-bend-operation').css('display', 'none');
-                $("#node-label-textbox").blur();
-                cy.nodes(":selected").length;
+        cy.on('tap', function (event) {
+          $('input').blur();
+          $('.ctx-bend-operation').css('display', 'none');
+//          $("#node-label-textbox").blur();
+          cy.nodes(":selected").length;
 
                 if (modeHandler.mode == "add-node-mode") {
                   var cyPosX = event.cyPosition.x;

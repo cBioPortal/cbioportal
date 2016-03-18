@@ -38,22 +38,22 @@ function NetworkVis(divId)
     // edge type constants
     this.edgeTypeConstants =
     {
-      CONTROLS_STATE_CHANGE_OF :             { name: "controls-state-change-of",        color: '#2F4DC5' , desc: 'Controls State Change of'},
+      CONTROLS_STATE_CHANGE_OF :             { name: "controls-state-change-of",        color: '#5F77D4' , desc: 'Controls State Change of'},
       CONTROLS_TRANSPORT_OF :                { name: "controls-transport-of",           color: '#e96e6e' , desc: 'Controls Transport of'},
-      CONTROLS_PHOSPHORYLATION_OF :          { name: "controls-phosphorylation-of",     color: '#acb45a' , desc: 'Controls Phosphorylation of'},
-      CONTROLS_EXPRESSION_OF :               { name: "controls-expression-of",          color: '#169127' , desc: 'Controls Expression of'},
-      CATALYSIS_PRECEDES :                   { name: "catalysis-precedes",              color: '#313077' , desc: 'Catalysis Precedes'},
-      CONSUMPTION_CONTROLED_BY :             { name: "consumption-controled-by",        color: '#11968F' , desc: 'Consumption Controled by'},
-      CONTROLS_PRODUCTION_OF :               { name: "controls-production-of",          color: '#176381' , desc: 'Controls Production of'},
-      CONTROLS_TRANSPORT_OF_CHEMICAL :       { name: "controls-transport-of-chemical",  color: '#8e27db' , desc: 'Controls Transport of Chemical'},
-      USED_TO_PRODUCE :                      { name: "used-to-produce",                 color: '#4f0b46' , desc: 'Used to Produce'},
-      CHEMICAL_AFFECTS :                     { name: "chemical-affects",                color: '#786E43' , desc: 'Chemical Affects'},
-      IN_COMPLEX_WITH :                      { name: "in-complex-with",                 color: '#6B3A27' , desc: 'In Complex With'},
-      INTERACTS_WITH :                       { name: "interacts-with",                  color: '#39A8D5' , desc: 'Interacts With'},
-      NEIGHBOR_OF :                          { name: "neighbor-of",                     color: '#98284d' , desc: 'Neighbor of'},
-      REACTS_WITH :                          { name: "reacts-with",                     color: '#A6DC50' , desc: 'Reacts With'},
-      TARGETED_BY_DRUG :                     { name: "targeted-by-drug",                color: '#FFB600' , desc: 'Targeted by Drug'},
-      OTHER :                                { name: "other",                           color: '#646464' , desc: 'Other'},
+      CONTROLS_PHOSPHORYLATION_OF :          { name: "controls-phosphorylation-of",     color: '#A8AD6F' , desc: 'Controls Phosphorylation of'},
+      CONTROLS_EXPRESSION_OF :               { name: "controls-expression-of",          color: '#62B36D' , desc: 'Controls Expression of'},
+      CATALYSIS_PRECEDES :                   { name: "catalysis-precedes",              color: '#4F4F8F' , desc: 'Catalysis Precedes'},
+      CONSUMPTION_CONTROLED_BY :             { name: "consumption-controled-by",        color: '#359C96' , desc: 'Consumption Controled by'},
+      CONTROLS_PRODUCTION_OF :               { name: "controls-production-of",          color: '#397187' , desc: 'Controls Production of'},
+      CONTROLS_TRANSPORT_OF_CHEMICAL :       { name: "controls-transport-of-chemical",  color: '#A968D9' , desc: 'Controls Transport of Chemical'},
+      USED_TO_PRODUCE :                      { name: "used-to-produce",                 color: '#8F4A86' , desc: 'Used to Produce'},
+      CHEMICAL_AFFECTS :                     { name: "chemical-affects",                color: '#8A8262' , desc: 'Chemical Affects'},
+      IN_COMPLEX_WITH :                      { name: "in-complex-with",                 color: '#825E51' , desc: 'In Complex With'},
+      INTERACTS_WITH :                       { name: "interacts-with",                  color: '#6AB0CC' , desc: 'Interacts With'},
+      NEIGHBOR_OF :                          { name: "neighbor-of",                     color: '#AB5471' , desc: 'Neighbor of'},
+      REACTS_WITH :                          { name: "reacts-with",                     color: '#B2D180' , desc: 'Reacts With'},
+      TARGETED_BY_DRUG :                     { name: "targeted-by-drug",                color: '#CCAB5A' , desc: 'Targeted by Drug'},
+      OTHER :                                { name: "other",                           color: '#999999' , desc: 'Other'},
     };
 
     //
@@ -99,7 +99,7 @@ function NetworkVis(divId)
     this.drugFilterSelector = "#" + this.divId + " #drop_down_select";
 
     // flags
-    this._autoLayout = false;
+    this._autoLayout = true;
     this._removeDisconnected = true;
     this._nodeLabelsVisible = false;
     this._edgeLabelsVisible = false;
@@ -2046,7 +2046,7 @@ NetworkVis.prototype._resolveXref = function(xref)
  */
 NetworkVis.prototype._resetFlags = function()
 {
-    this._autoLayout = false;
+    this._autoLayout = true;
     this._removeDisconnected = true;
     this._nodeLabelsVisible = true;
     this._edgeLabelsVisible = false;

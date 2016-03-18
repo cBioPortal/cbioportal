@@ -122,7 +122,7 @@ function expandAllNodes(param) {
   };
   result.nodesData = getNodePositionsAndSizes();
   if (param.firstTime) {
-    result.expandStack = expandCollapseUtilities.expandAllNodes();
+    result.expandStack = expandCollapseUtilities.expandAllNodes(param.nodes, param.selector);
   }
   else {
     result.expandStack = expandCollapseUtilities.simpleExpandAllNodes();
@@ -131,8 +131,8 @@ function expandAllNodes(param) {
   return result;
 }
 
-function simpleExpandAllNodes() {
-  return expandCollapseUtilities.simpleExpandAllNodes();
+function simpleExpandAllNodes(param) {
+  return expandCollapseUtilities.simpleExpandAllNodes(param.nodes, param.selector);
 }
 
 function collapseExpandedStack(expandedStack) {
@@ -302,6 +302,11 @@ function restoreSelected(eles) {
 
 function hideSelected(param) {
   var currentNodes = cy.nodes(":visible");
+
+  if(currentNodes.length == 0){
+    return;
+  }
+
   if (param.firstTime) {
     sbgnFiltering.hideSelected();
   }
@@ -346,13 +351,22 @@ function highlightSelected(param) {
       //mark that there was no highlighted element
       result.allElementsWasNotHighlighted = true;
     }
+
     var alreadyHighlighted = cy.elements("[highlighted='true']").filter(":visible");
+
+    if(param.elesToHighlight){
+      elementsToHighlight = param.elesToHighlight;
+    }
+
+    //If elementsToHighlight is undefined it will be calculated in the function else it
+    //will be directly used in the function
     if (param.highlightNeighboursofSelected) {
-      elementsToHighlight = sbgnFiltering.highlightNeighborsofSelected();
+      elementsToHighlight = sbgnFiltering.highlightNeighborsofSelected(elementsToHighlight);
     }
     else if (param.highlightProcessesOfSelected) {
-      elementsToHighlight = sbgnFiltering.highlightProcessesOfSelected();
+      elementsToHighlight = sbgnFiltering.highlightProcessesOfSelected(elementsToHighlight);
     }
+
     elementsToHighlight = elementsToHighlight.not(alreadyHighlighted);
   }
   else {
@@ -474,7 +488,9 @@ function changeParent(param) {
     });
   }
 
+  refreshEmptyComplexesOrCompartments();
   cy.nodes().updateCompoundBounds();
+
   returnToPositionsAndSizesConditionally(nodesData);
 
   return result;
@@ -819,7 +835,7 @@ var SimpleCollapseGivenNodesCommand = function (nodes) {
   return new Command(simpleCollapseGivenNodes, simpleExpandGivenNodes, nodes);
 };
 
-var SimpleExpandAllNodesCommand = function () {
+var SimpleExpandAllNodesCommand = function (param) {
   return new Command(simpleExpandAllNodes, collapseExpandedStack);
 };
 
@@ -935,6 +951,8 @@ function EditorActionsManager()
     //_do function returns the parameters for undo function
     command.undoparams = command._do(command.params);
     this.undoStack.push(command);
+
+    refreshEmptyComplexesOrCompartments();
   };
 
   /*
@@ -953,6 +971,8 @@ function EditorActionsManager()
       lastCommand.params = result;
     }
     this.redoStack.push(lastCommand);
+
+    refreshEmptyComplexesOrCompartments();
   };
 
   /*
@@ -966,6 +986,8 @@ function EditorActionsManager()
     }
     var lastCommand = this.redoStack.pop();
     this._do(lastCommand);
+
+    refreshEmptyComplexesOrCompartments();
   };
 
   /*

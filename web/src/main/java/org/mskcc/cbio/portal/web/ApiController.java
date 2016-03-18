@@ -14,7 +14,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.model.DBCancerType;
-import org.mskcc.cbio.portal.model.DBAltCount;
 import org.mskcc.cbio.portal.model.DBAltCountInput;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
@@ -74,13 +73,15 @@ public class ApiController {
             for(int i = 0;i < gene.size();i++){
                 defaultStart.add(0);
             }
+            start = defaultStart;
         }
         if(!endFlag){
             for(int i = 0;i < gene.size();i++){
-                defaultEnd.add(1000000000);
+                defaultEnd.add(Integer.MAX_VALUE);
             }
+            end = defaultEnd;
         }
-        return service.getMutationsCounts(customizedAttrs, type, per_study, gene, defaultStart, defaultEnd, echo);
+        return service.getMutationsCounts(customizedAttrs, type, per_study, gene, start, end, echo);
                 
     }
     

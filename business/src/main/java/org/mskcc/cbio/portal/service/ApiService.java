@@ -159,7 +159,7 @@ public class ApiService {
                     if(per_study)
                     {
                         
-                        for(DBAltCount ele: mutationMapper.getMutationsCountsPerStudy(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? 0 : Integer.parseInt(item.get("end")))) )
+                        for(DBAltCount ele: mutationMapper.getMutationsCountsPerStudy(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) )
                         {
                             result.put("count", Integer.toString(ele.count));
                             result.put("studyID", ele.studyID);
@@ -169,7 +169,7 @@ public class ApiService {
                     }
                     else
                     {
-                        for(DBAltCount ele: mutationMapper.getMutationsCounts(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? 1000000000 : Integer.parseInt(item.get("end")))) )
+                        for(DBAltCount ele: mutationMapper.getMutationsCounts(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) )
                         {
                             result.put("count", Integer.toString(ele.count));
                         }

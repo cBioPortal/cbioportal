@@ -77,6 +77,7 @@ var OncoprintLabelView = (function () {
 	view.label_tops = label_tops;
 	view.tracks = model.getTracks();
 	
+	view.ctx.font = 'bold '+view.getFontSize()+'px Arial';
 	view.minimum_track_height = Number.POSITIVE_INFINITY;
 	view.maximum_label_width = 0;
 	for (var i=0; i<view.tracks.length; i++) {

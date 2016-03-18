@@ -26,7 +26,7 @@ function PancancerStudySummaryHistogram()
 	// Some semi-global utilities
     // Here are some options that we will use in this view
     var width = 1100;
-    var height;
+    var height = 550;
     var paddingLeft = 80;
     var paddingRight = 50;
     var paddingTop = 10;
@@ -95,36 +95,13 @@ function PancancerStudySummaryHistogram()
         var fontSize = getFontSize(studyWidth);
         // determine the space used by the label and calculate the padding en height
         var fontSpace = maxLabelLength*fontSize.substr(0, fontSize.length-2)*0.66;
-        calculatePaddingLeft(fontSpace);
-        calculateHeight(fontSpace);
+        
+        // calculate the leftpadding based on the fontspace and the angle of the text
+        paddingLeft = Math.max(Math.cos(0.33*Math.PI) * fontSpace, paddingLeft);
+        // calculate the height based on the fontspace, the size of the histogram and the angle of the text
+        height = Math.max((Math.sin(0.33*Math.PI) * fontSpace) + histBottom, height);
     }
 
-    /**
-     * Calculate the left padding
-     * @param fontSpace
-     */
-    var calculatePaddingLeft = function(fontSpace){
-        var minPaddingLeft = 80;
-        // determine the size required
-        paddingLeft = Math.cos(0.33*Math.PI) * fontSpace;
-        if(paddingLeft < minPaddingLeft) {
-            paddingLeft = minPaddingLeft
-        }
-    }
-
-    /**
-     * Calculate the height
-     * @param fontSpace
-     */
-    var calculateHeight = function(fontSpace){
-        var minHeight = 550;
-        // determine the size required and add the size the histogram itself uses
-        height = (Math.sin(0.33*Math.PI) * fontSpace) + histBottom;
-        if(height < minHeight){
-            height = minHeight;
-        }
-    }
-    
     /**
      * Trigger the rendering of the histogram.
      * 

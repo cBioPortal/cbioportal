@@ -147,19 +147,19 @@ class ColumnOrderTestCase(DataFileTestCase):
             self.assertEqual("_checkOrderedRequiredColumns", error.funcName)
 
     def test_column_order_validation_ClinicalValidator(self):
-        """ClinicalValidator does NOT need its columns in a specific order.
+        """Sample attributes do NOT need their columns in a specific order.
 
         Here we serve files with different order and no errors or warnings
         """
         # set level according to this test case:
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_order1.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.SampleClinicalValidator)
         # we expect no errors or warnings
         self.assertEqual(0, len(record_list))
         # if the file has another order, this is also OK:
         record_list = self.validate('data_clin_order2.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.SampleClinicalValidator)
         # again, we expect no errors or warnings
         self.assertEqual(0, len(record_list))
 
@@ -171,7 +171,7 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
     def test_correct_definitions(self):
         """Test when all record definitions match with portal."""
         record_list = self.validate('data_clin_coldefs_correct.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.PatientClinicalValidator)
         # expecting two info messages: at start and end of file
         self.assertEqual(len(record_list), 2)
         for record in record_list:
@@ -180,36 +180,36 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
     def test_wrong_definitions(self):
         """Test when record definitions do not match with portal."""
         record_list = self.validate('data_clin_coldefs_wrong_display_name.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.PatientClinicalValidator)
         # expecting an info message followed by the error, and another error as
         # the rest of the file cannot be parsed
         self.assertEqual(len(record_list), 3)
         # error about the display name of OS_MONTHS
         self.assertEqual(record_list[1].levelno, logging.ERROR)
-        self.assertEqual(record_list[1].column_number, 3)
+        self.assertEqual(record_list[1].column_number, 2)
         self.assertIn('display_name', record_list[1].getMessage().lower())
 
     def test_unknown_attribute(self):
         """Test when a new attribute is defined in the data file."""
         record_list = self.validate('data_clin_coldefs_unknown_attribute.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.PatientClinicalValidator)
         # expecting two info messages with a warning in between
         self.assertEqual(len(record_list), 3)
         self.assertEqual(record_list[1].levelno, logging.WARNING)
-        self.assertEqual(record_list[1].column_number, 7)
+        self.assertEqual(record_list[1].column_number, 6)
         self.assertIn('will be added', record_list[1].getMessage().lower())
 
     def test_invalid_definitions(self):
         """Test when new attributes are defined with invalid properties."""
         record_list = self.validate('data_clin_coldefs_invalid_priority.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.PatientClinicalValidator)
         # expecting an info message followed by the error, and another error as
         # the rest of the file cannot be parsed
         self.assertEqual(len(record_list), 3)
         # error about the non-numeric priority of the SAUSAGE column
         self.assertEqual(record_list[1].levelno, logging.ERROR)
-        self.assertEqual(record_list[1].line_number, 5)
-        self.assertEqual(record_list[1].column_number, 7)
+        self.assertEqual(record_list[1].line_number, 4)
+        self.assertEqual(record_list[1].column_number, 6)
 
 
 class ClinicalValuesTestCase(DataFileTestCase):
@@ -220,11 +220,11 @@ class ClinicalValuesTestCase(DataFileTestCase):
         """Test when a sample is defined twice in the same file."""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_clin_repeated_sample.txt',
-                                    validateData.ClinicalValidator)
+                                    validateData.SampleClinicalValidator)
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record.line_number, 12)
+        self.assertEqual(record.line_number, 11)
         self.assertEqual(record.column_number, 2)
 
 
@@ -817,7 +817,7 @@ class StableIdValidationTestCase(LogBufferTestCase):
         self.assertIn('mrna_test', errors)
         self.assertIn('gistic', errors)
 
-        # expecting one warning about stable_id not being recognized in clinical:
+        # expecting one warning about stable_id not being recognized in _samples
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
 

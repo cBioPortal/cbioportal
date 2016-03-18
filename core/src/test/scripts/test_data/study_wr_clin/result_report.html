@@ -8,7 +8,23 @@
 -->
 
 <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
+  <script>
+  $(document).bind("mobileinit", function(){
+     $.mobile.pushStateEnabled = false;
+  });
+  </script>
+  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <![endif]-->
   <style type="text/css">
     /* Space out content a bit */
     body {
@@ -185,12 +201,10 @@
     .bgmd-cyan {
       background-color: #00BCD4!important;
     }
+    a {
+      text-decoration: underline;
+    }
   </style>
-  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-  <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
   <title>cBioPortal validation report: study in 'test_data/study_wr_clin/'</title>
 </head>
 
@@ -198,8 +212,8 @@
   <div class="container">
     <div class="header">
       <h1>cBioPortal validation report</h1>
-      <h4>study in 'test_data/study_wr_clin/'</h4>
-      <h4>See <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>this page for the data formats documentation</a></h4> 
+      <h4>Study directory:<br />test_data/study_wr_clin/</h4>
+      <h4>For details, please see <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>the documentation on file formats supported by cBioPortal</a></h4>
     </div>
 
     <div class="jumbotron">
@@ -222,47 +236,47 @@
               <th>Value Encountered</th>
             </tr>
             <tr class="grey">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/cancertypes.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="grey">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/clinicalattributes_patients.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="grey">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/clinicalattributes_samples.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="grey">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/genes.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="grey">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/genesaliases.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="red">
-              <td></td>
-              <td></td>
-              <td>No clinical file detected</td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
+              <td>No sample attribute file detected</td>
+              <td>&ndash;</td>
             </tr>
           </table>
         </div>
 
 
         <div data-role="collapsible" class="acol">
-          <h4>meta_clinical.txt<span class="ui-li-count redCount">1</span></h4>
+          <h4>meta_samples.txt<span class="ui-li-count redCount">1</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>
@@ -271,8 +285,8 @@
               <th>Value Encountered</th>
             </tr>
             <tr class="red">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Could not determine the file type. Please check your meta files for correct configuration.</td>
               <td>genetic_alteration_type: CLINICAL, datatype: FREE-FORM</td>
             </tr>
@@ -289,8 +303,8 @@
               <th>Value Encountered</th>
             </tr>
             <tr class="red">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Invalid stable id for genetic_alteration_type &#39;MRNA_EXPRESSION&#39;, data_type &#39;Z-SCORE&#39;; expected one of [mrna_U133_Zscores, rna_seq_mrna_median_Zscores, mrna_median_Zscores, rna_seq_v2_mrna_median_Zscores, mirna_median_Zscores, mrna_merged_median_Zscores, mrna_zbynorm, rna_seq_mrna_capture_Zscores]</td>
               <td>mrna</td>
             </tr>

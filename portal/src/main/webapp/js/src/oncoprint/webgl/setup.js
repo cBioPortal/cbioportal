@@ -233,6 +233,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     })();
     
     var oncoprint = new window.Oncoprint(ctr_selector, 1050);
+    var toolbar_fade_out_timeout;
+    $(ctr_selector).add(toolbar_selector).on("mouseover", function(evt) {
+	$(toolbar_selector).fadeIn('fast');
+	clearTimeout(toolbar_fade_out_timeout);
+    });
+    $(ctr_selector).add(toolbar_selector).on("mouseleave", function(evt) {
+	clearTimeout(toolbar_fade_out_timeout);
+	toolbar_fade_out_timeout = setTimeout(function() {
+	    $(toolbar_selector).fadeOut();
+	}, 700);
+    });
     
     var URL = (function() {
 	var changeURLParam = function (param, new_value, url) {

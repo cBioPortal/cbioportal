@@ -42,9 +42,9 @@ import java.util.*;
  */
 public class ImportGDD {
     
-    public static void importData(File dataFile, ProgressMonitor pMonitor) throws Exception {
+    public static void importData(File dataFile) throws Exception {
         try (FileReader reader = new FileReader(dataFile)) {
-            pMonitor.setCurrentMessage("Read data from: " + dataFile.getAbsolutePath());
+            ProgressMonitor.setCurrentMessage("Read data from: " + dataFile.getAbsolutePath());
             BufferedReader buf = new BufferedReader(reader);
             
             String column_names[] = buf.readLine().split("\t");
@@ -76,15 +76,13 @@ public class ImportGDD {
     public static void main(String args[]) throws Exception {
         String filename;        
         if (args.length < 1) {
-            filename = "/Users/angelica/Projects/GDD/data_gdd.txt";
-//            System.out.println("Missing GDD data file.");
-//            return;
+            System.out.println("Missing GDD data file.");
+            return;
         }
         else {
             filename = args[0];
         }
         
-        ProgressMonitor pMonitor = new ProgressMonitor();
         ProgressMonitor.setConsoleMode(true);
         File dataFile = new File(filename);
         
@@ -93,7 +91,7 @@ public class ImportGDD {
             
             for (File file : files) {
                 if (file.getName().endsWith(".txt")) {
-                    ImportGDD.importData(file, pMonitor);
+                    ImportGDD.importData(file);
                 }
             }
             
@@ -102,7 +100,7 @@ public class ImportGDD {
             }
         }
         else {
-            ImportGDD.importData(dataFile, pMonitor);
+            ImportGDD.importData(dataFile);
         }
     }
     

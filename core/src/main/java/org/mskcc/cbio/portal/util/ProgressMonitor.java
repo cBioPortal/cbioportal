@@ -58,7 +58,7 @@ public class ProgressMonitor {
     /**
      * Private ctor for enforcing singleton
      */
-    public ProgressMonitor() {
+    private ProgressMonitor() {
         
     }
     

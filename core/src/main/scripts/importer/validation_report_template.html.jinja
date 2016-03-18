@@ -276,8 +276,10 @@
                         ', (' +
                         record[attr_name + '_list'][3:]|length|string +
                         ' more)')|e }}
-                  {%- else -%}
+                  {%- elif record[attr_name] is defined -%}
                     {{ record[attr_name]|e }}
+                  {%- else -%}
+                    &ndash;
                   {%- endif %}
               {% endmacro %}
               <td>{{ format_aggregated(record, 'line_number') }}</td>

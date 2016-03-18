@@ -2264,7 +2264,7 @@ def main_validate(args):
     html_output_filename = args.html_table
 
     # determine the log level for terminal and html output
-    output_loglevel = logging.WARNING
+    output_loglevel = logging.INFO
     if args.verbose:
         output_loglevel = logging.DEBUG
 

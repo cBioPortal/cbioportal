@@ -99,13 +99,10 @@ var Oncoprint = (function () {
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
 	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model, new OncoprintToolTip($oncoprint_ctr), function(left, right) {
-	    var curr_zoom = self.model.getHorzZoom();
-	    var unzoomed_left = left/curr_zoom;
-	    var unzoomed_right = right/curr_zoom;
-	    var new_zoom = Math.min(1, self.cell_view.visible_area_width / (unzoomed_right-unzoomed_left));
-	    self.setHorzZoom(new_zoom);
-	    self.$cell_div.scrollLeft(unzoomed_left*new_zoom);
-	    self.id_clipboard = self.model.getIdsInLeftInterval(unzoomed_left, unzoomed_right);
+	    var enclosed_ids = self.model.getIdsInLeftInterval(left, right);
+	    self.setHorzZoom(self.model.getHorzZoomToFit(self.cell_view.visible_area_width, enclosed_ids));
+	    self.$cell_div.scrollLeft(self.model.getZoomedColumnLeft(enclosed_ids[0]));
+	    self.id_clipboard = enclosed_ids;
 	});
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
@@ -262,23 +259,7 @@ var Oncoprint = (function () {
     };
     var getHorzZoomToFit = function(oncoprint, ids) {
 	ids = ids || [];
-	var width_to_fit_in;
-	if (ids.length === 0) {
-	    width_to_fit_in = oncoprint.cell_view.getTotalWidth(oncoprint.model, true);
-	} else {
-	    var furthest_right_id_index = -1;
-	    var furthest_right_id;
-	    var id_to_index_map = oncoprint.model.getIdToIndexMap();
-	    for (var i=0; i<ids.length; i++) {
-		if (id_to_index_map[ids[i]] > furthest_right_id_index) {
-		    furthest_right_id_index = id_to_index_map[ids[i]];
-		    furthest_right_id = ids[i];
-		}
-	    }
-	    width_to_fit_in = oncoprint.model.getColumnLeft(furthest_right_id) + oncoprint.model.getCellWidth(true);
-	}
-	var zoom = Math.min(1, oncoprint.cell_view.visible_area_width / width_to_fit_in);
-	return zoom;
+	return oncoprint.model.getHorzZoomToFit(oncoprint.cell_view.visible_area_width, ids);
     }
     Oncoprint.prototype.getHorzZoom = function () {
 	return this.model.getHorzZoom();

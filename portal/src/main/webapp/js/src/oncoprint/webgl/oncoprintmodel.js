@@ -94,6 +94,7 @@ var OncoprintModel = (function () {
 	this.sort_config = {};
 	
 	// Rendering Properties
+	this.cell_width = ifndef(init_cell_width, 6);
 	this.horz_zoom = ifndef(init_horz_zoom, 1);
 	this.vert_zoom = ifndef(init_vert_zoom, 1);
 	this.horz_scroll = 0;
@@ -102,7 +103,8 @@ var OncoprintModel = (function () {
 	this.track_group_padding = ifndef(init_track_group_padding, 10);
 	this.cell_padding = ifndef(init_cell_padding, 3);
 	this.cell_padding_on = ifndef(init_cell_padding_on, true);
-	this.cell_width = ifndef(init_cell_width, 6);
+	this.cell_padding_off_cell_width_threshold = 2;
+	this.cell_padding_off_because_of_zoom = (this.getCellWidth() < this.cell_padding_off_cell_width_threshold);
 	this.id_order = [];
 	this.visible_id_order = [];
 	this.hidden_ids = {};
@@ -241,13 +243,43 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.getCellPadding = function (base) {
-	return (this.cell_padding * (base ? 1 : this.horz_zoom)) * (+this.cell_padding_on);
+	return (this.cell_padding * (base ? 1 : this.horz_zoom)) * (+this.cell_padding_on) * (+(!this.cell_padding_off_because_of_zoom));
     }
 
     OncoprintModel.prototype.getHorzZoom = function () {
 	return this.horz_zoom;
     }
 
+    OncoprintModel.prototype.getHorzZoomToFit = function(width, ids) {
+	ids = ids || [];
+	var width_to_fit_in;
+	var done = false;
+	var suppose_cell_padding_off_because_of_zoom = this.cell_padding_off_because_of_zoom;
+	var zoom;
+	while (!done) {
+	    var effective_cell_padding = this.getCellPadding(true)*(+(!suppose_cell_padding_off_because_of_zoom));
+	    if (ids.length === 0) {
+		width_to_fit_in = (this.getCellWidth(true) + effective_cell_padding)*this.getIdOrder().length;
+	    } else {
+		var furthest_right_id_index = -1;
+		var furthest_left_id_index = Number.POSITIVE_INFINITY;
+		var id_to_index_map = this.getIdToIndexMap();
+		for (var i=0; i<ids.length; i++) {
+		    furthest_right_id_index = Math.max(furthest_right_id_index, id_to_index_map[ids[i]]);
+		    furthest_left_id_index = Math.min(furthest_left_id_index, id_to_index_map[ids[i]]);
+		}
+		width_to_fit_in = (this.getCellWidth(true) + effective_cell_padding)*(furthest_right_id_index - furthest_left_id_index) + this.getCellWidth(true);
+	    }
+	    zoom = Math.max(Math.min(1, width / width_to_fit_in), this.getMinZoom());
+	    if (this.getCellWidth(true)*zoom < this.cell_padding_off_cell_width_threshold && !suppose_cell_padding_off_because_of_zoom) {
+		suppose_cell_padding_off_because_of_zoom = true;
+	    } else {
+		done = true;
+	    }
+	}
+	return zoom;
+    }
+    
     OncoprintModel.prototype.getMinZoom = function() {
 	return Math.min(MIN_ZOOM_PIXELS / (this.getIdOrder().length*this.getCellWidth(true) + (this.getIdOrder().length-1)*this.getCellPadding(true)), 1);
     }
@@ -266,6 +298,10 @@ var OncoprintModel = (function () {
     OncoprintModel.prototype.getVertScroll = function() {
 	return this.vert_scroll;
     }
+    var setCellPaddingOffBecauseOfZoom = function(model, val) {
+	model.cell_padding_off_because_of_zoom = val;
+	model.column_left.update();
+    };
     OncoprintModel.prototype.setHorzZoom = function (z) {
 	var min_zoom = this.getMinZoom();
 	if (z <= 1 && z >= min_zoom) {
@@ -276,6 +312,12 @@ var OncoprintModel = (function () {
 	    this.horz_zoom = min_zoom;
 	}
 	this.column_left.update();
+	
+	if (this.getCellWidth() < this.cell_padding_off_cell_width_threshold && !this.cell_padding_off_because_of_zoom) {
+	    setCellPaddingOffBecauseOfZoom(this, true);
+	} else if (this.getCellWidth() >= this.cell_padding_off_cell_width_threshold && this.cell_padding_off_because_of_zoom) {
+	    setCellPaddingOffBecauseOfZoom(this, false);
+	}
 	return this.horz_zoom;
     }
     
@@ -665,8 +707,8 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.getIdsInLeftInterval = function(left, right) {
-	var cell_width = this.getCellWidth(true);
-	var cell_padding = this.getCellPadding(true);
+	var cell_width = this.getCellWidth();
+	var cell_padding = this.getCellPadding();
 	var id_order = this.getIdOrder();
 	
 	// left_id_index and right_id_index are inclusive

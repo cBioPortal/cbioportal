@@ -770,6 +770,8 @@ class StudyCompositionTestCase(LogBufferTestCase):
         validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
         super(StudyCompositionTestCase, self).tearDown()
 
+    # TODO test whether proper metadata files generate only INFO and DEBUG messages
+
     def test_double_cancer_type_file(self):
         """Check behavior when two cancer type files are supplied."""
         self.logger.setLevel(logging.ERROR)
@@ -797,6 +799,7 @@ class StableIdValidationTestCase(LogBufferTestCase):
 
     def test_unnecessary_and_wrong_stable_id(self):
         """Tests to check behavior when stable_id is not needed (warning) or wrong(error)."""
+        self.logger.setLevel(logging.WARNING)
         validateData.process_metadata_files(
             'test_data/study_metastableid',
             PORTAL_INSTANCE,

@@ -57,7 +57,7 @@ public class ImportClinicalData {
 
     private File clinicalDataFile;
     private CancerStudy cancerStudy;
-    private String attributesDatatype;
+    private AttributeTypes attributeType;
 
     public static enum MissingAttributeValues
     {
@@ -93,6 +93,19 @@ public class ImportClinicalData {
         }
     }
     
+    public static enum AttributeTypes 
+    {
+        PATIENT_ATTRIBUTES("PATIENT"),
+        SAMPLE_ATTRIBUTES("SAMPLE"),
+        MIXED_ATTRIBTUES("MIXED");
+        
+        private String attributeType;
+        
+        AttributeTypes(String attributeType) {this.attributeType = attributeType;}
+        
+        public String toString() {return attributeType;}
+    }
+    
     private static void quit(String msg)
     {
         if( null != msg ){
@@ -110,7 +123,7 @@ public class ImportClinicalData {
     {
         this.cancerStudy = cancerStudy;
         this.clinicalDataFile = clinicalDataFile;
-        this.attributesDatatype = attributesDatatype;
+        this.attributeType = AttributeTypes.valueOf(attributesDatatype);
     }
 
     public void importData() throws Exception
@@ -128,7 +141,7 @@ public class ImportClinicalData {
         int patientIdIndex = findPatientIdColumn(columnAttrs);
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
 
-        if (patientIdIndex <0 && sampleIdIndex < 0) {
+        if (patientIdIndex < 0 || (attributeType.toString().equals("SAMPLE") && sampleIdIndex < 0)) {
             System.out.println("Aborting!  Could not find:  " + PATIENT_ID_COLUMN_NAME
                     + " or " + SAMPLE_ID_COLUMN_NAME + " in your file.");
             System.out.println("Please check your file format and try again.");
@@ -148,20 +161,24 @@ public class ImportClinicalData {
 
         String line = buff.readLine();
         String[] displayNames = splitFields(line);
-        String[] descriptions, datatypes, attributeTypes, priorities, colnames;
+        String[] descriptions, datatypes, attributeTypes = {}, priorities, colnames;
         if (line.startsWith(METADATA_PREFIX)) {
             // contains meta data about the attributes
             descriptions = splitFields(buff.readLine());
             datatypes = splitFields(buff.readLine());
-            if (this.attributesDatatype == null)
+            
+            switch(this.attributeType)
             {
-                attributeTypes = splitFields(buff.readLine());
+                case PATIENT_ATTRIBUTES:
+                case SAMPLE_ATTRIBUTES:
+                    attributeTypes = new String[displayNames.length];
+                    Arrays.fill(attributeTypes, this.attributeType.toString());   
+                    break;
+                case MIXED_ATTRIBTUES:
+                    attributeTypes = splitFields(buff.readLine());
+                    break;
             }
-            else
-            {
-                attributeTypes = new String[displayNames.length];
-                Arrays.fill(attributeTypes, this.attributesDatatype.split("_")[0]);
-            }
+                     
             priorities = splitFields(buff.readLine());
             colnames = splitFields(buff.readLine());
 

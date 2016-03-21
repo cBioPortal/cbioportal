@@ -1250,8 +1250,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		},
 	    });
 	    
+	    $('#oncoprint_zoom_scale_input').on("keypress", function(e) {
+		if (e.keyCode === 13) {
+		    // 'Enter' key
+		    var new_zoom = parseFloat($('#oncoprint_zoom_scale_input').val())/100;
+		    new_zoom = Math.min(1, new_zoom);
+		    new_zoom = Math.max(0, new_zoom);
+		    oncoprint.setHorzZoom(new_zoom);
+		}
+	    });
 	    oncoprint.onHorzZoom(function() {
 		$zoom_slider.trigger('change');
+		$('#oncoprint_zoom_scale_input').val(Math.round(10000*oncoprint.getHorzZoom())/100);
 	    });
 
 	    appendTo($slider, zoom_elt);

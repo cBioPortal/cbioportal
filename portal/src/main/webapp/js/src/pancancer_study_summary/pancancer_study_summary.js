@@ -413,13 +413,13 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
         min: 0, 
         max: this.max 
      });
-    this.$el.find(".diagram-general-slider-value").attr("id", "input1");
+    this.$el.find(".diagram-general-slider-value").attr("id", "input1"+this.gene);
   },
 
   // handle change to the slider        
   handleSliderChange: function(e, ui) {
      // update text 
-     $("#input1").val(ui.value);
+     $("#input1"+this.gene).val(ui.value);
      // and notify the histogram via model change:
      this.model.set("minAlteredSamples", parseInt(ui.value));
   },
@@ -427,7 +427,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
   handleSetThreshold: function(e){
       if(e.keyCode == 13)
           {
-            var inputValue = $("#input1").val();
+            var inputValue = $("#input1"+this.gene).val();
             var slider = this.$el.find(".diagram-general-slider"); 
             slider.slider({value: inputValue});
             this.model.set("minAlteredSamples", parseInt(inputValue));
@@ -481,14 +481,14 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
             max: this.max
         });
         
-       this.$el.find(".diagram-general-slider-value").attr("id", "input2");
+       this.$el.find(".diagram-general-slider-value").attr("id", "input2"+this.gene);
          
     },
 
     // handle change to the slider
     handleSliderChange: function(e, ui) {
         // update text
-        $("#input2").val(ui.value);
+        $("#input2"+this.gene).val(ui.value);
         // and notify the histogram via model change:
         this.model.set("minTotalSamples", ui.value);
     },
@@ -496,7 +496,7 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
     handleSetThreshold: function(e){
       if(e.keyCode == 13)
           {
-            var inputValue = $("#input2").val();
+            var inputValue = $("#input2"+this.gene).val();
             var slider = this.$el.find(".diagram-general-slider"); 
             slider.slider({value: inputValue});
             this.model.set("minTotalSamples", parseInt(inputValue));

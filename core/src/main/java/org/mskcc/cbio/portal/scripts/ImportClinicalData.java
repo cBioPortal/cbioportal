@@ -37,6 +37,7 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
 import java.io.*;
+import joptsimple.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -49,9 +50,14 @@ public class ImportClinicalData {
     public static final String SAMPLE_TYPE_COLUMN_NAME = "SAMPLE_TYPE";
     private int numSampleSpecificClinicalAttributesAdded = 0;
     private int numPatientSpecificClinicalAttributesAdded = 0;
+    
+    private static OptionParser parser;
+    private static String usageLine;
+    private static Properties properties;
 
-	private File clinicalDataFile;
-	private CancerStudy cancerStudy;
+    private File clinicalDataFile;
+    private CancerStudy cancerStudy;
+    private AttributeTypes attributeType;
 
     public static enum MissingAttributeValues
     {
@@ -86,11 +92,38 @@ public class ImportClinicalData {
             return "[" + NOT_AVAILABLE.toString() + "]";
         }
     }
+    
+    public static enum AttributeTypes 
+    {
+        PATIENT_ATTRIBUTES("PATIENT"),
+        SAMPLE_ATTRIBUTES("SAMPLE"),
+        MIXED_ATTRIBTUES("MIXED");
+        
+        private String attributeType;
+        
+        AttributeTypes(String attributeType) {this.attributeType = attributeType;}
+        
+        public String toString() {return attributeType;}
+    }
+    
+    private static void quit(String msg)
+    {
+        if( null != msg ){
+            System.err.println( msg );
+        }
+        System.err.println( usageLine );
+        try {
+            parser.printHelpOn(System.err);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 	
-    public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile)
+    public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype)
     {
         this.cancerStudy = cancerStudy;
         this.clinicalDataFile = clinicalDataFile;
+        this.attributeType = AttributeTypes.valueOf(attributesDatatype);
     }
 
     public void importData() throws Exception
@@ -104,11 +137,11 @@ public class ImportClinicalData {
         FileReader reader =  new FileReader(clinicalDataFile);
         BufferedReader buff = new BufferedReader(reader);
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
-
+        
         int patientIdIndex = findPatientIdColumn(columnAttrs);
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
 
-        if (patientIdIndex <0 && sampleIdIndex < 0) {
+        if (patientIdIndex < 0 || (attributeType.toString().equals("SAMPLE") && sampleIdIndex < 0)) {
             System.out.println("Aborting!  Could not find:  " + PATIENT_ID_COLUMN_NAME
                     + " or " + SAMPLE_ID_COLUMN_NAME + " in your file.");
             System.out.println("Please check your file format and try again.");
@@ -128,12 +161,24 @@ public class ImportClinicalData {
 
         String line = buff.readLine();
         String[] displayNames = splitFields(line);
-        String[] descriptions, datatypes, attributeTypes, priorities, colnames;
+        String[] descriptions, datatypes, attributeTypes = {}, priorities, colnames;
         if (line.startsWith(METADATA_PREFIX)) {
             // contains meta data about the attributes
             descriptions = splitFields(buff.readLine());
             datatypes = splitFields(buff.readLine());
-            attributeTypes = splitFields(buff.readLine());
+            
+            switch(this.attributeType)
+            {
+                case PATIENT_ATTRIBUTES:
+                case SAMPLE_ATTRIBUTES:
+                    attributeTypes = new String[displayNames.length];
+                    Arrays.fill(attributeTypes, this.attributeType.toString());   
+                    break;
+                case MIXED_ATTRIBTUES:
+                    attributeTypes = splitFields(buff.readLine());
+                    break;
+            }
+                     
             priorities = splitFields(buff.readLine());
             colnames = splitFields(buff.readLine());
 
@@ -173,7 +218,7 @@ public class ImportClinicalData {
 
         return attrs;
     }
-
+   
     private String[] splitFields(String line) throws IOException {
         line = line.replaceAll("^"+METADATA_PREFIX+"+", "");
         String[] fields = line.split(DELIMITER, -1);
@@ -379,27 +424,64 @@ public class ImportClinicalData {
      */
     public static void main(String[] args) throws Exception {
         ProgressMonitor.setConsoleMode(true);
+        
+         usageLine = "Import clinical files.\n" +
+       		"command line usage for importClinicalData:";
+         /*
+            * usage:
+            * --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)]
+        */
 
-        if (args.length < 2) {
-            System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id> [is_sample_data]");
-            return;
+        parser = new OptionParser();
+        OptionSpec<String> data = parser.accepts( "data",
+               "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
+        OptionSpec<String> meta = parser.accepts( "meta",
+               "meta (description) file" ).withOptionalArg().describedAs( "meta_file.txt" ).ofType( String.class );
+        OptionSpec<String> study = parser.accepts("study",
+                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
+        OptionSpec<String> loadMode = parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
+          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
+        
+        OptionSet options = null;
+        try {
+            options = parser.parse( args );
+        } catch (OptionException e) {
+            quit( e.getMessage() );
+        }
+        File clinical_f = null;
+        if( options.has( data ) ){
+            clinical_f = new File( options.valueOf( data ) );
+        }else{
+            quit( "'data argument required.");
+        }
+        String attributesDatatype = null;
+        String cancerStudyStableId = null;
+        if( options.has ( study ) )
+        {
+            cancerStudyStableId = options.valueOf(study);
+        }
+        if( options.has ( meta ) )
+        {
+            properties = new Properties();
+            properties.load(new FileInputStream(options.valueOf(meta)));
+            attributesDatatype = properties.getProperty("datatype");
+            cancerStudyStableId = properties.getProperty("cancer_study_identifier");
         }
 
-		try {
-			SpringUtil.initDataSource();
-			CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);
-			if (cancerStudy == null) {
-				System.err.println("Unknown cancer study: " + args[1]);
-			}
-			else {
-				File clinical_f = new File(args[0]);
-				System.out.println("Reading data from:  " + clinical_f.getAbsolutePath());
-				int numLines = FileUtil.getNumLines(clinical_f);
-				System.out.println(" --> total number of lines:  " + numLines);
-				ProgressMonitor.setMaxValue(numLines);
 
-				ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy,
-                                                                               clinical_f);
+        try {
+            SpringUtil.initDataSource();
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
+            if (cancerStudy == null) {
+                System.err.println("Unknown cancer study: " + cancerStudyStableId);
+            }
+            else {
+                System.out.println("Reading data from:  " + clinical_f.getAbsolutePath());
+                int numLines = FileUtil.getNumLines(clinical_f);
+                System.out.println(" --> total number of lines:  " + numLines);
+                ProgressMonitor.setMaxValue(numLines);
+
+                ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinical_f, attributesDatatype);
                 importClinicalData.importData();
 
                 System.out.println("Total number of patient specific clinical attributes added:  "
@@ -413,9 +495,9 @@ public class ImportClinicalData {
                 } else {
                     System.out.println("Success!");
                 }
-			}
-		} catch (Exception e) {
-			System.err.println ("Error:  " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.err.println ("Error:  " + e.getMessage());
         } finally {
             ConsoleUtil.showWarnings();
         }

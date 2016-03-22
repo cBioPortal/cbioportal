@@ -22,6 +22,7 @@ from cbioportal_common import IMPORT_STUDY_CLASS
 from cbioportal_common import REMOVE_STUDY_CLASS
 from cbioportal_common import IMPORT_CASE_LIST_CLASS
 from cbioportal_common import ADD_CASE_LIST_CLASS
+from cbioportal_common import VERSION_UTIL_CLASS
 from cbioportal_common import run_java
 import MySQLdb
 import xml.etree.ElementTree as ET
@@ -38,63 +39,11 @@ REMOVE_STUDY = "remove-study"
 IMPORT_STUDY_DATA = "import-study-data"
 IMPORT_CASE_LIST = "import-case-list"
 
-DATABASE_HOST = 'db.host'
-DATABASE_NAME = 'db.portal_db_name'
-DATABASE_USER = 'db.user'
-DATABASE_PW = 'db.password'
-VERSION_TABLE = 'info'
-VERSION_FIELD = 'DB_SCHEMA_VERSION'
-
 COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
 PORTAL_HOME = "PORTAL_HOME"
 
-POM_FILENAME = 'pom.xml'
-DB_VERSION = 'db.version'
-
-class PortalProperties(object):
-    
-    def __init__(self, database_host, database_name, database_user, database_pw):
-        self.database_host = database_host
-        self.database_name = database_name
-        self.database_user = database_user
-        self.database_pw = database_pw
-
 # ------------------------------------------------------------------------------
 # sub-routines
-
-def get_portal_properties(properties_filename):
-    """ Returns a properties object """
-    
-    properties = {}
-    properties_file = open(properties_filename, 'r')
-
-    for line in properties_file:
-        line = line.strip()
-
-        # skip line if its blank or a comment
-        if len(line) == 0 or line.startswith('#'):
-            continue
-        
-        # store name/value
-        property = line.split('=')
-        if len(property) != 2:
-            print >> ERROR_FILE, 'Skipping invalid entry in proeprty file: ' + line
-            continue
-        properties[property[0]] = property[1].strip()
-    properties_file.close()
-
-    if (DATABASE_HOST not in properties or len(properties[DATABASE_HOST]) == 0 or
-        DATABASE_NAME not in properties or len(properties[DATABASE_NAME]) == 0 or
-        DATABASE_USER not in properties or len(properties[DATABASE_USER]) == 0 or
-        DATABASE_PW not in properties or len(properties[DATABASE_PW]) == 0):
-        print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
-        return None
-    
-    # return an instance of PortalProperties
-    return PortalProperties(properties[DATABASE_HOST],
-                            properties[DATABASE_NAME],
-                            properties[DATABASE_USER],
-                            properties[DATABASE_PW])
 
 def import_cancer_type(jvm_args, meta_filename):
     args = jvm_args.split(' ')
@@ -171,7 +120,14 @@ def add_global_case_list(jvm_args, study_id):
     args.append("all")
     args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
-    
+
+def check_version(jvm_args):
+    args = jvm_args.split(' ')
+    args.append(VERSION_UTIL_CLASS)
+    ret_stat = run_java(*args)
+    if ret_stat[-1] != 0:
+        print >> OUTPUT_FILE, 'This version of the portal is out of sync with the database. You must run the database migration script located at PORTAL_HOME/core/src/main/scripts/migrate_db.py before continuing.'
+        sys.exit()
 
 def process_case_lists(jvm_args, case_list_dir):
     case_list_files = (os.path.join(case_list_dir, x) for
@@ -299,77 +255,6 @@ def check_dir(study_directory):
         print >> ERROR_FILE, 'Study cannot be found: ' + study_directory
         sys.exit(2)
 
-def check_db(portal_properties):
-    cursor = get_db_cursor(portal_properties)
-    db_version = ""
-    if cursor is not None:
-        db_version = '.'.join(map(str,get_db_version(cursor))).strip()
-    portal_db_version = get_portal_db_version().strip()
-    
-    if portal_db_version != db_version:
-        print >> OUTPUT_FILE, 'This version of the portal is out of sync with the database. You must run the database migration script located at PORTAL_HOME/core/src/main/scripts/migrate_db.py before continuing'
-        print >> OUTPUT_FILE, 'Portal Version of DB: ' + portal_db_version
-        print >> OUTPUT_FILE, 'DB Version: ' + db_version
-        sys.exit()
-
-def get_portal_db_version():
-    portal_home = os.environ[PORTAL_HOME]
-    pom_filename = os.path.join(portal_home, POM_FILENAME)
-
-    if not os.path.exists(pom_filename):
-        print >> ERROR_FILE, 'could not find pom.xml. Ensure that PORTAL_HOME environment variable is set.'
-        sys.exit(1)
-    
-    for event, ele in ET.iterparse(pom_filename):
-        if DB_VERSION in ele.tag:
-            return ele.text.strip()
-        ele.clear()
-
-def get_db_cursor(portal_properties):
-    """ Establishes a MySQL connection """
-
-    try:
-        connection = MySQLdb.connect(host=portal_properties.database_host, 
-            port = 3306, 
-            user = portal_properties.database_user,
-            passwd = portal_properties.database_pw,
-            db = portal_properties.database_name)
-    except MySQLdb.Error, msg:
-        print >> ERROR_FILE, msg
-        return None
-
-    if connection is not None:
-        return connection.cursor()
-
-def get_db_version(cursor):
-    """ gets the version number of the database """
-
-    # First, see if the version table exists
-    version_table_exists = False
-    try:
-        cursor.execute('select table_name from information_schema.tables')
-        for row in cursor.fetchall():
-            if VERSION_TABLE == row[0].lower().strip():
-                version_table_exists = True
-    except MySQLdb.Error, msg:
-        print >> ERROR_FILE, msg
-        return None
-    
-    if not version_table_exists:
-        return (0,0,0)
-
-    # Now query the table for the version number
-    try:
-        cursor.execute('select ' + VERSION_FIELD + ' from ' + VERSION_TABLE)
-        for row in cursor.fetchall():
-            version = tuple(map(int, row[0].strip().split('.')))
-    except MySQLdb.Error, msg:
-        print >> ERROR_FILE, msg
-        return None
-
-    return version
-
-
 def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
     parser.add_argument('-c', '--command', type=str, required=False,
@@ -384,8 +269,6 @@ def interface():
                         help='Path to meta file')
     parser.add_argument('-data', '--data_filename', type=str, required=False,
                         help='Path to Data file')
-    parser.add_argument('--properties-filename', type=str, required=True,
-                        help='path to properties file with DB connection details')
     # TODO - add same argument to metaimporter
     # TODO - harmonize on - and _
 
@@ -425,15 +308,9 @@ def main(args):
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path
     study_directory = args.study_directory
-    properties_filename = args.properties_filename
 
-    if not os.path.exists(properties_filename):
-        print >> ERROR_FILE, 'properties file cannot be found'
-        usage()
-        sys.exit(2)
     # check if DB version and application version are in sync
-    portal_properties = get_portal_properties(properties_filename)
-    check_db(portal_properties)
+    check_version(jvm_args)
 
     if study_directory != None:
         check_dir(study_directory)

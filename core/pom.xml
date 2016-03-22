@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <!-- meta data -->
+
+  <!-- module meta data -->
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
@@ -22,14 +23,16 @@
     </repository>
   </repositories>
 
+
+  <!-- dependencies -->
   <dependencies>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>business</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- antisamy -->
 
+    <!-- antisamy -->
     <dependency>
       <groupId>org.owasp</groupId>
       <artifactId>antisamy</artifactId>
@@ -280,6 +283,8 @@
     </profile>
   </profiles>
 
+
+	<!-- plugins -->
   <build>
     <plugins>
       <!-- java 1.7 support -->
@@ -383,6 +388,20 @@
     <!-- prevent some resources from getting into jar -->
     <resources>
       <resource>
+                        <directory>${PORTAL_HOME}/src/main/resources</directory>
+                        <filtering>true</filtering>
+                        <includes>
+                            <include>**/portal.properties</include>
+                        </includes>
+                    </resource>
+                    <resource>
+                        <directory>${PORTAL_HOME}/src/main/resources</directory>
+                        <filtering>false</filtering>
+                        <excludes>
+                            <exclude>**/portal.properties</exclude>
+                        </excludes>
+                    </resource>
+		<resource>
         <directory>src/main/resources</directory>
         <excludes>
           <exclude>sample_data/**</exclude>

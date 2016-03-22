@@ -30,49 +30,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.dao;
+package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.util.GlobalProperties;
+import org.mskcc.cbio.portal.dao.DaoInfo;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-public class DaoInfo {
-    private static String version;
-    
-    public static synchronized void setVersion() {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        version = "-1";
-        try {
-            con = JdbcUtil.getDbConnection(DaoInfo.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM info");
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                version = rs.getString("DB_SCHEMA_VERSION");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            JdbcUtil.closeAll(DaoInfo.class, con, pstmt, rs);
-        }
-    }
-    
-    public static String getVersion() {
-        return version;
-    }
-
-    public static boolean checkVersion() {
-        setVersion();
-        if (GlobalProperties.getDbVersion().equals(getVersion())) {
-            return true;
-        }
-        else {
-            return false;
-        }
+public class VersionUtil
+{
+    public static void main(String[] args)
+    {
+       int versionCheck = DaoInfo.checkVersion() ? 0 : 1;
+       System.exit(versionCheck);
     }
 }

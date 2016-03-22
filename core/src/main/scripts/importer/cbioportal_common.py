@@ -24,6 +24,7 @@ REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy"
 IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
 IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportSampleList"
 ADD_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.AddCaseList"
+VERSION_UTIL_CLASS = "org.mskcc.cbio.portal.util.VersionUtil"
 
 class MetaFileTypes(object):
     """how we differentiate between data types."""
@@ -642,4 +643,5 @@ def run_java(*args):
         if line != '' and line.endswith('\n'):
             print >> OUTPUT_FILE, line.strip()
             ret.append(line[:-1])
+    ret.append(process.returncode)
     return ret

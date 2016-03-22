@@ -97,7 +97,7 @@ public class ImportClinicalData {
     {
         PATIENT_ATTRIBUTES("PATIENT"),
         SAMPLE_ATTRIBUTES("SAMPLE"),
-        MIXED_ATTRIBTUES("MIXED");
+        MIXED_ATTRIBUTES("MIXED");
         
         private String attributeType;
         
@@ -174,7 +174,7 @@ public class ImportClinicalData {
                     attributeTypes = new String[displayNames.length];
                     Arrays.fill(attributeTypes, this.attributeType.toString());   
                     break;
-                case MIXED_ATTRIBTUES:
+                case MIXED_ATTRIBUTES:
                     attributeTypes = splitFields(buff.readLine());
                     break;
             }

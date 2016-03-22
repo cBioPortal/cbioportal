@@ -8,7 +8,23 @@
 -->
 
 <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
+  <script>
+  $(document).bind("mobileinit", function(){
+     $.mobile.pushStateEnabled = false;
+  });
+  </script>
+  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <![endif]-->
   <style type="text/css">
     /* Space out content a bit */
     body {
@@ -147,7 +163,7 @@
     table, th, td {
       border: 1px solid black;
       border-collapse: collapse;
-      text-align: center;
+      text-align: left;
       text-shadow: none;
     }
 
@@ -185,12 +201,10 @@
     .bgmd-cyan {
       background-color: #00BCD4!important;
     }
+    a {
+      text-decoration: underline;
+    }
   </style>
-  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-  <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
   <title>cBioPortal validation report: study in 'test_data/study_es_0/'</title>
 </head>
 
@@ -198,8 +212,27 @@
   <div class="container">
     <div class="header">
       <h1>cBioPortal validation report</h1>
-      <h4>study in 'test_data/study_es_0/'</h4>
-      <h4>See <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>this page for the data formats documentation</a></h4> 
+      <h4>Study directory:<br />test_data/study_es_0/</h4>
+      <h4>For details, please see <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>the documentation on file formats supported by cBioPortal</a></h4>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">Legend</h4>
+      </div>
+      <div class="panel-body">
+        <p>
+          The colours in the tables below have the following meanings:
+        </p>
+        <table>
+          <tbody>
+            <tr class="red"><td><strong>Error:</strong> oops, cBioPortal will not know how to load this&hellip;</td></tr>
+            <tr class="yellow"><td><strong>Warning:</strong> possible mistake, make sure to check whether this was intended</td></tr>
+            <tr class="blue"><td><strong>Info:</strong> this looks good, let&rsquo;s go on</td></tr>
+            <tr class="grey"><td><strong>Verbose output:</strong> details on what the validation script has been up to</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="jumbotron">
@@ -221,53 +254,53 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/cancertypes.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/clinicalattributes_patients.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/clinicalattributes_samples.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/genes.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Reading portal information from test_data/api_json_system_tests/genesaliases.json</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validating case lists</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="blue">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validation of case lists complete</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="blue">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validation complete</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
           </table>
         </div>
@@ -282,23 +315,23 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Starting validation of file</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="blue">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validation of file complete</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
           </table>
         </div>
 
         <div data-role="collapsible" class="bcol">
-          <h4>brca_tcga_pub.maf<span class="ui-li-count greenCount">2</span></h4>
+          <h4>brca_tcga_pub.maf<span class="ui-li-count greenCount">3</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>
@@ -306,17 +339,23 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Starting validation of file</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="blue">
-              <td></td>
-              <td></td>
+              <td>7, 9, 14, (0 more)</td>
+              <td>&ndash;</td>
+              <td>Validation of line skipped due to cBioPortal&#39;s filtering. Filtered types: [Silent, Intron, 3&#39;UTR, 3&#39;Flank, 5&#39;UTR, 5&#39;Flank, IGR, RNA]</td>
+              <td>validation skipped due to filtering</td>
+            </tr>
+            <tr class="blue">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validation of file complete</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
           </table>
         </div>
@@ -330,41 +369,17 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Starting validation of file</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="blue">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validation of file complete</td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-
-        <div data-role="collapsible" class="bcol">
-          <h4>data_clinical2.txt<span class="ui-li-count greenCount">2</span></h4>
-          <table style="width:100%">
-            <tr>
-              <th>Line Number</th>
-              <th>Column Number</th>
-              <th>Message</th>
-              <th>Value Encountered</th>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Starting validation of file</td>
-              <td></td>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Validation of file complete</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
           </table>
         </div>
@@ -378,17 +393,41 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Starting validation of file</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="blue">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validation of file complete</td>
-              <td></td>
+              <td>&ndash;</td>
+            </tr>
+          </table>
+        </div>
+
+        <div data-role="collapsible" class="bcol">
+          <h4>data_gistic_genes_amp.txt<span class="ui-li-count greenCount">2</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
+              <td>Starting validation of file</td>
+              <td>&ndash;</td>
+            </tr>
+            <tr class="blue">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
+              <td>Validation of file complete</td>
+              <td>&ndash;</td>
             </tr>
           </table>
         </div>
@@ -402,17 +441,17 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Starting validation of file</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="blue">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validation of file complete</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
           </table>
         </div>
@@ -426,17 +465,65 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Starting validation of file</td>
-              <td></td>
+              <td>&ndash;</td>
             </tr>
             <tr class="blue">
-              <td></td>
-              <td></td>
+              <td>&ndash;</td>
+              <td>&ndash;</td>
               <td>Validation of file complete</td>
-              <td></td>
+              <td>&ndash;</td>
+            </tr>
+          </table>
+        </div>
+
+        <div data-role="collapsible" class="bcol">
+          <h4>data_patients.txt<span class="ui-li-count greenCount">2</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
+              <td>Starting validation of file</td>
+              <td>&ndash;</td>
+            </tr>
+            <tr class="blue">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
+              <td>Validation of file complete</td>
+              <td>&ndash;</td>
+            </tr>
+          </table>
+        </div>
+
+        <div data-role="collapsible" class="bcol">
+          <h4>data_samples.txt<span class="ui-li-count greenCount">2</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="grey">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
+              <td>Starting validation of file</td>
+              <td>&ndash;</td>
+            </tr>
+            <tr class="blue">
+              <td>&ndash;</td>
+              <td>&ndash;</td>
+              <td>Validation of file complete</td>
+              <td>&ndash;</td>
             </tr>
           </table>
         </div>

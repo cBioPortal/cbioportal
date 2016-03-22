@@ -29,7 +29,8 @@ class MetaFileTypes(object):
     """how we differentiate between data types."""
     STUDY = 'meta_study'
     CANCER_TYPE = 'meta_cancer_type'
-    CLINICAL = 'meta_clinical'
+    SAMPLE_ATTRIBUTES = 'meta_clinical_sample'
+    PATIENT_ATTRIBUTES = 'meta_clinical_patient'
     CNA = 'meta_CNA'
     CNA_LOG2 = 'meta_log2CNA'
     CNA_CONTINUOUS = 'meta_contCNA'
@@ -39,8 +40,10 @@ class MetaFileTypes(object):
     METHYLATION = 'meta_methylation'
     FUSION = 'meta_fusions'
     RPPA = 'meta_rppa'
+    GISTIC_GENES = 'meta_gistic_genes'
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
+    MUTATION_SIGNIFICANCE = 'meta_mutsig'
 
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
@@ -60,7 +63,13 @@ META_FIELD_MAP = {
         'groups': False,
         'add_global_case_list': False
     },
-    MetaFileTypes.CLINICAL: {
+    MetaFileTypes.SAMPLE_ATTRIBUTES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'data_filename': True
+    },
+    MetaFileTypes.PATIENT_ATTRIBUTES: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -155,6 +164,13 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True
     },
+    MetaFileTypes.GISTIC_GENES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'reference_genome_id': True,
+        'data_filename': True
+    },
     MetaFileTypes.TIMELINE: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
@@ -167,13 +183,20 @@ META_FIELD_MAP = {
         'case_list_description': True,
         'case_list_ids': True,
         'case_list_category': False # TODO this is used in org.mskcc.cbio.portal.model.AnnotatedPatientSets.getDefaultPatientList(), decide whether to keeep, see #494
+    },
+    MetaFileTypes.MUTATION_SIGNIFICANCE: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'data_filename': True
     }
 }
 
 IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.STUDY: IMPORT_STUDY_CLASS,
     MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
-    MetaFileTypes.CLINICAL: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
+    MetaFileTypes.SAMPLE_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
+    MetaFileTypes.PATIENT_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData", # ? how will this import data into cna_event? 
     MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
@@ -184,11 +207,10 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
-    MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS
-    # TODO: enable when documented
-    #MetaFileTypes.GISTIC: "org.mskcc.cbio.portal.scripts.ImportGisticData",
-    #MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
+    MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS,
+    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
 }
 
 IMPORTER_REQUIRES_METADATA = {
@@ -380,8 +402,8 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
         super(CollapsingLogMessageHandler, self).flush()
 
     def shouldFlush(self, record):
-        """Collapse and flush every time an info message is emitted."""
-        return (record.levelno == logging.INFO or
+        """Collapse and flush every time a debug message is emitted."""
+        return (record.levelno == logging.DEBUG or
                 super(CollapsingLogMessageHandler, self).shouldFlush(record))
 
 
@@ -397,7 +419,8 @@ def get_meta_file_type(metaDictionary, logger, filename):
         # cancer type
         ("CANCER_TYPE", "CANCER_TYPE"): MetaFileTypes.CANCER_TYPE,
         # clinical and timeline
-        ("CLINICAL", "CLINICAL"): MetaFileTypes.CLINICAL,
+        ("CLINICAL", "PATIENT_ATTRIBUTES"): MetaFileTypes.PATIENT_ATTRIBUTES,
+        ("CLINICAL", "SAMPLE_ATTRIBUTES"): MetaFileTypes.SAMPLE_ATTRIBUTES,
         ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
         # rppa
         ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.RPPA,
@@ -415,11 +438,11 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("MUTATION_EXTENDED", "MAF"): MetaFileTypes.MUTATION,
         # others
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
-        ("FUSION", "FUSION"): MetaFileTypes.FUSION
-        # TODO
-        # GISTIC_GENES_AMP, datatype: Q-VALUE'
-        # GISTIC_GENES_DEL, datatype: Q-VALUE'
-        # MUTSIG, datatype: Q-VALUE'
+        ("FUSION", "FUSION"): MetaFileTypes.FUSION,
+        # cross-sample molecular statistics (for gene selection)
+        ("GISTIC_GENES_AMP", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
+        ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
+        ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE
     }
     result = None
     if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
@@ -516,7 +539,9 @@ def parse_metadata_file(filename,
                     supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
     """
-
+    
+    logger.debug('Starting validation of meta file', extra={'filename_': filename})
+    
     metaDictionary = {}
     with open(filename, 'rU') as metafile:
         for line_index, line in enumerate(metafile):
@@ -598,6 +623,7 @@ def parse_metadata_file(filename,
                        'cause': metaDictionary['reference_genome_id']})
             meta_file_type = None
 
+    logger.info('Validation of meta file complete', extra={'filename_': filename})
     return metaDictionary, meta_file_type
 
 

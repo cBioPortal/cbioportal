@@ -36,6 +36,8 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -73,7 +75,6 @@ public class GlobalProperties {
     public static final String DEFAULT_APP_NAME = "public_portal";
     
     public static final String APP_VERSION = "app.version";
-
     public static final String SKIN_TITLE = "skin.title";
     public static final String DEFAULT_SKIN_TITLE = "cBioPortal for Cancer Genomics";
     public static final String SKIN_BLURB = "skin.blurb";
@@ -106,8 +107,8 @@ public class GlobalProperties {
             "TCGA working groups directly.";
 
     public static final String PATIENT_VIEW_PLACEHOLDER = "patient_view_placeholder";
-    public static final String PATIENT_VIEW_CNA_TUMORMAP_CNA_CUTOFF = "patient_view_genomic_overview_cna_cutoff";
-    public static final double[] DEFAULT_TUMORMAP_CNA_CUTOFF = new double[]{0.2,1.5};
+    public static final String PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF = "patient_view_genomic_overview_cna_cutoff";
+    public static final double[] DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF = new double[]{0.2,1.5};
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
@@ -183,13 +184,13 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="To build your own case set, try out our enhanced " +
             "Study View.";
 
-
     public static final String MYCANCERGENOME_SHOW = "mycancergenome.show";
-    public static final String MYCANCERGENOME_URL = "mycancergenome.url";
     public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
     public static final String SHOW_HOTSPOT = "show.hotspot";
     
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
+    
+    public static final String DB_VERSION = "db.version";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -300,6 +301,20 @@ public class GlobalProperties {
         return properties.getProperty(AUTHENTICATE);
     }
 
+    /**
+     * Return authenticated username
+     * @return String userName 
+     * Return authenticated username. If the user is not authenticated, 'anonymousUser' will be returned.
+     */
+    public static String getAuthenticatedUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if(authentication != null) {
+            return authentication.getName();
+        }else {
+            return "anonymousUser";
+        }
+    }
 	public static boolean usersMustBeAuthorized() {
         return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
 	}
@@ -315,7 +330,7 @@ public class GlobalProperties {
         String appVersion = properties.getProperty(APP_VERSION);
         return (appVersion == null) ? "1.0" : appVersion;
     }
-
+    
     public static String getTitle()
     {
         String skinTitle = properties.getProperty(SKIN_TITLE);
@@ -438,9 +453,9 @@ public class GlobalProperties {
 
     public static double[] getPatientViewGenomicOverviewCnaCutoff()
     {
-        String cutoff = properties.getProperty(PATIENT_VIEW_CNA_TUMORMAP_CNA_CUTOFF);
+        String cutoff = properties.getProperty(PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF);
         if (cutoff==null) {
-            return DEFAULT_TUMORMAP_CNA_CUTOFF;
+            return DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF;
         }
 
         String[] strs = cutoff.split(",");
@@ -678,11 +693,6 @@ public class GlobalProperties {
         return show != null && Boolean.parseBoolean(show);
     }
     
-    public static String getMyCancerGenomeUrl()
-    {
-        return properties.getProperty(MYCANCERGENOME_URL);
-    }
-    
     public static String getOncoKBGeneStatus()
     {
         return properties.getProperty(ONCOKB_GENE_STATUS);
@@ -694,5 +704,19 @@ public class GlobalProperties {
             return false;
         }
         return Boolean.parseBoolean(recacheStudyAfterUpdate);
+    }
+    
+    public static String getDbVersion() {
+        String version = properties.getProperty(DB_VERSION);
+        if (version == null)
+        {
+            return "0";
+        }
+        return version;
+    }
+    
+    public static void main(String[] args)
+    {
+        System.out.println(getAppVersion());
     }
 }

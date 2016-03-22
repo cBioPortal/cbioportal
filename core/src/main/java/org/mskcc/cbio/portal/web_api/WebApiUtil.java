@@ -37,7 +37,6 @@ import org.mskcc.cbio.portal.model.MicroRna;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.mskcc.cbio.portal.util.GeneComparator;
-import org.mskcc.cbio.portal.dao.DaoMicroRna;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import java.util.ArrayList;
@@ -58,11 +57,6 @@ public class WebApiUtil {
                     GeneticAlterationType alterationType, StringBuffer warningBuffer,
                     List<String> warningList) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoMicroRna daoMicroRna = new DaoMicroRna();
-        if (microRnaIdSet == null) {
-            microRnaIdSet = daoMicroRna.getEntireSet();
-            variantMicroRnaIdSet = daoMicroRna.getEntireVariantSet();
-        }
 
 	    ServletXssUtil xssUtil = null;
 
@@ -89,19 +83,11 @@ public class WebApiUtil {
                             if (variantMicroRnaIdSet.contains(geneId)) {
                                 MicroRna microRna = new MicroRna(geneId);
                                 geneList.add(microRna);
-                            } else {
-                                //  Option 2:  Client has specified a primary ID, and we need to map
-                                //  to all variants
-                                List <String> variantList = daoMicroRna.getVariantIds(geneId);
-                                for (String variant:  variantList) {
-                                    MicroRna microRna = new MicroRna(variant);
-                                    geneList.add(microRna);
-                                }
                             }
                         } else {
                             MicroRna microRna = new MicroRna(geneId);
                             geneList.add(microRna);
-                        }
+						 }
                     } else {
 	                    if (xssUtil != null) {
 		                    geneId = xssUtil.getCleanerInput(geneId);

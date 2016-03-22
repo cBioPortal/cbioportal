@@ -46,7 +46,7 @@
             <td>
             <h1>R/MATLAB Packages</h1>
             <div class="markdown">
-            <p><jsp:include page="content/cgds_r.html" flush="true" /></p>
+            <p><%@ include file="content/cgds_r.html" %></p>
             </div>
             </td>
         </tr>

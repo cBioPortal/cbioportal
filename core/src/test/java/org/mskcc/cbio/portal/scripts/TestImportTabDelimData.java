@@ -124,11 +124,10 @@ public class TestImportTabDelimData {
 //        daoGene.addGene(new CanonicalGene(672, "BRCA1"));
 //        daoGene.addGene(new CanonicalGene(675, "BRCA2"));
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/cna_test.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, ImportTabDelimData.BARRY_TARGET, geneticProfileId, pMonitor);
+        ImportTabDelimData parser = new ImportTabDelimData(file, ImportTabDelimData.BARRY_TARGET, geneticProfileId);
         parser.importData();
 
         String value = dao.getGeneticAlteration(geneticProfileId, sample1, 207);
@@ -189,11 +188,10 @@ public class TestImportTabDelimData {
 
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/cna_test2.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, null, geneticProfileId, pMonitor);
+        ImportTabDelimData parser = new ImportTabDelimData(file, null, geneticProfileId);
         parser.importData();
 
         String value = dao.getGeneticAlteration(geneticProfileId, sample1, 207);
@@ -273,11 +271,10 @@ public class TestImportTabDelimData {
         
         int newGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("gbm_mrna").getGeneticProfileId();
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/mrna_test.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, pMonitor);
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
         parser.importData();
         
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "DD639").getInternalId();

@@ -1,0 +1,103 @@
+/*
+Copyright (C) 2015 Kevin Perard V0.1.3
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+.dropdown-checkbox {
+  position: relative;
+}
+.dropdown-checkbox.dropdown.open .caret {
+  border-top-color: black !important;
+}
+.dropdown-checkbox .dropdown-checkbox-content {
+  display: none;
+  position: absolute;
+  background: white;
+  z-index: 1000;
+  top: 100%;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -webkit-transform: rotate(360deg);
+  -ms-transform: rotate(360deg);
+  -o-transform: rotate(360deg);
+  transform: rotate(360deg);
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  border-top: 1px solid #777777;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.dropdown-checkbox .dropdown-checkbox-content li .layout {
+  padding: 0px 10px;
+}
+.dropdown-checkbox .dropdown-checkbox-content li .layout:hover {
+  background: #337ab7;
+  color: white;
+  cursor: pointer;
+}
+.dropdown-checkbox .dropdown-checkbox-content li .layout input[type=checkbox] {
+  float: left;
+  height: 25px;
+  margin: 0;
+  outline: none;
+  padding: 0;
+}
+.dropdown-checkbox .dropdown-checkbox-content li .layout label {
+  display: block;
+  white-space: nowrap;
+  line-height: 25px;
+  padding-left: 30px;
+  margin-bottom: 0px;
+  height: 25px;
+}
+.dropdown-checkbox .dropdown-checkbox-content .maxitems {
+  margin: 0;
+}
+.dropdown-checkbox.open .dropdown-checkbox-content {
+  display: block;
+}
+.dropdown-checkbox .dropdown-checkbox-header {
+  min-width: 245px;
+  background-color: #337ab7;
+  padding: 5px 20px;
+  border-radius: 4px 4px 0px 0px;
+}
+.dropdown-checkbox .dropdown-checkbox-header .search {
+  margin: 0;
+}
+.dropdown-checkbox .dropdown-checkbox-header .checkbox-all {
+  margin-right: 10px;
+}
+.dropdown-checkbox ul.dropdown-checkbox-menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  padding: 5px 10px 5px 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: visible;
+}
+.dropdown-checkbox ul.dropdown-checkbox-menu li {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}

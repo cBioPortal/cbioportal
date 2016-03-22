@@ -33,7 +33,7 @@
 
 var StudyViewBoilerplate ={
     headerCaseSelectCustomDialog: {
-        id: 'modal', // Since we're only creating one modal, give it an ID so we can style it
+        id: 'study-view-case-select-custom-dialog', // Since we're only creating one modal, give it an ID so we can style it
         content: {
                 text: '',
                 title: {
@@ -110,7 +110,7 @@ var StudyViewBoilerplate ={
     ],
     pieLabelQtip: {
         content:{text: ""},
-        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
         position: {my:'right bottom',at:'top left', viewport: $(window)}
@@ -288,7 +288,6 @@ var StudyViewBoilerplate ={
                 type: "submit",
                 id: "study-view-header-left-1",
                 value: "Query",
-//                class: "study-view-header hidden"
                 class: "study-view-header-button"
             });
         _form.append(_input1);
@@ -342,8 +341,6 @@ var StudyViewBoilerplate ={
         _headerRight.attr('id','study-view-header-right');
         _headerRight.append(_span1);
 
-        // add the success banner div to the header
-        //_header.append(_successBanner);
         _header.append(_headerLeft);
         _header.append(_headerRight);
 
@@ -362,22 +359,13 @@ var StudyViewBoilerplate ={
                 'cols': '10'
             });
 
-        //var queryByGeneStatus = $('<p></p>');
-        //queryByGeneStatus
-        //    .attr({
-        //        'id': 'query-by-gene-status'
-        //    });
-
-
-        //_queryByGene.append('<span id="queryByGeneTextSpan">Genes selected: </span>');
         _queryByGene.append('<span id="queryByGeneTextSpan"></span>');
         _queryByGene.append(queryByGeneTextArea);
-        //_queryByGene.append(queryByGeneStatus);
 
         // add a container for the breadcrumbs
         _breadcrumbs.attr({
             id: 'breadcrumbs_container',
-            class: 'hidden'
+            class: 'study-view-hidden'
         });
         _breadcrumbs.append('<span style="float:left">Your selections: </span>');
         _breadcrumbs.append('<div style="float:left" class="breadcrumbs_items"></div>');
@@ -390,20 +378,17 @@ var StudyViewBoilerplate ={
     },
     
     customDialogDiv:
-            "<div class='hidden' id='study-view-case-select-custom-dialog'>" +
-                "Please input IDs (one per line)" +
+            "<div class='study-view-hidden' id='study-view-case-select-custom-dialog'>" +
+                '<b>Please input IDs (one per line)</b>' +
                 "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea><br/>" +
-                '<input type="radio" name="study-view-case-select-custom-radio" value="sample" checked>By sample ID' +
-                '<input type="radio" name="study-view-case-select-custom-radio" value="patient">By patient ID' +
+                '<label><input type="radio" id="study-view-case-select-custom-radio-sample" name="study-view-case-select-custom-radio" value="sample" checked>' +
+                'By sample ID</label>' +
+                '<label><input type="radio" id="study-view-case-select-custom-radio-patient"  name="study-view-case-select-custom-radio" value="patient">' +
+                'By patient ID</label>' +
                 "<button type='button' id='study-view-case-select-custom-submit-btn' style='float: right;'>Select</button>" +
             "</div>",
     addChartDiv:
             "<select id='study-view-add-chart' class='chosen-select'><option id=''>Add Chart</option></select>",
-//            "<div  id='study-view-add-chart' class='study-view-header'>" +
-//                "<span>Add Chart</span><br>" +
-//                "<ul>" +
-//                "</ul>" +
-//            "</div>",
     
     tutorialDiv:
             "<div  id='study-view-tutorial' class='study-view-header'>" +
@@ -452,10 +437,6 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-body-top-chart'></div>"+
             "<div id='study-view-scatter-plot-body-svg'></div>"+
             "<div id='study-view-scatter-plot-body-right-chart'></div></div>"+
-//            "<div id='study-view-scatter-plot-side'>"+
-//            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span></div>"+
-//            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span></div>"+
-//            "</div>"+
             "<div id='study-view-scatter-plot-loader' class='study-view-loader'>"+
             "<img src='images/ajax-loader.gif'/></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+

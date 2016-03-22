@@ -32,7 +32,7 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml</param-value>
-	</context-param>
+    </context-param>
 
     <context-param>
         <param-name>webAppRootKey</param-name>
@@ -132,6 +132,10 @@
         <servlet-name>portal</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>portal</servlet-name>                                                                                                                                                 
+      <url-pattern>/</url-pattern>
+    </servlet-mapping>                                                                                                                                                                    
 
     <servlet>
         <servlet-name>query_builder</servlet-name>
@@ -384,30 +388,11 @@
         <servlet-name>ClinicalTimelineData</servlet-name>
         <url-pattern>/clinical_timeline_data.json</url-pattern>
     </servlet-mapping>
-
-    <servlet>
-        <servlet-name>TumorMapServlet</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.TumorMapServlet</servlet-class>
-    </servlet>
-    
-    <servlet-mapping>
-        <servlet-name>TumorMapServlet</servlet-name>
-        <url-pattern>/index.tumormap</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>TumorMapServlet</servlet-name>
-        <url-pattern>/tumormap.json</url-pattern>
-    </servlet-mapping>
     
     <servlet>
         <servlet-name>patient_view</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>patient_view</servlet-name>
-        <url-pattern>/tumormap.do</url-pattern>
-    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>patient_view</servlet-name>
         <url-pattern>/case.do</url-pattern>

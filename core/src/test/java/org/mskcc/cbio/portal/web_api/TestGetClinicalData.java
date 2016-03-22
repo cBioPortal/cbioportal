@@ -70,12 +70,11 @@ public class TestGetClinicalData {
     public void testGetClinicalData() throws DaoException, IOException {
 
         // ResetDatabase.resetDatabase();
-        // ProgressMonitor pMonitor = new ProgressMonitor();
-        // pMonitor.setConsoleMode(false);
+        // ProgressMonitor.setConsoleMode(false);
 		// // TBD: change this to use getResourceAsStream()
         // File file = new File("target/test-classes/clinical_test.txt");
         // CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
-        // ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, pMonitor);
+        // ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file);
 		// importClinicalData.importData();
 		// 
         // HashSet<String> caseSet = new HashSet<String>();

@@ -30,4 +30,4 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<jsp:include page="mutation/mutationMapperTemplates.html" flush="true"/>
+<%@ include file="mutation/mutationMapperTemplates.html" %>

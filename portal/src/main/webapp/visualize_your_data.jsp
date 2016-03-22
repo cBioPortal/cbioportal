@@ -46,7 +46,7 @@
             <td>
             <h1>Visualize your own data</h1>
             <div class="markdown">
-            <p><jsp:include page="content/visualize_your_data.html" flush="true" /></p>
+            <p><%@ include file="content/visualize_your_data.html" %></p>
             </div>
             </td>
         </tr>

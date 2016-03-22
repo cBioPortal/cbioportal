@@ -116,7 +116,6 @@
                   <filtering>true</filtering>
                   <includes>
                     <include>**/*.properties</include>
-                    <include>**/spring.security.url.intercepts</include>
                   </includes>
                   <excludes>
                     <exclude>**/portal.properties.*</exclude>

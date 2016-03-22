@@ -90,7 +90,8 @@ public class TestImportClinicalData {
         study = DaoCancerStudy.getCancerStudyByStableId("testnew");
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data_small.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile);
+        ImportClinicalData importClinicalData = new ImportClinicalData(
+                study, clinicalFile, "MIXED_ATTRIBUTES");
         importClinicalData.importData();
 	}
 

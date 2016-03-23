@@ -47,7 +47,7 @@
 
     <div id="instructions">
     <div class="markdown">
-            <p><jsp:include page="content/onco_spec_lang_desc.html" flush="true" /></p>
+            <p><%@ include file="content/onco_spec_lang_desc.html" %></p>
     </div>
     <jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
     </div>

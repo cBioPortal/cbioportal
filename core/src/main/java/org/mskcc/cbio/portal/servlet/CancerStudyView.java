@@ -53,7 +53,7 @@ public class CancerStudyView extends HttpServlet {
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
     
-    private static final DaoPatientList daoPatientList = new DaoPatientList();
+    private static final DaoSampleList daoSampleList = new DaoSampleList();
 
     // class which process access control to cancer studies
     private AccessControl accessControl;
@@ -132,20 +132,20 @@ public class CancerStudyView extends HttpServlet {
             }
         }
         
-        String patientListId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
-        if (patientListId==null) {
-            patientListId = cancerStudy.getCancerStudyStableId()+"_all";
-            request.setAttribute(QueryBuilder.CASE_SET_ID, patientListId);
+        String sampleListId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
+        if (sampleListId==null) {
+            sampleListId = cancerStudy.getCancerStudyStableId()+"_all";
+            request.setAttribute(QueryBuilder.CASE_SET_ID, sampleListId);
         }
         
-        PatientList patientList = daoPatientList.getPatientListByStableId(patientListId);
-        if (patientList==null) {
+        SampleList sampleList = daoSampleList.getSampleListByStableId(sampleListId);
+        if (sampleList==null) {
             request.setAttribute(ERROR,
-                    "Could not find patient list of '" + patientListId + "'. ");
+                    "Could not find sample list of '" + sampleListId + "'. ");
             return false;
         }
         
-        request.setAttribute(QueryBuilder.CASE_IDS, patientList.getPatientList());
+        request.setAttribute(QueryBuilder.CASE_IDS, sampleList.getSampleList());
         
         request.setAttribute(CANCER_STUDY, cancerStudy);
         request.setAttribute(QueryBuilder.HTML_TITLE, cancerStudy.getName());

@@ -154,7 +154,7 @@ public class LinkOut extends HttpServlet {
         String output = linkOutRequest.getReport();
         String geneList = linkOutRequest.getGeneList();
         HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfileSet(cancerStudyId);
-        PatientList defaultCaseList = getDefaultPatientList(cancerStudyId);
+        SampleList defaultCaseList = getDefaultSampleList(cancerStudyId);
         /*ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
         createStudySpecificForwardingRequest(forwardingRequest, cancerStudyId, geneList, defaultGeneticProfileSet,
             defaultCaseList, output);
@@ -166,7 +166,7 @@ public class LinkOut extends HttpServlet {
     }
     
     private String createStudySpecificForwardingUrl(String cancerStudyId, String geneList,
-            HashMap<String, GeneticProfile> defaultGeneticProfileSet, PatientList defaultPatientList, String output) {
+            HashMap<String, GeneticProfile> defaultGeneticProfileSet, SampleList defaultSampleList, String output) {
 	    String ret = "index.do?";
 	    ret += QueryBuilder.GENE_LIST+"="+geneList;
 	    ret += "&";
@@ -174,7 +174,7 @@ public class LinkOut extends HttpServlet {
 	    ret += "&";
 	    ret += QueryBuilder.CANCER_STUDY_ID+"="+cancerStudyId;
 	    ret += "&";
-	    ret += QueryBuilder.CASE_SET_ID+"="+defaultPatientList.getStableId();
+	    ret += QueryBuilder.CASE_SET_ID+"="+defaultSampleList.getStableId();
 	    ret += "&";
 	    String geneticProfiles = "";
 	    for (String geneticProfileId: defaultGeneticProfileSet.keySet()) {
@@ -191,10 +191,10 @@ public class LinkOut extends HttpServlet {
     }
     
     private void createStudySpecificForwardingRequest(ForwardingRequest forwardingRequest, String cancerStudyId, String geneList,
-            HashMap<String, GeneticProfile> defaultGeneticProfileSet, PatientList defaultPatientList, String output) {
+            HashMap<String, GeneticProfile> defaultGeneticProfileSet, SampleList defaultSampleList, String output) {
         forwardingRequest.setParameterValue(QueryBuilder.GENE_LIST , geneList);
         forwardingRequest.setParameterValue(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);
-        forwardingRequest.setParameterValue(QueryBuilder.CASE_SET_ID, defaultPatientList.getStableId());
+        forwardingRequest.setParameterValue(QueryBuilder.CASE_SET_ID, defaultSampleList.getStableId());
 
         List<String> geneticProfileList = new ArrayList<String>();
         for (String geneticProfileId:  defaultGeneticProfileSet.keySet()) {
@@ -210,14 +210,14 @@ public class LinkOut extends HttpServlet {
         }
     }
 
-    private PatientList getDefaultPatientList(String cancerStudyId) throws DaoException {
-        ArrayList<PatientList> patientSetList = GetPatientLists.getPatientLists(cancerStudyId);
-        AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList);
-        PatientList defaultPatientList = annotatedPatientSets.getDefaultPatientList();
-        if (defaultPatientList == null) {
+    private SampleList getDefaultSampleList(String cancerStudyId) throws DaoException {
+        ArrayList<SampleList> sampleSetList = GetSampleLists.getSampleLists(cancerStudyId);
+        AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList);
+        SampleList defaultSampleList = annotatedSampleSets.getDefaultSampleList();
+        if (defaultSampleList == null) {
             throw new DaoException("Could not determine patient set for:  " + cancerStudyId);
         }
-        return defaultPatientList;
+        return defaultSampleList;
     }
 
     private HashMap<String, GeneticProfile> getDefaultGeneticProfileSet(String cancerStudyId) throws DaoException {

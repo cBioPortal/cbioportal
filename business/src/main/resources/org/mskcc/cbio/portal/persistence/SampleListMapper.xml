@@ -6,35 +6,35 @@
 <select id="getSampleIds" resultType="DBSample">
     select 
         sample.STABLE_ID as id
-    from patient_list_list inner join sample on sample.INTERNAL_ID = patient_list_list.PATIENT_ID
-                                                    inner join patient_list on patient_list_list.LIST_ID = patient_list.LIST_ID
-        where patient_list.STABLE_ID = #{list_id}
+    from sample_list_list inner join sample on sample.INTERNAL_ID = sample_list_list.SAMPLE_ID
+                                                    inner join sample_list on sample_list_list.LIST_ID = sample_list.LIST_ID
+        where sample_list.STABLE_ID = #{list_id}
 </select>
 
 <select id="getIncompleteSampleLists" resultType="DBSampleList" parameterType="list">
     select
-        patient_list.STABLE_ID as id,
-        patient_list.NAME as name,
-        patient_list.DESCRIPTION as description,
+        sample_list.STABLE_ID as id,
+        sample_list.NAME as name,
+        sample_list.DESCRIPTION as description,
         cancer_study.CANCER_STUDY_IDENTIFIER as study_id
-    from patient_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = patient_list.CANCER_STUDY_ID
-    where patient_list.STABLE_ID in <foreach item="item" collection="sample_list_ids" open="(" separator = "," close=")">#{item}</foreach>
+    from sample_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = sample_list.CANCER_STUDY_ID
+    where sample_list.STABLE_ID in <foreach item="item" collection="sample_list_ids" open="(" separator = "," close=")">#{item}</foreach>
 </select>
 <select id="getAllIncompleteSampleLists" resultType="DBSampleList" parameterType="list">
     select
-        patient_list.STABLE_ID as id,
-        patient_list.NAME as name,
-        patient_list.DESCRIPTION as description,
+        sample_list.STABLE_ID as id,
+        sample_list.NAME as name,
+        sample_list.DESCRIPTION as description,
         cancer_study.CANCER_STUDY_IDENTIFIER as study_id
-    from patient_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = patient_list.CANCER_STUDY_ID
+    from sample_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = sample_list.CANCER_STUDY_ID
 </select>
 <select id="getIncompleteSampleListsByStudy" resultType="DBSampleList" parameterType="list">
     select
-        patient_list.STABLE_ID as id,
-        patient_list.NAME as name,
-        patient_list.DESCRIPTION as description,
+        sample_list.STABLE_ID as id,
+        sample_list.NAME as name,
+        sample_list.DESCRIPTION as description,
         cancer_study.CANCER_STUDY_IDENTIFIER as study_id
-    from patient_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = patient_list.CANCER_STUDY_ID
+    from sample_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = sample_list.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
 </select>    
 </mapper>

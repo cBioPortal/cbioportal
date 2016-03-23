@@ -301,7 +301,7 @@ var ScatterPlots = function() {
                 $(this).qtip(
                     {
                         content: {text: "<font size=1>" + text.xTitleHelp + "</font>" },
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'right bottom', at:'top left', viewport: $(window)}
@@ -366,7 +366,7 @@ var ScatterPlots = function() {
                 $(this).qtip(
                     {
                         content: {text: "<font size=1>" + text.yTitleHelp + "</font>"},
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'right bottom', at:'top left', viewport: $(window)}
@@ -563,7 +563,7 @@ var ScatterPlots = function() {
                 $(this).qtip(
                     {
                         content: {text: dataArrByCaseId[$(this).attr('arr_id')].qtip },
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'right bottom', at:'top left', viewport: $(window)}

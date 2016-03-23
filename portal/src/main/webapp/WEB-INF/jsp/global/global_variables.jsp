@@ -48,7 +48,7 @@
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.portal.model.PatientList" %>
+<%@ page import="org.mskcc.cbio.portal.model.SampleList" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 <%@ page import="org.mskcc.cbio.portal.model.Patient" %>
@@ -137,21 +137,21 @@
     genes = StringEscapeUtils.escapeJavaScript(genes);
 
     //Info about Patient Set(s)/Patients
-    ArrayList<PatientList> patientSets = (ArrayList<PatientList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
-    ArrayList<String> mergedPatientList = mergedProfile.getCaseIdList();
-    int mergedPatientListSize = mergedPatientList.size();
-    String patientSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String patientSetName = "";
-    String patientSetDescription = "";
-    for (PatientList patientSet:  patientSets) {
-        if (patientSetId.equals(patientSet.getStableId())) {
-            patientSetName = patientSet.getName();
-            patientSetDescription = patientSet.getDescription();
+    ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
+    ArrayList<String> mergedSampleList = mergedProfile.getCaseIdList();
+    int mergedSampleListSize = mergedSampleList.size();
+    String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+    String sampleSetName = "";
+    String sampleSetDescription = "";
+    for (SampleList sampleSet:  sampleSets) {
+        if (sampleSetId.equals(sampleSet.getStableId())) {
+            sampleSetName = sampleSet.getName();
+            sampleSetDescription = sampleSet.getDescription();
         }
     }
-    String patients = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+    String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
     //cases = xssUtil.getCleanerInput(cases);
-    String patientIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+    String sampleIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     //caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
 
     //Vision Control Tokens
@@ -171,10 +171,10 @@
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
 
     //Escape quotes in the returned strings
-    patients = patients.replaceAll("'", "\\'");
-    patients = patients.replaceAll("\"", "\\\"");
-    patientSetName = patientSetName.replaceAll("'", "\\'");
-    patientSetName = patientSetName.replaceAll("\"", "\\\"");
+    samples = samples.replaceAll("'", "\\'");
+    samples = samples.replaceAll("\"", "\\\"");
+    sampleSetName = sampleSetName.replaceAll("'", "\\'");
+    sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
 
     //check if show co-expression tab
     boolean showCoexpTab = false;
@@ -188,7 +188,7 @@
     //list of altered & unaltered sample ids
     ArrayList<String> alteredSampleIdList = new ArrayList<String>();
     ArrayList<String> unalteredSampleIdList = new ArrayList<String>();
-    for (String patientId : mergedPatientList) {
+    for (String patientId : mergedSampleList) {
         if (dataSummary.isCaseAltered(patientId)) {
             alteredSampleIdList.add(patientId);
         } else {
@@ -302,11 +302,11 @@
         })(),
 
         //cases
-        getCaseSetId: function() { return '<%= patientSetId %>';},  //Id for user chosen standard case set
-        getCaseSetName: function() { return '<%= patientSetName %>'},  //Name for user chose standard case set
-        getCaseIdsKey: function() { return '<%= patientIdsKey %>'; },   //A key arrsigned to use build case set
-        getCases: function() { return '<%= patients %>'; }, // list of queried case ids
-        getMergedCases: function() { return '<%=  mergedPatientList %>'; },
+        getCaseSetId: function() { return '<%= sampleSetId %>';},  //Id for user chosen standard case set
+        getCaseSetName: function() { return '<%= sampleSetName %>'},  //Name for user chose standard case set
+        getCaseIdsKey: function() { return '<%= sampleIdsKey %>'; },   //A key arrsigned to use build case set
+        getCases: function() { return '<%= samples %>'; }, // list of queried case ids
+        getMergedCases: function() { return '<%=  mergedSampleList %>'; },
 
         //samples
         setSampleIds: function(_inputArr) { global_sample_ids = _inputArr; },
@@ -317,10 +317,10 @@
     
         getPatientCaseSelect: function() {return '<%=patientCaseSelect%>';},
         
-        //patients
-        getPatientSetName: function() { return '<%=patientSetName%>'; },
-        getPatientSetDescription: function() {
-            var _str = '<%=patientSetDescription%>';
+        //samples
+        getSampleSetName: function() { return '<%=sampleSetName%>'; },
+        getSampleSetDescription: function() {
+            var _str = '<%=sampleSetDescription%>';
             _str = _str.substring(0, _str.indexOf("("));
             return _str;
         },
@@ -335,7 +335,7 @@
             });
             return result;
         },
-        getPatientIds: function() { return '<%=patients%>'; },
+        getSampleIds: function() { return '<%=samples%>'; },
 
         //profiles
         getMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
@@ -373,14 +373,14 @@
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
                                                             ['<%=cancerTypeId%>'.trim()],
-                                                            '<%=patients%>'.trim().split(/\s+/),
+                                                            '<%=samples%>'.trim().split(/\s+/),
                                                             parseFloat('<%=zScoreThreshold%>'),
                                                             parseFloat('<%=rppaScoreThreshold%>'),
                                                             {
-                                                                case_set_id: '<%=patientSetId%>',
-                                                                case_ids_key: '<%=patientIdsKey%>',
-                                                                case_set_name: '<%=patientSetName%>',
-                                                                case_set_description: '<%=patientSetDescription%>'
+                                                                case_set_id: '<%=sampleSetId%>',
+                                                                case_ids_key: '<%=sampleIdsKey%>',
+                                                                case_set_name: '<%=sampleSetName%>',
+                                                                case_set_description: '<%=sampleSetDescription%>'
                                                             },
                                                             ['<%=cancerStudyName%>'],
                                                             {
@@ -445,7 +445,7 @@ $(document).ready(function() {
             var _query_smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
                 window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
-                "<small>" + window.QuerySession.getPatientSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
+                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
                 "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
             $("#main_smry_query_div").append(_query_smry);
 
@@ -471,19 +471,19 @@ $(document).ready(function() {
             });
 
 
-            var patientIdArray = [];
+            var sampleIdArray = [];
             $.each(_sampleIds, function(index, sample_id) {
-                    patientIdArray.push(sample_patient_map[sample_id]);
+                    sampleIdArray.push(sample_patient_map[sample_id]);
             });
-            patientIdArray = _.uniq(patientIdArray);
+            sampleIdArray = _.uniq(sampleIdArray);
 
             //Oncoprint summary lines
-            $("#oncoprint_sample_set_description").append(window.QuerySession.getPatientSetDescription() + 
-                "("+patientIdArray.length + " patients / " + _sampleIds.length + " samples)");
-            $("#oncoprint_sample_set_name").append(window.QuerySession.getPatientSetName());
+            $("#oncoprint_sample_set_description").append(window.QuerySession.getSampleSetDescription() + 
+                "("+sampleIdArray.length + " samples / " + _sampleIds.length + " samples)");
+            $("#oncoprint_sample_set_name").append(window.QuerySession.getSampleSetName());
             $("#oncoprint_num_of_altered_cases").append(altered_samples.length);
             $("#oncoprint_percentage_of_altered_cases").append(altered_samples_percentage);
-            if (patientIdArray.length !== _sampleIds.length) {
+            if (sampleIdArray.length !== _sampleIds.length) {
                 $("#switchPatientSample").show();
             }
             
@@ -521,7 +521,7 @@ $(document).ready(function() {
 <%
     // plots_tab.jsp
     String cancer_study_id = request.getParameter("cancer_study_id");
-    String patient_set_id = request.getParameter("case_set_id");
+    String sample_set_id = request.getParameter("case_set_id");
     String genetic_profile_id = request.getParameter("genetic_profile_id");
 
     // Translate Onco Query Language
@@ -545,17 +545,17 @@ $(document).ready(function() {
     var geneList = "<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>";
 
     // list of samples (patient ids)
-    var samples = "<%=patients%>";
+    var samples = "<%=samples%>";
 
     // genetic profile ids
     var geneticProfiles = "<%=geneticProfiles%>";
 
     // plots_tab.jsp
     var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            patient_set_id = "<%out.print(patient_set_id);%>";
-    patient_ids_key = "";
-    if (patient_set_id === "-1") {
-        patient_ids_key = "<%out.print(patientIdsKey);%>";
+            sample_set_id = "<%out.print(sample_set_id);%>";
+    sample_ids_key = "";
+    if (sample_set_id === "-1") {
+        sample_ids_key = "<%out.print(sampleIdsKey);%>";
     }
     var genetic_profile_id = "<%out.print(genetic_profile_id);%>";
     var gene_list_str = "<%out.print(tmpGeneStr);%>";

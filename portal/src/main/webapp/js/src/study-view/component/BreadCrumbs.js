@@ -224,7 +224,7 @@ var BreadCrumbs = (function() {
         $(breadcrumbItem).qtip({
             content: {text: crumbTipText},
             position: {my: 'top center', at: 'bottom center', viewport: $(window)},
-            style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
+            style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
         });

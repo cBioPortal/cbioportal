@@ -156,7 +156,7 @@ public class PatientView extends HttpServlet {
                 forwardToErrorPage(request, response, msg, xdebug);
             } else {
                 RequestDispatcher dispatcher =
-                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
+                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view/patient_view.jsp");
                 dispatcher.forward(request, response);
             }
         
@@ -315,8 +315,20 @@ public class PatientView extends HttpServlet {
                 List<ClinicalEvent> events = DaoClinicalEvent.getClinicalEvent(patientId, "SPECIMEN");
                 if (events!=null) {
                     final Map<String, Long> sampleTimes = new HashMap<String, Long>();
+                    // TODO: event data should only use SAMPLE_ID, this allows
+                    // all variations currently in the db while transitioning
+                    String[] sampleIdsInEventData = {"SpecimenReferenceNumber",
+                                                     "SPECIMEN_REFERENCE_NUMBER",
+                                                     "SAMPLE_ID"};
                     for (ClinicalEvent event : events) {
-                        sampleTimes.put(event.getEventData().get("SpecimenReferenceNumber"), event.getStartDate());
+                        String specRefNum = null;
+                        for (String s: sampleIdsInEventData) {
+                            specRefNum = event.getEventData().get(s);
+                            if (specRefNum != null) {
+                                break;
+                            }
+                        }
+                        sampleTimes.put(specRefNum, event.getStartDate());
                     }
 
                     Collections.sort(sampleIds, new Comparator<String>() {

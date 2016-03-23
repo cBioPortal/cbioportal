@@ -38,7 +38,7 @@
     String siteTitle = GlobalProperties.getTitle();
     String popeye = GlobalProperties.getProperty("popeye");
 
-    if (popeye == null) {
+    if (popeye == null || !popeye.trim().toLowerCase().endsWith(".jsp")) {
         popeye = "preview.jsp";
     } 
     if (siteTitle == null) {
@@ -110,6 +110,15 @@ $(document).ready(function(){
     You are using an old version of Internet Explorer. For better performance, we recommend
     using <b>Google Chrome, Firefox, Safari, or Internet Explorer V11 to visit this web site</b>.
 </p>
+
+<%
+String dbError = (String) request.getAttribute(QueryBuilder.DB_ERROR);
+if (dbError != null) {  %>
+<p id="db-warning" style="background-color:red;display:block;">
+    <img src="images/warning.gif"/>
+    The version of the portal is out of sync with the database! Please contact the site administrator to update the database.<br/><%= dbError %>
+</p>
+<% } %>
 
     <table cellspacing="2px">
         <tr>

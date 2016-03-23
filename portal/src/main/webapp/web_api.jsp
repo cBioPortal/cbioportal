@@ -45,7 +45,7 @@
             <td>
             <h1>Web Interface</h1>
             <div class="markdown">
-            <P><jsp:include page="content/web_api.html" flush="true" /></p>
+            <P><%@ include file="content/web_api.html" %></p>
 
             </div>
             </td>

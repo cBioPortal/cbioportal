@@ -309,6 +309,7 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
             fmt='%(levelname)s: %(file_indicator)s:'
                 '%(line_indicator)s%(column_indicator)s'
                 ' %(message)s%(cause_indicator)s')
+        self.previous_filename = None
 
     def format(self, record):
 
@@ -339,7 +340,17 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
             join_string="', '",
             optional=True)
 
-        return super(LogfileStyleFormatter, self).format(record)
+        # format the string based on these fields
+        formatted_result = super(LogfileStyleFormatter, self).format(record)
+
+        # prepend an empty line if the filename is different than before
+        current_filename = getattr(record, 'filename_', '')
+        if (self.previous_filename is not None and
+                current_filename != self.previous_filename):
+            formatted_result = '\n' + formatted_result
+        self.previous_filename = current_filename
+
+        return formatted_result
 
 
 class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):

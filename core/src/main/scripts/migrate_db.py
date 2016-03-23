@@ -157,7 +157,11 @@ def run_migration(db_version, sql_filename, connection, cursor):
                 else:
                     statements[sql_version].append(statement)
                 statement = ''
-    run_statements(statements, connection, cursor)
+    if len(statements.items()) > 0:
+        run_statements(statements, connection, cursor)
+    else:
+        print 'Everything up to date, nothing to migrate.'
+    
 def run_statements(statements, connection, cursor):
     try:
         cursor.execute('SET autocommit=0;')
@@ -234,6 +238,7 @@ def main():
     db_version = get_db_version(cursor)
     run_migration(db_version, sql_filename, connection, cursor)
     connection.close();
+    print 'Finished.'
     
 
 # do main

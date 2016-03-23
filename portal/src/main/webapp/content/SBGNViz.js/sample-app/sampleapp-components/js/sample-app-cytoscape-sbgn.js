@@ -1317,8 +1317,6 @@ var SBGNContainer = Backbone.View.extend({
         })
         cy.remove(nodesToBeDeleted);
 
-        //Collapse complexes
-        expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));
 
         var edges = cy.edges();
 //        console.log(edges.length);
@@ -1338,6 +1336,8 @@ var SBGNContainer = Backbone.View.extend({
         initilizeUnselectedDataOfElements();
 
         cy.nodes('[sbgnclass="complex"],[sbgnclass="compartment"],[sbgnclass="submap"]').data('expanded-collapsed', 'expanded');
+        //Collapse complexes
+        expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));
 
         cy.noderesize({
           handleColor: '#000000', // the colour of the handle and the line drawn from it

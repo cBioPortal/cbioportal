@@ -64,9 +64,25 @@ var expandCollapseUtilities = {
     }
     return nodes;
   },
-  simpleExpandAllNodes: function () {
-    var nodes = cy.nodes();
-    var orphans = nodes.orphans();
+  simpleExpandAllNodes: function (nodes, selector) {
+    if (nodes === undefined) {
+      nodes = cy.nodes();
+    }
+    var orphans;
+    if (selector) {
+      if (selector === "complex-parent") {
+        orphans = cy.nodes().filter(function (i, element) {
+          var parent = element.parent()[0];
+          if (parent && parent.data('sbgnclass') == 'complex') {
+            return false;
+          }
+          return true;
+        });
+      }
+    }
+    else {
+      orphans = nodes.orphans();
+    }
     var expandStack = [];
     for (var i = 0; i < orphans.length; i++) {
       var root = orphans[i];
@@ -74,8 +90,8 @@ var expandCollapseUtilities = {
     }
     return expandStack;
   },
-  expandAllNodes: function () {
-    var expandedStack = this.simpleExpandAllNodes();
+  expandAllNodes: function (nodes, selector) {
+    var expandedStack = this.simpleExpandAllNodes(nodes, selector);
 
     $("#perform-incremental-layout").trigger("click");
 
@@ -138,7 +154,7 @@ var expandCollapseUtilities = {
       root.removeData("collapse");
     }
   },
-  //expand the nodes in top down order starting from the root 
+  //expand the nodes in top down order starting from the root
   expandTopDown: function (root) {
     if (root.data("expand") && root._private.data.collapsedChildren != null)
     {
@@ -165,7 +181,7 @@ var expandCollapseUtilities = {
     }
   },
   /*
-   * 
+   *
    * This method expands the given node
    * without making incremental layout
    * after expand operation it will be simply
@@ -178,7 +194,7 @@ var expandCollapseUtilities = {
       node._private.data.collapsedChildren.restore();
       this.repairEdgesOfCollapsedChildren(node);
       node._private.data.collapsedChildren = null;
-      node.removeClass('collapsed');
+//      node.removeClass('collapsed');
 
       cy.nodes().updateCompoundBounds();
 
@@ -186,7 +202,7 @@ var expandCollapseUtilities = {
       if (node._private.data.sbgnclass == "complex") {
         node.removeStyle('content');
       }
-      
+
       refreshPaddings();
       //return the node to undo the operation
       return node;
@@ -204,26 +220,23 @@ var expandCollapseUtilities = {
 
       //The children info of complex nodes should be shown when they are collapsed
       if (node._private.data.sbgnclass == "complex") {
-        var new_content;
         //The node is being collapsed store infolabel to use it later
         var infoLabel = getInfoLabel(node);
         node._private.data.infoLabel = infoLabel;
-
-        new_content = node._private.data.sbgnlabel;
-
-        if (new_content == null || new_content == "") {
-          new_content = infoLabel;
-        }
-        node.css('content', new_content);
       }
 
       for (var i = 0; i < children.length; i++) {
         var child = children[i];
         this.barrowEdgesOfcollapsedChildren(node, child);
       }
+
       this.removeChildren(node, node);
-      node.addClass('collapsed');
       refreshPaddings();
+
+      if (node._private.data.sbgnclass == "complex") {
+        node.addClass('changeContent');
+      }
+
       //return the node to undo the operation
       return node;
     }
@@ -285,17 +298,17 @@ var expandCollapseUtilities = {
       var newEdge = jQuery.extend(true, {}, edge.jsons()[0]);
 
       //Initilize the meta level of this edge if it is not initilized yet
-      if (this.edgesMetaLevels[edge.id()] == null){
+      if (this.edgesMetaLevels[edge.id()] == null) {
         this.edgesMetaLevels[edge.id()] = 0;
       }
-      
+
       /*If the edge is meta and has different source and targets then handle this case because if
        * the other end of this edge is removed because of the reason that it's parent is
        * being collapsed and this node is expanded before other end is still collapsed this causes
-       * that this edge cannot be restored as one end node of it does not exists. 
+       * that this edge cannot be restored as one end node of it does not exists.
        * Create a collapsed meta edge info for this edge and add this info to collapsedMetaEdgesInfo
        * map. This info includes createdWhileBeingCollapsed(the node which is being collapsed),
-       * otherEnd(the other end of this edge) and oldOwner(the owner of this edge which will become 
+       * otherEnd(the other end of this edge) and oldOwner(the owner of this edge which will become
        * an old owner after collapse operation)
        */
       if (this.edgesMetaLevels[edge.id()] != 0 && source != target) {
@@ -342,7 +355,7 @@ var expandCollapseUtilities = {
         continue;
       }
 
-      //If the change source and/or target of the edge in the 
+      //If the change source and/or target of the edge in the
       //case of they are equal to the id of the collapsed child
       if (source == childNode.id()) {
         source = root.id();
@@ -360,7 +373,7 @@ var expandCollapseUtilities = {
       cy.add(newEdge);
       var newCyEdge = cy.edges()[cy.edges().length - 1];
       //If this edge has not meta class properties make it meta
-      if(this.edgesMetaLevels[newCyEdge.id()] == 0){
+      if (this.edgesMetaLevels[newCyEdge.id()] == 0) {
         newCyEdge.addClass("meta");
       }
       //Increase the meta level of this edge by 1
@@ -370,7 +383,7 @@ var expandCollapseUtilities = {
   },
   /*
    * This method repairs the edges of the collapsed children of the given node
-   * when the node is being expanded, the meta edges created while the node is 
+   * when the node is being expanded, the meta edges created while the node is
    * being collapsed are handled in this method
    */
   repairEdgesOfCollapsedChildren: function (node) {
@@ -385,7 +398,7 @@ var expandCollapseUtilities = {
               this.collapsedMetaEdgesInfo[edgesOfcollapsedChildren[i]._private.data.id] != null) {
         var info = this.collapsedMetaEdgesInfo[edgesOfcollapsedChildren[i]._private.data.id];
         //If the meta edge is not created because of the reason that this node is collapsed
-        //handle it by changing source or target of related edge datas 
+        //handle it by changing source or target of related edge datas
         if (info.createdWhileBeingCollapsed != node.id()) {
           if (edgesOfcollapsedChildren[i]._private.data.source == info.oldOwner) {
             edgesOfcollapsedChildren[i]._private.data.source = info.createdWhileBeingCollapsed;
@@ -398,24 +411,24 @@ var expandCollapseUtilities = {
                     , edgesOfcollapsedChildren[i]._private.data.id, "source");
           }
         }
-        //Delete the related collapsedMetaEdgesInfo's as they are handled 
+        //Delete the related collapsedMetaEdgesInfo's as they are handled
         delete this.collapsedMetaEdgesInfo[info.createdWhileBeingCollapsed][info.otherEnd];
         delete this.collapsedMetaEdgesInfo[info.otherEnd][info.createdWhileBeingCollapsed];
         delete this.collapsedMetaEdgesInfo[edgesOfcollapsedChildren[i]._private.data.id];
       }
       var oldEdge = cy.getElementById(edgesOfcollapsedChildren[i]._private.data.id);
       //If the edge is already in the graph remove it and decrease it's meta level
-      if (oldEdge != null && oldEdge.length > 0){
+      if (oldEdge != null && oldEdge.length > 0) {
         this.edgesMetaLevels[edgesOfcollapsedChildren[i]._private.data.id]--;
         oldEdge.remove();
       }
     }
     edgesOfcollapsedChildren.restore();
-    
+
     //Check for meta levels of edges and handle the changes
-    for(var i = 0; i < edgesOfcollapsedChildren.length; i++){
+    for (var i = 0; i < edgesOfcollapsedChildren.length; i++) {
       var edge = edgesOfcollapsedChildren[i];
-      if(this.edgesMetaLevels[edge.id()] == null || this.edgesMetaLevels[edge.id()] == 0){
+      if (this.edgesMetaLevels[edge.id()] == null || this.edgesMetaLevels[edge.id()] == 0) {
         edge.removeClass("meta");
       }
       else {
@@ -425,8 +438,8 @@ var expandCollapseUtilities = {
 
     node._private.data.edgesOfcollapsedChildren = null;
   },
-  /*node is an outer node of root 
-   if root is not it's anchestor 
+  /*node is an outer node of root
+   if root is not it's anchestor
    and it is not the root itself*/
   isOuterNode: function (node, root) {
     var temp = node;
@@ -439,7 +452,7 @@ var expandCollapseUtilities = {
     return true;
   },
   /*
-   * This method is to handle the collapsed elements while the 
+   * This method is to handle the collapsed elements while the
    * dynamic paddings are being calculated
    */
   getCollapsedChildrenData: function (collapsedChildren, numOfSimples, total) {

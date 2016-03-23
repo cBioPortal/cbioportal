@@ -179,15 +179,18 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
 
     def test_wrong_definitions(self):
         """Test when record definitions do not match with portal."""
+        # TODO make a test file with a wrong data type,
+        # to make sure values are checked accordingly
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_coldefs_wrong_display_name.txt',
                                     validateData.PatientClinicalValidator)
-        # expecting an info message followed by the error, and another error as
-        # the rest of the file cannot be parsed
-        self.assertEqual(len(record_list), 3)
-        # error about the display name of OS_MONTHS
-        self.assertEqual(record_list[1].levelno, logging.ERROR)
-        self.assertEqual(record_list[1].column_number, 2)
-        self.assertIn('display_name', record_list[1].getMessage().lower())
+        # expecting a warning
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        # warning about the display name of OS_MONTHS
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.column_number, 2)
+        self.assertIn('display_name', record.getMessage().lower())
 
     def test_unknown_attribute(self):
         """Test when a new attribute is defined in the data file."""

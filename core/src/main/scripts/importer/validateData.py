@@ -1191,18 +1191,18 @@ class ClinicalValidator(Validator):
                 for attr_property in self.attr_defs[col_index]:
                     value = self.attr_defs[col_index][attr_property]
                     if value != srv_attr_properties[attr_property]:
-                        self.logger.error(
+                        self.logger.warning(
                             "%s definition for attribute '%s' does not match "
-                            "the portal, '%s' expected",
+                            "the portal, and will be loaded as '%s'",
                             attr_property,
                             col_name,
                             srv_attr_properties[attr_property],
                             extra={'line_number': self.attr_defs[col_index].keys().index(attr_property) + 1,
                                    'column_number': col_index + 1,
                                    'cause': value})
-                        # TODO: assume that the value in the portal is intended
-                        # and continue validation based on that
-                        num_errors += 1
+                        # continue validation assuming the value in the portal
+                        self.attr_defs[col_index][attr_property] = \
+                            srv_attr_properties[attr_property]
 
         return num_errors
 
@@ -1226,6 +1226,7 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
             elif self.attr_defs[col_index]['datatype'] == 'BOOLEAN':
+                # TODO: check whether these are the values understood by portal
                 VALID_BOOLEANS = ('TRUE', 'FALSE')
                 if not value in VALID_BOOLEANS:
                     self.logger.error(

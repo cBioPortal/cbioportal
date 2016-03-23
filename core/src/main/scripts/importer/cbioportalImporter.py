@@ -24,8 +24,7 @@ from cbioportal_common import IMPORT_CASE_LIST_CLASS
 from cbioportal_common import ADD_CASE_LIST_CLASS
 from cbioportal_common import VERSION_UTIL_CLASS
 from cbioportal_common import run_java
-import MySQLdb
-import xml.etree.ElementTree as ET
+
 
 # ------------------------------------------------------------------------------
 # globals

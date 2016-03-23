@@ -211,6 +211,7 @@
     <module>core</module>
     <module>business</module>
     <module>web</module>
+    <module>scripts</module>
   </modules>
 
   <dependencies>

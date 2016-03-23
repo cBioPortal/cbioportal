@@ -58,7 +58,7 @@ def get_portal_properties(properties_filename):
         
         # store name/value
         property = line.split('=')
-        if len(property) != 2:
+        if len(property) < 2:
             print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
             continue
         properties[property[0]] = property[1].strip()
@@ -69,7 +69,7 @@ def get_portal_properties(properties_filename):
         DATABASE_USER not in properties or len(properties[DATABASE_USER]) == 0 or
         DATABASE_PW not in properties or len(properties[DATABASE_PW]) == 0):
         print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
-        return none
+        return None
     
     # return an instance of PortalProperties
     return PortalProperties(properties[DATABASE_HOST],

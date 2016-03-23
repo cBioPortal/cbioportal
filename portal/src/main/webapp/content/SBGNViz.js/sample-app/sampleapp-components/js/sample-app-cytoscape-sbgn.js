@@ -1282,8 +1282,8 @@ var SBGNContainer = Backbone.View.extend({
       elements: cytoscapeJsGraph,
       style: sbgnStyleSheet,
       layout: {
-        name: 'preset',
-        positions: positionMap
+         name: 'preset',
+         positions: positionMap
       },
       showOverlay: false, minZoom: 0.125, maxZoom: 16,
       boxSelectionEnabled: true,
@@ -1331,10 +1331,22 @@ var SBGNContainer = Backbone.View.extend({
           }
         }
 
-//        refreshEmptyComplexesOrCompartments();
-        refreshPaddings();
-        initilizeUnselectedDataOfElements();
+        cy.layout({
+          name: 'cose-bilkent',
+          nodeRepulsion: 4500,
+          nodeOverlap: 10,
+          idealEdgeLength: 50,
+          edgeElasticity: 0.45,
+          nestingFactor: 0.1,
+          gravity: 0.4,
+          numIter: 2500,
+          tile: true,
+          animate: false,
+          randomize: true
+        });
 
+        refreshPaddings();        
+        initilizeUnselectedDataOfElements();
         cy.nodes('[sbgnclass="complex"],[sbgnclass="compartment"],[sbgnclass="submap"]').data('expanded-collapsed', 'expanded');
         //Collapse complexes
         expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));

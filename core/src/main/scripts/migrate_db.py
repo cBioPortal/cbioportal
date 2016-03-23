@@ -59,7 +59,7 @@ def get_portal_properties(properties_filename):
         # store name/value
         property = line.split('=')
         if len(property) != 2:
-            print >> ERROR_FILE, 'Skipping invalid entry in proeprty file: ' + line
+            print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
             continue
         properties[property[0]] = property[1].strip()
     properties_file.close()
@@ -166,7 +166,7 @@ def run_statements(statements, connection, cursor):
         sys.exit(1)
 
     for version,statement_list in statements.iteritems():
-        print >> OUTPUT_FILE, 'Running statments for version: ' + '.'.join(map(str,version))
+        print >> OUTPUT_FILE, 'Running statements for version: ' + '.'.join(map(str,version))
         for statement in statement_list:
             print >> OUTPUT_FILE, '\tExecuting statement: ' + statement.strip()
             try:

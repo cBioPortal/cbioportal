@@ -215,7 +215,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
 }
 
 IMPORTER_REQUIRES_METADATA = {
-    "org.mskcc.cbio.portal.scripts.ImportClinicalData" : False,
+    "org.mskcc.cbio.portal.scripts.ImportClinicalData" : True,
     "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : True,
     "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
     "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,

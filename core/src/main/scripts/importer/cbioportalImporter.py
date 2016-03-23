@@ -94,8 +94,7 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append(meta_filename)
         args.append("--loadMode")
         args.append("bulkload")
-    if importer in ("org.mskcc.cbio.portal.scripts.ImportClinicalData",
-                    "org.mskcc.cbio.portal.scripts.ImportMutSigData"):
+    if importer in ("org.mskcc.cbio.portal.scripts.ImportMutSigData"):
         args.append(data_filename)
         args.append(meta_file_dict['cancer_study_identifier'])
     else:

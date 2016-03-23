@@ -223,6 +223,7 @@
     <module>model</module>
     <module>persistence</module>
     <module>service</module>
+    <module>scripts</module>
   </modules>
 
   <dependencies>

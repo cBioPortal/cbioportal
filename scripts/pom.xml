@@ -4,38 +4,23 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>business</artifactId>
-  <name>Portal Business Layer</name>
-  <description>Business Module for Portal</description>
+  <artifactId>scripts</artifactId>
+  <name>Portal Scripts</name>
+  <description>Scripts Package for Portal</description>
 
   <dependencies>
     <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.2.2</version>
-    </dependency>
-    <dependency>
       <groupId>org.mskcc.cbio</groupId>
-      <artifactId>service</artifactId>
-      <version>${project.version}</version>
+      <artifactId>core</artifactId>
+      <version>1.1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <!-- java 1.7 support -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.0.2</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
       <!-- this plugin lets us grab shared resources from our parent -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -51,7 +36,7 @@
               <outputDirectory>${project.build.directory}/classes</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.parent.basedir}/src/main/resources</directory>
+                  <directory>${PORTAL_HOME}/src/main/resources</directory>
                   <includes>
                     <include>**/*.properties</include>
                   </includes>
@@ -66,15 +51,37 @@
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <excludes>
+                  <exclude>org.bouncycastle:bcprov-jdk15</exclude>
+                </excludes>
+              </artifactSet>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>META-INF/spring.handlers</resource>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>META-INF/spring.schemas</resource>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
     </plugins>
 
-    <!-- prevent some resources from getting into package -->
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <!-- we do not want to filter application context files with values from portal.properties -->
-        <filtering>false</filtering>
-      </resource>
-    </resources>
   </build>
 </project>

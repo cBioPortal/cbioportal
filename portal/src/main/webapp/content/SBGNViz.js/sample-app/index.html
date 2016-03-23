@@ -31,7 +31,7 @@
                     <ul class="nav navbar-nav navbar-left">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                File 
+                                File
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
@@ -57,7 +57,7 @@
                                 <li><a href="#" id="save-as-sbgnml">Save...</a></li>
                                 <li class="dropdown-submenu">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                        Save as Image 
+                                        Save as Image
                                         <!--<b class="right-caret"></b>-->
                                     </a>
                                     <ul class="dropdown-menu">
@@ -71,7 +71,7 @@
 
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Edit 
+                                Edit
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
@@ -121,7 +121,7 @@
 
                                 <li class="dropdown-submenu">
                                     <a href="#" id="add-edge-menu-option" class="dropdown-toggle" data-toggle="dropdown">
-                                        Add Interaction 
+                                        Add Interaction
                                     </a>
                                     <ul class="dropdown-menu" id="add-edge-submenu">
                                         <li><a href="#" class="add-edge-menu-item" name="consumption">Consumption</a></li>
@@ -157,7 +157,7 @@
 
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                View 
+                                View
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
@@ -181,11 +181,13 @@
                                     <ul class="dropdown-menu">
                                         <li><a href="#" id="collapse-selected">Collapse Selected</a></li>
                                         <li><a href="#" id="expand-selected">Expand Selected</a></li>
+                                        <li><a href="#" id="collapse-complexes">Collapse Complexes</a></li>
+                                        <li><a href="#" id="expand-complexes">Expand Complexes</a></li>
                                         <li><a href="#" id="collapse-all">Collapse All</a></li>
                                         <li><a href="#" id="expand-all">Expand All</a></li>
                                     </ul>
                                 </li>
-                                
+
                                 <li class="dropdown-submenu">
                                     <a href="#" id="add-node-menu-option" class="dropdown-toggle" data-toggle="dropdown">
                                         Align
@@ -218,10 +220,10 @@
                                 </li>
                             </ul>
                         </li>
-                        
+
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Highlight 
+                                Highlight
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
@@ -235,7 +237,7 @@
 
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Layout 
+                                Layout
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
@@ -247,7 +249,7 @@
 
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Legends 
+                                Legends
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
@@ -259,7 +261,7 @@
 
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Help 
+                                Help
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
@@ -283,7 +285,7 @@
                 <img id="save-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/save.png" title="Save: Save current SBGN-PD map to an SBGN-ML file">
                 <img id="properties-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/properties.png" title="Properties: Modify general properties of current SBGN-PD map" >
                 </div>
-                
+
                 <div class="menu-break-large sbgn-toolbar-element">&nbsp</div>
                 <div class="inside-menu">
                 <img id="select-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/select.png" title="Select / Edit" >
@@ -348,7 +350,7 @@
                         <li class="sbgn-select-edge-item"><a class="dd-list-href" href="#"><img src="sampleapp-images/edges/logicarc.png" class="sbgn-select-img" value="equivalence-arc"/>Equivalence Arc</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="menu-break-small sbgn-toolbar-element">&nbsp</div>
                 <img id="delete-selected-simple-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/deletesimple.png" title="Delete Selected Simple: Delete selected nodes and interactions" >
                 <img id="delete-selected-smart-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/deletesmart.png" title="Delete Selected Smart: Delete selected nodes and any processes they are involved in" >
@@ -358,7 +360,7 @@
                 <img id="redo-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/redo.png" title="Redo: Redo the last undone operation" >
 
                 </div>
-                
+
                 <div class="menu-break-large sbgn-toolbar-element">&nbsp</div>
                 <div class="inside-menu">
                 <img id="hide-selected-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/hideselected.png" title="Hide Selected: Hide selected nodes and any processes they are involved in" >
@@ -392,7 +394,7 @@
                     </ul>
                 </div>
                 </div>
-                
+
                 <div class="menu-break-large sbgn-toolbar-element">&nbsp</div>
                 <div class="inside-menu">
                 <img id="search-by-label-icon" class="sbgn-toolbar-element" src="sampleapp-images/search.png" title="Search: Search and find (case insensitive) all nodes with specified label text, selecting them and highlighting them along with their processes" >
@@ -400,14 +402,14 @@
                 <img id="highlight-neighbors-of-selected-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/highlightneighborsofselected.png" title="Highlight Neighbors of Selected: Highlight selected nodes and their neighbors by ghosting remaining nodes" >
                 <img id="remove-highlights-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/removehighlights.png" title="Remove Highlights: Remove any highlights" >
                 </div>
-                
+
                 <div class="menu-break-large sbgn-toolbar-element">&nbsp</div>
                 <div class="inside-menu">
                 <img id="perform-layout-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/layout-cose.png" title="Perform Layout: Perform a force-directed layout of current map, maintaining compound structures" >
                 <img id="layout-properties-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/layoutproperties.png" title="Layout Properties: Modify parameters used during layout" >
                 </div>
                 </tr>
-                
+
             </table>
         </div>
 
@@ -438,7 +440,7 @@
         </div>
 
         <input id="node-label-textbox" type="text"></input>
-        
+
         <menu title="Add Bend Point" id="ctx-add-bend-point" class="ctx-bend-operation"></menu>
         <menu title="Remove Bend Point" id="ctx-remove-bend-point" class="ctx-bend-operation"></menu>
 
@@ -591,7 +593,7 @@
             <input id="num-iter" type="text" class="input-small layout-text" value= <%= numIter %> >
             </td>
             </tr>
-    
+
             <tr>
             <td>
             <span class="add-on layout-text"> Tiling Vertical Padding </span>
@@ -600,7 +602,7 @@
             <input id="tiling-padding-vertical" type="text" class="input-small layout-text" value= <%= tilingPaddingVertical %> >
             </td>
             </tr>
-    
+
             <tr>
             <td>
             <span class="add-on layout-text"> Tiling Vertical Horizontal </span>
@@ -662,7 +664,7 @@
             </td>
 
             <td>
-            <input id="compound-padding" type="text" class="input-small layout-text" value= <%= compoundPadding %> > 
+            <input id="compound-padding" type="text" class="input-small layout-text" value= <%= compoundPadding %> >
             </td>
             <td>%</td>
             </tr>
@@ -775,7 +777,7 @@
 
         <!--global variables-->
         <script src="sampleapp-components/js/sample-app-global-variables.js"></script>
-        
+
         <!-- External Libraries -->
         <script src="../lib/js/jquery-1.8.2.min.js"></script>
         <script src="../lib/js/jquery.fancybox-1.3.4.pack.js"></script>
@@ -804,8 +806,8 @@
         <script src="../src/utilities/expand-collapse-utilities.js"></script>
         <script src="../src/utilities/add-remove-utilities.js"></script>
         <script src="../src/utilities/sbgn-bend-point-utilities.js"></script>
-        
-        
+
+
         <!-- Sample application components -->
         <script src="sampleapp-components/js/EditorActionsManager.js"></script>
         <script src="sampleapp-components/js/sample-app-cytoscape-sbgn.js"></script>

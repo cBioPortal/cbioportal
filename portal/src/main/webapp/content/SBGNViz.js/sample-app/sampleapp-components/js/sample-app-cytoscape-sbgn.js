@@ -1317,6 +1317,9 @@ var SBGNContainer = Backbone.View.extend({
         })
         cy.remove(nodesToBeDeleted);
 
+        //Collapse complexes
+        expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));
+
         var edges = cy.edges();
 //        console.log(edges.length);
 
@@ -1911,7 +1914,7 @@ var SBGNLayout = Backbone.View.extend({
     gravity: 0.4,
     numIter: 2500,
     tile: true,
-    animate: true,
+    animate: false,
     randomize: true,
     tilingPaddingVertical: function () {
       return calculateTilingPaddings(parseInt(sbgnStyleRules['tiling-padding-vertical'], 10));

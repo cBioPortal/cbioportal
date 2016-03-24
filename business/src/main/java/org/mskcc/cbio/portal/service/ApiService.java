@@ -17,7 +17,6 @@ import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBAltCount;
 import org.mskcc.cbio.portal.model.DBAltCountInput;
-import org.mskcc.cbio.portal.model.DBAltCountInputData;
 import org.mskcc.cbio.portal.model.DBMutationData;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBSampleList;
@@ -85,13 +84,13 @@ public class ApiService {
 	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
 
             List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+            Map<String,String> result;
             for(int i = 0;i < genes.size();i++)
             {
-                Map<String,String> result = new HashMap<String,String>();
+                
                 if(type.equals("count"))
                 {
                     if(echo == null){
-                        //echo = Arrays.asList("gene", "start", "end");
                         echo = new ArrayList<String>();
                         echo.add("gene");
                         echo.add("start");
@@ -100,32 +99,40 @@ public class ApiService {
                             echo.add(key);
                        }
                     }
-                    if(echo.contains("gene"))result.put("gene", genes.get(i));
-                    if(echo.contains("start"))result.put("start", starts.get(i).toString());
-                    if(echo.contains("end"))result.put("end", ends.get(i).toString());
-
-                    for(String key: customizedAttrs.keySet()){
-                        if(echo.contains(key))result.put(key, customizedAttrs.get(key)[i]);
-                    }
-                    
+                  
                     if(per_study)
                     {
                         for(DBAltCount ele: mutationMapper.getMutationsCountsPerStudy(genes.get(i), starts.get(i), ends.get(i)) )
                         {
+                            result = new HashMap<String,String>();
+                            for(String key: customizedAttrs.keySet()){
+                                if(echo.contains(key))result.put(key, customizedAttrs.get(key)[i]);
+                            }
+                            if(echo.contains("gene"))result.put("gene", genes.get(i));
+                            if(echo.contains("start"))result.put("start", starts.get(i).toString());
+                            if(echo.contains("end"))result.put("end", ends.get(i).toString());
+                            
                             result.put("count", Integer.toString(ele.count));
                             result.put("studyID", ele.studyID);
+                            results.add(result);
                         }  
                     }
                     else
                     {
-                        for(DBAltCount ele: mutationMapper.getMutationsCounts(genes.get(i), starts.get(i), ends.get(i)))
-                        {
-                            result.put("count", Integer.toString(ele.count));
-                           
+                        DBAltCount ele = mutationMapper.getMutationsCounts(genes.get(i), starts.get(i), ends.get(i));
+                        result = new HashMap<String,String>();
+                        for(String key: customizedAttrs.keySet()){
+                            if(echo.contains(key))result.put(key, customizedAttrs.get(key)[i]);
                         }
+                        if(echo.contains("gene"))result.put("gene", genes.get(i));
+                        if(echo.contains("start"))result.put("start", starts.get(i).toString());
+                        if(echo.contains("end"))result.put("end", ends.get(i).toString());
+                        
+                        result.put("count", Integer.toString(ele.count));
+                        results.add(result);
                     }
                 }
-                results.add(result);
+                
                
             }
             
@@ -139,10 +146,10 @@ public class ApiService {
             List<String> echo = body.echo;
             List<Map<String, String>> data = body.data;
             List<Map<String, String>> results = new ArrayList<Map<String, String>>();
-
+            Map<String,String> result;
             for(int i = 0;i < data.size();i++)
             {
-                Map<String,String> result = new HashMap<String,String>();
+                
                 Map<String, String> item = data.get(i);
                 if(type.equals("count"))
                 {
@@ -152,31 +159,35 @@ public class ApiService {
                             echo.add(key);
                        }
                     }
-                    for(String key: item.keySet()){
-                        if(echo.contains(key))result.put(key, item.get(key));
-                    }
+                    
                             
                     if(per_study)
                     {
                         
                         for(DBAltCount ele: mutationMapper.getMutationsCountsPerStudy(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) )
                         {
+                            result = new HashMap<String,String>();
+                            for(String key: item.keySet()){
+                                if(echo.contains(key))result.put(key, item.get(key));
+                            }
                             result.put("count", Integer.toString(ele.count));
                             result.put("studyID", ele.studyID);
-                            
+                            results.add(result);
                         }
                        
                     }
                     else
                     {
-                        for(DBAltCount ele: mutationMapper.getMutationsCounts(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) )
-                        {
-                            result.put("count", Integer.toString(ele.count));
+                        DBAltCount ele = mutationMapper.getMutationsCounts(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) ;
+                        result = new HashMap<String,String>();
+                        for(String key: item.keySet()){
+                            if(echo.contains(key))result.put(key, item.get(key));
                         }
-                         
+                        result.put("count", Integer.toString(ele.count));
+                        results.add(result);
                     }
                 }
-               results.add(result);
+               
             }   
 		return results;
 

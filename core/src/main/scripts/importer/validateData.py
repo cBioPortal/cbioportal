@@ -216,6 +216,7 @@ class Validator(object):
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
+    NULL_VALUES = ['[not available]', '[not applicable]', '']
 
     def __init__(self, study_dir, meta_dict, portal_instance, logger):
         """Initialize a validator for a particular data file.
@@ -501,16 +502,24 @@ class Validator(object):
 
     # TODO let this function know the column numbers for logging messages
     def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
-        """Check if a symbol-Entrez pair is valid, logging an error if not.
+        """Check if a symbol-Entrez pair is valid, logging an error or warning if not.
 
-        It is considered valid in these three cases:
-            1. only the Entrez id is not None, and it is defined in the portal
-            2. only the symbol is not None, and it is unambiguously defined in
-               the portal
-            3. both are given, and the symbol is defined in the portal to match
-               the Entrez id
+        It is considered invalid in these cases:
+            1. (error) Entrez id and symbol are both empty
+        If self.portal.hugo_entrez_map and self.portal.alias_entrez_map are defined:
+            2. (warning) Only Entrez id or symbol is filled, and filled value cannot be found in the portal
+            3. (error) Gene symbol maps to multiple Entrez ids
+            4. (error) Gene alias maps to multiple Entrez ids
+            
+            
+        Furthermore, this function gives a warning in the following cases 
+        (if self.portal.hugo_entrez_map and self.portal.alias_entrez_map are defined):
+            1. (warning) Entrez ID exists, but the gene symbol specified is not known to the portal
+            2. (warning) Gene symbol and Entrez identifier do not match
+            3. (warning) The Hugo gene symbol maps to a single Entrez gene ID, but is 
+               also associated to other genes as an alias.
 
-        Return True if the pair was valid, False otherwise.
+        Return False if considered invalid, True otherwise.
         """
         # set to upper, as both maps contain symbols in upper
         if gene_symbol is not None:
@@ -532,8 +541,8 @@ class Validator(object):
         # TODO reorder to perform as many checks as sensible with assumptions
         if entrez_id is not None:
             if entrez_id not in self.portal.entrez_set:
-                self.logger.error(
-                    'Entrez gene id not known to the cBioPortal instance',
+                self.logger.warning(
+                    'Entrez gene id not known to the cBioPortal instance. This gene will not be loaded',
                     extra={'line_number': self.line_number,
                            'cause': entrez_id})
                 return False
@@ -543,10 +552,11 @@ class Validator(object):
                         gene_symbol not in self.portal.alias_entrez_map):
                     self.logger.warning(
                         'Entrez ID exists, but the gene symbol specified is '
-                        'not known to the cBioPortal instance',
+                        'not known to the cBioPortal instance. The '
+                        'symbol will be ignored',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
-                    return False
+                    # do not return False, since gene can be identified
                 elif entrez_id not in itertools.chain(
                         self.portal.hugo_entrez_map.get(gene_symbol, []),
                         self.portal.alias_entrez_map.get(gene_symbol, [])):
@@ -555,12 +565,12 @@ class Validator(object):
                         'symbol will be ignored',
                         extra={'line_number': self.line_number,
                                'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
-                    return False
+                    # do not return False, since gene can be identified
         elif gene_symbol is not None:
             if (gene_symbol not in self.portal.hugo_entrez_map and
                     gene_symbol not in self.portal.alias_entrez_map):
-                self.logger.error(
-                    'Gene symbol not known to the cBioPortal instance',
+                self.logger.warning(
+                    'Gene symbol not known to the cBioPortal instance. This gene will not be loaded',
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
                 return False
@@ -585,7 +595,7 @@ class Validator(object):
                 # TODO: move matched IDs out of the message for collapsing
                 self.logger.error(
                     'Gene alias maps to multiple Entrez ids (%s), '
-                    'please specify which one you mean',
+                    'please specify which one you mean or choose a non-ambiguous symbol',
                     '/'.join(self.portal.alias_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
@@ -598,7 +608,8 @@ class Validator(object):
                     self.portal.alias_entrez_map.get(gene_symbol, []) if
                     x != found_entrez_id]
                 if len(other_entrez_ids_in_aliases) >= 1:
-                    # Give warning, as the symbol has been used before to refer to different entrez_ids over time:
+                    # Give warning, as the symbol has been used before to refer to different entrez_ids 
+                    # over time, but do NOT return False:
                     self.logger.warning(
                         'This Hugo gene symbol maps to a single Entrez gene '
                         'ID, but is also associated to other genes as an '
@@ -606,7 +617,7 @@ class Validator(object):
                         'symbol to be the intended one.',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
-
+                    # do not return False, since gene can be identified
         return True
 
     def _checkRepeatedColumns(self):
@@ -1046,6 +1057,7 @@ class ClinicalValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     PROP_IS_PATIENT_ATTRIBUTE = None
+    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", ""]
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
@@ -1099,7 +1111,7 @@ class ClinicalValidator(Validator):
             for col_index, value in enumerate(row):
 
                 # test for invalid values in these columns
-                if value in ('', 'NA'):
+                if value.strip().lower() in self.NULL_VALUES:
                     self.logger.error(
                         'Empty %s field in clinical attribute definition',
                         LINE_NAMES[line_index],
@@ -1216,7 +1228,7 @@ class ClinicalValidator(Validator):
             if col_index < len(data):
                 value = data[col_index].strip()
             # if not blank, check if values match the datatype
-            if value in ('', 'NA'):
+            if value.strip().lower() in self.NULL_VALUES:
                 pass
             elif self.attr_defs[col_index]['datatype'] == 'NUMBER':
                 if not self.checkFloat(value):
@@ -1238,7 +1250,7 @@ class ClinicalValidator(Validator):
                                'cause': value})
             # make sure that PATIENT_ID is present
             if col_name == 'PATIENT_ID':
-                if value in ('', 'NA'):
+                if value.strip().lower() in self.NULL_VALUES:
                     self.logger.error(
                         'Missing PATIENT_ID',
                         extra={'line_number': self.line_number,
@@ -1268,13 +1280,21 @@ class SampleClinicalValidator(ClinicalValidator):
             if col_index < len(data):
                 value = data[col_index].strip()
             if col_name == 'SAMPLE_ID':
+                if value.strip().lower() in self.NULL_VALUES:
+                    self.logger.error(
+                        'Missing SAMPLE_ID',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                    continue
                 if value in self.sampleIds:
                     self.logger.error(
                         'Sample defined twice in clinical file',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
-                self.sampleIds.add(value.strip())
+                else:
+                    self.sampleIds.add(value.strip())
             # TODO: check the values in the other documented columns
 
 

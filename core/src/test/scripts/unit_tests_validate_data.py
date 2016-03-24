@@ -378,13 +378,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     def test_both_name_and_entrez_but_invalid_entrez(self):
         """Test when a file has both the Hugo name and Entrez ID columns, but entrez is invalid."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_entrez.txt',
                                     validateData.CNAValidator)
-        # expecting two error messages:
+        # expecting two warning messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
         self.assertIn('-116983', record_list[0].cause)
         self.assertIn('-375790', record_list[1].cause)
@@ -404,13 +404,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     def test_name_only_but_invalid(self):
         """Test when a file has a Hugo name column but none for Entrez IDs, and hugo is wrong."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_hugo_only_invalid.txt',
                                     validateData.CNAValidator)
-        # expecting two error messages:
+        # expecting two warning messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, 'XXATAD3A')
         self.assertEqual(record_list[1].cause, 'XXATAD3B')
@@ -431,13 +431,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     def test_entrez_only_but_invalid(self):
         """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_entrez_only_invalid.txt',
                                     validateData.CNAValidator)
-        # expecting two error messages:
+        # expecting two warning messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, '-54998')
         self.assertEqual(record_list[1].cause, '-126792')
@@ -707,7 +707,7 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
 
     def test_format_errors(self):
         """Test validation of a file with genome-unspecific errors."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate(
                 'data_gisticgenes_del_format_errors.txt',
                 validateData.GisticGenesValidator,
@@ -716,7 +716,7 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
                     'reference_genome_id': 'hg19'})
         # expecting various errors, about two per line
         self.assertEqual(len(record_list), 9)
-        for record in record_list:
+        for record in record_list[:8]:
             self.assertEqual(record.levelno, logging.ERROR)
         record_iterator = iter(record_list)
         # invalid 'amp' value
@@ -754,6 +754,7 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
         # blank gene in list
         record = record_iterator.next()
         self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.cause, '')
 
 

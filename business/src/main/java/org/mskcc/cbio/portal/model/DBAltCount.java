@@ -24,10 +24,4 @@ public class DBAltCount implements Serializable {
     public int start;
     public int end;
      
-//   public void setIntField(String fieldName, int value)
-//        throws NoSuchFieldException, IllegalAccessException {
-//        Field field = getClass().getDeclaredField(fieldName);
-//        field.setInt(this, value);
-//   }
-    
 }

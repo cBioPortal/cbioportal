@@ -20,4 +20,13 @@
      group by   patient.CANCER_STUDY_ID;
  </select>
  
+  <select id="getMutationsCountsPerStudyWithIds" resultType="DBAltCount">
+ 
+    select distinct cancer_study.CANCER_STUDY_IDENTIFIER as studyID, count( patient.INTERNAL_ID) as count from mutation_event, mutation, gene, sample, patient, cancer_study
+     where gene.HUGO_GENE_SYMBOL = #{gene} and mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID and mutation_event.START_POSITION <![CDATA[ >= ]]>  #{start} and mutation_event.END_POSITION <![CDATA[ <= ]]>  #{end}
+     and mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID and mutation.SAMPLE_ID = sample.INTERNAL_ID and sample.PATIENT_ID = patient.INTERNAL_ID  and cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
+     and cancer_study.CANCER_STUDY_IDENTIFIER in <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
+     group by   patient.CANCER_STUDY_ID;
+ </select>
+ 
  </mapper> 

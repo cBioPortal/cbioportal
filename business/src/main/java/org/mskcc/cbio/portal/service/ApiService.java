@@ -81,7 +81,7 @@ public class ApiService {
 	}
 
         @Transactional
-	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
+	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> studyIds, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
 
             List<Map<String, String>> results = new ArrayList<Map<String, String>>();
             Map<String,String> result;
@@ -99,10 +99,18 @@ public class ApiService {
                             echo.add(key);
                        }
                     }
-                  
                     if(per_study)
-                    {
-                        for(DBAltCount ele: mutationMapper.getMutationsCountsPerStudy(genes.get(i), starts.get(i), ends.get(i)) )
+                    { 
+                        List<DBAltCount> eles;
+                        if(studyIds == null)
+                        {
+                            eles = mutationMapper.getMutationsCountsPerStudy(genes.get(i), starts.get(i), ends.get(i)); 
+                        }
+                        else
+                        {
+                            eles = mutationMapper.getMutationsCountsPerStudyWithIds(genes.get(i), starts.get(i), ends.get(i), studyIds); 
+                        }
+                        for(DBAltCount ele: eles )
                         {
                             result = new HashMap<String,String>();
                             for(String key: customizedAttrs.keySet()){
@@ -163,8 +171,17 @@ public class ApiService {
                             
                     if(per_study)
                     {
-                        
-                        for(DBAltCount ele: mutationMapper.getMutationsCountsPerStudy(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) )
+                        List<DBAltCount> eles;
+                        if(item.get("studyId") == null)
+                        {
+                            eles = mutationMapper.getMutationsCountsPerStudy(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) ;
+                        }
+                        else
+                        {
+                            List<String> studyIdList = new ArrayList<String>(Arrays.asList(item.get("studyId").split(",")));
+                            eles = mutationMapper.getMutationsCountsPerStudyWithIds(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end"))), studyIdList) ;
+                        }
+                        for(DBAltCount ele: eles)
                         {
                             result = new HashMap<String,String>();
                             for(String key: item.keySet()){

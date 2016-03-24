@@ -52,7 +52,7 @@ public class ApiController {
 
     @Transactional
     @RequestMapping(value = "/mutation_count", method = {RequestMethod.GET})
-    public @ResponseBody List<Map<String, String>> getMutationsCounts(HttpServletRequest request, @RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = true) List<String> gene, @RequestParam(required = false) List<Integer> start, @RequestParam(required = false) List<Integer> end, @RequestParam(required = false) List<String> echo) {
+    public @ResponseBody List<Map<String, String>> getMutationsCounts(HttpServletRequest request, @RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = false) List<String> studyId, @RequestParam(required = true) List<String> gene, @RequestParam(required = false) List<Integer> start, @RequestParam(required = false) List<Integer> end, @RequestParam(required = false) List<String> echo) {
         Boolean startFlag = false, endFlag = false;
         Enumeration<String> parameterNames = request.getParameterNames();
         String[] fixedInput = {"type", "per_study", "gene", "start", "end", "echo"};
@@ -81,7 +81,7 @@ public class ApiController {
             }
             end = defaultEnd;
         }
-        return service.getMutationsCounts(customizedAttrs, type, per_study, gene, start, end, echo);
+        return service.getMutationsCounts(customizedAttrs, type, per_study, studyId, gene, start, end, echo);
                 
     }
     

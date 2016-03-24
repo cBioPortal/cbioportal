@@ -762,7 +762,7 @@ class CNAValidator(GenewiseFileValidator):
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        if value not in self.ALLOWED_VALUES:
+        if value.strip() not in self.ALLOWED_VALUES:
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Invalid CNA value: possible values are [%s]',
@@ -1516,7 +1516,8 @@ class ContinuousValuesValidator(GenewiseFileValidator):
     """
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        if value != 'NA' and not self.checkFloat(value):
+        stripped_value = value.strip()
+        if stripped_value != 'NA' and not self.checkFloat(stripped_value):
             self.logger.error("Value is neither a real number nor NA",
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,

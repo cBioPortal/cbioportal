@@ -84,6 +84,36 @@ class MaxLevelTrackingHandler(logging.Handler):
         else:
             return 2
 
+class LineCountHandler(logging.Handler):
+
+    """Handler that does nothing but track the number of lines with error and warnings."""
+
+    def __init__(self):
+        """Initialize the handler with an attribute to track the lines."""
+        super(LineCountHandler, self).__init__()
+        self.warning_lines = set()
+        self.error_lines = set()
+
+    def emit(self, record):
+        """Update the line sets."""
+        if hasattr(record, 'line_number'):
+            if record.levelno == logging.WARNING:
+                self.warning_lines.add(record.line_number)
+            if record.levelno == logging.ERROR:
+                self.error_lines.add(record.line_number)
+
+    def get_nr_lines_with_error(self):
+        """Return the number of lines with an error."""
+        return len(self.error_lines)
+    
+    def get_nr_lines_with_warning(self):
+        """Return the number of lines with an warning."""
+        return len(self.warning_lines)
+    
+    def get_nr_lines_with_issue(self):
+        """Return the number of lines with an error or warning."""
+        return len(self.error_lines | self.warning_lines)
+    
 
 class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
@@ -241,12 +271,16 @@ class Validator(object):
         self.logger = CombiningLoggerAdapter(
             logger,
             extra={'filename_': self.filenameShort})
+        self.line_count_handler = None
+        
         self.meta_dict = meta_dict
 
     def validate(self):
 
         """Validate the data file."""
-
+        
+        self.line_count_handler = LineCountHandler()
+        self.logger.logger.addHandler(self.line_count_handler)
         self.logger.debug('Starting validation of file')
 
         with open(self.filename, 'rU') as data_file:
@@ -327,6 +361,7 @@ class Validator(object):
 
         # after the entire file has been read
         self.onComplete()
+        self.logger.logger.removeHandler(self.line_count_handler)
 
     def onComplete(self):
         """Perform final validations after all lines have been checked.
@@ -338,6 +373,9 @@ class Validator(object):
         # finalize:
         self.fileCouldBeParsed = True
         self.logger.info('Validation of file complete')
+        self.logger.info('Lines %d rows. Lines with warning: %d. Lines with error: %d', 
+                         self.line_number, self.line_count_handler.get_nr_lines_with_warning(),
+                         self.line_count_handler.get_nr_lines_with_error())
 
     def processTopLines(self, line_list):
         """Hook to validate any list of comment lines above the TSV header.

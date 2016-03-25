@@ -481,11 +481,14 @@ var OncoKB = (function () {
                 }
             }
 
+            // Always attach oncogenic description. It will be filled after
+            // user hovering OncoKB icon. Also attach a loading gif.
+            str += '<span class="oncogenic-description"><span class="oncogenic-description-loading" style="display: none;"><img src="images/ajax-loader.gif" height="50px" width="50px"/></span><span class="oncogenic-description-content">';
             if (oncokbInfo.oncogenicDescription && oncokbInfo.oncogenicDescription !== 'null') {
-                str += '<span>' + oncokbInfo.oncogenicDescription + '</span><br/>';
+                str += oncokbInfo.oncogenicDescription;
             }
 
-            str += '</div>';
+            str += '</span></span><br/></div>';
 
             return str;
         }
@@ -1477,6 +1480,21 @@ OncoKB.Instance.prototype = {
                                                 dialog.getModalFooter().hide();
                                                 dialog.open();
                                             });
+                                            if (api.elements.content.find('.oncogenic-description-content').text() === '') {
+                                                api.elements.content.find('.oncogenic-description-loading').css('display', 'block');
+                                                $.get('api/proxy/oncokbSummary', {
+                                                        type: 'variant',
+                                                        hugoSymbol: self.variants[oncokbId].gene,
+                                                        alteration: self.variants[oncokbId].alteration,
+                                                        tumorType: self.variants[oncokbId].tumorType,
+                                                        source: 'cbioportal'
+                                                    })
+                                                    .done(function(data) {
+                                                        data = JSON.parse(data);
+                                                        api.elements.content.find('.oncogenic-description-content').text(_.isArray(data)?data[0]:'');
+                                                        api.elements.content.find('.oncogenic-description-loading').css('display', 'none');
+                                                    });
+                                            }
                                         }
                                     }
                                 });

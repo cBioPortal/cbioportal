@@ -231,7 +231,7 @@ class ValidationMessageFormatter(logging.Formatter):
     """Logging formatter with optional fields for data validation messages.
 
     These fields are:
-    filename_ - the name of the file the message is about (if applicable)
+    filename_ - the path to the file the message is about (if applicable)
     line_number - a line number within the above file (if applicable)
     column_number - a column number within the above file (if applicable)
     cause - the unexpected value found in the input (if applicable)
@@ -465,7 +465,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         else:
             logger.error(
                 'Could not determine the file type. Please check your meta files for correct configuration.',
-                extra={'filename_': os.path.basename(filename),
+                extra={'filename_': filename,
                        'cause': ('genetic_alteration_type: %s, '
                                  'datatype: %s' % (
                                      metaDictionary['genetic_alteration_type'],
@@ -476,7 +476,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         result = MetaFileTypes.CANCER_TYPE
     else:
         logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
-                         extra={'filename_': os.path.basename(filename)})
+                         extra={'filename_': filename})
     return result
 
 

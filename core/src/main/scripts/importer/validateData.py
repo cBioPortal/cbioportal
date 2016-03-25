@@ -270,7 +270,7 @@ class Validator(object):
         self.portal = portal_instance
         self.logger = CombiningLoggerAdapter(
             logger,
-            extra={'filename_': self.filenameShort})
+            extra={'filename_': self.filename})
         self.line_count_handler = None
         self.meta_dict = meta_dict
 
@@ -1994,7 +1994,8 @@ class GisticGenesValidator(Validator):
 # ------------------------------------------------------------------------------
 # Functions
 
-
+# FIXME: returning simple valid (meta_fn, data_fn) pairs would be cleaner,
+# Validator objects can be instantiated with a portal instance elsewhere
 def process_metadata_files(directory, portal_instance, logger):
 
     """Parse the meta files in a directory and create data file validators.

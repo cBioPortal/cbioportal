@@ -303,12 +303,13 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
 
     """Formatter for validation messages in a simple one-per-line format."""
 
-    def __init__(self):
+    def __init__(self, study_dir):
         """Initialize a logging Formatter with an appropriate format string."""
         super(LogfileStyleFormatter, self).__init__(
             fmt='%(levelname)s: %(file_indicator)s:'
                 '%(line_indicator)s%(column_indicator)s'
                 ' %(message)s%(cause_indicator)s')
+        self.study_dir = study_dir
         self.previous_filename = None
 
     def format(self, record):
@@ -319,7 +320,8 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         if not hasattr(record, 'filename_'):
             record.file_indicator = '-'
         else:
-            record.file_indicator = os.path.basename(record.filename_.strip())
+            record.file_indicator = os.path.relpath(record.filename_.strip(),
+                                                    self.study_dir)
         record.line_indicator = self.format_aggregated(
             record,
             'line_number',

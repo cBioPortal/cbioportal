@@ -53,7 +53,8 @@ class LogBufferTestCase(unittest.TestCase):
         # add a handler to pretty-print log messages to the output
         self.output_handler = logging.StreamHandler(sys.stdout)
         self.output_handler.setFormatter(
-            cbioportal_common.LogfileStyleFormatter())
+            cbioportal_common.LogfileStyleFormatter(
+                'test_data/'))
         self.logger.addHandler(self.output_handler)
 
     def tearDown(self):

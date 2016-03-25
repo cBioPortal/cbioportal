@@ -153,7 +153,7 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
             trim_blocks=True,
             lstrip_blocks=True)
         # refer to this function so that it can be used in the template:
-        j_env.filters['os.path.basename'] = os.path.basename
+        j_env.filters['os.path.relpath'] = os.path.relpath
         template = j_env.get_template('validation_report_template.html.jinja')
         doc = template.render(
             study_dir=self.study_dir,
@@ -167,10 +167,11 @@ class ErrorFileFormatter(cbioportal_common.ValidationMessageFormatter):
 
     """Fasta-like formatter listing lines on which error messages occurred."""
 
-    def __init__(self):
+    def __init__(self, study_dir):
         """Initialize a logging Formatter with an appropriate format string."""
         super(ErrorFileFormatter, self).__init__(
-            '>%(filename_)s | %(message)s\n%(line_string)s')
+            '>%(rel_filename)s | %(message)s\n%(line_string)s')
+        self.study_dir = study_dir
 
     def format(self, record):
         """Aggregate line numbers to a line_string and format the record."""
@@ -179,6 +180,8 @@ class ErrorFileFormatter(cbioportal_common.ValidationMessageFormatter):
             single_fmt='%d',
             multiple_fmt='%s', join_string=',', max_join=None,
             optional=False)
+        record.rel_filename = os.path.relpath(record.filename_,
+                                              self.study_dir)
         return super(ErrorFileFormatter, self).format(record)
 
 
@@ -2440,7 +2443,8 @@ def main_validate(args):
 
     # set default message handler
     text_handler = logging.StreamHandler(sys.stdout)
-    text_handler.setFormatter(cbioportal_common.LogfileStyleFormatter())
+    text_handler.setFormatter(
+        cbioportal_common.LogfileStyleFormatter(study_dir))
     collapsing_text_handler = cbioportal_common.CollapsingLogMessageHandler(
         capacity=1e6,
         flushLevel=logging.CRITICAL,
@@ -2470,7 +2474,7 @@ def main_validate(args):
 
     if args.error_file:
         errfile_handler = logging.FileHandler(args.error_file, 'w')
-        errfile_handler.setFormatter(ErrorFileFormatter())
+        errfile_handler.setFormatter(ErrorFileFormatter(study_dir))
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here
         coll_errfile_handler = cbioportal_common.CollapsingLogMessageHandler(

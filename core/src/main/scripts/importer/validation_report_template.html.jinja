@@ -271,7 +271,7 @@
                               'WARNING': 'yellow',
                               'SUCCESS': 'green',
                               'UNKNOWN': 'grey'}[file_level] %}
-          <h4>{{ filename.strip()|os.path.basename|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level_list|length }}</span></h4>
+          <h4>{{ filename|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level_list|length }}</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>
@@ -320,7 +320,9 @@
       {{ generate_group_html('General', fileless_record_list) }}
       {% set filerelated_record_list = record_list|selectattr('filename_', 'defined') %}
       {% for file_record_group in filerelated_record_list|groupby('filename_') -%}
-        {{ generate_group_html(file_record_group.grouper, file_record_group.list) }}
+        {{ generate_group_html(
+             file_record_group.grouper.strip()|os.path.relpath(study_dir),
+             file_record_group.list) }}
       {%- endfor %}
 
       </div>

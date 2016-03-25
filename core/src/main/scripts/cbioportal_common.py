@@ -138,7 +138,7 @@ def run_java(*args):
         print >> ERROR_FILE, "$JAVA_HOME must be defined"
         return
     print >> OUTPUT_FILE, ("Executing command: " + java_home +
-                           "/bin/java {}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
+                           "/bin/java {0}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
     process = Popen([ java_home + '/bin/java']+list(args), stdout=PIPE, stderr=STDOUT)
     ret = []
     while process.poll() is None:

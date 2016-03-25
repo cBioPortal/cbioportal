@@ -1,6 +1,7 @@
 package org.mskcc.cbio.portal.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -14,6 +15,8 @@ import org.mskcc.cbio.portal.model.DBClinicalSampleData;
 import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
+import org.mskcc.cbio.portal.model.DBAltCount;
+import org.mskcc.cbio.portal.model.DBAltCountInput;
 import org.mskcc.cbio.portal.model.DBMutationData;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBSampleList;
@@ -27,6 +30,7 @@ import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
+import org.mskcc.cbio.portal.persistence.MutationMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapper;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
@@ -45,6 +49,8 @@ public class ApiService {
 
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
+        @Autowired
+        private MutationMapper mutationMapper;
 	@Autowired
 	private ClinicalDataMapper clinicalDataMapper;
 	@Autowired
@@ -74,6 +80,189 @@ public class ApiService {
 		return cancerTypeMapper.getCancerTypes(cancer_type_ids);
 	}
 
+        @Transactional
+	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> studyIds, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
+
+            List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+            Map<String,String> result;
+            for(int i = 0;i < genes.size();i++)
+            {
+                
+                if(type.equals("count"))
+                {
+                    if(echo == null){
+                        echo = new ArrayList<String>();
+                        echo.add("gene");
+                        echo.add("start");
+                        echo.add("end");
+                        for(String key: customizedAttrs.keySet()){
+                            echo.add(key);
+                       }
+                    }
+                    if(per_study)
+                    { 
+                        List<DBAltCount> eles;
+                        if(studyIds == null)
+                        {
+                            if(starts == null || ends == null)
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithoutPosition(genes.get(i)); 
+                            }
+                            else
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudy(genes.get(i), starts.get(i), ends.get(i)); 
+                            }
+                            
+                        }
+                        else
+                        {
+                            if(starts == null || ends == null)
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithIdsWithoutPosition(genes.get(i), studyIds); 
+                            }
+                            else
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithIds(genes.get(i), starts.get(i), ends.get(i), studyIds); 
+                            }
+                            
+                        }
+                        for(DBAltCount ele: eles )
+                        {
+                            result = new HashMap<String,String>();
+                            for(String key: customizedAttrs.keySet()){
+                                if(echo.contains(key))result.put(key, customizedAttrs.get(key)[i]);
+                            }
+                            if(echo.contains("gene"))result.put("gene", genes.get(i));
+                            if(starts != null && ends != null)
+                            {
+                                if(echo.contains("start"))result.put("start", starts.get(i).toString());
+                                if(echo.contains("end"))result.put("end", ends.get(i).toString());
+                            }
+                            
+                            result.put("count", Integer.toString(ele.count));
+                            result.put("studyID", ele.studyID);
+                            results.add(result);
+                        }  
+                    }
+                    else
+                    {
+                        DBAltCount ele;
+                        result = new HashMap<String,String>();
+                        for(String key: customizedAttrs.keySet()){
+                            if(echo.contains(key))result.put(key, customizedAttrs.get(key)[i]);
+                        }
+                        if(starts == null || ends == null)
+                        {
+                            ele = mutationMapper.getMutationsCountsWithoutPosition(genes.get(i));
+                        }
+                        else
+                        {
+                            ele = mutationMapper.getMutationsCounts(genes.get(i), starts.get(i), ends.get(i));
+                            if(echo.contains("start"))result.put("start", starts.get(i).toString());
+                            if(echo.contains("end"))result.put("end", ends.get(i).toString());
+                        
+                        }
+                        if(echo.contains("gene"))result.put("gene", genes.get(i));
+                        
+                        result.put("count", Integer.toString(ele.count));
+                        results.add(result);
+                    }
+                }
+                
+               
+            }
+            
+		return results;
+	}
+        @Transactional
+	public List<Map<String, String>> getMutationsCountsJSON(DBAltCountInput body) {
+            
+            String type = body.type;
+            Boolean per_study = body.per_study;
+            List<String> echo = body.echo;
+            List<Map<String, String>> data = body.data;
+            List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+            Map<String,String> result;
+            for(int i = 0;i < data.size();i++)
+            {
+                
+                Map<String, String> item = data.get(i);
+                if(type.equals("count"))
+                {
+                    if(echo == null){
+                        echo = new ArrayList<String>();
+                        for(String key: item.keySet()){
+                            echo.add(key);
+                       }
+                    }
+                    
+        
+                    if(per_study)
+                    {
+                        List<DBAltCount> eles;
+                        if(item.get("studyId") == null)
+                        {
+                            if(item.get("start") == null || item.get("end") == null)
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithoutPosition(item.get("gene")) ;
+                            }
+                            else
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudy(item.get("gene"), Integer.parseInt(item.get("start")), Integer.parseInt(item.get("end"))) ;
+                            }
+                            
+                        }
+                        else
+                        {
+                            List<String> studyIdList = new ArrayList<String>(Arrays.asList(item.get("studyId").split(",")));
+                            if(item.get("start") == null || item.get("end") == null)
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithIdsWithoutPosition(item.get("gene"), studyIdList) ;
+                            }
+                            else
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithIds(item.get("gene"), Integer.parseInt(item.get("start")), Integer.parseInt(item.get("end")), studyIdList) ;
+                            }
+                          
+                        }
+                        for(DBAltCount ele: eles)
+                        {
+                            result = new HashMap<String,String>();
+                            for(String key: item.keySet()){
+                                if(echo.contains(key))result.put(key, item.get(key));
+                            }
+                            result.put("count", Integer.toString(ele.count));
+                            result.put("studyID", ele.studyID);
+                            results.add(result);
+                        }
+                       
+                }
+                else
+                {
+                    DBAltCount ele;
+                    if(item.get("start") == null || item.get("end") == null)
+                    {
+                        ele = mutationMapper.getMutationsCountsWithoutPosition(item.get("gene")) ;
+                    }
+                    else
+                    {
+                        ele = mutationMapper.getMutationsCounts(item.get("gene"), Integer.parseInt(item.get("start")), Integer.parseInt(item.get("end")) ) ;
+                    }
+
+                    result = new HashMap<String,String>();
+                    for(String key: item.keySet()){
+                        if(echo.contains(key))result.put(key, item.get(key));
+                    }
+                    result.put("count", Integer.toString(ele.count));
+                    results.add(result);
+                }
+                }
+               
+            }   
+		return results;
+
+	}
+        
 	@Transactional
 	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> attribute_ids) {
 		return clinicalDataMapper.getSampleClinicalDataByStudyAndAttribute(study_id, attribute_ids);

@@ -7,7 +7,7 @@ import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
 import org.mskcc.cbio.portal.scripts.ImportCancerStudy;
 import org.mskcc.cbio.portal.scripts.ImportClinicalData;
-import org.mskcc.cbio.portal.scripts.ImportPatientList;
+import org.mskcc.cbio.portal.scripts.ImportSampleList;
 import org.mskcc.cbio.portal.scripts.ImportProfileData;
 import org.mskcc.cbio.portal.util.*;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,12 +26,10 @@ import static org.junit.Assert.assertEquals;
 @Transactional
 public class TestPanCancerStudySummaryImport {
 
-    private ProgressMonitor pMonitor = new ProgressMonitor();
-
     // This test depends on the data seed_mini_pancancer.sql being loaded first
     @Test
     public void testPanCancerImport() throws Exception {
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
         // have to do add the pan_cancer cancer type first
         addCancerType("pan_cancer", "Pan-Cancer", "other", "Red", "PANCAN", "tissue");
@@ -45,9 +43,9 @@ public class TestPanCancerStudySummaryImport {
         // ImportProfileData --meta portal-study/meta_mutations_extended.txt --loadMode bulkload --data portal-study/data_mutations_extended.txt
         addProfileData("src/test/resources/panCancerStudySummary/meta_mutations_extended.txt", "src/test/resources/panCancerStudySummary/data_mutations_extended.txt");
 
-        // ImportPatientList portal-study/case_lists/cases_all.txt
+        // ImportSampleList portal-study/case_lists/cases_all.txt
         // we're passing a single file, not the directory
-        addPatientLists("src/test/resources/panCancerStudySummary/cases_all.txt");
+        addSampleLists("src/test/resources/panCancerStudySummary/cases_all.txt");
 
         //ImportClinicalData portal-study/data_clinical.txt multi_cancer_study
         addClinicalData("src/test/resources/panCancerStudySummary/data_clinical.txt", "multi_cancer_study");
@@ -75,8 +73,8 @@ public class TestPanCancerStudySummaryImport {
         ImportProfileData.main(new String[]{"--meta", descriptorFileName, "--loadMode", "bulkload", "--data", dataFileName});
     }
 
-    private void addPatientLists(String fileName) throws Exception{
-        ImportPatientList.main(new String[]{fileName});
+    private void addSampleLists(String fileName) throws Exception{
+        ImportSampleList.main(new String[]{fileName});
     }
 
     private void addClinicalData(String dataFileName, String studyID) throws Exception{

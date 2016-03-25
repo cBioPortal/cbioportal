@@ -63,8 +63,6 @@
     }
 </style>
 <script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
-        
-<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <div id="container" style="margin-left:20px;">
     <h1 style="display:inline;">OncoPrinter</h1>
@@ -159,7 +157,7 @@
             <script type="text/javascript">
             $('#load-example-data').click(function()
             {
-                document.getElementById("mutation-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-genomic-events.txt"/>";
+                document.getElementById("mutation-file-example").value="<%@ include file="WEB-INF/jsp/oncoprint/example-genomic-events.txt" %>";
             });
             </script>
             </div>
@@ -175,7 +173,7 @@
             <script type="text/javascript">
             $('#clinic-load-example-data').click(function()
             {
-                document.getElementById("clinic-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-clinic-events.txt"/>";
+                document.getElementById("clinic-file-example").value="<%@ include file="WEB-INF/jsp/oncoprint/example-clinic-events.txt" %>";
             });
             </script>
             </div>
@@ -257,7 +255,7 @@
             <button type="button" class="btn btn-default" id="oncoprint-diagram-downloads-icon" style="background-color:#efefef;margin:0px"><img class="oncoprint-diagram-downloads-icon" src="images/in.svg" alt="icon" width="16" height="16" /></button>      
             <div class="btn-group btn-group-sm">
                 <button type="button" id="oncoprint_zoomout" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-out.svg" alt="icon" width="16" height="16" /></button>
-                <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 120px;display:inline"></span> 
+                <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 100px;display:inline"></span> 
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
             </div>
         </div>

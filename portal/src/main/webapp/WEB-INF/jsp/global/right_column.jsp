@@ -77,7 +77,7 @@ if (GlobalProperties.showRightNavDataSets()) {
 %>
 <% if (GlobalProperties.showRightNavExamples()) {%>
     <h3>Example Queries</h3>
-    <jsp:include page="<%= GlobalProperties.getExamplesRightColumnHtml() %>" flush="true" />
+    <%@ include file="/content/examples.html" %>
 <% } %>
 
 <% if (GlobalProperties.showRightNavTestimonials()) {%>

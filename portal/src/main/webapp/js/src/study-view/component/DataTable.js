@@ -385,7 +385,7 @@ var DataTable = function() {
         });
         
         $(".dataTableReset")
-            .append("<a><span class='hidden' title='Reset Chart'>RESET</span></a>");
+            .append("<a><span class='study-view-hidden' title='Reset Chart'>RESET</span></a>");
     
         $("#" + tableContainerId + " .dataTableReset span").click(function(){
             
@@ -536,7 +536,7 @@ var DataTable = function() {
                     "<text "+_rightText+" fill='black' transform='rotate(-30 "+_x2+" "+_textH+")' style='font-size:"+ _fontSize +"'>"+ _max +"</text></g>" +
                     "<g id='dataTable-"+ index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
                     "<text "+_leftText+" fill='black' transform='rotate(-30 "+_x1+" "+_textH+")' style='font-size:"+ _fontSize +"'>"+ _min +"</text></g>" + 
-                    "<text "+ _resetText +" id='dataTable-"+ index +"-reset' class='clickable hidden'  fill='black' style='font-size:"+ _fontSize +"'>RESET</text>" + 
+                    "<text "+ _resetText +" id='dataTable-"+ index +"-reset' class='clickable study-view-hidden'  fill='black' style='font-size:"+ _fontSize +"'>RESET</text>" + 
                     "</svg>";
 
             return _svgLine;

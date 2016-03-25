@@ -83,7 +83,7 @@ public class PancancerMutationsJSON extends HttpServlet {
     /**
      * Initializes the AccessControl member.
      *
-     * TODO: may want to refactor this into a public method somewhere that other's can use.  I grabbed this from `TumorMapServlet`
+     * TODO: may want to refactor this into a public method somewhere that other's can use.  I grabbed this from `PatientViewServlet`
      */
     private static synchronized AccessControl getaccessControl() {
         if (accessControl==null) {

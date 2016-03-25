@@ -80,13 +80,14 @@ var OncoKB = (function () {
     function VariantPair() {
         this.id = '';
         this.gene = '';
+        this.entrezGeneId = '';
         this.alteration = '';
         this.geneStatus = '';
         this.tumorType = '';//tumor type
         this.consequence = '';
         this.evidenceType = '';
         this.source = 'cbioportal';
-        this.evidence = {};
+        this.evidence = new OncoKB.Evidence();
         this.cosmicCount = '';
         this.isHotspot = false;
     }
@@ -102,6 +103,7 @@ var OncoKB = (function () {
             resistance: []
         }; //separated by level type
         this.trials = [];
+        this.isVUS = false;
         this.oncogenic = ''; //-1 unknown, 0 not oncogenic, 1 oncogenic, 2 likely
         this.mutationEffect = {};
         this.drugs = {
@@ -119,7 +121,7 @@ var OncoKB = (function () {
         this.tumorType = ''; //Global tumor types
         this.source = 'cbioportal';
         this.geneStatus = 'Complete';
-        this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE';
+        this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE';
         this.variantCounter = 0;
         this.variants = {};
         this.evidence = {};
@@ -192,6 +194,7 @@ var OncoKB = (function () {
             var matrix = {
                 '3\'Flank': ['any'],
                 '5\'Flank ': ['any'],
+                'Targeted_Region': ['inframe_deletion', 'inframe_insertion'],
                 'COMPLEX_INDEL': ['inframe_deletion', 'inframe_insertion'],
                 'ESSENTIAL_SPLICE_SITE': ['feature_truncation'],
                 'Exon skipping': ['inframe_deletion'],
@@ -329,6 +332,13 @@ var OncoKB = (function () {
                 yWeight = -1;
             }
 
+            if(OncoKB.utils.variantNotExist(x.oncokb)) {
+                return yWeight;
+            }
+            if(OncoKB.utils.variantNotExist(y.oncokb)) {
+                return xWeight;
+            }
+            
             if (category === 'oncogenic') {
                 if (!x.oncokb || !x.oncokb.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(x.oncokb.oncogenic) === -1) {
                     if (!y.oncokb || !y.oncokb.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.oncogenic) === -1) {
@@ -378,7 +388,22 @@ var OncoKB = (function () {
                 return 0;
             }
         }
+        
+        function variantNotExist(variantInfo) {
+            if (_.isObject(variantInfo) && !variantInfo.isVUS && variantInfo.oncogenic === '' &&
+                Object.keys(variantInfo.mutationEffect) &&
+                variantInfo.treatments.resistance.length === 0 &&
+                variantInfo.trials.length === 0 &&
+                variantInfo.prevalence.length === 0 &&
+                variantInfo.progImp.length === 0 &&
+                variantInfo.treatments.sensitivity.length === 0) {
 
+                return true;
+            }else {
+                return false;
+            }
+        }
+        
         return {
             findRegex: findRegex,
             consequenceConverter: consequenceConverter,
@@ -389,7 +414,8 @@ var OncoKB = (function () {
             compareIcons: compareIcons,
             getOncogenicIndex: getOncogenicIndex,
             getTumorTypeFromClinicalDataMap: getTumorTypeFromClinicalDataMap,
-            getTreatmentsLength: getTreatmentsLength
+            getTreatmentsLength: getTreatmentsLength,
+            variantNotExist: variantNotExist
         };
     })();
 
@@ -432,44 +458,47 @@ var OncoKB = (function () {
             var str = '<div class="oncokb"><span><b style="font-size:12px;color:#';
             switch (oncogenic) {
                 case 0:
-                    str += '2f4f4f">Non-Oncogenic Mutation';
+                    str += '2f4f4f">Not oncogenic';
                     break;
                 case 1:
-                    str += 'ff0000">Known Oncogenic Mutation';
+                    str += '007fff">Known oncogenic';
                     break;
                 case 2:
-                    str += 'ff69b4">Likely Oncogenic Mutation';
+                    str += '007fff">Likely oncogenic';
                     break;
                 default:
-                    str += '2f4f4f">Unknown Oncogenicity';
+                    str += '2f4f4f">Unknown to be oncogenic';
                     break;
             }
-            str += '</b>';
+            str += '</b></span>';
 
-            //if(oncokbInfo.oncogenicDescription && oncokbInfo.oncogenicDescription !== 'null') {
-            //    str += '<span class="oncokb_oncogenic_moreInfo" style="float:right;"><a><i>Clinical summary</i></a></span><br/><span class="oncokb_oncogenic_description" style="display:none; color:black">' + oncokbInfo.oncogenicDescription + '</span><span class="oncokb_oncogenic_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
-            //}
+            if (oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
+                str += '<span style="float: right"><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
+                if (oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {
+                    str += ' <i class="fa fa-angle-right oncokb_alt_moreInfo"></i><i class="fa fa-angle-down oncokb_alt_lessInfo" style="display: none;"></i></span><br/><div style="background: #EEE; display: none;" class="oncokb_mutation_effect">' + oncokbInfo.mutationEffect.description + '</div><br/>';
+                } else {
+                    str += '</span><br/>';
+                }
+            }
 
-            str += '</span></div>';
+            if (oncokbInfo.oncogenicDescription && oncokbInfo.oncogenicDescription !== 'null') {
+                str += '<span>' + oncokbInfo.oncogenicDescription + '</span><br/>';
+            }
+
+            str += '</div>';
 
             return str;
         }
 
         function getOncogenicityFooterStr() {
-            return '<div class="oncokb" style="text-align:right;"><span><i>Powered by OncoKB(Beta)</i></span></div>' +
-                '<div><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to ' +
-                '<a href=&quot;mailto:oncokb@cbio.mskcc.org&quot; title=&quot;Contact us&quot;>oncokb@cbio.mskcc.org</a></i></div>';
+            return '<div class="oncokb"><button class="oncokbFeedback-btn">Feedback</button><span style="float: right;"><i>   Powered by OncoKB(Beta)</i> <i class="fa fa-angle-right oncokb_footer_moreInfo"></i><i class="fa fa-angle-down oncokb_footer_lessInfo" style="display: none;"></i></span>' +
+                '<br/><div class="oncokb_footer" style="color: grey; display: none;"><i>OncoKB is under development. To report errors or missing annotation about this variant, please ' + 
+                '<span class="oncokbFeedback">send us feedback</span>. For general feedback, please send an email to ' +
+                '<a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i></div></div>';
         }
 
         function getMutationSummaryStr(oncokbInfo) {
             var str = '';
-            if (oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
-                str += '<div class="oncokb"><span><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
-                if (oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {
-                    str += '<span class="oncokb_alt_moreInfo" style="float:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
-                }
-                str += '</span></div>';
-            }
 
             if (oncokbInfo.drugs.sensitivity.current.length > 0) {
                 str += '<div class="oncokb"><span><b>FDA approved drugs:</b><br/>';
@@ -606,27 +635,29 @@ var OncoKB = (function () {
             return str;
         }
 
-        function getVUSsummary(isRecurrent, isHotspot) {
+        function getVUSsummary(isRecurrent, isHotspot, variantNotExist) {
             var str = ['<div><span>'];
-
-            if (isRecurrent || isHotspot) {
-                var types = [];
-
-                str.push('Due to its recurrence in cancer (');
-
-                if (isRecurrent) {
-                    types.push('COSMIC');
-                }
-                if (isHotspot) {
-                    types.push('<a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>');
-                }
-
-                str.push(types.join(', '));
-                str.push('), this variant may be oncogenic.');
+            if (variantNotExist) {
+                str.push('<b>No information.</b>');
             } else {
-                str.push('This rare variant is of unknown significance.');
-            }
+                if (isRecurrent || isHotspot) {
+                    var types = [];
 
+                    str.push('Due to its recurrence in cancer (');
+
+                    if (isRecurrent) {
+                        types.push('COSMIC');
+                    }
+                    if (isHotspot) {
+                        types.push('<a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>');
+                    }
+
+                    str.push(types.join(', '));
+                    str.push('), this variant may be oncogenic.');
+                } else {
+                    str.push('This rare variant is of unknown significance.');
+                }
+            }
             str.push('</span></div>');
             return str.join('');
         }
@@ -945,7 +976,7 @@ var OncoKB = (function () {
             }
         }
 
-        function createOncogenicIcon(target, oncogenic, hasResistanceDrugs) {
+        function createOncogenicIcon(target, oncogenic, hasResistanceDrugs, notExist) {
             var svg = d3.select(target)
                 .append("svg")
                 .attr("width", 17)
@@ -954,7 +985,7 @@ var OncoKB = (function () {
             var g = svg.append('g')
                 .attr('transform', 'translate(7, 9)');
 
-            var color = '#AAAAAA';
+            var color;
             switch (oncogenic) {
                 case 0:
                     color = '#696969';
@@ -968,12 +999,15 @@ var OncoKB = (function () {
                 case 1:
                     color = '#007FFF';
                     break;
+                default:
+                    color = '#AAAAAA';
+                    break;
             }
 
-            if (hasResistanceDrugs && oncogenic === 2) {
-                color = '#007FFF';
+            if (_.isBoolean(notExist) && notExist) {
+                color = '#CCC';
             }
-
+            
             //Append three circals
             g.append('circle')
                 .attr('r', '6')
@@ -981,17 +1015,20 @@ var OncoKB = (function () {
                 .attr('stroke-width', '2')
                 .attr('stroke', color);
 
-            g.append('circle')
-                .attr('r', '3')
-                .attr('fill', 'none')
-                .attr('stroke-width', '2')
-                .attr('stroke', color);
+            if(!_.isBoolean(notExist) || !notExist) {
+                g.append('circle')
+                    .attr('r', '3')
+                    .attr('fill', 'none')
+                    .attr('stroke-width', '2')
+                    .attr('stroke', color);
+    
+                g.append('circle')
+                    .attr('r', '1.5')
+                    .attr('fill', color)
+                    .attr('stroke', 'none');
 
-            g.append('circle')
-                .attr('r', '1.5')
-                .attr('fill', color)
-                .attr('stroke', 'none');
-
+            }
+            
             if (hasResistanceDrugs && oncogenic === 2) {
                 var resistanceDot = svg.append('g')
                     .attr('transform', 'translate(13, 4)');
@@ -1094,7 +1131,7 @@ OncoKB.Instance.prototype = {
 
     },
 
-    addVariant: function (id, gene, mutation, tt, consequence, cosmicCount, isHotspot) {
+    addVariant: function (id, entrezGeneId, gene, mutation, tt, consequence, cosmicCount, isHotspot) {
         var _variant = new OncoKB.VariantPair();
 
         if (!isNaN(id)) {
@@ -1102,6 +1139,7 @@ OncoKB.Instance.prototype = {
         }
 
         _variant.id = id;
+        _variant.entrezGeneId = Number(entrezGeneId);
         _variant.gene = gene || '';
         _variant.alteration = mutation || '';
         _variant.consequence = _.isString(consequence)?OncoKB.utils.consequenceConverter(consequence): '';
@@ -1220,6 +1258,8 @@ OncoKB.Instance.prototype = {
                                 _datum.description = OncoKB.utils.findRegex(description);
                             }
                             datum.alteration.push(_datum);
+                        } else if (evidence.evidenceType === 'VUS') {
+                            datum.isVUS = true;
                         } else if (evidence.evidenceType === 'PREVALENCE') {
                             datum.prevalence.push({
                                 tumorType: evidence.tumorType.name,
@@ -1323,16 +1363,16 @@ OncoKB.Instance.prototype = {
                     var gene = self.variants[oncokbId].evidence.gene;
                     var _tip = '';
 
-                    if (gene) {
+                    if (_.isObject(gene) && Object.keys(gene).length > 0) {
                         if (gene.summary) {
                             _tip += '<b>Gene Summary</b><br/>' + gene.summary;
                         }
                         if (gene.background) {
                             _tip += '<br/><div><span class="oncokb_gene_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_gene_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
                         }
-                    } else {
+                    } else if(_.isNumber(self.variants[oncokbId].entrezGeneId)){
                         _tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                            + self.variants[oncokbId].gene + "\">NCBI Gene</a>";
+                            + self.variants[oncokbId].entrezGeneId + "\">NCBI Gene</a>";
                     }
                     if (_tip !== '') {
                         $(this).css('display', '');
@@ -1341,7 +1381,7 @@ OncoKB.Instance.prototype = {
                                 content: {text: _tip},
                                 show: {ready: true},
                                 hide: {fixed: true, delay: 100},
-                                style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
+                                style: {classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true},
                                 position: {my: 'top left', at: 'bottom right', viewport: $(window)}
                             });
                         });
@@ -1356,17 +1396,24 @@ OncoKB.Instance.prototype = {
                     $(this).empty();
                     if (self.variants.hasOwnProperty(oncokbId)) {
                         var _tip = '', _oncogenicTip = '', _hotspotTip = '';
-                        if(self.variants[oncokbId].evidence.hasOwnProperty('oncogenic')) {
+                        var variantNotExist = OncoKB.utils.variantNotExist(self.variants[oncokbId].evidence);
+                        var qtipMaxWidthClass = '';
+
+                        if (self.variants[oncokbId].evidence.hasOwnProperty('oncogenic')) {
                             OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic,
-                                self.variants[oncokbId].evidence.hasOwnProperty('treatments')?self.variants[oncokbId].evidence.treatments.resistance.length > 0:false);
+                                self.variants[oncokbId].evidence.hasOwnProperty('treatments') ? self.variants[oncokbId].evidence.treatments.resistance.length > 0 : false,
+                                variantNotExist
+                            );
                         }else {
                             OncoKB.svgs.createOncogenicIcon(this, -1, false);
                         }
-                        _oncogenicTip += OncoKB.str.getOncogenicitySummary(self.variants[oncokbId].evidence);
+                        if (!variantNotExist) {
+                            _oncogenicTip += OncoKB.str.getOncogenicitySummary(self.variants[oncokbId].evidence);
+                        }
                         if (_.isNumber(self.variants[oncokbId].evidence.oncogenic)) {
                             _oncogenicTip += OncoKB.str.getMutationSummaryStr(self.variants[oncokbId].evidence);
                         } else {
-                            _oncogenicTip += OncoKB.str.getVUSsummary(self.variants[oncokbId].cosmicCount >= 10, self.variants[oncokbId].isHotspot);
+                            _oncogenicTip += OncoKB.str.getVUSsummary(self.variants[oncokbId].cosmicCount >= 10, self.variants[oncokbId].isHotspot, variantNotExist);
                         }
 
                         _hotspotTip = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).";
@@ -1379,6 +1426,18 @@ OncoKB.Instance.prototype = {
                             _tip = _hotspotTip;
                         }
 
+                        //Decide qtip width based on length of mutation effect
+                        if (self.variants[oncokbId].evidence.hasOwnProperty('mutationEffect') && self.variants[oncokbId].evidence.mutationEffect.hasOwnProperty('knownEffect')) {
+                            var length = self.variants[oncokbId].evidence.mutationEffect.knownEffect.length;
+                            if (length > 60) {
+                                qtipMaxWidthClass = 'oncokb-qtip'
+                            } else if (length > 30) {
+                                qtipMaxWidthClass = 'oncokb-qtip-sm'
+                            } else {
+                                qtipMaxWidthClass = 'oncokb-qtip-xs'
+                            }
+                        }
+                        
                         if (_tip !== '') {
                             $(this).css('display', '');
                             $(this).one('mouseenter', function () {
@@ -1386,8 +1445,40 @@ OncoKB.Instance.prototype = {
                                     content: {text: _tip},
                                     show: {ready: true},
                                     hide: {fixed: true, delay: 100},
-                                    style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
-                                    position: {my: 'top left', at: 'bottom right', viewport: $(window)}
+                                    style: {
+                                        classes: 'qtip-light qtip-rounded qtip-shadow ' + qtipMaxWidthClass,
+                                        tip: true
+                                    },
+                                    position: {my: 'top left', at: 'bottom right', viewport: $(window)},
+                                    events: {
+                                        render: function (event, api) {
+                                            var user = userName==='anonymousUser'?'':userName;
+                                            var dialog = new BootstrapDialog({
+                                                message: function(dialogRef){
+                                                    var div = $('<div></div>');
+                                                    var closeIcon = $('<div><span class="bootstrap-dialog-close">x</span></div>');
+                                                    var message = $('<div><iframe src="https://docs.google.com/forms/d/1lt6TtecxHrhIE06gAKVF_JW4zKFoowNFzxn6PJv4g7A/viewform?entry.1744186665=' + self.variants[oncokbId].gene + '&entry.1671960263=' + self.variants[oncokbId].alteration + '&entry.118699694&entry.1568641202&entry.1381123986=' + user + '&embedded=true" width="550" height="880" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
+
+                                                    closeIcon
+                                                        .find('.bootstrap-dialog-close')
+                                                        .on('click', {dialogRef: dialogRef}, function (event) {
+                                                            event.data.dialogRef.close();
+                                                        });
+                                                    div.append(closeIcon);
+                                                    div.append(message);
+                                                    return div;
+                                                },
+                                                closable: true
+                                            });
+                                            api.elements.content.find('.oncokbFeedback, .oncokbFeedback-btn').click(function () {
+                                                api.hide();
+                                                dialog.realize();
+                                                dialog.getModalHeader().hide();
+                                                dialog.getModalFooter().hide();
+                                                dialog.open();
+                                            });
+                                        }
+                                    }
                                 });
                             });
                         }
@@ -1433,13 +1524,23 @@ OncoKB.Instance.prototype = {
                 });
                 $(".oncokb_alt_moreInfo").click(function () {
                     $(this).css('display', 'none');
-                    $(this).parent().find('.oncokb_mutation_effect').css('display', '');
+                    $(this).parent().parent().find('.oncokb_mutation_effect').css('display', '');
                     $(this).parent().find('.oncokb_alt_lessInfo').css('display', '');
                 });
                 $(".oncokb_alt_lessInfo").click(function () {
                     $(this).css('display', 'none');
-                    $(this).parent().find('.oncokb_mutation_effect').css('display', 'none');
+                    $(this).parent().parent().find('.oncokb_mutation_effect').css('display', 'none');
                     $(this).parent().find('.oncokb_alt_moreInfo').css('display', '');
+                });
+                $(".oncokb_footer_moreInfo").click(function () {
+                    $(this).css('display', 'none');
+                    $(this).parent().parent().find('.oncokb_footer').css('display', '');
+                    $(this).parent().find('.oncokb_footer_lessInfo').css('display', '');
+                });
+                $(".oncokb_footer_lessInfo").click(function () {
+                    $(this).css('display', 'none');
+                    $(this).parent().parent().find('.oncokb_footer').css('display', 'none');
+                    $(this).parent().find('.oncokb_footer_moreInfo').css('display', '');
                 });
             });
         }

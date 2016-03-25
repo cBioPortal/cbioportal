@@ -6709,6 +6709,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		// make the container resizable
 		container3d.resizable({
 			alsoResize: ".mutation-3d-vis-container,.mutation-3d-vis-container div:eq(0)",
+			//alsoResize: ".mutation-3d-vis-container",
 			handles: "sw, s, w",
 			minWidth: 400,
 			minHeight: 300,
@@ -6725,7 +6726,19 @@ var Mutation3dVisView = Backbone.View.extend({
 
 				// a workaround to prevent position to be set to absolute
 				container3d.css("position", "fixed");
+			},
+			resize: function(event, ui) {
+				// this is to prevent window resize event to trigger
+				event.stopPropagation();
+
+				// resize (redraw) the 3D viewer
+				// (since we don't propagate resize event up to window anymore)
+				mut3dVis.resizeViewer();
 			}
+		})
+		.on('resize', function(event) {
+			// this is to prevent window resize event to trigger
+			event.stopPropagation();
 		});
 	},
 	/**
@@ -11692,6 +11705,14 @@ function Mutation3dVis(name, options)
 		_3dApp.script(script);
 	}
 
+	function resizeViewer()
+	{
+		if (_3dApp.getViewer)
+		{
+			_3dApp.getViewer().resize();
+		}
+	}
+
 	/**
 	 * Focuses on the residue corresponding to the given pileup. If there is
 	 * no corresponding residue for the given pileup, this function does not
@@ -12036,6 +12057,7 @@ function Mutation3dVis(name, options)
 		isVisible: isVisible,
 		reload: reload,
 		refresh: refresh,
+		resizeViewer: resizeViewer,
 		focusOn: focus,
 		center: centerOnHighlighted,
 		resetCenter: resetCenter,
@@ -12999,6 +13021,13 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 		columnFilter: {
 			"proteinChange": function(datum) {
 				return datum.mutation.proteinChange;
+			},
+			"mutationType": function(datum) {
+				// use display value for mutation type, not the sort value
+				var mutationType = MutationDetailsTableFormatter.getMutationType(
+					datum.mutation.mutationType);
+
+				return mutationType.text;
 			},
 			"cosmic": function(datum) {
 				return datum.mutation.cosmicCount;

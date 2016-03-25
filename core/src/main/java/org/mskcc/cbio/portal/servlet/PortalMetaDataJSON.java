@@ -86,12 +86,12 @@ public class PortalMetaDataJSON extends HttpServlet {
         ret.put("name", cancerStudy.getName());
         ret.put("type_of_cancer", cancerStudy.getTypeOfCancerId());
         ret.put("description", cancerStudy.getDescription());
-	ArrayList<PatientList> caseSets = GetPatientLists.getPatientLists(cancerStudy.getCancerStudyStableId());
+	ArrayList<SampleList> caseSets = GetSampleLists.getSampleLists(cancerStudy.getCancerStudyStableId());
 	int numSamples = 0;
-	for (PatientList pl: caseSets) {
+	for (SampleList pl: caseSets) {
 		String suffix = pl.getStableId().substring(pl.getStableId().length()-4);
 		if (suffix.equals("_all")) {
-			numSamples = pl.getPatientList().size();
+			numSamples = pl.getSampleList().size();
 			break;
 		}
 	}
@@ -117,12 +117,12 @@ public class PortalMetaDataJSON extends HttpServlet {
             }
 
             JSONArray jsonCaseList = new JSONArray();
-            for (PatientList caseSet : caseSets) {
+            for (SampleList caseSet : caseSets) {
                 Map map = new LinkedHashMap();
                 map.put("id", caseSet.getStableId());
                 map.put("name", caseSet.getName());
                 map.put("description", caseSet.getDescription());
-                map.put("size", caseSet.getPatientList().size());
+                map.put("size", caseSet.getSampleList().size());
                 jsonCaseList.add(map);
             }
             ret.put("short_name", cancerStudy.getShortName());

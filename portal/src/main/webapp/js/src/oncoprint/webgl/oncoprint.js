@@ -9,6 +9,8 @@ var OncoprintToolTip = require('./oncoprinttooltip.js');
 var OncoprintTrackInfoView = require('./oncoprinttrackinfoview.js');
 
 var svgfactory = require('./svgfactory.js');
+var svg2pdf = require('svg2pdf.js');
+
 
 var Oncoprint = (function () {
     // this is the controller
@@ -247,6 +249,13 @@ var Oncoprint = (function () {
 	    this.sort();
 	}
 	resizeAndOrganizeAfterTimeout(this);
+    }
+    
+    Oncoprint.prototype.removeAllTracks = function() {
+	var track_ids = this.model.getTracks();
+	for (var i=0; i<track_ids.length; i++) {
+	    this.removeTrack(track_ids[i]);
+	}
     }
 
     Oncoprint.prototype.setHorzZoomToFit = function(ids) {

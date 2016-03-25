@@ -104,11 +104,27 @@ public class ApiService {
                         List<DBAltCount> eles;
                         if(studyIds == null)
                         {
-                            eles = mutationMapper.getMutationsCountsPerStudy(genes.get(i), starts.get(i), ends.get(i)); 
+                            if(starts == null || ends == null)
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithoutPosition(genes.get(i)); 
+                            }
+                            else
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudy(genes.get(i), starts.get(i), ends.get(i)); 
+                            }
+                            
                         }
                         else
                         {
-                            eles = mutationMapper.getMutationsCountsPerStudyWithIds(genes.get(i), starts.get(i), ends.get(i), studyIds); 
+                            if(starts == null || ends == null)
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithIdsWithoutPosition(genes.get(i), studyIds); 
+                            }
+                            else
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithIds(genes.get(i), starts.get(i), ends.get(i), studyIds); 
+                            }
+                            
                         }
                         for(DBAltCount ele: eles )
                         {
@@ -117,8 +133,11 @@ public class ApiService {
                                 if(echo.contains(key))result.put(key, customizedAttrs.get(key)[i]);
                             }
                             if(echo.contains("gene"))result.put("gene", genes.get(i));
-                            if(echo.contains("start"))result.put("start", starts.get(i).toString());
-                            if(echo.contains("end"))result.put("end", ends.get(i).toString());
+                            if(starts != null && ends != null)
+                            {
+                                if(echo.contains("start"))result.put("start", starts.get(i).toString());
+                                if(echo.contains("end"))result.put("end", ends.get(i).toString());
+                            }
                             
                             result.put("count", Integer.toString(ele.count));
                             result.put("studyID", ele.studyID);
@@ -127,14 +146,23 @@ public class ApiService {
                     }
                     else
                     {
-                        DBAltCount ele = mutationMapper.getMutationsCounts(genes.get(i), starts.get(i), ends.get(i));
+                        DBAltCount ele;
                         result = new HashMap<String,String>();
                         for(String key: customizedAttrs.keySet()){
                             if(echo.contains(key))result.put(key, customizedAttrs.get(key)[i]);
                         }
+                        if(starts == null || ends == null)
+                        {
+                            ele = mutationMapper.getMutationsCountsWithoutPosition(genes.get(i));
+                        }
+                        else
+                        {
+                            ele = mutationMapper.getMutationsCounts(genes.get(i), starts.get(i), ends.get(i));
+                            if(echo.contains("start"))result.put("start", starts.get(i).toString());
+                            if(echo.contains("end"))result.put("end", ends.get(i).toString());
+                        
+                        }
                         if(echo.contains("gene"))result.put("gene", genes.get(i));
-                        if(echo.contains("start"))result.put("start", starts.get(i).toString());
-                        if(echo.contains("end"))result.put("end", ends.get(i).toString());
                         
                         result.put("count", Integer.toString(ele.count));
                         results.add(result);
@@ -168,18 +196,34 @@ public class ApiService {
                        }
                     }
                     
-                            
+        
                     if(per_study)
                     {
                         List<DBAltCount> eles;
                         if(item.get("studyId") == null)
                         {
-                            eles = mutationMapper.getMutationsCountsPerStudy(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) ;
+                            if(item.get("start") == null || item.get("end") == null)
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithoutPosition(item.get("gene")) ;
+                            }
+                            else
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudy(item.get("gene"), Integer.parseInt(item.get("start")), Integer.parseInt(item.get("end"))) ;
+                            }
+                            
                         }
                         else
                         {
                             List<String> studyIdList = new ArrayList<String>(Arrays.asList(item.get("studyId").split(",")));
-                            eles = mutationMapper.getMutationsCountsPerStudyWithIds(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end"))), studyIdList) ;
+                            if(item.get("start") == null || item.get("end") == null)
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithIdsWithoutPosition(item.get("gene"), studyIdList) ;
+                            }
+                            else
+                            {
+                                eles = mutationMapper.getMutationsCountsPerStudyWithIds(item.get("gene"), Integer.parseInt(item.get("start")), Integer.parseInt(item.get("end")), studyIdList) ;
+                            }
+                          
                         }
                         for(DBAltCount ele: eles)
                         {
@@ -192,17 +236,26 @@ public class ApiService {
                             results.add(result);
                         }
                        
+                }
+                else
+                {
+                    DBAltCount ele;
+                    if(item.get("start") == null || item.get("end") == null)
+                    {
+                        ele = mutationMapper.getMutationsCountsWithoutPosition(item.get("gene")) ;
                     }
                     else
                     {
-                        DBAltCount ele = mutationMapper.getMutationsCounts(item.get("gene"), (item.get("start") == null ? 0 : Integer.parseInt(item.get("start"))), (item.get("end") == null ? Integer.MAX_VALUE : Integer.parseInt(item.get("end")))) ;
-                        result = new HashMap<String,String>();
-                        for(String key: item.keySet()){
-                            if(echo.contains(key))result.put(key, item.get(key));
-                        }
-                        result.put("count", Integer.toString(ele.count));
-                        results.add(result);
+                        ele = mutationMapper.getMutationsCounts(item.get("gene"), Integer.parseInt(item.get("start")), Integer.parseInt(item.get("end")) ) ;
                     }
+
+                    result = new HashMap<String,String>();
+                    for(String key: item.keySet()){
+                        if(echo.contains(key))result.put(key, item.get(key));
+                    }
+                    result.put("count", Integer.toString(ele.count));
+                    results.add(result);
+                }
                 }
                
             }   

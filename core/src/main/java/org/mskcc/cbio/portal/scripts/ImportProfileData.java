@@ -124,46 +124,55 @@ public class ImportProfileData{
               quit( "Unknown loadMode action:  " + actionArg );
           }
        }
-
-		SpringUtil.initDataSource();
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-        System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
-        GeneticProfile geneticProfile = null;
-         try {
-            geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
-         } catch (java.io.FileNotFoundException e) {
-             quit( "Descriptor file '" + descriptorFile + "' not found." );
-         }
-
-        int numLines = FileUtil.getNumLines(dataFile);
-        System.err.println(" --> profile id:  " + geneticProfile.getGeneticProfileId());
-        System.err.println(" --> profile name:  " + geneticProfile.getProfileName());
-        System.err.println(" --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
-        System.err.println(" --> total number of lines:  " + numLines);
-        ProgressMonitor.setMaxValue(numLines);
-        
-        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-
-   
-            ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
-                  geneticProfile.getGeneticProfileId());
-            System.out.println( importer.toString() );
-            importer.importData();
-        }
-	    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
-	        ImportFusionData importer = new ImportFusionData(dataFile,
-				geneticProfile.getGeneticProfileId());
-	        importer.importData();
-        } else {
-            ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
-                    geneticProfile.getGeneticProfileId());
-            importer.importData();
-        }
-      
-        ConsoleUtil.showWarnings();
-        System.err.println("Done.");
-        Date end = new Date();
-        long totalTime = end.getTime() - start.getTime();
-        System.out.println ("Total time:  " + totalTime + " ms");
+       
+       try {
+			SpringUtil.initDataSource();
+	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	        System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
+	        GeneticProfile geneticProfile = null;
+	         try {
+	            geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
+	         } catch (java.io.FileNotFoundException e) {
+	             quit( "Descriptor file '" + descriptorFile + "' not found." );
+	         }
+	
+	        int numLines = FileUtil.getNumLines(dataFile);
+	        System.err.println(" --> profile id:  " + geneticProfile.getGeneticProfileId());
+	        System.err.println(" --> profile name:  " + geneticProfile.getProfileName());
+	        System.err.println(" --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
+	        ProgressMonitor.setMaxValue(numLines);
+	        
+	        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+	
+	   
+	            ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
+	                  geneticProfile.getGeneticProfileId());
+	            System.out.println( importer.toString() );
+	            importer.importData();
+	        }
+		    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
+		        ImportFusionData importer = new ImportFusionData(dataFile,
+					geneticProfile.getGeneticProfileId());
+		        importer.importData();
+	        } else {
+	            ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
+	                    geneticProfile.getGeneticProfileId());
+	            importer.importData(numLines);
+	        }
+	        ConsoleUtil.showMessages();
+	        System.err.println("Done.");
+       }
+       catch (IllegalArgumentException ia) {
+    	   throw ia;
+       }
+       catch (Exception e) {
+    	   ConsoleUtil.showWarnings();
+    	   System.err.println("Error found: " + e.getMessage());
+       }
+       finally {
+	        Date end = new Date();
+	        long totalTime = end.getTime() - start.getTime();
+	        System.out.println ("Total time:  " + totalTime + " ms\n");
+       }
     }
 }

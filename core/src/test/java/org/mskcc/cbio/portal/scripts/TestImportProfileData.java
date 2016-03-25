@@ -26,6 +26,9 @@ package org.mskcc.cbio.portal.scripts;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,14 +36,18 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCnaEvent;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +86,7 @@ public class TestImportProfileData {
 
 	
 	@Test
-	public void testImportFile() throws Exception {
+	public void testImportMutationsFile() throws Exception {
         String[] args = {
         		"--data","target/test-classes/data_mutations_extended.txt",
         		"--meta","target/test-classes/meta_mutations_extended.txt"        		
@@ -94,6 +101,56 @@ public class TestImportProfileData {
 
         geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations").getGeneticProfileId();
         validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");  
+        
+	}
+	
+	
+	@Test
+	public void testImportCNAFile() throws Exception {
+        String[] args = {
+        		"--data","target/test-classes/data_CNA_sample.txt",
+        		"--meta","target/test-classes/meta_CNA.txt" ,
+        		"--noprogress"
+        		};
+        
+        String[] sampleIds = {"TCGA-02-0001-01","TCGA-02-0003-01","TCGA-02-0004-01","TCGA-02-0006-01"};
+        
+        //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the 
+        //dataset study id (e.g. studyStableId + "_breast_mutations"):
+        String studyStableId = "study_tcga_pub";
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId); 
+		studyId = study.getInternalId();
+		
+		//will be needed when relational constraints are active:
+        ImportDataUtil.addPatients(sampleIds, study);
+        ImportDataUtil.addSamples(sampleIds, study);
+        
+        ImportProfileData.main(args);
+		
+		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_gistic").getGeneticProfileId();
+		
+		List<Integer> sampleInternalIds = new ArrayList<Integer>();
+		DaoSample.reCache();
+		for (String sample : sampleIds)
+			sampleInternalIds.add(DaoSample.getSampleByCancerStudyAndSampleId(studyId, sample).getInternalId());
+		
+		Collection<Short> cnaLevels =  Arrays.asList((short)-2, (short)2);
+		List<CnaEvent> cnaEvents = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels);
+		assertEquals(2, cnaEvents.size());
+		//validate specific records. Data looks like:
+		//672	BRCA1	-2	0	1	0
+		//675	BRCA2	0	2	0	-1
+		//Check if the first two samples are loaded correctly:
+		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-02-0001-01").getInternalId();
+		sampleInternalIds = Arrays.asList((int)sampleId);
+		CnaEvent cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
+		assertEquals(-2, cnaEvent.getAlteration().getCode());
+		assertEquals("BRCA1", cnaEvent.getGeneSymbol());
+		sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-02-0003-01").getInternalId();
+		sampleInternalIds = Arrays.asList((int)sampleId);
+		cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
+		assertEquals(2, cnaEvent.getAlteration().getCode());
+		assertEquals("BRCA2", cnaEvent.getGeneSymbol());
         
 	}
 	

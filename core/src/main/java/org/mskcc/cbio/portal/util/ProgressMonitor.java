@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -54,6 +55,7 @@ public class ProgressMonitor {
     private boolean showProgress;
     private TreeSet<String> warnings = new TreeSet<>();
     private HashMap<String, Integer> warningCounts = new HashMap<>();
+    private List<String> debugMessages = new ArrayList<>();
 
     private static final ProgressMonitor progressMonitor = new ProgressMonitor();
 
@@ -227,6 +229,12 @@ public class ProgressMonitor {
         progressMonitor.warningCounts.put(warning, progressMonitor.warningCounts.get(warning)+1);
     }
 
+    public static void logDebug(String debugMessage) {
+        logger.log(Level.DEBUG, debugMessage);
+        if (isShowProgress())
+        	progressMonitor.debugMessages.add(debugMessage);
+    }
+    
     public static ArrayList<String> getWarnings() {
         ArrayList<String> ret = new ArrayList<>();
         if (isRunningOnServer())
@@ -236,5 +244,16 @@ public class ProgressMonitor {
             ret.add(w + "; "+progressMonitor.warningCounts.get(w)+"x");
         }
         return ret;
+    }
+    
+    public static ArrayList<String> getMessages() {
+    	ArrayList<String> ret = getWarnings();
+    	ret.addAll(progressMonitor.debugMessages);
+    	return ret;
+    }
+    
+    public static List<String> getDebugMessages() {
+    	return progressMonitor.debugMessages;
+
     }
 }

@@ -459,6 +459,54 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEquals(record.cause, 'ACT')
 
 
+class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
+
+    """Verify that values are being checked in feature/sample matrix files."""
+
+    def test_valid_discrete_cna(self):
+        """Check a valid discrete CNA file that should yield no errors."""
+        self.logger.setLevel(logging.DEBUG)
+        record_list = self.validate('data_cna_genecol_presence_both.txt',
+                                    validateData.CNAValidator)
+        # expecting two messages: at start and end of file
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_invalid_discrete_cna(self):
+        """Check a discrete CNA file with values that should yield errors."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_invalid_values.txt',
+                                    validateData.CNAValidator)
+        # expecting various errors about data values, about one per line
+        self.assertEqual(len(record_list), 5)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.column_number, 7)
+        # self.assertEqual(record.cause, ' ') if blank cells had a 'cause'
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 4)
+        # self.assertEqual(record.cause, '') if blank cells had a 'cause'
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, '3')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 7)
+        self.assertEqual(record.column_number, 6)
+        self.assertEqual(record.cause, 'AURKAIP1')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, '[Not Available]')
+
+    # TODO: test other subclasses of FeatureWiseValidator
+
+
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 
     def test_normal_samples_list_in_maf(self):

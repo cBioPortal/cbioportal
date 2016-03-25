@@ -40,16 +40,16 @@ DEFINED_CANCER_TYPES = None
 
 VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA:'CNAValidator',
-    cbioportal_common.MetaFileTypes.CNA_LOG2:'Log2Validator',
+    cbioportal_common.MetaFileTypes.CNA_LOG2:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'ContinuousValuesValidator',
+    cbioportal_common.MetaFileTypes.EXPRESSION:'ContinuousValuesValidator',
+    cbioportal_common.MetaFileTypes.METHYLATION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
     cbioportal_common.MetaFileTypes.CANCER_TYPE:'CancerTypeValidator',
     cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES:'SampleClinicalValidator',
     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:'PatientClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
-    cbioportal_common.MetaFileTypes.EXPRESSION:'ExpressionValidator',
     cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
-    cbioportal_common.MetaFileTypes.METHYLATION:'MethylationValidator',
     cbioportal_common.MetaFileTypes.RPPA:'RPPAValidator',
     cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
     cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator',
@@ -800,7 +800,7 @@ class CNAValidator(GenewiseFileValidator):
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        if value not in self.ALLOWED_VALUES:
+        if value.strip() not in self.ALLOWED_VALUES:
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Invalid CNA value: possible values are [%s]',
@@ -1547,27 +1547,19 @@ class SegValidator(Validator):
         return chrom_size_dict
 
 
-class Log2Validator(GenewiseFileValidator):
-
-    def checkValue(self, value, col_index):
-        """Check a value in a sample column."""
-        # TODO check these values
-        pass
-
 class ContinuousValuesValidator(GenewiseFileValidator):
+    """Validator for matrix files mapping floats to gene/sample combinations.
 
+    Allowing missing values indicated by 'NA'.
+    """
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        # TODO check these values
-        pass
-
-
-class ExpressionValidator(GenewiseFileValidator):
-
-    def checkValue(self, value, col_index):
-        """Check a value in a sample column."""
-        # TODO check these values
-        pass
+        stripped_value = value.strip()
+        if stripped_value != 'NA' and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor NA",
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
 
 
 class FusionValidator(Validator):
@@ -1587,14 +1579,6 @@ class FusionValidator(Validator):
     def checkLine(self, data):
         super(FusionValidator, self).checkLine(data)
         # TODO check the values
-
-
-class MethylationValidator(GenewiseFileValidator):
-
-    def checkValue(self, value, col_index):
-        """Check a value in a sample column."""
-        # TODO check these values
-        pass
 
 
 class MutationSignificanceValidator(Validator):

@@ -58,7 +58,7 @@
         <div id="cc-plots-sidebar">
             <h5>Gene</h5>
             <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
-                <select disabled id="cc_plots_gene_list" style="width:50px"></select>
+                <select disabled id="cc_plots_gene_list" style="width:80px"></select>
             </span>
             <h5>Sort By</h5>
             <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" checked/> Cancer Study
@@ -72,10 +72,10 @@
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_svg_download">SVG</button>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_data_download">Data</button>
             <h5></h5>
-            <button class="btn btn-default btn-sm disabled" type="button" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
+            <button class="btn btn-default btn-sm disabled" type="button" data-target="#cc_plots_select_study_collapse" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
                 <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span> &nbsp;Select Studies
             </button>
-            <div class="collapse" id="collapseExample">
+            <div class="collapse" id="cc_plots_select_study_collapse">
                 <div class="well" id="cc_plots_select_study_box"></div>
             </div>
         </div>

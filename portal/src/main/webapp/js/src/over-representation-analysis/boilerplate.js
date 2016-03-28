@@ -73,11 +73,11 @@ var orAnalysis = (function() {
             protein_exp: "PROTEIN_LEVEL"
         },
         col_width : {
-            gene: 170, //150
+            gene: 190, //150
             cytoband: 100,
             altered_pct: 80, //90
             unaltered_pct: 80, //90
-            log_ratio: 80,
+            log_ratio: 60,
             p_val: 80,
             q_val: 80,
             altered_mean: 95,
@@ -148,8 +148,8 @@ var orAnalysis = (function() {
             help_icon_img_src: "images/help.png"
         },
         text: {
-            mutex: "Tendency towards mutual exclusivity",
-            cooccurrence: "Tendency towards co-occurrence"
+            mutex: "Mutual exclusivity",
+            cooccurrence: "Co-occurrence"
         }
     };
 

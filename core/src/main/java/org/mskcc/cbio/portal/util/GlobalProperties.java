@@ -43,6 +43,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.net.URL;
 
 
@@ -236,6 +237,14 @@ public class GlobalProperties {
             }
         }
          
+        return resourceFIS;
+    }
+
+    private static InputStream getClasspathResourceStream() 
+    {
+        InputStream resourceFIS = null;
+
+        resourceFIS = GlobalProperties.class.getClassLoader().getResourceAsStream(GlobalProperties.propertiesFilename);
         return resourceFIS;
     }
 
@@ -708,6 +717,11 @@ public class GlobalProperties {
     
     public static String getDbVersion() {
         String version = properties.getProperty(DB_VERSION);
+        if (Pattern.matches("\\$\\{db\\.version\\}", version) || version == null) {
+            InputStream is = getClasspathResourceStream();
+            Properties cp_properties = loadProperties(is);
+            version = cp_properties.getProperty(DB_VERSION);
+        }
         if (version == null)
         {
             return "0";

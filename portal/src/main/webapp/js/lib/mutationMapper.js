@@ -12757,9 +12757,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						// need to update corresponding data sources properly
 						var model = {
 							impact: fis.value,
-							xvia: mutation.xVarLink.replace("getma.org", "mutationassessor.org"),
-							msaLink: mutation.msaLink.replace("getma.org", "mutationassessor.org"),
-							pdbLink: mutation.pdbLink.replace("getma.org", "mutationassessor.org")
+							xvia: mutation.xVarLink.replace("getma.org", "mutationassessor.org/r2"),
+							msaLink: mutation.msaLink.replace("getma.org", "mutationassessor.org/r2"),
+							pdbLink: mutation.pdbLink.replace("getma.org", "mutationassessor.org/r2")
 						};
 
 						var container = $(this).find('.qtip-content');

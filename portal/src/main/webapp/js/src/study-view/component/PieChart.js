@@ -208,7 +208,7 @@ var PieChart = function(){
             }
         });
 
-        if(category[1] === 'h1' && currentView === 'pie') {
+        if(currentView === 'pie') {
             $('#' + DIV.mainDiv).one('mouseover', function () {
                 initMainDivQtip();
             });

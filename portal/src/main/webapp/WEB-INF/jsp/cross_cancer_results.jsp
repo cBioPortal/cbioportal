@@ -206,8 +206,8 @@
                 </a>
             </li>
         </ul>
-        <div class="section" id="cc-overview">
-
+        <div class="section" id="cc-overview" style="display:none">
+            <div id="headerBar" style="display:none">
             <div id="cctitlecontainer" style="margin-left:200px;float:left"></div>
             <div>
                 <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
@@ -281,7 +281,8 @@
                         </td>
                    
             </tr>
-                </table>
+            </table>
+            </div>
             <div id="customize-controls" class="ui-widget cc-hide" style="display:none">
                 <div class="close-customize">
                     <a href="#">&times;</a>

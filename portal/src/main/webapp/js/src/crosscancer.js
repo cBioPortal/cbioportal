@@ -264,7 +264,7 @@
                             ])
                             .range([histBottom-paddingTop, 0]);
 
- 
+                            $("#headerBar").css("display", "block");
                             // Empty the content
                             $("#cchistogram").html("");
 

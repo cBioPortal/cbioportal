@@ -208,70 +208,60 @@
         </ul>
         <div class="section" id="cc-overview">
 
-            <div id="cctitlecontainer"></div>
+            <div id="cctitlecontainer" style="margin-left:200px;float:left"></div>
+            <div>
+                <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
+                <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
+            </div>
     
-    
-            <table style="width:90%">
+            <table style="width:100%;margin-top:20px;margin-bottom:20px">
 
             <tr>
                         <td style="display:none">
                             Cancer type: <select id="cancerTypes"><option value="all">All</option></select>
                         </td>
                       
-                    <td style="padding-top:20px;padding-bottom:15px;">
-                        <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
-                        <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
-                    </td>  
-                    <td width="30%" style="padding-top:20px;padding-bottom:15px;"><div>
-                    Y-Axis value: <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
-                     </div> 
-                     </td>
-                    <td width="15%" valign="top" style="padding-top:20px;padding-bottom:15px;"> 
+                    <td style="width:8%">Y-Axis value: </td>
+                    <td style="width:13%">
+                    <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
+                    </td>
+               
+                    <td style="width:13%" align="center"> 
                         <span class="diagram-general-slider-text" id="sliderLabel">Min alteration </span>
                         
                     </td>
-                    <td width="15%" valign="top" style="padding-top:25px;padding-bottom:15px;">  
-                        <div style="width:100%">
+                    <td style="width:8%">  
+                        <div style="width:95%">
                             <div id="sliderMinY"></div>
-                            <span class="diagram-general-slider-min-label" id="minLabel">0</span>
-                            <span class="diagram-general-slider-max-label" style="float:right" id="maxLabel"></span>
+                            <span style="display:none" class="diagram-general-slider-min-label" id="minLabel">0</span>
+                            <span style="display:none" class="diagram-general-slider-max-label" style="float:right" id="maxLabel"></span>
                             
                         </div>
                      </td>
-                    <td valign="top" style="padding-top:20px;padding-bottom:15px;padding-left:5px">
-                        <input id="minY" size="4" type="text">
+                    <td style="width:5%">
+                        <input id="minY" size="3" type="text">
                     </td>
-            </tr>
-    
-                  
-            
-                    <tr>
-                         <td>
-                            <span id="no-colors-control">
-                                <input type="checkbox" id="histogram-show-colors" checked>
-                                <label for="histogram-show-colors">Show alteration types</label>
-                            </span>
-                        </td>
-                
-                        <td width="30%" valign="top">Sort x-axis by: <select id="sortBy">
-                                                    <option value="YAxis">Y-Axis values</option>
-                                                    <option value="CancerTypes">Cancer studies</option>
-                                            </select>
-                     </td>
-                       <td width="15%" valign="top"> 
+                        
+                       <td style="width:12%"> 
                         <span class="diagram-general-slider-text" >Min total samples # </span>
                        
                     </td>
-                    <td width="15%" valign="top" style="padding-top:5px;">  
-                        <div style="width:100%">
+                    <td style="width:8%">  
+                        <div style="width:95%">
                             <div id="totalSampleSlider"></div>
-                            <span class="diagram-general-slider-min-label">0</span>
-                            <span class="diagram-general-slider-max-label" style="float:right" id="maxLabelTotalSample"></span>
+                            <span style="display:none" class="diagram-general-slider-min-label">0</span>
+                            <span style="display:none" class="diagram-general-slider-max-label" style="float:right" id="maxLabelTotalSample"></span>
                             
                         </div>
                     </td>
-                    <td valign="top" style="padding-left:5px;">
-                        <input id="minTotal" size="4" type="text">
+                    <td style="width:5%">
+                        <input id="minTotal" size="3" type="text">
+                    </td>
+                    <td style="width:15%">
+                           <input type="checkbox" id="histogram-show-colors" checked> Show alteration types
+                    </td>
+                    <td style="width:13%">
+                            <input type="checkbox" id="sortBy"> Sort Alphebetically
                     </td>
                     </tr>
             

@@ -99,7 +99,7 @@
             var cancerTypes = $("#cancerTypes").val(), cancerTypeCheck = true;
             
             var type = $("#yAxis").val();
-            var sortBy = $("#sortBy").val();
+            //var sortBy = $("#sortBy").val();
             
             var histData = [];
             _.each(histDataOrg, function(study) {
@@ -125,7 +125,7 @@
                 if(study.alterations.cnaGain > 0) { isThereGain = true; }
             });
 
-            if(sortBy === "YAxis"){
+            if(!$('#sortBy').is(':checked')){
                 if(type === "Frequency"){
                     histData.sort(function(a, b) {
                               return calculateFrequency(b, 0, "all") - calculateFrequency(a, 1, "all");
@@ -136,7 +136,7 @@
                     });
                 }
 
-            }else if(sortBy === "CancerTypes"){
+            }else{
                     histData.sort(function(a, b) {
                         return metaData.cancer_studies[b.studyId].short_name < metaData.cancer_studies[a.studyId].short_name;
                     });
@@ -726,7 +726,7 @@
                                 if(firstEnterFlag)
                                 {
                                     sliderValue = 1e-5;
-                                    firstEnterFlag = false;
+                                    
                                 }
                                 histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
                             
@@ -1030,7 +1030,8 @@
                        
                             
                             $("#yAxis").on("change", function(){
-                                $("#sliderMinY").slider({value: 0});
+                          
+                            $("#sliderMinY").slider({value: 0});
                                maxYAxis = 0;
                                if($("#yAxis").val() === "Frequency"){
                                    for(var i = 0;i < histDataOrg.length;i++){
@@ -1064,12 +1065,14 @@
                             });
                             
                             $("#sliderMinY").on("slidechange", function(e, ui){
+                                firstEnterFlag = false;
                                 var tempStr = ui.value + ($("#yAxis").val() === "Frequency" ? "%" : "");
                                  
                                 redrawHistogram();
                                 
                             });
                             $("#minY").on("keyup", function(e){
+                                firstEnterFlag = false;
                                 if(e.keyCode == 13)
                                 {
                                     $("#sliderMinY").slider({value: $("#minY").val()});
@@ -1077,6 +1080,7 @@
                                 }
                             });
                             $("#minTotal").on("keyup", function(e){
+                                firstEnterFlag = false;
                                 if(e.keyCode == 13)
                                 {
                                     $("#totalSampleSlider").slider({value: $("#minTotal").val()});
@@ -1085,7 +1089,7 @@
                             });
                             
                             $("#totalSampleSlider").on("slidechange", function(e, ui){
-                                
+                                firstEnterFlag = false;
                                 redrawHistogram();
                                 
                             });

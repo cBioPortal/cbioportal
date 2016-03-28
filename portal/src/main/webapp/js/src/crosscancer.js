@@ -53,8 +53,8 @@
         var histBottom = 400;
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
-	    var maxStudyBarWidth = 30;
-
+	var maxStudyBarWidth = 30;
+        var firstEnterFlag = true;
         var defaultQTipOptions = {
             content: {
                 text: "Default qtip text"
@@ -85,28 +85,64 @@
 
         var isThereHetLoss = false;
         var isThereGain = false;
-        var filterAndSortData = function(histDataOrg) {
+        var filterAndSortData = function(histDataOrg, sliderValue, metaData, totalSamSliderValue) {
+            var threshold = 0;
+            if(!_.isNaN(sliderValue) && !_.isUndefined(sliderValue) && sliderValue !== null){
+                threshold = sliderValue;
+            }
+            
+            var totalSamThreshold = 0;
+            if(!_.isNaN(totalSamSliderValue) && !_.isUndefined(totalSamSliderValue) && totalSamSliderValue !== null){
+                totalSamThreshold = totalSamSliderValue;
+            }
+    
+            var cancerTypes = $("#cancerTypes").val(), cancerTypeCheck = true;
+            
+            var type = $("#yAxis").val();
+            //var sortBy = $("#sortBy").val();
+            
             var histData = [];
             _.each(histDataOrg, function(study) {
+                cancerTypeCheck = true; 
                 var showStudy = $("#histogram-remove-study-" + study.studyId).is(":checked");
-                if(!study.skipped && showStudy)
-                    histData.push(study);
-
+                if(cancerTypes !== "all" && metaData.type_of_cancers[metaData.cancer_studies[study.studyId].type_of_cancer] !== cancerTypes){
+                    cancerTypeCheck = false;
+                }    
+     
+                if(!study.skipped && showStudy && cancerTypeCheck){
+                if(type === "Frequency"){
+                    if(calculateFrequency(study, 0, "all") >= threshold/100 && study.caseSetLength >= totalSamThreshold){
+                        histData.push(study);
+                    }
+                }else if(type === "Count"){
+                    if(study.alterations["all"] >= threshold && study.caseSetLength >= totalSamThreshold){
+                        histData.push(study);
+                    }
+                } 
+            }
+     
                 if(study.alterations.cnaLoss > 0) { isThereHetLoss = true; }
                 if(study.alterations.cnaGain > 0) { isThereGain = true; }
             });
 
-            switch($("#histogram-sort-by").val()) {
-                case "alteration":
-                    // Sort by total number of frequency
+            if(!$('#sortBy').is(':checked')){
+                if(type === "Frequency"){
                     histData.sort(function(a, b) {
-                         return calculateFrequency(b, 0, "all") - calculateFrequency(a, 1, "all");
+                              return calculateFrequency(b, 0, "all") - calculateFrequency(a, 1, "all");
                     });
-                    break;
-                case "name":
-                    break; // keep the order
-            }
+                }else if(type === "Count"){
+                    histData.sort(function(a, b) {
+                        return b.alterations["all"] - a.alterations["all"];    
+                    });
+                }
 
+            }else{
+                    histData.sort(function(a, b) {
+                        return metaData.cancer_studies[b.studyId].short_name < metaData.cancer_studies[a.studyId].short_name;
+                    });
+            }
+            
+            
             return histData;
         };
 
@@ -132,6 +168,7 @@
                     $("#cc-mutations-link").parent().show();
                 }
 
+             
                 var genes = this.model.genes;
                 var orgQuery = this.model.genes;
 		var study_list = this.model.study_list;
@@ -155,7 +192,17 @@
                                     studies: histDataOrg
                                 }
                             })).render();
-                            var histData = filterAndSortData(histDataOrg);
+                            
+                            
+                            var cancerTypes = _.uniq(_.map(histDataOrg, function(e){return metaData.type_of_cancers[metaData.cancer_studies[e.studyId].type_of_cancer];}));
+                            _.each(cancerTypes, function(value){
+                                $('#cancerTypes')
+                                    .append($("<option></option>")
+                                    .attr("value",value)
+                                    .text(value)); 
+                            });
+
+                            var histData = filterAndSortData(histDataOrg, null ,metaData, null);
 
                             (new DownloadSummaryView({
                                 model: {
@@ -195,18 +242,29 @@
                                 return d.studyId;
                             };
 
+                            var tempArr = _.map(histData, function(e){return e.caseSetLength;});
+                            var maxtotalSample = Math.max.apply(null, tempArr);  
+                            var maxYAxis = 0;
+                            switch($("#yAxis").val()) {
+                                case "Frequency":
+                                    maxYAxis = Math.min(calculateFrequency(histData[0], 0, "all") + .05, 1.0);
+
+                                    break;
+                                case "Count":
+                                    
+                                    maxYAxis = histData[0].alterations["all"];
+
+                                    break; // keep the order
+                            }
+
                             var yScale = d3.scale.linear()
                                 .domain([
-                                0,
-                                Math.min(
-                                    1.0,
-                                    parseFloat(d3.max(histData, function (d, i) {
-                                        return fixFloat(calculateFrequency(d, i, "all"), 1);
-                                    })) + .05
-                                )
+                                0, maxYAxis
+                                
                             ])
                             .range([histBottom-paddingTop, 0]);
 
+                            $("#headerBar").css("display", "block");
                             // Empty the content
                             $("#cchistogram").html("");
 
@@ -221,7 +279,7 @@
                                 .scale(yScale)
                                 .orient("left");
 
-                            var otherBarGroup = histogram.append("g");
+                            var otherBarGroup = histogram.append("g").attr("id", "otherBarGroup");
                             otherBarGroup.selectAll("rect")
                                 .data(histData, key)
                                 .enter()
@@ -238,7 +296,7 @@
                                 .attr("class", function(d, i) { return d.studyId + " alt-other" })
                             ;
 
-                            var mutBarGroup = histogram.append("g");
+                            var mutBarGroup = histogram.append("g").attr("id", "mutBarGroup");
                             mutBarGroup.selectAll("rect")
                                 .data(histData, key)
                                 .enter()
@@ -260,7 +318,7 @@
                                 .attr("class", function(d, i) { return d.studyId + " alt-mut" })
                             ;
 
-                            var cnalossBarGroup = histogram.append("g");
+                            var cnalossBarGroup = histogram.append("g").attr("id", "cnalossBarGroup");
                             cnalossBarGroup.selectAll("rect")
                                 .data(histData, key)
                                 .enter()
@@ -285,7 +343,7 @@
                             ;
 
 
-                            var cnadownBarGroup = histogram.append("g");
+                            var cnadownBarGroup = histogram.append("g").attr("id", "cnadownBarGroup");
                             cnadownBarGroup.selectAll("rect")
                                 .data(histData, key)
                                 .enter()
@@ -310,7 +368,7 @@
                                 .attr("class", function(d, i) { return d.studyId + " alt-cnadown" })
                             ;
 
-                            var cnaupBarGroup = histogram.append("g");
+                            var cnaupBarGroup = histogram.append("g").attr("id", "cnaupBarGroup");
                             cnaupBarGroup.selectAll("rect")
                                 .data(histData, key)
                                 .enter()
@@ -336,7 +394,7 @@
                                 .attr("class", function(d, i) { return d.studyId + " alt-cnaup" })
                             ;
 
-                            var cnagainBarGroup = histogram.append("g");
+                            var cnagainBarGroup = histogram.append("g").attr("id", "cnagainBarGroup");
                             cnagainBarGroup.selectAll("rect")
                                 .data(histData, key)
                                 .enter()
@@ -363,7 +421,7 @@
                                 .attr("class", function(d, i) { return d.studyId + " alt-cnagain" })
                             ;
 
-                            var infoBarGroup = histogram.append("g");
+                            var infoBarGroup = histogram.append("g").attr("id", "infoBarGroup");
                             infoBarGroup.selectAll("rect")
                                 .data(histData, key)
                                 .enter()
@@ -540,10 +598,11 @@
                             // Add axis label
                             histogram.append("g")
                                 .selectAll("text")
-                                .data(["Alteration frequency"])
+                                .data(["Alteration Frequency"])
                                 .enter()
                                 .append("text")
                                 .text(function(d, i) { return d; })
+                                .attr("id", "yAxisTitle")
                                 .attr("font-family", fontFamily)
                                 .attr("font-size", "13px")
                                 .attr("x", labelCorX)
@@ -633,31 +692,66 @@
                                }
                             })).render();
 
-                            var redrawHistogram = function() {
-                                histData = filterAndSortData(histDataOrg);
-
+                            //only show none zero alteration study
+                            $("#sliderMinY").slider({ 
+                                value: 0,
+                                min: 0, 
+                                max: Math.ceil(100*maxYAxis)
+                             });
+                             $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
+                             
+                             $("#totalSampleSlider").slider({ 
+                                value: 0,
+                                min: 0, 
+                                max: maxtotalSample
+                             });
+                             $("#maxLabelTotalSample").text(maxtotalSample);
+                           
+                            var redrawHistogram = function() { 
+                                
+                                var sliderValue = $("#sliderMinY").slider("value");
+                                var totalSamSliderValue = $("#totalSampleSlider").slider("value");
+                                 
+                                $("#minY").val(sliderValue);
+                                $("#minTotal").val(totalSamSliderValue);
+                                // Add axis label
+                                histogram.select("#yAxisTitle")
+                                    .text( $("#yAxis").val() === "Frequency" ? "Alteration Frequency" : "Count")
+                                    .attr("font-family", fontFamily)
+                                    .attr("font-size", "13px")
+                                    .attr("x", labelCorX)
+                                    .attr("y", labelCorY)
+                                    .attr("transform", "rotate(-90, " + labelCorX + ", " + labelCorY +")")
+                                ;
+                                if(firstEnterFlag)
+                                {
+                                    sliderValue = 1e-5;
+                                    
+                                }
+                                histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
+                            
 				studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
 				studyLocIncrements = studyWidth / .75;
                                 // Data type radius
                                 circleDTR = studyWidth / 4;
                                 // Tumor type radius
                                 circleTTR = Math.min(studyWidth, 20) / 2;
+                                //auto adjust left padding to solve the truncating x label problem
+                               var fontSize = Math.min((studyWidth * .65), 12);
+                      
+                               var maxLabelLength = 0;
+                               for(var i=0; i<histData.length; i++){
+                                   var currentName = getStudyAbbr(histData[i], metaData);
+                                   if(currentName.length > maxLabelLength) maxLabelLength = currentName.length;
+                               }
+                               var fontSpace = maxLabelLength*fontSize*0.5;
+                               paddingLeft = Math.max(fontSpace-80, paddingLeft);
 
                                 var stacked = $("#histogram-show-colors").is(":checked");
                                 var outX = width + 1000;
-
-                                yScale
-                                    .domain([
-                                    0,
-                                    Math.min(
-                                        1.0,
-                                        parseFloat(d3.max(histData, function (d, i) {
-                                            return fixFloat(calculateFrequency(d, i, "all"), 1);
-                                        })) + .05
-                                    )
-                                ])
-                                .range([histBottom-paddingTop, 0]);
-
+                               
+                                yScale.domain([0, maxYAxis ]).range([histBottom-paddingTop, 0]);
+ 
                                 yAxisEl
                                     .transition()
                                     .duration(animationDuration)
@@ -671,7 +765,16 @@
                                     .attr("font-family", fontFamily)
                                     .attr("font-size", "11px")
                                     .each(function(d, i) {
-                                        $(this).text(fixFloat($(this).text() * 100, 1) + "%" );
+                                        switch($("#yAxis").val()){
+                                            case "Frequency":
+                                                $(this).text(fixFloat($(this).text() * 100, 1) + "%" );
+                                                break;
+                                            case "Count":
+                                                $(this).text();
+                                                break;
+                                            
+                                        }
+                                        
                                     });
 
                                 var obg = otherBarGroup.selectAll("rect").data(histData, key);
@@ -683,10 +786,10 @@
                                 obg.transition()
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-                                    .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "other")) + paddingTop; })
+                                    .attr("y", function(d, i) { return yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "other") : d.alterations["other"]) + paddingTop; })
                                     .attr("width", studyWidth)
                                     .attr("height", function(d, i) {
-                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other"));
+                                        return (histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "other") : d.alterations["other"]);
                                     })
                                 ;
 
@@ -700,13 +803,13 @@
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                     .attr("y", function(d, i) {
-                                        return yScale(calculateFrequency(d, i, "mutation"))
-                                            - ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                        return yScale($("#yAxis").val() === "Frequency"? calculateFrequency(d, i, "mutation") : d.alterations["mutation"])
+                                            - ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "other") : d.alterations["other"]))
                                             + paddingTop;
                                     })
                                     .attr("width", studyWidth)
                                     .attr("height", function(d, i) {
-                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation"));
+                                        return (histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "mutation") : d.alterations["mutation"]);
 
                                     })
                                 ;
@@ -723,16 +826,16 @@
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                     .attr("y", function(d, i) {
-                                        return yScale(calculateFrequency(d, i, "cnaLoss"))
+                                        return yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaLoss") : d.alterations["cnaLoss"])
                                             - (
-                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                            ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "mutation") : d.alterations["mutation"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "other") : d.alterations["other"]))
                                             )
                                             + paddingTop;
                                     })
                                     .attr("width", studyWidth)
                                     .attr("height", function(d, i) {
-                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss"));
+                                        return (histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaLoss") : d.alterations["cnaLoss"]);
                                     })
                                 ;
 
@@ -749,17 +852,17 @@
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                     .attr("y", function(d, i) {
-                                        return yScale(calculateFrequency(d, i, "cnaDown"))
+                                        return yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaDown") : d.alterations["cnaDown"])
                                             - (
-                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
+                                            ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "mutation") : d.alterations["mutation"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "other") : d.alterations["other"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaLoss") : d.alterations["cnaLoss"]))
                                             )
                                             + paddingTop;
                                     })
                                     .attr("width", studyWidth)
                                     .attr("height", function(d, i) {
-                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown"));
+                                        return (histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaDown") : d.alterations["cnaDown"]);
                                     })
                                 ;
 
@@ -775,18 +878,18 @@
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                     .attr("y", function(d, i) {
-                                        return yScale(calculateFrequency(d, i, "cnaUp"))
+                                        return yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaUp") : d.alterations["cnaUp"])
                                             - (
-                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown")))
+                                            ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "mutation") : d.alterations["mutation"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "other") : d.alterations["other"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaLoss") : d.alterations["cnaLoss"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaDown") : d.alterations["cnaDown"]))
                                             )
                                             + paddingTop;
                                     })
                                     .attr("width", studyWidth)
                                     .attr("height", function(d, i) {
-                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaUp"));
+                                        return (histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaUp") : d.alterations["cnaUp"]);
                                     })
                                 ;
 
@@ -802,19 +905,19 @@
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                     .attr("y", function(d, i) {
-                                        return yScale(calculateFrequency(d, i, "cnaGain"))
+                                        return yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaGain") : d.alterations["cnaGain"])
                                             - (
-                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown")))
-                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaUp")))
+                                            ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "mutation") : d.alterations["mutation"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "other") : d.alterations["other"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaLoss") : d.alterations["cnaLoss"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaDown") : d.alterations["cnaDown"]))
+                                                + ((histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaUp") : d.alterations["cnaUp"]))
                                             )
                                             + paddingTop;
                                     })
                                     .attr("width", studyWidth)
                                     .attr("height", function(d, i) {
-                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaGain"));
+                                        return (histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "cnaGain") : d.alterations["cnaGain"]);
                                     })
                                 ;
 
@@ -829,10 +932,10 @@
                                     .transition()
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-                                    .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "all")) + paddingTop; })
+                                    .attr("y", function(d, i) { return yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "all") : d.alterations["all"]) + paddingTop; })
                                     .attr("width", studyWidth)
                                     .attr("height", function(d, i) {
-                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "all"));
+                                        return (histBottom-paddingTop) - yScale($("#yAxis").val() === "Frequency" ? calculateFrequency(d, i, "all") : d.alterations["all"]);
                                     })
                                     .style("opacity", stacked ? 0 : 1)
                                 ;
@@ -911,7 +1014,8 @@
                                     .style("opacity", stacked ? 1 : 0)
                                 ;
                             }; // end of redraw
-
+                            
+                         
                             $("#histogram-show-colors, #histogram-sort-by, #cancerbycancer-controls input")
                                 .change(function() {
                                     redrawHistogram();
@@ -919,6 +1023,78 @@
                                })
                             ;
 
+                            
+                            $("#sortBy").change(function(){
+                                redrawHistogram();
+                            });
+                       
+                            
+                            $("#yAxis").on("change", function(){
+                          
+                            $("#sliderMinY").slider({value: 0});
+                               maxYAxis = 0;
+                               if($("#yAxis").val() === "Frequency"){
+                                   for(var i = 0;i < histDataOrg.length;i++){
+                                            if(calculateFrequency(histDataOrg[i], 0, "all") + .05 > maxYAxis){
+                                                maxYAxis = calculateFrequency(histDataOrg[i], 0, "all") + .05;
+                                            }
+                                    }
+                                    maxYAxis = Math.min(maxYAxis, 1.0);
+                                    $("#sliderLabel").text("Min alteration ");
+                                    $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
+                                    $("#sliderMinY").slider( "option", "max", Math.ceil(100*maxYAxis) );
+                                     
+                               }else if($("#yAxis").val() === "Count"){
+                                   for(var i = 0;i < histDataOrg.length;i++){
+                                        if(histDataOrg[i].alterations["all"] > maxYAxis){
+                                            maxYAxis = histDataOrg[i].alterations["all"];
+                                        }
+                                    }
+
+                                    $("#sliderLabel").text("Min altered samples #");
+                                    $("#maxLabel").text(maxYAxis);
+                                    $("#sliderMinY").slider( "option", "max", maxYAxis );
+                                     
+                               }
+                                
+                                redrawHistogram();
+                            });
+                            $("#cancerTypes").on("change", function(){
+                                 
+                                redrawHistogram();
+                            });
+                            
+                            $("#sliderMinY").on("slidechange", function(e, ui){
+                                firstEnterFlag = false;
+                                var tempStr = ui.value + ($("#yAxis").val() === "Frequency" ? "%" : "");
+                                 
+                                redrawHistogram();
+                                
+                            });
+                            $("#minY").on("keyup", function(e){
+                                firstEnterFlag = false;
+                                if(e.keyCode == 13)
+                                {
+                                    $("#sliderMinY").slider({value: $("#minY").val()});
+                                    redrawHistogram();
+                                }
+                            });
+                            $("#minTotal").on("keyup", function(e){
+                                firstEnterFlag = false;
+                                if(e.keyCode == 13)
+                                {
+                                    $("#totalSampleSlider").slider({value: $("#minTotal").val()});
+                                    redrawHistogram(); 
+                                }
+                            });
+                            
+                            $("#totalSampleSlider").on("slidechange", function(e, ui){
+                                firstEnterFlag = false;
+                                redrawHistogram();
+                                
+                            });
+
+                             
                             $("#cc-select-all").click(function(e) {
                                 $("#histogram-remove-notaltered").prop("checked", false);
                                 e.preventDefault();
@@ -955,7 +1131,7 @@
 
 			    // By default hide unaltered studies and animate this to warn user about this change
 			    if( $("#histogram-remove-notaltered").trigger("click") ) {
-                                setTimeout(redrawHistogram, 3000);
+                                setTimeout(redrawHistogram, 500);
 			    }
 
                             // Let's load the mutation details as well
@@ -1190,6 +1366,7 @@
 		    data: {gene_list: genes, data_priority:priority, cancer_study_list:study_list}
                 }); // Done with the histogram
 
+                
                 $("#customize-controls .close-customize a").click(function(e) {
                     e.preventDefault();
                     $("#customize-controls").slideToggle();
@@ -1197,7 +1374,10 @@
 
                 return this;
             }
+           
         });
+
+
 
         var DownloadSummaryView = Backbone.View.extend({
             el: "#cc-download-text",
@@ -1416,7 +1596,7 @@
                 return this;
             }
         });
-
+        var mainViewInstance = new MainView();
         /* Routers */
         AppRouter = Backbone.Router.extend({
             routes: {
@@ -1429,14 +1609,13 @@
             },
 
             mainView: function(tab, priority, genes, study_list) {
-                (new MainView({
-                    model: {
+                mainViewInstance.model = {
                         tab: tab,
                         priority: priority,
                         genes: genes.replace(/_/g, "/"),
 			study_list: study_list
-                    }
-                })).render();
+                    };
+                mainViewInstance.render();
             }
         });
 
@@ -1444,5 +1623,5 @@
         Backbone.history.start();
     });
 
-})(window.jQuery, window._, window.Backbone, window.d3);
 
+})(window.jQuery, window._, window.Backbone, window.d3);

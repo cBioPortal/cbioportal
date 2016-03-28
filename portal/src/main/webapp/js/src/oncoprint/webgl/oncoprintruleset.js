@@ -191,6 +191,40 @@ var non_mutation_rule_params = {
 };
 
 var distinguish_mutation_rule_params = {
+    'mut_recurrent': {
+	'true': {
+	    /*shapes: [{
+		    'type': 'line',
+		    'stroke-width':1,
+		    'stroke': '#222222',
+		    'x1':'0%',
+		    'y1':'33.33%',
+		    'x2':'100%',
+		    'y2':'66.66%',
+		    'z': 6,
+	    },
+	    {
+		    'type': 'line',
+		    'stroke-width':1,
+		    'stroke': '#222222',
+		    'x1':'100%',
+		    'y1':'33.33%',
+		    'x2':'0%',
+		    'y2':'66.66%',
+		    'z': 6,
+	    }],*/
+	    shapes: [{
+		     'type': 'rectangle',
+		    'fill': '#ffffff',
+		    'x': '40%',
+		    'y': '40%',
+		    'width': '20%',
+		    'height': '20%',
+		    'z': 6,
+	    }],
+	    exclude_from_legend: true,
+	}
+    },
     'mut_type': {
 	'MISSENSE': {
 	    shapes: [{

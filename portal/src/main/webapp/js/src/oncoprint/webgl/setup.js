@@ -60,6 +60,9 @@ var tooltip_utils = {
 	    var ret = '';
 	    if (d.mutation) {
 		ret += 'Mutation: <b>' + d.mutation + '</b><br>';
+		if (d.mut_recurrent) {
+		    ret += '<i>Contains mutation at a recurrently mutated position.</i><br>';
+		}
 	    }
 	    if (d.cna) {
 		ret += 'Copy Number Alteration: <b>' + d.cna + '</b><br>';
@@ -1475,11 +1478,13 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					render: function (event) {
 						$('body').on('click', '.oncoprint-diagram-download', function () {
 							var fileType = $(this).attr("type");
+							var two_megabyte_limit = 2000000;
 							if (fileType === 'pdf')
 							{
 								var svg = oncoprint.toSVG();
-								if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PDF - please download as SVG, then convert to PDF using your program of choice.");
+								
+								if (xml_serializer.serializeToString(svg).length > two_megabyte_limit) {
+								    alert("Oncoprint too big to download as PDF - please download as SVG, then save as PDF using your program of choice.");
 								    return;
 								}
 								var downloadOptions = {
@@ -1496,8 +1501,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 							} else if (fileType === 'png')
 							{
 							    var svg = oncoprint.toSVG(true);
-							    if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PNG - please download as SVG, then convert to PNG using your program of choice.");
+							    if (xml_serializer.serializeToString(svg).length > two_megabyte_limit) {
+								    alert("Oncoprint too big to download as PNG - please download as SVG, then save as PNG using your program of choice.");
 								    return;
 							    }
 							    var downloadOptions = {

@@ -124,6 +124,10 @@ public class GeneticProfileReader {
       if (stableId == null) {
          throw new IllegalArgumentException("stable_id is not specified.");
       }
+      
+      if (!stableId.startsWith(cancerStudyIdentifier + "_")) {
+          stableId = cancerStudyIdentifier + "_" + stableId;
+      }
 
       String profileName = properties.getProperty("profile_name");
       String profileDescription = properties.getProperty("profile_description");

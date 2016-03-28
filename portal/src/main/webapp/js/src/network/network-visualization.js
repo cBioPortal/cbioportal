@@ -52,28 +52,28 @@ function NetworkVis(divId)
       INTERACTS_WITH :                       { name: "interacts-with",                  color: '#6AB0CC' , desc: 'Interacts With'},
       NEIGHBOR_OF :                          { name: "neighbor-of",                     color: '#AB5471' , desc: 'Neighbor of'},
       REACTS_WITH :                          { name: "reacts-with",                     color: '#B2D180' , desc: 'Reacts With'},
-      TARGETED_BY_DRUG :                     { name: "targeted-by-drug",                color: '#CCAB5A' , desc: 'Targeted by Drug'},
+      DRUG_TARGET :                          { name: "DRUG_TARGET",                     color: '#CCAB5A' , desc: 'Targeted by Drug'},
       OTHER :                                { name: "other",                           color: '#999999' , desc: 'Other'},
     };
 
     //
     this.visibilityOfType =
     {
-      CONTROLS_STATE_CHANGE_OF : true,
+      CONTROLS_STATE_CHANGE_OF : false,
       CONTROLS_TRANSPORT_OF :false,
       CONTROLS_PHOSPHORYLATION_OF :false,
-      CONTROLS_EXPRESSION_OF :true,
+      CONTROLS_EXPRESSION_OF :false,
       CATALYSIS_PRECEDES : false,
       CONSUMPTION_CONTROLED_BY :false,
       CONTROLS_PRODUCTION_OF : false,
       CONTROLS_TRANSPORT_OF_CHEMICAL : false,
       USED_TO_PRODUCE :false,
       CHEMICAL_AFFECTS :false,
-      IN_COMPLEX_WITH :true,
+      IN_COMPLEX_WITH :false,
       INTERACTS_WITH :false,
       NEIGHBOR_OF :false,
       REACTS_WITH :false,
-      TARGETED_BY_DRUG :false,
+      DRUG_TARGET :false,
       OTHER :false
     };
 
@@ -1564,7 +1564,6 @@ NetworkVis.prototype.dropDownVisibility = function(element)
             this._filteredByDropDown[element._private.data.id] = element;
             this._alreadyFiltered[element._private.data.id] = element;
         }
-
     }
 
     return visible;
@@ -2197,10 +2196,18 @@ NetworkVis.prototype._edgeTypeArray = function()
 {
     var typeArray = {};
 
-    // by default edges that are marked as true in visibilityOfType array is visible
-    for (var key in this.edgeTypeConstants)
+    var edges = this._vis.edges();
+
+    for (var i = 0; i < edges.length; i++)
     {
-      typeArray[this.edgeTypeConstants[key].name] = this.visibilityOfType[key];
+       if(edges[i]._private.data.type != null)
+       {
+            var type = edges[i]._private.data.type.toUpperCase();
+            type = type.replace(/-/g, '_');
+            // by default every edge type is visible
+            typeArray[type] = true;
+            this.visibilityOfType[type] = true;
+        }
     }
 
     return typeArray;
@@ -2232,9 +2239,6 @@ NetworkVis.prototype._edgeSourceArray = function()
                 {
                   // by default every edge source is visible
                   sourceArray[sources[j]] = true;
-                  this.visibilityOfSource[sources[j]] = true;
-
-                  // by default every edge source selection is visible in UI
                   this.visibilityOfSource[sources[j]] = true;
                 }
             }
@@ -3130,6 +3134,7 @@ NetworkVis.prototype._refreshRelationsTabUIVisibility = function()
       if (this.visibilityOfType[key])
       {
           // do not display OTHER if its percentage is zero
+          console.log(this.edgeTypeConstants[key].name);
           this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), true);
 
           // also do not display it in the edge legend
@@ -3230,7 +3235,7 @@ NetworkVis.prototype._refreshRelationsTab = function()
 
 
     //Hide interaction types with 0 percent !
-    /*for (var key in this.edgeTypeConstants)
+    for (var key in this.edgeTypeConstants)
     {
       if (percentages[this.edgeTypeConstants[key].name] === 0)
       {
@@ -3245,7 +3250,7 @@ NetworkVis.prototype._refreshRelationsTab = function()
           this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), true);
           //_setComponentVis($("#edge_legend .other"), true);
       }
-    }*/
+    }
 
     // calculate percentages and add content to the tab
     var percent;

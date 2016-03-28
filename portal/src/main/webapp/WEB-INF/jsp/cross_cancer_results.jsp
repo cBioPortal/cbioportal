@@ -80,6 +80,7 @@
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
 <link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
@@ -119,6 +120,7 @@
                 </div>
             </div>
             <!-- end results container -->
+       
         </td>
     </tr>
 </table>
@@ -204,41 +206,67 @@
                 </a>
             </li>
         </ul>
-        <div class="section" id="cc-overview">
+        <div class="section" id="cc-overview" style="display:none">
+            <div id="headerBar" style="display:none">
+            <div id="cctitlecontainer" style="margin-left:200px;float:left"></div>
+            <div>
+                <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
+                <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
+            </div>
+    
+            <table style="width:100%;margin-top:20px;margin-bottom:20px">
 
-            <div id="cctitlecontainer"></div>
-
-            <div id="customize-controls" class="ui-widget cc-hide">
-                <div class="close-customize">
-                    <a href="#">&times;</a>
-                </div>
-                <h3>Customize histogram</h3>
-                <table>
-                    <tr>
-                        <td>
-                            <span id="no-alterations-control">
-                                <input type="checkbox" id="histogram-remove-notaltered">
-                                <label for="histogram-remove-notaltered">Hide studies with no alteration</label>
-                            </span>
+            <tr>
+                        <td style="display:none">
+                            Cancer type: <select id="cancerTypes"><option value="all">All</option></select>
                         </td>
-                        <td>
-                            <span id="no-colors-control">
-                                <input type="checkbox" id="histogram-show-colors" checked>
-                                <label for="histogram-show-colors">Show alteration types</label>
-                            </span>
-                        </td>
-                        <td>
-                            <span id="sort-by-control">
-                                Sort by:
-                                <select id="histogram-sort-by">
-                                    <option value="alteration">Alteration frequency</option>
-                                    <option value="name">Cancer study name</option>
-                                </select>
-                            </span>
-                        </td>
+                      
+                    <td style="width:8%">Y-Axis value: </td>
+                    <td style="width:13%">
+                    <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
+                    </td>
+               
+                    <td style="width:13%" align="center"> 
+                        <span class="diagram-general-slider-text" id="sliderLabel">Min alteration </span>
+                        
+                    </td>
+                    <td style="width:8%">  
+                        <div style="width:95%">
+                            <div id="sliderMinY"></div>
+                            <span style="display:none" class="diagram-general-slider-min-label" id="minLabel">0</span>
+                            <span style="display:none" class="diagram-general-slider-max-label" style="float:right" id="maxLabel"></span>
+                            
+                        </div>
+                     </td>
+                    <td style="width:5%">
+                        <input id="minY" size="3" type="text">
+                    </td>
+                        
+                       <td style="width:12%"> 
+                        <span class="diagram-general-slider-text" >Min total samples # </span>
+                       
+                    </td>
+                    <td style="width:8%">  
+                        <div style="width:95%">
+                            <div id="totalSampleSlider"></div>
+                            <span style="display:none" class="diagram-general-slider-min-label">0</span>
+                            <span style="display:none" class="diagram-general-slider-max-label" style="float:right" id="maxLabelTotalSample"></span>
+                            
+                        </div>
+                    </td>
+                    <td style="width:5%">
+                        <input id="minTotal" size="3" type="text">
+                    </td>
+                    <td style="width:15%">
+                           <input type="checkbox" id="histogram-show-colors" checked> Show alteration types
+                    </td>
+                    <td style="width:13%">
+                            <input type="checkbox" id="sortBy"> Sort Alphebetically
+                    </td>
                     </tr>
-                    <tr>
-                        <td colspan="3">
+            
+            <tr style="display:none">
+                    <td colspan="4">
                             <div id="show-hide-studies">
                                 <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
                                 <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
@@ -251,8 +279,16 @@
                                 <br>
                             </div>
                         </td>
-                    </tr>
-                </table>
+                   
+            </tr>
+            </table>
+            </div>
+            <div id="customize-controls" class="ui-widget cc-hide" style="display:none">
+                <div class="close-customize">
+                    <a href="#">&times;</a>
+                </div>
+                <h3>Customize histogram</h3>
+                
             </div>
 
             <div id="cchistogram">
@@ -306,6 +342,7 @@
         </label>
     </div>
 </script>
+
 
 <script type="text/template" id="studies-with-no-data-item-tmpl">
     <li>{{name}}</li>
@@ -396,9 +433,8 @@
     <b class="cctitle">
         Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
-    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
-    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
-    <button id="histogram-customize">Customize histogram</button>
+    
+<!--    <button id="histogram-customize">Customize histogram</button>-->
 </script>
 
 <!-- Mutation views -->

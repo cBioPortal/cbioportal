@@ -22,6 +22,8 @@ RUN chkconfig mysqld on; \
 # ADD Default Config		#
 #===========================#
 RUN cp /cbioportal/docker/config/* /cbioportal/src/main/resources/; \
+	cp /cbioportal/src/main/resources/portal.properties.EXAMPLE /cbioportal/src/main/resources/portal.properties; \
+	cp /cbioportal/src/main/resources/log4j.properties.EXAMPLE /cbioportal/src/main/resources/log4j.properties; \
 	source /root/.bash_profile; /bin/cp -u --force /cbioportal/docker/config/context.xml $CATALINA_HOME/conf/context.xml;
 #===========================#
 # Build From Source			#

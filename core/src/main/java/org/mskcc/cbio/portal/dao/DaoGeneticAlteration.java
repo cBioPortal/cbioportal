@@ -118,7 +118,7 @@ public class DaoGeneticAlteration {
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_alteration (GENETIC_PROFILE_ID, " +
                             " ENTREZ_GENE_ID," +
-                            " VALUES) "
+                            " `VALUES`) "
                             + "VALUES (?,?,?)");
             pstmt.setInt(1, geneticProfileId);
             pstmt.setLong(2, entrezGeneId);

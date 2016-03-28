@@ -967,7 +967,7 @@ var getDynamicLabelTextSize = function (ele) {
   //This line will be useless and is to be removed later
 //  dynamicLabelSizeCoefficient = dynamicLabelSizeCoefficient ? dynamicLabelSizeCoefficient : 1;
 
-  var h = ele.data('height') ? ele.data('height') : ele.data('sbgnbbox').h;
+  var h = ele.css('height') ? parseInt(ele.css('height')) : ele.data('sbgnbbox').h;
   var textHeight = parseInt(h / 2.45) * dynamicLabelSizeCoefficient;
 
   return textHeight;
@@ -1331,6 +1331,13 @@ var SBGNContainer = Backbone.View.extend({
           }
         }
 
+
+        refreshPaddings();
+        initilizeUnselectedDataOfElements();
+        cy.nodes('[sbgnclass="complex"],[sbgnclass="compartment"],[sbgnclass="submap"]').data('expanded-collapsed', 'expanded');
+        //Collapse complexes
+        expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));
+
         cy.layout({
           name: 'cose-bilkent',
           nodeRepulsion: 4500,
@@ -1344,12 +1351,6 @@ var SBGNContainer = Backbone.View.extend({
           animate: false,
           randomize: true
         });
-
-        refreshPaddings();        
-        initilizeUnselectedDataOfElements();
-        cy.nodes('[sbgnclass="complex"],[sbgnclass="compartment"],[sbgnclass="submap"]').data('expanded-collapsed', 'expanded');
-        //Collapse complexes
-        expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));
 
         cy.noderesize({
           handleColor: '#000000', // the colour of the handle and the line drawn from it

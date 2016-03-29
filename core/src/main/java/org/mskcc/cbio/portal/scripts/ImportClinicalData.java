@@ -211,7 +211,12 @@ public class ImportClinicalData {
                                       descriptions[i], datatypes[i],
                                       attributeTypes[i].equals(ClinicalAttribute.PATIENT_ATTRIBUTE),
                                       priorities[i]);
-            ClinicalAttribute attrInDb = DaoClinicalAttribute.getDatum(attr.getAttrId());
+            //skip PATIENT_ID / SAMPLE_ID columns, i.e. these are not clinical attributes but relational columns:
+            if (attr.getAttrId().equals(PATIENT_ID_COLUMN_NAME) ||
+            	attr.getAttrId().equals(SAMPLE_ID_COLUMN_NAME)) {
+	            continue;
+            }
+        	ClinicalAttribute attrInDb = DaoClinicalAttribute.getDatum(attr.getAttrId());
             if (null==attrInDb) {
                 DaoClinicalAttribute.addDatum(attr);
             }

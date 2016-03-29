@@ -67,20 +67,21 @@ public class ImportGisticData {
 
     // command line utility
     public static void main(String[] args) throws IOException, DaoException {
-
-        if (args.length != 2) {
+    	// check args
+        if (args.length < 2) {
             System.out.printf("command line usage:  importGistic.pl <gistic-data-file.txt> <cancer-study-id>\n" +
                     "\t <gistic-data-file.txt> Note that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad\n" +
                     "\t <cancer-study-id> e.g. 'tcga_gbm'");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+
 		SpringUtil.initDataSource();
         GisticReader gisticReader = new GisticReader();
 
         File gistic_f = new File(args[0]);
         int cancerStudyInternalId = gisticReader.getCancerStudyInternalId(args[1]);
-
-        ProgressMonitor.setConsoleMode(false);
 
         System.out.println("Reading data from: " + gistic_f.getAbsolutePath());
         System.out.println("CancerStudyId: " + cancerStudyInternalId);

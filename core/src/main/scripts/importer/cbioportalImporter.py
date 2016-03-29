@@ -281,7 +281,8 @@ def main(args):
     # get the logger with a handler to print logged error messages to stderr
     module_logger = logging.getLogger(__name__)
     error_handler = logging.StreamHandler(sys.stderr)
-    error_handler.setFormatter(cbioportal_common.LogfileStyleFormatter())
+    error_handler.setFormatter(cbioportal_common.LogfileStyleFormatter(
+            os.getcwd()))
     error_handler.setLevel(logging.ERROR)
     module_logger.addHandler(error_handler)
     LOGGER = module_logger

@@ -118,11 +118,16 @@ public class ImportTabDelimData {
 	            sampleIds = new String[parts.length - sampleStartIndex];
 	            System.arraycopy(parts, sampleStartIndex, sampleIds, 0, parts.length - sampleStartIndex);
 	        }
-	        //TODO - lines below disabled. Remove this after validating it with MSK. Patients and Samples should only be added 
-	        //via the corresponding ImportClinicalData process. The code below is wrong as it assumes one sample per patient, which is 
-	        //not always the case.
-	        //ImportDataUtil.addPatients(sampleIds, geneticProfileId);
-	        //ImportDataUtil.addSamples(sampleIds, geneticProfileId);
+	        //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
+	        //procedure. In this new procedure, Patients and Samples should only be added 
+	        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
+	        //sample per patient, which is not always the case.
+	        ImportDataUtil.addPatients(sampleIds, geneticProfileId);
+	        int nrUnknownSamplesAdded = ImportDataUtil.addSamples(sampleIds, geneticProfileId);
+	        if (nrUnknownSamplesAdded > 0) {
+	        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
+	        }
+	        
 	        ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleIds.length);
 	        ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
 	
@@ -223,7 +228,10 @@ public class ImportTabDelimData {
             String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
             values = filterOutNormalValues(filteredSampleIndices, values);
 
-            String hugo = parts[hugoSymbolIndex];
+            String hugo = null;
+            if (hugoSymbolIndex != -1) {
+            	hugo = parts[hugoSymbolIndex];
+            }
             if (hugo!=null && hugo.isEmpty()) {
                 hugo = null;
             }
@@ -268,7 +276,7 @@ public class ImportTabDelimData {
                                 hugo = hugo.substring(0, ix);
                             }
 
-                            genes = daoGene.guessGene(hugo);
+                            genes = daoGene.getGene(hugo, true);
                         }
                     }
 
@@ -325,9 +333,6 @@ public class ImportTabDelimData {
                                             existingCnaEvents.put(cnaEvent.getEvent(), cnaEvent.getEvent());
                                         }
                                     }
-                                    else {
-                                    	ProgressMonitor.logWarning("Ignoring CNA entry with value " + values[i]);
-                                    }
                                 }
                             }
                             storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
@@ -374,6 +379,9 @@ public class ImportTabDelimData {
             CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
             if (gene!=null) {
                 genes.add(gene);
+            }
+            else {
+            	ProgressMonitor.logWarning("Gene " + symbol + " not found in DB. Record will be skipped for this gene.");
             }
         }
         

@@ -79,19 +79,28 @@ public class ImportDataUtil
         DaoPatient.addPatient(new Patient(cancerStudy, stableId));
     }
 
-    public static void addSamples(String barcodes[], int geneticProfileId) throws DaoException
+    public static int addSamples(String barcodes[], int geneticProfileId) throws DaoException
     {
-        addSamples(barcodes, getCancerStudy(geneticProfileId));
+        return addSamples(barcodes, getCancerStudy(geneticProfileId));
     }
 
-    public static void addSamples(String barcodes[], CancerStudy cancerStudy) throws DaoException
+    /**
+     * Will check in DB if samples exist and add them if they do not 
+     * yet exist (and are NOT a normal sample). 
+     * 
+     * @return returns the number of missing samples that had to be added to the DB
+     */
+    public static int addSamples(String barcodes[], CancerStudy cancerStudy) throws DaoException
     {
+    	int nrNewlyAdded = 0;
         for (String barcode : barcodes) {
             String sampleId = StableIdUtil.getSampleId(barcode);
             if (!StableIdUtil.isNormal(barcode) && unknownSample(cancerStudy, sampleId)) {
                 addSample(sampleId, cancerStudy);
+                nrNewlyAdded++;
             }
         }
+        return nrNewlyAdded;
     }
 
     private static boolean unknownSample(CancerStudy cancerStudy, String stableId)

@@ -108,6 +108,10 @@ $(document).ready(function(){
        userClickedMainTab("tab_download");
     });
     
+    $("#gene_list").on('input', function(event) {
+	$('.oql_error').remove();
+    });
+    
     // Set up custom case set related GUI & event handlers (step 3)
     initCustomCaseSetUI();
 
@@ -361,7 +365,6 @@ function getMapping() {
 function chooseAction(evt) {
     var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
     $(".error_box").remove();
-    
        
        if (!window.changingTabs) {
 		// validate OQL
@@ -370,13 +373,13 @@ function chooseAction(evt) {
 		} catch (err) {
 			var offset = err.offset;
 			if (offset === $('#gene_list').val().length) {
-			    createAnError("OQL syntax error after selected character; please fix and submit again.", $('#gene_list'));
+			    createAnError("OQL syntax error after selected character; please fix and submit again.", $('#gene_list'), "oql_error");
 			    $('#gene_list')[0].setSelectionRange(err.offset-1, err.offset);
 			} else if (offset === 0) {
-			    createAnError("OQL syntax error before selected character; please fix and submit again.", $('#gene_list'));
+			    createAnError("OQL syntax error before selected character; please fix and submit again.", $('#gene_list'), "oql_error");
 			    $('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
 			} else {
-			    createAnError("OQL syntax error at selected character; please fix and submit again.", $('#gene_list'));
+			    createAnError("OQL syntax error at selected character; please fix and submit again.", $('#gene_list'), "oql_error");
 			    $('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
 			}
 			return false;
@@ -426,8 +429,11 @@ function chooseAction(evt) {
 
 }
 
-function createAnError(errorText, targetElt) {
+function createAnError(errorText, targetElt, optClassStr) {
 	var errorBox = $("<div class='error_box'>").addClass("ui-state-error ui-corner-all exp_error_box");
+	if (optClassStr) {
+	    errorBox.addClass(optClassStr);
+	}
 	var errorButton = $("<span>").addClass("ui-icon ui-icon-alert exp_error_button");
 	var strongErrorText = $("<small>").html("Error: " + errorText + "<br>");
 	var errorTextBox = $("<span>").addClass("exp_error_text");
@@ -438,6 +444,8 @@ function createAnError(errorText, targetElt) {
 	
 	errorBox.insertBefore(targetElt);
 	errorBox.slideDown();
+	
+	return errorBox;
 }
 
 //  Triggered when a genomic profile radio button is selected

@@ -1,5 +1,5 @@
 # Dockerfile for cBioPortal
-FROM elementolab/jamm:1.1
+FROM elementolab/jamm:1.2
 MAINTAINER Alexandros Sigaras <als2076@med.cornell.edu>
 #===========================================#
 # Setup MySQL								#

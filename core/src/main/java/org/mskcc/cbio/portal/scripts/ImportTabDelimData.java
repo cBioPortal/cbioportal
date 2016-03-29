@@ -103,10 +103,23 @@ public class ImportTabDelimData {
 
         int numRecordsToAdd = 0;
         try {
+	        //Whether data regards CNA or RPPA:
+	        boolean discritizedCnaProfile = geneticProfile!=null
+	                                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+	                                        && geneticProfile.showProfileInAnalysisTab();
+	        boolean rppaProfile = geneticProfile!=null
+	                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
+	                                && "Composite.Element.Ref".equalsIgnoreCase(parts[0]);
+        	
         	int hugoSymbolIndex = getHugoSymbolIndex(parts);
 	        int entrezGeneIdIndex = getEntrezGeneIdIndex(parts);
-	        int sampleStartIndex = getStartIndex(parts, hugoSymbolIndex, entrezGeneIdIndex);
-	        if (hugoSymbolIndex == -1 && entrezGeneIdIndex == -1)
+	        int rppaGeneRefIndex = getRppaGeneRefIndex(parts);
+	        int sampleStartIndex = getStartIndex(parts, hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex);
+	        if (rppaProfile) {
+	        	if (rppaGeneRefIndex == -1)
+	        		throw new RuntimeException("Error: the following column should be present for RPPA data: Composite.Element.Ref");
+	        }	
+	        else if (hugoSymbolIndex == -1 && entrezGeneIdIndex == -1)
 	        	throw new RuntimeException("Error: at least one of the following columns should be present: Hugo_Symbol or Entrez_Gene_Id");
 	        
 	        String sampleIds[];
@@ -155,14 +168,6 @@ public class ImportTabDelimData {
 	        //Object to insert records in the generic 'genetic_alteration' table: 
 	        DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
 	        
-	        //Whether data regards CNA or RPPA:
-	        boolean discritizedCnaProfile = geneticProfile!=null
-	                                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
-	                                        && geneticProfile.showProfileInAnalysisTab();
-	        boolean rppaProfile = geneticProfile!=null
-	                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
-	                                && "Composite.Element.Ref".equalsIgnoreCase(parts[0]);
-	
 	        //cache for data found in  cna_event' table:
 	        Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents = null;	        
 	        if (discritizedCnaProfile) {
@@ -180,7 +185,7 @@ public class ImportTabDelimData {
 	            ProgressMonitor.incrementCurValue();
 	            ConsoleUtil.showProgress();
 	        	if (parseLine(line, lenParts, sampleStartIndex, 
-	        			hugoSymbolIndex, entrezGeneIdIndex, 
+	        			hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex,
 	        			rppaProfile, discritizedCnaProfile, 
 	        			daoGene, 
 	        			filteredSampleIndices, orderedSampleList, 
@@ -206,7 +211,7 @@ public class ImportTabDelimData {
     }
     
     private boolean parseLine(String line, int nrColumns, int sampleStartIndex, 
-    		int hugoSymbolIndex, int entrezGeneIdIndex,
+    		int hugoSymbolIndex, int entrezGeneIdIndex, int rppaGeneRefIndex,
     		boolean rppaProfile, boolean discritizedCnaProfile,
     		DaoGeneOptimized daoGene,
     		List <Integer> filteredSampleIndices, List <Integer> orderedSampleList,
@@ -228,12 +233,16 @@ public class ImportTabDelimData {
             String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
             values = filterOutNormalValues(filteredSampleIndices, values);
 
-            String hugo = null;
+            String geneSymbol = null;
             if (hugoSymbolIndex != -1) {
-            	hugo = parts[hugoSymbolIndex];
+            	geneSymbol = parts[hugoSymbolIndex];
             }
-            if (hugo!=null && hugo.isEmpty()) {
-                hugo = null;
+            //RPPA:
+            if (rppaGeneRefIndex != -1) {
+            	geneSymbol = parts[rppaGeneRefIndex];
+            }
+            if (geneSymbol!=null && geneSymbol.isEmpty()) {
+                geneSymbol = null;
             }
             
             String entrez = null;
@@ -243,42 +252,46 @@ public class ImportTabDelimData {
             if (entrez!=null && !entrez.matches("-?[0-9]+")) {
                 entrez = null;
             }
-            //If both are empty, skip line:
-            if (hugo == null && entrez == null) {
-            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id value");
+            
+            //If all are empty, skip line:
+            if (geneSymbol == null && entrez == null) {
+            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id " + (rppaProfile? "or Composite.Element.REF ":"") + "value");
             	return false;
             }
             else {
-                if (hugo != null && (hugo.contains("///") || hugo.contains("---"))) {
+                if (geneSymbol != null && (geneSymbol.contains("///") || geneSymbol.contains("---"))) {
                     //  Ignore gene IDs separated by ///.  This indicates that
                     //  the line contains information regarding multiple genes, and
                     //  we cannot currently handle this.
                     //  Also, ignore gene IDs that are specified as ---.  This indicates
                     //  the line contains information regarding an unknown gene, and
                     //  we cannot currently handle this.
-                    ProgressMonitor.logWarning("Ignoring gene ID:  " + hugo);
+                    ProgressMonitor.logWarning("Ignoring gene ID:  " + geneSymbol);
                 } else {
-                    List<CanonicalGene> genes = null;
-                    if (entrez!=null) {
-                        CanonicalGene gene = daoGene.getGene(Long.parseLong(entrez));
-                        if (gene!=null) {
-                            genes = Arrays.asList(gene);
-                        }
-                    } 
-                    
-                    if (genes==null && hugo != null) {
-                        if (rppaProfile) {
-                            genes = parseRPPAGenes(hugo);
-                        } else {
-                            // deal with multiple symbols separate by |, use the first one
-                            int ix = hugo.indexOf("|");
-                            if (ix>0) {
-                                hugo = hugo.substring(0, ix);
-                            }
-
-                            genes = daoGene.getGene(hugo, true);
-                        }
+                	List<CanonicalGene> genes = null;
+                	//If rppa, parse genes from "Composite.Element.REF" column:
+                	if (rppaProfile) {
+                        genes = parseRPPAGenes(geneSymbol);
                     }
+                	else {
+	                	//try entrez:
+	                    if (entrez!=null) {
+	                        CanonicalGene gene = daoGene.getGene(Long.parseLong(entrez));
+	                        if (gene!=null) {
+	                            genes = Arrays.asList(gene);
+	                        }
+	                    } 
+	                    //no entrez, try hugo:
+	                    if (genes==null && geneSymbol != null) {
+	                        // deal with multiple symbols separate by |, use the first one
+	                        int ix = geneSymbol.indexOf("|");
+	                        if (ix>0) {
+	                            geneSymbol = geneSymbol.substring(0, ix);
+	                        }
+	
+	                        genes = daoGene.getGene(geneSymbol, true);
+	                    }
+                	}
 
                     if (genes == null || genes.isEmpty()) {
                         genes = Collections.emptyList();
@@ -288,17 +301,17 @@ public class ImportTabDelimData {
                     if (targetLine == null || parts[0].equals(targetLine)) {
                         if (genes.isEmpty()) {
                             //  if gene is null, we might be dealing with a micro RNA ID
-                            if (hugo != null && hugo.toLowerCase().contains("-mir-")) {
+                            if (geneSymbol != null && geneSymbol.toLowerCase().contains("-mir-")) {
 //                                if (microRnaIdSet.contains(geneId)) {
 //                                    storeMicroRnaAlterations(values, daoMicroRnaAlteration, geneId);
 //                                    numRecordsStored++;
 //                                } else {
-                                    ProgressMonitor.logWarning("microRNA is not known to me:  [" + hugo
+                                    ProgressMonitor.logWarning("microRNA is not known to me:  [" + geneSymbol
                                         + "]. Ignoring it "
                                         + "and all tab-delimited data associated with it!");
 //                                }
                             } else {
-                                String gene = (hugo != null) ? hugo : entrez;
+                                String gene = (geneSymbol != null) ? geneSymbol : entrez;
                                 ProgressMonitor.logWarning("Gene not found:  [" + gene
                                     + "]. Ignoring it "
                                     + "and all tab-delimited data associated with it!");
@@ -343,7 +356,13 @@ public class ImportTabDelimData {
                             for (CanonicalGene gene : genes) {
                                 if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
                                     storeGeneticAlterations(values, daoGeneticAlteration, gene);
+                                    recordStored = true;
                                 }
+                            }
+                            if (!recordStored) {
+                            	//this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with 
+                            	//the ambiguous alias list. Report this:
+                            	ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous. Record will be skipped for this gene.");
                             }
                         }
                     }
@@ -437,7 +456,16 @@ public class ImportTabDelimData {
         return -1;
     }
 
-    private int getStartIndex(String[] headers, int hugoSymbolIndex, int entrezGeneIdIndex) {
+    private int getRppaGeneRefIndex(String[] headers) {
+        for (int i = 0; i<headers.length; i++) {
+            if (headers[i].equalsIgnoreCase("Composite.Element.Ref")) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    private int getStartIndex(String[] headers, int hugoSymbolIndex, int entrezGeneIdIndex, int rppaGeneRefIndex) {
         int startIndex = -1;
         
         for (int i=0; i<headers.length; i++) {
@@ -450,7 +478,7 @@ public class ImportTabDelimData {
                     !h.equalsIgnoreCase("Cytoband") &&
                     !h.equalsIgnoreCase("Composite.Element.Ref")) {
             	//and the column is found after  hugoSymbolIndex and entrezGeneIdIndex: 
-            	if (i > hugoSymbolIndex && i > entrezGeneIdIndex) {
+            	if (i > hugoSymbolIndex && i > entrezGeneIdIndex && i > rppaGeneRefIndex) {
             		//then we consider this the start of the sample columns:
                 	startIndex = i;
                 	break;

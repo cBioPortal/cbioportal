@@ -1,6 +1,6 @@
-source /root/.bash_profile; \
-/bin/bash /cbio_scripts/addcBioAliases.sh; \
-/bin/bash /cbio_scripts/checkCustomConfig.sh; \
+source /root/.bashrc; \
+/bin/bash $PORTAL_HOME/docker/scripts/addcBioAliases.sh; \
+/bin/bash $PORTAL_HOME/docker/scripts/checkCustomConfig.sh; \
 $CATALINA_HOME/bin/startup.sh; \
-/bin/bash /cbio_scripts/checkCustomFiles.sh; \
+/bin/bash $PORTAL_HOME/docker/scripts/checkCustomFiles.sh; \
 tail -f $CATALINA_HOME/logs/catalina.out

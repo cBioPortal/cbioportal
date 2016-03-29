@@ -370,11 +370,13 @@ class Validator(object):
         validations, as it logs the message that validation was completed.
         """
         self._checkLineBreaks()
-        # finalize:
+        # finalize
         self.fileCouldBeParsed = True
         self.logger.info('Validation of file complete')
-        self.logger.info('Lines %d rows. Lines with warning: %d. Lines with error: %d', 
-                         self.line_number, self.line_count_handler.get_nr_lines_with_warning(),
+        self.logger.info('Read %d lines. '
+                         'Lines with warning: %d. Lines with error: %d',
+                         self.line_number,
+                         self.line_count_handler.get_nr_lines_with_warning(),
                          self.line_count_handler.get_nr_lines_with_error())
 
     def processTopLines(self, line_list):

@@ -208,80 +208,48 @@
         </ul>
         <div class="section" id="cc-overview" style="display:none">
             <div id="headerBar" style="display:none">
-            <div id="cctitlecontainer" style="margin-left:200px;float:left"></div>
-            <div>
-                <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
-                <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
-            </div>
-    
-            <table style="width:100%;margin-top:20px;margin-bottom:20px">
+                <div id="cctitlecontainer" style="margin-left:200px;float:left"></div>
+                <div>
+                    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
+                    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
+                </div>
 
-            <tr>
-                        <td style="display:none">
-                            Cancer type: <select id="cancerTypes"><option value="all">All</option></select>
-                        </td>
-                      
-                    <td style="width:8%">Y-Axis value: </td>
-                    <td style="width:13%">
-                    <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
-                    </td>
-               
-                    <td style="width:13%" align="center"> 
-                        <span class="diagram-general-slider-text" id="sliderLabel">Min alteration </span>
-                        
-                    </td>
-                    <td style="width:8%">  
-                        <div style="width:95%">
-                            <div id="sliderMinY"></div>
-                            <span style="display:none" class="diagram-general-slider-min-label" id="minLabel">0</span>
-                            <span style="display:none" class="diagram-general-slider-max-label" style="float:right" id="maxLabel"></span>
-                            
-                        </div>
-                     </td>
-                    <td style="width:5%">
-                        <input id="minY" size="3" type="text">
-                    </td>
-                        
-                       <td style="width:12%"> 
-                        <span class="diagram-general-slider-text" >Min total samples # </span>
-                       
-                    </td>
-                    <td style="width:8%">  
-                        <div style="width:95%">
-                            <div id="totalSampleSlider"></div>
-                            <span style="display:none" class="diagram-general-slider-min-label">0</span>
-                            <span style="display:none" class="diagram-general-slider-max-label" style="float:right" id="maxLabelTotalSample"></span>
-                            
-                        </div>
-                    </td>
-                    <td style="width:5%">
-                        <input id="minTotal" size="3" type="text">
-                    </td>
-                    <td style="width:15%">
-                           <input type="checkbox" id="histogram-show-colors" checked> Show alteration types
-                    </td>
-                    <td style="width:13%">
-                            <input type="checkbox" id="sortBy"> Sort Alphebetically
-                    </td>
-                    </tr>
-            
-            <tr style="display:none">
-                    <td colspan="4">
-                            <div id="show-hide-studies">
-                                <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
-                                <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
-                                <b id="show-hide-studies-toggle">Select studies</b>
-                                <br/>
-                            </div>
-                            <div id="cancerbycancer-controls" class="cc-hide">
-                                (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
-                                <br>
-                                <br>
-                            </div>
-                        </td>
-                   
-            </tr>
-            </table>
+                <div style="margin-top:10px;margin-bottom:10px;">
+                    <div style="float:left;margin-right:20px;">
+                        Y-Axis value:
+                        <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
+                        <input style="float:left;" id="minY" size="2" type="text">
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <span style="float:left;" class="diagram-general-slider-text" >Min. # total samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"></div>
+                        <input style="float:left;" id="minY" size="2" type="text">
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <input type="checkbox" id="histogram-show-colors" checked> Show alteration types
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <input type="checkbox" id="sortBy"> Sort Alphebetically
+                    </div>
+                </div>
+
+                <div style="display:none">
+                    <div id="show-hide-studies">
+                        <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
+                        <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
+                        <b id="show-hide-studies-toggle">Select studies</b>
+                        <br/>
+                    </div>
+                    <div id="cancerbycancer-controls" class="cc-hide">
+                        (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
+                        <br>
+                        <br>
+                    </div>
+                </div>
             </div>
             <div id="customize-controls" class="ui-widget cc-hide" style="display:none">
                 <div class="close-customize">
@@ -433,8 +401,6 @@
     <b class="cctitle">
         Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
-    
-<!--    <button id="histogram-customize">Customize histogram</button>-->
 </script>
 
 <!-- Mutation views -->

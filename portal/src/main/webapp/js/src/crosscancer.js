@@ -96,7 +96,8 @@
                 totalSamThreshold = totalSamSliderValue;
             }
     
-            var cancerTypes = $("#cancerTypes").val(), cancerTypeCheck = true;
+            var cancerTypes = "all"//$("#cancerTypes").val()
+            var cancerTypeCheck = true;
             
             var type = $("#yAxis").val();
             //var sortBy = $("#sortBy").val();
@@ -1040,7 +1041,7 @@
                                             }
                                     }
                                     maxYAxis = Math.min(maxYAxis, 1.0);
-                                    $("#sliderLabel").text("Min alteration ");
+                                    $("#sliderLabel").text("Min. % altered samples:");
                                     $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
                                     $("#sliderMinY").slider( "option", "max", Math.ceil(100*maxYAxis) );
                                      
@@ -1051,7 +1052,7 @@
                                         }
                                     }
 
-                                    $("#sliderLabel").text("Min altered samples #");
+                                    $("#sliderLabel").text("Min. # altered samples:");
                                     $("#maxLabel").text(maxYAxis);
                                     $("#sliderMinY").slider( "option", "max", maxYAxis );
                                      
@@ -1080,7 +1081,6 @@
                                 }
                             });
                             $("#minTotal").on("keyup", function(e){
-                                firstEnterFlag = false;
                                 if(e.keyCode == 13)
                                 {
                                     $("#totalSampleSlider").slider({value: $("#minTotal").val()});
@@ -1089,9 +1089,7 @@
                             });
                             
                             $("#totalSampleSlider").on("slidechange", function(e, ui){
-                                firstEnterFlag = false;
                                 redrawHistogram();
-                                
                             });
 
                              

@@ -208,6 +208,31 @@ public class DaoGeneOptimized {
     }
 
     /**
+     * Looks for a Gene where HUGO Gene Symbol or an alias matches the given symbol. 
+     * 
+     * @param geneSymbol: HUGO Gene Symbol or an alias
+     * @param searchInAliases: set to true if this method should search for a match in this.geneAliasMap 
+     * in case a matching hugo symbol cannot be found in this.geneSymbolMap
+     * 
+     * @return
+     */
+    public List<CanonicalGene> getGene(String geneSymbol, boolean searchInAliases) {
+    	CanonicalGene gene = getGene(geneSymbol);
+    	if (gene!=null) {
+            return Collections.singletonList(gene);
+        }
+        
+    	if (searchInAliases) {
+	        List<CanonicalGene> genes = geneAliasMap.get(geneSymbol.toUpperCase());
+	        if (genes!=null) {
+	        	return Collections.unmodifiableList(genes);
+	        }
+        }
+        
+        return Collections.emptyList();
+    }
+    
+    /**
      * Gets Gene By Entrez Gene ID.
      *
      * @param entrezId Entrez Gene ID.

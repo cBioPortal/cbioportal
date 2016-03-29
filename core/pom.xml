@@ -17,7 +17,32 @@
       <artifactId>business</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>apache-log4j-extras</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    
     <!-- antisamy -->
     <dependency>
       <groupId>org.owasp</groupId>
@@ -36,7 +61,6 @@
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
-      <version>3.2.2</version>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.bundles</groupId>
@@ -45,9 +69,8 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>1.2.2</version>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>
@@ -86,11 +109,11 @@
       <artifactId>commons-lang</artifactId>
       <version>2.4</version>
     </dependency>
-        <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-math3</artifactId>
-          <version>3.2</version>
-        </dependency>
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-math3</artifactId>
+		<version>3.2</version>
+	</dependency>
     <dependency>
       <groupId>commons-cli</groupId>
       <artifactId>commons-cli</artifactId>
@@ -226,12 +249,48 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-openid</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security.extensions</groupId>
+      <artifactId>spring-security-saml2-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.social</groupId>
+      <artifactId>spring-social-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.social</groupId>
+      <artifactId>spring-social-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.social</groupId>
+      <artifactId>spring-social-google</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>${spring.version}</version>
       <scope>test</scope>
     </dependency>   
     <dependency>

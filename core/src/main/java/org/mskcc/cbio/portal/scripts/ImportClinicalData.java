@@ -50,6 +50,7 @@ public class ImportClinicalData {
     public static final String SAMPLE_TYPE_COLUMN_NAME = "SAMPLE_TYPE";
     private int numSampleSpecificClinicalAttributesAdded = 0;
     private int numPatientSpecificClinicalAttributesAdded = 0;
+    private int numEmptyClinicalAttributesSkipped = 0;
     
     private static OptionParser parser;
     private static String usageLine;
@@ -76,7 +77,7 @@ public class ImportClinicalData {
 
         static public boolean has(String value) {
             if (value == null) return false;
-            if (value.equals("")) return true;
+            if (value.trim().equals("")) return true;
             try { 
                 value = value.replaceAll("[\\[|\\]]", "");
                 value = value.replaceAll(" ", "_");
@@ -210,8 +211,14 @@ public class ImportClinicalData {
                                       descriptions[i], datatypes[i],
                                       attributeTypes[i].equals(ClinicalAttribute.PATIENT_ATTRIBUTE),
                                       priorities[i]);
-            if (null==DaoClinicalAttribute.getDatum(attr.getAttrId())) {
+            ClinicalAttribute attrInDb = DaoClinicalAttribute.getDatum(attr.getAttrId());
+            if (null==attrInDb) {
                 DaoClinicalAttribute.addDatum(attr);
+            }
+            else if (attrInDb.isPatientAttribute() != attr.isPatientAttribute()) {
+            	throw new DaoException("Illegal change in attribute type[SAMPLE/PATIENT] for attribute " + attr.getAttrId() + 
+            			". An attribute cannot change from SAMPLE type to PATIENT type (or vice-versa) during import. This should " + 
+            			"be changed manually first in DB.");
             }
             attrs.add(attr);
         }
@@ -275,20 +282,23 @@ public class ImportClinicalData {
         }
 
         for (int lc = 0; lc < fields.length; lc++) {
+            //if lc is sampleIdIndex or patientIdIndex, skip as well since these are the relational fields:
+            if (lc == sampleIdIndex || lc == patientIdIndex) {
+            	continue;
+        	}
+        	//if the value matches one of the missing values, skip this attribute:
             if (MissingAttributeValues.has(fields[lc])) {
+            	numEmptyClinicalAttributesSkipped++;
                 continue;
             }
             boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
-            int indexOfIdColumn = (isPatientAttribute) ? patientIdIndex : sampleIdIndex; 
-            if (addAttributeToDatabase(lc, indexOfIdColumn, fields[lc])) {
-                if (isPatientAttribute && internalPatientId != -1) {
-                    addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                             ClinicalAttribute.PATIENT_ATTRIBUTE);
-                }
-                else if (internalSampleId != -1) {
-                    addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                             ClinicalAttribute.SAMPLE_ATTRIBUTE);
-                }
+            if (isPatientAttribute && internalPatientId != -1) {
+                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                         ClinicalAttribute.PATIENT_ATTRIBUTE);
+            }
+            else if (internalSampleId != -1) {
+                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
             }
         }
     }
@@ -388,11 +398,6 @@ public class ImportClinicalData {
         return (sampleId != null && !sampleId.isEmpty());
     }
 
-    private boolean addAttributeToDatabase(int attributeIndex, int indexOfIdColumn, String attributeValue)
-    {
-        return (attributeIndex != indexOfIdColumn && !attributeValue.isEmpty());
-    }
-
     private void addDatum(int internalId, String attrId, String attrVal, String attrType) throws Exception
     {
         // if bulk loading is ever turned off, we need to check if
@@ -413,6 +418,14 @@ public class ImportClinicalData {
 
     public int getNumPatientSpecificClinicalAttributesAdded() {
         return numPatientSpecificClinicalAttributesAdded;
+    }
+    
+    public int getNumEmptyClinicalAttributesSkipped() {
+    	return numEmptyClinicalAttributesSkipped;
+    }
+    
+    public AttributeTypes getAttributeType() {
+    	return attributeType;
     }
 
     /**
@@ -485,10 +498,17 @@ public class ImportClinicalData {
                 ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinical_f, attributesDatatype);
                 importClinicalData.importData();
 
-                System.out.println("Total number of patient specific clinical attributes added:  "
+                if (importClinicalData.getAttributeType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||
+                		importClinicalData.getAttributeType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) 
+                	System.out.println("Total number of patient specific clinical attributes added:  "
                         + importClinicalData.getNumPatientSpecificClinicalAttributesAdded());
-                System.out.println("Total number of sample specific clinical attributes added:  "
+                if (importClinicalData.getAttributeType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES ||
+                		importClinicalData.getAttributeType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) 
+                    System.out.println("Total number of sample specific clinical attributes added:  "
                         + importClinicalData.getNumSampleSpecificClinicalAttributesAdded());
+                
+                System.out.println("Total number of attribute values skipped because of empty value:  "
+                        + importClinicalData.getNumEmptyClinicalAttributesSkipped());
                 if (importClinicalData.getNumSampleSpecificClinicalAttributesAdded()
                         + importClinicalData.getNumPatientSpecificClinicalAttributesAdded() == 0) {
                     System.out.println("Error!  No data was addeded.  " +

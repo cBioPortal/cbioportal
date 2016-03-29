@@ -172,10 +172,10 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         """Test when all record definitions match with portal."""
         record_list = self.validate('data_clin_coldefs_correct.txt',
                                     validateData.PatientClinicalValidator)
-        # expecting two info messages: at start and end of file
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
-            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
+            self.assertLessEqual(record.levelno, logging.INFO)
 
     def test_wrong_definitions(self):
         """Test when record definitions do not match with portal."""
@@ -196,8 +196,8 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         """Test when a new attribute is defined in the data file."""
         record_list = self.validate('data_clin_coldefs_unknown_attribute.txt',
                                     validateData.PatientClinicalValidator)
-        # expecting two info messages with a warning in between
-        self.assertEqual(len(record_list), 3)
+        # expecting 'validating file' messages with one warning in between
+        self.assertEqual(len(record_list), 4)
         self.assertEqual(record_list[1].levelno, logging.WARNING)
         self.assertEqual(record_list[1].column_number, 6)
         self.assertIn('will be added', record_list[1].getMessage().lower())
@@ -285,10 +285,10 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         """Test when an existing cancer type is defined exactly as known."""
         record_list = self.validate('data_cancertype_confirming_existing.txt',
                                     validateData.CancerTypeValidator)
-        # expecting only the two info messages about the file being validated
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
-            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
+            self.assertLessEqual(record.levelno, logging.INFO)
 
     def test_cancer_type_disagreeing_with_portal(self):
         """Test when an existing cancer type is redefined by a study."""
@@ -327,28 +327,28 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test when a file has both the Hugo name and Entrez ID columns."""
         record_list = self.validate('data_cna_genecol_presence_both.txt',
                                     validateData.CNAValidator)
-        # expecting two info messages: at start and end of file
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
-            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
+            self.assertLessEqual(record.levelno, logging.INFO)
 
     def test_name_only(self):
         """Test when a file has a Hugo name column but none for Entrez IDs."""
         record_list = self.validate('data_cna_genecol_presence_hugo_only.txt',
                                     validateData.CNAValidator)
-        # expecting two info messages: at start and end of file
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
-            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
+            self.assertLessEqual(record.levelno, logging.INFO)
 
     def test_entrez_only(self):
         """Test when a file has an Entrez ID column but none for Hugo names."""
         record_list = self.validate('data_cna_genecol_presence_entrez_only.txt',
                                     validateData.CNAValidator)
-        # expecting two info messages: at start and end of file
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
-            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
+            self.assertLessEqual(record.levelno, logging.INFO)
 
     def test_neither_name_nor_entrez(self):
         """Test when a file lacks both the Entrez ID and Hugo name columns."""
@@ -468,8 +468,8 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.DEBUG)
         record_list = self.validate('data_cna_genecol_presence_both.txt',
                                     validateData.CNAValidator)
-        # expecting two messages: at start and end of file
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
@@ -619,11 +619,10 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
                                     validateData.SegValidator,
                                     extra_meta_fields={'reference_genome_id':
                                                            'hg19'})
-        # expecting nothing but the info messages at start and end of file
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
-            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
-
+            self.assertLessEqual(record.levelno, logging.INFO)
 
     def test_unparsable_seg_columns(self):
         """Validate .seg files with non-numeric values and an unsupported chromosome."""
@@ -702,10 +701,10 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
                 extra_meta_fields={
                     'genetic_alteration_type': 'GISTIC_GENES_AMP',
                     'reference_genome_id': 'hg19'})
-        # expecting two info messages, at the start and the end of validation
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
-            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
+            self.assertLessEqual(record.levelno, logging.INFO)
 
     def test_valid_del_file(self):
         """Test validation of a del file that should yield no warnings."""
@@ -716,10 +715,10 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
                 extra_meta_fields={
                     'genetic_alteration_type': 'GISTIC_GENES_DEL',
                     'reference_genome_id': 'hg19'})
-        # expecting two info messages, at the start and the end of validation
-        self.assertEqual(len(record_list), 2)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
-            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
+            self.assertLessEqual(record.levelno, logging.INFO)
 
     def test_region_without_genes(self):
         """Test validation of regions with no genes."""

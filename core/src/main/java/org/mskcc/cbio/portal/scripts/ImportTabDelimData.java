@@ -235,8 +235,12 @@ public class ImportTabDelimData {
             if (entrez!=null && !entrez.matches("-?[0-9]+")) {
                 entrez = null;
             }
-
-            if (hugo != null || entrez != null) {
+            //If both are empty, skip line:
+            if (hugo == null && entrez == null) {
+            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id value");
+            	return false;
+            }
+            else {
                 if (hugo != null && (hugo.contains("///") || hugo.contains("---"))) {
                     //  Ignore gene IDs separated by ///.  This indicates that
                     //  the line contains information regarding multiple genes, and

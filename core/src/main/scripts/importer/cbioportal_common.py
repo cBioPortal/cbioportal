@@ -231,7 +231,7 @@ class ValidationMessageFormatter(logging.Formatter):
     """Logging formatter with optional fields for data validation messages.
 
     These fields are:
-    filename_ - the name of the file the message is about (if applicable)
+    filename_ - the path to the file the message is about (if applicable)
     line_number - a line number within the above file (if applicable)
     column_number - a column number within the above file (if applicable)
     cause - the unexpected value found in the input (if applicable)
@@ -303,12 +303,13 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
 
     """Formatter for validation messages in a simple one-per-line format."""
 
-    def __init__(self):
+    def __init__(self, study_dir):
         """Initialize a logging Formatter with an appropriate format string."""
         super(LogfileStyleFormatter, self).__init__(
             fmt='%(levelname)s: %(file_indicator)s:'
                 '%(line_indicator)s%(column_indicator)s'
                 ' %(message)s%(cause_indicator)s')
+        self.study_dir = study_dir
         self.previous_filename = None
 
     def format(self, record):
@@ -319,7 +320,8 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         if not hasattr(record, 'filename_'):
             record.file_indicator = '-'
         else:
-            record.file_indicator = os.path.basename(record.filename_.strip())
+            record.file_indicator = os.path.relpath(record.filename_.strip(),
+                                                    self.study_dir)
         record.line_indicator = self.format_aggregated(
             record,
             'line_number',
@@ -465,7 +467,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         else:
             logger.error(
                 'Could not determine the file type. Please check your meta files for correct configuration.',
-                extra={'filename_': os.path.basename(filename),
+                extra={'filename_': filename,
                        'cause': ('genetic_alteration_type: %s, '
                                  'datatype: %s' % (
                                      metaDictionary['genetic_alteration_type'],
@@ -476,7 +478,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         result = MetaFileTypes.CANCER_TYPE
     else:
         logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
-                         extra={'filename_': os.path.basename(filename)})
+                         extra={'filename_': filename})
     return result
 
 

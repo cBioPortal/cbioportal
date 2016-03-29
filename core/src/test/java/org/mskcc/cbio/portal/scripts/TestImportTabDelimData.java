@@ -127,8 +127,9 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/cna_test.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, ImportTabDelimData.BARRY_TARGET, geneticProfileId);
-        parser.importData();
+        ImportTabDelimData parser = new ImportTabDelimData(file, "Barry", geneticProfileId);
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
 
         String value = dao.getGeneticAlteration(geneticProfileId, sample1, 207);
         assertEquals ("0", value);
@@ -192,7 +193,8 @@ public class TestImportTabDelimData {
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/cna_test2.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, null, geneticProfileId);
-        parser.importData();
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
 
         String value = dao.getGeneticAlteration(geneticProfileId, sample1, 207);
         assertEquals (value, "0");
@@ -275,7 +277,8 @@ public class TestImportTabDelimData {
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/mrna_test.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
-        parser.importData();
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
         
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "DD639").getInternalId();
         String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 2978);

@@ -63,8 +63,8 @@ class LogBufferTestCase(unittest.TestCase):
 
     def get_log_records(self):
         """Get the log records written to the logger since the last call."""
-        recs = self.logger.handlers[0].buffer
-        self.logger.handlers[0].flush()
+        recs = self.buffer_handler.buffer
+        self.buffer_handler.flush()
         return recs
 
     @staticmethod

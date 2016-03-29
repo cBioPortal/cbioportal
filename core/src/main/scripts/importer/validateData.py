@@ -272,15 +272,22 @@ class Validator(object):
             logger,
             extra={'filename_': self.filenameShort})
         self.line_count_handler = None
-        
         self.meta_dict = meta_dict
 
     def validate(self):
-
         """Validate the data file."""
-        
+        # add a handler to keep track of the number of lines with errors
         self.line_count_handler = LineCountHandler()
         self.logger.logger.addHandler(self.line_count_handler)
+        try:
+            # actually validate the data file
+            self._validate_file()
+        finally:
+            self.logger.logger.removeHandler(self.line_count_handler)
+
+    def _validate_file(self):
+        """Read through the data file and validate as much as can be parsed."""
+
         self.logger.debug('Starting validation of file')
 
         with open(self.filename, 'rU') as data_file:
@@ -361,7 +368,6 @@ class Validator(object):
 
         # after the entire file has been read
         self.onComplete()
-        self.logger.logger.removeHandler(self.line_count_handler)
 
     def onComplete(self):
         """Perform final validations after all lines have been checked.
@@ -370,11 +376,13 @@ class Validator(object):
         validations, as it logs the message that validation was completed.
         """
         self._checkLineBreaks()
-        # finalize:
+        # finalize
         self.fileCouldBeParsed = True
         self.logger.info('Validation of file complete')
-        self.logger.info('Lines %d rows. Lines with warning: %d. Lines with error: %d', 
-                         self.line_number, self.line_count_handler.get_nr_lines_with_warning(),
+        self.logger.info('Read %d lines. '
+                         'Lines with warning: %d. Lines with error: %d',
+                         self.line_number,
+                         self.line_count_handler.get_nr_lines_with_warning(),
                          self.line_count_handler.get_nr_lines_with_error())
 
     def processTopLines(self, line_list):

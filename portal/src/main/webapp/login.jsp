@@ -163,6 +163,12 @@
                   </p>
                 </fieldset>
 
+                <% } else if (authenticationMethod.equals("openid-connect")) { %>
+                  <div id="openid_input_area">
+				    <button type="submit" onclick="window.location.href='openid_connect_login';">Login</button>
+                  </div>
+                </fieldset>
+
                 <% } else if (authenticationMethod.equals("ad")){ %>
                   <div>
                     <label for=username>Username: </label> <input type='text' id='username' name='j_username' value=''>  <br/>

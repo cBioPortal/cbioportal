@@ -148,8 +148,8 @@
 
                                             <!-- Added call GlobalProperties to check whether to show the Visualize tab -->
                                             <% if (GlobalProperties.showVisualizeYourDataTab()) { %>
-                                            <li class="internal" style="float:left">
-					                            <a href="visualize_your_data.jsp" float="left">VISUALIZE YOUR DATA</a>
+                                            <li class="internal" style="float:right">
+					                            <a href="visualize_your_data.jsp" float="right"><b><i>VISUALIZE YOUR DATA</i></b></a>
 					                        </li>
                                             <% } %>
 

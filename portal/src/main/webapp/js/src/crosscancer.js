@@ -54,7 +54,7 @@
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
 	var maxStudyBarWidth = 30;
-        var firstEnterFlag = true;
+        
         var defaultQTipOptions = {
             content: {
                 text: "Default qtip text"
@@ -90,6 +90,13 @@
             if(!_.isNaN(sliderValue) && !_.isUndefined(sliderValue) && sliderValue !== null){
                 threshold = sliderValue;
             }
+            //check if all values are zero or not
+            var nonZeroFlag = false;
+            _.each(histDataOrg, function(study) {
+             if(study.alterations["all"] > 0)
+                nonZeroFlag = true;
+            });
+            if(!nonZeroFlag)threshold = 0;
             
             var totalSamThreshold = 0;
             if(!_.isNaN(totalSamSliderValue) && !_.isUndefined(totalSamSliderValue) && totalSamSliderValue !== null){
@@ -100,7 +107,7 @@
             var cancerTypeCheck = true;
             
             var type = $("#yAxis").val();
-            //var sortBy = $("#sortBy").val();
+            
             
             var histData = [];
             _.each(histDataOrg, function(study) {
@@ -185,6 +192,7 @@
                         window.studies = studies;
 
                         $.getJSON("portal_meta_data.json", function(metaData) {
+                            var firstEnterFlag = true;
                             window.PortalMetaData = metaData;
                             var histDataOrg = studies.toJSON();
                             (new HideStudyControlView({
@@ -724,9 +732,19 @@
                                     .attr("y", labelCorY)
                                     .attr("transform", "rotate(-90, " + labelCorX + ", " + labelCorY +")")
                                 ;
+                                                          
                                 if(firstEnterFlag)
                                 {
-                                    sliderValue = 1e-5;
+                                    if($("#yAxis").val() === "Frequency")
+                                    {
+                                        $("#minY").val(0);
+                                        sliderValue = 1e-5;
+                                    }
+                                    else
+                                    {
+                                        $("#minY").val(1);
+                                        sliderValue = 1;
+                                    }
                                     
                                 }
                                 histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
@@ -1031,8 +1049,8 @@
                        
                             
                             $("#yAxis").on("change", function(){
-                          
-                            $("#sliderMinY").slider({value: 0});
+                            
+                            
                                maxYAxis = 0;
                                if($("#yAxis").val() === "Frequency"){
                                    for(var i = 0;i < histDataOrg.length;i++){

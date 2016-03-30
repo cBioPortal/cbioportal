@@ -706,10 +706,11 @@ class FeaturewiseFileValidator(Validator):
     REQUIRED_HEADERS and OPTIONAL_HEADERS) identify the features
     (e.g. genes) and the rest correspond to the samples.
 
-    Subclasses should override the checkValue(self, value, col_index) function
-    to check value in a sample column, and check the non-sample columns by
-    overriding and extending checkLine(self, data). The method can find the
-    names of these columns recognized in the file in self.nonsample_cols.
+    Subclasses should override the parseFeatureColumns(self,nonsample_col_vals)
+    method to check the non-sample columns preceding them, returning the unique
+    id of the feature. The method can find the names of the columns recognized
+    in the file in self.nonsample_cols. checkValue(self, value, col_index)
+    should also be overridden to check a value in a sample column.
     """
 
     OPTIONAL_HEADERS = []
@@ -720,6 +721,7 @@ class FeaturewiseFileValidator(Validator):
         self.nonsample_cols = []
         self.num_nonsample_cols = 0
         self.sampleIds = []
+        self._feature_id_lines = {}
 
     def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
@@ -727,7 +729,6 @@ class FeaturewiseFileValidator(Validator):
         Return the number of fatal errors.
         """
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
-        
         # collect non-sample columns:
         for col_name in self.cols:
             if col_name in self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS:
@@ -741,12 +742,36 @@ class FeaturewiseFileValidator(Validator):
         return num_errors
 
     def checkLine(self, data):
-        """Check the values in a data line."""
+        """Check the feature and sample columns in a data line."""
         super(FeaturewiseFileValidator, self).checkLine(data)
+        # parse and check the feature identifiers (implemented by subclasses)
+        feature_id = self.parseFeatureColumns(data[:self.num_nonsample_cols])
+        # skip line if no feature was identified
+        if feature_id is None:
+            return
+        # skip line with an error if the feature was encountered before
+        if feature_id in self._feature_id_lines:
+            self.logger.warning(
+                'Duplicate line for a previously listed feature/gene, '
+                'this line will be ignored',
+                extra={
+                    'line_number': self.line_number,
+                    'cause': '%s (already defined on line %d)' % (
+                            feature_id,
+                            self._feature_id_lines[feature_id])})
+            return
+        # remember the feature id and check the value for each sample
+        self._feature_id_lines[feature_id] = self.line_number
         for column_index, value in enumerate(data):
             if column_index >= len(self.nonsample_cols):
                 # checkValue() should be implemented by subclasses
                 self.checkValue(value, column_index)
+
+    def parseFeatureColumns(self, nonsample_col_vals):
+        """Override to check vals in the non-sample cols and return the id."""
+        raise NotImplementedError('The {} class did not provide a method to '
+                                  'validate values in sample columns.'.format(
+                                      self.__class__.__name__))
 
     def checkValue(self, value, column_index):
         """Override to validate a value in a sample column."""
@@ -801,22 +826,23 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             num_errors += 1
         return num_errors
 
-    def checkLine(self, data):
-        """Check the values in a data line."""
-        super(GenewiseFileValidator, self).checkLine(data)
+    def parseFeatureColumns(self, nonsample_col_vals):
+        """Check the gene identifier columns."""
         hugo_symbol = None
         entrez_id = None
         if 'Hugo_Symbol' in self.nonsample_cols:
-            hugo_symbol = data[self.nonsample_cols.index('Hugo_Symbol')]
+            hugo_index = self.nonsample_cols.index('Hugo_Symbol')
+            hugo_symbol = nonsample_col_vals[hugo_index].strip()
             # treat empty string as a missing value
             if hugo_symbol == '':
                 hugo_symbol = None
         if 'Entrez_Gene_Id' in self.nonsample_cols:
-            entrez_id = data[self.nonsample_cols.index('Entrez_Gene_Id')]
+            entrez_index = self.nonsample_cols.index('Entrez_Gene_Id')
+            entrez_id = nonsample_col_vals[entrez_index].strip()
             # treat the empty string as a missing value
             if entrez_id == '':
                 entrez_id = None
-        self.checkGeneIdentification(hugo_symbol, entrez_id)
+        return self.checkGeneIdentification(hugo_symbol, entrez_id)
 
 class CNAValidator(GenewiseFileValidator):
 
@@ -1618,10 +1644,11 @@ class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
 
-    def checkLine(self, data):
-        super(RPPAValidator, self).checkLine(data)
-        # TODO check the values in the first column
+    def parseFeatureColumns(self, nonsample_col_vals):
+        """Check the IDs in the first column."""
+        # TODO check the gene symbols
         # for rppa, first column should be hugo|antibody, everything after should be sampleIds
+        return nonsample_col_vals[0].strip()
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""

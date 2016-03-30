@@ -494,6 +494,19 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
+    def test_repeated_gene(self):
+        """Test if a warning is issued and the line is skipped if duplicate."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_cna_duplicate_gene.txt',
+                                    validateData.CNAValidator)
+        # expecting a warning about the duplicate gene,
+        # but no errors about values
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 6)
+        self.assertTrue(record.cause.startswith('116983'))
+
     def test_invalid_discrete_cna(self):
         """Check a discrete CNA file with values that should yield errors."""
         self.logger.setLevel(logging.ERROR)

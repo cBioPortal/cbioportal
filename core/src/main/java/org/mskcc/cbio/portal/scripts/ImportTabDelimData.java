@@ -320,12 +320,14 @@ public class ImportTabDelimData {
                                     ProgressMonitor.logWarning("microRNA is not known to me:  [" + geneSymbol
                                         + "]. Ignoring it "
                                         + "and all tab-delimited data associated with it!");
+                                    return false;
 //                                }
                             } else {
                                 String gene = (geneSymbol != null) ? geneSymbol : entrez;
-                                ProgressMonitor.logWarning("Gene not found:  [" + gene
+                                ProgressMonitor.logWarning("Gene not found for:  [" + gene
                                     + "]. Ignoring it "
                                     + "and all tab-delimited data associated with it!");
+                                return false;
                             }
                         } else if (genes.size()==1) {
                             if (discritizedCnaProfile) {
@@ -403,9 +405,14 @@ public class ImportTabDelimData {
     private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         String[] parts = antibodyWithGene.split("\\|");
+        //validate:
+        if (parts.length < 2) {
+        	ProgressMonitor.logWarning("Could not parse Composite.Element.Ref value " + antibodyWithGene + ". Record will be skipped.");
+        	return null;
+        }
         String[] symbols = parts[0].split(" ");
         String arrayId = parts[1];
-        
+        List<String> symbolsNotFound = new ArrayList<String>();
         List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         for (String symbol : symbols) {
             CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
@@ -413,8 +420,16 @@ public class ImportTabDelimData {
                 genes.add(gene);
             }
             else {
-            	ProgressMonitor.logWarning("Gene " + symbol + " not found in DB. Record will be skipped for this gene.");
+            	symbolsNotFound.add(symbol);
             }
+        }
+        if (genes.size() == 0) {
+        	return null;
+        }
+        //So one or more genes were found, but maybe some were not found. If any 
+        //is not found, report it here:
+        for (String symbol : symbolsNotFound) {
+        	ProgressMonitor.logWarning("Gene " + symbol + " not found in DB. Record will be skipped for this gene.");
         }
         
         Pattern p = Pattern.compile("(p[STY][0-9]+)");

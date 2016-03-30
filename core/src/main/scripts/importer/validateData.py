@@ -1646,14 +1646,31 @@ class RPPAValidator(FeaturewiseFileValidator):
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
-        # TODO check the gene symbols
-        # for rppa, first column should be hugo|antibody, everything after should be sampleIds
-        return nonsample_col_vals[0].strip()
+        # the ID consists of a space-separated list of gene symbols and/or
+        # Entrez identifiers, separated by a pipe symbol from the name of the
+        # antibody probe used to detect these genes. The values on the line
+        # will be loaded for each gene in the list, or for fictional genes that
+        # encode specific phosphorylated versions of the genes' protein
+        # products if the antibody name has a particular format.
+        value = nonsample_col_vals[0].strip()
+        symbol_element, antibody = value.split('|', 1)
+        symbol_list = symbol_element.split(' ')
+        for symbol in symbol_list:
+            if self.checkInt(symbol):
+                entrez_id = self.checkGeneIdentification(entrez_id=symbol)
+            else:
+                entrez_id = self.checkGeneIdentification(gene_symbol=symbol)
+            # TODO: return a value for (this phospo-version of) each gene
+        return antibody
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        # TODO check these values
-        pass
+        stripped_value = value.strip()
+        if stripped_value != 'NA' and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor NA",
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
 
 
 class TimelineValidator(Validator):

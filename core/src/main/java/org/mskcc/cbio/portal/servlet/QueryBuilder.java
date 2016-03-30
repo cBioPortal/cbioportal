@@ -46,8 +46,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.owasp.validator.html.PolicyException;
 
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.io.*;
 import java.util.*;
 import javax.servlet.*;

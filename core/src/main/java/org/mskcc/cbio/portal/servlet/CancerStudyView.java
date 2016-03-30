@@ -40,7 +40,6 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.owasp.validator.html.PolicyException;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *

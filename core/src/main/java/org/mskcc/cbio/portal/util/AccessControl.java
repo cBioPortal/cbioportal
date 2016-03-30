@@ -38,7 +38,6 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 

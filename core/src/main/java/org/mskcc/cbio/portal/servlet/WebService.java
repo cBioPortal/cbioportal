@@ -38,7 +38,6 @@ import org.mskcc.cbio.portal.web_api.*;
 import org.mskcc.cbio.portal.model.*;
 
 import org.json.simple.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;

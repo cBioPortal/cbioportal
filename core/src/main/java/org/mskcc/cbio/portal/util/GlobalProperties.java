@@ -717,11 +717,19 @@ public class GlobalProperties {
     
     public static String getDbVersion() {
         String version = properties.getProperty(DB_VERSION);
-        if (Pattern.matches("\\$\\{db\\.version\\}", version) || version == null) {
+        if (version == null) {
             InputStream is = getClasspathResourceStream();
             Properties cp_properties = loadProperties(is);
             version = cp_properties.getProperty(DB_VERSION);
         }
+        if (version != null) {
+            if (Pattern.matches("\\$\\{db\\.version\\}", version)) {
+                InputStream is = getClasspathResourceStream();
+                Properties cp_properties = loadProperties(is);
+                version = cp_properties.getProperty(DB_VERSION);
+            }
+        }
+
         if (version == null)
         {
             return "0";

@@ -4,13 +4,17 @@
          xmlns:b="http://www.springframework.org/schema/beans"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:context="http://www.springframework.org/schema/context"
+         xmlns:mvc="http://www.springframework.org/schema/mvc"
+		 xmlns:util="http://www.springframework.org/schema/util"
          xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
 
     <!-- beans shared across any authentication system -->
-    <b:beans profile="googleplus,openid,saml,ad">
+    <b:beans profile="googleplus,openid,saml,ad,openid-connect">
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
@@ -140,6 +144,243 @@
    
     <!-- end googleplus beans -->
     </b:beans>
+    
+    <!-- openid-connect beans -->
+    
+    <!-- ============================================================================================================================= -->
+    
+    <!-- Enables the Spring MVC @Controller programming model -->
+    <b:beans profile="openid-connect">
+	<mvc:annotation-driven />
+
+	<mvc:interceptors>
+		<!-- Inject the UserInfo into the current context -->
+		<b:bean id="userInfoInterceptor" class="org.mitre.openid.connect.web.UserInfoInterceptor" />
+
+    	<b:bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+	        <b:property name="cacheSeconds" value="0"/>
+	        <b:property name="useExpiresHeader" value="true"/>
+	        <b:property name="useCacheControlHeader" value="true"/>
+	        <b:property name="useCacheControlNoStore" value="true"/>
+    	</b:bean>
+
+	</mvc:interceptors>
+	
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
+		in the /WEB-INF/views directory -->	
+		
+	<b:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<b:property name="prefix" value="file://#{systemEnvironment['PORTAL_HOME']}/portal/src/main/webapp/WEB-INF/jsp/" />
+		<b:property name="suffix" value=".jsp" />
+	</b:bean>
+	
+
+	<context:component-scan base-package="org.mskcc.web" />
+	
+
+	<http 
+	    auto-config="false" 
+	    use-expressions="true"
+		disable-url-rewriting="true" 
+		entry-point-ref="authenticationEntryPoint"
+		pattern="/**">
+		
+		<intercept-url pattern="/auth/*" access="permitAll"/>
+	    <intercept-url pattern="/favicon.ico" access="permitAll"/>
+	    <intercept-url pattern="/login.jsp*" access="permitAll"/>
+	    <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+	    <intercept-url pattern="/reload_server_cache.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+	    <intercept-url pattern="/**" access="isAuthenticated()"/>
+
+		<custom-filter before="PRE_AUTH_FILTER" ref="openIdConnectAuthenticationFilter" />
+
+		<logout logout-success-url="/login.jsp" invalidate-session="true" delete-cookies="JSESSIONID" />
+
+	</http>
+	
+	
+	
+	<b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">		
+		<b:property name="loginFormUrl" value="/openid_connect_login" />		
+	</b:bean>
+			
+	<authentication-manager alias="authenticationManager">		
+		<authentication-provider ref="openIdConnectAuthenticationProvider" />		
+	</authentication-manager>
+			    
+    <!-- beans used to compare token returned by authentication-provider against portal user db tables -->
+    <b:bean id="authoritiesMapper" class="org.mskcc.cbio.portal.authentication.oidc.PortalOIDCAuthoritiesMapper">
+        <b:constructor-arg ref="portalUserDAO"/>
+    </b:bean>
+    
+			
+	<b:bean id="openIdConnectAuthenticationProvider" class="org.mskcc.cbio.portal.authentication.oidc.PortalOIDCAuthenticationProvider">	
+		<b:property name="authoritiesMapper" ref="authoritiesMapper" />
+	</b:bean>
+
+			
+	<util:set id="namedAdmins" value-type="org.mitre.openid.connect.client.SubjectIssuerGrantedAuthority">		
+		<!-- 		
+			This is an example of how to set up a user as an administrator: they'll be given ROLE_ADMIN in addition to ROLE_USER.		
+			Note that having an administrator role on the IdP doesn't grant administrator access on this client.		
+					
+			These are values from the demo "openid-connect-server-webapp" project of MITREid Connect.		
+		-->		
+		<b:bean class="org.mitre.openid.connect.client.SubjectIssuerGrantedAuthority">		
+			<b:constructor-arg name="subject" value="${oidc.adminSubject}" />		
+			<b:constructor-arg name="issuer" value="${oidc.issuer}" />		
+		</b:bean>		
+	</util:set>
+	
+	<!-- 
+	  -
+	  - The authentication filter
+	  -	
+	  -->
+	<b:bean id="openIdConnectAuthenticationFilter" class="org.mitre.openid.connect.client.OIDCAuthenticationFilter">
+		<b:property name="authenticationManager" ref="authenticationManager" />
+		<b:property name="issuerService" ref="issuerService" />
+	   	<b:property name="serverConfigurationService" ref="serverConfigurationService" />
+	   	<b:property name="clientConfigurationService" ref="clientConfigurationService" />
+	   	<b:property name="authRequestOptionsService" ref="authRequestOptionsService" />
+	   	<b:property name="authRequestUrlBuilder" ref="plainAuthRequestUrlBuilder" />
+ 		<b:property name="authenticationSuccessHandler" ref="successHandler" />
+	</b:bean>
+	
+	<b:bean id="successHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
+        <b:property name="defaultTargetUrl" value="/index.do"/>
+        <b:property name="alwaysUseDefaultTargetUrl" value="true"/>
+    </b:bean>
+	
+	<!-- 
+		Static issuer service, returns the same issuer for every request.
+	-->
+	<b:bean class="org.mitre.openid.connect.client.service.impl.StaticSingleIssuerService" id="issuerService">
+		<b:property name="issuer" value="${oidc.issuer}" />
+	</b:bean>
+	
+	<!--
+	  -
+	  - Server configuration: determines the parameters and URLs of the server to talk to.	  
+	  - 
+	  -->
+	 
+	<b:bean class="org.mitre.openid.connect.client.service.impl.DynamicServerConfigurationService" id="serverConfigurationService">
+	</b:bean>
+	
+	<!-- 
+	  -
+	  -	Client Configuration: Determine which client identifier and credentials are used.
+	  -
+	  -->
+
+	<b:bean class="org.mitre.openid.connect.client.service.impl.StaticClientConfigurationService" id="clientConfigurationService">
+	   <b:property name="clients">
+	      <b:map>
+	         <b:entry key="${oidc.issuer}">
+	            <b:bean class="org.mitre.oauth2.model.RegisteredClient">
+	               <b:property name="clientId" value="${oidc.clientId}" />
+	               <b:property name="clientSecret" value="${oidc.clientSecret}" />
+	               <b:property name="scope">
+	                  <b:set value-type="java.lang.String">
+	                     <b:value>openid</b:value>
+	                     <b:value>profile</b:value>
+	                     <b:value>email</b:value>
+	                  </b:set>
+	               </b:property>
+	               <b:property name="tokenEndpointAuthMethod" value="SECRET_POST" />
+	               <b:property name="redirectUris">
+	                  <b:set>
+	                     <b:value>${oidc.redirect}</b:value>
+	                  </b:set>
+	               </b:property>
+	             </b:bean>
+	         </b:entry>
+	      </b:map>
+	    </b:property>
+	</b:bean>
+	
+	<!--
+	  -
+	  -	Auth request options service: returns the optional components of the request
+	  - 
+	  -->
+	<b:bean class="org.mitre.openid.connect.client.service.impl.StaticAuthRequestOptionsService" id="authRequestOptionsService">
+		<b:property name="options">
+			<b:map>
+				<!-- Entries in this map are sent as key-value parameters to the auth request -->
+				<!-- 
+				<entry key="display" value="page" />
+				<entry key="max_age" value="30" />
+				<entry key="prompt" value="none" />
+				-->
+			</b:map>
+		</b:property>
+	</b:bean>
+	
+	<!-- 
+	 - 
+	 - Utility beans for the above classes
+	 -
+	 -->
+	 
+	 
+	<b:bean class="org.mitre.openid.connect.client.service.impl.PlainAuthRequestUrlBuilder" id="plainAuthRequestUrlBuilder" />
+	 <!--		
+		Signed authorization request builder, puts all options as elements in a JWS-signed request object 		
+	-->		
+	<b:bean class="org.mitre.openid.connect.client.service.impl.SignedAuthRequestUrlBuilder" id="signedAuthRequestUrlBuilder">		
+	  <b:property name="signingAndValidationService" ref="defaultSignerService" />		
+	</b:bean>		
+	<!-- 		
+		Encrypted authorization request builder, puts all the options as elements in a JWE-encrypted request object		
+	-->		
+	<b:bean class="org.mitre.openid.connect.client.service.impl.EncryptedAuthRequestUrlBuilder" id="encryptedAuthRequestUrlBuilder">		
+	  <b:property name="encrypterService" ref="validatorCache" />		
+	    <b:property name="alg">		
+	      <util:constant static-field="com.nimbusds.jose.JWEAlgorithm.RSA1_5"/>		
+	    </b:property>		
+	    <b:property name="enc">		
+	      <util:constant static-field="com.nimbusds.jose.EncryptionMethod.A128GCM"/>		
+	    </b:property>		
+	</b:bean>
+
+	<!-- 
+		This service fetches and caches JWK sets from URLs.
+	-->
+	
+	<b:bean id="validatorCache" class="org.mitre.jwt.signer.service.impl.JWKSetCacheService" />
+	
+	<!-- 
+		This service sets up a bunch of signers and validators based on our own keys.
+		Replace this keystore's contents for a production deployment.
+	 -->
+	<b:bean id="defaultSignerService" class="org.mitre.jwt.signer.service.impl.DefaultJwtSigningAndValidationService">
+		<b:constructor-arg name="keyStore">
+			<b:bean id="defaultKeyStore" class="org.mitre.jose.keystore.JWKSetKeyStore">
+				<b:property name="location" value="file://#{systemEnvironment['PORTAL_HOME']}/keystore.jwks" />
+			</b:bean>
+		</b:constructor-arg>
+		<b:property name="defaultSignerKeyId" value="rsa1" />
+ 		<b:property name="defaultSigningAlgorithmName" value="RS256" />
+	</b:bean>
+
+	<!-- 
+		This service publishes the client's public key on a the endpoint "jwk" off the root of this client.
+	-->	
+	<b:bean id="clientKeyPublisher" class="org.mitre.openid.connect.client.keypublisher.ClientKeyPublisher">
+ 		<b:property name="jwkPublishUrl" value="jwk" />
+ 		<b:property name="signingAndValidationService" ref="defaultSignerService" />
+ 	</b:bean>
+ 	
+ 	</b:beans>
+    
+    <!-- ============================================================================================================================= -->
 
     <!-- openid beans -->
     <b:beans profile="openid">

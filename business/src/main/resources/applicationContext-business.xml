@@ -18,7 +18,7 @@
             <property name="locations">
               <list>
                 <value>classpath:/portal.properties</value>
-                <value>file:///${PORTAL_HOME}/src/main/resources/portal.properties</value>
+                <value>file:///${PORTAL_HOME}/portal.properties</value>
               </list>
             </property>
           </bean>

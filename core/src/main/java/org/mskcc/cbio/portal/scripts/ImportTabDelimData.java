@@ -237,7 +237,7 @@ public class ImportTabDelimData {
             if (hugoSymbolIndex != -1) {
             	geneSymbol = parts[hugoSymbolIndex];
             }
-            //RPPA:
+            //RPPA: //TODO - we should split up the RPPA scenario from this code...too many if/else because of this
             if (rppaGeneRefIndex != -1) {
             	geneSymbol = parts[rppaGeneRefIndex];
             }
@@ -283,6 +283,11 @@ public class ImportTabDelimData {
                 	//If rppa, parse genes from "Composite.Element.REF" column:
                 	if (rppaProfile) {
                         genes = parseRPPAGenes(geneSymbol);
+                        if (genes == null) {
+                        	//will be null when there is a parse error in this case, so we 
+                        	//can return here and avoid duplicated messages:
+                        	return false;
+                        }	
                     }
                 	else {
 	                	//try entrez:
@@ -391,27 +396,42 @@ public class ImportTabDelimData {
 		//  Check that we have not already imported information regarding this gene.
         //  This is an important check, because a GISTIC or RAE file may contain
         //  multiple rows for the same gene, and we only want to import the first row.
-        if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
-            daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
-            importedGeneSet.add(gene.getEntrezGeneId());
-            return true;
-        }
-        else {
-        	//TODO - review this part - maybe it should be an Exception instead of just a warning.
-        	String geneSymbolMessage = "";
-        	if (geneSymbol != null)
-        		geneSymbolMessage = "(given in your file as: " + geneSymbol + ") ";
-        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " (" + gene.getEntrezGeneId() + ")" + geneSymbolMessage + " found to be duplicated in your file. Duplicated row will be ignored!");
-        	return false;
-        }
+		try {
+	        if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
+	            daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
+	            importedGeneSet.add(gene.getEntrezGeneId());
+	            return true;
+	        }
+	        else {
+	        	//TODO - review this part - maybe it should be an Exception instead of just a warning.
+	        	String geneSymbolMessage = "";
+	        	if (geneSymbol != null)
+	        		geneSymbolMessage = "(given in your file as: " + geneSymbol + ") ";
+	        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " (" + gene.getEntrezGeneId() + ")" + geneSymbolMessage + " found to be duplicated in your file. Duplicated row will be ignored!");
+	        	return false;
+	        }
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException("Aborted: Error found for row starting with " + geneSymbol + ": " + e.getMessage());
+		}
     }
     
-    private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene) throws DaoException {
+	/**
+	 * Tries to parse the genes and look them up in DaoGeneOptimized
+	 * 
+	 * @param antibodyWithGene
+	 * @return returns null if something was wrong, e.g. could not parse the antibodyWithGene string; returns 
+	 * a list with 0 or more elements otherwise.
+	 * @throws DaoException
+	 */
+	private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         String[] parts = antibodyWithGene.split("\\|");
         //validate:
         if (parts.length < 2) {
         	ProgressMonitor.logWarning("Could not parse Composite.Element.Ref value " + antibodyWithGene + ". Record will be skipped.");
+        	//return null when there was a parse error:
         	return null;
         }
         String[] symbols = parts[0].split(" ");
@@ -428,7 +448,7 @@ public class ImportTabDelimData {
             }
         }
         if (genes.size() == 0) {
-        	return null;
+        	return genes;
         }
         //So one or more genes were found, but maybe some were not found. If any 
         //is not found, report it here:

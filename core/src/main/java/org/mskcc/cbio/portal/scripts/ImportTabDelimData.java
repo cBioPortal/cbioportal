@@ -255,7 +255,7 @@ public class ImportTabDelimData {
             
             //If all are empty, skip line:
             if (geneSymbol == null && entrez == null) {
-            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id " + (rppaProfile? "or Composite.Element.REF ":"") + "value");
+            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id " + (rppaProfile? "or Composite.Element.REF ":"") + " value");
             	return false;
             }
             else {
@@ -267,6 +267,7 @@ public class ImportTabDelimData {
                     //  the line contains information regarding an unknown gene, and
                     //  we cannot currently handle this.
                     ProgressMonitor.logWarning("Ignoring gene ID:  " + geneSymbol);
+                    return false;
                 } else {
                 	List<CanonicalGene> genes = null;
                 	//If rppa, parse genes from "Composite.Element.REF" column:
@@ -279,6 +280,10 @@ public class ImportTabDelimData {
 	                        CanonicalGene gene = daoGene.getGene(Long.parseLong(entrez));
 	                        if (gene!=null) {
 	                            genes = Arrays.asList(gene);
+	                        }
+	                        else {
+	                        	ProgressMonitor.logWarning("Entrez_Id " + entrez + " not found. Record will be skipped for this gene.");
+	                        	return false;
 	                        }
 	                    } 
 	                    //no entrez, try hugo:

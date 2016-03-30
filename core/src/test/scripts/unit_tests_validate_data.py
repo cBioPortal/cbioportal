@@ -459,6 +459,26 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         # expecting this gene to be the cause
         self.assertEquals(record.cause, 'ACT')
 
+    def test_blank_column_heading(self):
+        """Test whether an error is issued if a column has a blank name."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_blank_heading.txt',
+                                    validateData.CNAValidator)
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 1)
+        self.assertEqual(record.column_number, 2)
+        self.assertEqual(record.cause, '')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 1)
+        self.assertEqual(record.column_number, 8)
+        self.assertEqual(record.cause, '  ')
+        record = record_iterator.next()
+        self.assertIn('cannot be parsed', record.getMessage().lower())
+
 
 class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
 
@@ -473,6 +493,19 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 3)
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_repeated_gene(self):
+        """Test if a warning is issued and the line is skipped if duplicate."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_cna_duplicate_gene.txt',
+                                    validateData.CNAValidator)
+        # expecting a warning about the duplicate gene,
+        # but no errors about values
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 6)
+        self.assertTrue(record.cause.startswith('116983'))
 
     def test_invalid_discrete_cna(self):
         """Check a discrete CNA file with values that should yield errors."""

@@ -232,25 +232,35 @@ public class ImportTabDelimData {
             if (hugoSymbolIndex != -1) {
             	geneSymbol = parts[hugoSymbolIndex];
             }
-            //RPPA:
+            //RPPA: //TODO - we should split up the RPPA scenario from this code...too many if/else because of this
             if (rppaGeneRefIndex != -1) {
             	geneSymbol = parts[rppaGeneRefIndex];
             }
             if (geneSymbol!=null && geneSymbol.isEmpty()) {
                 geneSymbol = null;
             }
-            
+            if (rppaProfile && geneSymbol == null) {
+            	ProgressMonitor.logWarning("Ignoring line no Composite.Element.REF value");
+            	return false;
+            }
+            //get entrez
             String entrez = null;
             if (entrezGeneIdIndex!=-1) {
                 entrez = parts[entrezGeneIdIndex];
             }
-            if (entrez!=null && !entrez.matches("-?[0-9]+")) {
-                entrez = null;
+            if (entrez!=null) {
+            	if (entrez.isEmpty()) {
+            		entrez = null;
+            	}
+            	else if (!entrez.matches("-?[0-9]+")) {
+            		ProgressMonitor.logWarning("Ignoring line with invalid Entrez_Id " + entrez);
+                	return false;
+            	}            	
             }
             
             //If all are empty, skip line:
             if (geneSymbol == null && entrez == null) {
-            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id " + (rppaProfile? "or Composite.Element.REF ":"") + "value");
+            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id value");
             	return false;
             }
             else {
@@ -262,11 +272,17 @@ public class ImportTabDelimData {
                     //  the line contains information regarding an unknown gene, and
                     //  we cannot currently handle this.
                     ProgressMonitor.logWarning("Ignoring gene ID:  " + geneSymbol);
+                    return false;
                 } else {
                 	List<CanonicalGene> genes = null;
                 	//If rppa, parse genes from "Composite.Element.REF" column:
                 	if (rppaProfile) {
                         genes = parseRPPAGenes(geneSymbol);
+                        if (genes == null) {
+                        	//will be null when there is a parse error in this case, so we 
+                        	//can return here and avoid duplicated messages:
+                        	return false;
+                        }	
                     }
                 	else {
 	                	//try entrez:
@@ -274,6 +290,10 @@ public class ImportTabDelimData {
 	                        CanonicalGene gene = daoGene.getGene(Long.parseLong(entrez));
 	                        if (gene!=null) {
 	                            genes = Arrays.asList(gene);
+	                        }
+	                        else {
+	                        	ProgressMonitor.logWarning("Entrez_Id " + entrez + " not found. Record will be skipped for this gene.");
+	                        	return false;
 	                        }
 	                    } 
 	                    //no entrez, try hugo:
@@ -304,12 +324,14 @@ public class ImportTabDelimData {
                                     ProgressMonitor.logWarning("microRNA is not known to me:  [" + geneSymbol
                                         + "]. Ignoring it "
                                         + "and all tab-delimited data associated with it!");
+                                    return false;
 //                                }
                             } else {
                                 String gene = (geneSymbol != null) ? geneSymbol : entrez;
-                                ProgressMonitor.logWarning("Gene not found:  [" + gene
+                                ProgressMonitor.logWarning("Gene not found for:  [" + gene
                                     + "]. Ignoring it "
                                     + "and all tab-delimited data associated with it!");
+                                return false;
                             }
                         } else if (genes.size()==1) {
                             if (discritizedCnaProfile) {
@@ -343,22 +365,31 @@ public class ImportTabDelimData {
                                     }
                                 }
                             }
-                            storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
-                            
-                            recordStored = true;
+                            recordStored = storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0), geneSymbol);
                         } else {
-                        	//TODO - review: is this still correct? 
+                        	//TODO - review: is this still correct?
+                        	int otherCase = 0;
                             for (CanonicalGene gene : genes) {
-                                if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
-                                    storeGeneticAlterations(values, daoGeneticAlteration, gene);
-                                    recordStored = true;
-                                }
+                            	if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
+	                            	boolean result = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
+	                            	if (result == true)
+	                            		recordStored = true;
+                            	}
+                            	else {
+                            		otherCase++;
+                            	}
                             }
                             if (!recordStored) {
-                            	//this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with 
-                            	//the ambiguous alias list. Report this:
-                            	ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous. Record will be skipped for this gene.");
-                            }
+		                        if (otherCase > 1) {
+		                        	//this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with 
+		                        	//the ambiguous alias list. Report this:
+		                        	ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous. Record will be skipped for this gene.");
+		                        }
+		                        else { 
+		                        	//should not occur:
+		                        	throw new RuntimeException("Unexpected error: unable to process row with gene " + geneSymbol);
+	                            }
+                        	}
                         }
                     }
                 }
@@ -367,27 +398,52 @@ public class ImportTabDelimData {
         return recordStored;
 	}
 
-	private void storeGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
-            CanonicalGene gene) throws DaoException {
+	private boolean storeGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
+            CanonicalGene gene, String geneSymbol) throws DaoException {
 		//  Check that we have not already imported information regarding this gene.
         //  This is an important check, because a GISTIC or RAE file may contain
         //  multiple rows for the same gene, and we only want to import the first row.
-        if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
-            daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
-            importedGeneSet.add(gene.getEntrezGeneId());
-        }
-        else {
-        	//TODO - review this part - maybe it should be an Exception instead of just a warning.
-        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " found to be duplicated in your file. Duplicated row will be ignored!");
-        }
+		try {
+	        if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
+	            daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
+	            importedGeneSet.add(gene.getEntrezGeneId());
+	            return true;
+	        }
+	        else {
+	        	//TODO - review this part - maybe it should be an Exception instead of just a warning.
+	        	String geneSymbolMessage = "";
+	        	if (geneSymbol != null)
+	        		geneSymbolMessage = "(given in your file as: " + geneSymbol + ") ";
+	        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " (" + gene.getEntrezGeneId() + ")" + geneSymbolMessage + " found to be duplicated in your file. Duplicated row will be ignored!");
+	        	return false;
+	        }
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException("Aborted: Error found for row starting with " + geneSymbol + ": " + e.getMessage());
+		}
     }
     
-    private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene) throws DaoException {
+	/**
+	 * Tries to parse the genes and look them up in DaoGeneOptimized
+	 * 
+	 * @param antibodyWithGene
+	 * @return returns null if something was wrong, e.g. could not parse the antibodyWithGene string; returns 
+	 * a list with 0 or more elements otherwise.
+	 * @throws DaoException
+	 */
+	private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         String[] parts = antibodyWithGene.split("\\|");
+        //validate:
+        if (parts.length < 2) {
+        	ProgressMonitor.logWarning("Could not parse Composite.Element.Ref value " + antibodyWithGene + ". Record will be skipped.");
+        	//return null when there was a parse error:
+        	return null;
+        }
         String[] symbols = parts[0].split(" ");
         String arrayId = parts[1];
-        
+        List<String> symbolsNotFound = new ArrayList<String>();
         List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         for (String symbol : symbols) {
             CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
@@ -395,8 +451,16 @@ public class ImportTabDelimData {
                 genes.add(gene);
             }
             else {
-            	ProgressMonitor.logWarning("Gene " + symbol + " not found in DB. Record will be skipped for this gene.");
+            	symbolsNotFound.add(symbol);
             }
+        }
+        if (genes.size() == 0) {
+        	return genes;
+        }
+        //So one or more genes were found, but maybe some were not found. If any 
+        //is not found, report it here:
+        for (String symbol : symbolsNotFound) {
+        	ProgressMonitor.logWarning("Gene " + symbol + " not found in DB. Record will be skipped for this gene.");
         }
         
         Pattern p = Pattern.compile("(p[STY][0-9]+)");

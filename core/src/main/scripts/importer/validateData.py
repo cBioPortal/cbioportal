@@ -765,6 +765,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = []
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
+    ALLOW_BLANKS = True
 
     def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
@@ -772,6 +773,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         Return the number of fatal errors.
         """
         num_errors = super(GenewiseFileValidator, self).checkHeader(cols)
+        # see if at least one of the gene identifiers is in the right place
         if not ('Hugo_Symbol' in self.cols or
                 'Entrez_Gene_Id' in self.cols):
             self.logger.error('At least one of the columns Hugo_Symbol or '
@@ -802,12 +804,11 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
                 entrez_id = None
         self.checkGeneIdentification(hugo_symbol, entrez_id)
 
-
 class CNAValidator(GenewiseFileValidator):
 
     """Sub-class CNA validator."""
 
-    ALLOWED_VALUES = ['-2','-1','0','1','2','','NA']
+    ALLOWED_VALUES = ['-2', '-1', '0', '1', '2', 'NA']
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""

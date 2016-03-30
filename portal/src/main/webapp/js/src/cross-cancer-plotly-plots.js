@@ -425,7 +425,7 @@ var ccPlots = (function (Plotly, _, $) {
 
         $("#cc_plots_box").empty();
         Plotly.newPlot('cc_plots_box', data, layout, {showLink: false});
-        $("#cc_plots_box").append("<span style='color:grey;position:relative;top:-40px;left:10px;'>*TCGA provisional only. By default, Stomach Adenocarcinoma and Esophageal Carcinoma are excluded (click <a href='#' onclick='ccPlots.include_all()'>here</a> to include).</span>");
+        $("#cc_plots_box").append("<span style='color:grey;position:relative;top:-40px;left:10px;'>*TCGA provisional only.</span>");
 
         //link to sample view
         var ccPlotsElem = document.getElementById('cc_plots_box');
@@ -459,11 +459,6 @@ var ccPlots = (function (Plotly, _, $) {
                 ccPlots.update();
             });
             
-            // exclude certain studies
-            var _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.short_name.indexOf("Stomach") !== -1 })[0];
-            document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
-            _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.short_name.indexOf("Esophagus") !== -1 })[0];
-            document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
             ccPlots.update();
         }
 
@@ -562,9 +557,6 @@ var ccPlots = (function (Plotly, _, $) {
             
             // re-generate the view
             fetch_profile_data(_selected_study_ids);
-        },
-        include_all: function() {
-            $("#cc_plots_study_selection_btn").click();
         }
         
     };

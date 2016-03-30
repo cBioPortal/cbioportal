@@ -549,26 +549,31 @@ class Validator(object):
             return False
         return True
 
-    # TODO let this function know the column numbers for logging messages
+    # TODO: let this function know the column numbers for logging messages
     def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
-        """Check if a symbol-Entrez pair is valid, logging an error or warning if not.
+        """Attempt to resolve a symbol-Entrez pair, logging any issues.
 
-        It is considered invalid in these cases:
-            1. (error) Entrez id and symbol are both empty
-        If self.portal.hugo_entrez_map and self.portal.alias_entrez_map are defined:
-            2. (warning) Only Entrez id or symbol is filled, and filled value cannot be found in the portal
-            3. (error) Gene symbol maps to multiple Entrez ids
-            4. (error) Gene alias maps to multiple Entrez ids
-            
-            
-        Furthermore, this function gives a warning in the following cases 
-        (if self.portal.hugo_entrez_map and self.portal.alias_entrez_map are defined):
-            1. (warning) Entrez ID exists, but the gene symbol specified is not known to the portal
+        It will fail to resolve in these cases:
+            1. (error) Entrez id and symbol are both missing (None)
+        If self.portal.hugo_entrez_map and self.portal.alias_entrez_map are
+        defined:
+            2. (warning) Only one of the identifiers is supplied, and its value
+               cannot be found in the portal
+            3. (error) The gene symbol maps to multiple Entrez ids
+            4. (error) The gene alias maps to multiple Entrez ids
+
+        Furthermore, the function logs a warning in the following cases, if
+        self.portal.hugo_entrez_map and self.portal.alias_entrez_map are
+        defined:
+            1. (warning) Entrez ID exists, but the gene symbol specified is not
+               known to the portal
             2. (warning) Gene symbol and Entrez identifier do not match
-            3. (warning) The Hugo gene symbol maps to a single Entrez gene ID, but is 
-               also associated to other genes as an alias.
+            3. (warning) The Hugo gene symbol maps to a single Entrez gene ID,
+               but is also associated to other genes as an alias.
 
-        Return False if considered invalid, True otherwise.
+        Return the Entrez gene id (or symbol if the PortalInstance maps are
+        undefined and the mapping step is skipped), or None if no gene could be
+        unambiguously identified.
         """
         # set to upper, as both maps contain symbols in upper
         if gene_symbol is not None:
@@ -579,55 +584,73 @@ class Validator(object):
             self.logger.error(
                 'No Entrez id or gene symbol provided for gene',
                 extra={'line_number': self.line_number})
-            return False
+            return None
 
         # if portal information is absent, skip the rest of the checks
         if (self.portal.hugo_entrez_map is None or
                 self.portal.alias_entrez_map is None):
-            return True
+            return entrez_id or gene_symbol
 
-        # check whether anything is unknown or contradictory to the portal
-        # TODO reorder to perform as many checks as sensible with assumptions
+        # try to use the portal maps to resolve to a single Entrez id
+        identified_entrez_id = None
         if entrez_id is not None:
-            if entrez_id not in self.portal.entrez_set:
+            if entrez_id in self.portal.entrez_set:
+                # set the value to be returned
+                identified_entrez_id = entrez_id
+                # some warnings if the gene symbol is specified too
+                if gene_symbol is not None:
+                    if (gene_symbol not in self.portal.hugo_entrez_map and
+                            gene_symbol not in self.portal.alias_entrez_map):
+                        self.logger.warning(
+                            'Entrez ID exists, but the gene symbol specified '
+                            'is not known to the cBioPortal instance. The '
+                            'symbol will be ignored',
+                            extra={'line_number': self.line_number,
+                                   'cause': gene_symbol})
+                    elif entrez_id not in itertools.chain(
+                            self.portal.hugo_entrez_map.get(gene_symbol, []),
+                            self.portal.alias_entrez_map.get(gene_symbol, [])):
+                        self.logger.warning(
+                            'Gene symbol and Entrez identifier do not match, '
+                            'the symbol will be ignored',
+                            extra={'line_number': self.line_number,
+                                   'cause': '(%s, %s)' % (gene_symbol,
+                                                          entrez_id)})
+            else:
                 self.logger.warning(
-                    'Entrez gene id not known to the cBioPortal instance. This gene will not be loaded',
+                    'Entrez gene id not known to the cBioPortal instance. '
+                    'This gene will not be loaded',
                     extra={'line_number': self.line_number,
                            'cause': entrez_id})
-                return False
-            # if the gene symbol is specified too
-            elif gene_symbol is not None:
-                if (gene_symbol not in self.portal.hugo_entrez_map and
-                        gene_symbol not in self.portal.alias_entrez_map):
-                    self.logger.warning(
-                        'Entrez ID exists, but the gene symbol specified is '
-                        'not known to the cBioPortal instance. The '
-                        'symbol will be ignored',
-                        extra={'line_number': self.line_number,
-                               'cause': gene_symbol})
-                    # do not return False, since gene can be identified
-                elif entrez_id not in itertools.chain(
-                        self.portal.hugo_entrez_map.get(gene_symbol, []),
-                        self.portal.alias_entrez_map.get(gene_symbol, [])):
-                    self.logger.warning(
-                        'Gene symbol and Entrez identifier do not match, the '
-                        'symbol will be ignored',
-                        extra={'line_number': self.line_number,
-                               'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
-                    # do not return False, since gene can be identified
+        # no Entrez id, only a symbol
         elif gene_symbol is not None:
-            if (gene_symbol not in self.portal.hugo_entrez_map and
-                    gene_symbol not in self.portal.alias_entrez_map):
-                self.logger.warning(
-                    'Gene symbol not known to the cBioPortal instance. This gene will not be loaded',
-                    extra={'line_number': self.line_number,
-                           'cause': gene_symbol})
-                return False
+            # count canonical HUGO symbols and aliases that map this symbol to
+            # a gene
             num_entrezs_for_hugo = len(
                 self.portal.hugo_entrez_map.get(gene_symbol, []))
             num_entrezs_for_alias = len(
                 self.portal.alias_entrez_map.get(gene_symbol, []))
-            if num_entrezs_for_hugo > 1:
+            if num_entrezs_for_hugo == 1:
+                # set the value to be returned
+                identified_entrez_id = \
+                    self.portal.hugo_entrez_map[gene_symbol][0]
+                # check if there are other *different* entrez ids associated
+                # with this symbol
+                other_entrez_ids_in_aliases = [
+                    x for x in
+                    self.portal.alias_entrez_map.get(gene_symbol, []) if
+                    x != identified_entrez_id]
+                if len(other_entrez_ids_in_aliases) >= 1:
+                    # give a warning, as the symbol may have been used to refer
+                    # to different entrez_ids over time
+                    self.logger.warning(
+                        'This Hugo gene symbol maps to a single Entrez gene '
+                        'ID, but is also associated to other genes as an '
+                        'alias. The system will assume the official Hugo '
+                        'symbol to be the intended one.',
+                        extra={'line_number': self.line_number,
+                               'cause': gene_symbol})
+            elif num_entrezs_for_hugo > 1:
                 # nb: this should actually never occur, see also https://github.com/cBioPortal/cbioportal/issues/799
                 self.logger.error(
                     'Gene symbol maps to multiple Entrez ids (%s), '
@@ -635,11 +658,13 @@ class Validator(object):
                     '/'.join(self.portal.hugo_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number,
                           'cause': gene_symbol})
-                return False
-            elif num_entrezs_for_hugo == 0 and num_entrezs_for_alias > 1:
-                # If gene_symbol was only in aliases_entrez_map, then
-                # hugo_entrez_map.get(gene_symbol) will be empty
-                # and we need to check the aliases_entrez_map.
+            # no canonical symbol, but a single unambiguous alias
+            elif num_entrezs_for_alias == 1:
+                # set the value to be returned
+                identified_entrez_id = \
+                    self.portal.alias_entrez_map[gene_symbol][0]
+            # no canonical symbol, and multiple different aliases
+            elif num_entrezs_for_alias > 1:
                 # TODO - maybe this should be warning instead? Depends on how loader deals with this
                 # TODO: move matched IDs out of the message for collapsing
                 self.logger.error(
@@ -648,26 +673,15 @@ class Validator(object):
                     '/'.join(self.portal.alias_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
-                return False
-            elif num_entrezs_for_hugo == 1:
-                found_entrez_id = self.portal.hugo_entrez_map[gene_symbol][0]
-                # check if there are other *different* entrez ids associated to this symbol:
-                other_entrez_ids_in_aliases = [
-                    x for x in
-                    self.portal.alias_entrez_map.get(gene_symbol, []) if
-                    x != found_entrez_id]
-                if len(other_entrez_ids_in_aliases) >= 1:
-                    # Give warning, as the symbol has been used before to refer to different entrez_ids 
-                    # over time, but do NOT return False:
-                    self.logger.warning(
-                        'This Hugo gene symbol maps to a single Entrez gene '
-                        'ID, but is also associated to other genes as an '
-                        'alias. The system will assume the official Hugo '
-                        'symbol to be the intended one.',
-                        extra={'line_number': self.line_number,
-                               'cause': gene_symbol})
-                    # do not return False, since gene can be identified
-        return True
+            # no canonical symbol and no alias
+            else:
+                self.logger.warning(
+                    'Gene symbol not known to the cBioPortal instance. This '
+                    'gene will not be loaded',
+                    extra={'line_number': self.line_number,
+                           'cause': gene_symbol})
+
+        return identified_entrez_id
 
     def _checkRepeatedColumns(self):
         num_errors = 0

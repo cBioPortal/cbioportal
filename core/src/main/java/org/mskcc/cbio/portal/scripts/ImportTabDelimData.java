@@ -244,7 +244,11 @@ public class ImportTabDelimData {
             if (geneSymbol!=null && geneSymbol.isEmpty()) {
                 geneSymbol = null;
             }
-            
+            if (rppaProfile && geneSymbol == null) {
+            	ProgressMonitor.logWarning("Ignoring line no Composite.Element.REF value");
+            	return false;
+            }
+            //get entrez
             String entrez = null;
             if (entrezGeneIdIndex!=-1) {
                 entrez = parts[entrezGeneIdIndex];
@@ -261,7 +265,7 @@ public class ImportTabDelimData {
             
             //If all are empty, skip line:
             if (geneSymbol == null && entrez == null) {
-            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id " + (rppaProfile? "or Composite.Element.REF ":"") + " value");
+            	ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id value");
             	return false;
             }
             else {

@@ -313,11 +313,7 @@ public class TestImportTabDelimData {
         daoGene.addGene(new CanonicalGene(1111, "CHEK1"));
         daoGene.addGene(new CanonicalGene(19, "ABCA1"));
         //Gene with alias:
-        CanonicalGene gene = new CanonicalGene(7504, "XK");
-        Set<String> aliases = new HashSet<String>();
-        aliases.add("NA");
-        gene.setAliases(aliases);
-        daoGene.addGene(gene);
+        daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
         
         GeneticProfile geneticProfile = new GeneticProfile();
 
@@ -353,5 +349,70 @@ public class TestImportTabDelimData {
         assertEquals ("9", value );
     }
     
+    
+    /**
+     * Test importing of data_rppa file.
+     * @throws Exception All Errors.
+     */
+    @Test
+    public void testImportRppaData() throws Exception {
+        // test with both values of MySQLbulkLoader.isBulkLoad()
+        if (!MySQLbulkLoader.isBulkLoad())
+        	MySQLbulkLoader.bulkLoadOn();
+        
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
+
+        //Genes with alias:
+        daoGene.addGene(makeGeneWithAlias(31,"ACACA", "ACC1"));
+        daoGene.addGene(makeGeneWithAlias(207,"AKT1", "AKT"));
+        daoGene.addGene(makeGeneWithAlias(597,"SANDER", "ACC1"));
+        daoGene.addGene(makeGeneWithAlias(7158,"TP53BP1", "53BP1"));
+        daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
+        
+        daoGene.addGene(new CanonicalGene(32,"ACACB"));
+        daoGene.addGene(new CanonicalGene(208,"AKT2"));
+        daoGene.addGene(new CanonicalGene(369,"ARAF"));
+        daoGene.addGene(new CanonicalGene(1978, "EIF4EBP1"));
+        daoGene.addGene(new CanonicalGene(5562,"PRKAA1"));
+        daoGene.addGene(new CanonicalGene(7531,"YWHAE"));
+        daoGene.addGene(new CanonicalGene(10000,"AKT3"));
+        
+        GeneticProfile geneticProfile = new GeneticProfile();
+
+        geneticProfile.setCancerStudyId(studyId);
+        geneticProfile.setStableId("gbm_rppa");
+        geneticProfile.setGeneticAlterationType(GeneticAlterationType.PROTEIN_LEVEL);
+        geneticProfile.setDatatype("LOG2-VALUE");
+        geneticProfile.setProfileName("RPPA Data");
+        geneticProfile.setProfileDescription("RPPA Data");
+        DaoGeneticProfile.addGeneticProfile(geneticProfile);
+        
+        int newGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("gbm_rppa").getGeneticProfileId();
+
+        ProgressMonitor.setConsoleMode(true);
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/tabDelimitedData/data_rppa.txt");
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
+        ConsoleUtil.showMessages();
+        
+        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
+        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7531);
+        assertEquals ("1.5", value );
+        
+        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE4").getInternalId();
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7531);
+        assertEquals ("2", value );
+    }
+
+	private CanonicalGene makeGeneWithAlias(int entrez, String symbol, String alias) {
+		CanonicalGene gene = new CanonicalGene(entrez, symbol);
+        Set<String> aliases = new HashSet<String>();
+        aliases.add(alias);
+        gene.setAliases(aliases);
+        return gene;
+	}
     
 }

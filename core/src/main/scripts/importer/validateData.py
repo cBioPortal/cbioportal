@@ -1653,6 +1653,12 @@ class RPPAValidator(FeaturewiseFileValidator):
         # encode specific phosphorylated versions of the genes' protein
         # products if the antibody name has a particular format.
         value = nonsample_col_vals[0].strip()
+        if '|' not in value:
+            self.logger.error('No pipe symbol in RPPA probe column',
+                              extra={'line_number': self.line_number,
+                                     'column_number': 1,
+                                     'cause': nonsample_col_vals[0]})
+            return None
         symbol_element, antibody = value.split('|', 1)
         symbol_list = symbol_element.split(' ')
         for symbol in symbol_list:

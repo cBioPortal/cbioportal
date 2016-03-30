@@ -538,6 +538,51 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.column_number, 5)
         self.assertEqual(record.cause, '[Not Available]')
 
+    def test_valid_rppa(self):
+        """Check a valid RPPA file that should yield no errors."""
+        self.logger.setLevel(logging.DEBUG)
+        record_list = self.validate('data_rppa_valid.txt',
+                                    validateData.RPPAValidator)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_invalid_rppa(self):
+        """Check an RPPA file with values that should yield errors."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_rppa_invalid_values.txt',
+                                    validateData.RPPAValidator)
+        # expecting several errors
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, 'spam')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, '')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, ' ')
+
+    def test_repeated_rppa_entry(self):
+        """Test if a warning is issued and the line is skipped if duplicate."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_rppa_duplicate_entries.txt',
+                                    validateData.RPPAValidator)
+        # expecting only a warning
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 14)
+        self.assertTrue(record.cause.startswith('B-Raf'))
+
     # TODO: test other subclasses of FeatureWiseValidator
 
 

@@ -1643,6 +1643,7 @@ class MutationSignificanceValidator(Validator):
 class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
+    ALLOW_BLANKS = True
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""

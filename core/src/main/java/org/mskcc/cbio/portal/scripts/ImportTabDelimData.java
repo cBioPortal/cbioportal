@@ -249,8 +249,14 @@ public class ImportTabDelimData {
             if (entrezGeneIdIndex!=-1) {
                 entrez = parts[entrezGeneIdIndex];
             }
-            if (entrez!=null && !entrez.matches("-?[0-9]+")) {
-                entrez = null;
+            if (entrez!=null) {
+            	if (entrez.isEmpty()) {
+            		entrez = null;
+            	}
+            	else if (!entrez.matches("-?[0-9]+")) {
+            		ProgressMonitor.logWarning("Ignoring line with invalid Entrez_Id " + entrez);
+                	return false;
+            	}            	
             }
             
             //If all are empty, skip line:
@@ -353,15 +359,12 @@ public class ImportTabDelimData {
                                     }
                                 }
                             }
-                            storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
-                            
-                            recordStored = true;
+                            recordStored = storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0), geneSymbol);
                         } else {
                         	//TODO - review: is this still correct? 
                             for (CanonicalGene gene : genes) {
                                 if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
-                                    storeGeneticAlterations(values, daoGeneticAlteration, gene);
-                                    recordStored = true;
+                                	recordStored = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
                                 }
                             }
                             if (!recordStored) {
@@ -377,18 +380,23 @@ public class ImportTabDelimData {
         return recordStored;
 	}
 
-	private void storeGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
-            CanonicalGene gene) throws DaoException {
+	private boolean storeGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
+            CanonicalGene gene, String geneSymbol) throws DaoException {
 		//  Check that we have not already imported information regarding this gene.
         //  This is an important check, because a GISTIC or RAE file may contain
         //  multiple rows for the same gene, and we only want to import the first row.
         if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
             daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
             importedGeneSet.add(gene.getEntrezGeneId());
+            return true;
         }
         else {
         	//TODO - review this part - maybe it should be an Exception instead of just a warning.
-        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " (" + gene.getEntrezGeneId() + ") found to be duplicated in your file. Duplicated row will be ignored!");
+        	String geneSymbolMessage = "";
+        	if (geneSymbol != null)
+        		geneSymbolMessage = "(given in your file as: " + geneSymbol + ") ";
+        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " (" + gene.getEntrezGeneId() + ")" + geneSymbolMessage + " found to be duplicated in your file. Duplicated row will be ignored!");
+        	return false;
         }
     }
     

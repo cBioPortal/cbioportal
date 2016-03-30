@@ -170,7 +170,7 @@ class ErrorFileFormatter(cbioportal_common.ValidationMessageFormatter):
     def __init__(self, study_dir):
         """Initialize a logging Formatter with an appropriate format string."""
         super(ErrorFileFormatter, self).__init__(
-            '>%(rel_filename)s | %(message)s\n%(line_string)s')
+            '>%(rel_filename)s | %(levelname)s: %(message)s\n%(line_string)s')
         self.study_dir = study_dir
 
     def format(self, record):
@@ -2481,7 +2481,7 @@ def main_validate(args):
             capacity=1e6,
             flushLevel=logging.CRITICAL,
             target=errfile_handler)
-        coll_errfile_handler.setLevel(logging.ERROR)
+        coll_errfile_handler.setLevel(logging.WARNING)
         coll_errfile_handler.addFilter(LineMessageFilter())
         logger.addHandler(coll_errfile_handler)
 

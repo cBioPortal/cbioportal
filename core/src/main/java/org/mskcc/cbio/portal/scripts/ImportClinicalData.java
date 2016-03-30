@@ -211,6 +211,7 @@ public class ImportClinicalData {
                                       descriptions[i], datatypes[i],
                                       attributeTypes[i].equals(ClinicalAttribute.PATIENT_ATTRIBUTE),
                                       priorities[i]);
+            attrs.add(attr);
             //skip PATIENT_ID / SAMPLE_ID columns, i.e. these are not clinical attributes but relational columns:
             if (attr.getAttrId().equals(PATIENT_ID_COLUMN_NAME) ||
             	attr.getAttrId().equals(SAMPLE_ID_COLUMN_NAME)) {
@@ -225,7 +226,6 @@ public class ImportClinicalData {
             			". An attribute cannot change from SAMPLE type to PATIENT type (or vice-versa) during import. This should " + 
             			"be changed manually first in DB.");
             }
-            attrs.add(attr);
         }
 
         return attrs;

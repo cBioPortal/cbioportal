@@ -372,17 +372,29 @@ public class ImportTabDelimData {
                             }
                             recordStored = storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0), geneSymbol);
                         } else {
-                        	//TODO - review: is this still correct? 
+                        	//TODO - review: is this still correct?
+                        	int otherCase = 0;
                             for (CanonicalGene gene : genes) {
-                                if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
-                                	recordStored = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
-                                }
+                            	if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
+	                            	boolean result = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
+	                            	if (result == true)
+	                            		recordStored = true;
+                            	}
+                            	else {
+                            		otherCase++;
+                            	}
                             }
                             if (!recordStored) {
-                            	//this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with 
-                            	//the ambiguous alias list. Report this:
-                            	ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous. Record will be skipped for this gene.");
-                            }
+		                        if (otherCase > 1) {
+		                        	//this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with 
+		                        	//the ambiguous alias list. Report this:
+		                        	ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous. Record will be skipped for this gene.");
+		                        }
+		                        else { 
+		                        	//should not occur:
+		                        	throw new RuntimeException("Unexpected error: unable to process row with gene " + geneSymbol);
+	                            }
+                        	}
                         }
                     }
                 }

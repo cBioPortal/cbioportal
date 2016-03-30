@@ -64,4 +64,14 @@ public class SpringUtil
 		}
 	}
 
+	/**
+	 * Directly injects a context into the class, so we don't need to open 
+	 * any more XML files. 
+	 * 
+	 * @param context
+	 */
+	public static synchronized void initDataSource(ApplicationContext context)
+	{
+		SpringUtil.context = context;
+	}
 }

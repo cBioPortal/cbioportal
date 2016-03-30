@@ -388,7 +388,7 @@ public class ImportTabDelimData {
         }
         else {
         	//TODO - review this part - maybe it should be an Exception instead of just a warning.
-        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " found to be duplicated in your file. Duplicated row will be ignored!");
+        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + "(" + gene.getEntrezGeneId() + ") found to be duplicated in your file. Duplicated row will be ignored!");
         }
     }
     

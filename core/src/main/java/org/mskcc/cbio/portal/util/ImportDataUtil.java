@@ -75,6 +75,8 @@ public class ImportDataUtil
     {
         Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stableId);
         if (p == null) {
+        	//this is strange...but at least now it reports it is doing something strange. TODO - review this!
+        	ProgressMonitor.logWarning("Couldn't find patient "+stableId+" in study "+cancerStudy.getCancerStudyStableId() + ". Trying to find it in samples table...");
             // genomic data typically has sample ids, check if a sample exists with the id, and if so,
             // that the sample has a patient record associated with it
             Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableId);

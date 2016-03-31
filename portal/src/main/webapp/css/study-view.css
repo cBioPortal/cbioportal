@@ -1214,3 +1214,11 @@ cursor: pointer;
 .EFDT-table .btn {
     font-weight: normal !important;
 }
+
+.addChartTable{ 
+    max-width: 800px;
+}
+
+#add-chart-table-main{
+    width: 700px;
+}

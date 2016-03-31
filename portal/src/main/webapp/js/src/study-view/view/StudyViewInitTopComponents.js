@@ -267,23 +267,73 @@ var StudyViewInitTopComponents = (function() {
         AddCharts.initAddChartsButton(StudyViewInitCharts.getShowedChartsInfo());
         AddCharts.liClickCallback(liClickCallBack);
     }
-    
+     
+    function addTableInToolTip(){
+        var addChartWorker = {};
+        addChartWorker.opts = {};
+        addChartWorker.data = {};
+        addChartWorker.callbacks = {};
+        addChartWorker.data.attr = [{
+               name: 'addChart',
+               displayName: ''
+           },{
+               name: 'attributeName',
+               displayName: 'Attribute Name'
+           },{
+               name: 'nonEmptyCount',
+               displayName: 'Non Empty Count'
+           }
+       ];
+       var getAttrData = function(){
+             
+            var data = [];
+            StudyViewProxy.getAttrData().forEach(function(item, index){
+                data.push({addChart: '<input type="checkbox"/>', attributeName: item.display_name, nonEmptyCount: item.numOfNoneEmpty});
+            });
+            return data;
+        };
+
+        
+        addChartWorker.data.selected = [];
+        addChartWorker.data.arr = getAttrData();
+        
+        addChartWorker.opts.title = ' ';
+        addChartWorker.opts.name = 'addChart';
+        addChartWorker.opts.tableId = 'add-chart-table';
+        addChartWorker.opts.parentId = 'add-chart-custom-dialog';
+        
+        
+        var tableInstance = new Table();
+        tableInstance.initDiv(addChartWorker);
+        tableInstance.draw(addChartWorker.data);
+        tableInstance.resize();
+         
+    }
     function createDiv() {
         var _newElement = StudyViewBoilerplate.headerDiv(),
-            _customDialogQtip = jQuery.extend(true, {}, StudyViewBoilerplate.headerCaseSelectCustomDialog);
+            _customDialogQtip = jQuery.extend(true, {}, StudyViewBoilerplate.headerCaseSelectCustomDialog),
+            _addChartDialogQtip = jQuery.extend(true, {}, StudyViewBoilerplate.addChartCustomDialog);
         
         $("#study-view-header-function").append(_newElement);
         $("#study-view-header-function").append(StudyViewBoilerplate.customDialogDiv);
+        $("#study-view-header-function").append(StudyViewBoilerplate.addChartByCountDiv);
         $("#study-view-header-left-cancer_study-ids").val(StudyViewParams.params.studyId);
         $("#study-view-header-left-case-ids").val(StudyViewParams.params.sampleIds.join(" "));
         //$("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
         _customDialogQtip.position.target = $(window);
         _customDialogQtip.content.text = $('#study-view-case-select-custom-dialog');
         $('#study-view-header-right-1').qtip(_customDialogQtip);
+        
+        addTableInToolTip();
+        _addChartDialogQtip.position.target = $(window);
+        _addChartDialogQtip.content.text = $('#add-chart-custom-dialog');
+        //_addChartDialogQtip.content.text = '<p>hello world</p>';
+        $('#study-view-header-right-2').qtip(_addChartDialogQtip);
 
         initAddCharts("#study-view-header-right");
         // ensure header has proper values
         StudyViewInitCharts.changeHeader();
+        
     }
 
 

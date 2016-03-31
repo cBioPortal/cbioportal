@@ -309,11 +309,15 @@ public class TestImportTabDelimData {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
 
+        //Gene with alias:
+        if (daoGene.getGene(7504) == null) {
+        	//check, because it overlaps with other test and fails if added twice... TODO: why does it fail?
+        	daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
+        }
+        //Other genes:
         daoGene.addGene(new CanonicalGene(7124, "TNF"));
         daoGene.addGene(new CanonicalGene(1111, "CHEK1"));
         daoGene.addGene(new CanonicalGene(19, "ABCA1"));
-        //Gene with alias:
-        daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
         
         GeneticProfile geneticProfile = new GeneticProfile();
 
@@ -368,8 +372,11 @@ public class TestImportTabDelimData {
         daoGene.addGene(makeGeneWithAlias(207,"AKT1", "AKT"));
         daoGene.addGene(makeGeneWithAlias(597,"SANDER", "ACC1"));
         daoGene.addGene(makeGeneWithAlias(7158,"TP53BP1", "53BP1"));
-        daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
-        
+        if (daoGene.getGene(7504) == null) {
+        	//check, because it overlaps with other test and fails if added twice...
+        	daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
+        }
+        //Other genes:
         daoGene.addGene(new CanonicalGene(32,"ACACB"));
         daoGene.addGene(new CanonicalGene(208,"AKT2"));
         daoGene.addGene(new CanonicalGene(369,"ARAF"));
@@ -377,6 +384,8 @@ public class TestImportTabDelimData {
         daoGene.addGene(new CanonicalGene(5562,"PRKAA1"));
         daoGene.addGene(new CanonicalGene(7531,"YWHAE"));
         daoGene.addGene(new CanonicalGene(10000,"AKT3"));
+        daoGene.addGene(new CanonicalGene(5578,"PRKCA"));
+        
         
         GeneticProfile geneticProfile = new GeneticProfile();
 
@@ -405,6 +414,14 @@ public class TestImportTabDelimData {
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE4").getInternalId();
         value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7531);
         assertEquals ("2", value );
+        
+        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE4").getInternalId();
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7504);
+        assertEquals ("7", value );
+        
+        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 5578);
+        assertEquals ("1.5", value );
     }
 
 	private CanonicalGene makeGeneWithAlias(int entrez, String symbol, String alias) {

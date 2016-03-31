@@ -154,7 +154,7 @@
 
             }else{
                     histData.sort(function(a, b) {
-                        return metaData.cancer_studies[b.studyId].short_name < metaData.cancer_studies[a.studyId].short_name;
+                        return getStudyAbbr(a, metaData).localeCompare(getStudyAbbr(b, metaData));
                     });
             }
             

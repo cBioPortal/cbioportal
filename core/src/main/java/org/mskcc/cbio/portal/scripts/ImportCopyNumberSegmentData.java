@@ -84,6 +84,7 @@ public class ImportCopyNumberSegmentData {
 	        }
 
             String sampleId = StableIdUtil.getSampleId(strs[0]);
+            String chrom = strs[1]; //TODO : validate chromosome as is done in GisticReader? 
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
             if (start >= end) {
@@ -99,7 +100,7 @@ public class ImportCopyNumberSegmentData {
                 assert StableIdUtil.isNormal(sampleId);
                 continue;
             }
-            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), strs[1], start, end, numProbes, segMean);
+            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
             cns.setSegId(++segId);
             DaoCopyNumberSegment.addCopyNumberSegment(cns);
         }

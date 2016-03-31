@@ -61,6 +61,7 @@ public class ImportExtendedMutationData{
 	private File mutationFile;
 	private int geneticProfileId;
 	private MutationFilter myMutationFilter;
+	private int entriesSkipped = 0;
 
 	/**
 	 * construct an ImportExtendedMutationData.
@@ -136,6 +137,7 @@ public class ImportExtendedMutationData{
                                                                             StableIdUtil.getSampleId(barCode));
 		        if (sample == null) {
 		        	assert StableIdUtil.isNormal(barCode);
+		        	entriesSkipped++;
 		        	continue;
 		        }
 				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
@@ -148,12 +150,14 @@ public class ImportExtendedMutationData{
 				    validationStatus.equalsIgnoreCase("Wildtype"))
 				{
 					ProgressMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
+					entriesSkipped++;
 					continue;
 				}
 
 				String chr = DaoGeneOptimized.normalizeChr(record.getChr().toUpperCase());
 				if (chr==null) {
 					ProgressMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
+					entriesSkipped++;
 					continue;
 				}
 				record.setChr(chr);
@@ -217,6 +221,7 @@ public class ImportExtendedMutationData{
 				if (mutationType != null && mutationType.equalsIgnoreCase("rna"))
 				{
 					ProgressMonitor.logWarning("Skipping entry with mutation type: RNA");
+					entriesSkipped++;
 					continue;
 				}
 
@@ -242,6 +247,7 @@ public class ImportExtendedMutationData{
 				    if (gene == null) {
 				    	//skip
 				    	ProgressMonitor.logWarning("Entrez_Id " + entrezGeneId + " not found. Record will be skipped for this gene.");
+				    	entriesSkipped++;
 				    	continue;
 				    }				    	
 				}
@@ -258,6 +264,7 @@ public class ImportExtendedMutationData{
 					}
 					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + entrezMessagePart + ". Ignoring it "
 					                    + "and all mutation data associated with it!");
+					entriesSkipped++;
 					continue;
 				} else {
 					ExtendedMutation mutation = new ExtendedMutation();
@@ -337,6 +344,9 @@ public class ImportExtendedMutationData{
                                                     mutations.put(mutation,mutation);
                                                 }
 					}
+					else {
+						entriesSkipped++;
+					}
 				}
 			}
 		}
@@ -365,6 +375,7 @@ public class ImportExtendedMutationData{
                 DaoMutation.calculateMutationCount(geneticProfileId);
 		
                 ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
+                ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped:  " + entriesSkipped);
 
 	}
 

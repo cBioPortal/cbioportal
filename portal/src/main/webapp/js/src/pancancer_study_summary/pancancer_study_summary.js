@@ -395,7 +395,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 		 suffix = "%";
 		 //in %, with 1 decimal:
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
-         text = "Min. alteration ";
+         text = "Min. % altered samples ";
          init = this.dmPresenter.getMinAlteredSamples(this.model.get("dataTypeYAxis"), this.max);
 	 }
 
@@ -1113,7 +1113,7 @@ function DataManagerPresenter(dmInitCallBack)
 	         // in the rare cases where the maximum alteration frequency is smaller than 1%
 	         // set the defaultMinAlteredSamples to 0
 	         if(max<=defaultMinAlteredSamples) {
-	        	 console.log("Special case (max<=1) for 'Min. alteration'...");
+	        	 console.log("Special case (max<=1) for 'Min. % altered samples'...");
 	        	 defaultMinAlteredSamples = 0;  
 	         }
 		 }

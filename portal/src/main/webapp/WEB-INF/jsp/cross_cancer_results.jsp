@@ -222,12 +222,12 @@
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
                         <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
-                        <input style="float:left;" id="minY" size="2" type="text">
+                        <input style="float:left;" id="minY" size="3" type="text">
                     </div>
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" >Min. # total samples:</span>
                         <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"></div>
-                        <input style="float:left;" id="minY" size="2" type="text">
+                        <input style="float:left;" id="minTotal" size="3" type="text">
                     </div>
                     <div style="float:left;margin-right:20px;">
                         <input type="checkbox" id="histogram-show-colors" checked> Show alteration types
@@ -259,7 +259,7 @@
                 
             </div>
 
-            <div id="cchistogram">
+            <div id="cchistogram" style="width: 1100px; height: 820px;position:relative;margin-top:30px;">
                 <img src="images/ajax-loader.gif"/>
             </div>
 

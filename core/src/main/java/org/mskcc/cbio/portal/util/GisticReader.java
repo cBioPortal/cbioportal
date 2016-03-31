@@ -36,16 +36,9 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
-import org.mskcc.cbio.portal.validate.ValidateGistic;
-import org.mskcc.cbio.portal.validate.validationException;
-import org.springframework.ui.context.Theme;
 
 import java.io.*;
-import java.lang.System;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Utility for importing Gistic data from a file
@@ -59,9 +52,6 @@ public class GisticReader {
      * @return                  CancerStudyId
      * @throws DaoException
      */
-    
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(GisticReader.class);
-
     public int getCancerStudyInternalId(String cancerStudy_str)
             throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudy_str);
@@ -211,7 +201,7 @@ public class GisticReader {
 
             if (canonicalGene != null) {
                 if (canonicalGene.isMicroRNA()) {
-                    System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
+                	ProgressMonitor.logWarning("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
                     continue;
                 }
 
@@ -221,7 +211,7 @@ public class GisticReader {
         // -- end parse genes --
         
         if (genes.size() == 0) {
-            logger.info("No genes found in database - skipping gistic event");
+        	ProgressMonitor.logWarning("No genes found in database for " + genesField + ". Skipping gistic event");
             return null;
         }
         gistic.setGenes_in_ROI(genes);

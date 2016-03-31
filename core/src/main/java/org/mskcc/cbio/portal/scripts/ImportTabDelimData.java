@@ -460,6 +460,7 @@ public class ImportTabDelimData {
             }
         }
         if (genes.size() == 0) {
+        	//return empty list:
         	return genes;
         }
         //So one or more genes were found, but maybe some were not found. If any 

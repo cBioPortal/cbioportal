@@ -127,25 +127,60 @@
 	In addition, if selected, drug-gene interactions are shown as edges in the network. The interaction types are:
 	<ul>
 		<li>
-			<span class="bold">In same component:</span>
-			Two entities belong to the same molecular complex.
+		  <span class="bold">controls-state-change-of:
+		  </span>First protein controls a reaction that changes the state of the second protein.
 		</li>
 		<li>
-			<span class="bold">Reacts with:</span>
-			The entities participate in a conversion as substrates or products.
+		  <span class="bold">controls-transport-of:
+		  </span>First protein controls a reaction that changes the cellular location of the second protein.
 		</li>
 		<li>
-			<span class="bold">State change:</span>
-			The first entity controls a reaction that changes the state of the second entity,
-			e.g. by phosphorylation or other posttranslational modification,
-			or by a change in subcellular location.
+		  <span class="bold">controls-phosphorylation-of:
+		  </span>First protein controls a reaction that changes the phosphorylation status of the second protein.
 		</li>
 		<li>
-			<span class="bold">Targeted by drug:</span>
-			The source node (drug) targets the destination node (gene).
+		  <span class="bold">controls-expression-of:
+		  </span>First protein controls a conversion or a template reaction that changes expression of the second protein.
 		</li>
 		<li>
-			<span class="bold">Other</span>
+		  <span class="bold">catalysis-precedes:
+		  </span>First protein controls a reaction whose output molecule is input to another reaction controled by the second protein.
+		</li>
+		<li>
+		  <span class="bold">in-complex-with:
+		  </span>Proteins are members of the same complex.
+		</li>
+		<li>
+		  <span class="bold">interacts-with:
+		  </span>Proteins are participants of the same MolecularInteraction.
+		</li>
+		<li>
+		  <span class="bold">neighbor-of:
+		  </span>Proteins are participants or controlers of the same interaction.
+		</li>
+		<li>
+		  <span class="bold">consumption-controled-by:
+		  </span>The small molecule is consumed by a reaction that is controled by a protein
+		</li>
+		<li>
+		  <span class="bold">controls-production-of:
+		  </span>The protein controls a reaction of which the small molecule is an output.
+		</li>
+		<li>
+		  <span class="bold">controls-transport-of-chemical:
+		  </span>The protein controls a reaction that changes cellular location of the small molecule.
+		</li>
+		<li>
+		  <span class="bold">chemical-affects:
+		  </span>A small molecule has an effect on the protein state.
+		</li>
+		<li>
+		  <span class="bold">reacts-with:
+		  </span>Small molecules are input to a biochemical reaction.
+		</li>
+		<li>
+		  <span class="bold">used-to-produce:
+		  </span>A reaction consumes a small molecule to produce another small molecule.
 		</li>
 	</ul>
 </p>
@@ -153,7 +188,7 @@
 	Click <a id="show_edge_legend">here</a> to see the color codes.
 </p>
 <p class="regular">
-	Complete details are available on the <a href="http://www.pathwaycommons.org/pc/sif_interaction_rules.do" target="_blank">Pathway Commons web site</a>.
+	Complete details are available on the <a href="http://www.pathwaycommons.org/pc2/formats" target="_blank">Pathway Commons web site</a>.
 </p>
 <p class="regular">
 	By default, redundant interactions are merged are merged into a single edge.

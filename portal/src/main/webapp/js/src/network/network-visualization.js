@@ -2507,8 +2507,7 @@ NetworkVis.prototype._initDialogs = function()
     // adjust edge legend
     $(this.edgeLegendSelector).dialog({autoOpen: false,
                                  resizable: false,
-                                 width: 280,
-                                 height: 152});
+                                 width: 280});
 
     //adjust edge typ2 UI visibility dialog
     $(this.interactionTypeVisibilitySelector).dialog({autoOpen: false,

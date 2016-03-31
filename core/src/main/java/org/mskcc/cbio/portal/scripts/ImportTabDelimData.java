@@ -58,6 +58,7 @@ public class ImportTabDelimData {
     private String targetLine;
     private int geneticProfileId;
     private GeneticProfile geneticProfile;
+    private int entriesSkipped = 0;
 
     /**
      * Constructor.
@@ -153,6 +154,7 @@ public class ImportTabDelimData {
 	           if (sample == null) {
 	                assert StableIdUtil.isNormal(sampleIds[i]);
 	                filteredSampleIndices.add(i);
+	                entriesSkipped++;
 	                continue;
 	           }
 	           if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
@@ -189,8 +191,12 @@ public class ImportTabDelimData {
 	        			rppaProfile, discritizedCnaProfile, 
 	        			daoGene, 
 	        			filteredSampleIndices, orderedSampleList, 
-	        			existingCnaEvents, daoGeneticAlteration))
+	        			existingCnaEvents, daoGeneticAlteration)) {
 	        		numRecordsToAdd++;
+	        	}
+	        	else {
+	        		entriesSkipped++;
+	        	}
 	            line = buf.readLine();
 	        }
 	        if (MySQLbulkLoader.isBulkLoad()) {
@@ -202,6 +208,8 @@ public class ImportTabDelimData {
         }
         finally {
 	        buf.close(); 
+	        ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped:  " + entriesSkipped);
+
 	        if (numRecordsToAdd == 0) {
 	            throw new DaoException ("Something has gone wrong!  I did not save any records" +
 	                    " to the database!");

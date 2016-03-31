@@ -49,6 +49,7 @@ import java.util.*;
 public class ImportCopyNumberSegmentData {
     private int cancerStudyId;
     private File file;
+    private int entriesSkipped = 0;
     
     public ImportCopyNumberSegmentData(File file, int cancerStudyId)
     {
@@ -93,6 +94,7 @@ public class ImportCopyNumberSegmentData {
             if (start >= end) {
             	//workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
             	ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
+            	entriesSkipped++;
             	continue;
             }            
             int numProbes = new BigDecimal((strs[4])).intValue();
@@ -101,6 +103,7 @@ public class ImportCopyNumberSegmentData {
             Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
             if (s == null) {
                 assert StableIdUtil.isNormal(sampleId);
+                entriesSkipped++;
                 continue;
             }
             CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
@@ -143,7 +146,7 @@ public class ImportCopyNumberSegmentData {
 			System.err.println(errorMessage);
 			ProgressMonitor.logWarning(errorMessage); 
 	    } finally {
-	        ConsoleUtil.showWarnings();
+        ConsoleUtil.showMessages();
 	    }
     }
 
@@ -204,10 +207,11 @@ public class ImportCopyNumberSegmentData {
     {
         File file = new File(dataFilename);
         int numLines = FileUtil.getNumLines(file);
-        System.out.println(" --> total number of lines:  " + numLines);
+        ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
         ProgressMonitor.setMaxValue(numLines);
         ImportCopyNumberSegmentData parser = new ImportCopyNumberSegmentData(file, cancerStudy.getInternalId());
         parser.importData();
+        ProgressMonitor.setCurrentMessage(" --> total number of entries skipped:  " + parser.entriesSkipped);
     }
 
     private static CopyNumberSegmentFile.ReferenceGenomeId getRefGenId(String potentialRefGenId) throws Exception

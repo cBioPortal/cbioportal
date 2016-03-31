@@ -173,6 +173,9 @@ public class GisticReader {
         if (fields[chromosomeField].equalsIgnoreCase("Y"))
             fields[chromosomeField] = "24";
         gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
+        if (gistic.getChromosome() > 24) {
+        	throw new IllegalArgumentException("Error: Invalid chromosome [" + gistic.getChromosome() + "]");
+        }
 
         gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
         gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));

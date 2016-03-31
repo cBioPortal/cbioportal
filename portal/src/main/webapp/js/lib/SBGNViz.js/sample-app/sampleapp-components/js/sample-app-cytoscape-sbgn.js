@@ -932,7 +932,7 @@ var getElementContent = function (ele) {
 
   var textProp = {
     label: content,
-    width: sbgnclass==('complex')?textWidth * 3:textWidth
+    width: sbgnclass==('complex')?textWidth * 2:textWidth
   };
 
   var font = getLabelTextSize(ele) + "px Arial";

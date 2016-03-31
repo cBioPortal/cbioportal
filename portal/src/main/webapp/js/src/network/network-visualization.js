@@ -82,7 +82,6 @@ function NetworkVis(divId)
 
     // relative selectors for the given div id
     this.edgeInspectorSelector = this._createEdgeInspector(divId);
-    this.interactionTypeVisibilitySelector = this._createInteractionTypeVisibilityWindow(divId);
     this.geneLegendSelector = this._createGeneLegend(divId);
     this.drugLegendSelector = this._createDrugLegend(divId);
     this.edgeLegendSelector = this._createEdgeLegend(divId);
@@ -259,8 +258,9 @@ NetworkVis.prototype.initNetworkUI = function(vis)
     this._refreshRelationsTab();
     this._refreshRelationsTabUIVisibility();
 
-    //Since edge sources are dynamic create pop-up here !
+    //Since edge sources and types are dynamic create pop-ups here !
     this.interactionSourceVisibilitySelector = this._createInteractionSourceVisibilityWindow(this.divId);
+    this.interactionTypeVisibilitySelector = this._createInteractionTypeVisibilityWindow(this.divId);
     this._initDialogs();
 
 
@@ -3240,13 +3240,14 @@ NetworkVis.prototype._refreshRelationsTab = function()
       {
           // do not display OTHER if its percentage is zero
           this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), false);
-
+          this.visibilityOfType[key] = false;
           // also do not display it in the edge legend
           //_setComponentVis($("#edge_legend .other"), false);
       }
       else
       {
           this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), true);
+          this.visibilityOfType[key] = true;
           //_setComponentVis($("#edge_legend .other"), true);
       }
     }

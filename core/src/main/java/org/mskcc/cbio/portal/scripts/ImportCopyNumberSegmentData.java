@@ -84,7 +84,10 @@ public class ImportCopyNumberSegmentData {
 	        }
 
             String sampleId = StableIdUtil.getSampleId(strs[0]);
-            String chrom = strs[1]; //TODO : validate chromosome as is done in GisticReader? 
+            String chrom = strs[1].trim(); 
+            //validate in same way as GistitReader:
+            ValidationUtils.validateChromosome(chrom);
+            
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
             if (start >= end) {

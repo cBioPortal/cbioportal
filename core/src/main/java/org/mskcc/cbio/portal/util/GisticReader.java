@@ -36,6 +36,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
+import org.mskcc.cbio.portal.scripts.ValidationUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -168,14 +169,8 @@ public class GisticReader {
         Gistic gistic = new Gistic();
         gistic.setCancerStudyId(cancerStudyId);
 
-        if (fields[chromosomeField].equalsIgnoreCase("X"))
-            fields[chromosomeField] = "23";
-        if (fields[chromosomeField].equalsIgnoreCase("Y"))
-            fields[chromosomeField] = "24";
+        ValidationUtils.validateChromosome(fields[chromosomeField]);
         gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
-        if (gistic.getChromosome() > 24) {
-        	throw new IllegalArgumentException("Error: Invalid chromosome [" + gistic.getChromosome() + "]");
-        }
 
         gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
         gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));

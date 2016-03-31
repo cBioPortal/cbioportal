@@ -43,12 +43,13 @@ import java.math.BigDecimal;
 import java.util.*;
 
 /**
- * Import protein array antibody information into database.
+ * Import Segment data into database.
  * @author jj
  */
 public class ImportCopyNumberSegmentData {
     private int cancerStudyId;
     private File file;
+    private int entriesSkipped = 0;
     
     public ImportCopyNumberSegmentData(File file, int cancerStudyId)
     {
@@ -73,21 +74,39 @@ public class ImportCopyNumberSegmentData {
             }
 
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+            //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
+	        //procedure. In this new procedure, Patients and Samples should only be added 
+	        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
+	        //sample per patient, which is not always the case.
             ImportDataUtil.addPatients(new String[] { strs[0] }, cancerStudy);
-            ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
+	        int nrUnknownSamplesAdded = ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
+	        if (nrUnknownSamplesAdded > 0) {
+	        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
+	        }
 
             String sampleId = StableIdUtil.getSampleId(strs[0]);
+            String chrom = strs[1].trim(); 
+            //validate in same way as GistitReader:
+            ValidationUtils.validateChromosome(chrom);
+            
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
+            if (start >= end) {
+            	//workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
+            	ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
+            	entriesSkipped++;
+            	continue;
+            }            
             int numProbes = new BigDecimal((strs[4])).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
             Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
             if (s == null) {
                 assert StableIdUtil.isNormal(sampleId);
+                entriesSkipped++;
                 continue;
             }
-            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), strs[1], start, end, numProbes, segMean);
+            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
             cns.setSegId(++segId);
             DaoCopyNumberSegment.addCopyNumberSegment(cns);
         }
@@ -127,7 +146,7 @@ public class ImportCopyNumberSegmentData {
 			System.err.println(errorMessage);
 			ProgressMonitor.logWarning(errorMessage); 
 	    } finally {
-	        ConsoleUtil.showWarnings();
+        ConsoleUtil.showMessages();
 	    }
     }
 
@@ -188,10 +207,11 @@ public class ImportCopyNumberSegmentData {
     {
         File file = new File(dataFilename);
         int numLines = FileUtil.getNumLines(file);
-        System.out.println(" --> total number of lines:  " + numLines);
+        ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
         ProgressMonitor.setMaxValue(numLines);
         ImportCopyNumberSegmentData parser = new ImportCopyNumberSegmentData(file, cancerStudy.getInternalId());
         parser.importData();
+        ProgressMonitor.setCurrentMessage(" --> total number of entries skipped:  " + parser.entriesSkipped);
     }
 
     private static CopyNumberSegmentFile.ReferenceGenomeId getRefGenId(String potentialRefGenId) throws Exception

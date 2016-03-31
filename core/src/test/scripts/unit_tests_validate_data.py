@@ -11,20 +11,23 @@ import sys
 import logging.handlers
 from importer import cbioportal_common
 from importer import validateData
+from importer.validateData import DEFINED_SAMPLE_ATTRIBUTES
 
 
 # globals for mock data used throughout the module
 DEFINED_SAMPLE_IDS = None
+DEFINED_SAMPLE_ATTRIBUTES = None
 PORTAL_INSTANCE = None
 
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
     global DEFINED_SAMPLE_IDS
+    global DEFINED_SAMPLE_ATTRIBUTES
     global PORTAL_INSTANCE
     # mock-code sample ids defined in a study
-    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
-    "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+    DEFINED_SAMPLE_ATTRIBUTES = {'PATIENT_ID', 'SAMPLE_ID', 'SUBTYPE', 'CANCER_TYPE', 'CANCER_TYPE_DETAILED'}
     # these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
     logger = logging.getLogger(__name__)
     # parse mock API results from a local directory
@@ -114,6 +117,7 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         super(PostClinicalDataFileTestCase, self).setUp()
         self.orig_defined_sample_ids = validateData.DEFINED_SAMPLE_IDS
         validateData.DEFINED_SAMPLE_IDS = DEFINED_SAMPLE_IDS
+        validateData.DEFINED_SAMPLE_ATTRIBUTES = DEFINED_SAMPLE_ATTRIBUTES
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
@@ -165,7 +169,7 @@ class ColumnOrderTestCase(DataFileTestCase):
         self.assertEqual(0, len(record_list))
 
 
-class ClinicalColumnDefsTestCase(DataFileTestCase):
+class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
 
     """Tests for validations of the column definitions in a clinical file."""
 
@@ -228,6 +232,17 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 11)
+        self.assertEqual(record.column_number, 2)
+
+    def test_tcga_sample_twice_in_one_file(self):
+        """Test when a sample is defined twice in the same file."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clin_repeated_tcga_sample.txt',
+                                    validateData.SampleClinicalValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 11)
         self.assertEqual(record.column_number, 2)
 
@@ -538,6 +553,65 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.column_number, 5)
         self.assertEqual(record.cause, '[Not Available]')
 
+    def test_valid_rppa(self):
+        """Check a valid RPPA file that should yield no errors."""
+        self.logger.setLevel(logging.DEBUG)
+        record_list = self.validate('data_rppa_valid.txt',
+                                    validateData.RPPAValidator)
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_invalid_rppa(self):
+        """Check an RPPA file with values that should yield errors."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_rppa_invalid_values.txt',
+                                    validateData.RPPAValidator)
+        # expecting several errors
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, 'spam')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, '')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, ' ')
+
+    def test_repeated_rppa_entry(self):
+        """Test if a warning is issued and the line is skipped if duplicate."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_rppa_duplicate_entries.txt',
+                                    validateData.RPPAValidator)
+        # expecting only a warning
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 14)
+        self.assertTrue(record.cause.startswith('B-Raf'))
+
+    def test_na_gene_in_rppa(self):
+        """Test if a warning is issued if the gene symbol NA occurs in RPPA."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_rppa_na_gene.txt',
+                                    validateData.RPPAValidator)
+        # expecting only a warning for each NA line
+        self.assertEqual(len(record_list), 9)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.WARNING)
+        for record, expected_line in zip(record_list, range(14, 23)):
+            self.assertEqual(record.line_number, expected_line)
+            self.assertEqual(record.column_number, 1)
+            self.assertIn('NA', record.getMessage())
+
     # TODO: test other subclasses of FeatureWiseValidator
 
 
@@ -677,16 +751,22 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[2].column_number, 6)
 
     def test_negative_length_segment(self):
-        """Validate a .seg where a start position is lower than its end position."""
-        self.logger.setLevel(logging.ERROR)
+        """Validate a .seg where a start position is no higher than its end."""
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_seg_end_before_start.seg',
                                     validateData.SegValidator,
                                     extra_meta_fields={'reference_genome_id':
                                                            'hg19'})
-        self.assertEqual(len(record_list), 1)
-        record = record_list.pop()
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        # negative-length segment
+        record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 11)
+        # zero-length segment
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 31)
 
     def test_out_of_bounds_coordinates(self):
         """Validate .seg files with regions spanning outside of the chromosome."""

@@ -103,7 +103,6 @@ public class TestImportExtendedMutationData {
 	}
 	
 	@Test
-	@Ignore("To be fixed")
     public void testImportExtendedMutationDataExtended() throws IOException, DaoException {
 		
         MySQLbulkLoader.bulkLoadOn();
@@ -119,8 +118,8 @@ public class TestImportExtendedMutationData {
         checkBasicFilteringRules();
         
         // accept everything else
-        validateMutationAminoAcid (geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
-        validateMutationAminoAcid (geneticProfileId, sampleId, 89, "S116R"); // Unknown  Somatic
+        validateMutationAminoAcid(geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
+        validateMutationAminoAcid(geneticProfileId, sampleId, 89, "S116R"); // Unknown  Somatic
 	}
     
 

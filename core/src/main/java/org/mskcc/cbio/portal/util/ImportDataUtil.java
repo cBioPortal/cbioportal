@@ -34,11 +34,19 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 
-import java.util.List;
 
+/**
+ * Class to add missing patients and samples "on the fly". 
+ * 
+ * @deprecated : all patients and samples should be imported via {@link ImportClinicalData}. 
+ */
 public class ImportDataUtil
 {
+    /**
+	 * @deprecated : this data should be imported via {@link ImportClinicalData}
+	 */
     public static void addPatients(String barcodes[], int geneticProfileId) throws DaoException
     {
         addPatients(barcodes, getCancerStudy(geneticProfileId));
@@ -50,6 +58,9 @@ public class ImportDataUtil
         return DaoCancerStudy.getCancerStudyByInternalId(gp.getCancerStudyId());
     }
 
+    /**
+	 * @deprecated : this data should be imported via {@link ImportClinicalData}
+	 */
     public static void addPatients(String barcodes[], CancerStudy cancerStudy) throws DaoException
     {
         for (String barcode : barcodes) {
@@ -64,6 +75,8 @@ public class ImportDataUtil
     {
         Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stableId);
         if (p == null) {
+        	//this is strange...but at least now it reports it is doing something strange. TODO - review this!
+        	ProgressMonitor.logWarning("Couldn't find patient "+stableId+" in study "+cancerStudy.getCancerStudyStableId() + ". Trying to find it in samples table...");
             // genomic data typically has sample ids, check if a sample exists with the id, and if so,
             // that the sample has a patient record associated with it
             Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableId);
@@ -74,11 +87,17 @@ public class ImportDataUtil
         }
     }
 
+    /**
+	 * @deprecated : this data should be imported via {@link ImportClinicalData}
+	 */
     private static void addPatient(String stableId, CancerStudy cancerStudy) throws DaoException
     {
         DaoPatient.addPatient(new Patient(cancerStudy, stableId));
     }
 
+    /**
+	 * @deprecated : this data should be imported via {@link ImportClinicalData}
+	 */
     public static int addSamples(String barcodes[], int geneticProfileId) throws DaoException
     {
         return addSamples(barcodes, getCancerStudy(geneticProfileId));
@@ -89,6 +108,7 @@ public class ImportDataUtil
      * yet exist (and are NOT a normal sample). 
      * 
      * @return returns the number of missing samples that had to be added to the DB
+     * @deprecated : this data should be imported via {@link ImportClinicalData}
      */
     public static int addSamples(String barcodes[], CancerStudy cancerStudy) throws DaoException
     {
@@ -109,6 +129,9 @@ public class ImportDataUtil
         return (s == null);
     }
 
+    /**
+	 * @deprecated : this data should be imported via {@link ImportClinicalData}
+	 */
     private static void addSample(String sampleId, CancerStudy cancerStudy) throws DaoException
     {
         // if we get here, all we can do is find a patient that owns the sample using the sample id.

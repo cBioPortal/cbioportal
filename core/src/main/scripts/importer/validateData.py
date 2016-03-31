@@ -33,6 +33,7 @@ GENOMIC_BUILD_NAME = 'hg19'
 
 # study-specific globals
 DEFINED_SAMPLE_IDS = None
+DEFINED_SAMPLE_ATTRIBUTES = None
 DEFINED_CANCER_TYPES = None
 
 
@@ -888,7 +889,6 @@ class MutationsExtendedValidator(Validator):
     ]
 
     # Used for mapping column names to the corresponding function that does a check on the value.
-    # This can be done for other filetypes besides maf - not currently implemented.
     CHECK_FUNCTION_MAP = {
         'Matched_Norm_Sample_Barcode':'checkMatchedNormSampleBarcode',
         'NCBI_Build':'checkNCBIbuild',
@@ -953,6 +953,8 @@ class MutationsExtendedValidator(Validator):
 
         super(MutationsExtendedValidator, self).checkLine(data)
 
+        # TODO: skip lines with symbol 'Unknown' and Entrez '0',
+        # that is how the MAF standard signifies an intergenic mutation
         if not self.skipValidation(data):
             for col_name in self.CHECK_FUNCTION_MAP:
                 # if optional column was found, validate it:
@@ -963,6 +965,7 @@ class MutationsExtendedValidator(Validator):
                     checking_function = getattr(
                         self,
                         self.CHECK_FUNCTION_MAP[col_name])
+                    # FIXME: remove the 'data' argument, it's spaghetti
                     if not checking_function(value, data):
                         self.printDataInvalidStatement(value, col_index)
                     elif self.extra_exists or self.extra:
@@ -1152,6 +1155,7 @@ class ClinicalValidator(Validator):
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.attr_defs = []
+        self.newly_defined_attributes = set()
 
     def processTopLines(self, line_list):
 
@@ -1275,6 +1279,7 @@ class ClinicalValidator(Validator):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': col_name})
+                self.newly_defined_attributes.add(col_name)
             # disallow homonymous patient-level and sample-level attributes,
             # except for the patient ID by which samples reference a patient
             elif col_name != 'PATIENT_ID' and (
@@ -1358,7 +1363,8 @@ class SampleClinicalValidator(ClinicalValidator):
     def __init__(self, *args, **kwargs):
         """Initialize the validator to track sample ids defined."""
         super(SampleClinicalValidator, self).__init__(*args, **kwargs)
-        self.sampleIds = set()
+        self.sample_id_lines = {}
+        self.sampleIds = self.sample_id_lines.viewkeys()
 
     def checkLine(self, data):
         """Check the values in a line of data."""
@@ -1377,14 +1383,28 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
-                if value in self.sampleIds:
-                    self.logger.error(
-                        'Sample defined twice in clinical file',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
+                if value in self.sample_id_lines:
+                    if value.startswith('TCGA-'):
+                        self.logger.warning(
+                            'TCGA sample defined twice in clinical file, this '
+                            'line will be ignored assuming truncated barcodes',
+                            extra={
+                                'line_number': self.line_number,
+                                'column_number': col_index + 1,
+                                'cause': '%s (already defined on line %d)' % (
+                                        value,
+                                        self.sample_id_lines[value])})
+                    else:
+                        self.logger.error(
+                            'Sample defined twice in clinical file',
+                            extra={
+                                'line_number': self.line_number,
+                                'column_number': col_index + 1,
+                                'cause': '%s (already defined on line %d)' % (
+                                    value,
+                                    self.sample_id_lines[value])})
                 else:
-                    self.sampleIds.add(value.strip())
+                    self.sample_id_lines[value] = self.line_number
             # TODO: check the values in the other documented columns
 
 
@@ -1402,7 +1422,15 @@ class PatientClinicalValidator(ClinicalValidator):
 
     def checkHeader(self, cols):
         """Validate headers in patient-specific clinical data files."""
-        super(PatientClinicalValidator, self).checkHeader(cols)
+        num_errors = super(PatientClinicalValidator, self).checkHeader(cols)
+        # refuse to define attributes also defined in the sample-level file
+        for new_attribute in self.newly_defined_attributes:
+            if new_attribute in DEFINED_SAMPLE_ATTRIBUTES:
+                # log this as a file-aspecific error, using the base logger
+                self.logger.logger.error(
+                    'New clinical attribute defined both as sample-level and '
+                    'as patient-level',
+                    extra={'cause': new_attribute})
         # warnings about missing optional columns
         if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
             self.logger.warning(
@@ -1413,6 +1441,7 @@ class PatientClinicalValidator(ClinicalValidator):
             self.logger.warning(
                 'Columns DFS_MONTHS and/or DFS_STATUS not found. Disease '
                 'free analysis feature will not be available for this study.')
+        return num_errors
 
     def checkLine(self, data):
         """Check the values in a line of data."""
@@ -1528,16 +1557,22 @@ class SegValidator(Validator):
                 raise RuntimeError('Could not validate column type: ' +
                                    col_name)
 
-        if (
-                'loc.start' in parsed_coords and 'loc.end' in parsed_coords and
-                parsed_coords['loc.start'] >= parsed_coords['loc.end']): 
-            # is an error according to UCSC "0" convention, end location excluded. 
-            # see also https://groups.google.com/forum/#!topic/igv-help/LjffjxPul2M 
-            self.logger.error(
-                'Start position of segment is not lower than end position',
-                extra={'line_number': self.line_number,
-                       'cause': '{}/{}'.format(parsed_coords['loc.start'],
-                                               parsed_coords['loc.end'])})
+        if 'loc.start' in parsed_coords and 'loc.end' in parsed_coords:
+            # the convention for genomic coordinates (at least at UCSC) is that
+            # the chromosome starts at 0 and end positions are excluded.
+            # see also https://groups.google.com/forum/#!topic/igv-help/LjffjxPul2M
+            if parsed_coords['loc.start'] == parsed_coords['loc.end']:
+                self.logger.warning(
+                    'Segment is zero bases wide and will not be loaded',
+                    extra={'line_number': self.line_number,
+                           'cause': '{}-{}'.format(parsed_coords['loc.start'],
+                                                   parsed_coords['loc.end'])})
+            elif parsed_coords['loc.start'] > parsed_coords['loc.end']:
+                self.logger.error(
+                    'Start position of segment is greater than end position',
+                    extra={'line_number': self.line_number,
+                           'cause': '{}-{}'.format(parsed_coords['loc.start'],
+                                                   parsed_coords['loc.end'])})
 
         # TODO check for overlap and low genome coverage
         # this could be implemented by sorting the segments for a patient
@@ -1643,17 +1678,48 @@ class MutationSignificanceValidator(Validator):
 class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
+    ALLOW_BLANKS = True
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
-        # TODO check the gene symbols
-        # for rppa, first column should be hugo|antibody, everything after should be sampleIds
-        return nonsample_col_vals[0].strip()
+        # the ID consists of a space-separated list of gene symbols and/or
+        # Entrez identifiers, separated by a pipe symbol from the name of the
+        # antibody probe used to detect these genes. The values on the line
+        # will be loaded for each gene in the list, or for fictional genes that
+        # encode specific phosphorylated versions of the genes' protein
+        # products if the antibody name has a particular format.
+        value = nonsample_col_vals[0].strip()
+        if '|' not in value:
+            self.logger.error('No pipe symbol in RPPA probe column',
+                              extra={'line_number': self.line_number,
+                                     'column_number': 1,
+                                     'cause': nonsample_col_vals[0]})
+            return None
+        symbol_element, antibody = value.split('|', 1)
+        symbol_list = symbol_element.split(' ')
+        for symbol in symbol_list:
+            entrez_id = None
+            if symbol.strip() == 'NA':
+                self.logger.warning(
+                'Gene symbol NA will be ignored, assuming Not Available',
+                extra={'line_number': self.line_number,
+                       'column_number': 1,
+                       'cause': nonsample_col_vals[0]})
+            elif self.checkInt(symbol):
+                entrez_id = self.checkGeneIdentification(entrez_id=symbol)
+            else:
+                entrez_id = self.checkGeneIdentification(gene_symbol=symbol)
+            # TODO: return a value for (this phospo-version of) each gene
+        return antibody
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        # TODO check these values
-        pass
+        stripped_value = value.strip()
+        if stripped_value != 'NA' and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor NA",
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
 
 
 class TimelineValidator(Validator):
@@ -2348,6 +2414,7 @@ def validate_study(study_dir, portal_instance, logger):
 
     global DEFINED_CANCER_TYPES
     global DEFINED_SAMPLE_IDS
+    global DEFINED_SAMPLE_ATTRIBUTES
 
     if portal_instance.cancer_type_dict is None:
         logger.warning('Skipping validations relating to cancer types '
@@ -2424,6 +2491,7 @@ def validate_study(study_dir, portal_instance, logger):
                      "the problems found there first before continuing.")
         return
     DEFINED_SAMPLE_IDS = defined_sample_ids
+    DEFINED_SAMPLE_ATTRIBUTES = sample_validator.newly_defined_attributes
 
     if len(validators_by_meta_type.get(
                cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES,

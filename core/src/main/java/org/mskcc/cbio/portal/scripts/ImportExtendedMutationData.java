@@ -61,6 +61,7 @@ public class ImportExtendedMutationData{
 	private File mutationFile;
 	private int geneticProfileId;
 	private MutationFilter myMutationFilter;
+	private int entriesSkipped = 0;
 
 	/**
 	 * construct an ImportExtendedMutationData.
@@ -117,10 +118,8 @@ public class ImportExtendedMutationData{
 			fileHasOMAData = false;
 		}
 
-		line = buf.readLine();
-
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
-		while( line != null)
+		while((line=buf.readLine()) != null)
 		{
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
@@ -138,7 +137,7 @@ public class ImportExtendedMutationData{
                                                                             StableIdUtil.getSampleId(barCode));
 		        if (sample == null) {
 		        	assert StableIdUtil.isNormal(barCode);
-					line = buf.readLine();
+		        	entriesSkipped++;
 		        	continue;
 		        }
 				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
@@ -151,14 +150,14 @@ public class ImportExtendedMutationData{
 				    validationStatus.equalsIgnoreCase("Wildtype"))
 				{
 					ProgressMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
-					line = buf.readLine();
+					entriesSkipped++;
 					continue;
 				}
 
 				String chr = DaoGeneOptimized.normalizeChr(record.getChr().toUpperCase());
 				if (chr==null) {
 					ProgressMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
-					line = buf.readLine();
+					entriesSkipped++;
 					continue;
 				}
 				record.setChr(chr);
@@ -222,7 +221,7 @@ public class ImportExtendedMutationData{
 				if (mutationType != null && mutationType.equalsIgnoreCase("rna"))
 				{
 					ProgressMonitor.logWarning("Skipping entry with mutation type: RNA");
-					line = buf.readLine();
+					entriesSkipped++;
 					continue;
 				}
 
@@ -245,6 +244,12 @@ public class ImportExtendedMutationData{
 				CanonicalGene gene = null;
 				if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
 				    gene = daoGene.getGene(entrezGeneId);
+				    if (gene == null) {
+				    	//skip
+				    	ProgressMonitor.logWarning("Entrez_Id " + entrezGeneId + " not found. Record will be skipped for this gene.");
+				    	entriesSkipped++;
+				    	continue;
+				    }				    	
 				}
 
 				if(gene == null) {
@@ -252,15 +257,15 @@ public class ImportExtendedMutationData{
 					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
 				}
                                 
-				if (gene == null) { // should we use this first??
-					//gene = daoGene.getNonAmbiguousGene(oncotatorGeneSymbol, chr);
-					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
-				}
-
 				if(gene == null) {
-					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
-					                    + entrezGeneId + "]. Ignoring it "
+					String entrezMessagePart = "";
+					if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
+						entrezMessagePart = " ["+ entrezGeneId + "]";
+					}
+					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + entrezMessagePart + ". Ignoring it "
 					                    + "and all mutation data associated with it!");
+					entriesSkipped++;
+					continue;
 				} else {
 					ExtendedMutation mutation = new ExtendedMutation();
 
@@ -339,9 +344,11 @@ public class ImportExtendedMutationData{
                                                     mutations.put(mutation,mutation);
                                                 }
 					}
+					else {
+						entriesSkipped++;
+					}
 				}
 			}
-			line = buf.readLine();
 		}
                 
                 for (MutationEvent event : newEvents) {
@@ -368,6 +375,7 @@ public class ImportExtendedMutationData{
                 DaoMutation.calculateMutationCount(geneticProfileId);
 		
                 ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
+                ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped:  " + entriesSkipped);
 
 	}
 

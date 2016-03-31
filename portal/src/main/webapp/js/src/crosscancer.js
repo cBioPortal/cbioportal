@@ -47,14 +47,22 @@
         // Here are some options that we will use in this view
         var width = 1100;
         var height = 650;
-        var paddingLeft = 80;
+        var paddingLeft = 0;
+	var axisWidth = 80;
         var paddingRight = 50;
         var paddingTop = 10;
         var histBottom = 400;
+	var legendTop = 500;
+	var legendHeight = 150;
+	var histWidth = 1100;
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
 	var maxStudyBarWidth = 30;
-        var firstEnterFlag = true;
+	var maxLabelLength = 0;
+	
+	// SVG objects
+	var histogram, axis, legend;
+        
         var defaultQTipOptions = {
             content: {
                 text: "Default qtip text"
@@ -90,16 +98,24 @@
             if(!_.isNaN(sliderValue) && !_.isUndefined(sliderValue) && sliderValue !== null){
                 threshold = sliderValue;
             }
+            //check if all values are zero or not
+            var nonZeroFlag = false;
+            _.each(histDataOrg, function(study) {
+             if(study.alterations["all"] > 0)
+                nonZeroFlag = true;
+            });
+            if(!nonZeroFlag)threshold = 0;
             
             var totalSamThreshold = 0;
             if(!_.isNaN(totalSamSliderValue) && !_.isUndefined(totalSamSliderValue) && totalSamSliderValue !== null){
                 totalSamThreshold = totalSamSliderValue;
             }
     
-            var cancerTypes = $("#cancerTypes").val(), cancerTypeCheck = true;
+            var cancerTypes = "all"//$("#cancerTypes").val()
+            var cancerTypeCheck = true;
             
             var type = $("#yAxis").val();
-            //var sortBy = $("#sortBy").val();
+            
             
             var histData = [];
             _.each(histDataOrg, function(study) {
@@ -184,6 +200,7 @@
                         window.studies = studies;
 
                         $.getJSON("portal_meta_data.json", function(metaData) {
+                            var firstEnterFlag = true;
                             window.PortalMetaData = metaData;
                             var histDataOrg = studies.toJSON();
                             (new HideStudyControlView({
@@ -226,7 +243,8 @@
                                 }
                             })).render();
 
-                            var studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
+			    var fixedStudyWidth = 20;
+                            var studyWidth = fixedStudyWidth;//Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
 			    var studyLocIncrements = studyWidth / .75;
                             var verticalCirclePadding = 20;
                             // Data type radius
@@ -268,11 +286,37 @@
                             // Empty the content
                             $("#cchistogram").html("");
 
+			    $("#cchistogram").css("position","relative");
                             // and initialize the histogram
-                            var histogram = d3.select("#cchistogram")
+			    var histogram_div = d3.select("#cchistogram")
+				.append("div")
+				.style("height", (height + 10) + "px")
+				.style("width", width - axisWidth + "px")
+				.style("position", "absolute")
+				.style("left", axisWidth + "px")
+				.style("top", paddingTop + "px")
+				.style("overflow-x","scroll")
+				.style("overflow-y","hidden");
+			
+			    histogram = histogram_div.append("svg")
+				.attr("width", width)
+				.attr("height", height);
+			
+			    axis = d3.select("#cchistogram")
+                                .append("svg")
+                                .attr("width", axisWidth)
+                                .attr("height", height)
+				.style("position","absolute")
+				.style("left","0")
+				.style("top", paddingTop + "px");
+			
+			    legend = d3.select("#cchistogram")
                                 .append("svg")
                                 .attr("width", width)
-                                .attr("height", height);
+                                .attr("height", legendHeight)
+				.style("left","0")
+				.style("top",paddingTop + height + 20)
+				.style("position","absolute");
 
                             // define Y axis
                             var yAxis = d3.svg.axis()
@@ -469,13 +513,13 @@
                                 });
 
 
-                            var annotations = histogram.append("g");
+                            var annotations = axis.append("g");
                             annotations.selectAll("text")
                                 .data(["Cancer type", "Mutation data", "CNA data"])
                                 .enter()
                                 .append("text")
                                 .attr("y", function(d, i) { return histBottom + verticalCirclePadding*(i+1) + 3 })
-                                .attr("x", function(d, i) { return paddingLeft - 10; })
+                                .attr("x", function(d, i) { return axisWidth - 10; })
                                 .text(function(d, i) { return d; })
                                 .attr("text-anchor", "end")
                                 .attr("font-family", fontFamily)
@@ -570,11 +614,11 @@
                                 .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
                                 .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
                                 .attr("y", function() { return histBottom + verticalCirclePadding*4 })
-                                .attr("text-anchor", "end")
+                                .attr("text-anchor", "start")
                                 .attr("transform", function(d, i) {
                                     var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.5;
                                     var yLoc = histBottom + verticalCirclePadding*4;
-                                    return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
+                                    return "rotate(60, " + xLoc + ", " + yLoc +  ")";
                                 })
                                 .attr("class", function(d, i) { return d.studyId + " annotation-abbr" })
                                 .each(function(d, i) {
@@ -585,10 +629,14 @@
                                     $(this).qtip(qOpts);
                                 })
                             ;
+			    abbrGroups.selectAll("text")
+				    .each(function() {
+					maxLabelLength = Math.max(maxLabelLength, this.getComputedTextLength());
+				    });
 
-                            var yAxisEl = histogram.append("g")
+                            var yAxisEl = axis.append("g")
                                 .attr("class", "axis")
-                                .attr("transform", "translate(" + (paddingLeft-10) + ", " + paddingTop + ")")
+                                .attr("transform", "translate(" + (axisWidth-10) + ", " + paddingTop + ")")
                                 .call(yAxis);
 
                             // Define where the label should appear
@@ -596,7 +644,7 @@
                             var labelCorY = paddingTop + (histBottom/2);
 
                             // Add axis label
-                            histogram.append("g")
+                            axis.append("g")
                                 .selectAll("text")
                                 .data(["Alteration Frequency"])
                                 .enter()
@@ -643,13 +691,12 @@
                             var numOfLegends = legendData.length;
                             var legBegPoint = (width-paddingLeft-paddingRight-(numOfLegends*legendWidth))/2;
                             // Now add the legends
-                            var legend = histogram.append("g");
                             legend.selectAll("rect")
                                 .data(legendData)
                                 .enter()
                                 .append("rect")
                                 .attr('x', function(d, i) { return legBegPoint + i*legendWidth + 10; })
-                                .attr('y', height-20)
+                                .attr('y', 0)
                                 .attr('width', 19)
                                 .attr('height', 19)
                                 .style('fill', function(d) { return d.color; })
@@ -659,7 +706,7 @@
                                 .enter()
                                 .append("text")
                                 .attr('x', function(d, i) { return legBegPoint + i*legendWidth + 35; })
-                                .attr('y', height-5)
+                                .attr('y', 15)
                                 .text(function(d, i) { return d.label; })
                                 .attr("font-family", fontFamily)
                                 .attr("font-size", "15px")
@@ -715,7 +762,7 @@
                                 $("#minY").val(sliderValue);
                                 $("#minTotal").val(totalSamSliderValue);
                                 // Add axis label
-                                histogram.select("#yAxisTitle")
+                                axis.select("#yAxisTitle")
                                     .text( $("#yAxis").val() === "Frequency" ? "Alteration Frequency" : "Count")
                                     .attr("font-family", fontFamily)
                                     .attr("font-size", "13px")
@@ -723,30 +770,30 @@
                                     .attr("y", labelCorY)
                                     .attr("transform", "rotate(-90, " + labelCorX + ", " + labelCorY +")")
                                 ;
+                                                          
                                 if(firstEnterFlag)
                                 {
-                                    sliderValue = 1e-5;
+                                    if($("#yAxis").val() === "Frequency")
+                                    {
+                                        $("#minY").val(0);
+                                        sliderValue = 1e-5;
+                                    }
+                                    else
+                                    {
+                                        $("#minY").val(1);
+                                        sliderValue = 1;
+                                    }
                                     
                                 }
                                 histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
                             
-				studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
+				studyWidth = fixedStudyWidth; // Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
 				studyLocIncrements = studyWidth / .75;
                                 // Data type radius
                                 circleDTR = studyWidth / 4;
                                 // Tumor type radius
                                 circleTTR = Math.min(studyWidth, 20) / 2;
                                 //auto adjust left padding to solve the truncating x label problem
-                               var fontSize = Math.min((studyWidth * .65), 12);
-                      
-                               var maxLabelLength = 0;
-                               for(var i=0; i<histData.length; i++){
-                                   var currentName = getStudyAbbr(histData[i], metaData);
-                                   if(currentName.length > maxLabelLength) maxLabelLength = currentName.length;
-                               }
-                               var fontSpace = maxLabelLength*fontSize*0.5;
-                               paddingLeft = Math.max(fontSpace-80, paddingLeft);
-
                                 var stacked = $("#histogram-show-colors").is(":checked");
                                 var outX = width + 1000;
                                
@@ -777,6 +824,14 @@
                                         
                                     });
 
+				var svg_height = histBottom + verticalCirclePadding*4 + maxLabelLength*Math.sqrt(3)/2 + 10;
+				histWidth = paddingLeft + histData.length * studyLocIncrements + maxLabelLength*0.5;
+				legendTop = svg_height + 20;
+				histogram.attr("width", histWidth+"px");
+				histogram.attr("height", svg_height + "px");
+				histogram_div.style("height", svg_height+ "px");
+				legend.style("top", legendTop + "px");
+				
                                 var obg = otherBarGroup.selectAll("rect").data(histData, key);
                                 obg.exit()
                                     .transition()
@@ -990,7 +1045,7 @@
                                     .attr("transform", function(d, i) {
                                         var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;
                                         var yLoc = histBottom + verticalCirclePadding*4;
-                                        return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
+                                        return "rotate(60, " + xLoc + ", " + yLoc +  ")";
                                     })
                                 ;
                                 ag
@@ -1004,7 +1059,7 @@
                                     .attr("transform", function(d, i) {
                                         var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.5;
                                         var yLoc = histBottom + verticalCirclePadding*4;
-                                        return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
+                                        return "rotate(60, " + xLoc + ", " + yLoc +  ")";
                                     })
                                 ;
 
@@ -1030,8 +1085,8 @@
                        
                             
                             $("#yAxis").on("change", function(){
-                          
-                            $("#sliderMinY").slider({value: 0});
+                            
+                            
                                maxYAxis = 0;
                                if($("#yAxis").val() === "Frequency"){
                                    for(var i = 0;i < histDataOrg.length;i++){
@@ -1040,7 +1095,7 @@
                                             }
                                     }
                                     maxYAxis = Math.min(maxYAxis, 1.0);
-                                    $("#sliderLabel").text("Min alteration ");
+                                    $("#sliderLabel").text("Min. % altered samples:");
                                     $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
                                     $("#sliderMinY").slider( "option", "max", Math.ceil(100*maxYAxis) );
                                      
@@ -1051,7 +1106,7 @@
                                         }
                                     }
 
-                                    $("#sliderLabel").text("Min altered samples #");
+                                    $("#sliderLabel").text("Min. # altered samples:");
                                     $("#maxLabel").text(maxYAxis);
                                     $("#sliderMinY").slider( "option", "max", maxYAxis );
                                      
@@ -1080,7 +1135,6 @@
                                 }
                             });
                             $("#minTotal").on("keyup", function(e){
-                                firstEnterFlag = false;
                                 if(e.keyCode == 13)
                                 {
                                     $("#totalSampleSlider").slider({value: $("#minTotal").val()});
@@ -1089,9 +1143,7 @@
                             });
                             
                             $("#totalSampleSlider").on("slidechange", function(e, ui){
-                                firstEnterFlag = false;
                                 redrawHistogram();
-                                
                             });
 
                              
@@ -1514,7 +1566,33 @@
                 return this;
             }
         });
-
+	
+	var getCompleteSVG = function() {
+	    var combo_svg = d3.select("#cchistogram").append("svg");
+	    
+	    var axis_node = axis.node().cloneNode(true);
+	    var hist_node = histogram.node().cloneNode(true);
+	    var legend_node = legend.node().cloneNode(true);
+	    
+	    combo_svg.node().appendChild(axis_node);
+	    combo_svg.node().appendChild(hist_node);
+	    combo_svg.node().appendChild(legend_node);
+	    
+	    hist_node.setAttribute("x", axisWidth + 10);
+	    legend_node.setAttribute("x", axisWidth + 10);
+	    legend_node.setAttribute("y", legendTop);
+	    
+	    var width = axisWidth
+			+ 10
+			+ histWidth;
+	    var height = legendTop
+			+ legendHeight;
+		
+	    combo_svg.node().setAttribute("width", width);
+	    combo_svg.node().setAttribute("height", height);
+	    combo_svg.node().parentNode.removeChild(combo_svg.node());
+	    return combo_svg.node();
+	};
         var CCTitleView = Backbone.View.extend({
             el: "#cctitlecontainer",
             template: _.template($("#crosscancer-title-tmpl").html()),
@@ -1540,14 +1618,12 @@
 		                contentType: "application/pdf",
 		                servletName: "svgtopdf.do"
 	                };
-
-	                cbio.download.initDownload(
-		                $("#cchistogram svg")[0], downloadOptions);
+			
+	                cbio.download.initDownload(getCompleteSVG(), downloadOptions);
                 });
 
                 $("#histogram-download-svg").click(function() {
-	                cbio.download.initDownload(
-		                $("#cchistogram svg")[0], {filename: "crosscancerhistogram.svg"});
+	                cbio.download.initDownload(getCompleteSVG(), {filename: "crosscancerhistogram.svg"});
                 });
 
                 $("#histogram-customize").click(function() {

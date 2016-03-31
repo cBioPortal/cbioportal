@@ -36,16 +36,10 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
-import org.mskcc.cbio.portal.validate.ValidateGistic;
-import org.mskcc.cbio.portal.validate.validationException;
-import org.springframework.ui.context.Theme;
+import org.mskcc.cbio.portal.scripts.ValidationUtils;
 
 import java.io.*;
-import java.lang.System;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Utility for importing Gistic data from a file
@@ -59,7 +53,6 @@ public class GisticReader {
      * @return                  CancerStudyId
      * @throws DaoException
      */
-
     public int getCancerStudyInternalId(String cancerStudy_str)
             throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudy_str);
@@ -156,7 +149,9 @@ public class GisticReader {
             Gistic gistic;
             try {
                 gistic = this.parseLine(line, cancerStudyId, chromosomeField, peakStartField, peakEndField, genesField, qvalField, ampField, cytobandField);
-                gistics.add(gistic);
+                if (gistic != null) {
+                    gistics.add(gistic);
+                }
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -174,10 +169,7 @@ public class GisticReader {
         Gistic gistic = new Gistic();
         gistic.setCancerStudyId(cancerStudyId);
 
-        if (fields[chromosomeField].equalsIgnoreCase("X"))
-            fields[chromosomeField] = "23";
-        if (fields[chromosomeField].equalsIgnoreCase("Y"))
-            fields[chromosomeField] = "24";
+        ValidationUtils.validateChromosome(fields[chromosomeField]);
         gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
 
         gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
@@ -200,25 +192,30 @@ public class GisticReader {
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         for (String gene : _genes) {
+            
+            gene = gene.split("\\|")[0];
 
             CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
-            if (canonicalGene == null) {
-                canonicalGene = new CanonicalGene(gene);
+            if (canonicalGene != null) {
+                if (canonicalGene.isMicroRNA()) {
+                	ProgressMonitor.logWarning("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
+                    continue;
+                }
 
-//                    System.out.println("gene not found, skipping: " + gene);
-//                    throw new DaoException("gene not found: " + gene);
+                genes.add(canonicalGene);
+            } 
+            else {
+            	ProgressMonitor.logWarning("Gene " + gene + " or was ambiguous. Skipping this gene.");
             }
-
-            if (canonicalGene.isMicroRNA()) {
-                System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
-                continue;
-            }
-
-            genes.add(canonicalGene);
+            
         }
         // -- end parse genes --
-
+        
+        if (genes.size() == 0) {
+        	ProgressMonitor.logWarning("No genes found in database for " + genesField + ". Skipping gistic event");
+            return null;
+        }
         gistic.setGenes_in_ROI(genes);
 
         return gistic;

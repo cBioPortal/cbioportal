@@ -52,8 +52,8 @@ def interface():
                                    help='Path to a directory of cBioPortal '
                                         'info files to be used instead of '
                                         'contacting the web API')
-    parser.add_argument('-jar', '--jar_path', type=str, required=True,
-                        help='path to core jar file.')
+    parser.add_argument('-jar', '--jar_path', type=str, required=False,
+                        help='Path to core JAR file')
     parser.add_argument('-html', '--html_table', type=str,
                         help='path to html report')
     parser.add_argument('-v', '--verbose', action='store_true',

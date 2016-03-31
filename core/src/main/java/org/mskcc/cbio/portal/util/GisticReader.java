@@ -206,7 +206,7 @@ public class GisticReader {
                 genes.add(canonicalGene);
             } 
             else {
-            	ProgressMonitor.logWarning("Gene " + gene + " or was ambiguous. Skipping this gene.");
+            	ProgressMonitor.logWarning("Gene " + gene + " not found or was ambiguous. Skipping this gene.");
             }
             
         }

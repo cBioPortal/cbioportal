@@ -417,7 +417,7 @@ public class TestImportTabDelimData {
         
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE4").getInternalId();
         value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7504);
-        assertEquals ("7", value );
+        assertEquals ("NaN", value ); //"NA" is not expected to be stored because of workaround for bug in firehose. See also https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203523078
         
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
         value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 5578);

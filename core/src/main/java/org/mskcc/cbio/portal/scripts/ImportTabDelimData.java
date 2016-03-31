@@ -451,13 +451,19 @@ public class ImportTabDelimData {
         List<String> symbolsNotFound = new ArrayList<String>();
         List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         for (String symbol : symbols) {
-            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
-            if (gene!=null) {
-                genes.add(gene);
-            }
-            else {
-            	symbolsNotFound.add(symbol);
-            }
+        	if (symbol.equalsIgnoreCase("NA")) {
+        		//workaround because of bug in firehose. See https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203523078
+        		ProgressMonitor.logWarning("Gene " + symbol + " will be interpreted as 'Not Available' in this case. Record will be skipped for this gene.");
+        	}
+        	else {
+	            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
+	            if (gene!=null) {
+	                genes.add(gene);
+	            }
+	            else {
+	            	symbolsNotFound.add(symbol);
+	            }
+        	}
         }
         if (genes.size() == 0) {
         	//return empty list:

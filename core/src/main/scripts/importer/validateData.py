@@ -1684,7 +1684,14 @@ class RPPAValidator(FeaturewiseFileValidator):
         symbol_element, antibody = value.split('|', 1)
         symbol_list = symbol_element.split(' ')
         for symbol in symbol_list:
-            if self.checkInt(symbol):
+            entrez_id = None
+            if symbol.strip() == 'NA':
+                self.logger.warning(
+                'Gene symbol NA will be ignored, assuming Not Available',
+                extra={'line_number': self.line_number,
+                       'column_number': 1,
+                       'cause': nonsample_col_vals[0]})
+            elif self.checkInt(symbol):
                 entrez_id = self.checkGeneIdentification(entrez_id=symbol)
             else:
                 entrez_id = self.checkGeneIdentification(gene_symbol=symbol)

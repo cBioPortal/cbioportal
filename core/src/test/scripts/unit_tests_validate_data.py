@@ -594,6 +594,20 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.line_number, 14)
         self.assertTrue(record.cause.startswith('B-Raf'))
 
+    def test_na_gene_in_rppa(self):
+        """Test if a warning is issued if the gene symbol NA occurs in RPPA."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_rppa_na_gene.txt',
+                                    validateData.RPPAValidator)
+        # expecting only a warning for each NA line
+        self.assertEqual(len(record_list), 9)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.WARNING)
+        for record, expected_line in zip(record_list, range(14, 23)):
+            self.assertEqual(record.line_number, expected_line)
+            self.assertEqual(record.column_number, 1)
+            self.assertIn('NA', record.getMessage())
+
     # TODO: test other subclasses of FeatureWiseValidator
 
 

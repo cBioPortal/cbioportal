@@ -1528,16 +1528,22 @@ class SegValidator(Validator):
                 raise RuntimeError('Could not validate column type: ' +
                                    col_name)
 
-        if (
-                'loc.start' in parsed_coords and 'loc.end' in parsed_coords and
-                parsed_coords['loc.start'] >= parsed_coords['loc.end']): 
-            # is an error according to UCSC "0" convention, end location excluded. 
-            # see also https://groups.google.com/forum/#!topic/igv-help/LjffjxPul2M 
-            self.logger.error(
-                'Start position of segment is not lower than end position',
-                extra={'line_number': self.line_number,
-                       'cause': '{}/{}'.format(parsed_coords['loc.start'],
-                                               parsed_coords['loc.end'])})
+        if 'loc.start' in parsed_coords and 'loc.end' in parsed_coords:
+            # the convention for genomic coordinates (at least at UCSC) is that
+            # the chromosome starts at 0 and end positions are excluded.
+            # see also https://groups.google.com/forum/#!topic/igv-help/LjffjxPul2M
+            if parsed_coords['loc.start'] == parsed_coords['loc.end']:
+                self.logger.warning(
+                    'Segment is zero bases wide and will not be loaded',
+                    extra={'line_number': self.line_number,
+                           'cause': '{}-{}'.format(parsed_coords['loc.start'],
+                                                   parsed_coords['loc.end'])})
+            elif parsed_coords['loc.start'] > parsed_coords['loc.end']:
+                self.logger.error(
+                    'Start position of segment is greater than end position',
+                    extra={'line_number': self.line_number,
+                           'cause': '{}-{}'.format(parsed_coords['loc.start'],
+                                                   parsed_coords['loc.end'])})
 
         # TODO check for overlap and low genome coverage
         # this could be implemented by sorting the segments for a patient

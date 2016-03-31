@@ -11,20 +11,23 @@ import sys
 import logging.handlers
 from importer import cbioportal_common
 from importer import validateData
+from importer.validateData import DEFINED_SAMPLE_ATTRIBUTES
 
 
 # globals for mock data used throughout the module
 DEFINED_SAMPLE_IDS = None
+DEFINED_SAMPLE_ATTRIBUTES = None
 PORTAL_INSTANCE = None
 
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
     global DEFINED_SAMPLE_IDS
+    global DEFINED_SAMPLE_ATTRIBUTES
     global PORTAL_INSTANCE
     # mock-code sample ids defined in a study
-    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
-    "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+    DEFINED_SAMPLE_ATTRIBUTES = {'PATIENT_ID', 'SAMPLE_ID', 'SUBTYPE', 'CANCER_TYPE', 'CANCER_TYPE_DETAILED'}
     # these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
     logger = logging.getLogger(__name__)
     # parse mock API results from a local directory
@@ -114,6 +117,7 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         super(PostClinicalDataFileTestCase, self).setUp()
         self.orig_defined_sample_ids = validateData.DEFINED_SAMPLE_IDS
         validateData.DEFINED_SAMPLE_IDS = DEFINED_SAMPLE_IDS
+        validateData.DEFINED_SAMPLE_ATTRIBUTES = DEFINED_SAMPLE_ATTRIBUTES
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
@@ -165,7 +169,7 @@ class ColumnOrderTestCase(DataFileTestCase):
         self.assertEqual(0, len(record_list))
 
 
-class ClinicalColumnDefsTestCase(DataFileTestCase):
+class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
 
     """Tests for validations of the column definitions in a clinical file."""
 

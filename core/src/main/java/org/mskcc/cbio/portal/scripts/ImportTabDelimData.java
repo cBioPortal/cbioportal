@@ -124,14 +124,9 @@ public class ImportTabDelimData {
 	        	throw new RuntimeException("Error: at least one of the following columns should be present: Hugo_Symbol or Entrez_Gene_Id");
 	        
 	        String sampleIds[];
-	        //  Branch, depending on targetLine setting
-	        if (targetLine == null) {
-	            sampleIds = new String[parts.length - sampleStartIndex];
-	            System.arraycopy(parts, sampleStartIndex, sampleIds, 0, parts.length - sampleStartIndex);
-	        } else {
-	            sampleIds = new String[parts.length - sampleStartIndex];
-	            System.arraycopy(parts, sampleStartIndex, sampleIds, 0, parts.length - sampleStartIndex);
-	        }
+	        sampleIds = new String[parts.length - sampleStartIndex];
+	        System.arraycopy(parts, sampleStartIndex, sampleIds, 0, parts.length - sampleStartIndex);
+
 	        //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
 	        //procedure. In this new procedure, Patients and Samples should only be added 
 	        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 

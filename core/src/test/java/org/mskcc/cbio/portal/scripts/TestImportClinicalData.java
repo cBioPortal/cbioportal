@@ -34,7 +34,9 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
@@ -67,6 +69,11 @@ public class TestImportClinicalData {
 	@Autowired
 	ApplicationContext applicationContext;
 	
+	//To use in test cases where we expect an exception:
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+    
+	
 	@Before 
 	public void setUp() throws DaoException
 	{
@@ -96,6 +103,54 @@ public class TestImportClinicalData {
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
+	
+	
+    /**
+     * Test importing of Mixed Data File with sample duplication error.
+     *
+     * @throws DaoException Database Access Error.
+     * @throws IOException  IO Error.
+     */
+	@Test
+    public void testImportMixedDataNewStudy_WithDuplError() throws Exception {
+		//new dummy study to simulate importing clinical data in empty study:
+		CancerStudy cancerStudy = new CancerStudy("testnew2","testnew2","testnew2","brca",true);
+        DaoCancerStudy.addCancerStudy(cancerStudy);
+        
+        study = DaoCancerStudy.getCancerStudyByStableId("testnew2");
+		// TBD: change this to use getResourceAsStream()
+        File clinicalFile = new File("target/test-classes/clinical_data_small_nonTCGA.txt");
+        ImportClinicalData importClinicalData = new ImportClinicalData(
+                study, clinicalFile, "MIXED_ATTRIBUTES");
+        
+        exception.expect(RuntimeException.class);
+        importClinicalData.importData();
+        ConsoleUtil.showWarnings();
+	}
+	
+    /**
+     * Test importing of Patient Data File with duplication error.
+     *
+     * @throws DaoException Database Access Error.
+     * @throws IOException  IO Error.
+     */
+	@Test
+    public void testImportPatientDataNewStudy_WithDuplError() throws Exception {
+		//new dummy study to simulate importing clinical data in empty study:
+		CancerStudy cancerStudy = new CancerStudy("testnew3","testnew3","testnew3","brca",true);
+        DaoCancerStudy.addCancerStudy(cancerStudy);
+        
+        study = DaoCancerStudy.getCancerStudyByStableId("testnew3");
+		// TBD: change this to use getResourceAsStream()
+        File clinicalFile = new File("target/test-classes/clinical_data_small_PATIENT.txt");
+        ImportClinicalData importClinicalData = new ImportClinicalData(
+                study, clinicalFile, "PATIENT_ATTRIBUTES");
+        
+        exception.expect(RuntimeException.class);
+        importClinicalData.importData();
+        ConsoleUtil.showWarnings();
+	}
+	
 
     /**
      * Test importing of Clinical Data File.

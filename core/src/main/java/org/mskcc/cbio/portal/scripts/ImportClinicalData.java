@@ -58,7 +58,7 @@ public class ImportClinicalData {
 
     private File clinicalDataFile;
     private CancerStudy cancerStudy;
-    private AttributeTypes attributeType;
+    private AttributeTypes attributesType;
 
     public static enum MissingAttributeValues
     {
@@ -124,7 +124,7 @@ public class ImportClinicalData {
     {
         this.cancerStudy = cancerStudy;
         this.clinicalDataFile = clinicalDataFile;
-        this.attributeType = AttributeTypes.valueOf(attributesDatatype);
+        this.attributesType = AttributeTypes.valueOf(attributesDatatype);
     }
 
     public void importData() throws Exception
@@ -142,7 +142,7 @@ public class ImportClinicalData {
         int patientIdIndex = findPatientIdColumn(columnAttrs);
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
 
-        if (patientIdIndex < 0 || (attributeType.toString().equals("SAMPLE") && sampleIdIndex < 0)) {
+        if (patientIdIndex < 0 || (attributesType.toString().equals("SAMPLE") && sampleIdIndex < 0)) {
             System.out.println("Aborting!  Could not find:  " + PATIENT_ID_COLUMN_NAME
                     + " or " + SAMPLE_ID_COLUMN_NAME + " in your file.");
             System.out.println("Please check your file format and try again.");
@@ -168,12 +168,12 @@ public class ImportClinicalData {
             descriptions = splitFields(buff.readLine());
             datatypes = splitFields(buff.readLine());
             
-            switch(this.attributeType)
+            switch(this.attributesType)
             {
                 case PATIENT_ATTRIBUTES:
                 case SAMPLE_ATTRIBUTES:
                     attributeTypes = new String[displayNames.length];
-                    Arrays.fill(attributeTypes, this.attributeType.toString());   
+                    Arrays.fill(attributeTypes, this.attributesType.toString());   
                     break;
                 case MIXED_ATTRIBUTES:
                     attributeTypes = splitFields(buff.readLine());
@@ -188,7 +188,7 @@ public class ImportClinicalData {
                 ||  datatypes.length != colnames.length
                 ||  attributeTypes.length != colnames.length
                 ||  priorities.length != colnames.length) {
-                throw new DaoException("attribute and metadata mismatch in clinical staging file");
+                throw new DaoException("attribute and metadata mismatch in clinical staging file. All lines in header and data rows should have the same number of columns.");
             }
         } else {
             // attribute Id header only
@@ -334,6 +334,12 @@ public class ImportClinicalData {
         if (validPatientId(patientId)) {
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
             if (patient != null) {
+            	//in case of PATIENT data import, a repeated patient entry should not occur, so abort with error:
+            	if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES) {
+            		throw new RuntimeException("Error. Patient " + patientId + " found to be duplicated in your file (or you imported the SAMPLE data file first, which would be the wrong order of importing).");
+            		//nb: this also actually means that the SAMPLE data import should occur AFTER the PATIENT data import, or this error will occur.
+            	}
+            	//in case of SAMPLE or MIXED data import, this is expected, so just fetch it:
                 internalPatientId = patient.getInternalId();
             }
             else {
@@ -360,7 +366,15 @@ public class ImportClinicalData {
                 if (patient != null) {
                     Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId, false);
                     if (sample != null) {
-                        internalSampleId = sample.getInternalId();
+                    	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
+                    	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
+                    	if (sampleId.startsWith("TCGA-")) {
+                    		ProgressMonitor.logWarning("Sample " + sampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
+                    		internalSampleId = sample.getInternalId();
+                    	}
+                    	else {
+                    		throw new RuntimeException("Error: Sample " + sampleId + " found to be duplicated in your file.");
+                    	}
                     }
                     else {
                         internalSampleId = DaoSample.addSample(new Sample(sampleId,
@@ -429,8 +443,15 @@ public class ImportClinicalData {
     	return numEmptyClinicalAttributesSkipped;
     }
     
-    public AttributeTypes getAttributeType() {
-    	return attributeType;
+    /**
+     * The type of attributes found in the file. Basically the 
+     * type of import running for this instance. Can be one of 
+     * AttributeTypes.
+     * 
+     * @return
+     */
+    public AttributeTypes getAttributesType() {
+    	return attributesType;
     }
 
     /**
@@ -503,12 +524,12 @@ public class ImportClinicalData {
                 ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinical_f, attributesDatatype);
                 importClinicalData.importData();
 
-                if (importClinicalData.getAttributeType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||
-                		importClinicalData.getAttributeType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) 
+                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||
+                		importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) 
                 	System.out.println("Total number of patient specific clinical attributes added:  "
                         + importClinicalData.getNumPatientSpecificClinicalAttributesAdded());
-                if (importClinicalData.getAttributeType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES ||
-                		importClinicalData.getAttributeType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) 
+                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES ||
+                		importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) 
                     System.out.println("Total number of sample specific clinical attributes added:  "
                         + importClinicalData.getNumSampleSpecificClinicalAttributesAdded());
                 
@@ -523,7 +544,7 @@ public class ImportClinicalData {
                 }
             }
         } catch (Exception e) {
-            System.err.println ("Error:  " + e.getMessage());
+            System.err.println ("Aborted.  " + e.getMessage());
         } finally {
             ConsoleUtil.showWarnings();
         }

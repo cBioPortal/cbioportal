@@ -209,7 +209,11 @@ public class GisticReader {
                 }
 
                 genes.add(canonicalGene);
+            } 
+            else {
+            	ProgressMonitor.logWarning("Gene " + gene + " or was ambiguous. Skipping this gene.");
             }
+            
         }
         // -- end parse genes --
         

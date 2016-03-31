@@ -231,6 +231,17 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.assertEqual(record.line_number, 11)
         self.assertEqual(record.column_number, 2)
 
+    def test_tcga_sample_twice_in_one_file(self):
+        """Test when a sample is defined twice in the same file."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clin_repeated_tcga_sample.txt',
+                                    validateData.SampleClinicalValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 11)
+        self.assertEqual(record.column_number, 2)
+
 
 class CancerTypeFileValidationTestCase(DataFileTestCase):
 

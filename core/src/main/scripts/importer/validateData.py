@@ -33,6 +33,7 @@ GENOMIC_BUILD_NAME = 'hg19'
 
 # study-specific globals
 DEFINED_SAMPLE_IDS = None
+DEFINED_SAMPLE_ATTRIBUTES = None
 DEFINED_CANCER_TYPES = None
 
 
@@ -888,7 +889,6 @@ class MutationsExtendedValidator(Validator):
     ]
 
     # Used for mapping column names to the corresponding function that does a check on the value.
-    # This can be done for other filetypes besides maf - not currently implemented.
     CHECK_FUNCTION_MAP = {
         'Matched_Norm_Sample_Barcode':'checkMatchedNormSampleBarcode',
         'NCBI_Build':'checkNCBIbuild',
@@ -953,6 +953,8 @@ class MutationsExtendedValidator(Validator):
 
         super(MutationsExtendedValidator, self).checkLine(data)
 
+        # TODO: skip lines with symbol 'Unknown' and Entrez '0',
+        # that is how the MAF standard signifies an intergenic mutation
         if not self.skipValidation(data):
             for col_name in self.CHECK_FUNCTION_MAP:
                 # if optional column was found, validate it:
@@ -963,6 +965,7 @@ class MutationsExtendedValidator(Validator):
                     checking_function = getattr(
                         self,
                         self.CHECK_FUNCTION_MAP[col_name])
+                    # FIXME: remove the 'data' argument, it's spaghetti
                     if not checking_function(value, data):
                         self.printDataInvalidStatement(value, col_index)
                     elif self.extra_exists or self.extra:
@@ -1152,6 +1155,7 @@ class ClinicalValidator(Validator):
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.attr_defs = []
+        self.newly_defined_attributes = set()
 
     def processTopLines(self, line_list):
 
@@ -1275,6 +1279,7 @@ class ClinicalValidator(Validator):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': col_name})
+                self.newly_defined_attributes.add(col_name)
             # disallow homonymous patient-level and sample-level attributes,
             # except for the patient ID by which samples reference a patient
             elif col_name != 'PATIENT_ID' and (
@@ -1417,7 +1422,15 @@ class PatientClinicalValidator(ClinicalValidator):
 
     def checkHeader(self, cols):
         """Validate headers in patient-specific clinical data files."""
-        super(PatientClinicalValidator, self).checkHeader(cols)
+        num_errors = super(PatientClinicalValidator, self).checkHeader(cols)
+        # refuse to define attributes also defined in the sample-level file
+        for new_attribute in self.newly_defined_attributes:
+            if new_attribute in DEFINED_SAMPLE_ATTRIBUTES:
+                # log this as a file-aspecific error, using the base logger
+                self.logger.logger.error(
+                    'New clinical attribute defined both as sample-level and '
+                    'as patient-level',
+                    extra={'cause': new_attribute})
         # warnings about missing optional columns
         if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
             self.logger.warning(
@@ -1428,6 +1441,7 @@ class PatientClinicalValidator(ClinicalValidator):
             self.logger.warning(
                 'Columns DFS_MONTHS and/or DFS_STATUS not found. Disease '
                 'free analysis feature will not be available for this study.')
+        return num_errors
 
     def checkLine(self, data):
         """Check the values in a line of data."""
@@ -2400,6 +2414,7 @@ def validate_study(study_dir, portal_instance, logger):
 
     global DEFINED_CANCER_TYPES
     global DEFINED_SAMPLE_IDS
+    global DEFINED_SAMPLE_ATTRIBUTES
 
     if portal_instance.cancer_type_dict is None:
         logger.warning('Skipping validations relating to cancer types '
@@ -2476,6 +2491,7 @@ def validate_study(study_dir, portal_instance, logger):
                      "the problems found there first before continuing.")
         return
     DEFINED_SAMPLE_IDS = defined_sample_ids
+    DEFINED_SAMPLE_ATTRIBUTES = sample_validator.newly_defined_attributes
 
     if len(validators_by_meta_type.get(
                cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES,

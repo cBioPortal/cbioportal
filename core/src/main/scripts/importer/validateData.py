@@ -1358,7 +1358,8 @@ class SampleClinicalValidator(ClinicalValidator):
     def __init__(self, *args, **kwargs):
         """Initialize the validator to track sample ids defined."""
         super(SampleClinicalValidator, self).__init__(*args, **kwargs)
-        self.sampleIds = set()
+        self.sample_id_lines = {}
+        self.sampleIds = self.sample_id_lines.viewkeys()
 
     def checkLine(self, data):
         """Check the values in a line of data."""
@@ -1377,14 +1378,28 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
-                if value in self.sampleIds:
-                    self.logger.error(
-                        'Sample defined twice in clinical file',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
+                if value in self.sample_id_lines:
+                    if value.startswith('TCGA-'):
+                        self.logger.warning(
+                            'TCGA sample defined twice in clinical file, this '
+                            'line will be ignored assuming truncated barcodes',
+                            extra={
+                                'line_number': self.line_number,
+                                'column_number': col_index + 1,
+                                'cause': '%s (already defined on line %d)' % (
+                                        value,
+                                        self.sample_id_lines[value])})
+                    else:
+                        self.logger.error(
+                            'Sample defined twice in clinical file',
+                            extra={
+                                'line_number': self.line_number,
+                                'column_number': col_index + 1,
+                                'cause': '%s (already defined on line %d)' % (
+                                    value,
+                                    self.sample_id_lines[value])})
                 else:
-                    self.sampleIds.add(value.strip())
+                    self.sample_id_lines[value] = self.line_number
             # TODO: check the values in the other documented columns
 
 

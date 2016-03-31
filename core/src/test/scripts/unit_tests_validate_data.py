@@ -722,16 +722,22 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[2].column_number, 6)
 
     def test_negative_length_segment(self):
-        """Validate a .seg where a start position is lower than its end position."""
-        self.logger.setLevel(logging.ERROR)
+        """Validate a .seg where a start position is no higher than its end."""
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_seg_end_before_start.seg',
                                     validateData.SegValidator,
                                     extra_meta_fields={'reference_genome_id':
                                                            'hg19'})
-        self.assertEqual(len(record_list), 1)
-        record = record_list.pop()
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        # negative-length segment
+        record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 11)
+        # zero-length segment
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 31)
 
     def test_out_of_bounds_coordinates(self):
         """Validate .seg files with regions spanning outside of the chromosome."""

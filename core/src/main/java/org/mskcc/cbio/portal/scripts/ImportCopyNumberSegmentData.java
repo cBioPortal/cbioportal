@@ -43,7 +43,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 /**
- * Import protein array antibody information into database.
+ * Import Segment data into database.
  * @author jj
  */
 public class ImportCopyNumberSegmentData {
@@ -73,12 +73,24 @@ public class ImportCopyNumberSegmentData {
             }
 
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+            //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
+	        //procedure. In this new procedure, Patients and Samples should only be added 
+	        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
+	        //sample per patient, which is not always the case.
             ImportDataUtil.addPatients(new String[] { strs[0] }, cancerStudy);
-            ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
+	        int nrUnknownSamplesAdded = ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
+	        if (nrUnknownSamplesAdded > 0) {
+	        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
+	        }
 
             String sampleId = StableIdUtil.getSampleId(strs[0]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
+            if (start >= end) {
+            	//workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
+            	ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
+            	continue;
+            }            
             int numProbes = new BigDecimal((strs[4])).intValue();
             double segMean = Double.parseDouble(strs[5]);
             

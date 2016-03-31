@@ -159,6 +159,7 @@ var StudyViewInitTables = (function() {
             _worker.callbacks.rowClick = rowClick;
             workers.push(_worker);
         });
+                
     }
 
     function addGeneClick(clickedRowData){
@@ -430,8 +431,6 @@ var StudyViewInitTables = (function() {
         }
         return genes;
     }
-
-
 
     function redrawSingleTable(data, worker){
         var numSelectedCasesL = data.selectedCases.length,

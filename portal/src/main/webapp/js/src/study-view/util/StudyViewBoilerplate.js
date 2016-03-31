@@ -53,6 +53,29 @@ var StudyViewBoilerplate ={
         hide: false,
         style: 'qtip-light qtip-rounded qtip-wide'
     },
+    addChartCustomDialog: {
+        id: 'add-chart-custom-dialog', // Since we're only creating one modal, give it an ID so we can style it
+        content: {
+                text: '',
+                title: {
+                        text: 'Add Chart',
+                        button: true,
+                        class: ' addChartTable'
+                }
+                
+        },
+        position: {
+                my: 'center', // ...at the center of the viewport
+                at: 'center',
+                target: ''
+        },
+        show: {
+                event: 'click', // Show it on click...
+                solo: true // ...and hide all other tooltips...
+        },
+        hide: false,
+        style: ' addChartTable'
+    },
     chartColors: [
         "#2986e2","#dc3912","#f88508","#109618",
         "#990099","#0099c6","#dd4477","#66aa00",
@@ -238,6 +261,7 @@ var StudyViewBoilerplate ={
             _span4 = $("<input type='button' />"),
             _span5 = $('<span></span>'),
             _span6 = $("<span></span>"),
+            _span7 = $("<input type='button' />"),
             _form = $('<form id="study-view-form"></form>'),
             _input1 = $('<input></input>'),
             _input2 = $('<input></input>'),
@@ -323,6 +347,12 @@ var StudyViewBoilerplate ={
                 'class': 'study-view-header-button'})
             .html('<img src="images/in.svg" />');
 
+        _span7
+            .attr({
+                'id': 'study-view-header-right-2',
+                'class': 'study-view-header-button'})
+            .val('Add Chart');
+
         _successBanner
             .attr({
                id: 'successBanner',
@@ -340,6 +370,7 @@ var StudyViewBoilerplate ={
 
         _headerRight.attr('id','study-view-header-right');
         _headerRight.append(_span1);
+        _headerRight.append(_span7);
 
         _header.append(_headerLeft);
         _header.append(_headerRight);
@@ -376,6 +407,7 @@ var StudyViewBoilerplate ={
 
         return _header;
     },
+   
     
     customDialogDiv:
             "<div class='study-view-hidden' id='study-view-case-select-custom-dialog'>" +
@@ -387,8 +419,9 @@ var StudyViewBoilerplate ={
                 'By patient ID</label>' +
                 "<button type='button' id='study-view-case-select-custom-submit-btn' style='float: right;'>Select</button>" +
             "</div>",
-    addChartDiv:
-            "<select id='study-view-add-chart' class='chosen-select'><option id=''>Add Chart</option></select>",
+    addChartByCountDiv:
+            "<div class='study-view-hidden' id='add-chart-custom-dialog'>" +
+            "</div>",
     
     tutorialDiv:
             "<div  id='study-view-tutorial' class='study-view-header'>" +

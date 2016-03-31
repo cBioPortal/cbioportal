@@ -38,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -93,6 +94,7 @@ public class TestImportClinicalData {
         ImportClinicalData importClinicalData = new ImportClinicalData(
                 study, clinicalFile, "MIXED_ATTRIBUTES");
         importClinicalData.importData();
+        ConsoleUtil.showWarnings();
 	}
 
     /**

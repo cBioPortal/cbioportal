@@ -59,6 +59,8 @@ public class GisticReader {
      * @return                  CancerStudyId
      * @throws DaoException
      */
+    
+    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(GisticReader.class);
 
     public int getCancerStudyInternalId(String cancerStudy_str)
             throws DaoException {
@@ -156,7 +158,9 @@ public class GisticReader {
             Gistic gistic;
             try {
                 gistic = this.parseLine(line, cancerStudyId, chromosomeField, peakStartField, peakEndField, genesField, qvalField, ampField, cytobandField);
-                gistics.add(gistic);
+                if (gistic != null) {
+                    gistics.add(gistic);
+                }
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -200,25 +204,26 @@ public class GisticReader {
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         for (String gene : _genes) {
+            
+            gene = gene.split("\\|")[0];
 
             CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
-            if (canonicalGene == null) {
-                canonicalGene = new CanonicalGene(gene);
+            if (canonicalGene != null) {
+                if (canonicalGene.isMicroRNA()) {
+                    System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
+                    continue;
+                }
 
-//                    System.out.println("gene not found, skipping: " + gene);
-//                    throw new DaoException("gene not found: " + gene);
+                genes.add(canonicalGene);
             }
-
-            if (canonicalGene.isMicroRNA()) {
-                System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
-                continue;
-            }
-
-            genes.add(canonicalGene);
         }
         // -- end parse genes --
-
+        
+        if (genes.size() == 0) {
+            logger.info("No genes found in database - skipping gistic event");
+            return null;
+        }
         gistic.setGenes_in_ROI(genes);
 
         return gistic;

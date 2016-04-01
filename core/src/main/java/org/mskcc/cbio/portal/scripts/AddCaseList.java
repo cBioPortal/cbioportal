@@ -60,18 +60,14 @@ public class AddCaseList {
 		   
 		String sampleListDescription = "All cases in study";
 		String sampleListName = sampleListDescription;
-				
+		
 		// construct sample id list
 		ArrayList<String> sampleIDsList = new ArrayList<String>();
 		  
 		List<String> sampleIds = DaoSample.getSampleStableIdsByCancerStudy(theCancerStudy.getInternalId());
 		for (String sampleId : sampleIds) {
 		   Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), sampleId);
-		   if (s==null) {
-		       System.err.println("Error: could not find sample "+sampleId);
-		   } else {
-		      sampleIDsList.add(s.getStableId());
-		   }
+		   sampleIDsList.add(s.getStableId());
 		}
 		addCaseList(stableId, theCancerStudy, sampleListCategory, sampleListName, sampleListDescription,  sampleIDsList);
 	}
@@ -95,24 +91,25 @@ public class AddCaseList {
       DaoSampleList daoSampleList = new DaoSampleList();
       SampleList sampleList = daoSampleList.getSampleListByStableId(stableId);
       if (sampleList != null) {
-         throw new IllegalArgumentException("Case list with this stable Id already exists:  " + stableId);
+         ProgressMonitor.logWarning("Case list with this stable Id already exists:  " + stableId + ". Will keep the existing one.");
       }
-
-      sampleList = new SampleList();
-      sampleList.setStableId(stableId);
-      int cancerStudyId = theCancerStudy.getInternalId();
-      sampleList.setCancerStudyId(cancerStudyId);
-      sampleList.setSampleListCategory(sampleListCategory);
-      sampleList.setName(sampleListName);
-      sampleList.setDescription(sampleListDescription);
-      sampleList.setSampleList(sampleIDsList);
-      daoSampleList.addSampleList(sampleList);
-
-      sampleList = daoSampleList.getSampleListByStableId(stableId);
-
-      ProgressMonitor.setCurrentMessage(" --> stable ID:  " + sampleList.getStableId());
-      ProgressMonitor.setCurrentMessage(" --> case list name:  " + sampleList.getName());
-      ProgressMonitor.setCurrentMessage(" --> number of cases:  " + sampleIDsList.size());
+      else {
+	      sampleList = new SampleList();
+	      sampleList.setStableId(stableId);
+	      int cancerStudyId = theCancerStudy.getInternalId();
+	      sampleList.setCancerStudyId(cancerStudyId);
+	      sampleList.setSampleListCategory(sampleListCategory);
+	      sampleList.setName(sampleListName);
+	      sampleList.setDescription(sampleListDescription);
+	      sampleList.setSampleList(sampleIDsList);
+	      daoSampleList.addSampleList(sampleList);
+	
+	      sampleList = daoSampleList.getSampleListByStableId(stableId);
+	
+	      ProgressMonitor.setCurrentMessage(" --> stable ID:  " + sampleList.getStableId());
+	      ProgressMonitor.setCurrentMessage(" --> case list name:  " + sampleList.getName());
+	      ProgressMonitor.setCurrentMessage(" --> number of cases:  " + sampleIDsList.size());
+      }
    }
 
    public static void main(String[] args) throws Exception {

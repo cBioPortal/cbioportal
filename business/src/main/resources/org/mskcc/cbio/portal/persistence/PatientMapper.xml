@@ -29,4 +29,11 @@
     from patient inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER = #{study_id}
 </select>
+
+<select id="getPatientInternalIdsByStudy" resultType="Integer">
+    select
+    patient.INTERNAL_ID
+    from patient inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER = #{study_id}
+</select>
 </mapper>

@@ -194,6 +194,7 @@ var OncoKB = (function () {
             var matrix = {
                 '3\'Flank': ['any'],
                 '5\'Flank ': ['any'],
+                'Targeted_Region': ['inframe_deletion', 'inframe_insertion'],
                 'COMPLEX_INDEL': ['inframe_deletion', 'inframe_insertion'],
                 'ESSENTIAL_SPLICE_SITE': ['feature_truncation'],
                 'Exon skipping': ['inframe_deletion'],

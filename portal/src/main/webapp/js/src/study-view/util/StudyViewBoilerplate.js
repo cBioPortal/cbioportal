@@ -110,7 +110,7 @@ var StudyViewBoilerplate ={
     ],
     pieLabelQtip: {
         content:{text: ""},
-        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
         position: {my:'right bottom',at:'top left', viewport: $(window)}

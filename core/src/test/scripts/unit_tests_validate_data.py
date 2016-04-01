@@ -11,12 +11,12 @@ import sys
 import logging.handlers
 from importer import cbioportal_common
 from importer import validateData
-from importer.validateData import DEFINED_SAMPLE_ATTRIBUTES
 
 
 # globals for mock data used throughout the module
 DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
+PATIENTS_WITH_SAMPLES = None
 PORTAL_INSTANCE = None
 
 
@@ -24,11 +24,14 @@ def setUpModule():
     """Initialise mock data used throughout the module."""
     global DEFINED_SAMPLE_IDS
     global DEFINED_SAMPLE_ATTRIBUTES
+    global PATIENTS_WITH_SAMPLES
     global PORTAL_INSTANCE
-    # mock-code sample ids defined in a study
+    # mock information parsed from the sample attribute file
     DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
     DEFINED_SAMPLE_ATTRIBUTES = {'PATIENT_ID', 'SAMPLE_ID', 'SUBTYPE', 'CANCER_TYPE', 'CANCER_TYPE_DETAILED'}
-    # these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
+    PATIENTS_WITH_SAMPLES = set("TEST-PAT{}".format(num) for
+                                num in range(1, 10) if
+                                num != 8)
     logger = logging.getLogger(__name__)
     # parse mock API results from a local directory
     PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json_unit_tests/',
@@ -117,11 +120,16 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         super(PostClinicalDataFileTestCase, self).setUp()
         self.orig_defined_sample_ids = validateData.DEFINED_SAMPLE_IDS
         validateData.DEFINED_SAMPLE_IDS = DEFINED_SAMPLE_IDS
+        self.orig_defined_sample_attributes = validateData.DEFINED_SAMPLE_IDS
         validateData.DEFINED_SAMPLE_ATTRIBUTES = DEFINED_SAMPLE_ATTRIBUTES
+        self.orig_patients_with_samples = validateData.PATIENTS_WITH_SAMPLES
+        validateData.PATIENTS_WITH_SAMPLES = PATIENTS_WITH_SAMPLES
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
         validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
+        validateData.DEFINED_SAMPLE_ATTRIBUTES = self.orig_defined_sample_attributes
+        validateData.PATIENTS_WITH_SAMPLES = self.orig_patients_with_samples
         super(PostClinicalDataFileTestCase, self).tearDown()
 
 
@@ -247,6 +255,23 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.assertEqual(record.column_number, 2)
 
 
+class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
+
+    """Tests for validation of values specific to patient attribute files."""
+
+    def test_patient_without_samples(self):
+        """Test if a warning is issued for patients absent in the sample file."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clin_patient_without_samples.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 10)
+        self.assertEqual(record.cause, 'CASPER')
+        self.assertIn('sample', record.getMessage().lower())
+
+
 class CancerTypeFileValidationTestCase(DataFileTestCase):
 
     """Tests for validations of cancer type files in a study."""
@@ -334,6 +359,7 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         self.assertEqual(record.cause, 'luad')
         self.assertIn('defined a second time', record.getMessage())
 
+
 class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     """Tests validating gene-wise files with different combinations of gene id columns,
@@ -376,8 +402,8 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record_list[1].line_number, 1)
 
-    """Tests validating gene-wise files with different combinations of gene id columns,
-    now with invalid Entrez ID and/or Hugo names """
+    # Tests validating gene-wise files with different combinations of gene id columns,
+    # now with invalid Entrez ID and/or Hugo names """
 
     def test_both_name_and_entrez_but_invalid_hugo(self):
         """Test when a file has both the Hugo name and Entrez ID columns, but hugo is invalid."""
@@ -493,6 +519,8 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.cause, '  ')
         record = record_iterator.next()
         self.assertIn('cannot be parsed', record.getMessage().lower())
+
+    # TODO - add extra unit tests for the genesaliases scenarios (now only test_name_only_but_ambiguous tests part of this)
 
 
 class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
@@ -989,8 +1017,6 @@ class StableIdValidationTestCase(LogBufferTestCase):
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
 
-
-# TODO - add extra unit tests for the genesaliases scenarios (now only test_name_only_but_ambiguous tests part of this)
 
 if __name__ == '__main__':
     unittest.main(buffer=True)

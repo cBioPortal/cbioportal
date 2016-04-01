@@ -43,9 +43,7 @@ import org.springframework.ui.context.Theme;
 import java.io.*;
 import java.lang.System;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Utility for importing Gistic data from a file
@@ -203,9 +201,14 @@ public class GisticReader {
         // map _genes to list of CanonicalGenes
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        ArrayList<String> alreadyProcessedGenes = new ArrayList<String>();
         for (String gene : _genes) {
             
             gene = gene.split("\\|")[0];
+
+            if (alreadyProcessedGenes.contains(gene)) {
+                continue;
+            }
 
             CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
@@ -216,6 +219,7 @@ public class GisticReader {
                 }
 
                 genes.add(canonicalGene);
+                alreadyProcessedGenes.add(gene);
             }
         }
         // -- end parse genes --

@@ -271,6 +271,19 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.cause, 'CASPER')
         self.assertIn('sample', record.getMessage().lower())
 
+    def test_patient_without_attributes(self):
+        """Test if a warning is issued for patients absent in the patient file."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clin_missing_patient.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertFalse(hasattr(record, 'line_number'),
+                         'logrecord is about a specific line')
+        self.assertEqual(record.cause, 'TEST-PAT4')
+        self.assertIn('missing', record.getMessage().lower())
+
 
 class CancerTypeFileValidationTestCase(DataFileTestCase):
 

@@ -62,6 +62,9 @@ public class ImportExtendedMutationData{
 	private int geneticProfileId;
 	private MutationFilter myMutationFilter;
 	private int entriesSkipped = 0;
+	private int samplesSkipped = 0;
+	private Set<String> sampleSet = new HashSet<String>();
+	private Set<String> geneSet = new HashSet<String>();
 
 	/**
 	 * construct an ImportExtendedMutationData.
@@ -131,15 +134,18 @@ public class ImportExtendedMutationData{
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-                ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
+				ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
                 ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
 		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                             StableIdUtil.getSampleId(barCode));
 		        if (sample == null) {
 		        	assert StableIdUtil.isNormal(barCode);
-		        	entriesSkipped++;
+		        	//if new sample:
+		        	if (sampleSet.add(barCode))
+		        		samplesSkipped++;
 		        	continue;
 		        }
+		        
 				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
 					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
 				}
@@ -242,6 +248,11 @@ public class ImportExtendedMutationData{
 				long entrezGeneId = record.getEntrezGeneId();
                                 
 				CanonicalGene gene = null;
+				if (!record.getGivenEntrezGeneId().matches("-?[0-9]+")) {
+	            	ProgressMonitor.logWarning("Ignoring line with invalid Entrez_Id " + record.getGivenEntrezGeneId());
+	            	entriesSkipped++;
+			    	continue;
+				}	
 				if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
 				    gene = daoGene.getGene(entrezGeneId);
 				    if (gene == null) {
@@ -258,11 +269,7 @@ public class ImportExtendedMutationData{
 				}
                                 
 				if(gene == null) {
-					String entrezMessagePart = "";
-					if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
-						entrezMessagePart = " ["+ entrezGeneId + "]";
-					}
-					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + entrezMessagePart + ". Ignoring it "
+					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["+ record.getGivenEntrezGeneId() + "]" + ". Ignoring it "
 					                    + "and all mutation data associated with it!");
 					entriesSkipped++;
 					continue;
@@ -343,6 +350,9 @@ public class ImportExtendedMutationData{
                                                 } else {
                                                     mutations.put(mutation,mutation);
                                                 }
+                                                //keep track:
+                                                sampleSet.add(barCode);
+                                                geneSet.add(mutation.getEntrezGeneId()+"");
 					}
 					else {
 						entriesSkipped++;
@@ -376,7 +386,9 @@ public class ImportExtendedMutationData{
 		
                 ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
                 ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped:  " + entriesSkipped);
-
+                ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleSet.size());
+                ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+                ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
 	}
 
 	/**

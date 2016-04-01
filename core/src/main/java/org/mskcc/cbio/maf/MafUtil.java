@@ -442,6 +442,8 @@ public class MafUtil
         record.setStartPosition(TabDelimitedFileUtil.getPartLong(startPositionIndex, parts));
         record.setEndPosition(TabDelimitedFileUtil.getPartLong(endPositionIndex, parts));
         record.setEntrezGeneId(TabDelimitedFileUtil.getPartLong(entrezGeneIdIndex, parts));
+        //Store the given value, to better validate it:
+        record.setGivenEntrezGeneId(TabDelimitedFileUtil.getPartString(entrezGeneIdIndex, parts));
         record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartString(hugoGeneSymbolIndex, parts));
         record.setNcbiBuild(TabDelimitedFileUtil.getPartString(ncbiIndex, parts));
         record.setReferenceAllele(TabDelimitedFileUtil.getPartString(referenceAlleleIndex, parts));

@@ -52,7 +52,6 @@ import java.util.regex.Pattern;
  */
 public class ImportTabDelimData {
     private HashSet<Long> importedGeneSet = new HashSet<Long>();
-    private static Logger logger = Logger.getLogger(ImportTabDelimData.class);
 
     private File mutationFile;
     private String targetLine;
@@ -60,6 +59,7 @@ public class ImportTabDelimData {
     private GeneticProfile geneticProfile;
     private int entriesSkipped = 0;
     private int nrExtraRecords = 0;
+    private Set<String> arrayIdSet = new HashSet<String>();
 
     /**
      * Constructor.
@@ -467,6 +467,11 @@ public class ImportTabDelimData {
         }
         String[] symbols = parts[0].split(" ");
         String arrayId = parts[1];
+        //validate arrayId: if arrayId if duplicated, warn:
+        if (!arrayIdSet.add(arrayId)) {
+        	ProgressMonitor.logWarning("Id " + arrayId + " in [" + antibodyWithGene + "] found to be duplicated. Record will be skipped.");
+        	return null;
+        }
         List<String> symbolsNotFound = new ArrayList<String>();
         List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         for (String symbol : symbols) {

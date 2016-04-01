@@ -127,59 +127,59 @@
 	In addition, if selected, drug-gene interactions are shown as edges in the network. The interaction types are:
 	<ul>
 		<li>
-		  <span class="bold">controls-state-change-of:
+		  <span class="bold">Controls-state-change-of:
 		  </span>First protein controls a reaction that changes the state of the second protein.
 		</li>
 		<li>
-		  <span class="bold">controls-transport-of:
+		  <span class="bold">Controls-transport-of:
 		  </span>First protein controls a reaction that changes the cellular location of the second protein.
 		</li>
 		<li>
-		  <span class="bold">controls-phosphorylation-of:
+		  <span class="bold">Controls-phosphorylation-of:
 		  </span>First protein controls a reaction that changes the phosphorylation status of the second protein.
 		</li>
 		<li>
-		  <span class="bold">controls-expression-of:
+		  <span class="bold">Controls-expression-of:
 		  </span>First protein controls a conversion or a template reaction that changes expression of the second protein.
 		</li>
 		<li>
-		  <span class="bold">catalysis-precedes:
+		  <span class="bold">Catalysis-precedes:
 		  </span>First protein controls a reaction whose output molecule is input to another reaction controled by the second protein.
 		</li>
 		<li>
-		  <span class="bold">in-complex-with:
+		  <span class="bold">In-complex-with:
 		  </span>Proteins are members of the same complex.
 		</li>
 		<li>
-		  <span class="bold">interacts-with:
+		  <span class="bold">Interacts-with:
 		  </span>Proteins are participants of the same MolecularInteraction.
 		</li>
 		<li>
-		  <span class="bold">neighbor-of:
+		  <span class="bold">Neighbor-of:
 		  </span>Proteins are participants or controlers of the same interaction.
 		</li>
 		<li>
-		  <span class="bold">consumption-controled-by:
+		  <span class="bold">Consumption-controled-by:
 		  </span>The small molecule is consumed by a reaction that is controled by a protein
 		</li>
 		<li>
-		  <span class="bold">controls-production-of:
+		  <span class="bold">Controls-production-of:
 		  </span>The protein controls a reaction of which the small molecule is an output.
 		</li>
 		<li>
-		  <span class="bold">controls-transport-of-chemical:
+		  <span class="bold">Controls-transport-of-chemical:
 		  </span>The protein controls a reaction that changes cellular location of the small molecule.
 		</li>
 		<li>
-		  <span class="bold">chemical-affects:
+		  <span class="bold">Chemical-affects:
 		  </span>A small molecule has an effect on the protein state.
 		</li>
 		<li>
-		  <span class="bold">reacts-with:
+		  <span class="bold">Reacts-with:
 		  </span>Small molecules are input to a biochemical reaction.
 		</li>
 		<li>
-		  <span class="bold">used-to-produce:
+		  <span class="bold">Used-to-produce:
 		  </span>A reaction consumes a small molecule to produce another small molecule.
 		</li>
 	</ul>

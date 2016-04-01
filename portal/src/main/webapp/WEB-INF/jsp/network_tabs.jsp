@@ -128,18 +128,8 @@ if (includeHelpTab==null) {
     <div id="relations_tab">
 		<div>
 	        <table id="edge_type_filter">
-	        	<tr class="edge-type-header">
-	        		<td>
-	        			<label class="heading">Type:</label>
-	        		</td>
-	        	</tr>
 	        </table>
 	        <table id="edge_source_filter">
-	        	<tr class="edge-source-header">
-	        		<td>
-	        			<label class="heading">Source:</label>
-	        		</td>
-	        	</tr>
 	        </table>
 	    </div>
         <!-- <div class="footer">

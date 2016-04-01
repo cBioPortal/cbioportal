@@ -59,17 +59,17 @@ function NetworkVis(divId)
     //
     this.visibilityOfType =
     {
-      CONTROLS_STATE_CHANGE_OF : false,
+      CONTROLS_STATE_CHANGE_OF : true,
       CONTROLS_TRANSPORT_OF :false,
       CONTROLS_PHOSPHORYLATION_OF :false,
-      CONTROLS_EXPRESSION_OF :false,
+      CONTROLS_EXPRESSION_OF :true,
       CATALYSIS_PRECEDES : false,
       CONSUMPTION_CONTROLED_BY :false,
       CONTROLS_PRODUCTION_OF : false,
       CONTROLS_TRANSPORT_OF_CHEMICAL : false,
       USED_TO_PRODUCE :false,
       CHEMICAL_AFFECTS :false,
-      IN_COMPLEX_WITH :false,
+      IN_COMPLEX_WITH :true,
       INTERACTS_WITH :false,
       NEIGHBOR_OF :false,
       REACTS_WITH :false,
@@ -79,6 +79,7 @@ function NetworkVis(divId)
 
     //
     this.visibilityOfSource ={};
+    this.percentageFilterMap = {};
 
     // relative selectors for the given div id
     this.edgeInspectorSelector = this._createEdgeInspector(divId);
@@ -110,9 +111,6 @@ function NetworkVis(divId)
     // array of control functions
     this._controlFunctions = null;
 
-
-    //
-    this.visibilityOfSource = {};
 
     // node type constants
     this.PROTEIN = "Protein";
@@ -276,7 +274,7 @@ NetworkVis.prototype.initNetworkUI = function(vis)
 
     this.updateEdges();
     //Make interactions merged initially
-    this._toggleMerge();
+    //this._toggleMerge();
 };
 
 
@@ -444,8 +442,13 @@ NetworkVis.prototype._selectAll_InteractionTypeVisibility = function()
 {
   for (var key in this.edgeTypeConstants)
   {
-      $(this.interactionTypeVisibilitySelector + " #"+this.edgeTypeConstants[key].name+'_check').attr('checked', true);
-      this.visibilityOfType[key] = true;
+      //If the percentage of interaction is not 0 !
+      if (!this.percentageFilterMap[key])
+      {
+        $(this.interactionTypeVisibilitySelector + " #"+this.edgeTypeConstants[key].name+'_check').attr('checked', true);
+        this.visibilityOfType[key] = true;
+      }
+
   }
   this._refreshRelationsTabUIVisibility();
 }
@@ -454,8 +457,12 @@ NetworkVis.prototype._unselectAll_InteractionTypeVisibility = function()
 {
   for (var key in this.edgeTypeConstants)
   {
+    //If the percentage of interaction is not 0 !
+    if (!this.percentageFilterMap[key])
+    {
       $(this.interactionTypeVisibilitySelector + " #"+this.edgeTypeConstants[key].name+'_check').removeAttr('checked');
       this.visibilityOfType[key] = false;
+    }
   }
   this._refreshRelationsTabUIVisibility();
 }
@@ -2206,7 +2213,7 @@ NetworkVis.prototype._edgeTypeArray = function()
             type = type.replace(/-/g, '_');
             // by default every edge type is visible
             typeArray[type] = true;
-            this.visibilityOfType[type] = true;
+            //this.visibilityOfType[type] = true;
         }
     }
 
@@ -2513,14 +2520,12 @@ NetworkVis.prototype._initDialogs = function()
     $(this.interactionTypeVisibilitySelector).dialog({autoOpen: false,
                                    resizable: false,
                                    width: 300,
-                                   height: 500,
                                    close: function( event, ui ) {self._closeInteractionTypePopUp()}});
 
    //adjust edge source UI visibility dialog
    $(this.interactionSourceVisibilitySelector).dialog({autoOpen: false,
                                   resizable: false,
                                   width: 300,
-                                  height: 300,
                                   close: function( event, ui ) {self._closeInteractionSourcePopUp()}});
 };
 
@@ -3130,10 +3135,9 @@ NetworkVis.prototype._refreshRelationsTabUIVisibility = function()
     //Hide interaction type data from UI if it is selected to be !
     for (var key in this.visibilityOfType)
     {
-      if (this.visibilityOfType[key])
+      if (this.visibilityOfType[key] && !this.percentageFilterMap[key])
       {
           // do not display OTHER if its percentage is zero
-          console.log(this.edgeTypeConstants[key].name);
           this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), true);
 
           // also do not display it in the edge legend
@@ -3173,6 +3177,12 @@ NetworkVis.prototype._initRelationsTab = function()
   $(this.relationsTabSelector + " #edge_type_filter").empty();
   $(this.relationsTabSelector + " #edge_source_filter").empty();
 
+  $(this.relationsTabSelector + " #edge_type_filter").append('<tr class="edge-type-header">\
+      <td>\
+        <label class="heading">Type:</label>\
+      </td>\
+    </tr>');
+
   for (var key in this.edgeTypeConstants)
   {
     $(this.relationsTabSelector + " #edge_type_filter").append
@@ -3193,9 +3203,14 @@ NetworkVis.prototype._initRelationsTab = function()
     );
   }
 
-  $(this.relationsTabSelector + " #edge_type_filter").append('<tr><td><button id="showInteractionTypeVisibilityUI" type="button">Modify...</button></td></tr>');
+  $(this.relationsTabSelector + " #edge_type_filter").append('<tr><td><button id="showInteractionTypeVisibilityUI" style="margin-top: 10px; margin-bottom: 20px;" type="button">Modify...</button></td></tr>');
 
   // add source filtering options
+  $(this.relationsTabSelector + " #edge_source_filter").append('<tr class="edge-source-header">\
+  		<td>\
+  			<label class="heading">Source:</label>\
+  		</td>\
+  	</tr>');
 
   for (var key in this._edgeSourceVisibility)
   {
@@ -3206,7 +3221,7 @@ NetworkVis.prototype._initRelationsTab = function()
           '</td></tr>');
   }
 
-  $(this.relationsTabSelector + " #edge_source_filter").append('<tr><td><button id="showInteractionSourceVisibilityUI" type="button">Modify...</button></td></tr>');
+  $(this.relationsTabSelector + " #edge_source_filter").append('<tr><td><button id="showInteractionSourceVisibilityUI" style="margin-top: 10px" type="button">Modify...</button></td></tr>');
 }
 
 /**
@@ -3240,14 +3255,14 @@ NetworkVis.prototype._refreshRelationsTab = function()
       {
           // do not display OTHER if its percentage is zero
           this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), false);
-          this.visibilityOfType[key] = false;
+          this.percentageFilterMap[key] = true;
           // also do not display it in the edge legend
           //_setComponentVis($("#edge_legend .other"), false);
       }
       else
       {
           this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), true);
-          this.visibilityOfType[key] = true;
+          this.percentageFilterMap[key] = false;
           //_setComponentVis($("#edge_legend .other"), true);
       }
     }
@@ -3504,7 +3519,7 @@ NetworkVis.prototype._initControlFunctions = function()
       function()
       {
         var isChecked = $(this).is(':checked');
-        var key = $(this).attr('id').substr(0, $(this).attr('id').indexOf('_')).replace(/-/g, '_');
+        var key = $(this).attr('id').substr(0, $(this).attr('id').lastIndexOf('_')).replace(/-/g, '_');
         key = key.toUpperCase();
         self.visibilityOfType[key] = isChecked;
         self._edgeTypeVisibility[self.edgeTypeConstants[key].name] = isChecked;
@@ -3775,12 +3790,12 @@ NetworkVis.prototype._togglePanZoom = function()
     if (this._panZoomVisible)
     {
         item.addClass(this.CHECKED_CLASS);
-        $('.ui-cytoscape-panzoom').css('visibility', 'visible');
+        $('.cy-panzoom').css('visibility', 'visible');
     }
     else
     {
         item.removeClass(this.CHECKED_CLASS);
-        $('.ui-cytoscape-panzoom').css('visibility', 'hidden');
+        $('.cy-panzoom').css('visibility', 'hidden');
     }
 
 };
@@ -4279,14 +4294,17 @@ NetworkVis.prototype._createInteractionTypeVisibilityWindow = function(divId)
     var table = "";
     for (var key in this.edgeTypeConstants)
     {
-    	var checkedOrNot = ((this.visibilityOfType[key] === true) ? 'checked' : '');
-        table +=
-          '<tr class="'+this.edgeTypeConstants[key].name +'_UI">\n'+
-          '<td class="edge-type-checkbox">'+
-            '<input id="'+this.edgeTypeConstants[key].name+'_check" type="checkbox" '+checkedOrNot+'>\n'+
-            '<label style="font-size: 10pt; font-weight: normal;" >'+this.edgeTypeConstants[key].desc +'</label>\n'+
-          '</td>'+
-          '</tr>\n';
+      if (!this.percentageFilterMap[key])
+      {
+        var checkedOrNot = ((this.visibilityOfType[key] === true) ? 'checked' : '');
+          table +=
+            '<tr class="'+this.edgeTypeConstants[key].name +'_UI">\n'+
+            '<td class="edge-type-checkbox">'+
+              '<input id="'+this.edgeTypeConstants[key].name+'_check" type="checkbox" '+checkedOrNot+'>\n'+
+              '<label style="font-size: 10pt; font-weight: normal;" >'+this.edgeTypeConstants[key].desc +'</label>\n'+
+            '</td>'+
+            '</tr>\n';
+      }
     }
 
     var html =

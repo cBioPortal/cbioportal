@@ -79,7 +79,7 @@ public class CancerStudy {
         super();
         this.studyID = CancerStudy.NO_SUCH_STUDY;
         this.name = name;
-        this.shortName = "";
+        this.shortName = cancerStudyIdentifier;
         this.description = description;
         this.cancerStudyIdentifier = cancerStudyIdentifier;
         this.typeOfCancerId = typeOfCancerId;

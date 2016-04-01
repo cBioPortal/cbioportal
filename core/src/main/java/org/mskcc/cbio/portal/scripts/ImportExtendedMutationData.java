@@ -110,14 +110,14 @@ public class ImportExtendedMutationData{
 
 		boolean fileHasOMAData = false;
 
-		try {
-
+		if (mafUtil.getMaFImpactIndex() >= 0) {
 			// fail gracefully if a non-essential column is missing
 			// e.g. if there is no MA_link.var column, we assume that the value is NA and insert it as such
 			fileHasOMAData = true;
-			ProgressMonitor.setCurrentMessage("Extracting OMA Scores from Column Number:  "
+			ProgressMonitor.setCurrentMessage(" --> OMA Scores Column Number:  "
 			                           + mafUtil.getMaFImpactIndex());
-		} catch( IllegalArgumentException e) {
+		} 
+		else {
 			fileHasOMAData = false;
 		}
 
@@ -385,10 +385,17 @@ public class ImportExtendedMutationData{
                 DaoMutation.calculateMutationCount(geneticProfileId);
 		
                 ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
-                ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped:  " + entriesSkipped);
+                if (entriesSkipped > 0) {
+                	ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
+                }
                 ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleSet.size());
-                ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+                if (samplesSkipped > 0) {
+                	ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+                }
                 ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
+                
+                ProgressMonitor.setCurrentMessage("Filtering table:\n-----------------");
+ 		        this.myMutationFilter.toString();
 	}
 
 	/**
@@ -449,12 +456,5 @@ public class ImportExtendedMutationData{
 		} else {
 			return omaScore;
 		}
-	}
-
-	@Override
-	public String toString(){
-		return "geneticProfileId: " + this.geneticProfileId + "\n" +
-		       "mutationFile: " + this.mutationFile + "\n" +
-		       this.myMutationFilter.toString();
 	}
 }

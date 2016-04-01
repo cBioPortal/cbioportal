@@ -147,7 +147,6 @@ public class ImportProfileData{
 	   
 	            ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
 	                  geneticProfile.getGeneticProfileId());
-	            System.out.println( importer.toString() );
 	            importer.importData();
 	        }
 		    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {

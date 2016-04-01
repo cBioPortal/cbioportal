@@ -135,7 +135,7 @@ public class ImportSampleList {
       ProgressMonitor.setCurrentMessage(" --> sample list name:  " + sampleList.getName());
       ProgressMonitor.setCurrentMessage(" --> number of samples in file:  " + sampleIds.length);
       String warningSamplesViaPatientLink = (itemsAddedViaPatientLink? "(nb: can be higher if samples were added via patient link)" : "");
-      ProgressMonitor.setCurrentMessage(" --> number of samples in final sample list " + warningSamplesViaPatientLink + ":  " + sampleIDsList.size());
+      ProgressMonitor.setCurrentMessage(" --> number of samples stored in final sample list " + warningSamplesViaPatientLink + ":  " + sampleIDsList.size());
    }
 
    public static void main(String[] args) throws Exception {

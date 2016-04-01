@@ -157,7 +157,9 @@ public class ImportTabDelimData {
 	           }
 	           orderedSampleList.add(sample.getInternalId());
 	        }
-	        ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+	        if (samplesSkipped > 0) {
+	        	ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+	        }
 	        ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
 	        
 	        DaoGeneticProfileSamples.addGeneticProfileSamples(geneticProfileId, orderedSampleList);
@@ -209,7 +211,9 @@ public class ImportTabDelimData {
 	        if (rppaProfile) {
 	        	ProgressMonitor.setCurrentMessage(" --> total number of extra records added because of multiple genes in one line:  " + nrExtraRecords);
 	        }
-	        ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
+	        if (entriesSkipped > 0) {
+	        	ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
+	        }
 
 	        if (numRecordsToAdd == 0) {
 	            throw new DaoException ("Something has gone wrong!  I did not save any records" +
@@ -514,6 +518,7 @@ public class ImportTabDelimData {
             String phosphoSymbol = gene.getStandardSymbol()+"_"+residue;
             CanonicalGene phosphoGene = daoGene.getGene(phosphoSymbol);
             if (phosphoGene==null) {
+            	ProgressMonitor.logWarning("Phosphoprotein " + phosphoSymbol + " not yet known in DB. Adding it to `gene` table with 3 aliases in `gene_alias` table.");
                 phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
                 phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
                 phosphoGene.setCytoband(gene.getCytoband());

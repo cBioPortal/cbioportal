@@ -795,7 +795,8 @@
                                 circleTTR = Math.min(studyWidth, 20) / 2;
                                 //auto adjust left padding to solve the truncating x label problem
                                 var stacked = $("#histogram-show-colors").is(":checked");
-                                var outX = width + 1000;
+                                //var outX = width + 1000;
+				var outY = -1000;
                                
                                 yScale.domain([0, maxYAxis ]).range([histBottom-paddingTop, 0]);
  
@@ -830,13 +831,18 @@
 				histogram.attr("width", histWidth+"px");
 				histogram.attr("height", svg_height + "px");
 				histogram_div.style("height", svg_height+ "px");
+				if (histWidth > width) {
+				    histogram_div.style("overflow-x", "scroll");
+				} else {
+				    histogram_div.style("overflow-x", "hidden");
+				}
 				legend.style("top", legendTop + "px");
 				
                                 var obg = otherBarGroup.selectAll("rect").data(histData, key);
                                 obg.exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 obg.transition()
                                     .duration(animationDuration)
@@ -850,9 +856,9 @@
 
                                 var mbg = mutBarGroup.selectAll("rect").data(histData, key);
                                 mbg.exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 mbg.transition()
                                     .duration(animationDuration)
@@ -872,9 +878,9 @@
                                 var clbg = cnalossBarGroup.selectAll("rect").data(histData, key);
                                 clbg
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 clbg
                                     .transition()
@@ -898,9 +904,9 @@
                                 var cdbg = cnadownBarGroup.selectAll("rect").data(histData, key);
                                 cdbg
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 cdbg
                                     .transition()
@@ -924,9 +930,9 @@
                                 var cubp = cnaupBarGroup.selectAll("rect").data(histData, key);
                                 cubp
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 cubp
                                     .transition()
@@ -951,9 +957,9 @@
                                 var cgbp = cnagainBarGroup.selectAll("rect").data(histData, key);
                                 cgbp
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 cgbp
                                     .transition()
@@ -979,9 +985,9 @@
                                 var ibg = infoBarGroup.selectAll("rect").data(histData, key);
                                 ibg
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 ibg
                                     .transition()
@@ -998,9 +1004,9 @@
                                 var ct = cancerTypes.selectAll("circle").data(histData, key);
                                 ct
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("cx", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("cy", outY)
                                 ;
                                 ct
                                     .transition()
@@ -1013,35 +1019,37 @@
                                 var mg = mutGroups.selectAll("text").data(histData, key);
                                 mg
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 mg
                                     .transition()
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
+				    .attr("y", function() { return histBottom + verticalCirclePadding*2 + circleDTR/2 })
                                 ;
 
                                 var cg = cnaGroups.selectAll("text").data(histData, key);
                                 cg
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                 ;
                                 cg
                                     .transition()
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
+				    .attr("y", function() { return histBottom + verticalCirclePadding*3 + circleDTR/2 })
                                 ;
 
                                 var ag = abbrGroups.selectAll("text").data(histData, key);
                                 ag
                                     .exit()
-                                    .transition()
-                                    .duration(animationDuration)
-                                    .attr("x", outX)
+                                    //.transition()
+                                    //.duration(animationDuration)
+                                    .attr("y", outY)
                                     .attr("transform", function(d, i) {
                                         var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;
                                         var yLoc = histBottom + verticalCirclePadding*4;
@@ -1056,6 +1064,7 @@
                                     })
                                     .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
                                     .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
+				    .attr("y", function() { return histBottom + verticalCirclePadding*4 })
                                     .attr("transform", function(d, i) {
                                         var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.5;
                                         var yLoc = histBottom + verticalCirclePadding*4;

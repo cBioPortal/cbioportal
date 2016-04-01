@@ -439,6 +439,9 @@ public class CancerStudy {
     }
 
     public String getShortName() {
+        if (shortName==null || shortName.length()==0) {
+            return cancerStudyIdentifier;
+        }
         return shortName;
     }
 

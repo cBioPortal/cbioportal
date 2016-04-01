@@ -111,6 +111,7 @@ public class ImportTabDelimData {
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
                                 && "Composite.Element.Ref".equalsIgnoreCase(parts[0]);
         int numRecordsToAdd = 0;
+        int samplesSkipped = 0;
         try {
         	int hugoSymbolIndex = getHugoSymbolIndex(parts);
 	        int entrezGeneIdIndex = getEntrezGeneIdIndex(parts);
@@ -137,8 +138,7 @@ public class ImportTabDelimData {
 	        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
 	        }
 	        
-	        ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleIds.length);
-	        ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
+	        ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleIds.length);	        
 	
 	        // link Samples to the genetic profile
 	        ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
@@ -149,7 +149,7 @@ public class ImportTabDelimData {
 	           if (sample == null) {
 	                assert StableIdUtil.isNormal(sampleIds[i]);
 	                filteredSampleIndices.add(i);
-	                entriesSkipped++;
+	                samplesSkipped++;
 	                continue;
 	           }
 	           if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
@@ -157,6 +157,9 @@ public class ImportTabDelimData {
 	           }
 	           orderedSampleList.add(sample.getInternalId());
 	        }
+	        ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+	        ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
+	        
 	        DaoGeneticProfileSamples.addGeneticProfileSamples(geneticProfileId, orderedSampleList);
 	
 	        //Gene cache:

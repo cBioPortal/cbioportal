@@ -1480,7 +1480,12 @@ class PatientClinicalValidator(ClinicalValidator):
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""
-        # TODO: warn if any patient associated with a sample lacks data
+        for patient_id in PATIENTS_WITH_SAMPLES:
+            if patient_id not in self.patient_id_lines:
+                self.logger.warning(
+                    'Missing clinical data for a patient associated with '
+                    'samples',
+                    extra={'cause': patient_id})
         super(PatientClinicalValidator, self).onComplete()
 
 

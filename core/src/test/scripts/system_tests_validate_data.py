@@ -11,8 +11,14 @@ import logging
 import tempfile
 import os
 import shutil
+import time
 import difflib
 from importer import validateData
+
+try:
+    WindowsError
+except NameError:
+    WindowsError = None
 
 # globals:
 PORTAL_INFO_DIR = 'test_data/api_json_system_tests'
@@ -37,7 +43,14 @@ class ValidateDataSystemTester(unittest.TestCase):
             logging_handler.close()
         # remove the handlers from the logger to reset it
         validator_logger.handlers = []
-        shutil.rmtree(self.temp_dir_path) #TODO: make compatible with Windows, so test can work on windows machine
+        # TODO: test if this try block fixes the issue on Pieter's system
+        try:
+            shutil.rmtree(self.temp_dir_path)
+        except WindowsError:
+            # wait for any virus scanners or other malware to get out of there
+            time.sleep(5)
+            # remove as much as possible
+            shutil.rmtree(self.temp_dir_path, ignore_errors=True)
         super(ValidateDataSystemTester, self).tearDown()
 
     def test_exit_status_success(self):

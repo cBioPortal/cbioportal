@@ -225,7 +225,7 @@ public class MySQLbulkLoader {
          stmt.execute( command );
          
          int updateCount = stmt.getUpdateCount();
-         ProgressMonitor.setCurrentMessage(" --> records inserted into "+tableName + ": " + updateCount);
+         ProgressMonitor.setCurrentMessage(" --> records inserted into `"+tableName + "` table: " + updateCount);
          int nLines = FileUtil.getNumLines(tempFileHandle);
          if (nLines!=updateCount && !processingClinicalData()) {
              System.err.println("Error: only "+updateCount+" of the "+nLines+" records were inserted in " + tableName);

@@ -59,6 +59,7 @@ public class ImportTabDelimData {
     private int geneticProfileId;
     private GeneticProfile geneticProfile;
     private int entriesSkipped = 0;
+    private int nrExtraRecords = 0;
 
     /**
      * Constructor.
@@ -101,17 +102,16 @@ public class ImportTabDelimData {
         BufferedReader buf = new BufferedReader(reader);
         String headerLine = buf.readLine();
         String parts[] = headerLine.split("\t");
-
+        
+        //Whether data regards CNA or RPPA:
+        boolean discritizedCnaProfile = geneticProfile!=null
+                                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                                        && geneticProfile.showProfileInAnalysisTab();
+        boolean rppaProfile = geneticProfile!=null
+                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
+                                && "Composite.Element.Ref".equalsIgnoreCase(parts[0]);
         int numRecordsToAdd = 0;
         try {
-	        //Whether data regards CNA or RPPA:
-	        boolean discritizedCnaProfile = geneticProfile!=null
-	                                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
-	                                        && geneticProfile.showProfileInAnalysisTab();
-	        boolean rppaProfile = geneticProfile!=null
-	                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
-	                                && "Composite.Element.Ref".equalsIgnoreCase(parts[0]);
-        	
         	int hugoSymbolIndex = getHugoSymbolIndex(parts);
 	        int entrezGeneIdIndex = getEntrezGeneIdIndex(parts);
 	        int rppaGeneRefIndex = getRppaGeneRefIndex(parts);
@@ -202,8 +202,11 @@ public class ImportTabDelimData {
         	System.err.println(e.getMessage());
         }
         finally {
-	        buf.close(); 
-	        ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped:  " + entriesSkipped);
+	        buf.close();
+	        if (rppaProfile) {
+	        	ProgressMonitor.setCurrentMessage(" --> total number of extra records added because of multiple genes in one line:  " + nrExtraRecords);
+	        }
+	        ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
 
 	        if (numRecordsToAdd == 0) {
 	            throw new DaoException ("Something has gone wrong!  I did not save any records" +
@@ -380,12 +383,18 @@ public class ImportTabDelimData {
                             for (CanonicalGene gene : genes) {
                             	if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
 	                            	boolean result = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
-	                            	if (result == true)
+	                            	if (result == true) {
 	                            		recordStored = true;
+	                            		nrExtraRecords++;
+	                            	}
                             	}
                             	else {
                             		otherCase++;
                             	}
+                            }
+                            if (recordStored) {
+                            	//skip one, to avoid double counting:
+                            	nrExtraRecords--;
                             }
                             if (!recordStored) {
 		                        if (otherCase > 1) {

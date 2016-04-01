@@ -24,8 +24,12 @@ class ValidateDataSystemTester(unittest.TestCase):
     the html report when requested?", etc)
     '''
 
+    def setUp(self):
+        """Set up a temporary directory for output files."""
+        self.temp_dir_path = tempfile.mkdtemp()
+
     def tearDown(self):
-        """Close logging handlers after running validator."""
+        """Close logging handlers after running validator and remove tmpdir."""
         # get the logger used in validateData.main_validate()
         validator_logger = logging.getLogger(validateData.__name__)
         # flush and close all handlers of this logger
@@ -33,6 +37,7 @@ class ValidateDataSystemTester(unittest.TestCase):
             logging_handler.close()
         # remove the handlers from the logger to reset it
         validator_logger.handlers = []
+        shutil.rmtree(self.temp_dir_path) #TODO: make compatible with Windows, so test can work on windows machine
         super(ValidateDataSystemTester, self).tearDown()
 
     def test_exit_status_success(self):
@@ -105,34 +110,30 @@ class ValidateDataSystemTester(unittest.TestCase):
 
     def test_errorline_output(self):
         '''Test if error file is generated when '--error_file' is given.'''
-        temp_dir_path = tempfile.mkdtemp()
-        try:
-            out_file_name = os.path.join(temp_dir_path, 'error_file.txt')
-            # build up arguments and run
-            argv = ['--study_directory','test_data/study_maf_test/',
-                    '--portal_info_dir', PORTAL_INFO_DIR,
-                    '--error_file', out_file_name]
-            parsed_args = validateData.interface(argv)
-            exit_status = validateData.main_validate(parsed_args)
-            # flush logging handlers used in validateData
-            validator_logger = logging.getLogger(validateData.__name__)
-            for logging_handler in validator_logger.handlers:
-                logging_handler.flush()
-            # assert that the results are as expected
-            self.assertEquals(1, exit_status)
-            self.assertTrue(os.path.exists(out_file_name))
-            with open(out_file_name, 'rU') as out_file, \
-                 open('test_data/study_maf_test/error_file.txt', 'rU') as ref_file:
-                diff_result = difflib.context_diff(
-                        ref_file.readlines(),
-                        out_file.readlines(),
-                        fromfile='Expected error file',
-                        tofile='Generated error file')
-            diff_line_list = list(diff_result)
-            self.assertEqual(diff_line_list, [],
-                             msg='\n' + ''.join(diff_line_list))
-        finally:
-            shutil.rmtree(temp_dir_path) #TODO: make compatible with Windows, so test can work on windows machine
+        out_file_name = os.path.join(self.temp_dir_path, 'error_file.txt')
+        # build up arguments and run
+        argv = ['--study_directory','test_data/study_maf_test/',
+                '--portal_info_dir', PORTAL_INFO_DIR,
+                '--error_file', out_file_name]
+        parsed_args = validateData.interface(argv)
+        exit_status = validateData.main_validate(parsed_args)
+        # flush logging handlers used in validateData
+        validator_logger = logging.getLogger(validateData.__name__)
+        for logging_handler in validator_logger.handlers:
+            logging_handler.flush()
+        # assert that the results are as expected
+        self.assertEquals(1, exit_status)
+        self.assertTrue(os.path.exists(out_file_name))
+        with open(out_file_name, 'rU') as out_file, \
+             open('test_data/study_maf_test/error_file.txt', 'rU') as ref_file:
+            diff_result = difflib.context_diff(
+                    ref_file.readlines(),
+                    out_file.readlines(),
+                    fromfile='Expected error file',
+                    tofile='Generated error file')
+        diff_line_list = list(diff_result)
+        self.assertEqual(diff_line_list, [],
+                         msg='\n' + ''.join(diff_line_list))
 
     def test_portal_mismatch(self):
         '''Test if validation fails when data contradicts the portal.'''

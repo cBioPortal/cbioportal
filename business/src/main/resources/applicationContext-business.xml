@@ -7,7 +7,8 @@
      xsi:schemaLocation="
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd" xmlns:aop="http://www.springframework.org/schema/aop">
 
      <beans profile="jndi,dbcp">
 
@@ -19,6 +20,7 @@
               <list>
                 <value>classpath:/portal.properties</value>
                 <value>file:///${PORTAL_HOME}/src/main/resources/portal.properties</value>
+                <value>file:///${PORTAL_HOME}/src/main/resources/importer.properties</value>
               </list>
             </property>
           </bean>
@@ -34,9 +36,13 @@
             <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
             <property name="sqlSessionFactory" ref="sqlSessionFactory" />
         </bean>
-        <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
+        <bean id="genePanelMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GenePanelMapper" />
             <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactorybean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />                
         </bean>
         <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
             <property name="entityMapper" ref="entityMapper" />

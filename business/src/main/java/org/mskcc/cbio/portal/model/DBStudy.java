@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class DBStudy implements Serializable {
     public String id;
+    public Integer internal_id;
     public String type_of_cancer;
     public String name;
     public String short_name;

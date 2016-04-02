@@ -2504,7 +2504,7 @@ NetworkVis.prototype._initDialogs = function()
     // adjust node legend
     $(this.geneLegendSelector).dialog({autoOpen: false,
                                  resizable: false,
-                                 width: 440});
+                                 width: 500});
 
     // adjust drug legend
     $(this.drugLegendSelector).dialog({autoOpen: false,
@@ -2514,7 +2514,7 @@ NetworkVis.prototype._initDialogs = function()
     // adjust edge legend
     $(this.edgeLegendSelector).dialog({autoOpen: false,
                                  resizable: false,
-                                 width: 280});
+                                 width: 400});
 
     //adjust edge typ2 UI visibility dialog
     $(this.interactionTypeVisibilitySelector).dialog({autoOpen: false,

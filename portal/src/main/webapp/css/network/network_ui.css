@@ -765,7 +765,7 @@ table #network_wrapper{
 .network_node_legend img
 {
 	margin: 0.4em;
-	width: 280px;
+	width: 400px;
 }
 
 .network_drug_legend img
@@ -784,7 +784,7 @@ table #network_wrapper{
 {
 	margin-top: 0.4em;
 	margin-bottom: 0.4em;
-	width: 230px;
+	width: 350px;
 }
 
 .network_edge_legend .color-bar

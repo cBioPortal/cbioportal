@@ -2212,19 +2212,48 @@ def process_metadata_files(directory, portal_instance, logger):
     return validators_by_type, study_cancer_type, study_id
 
 
-def processCaseListDirectory(caseListDir, cancerStudyId, logger):
+def processCaseListDirectory(caseListDir, cancerStudyId, logger,
+                             stableid_files=None):
+    """Validate the case lists in a directory and log findings.
+
+    Args:
+        caseListDir (str): path to the case list directory.
+        cancerStudyId (str): cancer_study_identifier expected in the files.
+        logger: logging.Logger instance through which to send output.
+        stableid_files (Optional): dict mapping the stable ids of any case
+            lists already defined to the files they were defined in.
+    """
 
     logger.debug('Validating case lists')
 
-    case_lists = [os.path.join(caseListDir, x) for x in os.listdir(caseListDir)]
+    # start with an empty dictionary if none was given
+    # (using mutable objects as default arguments directly is confusing)
+    if stableid_files == None:
+        stableid_files = {}
 
-    for case in case_lists:
+    case_list_fns = [os.path.join(caseListDir, x) for
+                     x in os.listdir(caseListDir)]
+
+    for case in case_list_fns:
 
         case_data, meta_file_type = cbioportal_common.parse_metadata_file(
             case, logger, cancerStudyId, case_list=True)
         # skip if invalid, errors have already been emitted
         if meta_file_type is None:
             continue
+
+        # check for duplicated stable ids
+        stable_id = case_data['stable_id']
+        if stable_id in stableid_files:
+            logger.error('Multiple case lists with this stable_id defined '
+                         'in the study',
+                extra={'filename_': case,
+                       'cause': '%s (already defined in %s)' % (
+                                stable_id,
+                                os.path.relpath(stableid_files[stable_id],
+                                                os.path.dirname(caseListDir)))})
+        else:
+            stableid_files[stable_id] = case
 
         sampleIds = case_data['case_list_ids']
         sampleIds = set([x.strip() for x in sampleIds.split('\t')])

@@ -995,6 +995,26 @@ class StudyCompositionTestCase(LogBufferTestCase):
         self.assertEqual(record_list[1].cause, 'luad')
 
 
+class CaseListDirTestCase(PostClinicalDataFileTestCase):
+
+    """Test validations of the case list directory."""
+
+    def test_duplicated_stable_id(self):
+        """Test if an error is issued when two lists have the same id."""
+        self.logger.setLevel(logging.ERROR)
+        validateData.processCaseListDirectory(
+            'test_data/case_lists_duplicated',
+            'brca_tcga_pub',
+            self.logger)
+        record_list = self.get_log_records()
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('multiple', record.getMessage().lower())
+        self.assertTrue(record.cause.startswith('brca_tcga_pub_all'),
+                        "Error is not about the id 'brca_tcga_pub_all'")
+
+
 class StableIdValidationTestCase(LogBufferTestCase):
 
     """Tests to ensure stable_id validation works correctly."""

@@ -1292,7 +1292,8 @@ class ClinicalValidator(Validator):
                             srv_attr_properties['is_patient_attribute']],
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
-                           'cause': col_name})
+                           'cause': col_name, 
+                           'show_all_values': True})
             else:
                 # compare values defined in the file with the existing ones
                 for attr_property in self.attr_defs[col_index]:

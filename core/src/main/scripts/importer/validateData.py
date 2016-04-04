@@ -2142,9 +2142,11 @@ def process_metadata_files(directory, portal_instance, logger):
 
     Return a tuple of:
         1. a dict listing the data file validator (or None) for each meta file
-           by file type,
-        2. the cancer type of the study, and
-        3. the study id
+            by file type,
+        2. a dict mapping any case list IDs defined *outside* of the case list
+            directory to paths of the files in which they were defined
+        3. the cancer type of the study, and
+        4. the study id
 
     Possible file types are listed in cbioportal_common.MetaFileTypes.
     """
@@ -2165,6 +2167,7 @@ def process_metadata_files(directory, portal_instance, logger):
     study_id = None
     study_cancer_type = None
     validators_by_type = {}
+    case_list_suffix_fns = {}
     stable_ids = []
 
     for filename in filenames:
@@ -2191,7 +2194,12 @@ def process_metadata_files(directory, portal_instance, logger):
                 logger.error(
                     'Encountered a second meta_study file',
                     extra={'filename_': filename})
-            study_cancer_type = meta['type_of_cancer']
+            else:
+                study_cancer_type = meta['type_of_cancer']
+                if ('add_global_case_list' in meta and
+                        meta['add_global_case_list'].lower() == 'true'):
+                    case_list_suffix_fns['all'] = filename
+
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
             validators_by_type[meta_file_type] = []
@@ -2209,7 +2217,15 @@ def process_metadata_files(directory, portal_instance, logger):
             'Cancer type needs to be defined for a study. Verify that you have a study file '
             'and have defined the cancer type correctly.')
 
-    return validators_by_type, study_cancer_type, study_id
+    # prepend the cancer study id to any case list suffixes
+    defined_case_list_fns = {}
+    if study_id is not None:
+        for suffix in case_list_suffix_fns:
+            defined_case_list_fns[study_id + '_' + suffix] = \
+                case_list_suffix_fns[suffix]
+
+    return (validators_by_type, defined_case_list_fns,
+            study_cancer_type, study_id)
 
 
 def processCaseListDirectory(caseListDir, cancerStudyId, logger,
@@ -2488,6 +2504,7 @@ def validate_study(study_dir, portal_instance, logger):
 
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
+     defined_case_list_fns,
      study_cancer_type,
      study_id) = process_metadata_files(study_dir, portal_instance, logger)
 
@@ -2580,7 +2597,8 @@ def validate_study(study_dir, portal_instance, logger):
     if not os.path.isdir(case_list_dirname):
         logger.info("No directory named 'case_lists' found, so assuming no custom case lists.")
     else:
-        processCaseListDirectory(case_list_dirname, study_id, logger)
+        processCaseListDirectory(case_list_dirname, study_id, logger,
+                                 stableid_files=defined_case_list_fns)
 
     logger.info('Validation complete')
 

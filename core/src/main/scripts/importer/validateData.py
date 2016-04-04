@@ -2247,6 +2247,11 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
     if stableid_files == None:
         stableid_files = {}
 
+    # TODO: include ids based on the defined profiles here
+    required_id_suffixes = ('all', )
+    required_stable_ids = [cancerStudyId + '_' + suffix for suffix in
+                           required_id_suffixes]
+
     case_list_fns = [os.path.join(caseListDir, x) for
                      x in os.listdir(caseListDir)]
 
@@ -2285,6 +2290,17 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                     'Sample id not defined in clinical file',
                     extra={'filename_': case,
                            'cause': value})
+
+    for required_id in required_stable_ids:
+        if required_id not in stableid_files:
+            if required_id == cancerStudyId + '_all':
+                suggestion = ("Consider adding 'add_global_case_list: true' "
+                              "to the study metadata file")
+            else:
+                suggestion = "Please define it in the 'case_lists' folder"
+            logger.error("No  case list found for stable_id '%s'. %s",
+                         required_id,
+                         suggestion)
 
     logger.info('Validation of case lists complete')
 

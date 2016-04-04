@@ -2260,7 +2260,13 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
 
         # check for duplicated stable ids
         stable_id = case_data['stable_id']
-        if stable_id in stableid_files:
+        if not stable_id.startswith(cancerStudyId + '_'):
+            logger.error('Stable_id of case list does not start with the '
+                         'study id (%s) followed by an underscore',
+                         cancerStudyId,
+                         extra={'filename_': case,
+                                'cause': stable_id})
+        elif stable_id in stableid_files:
             logger.error('Multiple case lists with this stable_id defined '
                          'in the study',
                 extra={'filename_': case,

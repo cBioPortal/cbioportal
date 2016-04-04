@@ -34,6 +34,7 @@ GENOMIC_BUILD_NAME = 'hg19'
 # study-specific globals
 DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
+PATIENTS_WITH_SAMPLES = None
 DEFINED_CANCER_TYPES = None
 
 
@@ -972,13 +973,14 @@ class MutationsExtendedValidator(Validator):
                         raise RuntimeError(('Checking function %s set an error '
                                             'message but reported no error') %
                                            checking_function.__name__)
-        
+
             # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
             sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
             value = data[sample_id_column_index]
             self.checkSampleId(value, column_number=sample_id_column_index + 1)
-               
-            # parse hugo and entrez to validate them together: 
+
+            # parse hugo and entrez to validate them together
+            # TODO: handle symbol 'Unknown' / Entrez 0
             hugo_symbol = None
             entrez_id = None
             if 'Hugo_Symbol' in self.cols:
@@ -1366,6 +1368,7 @@ class SampleClinicalValidator(ClinicalValidator):
         super(SampleClinicalValidator, self).__init__(*args, **kwargs)
         self.sample_id_lines = {}
         self.sampleIds = self.sample_id_lines.viewkeys()
+        self.patient_ids = set()
 
     def checkLine(self, data):
         """Check the values in a line of data."""
@@ -1406,6 +1409,8 @@ class SampleClinicalValidator(ClinicalValidator):
                                     self.sample_id_lines[value])})
                 else:
                     self.sample_id_lines[value] = self.line_number
+            elif col_name == 'PATIENT_ID':
+                self.patient_ids.add(value)
             # TODO: check the values in the other documented columns
 
 
@@ -1465,12 +1470,23 @@ class PatientClinicalValidator(ClinicalValidator):
                                     self.patient_id_lines[value])})
                 else:
                     self.patient_id_lines[value] = self.line_number
-                    # TODO: warn if the patient has no samples
+                    if value not in PATIENTS_WITH_SAMPLES:
+                        self.logger.warning(
+                            'Clinical data defined for a patient with '
+                            'no samples',
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
             # TODO: check the values for other documented columns
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""
-        # TODO: warn if any patient associated with a sample lacks data
+        for patient_id in PATIENTS_WITH_SAMPLES:
+            if patient_id not in self.patient_id_lines:
+                self.logger.warning(
+                    'Missing clinical data for a patient associated with '
+                    'samples',
+                    extra={'cause': patient_id})
         super(PatientClinicalValidator, self).onComplete()
 
 
@@ -2418,6 +2434,7 @@ def validate_study(study_dir, portal_instance, logger):
     global DEFINED_CANCER_TYPES
     global DEFINED_SAMPLE_IDS
     global DEFINED_SAMPLE_ATTRIBUTES
+    global PATIENTS_WITH_SAMPLES
 
     if portal_instance.cancer_type_dict is None:
         logger.warning('Skipping validations relating to cancer types '
@@ -2495,6 +2512,7 @@ def validate_study(study_dir, portal_instance, logger):
         return
     DEFINED_SAMPLE_IDS = defined_sample_ids
     DEFINED_SAMPLE_ATTRIBUTES = sample_validator.newly_defined_attributes
+    PATIENTS_WITH_SAMPLES = sample_validator.patient_ids
 
     if len(validators_by_meta_type.get(
                cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES,

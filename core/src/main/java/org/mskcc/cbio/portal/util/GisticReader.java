@@ -191,9 +191,15 @@ public class GisticReader {
         // map _genes to list of CanonicalGenes
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        ArrayList<String> alreadyProcessedGenes = new ArrayList<String>();
         for (String gene : _genes) {
             
             gene = gene.split("\\|")[0];
+
+            if (alreadyProcessedGenes.contains(gene)) {
+            	ProgressMonitor.logWarning("Gene " + gene + " duplicated in list. Skipping this duplicated entry of the gene.");
+                continue;
+            }
 
             CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
@@ -204,6 +210,7 @@ public class GisticReader {
                 }
 
                 genes.add(canonicalGene);
+                alreadyProcessedGenes.add(gene);
             } 
             else {
             	ProgressMonitor.logWarning("Gene " + gene + " not found or was ambiguous. Skipping this gene.");

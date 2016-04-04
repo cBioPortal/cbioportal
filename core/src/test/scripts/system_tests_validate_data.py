@@ -111,15 +111,27 @@ class ValidateDataSystemTester(unittest.TestCase):
         Test if html file is correctly generated when 'html_table' is given
         '''
         #Build up arguments and run
+        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
         args = ['--study_directory','test_data/study_es_0/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
-                '--html_table', 'test_data/study_es_0/result_report.html']
+                '--html_table', out_file_name]
+                # uncomment to overwrite with the new version
+                #'--html_table', 'test_data/study_es_0/result_report.html']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
-        # TODO - assert if html file is present
         self.assertEquals(0, exit_status)
-
+        self.assertTrue(os.path.exists(out_file_name))
+        with open(out_file_name, 'rU') as out_file, \
+             open('test_data/study_es_0/result_report.html', 'rU') as ref_file:
+            diff_result = difflib.context_diff(
+                    ref_file.readlines(),
+                    out_file.readlines(),
+                    fromfile='Expected html report',
+                    tofile='Generated html report')
+        diff_line_list = list(diff_result)
+        self.assertEqual(diff_line_list, [],
+                         msg='\n' + ''.join(diff_line_list))
 
     def test_errorline_output(self):
         '''Test if error file is generated when '--error_file' is given.'''

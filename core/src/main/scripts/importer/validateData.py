@@ -806,6 +806,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
     REQUIRED_HEADERS = []
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
     ALLOW_BLANKS = True
+    NULL_VALUES = ["na", "[not available]"]
 
     def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
@@ -848,12 +849,11 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
 class CNAValidator(GenewiseFileValidator):
 
     """Sub-class CNA validator."""
-
-    ALLOWED_VALUES = ['-2', '-1', '0', '1', '2', 'NA']
+    ALLOWED_VALUES = ['-2', '-1', '0', '1', '2'] + GenewiseFileValidator.NULL_VALUES
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        if value.strip() not in self.ALLOWED_VALUES:
+        if value.strip().lower() not in self.ALLOWED_VALUES:
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Invalid CNA value: possible values are [%s]',
@@ -1637,13 +1637,14 @@ class SegValidator(Validator):
 class ContinuousValuesValidator(GenewiseFileValidator):
     """Validator for matrix files mapping floats to gene/sample combinations.
 
-    Allowing missing values indicated by 'NA'.
+    Allowing missing values indicated by 'NA' or [Not Available].
     """
+    
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
-        if stripped_value != 'NA' and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor NA",
+        if stripped_value.lower() not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor NA,[Not Available]",
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})
@@ -1679,6 +1680,7 @@ class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
     ALLOW_BLANKS = True
+    NULL_VALUES = ["na", "[not available]"]
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
@@ -1715,8 +1717,8 @@ class RPPAValidator(FeaturewiseFileValidator):
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
-        if stripped_value != 'NA' and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor NA",
+        if stripped_value.lower() not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor NA,[Not Available]",
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})

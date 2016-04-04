@@ -116,23 +116,26 @@
             
             var type = $("#yAxis").val();
             
-            
+            var filteredStudiesCount = 0;
             var histData = [];
             _.each(histDataOrg, function(study) {
                 cancerTypeCheck = true; 
-                var showStudy = $("#histogram-remove-study-" + study.studyId).is(":checked");
-                if(cancerTypes !== "all" && metaData.type_of_cancers[metaData.cancer_studies[study.studyId].type_of_cancer] !== cancerTypes){
-                    cancerTypeCheck = false;
-                }    
-     
-                if(!study.skipped && showStudy && cancerTypeCheck){
+                var showStudy = true;//$("#histogram-remove-study-" + study.studyId).is(":checked");
+//                if(cancerTypes !== "all" && metaData.type_of_cancers[metaData.cancer_studies[study.studyId].type_of_cancer] !== cancerTypes){
+//                    cancerTypeCheck = false;
+//                }    
+                
+               if(!study.skipped && showStudy && cancerTypeCheck){
+               
                 if(type === "Frequency"){
                     if(calculateFrequency(study, 0, "all") >= threshold/100 && study.caseSetLength >= totalSamThreshold){
                         histData.push(study);
+                        filteredStudiesCount++;
                     }
                 }else if(type === "Count"){
                     if(study.alterations["all"] >= threshold && study.caseSetLength >= totalSamThreshold){
                         histData.push(study);
+                        filteredStudiesCount++;
                     }
                 } 
             }
@@ -140,6 +143,33 @@
                 if(study.alterations.cnaLoss > 0) { isThereHetLoss = true; }
                 if(study.alterations.cnaGain > 0) { isThereGain = true; }
             });
+            //update note content 
+            var note1 = "* " + (histDataOrg.length - filteredStudiesCount);
+             
+            if(histDataOrg.length - filteredStudiesCount <= 1)
+            {
+                note1 +=  " study(";
+            }
+            else{
+                note1 += " studies(";
+            }
+           
+            var note3 = ") out of " + histDataOrg.length + " have been filtered out." ;
+            var note2 = "";
+            if(type === "Frequency")
+            {
+                if(threshold > 0 && threshold < 1)note2 = "% altered samples = 0";
+                else note2 = "% altered samples < " + threshold;
+            }
+            else if(type === "Count"){
+                note2 = "# altered samples < " + threshold;
+            }
+            
+            if(totalSamThreshold > 0)
+            {
+                note2 += " or # total samples < " + totalSamThreshold;
+            }
+            $("#note").text(note1+note2+note3);
 
             if(!$('#sortBy').is(':checked')){
                 if(type === "Frequency"){
@@ -729,7 +759,7 @@
                             var genes = _.last(histData).genes;
                             window.ccQueriedGenes =  genes;
                             var numOfGenes = genes.length;
-                            var numOfStudies = histData.length;
+                            var numOfStudies = histDataOrg.length;
 
                             (new CCTitleView({
                                model: {
@@ -745,7 +775,7 @@
                                 min: 0, 
                                 max: Math.ceil(100*maxYAxis)
                              });
-                             $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
+                             
                              
                              $("#totalSampleSlider").slider({ 
                                 value: 0,
@@ -1105,7 +1135,7 @@
                                     }
                                     maxYAxis = Math.min(maxYAxis, 1.0);
                                     $("#sliderLabel").text("Min. % altered samples:");
-                                    $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
+                                    $("#suffix").show();
                                     $("#sliderMinY").slider( "option", "max", Math.ceil(100*maxYAxis) );
                                      
                                }else if($("#yAxis").val() === "Count"){
@@ -1116,7 +1146,7 @@
                                     }
 
                                     $("#sliderLabel").text("Min. # altered samples:");
-                                    $("#maxLabel").text(maxYAxis);
+                                    $("#suffix").hide();
                                     $("#sliderMinY").slider( "option", "max", maxYAxis );
                                      
                                }
@@ -1707,6 +1737,5 @@
         new AppRouter();
         Backbone.history.start();
     });
-
 
 })(window.jQuery, window._, window.Backbone, window.d3);

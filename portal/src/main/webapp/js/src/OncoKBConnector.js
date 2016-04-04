@@ -42,9 +42,9 @@ var OncoKB = (function () {
     self.instances = [];
     self.customObject = {};
     self.levels = {
-        sensitivity: ['4', '3', '2B', '2A', '1', '0'],
+        sensitivity: ['4', '3B', '3A', '2B', '2A', '1', '0'],
         resistance: ['R3', 'R2', 'R1'],
-        all: ['4','R3', '3','R2', '2B', '2A','R1', '1', '0']
+        all: ['4','R3', '3B', '3A','R2', '2B', '2A','R1', '1', '0']
     };
     self.instanceManagers = {};
 
@@ -1280,7 +1280,7 @@ OncoKB.Instance.prototype = {
                             });
                         } else if (evidence.levelOfEvidence) {
                             //if evidence has level information, that means this is treatment evidence.
-                            if (['LEVEL_0', 'LEVEL_3', 'LEVEL_4', 'LEVEL_R2', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
+                            if (['LEVEL_0', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_4', 'LEVEL_R2', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
                                 var _treatment = {};
                                 _treatment.tumorType = evidence.tumorType.name;
                                 _treatment.level = evidence.levelOfEvidence;

@@ -59,8 +59,10 @@ var StudyViewBoilerplate ={
                 text: '',
                 title: {
                         text: 'Add Chart',
-                        button: true
+                        button: true,
+                        class: ' addChartTable'
                 }
+                
         },
         position: {
                 my: 'center', // ...at the center of the viewport
@@ -72,7 +74,7 @@ var StudyViewBoilerplate ={
                 solo: true // ...and hide all other tooltips...
         },
         hide: false,
-        style: 'qtip-red addChartTable'
+        style: ' addChartTable'
     },
     chartColors: [
         "#2986e2","#dc3912","#f88508","#109618",
@@ -420,8 +422,6 @@ var StudyViewBoilerplate ={
     addChartByCountDiv:
             "<div class='study-view-hidden' id='add-chart-custom-dialog'>" +
             "</div>",
-    addChartDiv:
-            "<select id='study-view-add-chart' class='chosen-select'><option id=''>Add Chart</option></select>",
     
     tutorialDiv:
             "<div  id='study-view-tutorial' class='study-view-header'>" +

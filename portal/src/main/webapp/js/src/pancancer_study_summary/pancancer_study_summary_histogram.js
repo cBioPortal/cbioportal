@@ -67,8 +67,41 @@ function PancancerStudySummaryHistogram()
     var filterCriteriaChanged = function(model) {
     	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") ||	model.hasChanged("minTotalSamples");
     }
-    
-    
+
+    /**
+     * Returns font-size based on the study width
+     * @param studyWidth
+     * @returns {string}
+     */
+    var getFontSize = function(studyWidth){
+        return Math.min((studyWidth * .65), 11) + "px";
+    }
+
+    /**
+     * Determines some dynamic settings which the histogram uses:
+     * - paddingLeft
+     * - height
+     * @param histData
+     */
+    var setupHistogram = function (histData){
+        // determine the maximum label length to be used in the histogram
+        var maxLabelLength = 0;
+        for(var i=0; i<histData.length; i++){
+            var curType = histData[i].typeOfCancer;
+            if(curType.length > maxLabelLength) maxLabelLength = curType.length;
+        }
+        // determine the font-size used
+        var studyWidth = getStudyWidth(histData);
+        var fontSize = getFontSize(studyWidth);
+        // determine the space used by the label and calculate the padding en height
+        var fontSpace = maxLabelLength*fontSize.substr(0, fontSize.length-2)*0.66;
+        
+        // calculate the leftpadding based on the fontspace and the angle of the text
+        paddingLeft = Math.max(Math.cos(0.33*Math.PI) * fontSpace, paddingLeft);
+        // calculate the height based on the fontspace, the size of the histogram and the angle of the text
+        height = Math.max((Math.sin(0.33*Math.PI) * fontSpace) + histBottom, height);
+    }
+
     /**
      * Trigger the rendering of the histogram.
      * 
@@ -91,7 +124,9 @@ function PancancerStudySummaryHistogram()
 		    this.histogramPresenter.getJSONDataForHistogram(function (histData) {
 		    	//sort data:
 		    	sortItems(histData, model);
-		    	//draw histogram. 
+                //set some variables, based on the histData
+                setupHistogram(histData);
+                //draw histogram. 
 		    	var histogram = drawHistogram(histData, model, histogramEl);
 		    });
 	    }
@@ -395,8 +430,8 @@ function PancancerStudySummaryHistogram()
 	            return getTypeOfCancer(d);
 	        })
 	        .attr("font-family", fontFamily)
-	        .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
-	        .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
+            .attr("font-size", function() { return getFontSize(studyWidth); })
+            .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
 	        .attr("y", function() { return histBottom + 10; })
 	        .attr("text-anchor", "end")
 	        .attr("transform", function(d, i) {

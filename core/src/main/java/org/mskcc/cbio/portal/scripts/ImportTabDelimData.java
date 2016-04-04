@@ -436,8 +436,8 @@ public class ImportTabDelimData {
 	        else {
 	        	//TODO - review this part - maybe it should be an Exception instead of just a warning.
 	        	String geneSymbolMessage = "";
-	        	if (geneSymbol != null)
-	        		geneSymbolMessage = "(given in your file as: " + geneSymbol + ") ";
+	        	if (geneSymbol != null && !geneSymbol.equalsIgnoreCase(gene.getHugoGeneSymbolAllCaps()))
+	        		geneSymbolMessage = "(given as alias in your file as: " + geneSymbol + ") ";
 	        	ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " (" + gene.getEntrezGeneId() + ")" + geneSymbolMessage + " found to be duplicated in your file. Duplicated row will be ignored!");
 	        	return false;
 	        }

@@ -1325,26 +1325,36 @@ class ClinicalValidator(Validator):
             value = ''
             if col_index < len(data):
                 value = data[col_index].strip()
+            
+            according_to_portal = ''
+            data_type = self.attr_defs[col_index]['datatype']
+            if col_name not in self.newly_defined_attributes:
+                # Extra info for existing fields to make it clear that the 
+                # check is being done based on the definition found in the portal:
+                according_to_portal = 'According to portal, attribute should be loaded as %s. '%(data_type)
+            
             # if not blank, check if values match the datatype
             if value.strip().lower() in self.NULL_VALUES:
                 pass
-            elif self.attr_defs[col_index]['datatype'] == 'NUMBER':
+            elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
                     self.logger.error(
-                        'Value of attribute type NUMBER is not a real number',
+                        according_to_portal + 'Value of attribute to be loaded as NUMBER is not a real number',                        
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
+                               'column_name': col_name,
                                'cause': value})
-            elif self.attr_defs[col_index]['datatype'] == 'BOOLEAN':
+            elif data_type == 'BOOLEAN':
                 # TODO: check whether these are the values understood by portal
                 VALID_BOOLEANS = ('TRUE', 'FALSE')
                 if not value in VALID_BOOLEANS:
                     self.logger.error(
-                        'Invalid value of attribute type BOOLEAN, must be one '
+                        according_to_portal + 'Invalid value of attribute to be loaded as BOOLEAN, must be one '
                         'of [%s]',
                         ', '.join(VALID_BOOLEANS),
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
+                               'column_name': col_name,
                                'cause': value})
             # make sure that PATIENT_ID is present
             if col_name == 'PATIENT_ID':

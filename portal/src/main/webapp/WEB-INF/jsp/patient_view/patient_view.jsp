@@ -407,11 +407,14 @@ var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
+var isImpact = false;
 
 var gddData = {};
-var gddEvidence = {};
-for (var i=0; i<caseIds.length; i++) {
-    gddData[caseIds[i]] = getGddData(cancerStudyId, [caseIds[i]]);
+if (cancerStudyId === 'mskimpact') {
+    isImpact = true;
+    for (var i=0; i<caseIds.length; i++) {
+        gddData[caseIds[i]] = getGddData(cancerStudyId, [caseIds[i]]);
+    }
 }
     
 var patientInfo = <%=jsonPatientInfo%>;
@@ -1176,15 +1179,13 @@ function outputClinicalData() {
         info = info.concat(formatDiseaseInfo(_.omit(clinicalDataMap[caseId], Object.keys(patientInfo))));
         sample_recs += info.join(",&nbsp;");
         sample_recs += "</a></span>";
-        
-        if (gddData.length === 0 || gddData[caseId].length === 0) {
-            sample_recs += "<span class='sample-record-delimiter'>, </span></div>";
+
+        if (isImpact) {
+            if (Object.keys(gddData).length > 0 && Object.keys(gddData[caseId]).length > 0) {
+                sample_recs += "<span id='gdd-info' data-hasqtip='0' aria-describedby='qtip-0' alt='"+caseId+"'> <b>(GDD prediction:</b> "+getTopCancerType(caseId)+"<b>)</b></span>";
+            }
         }
-        else {
-            var topCancerType = getTopCancerType(caseId);
-            sample_recs += "<span id='gdd-info' data-hasqtip='0' aria-describedby='qtip-0' alt='"+caseId+"'> <b>(GDD prediction:</b> "+topCancerType+"<b>)</b></span>";
-            sample_recs += "<span class='sample-record-delimiter'>, </span></div>";
-        }
+        sample_recs += "<span class='sample-record-delimiter'>, </span></div>";
         
 
         if ((n > nr_in_head && i == nr_in_head-1) || (n <= nr_in_head && i == n-1)) {

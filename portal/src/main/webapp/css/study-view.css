@@ -1214,3 +1214,31 @@ cursor: pointer;
 .EFDT-table .btn {
     font-weight: normal !important;
 }
+
+.addChartTable{ 
+    max-width: 800px;
+    background-color: #1974b8 ;
+}
+
+#add-chart-table-main{
+    width: 700px;
+}
+#qtip-add-chart-custom-dialog .qtip-titlebar{
+    background-color: #1974b8 ;
+} 
+
+#DataTables_Table_0_wrapper .dataTables_scrollHeadInner{
+    width: 100% !important;    
+}
+#DataTables_Table_0_wrapper .dataTable{
+    width: 100% !important; 
+}
+#DataTables_Table_0_wrapper th:nth-child(1){
+    width: 7px;
+}
+#DataTables_Table_0_wrapper th:nth-child(2){
+    width: 477px;
+}
+#DataTables_Table_0_wrapper th:nth-child(3){
+    width: 99px;
+}

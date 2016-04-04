@@ -35,9 +35,10 @@ var StudyViewInitTopComponents = (function() {
     function liClickCallBack(_id, _text) {
         StudyViewInitCharts.createNewChart(_id, _text);
     };
-    
         
     function addEvents() {
+        
+        
         
         $('#study-view-header-left-2').unbind('click');
         $('#study-view-header-left-2').click(function (){
@@ -181,6 +182,8 @@ var StudyViewInitTopComponents = (function() {
             hide: {fixed:true, delay: 100, event: 'mouseout'},
             position: {my:'bottom center', at:'top center', viewport: $(window)}
         });
+        
+       
     }
 
     // decide whether to proceed with the submit of the form
@@ -231,8 +234,13 @@ var StudyViewInitTopComponents = (function() {
 
         return sampleIds;
     }
+ 
+    var firstEnter = true;
+    var originalAttrData = StudyViewProxy.getAttrData();
+    var attributeDataForAddingChart = [];
     
     function changeHeader(_filteredResult, _numOfCases, _removedChart){
+        
         var _caseID = [],
             _resultLength = _filteredResult.length,
             _charts = StudyViewInitCharts.getCharts(),
@@ -260,6 +268,40 @@ var StudyViewInitTopComponents = (function() {
             }
         }
         $("#study-view-header-left-case-ids").val(_caseID.join(" "));
+        if(firstEnter){
+            firstEnter = false;
+            originalAttrData = originalAttrData.filter(function(item){
+                return (item.attr_id).match(/(^age)|(gender)|(sex)|(darwin_vital_status)|(darwin_patient_age)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/i) == null;
+            });
+            attributeDataForAddingChart = [];
+            originalAttrData.forEach(function(item, index){
+                attributeDataForAddingChart.push({addChart: '<input type="checkbox" id="'+item.attr_id+'" />', attributeName: item.display_name, nonEmptyCount: item.numOfNoneEmpty});
+            });
+            addTableInToolTip(attributeDataForAddingChart);
+            
+        }
+        else
+        {
+            updateTableInfo(_filteredResult);
+        }
+        
+ 
+    }
+    function updateTableInfo(_filteredResult){
+        
+        attributeDataForAddingChart = [];
+
+        var nonEmptyCount = 0, currentAttrId = '';
+        originalAttrData.forEach(function(item){
+            nonEmptyCount = 0;
+            currentAttrId = item.attr_id;
+            _filteredResult.forEach(function(filteredItem){
+                if(filteredItem[currentAttrId] !== undefined && filteredItem[currentAttrId] !== "NA" && filteredItem[currentAttrId] !== "")nonEmptyCount++;
+            });
+            item.numOfNoneEmpty = nonEmptyCount;
+            attributeDataForAddingChart.push({addChart: '<input type="checkbox" id="'+item.attr_id+'" />', attributeName: item.display_name, nonEmptyCount: nonEmptyCount});
+        });
+        addTableInToolTip(attributeDataForAddingChart);
     }
     
     function initAddCharts(target) {
@@ -267,23 +309,81 @@ var StudyViewInitTopComponents = (function() {
         AddCharts.initAddChartsButton(StudyViewInitCharts.getShowedChartsInfo());
         AddCharts.liClickCallback(liClickCallBack);
     }
-    
+  
+    function addTableInToolTip(attributeDataForAddingChart){
+        
+        $("#add-chart-custom-dialog").empty();
+        var addChartWorker = {};
+        addChartWorker.opts = {};
+        addChartWorker.data = {};
+        addChartWorker.callbacks = {};
+        addChartWorker.data.attr = [{
+               name: 'addChart',
+               displayName: ''
+           },{
+               name: 'attributeName',
+               displayName: 'Attribute Name'
+           },{
+               name: 'nonEmptyCount',
+               displayName: 'Non Empty Count'
+           }
+       ];
+       
+        
+        addChartWorker.data.selected = [];
+        addChartWorker.data.arr = attributeDataForAddingChart;
+        
+        addChartWorker.opts.title = ' ';
+        addChartWorker.opts.name = 'addChart';
+        addChartWorker.opts.tableId = 'add-chart-table';
+        addChartWorker.opts.parentId = 'add-chart-custom-dialog';
+        
+        
+        var tableInstance = new Table();
+        tableInstance.initDiv(addChartWorker);
+        tableInstance.draw(addChartWorker.data);
+        tableInstance.resize();
+        
+        originalAttrData.forEach(function(item, index){
+            $("#"+item.attr_id).click(function(){
+                StudyViewInitCharts.createNewChart(item.attr_id, item.display_name);
+                originalAttrData.splice(index, 1);
+                attributeDataForAddingChart = [];
+                originalAttrData.forEach(function(newItem, newIndex){
+                    attributeDataForAddingChart.push({addChart: '<input type="checkbox" id="'+newItem.attr_id+'" />', attributeName: newItem.display_name, nonEmptyCount: newItem.numOfNoneEmpty});
+                });
+                addTableInToolTip(attributeDataForAddingChart);
+            });
+                        
+        });
+        
+    }
     function createDiv() {
         var _newElement = StudyViewBoilerplate.headerDiv(),
-            _customDialogQtip = jQuery.extend(true, {}, StudyViewBoilerplate.headerCaseSelectCustomDialog);
+            _customDialogQtip = jQuery.extend(true, {}, StudyViewBoilerplate.headerCaseSelectCustomDialog),
+            _addChartDialogQtip = jQuery.extend(true, {}, StudyViewBoilerplate.addChartCustomDialog);
         
         $("#study-view-header-function").append(_newElement);
         $("#study-view-header-function").append(StudyViewBoilerplate.customDialogDiv);
+        $("#study-view-header-function").append(StudyViewBoilerplate.addChartByCountDiv);
         $("#study-view-header-left-cancer_study-ids").val(StudyViewParams.params.studyId);
         $("#study-view-header-left-case-ids").val(StudyViewParams.params.sampleIds.join(" "));
         //$("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
         _customDialogQtip.position.target = $(window);
         _customDialogQtip.content.text = $('#study-view-case-select-custom-dialog');
         $('#study-view-header-right-1').qtip(_customDialogQtip);
-
-        initAddCharts("#study-view-header-right");
+        
+        
+        _addChartDialogQtip.position.target = $(window);
+        _addChartDialogQtip.content.text = $('#add-chart-custom-dialog');
+         
+        $('#study-view-header-right-2').qtip(_addChartDialogQtip);
+        
         // ensure header has proper values
         StudyViewInitCharts.changeHeader();
+        
+        
+        
     }
 
 
@@ -295,6 +395,6 @@ var StudyViewInitTopComponents = (function() {
             QueryByGeneTextArea.init('#query-by-gene-textarea', StudyViewInitTables.updateGeneHighlights);
         },
         
-        changeHeader: changeHeader,
+        changeHeader: changeHeader
     };
 })();

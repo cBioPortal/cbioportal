@@ -441,8 +441,8 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
-        self.assertIn('-116983', record_list[0].cause)
-        self.assertIn('-375790', record_list[1].cause)
+        self.assertEqual(record_list[0].cause, '999999999')
+        self.assertEqual(record_list[1].cause, '888888888')
 
     def test_both_name_and_entrez_but_invalid_couple(self):
         """Test when a file has both the Hugo name and Entrez ID columns, both valid, but association is invalid."""
@@ -494,8 +494,8 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
-        self.assertEqual(record_list[0].cause, '-54998')
-        self.assertEqual(record_list[1].cause, '-126792')
+        self.assertEqual(record_list[0].cause, '1073741824')
+        self.assertEqual(record_list[1].cause, '2147483647')
 
     def test_unambiguous_hugo_also_used_as_alias(self):
         """Test referencing a gene by a Hugo symbol occurring as an alias too.

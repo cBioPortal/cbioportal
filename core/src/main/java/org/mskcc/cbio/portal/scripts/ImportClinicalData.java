@@ -59,6 +59,7 @@ public class ImportClinicalData {
     private File clinicalDataFile;
     private CancerStudy cancerStudy;
     private AttributeTypes attributesType;
+    private Set<String> patientIds = new HashSet<String>();
 
     public static enum MissingAttributeValues
     {
@@ -332,22 +333,36 @@ public class ImportClinicalData {
     {
         int internalPatientId = -1;
         if (validPatientId(patientId)) {
-            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
+        	Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
+        	//other validations:
+        	//in case of PATIENT data import, there are some special checks:
+        	if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES) {
+        		//if clinical data is already there, then something has gone wrong (e.g. patient is duplicated in file), abort:
+        		if (patient != null && DaoClinicalData.getDataByPatientId(cancerStudy.getInternalId(), patientId).size() > 0) {
+        			throw new RuntimeException("Something has gone wrong. Patient " + patientId + " already has clinical data loaded.");
+        		}
+        		//if patient is duplicated, abort as well in this case:
+        		if (!patientIds.add(patientId)) {
+        			throw new RuntimeException("Error. Patient " + patientId + " found to be duplicated in your file.");
+        		}
+        	}
+        	
             if (patient != null) {
-            	//in case of PATIENT data import, a repeated patient entry should not occur, so abort with error:
-            	if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES) {
-            		throw new RuntimeException("Error. Patient " + patientId + " found to be duplicated in your file (or you imported the SAMPLE data file first, which would be the wrong order of importing).");
-            		//nb: this also actually means that the SAMPLE data import should occur AFTER the PATIENT data import, or this error will occur.
-            	}
-            	//in case of SAMPLE or MIXED data import, this is expected, so just fetch it:
+            	//in all cases (SAMPLE, PATIENT, or MIXED data import) this can be expected, so just fetch it:
                 internalPatientId = patient.getInternalId();
             }
-            else {
+            else {            	
+            	//in case of PATIENT data import and patient == null :
+            	if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES) {
+            		//not finding the patient it unexpected (as SAMPLE data import should always precede it), but 
+                	//can happen when this patient does not have any samples for example. In any case, warn about it:
+            		ProgressMonitor.logWarning("Patient " + patientId + " being added for the first time. Apparently this patient was not in the samples file, or the samples file is not yet loaded (should be loaded before this one)");
+            	}
+            	
                 patient = new Patient(cancerStudy, patientId);
                 internalPatientId = DaoPatient.addPatient(patient);
             }
         }
-
         return internalPatientId;
     }
 

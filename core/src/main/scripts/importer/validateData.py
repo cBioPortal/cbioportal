@@ -667,9 +667,9 @@ class Validator(object):
                     self.portal.alias_entrez_map[gene_symbol][0]
             # no canonical symbol, and multiple different aliases
             elif num_entrezs_for_alias > 1:
-                # TODO - maybe this should be warning instead? Depends on how loader deals with this
+                # Loader deals with this, so give warning
                 # TODO: move matched IDs out of the message for collapsing
-                self.logger.error(
+                self.logger.warning(
                     'Gene alias maps to multiple Entrez ids (%s), '
                     'please specify which one you mean or choose a non-ambiguous symbol',
                     '/'.join(self.portal.alias_entrez_map[gene_symbol]),

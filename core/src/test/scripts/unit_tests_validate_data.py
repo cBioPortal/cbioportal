@@ -474,13 +474,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test when a file has a Hugo name column but none for Entrez IDs, and hugo maps to multiple Entrez ids.
         This test is also an indirect test of the aliases functionality as this is now the only place
         where ambiguity could arise (in gene table Hugo symbol is now unique)"""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_hugo_only_ambiguous.txt',
                                     validateData.CNAValidator)
         # expecting one error message
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         # expecting this gene to be the cause
         self.assertEquals(record.cause, 'TRAPPC2P1')
 

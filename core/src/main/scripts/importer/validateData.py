@@ -581,6 +581,19 @@ class Validator(object):
         if gene_symbol is not None:
             gene_symbol = gene_symbol.upper()
 
+        if entrez_id is not None:
+            entrez_is_positive = False
+            try:
+                entrez_is_positive = int(entrez_id) > 0
+            except ValueError:
+                pass
+            if not entrez_is_positive:
+                self.logger.error(
+                    'Entrez gene identifier is not a positive integer',
+                    extra={'line_number': self.line_number,
+                           'cause': entrez_id})
+                return None
+
         # check whether at least one is present
         if entrez_id is None and gene_symbol is None:
             self.logger.error(

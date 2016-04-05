@@ -269,7 +269,7 @@ public class ImportExtendedMutationData{
 				}
                                 
 				if(gene == null) {
-					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["+ record.getGivenEntrezGeneId() + "]" + ". Ignoring it "
+					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["+ record.getGivenEntrezGeneId() + "] or ambiguous alias. Ignoring it "
 					                    + "and all mutation data associated with it!");
 					entriesSkipped++;
 					continue;

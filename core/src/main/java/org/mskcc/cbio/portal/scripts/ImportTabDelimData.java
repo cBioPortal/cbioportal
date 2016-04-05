@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * Code to Import Copy Number Alteration, MRNA Expression Data, or protein RPPA data
+ * Code to Import Copy Number Alteration, MRNA Expression Data, Methylation, or protein RPPA data
  *
  * @author Ethan Cerami
  */

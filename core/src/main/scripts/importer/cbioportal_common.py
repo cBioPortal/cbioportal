@@ -559,6 +559,9 @@ def parse_metadata_file(filename,
     metaDictionary = {}
     with open(filename, 'rU') as metafile:
         for line_index, line in enumerate(metafile):
+            # skip empty lines:
+            if line.strip() == '':
+                continue
             if ':' not in line:
                 logger.error(
                     "Invalid %s file entry, no ':' found",

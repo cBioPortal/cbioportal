@@ -2042,9 +2042,13 @@ class GisticGenesValidator(Validator):
                        'column_number': column_number,
                        'cause': value})
         else:
-            # loop over the comma-separated list of gene symbols
+            # loop over the comma-separated list of gene symbols. Example of such a 
+            # list: RNA5SP149,snoU13|ENSG00000239096.1,GNB4
             for symbol in comma_sep_list.split(','):
                 symbol = symbol.strip()
+                # remove the | and trailing part if any (e.g. 
+                # remove |ENSG00000239096.1 from snoU13|ENSG00000239096.1):
+                symbol = symbol.split('|')[0]
                 # add valid, unambiguous gene symbols to the list,
                 # while logging errors about unresolvable ones
                 # TODO: allow blanks if possible after this fix:

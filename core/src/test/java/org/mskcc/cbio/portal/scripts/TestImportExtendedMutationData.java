@@ -112,6 +112,7 @@ public class TestImportExtendedMutationData {
         ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
         parser.importData();
         MySQLbulkLoader.flushAll();
+        ConsoleUtil.showMessages();
         
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
         

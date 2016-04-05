@@ -191,18 +191,19 @@ public class GisticReader {
         // map _genes to list of CanonicalGenes
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        ArrayList<String> alreadyProcessedGenes = new ArrayList<String>();
+        ArrayList<CanonicalGene> alreadyProcessedGenes = new ArrayList<CanonicalGene>();
         for (String gene : _genes) {
             
             gene = gene.split("\\|")[0];
 
-            if (alreadyProcessedGenes.contains(gene)) {
-            	ProgressMonitor.logWarning("Gene " + gene + " duplicated in list. Skipping this duplicated entry of the gene.");
+            CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
+            if (alreadyProcessedGenes.contains(canonicalGene)) {
+            	String geneSymbolMessage = "";
+	        	if (!gene.equalsIgnoreCase(canonicalGene.getHugoGeneSymbolAllCaps()))
+	        		geneSymbolMessage = "(given as alias in your file as: " + gene + ") ";
+	        	ProgressMonitor.logWarning("Gene " + canonicalGene.getHugoGeneSymbolAllCaps() + " (" + canonicalGene.getEntrezGeneId() + ")" + geneSymbolMessage + " found to be duplicated in your file. Skipping this duplicated entry of the gene.");
                 continue;
             }
-
-            CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
-
             if (canonicalGene != null) {
                 if (canonicalGene.isMicroRNA()) {
                 	ProgressMonitor.logWarning("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
@@ -210,7 +211,7 @@ public class GisticReader {
                 }
 
                 genes.add(canonicalGene);
-                alreadyProcessedGenes.add(gene);
+                alreadyProcessedGenes.add(canonicalGene);
             } 
             else {
             	ProgressMonitor.logWarning("Gene " + gene + " not found or was ambiguous. Skipping this gene.");

@@ -582,14 +582,20 @@ class Validator(object):
             gene_symbol = gene_symbol.upper()
 
         if entrez_id is not None:
-            entrez_is_positive = False
             try:
-                entrez_is_positive = int(entrez_id) > 0
+                entrez_as_int = int(entrez_id)
             except ValueError:
-                pass
-            if not entrez_is_positive:
+                entrez_as_int = None
+            if entrez_as_int is None:
+                self.logger.warning(
+                    'Entrez gene identifier is not an integer; '
+                    'this gene will not be loaded',
+                    extra={'line_number': self.line_number,
+                           'cause': entrez_id})
+                return None
+            elif entrez_as_int <= 0:
                 self.logger.error(
-                    'Entrez gene identifier is not a positive integer',
+                    'Entrez gene identifier is non-positive',
                     extra={'line_number': self.line_number,
                            'cause': entrez_id})
                 return None

@@ -835,17 +835,24 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         """
         num_errors = super(GenewiseFileValidator, self).checkHeader(cols)
         # see if at least one of the gene identifiers is in the right place
-        if not ('Hugo_Symbol' in self.cols or
-                'Entrez_Gene_Id' in self.cols):
-            self.logger.error('At least one of the columns Hugo_Symbol or '
-                              'Entrez_Gene_Id needs to be present.',
+        
+        
+        if ('Hugo_Symbol' in self.sampleIds or
+                  'Entrez_Gene_Id' in self.sampleIds):
+            self.logger.error('Hugo_Symbol or Entrez_Gene_Id need to be placed before the '
+                              'sample ID columns of the file.',
                               extra={'line_number': self.line_number})
             num_errors += 1
         elif not ('Hugo_Symbol' in self.nonsample_cols or
                   'Entrez_Gene_Id' in self.nonsample_cols):
-            self.logger.error('Hugo_Symbol or Entrez_Gene_Id need to be placed before the sample ID columns of the file.',
+            self.logger.error('At least one of the columns Hugo_Symbol or '
+                              'Entrez_Gene_Id needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
+        elif ('Entrez_Gene_Id' not in self.nonsample_cols):
+            self.logger.warning('The recommended column Entrez_Gene_Id was not found. '
+                                'Using Hugo_Symbol for all gene parsing',
+                                extra={'line_number': self.line_number})
         return num_errors
 
     def parseFeatureColumns(self, nonsample_col_vals):
@@ -942,6 +949,10 @@ class MutationsExtendedValidator(Validator):
                               'Entrez_Gene_Id needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
+        elif ('Entrez_Gene_Id' not in self.cols):
+            self.logger.warning('The recommended column Entrez_Gene_Id was not found. '
+                                'Using Hugo_Symbol for all gene parsing',
+                                extra={'line_number': self.line_number})
 
         if not 'SWISSPROT' in self.cols:
             self.logger.warning(

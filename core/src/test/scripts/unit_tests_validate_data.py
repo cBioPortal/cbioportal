@@ -389,12 +389,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     def test_name_only(self):
         """Test when a file has a Hugo name column but none for Entrez IDs."""
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_hugo_only.txt',
                                     validateData.CNAValidator)
-        # expecting only status messages about the file being validated
-        self.assertEqual(len(record_list), 3)
+        # expecting 1 warning
+        self.assertEqual(len(record_list), 1)
         for record in record_list:
-            self.assertLessEqual(record.levelno, logging.INFO)
+            self.assertEqual(record.levelno, logging.WARNING)
 
     def test_entrez_only(self):
         """Test when a file has an Entrez ID column but none for Hugo names."""
@@ -463,12 +464,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_cna_genecol_presence_hugo_only_invalid.txt',
                                     validateData.CNAValidator)
         # expecting two warning messages:
-        self.assertEqual(len(record_list), 2)
+        self.assertEqual(len(record_list), 3)
         for record in record_list:
             self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
-        self.assertEqual(record_list[0].cause, 'XXATAD3A')
-        self.assertEqual(record_list[1].cause, 'XXATAD3B')
+        self.assertIn('The recommended column Entrez_Gene_Id', record_list[0].message)
+        self.assertEqual(record_list[1].cause, 'XXATAD3A')
+        self.assertEqual(record_list[2].cause, 'XXATAD3B')
 
     def test_name_only_but_ambiguous(self):
         """Test when a file has a Hugo name column but none for Entrez IDs, and hugo maps to multiple Entrez ids.
@@ -478,7 +480,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_cna_genecol_presence_hugo_only_ambiguous.txt',
                                     validateData.CNAValidator)
         # expecting one error message
-        self.assertEqual(len(record_list), 1)
+        self.assertEqual(len(record_list), 2)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.WARNING)
         # expecting this gene to be the cause
@@ -507,7 +509,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_cna_genecol_presence_hugo_only_possible_alias.txt',
                                     validateData.CNAValidator)
         # expecting one error message
-        self.assertEqual(len(record_list), 1)
+        self.assertEqual(len(record_list), 2)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.WARNING)
         # expecting this gene to be the cause

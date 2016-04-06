@@ -386,7 +386,6 @@ public class ImportExtendedMutationData{
                 // calculate mutation count for every sample
                 DaoMutation.calculateMutationCount(geneticProfileId);
 		
-                ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
                 if (entriesSkipped > 0) {
                 	ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
                 }
@@ -397,7 +396,7 @@ public class ImportExtendedMutationData{
                 ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
                 
                 ProgressMonitor.setCurrentMessage("Filtering table:\n-----------------");
- 		        this.myMutationFilter.toString();
+                ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 	}
 
 	/**

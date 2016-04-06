@@ -1,5 +1,0 @@
-url.intercepts=<intercept-url pattern="/auth/*" access="permitAll"/>${line.separator} \
-    <intercept-url pattern="/favicon.ico" access="permitAll"/>${line.separator} \
-    <intercept-url pattern="/login.jsp*" access="permitAll"/>${line.separator} \
-    <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>${line.separator} \
-    <intercept-url pattern="/**" access="isAuthenticated()"/>

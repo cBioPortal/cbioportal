@@ -1286,6 +1286,14 @@ class ClinicalValidator(Validator):
                     "Clinical attribute name not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
+            # do not check the special ID columns as attributes against the db,
+            # just parse them with the correct data type
+            if col_name in ('PATIENT_ID', 'SAMPLE_ID'):
+                self.attr_defs[col_index] = {'display_name': '',
+                                             'description': '',
+                                             'datatype': 'STRING',
+                                             'priority': '0'}
+                continue
             # skip all further checks for this column if portal info is absent
             if self.portal.clinical_attribute_dict is None:
                 continue
@@ -1458,6 +1466,13 @@ class PatientClinicalValidator(ClinicalValidator):
     def checkHeader(self, cols):
         """Validate headers in patient-specific clinical data files."""
         num_errors = super(PatientClinicalValidator, self).checkHeader(cols)
+        # do not allow the SAMPLE_ID column in this file
+        if 'SAMPLE_ID' in self.cols:
+            self.logger.error(
+                'SAMPLE_ID column found in a patient attribute file',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('SAMPLE_ID'),
+                       'cause': 'SAMPLE_ID'})
         # refuse to define attributes also defined in the sample-level file
         for new_attribute in self.newly_defined_attributes:
             if new_attribute in DEFINED_SAMPLE_ATTRIBUTES:

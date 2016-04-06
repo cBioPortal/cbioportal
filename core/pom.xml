@@ -418,20 +418,6 @@
     <!-- prevent some resources from getting into jar -->
     <resources>
       <resource>
-                        <directory>${PORTAL_HOME}/src/main/resources</directory>
-                        <filtering>true</filtering>
-                        <includes>
-                            <include>**/portal.properties</include>
-                        </includes>
-                    </resource>
-                    <resource>
-                        <directory>${PORTAL_HOME}/src/main/resources</directory>
-                        <filtering>false</filtering>
-                        <excludes>
-                            <exclude>**/portal.properties</exclude>
-                        </excludes>
-                    </resource>
-		<resource>
         <directory>src/main/resources</directory>
         <excludes>
           <exclude>sample_data/**</exclude>

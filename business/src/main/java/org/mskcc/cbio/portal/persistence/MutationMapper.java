@@ -14,5 +14,5 @@ import org.mskcc.cbio.portal.model.DBAltCount;
  * @author jiaojiao
  */
 public interface MutationMapper {
-    List<DBAltCount> getMutationsCounts(@Param("gene") String gene, @Param("start") Integer start, @Param("end") Integer end, @Param("studyIds") List<String> studyIds, @Param("perStudy") Boolean perStudy);
+    List<DBAltCount> getMutationsCounts(@Param("type") String type, @Param("gene") String gene, @Param("start") Integer start, @Param("end") Integer end, @Param("studyIds") List<String> studyIds, @Param("perStudy") Boolean perStudy);
 }

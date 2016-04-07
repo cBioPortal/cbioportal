@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.model;
 
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+//import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
 /*
@@ -13,12 +13,13 @@ import java.io.Serializable;
 /**
  *
  * @author jiaojiao
- 
-@JsonInclude(JsonInclude.Include.NON_NULL)*/
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+ */
+//@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 
 public class DBAltCount implements Serializable {
     public int count;
+    public double frequency;
     public String studyID;
     public String gene;
     public int start;

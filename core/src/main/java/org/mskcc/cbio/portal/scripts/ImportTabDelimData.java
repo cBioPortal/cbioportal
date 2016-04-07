@@ -270,7 +270,8 @@ public class ImportTabDelimData {
             	if (entrez.isEmpty()) {
             		entrez = null;
             	}
-            	else if (!entrez.matches("-?[0-9]+")) {
+            	else if (!entrez.matches("[0-9]+")) {
+            		//TODO - would be better to give an exception in some cases, like negative Entrez values
             		ProgressMonitor.logWarning("Ignoring line with invalid Entrez_Id " + entrez);
                 	return false;
             	}            	

@@ -249,7 +249,7 @@ public class ImportExtendedMutationData{
                                 
 				CanonicalGene gene = null;
 				if (record.getGivenEntrezGeneId().trim().length() > 0) {
-					if (!record.getGivenEntrezGeneId().matches("-?[0-9]+")) {
+					if (!record.getGivenEntrezGeneId().matches("[0-9]+")) {
 		            	ProgressMonitor.logWarning("Ignoring line with invalid Entrez_Id " + record.getGivenEntrezGeneId());
 		            	entriesSkipped++;
 				    	continue;

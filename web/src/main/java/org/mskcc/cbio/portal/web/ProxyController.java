@@ -102,13 +102,27 @@ public class ProxyController
     return responseEntity.getBody();
   }
 
+    @RequestMapping(value="/oncokbEvidence", method = RequestMethod.POST)
+    public @ResponseBody String getOncoKBEvidence(@RequestBody JSONObject body, HttpMethod method,
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
+    {
+
+        RestTemplate restTemplate = new RestTemplate();
+        URI uri = new URI(oncokbURL + "evidence.json");
+
+        ResponseEntity<String> responseEntity =
+            restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<JSONObject>(body), String.class);
+
+        return responseEntity.getBody();
+    }
+
   @RequestMapping(value="/oncokb", method = RequestMethod.POST)
   public @ResponseBody String getOncoKB(@RequestBody JSONObject body, HttpMethod method,
                                           HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
   {
 
     RestTemplate restTemplate = new RestTemplate();
-    URI uri = new URI(oncokbURL + "evidence.json");
+    URI uri = new URI(oncokbURL + "indicator.json");
 
     ResponseEntity<String> responseEntity =
             restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<JSONObject>(body), String.class);

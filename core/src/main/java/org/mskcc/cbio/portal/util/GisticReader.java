@@ -201,25 +201,21 @@ public class GisticReader {
         // map _genes to list of CanonicalGenes
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        ArrayList<String> alreadyProcessedGenes = new ArrayList<String>();
+        ArrayList<CanonicalGene> alreadyProcessedGenes = new ArrayList<CanonicalGene>();
         for (String gene : _genes) {
             
             gene = gene.split("\\|")[0];
 
-            if (alreadyProcessedGenes.contains(gene)) {
-                continue;
-            }
-
             CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
-            if (canonicalGene != null) {
+            if (canonicalGene != null && !alreadyProcessedGenes.contains(canonicalGene)) {
                 if (canonicalGene.isMicroRNA()) {
                     System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
                     continue;
                 }
 
                 genes.add(canonicalGene);
-                alreadyProcessedGenes.add(gene);
+                alreadyProcessedGenes.add(canonicalGene);
             }
         }
         // -- end parse genes --

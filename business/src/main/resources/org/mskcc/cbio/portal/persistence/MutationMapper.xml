@@ -5,7 +5,10 @@
  
  <select id="getMutationsCounts" resultType="DBAltCount">
  
-     select <if test="perStudy == true">distinct cancer_study.CANCER_STUDY_IDENTIFIER as studyID,</if> count( patient.INTERNAL_ID) as count from mutation_event, mutation, gene, sample, patient, cancer_study
+     select <if test="perStudy == true">distinct cancer_study.CANCER_STUDY_IDENTIFIER as studyID,</if> 
+     <if test="type == 'count'">count(patient.INTERNAL_ID) as count </if>
+     <if test="type == 'frequency'">count(patient.INTERNAL_ID) / (select count(sll.SAMPLE_ID) from sample_list_list sll, sample_list sl where sl.CATEGORY = "all_cases_with_mutation_data" and sll.LIST_ID = sl.LIST_ID and sl.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID) as frequency </if>
+     from mutation_event, mutation, gene, sample, patient, cancer_study 
      where gene.HUGO_GENE_SYMBOL = #{gene} and mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID 
      <if test="start != null">
         and mutation_event.ONCOTATOR_PROTEIN_POS_START <![CDATA[ >= ]]>  #{start}

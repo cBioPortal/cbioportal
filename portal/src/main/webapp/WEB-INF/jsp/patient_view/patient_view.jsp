@@ -675,6 +675,11 @@ function formatClassifierData(caseId) {
     sortedData = [];
     ind = 1; 
     for (var i=0; i<classifierData.length; i++) {
+//        var cancerType = .replace("."," ");
+//        if (cancerType.startsWith("Non Small")) {
+//            cancerType = cancerType.replace("Non Small", "Non-Small");
+//        }
+            
         sortedData.push([ind,classifierData[i][0],classifierData[i][1]]);
         ind++; 
     }
@@ -711,7 +716,11 @@ function setUpClassificationTable(caseId, classifierData) {
                 "sClass": "left-align-td",
                 "mRender": function ( data, type, full ) {
                     var attrId = caseId+'-'+data;
-                    return '<span id="'+attrId+'" name="'+caseId+'" alt="'+data+'" onClick="switchEvidenceTable(this)">'+data+'</span>';
+                    var displayName = data.replace("."," ");
+                    if (displayName.startsWith("Non Small")){
+                        displayName = displayName.replace("Non Small", "Non-Small");
+                    }
+                    return '<a href="#" id="'+attrId+'" name="'+caseId+'" alt="'+data+'" onClick="switchEvidenceTable(this)">'+displayName+'</a>';
                 }                
             },
             {
@@ -1182,7 +1191,12 @@ function outputClinicalData() {
 
         if (isImpact) {
             if (Object.keys(gddData).length > 0 && Object.keys(gddData[caseId]).length > 0) {
-                sample_recs += "<span id='gdd-info' data-hasqtip='0' aria-describedby='qtip-0' alt='"+caseId+"'> <b>(GDD prediction:</b> "+getTopCancerType(caseId)+"<b>)</b></span>";
+                var topCancerType = getTopCancerType(caseId);
+                topCancerType = topCancerType.replace(".", " ");
+                if (topCancerType.startsWith("Non Small")) {
+                    topCancerType = topCancerType.replace("Non Small", "Non-Small");
+                }
+                sample_recs += "<span id='gdd-info' data-hasqtip='0' aria-describedby='qtip-0' alt='"+caseId+"'> <b>(GDD prediction:</b> "+topCancerType+"<b>)</b></span>";
             }
         }
         sample_recs += "<span class='sample-record-delimiter'>, </span></div>";

@@ -89,7 +89,8 @@ public class TestImportProfileData {
 	public void testImportMutationsFile() throws Exception {
         String[] args = {
         		"--data","target/test-classes/data_mutations_extended.txt",
-        		"--meta","target/test-classes/meta_mutations_extended.txt"        		
+        		"--meta","target/test-classes/meta_mutations_extended.txt",
+        		"--loadMode", "bulkLoad"
         		};
         
         ImportProfileData.main(args);
@@ -110,7 +111,8 @@ public class TestImportProfileData {
         String[] args = {
         		"--data","target/test-classes/data_CNA_sample.txt",
         		"--meta","target/test-classes/meta_CNA.txt" ,
-        		"--noprogress"
+        		"--noprogress",
+        		"--loadMode", "bulkLoad"
         		};
         
         String[] sampleIds = {"TCGA-02-0001-01","TCGA-02-0003-01","TCGA-02-0004-01","TCGA-02-0006-01"};
@@ -160,7 +162,8 @@ public class TestImportProfileData {
 
         String[] args = {
         		"--data","target/test-classes/data_mutations_extended.txt",
-        		"--meta","target/test-classes/meta_mutations_extended_wrong_stable_id.txt"        		
+        		"--meta","target/test-classes/meta_mutations_extended_wrong_stable_id.txt",
+        		"--loadMode", "bulkLoad"
         		};
         
         exception.expect(IllegalArgumentException.class);

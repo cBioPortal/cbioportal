@@ -53,6 +53,21 @@ class ValidateDataSystemTester(unittest.TestCase):
             shutil.rmtree(self.temp_dir_path, ignore_errors=True)
         super(ValidateDataSystemTester, self).tearDown()
 
+    def assertFileGenerated(self, tmp_file_name, expected_file_name):
+        """Assert that a file has been generated with the expected contents."""
+        self.assertTrue(os.path.exists(tmp_file_name))
+        with open(tmp_file_name, 'rU') as out_file, \
+             open(expected_file_name, 'rU') as ref_file:
+            base_filename = os.path.basename(tmp_file_name)
+            diff_result = difflib.context_diff(
+                    ref_file.readlines(),
+                    out_file.readlines(),
+                    fromfile='Expected {}'.format(base_filename),
+                    tofile='Generated {}'.format(base_filename))
+        diff_line_list = list(diff_result)
+        self.assertEqual(diff_line_list, [],
+                         msg='\n' + ''.join(diff_line_list))
+
     def test_exit_status_success(self):
         '''study 0 : no errors, expected exit_status = 0.
 
@@ -121,17 +136,8 @@ class ValidateDataSystemTester(unittest.TestCase):
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         self.assertEquals(0, exit_status)
-        self.assertTrue(os.path.exists(out_file_name))
-        with open(out_file_name, 'rU') as out_file, \
-             open('test_data/study_es_0/result_report.html', 'rU') as ref_file:
-            diff_result = difflib.context_diff(
-                    ref_file.readlines(),
-                    out_file.readlines(),
-                    fromfile='Expected html report',
-                    tofile='Generated html report')
-        diff_line_list = list(diff_result)
-        self.assertEqual(diff_line_list, [],
-                         msg='\n' + ''.join(diff_line_list))
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_es_0/result_report.html')
 
     def test_errorline_output(self):
         '''Test if error file is generated when '--error_file' is given.'''
@@ -140,6 +146,8 @@ class ValidateDataSystemTester(unittest.TestCase):
         argv = ['--study_directory','test_data/study_maf_test/',
                 '--portal_info_dir', PORTAL_INFO_DIR,
                 '--error_file', out_file_name]
+                # uncomment to overwrite with the new version
+                #'--error_file', 'test_data/study_maf_test/error_file.txt']
         parsed_args = validateData.interface(argv)
         exit_status = validateData.main_validate(parsed_args)
         # flush logging handlers used in validateData
@@ -148,17 +156,8 @@ class ValidateDataSystemTester(unittest.TestCase):
             logging_handler.flush()
         # assert that the results are as expected
         self.assertEquals(1, exit_status)
-        self.assertTrue(os.path.exists(out_file_name))
-        with open(out_file_name, 'rU') as out_file, \
-             open('test_data/study_maf_test/error_file.txt', 'rU') as ref_file:
-            diff_result = difflib.context_diff(
-                    ref_file.readlines(),
-                    out_file.readlines(),
-                    fromfile='Expected error file',
-                    tofile='Generated error file')
-        diff_line_list = list(diff_result)
-        self.assertEqual(diff_line_list, [],
-                         msg='\n' + ''.join(diff_line_list))
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_maf_test/error_file.txt')
 
     def test_portal_mismatch(self):
         '''Test if validation fails when data contradicts the portal.'''

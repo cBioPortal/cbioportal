@@ -660,4 +660,10 @@ def run_java(*args):
             print >> OUTPUT_FILE, line.strip()
             ret.append(line[:-1])
     ret.append(process.returncode)
+    # if cmd line parameters error:
+    if process.returncode == 2:
+        raise RuntimeError('Aborting. Step failed due to wrong parameters passed to subprocess.')
+    # any other error:
+    if process.returncode != 0:
+        raise RuntimeError('Aborting due to error while executing step.')
     return ret

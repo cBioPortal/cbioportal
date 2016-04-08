@@ -203,9 +203,6 @@ public class ImportTabDelimData {
 	           MySQLbulkLoader.flushAll();
 	        }
         }
-        catch (Exception e) {
-        	System.err.println(e.getMessage());
-        }
         finally {
 	        buf.close();
 	        if (rppaProfile) {
@@ -239,8 +236,9 @@ public class ImportTabDelimData {
             
             if (parts.length>nrColumns) {
                 if (line.split("\t").length>nrColumns) {
-                    System.err.println("The following line has more fields (" + parts.length
-                            + ") than the headers(" + nrColumns + "): \n"+parts[0]);
+                    ProgressMonitor.logWarning("Ignoring line with more fields (" + parts.length
+                            + ") than specified in the headers(" + nrColumns + "): \n"+parts[0]);
+                    return false;
                 }
             }
             String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
@@ -258,7 +256,7 @@ public class ImportTabDelimData {
                 geneSymbol = null;
             }
             if (rppaProfile && geneSymbol == null) {
-            	ProgressMonitor.logWarning("Ignoring line no Composite.Element.REF value");
+            	ProgressMonitor.logWarning("Ignoring line with no Composite.Element.REF value");
             	return false;
             }
             //get entrez

@@ -34,6 +34,8 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.util.*;
 
+import joptsimple.OptionSet;
+
 import java.io.File;
 
 /**
@@ -44,29 +46,33 @@ import java.io.File;
  */
 
 public class ImportMutSigData {
-    private File mutSigFile;
-    private File metaDataFile;
 
-    // command line utility
     public static void main(String[] args) throws Exception {
-        if (args.length < 2) {
-            System.out.println("command line usage:  importMutSig.pl <Mutsig_file.txt> <cancer-study-identifier>");
-            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-            return;
-        }
-
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-		SpringUtil.initDataSource();
-
-        File mutSigFile = new File(args[0]);
-        System.out.println("Reading data from: " + mutSigFile.getAbsolutePath());
-        int numLines = FileUtil.getNumLines(mutSigFile);
-        System.out.println(" --> total number of lines:  " + numLines);
-        ProgressMonitor.setMaxValue(numLines);
-
-        int internalId = MutSigReader.getInternalId(args[1]);
-        MutSigReader.loadMutSig(internalId, mutSigFile);
-
-        ConsoleUtil.showWarnings();
+    	try {
+	    	ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	    	
+	    	String description = "Import MUTSIG data";
+	    	
+	    	OptionSet options = ConsoleUtil.parseStandardDataAndStudyOptions(args, description);
+		    String dataFile = (String) options.valueOf("data");
+		    String studyId = (String) options.valueOf("study");
+			SpringUtil.initDataSource();
+	
+	        File mutSigFile = new File(dataFile);
+	        System.out.println("Reading data from: " + mutSigFile.getAbsolutePath());
+	        int numLines = FileUtil.getNumLines(mutSigFile);
+	        System.out.println(" --> total number of lines:  " + numLines);
+	        ProgressMonitor.setMaxValue(numLines);
+	
+	        int internalId = ValidationUtils.getInternalStudyId(studyId);
+	        MutSigReader.loadMutSig(internalId, mutSigFile);
+	
+	        ConsoleUtil.showMessages();
+    	} catch (Exception e) {
+	    	System.err.println ("Aborted.  " + e.getMessage());
+	    	ConsoleUtil.showWarnings();
+	    	//exit with error status:
+	    	System.exit(1);
+	    }
     }
 }

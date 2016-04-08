@@ -52,8 +52,6 @@ public class ImportClinicalData {
     private int numPatientSpecificClinicalAttributesAdded = 0;
     private int numEmptyClinicalAttributesSkipped = 0;
     
-    private static OptionParser parser;
-    private static String usageLine;
     private static Properties properties;
 
     private File clinicalDataFile;
@@ -107,20 +105,7 @@ public class ImportClinicalData {
         
         public String toString() {return attributeType;}
     }
-    
-    private static void quit(String msg)
-    {
-        if( null != msg ){
-            System.err.println( msg );
-        }
-        System.err.println( usageLine );
-        try {
-            parser.printHelpOn(System.err);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-	
+
     public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype)
     {
         this.cancerStudy = cancerStudy;
@@ -477,58 +462,57 @@ public class ImportClinicalData {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-
-         usageLine = "Import clinical files.\n" +
-                   "command line usage for importClinicalData:";
-         /*
-          * usage:
-          * --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
-          */
-
-        parser = new OptionParser();
-        OptionSpec<String> data = parser.accepts( "data",
-               "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
-        OptionSpec<String> meta = parser.accepts( "meta",
-               "meta (description) file" ).withOptionalArg().describedAs( "meta_file.txt" ).ofType( String.class );
-        OptionSpec<String> study = parser.accepts("study",
-                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
-        OptionSpec<String> loadMode = parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
-          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
-        parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
-        
-        OptionSet options = null;
         try {
-            options = parser.parse( args );
-        } catch (OptionException e) {
-            quit( e.getMessage() );
-        }
-        File clinical_f = null;
-        if( options.has( data ) ){
-            clinical_f = new File( options.valueOf( data ) );
-        }else{
-            quit( "'data argument required.");
-        }
-        String attributesDatatype = null;
-        String cancerStudyStableId = null;
-        if( options.has ( study ) )
-        {
-            cancerStudyStableId = options.valueOf(study);
-        }
-        if( options.has ( meta ) )
-        {
-            properties = new Properties();
-            properties.load(new FileInputStream(options.valueOf(meta)));
-            attributesDatatype = properties.getProperty("datatype");
-            cancerStudyStableId = properties.getProperty("cancer_study_identifier");
-        }
+	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
+	        String usageLine = "Import clinical files.\n" +
+	                   "command line usage for importClinicalData:";
+	         /*
+	          * usage:
+	          * --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
+	          */
+	
+	        OptionParser parser = new OptionParser();
+	        OptionSpec<String> data = parser.accepts( "data",
+	               "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
+	        OptionSpec<String> meta = parser.accepts( "meta",
+	               "meta (description) file" ).withOptionalArg().describedAs( "meta_file.txt" ).ofType( String.class );
+	        OptionSpec<String> study = parser.accepts("study",
+	                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
+	        parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
+	          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
+	        parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+	        
+	        OptionSet options = null;
+	        try {
+	            options = parser.parse( args );
+	        } catch (OptionException e) {
+	        	ConsoleUtil.quitWithUsageLine(e.getMessage(), usageLine, parser);
+	        }
+	        File clinical_f = null;
+	        if( options.has( data ) ){
+	            clinical_f = new File( options.valueOf( data ) );
+	        }else{
+	        	ConsoleUtil.quitWithUsageLine("'data argument required.", usageLine, parser);
+	        }
+	        String attributesDatatype = null;
+	        String cancerStudyStableId = null;
+	        if( options.has ( study ) )
+	        {
+	            cancerStudyStableId = options.valueOf(study);
+	        }
+	        if( options.has ( meta ) )
+	        {
+	            properties = new Properties();
+	            properties.load(new FileInputStream(options.valueOf(meta)));
+	            attributesDatatype = properties.getProperty("datatype");
+	            cancerStudyStableId = properties.getProperty("cancer_study_identifier");
+	        }
 
-        try {
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
             if (cancerStudy == null) {
-                System.err.println("Unknown cancer study: " + cancerStudyStableId);
+                throw new IllegalArgumentException("Unknown cancer study: " + cancerStudyStableId);
             }
             else {
                 System.out.println("Reading data from:  " + clinical_f.getAbsolutePath());
@@ -558,10 +542,12 @@ public class ImportClinicalData {
                     System.out.println("Success!");
                 }
             }
+            ConsoleUtil.showMessages();
         } catch (Exception e) {
-            System.err.println ("Aborted.  " + e.getMessage());
-        } finally {
+        	System.err.println ("Aborted.  " + e.getMessage());
             ConsoleUtil.showWarnings();
+            //exit with error status:
+            System.exit(1);
         }
     }
 }

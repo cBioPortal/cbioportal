@@ -126,6 +126,7 @@ var OncoKB = (function () {
         this.source = 'cbioportal';
         this.geneStatus = 'Complete';
         this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE';
+        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_2B', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_R1'];
         this.variantCounter = 0;
         this.variants = {};
         this.evidence = {};
@@ -1280,7 +1281,8 @@ OncoKB.Instance.prototype = {
             'geneStatus': this.geneStatus,
             'source': this.source,
             'evidenceTypes': this.evidenceTypes,
-            'queries': []
+            'queries': [],
+            'levels': this.evidenceLevels
         };
         var oncokbEvidenceRequestItems = {};
         var oncokbSummaryData = {};
@@ -1393,7 +1395,8 @@ OncoKB.Instance.prototype = {
                                             'geneStatus': self.geneStatus,
                                             'source': self.source,
                                             'evidenceTypes': self.evidenceTypes,
-                                            'queries': []
+                                            'queries': [],
+                                            'levels': self.evidenceLevels
                                         };
 
                                         query.id = oncokbId;
@@ -1508,7 +1511,8 @@ OncoKB.Instance.prototype = {
                                                     'geneStatus': self.geneStatus,
                                                     'source': self.source,
                                                     'evidenceTypes': self.evidenceTypes,
-                                                    'queries': []
+                                                    'queries': [],
+                                                    'levels': self.evidenceLevels
                                                 };
 
                                                 query.id = oncokbId;

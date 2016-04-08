@@ -479,7 +479,7 @@ $(document).ready(function() {
 
             //Oncoprint summary lines
             $("#oncoprint_sample_set_description").append(window.QuerySession.getSampleSetDescription() + 
-                "("+sampleIdArray.length + " samples / " + _sampleIds.length + " samples)");
+                "("+sampleIdArray.length + " patients / " + _sampleIds.length + " samples)");
             $("#oncoprint_sample_set_name").append(window.QuerySession.getSampleSetName());
             $("#oncoprint_num_of_altered_cases").append(altered_samples.length);
             $("#oncoprint_percentage_of_altered_cases").append(altered_samples_percentage);

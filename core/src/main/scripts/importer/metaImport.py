@@ -82,6 +82,9 @@ if __name__ == '__main__':
     print >> sys.stderr, "Starting validation...\n"
     try:
         exitcode = validateData.main_validate(args)
+    except:
+        print >> sys.stderr, Color.RED + "Error occurred during validation step:" + Color.END
+        raise
     finally:
         # make sure all log messages are flushed
         validator_logger = logging.getLogger(validateData.__name__)
@@ -90,19 +93,28 @@ if __name__ == '__main__':
         validator_logger.handlers = []
 
     # Depending on validation results, load the study or notify the user
-    print >> sys.stderr, "#" * 71
-    if exitcode == 1:
-        print >> sys.stderr, Color.BOLD + "Errors. Please fix your files before importing" + Color.END
-        print >> sys.stderr, "#" * 71 + "\n\n"
-    elif exitcode == 3:
-        if args.override_warning:
-            print >> sys.stderr, Color.BOLD + "Overriding Warnings. Importing study now" + Color.END
+    try:
+        print >> sys.stderr, "#" * 71
+        if exitcode == 1:
+            print >> sys.stderr, Color.RED + "Errors. Please fix your files before importing" + Color.END
+            print >> sys.stderr, "!" * 71 + "\n\n"
+        elif exitcode == 3:
+            if args.override_warning:
+                print >> sys.stderr, Color.BOLD + "Overriding Warnings. Importing study now" + Color.END
+                print >> sys.stderr, "#" * 71 + "\n\n"
+                cbioportalImporter.main(args)
+            else:
+                print >> sys.stderr, Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END
+                print >> sys.stderr, "#" * 71 + "\n\n"
+        elif exitcode == 0:
+            print >> sys.stderr, Color.BOLD + "Everything looks good. Importing study now" + Color.END
             print >> sys.stderr, "#" * 71 + "\n\n"
             cbioportalImporter.main(args)
-        else:
-            print >> sys.stderr, Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END
-            print >> sys.stderr, "#" * 71 + "\n\n"
-    elif exitcode == 0:
-        print >> sys.stderr, Color.BOLD + "Everything looks good. Importing study now" + Color.END
+    except KeyboardInterrupt:
+        print >> sys.stderr, Color.BOLD + "Process interrupted. You will have to run this again to make sure study is completely loaded." + Color.END
         print >> sys.stderr, "#" * 71 + "\n\n"
-        cbioportalImporter.main(args)
+        raise
+    except:
+        print >> sys.stderr, Color.RED + "Error occurred. Please fix the problem and run this again to make sure study is completely loaded." + Color.END
+        print >> sys.stderr, "!" * 71 + "\n\n"
+        raise

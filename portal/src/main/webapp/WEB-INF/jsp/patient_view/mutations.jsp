@@ -30,9 +30,9 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -130,7 +130,7 @@
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
             if(oncokbInstance) {
-                oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"), findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), mutations.getValue(_id, "is-hotspot"));
+                oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : cancerType, findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), mutations.getValue(_id, "is-hotspot"));
             }
             data.push([mutEventIds[i]]);
         }
@@ -248,7 +248,7 @@
                                             "<img src='images/mcg_logo.png'></span>";
                                 }
                                 if (showHotspot && mutations.getValue(source[0], 'is-hotspot')) {
-                                    ret += "<span class='" + table_id + "-hotspot' alteration='" + aa + "' oncokbId='" + source[0] + "' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                    ret += "<span class='" + table_id + "-hotspot hotspot-icon' alteration='" + aa + "' oncokbId='" + source[0] + "'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
                                 }
                                 return ret;
                             } else if (type === 'sort') {

@@ -1652,6 +1652,11 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     padding-bottom: -2px;
 }
 
+
+.hotspot-icon {
+    padding-top: 7px;
+}
+
 /* OncoKB integration styles */
 /*Default max width is 280px*/
 .oncokb-qtip {
@@ -1701,7 +1706,9 @@ span.oncokb.oncokb_alteration {
     background-image: url("../images/oncogenic.png");
     display: block !important;
 }
-
+.oncokb.oncogenic.loader {
+    padding-top: 7px;
+}
 .oncokb .oncogenic-icon-image.level1.oncogenic {
     background-position: -13px -14px;
 }

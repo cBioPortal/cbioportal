@@ -403,6 +403,7 @@ var caseIdsStr = '<%=caseIdStr%>';
 var caseIds = <%=jsonCaseIds%>;
 var patientId = '<%=patientID%>';
 var cancerStudyName = "<%=cancerStudy.getName()%>";
+var cancerType = "<%=cancerStudy.getTypeOfCancer()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 var drugType = drugType?'<%=drugType%>':null;

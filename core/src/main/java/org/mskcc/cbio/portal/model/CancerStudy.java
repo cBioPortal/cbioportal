@@ -448,4 +448,8 @@ public class CancerStudy {
     public void setShortName(String shortName) {
         this.shortName = shortName;
     }
+    
+    public String getTypeOfCancer() throws DaoException {
+        return DaoTypeOfCancer.getTypeOfCancerById(this.typeOfCancerId).getName();
+    }
 }

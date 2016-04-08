@@ -98,13 +98,7 @@
             if(!_.isNaN(sliderValue) && !_.isUndefined(sliderValue) && sliderValue !== null){
                 threshold = sliderValue;
             }
-            //check if all values are zero or not
-            var nonZeroFlag = false;
-            _.each(histDataOrg, function(study) {
-             if(study.alterations["all"] > 0)
-                nonZeroFlag = true;
-            });
-            if(!nonZeroFlag)threshold = 0;
+ 
             
             var totalSamThreshold = 0;
             if(!_.isNaN(totalSamSliderValue) && !_.isUndefined(totalSamSliderValue) && totalSamSliderValue !== null){
@@ -230,7 +224,7 @@
                         window.studies = studies;
 
                         $.getJSON("portal_meta_data.json", function(metaData) {
-                            var firstEnterFlag = true;
+                             
                             window.PortalMetaData = metaData;
                             var histDataOrg = studies.toJSON();
                             (new HideStudyControlView({
@@ -800,21 +794,7 @@
                                     .attr("y", labelCorY)
                                     .attr("transform", "rotate(-90, " + labelCorX + ", " + labelCorY +")")
                                 ;
-                                                          
-                                if(firstEnterFlag)
-                                {
-                                    if($("#yAxis").val() === "Frequency")
-                                    {
-                                        $("#minY").val(0);
-                                        sliderValue = 1e-5;
-                                    }
-                                    else
-                                    {
-                                        $("#minY").val(1);
-                                        sliderValue = 1;
-                                    }
-                                    
-                                }
+                                
                                 histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
                             
 				studyWidth = fixedStudyWidth; // Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
@@ -1125,7 +1105,7 @@
                             
                             $("#yAxis").on("change", function(){
                             
-                            
+                               $("#sliderMinY").slider( "option", "value", 0 );
                                maxYAxis = 0;
                                if($("#yAxis").val() === "Frequency"){
                                    for(var i = 0;i < histDataOrg.length;i++){
@@ -1159,14 +1139,14 @@
                             });
                             
                             $("#sliderMinY").on("slidechange", function(e, ui){
-                                firstEnterFlag = false;
+                                 
                                 var tempStr = ui.value + ($("#yAxis").val() === "Frequency" ? "%" : "");
                                  
                                 redrawHistogram();
                                 
                             });
                             $("#minY").on("keyup", function(e){
-                                firstEnterFlag = false;
+                                
                                 if(e.keyCode == 13)
                                 {
                                     $("#sliderMinY").slider({value: $("#minY").val()});

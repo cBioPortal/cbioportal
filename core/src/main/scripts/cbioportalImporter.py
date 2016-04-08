@@ -63,7 +63,7 @@ def get_portal_properties(properties_filename):
         # store name/value
         property = line.split('=')
         if len(property) != 2:
-            print >> ERROR_FILE, 'Skipping invalid entry in proeprty file: ' + line
+            print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
             continue
         properties[property[0]] = property[1].strip()
     properties_file.close()

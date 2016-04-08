@@ -216,16 +216,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				var mutation_type_key = config.mutation_type_key;
 				matching_mutations.sort(function(a,b) { return mutation_rendering_priority[a[mutation_type_key]] - mutation_rendering_priority[b[mutation_type_key]]; });
 				ret[config.mutation_type_key] = matching_mutations[0][config.mutation_type_key];
+				ret.mut_type_recurrence = ret[config.mutation_type_key] + (matching_mutations[0].position_recurrence > 10 ? '_rec' : '');
 				ret[config.mutation_key] = matching_mutations.map(function(m) {
-				return m[config.mutation_amino_acid_change_key];
+				    return m[config.mutation_amino_acid_change_key];
 				}).join(",");
-				ret.mut_recurrent = false;
-				for (var i=0; i<matching_mutations.length; i++) {
-				    if (matching_mutations[i].position_recurrence > 10) {
-					ret.mut_recurrent = 'true';
-					break;
-				    }
-				}
 			}
 			if (altered) {
 				markDatumAltered(ret);
@@ -826,12 +820,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						if (extremeness.hasOwnProperty(key)) {
 							if (extremeness[key][val] > extremeness[key][new_datum[key]]) {
 								new_datum[key] = val;
+								if (key === 'mut_type') {
+								    new_datum['mut_type_recurrence'] = d['mut_type_recurrence'];
+								}
 							}
 						} else if (key === "mutation") {
 							new_datum['mutation'] = (new_datum['mutation'] || []).concat(d['mutation']);
-							if (d['mut_recurrent'] === 'true') {
-							    new_datum['mut_recurrent'] = 'true';
-							}
 						}
 					});
 				};

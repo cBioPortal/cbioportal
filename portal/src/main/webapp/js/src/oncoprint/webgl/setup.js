@@ -601,10 +601,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		var track_ids = [];
 		for (var i = 0; i < genes.length; i++) {
 		    var track_params = {
-			'rule_set_params': {
-			    'type': 'gene',
-			    'legend_label': 'Genetic Alteration'
-			},
+			'rule_set_params': window.geneticrules.genetic_rule_set_different_colors_recurrence,
 			'label': genes[i],
 			'target_group': 1,
 			'sortCmpFn': comparator_utils.makeGeneticComparator(true)
@@ -1636,10 +1633,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 		var track_ids = [];
 		for (var i = 0; i < genes.length; i++) {
 		    var track_params = {
-			'rule_set_params': {
-			    'type': 'gene',
-			    'legend_label': 'Genetic Alteration'
-			},
+			'rule_set_params': window.geneticrules.genetic_rule_set_different_colors_no_recurrence,
 			'label': genes[i],
 			'target_group': 1,
 			'sortCmpFn': comparator_utils.makeGeneticComparator(true),

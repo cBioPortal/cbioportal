@@ -77,7 +77,19 @@
                </ul>
             </div>
             <button type="button" class="btn btn-default" id="oncoprint_diagram_topatientid_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/cool2.svg" alt="icon" width="18" height="18" /></button>
-            <button type="button" class="btn btn-default" id="oncoprint_diagram_showmutationcolor_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/colormutations.svg" alt="icon" width="18" height="18" /></button>
+            <!--<button type="button" class="btn btn-default" id="oncoprint_diagram_showmutationcolor_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/colormutations.svg" alt="icon" width="18" height="18" /></button>-->
+            <div class="btn-group btn-group-sm"   id="oncoprint_diagram_mutation_color">
+               <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
+                 <span>Mutation</span>&nbsp;<span class="caret"></span>
+               </button>
+               <div class="dropdown-menu" style="margin-left:10px; margin-right:10px;">
+                   <form action="">
+                       <input type="radio" name="color_setting" value="same"> Same color for all</input><br>
+                       <input type="radio" name="color_setting" value="different"> Differentiate truncating, missense, indel</input><br>
+                       <input type="checkbox" name="additional" value="recurrence"> Show recurrent mutations</input>
+                   </form>
+               </div>
+            </div>
             <button type="button" class="btn btn-default" id="oncoprint-diagram-showlegend-icon" style="background-color:#efefef;margin:0px;display:none;"><img class="oncoprint-diagram-showlegend-icon" checked="0" src="images/showlegend.svg" alt="icon" width="18" height="18" /></button>
             <button type="button" class="btn btn-default" id="oncoprint-diagram-removeUCases-icon" style="background-color:#efefef;margin:0px"><img class="oncoprint-diagram-removeUCases-icon" checked="0" src="images/removeUCases.svg" alt="icon" width="18" height="18" /></button>
             <button type="button" class="btn btn-default" id="oncoprint-diagram-removeWhitespace-icon" style="background-color:#efefef;margin:0px"><img class="oncoprint-diagram-removeWhitespace-icon" checked="0" src="images/removeWhitespace.svg" alt="icon" width="18" height="18" /></button>
@@ -127,6 +139,7 @@
         <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
         <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/ruleset2.js"?<%=GlobalProperties.getAppVersion()%>"></script>-->
         <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/oncoprint-analysis-setup.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-main.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <!--<script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->

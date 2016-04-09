@@ -343,7 +343,7 @@
         } );
 
         if(oncokbInstance) {
-            oncokbInstance.getEvidence().then(function () {
+            oncokbInstance.getIndicator().then(function () {
                 var tableData = oTable.fnGetData();
                 var oncokbEvidence = [];
                 _.each(tableData, function(ele, i) {

@@ -130,7 +130,12 @@
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
             if(oncokbInstance) {
-                oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : cancerType, findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), mutations.getValue(_id, "is-hotspot"));
+                oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), 
+                    mutations.getValue(_id, "aa"), null, 
+                    mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : cancerType, 
+                    findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), 
+                    mutations.getValue(_id, "is-hotspot"), mutations.getValue(_id, 'protein-start'), 
+                    mutations.getValue(_id, 'protein-end'));
             }
             data.push([mutEventIds[i]]);
         }
@@ -945,7 +950,7 @@
         } );
 
         if(oncokbInstance) {
-            oncokbInstance.getEvidence().then(function () {
+            oncokbInstance.getIndicator().then(function () {
                 var tableData = oTable.fnGetData();
                 var oncokbEvidence = [];
                 _.each(tableData, function(ele, i) {

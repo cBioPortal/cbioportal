@@ -536,17 +536,17 @@ public class ImportClinicalData {
                         + importClinicalData.getNumEmptyClinicalAttributesSkipped());
                 if (importClinicalData.getNumSampleSpecificClinicalAttributesAdded()
                         + importClinicalData.getNumPatientSpecificClinicalAttributesAdded() == 0) {
-                    System.out.println("Error!  No data was addeded.  " +
+                    throw new RuntimeException("Error!  No data was addeded.  " +
                             "Please check your file format and try again.");
                 } else {
-                    System.out.println("Success!");
+                    System.out.println("Done.");
                 }
             }
             ConsoleUtil.showMessages();
         } catch (Exception e) {
-        	System.err.println ("Aborted.  " + e.getMessage());
             ConsoleUtil.showWarnings();
             //exit with error status:
+        	System.err.println ("\nABORTED! Error:  " + e.getMessage());
             System.exit(1);
         }
     }

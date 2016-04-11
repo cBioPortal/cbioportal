@@ -294,7 +294,7 @@ def main(args):
         portal_home = os.environ.get('PORTAL_HOME', None)
         if portal_home is None:
             # PORTAL_HOME also not set...quit trying with error: 
-            print 'Either --jar_path needs to be given or environment variable PORTAL_HOME needs to be set'
+            print 'Error: either --jar_path needs to be given or environment variable PORTAL_HOME needs to be set'
             sys.exit(2)
         else: 
             #find jar files in lib folder and add them to classpath:
@@ -304,7 +304,7 @@ def main(args):
                 print 'Expected to find 1 core-*.jar, but found: ' + str(len(jars))
                 sys.exit(2)
             args.jar_path = jars[0]
-            print args.jar_path
+            print '\nData loading step using: ' + args.jar_path
         
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path

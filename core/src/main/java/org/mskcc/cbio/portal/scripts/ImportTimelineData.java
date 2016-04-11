@@ -136,9 +136,9 @@ public class ImportTimelineData {
 		    ConsoleUtil.showMessages();		    
 		} 
 		catch (Exception e) {
-	    	System.err.println ("Aborted.  " + e.getMessage());
 	    	ConsoleUtil.showWarnings();
 	    	//exit with error status:
+			System.err.println ("\nABORTED! Error:  " + e.getMessage());
 	    	System.exit(1);
 	    } 
 	}

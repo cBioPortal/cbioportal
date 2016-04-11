@@ -82,7 +82,12 @@ if __name__ == '__main__':
     print >> sys.stderr, "Starting validation...\n"
     try:
         exitcode = validateData.main_validate(args)
+    except KeyboardInterrupt:
+        print >> sys.stderr, Color.BOLD + "\nProcess interrupted. " + Color.END
+        print >> sys.stderr, "#" * 71 + "\n"
+        raise
     except:
+        print >> sys.stderr, "!" * 71
         print >> sys.stderr, Color.RED + "Error occurred during validation step:" + Color.END
         raise
     finally:
@@ -94,9 +99,10 @@ if __name__ == '__main__':
 
     # Depending on validation results, load the study or notify the user
     try:
+        print "\n"
         print >> sys.stderr, "#" * 71
         if exitcode == 1:
-            print >> sys.stderr, Color.RED + "Errors. Please fix your files before importing" + Color.END
+            print >> sys.stderr, Color.RED + "One or more errors reported above. Please fix your files accordingly" + Color.END
             print >> sys.stderr, "!" * 71 + "\n\n"
         elif exitcode == 3:
             if args.override_warning:
@@ -108,13 +114,13 @@ if __name__ == '__main__':
                 print >> sys.stderr, "#" * 71 + "\n\n"
         elif exitcode == 0:
             print >> sys.stderr, Color.BOLD + "Everything looks good. Importing study now" + Color.END
-            print >> sys.stderr, "#" * 71 + "\n\n"
+            print >> sys.stderr, "#" * 71 
             cbioportalImporter.main(args)
     except KeyboardInterrupt:
-        print >> sys.stderr, Color.BOLD + "Process interrupted. You will have to run this again to make sure study is completely loaded." + Color.END
-        print >> sys.stderr, "#" * 71 + "\n\n"
+        print >> sys.stderr, Color.BOLD + "\nProcess interrupted. You will have to run this again to make sure study is completely loaded." + Color.END
+        print >> sys.stderr, "#" * 71 + "\n"
         raise
     except:
-        print >> sys.stderr, Color.RED + "Error occurred. Please fix the problem and run this again to make sure study is completely loaded." + Color.END
-        print >> sys.stderr, "!" * 71 + "\n\n"
+        print >> sys.stderr, "!" * 71
+        print >> sys.stderr, Color.RED + "Error occurred during data loading step. Please fix the problem and run this again to make sure study is completely loaded." + Color.END
         raise

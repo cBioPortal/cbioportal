@@ -127,13 +127,15 @@
       </properties>
     </profile>
     <profile>
-      <!-- copy files in heroku/ to root dir -->
       <id>heroku</id>
       <build>
         <plugins>
+          <!-- copy files in heroku/ to root-->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-resources-plugin</artifactId>
+            <!-- only needs to be executed for parent pom -->
+            <inherited>false</inherited>
             <version>2.7</version>
             <dependencies>
               <dependency>
@@ -161,8 +163,11 @@
               </execution>
             </executions>
           </plugin>
+          <!-- copy portal.properties.EXAMPLE -->
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
+            <!-- only needs to be executed for parent pom -->
+            <inherited>false</inherited>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -171,7 +176,9 @@
                 </goals>
                 <configuration>
                   <tasks>
-                    <copy file="${PORTAL_HOME}/src/main/resources/portal.properties.EXAMPLE" tofile="${PORTAL_HOME}/src/main/resources/portal.properties" />
+                    <copy
+                    file="${basedir}/src/main/resources/portal.properties.EXAMPLE"
+                    tofile="${basedir}/src/main/resources/portal.properties" />
                   </tasks>
                 </configuration>
               </execution>

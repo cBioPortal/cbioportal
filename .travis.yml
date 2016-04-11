@@ -23,7 +23,6 @@ before_script:
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
     - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
-    - cp src/main/resources/spring.security.url.intercepts .travis/src/main/resources
     - phantomjs --version
 
 script:

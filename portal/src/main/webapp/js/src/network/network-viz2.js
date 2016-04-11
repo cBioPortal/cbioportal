@@ -480,6 +480,10 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 
 		//to hide drugs initially
 		netVis._changeListener();
+		//Temporary hack to prevent initial additional layout !
+		//We set toggle aotu layout once in the netVis.initNetworkUI function and revert it here !
+    netVis._toggleAutoLayout();
+
 		var panProps = ({
 			zoomFactor: 0.05, // zoom factor per zoom tick
 			zoomDelay: 45, // how many ms between zoom ticks

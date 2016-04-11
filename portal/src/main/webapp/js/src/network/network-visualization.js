@@ -220,7 +220,8 @@ NetworkVis.prototype.initNetworkUI = function(vis)
     this._maxAlterationPercent = this._maxAlterValNonSeed(this._geneWeightMap);
 
     this._resetFlags();
-
+    //Toggle auto layout initially so that initial additional layout is prevented !
+    this._toggleAutoLayout();
     this._initMainMenu();
 
     this._initPropsUI();
@@ -2745,7 +2746,6 @@ NetworkVis.prototype._filterByDropDown = function()
 
     // visualization changed, perform layout if necessary
     this._visChanged();
-
 };
 
 /**

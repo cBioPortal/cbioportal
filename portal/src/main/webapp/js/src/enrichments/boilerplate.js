@@ -90,44 +90,45 @@ var enrichmentsTabSettings = (function() {
         col_index: {
             copy_num: {
                 gene: 0,
-                //cytoband: 1,
-                altered_pct: 1,
-                unaltered_pct: 2,
-                log_ratio: 3,
-                p_val: 4,
-                q_val: 5,
-                direction: 6
+                cytoband: 1,
+                altered_pct: 2,
+                unaltered_pct: 3,
+                log_ratio: 4,
+                p_val: 5,
+                q_val: 6,
+                direction: 7
             },
             mrna: {
                 gene: 0,
-                //cytoband: 1,
-                altered_mean: 1,
-                unaltered_mean: 2,
-                altered_stdev: 3,
-                unaltered_stdev: 4,
-                p_val: 5,
-                q_val: 6,
-                plot: 7
+                cytoband: 1,
+                altered_mean: 2,
+                unaltered_mean: 3,
+                altered_stdev: 4,
+                unaltered_stdev: 5,
+                p_val: 6,
+                q_val: 7,
+                plot: 8
             },
             mutations: {
                 gene: 0,
-                altered_pct: 1,
-                unaltered_pct: 2,
-                log_ratio: 3,
-                p_val: 4,
-                q_val: 5,
-                direction: 6
+                cytoband: 1,
+                altered_pct: 2,
+                unaltered_pct: 3,
+                log_ratio: 4,
+                p_val: 5,
+                q_val: 6,
+                direction: 7
             },
             protein_exp: {
                 gene: 0,
-                //cytoband: 1,
-                altered_mean: 1,
-                unaltered_mean: 2,
-                altered_stdev: 3,
-                unaltered_stdev: 4,
-                p_val: 5,
-                q_val: 6,
-                plot: 7
+                cytoband: 1,
+                altered_mean: 2,
+                unaltered_mean: 3,
+                altered_stdev: 4,
+                unaltered_stdev: 5,
+                p_val: 6,
+                q_val: 7,
+                plot: 8
             }
         },
         _title_ids : {

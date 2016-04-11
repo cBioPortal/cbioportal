@@ -175,7 +175,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
             "bAutoWidth": false,
             "aaData" : data,
             "aaSorting": [[col_index.p_val, 'asc']],
-            //"sScrollY": "400px",
             "bScrollCollapse": true,
             "oLanguage": {
                 "sSearch": "Search Gene  "
@@ -374,9 +373,9 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
 
         if (profile_type === enrichmentsTabSettings.profile_type.copy_num || profile_type === enrichmentsTabSettings.profile_type.mutations) {
             $("#" + div_id).find("." + table_id + "_filter").append(
-                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
-                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
-                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' id='" + table_id + "-checkbox-sig-only'>Significant gene(s)</option> &nbsp; &nbsp;"
+                "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'><span style='font-size:10px;'>Mutual exclusivity</span></option> &nbsp;&nbsp;" +
+                "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'><span style='font-size:10px;'>Co-occurrence</span></option> &nbsp;&nbsp;" +
+                "<input type='checkbox' class='" + table_id + "-checkbox' id='" + table_id + "-checkbox-sig-only'><span style='font-size:10px;'>Significant gene(s)</span></option> &nbsp; &nbsp;"
             );
 
             var _sig_only_all_fn = function() {
@@ -646,7 +645,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
 
         if (profile_type === enrichmentsTabSettings.profile_type.copy_num) {
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.gene + "'>Gene</th>";
-            //_title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.pct + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.log_ratio + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val + "'></th>";
@@ -656,8 +655,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
             _title_str += "<th width='" + enrichmentsTabSettings.col_width.unaltered_pct + "'>in unaltered group</th>";
         } else if (profile_type === enrichmentsTabSettings.profile_type.mutations) {
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.gene + "'>Gene</th>";
-            // removing cytoband to clear some space
-            //_title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.pct + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.log_ratio + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val + "'></th>";
@@ -667,7 +665,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
             _title_str += "<th width='" + enrichmentsTabSettings.col_width.unaltered_pct + "'>in unaltered group</th>";
         } else if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.gene + "'>Gene</th>";
-            //_title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Mean mRNA expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.mean_alt + "'></th>";
             _title_str += "<th colspan='2'>Standard deviation of mRNA expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.stdev_alt + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val_t_test + "'></th>";
@@ -680,7 +678,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
             _title_str += "<th width='100'>in unaltered group</th>";
         } else if (profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.gene + "'>Gene</th>";
-            //_title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Mean protein expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.mean_alt + "'></th>";
             _title_str += "<th colspan='2'>Standard deviation of protein expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.stdev_alt + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val_t_test + "'></th>";
@@ -710,7 +708,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                 Object.keys(_converted_data)[0] !== enrichmentsTabSettings.texts.null_result &&
                 Object.keys(_converted_data)[0] !== "") {
 
-                 div_id = _div_id;
+                div_id = _div_id;
                 table_id = _table_id;
                 data = _converted_data;
                 profile_type = _profile_type;
@@ -841,8 +839,8 @@ var orSubTabView = function() {
                     var minionco_div = "minionco" + _plot_div;
 
                     var html = "<div id='"+_profile_obj.STABLE_ID.replace(/\./g, "_")+"_container' style='float: left; position: relative'>"+
-                        "<div id='" + _plot_div + "' style='width: 35%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
-                        "<div id='" + _table_div + "' style='width: 62%; display:table; margin-left: auto; margin-right: 0; '></div>"+
+                        "<div id='" + _plot_div + "' style='width: 30%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
+                        "<div id='" + _table_div + "' style='width: 65%; display:table; margin-left: auto; margin-right: 0; '></div>"+
                         "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif'/></div>"+
                         "</div>";
                     $("#" + _div_id).append(html);

@@ -45,6 +45,7 @@ var enrichmentsTabData = function() {
                 var _unit = [];
                 if (_profile_type === enrichmentsTabSettings.profile_type.copy_num) {
                     _unit[enrichmentsTabSettings.col_index.copy_num.gene] = _obj["Gene"];
+                    _unit[enrichmentsTabSettings.col_index.copy_num.cytoband] = _obj["Cytoband"];
                     var _vals_altered_group = _obj["percentage of alteration in altered group"].split("////"); //count & percentage
                     _unit[enrichmentsTabSettings.col_index.copy_num.altered_pct] = _vals_altered_group[0] + " (" + (_vals_altered_group[1] * 100).toFixed(2) + "%)";
                     var _vals_unaltered_group = _obj["percentage of alteration in unaltered group"].split("////"); //count & percentage
@@ -55,6 +56,7 @@ var enrichmentsTabData = function() {
                     _unit[enrichmentsTabSettings.col_index.copy_num.q_val] = trim_p_val_copy_num(_obj["q-Value"]);
                 } else if (_profile_type === enrichmentsTabSettings.profile_type.mutations) {
                     _unit[enrichmentsTabSettings.col_index.mutations.gene] = _obj["Gene"];
+                    _unit[enrichmentsTabSettings.col_index.mutations.cytoband] = _obj["Cytoband"];
                     var _vals_altered_group = _obj["percentage of alteration in altered group"].split("////"); //count & percentage
                     _unit[enrichmentsTabSettings.col_index.mutations.altered_pct] = _vals_altered_group[0] + " (" + (_vals_altered_group[1] * 100).toFixed(2) + "%)";
                     var _vals_unaltered_group = _obj["percentage of alteration in unaltered group"].split("////"); //count & percentage
@@ -66,6 +68,7 @@ var enrichmentsTabData = function() {
                 } else if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
                     // moved the styling of the gene to view.js mDataProp
                     _unit[enrichmentsTabSettings.col_index.mrna.gene] = _obj["Gene"];
+                    _unit[enrichmentsTabSettings.col_index.mrna.cytoband] = _obj["Cytoband"];
                     _unit[enrichmentsTabSettings.col_index.mrna.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
                     _unit[enrichmentsTabSettings.col_index.mrna.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                     _unit[enrichmentsTabSettings.col_index.mrna.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);

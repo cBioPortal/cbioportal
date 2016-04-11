@@ -128,17 +128,6 @@
                 }
             });
 
-            //bind event listener to gene set selector
-//            $("#or_analysis_tab_gene_set_select").change(function() {
-//                if ($("#or_analysis_tab_gene_set_select").val() === "cancer_genes") {
-//                    $("#" + enrichmentsTabSettings.ids.gene_set_warning).empty();
-//                    enrichmentsTab.update();
-//                } else if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
-//                    $("#" + enrichmentsTabSettings.ids.gene_set_warning).empty();
-//                    $("#" + enrichmentsTabSettings.ids.gene_set_warning).append("Calculating and rendering...(this may a few seconds)");
-//                    enrichmentsTab.update();
-//                }
-//            });
         });
     });
 </script>

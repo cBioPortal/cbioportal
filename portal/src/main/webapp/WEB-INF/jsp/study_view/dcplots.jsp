@@ -38,7 +38,6 @@
 <link rel="stylesheet" type="text/css" href="css/study-view.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/introjs.min.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/introjs-rtl.min.css?<%=GlobalProperties.getAppVersion()%>">
-<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/bootstrap-alert.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/animate.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/fixed-data-table.min.css?<%=GlobalProperties.getAppVersion()%>">

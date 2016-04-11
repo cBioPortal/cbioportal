@@ -42,7 +42,7 @@
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
     String localCancerTypeId =
 		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    String localPatientSetId =
+    String localSampleSetId =
 		    (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
                     String localCancerStudyList = (String) request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
                     if (localCancerStudyList == null) {
@@ -115,7 +115,7 @@
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
     window.cancer_study_list_param = '<%= QueryBuilder.CANCER_STUDY_LIST%>';
     window.cancer_study_list_selected = '<%= localCancerStudyList %>';
-    window.case_set_id_selected = '<%= localPatientSetId %>';
+    window.case_set_id_selected = '<%= localSampleSetId %>';
     window.case_ids_selected = '<%= (localCaseIds == null ? "" : localCaseIds).trim() %>';
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
@@ -148,7 +148,7 @@
         <p/>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         &nbsp;<br/>
-        <input id="main_submit" class="ui-button ui-widget ui-state-default ui-corner-all" onclick="submitHandler()" style="height: 34px;" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <input id="main_submit" class="btn btn-default btn-lg" type="submit" onclick="submitHandler()" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
         <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
 
         </form>

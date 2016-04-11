@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * A Utility Class that speeds access to Gene Info.
@@ -360,8 +361,8 @@ public class DaoGeneOptimized {
             sb.append(",");
         }
         sb.deleteCharAt(sb.length()-1);
-        System.err.println(sb.toString());
         
+        ProgressMonitor.logWarning(sb.toString());
         return null;
         
     }

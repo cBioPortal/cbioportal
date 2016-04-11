@@ -40,6 +40,7 @@ var Table = function() {
         selectedSamples = [],
         dataTable = '',
         callbacks = {},
+        headerQtip,
         checkboxChildId = -1,
         initStatus = false;
     
@@ -76,6 +77,8 @@ var Table = function() {
             divs.downloadId = tableId + '-download-icon';
             divs.downloadWrapperId = tableId + '-download-icon-wrapper';
             divs.loaderId = tableId + '-loader';
+            // store the header qtip if available
+            headerQtip = input.opts.hasOwnProperty('headerQtip')?input.opts.headerQtip:undefined;
         }else {
             initStatus = false;
         }
@@ -386,7 +389,7 @@ var Table = function() {
         $('#' + divs.tableId + '-download-icon-wrapper').qtip('destroy', true);
 
         $('#' + divs.tableId + '-download-icon-wrapper').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'bottom left',at:'top right', viewport: $(window)},
@@ -396,7 +399,7 @@ var Table = function() {
         });
 
         $('#' + divs.tableId + '-download-icon').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
             show: {event: "click", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
@@ -440,6 +443,7 @@ var Table = function() {
             }
         });
         deleteTable();
+        addTableHeaderQtip();
     }
 
 
@@ -475,6 +479,13 @@ var Table = function() {
 
         if(callbacks.hasOwnProperty('rowClick')) {
             callbacks.rowClick(divs.tableId, highlightedRowsData, clickedRowData, rowChecked);
+        }
+    }
+
+    // if there's a qtip for the table header, add it
+    function addTableHeaderQtip(){
+        if(!_.isUndefined(headerQtip)) {
+            qtip('#'+ divs.titleId, headerQtip);
         }
     }
     

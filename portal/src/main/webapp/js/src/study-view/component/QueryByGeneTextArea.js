@@ -8,8 +8,9 @@ var GenelistModel = Backbone.Model.extend({
        return this.get("geneString").length==0;
     },
 
-    getCleanGeneString: function(){
-        return this.getCleanGeneArray().join(" ");
+    getCleanGeneString: function(delim){
+        delim = delim || " ";
+        return this.getCleanGeneArray().join(delim);
     },
 
     getCleanGeneArray: function(){

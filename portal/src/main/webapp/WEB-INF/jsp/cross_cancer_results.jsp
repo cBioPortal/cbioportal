@@ -64,7 +64,7 @@
 
 
     String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
-    String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
+    boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
     String userName = GlobalProperties.getAuthenticatedUserName();
@@ -76,10 +76,11 @@
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
 <script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
+<script type="text/javascript" src="js/src/cross-cancer-plotly-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
 <link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
@@ -119,16 +120,16 @@
                 </div>
             </div>
             <!-- end results container -->
+       
         </td>
     </tr>
 </table>
 
 <script>
-    var myCancerGenomeUrl = '<%=myCancerGenomeUrl%>';
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
-    var enableMyCancerGenome = myCancerGenomeUrl?true:false;
     var userName = '<%=userName%>';
+    var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
 
    function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector) !== null) {
@@ -205,58 +206,60 @@
                 </a>
             </li>
         </ul>
-        <div class="section" id="cc-overview">
+        <div class="section" id="cc-overview" style="display:none">
+            <div id="headerBar" style="display:none">
+                <div id="cctitlecontainer" style="margin-left:200px;float:left"></div>
+                <div>
+                    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
+                    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
+                </div>
 
-            <div id="cctitlecontainer"></div>
+                <div style="margin-top:10px;margin-bottom:10px;">
+                    <div style="float:left;margin-right:20px;">
+                        Y-Axis value:
+                        <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
+                        <input style="float:left;" id="minY" size="3" type="text">
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <span style="float:left;" class="diagram-general-slider-text" >Min. # total samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"></div>
+                        <input style="float:left;" id="minTotal" size="3" type="text">
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <input type="checkbox" id="histogram-show-colors" checked> Show alteration types
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <input type="checkbox" id="sortBy"> Sort alphabetically
+                    </div>
+                </div>
 
-            <div id="customize-controls" class="ui-widget cc-hide">
+                <div style="display:none">
+                    <div id="show-hide-studies">
+                        <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
+                        <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
+                        <b id="show-hide-studies-toggle">Select studies</b>
+                        <br/>
+                    </div>
+                    <div id="cancerbycancer-controls" class="cc-hide">
+                        (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
+                        <br>
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <div id="customize-controls" class="ui-widget cc-hide" style="display:none">
                 <div class="close-customize">
                     <a href="#">&times;</a>
                 </div>
                 <h3>Customize histogram</h3>
-                <table>
-                    <tr>
-                        <td>
-                            <span id="no-alterations-control">
-                                <input type="checkbox" id="histogram-remove-notaltered">
-                                <label for="histogram-remove-notaltered">Hide studies with no alteration</label>
-                            </span>
-                        </td>
-                        <td>
-                            <span id="no-colors-control">
-                                <input type="checkbox" id="histogram-show-colors" checked>
-                                <label for="histogram-show-colors">Show alteration types</label>
-                            </span>
-                        </td>
-                        <td>
-                            <span id="sort-by-control">
-                                Sort by:
-                                <select id="histogram-sort-by">
-                                    <option value="alteration">Alteration frequency</option>
-                                    <option value="name">Cancer study name</option>
-                                </select>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-                            <div id="show-hide-studies">
-                                <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
-                                <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
-                                <b id="show-hide-studies-toggle">Select studies</b>
-                                <br/>
-                            </div>
-                            <div id="cancerbycancer-controls" class="cc-hide">
-                                (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
-                                <br>
-                                <br>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                
             </div>
 
-            <div id="cchistogram">
+            <div id="cchistogram" style="width: 1100px; height: 820px;position:relative;margin-top:30px;">
                 <img src="images/ajax-loader.gif"/>
             </div>
 
@@ -307,6 +310,7 @@
         </label>
     </div>
 </script>
+
 
 <script type="text/template" id="studies-with-no-data-item-tmpl">
     <li>{{name}}</li>
@@ -397,9 +401,6 @@
     <b class="cctitle">
         Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
-    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
-    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
-    <button id="histogram-customize">Customize histogram</button>
 </script>
 
 <!-- Mutation views -->

@@ -55,7 +55,7 @@ function GeneValidator(geneAreaId, geneModel){
         if(showNotification) clearAllNotifications();
 
         // clean the textArea string, removing doubles and non-word characters (except -)
-        var genesStr = geneModel.getCleanGeneString();
+        var genesStr = geneModel.getCleanGeneString(",");
             //self.cleanAreaString(geneModel.get("geneString")).join(" ")
         //$(geneAreaId).val(genesStr);
 
@@ -242,7 +242,7 @@ function GeneValidator(geneAreaId, geneModel){
         $("#"+id).qtip({
             content: {text: tipText},
             position: {my: 'top center', at: 'bottom center', viewport: $(window)},
-            style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
+            style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
         });

@@ -228,11 +228,11 @@ var StudyViewProxy = (function() {
                         var _parts = _lists[i].split('\t');
                         if(_parts.length < 5) continue;
                         if (_parts[0] === parObject.studyId+"_sequenced") {
-                            _sequencedSampleIds = _parts[4].split(' ');
+                            _sequencedSampleIds = _parts[4].trim().split(' ');
                         } else if (_parts[0] === parObject.studyId+"_cna") {
-                            _cnaSampleIds = _parts[4].split(' ');
+                            _cnaSampleIds = _parts[4].trim().split(' ');
                         } else if (_parts[0] === parObject.studyId+"_all") {
-                            _allSampleIds = _parts[4].split(' ');
+                            _allSampleIds = _parts[4].trim().split(' ');
                         }
                     }
                     
@@ -326,7 +326,7 @@ var StudyViewProxy = (function() {
                 if(!caseidExist){
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id = 'CASE_ID';
-                    caseAttr.display_name = 'CASE_ID';
+                    caseAttr.display_name = 'Sample ID';
                     caseAttr.description = 'Sample Identifier';
                     caseAttr.datatype = 'STRING';
                     caseAttr.keys =  StudyViewParams.params.sampleIds;
@@ -338,7 +338,7 @@ var StudyViewProxy = (function() {
                 if (!patientidExist) {
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id = 'PATIENT_ID';
-                    caseAttr.display_name = 'PATIENT_ID';
+                    caseAttr.display_name = 'Patient ID';
                     caseAttr.description = 'Patient Identifier';
                     caseAttr.datatype = 'STRING';
                     caseAttr.keys =  StudyViewParams.params.patientIds;

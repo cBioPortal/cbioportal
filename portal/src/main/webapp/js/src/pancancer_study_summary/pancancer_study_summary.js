@@ -224,6 +224,7 @@ var CustomizeHistogramView = Backbone.View.extend({
      this.addNrTotalSamplesSlider();
      this.addShowGenomicAlterationTypesCheckbox();
      this.addcancerTypeDetailedView();
+   
   },
 
   // add the Cancer Type Select
@@ -332,7 +333,6 @@ var CustomizeHistogramView = Backbone.View.extend({
     	 model:this.model,
     	 dmPresenter:this.dmPresenter});
   },
-                                         
   // incoming event - change the visibility of the customize histogram part
   showHideCustomizeHistogram: function(){
      console.log("ShowHide Order Received! "+this.gene);
@@ -371,7 +371,8 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
   },
 
   events: {
-     'slidechange .diagram-general-slider': 'handleSliderChange'
+     'slidechange .diagram-general-slider': 'handleSliderChange',
+     'keyup .diagram-general-slider-value': 'handleSetThreshold'
   }, 
 
   //function for model.onchange above, it will check whether the slider max threshold needs
@@ -394,7 +395,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 		 suffix = "%";
 		 //in %, with 1 decimal:
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
-         text = "Min. alteration ";
+         text = "Min. % altered samples ";
          init = this.dmPresenter.getMinAlteredSamples(this.model.get("dataTypeYAxis"), this.max);
 	 }
 
@@ -412,19 +413,29 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
         min: 0, 
         max: this.max 
      });
+    this.$el.find(".diagram-general-slider-value").attr("id", "input1"+this.gene);
   },
 
   // handle change to the slider        
   handleSliderChange: function(e, ui) {
-     var sampleText = this.$el.find(".diagram-general-slider-value");
-     console.log("GENE: "+this.gene);
      // update text 
-     sampleText.html(ui.value);
+     $("#input1"+this.gene).val(ui.value);
      // and notify the histogram via model change:
      this.model.set("minAlteredSamples", parseInt(ui.value));
+  },
+  
+  handleSetThreshold: function(e){
+      if(e.keyCode == 13)
+          {
+            var inputValue = $("#input1"+this.gene).val();
+            var slider = this.$el.find(".diagram-general-slider"); 
+            slider.slider({value: inputValue});
+            this.model.set("minAlteredSamples", parseInt(inputValue));
+          }
   }
 
 }); // end MinAlteredSamplesSliderView
+
 
 // min number of total samples
 var MinTotalSamplesSliderView = Backbone.View.extend({
@@ -439,7 +450,8 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
     },
 
     events: {
-        'slidechange .diagram-general-slider': 'handleSliderChange'
+        'slidechange .diagram-general-slider': 'handleSliderChange',
+        'keyup .diagram-general-slider-value': 'handleSetThreshold'
     },
 
     //function for model.onchange above, it will check whether the slider max threshold needs
@@ -468,16 +480,27 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
             min: 0,
             max: this.max
         });
+        
+       this.$el.find(".diagram-general-slider-value").attr("id", "input2"+this.gene);
+         
     },
 
     // handle change to the slider
     handleSliderChange: function(e, ui) {
-        var sampleText = this.$el.find(".diagram-general-slider-value");
-        console.log("GENE: "+this.gene);
         // update text
-        sampleText.html(ui.value);
+        $("#input2"+this.gene).val(ui.value);
         // and notify the histogram via model change:
         this.model.set("minTotalSamples", ui.value);
+    },
+    
+    handleSetThreshold: function(e){
+      if(e.keyCode == 13)
+          {
+            var inputValue = $("#input2"+this.gene).val();
+            var slider = this.$el.find(".diagram-general-slider"); 
+            slider.slider({value: inputValue});
+            this.model.set("minTotalSamples", parseInt(inputValue));
+          }
     }
 
 }); // end MinTotalSamplesSliderView
@@ -1090,7 +1113,7 @@ function DataManagerPresenter(dmInitCallBack)
 	         // in the rare cases where the maximum alteration frequency is smaller than 1%
 	         // set the defaultMinAlteredSamples to 0
 	         if(max<=defaultMinAlteredSamples) {
-	        	 console.log("Special case (max<=1) for 'Min. alteration'...");
+	        	 console.log("Special case (max<=1) for 'Min. % altered samples'...");
 	        	 defaultMinAlteredSamples = 0;  
 	         }
 		 }

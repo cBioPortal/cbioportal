@@ -96,6 +96,8 @@ var StudyViewInitTables = (function() {
                             }
                         );
                     };
+                    // store message to be used for the table header's qtip
+                    _worker.opts.headerQtip = "This table shows cbio cancer genes with 1 or more mutations, as well as any gene with 2 or more mutations";
                     _worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 case 'cna':

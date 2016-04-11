@@ -234,8 +234,14 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
             ],
             "fnRowCallback": function(nRow, aData) {
-                //bold gene names
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
+                $('td:eq(' + col_index.gene + ')', nRow).css("font-size", "10px");
+                $('td:eq(' + col_index.log_ratio + ')', nRow).css("font-size", "10px");
+                $('td:eq(' + col_index.altered_pct + ')', nRow).css("font-size", "10px");
+                $('td:eq(' + col_index.unaltered_pct + ')', nRow).css("font-size", "10px");
+                $('td:eq(' + col_index.p_val + ')', nRow).css("font-size", "10px");
+                $('td:eq(' + col_index.q_val + ')', nRow).css("font-size", "10px");
+                $('td:eq(' + col_index.direction + ')', nRow).css("font-size", "10px");
 
                 if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
                     if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">10") {
@@ -368,9 +374,9 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
         if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
             $("#" + div_id).find("." + table_id + "_filter").append(
-                "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
-                "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
-                "<input type='checkbox' class='" + table_id + "-checkbox' id='" + table_id + "-checkbox-sig-only'>Significant gene(s)</option> &nbsp; &nbsp;"
+                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
+                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
+                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' id='" + table_id + "-checkbox-sig-only'>Significant gene(s)</option> &nbsp; &nbsp;"
             );
 
             var _sig_only_all_fn = function() {

@@ -77,26 +77,22 @@ public class ClinicalJSON extends HttpServlet {
      * @return
      */
     public JSONObject reflectToMap(ClinicalData clinical) {
-        JSONObject map = new JSONObject();
-
-        map.put("attr_id", clinical.getAttrId());
-        map.put("attr_val", clinical.getAttrVal());
+        JSONObject object = new JSONObject();
+        object.put("attr_id", clinical.getAttrId());
+        object.put("attr_val", clinical.getAttrVal());
         //TODO: at some point we may want to incorporate the cancer_study_id
-//        map.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
-        map.put("case_id", clinical.getStableId());
-
-        return map;
+//        object.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
+        object.put("case_id", clinical.getStableId());
+        return object;
     }
 
     public static Map<String, String> reflectToMap(ClinicalAttribute clinicalAttribute) {
-        JSONObject map = new JSONObject();
-
-        map.put("attr_id", clinicalAttribute.getAttrId());
-        map.put("datatype", clinicalAttribute.getDatatype());
-        map.put("description", clinicalAttribute.getDescription());
-        map.put("display_name", clinicalAttribute.getDisplayName());
-
-        return map;
+        JSONObject object = new JSONObject();
+        object.put("attr_id", clinicalAttribute.getAttrId());
+        object.put("datatype", clinicalAttribute.getDatatype());
+        object.put("description", clinicalAttribute.getDescription());
+        object.put("display_name", clinicalAttribute.getDisplayName());
+        return object;
     }
 
     public JSONArray clinicals2JSONArray(List<ClinicalData> clincials) {

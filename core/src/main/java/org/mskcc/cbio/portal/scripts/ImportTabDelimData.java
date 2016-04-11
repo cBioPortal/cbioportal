@@ -210,7 +210,7 @@ public class ImportTabDelimData {
                 if (entrezGeneIdIndex!=-1) {
                     entrez = parts[entrezGeneIdIndex];
                 }
-                if (entrez!=null && !entrez.matches("-?[0-9]+")) {
+                if (entrez!=null && !entrez.matches("[0-9]+")) {
                     entrez = null;
                 }
 

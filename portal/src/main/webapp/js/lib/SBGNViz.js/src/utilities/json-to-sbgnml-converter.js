@@ -30,7 +30,7 @@ var jsonToSbgnml = {
         var sbgnmlText = "";
 
         if(node._private.data.sbgnclass === "compartment"){
-            sbgnmlText = sbgnmlText + 
+            sbgnmlText = sbgnmlText +
                 "<glyph id='" + node._private.data.id + "' class='compartment' ";
 
             if(node.parent().isParent()){
@@ -49,7 +49,7 @@ var jsonToSbgnml = {
             });
         }
         else if(node._private.data.sbgnclass === "complex" || node._private.data.sbgnclass === "submap"){
-            sbgnmlText = sbgnmlText + 
+            sbgnmlText = sbgnmlText +
                 "<glyph id='" + node._private.data.id + "' class='" + node._private.data.sbgnclass + "' ";
 
             if(node.parent().isParent()){
@@ -68,7 +68,7 @@ var jsonToSbgnml = {
             sbgnmlText = sbgnmlText + "</glyph>\n";
         }
         else{//it is a simple node
-            sbgnmlText = sbgnmlText + 
+            sbgnmlText = sbgnmlText +
                 "<glyph id='" + node._private.data.id + "' class='" + node._private.data.sbgnclass + "'";
 
             if(node.parent().isParent()){
@@ -83,7 +83,7 @@ var jsonToSbgnml = {
 
             sbgnmlText = sbgnmlText + "</glyph>\n";
         }
-            
+
         return  sbgnmlText;
     },
 
@@ -133,15 +133,15 @@ var jsonToSbgnml = {
         var arcTarget = edge._private.data.porttarget;
         var arcSource = edge._private.data.portsource;
 
-        if (arcSource == null || arcSource.length === 0) 
+        if (arcSource == null || arcSource.length === 0)
             arcSource = edge._private.data.source;
 
-        if (arcTarget == null || arcTarget.length === 0) 
+        if (arcTarget == null || arcTarget.length === 0)
             arcTarget = edge._private.data.target;
-          
+
         var arcId = arcSource + "-" + arcTarget;
 
-        sbgnmlText = sbgnmlText + "<arc id='" + arcId + 
+        sbgnmlText = sbgnmlText + "<arc id='" + arcId +
             "' target='" + arcTarget +
             "' source='" + arcSource + "' class='" +
             edge._private.data.sbgnclass + "'>\n";
@@ -153,7 +153,7 @@ var jsonToSbgnml = {
         for(var i = 0; segpts && i < segpts.length; i = i + 2){
           var bendX = segpts[i];
           var bendY = segpts[i + 1];
-          
+
           sbgnmlText = sbgnmlText + "<next y='" + bendY + "' x='" + bendX + "'/>\n";
         }
 
@@ -166,22 +166,23 @@ var jsonToSbgnml = {
     },
 
     addGlyphBbox : function(node){
-        var bbox = node._private.data.sbgnbbox;
-        var x = node._private.position.x - bbox.w/2;
-        var y = node._private.position.y - bbox.h/2;
-        return "<bbox y='" + y + "' x='" + x + 
-            "' w='" + bbox.w + "' h='" + bbox.h + "' />\n";
+        var width = node.width();
+        var height = node.height();
+        var x = node._private.position.x - width/2;
+        var y = node._private.position.y - height/2;
+        return "<bbox y='" + y + "' x='" + x +
+            "' w='" + width + "' h='" + height + "' />\n";
     },
 
     addStateAndInfoBbox : function(node, boxGlyph){
         boxBbox = boxGlyph.bbox;
-        
+
         var x = boxBbox.x / 100 * node.width();
         var y = boxBbox.y / 100 * node.height();
-        
+
         x = node._private.position.x + (x - boxBbox.w/2);
         y = node._private.position.y + (y - boxBbox.h/2);
-        return "<bbox y='" + y + "' x='" + x + 
+        return "<bbox y='" + y + "' x='" + x +
             "' w='" + boxBbox.w + "' h='" + boxBbox.h + "' />\n";
     },
 
@@ -193,7 +194,7 @@ var jsonToSbgnml = {
             var x = node._private.position.x + ports[i].x * node.width() / 100;
             var y = node._private.position.y + ports[i].y * node.height() / 100;
 
-            sbgnmlText = sbgnmlText + "<port id='" + ports[i].id + 
+            sbgnmlText = sbgnmlText + "<port id='" + ports[i].id +
                 "' y='" + y + "' x='" + x + "' />\n";
         }
         return sbgnmlText;
@@ -218,7 +219,7 @@ var jsonToSbgnml = {
         if(typeof node.state.variable != 'undefined')
             sbgnmlText = sbgnmlText + "variable='" + node.state.variable + "' ";
         sbgnmlText = sbgnmlText + "/>\n";
-        
+
         sbgnmlText = sbgnmlText + this.addStateAndInfoBbox(mainGlyph, node);
         sbgnmlText = sbgnmlText + "</glyph>\n";
 
@@ -234,7 +235,7 @@ var jsonToSbgnml = {
         if(typeof node.label.text != 'undefined')
             sbgnmlText = sbgnmlText + "text='" + node.label.text + "' ";
         sbgnmlText = sbgnmlText + "/>\n";
-        
+
         sbgnmlText = sbgnmlText + this.addStateAndInfoBbox(mainGlyph, node);
         sbgnmlText = sbgnmlText + "</glyph>\n";
 

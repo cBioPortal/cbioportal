@@ -1043,7 +1043,7 @@ FDLayoutConstants.DEFAULT_SPRING_STRENGTH = 0.45;
 FDLayoutConstants.DEFAULT_REPULSION_STRENGTH = 4500.0;
 FDLayoutConstants.DEFAULT_GRAVITY_STRENGTH = 0.4;
 FDLayoutConstants.DEFAULT_COMPOUND_GRAVITY_STRENGTH = 1.0;
-FDLayoutConstants.DEFAULT_GRAVITY_RANGE_FACTOR = 2.0;
+FDLayoutConstants.DEFAULT_GRAVITY_RANGE_FACTOR = 2.35;
 FDLayoutConstants.DEFAULT_COMPOUND_GRAVITY_RANGE_FACTOR = 1.5;
 FDLayoutConstants.DEFAULT_USE_SMART_IDEAL_EDGE_LENGTH_CALCULATION = true;
 FDLayoutConstants.DEFAULT_USE_SMART_REPULSION_RANGE_CALCULATION = true;
@@ -4432,7 +4432,7 @@ var defaults = {
   // Nesting factor (multiplier) to compute ideal edge length for nested edges
   nestingFactor: 0.1,
   // Gravity force (constant)
-  gravity: 0.4,
+  gravity: 0.25,
   // Maximum number of iterations to perform
   numIter: 2500,
   // For enabling tiling

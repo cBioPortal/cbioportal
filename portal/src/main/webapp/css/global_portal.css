@@ -1652,11 +1652,6 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     padding-bottom: -2px;
 }
 
-
-.hotspot-icon {
-    padding-top: 7px;
-}
-
 /* OncoKB integration styles */
 /*Default max width is 280px*/
 .oncokb-qtip {
@@ -1696,9 +1691,6 @@ ul.oncokb li {
 .oncokb .fa-angle-right:hover, .oncokb .fa-angle-down:hover {
     cursor: pointer;
 }
-span.oncokb.oncokb_alteration {
-    float: left !important;
-}
 .oncokb .oncogenic-icon-image {
     width: 24px;
     height: 24px;
@@ -1706,23 +1698,29 @@ span.oncokb.oncokb_alteration {
     background-image: url("../images/oncogenic.png");
     display: block !important;
 }
-.oncokb.oncogenic.loader {
-    padding-top: 7px;
+
+table.oncokb-treatments-table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-bottom: 0;
+}
+table.oncokb-treatments-table th, table.oncokb-treatments-table td{
+    font-size: 11px;
 }
 .oncokb .oncogenic-icon-image.level1.oncogenic {
-    background-position: -13px -14px;
+    background-position: -13px -12px;
 }
 
 .oncokb .oncogenic-icon-image.level2.oncogenic {
-    background-position: -39px -14px;
+    background-position: -39px -12px;
 }
 
 .oncokb .oncogenic-icon-image.level3.oncogenic {
-    background-position: -63px -14px;
+    background-position: -63px -12px;
 }
 
 .oncokb .oncogenic-icon-image.level4.oncogenic {
-    background-position: -88px -14px;
+    background-position: -88px -12px;
 }
 
 .oncokb .oncogenic-icon-image.levelR1.oncogenic {
@@ -1901,8 +1899,16 @@ span.oncokb.oncokb_alteration {
     background-position: -88px -374px;
 }
 
-.chang_hotspot > img{
-    padding-top: 7px;
+.annotation-item {
+    width: 22px;
+    height: 24px;
+    line-height: 24px;
+    float: left;
+    display: inline-block;
+}
+
+.annotation-item img {
+    margin: 6px 0 2px 6px;
 }
 
 .bootstrap-dialog-close {

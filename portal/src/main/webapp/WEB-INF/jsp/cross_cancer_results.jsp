@@ -372,15 +372,14 @@
 </script>
 
 <script type="text/template" id="mutation_table_annotation_template">
-    <span class='oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
-        <img class='oncokb oncogenic loader' width="13" height="13" class="loader" src="images/ajax-loader.gif"/>
+    <span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
+        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif"/>
     </span>
-    <span class='oncokb oncokb_column' oncokbId='{{oncokbId}}'></span>
-    <span class='mcg' alt='{{mcgAlt}}'>
-        <img src='images/mcg_logo.png'>
+    <span class='annotation-item mcg' alt='{{mcgAlt}}'>
+        <img width='14' height='14' src='images/mcg_logo.png'>
     </span>
-    <span class='chang_hotspot' alt='{{changHotspotAlt}}'>
-        <img width='13' height='13' src='images/oncokb-flame.svg'>
+    <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
+        <img width='14' height='14' src='images/oncokb-flame.svg'>
     </span>
 </script>
 

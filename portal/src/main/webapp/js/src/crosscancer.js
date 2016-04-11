@@ -1290,8 +1290,8 @@
                                         columnTooltips: {
                                             annotation: function (selector, helper) {
                                                 $(selector).find('span.oncokb').remove();
-                                                $(selector).find('span.mcg[alt=""]').remove();
-                                                $(selector).find('span.chang_hotspot[alt=""]').remove();
+                                                $(selector).find('span.mcg[alt=""]').empty();
+                                                $(selector).find('span.chang_hotspot[alt=""]').empty();
                                                 $(selector).find('span.mcg').one('mouseenter', function () {
                                                     $(this).qtip({
                                                         content: {attr: 'alt'},
@@ -1350,8 +1350,8 @@
                                     mutationTable: {
                                         columnTooltips: {
                                             annotation: function (selector, helper) {
-                                                $(selector).find('span.mcg[alt=""]').remove();
-                                                $(selector).find('span.chang_hotspot[alt=""]').remove();
+                                                $(selector).find('span.mcg[alt=""]').empty();
+                                                $(selector).find('span.chang_hotspot[alt=""]').empty();
                                                 oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'column');
                                                 oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'alteration');
 
@@ -1402,7 +1402,7 @@
                                                             _.each(tableData, function (ele, i) {
                                                                 if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid)) {
                                                                     if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid).hasOwnProperty('evidence')) {
-                                                                        ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid).evidence;
+                                                                        ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid);
                                                                         dataTable.fnUpdate(null, i, indexMap["annotation"], false, false);
                                                                     }
                                                                 }

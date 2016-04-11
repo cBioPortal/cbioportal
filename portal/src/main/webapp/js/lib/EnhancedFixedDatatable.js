@@ -149,8 +149,12 @@ var QtipWrapper = React.createClass({displayName: "QtipWrapper",
             label = React.createElement("a", {target: "_blank", href: (window.hasOwnProperty('cbio') && cbio.hasOwnProperty('util'))?cbio.util.getLinkToPatientView(cancerStudyId, this.props.rawLabel):''}, label)
         }
 
-        if (attr === 'COPY_NUMBER_ALTERATIONS' && !isNaN(label) && Number(label) < 0.01) {
-            label = '< 0.01';
+        if (attr === 'COPY_NUMBER_ALTERATIONS' && !isNaN(label)) {
+            if(Number(label) < 0.01) {
+                label = '< 0.01';
+            }else {
+                label = Number(label).toFixed(2);
+            }
         }
 
         return (

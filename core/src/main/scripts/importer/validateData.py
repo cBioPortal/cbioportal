@@ -447,10 +447,12 @@ class Validator(object):
         if not self.ALLOW_BLANKS:
             for col_index, col_name in enumerate(self.cols):
                 if col_index < line_col_count and data[col_index].strip() == '':
-                    self.logger.error("Blank cell found in column '%s'",
-                                      col_name,
-                                      extra={'line_number': self.line_number,
-                                             'column_number': col_index + 1})
+                    self.logger.error(
+                        'Blank cell found in column',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': "'%s' (in column '%s')" % (
+                                    data[col_index], col_name)})
 
     def _checkUnorderedRequiredColumns(self):
         """Check for missing column headers, independent of their position.

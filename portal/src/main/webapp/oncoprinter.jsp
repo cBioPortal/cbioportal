@@ -278,6 +278,7 @@
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     <!--<script src="js/src/oncoprint/oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </script>

@@ -1811,7 +1811,18 @@ var OncoprintModel = (function () {
 
     OncoprintModel.prototype.shareRuleSet = function(source_track_id, target_track_id) {
 	var curr_rule_set_id = this.track_rule_set_id[target_track_id];
-	delete this.rule_sets[curr_rule_set_id];
+	var should_delete_curr_rule_set = true;
+	for (var track_id in this.track_rule_set_id) {
+	    if (this.track_rule_set_id.hasOwnProperty(track_id) && track_id !== source_track_id + '') {
+		if (this.track_rule_set_id[track_id] === curr_rule_set_id) {
+		    should_delete_curr_rule_set = false;
+		    break;
+		}
+	    }
+	}
+	if (should_delete_curr_rule_set) {
+	    delete this.rule_sets[curr_rule_set_id];
+	}
 	delete this.track_active_rules[target_track_id];
 	this.track_rule_set_id[target_track_id] = this.track_rule_set_id[source_track_id];
     }

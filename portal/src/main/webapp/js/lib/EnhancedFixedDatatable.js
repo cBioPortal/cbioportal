@@ -144,10 +144,15 @@ var QtipWrapper = React.createClass({displayName: "QtipWrapper",
         }
 
         if (attr === 'CASE_ID') {
-            label = React.createElement("a", {target: "_blank", href: cbio.util.getLinkToSampleView(cancerStudyId, this.props.rawLabel)}, label)
+            label = React.createElement("a", {target: "_blank", href: (window.hasOwnProperty('cbio') && cbio.hasOwnProperty('util'))?cbio.util.getLinkToSampleView(cancerStudyId, this.props.rawLabel):''}, label)
         } else if (attr === 'PATIENT_ID') {
-            label = React.createElement("a", {target: "_blank", href: cbio.util.getLinkToPatientView(cancerStudyId, this.props.rawLabel)}, label)
+            label = React.createElement("a", {target: "_blank", href: (window.hasOwnProperty('cbio') && cbio.hasOwnProperty('util'))?cbio.util.getLinkToPatientView(cancerStudyId, this.props.rawLabel):''}, label)
         }
+
+        if (attr === 'COPY_NUMBER_ALTERATIONS' && !isNaN(label) && Number(label) < 0.01) {
+            label = '< 0.01';
+        }
+
         return (
             React.createElement("span", {className: qtipFlag?"hasQtip":"", "data-qtip": this.props.rawLabel},
                 label

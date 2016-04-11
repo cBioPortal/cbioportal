@@ -633,8 +633,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			track_params = {
 			    'rule_set_params': {
 				'type': 'bar',
+				'log_scale': true,
 				'value_key': 'attr_val',
-				'value_range': [0, undefined],
 			    }
 			};
 		    } else if (attr.attr_id === 'FRACTION_GENOME_ALTERED') {

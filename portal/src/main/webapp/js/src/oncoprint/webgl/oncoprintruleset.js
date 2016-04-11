@@ -687,26 +687,33 @@ var CategoricalRuleSet = (function () {
 var LinearInterpRuleSet = (function () {
     function LinearInterpRuleSet(params) {
 	/* params
+	 * - log_scale
 	 * - value_key
 	 * - value_range
 	 */
 	ConditionRuleSet.call(this, params);
 	this.value_key = params.value_key;
 	this.value_range = params.value_range;
+	this.log_scale = params.log_scale; // boolean
 	this.inferred_value_range;
 
 	this.makeInterpFn = function () {
 	    var range = this.getEffectiveValueRange();
-	    if (range[0] === range[1]) {
-		// Make sure non-zero denominator
-		range[0] -= range[0] / 2;
-		range[1] += range[1] / 2;
+	    
+	    if (this.log_scale) {
+		var shift_to_make_pos = Math.abs(range[0]) + 1;
+		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
+		var log_range_lower = Math.log(range[0] + shift_to_make_pos);
+		return function(val) {
+		    return (Math.log(val + shift_to_make_pos) - log_range_lower)/log_range;
+		};
+	    } else {
+		var range_spread = range[1] - range[0];
+		var range_lower = range[0];
+		return function (val) {
+		    return (val - range_lower) / range_spread;
+		};
 	    }
-	    var range_spread = range[1] - range[0];
-	    var range_lower = range[0];
-	    return function (val) {
-		return (val - range_lower) / range_spread;
-	    };
 	};
     }
     LinearInterpRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
@@ -718,6 +725,11 @@ var LinearInterpRuleSet = (function () {
 	}
 	if (typeof ret[1] === "undefined") {
 	    ret[1] = this.inferred_value_range[1];
+	}
+	if (ret[0] === ret[1]) {
+	    // Make sure non-empty interval
+	    ret[0] -= ret[0] / 2;
+	    ret[1] += ret[1] / 2;
 	}
 	return ret;
     };
@@ -847,7 +859,10 @@ var BarRuleSet = (function () {
 			    fill: this.fill,
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'number', 'range': this.getEffectiveValueRange(), 'color': this.fill}
+		    legend_config: {'type': 'number', 
+				    'range': this.getEffectiveValueRange(), 
+				    'color': this.fill,
+				    'interpFn': interpFn}
 		});
     };
 

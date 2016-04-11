@@ -372,6 +372,7 @@ var Oncoprint = (function () {
     Oncoprint.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.model.setTrackData(track_id, data, data_id_key);
 	this.cell_view.setTrackData(this.model, track_id);
+	this.legend_view.setTrackData(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();
@@ -965,7 +966,13 @@ var OncoprintLegendView = (function() {
 	    });
 	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
 	    root.appendChild(svgfactory.text(display_range[1], 50, 0, 12, 'Arial', 'normal'));
-	    root.appendChild(svgfactory.polygon('5,20 45,20 45,0', config.color));
+	    var mesh = 100;
+	    for (var i=0; i<mesh; i++) {
+		var t = i/mesh;
+		var h = config.interpFn((1-t)*config.range[0] + t*config.range[1]);
+		var height = 20*h;
+		root.appendChild(svgfactory.rect(5 + 40*i/mesh, 20-height, 40/mesh, height, config.color));
+	    }
 	}
 	return root;
     };
@@ -979,6 +986,10 @@ var OncoprintLegendView = (function() {
     }
     
     OncoprintLegendView.prototype.addTracks = function(model) {
+	renderLegend(this, model);
+    }
+    
+    OncoprintLegendView.prototype.setTrackData = function(model) {
 	renderLegend(this, model);
     }
     
@@ -2693,26 +2704,33 @@ var CategoricalRuleSet = (function () {
 var LinearInterpRuleSet = (function () {
     function LinearInterpRuleSet(params) {
 	/* params
+	 * - log_scale
 	 * - value_key
 	 * - value_range
 	 */
 	ConditionRuleSet.call(this, params);
 	this.value_key = params.value_key;
 	this.value_range = params.value_range;
+	this.log_scale = params.log_scale; // boolean
 	this.inferred_value_range;
 
 	this.makeInterpFn = function () {
 	    var range = this.getEffectiveValueRange();
-	    if (range[0] === range[1]) {
-		// Make sure non-zero denominator
-		range[0] -= range[0] / 2;
-		range[1] += range[1] / 2;
+	    
+	    if (this.log_scale) {
+		var shift_to_make_pos = Math.abs(range[0]) + 1;
+		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
+		var log_range_lower = Math.log(range[0] + shift_to_make_pos);
+		return function(val) {
+		    return (Math.log(val + shift_to_make_pos) - log_range_lower)/log_range;
+		};
+	    } else {
+		var range_spread = range[1] - range[0];
+		var range_lower = range[0];
+		return function (val) {
+		    return (val - range_lower) / range_spread;
+		};
 	    }
-	    var range_spread = range[1] - range[0];
-	    var range_lower = range[0];
-	    return function (val) {
-		return (val - range_lower) / range_spread;
-	    };
 	};
     }
     LinearInterpRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
@@ -2724,6 +2742,11 @@ var LinearInterpRuleSet = (function () {
 	}
 	if (typeof ret[1] === "undefined") {
 	    ret[1] = this.inferred_value_range[1];
+	}
+	if (ret[0] === ret[1]) {
+	    // Make sure non-empty interval
+	    ret[0] -= ret[0] / 2;
+	    ret[1] += ret[1] / 2;
 	}
 	return ret;
     };
@@ -2853,7 +2876,10 @@ var BarRuleSet = (function () {
 			    fill: this.fill,
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'number', 'range': this.getEffectiveValueRange(), 'color': this.fill}
+		    legend_config: {'type': 'number', 
+				    'range': this.getEffectiveValueRange(), 
+				    'color': this.fill,
+				    'interpFn': interpFn}
 		});
     };
 
@@ -4534,6 +4560,9 @@ module.exports = {
     },
     polygon: function(points, fill) {
 	return makeSVGElement('polygon', {'points': points, 'fill':fill});
+    },
+    rect: function(x,y,width,height,fill) {
+	return makeSVGElement('rect', {'x':x, 'y':y, 'width':width, 'height':height, 'fill':fill});
     },
     bgrect: function(width, height, fill) {
 	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});

@@ -310,6 +310,7 @@ var Oncoprint = (function () {
     Oncoprint.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.model.setTrackData(track_id, data, data_id_key);
 	this.cell_view.setTrackData(this.model, track_id);
+	this.legend_view.setTrackData(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();

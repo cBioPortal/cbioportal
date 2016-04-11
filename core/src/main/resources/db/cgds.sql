@@ -52,6 +52,7 @@ drop table IF EXISTS entity;
 drop table IF EXISTS cancer_study;
 drop table IF EXISTS type_of_cancer;
 drop table IF EXISTS info;
+drop table IF EXISTS gdd;
 -- --------------------------------------------------------
 
 --
@@ -727,3 +728,13 @@ CREATE TABLE `info` (
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
 INSERT INTO info VALUES ('1.1.0');
+
+--
+-- Table structure for table `gdd`
+--
+CREATE TABLE `gdd` (
+  `SAMPLE_ID` varchar(50) NOT NULL,
+  `CLASSIFICATION` varchar(5000) NOT NULL,
+  PRIMARY KEY (`SAMPLE_ID`),
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`STABLE_ID`) ON DELETE CASCADE
+);

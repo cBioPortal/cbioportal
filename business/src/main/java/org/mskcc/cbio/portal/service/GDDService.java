@@ -30,51 +30,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.portal.service;
 
-import org.mskcc.cbio.portal.service.GDDService;
-import org.springframework.context.support.GenericXmlApplicationContext;
+import org.mskcc.cbio.portal.model.DBSample;
+import org.mskcc.cbio.portal.persistence.SampleMapper;
+import org.mskcc.cbio.portal.persistence.GDDMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
+import java.util.*;
+/**
+ * Service for importing and retrieving GDD data. 
+ */
 
-public class SpringUtil
-{
-	private static final Log log = LogFactory.getLog(SpringUtil.class);
-
-	private static AccessControl accessControl;
-	private static ApplicationContext context;
-        
-      
-        public static GDDService getGddService() {
-            GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-            ctx.getEnvironment().setActiveProfiles("dbcp");
-            ctx.load("classpath:applicationContext-business.xml");
-            ctx.refresh();
-            return (GDDService)ctx.getBean("gddService");
-	}              
-        
-        
-    public static void setAccessControl(AccessControl accessControl) {
-    	log.debug("Setting access control");
-		SpringUtil.accessControl = accessControl;
-	}
-
-	public static AccessControl getAccessControl()
-    {
-		return accessControl;
+@Service
+public class GDDService {
+    @Autowired
+    private GDDMapper gddMapper;   
+    @Autowired
+    private ApiService service;
+    
+    @Transactional
+    public Map<String, Object> insertGddData(String sample_id, String classification) {        
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("sample_id", sample_id);
+        map.put("classification", classification);        
+        gddMapper.insertGddData(map);        
+        return map;        
     }
 
-	public static synchronized void initDataSource()
-	{
-		if (SpringUtil.context == null) {
-			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
-		}
-	}
-
+    @Transactional
+    public List<String> getGddData(String study_id, List<String> sample_ids) {
+        List<DBSample> samples = service.getSamplesBySample(study_id, sample_ids);  
+        List<String> stable_ids = getStableIds(samples);
+        return gddMapper.getGddData(stable_ids);
+    }
+    
+    private List<String> getStableIds(List<DBSample> samples) {
+        List<String> stable_ids = new ArrayList<>();
+        for (DBSample sp : samples) {
+            stable_ids.add(sp.id);            
+        }
+        return stable_ids;
+    }
 }

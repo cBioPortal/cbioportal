@@ -30,51 +30,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.portal.persistence;
 
-import org.mskcc.cbio.portal.service.GDDService;
-import org.springframework.context.support.GenericXmlApplicationContext;
+import org.apache.ibatis.annotations.*;
+import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+/**
+ * GDD Mapper.
+ */
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import javax.sql.DataSource;
-
-public class SpringUtil
-{
-	private static final Log log = LogFactory.getLog(SpringUtil.class);
-
-	private static AccessControl accessControl;
-	private static ApplicationContext context;
-        
-      
-        public static GDDService getGddService() {
-            GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-            ctx.getEnvironment().setActiveProfiles("dbcp");
-            ctx.load("classpath:applicationContext-business.xml");
-            ctx.refresh();
-            return (GDDService)ctx.getBean("gddService");
-	}              
-        
-        
-    public static void setAccessControl(AccessControl accessControl) {
-    	log.debug("Setting access control");
-		SpringUtil.accessControl = accessControl;
-	}
-
-	public static AccessControl getAccessControl()
-    {
-		return accessControl;
-    }
-
-	public static synchronized void initDataSource()
-	{
-		if (SpringUtil.context == null) {
-			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
-		}
-	}
-
+public interface GDDMapper {
+    void insertGddData(Map<String, Object> map);
+    List<String> getGddData(@Param("stable_ids") List<String> stable_ids);
+    
 }

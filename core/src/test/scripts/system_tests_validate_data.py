@@ -195,15 +195,20 @@ class ValidateDataSystemTester(unittest.TestCase):
         be undefined. Validate if the script is giving the proper error.
         '''
         # build the argument list
+        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
         print '==test_problem_in_clinical=='
         args = ['--study_directory','test_data/study_wr_clin/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
-                '--html_table', 'test_data/study_wr_clin/result_report.html']
+                '--html_table', out_file_name]
+                # uncomment to overwrite with the new version
+                #'--html_table', 'test_data/study_wr_clin/result_report.html']
         # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
         exit_status = validateData.main_validate(args)
         self.assertEquals(1, exit_status)
         # TODO - set logger in main_validate and read out buffer here to assert on nr of errors
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_wr_clin/result_report.html')
 
     def test_normal_samples_list_in_maf(self):
         '''
@@ -213,15 +218,20 @@ class ValidateDataSystemTester(unittest.TestCase):
         validation works well.
         '''
         #Build up arguments and run
+        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
         print '==test_normal_samples_list_in_maf=='
         args = ['--study_directory','test_data/study_maf_test/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
-                '--html_table', 'test_data/study_maf_test/result_report.html']
+                '--html_table', out_file_name]
+                # uncomment to overwrite with the new version
+                #'--html_table', 'test_data/study_maf_test/result_report.html']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         # should fail because of errors with invalid Matched_Norm_Sample_Barcode values
         self.assertEquals(1, exit_status)
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_maf_test/result_report.html')
 
 
 if __name__ == '__main__':

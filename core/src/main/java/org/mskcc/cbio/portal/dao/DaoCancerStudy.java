@@ -169,9 +169,6 @@ public final class DaoCancerStudy {
                 return Status.AVAILABLE;
             }
         } catch (SQLException e) {
-			if (e.getMessage().toLowerCase().contains("unknown column")) {
-				return Status.AVAILABLE;
-			}
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);

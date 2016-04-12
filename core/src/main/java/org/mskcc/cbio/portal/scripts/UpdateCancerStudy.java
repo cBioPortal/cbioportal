@@ -62,7 +62,7 @@ public class UpdateCancerStudy {
   	          throw new IllegalArgumentException("cancer study identified by cancer_study_identifier '"
   	                   + cancerStudyIdentifier + "' not found in dbms or inaccessible to user.");
   	      }
-  	      
+  	      ProgressMonitor.setCurrentMessage("Updating study status to :  '" + status.name() + "' for study: " + cancerStudyIdentifier); 
   	      DaoCancerStudy.setStatus(status, cancerStudyIdentifier);
   	      
   	      ConsoleUtil.showMessages();

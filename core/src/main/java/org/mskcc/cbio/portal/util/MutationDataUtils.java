@@ -36,8 +36,6 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.GetMutationData;
 
@@ -97,7 +95,6 @@ public class MutationDataUtils {
 	public static final String PROTEIN_POS_START = "proteinPosStart";
 	public static final String PROTEIN_POS_END = "proteinPosEnd";
 	public static final String MUTATION_COUNT = "mutationCount";
-	public static final String SPECIAL_GENE_DATA = "specialGeneData";
 	public static final String CNA_CONTEXT = "cna";
     public static final String MY_CANCER_GENOME = "myCancerGenome";
     public static final String IS_HOTSPOT = "isHotspot";
@@ -273,7 +270,6 @@ public class MutationDataUtils {
         mutationData.put(PROTEIN_POS_START, mutation.getOncotatorProteinPosStart());
         mutationData.put(PROTEIN_POS_END, mutation.getOncotatorProteinPosEnd());
         mutationData.put(MUTATION_COUNT, countMap.get(mutation.getSampleId()));
-        mutationData.put(SPECIAL_GENE_DATA, this.getSpecialGeneData(mutation));
         mutationData.put(CNA_CONTEXT, getCnaData(cnaDataMap, mutation));
         mutationData.put(MY_CANCER_GENOME, mcgLinks);
         mutationData.put(IS_HOTSPOT, isHotspot);
@@ -305,42 +301,6 @@ public class MutationDataUtils {
 
 	    // remove problematic characters from the id
 	    return sid.replaceAll("[^a-zA-Z0-9-]", "-");
-    }
-
-    /**
-     * Returns special gene data (if exists) for the given mutation. Returns null
-     * if no special gene exists for the given mutation.
-     *
-     * @param mutation  mutation instance
-     * @return          Map of (field header, field value) pairs.
-     */
-    protected HashMap<String, String> getSpecialGeneData(ExtendedMutation mutation)
-    {
-        HashMap<String, String> specialGeneData = null;
-
-        SpecialGene specialGene = SpecialGeneFactory.getInstance(mutation.getGeneSymbol());
-
-        //  fields & values for "Special" genes
-        if (specialGene != null)
-        {
-            specialGeneData = new HashMap<String, String>();
-
-            ArrayList<String> specialHeaders = specialGene.getDataFieldHeaders();
-            ArrayList<String> specialData = specialGene.getDataFields(mutation);
-
-            if (specialHeaders.size() == specialData.size())
-            {
-                for (int i=0; i < specialData.size(); i++)
-                {
-                    String header = specialHeaders.get(i);
-                    String data = specialData.get(i);
-
-                    specialGeneData.put(header, data);
-                }
-            }
-        }
-
-        return specialGeneData;
     }
 
     /**

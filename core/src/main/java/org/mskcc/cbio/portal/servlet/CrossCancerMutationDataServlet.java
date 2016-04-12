@@ -37,8 +37,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;

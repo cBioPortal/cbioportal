@@ -1655,17 +1655,18 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 /* OncoKB integration styles */
 /*Default max width is 280px*/
 .oncokb-qtip {
-    max-width: 600px !important;
-}
-.oncokb-qtip-sm {
     max-width: 400px !important;
+    min-width: 300px !important;
 }
-.oncokb-qtip-xs {
-    max-width: 330px !important;
-}
-.oncokb-qtip table.dataTable {
-    font-size: 11px !important;
-}
+/*.oncokb-qtip-sm {*/
+    /*max-width: 400px !important;*/
+/*}*/
+/*.oncokb-qtip-xs {*/
+    /*max-width: 330px !important;*/
+/*}*/
+/*.oncokb-qtip table.dataTable {*/
+    /*font-size: 11px !important;*/
+/*}*/
 ul.oncokb {
     padding-top: 5px;
     padding-left: 20px;
@@ -1688,7 +1689,7 @@ ul.oncokb li {
 .oncokbFeedback:hover, .bootstrap-dialog-close:hover {
     cursor: pointer;
 }
-.oncokb .fa-angle-right:hover, .oncokb .fa-angle-down:hover {
+.oncokb .fa-chevron-right:hover, .oncokb .fa-chevron-down:hover {
     cursor: pointer;
 }
 .oncokb .oncogenic-icon-image {
@@ -1703,6 +1704,9 @@ table.oncokb-treatments-table {
     border-spacing: 0;
     border-collapse: collapse;
     margin-bottom: 0;
+}
+table.oncokb-treatments-table td:first-child, table.oncokb-treatments-table th:first-child{
+    text-align: center;
 }
 table.oncokb-treatments-table th, table.oncokb-treatments-table td{
     font-size: 11px;
@@ -1897,6 +1901,50 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 
 .oncokb .oncogenic-icon-image.unknown-oncogenic {
     background-position: -88px -374px;
+}
+
+.oncokb-level-icon-image {
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+    background-image: url("../images/levels_colors.png");
+    display: inline-block !important;
+}
+
+.oncokb-level-icon-image.level-1 {
+    background-position: -15px -21px;
+}
+
+.oncokb-level-icon-image.level-2A {
+    background-position: -40px -21px;
+}
+
+.oncokb-level-icon-image.level-2B {
+    background-position: -65px -21px;
+}
+
+.oncokb-level-icon-image.level-3A {
+    background-position: -90px -21px;
+}
+
+.oncokb-level-icon-image.level-3B {
+    background-position: -115px -21px;
+}
+
+.oncokb-level-icon-image.level-4 {
+    background-position: -120px -21px;
+}
+
+.oncokb-level-icon-image.level-R1 {
+    background-position: -15px -51px;
+}
+
+.oncokb-level-icon-image.level-R2 {
+    background-position: -40px -51px;
+}
+
+.oncokb-level-icon-image.level-R3 {
+    background-position: -65px -51px;
 }
 
 .annotation-item {

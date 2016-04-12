@@ -314,15 +314,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>GeneDataJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>GeneDataJSON</servlet-name>
-        <url-pattern>/GeneData.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>PancancerMutationsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PancancerMutationsJSON</servlet-class>
     </servlet>

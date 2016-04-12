@@ -314,7 +314,7 @@ public final class DaoCancerStudy {
             pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                     "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                     + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME` ) VALUES (?,?,?,?,?,?,?,?,?)",
+                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME`, `STATUS` ) VALUES (?,?,?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, stableId);
             pstmt.setString(2, cancerStudy.getName());
@@ -330,7 +330,10 @@ public final class DaoCancerStudy {
                 pstmt.setString(8, StringUtils.join(groups, ";"));
             }
             pstmt.setString(9, cancerStudy.getShortName());
-
+          	//status is UNAVAILABLE until other data is loaded for this study. Once all is loaded, the 
+            //data loading process can set this to AVAILABLE:
+            //TODO - use this field in parts of the system that build up the list of studies to display in home page:
+            pstmt.setInt(10, Status.UNAVAILABLE.ordinal());
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {

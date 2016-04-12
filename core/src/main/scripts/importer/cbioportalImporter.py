@@ -19,6 +19,7 @@ from cbioportal_common import IMPORTER_CLASSNAME_BY_META_TYPE
 from cbioportal_common import IMPORTER_REQUIRES_METADATA
 from cbioportal_common import IMPORT_CANCER_TYPE_CLASS
 from cbioportal_common import IMPORT_STUDY_CLASS
+from cbioportal_common import UPDATE_STUDY_STATUS_CLASS
 from cbioportal_common import REMOVE_STUDY_CLASS
 from cbioportal_common import IMPORT_CASE_LIST_CLASS
 from cbioportal_common import ADD_CASE_LIST_CLASS
@@ -56,6 +57,14 @@ def import_study(jvm_args, meta_filename):
     args = jvm_args.split(' ')
     args.append(IMPORT_STUDY_CLASS)
     args.append(meta_filename)
+    args.append("--noprogress") # don't report memory usage and % progress
+    run_java(*args)
+
+def update_study_status(jvm_args, study_id):
+    args = jvm_args.split(' ')
+    args.append(UPDATE_STUDY_STATUS_CLASS)
+    args.append(study_id)
+    args.append("AVAILABLE")
     args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
 
@@ -227,6 +236,9 @@ def process_directory(jvm_args, study_directory):
 
     if study_metadata.get('add_global_case_list', 'false').lower() == 'true':
         add_global_case_list(jvm_args, study_id)
+        
+    # enable study
+    update_study_status(jvm_args, study_id)
 
 
 def usage():

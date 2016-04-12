@@ -139,29 +139,37 @@ public class ImportSampleList {
    }
 
    public static void main(String[] args) throws Exception {
-
-      // check args
-      if (args.length < 1) {
-         System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
-         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-         return;
+      try {
+    	  // check args
+	      if (args.length < 1) {
+	         System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
+	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	         //use 2 for command line syntax errors:
+	         System.exit(2);
+	      }
+	      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	      File dataFile = new File(args[0]);
+	      if (dataFile.isDirectory()) {
+	         File files[] = dataFile.listFiles();
+	         for (File file : files) {
+	            if (!file.getName().startsWith(".") && !file.getName().endsWith("~")) {
+	               ImportSampleList.importSampleList(file);
+	            }
+	         }
+	         if (files.length == 0) {
+	             ProgressMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
+	         }
+	      } else {
+	         ImportSampleList.importSampleList(dataFile);
+	      }
+	      ConsoleUtil.showWarnings();
+	      System.out.println("Done.");
       }
-      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-      File dataFile = new File(args[0]);
-      if (dataFile.isDirectory()) {
-         File files[] = dataFile.listFiles();
-         for (File file : files) {
-            if (file.getName().endsWith("txt")) {
-               ImportSampleList.importSampleList(file);
-            }
-         }
-         if (files.length == 0) {
-             ProgressMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
-         }
-      } else {
-         ImportSampleList.importSampleList(dataFile);
+      catch (Exception e) {
+	        ConsoleUtil.showWarnings();
+	        //exit with error status:
+	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        System.exit(1);
       }
-      ConsoleUtil.showWarnings();
-      System.err.println("Done.");
    }
 }

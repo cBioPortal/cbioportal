@@ -46,18 +46,27 @@ import java.util.*;
  */
 public class ImportTypesOfCancers {
     public static void main(String[] args) throws IOException, DaoException {
-        if (args.length < 1) {
-            System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt> <clobber>");
-            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-            return;
+        try {
+	    	if (args.length < 1) {
+	            System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt> <clobber>");
+	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	            //use 2 for command line syntax errors:
+	            System.exit(2);
+	        }
+	
+	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	
+	        File file = new File(args[0]);
+	        // default to clobber = true (existing behavior)
+	        boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
+	        load(file, clobber);
         }
-
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-
-        File file = new File(args[0]);
-	// default to clobber = true (existing behavior)
-	boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
-        load(file, clobber);
+        catch (Exception e) {
+	        ConsoleUtil.showWarnings();
+	        //exit with error status:
+	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        System.exit(1);
+        }
     }
 
     public static void load(File file, boolean clobber) throws IOException, DaoException {
@@ -84,7 +93,8 @@ public class ImportTypesOfCancers {
             DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
         }
         ProgressMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");
-        ConsoleUtil.showWarnings();
+        ProgressMonitor.setCurrentMessage("Done.");
+        ConsoleUtil.showMessages();
     }
     
 

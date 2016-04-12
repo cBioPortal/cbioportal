@@ -227,10 +227,13 @@ public class MySQLbulkLoader {
          int updateCount = stmt.getUpdateCount();
          ProgressMonitor.setCurrentMessage(" --> records inserted into `"+tableName + "` table: " + updateCount);
          int nLines = FileUtil.getNumLines(tempFileHandle);
-         if (nLines!=updateCount && !processingClinicalData()) {
-             System.err.println("Error: only "+updateCount+" of the "+nLines+" records were inserted in " + tableName);
-             if (stmt.getWarnings() != null)
-            	 System.err.println(stmt.getWarnings().getMessage());
+         if (nLines!=updateCount) {
+             String otherDetails = "";
+        	 if (stmt.getWarnings() != null) {
+        		 otherDetails = "More error/warning details: " + stmt.getWarnings().getMessage();
+             }
+             throw new DaoException("DB Error: only "+updateCount+" of the "+nLines+" records were inserted in `" + tableName + "`. " + otherDetails);
+             
          } else {
              tempFileHandle.delete();
          }

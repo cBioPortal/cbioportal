@@ -378,11 +378,9 @@ public class ImportClinicalData {
                     patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);
                 }
                 sampleId = StableIdUtil.getSampleId(sampleId);
-                if (patient != null) {
-                	internalSampleId = DaoSample.addSample(new Sample(sampleId,
+               	internalSampleId = DaoSample.addSample(new Sample(sampleId,
                                                                patient.getInternalId(),
                                                                cancerStudy.getTypeOfCancerId()));
-                }
             }
         }
 

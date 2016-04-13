@@ -2301,8 +2301,9 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
     required_stable_ids = [cancerStudyId + '_' + suffix for suffix in
                            required_id_suffixes]
 
-    case_list_fns = [os.path.join(caseListDir, x) for
-                     x in os.listdir(caseListDir)]
+    case_list_fns = [os.path.join(caseListDir, fn) for
+                     fn in os.listdir(caseListDir) if
+                     not (fn.startswith('.') or fn.endswith('~'))]
 
     for case in case_list_fns:
 

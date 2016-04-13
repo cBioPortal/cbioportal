@@ -219,9 +219,7 @@ public class MySQLbulkLoader {
          con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
          stmt = con.createStatement();
          
-         // will throw error if attempts to overwrite primary keys in table (except for clinical data)
-         String replace = (processingClinicalData()) ? " REPLACE" : "";
-         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + replace + " INTO TABLE " + tableName;
+         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + " INTO TABLE " + tableName;
          stmt.execute( command );
          
          int updateCount = stmt.getUpdateCount();

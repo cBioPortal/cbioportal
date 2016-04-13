@@ -197,8 +197,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					case "interacts-with": return "#6AB0CC"; break;
 					case "neighbor-of": return "#AB5471"; break;
 					case "reacts-with": return "#B2D180"; break;
-					case "MERGED": return "#646464"; break;
-					case "DRUG_TARGET": return "#CCAB5A"; break;
+					case "merged": return "#646464"; break;
+					case "drug_target": return "#CCAB5A"; break;
 					default: return "#999999"; break;
 				}
 			},
@@ -225,7 +225,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					case "interacts-with": return "none"; break;
 					case "neighbor-of": return "none"; break;
 					case "reacts-with": return "none"; break;
-					case "DRUG_TARGET": return "tee"; break;
+					case "drig_target": return "tee"; break;
 					default: return "none"; break;
 				}
 			},
@@ -252,8 +252,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					case "interacts-with": return "#6AB0CC"; break;
 					case "neighbor-of": return "#AB5471"; break;
 					case "reacts-with": return "#B2D180"; break;
-					case "MERGED": return "#646464"; break;
-					case "DRUG_TARGET": return "#CCAB5A"; break;
+					case "merged": return "#646464"; break;
+					case "drug_target": return "#CCAB5A"; break;
 					default: return "#999999"; break;
 				}
 			},

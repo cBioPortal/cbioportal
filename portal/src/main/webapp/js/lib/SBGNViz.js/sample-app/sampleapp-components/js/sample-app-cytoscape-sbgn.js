@@ -1699,7 +1699,9 @@ var SBGNContainer = Backbone.View.extend({
                   geneClass != 'unspecified entity')
             return;
 
-          var queryScriptURL = "sampleapp-components/php/BioGeneQuery.php";
+          var windowHref = window.location.href;
+          var queryPath = windowHref.substr(0, windowHref.indexOf('js'));
+          var queryScriptURL = queryPath+"bioGeneQuery.do";
           var geneName = node._private.data.sbgnlabel;
 
           // set the query parameters
@@ -1720,7 +1722,7 @@ var SBGNContainer = Backbone.View.extend({
                   data: queryParams,
                 })
                         .then(function (content) {
-                          queryResult = JSON.parse(content);
+                          queryResult = content;
                           if (queryResult.count > 0 && queryParams.query != "" && typeof queryParams.query != 'undefined')
                           {
                             var info = (new BioGeneView(

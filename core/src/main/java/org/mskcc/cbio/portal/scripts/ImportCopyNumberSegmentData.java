@@ -137,7 +137,7 @@ public class ImportCopyNumberSegmentData {
 		    CancerStudy cancerStudy = getCancerStudy(properties);
 		    
 		    if (segmentDataExistsForCancerStudy(cancerStudy)) {
-			     throw new IllegalArgumentException("Ignoring this file since seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + dataFile);
+			     throw new IllegalArgumentException("Seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + dataFile);
 		    }
 		
 		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);

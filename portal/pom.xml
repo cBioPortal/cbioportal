@@ -46,12 +46,6 @@
       <artifactId>tomcat-catalina</artifactId>
       <version>7.0.68</version>
       <scope>runtime</scope>
-      <exclusions>
-      	<exclusion>
-	      <groupId>org.apache.tomcat</groupId>
-    	  <artifactId>tomcat-servlet-api</artifactId>      		
-      	</exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -97,6 +91,9 @@
         <configuration>
           <webappDirectory>${project.build.directory}/portal</webappDirectory>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
+          <packagingExcludes>
+          	WEB-INF/lib/tomcat-servlet-api-*.jar
+          </packagingExcludes>
           <webResources>
             <resource>
               <directory>${project.parent.basedir}/business/src/main/resources</directory>

@@ -32,17 +32,27 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-
-import java.sql.*;
-import java.util.*;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.Sample;
 
 /**
  * Data access object for sample_profile table
  */
 public final class DaoSampleProfile {
+	private static SamplesProfileCache sampleProfilesCache = new SamplesProfileCache();
+	
     private DaoSampleProfile() {}
    
     private static final int NO_SUCH_PROFILE_ID = -1;
@@ -61,7 +71,12 @@ public final class DaoSampleProfile {
                                 + "VALUES (?,?)");
                 pstmt.setInt(1, sampleId);
                 pstmt.setInt(2, geneticProfileId);
-                return pstmt.executeUpdate();
+                int result = pstmt.executeUpdate();
+                
+                if (result > 0) {
+                	sampleProfilesCache.cacheSampleProfile(sampleId, geneticProfileId, true);
+                }
+				return result;
             } else {
                 return 0;
             }
@@ -73,9 +88,15 @@ public final class DaoSampleProfile {
             JdbcUtil.closeAll(DaoSampleProfile.class, con, pstmt, rs);
         }
     }
+    
+	private static final Logger logger = Logger.getLogger(DaoSampleProfile.class);
 
-    public static boolean sampleExistsInGeneticProfile(int sampleId, int geneticProfileId)
-            throws DaoException {
+    public static boolean sampleExistsInGeneticProfile(int sampleId, int geneticProfileId) throws DaoException {
+    	Boolean sampleExists = sampleProfilesCache.sampleExistsInGeneticProfile(sampleId, geneticProfileId);
+    	if (sampleExists != null) {
+    		return sampleExists.booleanValue();
+    	}
+    	
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -87,7 +108,11 @@ public final class DaoSampleProfile {
             pstmt.setInt(1, sampleId);
             pstmt.setInt(2, geneticProfileId);
             rs = pstmt.executeQuery();
-            return (rs.next());
+            boolean result = rs.next();
+            
+            sampleProfilesCache.cacheSampleProfile(sampleId, geneticProfileId, result);
+            
+			return result;
         } catch (NullPointerException e) {
             throw new DaoException(e);
         } catch (SQLException e) {

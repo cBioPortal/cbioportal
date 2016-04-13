@@ -39,9 +39,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -132,8 +135,16 @@ public final class DaoUniProtIdMapping {
             JdbcUtil.closeAll(DaoUniProtIdMapping.class, connection, preparedStatement, resultSet);
         }
     }
+    
+    private static Map<String, String> uniprotIdToAccessionMap = new HashMap<String, String>(); 
 
 	public static String mapFromUniprotIdToAccession(final String uniprotId) throws DaoException {
+		if (uniprotId == null) {
+			return null;
+		} else if (uniprotIdToAccessionMap.containsKey(uniprotId)) {
+			return uniprotIdToAccessionMap.get(uniprotId);
+		}
+		
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
@@ -142,10 +153,14 @@ public final class DaoUniProtIdMapping {
 			preparedStatement = connection.prepareStatement("select UNIPROT_ACC from uniprot_id_mapping where UNIPROT_ID = ?");
 			preparedStatement.setString(1, uniprotId);
 			resultSet = preparedStatement.executeQuery();
+			
+			String result = null;
 			if (resultSet.next()) {
-				return resultSet.getString(1);
+				result = resultSet.getString(1);
 			}
-			return null;
+			uniprotIdToAccessionMap.put(uniprotId, result);
+			
+			return result;
 		}
 		catch (SQLException e) {
 			throw new DaoException(e);

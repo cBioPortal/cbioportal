@@ -257,40 +257,55 @@ public class ImportClinicalData {
 
     private void addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
-        // attempt to add both a patient and sample to database
-        int patientIdIndex = findPatientIdColumn(columnAttrs);
-        int internalPatientId = (patientIdIndex >= 0) ?
-            addPatientToDatabase(fields[patientIdIndex]) : -1; 
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
         String stableSampleId = (sampleIdIndex >= 0) ? fields[sampleIdIndex] : "";
-        int internalSampleId = (stableSampleId.length() > 0) ?
-            addSampleToDatabase(stableSampleId, fields, columnAttrs) : -1;
-
-        // this will happen when clinical file contains sample id, but not patient id
-        if (internalPatientId == -1 && internalSampleId != -1) {
-            Sample sample = DaoSample.getSampleById(internalSampleId);
-            internalPatientId = sample.getInternalPatientId();
-        }
-
-        for (int lc = 0; lc < fields.length; lc++) {
-            //if lc is sampleIdIndex or patientIdIndex, skip as well since these are the relational fields:
-            if (lc == sampleIdIndex || lc == patientIdIndex) {
-            	continue;
+        //check if sample is not already added:
+        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableSampleId, false);
+        if (sample != null) {
+        	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
+        	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
+        	if (stableSampleId.startsWith("TCGA-")) {
+        		ProgressMonitor.logWarning("Sample " + stableSampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
         	}
-        	//if the value matches one of the missing values, skip this attribute:
-            if (MissingAttributeValues.has(fields[lc])) {
-            	numEmptyClinicalAttributesSkipped++;
-                continue;
-            }
-            boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
-            if (isPatientAttribute && internalPatientId != -1) {
-                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                         ClinicalAttribute.PATIENT_ATTRIBUTE);
-            }
-            else if (internalSampleId != -1) {
-                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
-            }
+        	else {
+        		throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
+        	}
+        }
+        else {
+        	// sample is new/unique, go ahead and add its attributes,
+        	// so attempt to add both a patient and sample to database
+            int patientIdIndex = findPatientIdColumn(columnAttrs);
+            int internalPatientId = (patientIdIndex >= 0) ?
+                addPatientToDatabase(fields[patientIdIndex]) : -1; 
+	        int internalSampleId = (stableSampleId.length() > 0) ?
+	            addSampleToDatabase(stableSampleId, fields, columnAttrs) : -1;
+	
+	        // this will happen when clinical file contains sample id, but not patient id
+	        if (internalPatientId == -1 && internalSampleId != -1) {
+	            sample = DaoSample.getSampleById(internalSampleId);
+	            internalPatientId = sample.getInternalPatientId();
+	        }
+	
+	        for (int lc = 0; lc < fields.length; lc++) {
+	            //if lc is sampleIdIndex or patientIdIndex, skip as well since these are the relational fields:
+	            if (lc == sampleIdIndex || lc == patientIdIndex) {
+	            	continue;
+	        	}
+	        	//if the value matches one of the missing values, skip this attribute:
+	            if (MissingAttributeValues.has(fields[lc])) {
+	            	numEmptyClinicalAttributesSkipped++;
+	                continue;
+	            }
+	            boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
+	            if (isPatientAttribute && internalPatientId != -1) {
+	                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
+	                         ClinicalAttribute.PATIENT_ATTRIBUTE);
+	            }
+	            else if (internalSampleId != -1) {
+	                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
+	                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
+	            }
+	        }
         }
     }
 
@@ -364,23 +379,9 @@ public class ImportClinicalData {
                 }
                 sampleId = StableIdUtil.getSampleId(sampleId);
                 if (patient != null) {
-                    Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId, false);
-                    if (sample != null) {
-                    	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
-                    	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
-                    	if (sampleId.startsWith("TCGA-")) {
-                    		ProgressMonitor.logWarning("Sample " + sampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
-                    		internalSampleId = sample.getInternalId();
-                    	}
-                    	else {
-                    		throw new RuntimeException("Error: Sample " + sampleId + " found to be duplicated in your file.");
-                    	}
-                    }
-                    else {
-                        internalSampleId = DaoSample.addSample(new Sample(sampleId,
+                	internalSampleId = DaoSample.addSample(new Sample(sampleId,
                                                                patient.getInternalId(),
                                                                cancerStudy.getTypeOfCancerId()));
-                    }
                 }
             }
         }

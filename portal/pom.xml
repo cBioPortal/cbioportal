@@ -46,6 +46,12 @@
       <artifactId>tomcat-catalina</artifactId>
       <version>7.0.68</version>
       <scope>runtime</scope>
+      <exclusions>
+      	<exclusion>
+	      <groupId>org.apache.tomcat</groupId>
+    	  <artifactId>tomcat-servlet-api</artifactId>      		
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>

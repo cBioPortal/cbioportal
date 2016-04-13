@@ -43,9 +43,7 @@ import org.springframework.ui.context.Theme;
 import java.io.*;
 import java.lang.System;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Utility for importing Gistic data from a file
@@ -203,19 +201,21 @@ public class GisticReader {
         // map _genes to list of CanonicalGenes
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        ArrayList<CanonicalGene> alreadyProcessedGenes = new ArrayList<CanonicalGene>();
         for (String gene : _genes) {
             
             gene = gene.split("\\|")[0];
 
             CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
-            if (canonicalGene != null) {
+            if (canonicalGene != null && !alreadyProcessedGenes.contains(canonicalGene)) {
                 if (canonicalGene.isMicroRNA()) {
                     System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
                     continue;
                 }
 
                 genes.add(canonicalGene);
+                alreadyProcessedGenes.add(canonicalGene);
             }
         }
         // -- end parse genes --

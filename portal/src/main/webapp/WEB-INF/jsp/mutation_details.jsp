@@ -71,10 +71,15 @@
     var userName = '<%=userName%>';
     var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
 
-    _mut3dVis = new Mutation3dVis("default3dView", {
-	    pdbUri: "api/proxy/jsmol/"
-    });
-    _mut3dVis.init();
+    // temporary fix for webGL incompatibility 
+    try {
+        _mut3dVis = new Mutation3dVis("default3dView", {
+            pdbUri: "api/proxy/jsmol/"
+        });
+        _mut3dVis.init();
+    } catch (e) {
+        console.log(e);
+    }
 
     // Set up Mutation View
     $(document).ready(function () {

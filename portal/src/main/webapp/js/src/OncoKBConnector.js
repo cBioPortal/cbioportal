@@ -42,9 +42,9 @@ var OncoKB = (function () {
     self.instances = [];
     self.customObject = {};
     self.levels = {
-        sensitivity: ['4', '3', '2B', '2A', '1', '0'],
+        sensitivity: ['4', '3B', '3A', '2B', '2A', '1', '0'],
         resistance: ['R3', 'R2', 'R1'],
-        all: ['4','R3', '3','R2', '2B', '2A','R1', '1', '0']
+        all: ['4','R3', '3B', '3A','R2', '2B', '2A','R1', '1', '0']
     };
     self.instanceManagers = {};
 
@@ -481,11 +481,14 @@ var OncoKB = (function () {
                 }
             }
 
+            // Always attach oncogenic description. It will be filled after
+            // user hovering OncoKB icon. Also attach a loading gif.
+            str += '<span class="oncogenic-description"><span class="oncogenic-description-loading" style="display: none;"><img src="images/ajax-loader.gif" height="50px" width="50px"/></span><span class="oncogenic-description-content">';
             if (oncokbInfo.oncogenicDescription && oncokbInfo.oncogenicDescription !== 'null') {
-                str += '<span>' + oncokbInfo.oncogenicDescription + '</span><br/>';
+                str += oncokbInfo.oncogenicDescription;
             }
 
-            str += '</div>';
+            str += '</span></span><br/></div>';
 
             return str;
         }
@@ -1277,7 +1280,7 @@ OncoKB.Instance.prototype = {
                             });
                         } else if (evidence.levelOfEvidence) {
                             //if evidence has level information, that means this is treatment evidence.
-                            if (['LEVEL_0', 'LEVEL_3', 'LEVEL_4', 'LEVEL_R2', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
+                            if (['LEVEL_0', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_4', 'LEVEL_R2', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
                                 var _treatment = {};
                                 _treatment.tumorType = evidence.tumorType.name;
                                 _treatment.level = evidence.levelOfEvidence;
@@ -1477,6 +1480,21 @@ OncoKB.Instance.prototype = {
                                                 dialog.getModalFooter().hide();
                                                 dialog.open();
                                             });
+                                            if (api.elements.content.find('.oncogenic-description-content').text() === '') {
+                                                api.elements.content.find('.oncogenic-description-loading').css('display', 'block');
+                                                $.get('api/proxy/oncokbSummary', {
+                                                        type: 'variant',
+                                                        hugoSymbol: self.variants[oncokbId].gene,
+                                                        alteration: self.variants[oncokbId].alteration,
+                                                        tumorType: self.variants[oncokbId].tumorType,
+                                                        source: 'cbioportal'
+                                                    })
+                                                    .done(function(data) {
+                                                        data = JSON.parse(data);
+                                                        api.elements.content.find('.oncogenic-description-content').text(_.isArray(data)?data[0]:'');
+                                                        api.elements.content.find('.oncogenic-description-loading').css('display', 'none');
+                                                    });
+                                            }
                                         }
                                     }
                                 });

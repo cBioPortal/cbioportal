@@ -1094,6 +1094,10 @@ function outputClinicalData() {
             if (loc!==null)
                 ret += " ("+loc+")";
         }
+        var sampleClass = guessClinicalData(clinicalData, ["SAMPLE_CLASS"]);
+        if (sampleClass!==null) {
+            ret += ", "+sampleClass;
+        }
         return ret;
     }
 

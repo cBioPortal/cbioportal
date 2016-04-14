@@ -60,7 +60,7 @@
         var paddingTop = 10;
         var histBottom = 400;
 	var legendTop = 500;
-	var legendHeight = 150;
+	var legendHeight = 50;
 	var histWidth = 1100;
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
@@ -142,32 +142,41 @@
                 if(study.alterations.cnaGain > 0) { isThereGain = true; }
             });
             //update note content 
-            var note1 = "* " + (histDataOrg.length - filteredStudiesCount);
-             
-            if(histDataOrg.length - filteredStudiesCount <= 1)
+            var note1 = "* ", note2 = "", note4 = " have been filtered out.";
+            if(histDataOrg.length - filteredStudiesCount === 0)
             {
-                note1 +=  " study(";
+                note1 +=  "No studies ";
             }
-            else{
-                note1 += " studies(";
-            }
-           
-            var note3 = ") out of " + histDataOrg.length + " have been filtered out." ;
-            var note2 = "";
-            if(type === "Frequency")
+            else if(histDataOrg.length - filteredStudiesCount === 1)
             {
-                if(threshold > 0 && threshold < 1)note2 = "% altered samples = 0";
-                else note2 = "% altered samples < " + threshold;
+                note1 +=  "1 study ";
+                note4 = " has been filtered out.";
             }
-            else if(type === "Count"){
-                note2 = "# altered samples < " + threshold;
+            else
+            {
+                note1 +=  (histDataOrg.length - filteredStudiesCount) + " studies ";
             }
             
-            if(totalSamThreshold > 0)
+            if(threshold > 0)
             {
-                note2 += " or # total samples < " + totalSamThreshold;
+               
+                if(type === "Frequency")
+                {
+                    note2 = "(% altered samples < " + threshold + "%";
+                }
+                else if(type === "Count"){
+                    note2 = "(# altered samples < " + threshold;
+                }
+                if(totalSamThreshold > 0)note2 += " or # total samples < " + totalSamThreshold + ")";
+                else note2 += ")";
             }
-            $("#note").text(note1+note2+note3);
+            else
+            {
+                if(totalSamThreshold > 0) note2 = "(# total samples < " + totalSamThreshold+")";
+            }
+            
+            var note3 = " out of " + histDataOrg.length;
+            $("#note").text(note1+note2+note3+note4);
 
             if(!$('#sortBy').is(':checked')){
                 if(type === "Frequency"){

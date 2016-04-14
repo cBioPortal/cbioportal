@@ -571,7 +571,7 @@
     
     <servlet>
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.OverRepresentationAnalysisJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EnrichmentsJSON</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>

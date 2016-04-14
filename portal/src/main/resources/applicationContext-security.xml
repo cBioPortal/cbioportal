@@ -83,7 +83,13 @@
 	</b:bean>
 
     <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
-<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/auth/*" access="permitAll"/>
+        <intercept-url pattern="/favicon.ico" access="permitAll"/>
+        <intercept-url pattern="/login.jsp*" access="permitAll"/>
+        <intercept-url pattern="/api/health" access="permitAll"/>
+        <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+        <intercept-url pattern="/**" access="isAuthenticated()"/>
+        
         <!-- used for google+ authentication (spring social) -->
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
 
@@ -218,7 +224,13 @@
 	</b:bean>
 
     <http entry-point-ref="samlEntryPoint" use-expressions="true">
-<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/auth/*" access="permitAll"/>
+        <intercept-url pattern="/favicon.ico" access="permitAll"/>
+        <intercept-url pattern="/login.jsp*" access="permitAll"/>
+        <intercept-url pattern="/api/health" access="permitAll"/>
+        <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+        <intercept-url pattern="/**" access="isAuthenticated()"/>
+        
         <!-- used for saml authentication -->
         <custom-filter after="FIRST" ref="metadataGeneratorFilter"/>
         <custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
@@ -472,7 +484,13 @@
 
             <form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
             <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
-<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
+            <intercept-url pattern="/auth/*" access="permitAll"/>
+            <intercept-url pattern="/favicon.ico" access="permitAll"/>
+            <intercept-url pattern="/login.jsp*" access="permitAll"/>
+            <intercept-url pattern="/api/health" access="permitAll"/>
+            <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+            <intercept-url pattern="/**" access="isAuthenticated()"/>
+            
             <!-- to enable access from matlab, r, python, etc clients -->
             <session-management session-fixation-protection="none"/>
         </http>

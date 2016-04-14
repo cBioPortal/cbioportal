@@ -81,6 +81,9 @@ public class ProxyController
       case "oncokbAccess":
         URL = oncokbURL + "access";
         break;
+        case "oncokbSummary":
+            URL = oncokbURL + "summary.json";
+            break;
       default:
         URL = "";
         break;
@@ -88,7 +91,7 @@ public class ProxyController
 
     //If request method is GET, include query string
     if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
-      URL +=  request.getQueryString();
+      URL += "?" + request.getQueryString();
     }
 
     URI uri = new URI(URL);

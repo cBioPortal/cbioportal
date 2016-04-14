@@ -176,6 +176,7 @@
             }
         });
 
+        $("#bookmark-link").attr("href", window.location.href);
         $("#bitly-generator").click(function() {
             bitlyURL(window.location.href);
         });

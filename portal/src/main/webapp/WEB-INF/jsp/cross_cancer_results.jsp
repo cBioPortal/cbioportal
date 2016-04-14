@@ -261,7 +261,7 @@
                 
             </div>
 
-            <div id="cchistogram" style="width: 1100px; height: 820px;position:relative;margin-top:30px;">
+            <div id="cchistogram" style="width: 1100px; height: 700px;position:relative;margin-top:30px;">
                 <img src="images/ajax-loader.gif"/>
             </div>
 

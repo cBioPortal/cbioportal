@@ -1716,7 +1716,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.level2.oncogenic {
-    background-position: -39px -12px;
+    background-position: -38px -12px;
 }
 
 .oncokb .oncogenic-icon-image.level3.oncogenic {
@@ -1732,7 +1732,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.levelR2.oncogenic {
-    background-position: -39px -44px;
+    background-position: -38px -44px;
 }
 
 .oncokb .oncogenic-icon-image.levelR3.oncogenic {
@@ -1744,7 +1744,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.level2R.oncogenic {
-    background-position: -39px -74px;
+    background-position: -38px -74px;
 }
 
 .oncokb .oncogenic-icon-image.level3R.oncogenic {
@@ -1755,47 +1755,47 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
     background-position: -88px -74px;
 }
 
-.oncokb .oncogenic-icon-image.level1.not-oncogenic {
+.oncokb .oncogenic-icon-image.level1.likely-neutral {
     background-position: -13px -104px;
 }
 
-.oncokb .oncogenic-icon-image.level2.not-oncogenic {
-    background-position: -39px -104px;
+.oncokb .oncogenic-icon-image.level2.likely-neutral {
+    background-position: -38px -104px;
 }
 
-.oncokb .oncogenic-icon-image.level3.not-oncogenic {
+.oncokb .oncogenic-icon-image.level3.likely-neutral {
     background-position: -63px -104px;
 }
 
-.oncokb .oncogenic-icon-image.level4.not-oncogenic {
+.oncokb .oncogenic-icon-image.level4.likely-neutral {
     background-position: -88px -104px;
 }
 
-.oncokb .oncogenic-icon-image.levelR1.not-oncogenic {
+.oncokb .oncogenic-icon-image.levelR1.likely-neutral {
     background-position: -13px -134px;
 }
 
-.oncokb .oncogenic-icon-image.levelR2.not-oncogenic {
-    background-position: -39px -134px;
+.oncokb .oncogenic-icon-image.levelR2.likely-neutral {
+    background-position: -38px -134px;
 }
 
-.oncokb .oncogenic-icon-image.levelR3.not-oncogenic {
+.oncokb .oncogenic-icon-image.levelR3.likely-neutral {
     background-position: -63px -134px;
 }
 
-.oncokb .oncogenic-icon-image.level1R.not-oncogenic {
+.oncokb .oncogenic-icon-image.level1R.likely-neutral {
     background-position: -13px -164px;
 }
 
-.oncokb .oncogenic-icon-image.level2R.not-oncogenic {
-    background-position: -39px -164px;
+.oncokb .oncogenic-icon-image.level2R.likely-neutral {
+    background-position: -38px -164px;
 }
 
-.oncokb .oncogenic-icon-image.level3R.not-oncogenic {
+.oncokb .oncogenic-icon-image.level3R.likely-neutral {
     background-position: -63px -164px;
 }
 
-.oncokb .oncogenic-icon-image.level4R.not-oncogenic {
+.oncokb .oncogenic-icon-image.level4R.likely-neutral {
     background-position: -88px -164px;
 }
 
@@ -1804,7 +1804,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.level2.vus {
-    background-position: -39px -194px;
+    background-position: -38px -194px;
 }
 
 .oncokb .oncogenic-icon-image.level3.vus {
@@ -1820,7 +1820,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.levelR2.vus {
-    background-position: -39px -224px;
+    background-position: -38px -224px;
 }
 
 .oncokb .oncogenic-icon-image.levelR3.vus {
@@ -1832,7 +1832,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.level2R.vus {
-    background-position: -39px -254px;
+    background-position: -38px -254px;
 }
 
 .oncokb .oncogenic-icon-image.level3R.vus {
@@ -1848,7 +1848,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.level2.unknown-oncogenic {
-    background-position: -39px -284px;
+    background-position: -38px -284px;
 }
 
 .oncokb .oncogenic-icon-image.level3.unknown-oncogenic {
@@ -1864,7 +1864,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.levelR2.unknown-oncogenic {
-    background-position: -39px -314px;
+    background-position: -38px -314px;
 }
 
 .oncokb .oncogenic-icon-image.levelR3.unknown-oncogenic {
@@ -1876,7 +1876,7 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
 }
 
 .oncokb .oncogenic-icon-image.level2R.unknown-oncogenic {
-    background-position: -39px -344px;
+    background-position: -38px -344px;
 }
 
 .oncokb .oncogenic-icon-image.level3R.unknown-oncogenic {
@@ -1891,8 +1891,8 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
     background-position: -13px -374px;
 }
 
-.oncokb .oncogenic-icon-image.not-oncogenic {
-    background-position: -39px -374px;
+.oncokb .oncogenic-icon-image.likely-neutral {
+    background-position: -38px -374px;
 }
 
 .oncokb .oncogenic-icon-image.vus {

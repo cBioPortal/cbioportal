@@ -66,7 +66,7 @@ var OncoKB = (function(_, $) {
     };
     self.instanceManagers = {};
 
-    self.oncogenic = ['Unknown', 'Not Oncogenic', 'Likely Oncogenic', 'Oncogenic'];
+    self.oncogenic = ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic'];
 
     function InstanceManager(id) {
         this.id = id || 'OncoKB-InstanceManager-' + new Date().getTime(); //Manager ID, maybe used to distinguish between different managers
@@ -604,8 +604,8 @@ var OncoKB = (function(_, $) {
             var oncogenic = _.isObject(oncokbInfo) ? (oncokbInfo.hasOwnProperty('oncogenic') ? oncokbInfo.oncogenic : '') : '';
             var str = '<div class="oncokb"><div><span><b style="font-size:12px;color:#';
             switch (oncogenic) {
-                case 'Not Oncogenic':
-                    str += '2f4f4f">Not oncogenic';
+                case 'Likely Neutral':
+                    str += '2f4f4f">Likely neutral';
                     break;
                 case 'Oncogenic':
                     str += '007fff">Known oncogenic';
@@ -653,7 +653,7 @@ var OncoKB = (function(_, $) {
             var treatments = {};
             var treatmentsArray = [];
             if (numOfTreatments > 0) {
-                strArray.push('<table class="oncokb-treatments-table table table-condensed"><thead><tr><th>Level</th><th>Drugs</th><th>Biomarker Tumor Type</th></tr></thead><tbody>');
+                strArray.push('<table class="oncokb-treatments-table table table-condensed"><thead><tr><th>Level</th><th>Drug(s)</th><th>Level-associated cancer type(s)</th></tr></thead><tbody>');
 
                 _.each(oncokbInfo.treatments, function(content, type) {
                     _.each(content, function(item, index) {
@@ -1150,8 +1150,8 @@ var OncoKB = (function(_, $) {
                 iconType[1] = 'unknown-oncogenic';
             } else if (iconType[1] === 'unknown-oncogenic') {
                 switch (oncogenic) {
-                    case 'Not Oncogenic':
-                        iconType[1] = 'not-oncogenic';
+                    case 'Likely Neutral':
+                        iconType[1] = 'likely-neutral';
                         break;
                     case 'Unknown':
                         iconType[1] = 'vus';

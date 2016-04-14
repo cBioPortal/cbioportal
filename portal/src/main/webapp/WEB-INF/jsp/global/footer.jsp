@@ -33,7 +33,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <div id="footer">
-    <a href="http://cbioportal.org">cBioPortal</a>
+    <a href="http://cbioportal.org">cBioPortal</a> Version ${project.version}
     <%= GlobalProperties.getFooter() %>
     <br/>
     Questions and feedback: <%= GlobalProperties.getEmailContact() %>

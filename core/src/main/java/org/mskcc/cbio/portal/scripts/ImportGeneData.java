@@ -123,14 +123,15 @@ public class ImportGeneData {
             if (genes.size()==1) {
                 daoGene.addGene(genes.iterator().next());
             } else {
+            	//TODO - is unexpected for official symbols...raise Exception instead?
                 logDuplicateGeneSymbolWarning(entry.getKey(), genes);
             }
         }
 
         // Add genes without symbol from nomenclature authority
         if (genesWithoutSymbolFromNomenClatureAuthority.keySet().size() > 0) {
-	        ProgressMonitor.logWarning("There are " +genesWithoutSymbolFromNomenClatureAuthority.keySet().size() + 
-	        		" genes names in this file without an official symbol from nomenclature authorty. Trying to import them...");
+        	int nrImported = 0;
+        	int nrSkipped = 0;
 	        for (Map.Entry<String, Set<CanonicalGene>> entry : genesWithoutSymbolFromNomenClatureAuthority.entrySet()) {
 	            Set<CanonicalGene> genes = entry.getValue();
 	            String symbol = entry.getKey();
@@ -138,15 +139,21 @@ public class ImportGeneData {
 	                CanonicalGene gene = genes.iterator().next();
 	                if (!genesWithSymbolFromNomenClatureAuthority.containsKey(symbol)) {
 	                    daoGene.addGene(gene);
+	                    nrImported++;
 	                } else {
 	                    // ignore entries with a symbol that have the same value as stardard one
 	                    ProgressMonitor.logWarning("Ignored line with entrez gene id "+gene.getEntrezGeneId()
-	                            + ". "+symbol+" is already imported.");
+	                            + " because symbol "+symbol+" is already an 'official symbol' of another gene");
+	                    nrSkipped++;
 	                }
 	            } else {
 	                logDuplicateGeneSymbolWarning(symbol, genes);
+	                nrSkipped =+ genes.size();
 	            }
 	        }
+	        ProgressMonitor.logWarning("There were " +genesWithoutSymbolFromNomenClatureAuthority.keySet().size() + 
+	        		" genes names in this file without an official symbol from nomenclature authorty. Imported: " + nrImported + 
+	        		", skipped (because of duplicate symbol entry or because symbol is an 'official symbol' of another gene): " + nrSkipped);
         }
         
         if (MySQLbulkLoader.isBulkLoad()) {

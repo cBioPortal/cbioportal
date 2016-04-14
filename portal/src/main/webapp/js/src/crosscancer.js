@@ -121,10 +121,7 @@
             var histData = [];
             _.each(histDataOrg, function(study) {
                 cancerTypeCheck = true; 
-                var showStudy = true;//$("#histogram-remove-study-" + study.studyId).is(":checked");
-//                if(cancerTypes !== "all" && metaData.type_of_cancers[metaData.cancer_studies[study.studyId].type_of_cancer] !== cancerTypes){
-//                    cancerTypeCheck = false;
-//                }    
+                var showStudy = true;
                 
                if(!study.skipped && showStudy && cancerTypeCheck){
                

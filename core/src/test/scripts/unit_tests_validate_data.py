@@ -285,6 +285,7 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
         self.assertIn('missing', record.getMessage().lower())
 
 
+# TODO: make tests in this testcase check the number of properly defined types
 class CancerTypeFileValidationTestCase(DataFileTestCase):
 
     """Tests for validations of cancer type files in a study."""
@@ -308,11 +309,10 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         record_list = self.validate('data_cancertype_missing_color_col.txt',
                                     validateData.CancerTypeValidator)
         # expecting an error about the number of columns
-        self.assertEqual(len(record_list), 1)
-        record = record_list.pop()
-        self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('columns', record.getMessage())
-
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertIn('columns', record.getMessage())
 
     def test_cancer_type_missing_value(self):
         """Test when a new cancer type has a blank required field."""

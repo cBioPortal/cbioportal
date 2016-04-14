@@ -447,10 +447,12 @@ class Validator(object):
         if not self.ALLOW_BLANKS:
             for col_index, col_name in enumerate(self.cols):
                 if col_index < line_col_count and data[col_index].strip() == '':
-                    self.logger.error("Blank cell found in column '%s'",
-                                      col_name,
-                                      extra={'line_number': self.line_number,
-                                             'column_number': col_index + 1})
+                    self.logger.error(
+                        'Blank cell found in column',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': "'%s' (in column '%s')" % (
+                                    data[col_index], col_name)})
 
     def _checkUnorderedRequiredColumns(self):
         """Check for missing column headers, independent of their position.
@@ -1828,6 +1830,7 @@ class CancerTypeValidator(Validator):
         """Initialize a file validator with a defined_cancer_types field."""
         super(CancerTypeValidator, self).__init__(*args, **kwargs)
         self.cols = self.__class__.COLS
+        self.numCols = len(self.cols)
         self.defined_cancer_types = []
 
     def checkHeader(self, cols):
@@ -1840,6 +1843,7 @@ class CancerTypeValidator(Validator):
         tracking_handler = MaxLevelTrackingHandler()
         self.logger.logger.addHandler(tracking_handler)
         try:
+            super(CancerTypeValidator, self).checkLine(data)
             if len(data) != 5:
                 self.logger.error('Lines in cancer type files must have these '
                                   '5 columns, in order: [%s]',
@@ -1851,12 +1855,6 @@ class CancerTypeValidator(Validator):
             line_cancer_type = data[self.cols.index('type_of_cancer')].lower()
             # check each column
             for col_index, field_name in enumerate(self.cols):
-                if data[col_index].strip() == '':
-                    self.logger.error(
-                        "Blank '%s' field for cancer type '%s'",
-                        field_name, line_cancer_type,
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1})
                 # TODO validate whether the color field is one of the
                 # keywords on https://www.w3.org/TR/css3-color/#svg-color
                 if field_name == 'parent_type_of_cancer':

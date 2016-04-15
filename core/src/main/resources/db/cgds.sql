@@ -728,11 +728,4 @@ CREATE TABLE `info` (
     `DB_SCHEMA_VERSION` varchar(8)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('1.1.0');
-
---1.2.0 specific changes:
-ALTER TABLE cna_event AUTO_INCREMENT=1;
-UPDATE info SET DB_SCHEMA_VERSION='1.2.0';
-ALTER TABLE mutation add UNIQUE KEY `UQ_MUTATION_EVENT_ID_GENETIC_PROFILE_ID_SAMPLE_ID` (`MUTATION_EVENT_ID`,`GENETIC_PROFILE_ID`,`SAMPLE_ID`) COMMENT 'Constraint to block duplicated mutation entries.';
-ALTER TABLE sample_profile add UNIQUE KEY `UQ_SAMPLE_ID_GENETIC_PROFILE_ID` (`SAMPLE_ID`,`GENETIC_PROFILE_ID`) COMMENT 'Constraint to allow each sample only once in each profile.';
-
+INSERT INTO info VALUES ('1.2.0');

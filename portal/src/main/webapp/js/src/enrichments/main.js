@@ -33,14 +33,14 @@
 
 /**
  *
- * Main page for Initiating over representation analysis view
+ * Main page for Initiating enrichment analysis view
  *
- * Author: yichaoS
+ * Author: suny1@mskcc.org
  * Date: 3/10/2015
  *
  */
 
-var or_tab = (function() {
+var enrichmentsTab = (function() {
 
     var alteredCaseList = [], unalteredCaseList = [];
     var profile_obj_list = {}, profile_type_list = [];
@@ -60,8 +60,8 @@ var or_tab = (function() {
 
         gene_set_stat.copy_num = gene_set;
 
-        $("#" + orAnalysis.ids.sub_tab_copy_num).empty();
-        $("#" + orAnalysis.ids.sub_tab_copy_num).append("<div id='" + orAnalysis.ids.sub_tab_copy_num + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+        $("#" + enrichmentsTabSettings.ids.sub_tab_copy_num).empty();
+        $("#" + enrichmentsTabSettings.ids.sub_tab_copy_num).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_copy_num + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
 
         var _profile_list = [];
 
@@ -74,7 +74,7 @@ var or_tab = (function() {
 
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
-            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.copy_num) {
+            if (_obj.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.copy_num) {
                 var _token = _obj.STABLE_ID.replace(window.QuerySession.getCancerStudyIds()[0], "");
                 if ($.inArray(_token.toLowerCase(), discretized_cna_profile_keywords) !== -1) {
                     _profile_list.push(_obj);
@@ -98,7 +98,7 @@ var or_tab = (function() {
         });
 
         var orSubTabCopyNum = new orSubTabView();
-        orSubTabCopyNum.init(orAnalysis.ids.sub_tab_copy_num, _split_profile_list, orAnalysis.profile_type.copy_num, gene_set);
+        orSubTabCopyNum.init(enrichmentsTabSettings.ids.sub_tab_copy_num, _split_profile_list, enrichmentsTabSettings.profile_type.copy_num, gene_set);
     };
 
     var init_mutations_tab = function(gene_set) {
@@ -106,19 +106,19 @@ var or_tab = (function() {
 
         gene_set_stat.mut = gene_set;
 
-        $("#" + orAnalysis.ids.sub_tab_mutations).empty();
-        $("#" + orAnalysis.ids.sub_tab_mutations).append("<div id='" + orAnalysis.ids.sub_tab_mutations + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+        $("#" + enrichmentsTabSettings.ids.sub_tab_mutations).empty();
+        $("#" + enrichmentsTabSettings.ids.sub_tab_mutations).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_mutations + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
 
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
-            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.mutations) {
+            if (_obj.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.mutations) {
                 _profile_list.push(_obj);
             }
         });
 
         var orSubTabMutations = new orSubTabView();
-        orSubTabMutations.init(orAnalysis.ids.sub_tab_mutations, _profile_list, orAnalysis.profile_type.mutations, gene_set);
+        orSubTabMutations.init(enrichmentsTabSettings.ids.sub_tab_mutations, _profile_list, enrichmentsTabSettings.profile_type.mutations, gene_set);
     };
 
     var init_mrna_exp_tab = function(gene_set) {
@@ -126,13 +126,13 @@ var or_tab = (function() {
 
         gene_set_stat.mrna = gene_set;
 
-        $("#" + orAnalysis.ids.sub_tab_mrna_exp).empty();
-        $("#" + orAnalysis.ids.sub_tab_mrna_exp).append("<div id='" + orAnalysis.ids.sub_tab_mrna_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+        $("#" + enrichmentsTabSettings.ids.sub_tab_mrna_exp).empty();
+        $("#" + enrichmentsTabSettings.ids.sub_tab_mrna_exp).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_mrna_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
 
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
-            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.mrna &&
+            if (_obj.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.mrna &&
                 _obj.STABLE_ID.toLowerCase().indexOf("z-scores") === -1 &&
                 _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1 &&
                 _obj.DATATYPE.toLowerCase()!="z-score"){
@@ -142,7 +142,7 @@ var or_tab = (function() {
 
         //filter out profiles without data
         var orSubTabMrnaExp = new orSubTabView();
-        orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, _profile_list, orAnalysis.profile_type.mrna, gene_set);
+        orSubTabMrnaExp.init(enrichmentsTabSettings.ids.sub_tab_mrna_exp, _profile_list, enrichmentsTabSettings.profile_type.mrna, gene_set);
 
     };
 
@@ -150,13 +150,13 @@ var or_tab = (function() {
 
         gene_set_stat.protein_exp = gene_set;
 
-        $("#" + orAnalysis.ids.sub_tab_protein_exp).empty();
-        $("#" + orAnalysis.ids.sub_tab_protein_exp).append("<div id='" + orAnalysis.ids.sub_tab_protein_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+        $("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp).empty();
+        $("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_protein_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
 
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
-            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.protein_exp &&
+            if (_obj.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.protein_exp &&
                 _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1 &&
                 _obj.DATATYPE.toLowerCase()!="z-score") {
                 _obj.NAME = "Phosphoprotein / Protein expression (RPPA)";
@@ -165,7 +165,7 @@ var or_tab = (function() {
         });
 
         var orSubTabProteinExp = new orSubTabView();
-        orSubTabProteinExp.init(orAnalysis.ids.sub_tab_protein_exp, _profile_list, orAnalysis.profile_type.protein_exp, gene_set);
+        orSubTabProteinExp.init(enrichmentsTabSettings.ids.sub_tab_protein_exp, _profile_list, enrichmentsTabSettings.profile_type.protein_exp, gene_set);
     };
 
     /**
@@ -182,16 +182,16 @@ var or_tab = (function() {
         };
 
         $.each(profiles, function(key, curProfile){
-            if(curProfile.GENETIC_ALTERATION_TYPE == orAnalysis.profile_type.mrna && !isZScoreProfile(curProfile)){
+            if(curProfile.GENETIC_ALTERATION_TYPE == enrichmentsTabSettings.profile_type.mrna && !isZScoreProfile(curProfile)){
                 validProfiles.expression = true;
             }
-            else if(curProfile.GENETIC_ALTERATION_TYPE == orAnalysis.profile_type.protein_exp && !isZScoreProfile(curProfile)){
+            else if(curProfile.GENETIC_ALTERATION_TYPE == enrichmentsTabSettings.profile_type.protein_exp && !isZScoreProfile(curProfile)){
                 validProfiles.protein = true;
             }
-            else if(curProfile.GENETIC_ALTERATION_TYPE == orAnalysis.profile_type.copy_num) {
+            else if(curProfile.GENETIC_ALTERATION_TYPE == enrichmentsTabSettings.profile_type.copy_num) {
                 validProfiles.cna = true;
             }
-            else if(curProfile.GENETIC_ALTERATION_TYPE == orAnalysis.profile_type.mutations){
+            else if(curProfile.GENETIC_ALTERATION_TYPE == enrichmentsTabSettings.profile_type.mutations){
                 validProfiles.mutations = true;
             }
         });
@@ -229,26 +229,26 @@ var or_tab = (function() {
 
             //Generate sub tabs
             if (validProfiles.mutations) { // study has mutation data which we can show
-                $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mutations + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mutations + "</span></a></li>");
+                $("#" + enrichmentsTabSettings.ids.sub_tabs_list).append("<li><a href='#" + enrichmentsTabSettings.ids.sub_tab_mutations + "' class='enrichments-tabs-ref'><span>" + enrichmentsTabSettings.texts.sub_tab_mutations + "</span></a></li>");
             }
             if (validProfiles.cna) { //study has copy number data
-                $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_copy_num + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_copy_num + "</span></a></li>");
+                $("#" + enrichmentsTabSettings.ids.sub_tabs_list).append("<li><a href='#" + enrichmentsTabSettings.ids.sub_tab_copy_num + "' class='enrichments-tabs-ref'><span>" + enrichmentsTabSettings.texts.sub_tab_copy_num + "</span></a></li>");
             }
             if (validProfiles.expression) { //study has expression data
-                $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
+                $("#" + enrichmentsTabSettings.ids.sub_tabs_list).append("<li><a href='#" + enrichmentsTabSettings.ids.sub_tab_mrna_exp + "' class='enrichments-tabs-ref'><span>" + enrichmentsTabSettings.texts.sub_tab_mrna_exp + "</span></a></li>");
             }
             if (validProfiles.protein) { //study has RPPA data
-                $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_protein_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_protein_exp + "</span></a></li>");
+                $("#" + enrichmentsTabSettings.ids.sub_tabs_list).append("<li><a href='#" + enrichmentsTabSettings.ids.sub_tab_protein_exp + "' class='enrichments-tabs-ref'><span>" + enrichmentsTabSettings.texts.sub_tab_protein_exp + "</span></a></li>");
             }
 
-            $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_mutations + "'></div>");
-            $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_copy_num + "'></div>");
-            $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_mrna_exp + "'></div>");
-            $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_protein_exp + "'></div>");
+            $("#" + enrichmentsTabSettings.ids.sub_tabs_content).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_mutations + "'></div>");
+            $("#" + enrichmentsTabSettings.ids.sub_tabs_content).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_copy_num + "'></div>");
+            $("#" + enrichmentsTabSettings.ids.sub_tabs_content).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_mrna_exp + "'></div>");
+            $("#" + enrichmentsTabSettings.ids.sub_tabs_content).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_protein_exp + "'></div>");
 
-            $("#" + orAnalysis.ids.sub_tabs_div).tabs();
-            $("#" + orAnalysis.ids.sub_tabs_div).tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
-            $("#" + orAnalysis.ids.sub_tabs_div).tabs("option", "active", 0);
+            $("#" + enrichmentsTabSettings.ids.sub_tabs_div).tabs();
+            $("#" + enrichmentsTabSettings.ids.sub_tabs_div).tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
+            $("#" + enrichmentsTabSettings.ids.sub_tabs_div).tabs("option", "active", 0);
             $(window).trigger("resize");
 
             if (validProfiles.mutations) { // study has valid mutation data
@@ -262,15 +262,15 @@ var or_tab = (function() {
             }
 
             //bind event listener
-            $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
-                if (ui.newTab.text() === orAnalysis.texts.sub_tab_copy_num) {
-                    if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab(gene_set_opt);
-                } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mutations) {
-                    if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_mutations_tab(gene_set_opt);
-                } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
-                    if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab(gene_set_opt);
-                } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_protein_exp) {
-                    if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab(gene_set_opt);
+            $("#" + enrichmentsTabSettings.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
+                if (ui.newTab.text() === enrichmentsTabSettings.texts.sub_tab_copy_num) {
+                    if ($("#" + enrichmentsTabSettings.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab(gene_set_opt);
+                } else if (ui.newTab.text() === enrichmentsTabSettings.texts.sub_tab_mutations) {
+                    if ($("#" + enrichmentsTabSettings.ids.sub_tab_copy_num).is(':empty')) init_mutations_tab(gene_set_opt);
+                } else if (ui.newTab.text() === enrichmentsTabSettings.texts.sub_tab_mrna_exp) {
+                    if ($("#" + enrichmentsTabSettings.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab(gene_set_opt);
+                } else if (ui.newTab.text() === enrichmentsTabSettings.texts.sub_tab_protein_exp) {
+                    if ($("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab(gene_set_opt);
                 }
             });
 
@@ -282,31 +282,31 @@ var or_tab = (function() {
     var update = function() {
 
         //get the currently selected tab index
-        var $tabs = $('#or-analysis-tabs').tabs();
+        var $tabs = $('#' + enrichmentsTabSettings.ids.sub_tabs_div).tabs();
         var selected = $tabs.tabs('option', 'active');
-        var selectedTabTitle = $($("#or-analysis-tabs li")[selected]).text();
+        var selectedTabTitle = $($("#" +  + enrichmentsTabSettings.ids.sub_tabs_div + " li")[selected]).text();
 
         //update current selected sub tab only
-        if (selectedTabTitle === orAnalysis.texts.sub_tab_mutations) {
+        if (selectedTabTitle === enrichmentsTabSettings.texts.sub_tab_mutations) {
             init_mutations_tab(gene_set_opt);
-        } else if (selectedTabTitle === orAnalysis.texts.sub_tab_copy_num) {
+        } else if (selectedTabTitle === enrichmentsTabSettings.texts.sub_tab_copy_num) {
             init_copy_num_tab(gene_set_opt);
-        } else if (selectedTabTitle === orAnalysis.texts.sub_tab_mrna_exp) {
+        } else if (selectedTabTitle === enrichmentsTabSettings.texts.sub_tab_mrna_exp) {
             init_mrna_exp_tab(gene_set_opt);
-        } else if (selectedTabTitle === orAnalysis.texts.sub_tab_protein_exp) {
+        } else if (selectedTabTitle === enrichmentsTabSettings.texts.sub_tab_protein_exp) {
             init_protein_exp_tab(gene_set_opt);
         }
 
         //bind event listener
-        $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
-            if (ui.newTab.text() === orAnalysis.texts.sub_tab_copy_num) {
-                if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab(gene_set_opt);
-            } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mutations) {
-                if ($("#" + orAnalysis.ids.sub_tab_mutations).is(':empty')) init_mutations_tab(gene_set_opt);
-            } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
-                if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab(gene_set_opt);
-            } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_protein_exp) {
-                if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab(gene_set_opt);
+        $("#" + enrichmentsTabSettings.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
+            if (ui.newTab.text() === enrichmentsTabSettings.texts.sub_tab_copy_num) {
+                if ($("#" + enrichmentsTabSettings.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab(gene_set_opt);
+            } else if (ui.newTab.text() === enrichmentsTabSettings.texts.sub_tab_mutations) {
+                if ($("#" + enrichmentsTabSettings.ids.sub_tab_mutations).is(':empty')) init_mutations_tab(gene_set_opt);
+            } else if (ui.newTab.text() === enrichmentsTabSettings.texts.sub_tab_mrna_exp) {
+                if ($("#" + enrichmentsTabSettings.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab(gene_set_opt);
+            } else if (ui.newTab.text() === enrichmentsTabSettings.texts.sub_tab_protein_exp) {
+                if ($("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab(gene_set_opt);
             }
         });
 
@@ -329,9 +329,9 @@ var or_tab = (function() {
             }
 
             if ((alteredCaseList.length === 1 && alteredCaseList[0] === "") || alteredCaseList.length === 0) {
-                $("#or_analysis").append("No alteration in selected samples, therefore could not perform this calculation.");
+                $("#" + enrichmentsTabSettings.ids.main_div).append("No alteration in selected samples, therefore could not perform this calculation.");
             } else if ((unalteredCaseList.length === 1 && unalteredCaseList[0] === "") || unalteredCaseList.length === 0) {
-                $("#or_analysis").append("No non-alteration in selected samples, therefore could not perform this calculation.");
+                $("#" + enrichmentsTabSettings.ids.main_div).append("No non-alteration in selected samples, therefore could not perform this calculation.");
             } else {
                 init_ajax();
             }

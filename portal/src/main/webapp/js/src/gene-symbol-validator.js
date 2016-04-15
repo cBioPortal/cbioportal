@@ -52,10 +52,18 @@ var GeneSymbolValidator = (function($) {
 	    return;
 	}
 	
-        $("#genestatus").html("<img src='images/ajax-loader2.gif'> <small>Validating gene symbols...</small>");
         
 	try {
-	    var genesStr = oql_parser.parse($("#gene_list").val()).map(function (parsed_line) {
+	    var non_datatypes_lines = oql_parser.parse($("#gene_list").val()).filter(function(parsed_line) {
+		return parsed_line.gene !== "DATATYPES";
+	    });
+	    if (non_datatypes_lines.length === 0) {
+		$("#genestatus").html("");
+		return;
+	    }
+	    
+	    $("#genestatus").html("<img src='images/ajax-loader2.gif'> <small>Validating gene symbols...</small>");
+	    var genesStr = non_datatypes_lines.map(function (parsed_line) {
 		return parsed_line.gene;
 	    }).join(",");
 	    $.post(

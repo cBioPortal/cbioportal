@@ -224,6 +224,7 @@
                         <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
                         <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
                         <input style="float:left;" id="minY" size="3" type="text">
+                        <span id="suffix">%</span>
                     </div>
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" >Min. # total samples:</span>
@@ -260,12 +261,13 @@
                 
             </div>
 
-            <div id="cchistogram" style="width: 1100px; height: 820px;position:relative;margin-top:30px;">
+            <div id="cchistogram" style="width: 1100px; height: 700px;position:relative;margin-top:30px;">
                 <img src="images/ajax-loader.gif"/>
             </div>
 
             <div id="studies-with-no-data">
             </div>
+            <span style="color:grey;position:relative;top:-40px;left:10px;" id="note"></span>
         </div>
 
         <div class="section" id="cc-mutations">

@@ -17,8 +17,8 @@
       <artifactId>business</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- antisamy -->
 
+    <!-- antisamy -->
     <dependency>
       <groupId>org.owasp</groupId>
       <artifactId>antisamy</artifactId>

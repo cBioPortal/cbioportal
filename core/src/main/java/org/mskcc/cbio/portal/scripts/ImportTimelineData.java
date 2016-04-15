@@ -117,6 +117,7 @@ public class ImportTimelineData {
 		}
 
 		OptionParser parser = new OptionParser();
+		parser.accepts("noprogress");
 		OptionSpec<String> data = parser.accepts("data",
 			"clinial events data file").withRequiredArg().describedAs("data_clinical_events.txt").ofType(String.class);
 		OptionSpec<String> meta = parser.accepts("meta",

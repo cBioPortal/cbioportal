@@ -46,10 +46,11 @@ public class CalculateMutationFrequencies {
 
     public static void main(String[] args) throws Exception {
         HashMap <CanonicalGene, HashSet<Integer>> mutationMap = new HashMap<CanonicalGene, HashSet<Integer>>();
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
-        if (args.length != 2) {
+        if (args.length < 2) {
             System.out.println ("You must specify a stable case set id and stable cancer study id.");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
 

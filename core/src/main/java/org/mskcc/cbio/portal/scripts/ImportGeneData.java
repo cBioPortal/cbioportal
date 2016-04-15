@@ -127,22 +127,26 @@ public class ImportGeneData {
             }
         }
 
-        // Add genes with symbol from nomenclature authority
-        for (Map.Entry<String, Set<CanonicalGene>> entry : genesWithoutSymbolFromNomenClatureAuthority.entrySet()) {
-            Set<CanonicalGene> genes = entry.getValue();
-            String symbol = entry.getKey();
-            if (genes.size()==1) {
-                CanonicalGene gene = genes.iterator().next();
-                if (!genesWithSymbolFromNomenClatureAuthority.containsKey(symbol)) {
-                    daoGene.addGene(gene);
-                } else {
-                    // ignore entries with a symbol that have the same value as stardard one
-                    ProgressMonitor.logWarning("Ignored line with entrez gene id "+gene.getEntrezGeneId()
-                            + ". "+symbol+" is already imported.");
-                }
-            } else {
-                logDuplicateGeneSymbolWarning(symbol, genes);
-            }
+        // Add genes without symbol from nomenclature authority
+        if (genesWithoutSymbolFromNomenClatureAuthority.keySet().size() > 0) {
+	        ProgressMonitor.logWarning("There are " +genesWithoutSymbolFromNomenClatureAuthority.keySet().size() + 
+	        		" genes names in this file without an official symbol from nomenclature authorty. Trying to import them...");
+	        for (Map.Entry<String, Set<CanonicalGene>> entry : genesWithoutSymbolFromNomenClatureAuthority.entrySet()) {
+	            Set<CanonicalGene> genes = entry.getValue();
+	            String symbol = entry.getKey();
+	            if (genes.size()==1) {
+	                CanonicalGene gene = genes.iterator().next();
+	                if (!genesWithSymbolFromNomenClatureAuthority.containsKey(symbol)) {
+	                    daoGene.addGene(gene);
+	                } else {
+	                    // ignore entries with a symbol that have the same value as stardard one
+	                    ProgressMonitor.logWarning("Ignored line with entrez gene id "+gene.getEntrezGeneId()
+	                            + ". "+symbol+" is already imported.");
+	                }
+	            } else {
+	                logDuplicateGeneSymbolWarning(symbol, genes);
+	            }
+	        }
         }
         
         if (MySQLbulkLoader.isBulkLoad()) {
@@ -256,7 +260,6 @@ public class ImportGeneData {
         }
         ProgressMonitor.setConsoleMode(true);
         
-
         File geneFile = new File(args[0]);
         System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(geneFile);
@@ -264,7 +267,7 @@ public class ImportGeneData {
         ProgressMonitor.setMaxValue(numLines);
         ImportGeneData.importData(geneFile);
         ConsoleUtil.showWarnings();
-        System.err.println("Done.");
+        System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
         
         if (args.length>=2) {
             File suppGeneFile = new File(args[1]);

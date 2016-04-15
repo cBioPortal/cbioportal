@@ -30,9 +30,9 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -130,7 +130,12 @@
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
             if(oncokbInstance) {
-                oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"), findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), mutations.getValue(_id, "is-hotspot"));
+                oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), 
+                    mutations.getValue(_id, "aa"), null, 
+                    mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : cancerType, 
+                    findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), 
+                    mutations.getValue(_id, "is-hotspot"), mutations.getValue(_id, 'protein-start'), 
+                    mutations.getValue(_id, 'protein-end'));
             }
             data.push([mutEventIds[i]]);
         }
@@ -208,7 +213,7 @@
                                 if(mutations.colExists('oncokb')) {
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else if(OncoKB.getAccess()){
-                                    ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                    ret += "<img width='14' height='14' src='images/ajax-loader.gif'/>";
                                 } else {
                                     ret = "<div class='"+table_id
                                             +"-tip' alt='"+tip+"'>"+ret+"</div>";
@@ -235,20 +240,23 @@
                                 if (mutations.colExists('oncokb')) {
                                     var oncokbInfo = mutations.getValue(source[0], 'oncokb');
 
-                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
-                                    ret += "<span class='oncokb oncokb_column' oncokbId='" + source[0] + "'></span>";
+                                    ret += "<span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
                                 } else if (OncoKB.getAccess()) {
-                                    ret += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
+                                    ret += '<span class="annotation-item"><img width="14" height="14" src="images/ajax-loader.gif"/></span>';
                                 }
 
                                 var mcg = mutations.getValue(source[0], 'mycancergenome');
                                 if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
-                                    ret += "&nbsp;<span class='" + table_id + "-tip'" +
+                                    ret += "<span class='annotation-item " + table_id + "-tip'" +
                                             "alt='<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>" + mcg.join("</li><li>") + "</li></ul>'>" +
-                                            "<img src='images/mcg_logo.png'></span>";
+                                            "<img width='14' height='14' src='images/mcg_logo.png'></span>";
+                                }else {
+                                    ret += "<span class='annotation-item'></span>";
                                 }
                                 if (showHotspot && mutations.getValue(source[0], 'is-hotspot')) {
-                                    ret += "<span class='" + table_id + "-hotspot' alteration='" + aa + "' oncokbId='" + source[0] + "' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                    ret += "<span class='annotation-item " + table_id + "-hotspot' alteration='" + aa + "' oncokbId='" + source[0] + "'><img width='14' height='14' src='images/oncokb-flame.svg'></span>";
+                                }else {
+                                    ret += "<span class='annotation-item'></span>";
                                 }
                                 return ret;
                             } else if (type === 'sort') {
@@ -750,7 +758,7 @@
                                 var proteinPos = hugo+"_"+mutations.getValue(source[0], "protein-start");
 
                                 var ret = "<div class='pancan_mutations_histogram_thumbnail' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
-                                    ret += "<img width='15' height='15' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif'/>";
+                                    ret += "<img width='14' height='14' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif'/>";
                                     ret += "<div class='pancan_mutations_histogram_count' style='float:right' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
 
                                 return ret;
@@ -945,11 +953,11 @@
         } );
 
         if(oncokbInstance) {
-            oncokbInstance.getEvidence().then(function () {
+            oncokbInstance.getIndicator().then(function () {
                 var tableData = oTable.fnGetData();
                 var oncokbEvidence = [];
                 _.each(tableData, function(ele, i) {
-                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
+                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]));
                 });
                 mutations.addData('oncokb', oncokbEvidence)
                 if (tableData.length > 0)

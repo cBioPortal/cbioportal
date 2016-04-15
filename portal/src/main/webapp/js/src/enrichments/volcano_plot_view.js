@@ -34,7 +34,7 @@ function VolcanoPlot() {
     /**
      * Trigger the rendering of the plot.
      *
-     * @param orTable: the orTable, which contains the miniOnca, originalData, etc.
+     * @param orTable: the enrichmentsTabTable, which contains the miniOnca, originalData, etc.
      */
     this.render = function(orTable){
         self.orTable = orTable;
@@ -143,6 +143,8 @@ function VolcanoPlot() {
      */
     function addPlotLayoutOptions(){
         var axisOptions = {
+            width: 375,
+            height: 400,
             xaxis:{
                 title: 'log Ratio'
             },
@@ -190,7 +192,7 @@ function VolcanoPlot() {
         var axisMargin=1.25;
         var minX = -1*plotDataAttr.abs_max_x;
         var maxX = plotDataAttr.abs_max_x;
-        var pVal = -Math.log10(orAnalysis.settings.p_val_threshold);
+        var pVal = -Math.log10(enrichmentsTabSettings.settings.p_val_threshold);
         var extraTraceText1 = '&#8592; mutual exclusivity';
         var extraTraceText2 = 'co-occurrence  &#8594;';
 

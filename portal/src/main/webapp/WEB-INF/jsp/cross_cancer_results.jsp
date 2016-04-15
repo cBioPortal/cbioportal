@@ -176,6 +176,7 @@
             }
         });
 
+        $("#bookmark-link").attr("href", window.location.href);
         $("#bitly-generator").click(function() {
             bitlyURL(window.location.href);
         });
@@ -223,6 +224,7 @@
                         <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
                         <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
                         <input style="float:left;" id="minY" size="3" type="text">
+                        <span id="suffix">%</span>
                     </div>
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" >Min. # total samples:</span>
@@ -259,12 +261,13 @@
                 
             </div>
 
-            <div id="cchistogram" style="width: 1100px; height: 820px;position:relative;margin-top:30px;">
+            <div id="cchistogram" style="width: 1100px; height: 700px;position:relative;margin-top:30px;">
                 <img src="images/ajax-loader.gif"/>
             </div>
 
             <div id="studies-with-no-data">
             </div>
+            <span style="color:grey;position:relative;top:-40px;left:10px;" id="note"></span>
         </div>
 
         <div class="section" id="cc-mutations">
@@ -371,15 +374,14 @@
 </script>
 
 <script type="text/template" id="mutation_table_annotation_template">
-    <span class='oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
-        <img class='oncokb oncogenic loader' width="13" height="13" class="loader" src="images/ajax-loader.gif"/>
+    <span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
+        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif"/>
     </span>
-    <span class='oncokb oncokb_column' oncokbId='{{oncokbId}}'></span>
-    <span class='mcg' alt='{{mcgAlt}}'>
-        <img src='images/mcg_logo.png'>
+    <span class='annotation-item mcg' alt='{{mcgAlt}}'>
+        <img width='14' height='14' src='images/mcg_logo.png'>
     </span>
-    <span class='chang_hotspot' alt='{{changHotspotAlt}}'>
-        <img width='13' height='13' src='images/oncokb-flame.svg'>
+    <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
+        <img width='14' height='14' src='images/oncokb-flame.svg'>
     </span>
 </script>
 

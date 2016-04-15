@@ -31,20 +31,20 @@
 */
 
 
-var orAnalysis = (function() {
+var enrichmentsTabSettings = (function() {
 
     return {
 
         ids: {
-            main_div: "or_analysis",
-            sub_tabs_div: "or-analysis-tabs",
-            sub_tabs_list: "or-analysis-tabs-list",
-            sub_tabs_content: "or-analysis-tabs-content",
-            sub_tab_copy_num: "or-analysis-subtab-copy-num",
-            sub_tab_mutations: "or-analysis-subtab-mutations",
-            sub_tab_mrna_exp: "or-analysis-subtab-mrna-exp",
-            sub_tab_advanced: "or-analysis-subtab-advanced",
-            sub_tab_protein_exp: "or-analysis-subtab-protein-exp",
+            main_div: "enrichementTabDiv",
+            sub_tabs_div: "enrichments-tab-tabs",
+            sub_tabs_list: "enrichments-tab-tabs-list",
+            sub_tabs_content: "enrichments-tab-tabs-content",
+            sub_tab_copy_num: "enrichments-subtab-copy-num",
+            sub_tab_mutations: "enrichments-subtab-mutations",
+            sub_tab_mrna_exp: "enrichments-subtab-mrna-exp",
+            sub_tab_advanced: "enrichments-subtab-advanced",
+            sub_tab_protein_exp: "enrichments-subtab-protein-exp",
             gene_set_warning: "enrichments-tab-gene-set-warning"
         },
         texts: {
@@ -90,44 +90,45 @@ var orAnalysis = (function() {
         col_index: {
             copy_num: {
                 gene: 0,
-                //cytoband: 1,
-                altered_pct: 1,
-                unaltered_pct: 2,
-                log_ratio: 3,
-                p_val: 4,
-                q_val: 5,
-                direction: 6
+                cytoband: 1,
+                altered_pct: 2,
+                unaltered_pct: 3,
+                log_ratio: 4,
+                p_val: 5,
+                q_val: 6,
+                direction: 7
             },
             mrna: {
                 gene: 0,
-                //cytoband: 1,
-                altered_mean: 1,
-                unaltered_mean: 2,
-                altered_stdev: 3,
-                unaltered_stdev: 4,
-                p_val: 5,
-                q_val: 6,
-                plot: 7
+                cytoband: 1,
+                altered_mean: 2,
+                unaltered_mean: 3,
+                altered_stdev: 4,
+                unaltered_stdev: 5,
+                p_val: 6,
+                q_val: 7,
+                plot: 8
             },
             mutations: {
                 gene: 0,
-                altered_pct: 1,
-                unaltered_pct: 2,
-                log_ratio: 3,
-                p_val: 4,
-                q_val: 5,
-                direction: 6
+                cytoband: 1,
+                altered_pct: 2,
+                unaltered_pct: 3,
+                log_ratio: 4,
+                p_val: 5,
+                q_val: 6,
+                direction: 7
             },
             protein_exp: {
                 gene: 0,
-                //cytoband: 1,
-                altered_mean: 1,
-                unaltered_mean: 2,
-                altered_stdev: 3,
-                unaltered_stdev: 4,
-                p_val: 5,
-                q_val: 6,
-                plot: 7
+                cytoband: 1,
+                altered_mean: 2,
+                unaltered_mean: 3,
+                altered_stdev: 4,
+                unaltered_stdev: 5,
+                p_val: 6,
+                q_val: 7,
+                plot: 8
             }
         },
         _title_ids : {

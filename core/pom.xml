@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-  <!-- module meta data -->
+  <!-- meta data -->
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
@@ -12,19 +11,6 @@
   <name>Portal Core</name>
   <description>Core libraries shared among other modules</description>
 
-  <repositories>
-    <repository>
-      <id>biojava-maven-repo</id>
-      <name>BioJava repository</name>
-      <url>http://www.biojava.org/download/maven/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
-
-
-  <!-- dependencies -->
   <dependencies>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
@@ -166,17 +152,18 @@
       <version>2.3</version>
     </dependency>
 
-    <!-- BioJava3 -->
+    <!-- BioJava 4.x -->
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>biojava3-core</artifactId>
-      <version>3.0.7</version>
+      <artifactId>biojava-core</artifactId>
+      <version>4.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>biojava3-structure</artifactId>
-      <version>3.0.7</version>
+      <artifactId>biojava-structure</artifactId>
+      <version>4.2.0</version>
     </dependency>
+
     <!-- Mockito -->
     <dependency>
       <groupId>org.mockito</groupId>
@@ -283,8 +270,6 @@
     </profile>
   </profiles>
 
-
-	<!-- plugins -->
   <build>
     <plugins>
       <!-- java 1.7 support -->

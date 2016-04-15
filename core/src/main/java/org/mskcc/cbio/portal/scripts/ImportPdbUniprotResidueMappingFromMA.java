@@ -34,11 +34,6 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
 import java.util.*;
-import org.biojava.bio.structure.*;
-import org.biojava.bio.structure.align.util.AtomCache;
-import org.biojava.bio.structure.io.FileParsingParameters;
-import org.biojava3.core.sequence.compound.*;
-import org.biojava3.core.sequence.loader.UniprotProxySequenceReader;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;

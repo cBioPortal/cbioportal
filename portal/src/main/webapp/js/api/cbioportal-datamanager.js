@@ -36,7 +36,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					}
 				};
 			}
-			return parsed;
+			
+			return parsed.filter(function(parsed_line) {
+			    return parsed_line.gene !== "DATATYPES";
+			});
 		};
 		// Helper Functions
 		var isCNACmd = function (cmd) {
@@ -240,7 +243,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		return {
 			getGenes: function (oql_query) {
 				var parse_res = parse(oql_query);
-				return parse_res.map(function (q) {
+				return parse_res.filter(function(q) {
+				    return q.gene !== "DATATYPES";
+				}).map(function (q) {
 					return q.gene;
 				});
 			},

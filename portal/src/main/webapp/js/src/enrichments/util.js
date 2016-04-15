@@ -30,7 +30,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var or_util = (function() {
+/**
+ * 
+ * Enrichment Analysis Tab data table.
+ * @author: suny1@mskcc.org
+ * 
+ */
+
+var enrichmentsTabUtil = (function() {
 
     return {
         analyse_data: function(inputArr) {

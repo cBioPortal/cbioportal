@@ -36,14 +36,14 @@
 
 /******************************************************************************************
  * Creating RPPA plots for "enrichments" tab
- * @author Yichao Sun
+ * @author suny1@mskcc.org
  *
  * This code performs the following functions:
  * 1. Generates boxplots for altered and unaltered group using D3 when user expanding any row in the table
  * 2. Annotates the plots with caseId, alteration details, specific value
  ******************************************************************************************/
 
-var orPlots = (function() {
+var enrichmentsTabPlots = (function() {
 
     var div_id, gene, profile_type, profile_id, profile_name, p_value;
     var dotsArr = [], xAxisTextSet = ["Altered", "Unaltered"];
@@ -196,7 +196,7 @@ var orPlots = (function() {
         $.each(dotsArr, function(index, val){
             _yValArr.push(val.y_val);
         });
-        var _results = or_util.analyse_data(_yValArr);
+        var _results = enrichmentsTabUtil.analyse_data(_yValArr);
         elem.yScale = d3.scale.linear()
             .domain([_results.min, _results.max])
             .range([520, 20]);
@@ -341,9 +341,9 @@ var orPlots = (function() {
                         return a - b;
                     });
                     IQR = Math.abs(quan2 - quan1);
-                    var index_top = or_util.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
+                    var index_top = enrichmentsTabUtil.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
                     top = scaled_y_arr[index_top];
-                    var index_bottom = or_util.searchIndexBottom(scaled_y_arr, (quan1 + 1.5 * IQR));
+                    var index_bottom = enrichmentsTabUtil.searchIndexBottom(scaled_y_arr, (quan1 + 1.5 * IQR));
                     bottom = scaled_y_arr[index_bottom];
                 }
                 boxPlotsElem.append("rect")
@@ -418,9 +418,9 @@ var orPlots = (function() {
                 content += "<strong><a href='"
                     +cbio.util.getLinkToSampleView(cancer_study_id,d.case_id)
                     + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
-                if (profile_type === orAnalysis.profile_type.mrna) {
+                if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
                     content += "mRNA expression: ";
-                } else if (profile_type === orAnalysis.profile_type.protein_exp) {
+                } else if (profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
                     content += "RPPA score: ";
                 }
                 content += "<strong>" + parseFloat(d.y_val).toFixed(3) + "</strong><br>";

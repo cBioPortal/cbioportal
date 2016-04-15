@@ -20,7 +20,7 @@ import org.mskcc.cbio.portal.stats.FisherExact;
  * @author suny1
  * @date Mar 16, 2015
  */
-public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.AlterationProcesser {
+public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationProcesser {
 
     private String geneticProfileStableId;
     private String profileType;
@@ -44,14 +44,14 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
     private final String COL_NAME_STDEV_UNALTERED = "standard deviation of alteration in unaltered group";
 
 
-    public ORAnalysisDiscretizedDataProxy(
+    public EnrichmentsAnalysisUtil(
 
-            String geneticProfileStableId,
-            String profileType,
-            String copyNumType,
-            List<Integer> alteredSampleIds,
-            List<Integer> unalteredSampleIds,
-            String[] queriedGenes) throws DaoException, IllegalArgumentException {
+        String geneticProfileStableId,
+        String profileType,
+        String copyNumType,
+        List<Integer> alteredSampleIds,
+        List<Integer> unalteredSampleIds,
+        String[] queriedGenes) throws DaoException, IllegalArgumentException {
 
         this.geneticProfileStableId = geneticProfileStableId;
         this.profileType = profileType;

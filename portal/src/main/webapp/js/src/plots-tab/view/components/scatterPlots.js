@@ -539,7 +539,12 @@ var scatterPlots = (function() {
         };
         
         var update_axis_title = function(_axis, _opt) {
-            var _previous_text = d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text();
+            var _previous_text;
+            if ($('.' + d3_class[_axis].axis_title).length !== 0) {
+                _previous_text = d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text();
+            } else {
+                _previous_text = d3.select("#plots-box").select("." + d3_class[_axis].axis_title + "_trimmed").text();
+            }
             if (_opt === "append") {
                 if (_previous_text.indexOf("(log2)") === -1) {
                     d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text(_previous_text + " (log2)");

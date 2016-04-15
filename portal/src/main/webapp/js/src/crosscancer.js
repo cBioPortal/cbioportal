@@ -36,10 +36,17 @@
 	// TODO 3d Visualizer should be initialized before document get ready
 	// ...due to incompatible Jmol initialization behavior
 	var _mut3dVis = null;
-	_mut3dVis = new Mutation3dVis("crossCancer3dView", {
-		pdbUri: "api/proxy/jsmol/"
-	});
-	_mut3dVis.init();
+    
+    // temporary fix for webGL incompatibility 
+    try {
+        _mut3dVis = new Mutation3dVis("crossCancer3dView", {
+            pdbUri: "api/proxy/jsmol/"
+        });
+        _mut3dVis.init();
+    } catch (e) {
+        console.log(e);
+    } 
+	
 
 	// Prepare eveything only if the page is ready to load
     $(function(){
@@ -53,7 +60,7 @@
         var paddingTop = 10;
         var histBottom = 400;
 	var legendTop = 500;
-	var legendHeight = 150;
+	var legendHeight = 50;
 	var histWidth = 1100;
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
@@ -98,13 +105,7 @@
             if(!_.isNaN(sliderValue) && !_.isUndefined(sliderValue) && sliderValue !== null){
                 threshold = sliderValue;
             }
-            //check if all values are zero or not
-            var nonZeroFlag = false;
-            _.each(histDataOrg, function(study) {
-             if(study.alterations["all"] > 0)
-                nonZeroFlag = true;
-            });
-            if(!nonZeroFlag)threshold = 0;
+ 
             
             var totalSamThreshold = 0;
             if(!_.isNaN(totalSamSliderValue) && !_.isUndefined(totalSamSliderValue) && totalSamSliderValue !== null){
@@ -116,23 +117,23 @@
             
             var type = $("#yAxis").val();
             
-            
+            var filteredStudiesCount = 0;
             var histData = [];
             _.each(histDataOrg, function(study) {
                 cancerTypeCheck = true; 
-                var showStudy = $("#histogram-remove-study-" + study.studyId).is(":checked");
-                if(cancerTypes !== "all" && metaData.type_of_cancers[metaData.cancer_studies[study.studyId].type_of_cancer] !== cancerTypes){
-                    cancerTypeCheck = false;
-                }    
-     
-                if(!study.skipped && showStudy && cancerTypeCheck){
+                var showStudy = true;
+                
+               if(!study.skipped && showStudy && cancerTypeCheck){
+               
                 if(type === "Frequency"){
                     if(calculateFrequency(study, 0, "all") >= threshold/100 && study.caseSetLength >= totalSamThreshold){
                         histData.push(study);
+                        filteredStudiesCount++;
                     }
                 }else if(type === "Count"){
                     if(study.alterations["all"] >= threshold && study.caseSetLength >= totalSamThreshold){
                         histData.push(study);
+                        filteredStudiesCount++;
                     }
                 } 
             }
@@ -140,6 +141,42 @@
                 if(study.alterations.cnaLoss > 0) { isThereHetLoss = true; }
                 if(study.alterations.cnaGain > 0) { isThereGain = true; }
             });
+            //update note content 
+            var note1 = "* ", note2 = "", note4 = " have been filtered out.";
+            if(histDataOrg.length - filteredStudiesCount === 0)
+            {
+                note1 +=  "No studies ";
+            }
+            else if(histDataOrg.length - filteredStudiesCount === 1)
+            {
+                note1 +=  "1 study ";
+                note4 = " has been filtered out.";
+            }
+            else
+            {
+                note1 +=  (histDataOrg.length - filteredStudiesCount) + " studies ";
+            }
+            
+            if(threshold > 0)
+            {
+               
+                if(type === "Frequency")
+                {
+                    note2 = "(% altered samples < " + threshold + "%";
+                }
+                else if(type === "Count"){
+                    note2 = "(# altered samples < " + threshold;
+                }
+                if(totalSamThreshold > 0)note2 += " or # total samples < " + totalSamThreshold + ")";
+                else note2 += ")";
+            }
+            else
+            {
+                if(totalSamThreshold > 0) note2 = "(# total samples < " + totalSamThreshold+")";
+            }
+            
+            var note3 = " out of " + histDataOrg.length;
+            $("#note").text(note1+note2+note3+note4);
 
             if(!$('#sortBy').is(':checked')){
                 if(type === "Frequency"){
@@ -200,7 +237,7 @@
                         window.studies = studies;
 
                         $.getJSON("portal_meta_data.json", function(metaData) {
-                            var firstEnterFlag = true;
+                             
                             window.PortalMetaData = metaData;
                             var histDataOrg = studies.toJSON();
                             (new HideStudyControlView({
@@ -729,7 +766,7 @@
                             var genes = _.last(histData).genes;
                             window.ccQueriedGenes =  genes;
                             var numOfGenes = genes.length;
-                            var numOfStudies = histData.length;
+                            var numOfStudies = histDataOrg.length;
 
                             (new CCTitleView({
                                model: {
@@ -745,7 +782,7 @@
                                 min: 0, 
                                 max: Math.ceil(100*maxYAxis)
                              });
-                             $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
+                             
                              
                              $("#totalSampleSlider").slider({ 
                                 value: 0,
@@ -770,21 +807,7 @@
                                     .attr("y", labelCorY)
                                     .attr("transform", "rotate(-90, " + labelCorX + ", " + labelCorY +")")
                                 ;
-                                                          
-                                if(firstEnterFlag)
-                                {
-                                    if($("#yAxis").val() === "Frequency")
-                                    {
-                                        $("#minY").val(0);
-                                        sliderValue = 1e-5;
-                                    }
-                                    else
-                                    {
-                                        $("#minY").val(1);
-                                        sliderValue = 1;
-                                    }
-                                    
-                                }
+                                
                                 histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
                             
 				studyWidth = fixedStudyWidth; // Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
@@ -1095,7 +1118,7 @@
                             
                             $("#yAxis").on("change", function(){
                             
-                            
+                               $("#sliderMinY").slider( "option", "value", 0 );
                                maxYAxis = 0;
                                if($("#yAxis").val() === "Frequency"){
                                    for(var i = 0;i < histDataOrg.length;i++){
@@ -1105,7 +1128,7 @@
                                     }
                                     maxYAxis = Math.min(maxYAxis, 1.0);
                                     $("#sliderLabel").text("Min. % altered samples:");
-                                    $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
+                                    $("#suffix").show();
                                     $("#sliderMinY").slider( "option", "max", Math.ceil(100*maxYAxis) );
                                      
                                }else if($("#yAxis").val() === "Count"){
@@ -1116,7 +1139,7 @@
                                     }
 
                                     $("#sliderLabel").text("Min. # altered samples:");
-                                    $("#maxLabel").text(maxYAxis);
+                                    $("#suffix").hide();
                                     $("#sliderMinY").slider( "option", "max", maxYAxis );
                                      
                                }
@@ -1129,14 +1152,14 @@
                             });
                             
                             $("#sliderMinY").on("slidechange", function(e, ui){
-                                firstEnterFlag = false;
+                                 
                                 var tempStr = ui.value + ($("#yAxis").val() === "Frequency" ? "%" : "");
                                  
                                 redrawHistogram();
                                 
                             });
                             $("#minY").on("keyup", function(e){
-                                firstEnterFlag = false;
+                                
                                 if(e.keyCode == 13)
                                 {
                                     $("#sliderMinY").slider({value: $("#minY").val()});
@@ -1283,8 +1306,8 @@
                                         columnTooltips: {
                                             annotation: function (selector, helper) {
                                                 $(selector).find('span.oncokb').remove();
-                                                $(selector).find('span.mcg[alt=""]').remove();
-                                                $(selector).find('span.chang_hotspot[alt=""]').remove();
+                                                $(selector).find('span.mcg[alt=""]').empty();
+                                                $(selector).find('span.chang_hotspot[alt=""]').empty();
                                                 $(selector).find('span.mcg').one('mouseenter', function () {
                                                     $(this).qtip({
                                                         content: {attr: 'alt'},
@@ -1343,8 +1366,8 @@
                                     mutationTable: {
                                         columnTooltips: {
                                             annotation: function (selector, helper) {
-                                                $(selector).find('span.mcg[alt=""]').remove();
-                                                $(selector).find('span.chang_hotspot[alt=""]').remove();
+                                                $(selector).find('span.mcg[alt=""]').empty();
+                                                $(selector).find('span.chang_hotspot[alt=""]').empty();
                                                 oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'column');
                                                 oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'alteration');
 
@@ -1387,15 +1410,15 @@
                                                     _.each(tableData, function (ele, i) {
                                                         var _datum = ele[indexMap["datum"]];
                                                         var _mutation = ele[indexMap["datum"]].mutation;
-                                                        oncokbInstance.addVariant(_mutation.mutationSid, '', _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType, _mutation.mutationType, _mutation.cosmicCount, _mutation.isHotspot);
+                                                        oncokbInstance.addVariant(_mutation.mutationSid, '', _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType ? _mutation.tumorType : _mutation.cancerType, _mutation.mutationType, _mutation.cosmicCount, _mutation.isHotspot, _mutation.proteinPosStart, _mutation.proteinPosEnd);
                                                     });
-                                                    oncokbInstance.getEvidence().done(function () {
+                                                    oncokbInstance.getIndicator().done(function () {
                                                         var tableData = dataTable.fnGetData();
                                                         if (tableData.length > 0) {
                                                             _.each(tableData, function (ele, i) {
                                                                 if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid)) {
                                                                     if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid).hasOwnProperty('evidence')) {
-                                                                        ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid).evidence;
+                                                                        ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid);
                                                                         dataTable.fnUpdate(null, i, indexMap["annotation"], false, false);
                                                                     }
                                                                 }
@@ -1707,6 +1730,5 @@
         new AppRouter();
         Backbone.history.start();
     });
-
 
 })(window.jQuery, window._, window.Backbone, window.d3);

@@ -101,10 +101,16 @@
 // TODO 3d Visualizer should be initialized before document get ready
 // ...due to incompatible Jmol initialization behavior
 var _mut3dVis = null;
-_mut3dVis = new Mutation3dVis("default3dView", {
-	pdbUri: "api/proxy/jsmol/"
-});
-_mut3dVis.init();
+
+// temporary fix for webGL incompatibility
+try {
+    _mut3dVis = new Mutation3dVis("default3dView", {
+        pdbUri: "api/proxy/jsmol/"
+    });
+    _mut3dVis.init();
+} catch (e) {
+    console.log(e);
+}
 
 // Set up Mutation View
 $(document).ready(function() {

@@ -36,6 +36,15 @@
     where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
     and sample.STABLE_ID in <foreach item="item" collection="sample_ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
+<select id="getSampleClinicalFieldsBySampleInternalIds" resultMap="ClinicalFieldResult">
+    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
+    inner join clinical_sample on clinical_sample.ATTR_ID = clinical_attribute.ATTR_ID
+    inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+    inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+    inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+    and sample.INTERNAL_ID in <foreach item="item" collection="sample_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
 <select id="getPatientClinicalFieldsByPatient" resultMap="ClinicalFieldResult">
     select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
                 inner join clinical_patient on clinical_patient.ATTR_ID = clinical_attribute.ATTR_ID
@@ -43,6 +52,14 @@
                 inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
     and patient.STABLE_ID in <foreach item="item" collection="patient_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
+<select id="getPatientClinicalFieldsByPatientInternalIds" resultMap="ClinicalFieldResult">
+    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
+    inner join clinical_patient on clinical_patient.ATTR_ID = clinical_attribute.ATTR_ID
+    inner join patient on patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
+    inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+    and patient.INTERNAL_ID in <foreach item="item" collection="patient_ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
 
 <select id="getAllSampleClinicalFields" resultMap="ClinicalFieldResult">

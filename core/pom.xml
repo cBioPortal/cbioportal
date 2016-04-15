@@ -4,23 +4,12 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
   <name>Portal Core</name>
   <description>Core libraries shared among other modules</description>
-
-  <repositories>
-    <repository>
-      <id>biojava-maven-repo</id>
-      <name>BioJava repository</name>
-      <url>http://www.biojava.org/download/maven/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
 
   <dependencies>
     <dependency>
@@ -163,17 +152,18 @@
       <version>2.3</version>
     </dependency>
 
-    <!-- BioJava3 -->
+    <!-- BioJava 4.x -->
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>biojava3-core</artifactId>
-      <version>3.0.7</version>
+      <artifactId>biojava-core</artifactId>
+      <version>4.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>biojava3-structure</artifactId>
-      <version>3.0.7</version>
+      <artifactId>biojava-structure</artifactId>
+      <version>4.2.0</version>
     </dependency>
+
     <!-- Mockito -->
     <dependency>
       <groupId>org.mockito</groupId>

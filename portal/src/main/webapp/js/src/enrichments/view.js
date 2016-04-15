@@ -31,11 +31,11 @@
 */
 
 /**
- * Over Representation (OR) data table.
+ * Enrichment Analysis Tab data table.
  * @param plot_div: optional parameter, i.e. the div where to add a volcano plot representation of the data.
                     If set, a volcano plot is rendered next to the data table.
  */
-var orTable = function(plot_div, minionco_div, loading_div) {
+var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
 
 	var self = this;
 	self.plot_div = plot_div;
@@ -43,15 +43,15 @@ var orTable = function(plot_div, minionco_div, loading_div) {
     self.loading_div = loading_div;
 
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
-    var col_index, orTableInstance, profile_type, profile_id, table_title, data_type;
+    var col_index, enrichmentsTableInstance, profile_type, profile_id, table_title, data_type;
     var selected_genes = [];
 
     function configTable() {
 
         //sortings
-        jQuery.fn.dataTableExt.oSort['or-analysis-p-value-desc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-p-value-desc'] = function(a,b) {
 
-            if (profile_type === orAnalysis.profile_type.mrna) {
+            if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
                 if (a.indexOf("up1") !== -1) a = a.replace("<img src=\"images/up1.png\"/>",  "");
                 if (a.indexOf("down1") !== -1) a = a.replace("<img src=\"images/down1.png\"/>",  "");
                 if (b.indexOf("up1") !== -1) b = b.replace("<img src=\"images/up1.png\"/>",  "");
@@ -62,9 +62,9 @@ var orTable = function(plot_div, minionco_div, loading_div) {
             else if (parseFloat(a) < parseFloat(b)) return 1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-p-value-asc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-p-value-asc'] = function(a,b) {
 
-            if (profile_type === orAnalysis.profile_type.mrna) {
+            if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
                 if (a.indexOf("up1") !== -1) a = a.replace("<img src=\"images/up1.png\"/>",  "");
                 if (a.indexOf("down1") !== -1) a = a.replace("<img src=\"images/down1.png\"/>",  "");
                 if (b.indexOf("up1") !== -1) b = b.replace("<img src=\"images/up1.png\"/>",  "");
@@ -75,9 +75,9 @@ var orTable = function(plot_div, minionco_div, loading_div) {
             else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-q-value-desc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-q-value-desc'] = function(a,b) {
 
-             if (profile_type === orAnalysis.profile_type.mrna) {
+             if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
                 if (a.indexOf("up1") !== -1) a = a.replace("<img src=\"images/up1.png\"/>",  "");
                 if (a.indexOf("down1") !== -1) a = a.replace("<img src=\"images/down1.png\"/>",  "");
                 if (b.indexOf("up1") !== -1) b = b.replace("<img src=\"images/up1.png\"/>",  "");
@@ -88,9 +88,9 @@ var orTable = function(plot_div, minionco_div, loading_div) {
             else if (parseFloat(a) < parseFloat(b)) return 1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-q-value-asc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-q-value-asc'] = function(a,b) {
 
-            if (profile_type === orAnalysis.profile_type.mrna) {
+            if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
                 if (a.indexOf("up1") !== -1) a = a.replace("<img src=\"images/up1.png\"/>",  "");
                 if (a.indexOf("down1") !== -1) a = a.replace("<img src=\"images/down1.png\"/>",  "");
                 if (b.indexOf("up1") !== -1) b = b.replace("<img src=\"images/up1.png\"/>",  "");
@@ -101,7 +101,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
             else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-desc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-log-ratio-desc'] = function(a,b) {
             if (a === "<-10") { a = -11; }
             if (b === "<-10") { b = -11; }
             if (a === ">10") { a = 11; }
@@ -115,7 +115,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 else return 0;
             }
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-asc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-log-ratio-asc'] = function(a,b) {
             if (a === "<-10") { a = -11; }
             if (b === "<-10") { b = -11; }
             if (a === ">10") { a = 11; }
@@ -129,28 +129,28 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 else return 0;
             }
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-pct-altered-desc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-pct-altered-desc'] = function(a,b) {
             a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
             b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
             if (a > b) return -1;
             else if (a < b) return 1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-pct-altered-asc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-pct-altered-asc'] = function(a,b) {
             a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
             b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
             if (a > b) return 1;
             else if (a < b) return -1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-pct-unaltered-desc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-pct-unaltered-desc'] = function(a,b) {
             a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
             b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
             if (a > b) return -1;
             else if (a < b) return 1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['or-analysis-pct-unaltered-asc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['enrichments-pct-unaltered-asc'] = function(a,b) {
             a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
             b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
             if (a > b) return 1;
@@ -166,7 +166,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
         );
 
         //Configure the datatable with  jquery
-        orTableInstance = $("#" + table_id).dataTable({
+        enrichmentsTableInstance = $("#" + table_id).dataTable({
             "sDom": "<'H'f<'" + table_id + "_filter'>>t<'F'ip>",
             "bPaginate": true,
             "sPaginationType": "full_numbers",
@@ -175,7 +175,6 @@ var orTable = function(plot_div, minionco_div, loading_div) {
             "bAutoWidth": false,
             "aaData" : data,
             "aaSorting": [[col_index.p_val, 'asc']],
-            //"sScrollY": "400px",
             "bScrollCollapse": true,
             "oLanguage": {
                 "sSearch": "Search Gene  "
@@ -189,37 +188,37 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                             // if the table supports the mini-onco, add classes for selecting a gene and highlighting
                             if(self.supportsMiniOnco()){
                                 return "<div class='geneCheckboxDiv'>" +
-                                    "<input type='checkbox' class='" +table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='"+ data[col_index.gene] + "'>" +
+                                    "<input type='checkbox' class='" +table_id + enrichmentsTabSettings.postfix.datatable_gene_checkbox_class + "' value='"+ data[col_index.gene] + "'>" +
                                     "<span class='selectHighlight_"+table_id+" selectHighlight'>" + data[col_index.gene] + "</span>" +
                                     "</div>";
                             }
-                            return "<input type='checkbox' class='" +table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='"+ data[col_index.gene] + "'>" + data[col_index.gene];
+                            return "<input type='checkbox' class='" +table_id + enrichmentsTabSettings.postfix.datatable_gene_checkbox_class + "' value='"+ data[col_index.gene] + "'>" + data[col_index.gene];
                         }
                         return data[col_index.gene];
                     }
                 },
                 {
-                    "sType": 'or-analysis-p-value',
+                    "sType": 'enrichments-p-value',
                     "bSearchable": false,
                     "aTargets": [ col_index.p_val ]
                 },
                 {
-                    "sType": 'or-analysis-q-value',
+                    "sType": 'enrichments-q-value',
                     "bSearchable": false,
                     "aTargets": [ col_index.q_val ]
                 },
                 {
-                    "sType": 'or-analysis-log-ratio',
+                    "sType": 'enrichments-log-ratio',
                     "bSearchable": false,
                     "aTargets": [ col_index.log_ratio ]
                 },
                 {
-                    "sType": 'or-analysis-pct-altered',
+                    "sType": 'enrichments-pct-altered',
                     "bSearchable": false,
                     "aTargets": [col_index.altered_pct]
                 },
                 {
-                    "sType": 'or-analysis-pct-unaltered',
+                    "sType": 'enrichments-pct-unaltered',
                     "bSearchable": false,
                     "aTargets": [col_index.unaltered_pct]
                 },
@@ -227,7 +226,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                     "bSearchable": false,
                     "bSortable": false,
                     "mRender": function () {
-                        return "<img class='" + table_id + "_or_analysis_details_img' src='images/details_open.png'>";
+                        return "<img class='" + table_id + "_enrichments_details_img' src='images/details_open.png'>";
                     },
                     "aTargets": [ col_index.plot ]
                 }
@@ -243,7 +242,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 $('td:eq(' + col_index.q_val + ')', nRow).css("font-size", "10px");
                 $('td:eq(' + col_index.direction + ')', nRow).css("font-size", "10px");
 
-                if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
+                if (profile_type === enrichmentsTabSettings.profile_type.copy_num || profile_type === enrichmentsTabSettings.profile_type.mutations) {
                     if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">10") {
                         $('td:eq('+ col_index.log_ratio +')', nRow).css("color", "#3B7C3B");
                     } else if (aData[col_index.log_ratio] < 0 || aData[col_index.log_ratio] === "<-10") {
@@ -251,14 +250,14 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                     }
                     //bold siginicant pvalue and qvalue
                     if (aData[col_index.p_val] === "<0.001" ||
-                        aData[col_index.p_val] < orAnalysis.settings.p_val_threshold) { //significate p value
+                        aData[col_index.p_val] < enrichmentsTabSettings.settings.p_val_threshold) { //significate p value
                         $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
                     }
                     if (aData[col_index.q_val] === "<0.001" ||
-                        aData[col_index.q_val] < orAnalysis.settings.p_val_threshold) { //significate q value
+                        aData[col_index.q_val] < enrichmentsTabSettings.settings.p_val_threshold) { //significate q value
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     }
-                } else if (profile_type === orAnalysis.profile_type.mrna || profile_type === orAnalysis.profile_type.protein_exp) {
+                } else if (profile_type === enrichmentsTabSettings.profile_type.mrna || profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
                     var _p_val = aData[col_index.p_val],
                         _q_val = aData[col_index.q_val];
                     if (_p_val.indexOf("up1") !== -1) _p_val = _p_val.replace("<img src=\"images/up1.png\"/>",  "");
@@ -266,17 +265,17 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                     if (_q_val.indexOf("up1") !== -1) _q_val = _q_val.replace("<img src=\"images/up1.png\"/>",  "");
                     if (_q_val.indexOf("down1") !== -1) _q_val = _q_val.replace("<img src=\"images/down1.png\"/>",  "");
 
-                    if (_p_val === "<0.001" || _p_val < orAnalysis.settings.p_val_threshold) {
+                    if (_p_val === "<0.001" || _p_val < enrichmentsTabSettings.settings.p_val_threshold) {
                         $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
                     }
-                    if (_q_val === "<0.001" || _q_val < orAnalysis.settings.p_val_threshold) {
+                    if (_q_val === "<0.001" || _q_val < enrichmentsTabSettings.settings.p_val_threshold) {
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     }
                 }
             },
             "fnDrawCallback": function() {
                 event_listener_details_btn();
-                activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
+                activateUpdateQueryBtns(table_id + enrichmentsTabSettings.postfix.datatable_update_query_button);
                 activeDownloadBtn();
 
                 // If the table supports the mini-onco, add gene-click functionality
@@ -335,7 +334,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 searchExpression = "^" + selection.join("$|^") + "$";
             }
             //apply search expression to the dataTable:
-            orTableInstance.DataTable().column(0).search(
+            enrichmentsTableInstance.DataTable().column(0).search(
                 searchExpression,
                 true,
                 false
@@ -351,7 +350,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
      * @returns {boolean}
      */
     this.supportsMiniOnco = function(){
-        return profile_type === orAnalysis.profile_type.mutations || profile_type === orAnalysis.profile_type.copy_num;
+        return profile_type === enrichmentsTabSettings.profile_type.mutations || profile_type === enrichmentsTabSettings.profile_type.copy_num;
     }
 
     /**
@@ -367,49 +366,49 @@ var orTable = function(plot_div, minionco_div, loading_div) {
      * @returns {boolean}
      */
     this.requiresLogRatioCalculation = function(){
-        return profile_type === orAnalysis.profile_type.mrna || profile_type === orAnalysis.profile_type.protein_exp;
+        return profile_type === enrichmentsTabSettings.profile_type.mrna || profile_type === enrichmentsTabSettings.profile_type.protein_exp;
     }
 
     function attachFilters() {
 
-        if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
+        if (profile_type === enrichmentsTabSettings.profile_type.copy_num || profile_type === enrichmentsTabSettings.profile_type.mutations) {
             $("#" + div_id).find("." + table_id + "_filter").append(
-                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
-                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
-                "<input type='checkbox' style='font-size:10px;' class='" + table_id + "-checkbox' id='" + table_id + "-checkbox-sig-only'>Significant gene(s)</option> &nbsp; &nbsp;"
+                "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'><span style='font-size:10px;'>Mutual exclusivity</span></option> &nbsp;&nbsp;" +
+                "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'><span style='font-size:10px;'>Co-occurrence</span></option> &nbsp;&nbsp;" +
+                "<input type='checkbox' class='" + table_id + "-checkbox' id='" + table_id + "-checkbox-sig-only'><span style='font-size:10px;'>Significant gene(s)</span></option> &nbsp; &nbsp;"
             );
 
             var _sig_only_all_fn = function() {
-                    orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("", col_index.direction);
-                    orTableInstance.fnFilter("Significant", col_index.direction);
+                    enrichmentsTableInstance.fnFilter("", col_index.log_ratio);
+                    enrichmentsTableInstance.fnFilter("", col_index.direction);
+                    enrichmentsTableInstance.fnFilter("Significant", col_index.direction);
                 },
                 _sig_only_mutex_fn = function() {
-                    orTableInstance.fnFilter("", col_index.direction);
-                    orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("^(.)*mutual(.)*Significant$", col_index.direction, true);
+                    enrichmentsTableInstance.fnFilter("", col_index.direction);
+                    enrichmentsTableInstance.fnFilter("", col_index.log_ratio);
+                    enrichmentsTableInstance.fnFilter("^(.)*mutual(.)*Significant$", col_index.direction, true);
                 },
                 _sig_only_co_oc_fn = function() {
-                    orTableInstance.fnFilter("", col_index.direction);
-                    orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("^(.)*occurrence(.)*Significant$", col_index.direction, true);
+                    enrichmentsTableInstance.fnFilter("", col_index.direction);
+                    enrichmentsTableInstance.fnFilter("", col_index.log_ratio);
+                    enrichmentsTableInstance.fnFilter("^(.)*occurrence(.)*Significant$", col_index.direction, true);
                 },
                 _mutex_fn = function() {
-                    orTableInstance.fnFilter("", col_index.direction);
-                    orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("^(.)*mutual(.)*$", col_index.direction, true);
+                    enrichmentsTableInstance.fnFilter("", col_index.direction);
+                    enrichmentsTableInstance.fnFilter("", col_index.log_ratio);
+                    enrichmentsTableInstance.fnFilter("^(.)*mutual(.)*$", col_index.direction, true);
                 },
                 _co_oc_fn = function() {
-                    orTableInstance.fnFilter("", col_index.direction);
-                    orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("^(.)*occurrence(.)*$", col_index.direction, true);
+                    enrichmentsTableInstance.fnFilter("", col_index.direction);
+                    enrichmentsTableInstance.fnFilter("", col_index.log_ratio);
+                    enrichmentsTableInstance.fnFilter("^(.)*occurrence(.)*$", col_index.direction, true);
                 },
                 _all_fn = function() {
-                    orTableInstance.fnFilter("", col_index.direction);
-                    orTableInstance.fnFilter("", col_index.log_ratio);
+                    enrichmentsTableInstance.fnFilter("", col_index.direction);
+                    enrichmentsTableInstance.fnFilter("", col_index.log_ratio);
                 },
                 _empty_fn = function() {
-                    orTableInstance.fnFilter("&", col_index.log_ratio);
+                    enrichmentsTableInstance.fnFilter("&", col_index.log_ratio);
                 };
 
             $("." + table_id + "-checkbox").change(function () {
@@ -437,7 +436,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
                 if(self.volcanoPlot) {
                     //Selected data items remaining after filter:
-                    var remainingItems = orTableInstance.DataTable().rows({search: 'applied'}).data();
+                    var remainingItems = enrichmentsTableInstance.DataTable().rows({search: 'applied'}).data();
                     var remainingGenes = [];
                     for (var i = 0; i < remainingItems.length; i++) {
                         remainingGenes.push(remainingItems[i][0]);
@@ -451,42 +450,42 @@ var orTable = function(plot_div, minionco_div, loading_div) {
     }
 
     function addHeaderQtips() {
-        $("#" + table_id + orAnalysis._title_ids.gene).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.gene).qtip({
             content: { text:"Select gene(s) you are interested and click 'add to query' button to re-query alone with the new genes."},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
-        $("#" + table_id + orAnalysis._title_ids.pct).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.pct).qtip({
             content: { text:"Percentages of altered cases in altered or unaltered sample groups"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
-        $("#" + table_id + orAnalysis._title_ids.log_ratio).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.log_ratio).qtip({
             content: { text:"Log2 based ratio of (pct in altered / pct in unaltered)"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
-        $("#" + table_id + orAnalysis._title_ids.p_val).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.p_val).qtip({
             content: { text:"Derived from Fisher Exact Test"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
-        $("#" + table_id + orAnalysis._title_ids.q_val).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.q_val).qtip({
             content: { text:"Derived from Benjamini-Hochberg procedure"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
-        $("#" + table_id + orAnalysis._title_ids.direction).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.direction).qtip({
             content: { text:'Log odds ratio > 0&nbsp;&nbsp;&nbsp;: Enriched in altered group<br>' +
                             'Log odds ratio <= 0&nbsp;: Enriched in unaltered group<br>' +
                             'p-Value < 0.05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Significant association'},
@@ -495,21 +494,21 @@ var orTable = function(plot_div, minionco_div, loading_div) {
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
-        $("#" + table_id + orAnalysis._title_ids.mean_alt).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.mean_alt).qtip({
             content: { text:"Mean of expression values in altered or unaltered group"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
-        $("#" + table_id + orAnalysis._title_ids.stdev_alt).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.stdev_alt).qtip({
             content: { text:"Standard Deviation in altered or unaltered group"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
-        $("#" + table_id + orAnalysis._title_ids.p_val_t_test).qtip({
+        $("#" + table_id + enrichmentsTabSettings._title_ids.p_val_t_test).qtip({
             content: { text:"Derived from Student T-test"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
@@ -520,19 +519,19 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
     function activateUpdateQueryBtns(btn_id) {
 
-        //document.getElementsByClassName(table_id + orAnalysis.postfix.datatable_gene_checkbox_class).removeEventListener("click");
-        $("." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class).unbind("click");
+        //document.getElementsByClassName(table_id + enrichmentsTabSettings.postfix.datatable_gene_checkbox_class).removeEventListener("click");
+        $("." + table_id + enrichmentsTabSettings.postfix.datatable_gene_checkbox_class).unbind("click");
 
         //attach event listener to checkboxes
-        $("." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class).click(function() {
+        $("." + table_id + enrichmentsTabSettings.postfix.datatable_gene_checkbox_class).click(function() {
 
-            $("#" + table_id + orAnalysis.postfix.update_query_gene_list).empty();
+            $("#" + table_id + enrichmentsTabSettings.postfix.update_query_gene_list).empty();
             if ($(this).is(':checked')) {
                 selected_genes.push($(this).attr("value"));
             } else {
                 selected_genes.splice($.inArray($(this).attr("value"), selected_genes), 1);
             }
-            $("#" + table_id + orAnalysis.postfix.update_query_gene_list).append("&nbsp;&nbsp;Selected genes: " + selected_genes.join(", "));
+            $("#" + table_id + enrichmentsTabSettings.postfix.update_query_gene_list).append("&nbsp;&nbsp;Selected genes: " + selected_genes.join(", "));
 
             if (selected_genes.length !== 0) {
                 document.getElementById(btn_id).disabled = false;
@@ -580,18 +579,18 @@ var orTable = function(plot_div, minionco_div, loading_div) {
     }
 
     function event_listener_details_btn() {
-        $("." + table_id + "_or_analysis_details_img").click( function () {
+        $("." + table_id + "_enrichments_details_img").click( function () {
             var nTr = this.parentNode.parentNode;
             if (this.src.indexOf('details_close') !== -1) {
                 this.src = "images/details_open.png";
-                orTableInstance.fnClose(nTr);
+                enrichmentsTableInstance.fnClose(nTr);
             } else {
-                var aData = orTableInstance.fnGetData(nTr);
+                var aData = enrichmentsTableInstance.fnGetData(nTr);
                 var _gene_name = aData[0];
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
-                orTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
-                orPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[col_index.p_val]);
+                enrichmentsTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
+                enrichmentsTabPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[col_index.p_val]);
             }
         });
     }
@@ -605,14 +604,14 @@ var orTable = function(plot_div, minionco_div, loading_div) {
     function get_tab_delimited_data() {
         var result_str = "";
         //column headers
-        if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
+        if (profile_type === enrichmentsTabSettings.profile_type.copy_num || profile_type === enrichmentsTabSettings.profile_type.mutations) {
             result_str = "Gene\tCytoband\tPercentage of alteration(Altered)\tPercentage of Alteration(Unaltered)\t" +
                 "Log ratio\tp-Value\tq-Value\tDirection/Tendency\n";
-        } else if (profile_type === orAnalysis.profile_type.mrna) {
+        } else if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
             result_str = "Gene\tCytoband\tMean mRNA expression(Altered)\tMean mRNA expression(Unaltered)\t" +
                 "Standard deviation of mRNA expression(Altered)\tStandard deviation of mRNA expression(Unaltered)\t" +
                 "p-Value\tq-Value\n";
-        } else if (profile_type === orAnalysis.profile_type.protein_exp) {
+        } else if (profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
             result_str = "Gene\tCytoband\tMean protein expression(Altered)\tMean protein expression(Unaltered)\t" +
                 "Standard deviation of protein expression(Altered)\tStandard deviation of protein expression(Unaltered)\t" +
                 "p-Value\tq-Value\n";
@@ -644,48 +643,47 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
         var _title_str = "";
 
-        if (profile_type === orAnalysis.profile_type.copy_num) {
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
-            //_title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-            _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.log_ratio + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.direction + "'>Direction/Tendency &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.direction + "'></th>";
-            _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
-            _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
-        } else if (profile_type === orAnalysis.profile_type.mutations) {
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
-            // removing cytoband to clear some space
-            //_title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-            _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.log_ratio + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.direction + "'>Direction/Tendency &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.direction + "'></th>";
-            _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
-            _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
-        } else if (profile_type === orAnalysis.profile_type.mrna) {
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
-            //_title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-            _title_str += "<th colspan='2'>Mean mRNA expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
-            _title_str += "<th colspan='2'>Standard deviation of mRNA expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
+        if (profile_type === enrichmentsTabSettings.profile_type.copy_num) {
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.gene + "'>Gene</th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.pct + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.log_ratio + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.q_val + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.direction + "'>Direction/Tendency &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.direction + "'></th>";
+            _title_str += "</tr><tr><th width='" + enrichmentsTabSettings.col_width.altered_pct + "'>in altered group</th>";
+            _title_str += "<th width='" + enrichmentsTabSettings.col_width.unaltered_pct + "'>in unaltered group</th>";
+        } else if (profile_type === enrichmentsTabSettings.profile_type.mutations) {
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.gene + "'>Gene</th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.pct + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.log_ratio + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.q_val + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.direction + "'>Direction/Tendency &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.direction + "'></th>";
+            _title_str += "</tr><tr><th width='" + enrichmentsTabSettings.col_width.altered_pct + "'>in altered group</th>";
+            _title_str += "<th width='" + enrichmentsTabSettings.col_width.unaltered_pct + "'>in unaltered group</th>";
+        } else if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.gene + "'>Gene</th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th colspan='2'>Mean mRNA expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.mean_alt + "'></th>";
+            _title_str += "<th colspan='2'>Standard deviation of mRNA expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.stdev_alt + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val_t_test + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.q_val + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.plot + "'>Plot</th>";
             _title_str += "</tr><tr>";
             _title_str += "<th width='100'>in altered group</th>";
             _title_str += "<th width='100'>in unaltered group</th>";
             _title_str += "<th width='100'>in altered group</th>";
             _title_str += "<th width='100'>in unaltered group</th>";
-        } else if (profile_type === orAnalysis.profile_type.protein_exp) {
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
-            //_title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-            _title_str += "<th colspan='2'>Mean protein expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
-            _title_str += "<th colspan='2'>Standard deviation of protein expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
+        } else if (profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.gene + "'>Gene</th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th colspan='2'>Mean protein expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.mean_alt + "'></th>";
+            _title_str += "<th colspan='2'>Standard deviation of protein expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.stdev_alt + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val_t_test + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.q_val + "'></th>";
+            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.plot + "'>Plot</th>";
             _title_str += "</tr><tr>";
             _title_str += "<th width='100'>in altered group</th>";
             _title_str += "<th width='100'>in unaltered group</th>";
@@ -700,17 +698,17 @@ var orTable = function(plot_div, minionco_div, loading_div) {
     	/**
     	 * Init function to bind data to table and optionally to the plot and render it.
     	 *
-    	 * @param originalData : the original (json) data as received from orData.get() function
+    	 * @param originalData : the original (json) data as received from enrichmentsTabData.get() function
     	 * @param _converted_data : the originalData converted to array format, compatible with the table render function
     	 */
         init: function(originalData, _converted_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile, _data_type) {
 
         	self.originalData = originalData;
             if (Object.keys(_converted_data).length !== 0 &&
-                Object.keys(_converted_data)[0] !== orAnalysis.texts.null_result &&
+                Object.keys(_converted_data)[0] !== enrichmentsTabSettings.texts.null_result &&
                 Object.keys(_converted_data)[0] !== "") {
 
-                 div_id = _div_id;
+                div_id = _div_id;
                 table_id = _table_id;
                 data = _converted_data;
                 profile_type = _profile_type;
@@ -720,14 +718,14 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
                 $("#" + div_id + "_loading_img").empty();
 
-                if (profile_type === orAnalysis.profile_type.copy_num) {
-                    col_index = orAnalysis.col_index.copy_num;
-                } else if (profile_type === orAnalysis.profile_type.mutations) {
-                    col_index = orAnalysis.col_index.mutations;
-                } else if (profile_type === orAnalysis.profile_type.mrna) {
-                    col_index = orAnalysis.col_index.mrna;
-                } else if (profile_type === orAnalysis.profile_type.protein_exp) {
-                    col_index = orAnalysis.col_index.protein_exp;
+                if (profile_type === enrichmentsTabSettings.profile_type.copy_num) {
+                    col_index = enrichmentsTabSettings.col_index.copy_num;
+                } else if (profile_type === enrichmentsTabSettings.profile_type.mutations) {
+                    col_index = enrichmentsTabSettings.col_index.mutations;
+                } else if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
+                    col_index = enrichmentsTabSettings.col_index.mrna;
+                } else if (profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
+                    col_index = enrichmentsTabSettings.col_index.protein_exp;
                 }
 
                 titles = define_titles();
@@ -735,11 +733,11 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 $("#" + _table_div).empty();
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title +
                       "</span>&nbsp;&nbsp;&nbsp;&nbsp;<button type='button' id='" + table_id +
-                      orAnalysis.postfix.datatable_update_query_button + "'>Add checked genes to query" +
+                      enrichmentsTabSettings.postfix.datatable_update_query_button + "'>Add checked genes to query" +
                       "</button>" +
-                      "<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'>" +
-                      "<span id='" + table_id + orAnalysis.postfix.update_query_gene_list + "'></span>");
-                document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
+                      "<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.gene + "'>" +
+                      "<span id='" + table_id + enrichmentsTabSettings.postfix.update_query_gene_list + "'></span>");
+                document.getElementById(table_id + enrichmentsTabSettings.postfix.datatable_update_query_button).disabled = true;
 
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>");
                 $("#" + _table_div).append("<button id='" + table_id + "_download_btn'>Download Complete Result</button>");
@@ -748,12 +746,12 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 addHeaderQtips();
 
                 //initially hiding all the mrna data tables
-                if (_profile_type === orAnalysis.profile_type.mrna) {
+                if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
                     $("#" + _table_div).hide();
                 }
 
             } else {
-                if (_profile_type === orAnalysis.profile_type.mrna) {
+                if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
                     $("#" + _table_div).empty();
                     $("#" + _table_div).append("No data/result available");
                 } else {
@@ -766,7 +764,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
             }
 			//if plot_div is set, add a volcano plot:
             if (self.plot_div != null) {
-                if (_profile_type === orAnalysis.profile_type.mutations || _profile_type === orAnalysis.profile_type.copy_num) {
+                if (_profile_type === enrichmentsTabSettings.profile_type.mutations || _profile_type === enrichmentsTabSettings.profile_type.copy_num) {
                     // create mini onco and render it
                     self.miniOnco = new MiniOnco(self.plot_div, minionco_div, originalData);
                     self.miniOnco.render("none");
@@ -779,7 +777,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
         }
     };
-}; //close orTable
+}; //close enrichmentsTabTable
 
 var orSubTabView = function() {
 
@@ -797,32 +795,32 @@ var orSubTabView = function() {
             $("#" + _div_id).css("padding-right","10px");
 
             //append profile selection dropdown menu for mrna sub-tab
-            if (_profile_type === orAnalysis.profile_type.mrna) {
+            if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
                 $("#" + _div_id + "_loading_img").empty();
-                $("#" + _div_id).append("<div id='" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div'></div>");
-                if ($("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").is(":empty")) {
-                    if (_profile_type === orAnalysis.profile_type.mrna) {
-                        $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").append(
-                            "Data Set <select id='" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "'></select>"
+                $("#" + _div_id).append("<div id='" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div'></div>");
+                if ($("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").is(":empty")) {
+                    if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
+                        $("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").append(
+                            "Data Set <select id='" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "'></select>"
                         );
                     }
                     $.each(_profile_list, function(_index, _profile_obj) {
-                        $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).append(
+                        $("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu).append(
                             "<option value='" + _profile_obj.STABLE_ID + "'>" + _profile_obj.NAME + "</option>"
                         );
                     });
                 }
                 //add event listener to the profile selection under mrna sub tab.
-                $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).change(function() {
-                    var selected_profile_id = $( "#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val();
+                $("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu).change(function() {
+                    var selected_profile_id = $( "#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val();
                     $.each(_profile_list, function(_index, _profile_obj) {
                         var usableId = _profile_obj.STABLE_ID.replace(/\./g, "_");
                         if (_profile_obj.STABLE_ID !== selected_profile_id) {
-                            $("#" + usableId + orAnalysis.postfix.datatable_div).hide();
-                            $("#" + usableId + orAnalysis.postfix.plot_div).hide();
+                            $("#" + usableId + enrichmentsTabSettings.postfix.datatable_div).hide();
+                            $("#" + usableId + enrichmentsTabSettings.postfix.plot_div).hide();
                         } else {
-                            $("#" + usableId + orAnalysis.postfix.datatable_div).show();
-                            $("#" + usableId + orAnalysis.postfix.plot_div).show();
+                            $("#" + usableId + enrichmentsTabSettings.postfix.datatable_div).show();
+                            $("#" + usableId + enrichmentsTabSettings.postfix.plot_div).show();
                         }
                     });
                 });
@@ -831,18 +829,18 @@ var orSubTabView = function() {
             }
 
             $.each(_profile_list, function(_index, _profile_obj) {
-                var element = $("." + _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_class); //avoid duplicated initiation
+                var element = $("." + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_class); //avoid duplicated initiation
                 if (element.length === 0) {
-                    var _table_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div;
-                    var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_id;
-                    var _plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div;
+                    var _table_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_div;
+                    var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_id;
+                    var _plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.plot_div;
                     var loading_div = _table_div + "_loading_img";
                     //for the mini-onco diagram
                     var minionco_div = "minionco" + _plot_div;
 
                     var html = "<div id='"+_profile_obj.STABLE_ID.replace(/\./g, "_")+"_container' style='float: left; position: relative'>"+
-                        "<div id='" + _plot_div + "' style='width: 35%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
-                        "<div id='" + _table_div + "' style='width: 62%; display:table; margin-left: auto; margin-right: 0; '></div>"+
+                        "<div id='" + _plot_div + "' style='width: 30%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
+                        "<div id='" + _table_div + "' style='width: 65%; display:table; margin-left: auto; margin-right: 0; '></div>"+
                         "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif'/></div>"+
                         "</div>";
                     $("#" + _div_id).append(html);
@@ -858,38 +856,38 @@ var orSubTabView = function() {
                     }
 
                     //init and get calculation result from the server
-                    var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
-                    var or_data = new orData();
+                    var param = new orAjaxParam(enrichmentsTab.getAlteredCaseList(), enrichmentsTab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
+                    var or_data = new enrichmentsTabData();
                     or_data.init(param, _table_id);
-                    var or_table = new orTable(_plot_div, minionco_div, loading_div);
+                    var or_table = new enrichmentsTabTable(_plot_div, minionco_div, loading_div);
                     if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
-                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile,_profile_obj.DATATYPE);
+                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + enrichmentsTabSettings.postfix.title_log, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile,_profile_obj.DATATYPE);
                     } else {
                         or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile, _profile_obj.DATATYPE);
                     }
 
                     //hide mrna tables initially
-                    if (_profile_type === orAnalysis.profile_type.mrna) {
-                        $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div).hide();
+                    if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
+                        $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_div).hide();
                         // also hide the volcanoplot
-                        $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div).hide();
+                        $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.plot_div).hide();
                     }
                 }
 
             });
 
             //show mrna table that's being selected
-            if (_profile_type === orAnalysis.profile_type.mrna) {
+            if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
                 var tmp = setInterval(function () { timer(); }, 1000);
                 function timer() {
-                    var selectedVal = $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val().replace(/\./g, "_");
-                    var _target_table_div = selectedVal + orAnalysis.postfix.datatable_div;
+                    var selectedVal = $("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val().replace(/\./g, "_");
+                    var _target_table_div = selectedVal + enrichmentsTabSettings.postfix.datatable_div;
                     if (!$( "#" + _target_table_div).is(":empty")) {
                         clearInterval(tmp);
                         $("#" + _div_id + "_table_loading_img").empty();
                         $("#" + _target_table_div).show();
                         // also show the corresponding volcanoplot
-                        $("#"+selectedVal+orAnalysis.postfix.plot_div).show();
+                        $("#"+selectedVal+enrichmentsTabSettings.postfix.plot_div).show();
                     }
                 }
             }

@@ -2357,6 +2357,12 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                     'Sample id not defined in clinical file',
                     extra={'filename_': case,
                            'cause': value})
+            if ' ' in value:
+                logger.error(
+                    'White space in sample id is not supported',
+                    extra={'filename_': case,
+                           'cause': value})
+                
 
     for required_id in required_stable_ids:
         if required_id not in stableid_files:

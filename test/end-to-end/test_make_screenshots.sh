@@ -21,7 +21,7 @@ git diff --quiet -- ${DIR}/screenshots/patient_view_lgg_ucsf_2014_case_id_P04.pn
 phantomjs --ignore-ssl-errors=true --web-security=false ${DIR}/make_screenshot.js 'http://localhost:8080/study.do?cancer_study_id=lgg_ucsf_2014' \
                               "${DIR}/screenshots/study_view_lgg_ucsf_2014.png" \
                               5000
-
+							  
 # make sure screenshot is still the same as the one in the repo, if not upload
 # the image
 git diff --quiet -- ${DIR}/screenshots/study_view_lgg_ucsf_2014.png || \

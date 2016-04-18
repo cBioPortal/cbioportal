@@ -1306,8 +1306,8 @@
                                         columnTooltips: {
                                             annotation: function (selector, helper) {
                                                 $(selector).find('span.oncokb').remove();
-                                                $(selector).find('span.mcg[alt=""]').remove();
-                                                $(selector).find('span.chang_hotspot[alt=""]').remove();
+                                                $(selector).find('span.mcg[alt=""]').empty();
+                                                $(selector).find('span.chang_hotspot[alt=""]').empty();
                                                 $(selector).find('span.mcg').one('mouseenter', function () {
                                                     $(this).qtip({
                                                         content: {attr: 'alt'},
@@ -1366,8 +1366,8 @@
                                     mutationTable: {
                                         columnTooltips: {
                                             annotation: function (selector, helper) {
-                                                $(selector).find('span.mcg[alt=""]').remove();
-                                                $(selector).find('span.chang_hotspot[alt=""]').remove();
+                                                $(selector).find('span.mcg[alt=""]').empty();
+                                                $(selector).find('span.chang_hotspot[alt=""]').empty();
                                                 oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'column');
                                                 oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'alteration');
 
@@ -1410,15 +1410,15 @@
                                                     _.each(tableData, function (ele, i) {
                                                         var _datum = ele[indexMap["datum"]];
                                                         var _mutation = ele[indexMap["datum"]].mutation;
-                                                        oncokbInstance.addVariant(_mutation.mutationSid, '', _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType, _mutation.mutationType, _mutation.cosmicCount, _mutation.isHotspot);
+                                                        oncokbInstance.addVariant(_mutation.mutationSid, '', _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType ? _mutation.tumorType : _mutation.cancerType, _mutation.mutationType, _mutation.cosmicCount, _mutation.isHotspot, _mutation.proteinPosStart, _mutation.proteinPosEnd);
                                                     });
-                                                    oncokbInstance.getEvidence().done(function () {
+                                                    oncokbInstance.getIndicator().done(function () {
                                                         var tableData = dataTable.fnGetData();
                                                         if (tableData.length > 0) {
                                                             _.each(tableData, function (ele, i) {
                                                                 if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid)) {
                                                                     if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid).hasOwnProperty('evidence')) {
-                                                                        ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid).evidence;
+                                                                        ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid);
                                                                         dataTable.fnUpdate(null, i, indexMap["annotation"], false, false);
                                                                     }
                                                                 }

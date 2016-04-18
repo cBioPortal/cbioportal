@@ -822,6 +822,10 @@ table #network_wrapper{
  * ########################################################
  */
 
+.SBGNPopUpButton{
+	margin-top: 15px;
+}
+
  #sbgnLoadingAnimation
  {
 	 width: 100%;

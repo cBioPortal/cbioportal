@@ -372,26 +372,12 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 		//Open SBGN pop up
 		cy.on('cxttap', 'edge', function(evt)
 		{
+
+			var edgeType = evt.cyTarget._private.data.type;
 			var sourceNodeID = evt.cyTarget.source()._private.data.label;
 			var targetNodeID = evt.cyTarget.target()._private.data.label;
-			var popUpWidth = 1200;
-			var popupHeight = 760;
 
-			var strWindowFeatures =
-				"menubar=no,\
-				location=no,\
-				resizable=no,\
-				scrollbars=no,\
-				status=no,\
-				width="+popUpWidth+"px,\
-				height="+popupHeight+"px,\
-				left="+((window.innerWidth/2)-popUpWidth/2)+"px,\
-				top="+((window.innerHeight/2)-popupHeight/2)+"px";
-				var windowHref = window.location.href;
-				var additionalPart = ((windowHref.substr(7)).substr(windowHref.substr(7).indexOf('/')+1));
-				additionalPart = additionalPart.substring(0, additionalPart.lastIndexOf("/"));
-				var sbgnPageURL = "/"+ additionalPart + "/js/lib/SBGNViz.js/sample-app/index.html";
-				windowObjectReference = window.open(sbgnPageURL+"?"+sourceNodeID+"&"+targetNodeID,"SBGN View", strWindowFeatures);
+			netVis.popUpSBGNView(sourceNodeID, targetNodeID, edgeType);
 		});
 
 		function updateDetailsTab(event)

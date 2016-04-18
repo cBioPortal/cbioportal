@@ -659,7 +659,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
     {
         //$(self.detailsTabSelector + " div").empty();
         $(self.detailsTabSelector + " .error").append(
-            "Currently there is no selected node/edge. Please, select a node to see details.");
+            "Currently there is no selected node/edge. Please, select a node/edge to see details.");
         $(self.detailsTabSelector + " .error").show();
         return;
     }
@@ -740,14 +740,23 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
     //this.createEdgeDetailsSelector(selector);
     var dataRow;
 
-    var data = (selectType == "click") ? (evt.cyTarget._private.data) : (evt.cyTarget._private.data);
+    var data = (evt.cyTarget._private.data);
 
-    // clean xref & data rows
-    $(selector + " .edge_inspector_content .data .data-row").remove();
-    $(selector + " .edge_inspector_content .xref .xref-row").remove();
+    // clean inspector view here !
+    $(selector + " .edge-inspector-content").empty();
+    var edgeType = data.type;
+    var sourceLabel = this._vis.nodes('#' + data.source).data().label;
+    var targetLabel = this._vis.nodes('#' + data.target).data().label;
+    var self = this;
 
-    var title = this._vis.nodes('#' + data.source)[0]._private.data.label + " - " +
-        this._vis.nodes('#' + data.target)[0]._private.data.label;
+    var showSBGNViewButton = $('<button/>',
+    {
+        "class": "SBGNPopUpButton",
+        text: 'Show Detailed Process View',
+        click: function () { self.popUpSBGNView(sourceLabel, targetLabel, edgeType) }
+    });
+
+    var title =  sourceLabel + " - " + targetLabel;
 
         //TODO When merge is implemented
     if (evt.cyTarget._private.data.mergeStatus != undefined && evt.cyTarget._private.data.mergeStatus === "merged")
@@ -846,6 +855,11 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
             $(selector + " .edge-inspector-content").append(dataRow);
         }
     }
+
+    //Finally append sbgn view button
+    $(selector + " .edge-inspector-content").append(showSBGNViewButton);
+
+
 
     //$(selector).show();
 }
@@ -4326,6 +4340,40 @@ NetworkVis.prototype._createInteractionTypeVisibilityWindow = function(divId)
     $("#" + divId).append(html);
     return "#" + id;
 };
+
+/**
+ * Pops up a SBGN View window using SBGNViz.js, resultant graph represents
+ * paths between graph of given source node and target node
+ *
+ * @param sourceNodeID source node id
+ * @param targetNodeID target node id
+ */
+NetworkVis.prototype.popUpSBGNView = function(sourceNodeID, targetNodeID, edgeType)
+{
+
+  if (edgeType == 'DRUG_TARGET') {
+    return;
+  }
+
+  var popUpWidth = 1200;
+  var popupHeight = 760;
+
+  var strWindowFeatures =
+    "menubar=no,\
+    location=no,\
+    resizable=no,\
+    scrollbars=no,\
+    status=no,\
+    width="+popUpWidth+"px,\
+    height="+popupHeight+"px,\
+    left="+((window.innerWidth/2)-popUpWidth/2)+"px,\
+    top="+((window.innerHeight/2)-popupHeight/2)+"px";
+    var windowHref = window.location.href;
+    var additionalPart = ((windowHref.substr(7)).substr(windowHref.substr(7).indexOf('/')+1));
+    additionalPart = additionalPart.substring(0, additionalPart.lastIndexOf("/"));
+    var sbgnPageURL = "/"+ additionalPart + "/js/lib/SBGNViz.js/sample-app/index.html";
+    windowObjectReference = window.open(sbgnPageURL+"?"+sourceNodeID+"&"+targetNodeID,"SBGN View", strWindowFeatures);
+}
 
 /*
  * ##################################################################

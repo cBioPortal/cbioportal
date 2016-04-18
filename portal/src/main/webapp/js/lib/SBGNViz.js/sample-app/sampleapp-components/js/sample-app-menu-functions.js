@@ -58,7 +58,7 @@ $(document).ready(function ()
     var nodeB = urlString[1];
 
     //Construct PC2 url from pop up url !
-    var pc2URL = "http://www.pathwaycommons.org/pc2/";
+    var pc2URL = "http://beta.pathwaycommons.org/pc2/";
     var format = "graph?format=SBGN";
     var kind = "&kind=PATHSBETWEEN";
     var sourceA = "&source="+nodeA;
@@ -76,7 +76,7 @@ $(document).ready(function ()
       {
           //Remove loading spinner !
           container.empty();
-          setFileContent(nodeA + "_" + nodeB + "_NHOOD.sbgnml");
+          setFileContent(nodeA + "_" + nodeB + "PBTWN.sbgnml");
 
           //Convert incoming SBGNML string to json
           var graphData = sbgnmlToJson.convert(data);
@@ -1087,7 +1087,10 @@ $(document).ready(function ()
           //Remove loading spinner !
           container.empty();
           if(data.statusText === "460")
-          container.text('Server responded with error ' + data.statusText + "-No Results (e.g., when a search or graph query found no data)");
+            container.text('Server responded with error ' + data.statusText + "-No Results (e.g., when a search or graph query found no data)");
+          else {
+            container.text('Server responded with error ' + data.statusText);
+          }
         }
       });
       //End of get request from pc2

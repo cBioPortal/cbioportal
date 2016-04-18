@@ -149,8 +149,7 @@ if (includeHelpTab==null) {
     </div>
 	<div id="element_details_tab">
 		<div class="error">
-			Currently there is no selected node. Please, select a node to see details.
-		</div>
+      Currently there is no selected node/edge. Please, select a node/edge to see details.		</div>
 		<div class="genomic-profile-content"></div>
 		<div class="biogene-content"></div>
 		<div class="drug-info-content"></div>

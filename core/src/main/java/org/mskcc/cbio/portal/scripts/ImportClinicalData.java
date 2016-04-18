@@ -502,7 +502,7 @@ public class ImportClinicalData {
 	        }
 	        if( options.has ( meta ) )
 	        {
-	            properties = new Properties();
+	            properties = new TrimmedProperties();
 	            properties.load(new FileInputStream(options.valueOf(meta)));
 	            attributesDatatype = properties.getProperty("datatype");
 	            cancerStudyStableId = properties.getProperty("cancer_study_identifier");

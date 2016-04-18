@@ -125,7 +125,7 @@ public class ImportTimelineData {
 		    String dataFile = (String) options.valueOf("data");
 		    File descriptorFile = new File((String) options.valueOf("meta"));
 	
-			Properties properties = new Properties();
+			Properties properties = new TrimmedProperties();
 			properties.load(new FileInputStream(descriptorFile));
 	
 			int cancerStudyInternalId = ValidationUtils.getInternalStudyId(properties.getProperty("cancer_study_identifier"));

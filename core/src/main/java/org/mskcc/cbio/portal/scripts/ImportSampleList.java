@@ -46,10 +46,10 @@ public class ImportSampleList {
 
    public static void importSampleList(File dataFile) throws Exception {
       ProgressMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
-      Properties properties = new Properties();
+      Properties properties = new TrimmedProperties();
       properties.load(new FileInputStream(dataFile));
 
-      String stableId = properties.getProperty("stable_id").trim();
+      String stableId = properties.getProperty("stable_id");
 
       if (stableId.contains(" ")) {
          throw new IllegalArgumentException("stable_id cannot contain spaces:  " + stableId);

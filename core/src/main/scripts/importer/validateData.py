@@ -818,6 +818,13 @@ class FeaturewiseFileValidator(Validator):
                     sample_id,
                     column_number=self.num_nonsample_cols + index + 1):
                 num_errors += 1
+            if ' ' in sample_id:
+                self.logger.error(
+                    'White space in SAMPLE_ID is not supported',
+                    extra={'line_number': self.line_number,
+                           'cause': sample_id})
+                num_errors += 1
+                
         return num_errors
 
 
@@ -1437,6 +1444,12 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
+                if ' ' in value:
+                    self.logger.error(
+                        'White space in SAMPLE_ID is not supported',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
                 if value in self.sample_id_lines:
                     if value.startswith('TCGA-'):
                         self.logger.warning(
@@ -1516,6 +1529,12 @@ class PatientClinicalValidator(ClinicalValidator):
             if col_index < len(data):
                 value = data[col_index].strip()
             if col_name == 'PATIENT_ID':
+                if ' ' in value:
+                    self.logger.error(
+                        'White space in PATIENT_ID is not supported',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
                 if value in self.patient_id_lines:
                     self.logger.error(
                         'Patient defined multiple times in file',

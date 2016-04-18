@@ -192,6 +192,10 @@ public class GlobalProperties {
     
     public static final String DB_VERSION = "db.version";
     
+    public static final String SHOW_CIVIC = "show.civic";
+    public static final String CIVIC_PATH_BASE = "civic.path_base";
+    public static final String CIVIC_PATH_PREFIX = "civic.path_prefix";
+
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -671,6 +675,33 @@ public class GlobalProperties {
         }else{
             return false;
         }
+    }
+
+    public static boolean showCivic() {
+        String civic = properties.getProperty(SHOW_CIVIC);
+        if (civic == null)
+            return true;  // show CIVIC by default
+
+        if (!civic.isEmpty())
+            return Boolean.parseBoolean(civic);
+        else
+            return false;
+    }
+
+    public static String civicPathBase() {
+        String civic = properties.getProperty(CIVIC_PATH_BASE);
+        if (civic == null || civic.isEmpty())
+            return null;
+        else
+            return civic;
+    }
+
+    public static String civicPathPrefix() {
+        String civic = properties.getProperty(CIVIC_PATH_PREFIX);
+        if (civic == null || civic.isEmpty())
+            return null;
+        else
+            return civic;
     }
 
     public static boolean filterGroupsByAppName() {

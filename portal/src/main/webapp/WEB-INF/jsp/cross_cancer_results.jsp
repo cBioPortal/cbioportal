@@ -67,6 +67,7 @@
     boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+    boolean showCivic = (Boolean) GlobalProperties.showCivic();
     String userName = GlobalProperties.getAuthenticatedUserName();
 
 %>
@@ -128,6 +129,7 @@
 <script>
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
+    var showCivic = <%=showCivic%>;
     var userName = '<%=userName%>';
     var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
 
@@ -382,6 +384,9 @@
     </span>
     <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
         <img width='14' height='14' src='images/oncokb-flame.svg'>
+    </span>
+    <span class='annotation-item civic' alt='{{civicAlt}}'>
+        <img width='14' height='14' src='images/civic-logo.png'>
     </span>
 </script>
 

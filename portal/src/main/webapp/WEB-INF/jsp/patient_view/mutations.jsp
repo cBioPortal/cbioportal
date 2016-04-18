@@ -134,7 +134,8 @@
                     mutations.getValue(_id, "aa"), null, 
                     mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : cancerType, 
                     findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), 
-                    mutations.getValue(_id, "is-hotspot"), mutations.getValue(_id, 'protein-start'), 
+                    mutations.getValue(_id, "is-hotspot"), mutations.getValue(_id, "civic-variant-summaries"),
+                    mutations.getValue(_id, "civic-clinical-evidence-stats"), mutations.getValue(_id, 'protein-start'), 
                     mutations.getValue(_id, 'protein-end'));
             }
             data.push([mutEventIds[i]]);
@@ -258,12 +259,22 @@
                                 }else {
                                     ret += "<span class='annotation-item'></span>";
                                 }
+                                if ($(mutations.getValue(source[0], 'civic-variant-summaries')).size() > 0 || $(mutations.getValue(source[0], 'civic-clinical-evidence-stats')).size() > 0)
+                                    console.log(source[0], $(mutations.getValue(source[0], 'civic-variant-summaries')).size(), $(mutations.getValue(source[0], 'civic-clinical-evidence-stats')).size());
+                                if (showCivic && ($(mutations.getValue(source[0], 'civic-variant-summaries')).size() > 0 ||
+                                        $(mutations.getValue(source[0], 'civic-clinical-evidence-stats')).size() > 0)) {
+                                    ret += "<span class='annotation-item " + table_id + "-civic-variant-summaries' alteration='" + aa + "' oncokbId='" + source[0] + "'><img width='14' height='14' src='images/civic-logo.png'></span>";
+                                }else {
+                                    ret += "<span class='annotation-item'></span>";
+                                }
                                 return ret;
                             } else if (type === 'sort') {
                                 var datum = {
                                     mutation: {
                                         myCancerGenome: [],
-                                        isHotspot: false
+                                        isHotspot: false,
+                                        civicVariantSummaries: [],
+                                        civicClinicalEvidenceStats: [],
                                     },
                                     oncokb:{}
                                 };
@@ -274,6 +285,13 @@
 
                                 if(mutations.colExists('is-hotspot')) {
                                     datum.mutation.isHotspot = mutations.getValue(source[0], 'is-hotspot');
+                                }
+
+                                if (mutations.colExists('civic-variant-summaries')) {
+                                    datum.mutation.civicVariantSummaries = mutations.getValue(source[0], 'civic-variant-summaries');
+                                }
+                                if (mutations.colExists('civic-clinical-evidence-stats')) {
+                                    datum.mutation.civicVariantSummaries = mutations.getValue(source[0], 'civic-clinical-evidence-stats');
                                 }
 
                                 if (mutations.colExists('oncokb')) {
@@ -929,6 +947,8 @@
                     if(showHotspot) {
                         addNoteTooltip('.'+table_id+'-hotspot', "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).");
                     }
+                    if (showCivic)
+                        addCivicTooltip("." + table_id + "-civic-variant-summaries", mutations, 'top right', 'bottom center');
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
@@ -979,6 +999,61 @@
 //        });
 
         return oTable;
+    }
+
+    /* Add CIVIC tooltip for DOM elements matching the pattern elem with tooltip positioned
+     * as specified by my and at.  The object mutations has the annotated mutation information.
+     */
+    function addCivicTooltip(elem, mutations, my, at) {
+        $(elem).each(function() {
+            var oncokbid = $(this).attr('oncokbid');
+            var alteration = $(this).attr('alteration');
+            var variantSummaries = mutations.getValue(oncokbid, 'civic-variant-summaries');
+            var clinicalEvidenceStats = mutations.getValue(oncokbid, 'civic-clinical-evidence-stats');
+
+            if ($(variantSummaries).size() == 0 && $(clinicalEvidenceStats).size() == 0)
+                return;
+
+            // Get summary counts for clinical evidence
+            var numDiagnostic = 0;
+            var numPrognostic = 0;
+            var numPredictive = 0;
+            if ($(clinicalEvidenceStats).size() > 0) {
+                numDiagnostic = clinicalEvidenceStats[0].numDiagnostic;
+                numPrognostic = clinicalEvidenceStats[0].numPrognostic;
+                numPrognostic = clinicalEvidenceStats[0].numPrognostic;
+            }
+
+            // Link out to CIVIC
+            var variantCivicUrl = "https://civic.genome.wustl.edu/#/home";
+            if ($(variantSummaries).size())
+                variantCivicUrl = variantSummaries[0].variantCivicUrl;
+
+            // Build tool tip contents
+            civicHTML = "<div>";
+            civicHTML += "<a href=\"" + variantCivicUrl + "\" target=\"_blank\">CIVIC</a> has ";
+            civicHTML += numDiagnostic + " diagnostic, " + numPredictive + " predictive, and ";
+            civicHTML += numPrognostic + " prognostic entries for this variant.";
+            if ($(variantSummaries).size() > 0)
+                civicHTML += "Variant Summaries: <ul>";
+            $(variantSummaries).each(function(key, info) {
+                civicHTML += "<li>" + info.summary + "</li>";
+            });
+            if ($(variantSummaries).size() > 0) {
+                civicHTML += "</ul>";
+                civicHTML += "More and updated information in <a href=\"" + variantCivicUrl + "\" target=\"_blank\">CIVIC</a>.";
+            }
+            civicHTML += "</div>";
+
+            // Create tool tip as on-mouseover event
+            $(this).qtip({
+                content: { text: civicHTML },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 300 },
+                style: { classes: 'qtip-civic qtip-light qtip-rounded qtip-wide' },
+                position: {my:my, at:at, viewport: $(window)}
+            });
+        });
     }
 
     function findCosmic(mutationCosmicArray, aa) {

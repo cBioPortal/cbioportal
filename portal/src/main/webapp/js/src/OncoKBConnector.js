@@ -110,6 +110,8 @@ var OncoKB = (function(_, $) {
         this.evidence = new OncoKB.Evidence();
         this.cosmicCount = '';
         this.isHotspot = false;
+        this.civicVariantSummaries = [];
+        this.civicClinicalEvidenceStats = [];
         this.isVUS = false;
         this.highestSensitiveLevel = '';
         this.highestResistanceLevel = '';
@@ -1336,7 +1338,7 @@ OncoKB.Instance.prototype = {
 
     },
 
-    addVariant: function(id, entrezGeneId, gene, mutation, tt, consequence, cosmicCount, isHotspot, proteinStart, proteinEnd) {
+    addVariant: function(id, entrezGeneId, gene, mutation, tt, consequence, cosmicCount, isHotspot, civicVariantSummaries, civicClinicalEvidenceStats, proteinStart, proteinEnd) {
         var _variant = new OncoKB.VariantPair();
 
         if (!isNaN(id)) {

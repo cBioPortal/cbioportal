@@ -115,6 +115,16 @@ oncokb.url=
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true
 
+## Configuration of CIVIC data display
+# Enable Civic variant annotation (true, false)
+show.civic=true
+# Base directory for CIVIC data, expects files as in the April 2016 release,
+# named base_dir + PREFIX + {"ClinicalEvidenceSummaries.tsv", ...}.  If
+# empty then the files shipping with cBioPortal (April 2016) will be used.
+civic.path_base=
+# Prefix of files to use.
+civic.path_prefix=01-Apr-2016-
+
 # Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
 mycancergenome.show=true
 

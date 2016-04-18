@@ -1972,3 +1972,12 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
     padding: 0;
 }
 
+
+.qtip-civic .qtip-content {
+    max-height: 200px;
+    overflow: auto;
+}
+
+.qtip-civic ul {
+    padding-left: 10px;
+}

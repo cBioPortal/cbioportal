@@ -22,6 +22,8 @@ takeScreenshot = function(url, screenshot, delay) {
                 phantom.exit(1);
             } else {
                 window.setTimeout(function () {
+					var spanVersion = document.getElementById('footer-span-version');
+					spanVersion[0].style.visibility="hidden"; 
                     page.render(screenshot);
                     phantom.exit(0);
                 }, delay);

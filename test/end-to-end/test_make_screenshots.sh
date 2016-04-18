@@ -22,6 +22,9 @@ phantomjs --ignore-ssl-errors=true --web-security=false ${DIR}/make_screenshot.j
                               "${DIR}/screenshots/study_view_lgg_ucsf_2014.png" \
                               5000
 
+# upload the second image
+curl -F "clbin=@${DIR}/screenshots/study_view_lgg_ucsf_2014.png" https://clbin.com							  
+							  
 # make sure screenshot is still the same as the one in the repo, if not upload
 # the image
 git diff --quiet -- ${DIR}/screenshots/study_view_lgg_ucsf_2014.png || \

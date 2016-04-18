@@ -157,12 +157,17 @@ public class ImportSampleList {
 	            }
 	         }
 	         if (files.length == 0) {
-	             ProgressMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
+	             ProgressMonitor.logWarning("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
 	         }
 	      } else {
-	         ImportSampleList.importSampleList(dataFile);
+	    	  if (!dataFile.getName().startsWith(".") && !dataFile.getName().endsWith("~")) {
+	    		  ImportSampleList.importSampleList(dataFile);
+	    	  }
+	    	  else {
+	    		  ProgressMonitor.logWarning("File name starts with '.' or ends with '~', so it was skipped: " + dataFile.getCanonicalPath());
+	    	  }
 	      }
-	      ConsoleUtil.showWarnings();
+	      ConsoleUtil.showMessages();
 	      System.out.println("Done.");
       }
       catch (Exception e) {

@@ -1021,7 +1021,7 @@
             if ($(clinicalEvidenceStats).size() > 0) {
                 numDiagnostic = clinicalEvidenceStats[0].numDiagnostic;
                 numPrognostic = clinicalEvidenceStats[0].numPrognostic;
-                numPrognostic = clinicalEvidenceStats[0].numPrognostic;
+                numPredictive = clinicalEvidenceStats[0].numPredictive;
             }
 
             // Link out to CIVIC

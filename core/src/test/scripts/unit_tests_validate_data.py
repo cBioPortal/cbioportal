@@ -740,7 +740,7 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         """Override a static method to skip a UCSC HTTP query in each test."""
         super(SegFileValidationTestCase, cls).setUpClass()
         @staticmethod
-        def load_chromosome_lengths(genome_build):
+        def load_chromosome_lengths(genome_build, _):
             if genome_build != 'hg19':
                 raise ValueError(
                         "load_chromosome_lengths() called with genome build '{}'".format(

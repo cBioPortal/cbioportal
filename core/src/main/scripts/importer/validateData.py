@@ -1582,7 +1582,8 @@ class SegValidator(Validator):
         """Initialize validator to track coverage of the genome."""
         super(SegValidator, self).__init__(*args, **kwargs)
         self.chromosome_lengths = self.load_chromosome_lengths(
-            self.meta_dict['reference_genome_id'])
+            self.meta_dict['reference_genome_id'],
+            self.logger.logger)
         # add 23 and 24 "chromosomes" as aliases to X and Y, respectively:
         self.chromosome_lengths['23'] = self.chromosome_lengths['X']
         self.chromosome_lengths['24'] = self.chromosome_lengths['Y']
@@ -1675,7 +1676,7 @@ class SegValidator(Validator):
         # that chromosome in that patient.
 
     @staticmethod
-    def load_chromosome_lengths(genome_build):
+    def load_chromosome_lengths(genome_build, logger):
 
         """Get the length of each chromosome from USCS and return a dict.
 
@@ -1688,6 +1689,8 @@ class SegValidator(Validator):
             'http://hgdownload.cse.ucsc.edu'
             '/goldenPath/{build}/bigZips/{build}.chrom.sizes').format(
                 build=genome_build)
+        logger.debug("Retrieving chromosome lengths from '%s'",
+                     chrom_size_url)
         r = requests.get(chrom_size_url)
         try:
             r.raise_for_status()

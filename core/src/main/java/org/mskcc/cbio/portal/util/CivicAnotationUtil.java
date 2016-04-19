@@ -101,18 +101,18 @@ public final class CivicAnotationUtil {
      */
     public static ImmutableList<VariantSummary> getVariantSummary(String gene, String alteration) throws IOException {
         loadSummaries();
-        System.err.println("Querying variant summary for " + gene + " " + alteration + " ...");
+        // System.err.println("Querying variant summary for " + gene + " " + alteration + " ...");
         ImmutableList.Builder<VariantSummary> result = new Builder<>();
         if (!variantSummaryMap.containsKey(gene))
             return result.build();
 
         for (VariantSummary vs : variantSummaryMap.get(gene)) {
-            System.err.println("Considering " + vs);
+            // System.err.println("Considering " + vs);
             if (vs.variant.equals(alteration))
                 result.add(vs);
         }
 
-        System.err.println(" => " + result);
+        // System.err.println(" => " + result);
 
         return result.build();
     }
@@ -129,18 +129,18 @@ public final class CivicAnotationUtil {
     public static ImmutableList<ClinicalEvidenceSummary> getClinicalEvidenceSummary(String gene, String alteration)
             throws IOException {
         loadSummaries();
-        System.err.println("Querying variant summary for " + gene + " " + alteration + " ...");
+        // System.err.println("Querying variant summary for " + gene + " " + alteration + " ...");
         ImmutableList.Builder<ClinicalEvidenceSummary> result = new Builder<>();
         if (!clinicalEvidenceMap.containsKey(gene))
             return result.build();
 
         for (ClinicalEvidenceSummary vs : clinicalEvidenceMap.get(gene)) {
-            System.err.println("Considering " + vs);
+            // System.err.println("Considering " + vs);
             if (vs.variant.equals(alteration))
                 result.add(vs);
         }
 
-        System.err.println(" => " + result);
+        // System.err.println(" => " + result);
 
         return result.build();
     }
@@ -157,18 +157,18 @@ public final class CivicAnotationUtil {
     public static ImmutableList<ClinicalEvidenceStats> getClinicalEvidenceStats(String gene, String alteration)
             throws IOException {
         loadSummaries();
-        System.err.println("Querying evidence stats for " + gene + " " + alteration + " ...");
+        // System.err.println("Querying evidence stats for " + gene + " " + alteration + " ...");
         ImmutableList.Builder<ClinicalEvidenceStats> result = new Builder<>();
         if (!clinicalEvidenceStatsMap.containsKey(gene))
             return result.build();
 
         for (ClinicalEvidenceStats vs : clinicalEvidenceStatsMap.get(gene)) {
-            System.err.println("Considering " + vs);
+            // System.err.println("Considering " + vs);
             if (vs.variant.equals(alteration))
                 result.add(vs);
         }
 
-        System.err.println(" => " + result);
+        // System.err.println(" => " + result);
 
         return result.build();
     }
@@ -259,8 +259,10 @@ public final class CivicAnotationUtil {
             }
 
             ArrayList<String> items = new ArrayList<>(Arrays.asList(line.split("\t", -1)));
-            if (items.size() < key2pos.size())
+            if (items.size() < key2pos.size()) {
+                // System.err.println("Skipping evidence line\t" + line);
                 continue; // incomplete, skip
+            }
             for (String pVar : items.get(key2pos.get("variant")).split("[+/]")) {
                 ClinicalEvidenceSummary summary = new ClinicalEvidenceSummary(items.get(key2pos.get("gene")),
                         Integer.parseInt(items.get(key2pos.get("entrez_id"))), pVar, items.get(key2pos.get("disease")),
@@ -270,7 +272,9 @@ public final class CivicAnotationUtil {
                         items.get(key2pos.get("pubmed_id")), items.get(key2pos.get("citation")),
                         items.get(key2pos.get("rating")));
 
-                System.err.println("Read evidence summary " + summary);
+                // System.err.println("GENE=" + items.get(key2pos.get("gene")));
+                // System.err.println("Line\t" + line);
+                // System.err.println("Read evidence summary " + summary);
 
                 // Add to the list
                 builder.add(summary);
@@ -288,8 +292,12 @@ public final class CivicAnotationUtil {
         clinicalEvidenceSummaries = builder.build();
 
         ImmutableMap.Builder<String, ImmutableList<ClinicalEvidenceSummary>> mapBuilder = new ImmutableMap.Builder<>();
-        for (Entry<String, List<ClinicalEvidenceSummary>> x : tmpMap.entrySet())
+        for (Entry<String, List<ClinicalEvidenceSummary>> x : tmpMap.entrySet()) {
             mapBuilder.put(x.getKey(), ImmutableList.copyOf(x.getValue()));
+            // System.err.println("Clinical Evidence for " + x.getKey());
+            // for (ClinicalEvidenceSummary y : x.getValue())
+            //    System.err.println("\t" + y);
+        }
         clinicalEvidenceMap = mapBuilder.build();
     }
 
@@ -355,8 +363,11 @@ public final class CivicAnotationUtil {
         clinicalEvidenceStats = builder.build();
 
         ImmutableMap.Builder<String, ImmutableList<ClinicalEvidenceStats>> mapBuilder = new ImmutableMap.Builder<>();
-        for (Entry<String, List<ClinicalEvidenceStats>> elem : tmpMap.entrySet())
+        for (Entry<String, List<ClinicalEvidenceStats>> elem : tmpMap.entrySet()) {
             mapBuilder.put(elem.getKey(), ImmutableList.copyOf(elem.getValue()));
+            // System.err.println("Stats for " + elem.getKey());
+            // System.err.println(" => " + elem.getValue());
+        }
         clinicalEvidenceStatsMap = mapBuilder.build();
     }
 
@@ -440,7 +451,7 @@ public final class CivicAnotationUtil {
         ImmutableList.Builder<VariantSummary> builder = new Builder<>();
         HashMap<String, List<VariantSummary>> tmpMap = new HashMap<>();
 
-        System.err.println("Reading CIVIC file civic/" + PREFIX + VARIANT_SUMMARIES);
+        // System.err.println("Reading CIVIC file civic/" + PREFIX + VARIANT_SUMMARIES);
         InputStream inputStream = openCivicFile(VARIANT_SUMMARIES);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
         String line;
@@ -459,7 +470,7 @@ public final class CivicAnotationUtil {
 
             ArrayList<String> items = new ArrayList<>(Arrays.asList(line.split("\t", -1)));
             if (items.size() < key2pos.size()) {
-                System.err.println("Skipping (" + items.size() + " != " + key2pos.size() + "): " + line);
+                // System.err.println("Skipping (" + items.size() + " != " + key2pos.size() + "): " + line);
                 continue; // incomplete, skip
             }
             for (String pVar : items.get(key2pos.get("variant")).split("[+/]")) {
@@ -468,7 +479,7 @@ public final class CivicAnotationUtil {
                         Arrays.asList(items.get(key2pos.get("variant_groups")).split(",")),
                         items.get(key2pos.get("variant_civic_url")));
 
-                System.err.println("Read variant summary " + summary);
+                // System.err.println("Read variant summary " + summary);
 
                 // Add to the list
                 builder.add(summary);

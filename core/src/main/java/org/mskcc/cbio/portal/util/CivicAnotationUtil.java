@@ -305,6 +305,9 @@ public final class CivicAnotationUtil {
      * Build statistics on clinical evidence
      */
     private static void buildClinicalEvidenceStats() {
+        if (clinicalEvidenceStats != null)
+            return;
+
         ImmutableList.Builder<ClinicalEvidenceStats> builder = new ImmutableList.Builder<>();
         HashMap<String, List<ClinicalEvidenceStats>> tmpMap = new HashMap<>();
 

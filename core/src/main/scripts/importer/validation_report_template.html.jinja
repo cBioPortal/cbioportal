@@ -53,10 +53,10 @@
 
     {% macro level_icon(level) %}
       {% set glyphicon_name = {
-        'danger': 'glyphicon-remove-sign',
-        'warning': 'glyphicon-question-sign',
-        'success': 'glyphicon-ok-sign',
-        'info': 'glyphicon-info-sign'}[level] %}
+        'danger': 'glyphicon-remove',
+        'warning': 'glyphicon-warning-sign',
+        'success': 'glyphicon-ok',
+        'info': 'glyphicon-cog'}[level] %}
       {% set glyphicon_alt = {
         'danger': 'Error',
         'warning': 'Warning',

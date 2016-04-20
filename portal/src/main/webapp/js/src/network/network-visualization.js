@@ -752,7 +752,7 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
     var showSBGNViewButton = $('<button/>',
     {
         "class": "SBGNPopUpButton",
-        text: 'Show Detailed Process View',
+        text: 'Detailed process (SBGN)',
         click: function () { self.popUpSBGNView(sourceLabel, targetLabel, edgeType) }
     });
 

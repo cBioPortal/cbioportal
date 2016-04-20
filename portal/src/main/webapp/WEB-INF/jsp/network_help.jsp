@@ -262,10 +262,14 @@
 	Detailed Process Level (SBGN) View
 </p>
 <p class="regular">
-	When you are interested in process level details of an interaction, you may either right-click on that interaction or click the “Detailed Process (SBGN)” button in the Details tab while inspecting the interaction. This will pop up a detailed process view in SBGN Process Description Language. The shown network corresponds to all paths between source and target genes of that interaction as returned by Pathway Commons’ web service.
-	SBGN view allows users to modify the process level view in many ways, including changing its layout and topology through complexity management techniques such as hiding or collapsing. You may also store the current network as a static image or in SBGN-ML format. For further help, please refer to the Help menu of this view.
+	When you are interested in process level details of an interaction,
+  you may either right-click on that interaction or click the "Detailed Process (SBGN)" button
+  in the Details tab while inspecting the interaction.
+  This will pop up a detailed process view in <a href="http://www.sbgn.org/Main_Page" target="_blank">SBGN Process Description Language</a>.
+  The shown network corresponds to all paths between source and target genes of that interaction as returned by <a href="http://www.pathwaycommons.org/pc2/" target="_blank">Pathway Commons' web service</a>.
+	SBGN view allows users to modify the process level view in many ways, including changing its layout and topology through complexity management techniques such as hiding or collapsing.
+  You may also store the current network as a static image or in <a href="http://www.sbgn.org/LibSBGN/Exchange_Format" target="_blank">SBGN-ML format</a>. For further help, please refer to the Help menu of this view.
 </p>
-
 <p class="heading">
 	Technology
 </p>

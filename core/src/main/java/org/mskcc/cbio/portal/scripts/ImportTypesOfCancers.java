@@ -74,7 +74,8 @@ public class ImportTypesOfCancers {
         if (clobber) DaoTypeOfCancer.deleteAllRecords(); //TODO - this option should not exist...in a relational DB it basically means the whole DB is cleaned-up...there should be more efficient ways to do this...and here it is probably an unwanted side effect. REMOVE??
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         Scanner scanner = new Scanner(file);
-
+        int numNewCancerTypes = 0;
+        
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
             if (tokens.length != 5) {
@@ -96,9 +97,10 @@ public class ImportTypesOfCancers {
 	            aTypeOfCancer.setShortName(typeOfCancerId);
 	            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
 	            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
+	            numNewCancerTypes++;
             }
         }
-        ProgressMonitor.setCurrentMessage(" --> Loaded " + DaoTypeOfCancer.getCount() + " new cancer types.");
+        ProgressMonitor.setCurrentMessage(" --> Loaded " + numNewCancerTypes + " new cancer types.");
         ProgressMonitor.setCurrentMessage("Done.");
         ConsoleUtil.showMessages();
     }

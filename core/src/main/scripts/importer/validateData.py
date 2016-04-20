@@ -1874,13 +1874,13 @@ class CancerTypeValidator(Validator):
                                          'cause': '<%d columns>' % len(data)})
                 # no assumptions can be made about the meaning of each column
                 return
-            line_cancer_type = data[self.cols.index('type_of_cancer')].lower()
+            line_cancer_type = data[self.cols.index('type_of_cancer')].lower().strip()
             # check each column
             for col_index, field_name in enumerate(self.cols):
                 # TODO validate whether the color field is one of the
                 # keywords on https://www.w3.org/TR/css3-color/#svg-color
                 if field_name == 'parent_type_of_cancer':
-                    parent_cancer_type = data[col_index].lower()
+                    parent_cancer_type = data[col_index].lower().strip()
                     # if parent_cancer_type is not 'tissue' (which is a special case when building the oncotree), 
                     # then give error if the given parent is not found in the DB or in the given cancer types of the
                     # current study:

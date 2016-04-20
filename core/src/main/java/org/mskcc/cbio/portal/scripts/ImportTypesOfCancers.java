@@ -55,7 +55,7 @@ public class ImportTypesOfCancers {
 	        }
 	
 	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-	
+	        ProgressMonitor.setCurrentMessage("Loading cancer types...");
 	        File file = new File(args[0]);
 	        // default to clobber = true (existing behavior)
 	        boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
@@ -82,17 +82,23 @@ public class ImportTypesOfCancers {
                     "Cancer type file '" + file.getPath() +
                     "' is not a five-column tab-delimited file");
             }
-
+            
             String typeOfCancerId = tokens[0].trim();
-            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
-            aTypeOfCancer.setName(tokens[1].trim());
-            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
-            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
-            aTypeOfCancer.setShortName(typeOfCancerId);
-            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
-            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
+            //if not clobber, then existing cancer types should be skipped:
+            if (!clobber && DaoTypeOfCancer.getTypeOfCancerById(typeOfCancerId.toLowerCase()) != null ) {
+            	ProgressMonitor.logWarning("Cancer type with id '" + typeOfCancerId + "' already exists. Skipping.");
+            }
+            else {
+	            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
+	            aTypeOfCancer.setName(tokens[1].trim());
+	            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
+	            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
+	            aTypeOfCancer.setShortName(typeOfCancerId);
+	            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
+	            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
+            }
         }
-        ProgressMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");
+        ProgressMonitor.setCurrentMessage(" --> Loaded " + DaoTypeOfCancer.getCount() + " new cancer types.");
         ProgressMonitor.setCurrentMessage("Done.");
         ConsoleUtil.showMessages();
     }

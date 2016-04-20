@@ -1881,7 +1881,11 @@ class CancerTypeValidator(Validator):
                 # keywords on https://www.w3.org/TR/css3-color/#svg-color
                 if field_name == 'parent_type_of_cancer':
                     parent_cancer_type = data[col_index].lower()
-                    if (self.portal.cancer_type_dict is not None and not
+                    # if parent_cancer_type is not 'tissue' (which is a special case when building the oncotree), 
+                    # then give error if the given parent is not found in the DB or in the given cancer types of the
+                    # current study:
+                    if (parent_cancer_type != 'tissue' and 
+                        self.portal.cancer_type_dict is not None and not
                             (parent_cancer_type in self.portal.cancer_type_dict or
                              parent_cancer_type in self.defined_cancer_types)):
                         self.logger.error(

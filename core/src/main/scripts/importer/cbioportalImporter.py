@@ -259,18 +259,13 @@ def check_args(command):
 
 
 def check_files(meta_filename, data_filename):
-    if meta_filename is None or meta_filename.strip() == '':
-        print >> ERROR_FILE, '-meta parameter is mandatory when -c is given'
-        sys.exit(2)
     if meta_filename and not os.path.exists(meta_filename):
         print >> ERROR_FILE, 'meta-file cannot be found: ' + meta_filename
         sys.exit(2)
-    if data_filename is None or data_filename.strip() == '':
-        print >> ERROR_FILE, '-data parameter is mandatory when -c is given'
-        sys.exit(2)
     if data_filename  and not os.path.exists(data_filename):
         print >> ERROR_FILE, 'data-file cannot be found:' + data_filename
-
+        sys.exit(2)
+        
 def check_dir(study_directory):
     # check existence of directory
     if not os.path.exists(study_directory) and study_directory != '':

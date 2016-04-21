@@ -48,30 +48,31 @@ public class ImportTypesOfCancers {
     public static void main(String[] args) throws IOException, DaoException {
         if (args.length < 1) {
             System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt> <clobber>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
 
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File file = new File(args[0]);
 	// default to clobber = true (existing behavior)
-	boolean clobber = (args.length == 2 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
+	boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
         load(file, clobber);
     }
 
-    public static void load(File file) throws IOException, DaoException {
-		SpringUtil.initDataSource();
-        ImportTypesOfCancers.load(file, true);
-    }
-
     public static void load(File file, boolean clobber) throws IOException, DaoException {
-        if (clobber) DaoTypeOfCancer.deleteAllRecords();
+		SpringUtil.initDataSource();
+        if (clobber) DaoTypeOfCancer.deleteAllRecords(); //TODO - this option should not exist...in a relational DB it basically means the whole DB is cleaned-up...there should be more efficient ways to do this...and here it is probably an unwanted side effect. REMOVE??
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         Scanner scanner = new Scanner(file);
 
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            assert tokens.length == 5;
+            if (tokens.length != 5) {
+                throw new IOException(
+                    "Cancer type file '" + file.getPath() +
+                    "' is not a five-column tab-delimited file");
+            }
 
             String typeOfCancerId = tokens[0].trim();
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
@@ -85,5 +86,6 @@ public class ImportTypesOfCancers {
         ProgressMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");
         ConsoleUtil.showWarnings();
     }
+    
 
 }

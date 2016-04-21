@@ -516,7 +516,7 @@ public final class DaoCancerStudy {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
         reCacheAll();
-        System.out.print("delete a study "+internalCancerStudyId);
+        System.out.println("deleted study:\nID: "+internalCancerStudyId);
     }
 
     /**

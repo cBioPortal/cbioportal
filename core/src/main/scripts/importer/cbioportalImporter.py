@@ -45,10 +45,10 @@ PORTAL_HOME = "PORTAL_HOME"
 # ------------------------------------------------------------------------------
 # sub-routines
 
-def import_cancer_type(jvm_args, meta_filename):
+def import_cancer_type(jvm_args, data_filename):
     args = jvm_args.split(' ')
     args.append(IMPORT_CANCER_TYPE_CLASS)
-    args.append(meta_filename)
+    args.append(data_filename)
     args.append("false") # don't clobber existing table
     args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
@@ -149,7 +149,7 @@ def process_case_lists(jvm_args, case_list_dir):
 
 def process_command(jvm_args, command, meta_filename, data_filename):
     if command == IMPORT_CANCER_TYPE:
-        import_cancer_type(jvm_args, meta_filename)
+        import_cancer_type(jvm_args, data_filename)
     elif command == IMPORT_STUDY:
         import_study(jvm_args, meta_filename)
     elif command == REMOVE_STUDY:
@@ -245,6 +245,7 @@ def process_directory(jvm_args, study_directory):
 
 
 def usage():
+    # TODO : replace this by usage string from interface()
     print >> OUTPUT_FILE, ('cbioportalImporter.py --jar-path (path to core jar file) ' +
                            '--command [%s] --study_directory <path to directory> '
                            '--meta_filename <path to metafile>'
@@ -258,8 +259,14 @@ def check_args(command):
 
 
 def check_files(meta_filename, data_filename):
+    if meta_filename is None or meta_filename.strip() == '':
+        print >> ERROR_FILE, '-meta parameter is mandatory when -c is given'
+        sys.exit(2)
     if meta_filename and not os.path.exists(meta_filename):
         print >> ERROR_FILE, 'meta-file cannot be found: ' + meta_filename
+        sys.exit(2)
+    if data_filename is None or data_filename.strip() == '':
+        print >> ERROR_FILE, '-data parameter is mandatory when -c is given'
         sys.exit(2)
     if data_filename  and not os.path.exists(data_filename):
         print >> ERROR_FILE, 'data-file cannot be found:' + data_filename

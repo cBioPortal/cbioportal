@@ -34,7 +34,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
 
 <script type="text/javascript">
-    
     var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration", "annotation","cytoband","mrna","altrate","drug"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];

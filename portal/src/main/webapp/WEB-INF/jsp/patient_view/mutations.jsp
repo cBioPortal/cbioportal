@@ -40,13 +40,6 @@
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
-    var mutTableIndices =
-            ["id","case_ids","gene","aa", "annotation", "chr","start","end","ref","_var","validation","type",
-             "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
-             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
-
-    mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
-
     _.templateSettings = {
         interpolate : /\{\{(.+?)\}\}/g
     };

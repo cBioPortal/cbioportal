@@ -1697,6 +1697,8 @@ ul.oncokb li {
     height: 24px;
     line-height: 24px;
     background-image: url("../images/oncogenic.png");
+    -webkit-background-size: 200px;
+    background-size: 200px;
     display: block !important;
 }
 
@@ -1908,6 +1910,8 @@ table.oncokb-treatments-table th, table.oncokb-treatments-table td{
     height: 14px;
     line-height: 14px;
     background-image: url("../images/levels_colors.png");
+    -webkit-background-size: 200px;
+    background-size: 200px;
     display: inline-block !important;
 }
 

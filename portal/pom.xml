@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cbioportal</artifactId>
@@ -67,13 +67,27 @@
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
           <webResources>
             <resource>
-              <directory>${PORTAL_HOME}/business/src/main/resources</directory>
+              <directory>${project.parent.basedir}/business/src/main/resources</directory>
               <targetPath>WEB-INF/classes</targetPath>
               <filtering>true</filtering>
             </resource>
             <resource>
-              <directory>${PORTAL_HOME}/web/src/main/resources</directory>
+              <directory>${project.parent.basedir}/web/src/main/resources</directory>
               <targetPath>WEB-INF/classes</targetPath>
+              <filtering>true</filtering>
+            </resource>
+            <resource>
+              <directory>src/main/webapp/WEB-INF/jsp/global</directory>
+              <include>footer.jsp</include>
+              <targetPath>WEB-INF/jsp/global</targetPath>
+              <filtering>true</filtering>
+            </resource>
+            <resource>
+              <directory>src/main/webapp/WEB-INF</directory>
+              <includes>
+                <include>**/web.xml</include>
+              </includes>
+              <targetPath>WEB-INF</targetPath>
               <filtering>true</filtering>
             </resource>
           </webResources>
@@ -104,7 +118,7 @@
               <outputDirectory>${project.build.directory}/classes</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${PORTAL_HOME}/src/main/resources</directory>
+                  <directory>${project.parent.basedir}/src/main/resources</directory>
                   <filtering>true</filtering>
                   <includes>
                     <include>**/*.properties</include>
@@ -143,39 +157,12 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <executions>
-          <execution>
-            <id>clean-jar-artifacts</id>
-            <phase>install</phase>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-            <configuration>
-              <excludeDefaultDirectories>true</excludeDefaultDirectories>
-              <filesets>
-                <fileset>
-                  <directory>${PORTAL_HOME}/portal/target</directory>
-                  <excludes>
-                    <exclude>*.war</exclude>
-                    <exclude>dependency/webapp-runner.jar</exclude>
-                  </excludes>
-                </fileset>
-              </filesets>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
 
-    <!-- properties file used for filtering our context file in resources -->
     <filters>
-      <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
-      <filter>${PORTAL_HOME}/src/main/resources/spring.security.url.intercepts</filter>
+        <filter>../src/main/resources/portal.properties</filter>
     </filters>
-
+    
     <!-- prevent some resources from getting into war -->
     <resources>
       <resource>
@@ -193,7 +180,22 @@
         <filtering>false</filtering>
         <includes>
           <include>**/*.jks</include>
+          <include>**/applicationContext-security.xml</include>
         </includes>
+      </resource>
+      <resource>
+        <directory>src/main/webapp/WEB-INF</directory>
+        <filtering>true</filtering>
+        <includes>
+            <include>**/web.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/webapp/WEB-INF</directory>
+        <filtering>false</filtering>
+        <excludes>
+            <exclude>**/web.xml</exclude>
+        </excludes>
       </resource>
     </resources>
   </build>
@@ -224,7 +226,7 @@
                   <excludeDefaultDirectories>true</excludeDefaultDirectories>
                   <filesets>
                     <fileset>
-                      <directory>${PORTAL_HOME}/portal/target</directory>
+                      <directory>${project.parent.basedir}/portal/target</directory>
                       <excludes>
                         <exclude>*.war</exclude>
                         <exclude>dependency/webapp-runner.jar</exclude>

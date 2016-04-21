@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python2.7
 
 # imports
 import os
@@ -58,8 +58,8 @@ def get_portal_properties(properties_filename):
         
         # store name/value
         property = line.split('=')
-        if len(property) != 2:
-            print >> ERROR_FILE, 'Skipping invalid entry in proeprty file: ' + line
+        if len(property) < 2:
+            print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
             continue
         properties[property[0]] = property[1].strip()
     properties_file.close()
@@ -69,7 +69,7 @@ def get_portal_properties(properties_filename):
         DATABASE_USER not in properties or len(properties[DATABASE_USER]) == 0 or
         DATABASE_PW not in properties or len(properties[DATABASE_PW]) == 0):
         print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
-        return none
+        return None
     
     # return an instance of PortalProperties
     return PortalProperties(properties[DATABASE_HOST],
@@ -157,7 +157,11 @@ def run_migration(db_version, sql_filename, connection, cursor):
                 else:
                     statements[sql_version].append(statement)
                 statement = ''
-    run_statements(statements, connection, cursor)
+    if len(statements.items()) > 0:
+        run_statements(statements, connection, cursor)
+    else:
+        print 'Everything up to date, nothing to migrate.'
+    
 def run_statements(statements, connection, cursor):
     try:
         cursor.execute('SET autocommit=0;')
@@ -166,7 +170,7 @@ def run_statements(statements, connection, cursor):
         sys.exit(1)
 
     for version,statement_list in statements.iteritems():
-        print >> OUTPUT_FILE, 'Running statments for version: ' + '.'.join(map(str,version))
+        print >> OUTPUT_FILE, 'Running statements for version: ' + '.'.join(map(str,version))
         for statement in statement_list:
             print >> OUTPUT_FILE, '\tExecuting statement: ' + statement.strip()
             try:
@@ -234,6 +238,7 @@ def main():
     db_version = get_db_version(cursor)
     run_migration(db_version, sql_filename, connection, cursor)
     connection.close();
+    print 'Finished.'
     
 
 # do main

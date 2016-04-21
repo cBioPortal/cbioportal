@@ -34,8 +34,10 @@ package org.mskcc.cbio.portal.util;
 
 import org.apache.log4j.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -50,8 +52,10 @@ public class ProgressMonitor {
     private StringBuffer log = new StringBuffer();
     private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ProgressMonitor.class);
     private boolean consoleMode;
+    private boolean showProgress;
     private TreeSet<String> warnings = new TreeSet<>();
     private HashMap<String, Integer> warningCounts = new HashMap<>();
+    private List<String> debugMessages = new ArrayList<>();
 
     private static final ProgressMonitor progressMonitor = new ProgressMonitor();
 
@@ -74,7 +78,45 @@ public class ProgressMonitor {
     public static void setConsoleMode(boolean consoleFlag) {
         progressMonitor.consoleMode = consoleFlag;
     }
+    
+    /**
+     * Sets consoleMode to true and tries to infer showProgress mode from args. If an argument 
+     * with name "--noprogress" is found, then showProgress is set to false
+     * 
+     * @param args
+     */
+    public static void setConsoleModeAndParseShowProgress(String[] args) {
+    	//default
+		setConsoleMode(true);
+    	if (Arrays.asList(args).contains("--noprogress")) {
+    		setShowProgress(false);
+    	} else {
+    		//default:
+    		setShowProgress(true);
+    	}
+    		
+    }
 
+    /**
+     * Whether the progress (in % complete and memory used) should be 
+     * printed to the console. 
+     * 
+     * @param showProgress : set to false to avoid extra messages about % complete and memory usage.
+     */
+    public static void setShowProgress(boolean showProgress) {
+    	progressMonitor.showProgress = showProgress;
+    }
+    
+    /**
+     * Whether the progress (in % complete and memory used) should be 
+     * printed to the console. 
+     * 
+     * @return returns true if !isRunningOnServer() and progressMonitor.showProgress==true
+     */
+    public static boolean isShowProgress() {
+    	return !isRunningOnServer() && progressMonitor.showProgress;
+    }
+    
     /**
      * Gets Console Mode Flag.
      *
@@ -187,6 +229,12 @@ public class ProgressMonitor {
         progressMonitor.warningCounts.put(warning, progressMonitor.warningCounts.get(warning)+1);
     }
 
+    public static void logDebug(String debugMessage) {
+        logger.log(Level.DEBUG, debugMessage);
+        if (isShowProgress())
+        	progressMonitor.debugMessages.add(debugMessage);
+    }
+    
     public static ArrayList<String> getWarnings() {
         ArrayList<String> ret = new ArrayList<>();
         if (isRunningOnServer())
@@ -196,5 +244,16 @@ public class ProgressMonitor {
             ret.add(w + "; "+progressMonitor.warningCounts.get(w)+"x");
         }
         return ret;
+    }
+    
+    public static ArrayList<String> getMessages() {
+    	ArrayList<String> ret = getWarnings();
+    	ret.addAll(progressMonitor.debugMessages);
+    	return ret;
+    }
+    
+    public static List<String> getDebugMessages() {
+    	return progressMonitor.debugMessages;
+
     }
 }

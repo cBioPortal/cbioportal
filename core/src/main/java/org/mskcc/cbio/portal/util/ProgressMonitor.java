@@ -214,7 +214,7 @@ public class ProgressMonitor {
         progressMonitor.currentMessage = currentMessage;
         progressMonitor.log.append(currentMessage + "\n");
         if (progressMonitor.consoleMode) {
-            System.err.println(currentMessage);
+            System.out.println(currentMessage);
         }
     }
 

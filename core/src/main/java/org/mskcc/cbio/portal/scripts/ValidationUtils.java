@@ -23,6 +23,13 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.IOException;
+
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.CancerStudy;
+
+
 /**
  * Utility validation methods shared by different importers.
  * 
@@ -48,5 +55,26 @@ public class ValidationUtils {
         if (chromNr > 24) {
         	throw new IllegalArgumentException("Error: Invalid chromosome [" + chrom + "]");
         }
+	}
+
+    /**
+     * Gets internal cancer study id by stable id and throws an 
+     * exception when study is not found.
+     * 
+     * @param cancerStudy String (e.g. "tcga_gbm")
+     * @return the cancer study internal id
+     * @throws IOException
+     * @throws DaoException when study cannot be found
+     */
+    public static int getInternalStudyId(final String cancerStudyIdentifier) throws IOException, DaoException
+    {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+
+        if (cancerStudy == null) {
+            throw new DaoException("no CancerStudy associated with \""
+                    + cancerStudyIdentifier + "\" cancer_study_identifier");
+        }
+
+        return cancerStudy.getInternalId();
 	}
 }

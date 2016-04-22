@@ -203,9 +203,6 @@ public class ImportTabDelimData {
 	           MySQLbulkLoader.flushAll();
 	        }
         }
-        catch (Exception e) {
-        	System.err.println(e.getMessage());
-        }
         finally {
 	        buf.close();
 	        if (rppaProfile) {
@@ -239,8 +236,9 @@ public class ImportTabDelimData {
             
             if (parts.length>nrColumns) {
                 if (line.split("\t").length>nrColumns) {
-                    System.err.println("The following line has more fields (" + parts.length
-                            + ") than the headers(" + nrColumns + "): \n"+parts[0]);
+                    ProgressMonitor.logWarning("Ignoring line with more fields (" + parts.length
+                            + ") than specified in the headers(" + nrColumns + "): \n"+parts[0]);
+                    return false;
                 }
             }
             String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
@@ -258,7 +256,7 @@ public class ImportTabDelimData {
                 geneSymbol = null;
             }
             if (rppaProfile && geneSymbol == null) {
-            	ProgressMonitor.logWarning("Ignoring line no Composite.Element.REF value");
+            	ProgressMonitor.logWarning("Ignoring line with no Composite.Element.REF value");
             	return false;
             }
             //get entrez
@@ -353,6 +351,8 @@ public class ImportTabDelimData {
                                 return false;
                             }
                         } else if (genes.size()==1) {
+                        	List<CnaEvent> cnaEventsToAdd = new ArrayList<CnaEvent>();
+                        	
                             if (discritizedCnaProfile) {
                                 long entrezGeneId = genes.get(0).getEntrezGeneId();
                                 int n = values.length;
@@ -372,19 +372,25 @@ public class ImportTabDelimData {
                                            // || values[i].equals(GeneticAlterationType.HEMIZYGOUS_DELETION)
                                             || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
                                         CnaEvent cnaEvent = new CnaEvent(orderedSampleList.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
-                                        
-                                        if (existingCnaEvents.containsKey(cnaEvent.getEvent())) {
-                                            cnaEvent.setEventId(existingCnaEvents.get(cnaEvent.getEvent()).getEventId());
-                                            DaoCnaEvent.addCaseCnaEvent(cnaEvent, false);
-                                        } else {
-                                        	//cnaEvent.setEventId(++cnaEventId); not needed anymore, column now has AUTO_INCREMENT 
-                                            DaoCnaEvent.addCaseCnaEvent(cnaEvent, true);
-                                            existingCnaEvents.put(cnaEvent.getEvent(), cnaEvent.getEvent());
-                                        }
+                                        //delayed add:
+                                        cnaEventsToAdd.add(cnaEvent);
                                     }
                                 }
                             }
                             recordStored = storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0), geneSymbol);
+                            //only add extra CNA related records if the step above worked, otherwise skip:
+                            if (recordStored) {
+	                            for (CnaEvent cnaEvent : cnaEventsToAdd) {
+		                            if (existingCnaEvents.containsKey(cnaEvent.getEvent())) {
+		                                cnaEvent.setEventId(existingCnaEvents.get(cnaEvent.getEvent()).getEventId());
+		                                DaoCnaEvent.addCaseCnaEvent(cnaEvent, false);
+		                            } else {
+		                            	//cnaEvent.setEventId(++cnaEventId); not needed anymore, column now has AUTO_INCREMENT 
+		                                DaoCnaEvent.addCaseCnaEvent(cnaEvent, true);
+		                                existingCnaEvents.put(cnaEvent.getEvent(), cnaEvent.getEvent());
+		                            }
+	                            }
+                            }                            
                         } else {
                         	//TODO - review: is this still correct?
                         	int otherCase = 0;

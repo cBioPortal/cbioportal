@@ -818,6 +818,13 @@ class FeaturewiseFileValidator(Validator):
                     sample_id,
                     column_number=self.num_nonsample_cols + index + 1):
                 num_errors += 1
+            if ' ' in sample_id:
+                self.logger.error(
+                    'White space in SAMPLE_ID is not supported',
+                    extra={'line_number': self.line_number,
+                           'cause': sample_id})
+                num_errors += 1
+                
         return num_errors
 
 
@@ -1437,6 +1444,12 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
+                if ' ' in value:
+                    self.logger.error(
+                        'White space in SAMPLE_ID is not supported',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
                 if value in self.sample_id_lines:
                     if value.startswith('TCGA-'):
                         self.logger.warning(
@@ -1516,6 +1529,12 @@ class PatientClinicalValidator(ClinicalValidator):
             if col_index < len(data):
                 value = data[col_index].strip()
             if col_name == 'PATIENT_ID':
+                if ' ' in value:
+                    self.logger.error(
+                        'White space in PATIENT_ID is not supported',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
                 if value in self.patient_id_lines:
                     self.logger.error(
                         'Patient defined multiple times in file',
@@ -1563,7 +1582,8 @@ class SegValidator(Validator):
         """Initialize validator to track coverage of the genome."""
         super(SegValidator, self).__init__(*args, **kwargs)
         self.chromosome_lengths = self.load_chromosome_lengths(
-            self.meta_dict['reference_genome_id'])
+            self.meta_dict['reference_genome_id'],
+            self.logger.logger)
         # add 23 and 24 "chromosomes" as aliases to X and Y, respectively:
         self.chromosome_lengths['23'] = self.chromosome_lengths['X']
         self.chromosome_lengths['24'] = self.chromosome_lengths['Y']
@@ -1656,7 +1676,7 @@ class SegValidator(Validator):
         # that chromosome in that patient.
 
     @staticmethod
-    def load_chromosome_lengths(genome_build):
+    def load_chromosome_lengths(genome_build, logger):
 
         """Get the length of each chromosome from USCS and return a dict.
 
@@ -1669,6 +1689,8 @@ class SegValidator(Validator):
             'http://hgdownload.cse.ucsc.edu'
             '/goldenPath/{build}/bigZips/{build}.chrom.sizes').format(
                 build=genome_build)
+        logger.debug("Retrieving chromosome lengths from '%s'",
+                     chrom_size_url)
         r = requests.get(chrom_size_url)
         try:
             r.raise_for_status()
@@ -1852,14 +1874,18 @@ class CancerTypeValidator(Validator):
                                          'cause': '<%d columns>' % len(data)})
                 # no assumptions can be made about the meaning of each column
                 return
-            line_cancer_type = data[self.cols.index('type_of_cancer')].lower()
+            line_cancer_type = data[self.cols.index('type_of_cancer')].lower().strip()
             # check each column
             for col_index, field_name in enumerate(self.cols):
                 # TODO validate whether the color field is one of the
                 # keywords on https://www.w3.org/TR/css3-color/#svg-color
                 if field_name == 'parent_type_of_cancer':
-                    parent_cancer_type = data[col_index].lower()
-                    if (self.portal.cancer_type_dict is not None and not
+                    parent_cancer_type = data[col_index].lower().strip()
+                    # if parent_cancer_type is not 'tissue' (which is a special case when building the oncotree), 
+                    # then give error if the given parent is not found in the DB or in the given cancer types of the
+                    # current study:
+                    if (parent_cancer_type != 'tissue' and 
+                        self.portal.cancer_type_dict is not None and not
                             (parent_cancer_type in self.portal.cancer_type_dict or
                              parent_cancer_type in self.defined_cancer_types)):
                         self.logger.error(
@@ -2299,8 +2325,9 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
     required_stable_ids = [cancerStudyId + '_' + suffix for suffix in
                            required_id_suffixes]
 
-    case_list_fns = [os.path.join(caseListDir, x) for
-                     x in os.listdir(caseListDir)]
+    case_list_fns = [os.path.join(caseListDir, fn) for
+                     fn in os.listdir(caseListDir) if
+                     not (fn.startswith('.') or fn.endswith('~'))]
 
     for case in case_list_fns:
 
@@ -2337,6 +2364,12 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                     'Sample id not defined in clinical file',
                     extra={'filename_': case,
                            'cause': value})
+            if ' ' in value:
+                logger.error(
+                    'White space in sample id is not supported',
+                    extra={'filename_': case,
+                           'cause': value})
+                
 
     for required_id in required_stable_ids:
         if required_id not in stableid_files:

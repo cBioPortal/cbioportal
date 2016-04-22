@@ -11,8 +11,14 @@ import logging
 import tempfile
 import os
 import shutil
+import time
 import difflib
 from importer import validateData
+
+try:
+    WindowsError
+except NameError:
+    WindowsError = None
 
 # globals:
 PORTAL_INFO_DIR = 'test_data/api_json_system_tests'
@@ -24,8 +30,12 @@ class ValidateDataSystemTester(unittest.TestCase):
     the html report when requested?", etc)
     '''
 
+    def setUp(self):
+        """Set up a temporary directory for output files."""
+        self.temp_dir_path = tempfile.mkdtemp()
+
     def tearDown(self):
-        """Close logging handlers after running validator."""
+        """Close logging handlers after running validator and remove tmpdir."""
         # get the logger used in validateData.main_validate()
         validator_logger = logging.getLogger(validateData.__name__)
         # flush and close all handlers of this logger
@@ -33,7 +43,30 @@ class ValidateDataSystemTester(unittest.TestCase):
             logging_handler.close()
         # remove the handlers from the logger to reset it
         validator_logger.handlers = []
+        # TODO: test if this try block fixes the issue on Pieter's system
+        try:
+            shutil.rmtree(self.temp_dir_path)
+        except WindowsError:
+            # wait for any virus scanners or other malware to get out of there
+            time.sleep(5)
+            # remove as much as possible
+            shutil.rmtree(self.temp_dir_path, ignore_errors=True)
         super(ValidateDataSystemTester, self).tearDown()
+
+    def assertFileGenerated(self, tmp_file_name, expected_file_name):
+        """Assert that a file has been generated with the expected contents."""
+        self.assertTrue(os.path.exists(tmp_file_name))
+        with open(tmp_file_name, 'rU') as out_file, \
+             open(expected_file_name, 'rU') as ref_file:
+            base_filename = os.path.basename(tmp_file_name)
+            diff_result = difflib.context_diff(
+                    ref_file.readlines(),
+                    out_file.readlines(),
+                    fromfile='Expected {}'.format(base_filename),
+                    tofile='Generated {}'.format(base_filename))
+        diff_line_list = list(diff_result)
+        self.assertEqual(diff_line_list, [],
+                         msg='\n' + ''.join(diff_line_list))
 
     def test_exit_status_success(self):
         '''study 0 : no errors, expected exit_status = 0.
@@ -93,46 +126,38 @@ class ValidateDataSystemTester(unittest.TestCase):
         Test if html file is correctly generated when 'html_table' is given
         '''
         #Build up arguments and run
+        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
         args = ['--study_directory','test_data/study_es_0/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
-                '--html_table', 'test_data/study_es_0/result_report.html']
+                '--html_table', out_file_name]
+                # uncomment to overwrite with the new version
+                #'--html_table', 'test_data/study_es_0/result_report.html']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
-        # TODO - assert if html file is present
         self.assertEquals(0, exit_status)
-
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_es_0/result_report.html')
 
     def test_errorline_output(self):
         '''Test if error file is generated when '--error_file' is given.'''
-        temp_dir_path = tempfile.mkdtemp()
-        try:
-            out_file_name = os.path.join(temp_dir_path, 'error_file.txt')
-            # build up arguments and run
-            argv = ['--study_directory','test_data/study_maf_test/',
-                    '--portal_info_dir', PORTAL_INFO_DIR,
-                    '--error_file', out_file_name]
-            parsed_args = validateData.interface(argv)
-            exit_status = validateData.main_validate(parsed_args)
-            # flush logging handlers used in validateData
-            validator_logger = logging.getLogger(validateData.__name__)
-            for logging_handler in validator_logger.handlers:
-                logging_handler.flush()
-            # assert that the results are as expected
-            self.assertEquals(1, exit_status)
-            self.assertTrue(os.path.exists(out_file_name))
-            with open(out_file_name, 'rU') as out_file, \
-                 open('test_data/study_maf_test/error_file.txt', 'rU') as ref_file:
-                diff_result = difflib.context_diff(
-                        ref_file.readlines(),
-                        out_file.readlines(),
-                        fromfile='Expected error file',
-                        tofile='Generated error file')
-            diff_line_list = list(diff_result)
-            self.assertEqual(diff_line_list, [],
-                             msg='\n' + ''.join(diff_line_list))
-        finally:
-            shutil.rmtree(temp_dir_path) #TODO: make compatible with Windows, so test can work on windows machine
+        out_file_name = os.path.join(self.temp_dir_path, 'error_file.txt')
+        # build up arguments and run
+        argv = ['--study_directory','test_data/study_maf_test/',
+                '--portal_info_dir', PORTAL_INFO_DIR,
+                '--error_file', out_file_name]
+                # uncomment to overwrite with the new version
+                #'--error_file', 'test_data/study_maf_test/error_file.txt']
+        parsed_args = validateData.interface(argv)
+        exit_status = validateData.main_validate(parsed_args)
+        # flush logging handlers used in validateData
+        validator_logger = logging.getLogger(validateData.__name__)
+        for logging_handler in validator_logger.handlers:
+            logging_handler.flush()
+        # assert that the results are as expected
+        self.assertEquals(1, exit_status)
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_maf_test/error_file.txt')
 
     def test_portal_mismatch(self):
         '''Test if validation fails when data contradicts the portal.'''
@@ -170,15 +195,20 @@ class ValidateDataSystemTester(unittest.TestCase):
         be undefined. Validate if the script is giving the proper error.
         '''
         # build the argument list
+        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
         print '==test_problem_in_clinical=='
         args = ['--study_directory','test_data/study_wr_clin/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
-                '--html_table', 'test_data/study_wr_clin/result_report.html']
+                '--html_table', out_file_name]
+                # uncomment to overwrite with the new version
+                #'--html_table', 'test_data/study_wr_clin/result_report.html']
         # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
         exit_status = validateData.main_validate(args)
         self.assertEquals(1, exit_status)
         # TODO - set logger in main_validate and read out buffer here to assert on nr of errors
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_wr_clin/result_report.html')
 
     def test_normal_samples_list_in_maf(self):
         '''
@@ -188,15 +218,20 @@ class ValidateDataSystemTester(unittest.TestCase):
         validation works well.
         '''
         #Build up arguments and run
+        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
         print '==test_normal_samples_list_in_maf=='
         args = ['--study_directory','test_data/study_maf_test/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
-                '--html_table', 'test_data/study_maf_test/result_report.html']
+                '--html_table', out_file_name]
+                # uncomment to overwrite with the new version
+                #'--html_table', 'test_data/study_maf_test/result_report.html']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         # should fail because of errors with invalid Matched_Norm_Sample_Barcode values
         self.assertEquals(1, exit_status)
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_maf_test/result_report.html')
 
 
 if __name__ == '__main__':

@@ -35,81 +35,67 @@ package org.mskcc.cbio.portal.scripts;
 import java.io.*;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
-
 import org.mskcc.cbio.portal.model.Gistic;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.validate.validationException;
 
+import joptsimple.OptionSet;
+
 
 /**
- * Command line utility for importing Gistic data from files with names of the form:
- *      amp_genes.conf_99.txt
- *      del_genes.conf_99.txt
- * or,
- *      table_amp.conf_99.txt
- *      table_del.conf_99.txt
+ * Command line utility for importing (amp/del) Gistic data 
  */
 public class ImportGisticData {
-    private File gisticTableFile;
-    private File gistic_nonTableFile;
-    private File metaDataFile;
-    private static Logger logger = Logger.getLogger(ImportGisticData.class);
 
-    public static boolean parseAmpDel(File gistic_file) throws validationException {
-
-        boolean amp = gistic_file.getName().indexOf("amp") != -1 ? true : false;    // likely to be Amplified ROI
-        boolean del = gistic_file.getName().indexOf("del") != -1 ? true : false;    // likely to be Deleted ROI
-
-        return amp ? Gistic.AMPLIFIED : Gistic.DELETED;
-    }
-
-    // command line utility
     public static void main(String[] args) throws IOException, DaoException {
-    	// check args
-        if (args.length < 2) {
-            System.out.printf("command line usage:  importGistic.pl <gistic-data-file.txt> <cancer-study-id>\n" +
-                    "\t <gistic-data-file.txt> Note that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad\n" +
-                    "\t <cancer-study-id> e.g. 'tcga_gbm'");
-            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-            return;
-        }
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-
-		SpringUtil.initDataSource();
-        GisticReader gisticReader = new GisticReader();
-
-        File gistic_f = new File(args[0]);
-        int cancerStudyInternalId = gisticReader.getCancerStudyInternalId(args[1]);
-
-        System.out.println("Reading data from: " + gistic_f.getAbsolutePath());
-        System.out.println("CancerStudyId: " + cancerStudyInternalId);
-
-        int lines = FileUtil.getNumLines(gistic_f);
-        System.out.println(" --> total number of lines: " + lines);
-        ProgressMonitor.setMaxValue(lines);
-
-        ArrayList<Gistic> gistics = null;
-
-        gistics = gisticReader.parse(gistic_f, cancerStudyInternalId);
-
-        if (gistics == null) {
-            System.out.println("Error: didn't get any data");
-            return;
-        }
-
-        // add to CGDS database
-        for (Gistic g : gistics) {
-            try {
-                DaoGistic.addGistic(g);
-            } catch (validationException e) {
-                // only catching validationException, not DaoException
-                logger.debug(e);
-            } catch (DaoException e) {
-                System.err.println(e);
-            }
-        }
-        ConsoleUtil.showWarnings();
+    	try {
+	    	ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	    	
+	    	String description = "Import GISTIC data.\n" +
+                    " Note that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad";
+	    	
+	    	OptionSet options = ConsoleUtil.parseStandardDataAndStudyOptions(args, description);
+		    String dataFile = (String) options.valueOf("data");
+		    String studyId = (String) options.valueOf("study");
+	
+			SpringUtil.initDataSource();
+	        
+	        File gistic_f = new File(dataFile);
+	        int cancerStudyInternalId = ValidationUtils.getInternalStudyId(studyId);
+	
+	        System.out.println("Reading data from: " + gistic_f.getAbsolutePath());
+	        System.out.println("CancerStudyId: " + cancerStudyInternalId);
+	
+	        int lines = FileUtil.getNumLines(gistic_f);
+	        System.out.println(" --> total number of lines: " + lines);
+	        ProgressMonitor.setMaxValue(lines);
+	
+	        GisticReader gisticReader = new GisticReader();
+	        ArrayList<Gistic> gistics = gisticReader.parse(gistic_f, cancerStudyInternalId);
+	
+	        if (gistics == null) {
+	            throw new RuntimeException("Error: didn't get any data");
+	        }
+	
+	        // add to CGDS database
+	        for (Gistic g : gistics) {
+	            try {
+	                DaoGistic.addGistic(g);
+	            } catch (validationException e) {
+	                // only catching validationException, not DaoException
+	                ProgressMonitor.logWarning("Error: " + e.getMessage() + ". Skipping record.");
+	            } 
+	        }
+	        //Finish with any logged messages and/or warnings:
+	        ConsoleUtil.showMessages();
+	        
+    	} catch (Exception e) {
+	    	ConsoleUtil.showWarnings();
+	    	//exit with error status:
+    		System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	    	System.exit(1);
+	    }
+    	
     }
 }

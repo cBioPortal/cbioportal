@@ -209,7 +209,7 @@
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>1.2.0</db.version>
+    <db.version>1.2.1</db.version>
 
   </properties>
 

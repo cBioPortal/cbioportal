@@ -90,7 +90,7 @@ public final class ImportCaisesClinicalXML {
            throw new Exception( "'meta' argument required.");
        }
         
-        Properties properties = new Properties();
+        Properties properties = new TrimmedProperties();
         properties.load(new FileInputStream(descriptorFile));
 		SpringUtil.initDataSource();
       

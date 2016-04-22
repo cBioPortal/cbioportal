@@ -219,18 +219,19 @@ public class MySQLbulkLoader {
          con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
          stmt = con.createStatement();
          
-         // will throw error if attempts to overwrite primary keys in table (except for clinical data)
-         String replace = (processingClinicalData()) ? " REPLACE" : "";
-         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + replace + " INTO TABLE " + tableName;
+         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + " INTO TABLE " + tableName;
          stmt.execute( command );
          
          int updateCount = stmt.getUpdateCount();
          ProgressMonitor.setCurrentMessage(" --> records inserted into `"+tableName + "` table: " + updateCount);
          int nLines = FileUtil.getNumLines(tempFileHandle);
-         if (nLines!=updateCount && !processingClinicalData()) {
-             System.err.println("Error: only "+updateCount+" of the "+nLines+" records were inserted in " + tableName);
-             if (stmt.getWarnings() != null)
-            	 System.err.println(stmt.getWarnings().getMessage());
+         if (nLines!=updateCount) {
+             String otherDetails = "";
+        	 if (stmt.getWarnings() != null) {
+        		 otherDetails = "More error/warning details: " + stmt.getWarnings().getMessage();
+             }
+             throw new DaoException("DB Error: only "+updateCount+" of the "+nLines+" records were inserted in `" + tableName + "`. " + otherDetails);
+             
          } else {
              tempFileHandle.delete();
          }

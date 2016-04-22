@@ -74,18 +74,6 @@ class LogBufferTestCase(unittest.TestCase):
         self.buffer_handler.flush()
         return recs
 
-    @staticmethod
-    def print_log_records(record_list):
-        """Pretty-print a list of log records to standard output.
-
-        This can be used if, while writing unit tests, you want to see
-        what the messages currently are. The final unit tests committed
-        to version control should not actively print log messages.
-        """
-        formatter = cbioportal_common.LogfileStyleFormatter()
-        for record in record_list:
-            print formatter.format(record)
-
 
 class DataFileTestCase(LogBufferTestCase):
 
@@ -688,7 +676,6 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 found_one_of_the_expected = True
         self.assertTrue(found_one_of_the_expected)
 
-    
     def test_missing_aa_change_column(self):
         """One of Amino_Acid_Change or HGVSp_Short is required, so
         there should be a warning if both Amino_Acid_Change and HGVSp_Short are missing"""
@@ -703,8 +690,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("hgvsp_short", record_list[0].getMessage().lower())
         self.assertIn("invalid column header", record_list[1].getMessage().lower())
-    
-    
+
     def test_warning_for_missing_SWISSPROT(self):
         """If SWISSPROT is missing (or present and empty), user should be warned about it"""
         # set level according to this test case:
@@ -729,8 +715,28 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 2)
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("amino acid change cannot be parsed", record_list[0].getMessage().lower())
-    
-    
+
+    def test_silent_mutation_skipped(self):
+        """Test if silent mutations are skipped with a message.
+
+        Silent mutations being ones that have no direct effect on amino acid
+        sequence, which is predicted in the Variant_Classification column.
+        """
+        # TODO: implement this test
+        pass
+
+    def test_nonsilent_intergenic_mutation(self):
+        """Test validation of nonsilent mutations outside of genes.
+
+        The MAF specification documents the use of the 'gene' Unknown / 0 for
+        intergenic mutations, and since the Variant_Classification column is
+        often invalid, cBioPortal assumes it to mean that and skips it.
+        (even if the Entrez column is absent)
+        """
+        # TODO: implement this test
+        pass
+
+
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""

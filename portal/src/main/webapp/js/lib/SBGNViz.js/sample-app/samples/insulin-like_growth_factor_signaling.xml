@@ -1,0 +1,342 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<sbgn xmlns='http://sbgn.org/libsbgn/pd/0.1'>
+<map>
+<glyph id='glyph1' class='compartment'  >
+<label text='cytosol' />
+<bbox y='697.956949890726' x='821.8541361158788' w='73.0' h='23.0' />
+</glyph>
+<glyph id='glyph2' class='macromolecule' compartmentRef='glyph1' >
+<label text='IGFR' />
+<bbox y='147.3036279425038' x='594.0306384199234' w='100.0' h='60.0' />
+</glyph>
+<glyph id='glyph6' class='association' compartmentRef='glyph1' >
+<bbox y='183.41591099347158' x='520.7270725084727' w='20.0' h='20.0' />
+</glyph>
+<glyph id='glyph9' class='simple chemical' compartmentRef='glyph1' >
+<label text='ATP' />
+<bbox y='1105.9354168487732' x='374.52623503701784' w='60.0' h='60.0' />
+<clone/>
+</glyph>
+<glyph id='glyph10' class='simple chemical' compartmentRef='glyph1' >
+<label text='ADP' />
+<bbox y='1020.6803449398199' x='470.31725349593216' w='60.0' h='60.0' />
+<clone/>
+</glyph>
+<glyph id='glyph12' class='macromolecule' compartmentRef='glyph1' >
+<label text='Grb2' />
+<bbox y='1198.8089061445164' x='734.4174498818747' w='100.0' h='60.0' />
+<glyph id='glyph12a' class='state variable'>
+<state value='inactive' />
+<bbox y='1244.8089061445164' x='754.4174498818747' w='60.0' h='28.0' />
+</glyph>
+</glyph>
+<glyph id='glyph13' class='process' compartmentRef='glyph1' >
+<bbox y='1125.4900553578' x='737.7367704577146' w='20.0' h='20.0' />
+</glyph>
+<glyph id='glyph20' class='macromolecule' compartmentRef='glyph1' >
+<label text='RAS' />
+<bbox y='572.1500647991768' x='989.6943353137199' w='100.0' h='60.0' />
+<glyph id='glyph20a' class='state variable'>
+<state value='inactive' />
+<bbox y='618.1500647991768' x='1009.6943353137199' w='60.0' h='28.0' />
+</glyph>
+</glyph>
+<glyph id='glyph18' class='complex'  compartmentRef='glyph1' >
+<bbox y='699.911546930301' x='785.7211127346968' w='260.0' h='100.0' />
+<glyph id='glyph16' class='macromolecule' >
+<label text='SOS' />
+<bbox y='684.911546930301' x='865.7211127346968' w='100.0' h='60.0' />
+</glyph>
+<glyph id='glyph17' class='macromolecule' >
+<label text='Grb2' />
+<bbox y='754.911546930301' x='865.7211127346968' w='100.0' h='60.0' />
+<glyph id='glyph17a' class='state variable'>
+<state value='active' />
+<bbox y='801.911546930301' x='890.7211127346968' w='50.0' h='26.0' />
+</glyph>
+</glyph>
+</glyph>
+<glyph id='glyph22' class='simple chemical' compartmentRef='glyph1' >
+<label text='GTP' />
+<bbox y='574.2365809615565' x='794.1722060054121' w='60.0' h='60.0' />
+</glyph>
+<glyph id='glyph19' class='process' compartmentRef='glyph1' >
+<bbox y='584.827390832337' x='910.0433800125993' w='20.0' h='20.0' />
+</glyph>
+<glyph id='glyph23' class='simple chemical' compartmentRef='glyph1' >
+<label text='GDP' />
+<bbox y='474.61881101486756' x='945.556575319802' w='60.0' h='60.0' />
+</glyph>
+<glyph id='glyph29' class='simple chemical' compartmentRef='glyph1' >
+<label text='ADP' />
+<bbox y='823.4958922170001' x='555.1010430190031' w='60.0' h='60.0' />
+<clone/>
+</glyph>
+<glyph id='glyph28' class='simple chemical' compartmentRef='glyph1' >
+<label text='ATP' />
+<bbox y='908.462956411171' x='617.9745699811024' w='60.0' h='60.0' />
+<clone/>
+</glyph>
+<glyph id='glyph33' class='simple chemical' compartmentRef='glyph1' >
+<label text='ADP' />
+<bbox y='997.5977480202375' x='912.0455981059963' w='60.0' h='60.0' />
+<clone/>
+</glyph>
+<glyph id='glyph34' class='simple chemical' compartmentRef='glyph1' >
+<label text='ATP' />
+<bbox y='829.6379978290206' x='1020.7050142836092' w='60.0' h='60.0' />
+<clone/>
+</glyph>
+<glyph id='glyph30' class='macromolecule' compartmentRef='glyph1' >
+<label text='RSK' />
+<bbox y='858.5844153820119' x='767.0904346160487' w='100.0' h='60.0' />
+<glyph id='glyph30a' class='state variable'>
+<state value='P' />
+<bbox y='877.5844153820119' x='854.5904346160487' w='25.0' h='22.0' />
+</glyph>
+</glyph>
+<glyph id='glyph35' class='macromolecule' compartmentRef='glyph1' >
+<label text='c-Fos' />
+<bbox y='916.0285383354808' x='1046.6753374425903' w='100.0' h='60.0' />
+<glyph id='glyph35a' class='state variable'>
+<state value='P' />
+<bbox y='935.0285383354808' x='1134.1753374425903' w='25.0' h='22.0' />
+</glyph>
+</glyph>
+<glyph id='glyph36' class='phenotype' compartmentRef='glyph1' >
+<label text='gene transcription' />
+<bbox y='941.8295511484605' x='1202.1820371947397' w='140.0' h='60.0' />
+</glyph>
+<glyph id='glyph7' class='macromolecule' compartmentRef='glyph1' >
+<label text='IRS1-4' />
+<bbox y='1119.0290384066827' x='575.8198107082417' w='100.0' h='60.0' />
+<glyph id='glyph7a' class='state variable'>
+<state value='P' />
+<bbox y='1138.0290384066827' x='663.3198107082417' w='25.0' h='22.0' />
+</glyph>
+</glyph>
+<glyph id='glyph31' class='macromolecule' compartmentRef='glyph1' >
+<label text='ERK' />
+<bbox y='719.6096678972981' x='679.7324800964298' w='100.0' h='60.0' />
+<glyph id='glyph31a' class='state variable'>
+<state value='2P' />
+<bbox y='768.6096678972981' x='688.7324800964298' w='32.0' h='22.0' />
+</glyph>
+</glyph>
+<glyph id='glyph21' class='macromolecule' compartmentRef='glyph1' >
+<label text='RAS' />
+<bbox y='471.4329193505105' x='801.0302313325856' w='100.0' h='60.0' />
+<glyph id='glyph21a' class='state variable'>
+<state value='active' />
+<bbox y='518.4329193505105' x='826.0302313325856' w='50.0' h='26.0' />
+</glyph>
+</glyph>
+<glyph id='glyph24' class='submap'  compartmentRef='glyph1' >
+<label text='MAPK cascade' />
+<bbox y='410.3262492029046' x='497.8221483331231' w='220.0' h='120.0' />
+<glyph id='glyph41' class='terminal' >
+<label text='RAS' />
+<bbox y='326.6908934051321' x='621.8581140456035' w='80.0' h='45.0' />
+</glyph>
+<glyph id='glyph42' class='terminal' >
+<label text='ERK' />
+<bbox y='568.9616050006771' x='513.7861826206426' w='80.0' h='45.0' />
+</glyph>
+</glyph>
+<glyph id='glyph37' class='macromolecule' compartmentRef='glyph1' >
+<label text='c-Fos' />
+<bbox y='1001.8000949430593' x='996.2782064368903' w='100.0' h='60.0' />
+<glyph id='glyph37a' class='state variable'>
+<state />
+<bbox y='1020.8000949430593' x='1086.2782064368903' w='20.0' h='22.0' />
+</glyph>
+</glyph>
+<glyph id='glyph32' class='process' compartmentRef='glyph1' >
+<bbox y='926.4646017162552' x='956.4653605750841' w='20.0' h='20.0' />
+</glyph>
+<glyph id='glyph38' class='macromolecule' compartmentRef='glyph1' >
+<label text='IRS1-4' />
+<bbox y='1211.6102718389484' x='417.80098568607673' w='100.0' h='60.0' />
+<glyph id='glyph38a' class='state variable'>
+<state />
+<bbox y='1230.6102718389484' x='507.80098568607673' w='20.0' h='22.0' />
+</glyph>
+</glyph>
+<glyph id='glyph8' class='process' compartmentRef='glyph1' >
+<bbox y='1137.2700228639271' x='493.38665177053645' w='20.0' h='20.0' />
+</glyph>
+<glyph id='glyph39' class='macromolecule' compartmentRef='glyph1' >
+<label text='RSK' />
+<bbox y='731.593635242046' x='546.2080119378306' w='100.0' h='60.0' />
+<glyph id='glyph39a' class='state variable'>
+<state />
+<bbox y='750.593635242046' x='636.2080119378306' w='20.0' h='22.0' />
+</glyph>
+</glyph>
+<glyph id='glyph27' class='process' compartmentRef='glyph1' >
+<bbox y='833.39980360748' x='677.3657960569876' w='20.0' h='20.0' />
+</glyph>
+<glyph id='glyph14' class='macromolecule' compartmentRef='glyph1' >
+<label text='SOS' />
+<bbox y='943.1513173171561' x='712.9180926613531' w='100.0' h='60.0' />
+</glyph>
+<glyph id='glyph11' class='macromolecule' compartmentRef='glyph1' >
+<label text='Grb2' />
+<bbox y='1022.253152571999' x='785.2468151326975' w='100.0' h='60.0' />
+<glyph id='glyph11a' class='state variable'>
+<state value='active' />
+<bbox y='1069.253152571999' x='810.2468151326975' w='50.0' h='26.0' />
+</glyph>
+</glyph>
+<glyph id='glyph15' class='association' compartmentRef='glyph1' >
+<bbox y='930.5793543308268' x='873.2019776597881' w='20.0' h='20.0' />
+</glyph>
+<glyph id='glyph40' class='compartment'  >
+<label text='extracellular' />
+<bbox y='39.48020456451877' x='11.50336543928438' w='118.0' h='23.0' />
+</glyph>
+<glyph id='glyph0' class='macromolecule' compartmentRef='glyph40' >
+<label text='IGF' />
+<bbox y='20.980204564518772' x='20.50336543928438' w='100.0' h='60.0' />
+</glyph>
+<glyph id='glyph5' class='complex'  >
+<bbox y='570.8980964753962' x='56.660553366996965' w='140.0' h='160.0' />
+<glyph id='glyph3' class='macromolecule' >
+<label text='IGF' />
+<bbox y='585.8980964753962' x='76.66055336699696' w='100.0' h='60.0' />
+</glyph>
+<glyph id='glyph4' class='macromolecule' >
+<label text='IGFR' />
+<bbox y='655.8980964753962' x='76.66055336699696' w='100.0' h='60.0' />
+</glyph>
+</glyph>
+<arc target='glyph6' source='glyph2' class='consumption'>
+<start y='184.52050905528063' x='593.2806384199234'/>
+<end y='191.90243827205225' x='541.3699997524934'/>
+</arc>
+<arc target='glyph5' source='glyph6' class='production'>
+<start y='201.47312154261488' x='523.6106226796062'/>
+<end y='568.1708931297208' x='199.72852006603432'/>
+</arc>
+<arc target='glyph6' source='glyph0' class='consumption'>
+<start y='66.68694020250413' x='121.25336543928438'/>
+<end y='190.2376059508454' x='520.4576578680944'/>
+</arc>
+<arc target='glyph8' source='glyph5' class='catalysis'>
+<start y='737.0630570158808' x='192.0562529982921'/>
+<end y='1134.130338750209' x='493.4141660853943'/>
+</arc>
+<arc target='glyph8' source='glyph9' class='consumption'>
+<start y='1139.4380387705096' x='435.0760982064884'/>
+<end y='1146.0375071747474' x='492.63665177053645'/>
+</arc>
+<arc target='glyph10' source='glyph8' class='production'>
+<start y='1136.5200228639271' x='503.04504144362426'/>
+<end y='1084.4133170799764' x='501.38920992760825'/>
+</arc>
+<arc target='glyph13' source='glyph7' class='stimulation'>
+<start y='1142.2726566200038' x='686.6602389268569'/>
+<end y='1137.0149692020866' x='734.0050995409204'/>
+</arc>
+<arc target='glyph13' source='glyph12' class='consumption'>
+<start y='1198.0589061445164' x='772.330600517743'/>
+<end y='1146.2400553578' x='751.9622543817607'/>
+</arc>
+<arc target='glyph11' source='glyph13' class='production'>
+<start y='1125.2649811018025' x='758.4867704577146'/>
+<end y='1085.0707370229156' x='800.7444707961345'/>
+</arc>
+<arc target='glyph18' source='glyph15' class='production'>
+<start y='929.9823753018267' x='885.0093335901269'/>
+<end y='839.3688434035104' x='900.463823383603'/>
+</arc>
+<arc target='glyph19' source='glyph20' class='consumption'>
+<start y='599.044149740815' x='988.9443353137199'/>
+<end y='595.4852940220392' x='930.7933800125993'/>
+</arc>
+<arc target='glyph21' source='glyph19' class='production'>
+<start y='584.077390832337' x='912.0997476268803'/>
+<end y='537.4643274050011' x='877.6553717906982'/>
+</arc>
+<arc target='glyph19' source='glyph18' class='stimulation'>
+<start y='663.411546930301' x='918.1319078084528'/>
+<end y='608.5762263665931' x='919.6601935966933'/>
+</arc>
+<arc target='glyph19' source='glyph22' class='consumption'>
+<start y='601.2330804626212' x='854.7751712988751'/>
+<end y='595.8824399118604' x='909.2933800125993'/>
+</arc>
+<arc target='glyph23' source='glyph19' class='production'>
+<start y='584.077390832337' x='926.6587912158345'/>
+<end y='533.3622474720798' x='957.8682356399395'/>
+</arc>
+<arc target='glyph30' source='glyph27' class='production'>
+<start y='847.1441545802141' x='698.1157960569876'/>
+<end y='869.9208065535578' x='763.5073713917772'/>
+</arc>
+<arc target='glyph29' source='glyph27' class='production'>
+<start y='844.461097448497' x='676.6157960569876'/>
+<end y='850.1800431700303' x='618.6877613031361'/>
+</arc>
+<arc target='glyph27' source='glyph28' class='consumption'>
+<start y='910.0552224631417' x='659.7458550400066'/>
+<end y='854.14980360748' x='682.9113290229495'/>
+</arc>
+<arc target='glyph27' source='glyph31' class='catalysis'>
+<start y='790.419405454845' x='711.2979907576384'/>
+<end y='829.9157995078142' x='693.4567622012563'/>
+</arc>
+<arc target='glyph35' source='glyph32' class='production'>
+<start y='937.2541903570802' x='977.2153605750841'/>
+<end y='942.0811871230786' x='1042.9333972229554'/>
+</arc>
+<arc target='glyph33' source='glyph32' class='production'>
+<start y='947.2146017162552' x='963.5848230627824'/>
+<end y='994.9978148351894' x='950.7809776816297'/>
+</arc>
+<arc target='glyph32' source='glyph34' class='consumption'>
+<start y='880.3588538074788' x='1027.9847892072594'/>
+<end y='926.6605966494087' x='977.2153605750841'/>
+</arc>
+<arc target='glyph32' source='glyph30' class='catalysis'>
+<start y='904.8516666684108' x='867.8404346160487'/>
+<end y='932.1031106634804' x='952.8585337651123'/>
+</arc>
+<arc target='glyph36' source='glyph35' class='stimulation'>
+<start y='954.6944136056279' x='1155.6233787521219'/>
+<end y='962.1847933011694' x='1206.5753250878745'/>
+</arc>
+<arc target='glyph7' source='glyph8' class='production'>
+<start y='1147.4244697249628' x='514.1366517705364'/>
+<end y='1148.256808549208' x='572.0701202828097'/>
+</arc>
+<arc target='glyph42' source='glyph31' class='equivalence arc'>
+<start y='718.8596678972981' x='695.5218261795549'/>
+<end y='611.0909530616352' x='575.6246487386043'/>
+</arc>
+<arc target='glyph41' source='glyph21' class='equivalence arc'>
+<start y='470.6829193505105' x='812.8210537388655'/>
+<end y='368.1579103958345' x='685.4260529275825'/>
+</arc>
+<arc target='glyph32' source='glyph37' class='consumption'>
+<start y='1001.0500949430593' x='1020.5349609028071'/>
+<end y='947.2146017162552' x='975.4650317780563'/>
+</arc>
+<arc target='glyph8' source='glyph38' class='consumption'>
+<start y='1210.8602718389484' x='479.4000565385065'/>
+<end y='1158.0200228639271' x='499.33169204163823'/>
+</arc>
+<arc target='glyph27' source='glyph39' class='consumption'>
+<start y='792.343635242046' x='630.4731769941186'/>
+<end y='833.7526152908039' x='676.6157960569876'/>
+</arc>
+<arc target='glyph15' source='glyph14' class='consumption'>
+<start y='959.4086025588349' x='813.6680926613531'/>
+<end y='943.3891750696457' x='872.825687021236'/>
+</arc>
+<arc target='glyph15' source='glyph11' class='consumption'>
+<start y='1021.503152571999' x='848.4515352275888'/>
+<end y='950.4571195891534' x='878.9602500045281'/>
+</arc>
+</map>
+</sbgn>

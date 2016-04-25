@@ -86,7 +86,7 @@ var PieChart = function(){
     var labelWLT = 30; //label length threshold for wider table
     var labelHeaderWLT = 20; //label header length threshold for wider table
 
-    var labelLT = 5; //label length threshold
+    var labelLT = 4; //label length threshold
     var labelHeaderLT = 4; //label header length threshold
 
     //The attributes will be converted to table view after initialization
@@ -208,7 +208,7 @@ var PieChart = function(){
             }
         });
 
-        if(category[1] === 'h1' && currentView === 'pie') {
+        if(currentView === 'pie') {
             $('#' + DIV.mainDiv).one('mouseover', function () {
                 initMainDivQtip();
             });
@@ -234,7 +234,7 @@ var PieChart = function(){
             show: {event: "mouseover", solo: true, delay: 0, ready: true},
             hide: {fixed:true, delay: 300, event: "mouseleave"},
             position: {my:'left center',at:'center right', viewport: $(window)},
-            content: copyPieLabelTable(),
+            content: $("<div />").append($(changePieLabelContent($(copyPieLabelTable())))).html(),
             events: {
                 render: function(event, api) {
                     var _filters = pieChart.filters();
@@ -244,7 +244,12 @@ var PieChart = function(){
                         "sScrollY": _sScrollY,
                         "bPaginate": false,
                         "bScrollCollapse": true,
-                        "autoWidth": false
+                        "autoWidth": false,
+                        "fnDrawCallback": function() {
+                            $('#qtip-' + DIV.mainDiv).find('.hasQtip').each(function(e, i) {
+                                qtip(this, $(this).attr('oValue'));
+                            });
+                        }
                     });
                     if(_filters instanceof Array && _filters.length > 0) {
                         $('#qtip-' + DIV.mainDiv + "-table").find('tr').each(function(index, value) {
@@ -965,59 +970,81 @@ var PieChart = function(){
         $("#" + DIV.chartDiv).find('svg g .mark').remove();
     }
 
-    //Called when the number of label biggen than 6, used by addPieLabels()
-    function labelFunction() {
-        var _tableDiv = [];
-        var _tableDivStr = '';
+    //Change the label and add tooltip accordingly based on the view width.
+    function changePieLabelContent(tableElement) {
         var _labelLT = labelWLT; //label length threshold
         var _labelHeaderLT = labelHeaderWLT; //label header length threshold
 
-        _tableDiv.push('<table');
-
-        if(category[0] === 'w1') {
+        if (category[0] === 'w1') {
             _labelLT = labelLT;
             _labelHeaderLT = labelHeaderLT;
-            _tableDiv.push(' class="smallTable" ');
-        }else{
-            _tableDiv.push(' class="regularTable" ');
+            tableElement.addClass('smallTable');
+        } else {
+            tableElement.addClass('regularTable');
         }
 
-        _tableDiv.push('><thead><th>'+selectedAttrDisplay+'</th><th>#</th><th>Freq</th></thead><tbody>');
+        tableElement.find('tbody tr').each(function(index, row) {
+            var labelCell = $(row).find('td:nth-child(1) span.pieLabel span');
+            var label = $(labelCell).text();
+            var labelShortName = label;
+            var comparisonStr = '';
 
-        for(var i=0; i< label.length; i++){
-            var _tmpName = label[i].name;
-
-            if(_tmpName.length >= _labelLT){
-                _tmpName = _tmpName.substring(0,_labelLT-2) + " ...";
+            if (label.length >= _labelLT) {
+                labelShortName = label.substring(0, _labelLT - 2) + " ...";
+                labelCell.text(labelShortName);
+                labelCell.addClass('hasQtip');
             }
 
-            if(i % 1 === 0){
-                _tableDiv.push("<tr>");
-            }
+            comparisonStr = labelShortName !== label ? labelShortName : label;
 
-            _tableDiv.push('<td  uniqueId="'+
-                        DIV.labelTableTdID +label[i].id+'-'+i+
-                        '"  style="font-size:'+fontSize+'px;white-space: nowrap;">'+
-                        '<span class="pieLabel"><svg width="'+(labelSize+3)+'" height="'+
-                        labelSize+'"><rect width="'+
-                        labelSize+'" height="'+labelSize+'" style="fill:'+
-                        label[i].color + ';" /></svg><span');
-            if(_tmpName !== label[i].name) {
-                _tableDiv.push(' class="hasQtip"');
+            if (maxLabelNameLength < comparisonStr.length) {
+                maxLabelNameLength = comparisonStr.length;
             }
-            _tableDiv.push(' oValue="'+ (label[i].name.replace(/'/g, "&#39;")).replace(/"/g, "&#34;") + '" style="vertical-align: top">'+
-                _tmpName+'</span></span></td><td class="pieLabelValue" uniqueId="'+
-                DIV.labelTableTdID +label[i].id+'-'+i+
-                '"><span style="margin: 3px 0;padding-top: 3px;">'+label[i].value+
+        });
+
+        if (selectedAttrDisplay.length > maxLabelNameLength && selectedAttrDisplay.length > _labelHeaderLT) {
+            var firstHeaderCell = tableElement.find('thead th:nth-child(1)');
+            firstHeaderCell.addClass('hasQtip');
+            firstHeaderCell.text(selectedAttrDisplay.substring(0, maxLabelNameLength <= _labelHeaderLT ? _labelHeaderLT - 2 : maxLabelNameLength - 3) + '...');
+        }
+
+        return tableElement;
+    }
+
+    //Create pie label tables. One is for table view, the other one is for storing
+    //table meta data.
+    function labelFunction() {
+        var _tableDiv = [];
+        var _tableDivStr = '';
+
+        _tableDiv.push('<table><thead><th oValue="' + selectedAttrDisplay +
+            '">' + selectedAttrDisplay +
+            '</th><th>#</th><th>Freq</th></thead><tbody>');
+
+        for (var i = 0; i < label.length; i++) {
+            _tableDiv.push("<tr>");
+
+            _tableDiv.push('<td  uniqueId="' +
+                DIV.labelTableTdID + label[i].id + '-' + i +
+                '"  style="font-size:' + fontSize +
+                'px;white-space: nowrap;">' +
+                '<span class="pieLabel"><svg width="' + (labelSize + 3) +
+                '" height="' +
+                labelSize + '"><rect width="' +
+                labelSize + '" height="' + labelSize + '" style="fill:' +
+                label[i].color + ';" /></svg><span' + ' oValue="' +
+                (label[i].name.replace(/'/g, "&#39;")).replace(/"/g, "&#34;") +
+                '" style="vertical-align: top">' + label[i].name +
+                '</span></span></td><td class="pieLabelValue" uniqueId="' +
+                DIV.labelTableTdID + label[i].id + '-' + i +
+                '"><span style="margin: 3px 0;padding-top: 3px;">' + label[i].value +
                 '</span><input type="checkbox" style="float:right; margin: 3px 0;" /></td>' +
-                '<td>' + (Number(label[i].value)/sampleSize* 100).toFixed(1) + '%' + '</td>');
+                '<td>' + (Number(label[i].value) / sampleSize * 100).toFixed(1) +
+                '%' + '</td>');
+            _tableDiv.push('</tr>');
 
-            if(i % 1 === 0){
-                _tableDiv.push('</tr>');
-            }
-
-            if(maxLabelNameLength < _tmpName.length) {
-                maxLabelNameLength = _tmpName.length;
+            if (maxLabelNameLength < label[i].name.length) {
+                maxLabelNameLength = label[i].name.length;
             }
         }
 
@@ -1026,27 +1053,20 @@ var PieChart = function(){
 
         d3.select('#' + DIV.mainDiv).select('.study-view-pie-label').html(_tableDivStr);
 
-        $('#' + DIV.mainDiv + ' .study-view-pie-label table').attr('id', DIV.labelTableID+'-0');
+        $('#' + DIV.mainDiv + ' .study-view-pie-label table').attr('id', DIV.labelTableID + '-0');
 
         d3.select('#' + DIV.mainDiv).select('.study-view-pie-label-copy').html(_tableDivStr);
 
-        if(selectedAttrDisplay.length > maxLabelNameLength && selectedAttrDisplay.length > _labelHeaderLT) {
-            var _th = $('#' + DIV.mainDiv).find('#' + DIV.labelTableID+'-0 thead th:nth-child(1)');
-            _th.addClass('hasQtip');
-            _th.attr('oValue', selectedAttrDisplay);
-            _th.text(selectedAttrDisplay.substring(0, maxLabelNameLength<=_labelHeaderLT?_labelHeaderLT-2:maxLabelNameLength-3) + '...');
-        }
-
-        if(tableAttrs.hasOwnProperty(selectedAttr) && currentView !== 'table'){
-            $("#"+DIV.chartDiv+"-table-icon").click();
+        if (tableAttrs.hasOwnProperty(selectedAttr) && currentView !== 'table') {
+            $("#" + DIV.chartDiv + "-table-icon").click();
         }
     }
 
-    function copyPieLabelTable() {
-        var html;
-        $('#' + DIV.mainDiv + ' .study-view-pie-label-copy').attr('id', DIV.labelTableID+'-0');
-        html =$('#' + DIV.mainDiv + ' .study-view-pie-label-copy').html();
-        $('#' + DIV.mainDiv + ' .study-view-pie-label-copy').attr('id', '');
+    function copyPieLabelTable(id) {
+        var html = $('#' + DIV.mainDiv + ' .study-view-pie-label-copy').html();
+        if (id) {
+            $(html).attr('id', id);
+        }
         return html;
     }
 
@@ -1074,6 +1094,9 @@ var PieChart = function(){
         }else {
             _aaSorting = labelTableOrder;
         }
+        
+        changePieLabelContent($('#' + DIV.labelTableID+'-0'));
+        
         labelTable = $('#' + DIV.labelTableID+'-0').dataTable({
             "sDom": sDom,
             "sScrollY": sScrollY,

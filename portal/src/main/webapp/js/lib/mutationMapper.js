@@ -11524,11 +11524,13 @@ function Mutation3dVis(name, options)
 			// run script
 			_3dApp.script(script, callback);
 
-			if (_container != null)
-			{
-				// workaround to fix the problem where canvas is initially invisible
-				$(_container).resize();
-			}
+			// workaround to fix the problem where canvas is initially invisible
+			resizeViewer();
+
+			//if (_container != null)
+			//{
+			//	$(_container).resize();
+			//}
 		};
 
 		var loadPdb = _scriptGen.loadPdb(pdbId, loadCallback);
@@ -12757,9 +12759,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						// need to update corresponding data sources properly
 						var model = {
 							impact: fis.value,
-							xvia: mutation.xVarLink.replace("getma.org", "mutationassessor.org"),
-							msaLink: mutation.msaLink.replace("getma.org", "mutationassessor.org"),
-							pdbLink: mutation.pdbLink.replace("getma.org", "mutationassessor.org")
+							xvia: mutation.xVarLink.replace("getma.org", "mutationassessor.org/r2"),
+							msaLink: mutation.msaLink.replace("getma.org", "mutationassessor.org/r2"),
+							pdbLink: mutation.pdbLink.replace("getma.org", "mutationassessor.org/r2")
 						};
 
 						var container = $(this).find('.qtip-content');

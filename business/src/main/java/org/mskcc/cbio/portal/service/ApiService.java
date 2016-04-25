@@ -13,6 +13,7 @@ import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
 import org.mskcc.cbio.portal.model.DBGene;
+import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBAltCount;
@@ -28,6 +29,7 @@ import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
+import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
 import org.mskcc.cbio.portal.persistence.MutationMapper;
@@ -57,6 +59,8 @@ public class ApiService {
 	private ClinicalFieldMapper clinicalFieldMapper;
 	@Autowired
 	private GeneMapper geneMapper;
+	@Autowired
+	private GeneAliasMapper geneAliasMapper;
 	@Autowired
 	private GeneticProfileMapper geneticProfileMapper;
 	@Autowired
@@ -304,6 +308,11 @@ public class ApiService {
 		return clinicalFieldMapper.getSampleClinicalFieldsBySample(study_id, sample_ids);
 	}
 
+    @Transactional
+    public List<DBClinicalField> getSampleClinicalAttributesByInternalIds(String study_id, List<Integer> sample_ids) {
+        return clinicalFieldMapper.getSampleClinicalFieldsBySampleInternalIds(study_id, sample_ids);
+    }
+
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes() {
 		return clinicalFieldMapper.getAllPatientClinicalFields();
@@ -319,6 +328,11 @@ public class ApiService {
 		return clinicalFieldMapper.getPatientClinicalFieldsByPatient(study_id, patient_ids);
 	}
 
+    @Transactional
+    public List<DBClinicalField> getPatientClinicalAttributesByInternalIds(String study_id, List<Integer> patient_ids) {
+        return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(study_id, patient_ids);
+    }
+    
 	@Transactional
 	public List<DBGene> getGenes() {
 		return geneMapper.getAllGenes();
@@ -329,6 +343,16 @@ public class ApiService {
 		return geneMapper.getGenesByHugo(hugo_gene_symbols);
 	}
 
+	@Transactional
+	public List<DBGeneAlias> getGenesAliases() {
+		return geneAliasMapper.getAllGenesAliases();
+	}
+
+	@Transactional
+	public List<DBGeneAlias> getGenesAliases(List<Long> entrez_gene_ids) {
+		return geneAliasMapper.getGenesAliasesByEntrez(entrez_gene_ids);
+	}
+	
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles() {
 		return geneticProfileMapper.getAllGeneticProfiles();
@@ -386,6 +410,16 @@ public class ApiService {
 		return patientMapper.getPatientsBySample(study_id, sample_ids);
 	}
 
+    @Transactional
+    public List<Integer> getPatientInternalIdsByStudy(String study_id) {
+        return patientMapper.getPatientInternalIdsByStudy(study_id);
+    }
+
+    @Transactional
+    public List<Integer> getSampleInternalIds(String study_id) {
+        return sampleMapper.getSampleInternalIdsByStudy(study_id);
+    }
+    
 	@Transactional
 	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes) {
 		return getGeneticProfileData(genetic_profile_ids, genes, null, null);

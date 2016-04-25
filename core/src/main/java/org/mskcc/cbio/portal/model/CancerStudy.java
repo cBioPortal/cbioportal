@@ -79,7 +79,7 @@ public class CancerStudy {
         super();
         this.studyID = CancerStudy.NO_SUCH_STUDY;
         this.name = name;
-        this.shortName = "";
+        this.shortName = cancerStudyIdentifier;
         this.description = description;
         this.cancerStudyIdentifier = cancerStudyIdentifier;
         this.typeOfCancerId = typeOfCancerId;
@@ -439,10 +439,17 @@ public class CancerStudy {
     }
 
     public String getShortName() {
+        if (shortName==null || shortName.length()==0) {
+            return cancerStudyIdentifier;
+        }
         return shortName;
     }
 
     public void setShortName(String shortName) {
         this.shortName = shortName;
+    }
+    
+    public String getTypeOfCancer() throws DaoException {
+        return DaoTypeOfCancer.getTypeOfCancerById(this.typeOfCancerId).getName();
     }
 }

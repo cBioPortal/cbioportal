@@ -5,5 +5,4 @@ description: Multi Cancer Study Test
 citation: TCGA, Nature 2012
 pmid: 23000897
 groups: PUBLIC;GDAC;SU2C-PI3K
-dedicated_color: Red
 short_name: PANCAN

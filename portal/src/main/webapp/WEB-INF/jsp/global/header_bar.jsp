@@ -36,7 +36,7 @@
 <%
 	String principal = "";
     String authenticationMethod = GlobalProperties.authenticationMethod();
-	if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
+	if (authenticationMethod.equals("openid")) {
 		principal = "principal.name";
 	}
 	else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("saml") || authenticationMethod.equals("ad")) {

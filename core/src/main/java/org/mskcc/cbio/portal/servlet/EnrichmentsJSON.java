@@ -70,9 +70,9 @@ public class EnrichmentsJSON extends HttpServlet  {
         try {
             //Extract parameters
             String cancerStudyId = httpServletRequest.getParameter("cancer_study_id");
-            String _alteredCaseList = ((XssRequestWrapper)httpServletRequest).getRawParameter("altered_case_id_list");
+            String _alteredCaseList = httpServletRequest.getParameter("altered_case_id_list");
             String[] alteredCaseList = _alteredCaseList.split("\\s+");
-            String _unalteredCaseList = ((XssRequestWrapper)httpServletRequest).getRawParameter("unaltered_case_id_list");
+            String _unalteredCaseList = httpServletRequest.getParameter("unaltered_case_id_list");
             String[] unalteredCaseList = _unalteredCaseList.split("\\s+");
             String profileId = httpServletRequest.getParameter("profile_id");
             String[] queriedGenes = httpServletRequest.getParameter("gene_list").split("\\s+");

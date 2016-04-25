@@ -120,7 +120,7 @@ var comparator_utils = {
 	var cna_order = makeComparatorMetric(['AMPLIFIED', 'HOMODELETED', 'GAINED', 'HEMIZYGOUSLYDELETED', 'DIPLOID', undefined]);
 	var mut_type_key = distinguish_recurrent? 'mut_type_recurrence' : 'mut_type';
 	var mut_order = (function () {
-	    var _order = makeComparatorMetric(['INFRAME_rec', 'MISSENSE_rec', ['FUSION', 'FUSION_rec'], ['TRUNC', 'TRUNC_rec'], 'INFRAME', 'MISSENSE', undefined, true, false]);
+	    var _order = makeComparatorMetric([['FUSION', 'FUSION_rec'], 'INFRAME_rec', 'MISSENSE_rec', 'INFRAME', 'MISSENSE', ['TRUNC', 'TRUNC_rec'], undefined, true, false]);
 	    if (!distinguish_mutation_types) {
 		return function (m) {
 		    if (m === 'FUSION') {

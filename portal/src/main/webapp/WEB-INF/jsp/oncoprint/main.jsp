@@ -68,32 +68,28 @@
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_sortbyfirst_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span id="oncoprint_diagram_sortby_label" data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
                </button>
-               <ul class="dropdown-menu">
-                   <!--<li style="list-style-type:none;cursor:pointer" value="genes"><a id="genes_first_a">gene data first</a></li>
-                 <li style="list-style-type:none;cursor:pointer;" value="clinical" id="clinical_first"><a id="clinical_first_a">clinical data first</a></li>-->
-                   <li style="list-style-type:none; cursor:pointer;" value="data" id="by_data"><a id="by_data_a">by data</a></li>
-                 <li style="list-style-type:none;cursor:pointer" value="alphabetical"><a id="alphabetically_first_a">alphabetically by case id</a></li>
-                 <li style="list-style-type:none;cursor:pointer" value="custom"><a id="user_defined_first_a">user-defined case list / default</a></li>
-               </ul>
+                <div class="dropdown-menu" style="margin-left:10px; margin-right:10px;">
+                   <form action="">
+                       <input type="radio" name="sortby" value="data"> Data</input><br>
+                       <input type="checkbox" name="type" value="type" style="margin-left:10px;"> Type</input><br>
+                       <input type="checkbox" name="recurrence" value="recurrence" style="margin-left:10px;"> Recurrence</input><br>
+                       <input type="radio" name="sortby" value="id"> Case id (alphabetical)</input><br>
+                       <input type="radio" name="sortby" value="custom"> User-defined case list / default</input><br>
+                       <br>
+                   </form>
+               </div>
             </div>
             <button type="button" class="btn btn-default" id="oncoprint_diagram_topatientid_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/cool2.svg" alt="icon" width="18" height="18" /></button>
             <button type="button" class="btn btn-default" id="oncoprint_diagram_showmutationcolor_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/colormutations.svg" alt="icon" width="18" height="18" /></button>
             <div class="btn-group btn-group-sm"   id="oncoprint_diagram_mutation_color">
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
-                 <span>Mutation</span>&nbsp;<span class="caret"></span>
+                 <span>Color Mutations by</span>&nbsp;<span class="caret"></span>
                </button>
                <div class="dropdown-menu" style="margin-left:10px; margin-right:10px;">
                    <form action="">
-                       <input type="radio" name="color_setting" value="same"> Same color for all</input><br>
-                       <input type="radio" name="color_setting" value="different" checked="checked"> Differentiate truncating, missense, indel</input><br>
+                       <input type="checkbox" name="type" value="type"> Type</input><br>
+                       <input type="checkbox" name="recurrence" value="recurrence"> Recurrence</input><br>
                        <br>
-                       <input type="checkbox" name="recurrence" value="recurrence"> Differentiate recurrent mutations</input><br>
-                       <br>
-                       <input type="radio" name="type_sort_setting" value="use_type" checked="checked"> Sort using mutation type</input><br>
-                       <input type="radio" name="type_sort_setting" value="dont_use_type"> Sort ignoring mutation type</input><br>
-                       <br>
-                       <input type="radio" name="recurrence_sort_setting" value="use_recurrence"> Sort using recurrence</input><br>
-                       <input type="radio" name="recurrence_sort_setting" value="dont_use_recurrence" checked="checked"> Sort ignoring recurrence</input><br>
                    </form>
                </div>
             </div>

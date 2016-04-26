@@ -219,6 +219,7 @@
     <module>core</module>
     <module>business</module>
     <module>web</module>
+    <module>model</module>
   </modules>
 
   <dependencies>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  Copyright (c) 2016 The Hyve B.V.
+  This code is licensed under the GNU Affero General Public License as
+  published by the Free Software Foundation, version 3,
+  or (at your option) any later version.
+-->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+  <style type="text/css">
+    .jumbotron {
+      text-align: center;
+      border: 5px solid #eeeeee;
+      background-color: white !important;
+    }
+
+    .panel-heading .badge {
+      float: right;
+    }
+
+    div.panel-body > :last-child {
+      margin-bottom: 0;
+    }
+
+    .header-icon {
+      float: left;
+      margin-right: .5em;
+    }
+  </style>
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <![endif]-->
+  <title>cBioPortal validation report: study in '{{ study_dir }}'</title>
+</head>
+
+<body>
+  <script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <div class="container">
+    <div class="header">
+      <div class="jumbotron">
+        <h1>cBioPortal validation report</h1>
+        <p>Study directory:<br />{{ study_dir }}</p>
+        <p>For details, please see <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>the documentation on file formats supported by cBioPortal</a></p>
+      </div>
+    </div>
+
+    {% macro level_icon(level) %}
+      {% set glyphicon_name = {
+        'danger': 'glyphicon-remove',
+        'warning': 'glyphicon-warning-sign',
+        'success': 'glyphicon-ok',
+        'info': 'glyphicon-cog'}[level] %}
+      {% set glyphicon_alt = {
+        'danger': 'Error',
+        'warning': 'Warning',
+        'success': 'Info',
+        'info': 'Debug'}[level] -%}
+      <span class="glyphicon {{ glyphicon_name }}" aria-hidden="true"></span><span class="sr-only">{{ glyphicon_alt }}</span>
+    {%- endmacro %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">Legend</h4>
+      </div>
+      <div class="panel-body">
+        <p>
+	  Click on a filename below to see a table of messages about the data
+	  in the file. The colors in the tables have the following meanings:
+        </p>
+        <table class="table">
+          <tbody>
+            <tr class="danger">
+              <td>{{ level_icon('danger') }}</td>
+              <td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td>
+            </tr>
+            <tr class="warning">
+              <td>{{ level_icon('warning') }}</td>
+              <td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td>
+            </tr>
+            <tr class="success">
+              <td>{{ level_icon('success') }}</td>
+              <td><strong>Info:</strong> this looks good, no action required</td>
+            </tr>
+            <tr class="info">
+              <td>{{ level_icon('info') }}</td>
+              <td><strong>Verbose output:</strong> details on the progress of the validation script</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+    <div class="panel-body">
+    {% if max_level in ['ERROR','CRITICAL'] %}
+      {% set study_level = 'danger' %}
+    {% elif max_level == 'WARNING' %}
+      {% set study_level = 'warning' %}
+    {% elif max_level == 'INFO' %}
+      {% set study_level = 'success' %}
+    {% else %}
+      {% set study_level = 'info' %}
+    {% endif %}
+    <div class="alert alert-{{ study_level }}">
+      Validation status:
+      <strong>
+      {% if study_level == 'danger' %}
+        Failed
+      {% elif study_level == 'warning' %}
+        Please check
+      {% elif study_level == 'success' %}
+        Success
+      {% else %}
+        Unknown
+      {% endif %}
+      </strong>
+    </div>
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    {% macro generate_group_html(filename, file_record_list) %}
+      {% set file_level_list = file_record_list|map(attribute='levelname')|list %}
+      {% if 'ERROR' in file_level_list or 'CRITICAL' in file_level_list %}
+        {% set file_level = 'danger' %}
+      {% elif 'WARNING' in file_level_list %}
+        {% set file_level = 'warning' %}
+      {# I can't think of a way to check if any values are not INFO right now #}
+      {% elif 'INFO' in file_level_list %}
+        {% set file_level = 'success' %}
+      {% else %}
+        {% set file_level = 'info' %}
+      {% endif %}
+      <div class="panel panel-{{ file_level }}">
+        <div class="panel-heading" role="tab"
+             {{ {'id': 'heading_%s'|format(filename.__hash__())}|xmlattr }}>
+          <span class="header-icon">{{ level_icon(file_level) }}</span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+             {{ {'href': '#collapse_%s'|format(filename.__hash__()),
+                 'aria-controls': 'collapse_%s'|format(filename.__hash__())}|xmlattr }}>
+            <span class="badge">{{ file_level_list|length }}</span>
+            <h4 class="panel-title">{{ filename|e }}</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+             {{ {'id':  'collapse_%s'|format(filename.__hash__()),
+                 'aria-labelledby': 'heading_%s'|format(filename.__hash__())}|xmlattr }}>
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in file_record_list %}
+              {% if record.levelname  == 'ERROR' or record.levelname == 'CRITICAL' %}
+                {% set record_class = 'danger' %}
+              {% elif record.levelname == 'WARNING' %}
+                {% set record_class = 'warning' %}
+              {% elif record.levelname == 'INFO' %}
+                {% set record_class = 'success' %}
+              {% else %}
+                {% set record_class = 'info' %}
+              {% endif %}
+              <tr class="{{ record_class }}">
+                {% macro format_aggregated(record, attr_name) %}
+                    {% if record[attr_name + '_list'] is defined -%}
+                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
+                              {{ (record[attr_name + '_list'][:3]|join(', ') +
+                                  ', (' +
+                                  record[attr_name + '_list'][3:]|length|string +
+                                  ' more)')|e }}
+                          {%- else -%}
+                                  {{ (record[attr_name + '_list']|join(', '))|e }}
+                          {%- endif %}	          
+                    {%- elif record[attr_name] is defined -%}
+                      {{ record[attr_name]|e }}
+                    {%- else -%}
+                      &ndash;
+                    {%- endif %}
+                {% endmacro %}
+                <td>{{ level_icon(record_class) }}</td>
+                <td>{{ format_aggregated(record, 'line_number') }}</td>
+                {% if record['column_name_list'] is defined %}
+                <td>{{ format_aggregated(record, 'column_number') }} <br/>Column names: {{ format_aggregated(record, 'column_name') }}</td>
+                {% else %}
+                <td>{{ format_aggregated(record, 'column_number') }}</td>
+                {% endif %}
+                <td>{{ record.getMessage()|e }}</td>
+                <td>{{ format_aggregated(record, 'cause') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    {% endmacro %}
+    {% set fileless_record_list = record_list|selectattr('filename_', 'undefined')|list -%}
+    {{ generate_group_html('General', fileless_record_list) }}
+    {% set filerelated_record_list = record_list|selectattr('filename_', 'defined') %}
+    {% for file_record_group in filerelated_record_list|groupby('filename_') -%}
+      {{ generate_group_html(
+           file_record_group.grouper.strip()|os.path.relpath(study_dir),
+           file_record_group.list) }}
+    {%- endfor %}
+
+    </div>
+    </div>
+    </div>
+  </div>
+</body>
+</html>

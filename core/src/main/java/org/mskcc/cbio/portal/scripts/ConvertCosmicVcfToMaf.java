@@ -106,9 +106,10 @@ public class ConvertCosmicVcfToMaf {
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf> <CosmicCodingMuts.maf>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete 
             return;
         }
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File vcf = new File(args[0]);
         System.out.println("Reading data from:  " + vcf.getAbsolutePath());

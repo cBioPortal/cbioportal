@@ -34,6 +34,7 @@
 
 <div id="footer">
     <a href="http://cbioportal.org">cBioPortal</a>
+    <span id="footer-span-version"> Version ${project.version}</span>
     <%= GlobalProperties.getFooter() %>
     <br/>
     Questions and feedback: <%= GlobalProperties.getEmailContact() %>

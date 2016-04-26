@@ -409,6 +409,75 @@ cbio.util = (function() {
         $(this).qtip(opts);
     }
 
+    /**
+     * Converts the given string to title case format. Also replaces each
+     * underdash with a space.
+     *
+     * TODO: Need to remove the same function under network-visualization.js
+     * @param source    source string to be converted to title case
+     */
+    function toTitleCase(source)
+    {
+        var str;
+
+        if (source == null)
+        {
+            return source;
+        }
+
+        // first, trim the string
+        str = source.replace(/\s+$/, "");
+
+        // replace each underdash with a space
+        str = replaceAll(str, "_", " ");
+
+        // change to lower case
+        str = str.toLowerCase();
+
+        // capitalize starting character of each word
+
+        var titleCase = new Array();
+
+        titleCase.push(str.charAt(0).toUpperCase());
+
+        for (var i = 1; i < str.length; i++)
+        {
+            if (str.charAt(i-1) == ' ')
+            {
+                titleCase.push(str.charAt(i).toUpperCase());
+            }
+            else
+            {
+                titleCase.push(str.charAt(i));
+            }
+        }
+
+        return titleCase.join("");
+    }
+
+    /**
+     * Replaces all occurrences of the given string in the source string.
+     *
+     * TODO: Need to remove the same function under network-visualization.js
+     * @param source        string to be modified
+     * @param toFind        string to match
+     * @param toReplace     string to be replaced with the matched string
+     * @return              modified version of the source string
+     */
+    function replaceAll(source, toFind, toReplace)
+    {
+        var target = source;
+        var index = target.indexOf(toFind);
+
+        while (index != -1)
+        {
+            target = target.replace(toFind, toReplace);
+            index = target.indexOf(toFind);
+        }
+
+        return target;
+    }
+    
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -428,7 +497,9 @@ cbio.util = (function() {
 	    getTargetDocument: getTargetDocument,
         getLinkToPatientView: getLinkToPatientView,
         getLinkToSampleView: getLinkToSampleView,
-        addTargetedQTip: addTargetedQTip
+        addTargetedQTip: addTargetedQTip,
+        toTitleCase: toTitleCase,
+        replaceAll: replaceAll
     };
 
 })();

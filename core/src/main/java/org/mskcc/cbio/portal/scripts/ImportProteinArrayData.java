@@ -265,13 +265,14 @@ public class ImportProteinArrayData {
 //        args = new String[] {"/Users/jgao/projects/cbio-portal-data/studies/cellline/douglevine_ccl/data_rppa.txt","cellline_douglevine_ccl"};
         if (args.length < 2) {
             System.out.println("command line usage:  importRPPAData.pl <RPPA_data.txt> <Cancer study identifier>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         
 		SpringUtil.initDataSource();
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File file = new File(args[0]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
@@ -288,6 +289,7 @@ public class ImportProteinArrayData {
      * add extra antibodies of normalized phosphoprotein data
      * @param args
      * @throws Exception 
+     * TODO - apparently not used...REMOVE?? 
      */
     public static void main_normalize_phospho(String[] args) throws Exception {
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();

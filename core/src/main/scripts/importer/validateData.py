@@ -1148,31 +1148,32 @@ class MutationsExtendedValidator(Validator):
         """Test whether the mutation is silent and should be skipped."""
         is_silent = False
         variant_classification = data[self.cols.index('Variant_Classification')]
-        if variant_classification in self.SKIP_VARIANT_TYPES:
+        
+        hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+        entrez_id = '0'
+        if 'Entrez_Gene_Id' in self.cols:
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')]
+        if hugo_symbol == 'Unknown' and entrez_id == '0' and variant_classification != 'IGR':
+            # the MAF specification documents the use of Unknown and 0 here
+            # for intergenic mutations, and since the Variant_Classification
+            # column is often invalid, cBioPortal interprets this combination
+            # (or just the symbol if the Entrez column is absent) as such, 
+            # but with a warning:
+            self.logger.warning(
+                "Gene specification for this mutation implies "
+                "intergenic even though Variant_Classification is "
+                "not 'IGR'; this variant will be filtered out",
+                extra={'line_number': self.line_number,
+                       'cause': "Hugo Symbol 'Unknown', Entrez ID 0"})
+            is_silent = True
+        elif variant_classification in self.SKIP_VARIANT_TYPES:
             self.logger.info("Validation of line skipped due to cBioPortal's filtering. "
                              "Filtered types: [%s]",
                              ', '.join(self.SKIP_VARIANT_TYPES),
                              extra={'line_number': self.line_number,
-                                    'cause': variant_classification,
-                                    })
+                                    'cause': variant_classification})
             is_silent = True
-        else:
-            # the MAF specification documents the use of Unknown and 0 here
-            # for intergenic mutations, and since the Variant_Classification
-            # column is often invalid, cBioPortal interprets this combination
-            # (or just the symbol if the Entrez column is absent) as such.
-            hugo_symbol = data[self.cols.index('Hugo_Symbol')]
-            entrez_id = '0'
-            if 'Entrez_Gene_Id' in self.cols:
-                entrez_id = data[self.cols.index('Entrez_Gene_Id')]
-            if hugo_symbol == 'Unknown' and entrez_id == '0':
-                self.logger.warning(
-                    "Gene specification for this mutation implies "
-                    "intergenic even though Variant_Classification is "
-                    "not 'IGR'; this variant will be filtered out",
-                    extra={'line_number': self.line_number,
-                           'cause': "Hugo Symbol 'Unknown', Entrez ID 0"})
-                is_silent = True
+
         return is_silent
 
     def checkNotBlank(self, value, data):

@@ -722,19 +722,42 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         Silent mutations being ones that have no direct effect on amino acid
         sequence, which is predicted in the Variant_Classification column.
         """
-        # TODO: implement this test
-        pass
+        # set level according to this test case:
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('mutations/data_mutations_some_silent.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 5 infos: 3 about silent mutations, 2 general info messages:
+        self.assertEqual(len(record_list), 5)
+        # First 3 INFO messages should be something like: "Validation of line skipped due to cBioPortal's filtering. Filtered types:"
+        for record in record_list[:3]: 
+            self.assertIn("filtered types", record.getMessage().lower())
+        
 
-    def test_nonsilent_intergenic_mutation(self):
-        """Test validation of nonsilent mutations outside of genes.
+    def test_alternative_notation_for_intergenic_mutation(self):
+        """Test alternative 'notation' for intergenic mutations.
 
         The MAF specification documents the use of the 'gene' Unknown / 0 for
         intergenic mutations, and since the Variant_Classification column is
         often invalid, cBioPortal assumes it to mean that and skips it.
-        (even if the Entrez column is absent)
+        (even if the Entrez column is absent).
+        Here we test whether the 'gene' Unknown / 0 records are skipped 
+        with a warning when Variant_Classification!='IGR'
         """
-        # TODO: implement this test
-        pass
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_silent_alternative.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 1 ERROR and 2 WARNINGs :
+        self.assertEqual(len(record_list), 3)
+        
+        # ERROR should be something like: "No Entrez id or gene symbol provided for gene"
+        self.assertIn("no entrez id or gene symbol provided", record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        # WARNING should be something like: "Gene specification for this mutation implies intergenic..."
+        self.assertIn("implies intergenic", record_list[1].getMessage().lower())
+        self.assertEqual(record_list[1].levelno, logging.WARNING)
+        self.assertIn("implies intergenic", record_list[2].getMessage().lower())
+        self.assertEqual(record_list[2].levelno, logging.WARNING)
 
 
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):

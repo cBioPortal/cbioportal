@@ -111,7 +111,7 @@ var OncoprintLegendView = (function() {
 	    }
 	    if (typeof rule.legend_label !== 'undefined') {
 		var font_size = 12;
-		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height - font_size, font_size, 'Arial', 'normal'));
+		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2 - font_size/2, font_size, 'Arial', 'normal'));
 	    }
 	} else if (config.type === 'number') {
 	    var num_decimal_digits = 2;

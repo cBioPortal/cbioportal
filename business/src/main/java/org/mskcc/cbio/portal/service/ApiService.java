@@ -97,6 +97,14 @@ public class ApiService {
 	}
 
 	@Transactional
+	public List<DBClinicalField> getClinicalAttributes() {
+		return clinicalFieldMapper.getAllClinicalFields();
+	}
+	@Transactional
+	public List<DBClinicalField> getClinicalAttributes(List<String> attr_ids) {
+		return clinicalFieldMapper.getClinicalFieldsById(attr_ids);
+	}
+	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes() {
 		return clinicalFieldMapper.getAllSampleClinicalFields();
 	}

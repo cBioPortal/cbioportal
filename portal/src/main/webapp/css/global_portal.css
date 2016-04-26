@@ -563,6 +563,16 @@ pre code{
     max-width: 1200px;
 }
 
+#oncoprint_zoom_scale_input {
+    font-size: 11px;
+}
+
+#oncoprint_zoom_scale_input_tail:hover, #oncoprint_zoom_scale_input_tail:active {
+    background-color: #e6e6e6;
+    border-color: #cccccc;
+    box-shadow: none;
+}
+
 input[type=range]#oncoprint_zoom_slider {
     /*removes default webkit styles*/
     -webkit-appearance: none;

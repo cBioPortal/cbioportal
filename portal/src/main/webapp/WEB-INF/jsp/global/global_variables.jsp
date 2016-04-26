@@ -470,20 +470,27 @@ $(document).ready(function() {
                 $(".query-toggle").toggle();
             });
 
-
-            var sampleIdArray = [];
-            $.each(_sampleIds, function(index, sample_id) {
-                    sampleIdArray.push(sample_patient_map[sample_id]);
-            });
-            sampleIdArray = _.uniq(sampleIdArray);
+            var uniqStrings = function(arr_of_strings) {
+                var uniq = [];
+                var seen = {};
+                for (var i=0; i<arr_of_strings.length; i++) {
+                    var str = arr_of_strings[i];
+                    if (!seen[str]) {
+                        uniq.push(str);
+                        seen[str] = true;
+                    }
+                }
+                return uniq;
+            };
+            var patientIdArray = uniqStrings(_sampleIds.map(function(s) { return sample_patient_map[s]; }));
 
             //Oncoprint summary lines
             $("#oncoprint_sample_set_description").append(window.QuerySession.getSampleSetDescription() + 
-                "("+sampleIdArray.length + " patients / " + _sampleIds.length + " samples)");
+                "("+patientIdArray.length + " patients / " + _sampleIds.length + " samples)");
             $("#oncoprint_sample_set_name").append(window.QuerySession.getSampleSetName());
             $("#oncoprint_num_of_altered_cases").append(altered_samples.length);
             $("#oncoprint_percentage_of_altered_cases").append(altered_samples_percentage);
-            if (sampleIdArray.length !== _sampleIds.length) {
+            if (patientIdArray.length !== _sampleIds.length) {
                 $("#switchPatientSample").show();
             }
             

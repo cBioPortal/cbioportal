@@ -76,14 +76,17 @@ public class TabDelimitedFileUtil
 	}
 	
 	/**
-	 * Similar to getPartString, but does *not* change the value to "NA". If field is not found or is empty, 
-	 * it just returns empty string ""
-	 * 
-	 * @param index : index of the column to parse. Can be set to -1 if the column was not found in 
-	 * 				  header. This method will return "" in this case.
+	 * Return the trimmed string from the column, or an empty string if -1.
+	 *
+	 * Require the column to exist before the end of the data line. This can
+	 * be used instead of getPartString() if NA may be a meaningful value and
+	 * the file is expected to have been validated.
+	 *
+	 * @param index : index of the column to parse. May be set to -1 if the
+	 *                column was not found in header, to return "".
 	 * @param parts: the data line parts, i.e. the line split by separator.
 	 * 
-	 * @return : the value as is, or "" if column was empty or not present in file (indicated by index=-1).
+	 * @return : the value as is, or "" if the index is -1.
 	 */
 	public static String getPartStringAllowEmpty(int index, String[] parts)
 	{
@@ -96,13 +99,13 @@ public class TabDelimitedFileUtil
 			//else just return as is, trimmed version:
 			return parts[index].trim();
 		}
-		catch (Exception e)
+		catch (ArrayIndexOutOfBoundsException e)
 		{
-			//Throw exception, since this would only occur if parts.length if not
-			//matching the number of column headers...which is blocked by the new 
-			//data validation. So this scenario should not occur if validation works
-			//correctly:
-			throw new RuntimeException("Unexpected error while parsing column nr: " + (index+1));
+			// all lines must have the same number of columns, and the
+			// validation script should never allow this to reach the loader
+			throw new RuntimeException(
+					"Unexpected error while parsing column nr: " + (index+1),
+					e);
 		}
 	}
 

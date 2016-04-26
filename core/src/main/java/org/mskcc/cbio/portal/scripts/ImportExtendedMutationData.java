@@ -254,35 +254,58 @@ public class ImportExtendedMutationData{
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = record.getHugoGeneSymbol();
 				long entrezGeneId = record.getEntrezGeneId();
-                                
-				CanonicalGene gene = null;
-				if (record.getGivenEntrezGeneId().trim().length() > 0) {
-					if (!record.getGivenEntrezGeneId().matches("[0-9]+")) {
-		            	ProgressMonitor.logWarning("Ignoring line with invalid Entrez_Id " + record.getGivenEntrezGeneId());
-		            	entriesSkipped++;
-				    	continue;
-					}	
-					if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
-					    gene = daoGene.getGene(entrezGeneId);
-					    if (gene == null) {
-					    	//skip
-					    	ProgressMonitor.logWarning("Entrez_Id " + entrezGeneId + " not found. Record will be skipped for this gene.");
-					    	entriesSkipped++;
-					    	continue;
-					    }				    	
-					}
-				}
 
-				if(gene == null) {
-					// If Entrez Gene ID Fails, try Symbol.
-					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
-				}
-                                
-				if(gene == null) {
-					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["+ record.getGivenEntrezGeneId() + "] or ambiguous alias. Ignoring it "
-					                    + "and all mutation data associated with it!");
-					entriesSkipped++;
-					continue;
+                CanonicalGene gene = null;
+                if (record.getGivenEntrezGeneId().trim().length() > 0) {
+                    if (!record.getGivenEntrezGeneId().matches("[0-9]+")) {
+                        ProgressMonitor.logWarning(
+                                "Ignoring line with invalid Entrez_Id " +
+                                record.getGivenEntrezGeneId());
+                        entriesSkipped++;
+                        continue;
+                    }
+                    if (entrezGeneId != TabDelimitedFileUtil.NA_LONG &&
+                            entrezGeneId != 0) {
+                        gene = daoGene.getGene(entrezGeneId);
+                        if (gene == null) {
+                            //skip
+                            ProgressMonitor.logWarning("Entrez_Id " + entrezGeneId + " not found. Record will be skipped for this gene.");
+                            entriesSkipped++;
+                            continue;
+                        }
+                    }
+                }
+
+                // If Entrez Gene ID Fails, try Symbol.
+                if (gene == null &&
+                        !(geneSymbol.equals("") ||
+                          geneSymbol.equals("Unknown"))) {
+                    gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
+                }
+
+                // assume Unknown / 0 to imply an intergenic irrespective of
+                // what the column Variant_Classification says
+                if (geneSymbol.equals("Unknown") && entrezGeneId == 0 &&
+                        mutationType != null &&
+                        !mutationType.equalsIgnoreCase("IGR")) {
+                    ProgressMonitor.logWarning(
+                            "Treating mutation with gene symbol 'Unknown' " +
+                            "and Entrez gene ID 0 as intergenic ('IGR') " +
+                            "instead of '" + mutationType + "'.");
+                    mutationType = "IGR";
+                }
+
+                // skip the record if a gene was expected but not identified
+                if (gene == null &&
+                        (mutationType == null ||
+                         !mutationType.equalsIgnoreCase("IGR"))) {
+                    ProgressMonitor.logWarning(
+                            "Ambiguous or missing gene: " + geneSymbol +
+                            " ["+ record.getGivenEntrezGeneId() +
+                            "] or ambiguous alias. Ignoring it " +
+                            "and all mutation data associated with it!");
+                    entriesSkipped++;
+                    continue;
 				} else {
 					ExtendedMutation mutation = new ExtendedMutation();
 

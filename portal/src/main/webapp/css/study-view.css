@@ -1137,14 +1137,22 @@ cursor: pointer;
 }
 
 /* Enhanced fixed datatable styles*/
+#ruler {
+    visibility: hidden;
+    white-space: nowrap;
+}
+
+#clinical-data-table-div .EFDT-table * {
+    box-sizing: border-box;
+}
+
 #clinical-data-table-div .EFDT-top-btn {
     margin-right: 5px;
 }
-
-#clinical-data-table-div .EFDT-show-hide, #clinical-data-table-div .EFDT-fixed-choose, .EFDT-download {
+#clinical-data-table-div .EFDT-show-hide, #clinical-data-table-div .EFDT-fixed-choose, #clinical-data-table-div .EFDT-download {
     float: left;
 }
-.dropdown-checkbox-toggle {
+#clinical-data-table-div .dropdown-checkbox-toggle {
     color: #333;
     background-color: #fff;
     display: inline-block;
@@ -1165,54 +1173,50 @@ cursor: pointer;
     user-select: none;
     background-image: none;
     border: 1px solid #ccc;
-    border-radius: 4px
+    border-radius: 4px;
 }
-
 #clinical-data-table-div .EFDT-header-filters-reset {
     cursor: pointer;
     text-decoration: underline;
 }
-
 #clinical-data-table-div .EFDT-download-btn {
     float: left;
 }
-
 #clinical-data-table-div .EFDT-header-filters {
     margin: 3px 5px;
 }
-
 #clinical-data-table-div .EFDT-header {
     text-align: center;
     vertical-align: middle;
-    font-size: 12px;
+}
+#clinical-data-table-div .EFDT-header .EFDT-header-sort {
+    width: 100%;
+    padding: 3px 8px;
+    display: inline-block;
+    color: black;
+    white-space: nowrap;
+}
+#clinical-data-table-div .EFDT-header .EFDT-header-sort .EFDT-header-sort-content {
+    float: left;
+}
+#clinical-data-table-div .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon {
+    float: right;
 }
 #clinical-data-table-div .EFDT-filter {
     float: right;
 }
-
 #clinical-data-table-div .EFDT-table-prefix {
     margin-bottom: 10px;
-    width:1200px;
 }
-#clinical-data-table-div .EFDT-header-filters .form-control {
-    width: 86%  !important;
-    height: inherit !important;
-}
-
 #clinical-data-table-div .EFDT-result-info {
     float: left;
 }
-
 #clinical-data-table-div .EFDT-result-info-content {
     display: inline-block;
     white-space: nowrap;
     padding: 6px 12px;
     font-size: 14px;
     line-height: 1.428571429;
-}
-
-#clinical-data-table-div .EFDT-table .btn {
-    font-weight: normal !important;
 }
 
 .mutated-gene-cna .EFDT-table {

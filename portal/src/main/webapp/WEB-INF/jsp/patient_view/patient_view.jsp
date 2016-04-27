@@ -409,9 +409,9 @@ var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
 var isImpact = false;
 
-var gddData = {};
-if (cancerStudyId === 'mskimpact') {
+if (cancerStudyId === 'mskimpact') {    
     isImpact = true;
+    var gddData = {};
     for (var i=0; i<caseIds.length; i++) {
         gddData[caseIds[i]] = getGddData(cancerStudyId, [caseIds[i]]);
     }
@@ -1229,7 +1229,7 @@ function outputClinicalData() {
     if (Object.keys(clinicalDataMap).length > 0) {
        addMoreClinicalTooltip("#more-sample-info");
     }
-    if (Object.keys(gddData).length > 0) {               
+    if (isImpact && Object.keys(gddData).length > 0) {               
         addGddTooltip("#gdd-info");
     }    
 

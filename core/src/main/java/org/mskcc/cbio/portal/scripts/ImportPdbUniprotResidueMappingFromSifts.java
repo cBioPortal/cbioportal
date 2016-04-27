@@ -34,11 +34,11 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
 import java.util.*;
-import org.biojava.bio.structure.*;
-import org.biojava.bio.structure.align.util.AtomCache;
-import org.biojava.bio.structure.io.FileParsingParameters;
-import org.biojava3.core.sequence.compound.*;
-import org.biojava3.core.sequence.loader.UniprotProxySequenceReader;
+import org.biojava.nbio.structure.*;
+import org.biojava.nbio.structure.align.util.AtomCache;
+import org.biojava.nbio.structure.io.FileParsingParameters;
+import org.biojava.nbio.core.sequence.compound.*;
+import org.biojava.nbio.core.sequence.loader.UniprotProxySequenceReader;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
@@ -237,7 +237,6 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
     private static AtomCache getAtomCache(String dirCache) {
         AtomCache atomCache = new AtomCache(dirCache, true);
         FileParsingParameters params = new FileParsingParameters();
-        params.setLoadChemCompInfo(false);
         params.setAlignSeqRes(true);
         params.setParseSecStruc(false);
         params.setUpdateRemediatedFiles(false);

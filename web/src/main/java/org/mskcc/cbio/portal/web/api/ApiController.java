@@ -13,6 +13,7 @@ import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
 import org.mskcc.cbio.portal.model.DBGene;
+import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBProfileData;
@@ -100,6 +101,23 @@ public class ApiController {
         }
     }
     
+    @ApiOperation(value = "Get clinical attribute identifiers, filtered by identifier",
+            nickname = "getClinicalAttributes",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/clinicalattributes", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<DBClinicalField> getClinicalAttributes(
+		@ApiParam(value = "List of attribute ids. If provided, returned clinical attributes will be the ones with matching attribute ids. Empty string returns all clinical attributes.")
+		@RequestParam(required = false) 
+		List<String> attr_ids) {
+	    if (attr_ids == null) {
+		    return service.getClinicalAttributes();
+	    } else {
+		    return service.getClinicalAttributes(attr_ids);
+	    }
+    }
+    
+    
     @ApiOperation(value = "Get clinical attribute identifiers, filtered by sample",
             nickname = "getSampleClinicalAttributes",
             notes = "")
@@ -117,7 +135,7 @@ public class ApiController {
         } else if (study_id != null && sample_ids != null) {
             return service.getSampleClinicalAttributes(study_id, sample_ids);
         } else if (sample_ids == null) {
-            return service.getSampleClinicalAttributes(study_id);
+            return service.getSampleClinicalAttributesByInternalIds(study_id, service.getSampleInternalIds(study_id));
         } else {
             return new ArrayList<>();
         }
@@ -140,7 +158,7 @@ public class ApiController {
         } else if (study_id != null && patient_ids != null) {
             return service.getPatientClinicalAttributes(study_id, patient_ids);
         } else if (patient_ids == null) {
-            return service.getPatientClinicalAttributes(study_id);
+            return service.getPatientClinicalAttributesByInternalIds(study_id, service.getPatientInternalIdsByStudy(study_id));
         } else {
             return new ArrayList<>();
         }
@@ -161,7 +179,23 @@ public class ApiController {
             return service.getGenes(hugo_gene_symbols);
         }
     }
-    
+
+    @ApiOperation(value = "Get noncanonical gene symbols by Entrez id lookup",
+            nickname = "getGenesAliases",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/genesaliases", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<DBGeneAlias> getGenesAliases(
+            @ApiParam(required = false, value = "List of Entrez gene ids. Unrecognized IDs are silently ignored. Empty list returns all genes.")
+            @RequestParam(required = false)
+            List<Long> entrez_gene_ids) {
+            if (entrez_gene_ids == null) {
+                    return service.getGenesAliases();
+            } else {
+                    return service.getGenesAliases(entrez_gene_ids);
+            }
+    }
+
     @ApiOperation(value = "Get list of genetic profile identifiers by study",
             nickname = "getGeneticProfiles",
             notes = "")

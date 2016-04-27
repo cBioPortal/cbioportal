@@ -52,6 +52,7 @@ public class ExportProfileData {
         // check args
         if (args.length < 1) {
             System.out.println("command line usage:  exportProfileData.pl " + "<stable_genetic_profile_id>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         String stableGeneticProfileId = args[0];
@@ -62,6 +63,7 @@ public class ExportProfileData {
             return;
         } else {
             System.out.println(geneticProfile.getProfileName());
+            ProgressMonitor.setConsoleModeAndParseShowProgress(args);
             export(geneticProfile);
         }
     }
@@ -72,7 +74,6 @@ public class ExportProfileData {
         ArrayList<Integer> sampleList = outputHeader(profile, writer);
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        ProgressMonitor.setConsoleMode(true);
         Set<CanonicalGene> geneSet = daoGeneticAlteration.getGenesInProfile(profile.getGeneticProfileId());
         ProgressMonitor.setMaxValue(geneSet.size());
         Iterator<CanonicalGene> geneIterator = geneSet.iterator();

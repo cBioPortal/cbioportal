@@ -11,25 +11,14 @@
   <name>Portal Core</name>
   <description>Core libraries shared among other modules</description>
 
-  <repositories>
-    <repository>
-      <id>biojava-maven-repo</id>
-      <name>BioJava repository</name>
-      <url>http://www.biojava.org/download/maven/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>business</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- antisamy -->
 
+    <!-- antisamy -->
     <dependency>
       <groupId>org.owasp</groupId>
       <artifactId>antisamy</artifactId>
@@ -163,17 +152,18 @@
       <version>2.3</version>
     </dependency>
 
-    <!-- BioJava3 -->
+    <!-- BioJava 4.x -->
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>biojava3-core</artifactId>
-      <version>3.0.7</version>
+      <artifactId>biojava-core</artifactId>
+      <version>4.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>biojava3-structure</artifactId>
-      <version>3.0.7</version>
+      <artifactId>biojava-structure</artifactId>
+      <version>4.2.0</version>
     </dependency>
+
     <!-- Mockito -->
     <dependency>
       <groupId>org.mockito</groupId>
@@ -201,6 +191,11 @@
       <groupId>batik</groupId>
       <artifactId>batik-rasterizer</artifactId>
       <version>1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-codec</artifactId>
+      <version>1.7</version>
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>

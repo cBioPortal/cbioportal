@@ -43,21 +43,31 @@ import java.io.File;
 public class ImportCancerStudy {
 
     public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            System.out.println("command line usage: importCancerStudy.pl <cancer_study.txt>");
-            return;
+    	try {
+	        if (args.length < 1) {
+	            System.out.println("command line usage: importCancerStudy.pl <cancer_study.txt>");
+	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	            //use 2 for command line syntax errors:
+	            System.exit(2);
+	        }
+	
+	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	
+	        File file = new File(args[0]);
+			SpringUtil.initDataSource();
+	        CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
+	        System.out.println ("Loaded the following cancer study:  ");
+	        System.out.println (" --> Study ID:  " + cancerStudy.getInternalId());
+	        System.out.println (" --> Name:  " + cancerStudy.getName());
+	        System.out.println (" --> Description:  " + cancerStudy.getDescription());
+	        ConsoleUtil.showMessages();
+	        System.out.println("Done.");
+    	}
+    	catch (Exception e) {
+	        ConsoleUtil.showWarnings();
+	        //exit with error status:
+	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        System.exit(1);
         }
-
-        ProgressMonitor.setConsoleMode(true);
-
-        File file = new File(args[0]);
-		SpringUtil.initDataSource();
-        CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
-        System.out.println ("Loaded the following cancer study:  ");
-        System.out.println ("ID:  " + cancerStudy.getInternalId());
-        System.out.println ("Name:  " + cancerStudy.getName());
-        System.out.println ("Description:  " + cancerStudy.getDescription());
-        ConsoleUtil.showWarnings();
-        System.err.println("Done.");
     }
 }

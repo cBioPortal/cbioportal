@@ -143,6 +143,8 @@ public class NetworkServlet extends HttpServlet {
                 network = NetworkIO.readNetworkFromCGDS(queryGenes, netSize, dataSources, true);
             }
 
+            //network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
+
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                     + ": took "+xdebug.getTimeElapsed()+"ms");
@@ -269,7 +271,7 @@ public class NetworkServlet extends HttpServlet {
 
             String format = req.getParameter("format");
             boolean sif = format!=null && format.equalsIgnoreCase("sif");
-            
+
             String download = req.getParameter("download");
             if (download!=null && download.equalsIgnoreCase("on")) {
                 res.setContentType("application/octet-stream");

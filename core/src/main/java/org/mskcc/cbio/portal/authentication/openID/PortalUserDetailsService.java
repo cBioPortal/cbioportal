@@ -111,31 +111,37 @@ public class PortalUserDetailsService
 			fullName = id;
 		}
 		else {
-			List<OpenIDAttribute> attributes = token.getAttributes();
-			for (OpenIDAttribute attribute : attributes) {
-				if (attribute.getName().equals("email")) {
-					email = attribute.getValues().get(0);
-					email = email.toLowerCase();
+			try {
+				List<OpenIDAttribute> attributes = token.getAttributes();
+				for (OpenIDAttribute attribute : attributes) {
+					if (attribute.getName().equals("email")) {
+						email = attribute.getValues().get(0);
+						email = email.toLowerCase();
+					}
+					if (attribute.getName().equals("firstname")) {
+						firstName = attribute.getValues().get(0);
+					}
+					if (attribute.getName().equals("lastname")) {
+						lastName = attribute.getValues().get(0);
+					}
+					if (attribute.getName().equals("fullname")) {
+						fullName = attribute.getValues().get(0);
+					}
 				}
-				if (attribute.getName().equals("firstname")) {
-					firstName = attribute.getValues().get(0);
+				if (fullName == null) {
+					StringBuilder fullNameBldr = new StringBuilder();
+					if (firstName != null) {
+						fullNameBldr.append(firstName);
+					}
+					if (lastName != null) {
+						fullNameBldr.append(" ").append(lastName);
+					}
+					fullName = fullNameBldr.toString();
 				}
-				if (attribute.getName().equals("lastname")) {
-					lastName = attribute.getValues().get(0);
-				}
-				if (attribute.getName().equals("fullname")) {
-					fullName = attribute.getValues().get(0);
-				}
-			}
-			if (fullName == null) {
-				StringBuilder fullNameBldr = new StringBuilder();
-				if (firstName != null) {
-					fullNameBldr.append(firstName);
-				}
-				if (lastName != null) {
-					fullNameBldr.append(" ").append(lastName);
-				}
-				fullName = fullNameBldr.toString();
+        		}
+			catch (NullPointerException ex) {
+				log.warn("Attribute exchange failed using OpenID "+token.getIdentityUrl()+" for everything");
+				fullName = email = token.getIdentityUrl();
 			}
 		}
 

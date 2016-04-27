@@ -25,6 +25,7 @@ package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +48,7 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.util.GeneticProfileReader;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.SpringUtil;
@@ -89,7 +91,8 @@ public class TestImportProfileData {
 	public void testImportMutationsFile() throws Exception {
         String[] args = {
         		"--data","target/test-classes/data_mutations_extended.txt",
-        		"--meta","target/test-classes/meta_mutations_extended.txt"        		
+        		"--meta","target/test-classes/meta_mutations_extended.txt",
+        		"--loadMode", "bulkLoad"
         		};
         
         ImportProfileData.main(args);
@@ -110,7 +113,8 @@ public class TestImportProfileData {
         String[] args = {
         		"--data","target/test-classes/data_CNA_sample.txt",
         		"--meta","target/test-classes/meta_CNA.txt" ,
-        		"--noprogress"
+        		"--noprogress",
+        		"--loadMode", "bulkLoad"
         		};
         
         String[] sampleIds = {"TCGA-02-0001-01","TCGA-02-0003-01","TCGA-02-0004-01","TCGA-02-0006-01"};
@@ -158,14 +162,8 @@ public class TestImportProfileData {
 	@Test
 	public void testException() throws Exception {
 
-        String[] args = {
-        		"--data","target/test-classes/data_mutations_extended.txt",
-        		"--meta","target/test-classes/meta_mutations_extended_wrong_stable_id.txt"        		
-        		};
-        
         exception.expect(IllegalArgumentException.class);
-        ImportProfileData.main(args);
-        
+        GeneticProfileReader.loadGeneticProfileFromMeta(new File("target/test-classes/meta_mutations_extended_wrong_stable_id.txt"));
         
 	}
 	

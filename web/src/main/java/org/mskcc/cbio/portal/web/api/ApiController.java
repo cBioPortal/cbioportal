@@ -101,6 +101,23 @@ public class ApiController {
         }
     }
     
+    @ApiOperation(value = "Get clinical attribute identifiers, filtered by identifier",
+            nickname = "getClinicalAttributes",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/clinicalattributes", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<DBClinicalField> getClinicalAttributes(
+		@ApiParam(value = "List of attribute ids. If provided, returned clinical attributes will be the ones with matching attribute ids. Empty string returns all clinical attributes.")
+		@RequestParam(required = false) 
+		List<String> attr_ids) {
+	    if (attr_ids == null) {
+		    return service.getClinicalAttributes();
+	    } else {
+		    return service.getClinicalAttributes(attr_ids);
+	    }
+    }
+    
+    
     @ApiOperation(value = "Get clinical attribute identifiers, filtered by sample",
             nickname = "getSampleClinicalAttributes",
             notes = "")

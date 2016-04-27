@@ -41,6 +41,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 /**
  * Prepare a GeneticProfile for having its data loaded.
@@ -101,7 +102,7 @@ public class GeneticProfileReader {
     * @throws DaoException
     */
    public static GeneticProfile loadGeneticProfileFromMeta(File file) throws IOException, DaoException {
-      Properties properties = new Properties();
+      Properties properties = new TrimmedProperties();
       properties.load(new FileInputStream(file));
       
       // when loading cancer studies and their profiles from separate files, 

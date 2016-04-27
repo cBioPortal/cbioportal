@@ -520,7 +520,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_blank_heading.txt',
                                     validateData.CNAValidator)
-        self.assertEqual(len(record_list), 3)
+        self.assertEqual(len(record_list), 4)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
         record_iterator = iter(record_list)
@@ -532,6 +532,8 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.line_number, 1)
         self.assertEqual(record.column_number, 8)
         self.assertEqual(record.cause, '  ')
+        record = record_iterator.next()
+        self.assertIn('white space in sample_id', record.getMessage().lower())
         record = record_iterator.next()
         self.assertIn('cannot be parsed', record.getMessage().lower())
 
@@ -738,7 +740,7 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         """Override a static method to skip a UCSC HTTP query in each test."""
         super(SegFileValidationTestCase, cls).setUpClass()
         @staticmethod
-        def load_chromosome_lengths(genome_build):
+        def load_chromosome_lengths(genome_build, _):
             if genome_build != 'hg19':
                 raise ValueError(
                         "load_chromosome_lengths() called with genome build '{}'".format(

@@ -104,6 +104,10 @@ GraphMLToJSon.prototype.processEdge = function (theEdge)
     var edgeData = $(theEdge).children('data');
     var cyData = {};
 
+    //TODO WORKAROUND TO SOLVE Cytoscape.js problem where ids with spaces are not accepted
+    source = source.replace(/[ ,'-]/g, "_");
+    target = target.replace(/[ ,'-]/g, "_");
+
     cyData.id = id;
     cyData.source = source;
     cyData.target = target;
@@ -141,6 +145,9 @@ GraphMLToJSon.prototype.processEdge = function (theEdge)
 GraphMLToJSon.prototype.processNode = function (theNode, pid)
 {
   var id = $(theNode).attr('id');
+
+  //TODO WORKAROUND TO SOLVE Cytoscape.js problem where ids with spaces are not accepted
+  id = id.replace(/[ ,'-]/g, "_");
 
   var nodeData = $(theNode).children('data');
   var cyData = {};

@@ -20,6 +20,7 @@ ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
 
 IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy"
+UPDATE_STUDY_STATUS_CLASS = "org.mskcc.cbio.portal.scripts.UpdateCancerStudy"
 REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy"
 IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
 IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportSampleList"
@@ -660,4 +661,10 @@ def run_java(*args):
             print >> OUTPUT_FILE, line.strip()
             ret.append(line[:-1])
     ret.append(process.returncode)
+    # if cmd line parameters error:
+    if process.returncode == 2:
+        raise RuntimeError('Aborting. Step failed due to wrong parameters passed to subprocess.')
+    # any other error:
+    if process.returncode != 0:
+        raise RuntimeError('Aborting due to error while executing step.')
     return ret

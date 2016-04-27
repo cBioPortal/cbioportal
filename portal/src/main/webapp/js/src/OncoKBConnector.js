@@ -386,44 +386,58 @@ var OncoKB = (function(_, $) {
                 yWeight = -1;
             }
 
-            if (!x.oncokb || !x.oncokb.hasVariant) {
-                return yWeight;
-            }
-            if (!y.oncokb || !y.oncokb.hasVariant) {
-                return xWeight;
-            }
-
             if (category === 'oncogenic') {
-                if (!x.oncokb || !x.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(x.oncokb.evidence.oncogenic) === -1) {
-                    if (!y.oncokb || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
+                if (!x.oncokb || !x.oncokb.hasVariant) {
+                    if (!y.oncokb || !y.oncokb.hasVariant) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.oncokb || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
+                if (!y.oncokb || !y.oncokb.hasVariant) {
                     return xWeight;
                 }
-                return OncoKB.utils.compareOncogenic(x.oncokb.evidence.oncogenic, y.oncokb.evidence.oncogenic);
-            }
-            if (category === 'oncokb') {
-                if (!x.oncokb || !x.oncokb.hasOwnProperty(levelType) || !x.oncokb[levelType]) {
-                    if (!y.oncokb || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
+
+                if (!x.oncokb.hasOwnProperty('evidence') || !x.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(x.oncokb.evidence.oncogenic) === -1) {
+                    if (!y.oncokb.hasOwnProperty('evidence') || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.oncokb || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
+                if (!y.oncokb.hasOwnProperty('evidence') || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
+                    return xWeight;
+                }
+                return -xWeight * OncoKB.utils.compareOncogenic(x.oncokb.evidence.oncogenic, y.oncokb.evidence.oncogenic);
+            }
+            
+            if (category === 'oncokb') {
+                if (!x.oncokb || !x.oncokb.hasVariant) {
+                    if (!y.oncokb || !y.oncokb.hasVariant) {
+                        return 0;
+                    }
+                    return yWeight;
+                }
+                if (!y.oncokb || !y.oncokb.hasVariant) {
+                    return xWeight;
+                }
+                
+                if (!x.oncokb.hasOwnProperty('evidence') || !x.oncokb.hasVariant || !x.oncokb.hasOwnProperty(levelType) || !x.oncokb[levelType]) {
+                    if (!y.oncokb || !y.oncokb.hasVariant || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
+                        return 0;
+                    }
+                    return yWeight;
+                }
+                if (!y.oncokb.hasOwnProperty('evidence') || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
                     return xWeight;
                 }
                 if (levelType === 'highestSensitiveLevel') {
-                    return OncoKB.utils.compareHighestLevel(x.oncokb[levelType], y.oncokb[levelType], 'sensitivity');
+                    return -xWeight * OncoKB.utils.compareHighestLevel(x.oncokb[levelType], y.oncokb[levelType], 'sensitivity');
                 } else if (levelType === 'highestSensitiveLevel') {
-                    return OncoKB.utils.compareHighestLevel(x.oncokb[levelType], y.oncokb[levelType], 'resistance');
+                    return -xWeight * OncoKB.utils.compareHighestLevel(x.oncokb[levelType], y.oncokb[levelType], 'resistance');
                 }
             }
             if (category === 'mycancergenome') {
                 if (!x.mutation || !x.mutation.myCancerGenome || x.mutation.myCancerGenome.length === 0) {
-                    if (!y.mutation.myCancerGenome || y.mutation.myCancerGenome.length === 0) {
+                    if (!y.mutation || !y.mutation.myCancerGenome || y.mutation.myCancerGenome.length === 0) {
                         return 0;
                     }
                     return yWeight;

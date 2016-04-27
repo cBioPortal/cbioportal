@@ -1682,6 +1682,8 @@ ul.oncokb li {
 }
 .qtip-content div.oncokb{
     padding-top: 5px;
+    width: 100%;
+    float: left;
 }
 .oncokbFeedback {
     text-decoration: underline;

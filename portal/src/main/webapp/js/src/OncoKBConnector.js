@@ -845,7 +845,7 @@ var OncoKB = (function(_, $) {
                         types.push('COSMIC');
                     }
                     if (isHotspot) {
-                        types.push('<a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>');
+                        types.push('<a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang et al., Nat Biotechnol. 2016</a>');
                     }
 
                     str.push(types.join(', '));
@@ -1689,7 +1689,7 @@ OncoKB.Instance.prototype = {
                             OncoKB.svgs.createOncogenicImage(this, -1, false);
                         }
 
-                        _hotspotTip = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).";
+                        _hotspotTip = cbio.util.getHotSpotDesc();
 
 
                         if ($(this).hasClass('oncogenic')) {
@@ -1716,7 +1716,8 @@ OncoKB.Instance.prototype = {
                                 $(this).qtip({
                                     content: {text: _tip},
                                     show: {ready: true},
-                                    hide: {fixed: true, delay: 100},
+                                    //hide: {fixed: true, delay: 100},
+                                    hide: false,
                                     style: {
                                         classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip',
                                         tip: true

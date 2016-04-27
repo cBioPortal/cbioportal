@@ -602,7 +602,7 @@ var OncoKB = (function(_, $) {
     self.str = (function() {
         function getOncogenicitySummary(oncokbInfo) {
             var oncogenic = _.isObject(oncokbInfo) ? (oncokbInfo.hasOwnProperty('oncogenic') ? oncokbInfo.oncogenic : '') : '';
-            var str = '<div class="oncokb"><div><span><b style="font-size:12px;color:#';
+            var str = '<div class="oncokb"><div><span><b style="font-size:14px;color:#';
             switch (oncogenic) {
                 case 'Likely Neutral':
                     str += '2f4f4f">Likely neutral';
@@ -1716,8 +1716,7 @@ OncoKB.Instance.prototype = {
                                 $(this).qtip({
                                     content: {text: _tip},
                                     show: {ready: true},
-                                    //hide: {fixed: true, delay: 100},
-                                    hide: false,
+                                    hide: {fixed: true, delay: 100},
                                     style: {
                                         classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip',
                                         tip: true

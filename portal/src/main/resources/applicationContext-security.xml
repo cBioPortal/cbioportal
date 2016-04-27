@@ -31,15 +31,6 @@
         <expression-handler ref="expressionHandler"/>
     </global-method-security>
 
-
-    <!-- support for general annotations within class definitions (used in AccessControl) -->
-    <context:annotation-config/>
-
-    <!-- we do post filtering within AccessControl -->
-    <global-method-security pre-post-annotations="enabled">
-        <expression-handler ref="expressionHandler"/>
-    </global-method-security>
-
     <!-- custom expression handler -->
     <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>

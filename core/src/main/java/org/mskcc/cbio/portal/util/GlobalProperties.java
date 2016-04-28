@@ -51,6 +51,8 @@ import java.net.URL;
  */
 public class GlobalProperties {
 
+    public static final String ENV_PREFIX = "PORTAL_";
+
     public static final String HOME_DIR = "PORTAL_HOME";
     private static final String propertiesFilename = "portal.properties";
 
@@ -258,31 +260,45 @@ public class GlobalProperties {
 
     public static String getPathwayCommonsUrl()
 	{
-		return properties.getProperty(PATHWAY_COMMONS_URL);
+		return getProperty(PATHWAY_COMMONS_URL);
     }
     
     public static String getUcscCancerGenomicsUrl()
 	{
-        return properties.getProperty(UCSC_CANCER_GENOMICS_URL);
+        return getProperty(UCSC_CANCER_GENOMICS_URL);
     }
 
     public static String getSegfileUrl()
 	{
-        return properties.getProperty(SEGFILE_URL);
+        return getProperty(SEGFILE_URL);
     }
 
+    /**
+     * Return property with the given name from environment variables or from properties file.
+     *
+     * First, the function attempts to read the variable from System.getenv() using the
+     * prefix ENV_PREFIX and replacing characters not matching [a-zA-Z_] with "__".
+     * If this is not set (returns null or is empty), then the value from the properties file
+     * is used.
+     * 
+     * @param property Name of the property to query for
+     * @return Value of the property, or <code>null</code> if not found.
+     */
 	public static String getProperty(String property)
 	{
+	    String res = System.getenv(ENV_PREFIX + property.replaceAll("[^a-zA-Z_]",  "__"));
+	    if (res != null && !res.isEmpty())
+	        return res;
 		return (properties.containsKey(property)) ? properties.getProperty(property) : null;
 	}
 
 	public static boolean wantIGVBAMLinking() {
-        String igvBamLinking = properties.getProperty(IGV_BAM_LINKING);
+        String igvBamLinking = getProperty(IGV_BAM_LINKING);
 		return igvBamLinking!=null && igvBamLinking.equals("true");
 	}
 
 	public static Collection<String> getIGVBAMLinkingStudies() {
-        String igvBamLinkingStudies = properties.getProperty(IGV_BAM_LINKING_STUDIES);
+        String igvBamLinkingStudies = getProperty(IGV_BAM_LINKING_STUDIES);
         if (igvBamLinkingStudies==null) {
             return Collections.emptyList();
         }
@@ -292,13 +308,13 @@ public class GlobalProperties {
 
     public static boolean usersMustAuthenticate()
     {
-        String prop = properties.getProperty(AUTHENTICATE);
+        String prop = getProperty(AUTHENTICATE);
         return (!prop.isEmpty() && !prop.equals("false"));
     }
 
     public static String authenticationMethod()
     {
-        return properties.getProperty(AUTHENTICATE);
+        return getProperty(AUTHENTICATE);
     }
 
     /**
@@ -316,66 +332,66 @@ public class GlobalProperties {
         }
     }
 	public static boolean usersMustBeAuthorized() {
-        return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
+        return Boolean.parseBoolean(getProperty(AUTHORIZATION));
 	}
 
     public static String getAppName()
     {
-        String appName = properties.getProperty(APP_NAME);
+        String appName = getProperty(APP_NAME);
         return (appName == null) ? DEFAULT_APP_NAME : appName;
     }
 
     public static String getAppVersion()
     {
-        String appVersion = properties.getProperty(APP_VERSION);
+        String appVersion = getProperty(APP_VERSION);
         return (appVersion == null) ? "1.0" : appVersion;
     }
     
     public static String getTitle()
     {
-        String skinTitle = properties.getProperty(SKIN_TITLE);
+        String skinTitle = getProperty(SKIN_TITLE);
         return (skinTitle == null) ? DEFAULT_SKIN_TITLE : skinTitle;
     }
     // updated function to use a default if nothing is specified
     public static String getBlurb()
     {
-        String skinBlurb = properties.getProperty(SKIN_BLURB);
+        String skinBlurb = getProperty(SKIN_BLURB);
         return (skinBlurb == null) ? DEFAULT_SKIN_BLURB : skinBlurb;
     }
     // get custom FAQ html or the default
     public static String getFaqHtml()
     {
-        String faqHtml = properties.getProperty(SKIN_FAQ);
+        String faqHtml = getProperty(SKIN_FAQ);
         return (faqHtml == null) ? DEFAULT_SKIN_FAQ : getContentString(faqHtml);
     }
     // get custom About html or the default
     public static String getAboutHtml()
     {
-        String aboutHtml = properties.getProperty(SKIN_ABOUT);
+        String aboutHtml = getProperty(SKIN_ABOUT);
         return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : getContentString(aboutHtml);
     }
     // get custom News html or the default
     public static String getNewsHtml()
     {
-        String newsHtml = properties.getProperty(SKIN_NEWS);
+        String newsHtml = getProperty(SKIN_NEWS);
         return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
     }
     // get custom News html or the default
     public static String getBaseUrl()
     {
-        String baseUrl = properties.getProperty(SKIN_BASEURL);
+        String baseUrl = getProperty(SKIN_BASEURL);
         return (baseUrl == null) ? DEFAULT_SKIN_BASEURL : baseUrl;
     }
     public static boolean isMarkdownDocumentation()
     {
-        String markdownFlag = properties.getProperty(SKIN_DOCUMENTATION_MARKDOWN);
+        String markdownFlag = getProperty(SKIN_DOCUMENTATION_MARKDOWN);
         return markdownFlag == null || Boolean.parseBoolean(markdownFlag);
     }
 
     // get custom Example Queries for the right column html or the default
     public static String getExamplesRightColumnHtml()
     {
-        String examplesRightColumnHtml = properties.getProperty(SKIN_EXAMPLES_RIGHT_COLUMN);
+        String examplesRightColumnHtml = getProperty(SKIN_EXAMPLES_RIGHT_COLUMN);
         return (examplesRightColumnHtml == null) ? DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN : "../../../content/"+examplesRightColumnHtml;
     }
 
@@ -387,13 +403,13 @@ public class GlobalProperties {
     // get the login contact html
     public static String getLoginContactHtml()
     {
-        String loginContactHtml = properties.getProperty(SKIN_LOGIN_CONTACT_HTML);
+        String loginContactHtml = getProperty(SKIN_LOGIN_CONTACT_HTML);
         return (loginContactHtml == null) ? DEFAULT_SKIN_LOGIN_CONTACT_HTML : loginContactHtml;
     }
     // get the text for the saml login button
     public static String getLoginSamlRegistrationHtml()
     {
-        String loginSamlRegistrationHtml = properties.getProperty(SKIN_LOGIN_SAML_REGISTRATION_HTML);
+        String loginSamlRegistrationHtml = getProperty(SKIN_LOGIN_SAML_REGISTRATION_HTML);
         return (loginSamlRegistrationHtml == null) ? DEFAULT_SKIN_LOGIN_SAML_REGISTRATION_HTML : loginSamlRegistrationHtml;
     }
     public static String getSamlIdpMetadataEntityid()
@@ -402,58 +418,58 @@ public class GlobalProperties {
     }
     public static String getTagLineImage()
     {
-        String tagLineImage = properties.getProperty(SKIN_TAG_LINE_IMAGE);
+        String tagLineImage = getProperty(SKIN_TAG_LINE_IMAGE);
         return (tagLineImage == null) ? DEFAULT_SKIN_TAG_LINE_IMAGE : "images/" + tagLineImage;
     }
 
     // function for retrieving the right logo, used by the header_bar
     public static String getRightLogo()
     {
-        String rightLogo = properties.getProperty(SKIN_RIGHT_LOGO);
+        String rightLogo = getProperty(SKIN_RIGHT_LOGO);
         return (rightLogo == null) ? DEFAULT_SKIN_RIGHT_LOGO : "images/" + rightLogo;
     }
 
     // function for retrieving the footer text
     public static String getFooter(){
-        String footer = properties.getProperty(SKIN_FOOTER);
+        String footer = getProperty(SKIN_FOOTER);
         return (footer == null) ? DEFAULT_SKIN_FOOTER : footer;
     }
     // function for retrieving the studyview link text
     public static String getStudyviewLinkText(){
-        String studyviewLinkText = properties.getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
+        String studyviewLinkText = getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
         return (studyviewLinkText == null) ? DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT : studyviewLinkText;
     }
 
     public static String getEmailContact()
     {
-        String emailAddress = properties.getProperty(SKIN_EMAIL_CONTACT);
+        String emailAddress = getProperty(SKIN_EMAIL_CONTACT);
         return (emailAddress == null) ? DEFAULT_EMAIL_CONTACT :
             ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
     }
 
     public static boolean includeNetworks()
     {
-        return Boolean.parseBoolean(properties.getProperty(INCLUDE_NETWORKS));
+        return Boolean.parseBoolean(getProperty(INCLUDE_NETWORKS));
     }
 
     public static String getGoogleAnalyticsProfileId()
     {
-        return properties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
+        return getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
     }
 
     public static boolean genomespaceEnabled()
     {
-        return Boolean.parseBoolean(properties.getProperty(GENOMESPACE));
+        return Boolean.parseBoolean(getProperty(GENOMESPACE));
     }
 
     public static boolean showPlaceholderInPatientView()
     {
-        return Boolean.parseBoolean(properties.getProperty(PATIENT_VIEW_PLACEHOLDER));
+        return Boolean.parseBoolean(getProperty(PATIENT_VIEW_PLACEHOLDER));
     }
 
     public static double[] getPatientViewGenomicOverviewCnaCutoff()
     {
-        String cutoff = properties.getProperty(PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF);
+        String cutoff = getProperty(PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF);
         if (cutoff==null) {
             return DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF;
         }
@@ -464,109 +480,109 @@ public class GlobalProperties {
 
     public static boolean showNewsTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_NEWS_TAB);
+        String showFlag = getProperty(SKIN_SHOW_NEWS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
     public static boolean showDataTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_DATA_TAB);
+        String showFlag = getProperty(SKIN_SHOW_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
     // show or hide the web api tab in header navigation bar
     public static boolean showWebApiTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_WEB_API_TAB);
+        String showFlag = getProperty(SKIN_SHOW_WEB_API_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the r matlab tab in header navigation bar
     public static boolean showRMatlabTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_R_MATLAB_TAB);
+        String showFlag = getProperty(SKIN_SHOW_R_MATLAB_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the tutorial tab in header navigation bar
     public static boolean showTutorialsTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_TUTORIALS_TAB);
+        String showFlag = getProperty(SKIN_SHOW_TUTORIALS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the faqs tab in header navigation bar
     public static boolean showFaqsTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_FAQS_TAB);
+        String showFlag = getProperty(SKIN_SHOW_FAQS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the tools tab in header navigation bar
     public static boolean showToolsTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_TOOLS_TAB);
+        String showFlag = getProperty(SKIN_SHOW_TOOLS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the about tab in header navigation bar
     public static boolean showAboutTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_ABOUT_TAB);
+        String showFlag = getProperty(SKIN_SHOW_ABOUT_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the visualize your data tab in header navigation bar
     public static boolean showVisualizeYourDataTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
+        String showFlag = getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the clinical trials tab in the patient view
     public static boolean showClinicalTrialsTab()
     {
-        String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
+        String showFlag = getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the drugs tab in the patient view
     public static boolean showDrugsTab()
     {
-        String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
+        String showFlag = getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // get the text for the What's New in the right navigation bar
     public static String getRightNavWhatsNewBlurb(){
-        String whatsNewBlurb = properties.getProperty(SKIN_RIGHT_NAV_WHATS_NEW_BLURB);
+        String whatsNewBlurb = getProperty(SKIN_RIGHT_NAV_WHATS_NEW_BLURB);
         return (whatsNewBlurb == null) ? DEFAULT_SKIN_WHATS_NEW_BLURB : whatsNewBlurb;
     }
     public static boolean showRightNavDataSets()
     {
-        String showFlag = properties.getProperty(SKIN_RIGHT_NAV_SHOW_DATA_SETS);
+        String showFlag = getProperty(SKIN_RIGHT_NAV_SHOW_DATA_SETS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     public static boolean showRightNavExamples()
     {
-        String showFlag = properties.getProperty(SKIN_RIGHT_NAV_SHOW_EXAMPLES);
+        String showFlag = getProperty(SKIN_RIGHT_NAV_SHOW_EXAMPLES);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
     public static boolean showRightNavTestimonials()
     {
-        String showFlag = properties.getProperty(SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
+        String showFlag = getProperty(SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
     public static String getAuthorizationMessage()
     {
-        String authMessage = properties.getProperty(SKIN_AUTHORIZATION_MESSAGE);
+        String authMessage = getProperty(SKIN_AUTHORIZATION_MESSAGE);
         return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
     }
 
     // added usage of default data sets header
     public static String getDataSetsHeader()
     {
-        String dataSetsHeader = properties.getProperty(SKIN_DATASETS_HEADER);
+        String dataSetsHeader = getProperty(SKIN_DATASETS_HEADER);
         return dataSetsHeader == null ? DEFAULT_SKIN_DATASETS_HEADER : dataSetsHeader;
     }
 
     // added usage of default data sets footer
     public static String getDataSetsFooter()
     {
-        String dataSetsFooter = properties.getProperty(SKIN_DATASETS_FOOTER);
+        String dataSetsFooter = getProperty(SKIN_DATASETS_FOOTER);
         return dataSetsFooter == null ? DEFAULT_SKIN_DATASETS_FOOTER : dataSetsFooter;
     }
 
@@ -602,19 +618,19 @@ public class GlobalProperties {
 
     public static String getDigitalSlideArchiveIframeUrl(String caseId)
     {
-        String url = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL);
+        String url = getProperty(PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL);
         return url+caseId;
     }
 
     public static String getDigitalSlideArchiveMetaUrl(String caseId)
     {
-        String url = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_META_URL);
+        String url = getProperty(PATIENT_VIEW_DIGITAL_SLIDE_META_URL);
         return url+caseId;
     }
 
     public static String[] getTCGAPathReportUrl(String typeOfCancer)
     {
-        String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
+        String url = getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
         if (url == null) {
             return null;
         }
@@ -631,7 +647,7 @@ public class GlobalProperties {
 
     // function for getting the custom tabs for the header
     public static String[] getCustomHeaderTabs(){
-        String customPagesString = GlobalProperties.getProperty(SKIN_CUSTOM_HEADER_TABS);
+        String customPagesString = getProperty(SKIN_CUSTOM_HEADER_TABS);
         if(customPagesString!=null){
             // split by comma and return the String array
             return customPagesString.split(",");
@@ -641,7 +657,7 @@ public class GlobalProperties {
     
     public static String getOncoKBUrl()
     {
-        String oncokbUrl = properties.getProperty(ONCOKB_URL);
+        String oncokbUrl = getProperty(ONCOKB_URL);
 
         //Test connection of OncoKB website.
         if(oncokbUrl != null && !oncokbUrl.isEmpty()) {
@@ -661,7 +677,7 @@ public class GlobalProperties {
     }
 
     public static boolean showHotspot() {
-        String hotspot = properties.getProperty(SHOW_HOTSPOT);
+        String hotspot = getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
             return true; // show hotspots by default
         }
@@ -674,12 +690,12 @@ public class GlobalProperties {
     }
 
     public static boolean filterGroupsByAppName() {
-        String filterGroupsByNameFlag = properties.getProperty(FILTER_GROUPS_BY_APPNAME);
+        String filterGroupsByNameFlag = getProperty(FILTER_GROUPS_BY_APPNAME);
         return filterGroupsByNameFlag == null || Boolean.parseBoolean(filterGroupsByNameFlag);
     }
     
     public static String getAlwaysShowStudyGroup() {
-        String group = properties.getProperty(ALWAYS_SHOW_STUDY_GROUP);
+        String group = getProperty(ALWAYS_SHOW_STUDY_GROUP);
         if (group!=null && group.trim().isEmpty()) {
             return null;
         }
@@ -689,17 +705,17 @@ public class GlobalProperties {
     
     public static boolean showMyCancerGenomeUrl()
     {
-        String show = properties.getProperty(MYCANCERGENOME_SHOW);
+        String show = getProperty(MYCANCERGENOME_SHOW);
         return show != null && Boolean.parseBoolean(show);
     }
     
     public static String getOncoKBGeneStatus()
     {
-        return properties.getProperty(ONCOKB_GENE_STATUS);
+        return getProperty(ONCOKB_GENE_STATUS);
     }
     
     public static boolean getRecacheStudyAfterUpdate() {
-        String recacheStudyAfterUpdate = properties.getProperty(RECACHE_STUDY_AFTER_UPDATE);
+        String recacheStudyAfterUpdate = getProperty(RECACHE_STUDY_AFTER_UPDATE);
         if (recacheStudyAfterUpdate==null || recacheStudyAfterUpdate.isEmpty()) {
             return false;
         }
@@ -707,7 +723,7 @@ public class GlobalProperties {
     }
     
     public static String getDbVersion() {
-        String version = properties.getProperty(DB_VERSION);
+        String version = getProperty(DB_VERSION);
         if (version == null)
         {
             return "0";

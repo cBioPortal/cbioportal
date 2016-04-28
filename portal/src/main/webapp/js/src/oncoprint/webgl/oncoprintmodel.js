@@ -82,6 +82,16 @@ var arrayUnique = function(arr) {
     return unique;
 };
 
+var copyShallowObject = function(obj) {
+    var copy = {};
+    for (var key in obj) {
+	if (obj.hasOwnProperty(key)) {
+	    copy[key] = obj[key];
+	}
+    }
+    return copy;
+};
+
 var OncoprintModel = (function () {
     var MIN_ZOOM_PIXELS = 100;
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
@@ -666,7 +676,7 @@ var OncoprintModel = (function () {
     
     OncoprintModel.prototype.getTrackTops = function (desired_track_id) {
 	if (typeof desired_track_id === 'undefined') {
-	    return this.track_tops.get();
+	    return copyShallowObject(this.track_tops.get());
 	} else {
 	    return this.track_tops.get()[desired_track_id];
 	}
@@ -674,14 +684,14 @@ var OncoprintModel = (function () {
     
     OncoprintModel.prototype.getCellTops = function(desired_track_id) {
 	if (typeof desired_track_id === 'undefined') {
-	    return this.cell_tops.get();
+	    return copyShallowObject(this.cell_tops.get());
 	} else {
 	    return this.cell_tops.get()[desired_track_id];
 	}
     }
     OncoprintModel.prototype.getLabelTops = function(desired_track_id) {
 	if (typeof desired_track_id === 'undefined') {
-	    return this.label_tops.get();
+	    return copyShallowObject(this.label_tops.get());
 	} else {
 	    return this.label_tops.get()[desired_track_id];
 	}

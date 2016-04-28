@@ -469,6 +469,7 @@ public class MutationDataUtils {
             catch (MalformedURLException e)
             {
                 logger.error("Could not parse OMA URL:  " + e.getMessage());
+                //return HtmlUtil.createEmptySpacer();
             }
         }
 

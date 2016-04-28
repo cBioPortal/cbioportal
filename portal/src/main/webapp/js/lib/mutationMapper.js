@@ -6528,6 +6528,7 @@ var MutationModel = Backbone.Model.extend({
 		this.proteinPosStart = attributes.proteinPosStart;
 		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;
+		this.specialGeneData = attributes.specialGeneData;
 		this.keyword = attributes.keyword;
 		this.cna = attributes.cna;
 		this.myCancerGenome = attributes.myCancerGenome;

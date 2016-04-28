@@ -1021,12 +1021,12 @@ class MutationsExtendedValidator(Validator):
         hugo_symbol = None
         entrez_id = None
         if 'Hugo_Symbol' in self.cols:
-            hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+            hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
             # treat the empty string or 'Unknown' as a missing value
             if hugo_symbol in ('', 'Unknown'):
                 hugo_symbol = None
         if 'Entrez_Gene_Id' in self.cols:
-            entrez_id = data[self.cols.index('Entrez_Gene_Id')]
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
             # treat the empty string or 0 as a missing value
             if entrez_id in ('', '0'):
                 entrez_id = None

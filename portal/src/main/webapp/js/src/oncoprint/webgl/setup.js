@@ -663,6 +663,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    track_params['rule_set_params']['legend_label'] = attr.display_name;
 		    track_params['rule_set_params']['exclude_from_legend'] = true;
 		    track_params['label'] = attr.display_name;
+		    track_params['description'] = attr.description;
 		    track_params['removable'] = true;
 		    track_params['removeCallback'] = makeRemoveAttributeHandler(attr);
 		    track_params['sortCmpFn'] = (attr.datatype.toLowerCase() === 'number' ? 
@@ -960,7 +961,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    NUMBER_MUTATIONS_ATTRIBUTE: {attr_id: "# mutations",
 		datatype: "NUMBER",
 		description: "Number of mutations",
-		display_name: "# mutations",
+		display_name: "Total mutations",
 		is_patient_attribute: "0"
 	    },
 	    FRACTION_GENOME_ALTERED_ATTRIBUTE: {attr_id: "FRACTION_GENOME_ALTERED",

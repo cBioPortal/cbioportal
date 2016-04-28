@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class TypeOfCancer {
+import java.io.Serializable;
+
+public class TypeOfCancer implements Serializable {
     private String typeOfCancerId;
 
     private String name;

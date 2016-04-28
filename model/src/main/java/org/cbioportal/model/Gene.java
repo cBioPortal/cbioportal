@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class Gene {
+import java.io.Serializable;
+
+public class Gene implements Serializable {
     private Integer entrezGeneId;
 
     private String hugoGeneSymbol;

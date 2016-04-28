@@ -125,7 +125,7 @@ public class CutInvalidCases {
             return;
         }
 
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         File casesExcludedFile = new File (args[0]);
         File dataFile = new File(args[1]);
 

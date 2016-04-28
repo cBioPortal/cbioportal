@@ -34,7 +34,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
 
 <script type="text/javascript">
-    
     var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration", "annotation","cytoband","mrna","altrate","drug"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
@@ -137,7 +136,7 @@
                                 if(cnas.colExists('oncokb')) {
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else if(OncoKB.getAccess()){
-                                    ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                    ret += "<img width='14' height='14' src='images/ajax-loader.gif'/>";
                                 }else {
                                     ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
                                 }
@@ -205,10 +204,10 @@
                             } else if (type === 'display') {
                                 var str = '';
                                 if (cnas.colExists('oncokb')) {
-                                    str += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
+                                    str += "&nbsp;<span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
                                     str += "<span class='oncokb oncokb_column' oncokbId='" + source[0] + "'></span>";
                                 } else if (OncoKB.getAccess()) {
-                                    str += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
+                                    str += '<img width="14" height="14" src="images/ajax-loader.gif"/>';
                                 }
                                 return str;
                             } else if (type === 'sort') {
@@ -343,11 +342,11 @@
         } );
 
         if(oncokbInstance) {
-            oncokbInstance.getEvidence().then(function () {
+            oncokbInstance.getIndicator().then(function () {
                 var tableData = oTable.fnGetData();
                 var oncokbEvidence = [];
                 _.each(tableData, function(ele, i) {
-                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
+                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]));
                 });
                 cnas.addData('oncokb', oncokbEvidence)
                 if (tableData.length > 0)

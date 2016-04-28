@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  Copyright (c) 2016 The Hyve B.V.
+  This code is licensed under the GNU Affero General Public License as
+  published by the Free Software Foundation, version 3,
+  or (at your option) any later version.
+-->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+  <style type="text/css">
+    .jumbotron {
+      text-align: center;
+      border: 5px solid #eeeeee;
+      background-color: white !important;
+    }
+
+    .panel-heading .badge {
+      float: right;
+    }
+
+    div.panel-body > :last-child {
+      margin-bottom: 0;
+    }
+
+    .header-icon {
+      float: left;
+      margin-right: .5em;
+    }
+  </style>
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <![endif]-->
+  <title>cBioPortal validation report: study in 'test_data/study_es_0/'</title>
+</head>
+
+<body>
+  <script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <div class="container">
+    <div class="header">
+      <div class="jumbotron">
+        <h1>cBioPortal validation report</h1>
+        <p>Study directory:<br />test_data/study_es_0/</p>
+        <p>For details, please see <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>the documentation on file formats supported by cBioPortal</a></p>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">Legend</h4>
+      </div>
+      <div class="panel-body">
+        <p>
+	  Click on a filename below to see a table of messages about the data
+	  in the file. The colors in the tables have the following meanings:
+        </p>
+        <table class="table">
+          <tbody>
+            <tr class="danger">
+              <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+              <td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td>
+            </tr>
+            <tr class="warning">
+              <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
+              <td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td>
+            </tr>
+            <tr class="success">
+              <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+              <td><strong>Info:</strong> this looks good, no action required</td>
+            </tr>
+            <tr class="info">
+              <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+              <td><strong>Verbose output:</strong> details on the progress of the validation script</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+    <div class="panel-body">
+    <div class="alert alert-success">
+      Validation status:
+      <strong>
+        Success
+      </strong>
+    </div>
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_2689738401393696111">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_2689738401393696111" href="#collapse_2689738401393696111">
+            <span class="badge">9</span>
+            <h4 class="panel-title">General</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_2689738401393696111" id="collapse_2689738401393696111">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Reading portal information from test_data/api_json_system_tests/cancertypes.json</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Reading portal information from test_data/api_json_system_tests/clinicalattributes_patients.json</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Reading portal information from test_data/api_json_system_tests/clinicalattributes_samples.json</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Reading portal information from test_data/api_json_system_tests/genes.json</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Reading portal information from test_data/api_json_system_tests/genesaliases.json</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Retrieving chromosome lengths from &#39;http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes&#39;</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validating case lists</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of case lists complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_6830388332935581942">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_6830388332935581942" href="#collapse_6830388332935581942">
+            <span class="badge">3</span>
+            <h4 class="panel-title">brca_tcga_data_cna_hg19.seg</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_6830388332935581942" id="collapse_6830388332935581942">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 10 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-8351599135575752606">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-8351599135575752606" href="#collapse_-8351599135575752606">
+            <span class="badge">2</span>
+            <h4 class="panel-title">brca_tcga_meta_cna_hg19_seg.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-8351599135575752606" id="collapse_-8351599135575752606">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-5095920511176882161">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-5095920511176882161" href="#collapse_-5095920511176882161">
+            <span class="badge">4</span>
+            <h4 class="panel-title">brca_tcga_pub.maf</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-5095920511176882161" id="collapse_-5095920511176882161">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>7, 9, 14</td>
+                <td>&ndash;</td>
+                <td>Validation of line skipped due to cBioPortal&#39;s filtering. Filtered types: [Silent, Intron, 3&#39;UTR, 3&#39;Flank, 5&#39;UTR, 5&#39;Flank, IGR, RNA]</td>
+                <td>validation skipped due to filtering</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 15 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-8084637708731552141">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-8084637708731552141" href="#collapse_-8084637708731552141">
+            <span class="badge">2</span>
+            <h4 class="panel-title">case_lists/cases_custom.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-8084637708731552141" id="collapse_-8084637708731552141">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-1211125621321342529">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-1211125621321342529" href="#collapse_-1211125621321342529">
+            <span class="badge">3</span>
+            <h4 class="panel-title">data_CNA.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-1211125621321342529" id="collapse_-1211125621321342529">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 8 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-468734380824350194">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-468734380824350194" href="#collapse_-468734380824350194">
+            <span class="badge">3</span>
+            <h4 class="panel-title">data_expression_median.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-468734380824350194" id="collapse_-468734380824350194">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 7 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_4479070818687924185">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_4479070818687924185" href="#collapse_4479070818687924185">
+            <span class="badge">3</span>
+            <h4 class="panel-title">data_gistic_genes_amp.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_4479070818687924185" id="collapse_4479070818687924185">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 28 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-354920586160768041">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-354920586160768041" href="#collapse_-354920586160768041">
+            <span class="badge">3</span>
+            <h4 class="panel-title">data_log2CNA.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-354920586160768041" id="collapse_-354920586160768041">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 8 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_2874052112030090675">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_2874052112030090675" href="#collapse_2874052112030090675">
+            <span class="badge">3</span>
+            <h4 class="panel-title">data_methylation_hm27.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_2874052112030090675" id="collapse_2874052112030090675">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 9 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_2670945268483421722">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_2670945268483421722" href="#collapse_2670945268483421722">
+            <span class="badge">3</span>
+            <h4 class="panel-title">data_patients.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_2670945268483421722" id="collapse_2670945268483421722">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 830 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_2353294301845676894">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_2353294301845676894" href="#collapse_2353294301845676894">
+            <span class="badge">3</span>
+            <h4 class="panel-title">data_samples.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_2353294301845676894" id="collapse_2353294301845676894">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 831 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_6496178228918583572">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_6496178228918583572" href="#collapse_6496178228918583572">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_CNA.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_6496178228918583572" id="collapse_6496178228918583572">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-2036375308549423803">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-2036375308549423803" href="#collapse_-2036375308549423803">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_expression_median.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-2036375308549423803" id="collapse_-2036375308549423803">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-3330264176859895552">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-3330264176859895552" href="#collapse_-3330264176859895552">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_gistic_genes_amp.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-3330264176859895552" id="collapse_-3330264176859895552">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-6284842631443235332">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-6284842631443235332" href="#collapse_-6284842631443235332">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_log2CNA.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-6284842631443235332" id="collapse_-6284842631443235332">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-9022107707184941918">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-9022107707184941918" href="#collapse_-9022107707184941918">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_methylation_hm27.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-9022107707184941918" id="collapse_-9022107707184941918">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-402917117353387965">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-402917117353387965" href="#collapse_-402917117353387965">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_mutations_extended.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-402917117353387965" id="collapse_-402917117353387965">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_-3052465516861932937">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-3052465516861932937" href="#collapse_-3052465516861932937">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_patients.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-3052465516861932937" id="collapse_-3052465516861932937">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_5831084486634698153">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_5831084486634698153" href="#collapse_5831084486634698153">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_samples.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_5831084486634698153" id="collapse_5831084486634698153">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_4972704087644385041">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_4972704087644385041" href="#collapse_4972704087644385041">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_study.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_4972704087644385041" id="collapse_4972704087644385041">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+    </div>
+    </div>
+  </div>
+</body>
+</html>

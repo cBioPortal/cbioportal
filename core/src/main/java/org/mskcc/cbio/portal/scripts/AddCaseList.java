@@ -147,6 +147,8 @@ public class AddCaseList {
 	        ConsoleUtil.showWarnings();
 	        //exit with error status:
 	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        if (e.getMessage() == null)
+	        	e.printStackTrace();
 	        System.exit(1);
     }
   }

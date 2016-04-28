@@ -459,6 +459,7 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.toSVG = function(with_background) {
+	// Returns svg DOM element
 	var root = svgfactory.svg(10, 10);
 	this.$container.append(root);
 	var everything_group = svgfactory.group(0,0);
@@ -492,6 +493,25 @@ var Oncoprint = (function () {
 	root.parentNode.removeChild(root);
 	
 	return root;
+    }
+    
+    Oncoprint.prototype.toPNG = function() {
+	// Returns data url
+	var svg = this.toSVG(true);
+	var width = parseInt(svg.getAttribute('width'), 10);
+	var height = parseInt(svg.getAttribute('height'), 10);
+	var canvas = document.createElement('canvas');
+	canvas.setAttribute('width', width);
+	canvas.setAttribute('height', height);
+	
+	var ctx = canvas.getContext('2d');
+	var img = new Image();
+	var url = DOMURL.createObjectURL(svg);
+	
+	img.onload = function() {
+	    ctx.drawImage(img, 0, 0);
+	    DOMURL.revokeObjectURL(url);
+	}
     }
     
     Oncoprint.prototype.getIdOrder = function(all) {

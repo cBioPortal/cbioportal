@@ -220,6 +220,8 @@
     <module>business</module>
     <module>web</module>
     <module>model</module>
+    <module>persistence</module>
+    <module>service</module>
   </modules>
 
   <dependencies>

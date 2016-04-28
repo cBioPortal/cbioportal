@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class Sample {
+import java.io.Serializable;
+
+public class Sample implements Serializable {
     private Integer internalId;
 
     private String stableId;

@@ -1,8 +1,9 @@
 package org.cbioportal.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class CancerStudy {
+public class CancerStudy implements Serializable {
     private Integer cancerStudyId;
 
     private String cancerStudyIdentifier;

@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class GeneticProfile {
+import java.io.Serializable;
+
+public class GeneticProfile implements Serializable {
     private Integer geneticProfileId;
 
     private String stableId;

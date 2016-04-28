@@ -652,8 +652,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			track_params = {
 			    'rule_set_params': {
 				'type': 'bar',
+				'log_scale': true,
 				'value_key': 'attr_val',
-				'value_range': [0, undefined],
 			    }
 			};
 		    } else if (attr.attr_id === 'FRACTION_GENOME_ALTERED') {
@@ -682,6 +682,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    track_params['rule_set_params']['legend_label'] = attr.display_name;
 		    track_params['rule_set_params']['exclude_from_legend'] = true;
 		    track_params['label'] = attr.display_name;
+		    track_params['description'] = attr.description;
 		    track_params['removable'] = true;
 		    track_params['removeCallback'] = makeRemoveAttributeHandler(attr);
 		    track_params['sortCmpFn'] = (attr.datatype.toLowerCase() === 'number' ? 
@@ -997,7 +998,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    NUMBER_MUTATIONS_ATTRIBUTE: {attr_id: "# mutations",
 		datatype: "NUMBER",
 		description: "Number of mutations",
-		display_name: "# mutations",
+		display_name: "Total mutations",
 		is_patient_attribute: "0"
 	    },
 	    FRACTION_GENOME_ALTERED_ATTRIBUTE: {attr_id: "FRACTION_GENOME_ALTERED",
@@ -1697,11 +1698,11 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 		oncoprint.releaseRendering();
 		return track_ids;
 	    },
-	    setData: function(data_by_gene, id_key, altered_ids_by_gene, id_order) {
+	    setData: function(data_by_gene, id_key, altered_ids_by_gene, id_order, gene_order) {
 		if (id_order) {
-		    this.user_specified_order = id_order;
+		    oncoprint.setSortConfig({'type':'order', 'order':id_order});
 		} else {
-		    this.user_specified_order = null;
+		    oncoprint.setSortConfig({'type': 'tracks'});
 		}
 		
 		LoadingBar.show();
@@ -1758,6 +1759,24 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 			oncoprint.setTrackData(track_id, data_by_gene[gene], id_key);
 			oncoprint.setTrackInfo(track_id, altered_percentage_by_gene[gene] + '%');
 			LoadingBar.update(tracks_done / tracks_total);
+		    }
+		}
+		
+		if (gene_order) {
+		    var gene_to_track = {};
+		    for (var track_id in this.genetic_alteration_tracks) {
+			if (this.genetic_alteration_tracks.hasOwnProperty(track_id)) {
+			    gene_to_track[this.genetic_alteration_tracks[track_id]] = parseInt(track_id,10);
+			}
+		    }
+		    for (var i=0; i<gene_order.length; i++) {
+			var gene = gene_order[i];
+			if (i === 0) {
+			    oncoprint.moveTrack(gene_to_track[gene], null);
+			} else {
+			    var prev_gene = gene_order[i-1];
+			    oncoprint.moveTrack(gene_to_track[gene], gene_to_track[prev_gene]);
+			}
 		    }
 		}
 		oncoprint.keepSorted();
@@ -2104,7 +2123,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 	    });
 	})();
     })();
-    return function(data_by_gene, id_key, altered_ids_by_gene, id_order) {
-	State.setData(data_by_gene, id_key, altered_ids_by_gene, id_order);
+    return function(data_by_gene, id_key, altered_ids_by_gene, id_order, gene_order) {
+	State.setData(data_by_gene, id_key, altered_ids_by_gene, id_order, gene_order);
     };
 }

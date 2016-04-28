@@ -58,6 +58,9 @@ module.exports = {
     polygon: function(points, fill) {
 	return makeSVGElement('polygon', {'points': points, 'fill':fill});
     },
+    rect: function(x,y,width,height,fill) {
+	return makeSVGElement('rect', {'x':x, 'y':y, 'width':width, 'height':height, 'fill':fill});
+    },
     bgrect: function(width, height, fill) {
 	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});
     }

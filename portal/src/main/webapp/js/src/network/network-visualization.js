@@ -35,6 +35,52 @@ function NetworkVis(divId)
     // div id for the network vis html content
     this.divId = divId;
 
+    // edge type constants
+    this.edgeTypeConstants =
+    {
+      CONTROLS_STATE_CHANGE_OF :             { name: "controls-state-change-of",        color: '#5F77D4' , desc: 'Controls State Change of'},
+      CONTROLS_TRANSPORT_OF :                { name: "controls-transport-of",           color: '#e96e6e' , desc: 'Controls Transport of'},
+      CONTROLS_PHOSPHORYLATION_OF :          { name: "controls-phosphorylation-of",     color: '#A8AD6F' , desc: 'Controls Phosphorylation of'},
+      CONTROLS_EXPRESSION_OF :               { name: "controls-expression-of",          color: '#62B36D' , desc: 'Controls Expression of'},
+      CATALYSIS_PRECEDES :                   { name: "catalysis-precedes",              color: '#4F4F8F' , desc: 'Catalysis Precedes'},
+      CONSUMPTION_CONTROLED_BY :             { name: "consumption-controled-by",        color: '#359C96' , desc: 'Consumption Controled by'},
+      CONTROLS_PRODUCTION_OF :               { name: "controls-production-of",          color: '#397187' , desc: 'Controls Production of'},
+      CONTROLS_TRANSPORT_OF_CHEMICAL :       { name: "controls-transport-of-chemical",  color: '#A968D9' , desc: 'Controls Transport of Chemical'},
+      USED_TO_PRODUCE :                      { name: "used-to-produce",                 color: '#8F4A86' , desc: 'Used to Produce'},
+      CHEMICAL_AFFECTS :                     { name: "chemical-affects",                color: '#8A8262' , desc: 'Chemical Affects'},
+      IN_COMPLEX_WITH :                      { name: "in-complex-with",                 color: '#825E51' , desc: 'In Complex With'},
+      INTERACTS_WITH :                       { name: "interacts-with",                  color: '#6AB0CC' , desc: 'Interacts With'},
+      NEIGHBOR_OF :                          { name: "neighbor-of",                     color: '#AB5471' , desc: 'Neighbor of'},
+      REACTS_WITH :                          { name: "reacts-with",                     color: '#B2D180' , desc: 'Reacts With'},
+      DRUG_TARGET :                          { name: "DRUG_TARGET",                     color: '#CCAB5A' , desc: 'Targeted by Drug'},
+      OTHER :                                { name: "other",                           color: '#999999' , desc: 'Other'},
+    };
+
+    //
+    this.visibilityOfType =
+    {
+      CONTROLS_STATE_CHANGE_OF : true,
+      CONTROLS_TRANSPORT_OF :false,
+      CONTROLS_PHOSPHORYLATION_OF :false,
+      CONTROLS_EXPRESSION_OF :true,
+      CATALYSIS_PRECEDES : false,
+      CONSUMPTION_CONTROLED_BY :false,
+      CONTROLS_PRODUCTION_OF : false,
+      CONTROLS_TRANSPORT_OF_CHEMICAL : false,
+      USED_TO_PRODUCE :false,
+      CHEMICAL_AFFECTS :false,
+      IN_COMPLEX_WITH :true,
+      INTERACTS_WITH :false,
+      NEIGHBOR_OF :false,
+      REACTS_WITH :false,
+      DRUG_TARGET :false,
+      OTHER :false
+    };
+
+    //
+    this.visibilityOfSource ={};
+    this.percentageFilterMap = {};
+
     // relative selectors for the given div id
     this.edgeInspectorSelector = this._createEdgeInspector(divId);
     this.geneLegendSelector = this._createGeneLegend(divId);
@@ -53,8 +99,8 @@ function NetworkVis(divId)
     this.drugFilterSelector = "#" + this.divId + " #drop_down_select";
 
     // flags
-    this._autoLayout = false;
-    this._removeDisconnected = false;
+    this._autoLayout = true;
+    this._removeDisconnected = true;
     this._nodeLabelsVisible = false;
     this._edgeLabelsVisible = false;
     this._panZoomVisible = false;
@@ -65,12 +111,6 @@ function NetworkVis(divId)
     // array of control functions
     this._controlFunctions = null;
 
-    // edge type constants
-    this.IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
-    this.REACTS_WITH = "REACTS_WITH";
-    this.STATE_CHANGE = "STATE_CHANGE";
-    this.DRUG_TARGET = "DRUG_TARGET";
-    this.OTHER = "OTHER";
 
     // node type constants
     this.PROTEIN = "Protein";
@@ -180,13 +220,10 @@ NetworkVis.prototype.initNetworkUI = function(vis)
     this._maxAlterationPercent = this._maxAlterValNonSeed(this._geneWeightMap);
 
     this._resetFlags();
-
-    this._initControlFunctions();
-    this._initLayoutOptions();
-
+    //Toggle auto layout initially so that initial additional layout is prevented !
+    this._toggleAutoLayout();
     this._initMainMenu();
 
-    this._initDialogs();
     this._initPropsUI();
     this._initSliders();
     this._initDropDown();
@@ -196,7 +233,8 @@ NetworkVis.prototype.initNetworkUI = function(vis)
     // a tab other than the Network tab
 
     var self = this;
-
+    this._createMergingEdges();
+    this._toggleMerge();
     var hideDialogs = function(evt, ui){
         self.hideDialogs(evt, ui);
     };
@@ -214,21 +252,32 @@ NetworkVis.prototype.initNetworkUI = function(vis)
         {defaultPosition: "top", delay:"100", edgeOffset: 10, maxWidth: 200});
 
     this._initGenesTab();
+    this._initRelationsTab();
     this._refreshGenesTab();
     this._refreshRelationsTab();
+    this._refreshRelationsTabUIVisibility();
+
+    //Since edge sources and types are dynamic create pop-ups here !
+    this.interactionSourceVisibilitySelector = this._createInteractionSourceVisibilityWindow(this.divId);
+    this.interactionTypeVisibilitySelector = this._createInteractionTypeVisibilityWindow(this.divId);
+    this._initDialogs();
+
+
+    this._initControlFunctions();
+    this._initLayoutOptions();
 
     // adjust things for IE
     this._adjustIE();
 
     // make UI visible
     this._setVisibility(true);
-    this._createMergingEdges();
-    this._toggleMerge();
     $(".layout-properties").css("width", "85px");
 
+    this.updateEdges();
     //Make interactions merged initially
-    this._toggleMerge();
+    //this._toggleMerge();
 };
+
 
 NetworkVis.prototype._createMergingEdges = function()
 {
@@ -305,6 +354,23 @@ NetworkVis.prototype._createMergingEdges = function()
     this.edgesToBeMerged = this._vis.edges("[mergeStatus='toBeMerged']");
 }
 
+/**
+* Hides interaction source popup
+ */
+NetworkVis.prototype._closeInteractionSourcePopUp = function ()
+{
+  this.updateEdges();
+  $(this.interactionSourceVisibilitySelector).dialog('close');
+}
+
+/**
+ * Hides interaction type popup
+ */
+NetworkVis.prototype._closeInteractionTypePopUp = function ()
+{
+  this.updateEdges();
+  $(this.interactionTypeVisibilitySelector).dialog('close');
+}
 
 /**
  * Hides all dialogs upon selecting a tab other than the network tab.
@@ -320,6 +386,9 @@ NetworkVis.prototype.hideDialogs = function (evt, ui)
     $(this.geneLegendSelector).dialog("close");
     $(this.drugLegendSelector).dialog("close");
     $(this.edgeLegendSelector).dialog("close");
+    $(this.interactionTypeVisibilitySelector).dialog("close");
+    $(this.interactionSourceVisibilitySelector).dialog("close");
+
 };
 
 /**
@@ -369,6 +438,55 @@ NetworkVis.prototype.updateSelectedGenes = function(evt)
     // reset flag
     this._selectFromTab = false;
 };
+
+NetworkVis.prototype._selectAll_InteractionTypeVisibility = function()
+{
+  for (var key in this.edgeTypeConstants)
+  {
+      //If the percentage of interaction is not 0 !
+      if (!this.percentageFilterMap[key])
+      {
+        $(this.interactionTypeVisibilitySelector + " #"+this.edgeTypeConstants[key].name+'_check').attr('checked', true);
+        this.visibilityOfType[key] = true;
+      }
+
+  }
+  this._refreshRelationsTabUIVisibility();
+}
+
+NetworkVis.prototype._unselectAll_InteractionTypeVisibility = function()
+{
+  for (var key in this.edgeTypeConstants)
+  {
+    //If the percentage of interaction is not 0 !
+    if (!this.percentageFilterMap[key])
+    {
+      $(this.interactionTypeVisibilitySelector + " #"+this.edgeTypeConstants[key].name+'_check').removeAttr('checked');
+      this.visibilityOfType[key] = false;
+    }
+  }
+  this._refreshRelationsTabUIVisibility();
+}
+
+NetworkVis.prototype._selectAll_InteractionSourceVisibility = function()
+{
+  for (var key in this._edgeSourceVisibility)
+  {
+      $(this.interactionSourceVisibilitySelector + " #"+key+'_check').attr('checked', true);
+      this.visibilityOfSource[key] = true;
+  }
+  this._refreshRelationsTabUIVisibility();
+}
+
+NetworkVis.prototype._unselectAll_InteractionSourceVisibility = function()
+{
+  for (var key in this._edgeSourceVisibility)
+  {
+      $(this.interactionSourceVisibilitySelector + " #"+key+'_check').removeAttr('checked');
+      this.visibilityOfSource[key] = false;
+  }
+  this._refreshRelationsTabUIVisibility();
+}
 
 /**
  * Saves layout settings when clicked on the "Save" button of the
@@ -541,7 +659,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
     {
         //$(self.detailsTabSelector + " div").empty();
         $(self.detailsTabSelector + " .error").append(
-            "Currently there is no selected node/edge. Please, select a node to see details.");
+            "Currently there is no selected node/edge. Please, select a node/edge to see details.");
         $(self.detailsTabSelector + " .error").show();
         return;
     }
@@ -622,14 +740,23 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
     //this.createEdgeDetailsSelector(selector);
     var dataRow;
 
-    var data = (selectType == "click") ? (evt.cyTarget._private.data) : (evt.cyTarget._private.data);
+    var data = (evt.cyTarget._private.data);
 
-    // clean xref & data rows
-    $(selector + " .edge_inspector_content .data .data-row").remove();
-    $(selector + " .edge_inspector_content .xref .xref-row").remove();
+    // clean inspector view here !
+    $(selector + " .edge-inspector-content").empty();
+    var edgeType = data.type;
+    var sourceLabel = this._vis.nodes('#' + data.source).data().label;
+    var targetLabel = this._vis.nodes('#' + data.target).data().label;
+    var self = this;
 
-    var title = this._vis.nodes('#' + data.source)[0]._private.data.label + " - " +
-        this._vis.nodes('#' + data.target)[0]._private.data.label;
+    var showSBGNViewButton = $('<button/>',
+    {
+        "class": "SBGNPopUpButton",
+        text: 'Detailed process (SBGN)',
+        click: function () { self.popUpSBGNView(sourceLabel, targetLabel, edgeType) }
+    });
+
+    var title =  sourceLabel + " - " + targetLabel;
 
         //TODO When merge is implemented
     if (evt.cyTarget._private.data.mergeStatus != undefined && evt.cyTarget._private.data.mergeStatus === "merged")
@@ -672,8 +799,8 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
 
             // add edge data
             dataRow = this._addDataRow2("edge",
-                        "Source",
-                        data["INTERACTION_DATA_SOURCE"],
+                        "Source(s)",
+                        (data["INTERACTION_DATA_SOURCE"]).replace(/;/g, ', '),
                         this.TOP_ROW_CLASS);
             $(selector + " .edge-inspector-content").append(dataRow);
 
@@ -715,7 +842,9 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
         $(selector + " .edge-inspector-content").append(
                 '<tr align="left" class="empty-row data-row"><td> </td></tr>');
 
-        dataRow = this._addDataRow2("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
+        dataRow = this._addDataRow2("edge",
+                                    "Source(s)",
+                                    (data["INTERACTION_DATA_SOURCE"]).replace(/;/g, ', '));
         $(selector + " .edge-inspector-content").append(dataRow);
         dataRow = this._addDataRow2("edge", "Type", _toTitleCase(data["type"]));
         $(selector + " .edge-inspector-content").append(dataRow);
@@ -726,6 +855,11 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
             $(selector + " .edge-inspector-content").append(dataRow);
         }
     }
+
+    //Finally append sbgn view button
+    $(selector + " .edge-inspector-content").append(showSBGNViewButton);
+
+
 
     //$(selector).show();
 }
@@ -1113,6 +1247,7 @@ NetworkVis.prototype.filterSelectedGenes = function()
     this._vis.nodes().forEach(function( ele ){
         if (selectionVisibility(ele) === false || ele._private.style.visibility.strValue == 'hidden'){
           ele.css('visibility', 'hidden');
+          ele.unselect();
           ele._private.selectable = false;
         }
         else{
@@ -1126,6 +1261,7 @@ NetworkVis.prototype.filterSelectedGenes = function()
 
     // refresh genes tab
     this._refreshGenesTab();
+
 
     // visualization changed, perform layout if necessary
     this._visChanged();
@@ -1148,13 +1284,14 @@ NetworkVis.prototype.filterNonSelected = function()
 
     // filter out non-selected elements
     this._vis.nodes().forEach(function( ele ){
-        if (geneVisibility(ele) === false){
+        if (geneVisibility(ele) === false)
+        {
           ele.css('visibility', 'hidden');
           ele._private.selectable = false;
         }
-        else{
+        else
+        {
           ele._private.selectable = true;
-
           ele.css('visibility', 'visible');
         }
     });
@@ -1177,25 +1314,14 @@ NetworkVis.prototype.updateEdges = function()
 {
     // update filtered edge types
 
-    this._edgeTypeVisibility[this.IN_SAME_COMPONENT] =
-        $(this.relationsTabSelector + " #in_same_component_check").is(":checked");
-
-    this._edgeTypeVisibility[this.REACTS_WITH] =
-        $(this.relationsTabSelector + " #reacts_with_check").is(":checked");
-
-    this._edgeTypeVisibility[this.STATE_CHANGE] =
-        $(this.relationsTabSelector + " #state_change_check").is(":checked");
-
-    this._edgeTypeVisibility[this.DRUG_TARGET] =
-        $(this.relationsTabSelector + " #targeted_by_drug_check").is(":checked");
-
-    this._edgeTypeVisibility[this.OTHER] =
-        $(this.relationsTabSelector + " #other_check").is(":checked");
+    for (var key in this.edgeTypeConstants)
+    {
+      this._edgeTypeVisibility[this.edgeTypeConstants[key].name] = this.visibilityOfType[key];
+    }
 
     for (var key in this._edgeSourceVisibility)
     {
-        this._edgeSourceVisibility[key] =
-            $(this.relationsTabSelector + " #" + _safeProperty(key) + "_check").is(":checked");
+        this._edgeSourceVisibility[key] = this.visibilityOfSource[key];
     }
 
     // remove previous node filters due to disconnection
@@ -1225,6 +1351,7 @@ NetworkVis.prototype.updateEdges = function()
     this._vis.nodes().forEach(function( ele ){
         if (showAllNodeVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele.unselect();
           ele._private.selectable=false;
         }
         else {
@@ -1233,6 +1360,7 @@ NetworkVis.prototype.updateEdges = function()
         }
     });
 
+
     // remove current edge filters
     //_vis.removeFilter("edges", false);
 
@@ -1240,13 +1368,25 @@ NetworkVis.prototype.updateEdges = function()
     this._vis.edges().forEach(function( ele ){
         if (edgeVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele.unselect();
           ele._private.selectable=false;
-
         }
         else {
           ele.css('visibility', 'visible');
           ele._private.selectable=true;
 
+        }
+    });
+
+    this.edgesToBeMerged.forEach(function( ele ){
+        if (edgeVisibility(ele) === false){
+          ele.css('visibility', 'hidden');
+          ele._private.selectable=false;
+          ele.unselect();
+        }
+        else {
+          ele.css('visibility', 'visible');
+          ele._private.selectable=true;
         }
     });
 
@@ -1322,17 +1462,30 @@ NetworkVis.prototype.edgeVisibility = function(element)
         typeVisible = this._edgeTypeVisibility[element._private.data.type];
     }
 
-    var source = element._private.data['INTERACTION_DATA_SOURCE'];
 
-    if (this._edgeSourceVisibility[source] != null)
+    if(element._private.data['INTERACTION_DATA_SOURCE'] == null)
+    	return;
+
+    var sources = (element._private.data['INTERACTION_DATA_SOURCE']).split(';');
+
+
+    for (var i = 0; i < sources.length; i++)
     {
-        sourceVisible = this._edgeSourceVisibility[source];
-    }
-    else
-    {
-        // no source specified, check the unknown flag
-        sourceVisible = this._edgeSourceVisibility[this.UNKNOWN];
-    }
+          if (this._edgeSourceVisibility[sources[i]] != null)
+          {
+              sourceVisible = this._edgeSourceVisibility[sources[i]];
+              if (!sourceVisible)
+              {
+                continue;
+              }
+          }
+          else
+          {
+              // no source specified, check the unknown flag
+              sourceVisible = this._edgeSourceVisibility[this.UNKNOWN];
+          }
+      }
+
 
     return (visible && typeVisible && sourceVisible);
 };
@@ -1433,7 +1586,6 @@ NetworkVis.prototype.dropDownVisibility = function(element)
             this._filteredByDropDown[element._private.data.id] = element;
             this._alreadyFiltered[element._private.data.id] = element;
         }
-
     }
 
     return visible;
@@ -1802,6 +1954,23 @@ NetworkVis.prototype._showEdgeLegend = function()
 };
 
 /**
+ * Displays the pop-up window in a separate panel.
+ */
+NetworkVis.prototype._showInteractionTypeVisibility = function()
+{
+
+    $(this.interactionTypeVisibilitySelector).dialog("open");
+};
+
+/**
+ * Displays the edge legend in a separate panel.
+ */
+NetworkVis.prototype._showInteractionSourceVisibility = function()
+{
+    $(this.interactionSourceVisibilitySelector).dialog("open");
+};
+
+/**
  * Adds a data row to the node or edge inspector.
  *
  * @param selector  node or edge inspector selector (div id)
@@ -1898,8 +2067,8 @@ NetworkVis.prototype._resolveXref = function(xref)
  */
 NetworkVis.prototype._resetFlags = function()
 {
-    this._autoLayout = false;
-    this._removeDisconnected = false;
+    this._autoLayout = true;
+    this._removeDisconnected = true;
     this._nodeLabelsVisible = true;
     this._edgeLabelsVisible = false;
     this._panZoomVisible = true;
@@ -2049,12 +2218,19 @@ NetworkVis.prototype._edgeTypeArray = function()
 {
     var typeArray = {};
 
-    // by default every edge type is visible
-    typeArray[this.IN_SAME_COMPONENT] = true;
-    typeArray[this.REACTS_WITH] = true;
-    typeArray[this.STATE_CHANGE] = true;
-    typeArray[this.DRUG_TARGET] = true;
-    typeArray[this.OTHER] = true;
+    var edges = this._vis.edges();
+
+    for (var i = 0; i < edges.length; i++)
+    {
+       if(edges[i]._private.data.type != null)
+       {
+            var type = edges[i]._private.data.type.toUpperCase();
+            type = type.replace(/-/g, '_');
+            // by default every edge type is visible
+            typeArray[type] = true;
+            //this.visibilityOfType[type] = true;
+        }
+    }
 
     return typeArray;
 };
@@ -2075,18 +2251,26 @@ NetworkVis.prototype._edgeSourceArray = function()
 
     for (var i = 0; i < edges.length; i++)
     {
-        source = edges[i]._private.data.INTERACTION_DATA_SOURCE;
+    	if(edges[i]._private.data.INTERACTION_DATA_SOURCE != null)
+    	{
+            sources = (edges[i]._private.data.INTERACTION_DATA_SOURCE).split(';');
 
-        if (source != null
-            && source != "")
-        {
-            // by default every edge source is visible
-            sourceArray[source] = true;
-        }
+            if (sources != null)
+            {
+                for (var j = 0; j < sources.length; j++)
+                {
+                  // by default every edge source is visible
+                  sourceArray[sources[j]] = true;
+                  this.visibilityOfSource[sources[j]] = true;
+                }
+            }
+    	}
+
     }
 
     // also set a flag for unknown (undefined) sources
     sourceArray[this.UNKNOWN] = true;
+    this.visibilityOfSource[this.UNKNOWN] = true;
 
     return sourceArray;
 };
@@ -2320,6 +2504,7 @@ NetworkVis.prototype._updateMenuCheckIcons = function()
  */
 NetworkVis.prototype._initDialogs = function()
 {
+    var self = this;
     // adjust settings panel
     $(this.settingsDialogSelector).dialog({autoOpen: false,
                                      resizable: false,
@@ -2334,7 +2519,7 @@ NetworkVis.prototype._initDialogs = function()
     // adjust node legend
     $(this.geneLegendSelector).dialog({autoOpen: false,
                                  resizable: false,
-                                 width: 440});
+                                 width: 500});
 
     // adjust drug legend
     $(this.drugLegendSelector).dialog({autoOpen: false,
@@ -2344,8 +2529,19 @@ NetworkVis.prototype._initDialogs = function()
     // adjust edge legend
     $(this.edgeLegendSelector).dialog({autoOpen: false,
                                  resizable: false,
-                                 width: 280,
-                                 height: 152});
+                                 width: 400});
+
+    //adjust edge typ2 UI visibility dialog
+    $(this.interactionTypeVisibilitySelector).dialog({autoOpen: false,
+                                   resizable: false,
+                                   width: 300,
+                                   close: function( event, ui ) {self._closeInteractionTypePopUp()}});
+
+   //adjust edge source UI visibility dialog
+   $(this.interactionSourceVisibilitySelector).dialog({autoOpen: false,
+                                  resizable: false,
+                                  width: 300,
+                                  close: function( event, ui ) {self._closeInteractionSourcePopUp()}});
 };
 
 /**
@@ -2564,7 +2760,6 @@ NetworkVis.prototype._filterByDropDown = function()
 
     // visualization changed, perform layout if necessary
     this._visChanged();
-
 };
 
 /**
@@ -2603,6 +2798,7 @@ NetworkVis.prototype._filterBySlider = function()
     this._vis.nodes().forEach(function( ele ){
         if (sliderVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele.unselect();
           ele._private.selectable = false;
         }
         else{
@@ -2825,8 +3021,8 @@ NetworkVis.prototype._initGenesTab = function()
     $(this.genesTabSelector + " #search_genes").button({icons: {primary: 'ui-icon-search'},
                                   text: false});
 
-    $(this.relationsTabSelector + " #update_edges").button({icons: {primary: 'ui-icon-refresh'},
-                                  text: false});
+    /*$(this.relationsTabSelector + " #update_edges").button({icons: {primary: 'ui-icon-refresh'},
+                                  text: false});*/
 
     // re-submit button is initially disabled
     $(this.genesTabSelector + " #re-submit_query").button({icons: {primary: 'ui-icon-play'},
@@ -2942,6 +3138,106 @@ NetworkVis.prototype._refreshGenesTab = function()
     }
 };
 
+
+
+/**
+ * Refreshes the content of the relations tab, by calculating percentages for
+ * each edge type.
+ */
+NetworkVis.prototype._refreshRelationsTabUIVisibility = function()
+{
+    //Hide interaction type data from UI if it is selected to be !
+    for (var key in this.visibilityOfType)
+    {
+      if (this.visibilityOfType[key] && !this.percentageFilterMap[key])
+      {
+          // do not display OTHER if its percentage is zero
+          this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), true);
+
+          // also do not display it in the edge legend
+          //_setComponentVis($("#edge_legend .other"), false);
+      }
+      else
+      {
+          this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), false);
+          //_setComponentVis($("#edge_legend .other"), true);
+      }
+    }
+
+    //Hide interaction source data from UI if it is selected to be !
+    for (var key in this.visibilityOfSource)
+    {
+      if (this.visibilityOfSource[key])
+      {
+          // do not display OTHER if its percentage is zero
+          this._setComponentVis($(this.relationsTabSelector + " ."+ key), true);
+
+          // also do not display it in the edge legend
+          //_setComponentVis($("#edge_legend .other"), false);
+      }
+      else
+      {
+          this._setComponentVis($(this.relationsTabSelector + " ."+ key), false);
+          //_setComponentVis($("#edge_legend .other"), true);
+      }
+    }
+}
+/**
+ * Initializes the content of the relations tab, by adding content according to
+ * interaction types and sources.
+ */
+NetworkVis.prototype._initRelationsTab = function()
+{
+  $(this.relationsTabSelector + " #edge_type_filter").empty();
+  $(this.relationsTabSelector + " #edge_source_filter").empty();
+
+  $(this.relationsTabSelector + " #edge_type_filter").append('<tr class="edge-type-header">\
+      <td>\
+        <label class="heading">Type:</label>\
+      </td>\
+    </tr>');
+
+  for (var key in this.edgeTypeConstants)
+  {
+    $(this.relationsTabSelector + " #edge_type_filter").append
+    (
+      '<tr  class="'+this.edgeTypeConstants[key].name +'">\
+        <td class="edge-type-checkbox" style="padding-left: 10px;">\
+          <label>'+this.edgeTypeConstants[key].desc +'</label>\
+        </td>\
+      </tr>\
+      <tr class="'+this.edgeTypeConstants[key].name+'">\
+        <td style="padding-left: 10px;">\
+          <div class="percent-bar"></div>\
+        </td>\
+        <td style="padding-left: 10px;">\
+          <div class="percent-value"></div>\
+        </td>\
+      </tr>'
+    );
+  }
+
+  $(this.relationsTabSelector + " #edge_type_filter").append('<tr><td><button id="showInteractionTypeVisibilityUI" style="margin-top: 10px; margin-bottom: 20px;" type="button">Modify...</button></td></tr>');
+
+  // add source filtering options
+  $(this.relationsTabSelector + " #edge_source_filter").append('<tr class="edge-source-header">\
+  		<td>\
+  			<label class="heading">Source:</label>\
+  		</td>\
+  	</tr>');
+
+  for (var key in this._edgeSourceVisibility)
+  {
+      $(this.relationsTabSelector + " #edge_source_filter").append(
+          '<tr class="' + _safeProperty(key) + '">' +
+          '<td class="edge-source-checkbox" style="padding-left: 10px;">' +
+          '<label>' + key + '</label>' +
+          '</td></tr>');
+  }
+
+  $(this.relationsTabSelector + " #edge_source_filter").append('<tr><td><button id="showInteractionSourceVisibilityUI" style="margin-top: 10px" type="button">Modify...</button></td></tr>');
+}
+
 /**
  * Refreshes the content of the relations tab, by calculating percentages for
  * each edge type.
@@ -2953,110 +3249,58 @@ NetworkVis.prototype._refreshRelationsTab = function()
     // initialize percentages of each edge type
     var percentages = {};
 
-    percentages[this.IN_SAME_COMPONENT] = 0;
-    percentages[this.REACTS_WITH] = 0;
-    percentages[this.STATE_CHANGE] = 0;
-    percentages[this.DRUG_TARGET] = 0;
+    //Init all percentages according to edgeType
+    for (var key in this.edgeTypeConstants)
+    {
+      percentages[this.edgeTypeConstants[key].name] = 0;
+    }
 
     // for each edge increment count of the correct edge type
     for (var i=0; i < edges.length; i++)
     {
-        percentages[edges[i]._private.data.type] += 1;
+    	percentages[edges[i]._private.data.type] += 1;
     }
 
-    percentages[this.OTHER] = edges.length -
-                         (percentages[this.IN_SAME_COMPONENT] +
-                          percentages[this.REACTS_WITH] +
-                          percentages[this.STATE_CHANGE] +
-                          percentages[this.DRUG_TARGET]);
 
-    if (percentages[this.OTHER] == 0)
+    //Hide interaction types with 0 percent !
+    for (var key in this.edgeTypeConstants)
     {
-        // do not display OTHER if its percentage is zero
-        this._setComponentVis($(this.relationsTabSelector + " .other"), false);
-
-        // also do not display it in the edge legend
-        //_setComponentVis($("#edge_legend .other"), false);
-    }
-    else
-    {
-        this._setComponentVis($(this.relationsTabSelector + " .other"), true);
-        //_setComponentVis($("#edge_legend .other"), true);
+      if (percentages[this.edgeTypeConstants[key].name] === 0)
+      {
+          // do not display OTHER if its percentage is zero
+          this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), false);
+          this.percentageFilterMap[key] = true;
+          // also do not display it in the edge legend
+          //_setComponentVis($("#edge_legend .other"), false);
+      }
+      else
+      {
+          this._setComponentVis($(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name), true);
+          this.percentageFilterMap[key] = false;
+          //_setComponentVis($("#edge_legend .other"), true);
+      }
     }
 
     // calculate percentages and add content to the tab
-
     var percent;
 
-    percent = (percentages[this.IN_SAME_COMPONENT] * 100 / edges.length);
+    for (var key in this.edgeTypeConstants)
+    {
+      percent = (percentages[this.edgeTypeConstants[key].name] * 100 / edges.length);
 
-    $(this.relationsTabSelector + " .in-same-component .percent-bar").css(
-        "width", Math.ceil(percent * 0.85) + "%");
+      $(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name +" .percent-bar").css(
+          "width", Math.ceil(percent * 0.85) + "%");
 
-    $(this.relationsTabSelector + " .in-same-component .percent-bar").css(
-        "background-color", "#904930");
+      $(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name +" .percent-bar").css(
+          "background-color", this.edgeTypeConstants[key].color);
 
-    $(this.relationsTabSelector + " .in-same-component .percent-value").text(
-        percent.toFixed(1) + "%");
-
-    percent = (percentages[this.DRUG_TARGET] * 100 / edges.length);
-
-    $(this.relationsTabSelector + " .targeted-by-drug .percent-bar").css(
-        "width", Math.ceil(percent * 0.85) + "%");
-
-    $(this.relationsTabSelector + " .targeted-by-drug .percent-bar").css(
-        "background-color", "#E6A90F");
-
-    $(this.relationsTabSelector + " .targeted-by-drug .percent-value").text(
-        percent.toFixed(1) + "%");
-
-    percent = (percentages[this.REACTS_WITH] * 100 / edges.length);
-
-    $(this.relationsTabSelector + " .reacts-with .percent-bar").css(
-        "width", Math.ceil(percent * 0.85) + "%");
-
-    $(this.relationsTabSelector + " .reacts-with .percent-bar").css(
-        "background-color", "#7B7EF7");
-
-    $(this.relationsTabSelector + " .reacts-with .percent-value").text(
-        percent.toFixed(1) + "%");
-
-    percent = (percentages[this.STATE_CHANGE] * 100 / edges.length);
-
-    $(this.relationsTabSelector + " .state-change .percent-bar").css(
-        "width", Math.ceil(percent * 0.85) + "%");
-
-    $(this.relationsTabSelector + " .state-change .percent-bar").css(
-        "background-color", "#67C1A9");
-
-    $(this.relationsTabSelector + " .state-change .percent-value").text(
-        percent.toFixed(1) + "%");
-
-    percent = (percentages[this.OTHER] * 100 / edges.length);
-
-    $(this.relationsTabSelector + " .other .percent-bar").css(
-        "width", Math.ceil(percent * 0.85) + "%");
-
-    $(this.relationsTabSelector + " .other .percent-bar").css(
-        "background-color", "#A583AB");
-
-    $(this.relationsTabSelector + " .other .percent-value").text(
-        percent.toFixed(1) + "%");
+      $(this.relationsTabSelector + " ."+ this.edgeTypeConstants[key].name +" .percent-value").text(
+          percent.toFixed(1) + "%");
+    }
 
     // TODO remove old source filters?
     //$(this.relationsTabSelector + " #edge_source_filter tr").remove();
 
-    // add source filtering options
-
-    for (var key in this._edgeSourceVisibility)
-    {
-        $(this.relationsTabSelector + " #edge_source_filter").append(
-            '<tr class="' + _safeProperty(key) + '">' +
-            '<td class="edge-source-checkbox">' +
-            '<input id="' + key + '_check" type="checkbox" checked="checked">' +
-            '<label>' + key + '</label>' +
-            '</td></tr>');
-    }
 
     // <tr class="unknown">
     //      <td class="edge-source-checkbox">
@@ -3205,6 +3449,38 @@ NetworkVis.prototype._initControlFunctions = function()
         self.handleMenuEvent(evt.target.id);
     };
 
+    var showInteractionTypeVisibility = function () {
+        self._showInteractionTypeVisibility();
+    };
+
+    var showInteractionSourceVisibility = function () {
+        self._showInteractionSourceVisibility();
+    };
+
+    var closeInteractionTypePopUp = function () {
+        self._closeInteractionTypePopUp();
+    };
+
+    var closeInteractionSourcePopUp = function () {
+        self._closeInteractionSourcePopUp();
+    };
+
+    var selectAll_InteractionTypeVisibility = function () {
+        self._selectAll_InteractionTypeVisibility();
+    };
+
+    var unselectAll_InteractionTypeVisibility = function () {
+        self._unselectAll_InteractionTypeVisibility();
+    };
+
+    var selectAll_InteractionSourceVisibility = function () {
+        self._selectAll_InteractionSourceVisibility();
+    };
+
+    var unselectAll_InteractionSourceVisibility = function () {
+        self._unselectAll_InteractionSourceVisibility();
+    };
+
     this._controlFunctions = {};
 
     //_controlFunctions["hide_selected"] = _hideSelected;
@@ -3246,7 +3522,45 @@ NetworkVis.prototype._initControlFunctions = function()
     $(this.genesTabSelector + " #unhide_genes").click(unhideAll);
     $(this.genesTabSelector + " #re-submit_query").click(reRunQuery);
 
-    $(this.relationsTabSelector + " #update_edges").click(updateEdges);
+    /*$(this.relationsTabSelector + " #update_edges").click(updateEdges);*/
+
+    $('#showInteractionTypeVisibilityUI').click(showInteractionTypeVisibility);
+    $('#showInteractionSourceVisibilityUI').click(showInteractionSourceVisibility);
+
+
+    $(this.interactionTypeVisibilitySelector + ' input').change
+    (
+      function()
+      {
+        var isChecked = $(this).is(':checked');
+        var key = $(this).attr('id').substr(0, $(this).attr('id').lastIndexOf('_')).replace(/-/g, '_');
+        key = key.toUpperCase();
+        self.visibilityOfType[key] = isChecked;
+        self._edgeTypeVisibility[self.edgeTypeConstants[key].name] = isChecked;
+        self._refreshRelationsTabUIVisibility();
+      }
+    );
+
+    $(this.interactionSourceVisibilitySelector + ' input').change
+    (
+      function()
+      {
+        var isChecked = $(this).is(':checked');
+        var key = $(this).attr('id').substr(0, $(this).attr('id').indexOf('_'));
+        self.visibilityOfSource[key] = isChecked;
+        self._edgeSourceVisibility[key] = isChecked;
+        self._refreshRelationsTabUIVisibility();
+      }
+    );
+
+    $(this.interactionTypeVisibilitySelector + " #close_InteractionTypeVisibilityButton").click(closeInteractionTypePopUp);
+    $(this.interactionTypeVisibilitySelector + " #selectAll_InteractionTypeVisibilityButton").click(selectAll_InteractionTypeVisibility);
+    $(this.interactionTypeVisibilitySelector + " #unselectAll_InteractionTypeVisibilityButton").click(unselectAll_InteractionTypeVisibility);
+
+    $(this.interactionSourceVisibilitySelector + " #close_InteractionSourceVisibilityButton").click(closeInteractionSourcePopUp);
+    $(this.interactionSourceVisibilitySelector + " #selectAll_InteractionSourceVisibilityButton").click(selectAll_InteractionSourceVisibility);
+    $(this.interactionSourceVisibilitySelector + " #unselectAll_InteractionSourceVisibilityButton").click(unselectAll_InteractionSourceVisibility);
+
 
     // add listener for double click action
 
@@ -3307,6 +3621,7 @@ NetworkVis.prototype._hideSelected = function()
     this._vis.elements().forEach(function( ele ){
         if (selectionVisibility(ele) === false || ele._private.style.visibility.strValue == 'hidden'){
           ele.css('visibility', 'hidden');
+          self._vis.elements(':selected').unselect();
           ele._private.selectable = false;
         }
         else{
@@ -3489,12 +3804,12 @@ NetworkVis.prototype._togglePanZoom = function()
     if (this._panZoomVisible)
     {
         item.addClass(this.CHECKED_CLASS);
-        $('.ui-cytoscape-panzoom').css('visibility', 'visible');
+        $('.cy-panzoom').css('visibility', 'visible');
     }
     else
     {
         item.removeClass(this.CHECKED_CLASS);
-        $('.ui-cytoscape-panzoom').css('visibility', 'hidden');
+        $('.cy-panzoom').css('visibility', 'hidden');
     }
 
 };
@@ -3946,6 +4261,119 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
 
     return "#" + id;
 };
+
+NetworkVis.prototype._createInteractionSourceVisibilityWindow = function(divId)
+{
+  var id = "interactionSource_visibility" + divId;
+
+  var table = "";
+
+  for (var key in this._edgeSourceVisibility)
+  {
+      var checkedOrNot = ((this.visibilityOfSource[key] === true) ? 'checked' : '');
+      table += '<tr class="' + _safeProperty(key) + '">' +
+                '<td class="edge-type-checkbox">'+
+                  '<input id="'+key+'_check" type="checkbox" checked="checked">'+
+                  '<label style="font-size: 10pt; font-weight: normal;">'+key +'</label>'+
+                '</td>';
+  }
+
+  var html =
+      '<div id="' + id + '" title="Interactions to Show by Source">' +
+          '<div id="interactionSource_visibility" class="content ui-widget-content">' +
+            '<table id="edge_source_filter">' +
+            table +
+            '</table>'+
+          '</div>' +
+          '<div class="footer" style=" text-align: center; margin-top: 2px;">' +
+              '<input type="button" style="font-size: 10pt;" id="close_InteractionSourceVisibilityButton" value="OK"/>' +
+              '<input type="button" style="font-size: 10pt; margin-left: 5px;" id="selectAll_InteractionSourceVisibilityButton" value="Select All"/>' +
+              '<input type="button" style="font-size: 10pt; margin-left: 5px;" id="unselectAll_InteractionSourceVisibilityButton" style="margin-left: 2px"  value="Unselect All"/>' +
+          '</div>'+
+          '<div style="text-align: center; margin-top: 5px">'+
+        '</div>'+
+      '</div>';
+
+  $("#" + divId).append(html);
+  return "#" + id;
+}
+
+
+
+NetworkVis.prototype._createInteractionTypeVisibilityWindow = function(divId)
+{
+    var id = "interactionType_visibility" + divId;
+
+
+    var table = "";
+    for (var key in this.edgeTypeConstants)
+    {
+      if (!this.percentageFilterMap[key])
+      {
+        var checkedOrNot = ((this.visibilityOfType[key] === true) ? 'checked' : '');
+          table +=
+            '<tr class="'+this.edgeTypeConstants[key].name +'_UI">\n'+
+            '<td class="edge-type-checkbox">'+
+              '<input id="'+this.edgeTypeConstants[key].name+'_check" type="checkbox" '+checkedOrNot+'>\n'+
+              '<label style="font-size: 10pt; font-weight: normal;" >'+this.edgeTypeConstants[key].desc +'</label>\n'+
+            '</td>'+
+            '</tr>\n';
+      }
+    }
+
+    var html =
+        '<div id="' + id + '" title="Interactions to Show by Type">' +
+            '<div id="interactionType_visibility" class="content ui-widget-content">' +
+              '<table id="edge_type_filter">' +
+              table +
+              '</table>'+
+            '</div>' +
+            '<div class="footer" style=" text-align: center; margin-top: 2px;">' +
+                '<input type="button" style="font-size: 10pt;" id="close_InteractionTypeVisibilityButton" value="OK"/>' +
+                '<input type="button" style="font-size: 10pt; margin-left: 5px;" id="selectAll_InteractionTypeVisibilityButton" value="Select All"/>' +
+                '<input type="button" style="font-size: 10pt; margin-left: 5px;" id="unselectAll_InteractionTypeVisibilityButton" style="margin-left: 2px"  value="Unselect All"/>' +
+            '</div>'+
+            '<div style="text-align: center; margin-top: 5px">'+
+        	'</div>'+
+        '</div>';
+
+    $("#" + divId).append(html);
+    return "#" + id;
+};
+
+/**
+ * Pops up a SBGN View window using SBGNViz.js, resultant graph represents
+ * paths between graph of given source node and target node
+ *
+ * @param sourceNodeID source node id
+ * @param targetNodeID target node id
+ */
+NetworkVis.prototype.popUpSBGNView = function(sourceNodeID, targetNodeID, edgeType)
+{
+
+  if (edgeType == 'DRUG_TARGET') {
+    return;
+  }
+
+  var popUpWidth = 1200;
+  var popupHeight = 760;
+
+  var strWindowFeatures =
+    "menubar=no,\
+    location=no,\
+    resizable=no,\
+    scrollbars=no,\
+    status=no,\
+    width="+popUpWidth+"px,\
+    height="+popupHeight+"px,\
+    left="+((window.innerWidth/2)-popUpWidth/2)+"px,\
+    top="+((window.innerHeight/2)-popupHeight/2)+"px";
+    var windowHref = window.location.href;
+    var additionalPart = ((windowHref.substr(7)).substr(windowHref.substr(7).indexOf('/')+1));
+    additionalPart = additionalPart.substring(0, additionalPart.lastIndexOf("/"));
+    var sbgnPageURL = "/"+ additionalPart + "/js/lib/SBGNViz.js/sample-app/index.html";
+    windowObjectReference = window.open(sbgnPageURL+"?"+sourceNodeID+"&"+targetNodeID,"SBGN View", strWindowFeatures);
+}
 
 /*
  * ##################################################################

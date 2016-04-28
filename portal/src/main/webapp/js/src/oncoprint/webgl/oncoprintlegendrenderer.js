@@ -111,7 +111,7 @@ var OncoprintLegendView = (function() {
 	    }
 	    if (typeof rule.legend_label !== 'undefined') {
 		var font_size = 12;
-		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height - font_size, font_size, 'Arial', 'normal'));
+		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2 - font_size/2, font_size, 'Arial', 'normal'));
 	    }
 	} else if (config.type === 'number') {
 	    var num_decimal_digits = 2;
@@ -121,7 +121,13 @@ var OncoprintLegendView = (function() {
 	    });
 	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
 	    root.appendChild(svgfactory.text(display_range[1], 50, 0, 12, 'Arial', 'normal'));
-	    root.appendChild(svgfactory.polygon('5,20 45,20 45,0', config.color));
+	    var mesh = 100;
+	    for (var i=0; i<mesh; i++) {
+		var t = i/mesh;
+		var h = config.interpFn((1-t)*config.range[0] + t*config.range[1]);
+		var height = 20*h;
+		root.appendChild(svgfactory.rect(5 + 40*i/mesh, 20-height, 40/mesh, height, config.color));
+	    }
 	}
 	return root;
     };
@@ -135,6 +141,10 @@ var OncoprintLegendView = (function() {
     }
     
     OncoprintLegendView.prototype.addTracks = function(model) {
+	renderLegend(this, model);
+    }
+    
+    OncoprintLegendView.prototype.setTrackData = function(model) {
 	renderLegend(this, model);
     }
     

@@ -372,6 +372,7 @@ var Oncoprint = (function () {
     Oncoprint.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.model.setTrackData(track_id, data, data_id_key);
 	this.cell_view.setTrackData(this.model, track_id);
+	this.legend_view.setTrackData(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();
@@ -581,6 +582,9 @@ var svgfactory = require('./svgfactory.js');
 var OncoprintLabelView = (function () {
     function OncoprintLabelView($canvas, model, tooltip) {
 	var view = this;
+	
+	this.supersampling_ratio = 2;
+	
 	this.$canvas = $canvas;
 	this.base_font_size = 14;
 	this.model = model;
@@ -589,6 +593,7 @@ var OncoprintLabelView = (function () {
 	// stuff from model
 	this.label_tops = {};
 	this.labels = {};
+	this.track_descriptions = {};
 	this.tracks = [];
 	this.minimum_track_height = Number.POSITIVE_INFINITY;
 	this.maximum_label_width = Number.NEGATIVE_INFINITY;
@@ -605,9 +610,9 @@ var OncoprintLabelView = (function () {
 	    
 	    view.$canvas.on("mousedown", function(evt) {
 		view.tooltip.hide();
-		var track_id = isMouseOnLabel(view, evt.offsetY);
+		var track_id = isMouseOnLabel(view, view.supersampling_ratio*evt.offsetY);
 		if (track_id !== null && model.getContainingTrackGroup(track_id).length > 1) {
-		    startDragging(view, track_id, evt.offsetY);
+		    startDragging(view, track_id, view.supersampling_ratio*evt.offsetY);
 		}
 	    });
 	    
@@ -616,17 +621,26 @@ var OncoprintLabelView = (function () {
 		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
 		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, view.track_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]));
 		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.track_tops[track_group[0]]-5);
+		    view.drag_mouse_y *= view.supersampling_ratio;
 		    renderAllLabels(view);
 		} else {
-		    var hovered_track = isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top);
-		    if (hovered_track !== null && model.getContainingTrackGroup(hovered_track).length > 1) {
-			view.$canvas.css('cursor', 'move');
-			var offset = view.$canvas.offset();
-			var tooltip_html = "<b>hold to drag</b>";
+		    var hovered_track = isMouseOnLabel(view, view.supersampling_ratio*(evt.pageY - view.$canvas.offset().top));
+		    if (hovered_track !== null) {
+			var tooltip_html_lines = [];
+			var offset = view.$canvas.offset();   
 			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])) {
-			    tooltip_html = view.labels[hovered_track] + '<br>' + tooltip_html;
+			    tooltip_html_lines.push('<b>'+view.labels[hovered_track]+'</b>');
 			}
-			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.label_tops[hovered_track] + offset.top, tooltip_html);
+			var track_description = view.track_descriptions[hovered_track];
+			if (track_description.length > 0) {
+			    tooltip_html_lines.push(track_description);
+			}
+			if (model.getContainingTrackGroup(hovered_track).length > 1) {
+			    view.$canvas.css('cursor', 'move');
+			    tooltip_html_lines.push("<b>hold to drag</b>");
+			}
+			var tooltip_html = tooltip_html_lines.join("<br>");
+			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.dom_label_tops[hovered_track] + offset.top, tooltip_html);
 		    } else {
 			view.$canvas.css('cursor', 'auto');
 			view.tooltip.hide();
@@ -637,7 +651,7 @@ var OncoprintLabelView = (function () {
 	    view.$canvas.on("mouseup mouseleave", function(evt) {
 		if (view.dragged_label_track_id !== null) {
 		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
-		    var previous_track_id = getLabelAbove(view, track_group, evt.offsetY, view.dragged_label_track_id);
+		    var previous_track_id = getLabelAbove(view, track_group, view.supersampling_ratio*evt.offsetY, view.dragged_label_track_id);
 		    stopDragging(view, previous_track_id);
 		}
 		view.tooltip.hide();
@@ -646,14 +660,14 @@ var OncoprintLabelView = (function () {
 	
     }
     var renderedLabelWidth = function(view, label) {
-	return view.ctx.measureText(shortenLabelIfNecessary(view, label)).width;
+	return view.ctx.measureText(shortenLabelIfNecessary(view, label)).width/view.supersampling_ratio;
     };
     var updateFromModel = function(view, model) {
-	var track_tops = model.getTrackTops();
-	var label_tops = model.getLabelTops();
-	view.track_tops = track_tops;
-	view.label_tops = label_tops;
+	view.track_tops = model.getTrackTops();
+	view.label_tops = model.getLabelTops();
+	view.dom_label_tops = model.getLabelTops();
 	view.tracks = model.getTracks();
+	view.track_descriptions = {};
 	
 	view.ctx.font = 'bold '+view.getFontSize()+'px Arial';
 	view.minimum_track_height = Number.POSITIVE_INFINITY;
@@ -662,6 +676,8 @@ var OncoprintLabelView = (function () {
 	    view.minimum_track_height = Math.min(view.minimum_track_height, model.getTrackHeight(view.tracks[i]));
 	    var shortened_label = shortenLabelIfNecessary(view, view.labels[view.tracks[i]]);
 	    view.maximum_label_width = Math.max(view.maximum_label_width, view.ctx.measureText(shortened_label).width);
+	    view.label_tops[view.tracks[i]] *= view.supersampling_ratio;
+	    view.track_descriptions[view.tracks[i]] = model.getTrackDescription(view.tracks[i]);
 	}
     }
     var setUpContext = function(view) {
@@ -670,8 +686,12 @@ var OncoprintLabelView = (function () {
 	view.ctx.textBaseline="top";
     }
     var resizeAndClear = function(view, model) {
-	view.$canvas[0].height = model.getCellViewHeight();
-	view.$canvas[0].width = view.getWidth();
+	var visible_height = model.getCellViewHeight();
+	var visible_width = view.getWidth();
+	view.$canvas[0].height = view.supersampling_ratio*visible_height;
+	view.$canvas[0].width = view.supersampling_ratio*visible_width;
+	view.$canvas[0].style.height = visible_height + 'px';
+	view.$canvas[0].style.width = visible_width + 'px';
 	setUpContext(view);
     }
     var isNecessaryToShortenLabel = function(view, label) {
@@ -717,7 +737,7 @@ var OncoprintLabelView = (function () {
 		rect_y = view.label_tops[group[group.length-1]] + view.ctx.measureText("m").width;;
 		rect_height = view.ctx.measureText("m").width;
 	    }
-	    view.ctx.fillRect(0, rect_y, view.getWidth(), rect_height);
+	    view.ctx.fillRect(0, rect_y, view.getWidth()*view.supersampling_ratio, rect_height);
 	}
     }
     
@@ -781,11 +801,10 @@ var OncoprintLabelView = (function () {
     }
     OncoprintLabelView.prototype.getWidth = function() {
 	//return this.maximum_label_width + 20;
-	return Math.max(this.maximum_label_width + 10, 70);
+	return Math.max(this.maximum_label_width/this.supersampling_ratio + 10, 70);
     }
-    OncoprintLabelView.prototype.getFontSize = function() {
-	return Math.max(Math.min(this.base_font_size, this.minimum_track_height), 7);
-	
+    OncoprintLabelView.prototype.getFontSize = function(no_supersampling_adjustment) {
+	return (no_supersampling_adjustment ? 1 : this.supersampling_ratio) * Math.max(Math.min(this.base_font_size, this.minimum_track_height), 7);
     }
     OncoprintLabelView.prototype.setDragCallback = function(callback) {
 	this.drag_callback = callback;
@@ -831,7 +850,7 @@ var OncoprintLabelView = (function () {
 	    var track_id = tracks[i];
 	    var y = label_tops[track_id];
 	    var label = model.getTrackLabel(track_id);
-	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(), 'Arial', 'bold'); 
+	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(true), 'Arial', 'bold'); 
 	    root.appendChild(text_elt);
 	}
 	return root;
@@ -955,7 +974,7 @@ var OncoprintLegendView = (function() {
 	    }
 	    if (typeof rule.legend_label !== 'undefined') {
 		var font_size = 12;
-		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height - font_size, font_size, 'Arial', 'normal'));
+		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2 - font_size/2, font_size, 'Arial', 'normal'));
 	    }
 	} else if (config.type === 'number') {
 	    var num_decimal_digits = 2;
@@ -965,7 +984,13 @@ var OncoprintLegendView = (function() {
 	    });
 	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
 	    root.appendChild(svgfactory.text(display_range[1], 50, 0, 12, 'Arial', 'normal'));
-	    root.appendChild(svgfactory.polygon('5,20 45,20 45,0', config.color));
+	    var mesh = 100;
+	    for (var i=0; i<mesh; i++) {
+		var t = i/mesh;
+		var h = config.interpFn((1-t)*config.range[0] + t*config.range[1]);
+		var height = 20*h;
+		root.appendChild(svgfactory.rect(5 + 40*i/mesh, 20-height, 40/mesh, height, config.color));
+	    }
 	}
 	return root;
     };
@@ -979,6 +1004,10 @@ var OncoprintLegendView = (function() {
     }
     
     OncoprintLegendView.prototype.addTracks = function(model) {
+	renderLegend(this, model);
+    }
+    
+    OncoprintLegendView.prototype.setTrackData = function(model) {
 	renderLegend(this, model);
     }
     
@@ -1104,6 +1133,16 @@ var arrayUnique = function(arr) {
     return unique;
 };
 
+var copyShallowObject = function(obj) {
+    var copy = {};
+    for (var key in obj) {
+	if (obj.hasOwnProperty(key)) {
+	    copy[key] = obj[key];
+	}
+    }
+    return copy;
+};
+
 var OncoprintModel = (function () {
     var MIN_ZOOM_PIXELS = 100;
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
@@ -1133,6 +1172,7 @@ var OncoprintModel = (function () {
 	
 	// Track Properties
 	this.track_label = {};
+	this.track_description = {};
 	this.cell_height = {};
 	this.track_padding = {};
 	this.track_data_id_key = {};
@@ -1543,7 +1583,7 @@ var OncoprintModel = (function () {
 	    addTrack(this, params.track_id, params.target_group,
 		    params.cell_height, params.track_padding,
 		    params.data_id_key, params.tooltipFn,
-		    params.removable, params.removeCallback, params.label, params.track_info,
+		    params.removable, params.removeCallback, params.label, params.description, params.track_info,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
 		    params.data, params.rule_set);
 	}
@@ -1553,10 +1593,11 @@ var OncoprintModel = (function () {
     var addTrack = function (model, track_id, target_group,
 	    cell_height, track_padding,
 	    data_id_key, tooltipFn,
-	    removable, removeCallback, label, track_info,
+	    removable, removeCallback, label, description, track_info,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
+	model.track_description[track_id] = ifndef(description, "");
 	model.cell_height[track_id] = ifndef(cell_height, 23);
 	model.track_padding[track_id] = ifndef(track_padding, 5);
 
@@ -1688,7 +1729,7 @@ var OncoprintModel = (function () {
     
     OncoprintModel.prototype.getTrackTops = function (desired_track_id) {
 	if (typeof desired_track_id === 'undefined') {
-	    return this.track_tops.get();
+	    return copyShallowObject(this.track_tops.get());
 	} else {
 	    return this.track_tops.get()[desired_track_id];
 	}
@@ -1696,14 +1737,14 @@ var OncoprintModel = (function () {
     
     OncoprintModel.prototype.getCellTops = function(desired_track_id) {
 	if (typeof desired_track_id === 'undefined') {
-	    return this.cell_tops.get();
+	    return copyShallowObject(this.cell_tops.get());
 	} else {
 	    return this.cell_tops.get()[desired_track_id];
 	}
     }
     OncoprintModel.prototype.getLabelTops = function(desired_track_id) {
 	if (typeof desired_track_id === 'undefined') {
-	    return this.label_tops.get();
+	    return copyShallowObject(this.label_tops.get());
 	} else {
 	    return this.label_tops.get()[desired_track_id];
 	}
@@ -1780,6 +1821,10 @@ var OncoprintModel = (function () {
 
     OncoprintModel.prototype.getTrackLabel = function (track_id) {
 	return this.track_label[track_id];
+    }
+    
+    OncoprintModel.prototype.getTrackDescription = function(track_id) {
+	return this.track_description[track_id];
     }
 
     OncoprintModel.prototype.getTrackTooltipFn = function (track_id) {
@@ -2489,26 +2534,33 @@ var CategoricalRuleSet = (function () {
 var LinearInterpRuleSet = (function () {
     function LinearInterpRuleSet(params) {
 	/* params
+	 * - log_scale
 	 * - value_key
 	 * - value_range
 	 */
 	ConditionRuleSet.call(this, params);
 	this.value_key = params.value_key;
 	this.value_range = params.value_range;
+	this.log_scale = params.log_scale; // boolean
 	this.inferred_value_range;
 
 	this.makeInterpFn = function () {
 	    var range = this.getEffectiveValueRange();
-	    if (range[0] === range[1]) {
-		// Make sure non-zero denominator
-		range[0] -= range[0] / 2;
-		range[1] += range[1] / 2;
+	    
+	    if (this.log_scale) {
+		var shift_to_make_pos = Math.abs(range[0]) + 1;
+		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
+		var log_range_lower = Math.log(range[0] + shift_to_make_pos);
+		return function(val) {
+		    return (Math.log(val + shift_to_make_pos) - log_range_lower)/log_range;
+		};
+	    } else {
+		var range_spread = range[1] - range[0];
+		var range_lower = range[0];
+		return function (val) {
+		    return (val - range_lower) / range_spread;
+		};
 	    }
-	    var range_spread = range[1] - range[0];
-	    var range_lower = range[0];
-	    return function (val) {
-		return (val - range_lower) / range_spread;
-	    };
 	};
     }
     LinearInterpRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
@@ -2520,6 +2572,11 @@ var LinearInterpRuleSet = (function () {
 	}
 	if (typeof ret[1] === "undefined") {
 	    ret[1] = this.inferred_value_range[1];
+	}
+	if (ret[0] === ret[1]) {
+	    // Make sure non-empty interval
+	    ret[0] -= ret[0] / 2;
+	    ret[1] += ret[1] / 2;
 	}
 	return ret;
     };
@@ -2649,7 +2706,10 @@ var BarRuleSet = (function () {
 			    fill: this.fill,
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'number', 'range': this.getEffectiveValueRange(), 'color': this.fill}
+		    legend_config: {'type': 'number', 
+				    'range': this.getEffectiveValueRange(), 
+				    'color': this.fill,
+				    'interpFn': interpFn}
 		});
     };
 
@@ -4325,6 +4385,9 @@ module.exports = {
     },
     polygon: function(points, fill) {
 	return makeSVGElement('polygon', {'points': points, 'fill':fill});
+    },
+    rect: function(x,y,width,height,fill) {
+	return makeSVGElement('rect', {'x':x, 'y':y, 'width':width, 'height':height, 'fill':fill});
     },
     bgrect: function(width, height, fill) {
 	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});

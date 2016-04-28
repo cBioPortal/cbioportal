@@ -525,6 +525,12 @@ public class ImportClinicalData {
 	            attributesDatatype = properties.getProperty("datatype");
 	            cancerStudyStableId = properties.getProperty("cancer_study_identifier");
 	        }
+                // this is for backwards compatibility with studies that do not have meta files for clinical data
+                else 
+                {
+                    attributesDatatype = "MIXED_ATTRIBUTES";
+                }
+                
 
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);

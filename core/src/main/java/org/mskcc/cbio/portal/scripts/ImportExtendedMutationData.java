@@ -257,10 +257,14 @@ public class ImportExtendedMutationData{
 					if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
 					    gene = daoGene.getGene(entrezGeneId);
 					    if (gene == null) {
-					    	//skip
-					    	ProgressMonitor.logWarning("Entrez_Id " + entrezGeneId + " not found. Record will be skipped for this gene.");
-					    	entriesSkipped++;
-					    	continue;
+                            gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
+                            if (gene == null) {
+                                //skip
+                                ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["+ record.getGivenEntrezGeneId() + "] or ambiguous alias. Ignoring it "
+                                    + "and all mutation data associated with it!");
+                                entriesSkipped++;
+                                continue;
+                            }
 					    }				    	
 					}
 				}

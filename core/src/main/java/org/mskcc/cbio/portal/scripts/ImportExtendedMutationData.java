@@ -251,25 +251,32 @@ public class ImportExtendedMutationData{
 				proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(
 						record.getProteinPosition(), proteinChange);
 
-				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
-				String geneSymbol = record.getHugoGeneSymbol();
-				long entrezGeneId = record.getEntrezGeneId();
+                //  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
+                String geneSymbol = record.getHugoGeneSymbol();
+                String entrezIdString = record.getGivenEntrezGeneId();
 
                 CanonicalGene gene = null;
-                if (record.getGivenEntrezGeneId().trim().length() > 0) {
-                    if (!record.getGivenEntrezGeneId().matches("[0-9]+")) {
+                if (!(entrezIdString.isEmpty() ||
+                      entrezIdString.equals("0"))) {
+                    Long entrezGeneId;
+                    try {
+                        entrezGeneId = Long.parseLong(entrezIdString);
+                    } catch (NumberFormatException e) {
+                        entrezGeneId = null;
+                    }
+                    if (entrezGeneId == null) {
                         ProgressMonitor.logWarning(
                                 "Ignoring line with invalid Entrez_Id " +
-                                record.getGivenEntrezGeneId());
+                                entrezIdString);
                         entriesSkipped++;
                         continue;
-                    }
-                    if (entrezGeneId != TabDelimitedFileUtil.NA_LONG &&
-                            entrezGeneId != 0) {
+                    } else {
                         gene = daoGene.getGene(entrezGeneId);
                         if (gene == null) {
                             //skip
-                            ProgressMonitor.logWarning("Entrez_Id " + entrezGeneId + " not found. Record will be skipped for this gene.");
+                            ProgressMonitor.logWarning(
+                                    "Entrez gene ID " + entrezGeneId +
+                                    " not found. Record will be skipped.");
                             entriesSkipped++;
                             continue;
                         }
@@ -285,7 +292,8 @@ public class ImportExtendedMutationData{
 
                 // assume Unknown / 0 to imply an intergenic irrespective of
                 // what the column Variant_Classification says
-                if (geneSymbol.equals("Unknown") && entrezGeneId == 0 &&
+                if (geneSymbol.equals("Unknown") &&
+                        entrezIdString.equals("0") &&
                         mutationType != null &&
                         !mutationType.equalsIgnoreCase("IGR")) {
                     ProgressMonitor.logWarning(

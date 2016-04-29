@@ -435,7 +435,7 @@ var ccPlots = (function (Plotly, _, $) {
 
         $("#cc_plots_box").empty();
         Plotly.newPlot('cc_plots_box', data, layout, {showLink: false});
-        $("#cc_plots_box").append("<span style='color:grey;position:relative;top:-40px;left:10px;'>*TCGA provisional only.By default, Stomach Adenocarcinoma and Esophageal Carcinoma are excluded (click <a href='#' onclick='ccPlots.include_all()'>here</a> to include).</span>");
+        $("#cc_plots_box").append("<span style='color:grey;position:relative;top:-40px;left:10px;'>*TCGA provisional only.</span>");
 
         //link to sample view
         var ccPlotsElem = document.getElementById('cc_plots_box');

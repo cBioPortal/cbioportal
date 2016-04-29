@@ -1165,9 +1165,9 @@ class MutationsExtendedValidator(Validator):
         if value is None or value.strip() == '':
             return False
         return True
-    
+
     def checkSwissProt(self, value, data):
-        """Test whether SWISSPROT string is blank and give warning if blank."""
+        """Validate the accession in the SWISSPROT column."""
         if value is None or value.strip() == '':
             self.logger.warning(
                 'Missing value in SWISSPROT column; this column is '
@@ -1175,8 +1175,19 @@ class MutationsExtendedValidator(Validator):
                 'is used when drawing Pfam domains in the mutations view',
                 extra={'line_number': self.line_number,
                        'cause':'blank value in SWISSPROT column'})
-            
-        # it is just a warning, so we can return True always:
+            # no value to test, return without error
+            return True
+        if not re.match(
+                # regex from http://www.uniprot.org/help/accession_numbers
+                r'[OPQ][0-9][A-Z0-9]{3}[0-9]|'
+                r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}',
+                 value):
+            # return this as an error
+            self.extra = 'SWISSPROT value is not a UniprotKB accession'
+            self.extra_exists = True
+            return False
+        # TODO test whether the accession is known to the portal
+        # if no reasons to return with a message were found, return True
         return True
 
 

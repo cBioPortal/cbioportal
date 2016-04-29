@@ -441,8 +441,7 @@ public class MafUtil
         record.setChr(TabDelimitedFileUtil.getPartString(chrIndex, parts));
         record.setStartPosition(TabDelimitedFileUtil.getPartLong(startPositionIndex, parts));
         record.setEndPosition(TabDelimitedFileUtil.getPartLong(endPositionIndex, parts));
-        record.setEntrezGeneId(TabDelimitedFileUtil.getPartLong(entrezGeneIdIndex, parts));
-        // store the literal value of the gene ID column for user feedback
+        // store the literal value of the gene ID column for later parsing
         record.setGivenEntrezGeneId(TabDelimitedFileUtil.getPartStringAllowEmpty(entrezGeneIdIndex, parts));
         // NA may be an actual gene symbol, so use "" for missing values
         record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartStringAllowEmpty(hugoGeneSymbolIndex, parts));

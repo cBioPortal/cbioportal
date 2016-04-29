@@ -298,11 +298,11 @@ var CoExpView = (function() {
                     "</select>");
                 $("select#coexp-table-select-" + cbio.util.safeProperty(geneId)).change(function () {
                     if ($(this).val() === "negativePearson") {
-                        coExpTableInstance.fnFilter("-", 1, false);
+                        coExpTableInstance.fnFilter("-", 2, false);
                     } else if ($(this).val() === "positivePearson") {
-                        coExpTableInstance.fnFilter('^[0-9]*\.[0-9]*$', 1, true);
+                        coExpTableInstance.fnFilter('^[0-9]*\.[0-9]*$', 2, true);
                     } else if ($(this).val() === "all") {
-                        coExpTableInstance.fnFilter("", 1);
+                        coExpTableInstance.fnFilter("", 2);
                     }
                 });
             }

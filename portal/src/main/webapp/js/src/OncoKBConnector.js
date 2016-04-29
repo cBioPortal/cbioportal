@@ -153,7 +153,7 @@ var OncoKB = (function(_, $) {
         this.source = 'cbioportal';
         this.geneStatus = 'Complete';
         this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE,INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY';
-        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_2B', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_R1'];
+        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_3A', 'LEVEL_R1'];
         this.variantCounter = 0;
         this.variants = {};
         this.evidence = {};
@@ -1758,8 +1758,12 @@ OncoKB.Instance.prototype = {
                                                         message: function(dialogRef) {
                                                             var div = $('<div></div>');
                                                             var closeIcon = $('<div><span class="bootstrap-dialog-close">x</span></div>');
-                                                            var message = $('<div><iframe src="https://docs.google.com/forms/d/1lt6TtecxHrhIE06gAKVF_JW4zKFoowNFzxn6PJv4g7A/viewform?entry.1744186665=' + self.variants[oncokbId].gene + '&entry.1671960263=' + self.variants[oncokbId].alteration + '&entry.118699694&entry.1568641202&entry.1381123986=' + user + '&embedded=true" width="550" height="880" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
-
+                                                            var message = $('<div><iframe src="https://docs.google.com/forms/d/1lt6TtecxHrhIE06gAKVF_JW4zKFoowNFzxn6PJv4g7A/viewform?' +
+                                                                'entry.1744186665=' + self.variants[oncokbId].gene + 
+                                                                '&entry.1671960263=' + self.variants[oncokbId].alteration + 
+                                                                '&entry.118699694&entry.1568641202&entry.1381123986=' + user +
+                                                                '&entry.1083850662=' + encodeURIComponent(window.location.href) +
+                                                                '&embedded=true" width="550" height="880" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
                                                             closeIcon
                                                                 .find('.bootstrap-dialog-close')
                                                                 .on('click', {dialogRef: dialogRef}, function(event) {

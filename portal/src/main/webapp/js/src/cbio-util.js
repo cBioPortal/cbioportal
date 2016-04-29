@@ -409,6 +409,31 @@ cbio.util = (function() {
         $(this).qtip(opts);
     }
 
+    function baseMutationMapperOpts()
+    {
+        return {
+            proxy: {
+                // default pdb proxy are now configured for a separate pdb data source
+                // this is for backward compatibility
+                pdbProxy: {
+                    options: {
+                        servletName: "get3dPdb.json",
+                        listJoiner: " ",
+                        subService: false
+                    }
+                },
+                // TODO for now init variant annotation data proxy with full empty data
+                // (this will practically disable the genome-nexus connections until it is ready)
+                variantAnnotationProxy: {
+                    options: {
+                        initMode: "full",
+                        data: {}
+                    }
+                }
+            }
+        };
+    }
+    
     /**
      * Converts the given string to title case format. Also replaces each
      * underdash with a space.
@@ -508,6 +533,7 @@ cbio.util = (function() {
         getLinkToPatientView: getLinkToPatientView,
         getLinkToSampleView: getLinkToSampleView,
         addTargetedQTip: addTargetedQTip,
+        baseMutationMapperOpts: baseMutationMapperOpts,
         toTitleCase: toTitleCase,
         getHotSpotDesc: getHotSpotDesc,
         replaceAll: replaceAll

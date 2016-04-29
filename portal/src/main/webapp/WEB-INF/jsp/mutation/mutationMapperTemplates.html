@@ -285,6 +285,20 @@
 	This option has no effect if the current structure
 	does not contain any co-crystalized bound molecules.
 </script>
+<script type="text/template" id="mutation_info_panel_template">
+    <div class="mutation-info-panel-content">
+        <div class="mutation-info-panel-mutation-type">
+            {{mutationTypeContent}}
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="mutation_info_panel_type_template">
+    <span class='mutation-type-info'>
+        <span class='mutation-type-count {{countStyle}}'>{{count}}</span>
+        <span class='mutation-type-label {{textStyle}}'>{{type}}</span>
+	</span>
+</script>
 <script type="text/template" id="mutation_details_table_template">
 	<table class='display mutation_details_table'
 	       cellpadding='0' cellspacing='0' border='0'>
@@ -528,13 +542,12 @@
 	<div class='mutation-details-no-data-info'>
 		There are no {{geneSymbol}} mutations in the selected samples.
 	</div>
+	<div class='mutation-info-panel-container'></div>
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
 	</div>
-	<div class='mutation-table-container'>
-		<img src='images/ajax-loader.gif'/>
-	</div>
+	<div class='mutation-table-container'></div>
 </script>
 
 <script type="text/template" id="mutation_diagram_view_template">

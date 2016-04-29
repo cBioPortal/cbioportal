@@ -46,18 +46,29 @@ import java.util.*;
  */
 public class ImportTypesOfCancers {
     public static void main(String[] args) throws IOException, DaoException {
-        if (args.length < 1) {
-            System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt> <clobber>");
-            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-            return;
+        try {
+	    	if (args.length < 1) {
+	            System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt> <clobber>");
+	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	            //use 2 for command line syntax errors:
+	            System.exit(2);
+	        }
+	
+	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	        ProgressMonitor.setCurrentMessage("Loading cancer types...");
+	        File file = new File(args[0]);
+	        // default to clobber = true (existing behavior)
+	        boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
+	        load(file, clobber);
         }
-
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-
-        File file = new File(args[0]);
-	// default to clobber = true (existing behavior)
-	boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
-        load(file, clobber);
+        catch (Exception e) {
+	        ConsoleUtil.showWarnings();
+	        //exit with error status:
+	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        if (e.getMessage() == null)
+	        	e.printStackTrace();
+	        System.exit(1);
+        }
     }
 
     public static void load(File file, boolean clobber) throws IOException, DaoException {
@@ -65,7 +76,8 @@ public class ImportTypesOfCancers {
         if (clobber) DaoTypeOfCancer.deleteAllRecords(); //TODO - this option should not exist...in a relational DB it basically means the whole DB is cleaned-up...there should be more efficient ways to do this...and here it is probably an unwanted side effect. REMOVE??
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         Scanner scanner = new Scanner(file);
-
+        int numNewCancerTypes = 0;
+        
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
             if (tokens.length != 5) {
@@ -73,18 +85,26 @@ public class ImportTypesOfCancers {
                     "Cancer type file '" + file.getPath() +
                     "' is not a five-column tab-delimited file");
             }
-
+            
             String typeOfCancerId = tokens[0].trim();
-            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
-            aTypeOfCancer.setName(tokens[1].trim());
-            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
-            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
-            aTypeOfCancer.setShortName(typeOfCancerId);
-            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
-            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
+            //if not clobber, then existing cancer types should be skipped:
+            if (!clobber && DaoTypeOfCancer.getTypeOfCancerById(typeOfCancerId.toLowerCase()) != null ) {
+            	ProgressMonitor.logWarning("Cancer type with id '" + typeOfCancerId + "' already exists. Skipping.");
+            }
+            else {
+	            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
+	            aTypeOfCancer.setName(tokens[1].trim());
+	            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
+	            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
+	            aTypeOfCancer.setShortName(typeOfCancerId);
+	            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
+	            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
+	            numNewCancerTypes++;
+            }
         }
-        ProgressMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");
-        ConsoleUtil.showWarnings();
+        ProgressMonitor.setCurrentMessage(" --> Loaded " + numNewCancerTypes + " new cancer types.");
+        ProgressMonitor.setCurrentMessage("Done.");
+        ConsoleUtil.showMessages();
     }
     
 

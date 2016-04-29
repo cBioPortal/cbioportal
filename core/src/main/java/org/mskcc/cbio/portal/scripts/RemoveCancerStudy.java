@@ -41,25 +41,36 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 public class RemoveCancerStudy {
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            System.out.println("command line usage: RemoveCancerStudy <cancer_study_identifier>");
-            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-            return;
+    	try {
+	        if (args.length < 1) {
+	            System.out.println("command line usage: RemoveCancerStudy <cancer_study_identifier>");
+	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	            //use 2 for command line syntax errors:
+	            System.exit(2);
+	        }
+	        String cancerStudyIdentifier = args[0];
+	
+	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+			SpringUtil.initDataSource();
+			System.out.println("Checking if Cancer study with identifier " + cancerStudyIdentifier + " already exists before removing...");
+	        if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
+	            System.out.println("Cancer study with identifier " + cancerStudyIdentifier + " found in database, removing...");
+	            DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);
+	        }
+	        else {
+	            System.out.format("Cancer study with identifier " + cancerStudyIdentifier + " does not exist the the database, not removing...");
+	        }
+	
+	        ConsoleUtil.showMessages();
+	        System.out.println("Done.");
+    	}
+    	catch (Exception e) {
+	        ConsoleUtil.showWarnings();
+	        //exit with error status:
+	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        if (e.getMessage() == null)
+	        	e.printStackTrace();
+	        System.exit(1);
         }
-        String cancerStudyIdentifier = args[0];
-
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-		SpringUtil.initDataSource();
-		System.out.println("Checking if Cancer study with identifier " + cancerStudyIdentifier + " already exists before removing...");
-        if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
-            System.out.println("Cancer study with identifier " + cancerStudyIdentifier + " found in database, removing...");
-            DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);
-        }
-        else {
-            System.out.format("Cancer study with identifier " + cancerStudyIdentifier + " does not exist the the database, not removing...");
-        }
-
-        ConsoleUtil.showWarnings();
-        System.err.println("Done.");
     }
 }

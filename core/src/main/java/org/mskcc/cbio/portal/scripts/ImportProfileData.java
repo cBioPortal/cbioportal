@@ -37,7 +37,6 @@ import java.util.Date;
 
 import joptsimple.*;
 
-import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
@@ -49,97 +48,31 @@ import org.mskcc.cbio.portal.util.*;
  */
 public class ImportProfileData{
 
-    private static String usageLine;
-    private static OptionParser parser;
-
-    private static void quit(String msg)
-    {
-        if( null != msg ){
-            System.err.println( msg );
-        }
-        System.err.println( usageLine );
-        try {
-            parser.printHelpOn(System.err);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
    public static void main(String[] args) throws Exception {
-       Date start = new Date();
-
-       usageLine = "Import 'profile' files that contain data matrices indexed by gene, case.\n" +
-       		"command line usage for importProfileData:";
-       /*
-        * usage:
-        * --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] "
-        * 
-        * nb: an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-        */
-
-       // using a real options parser, helps avoid bugs
-       parser = new OptionParser();
-       parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
-       OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
-       OptionSpec<String> data = parser.accepts( "data",
-               "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
-       OptionSpec<String> meta = parser.accepts( "meta",
-               "meta (description) file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
-       OptionSpec<String> loadMode = parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
-          .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
-       OptionSet options = null;
-      try {
-         options = parser.parse( args );
-         //exitJVM = !options.has(returnFromMain);
-      } catch (OptionException e) {
-          quit( e.getMessage() );
-      }
-      
-      if( options.has( help ) ){
-          quit( "" );
-      }
-       
-       File dataFile = null;
-       if( options.has( data ) ){
-          dataFile = new File( options.valueOf( data ) );
-       }else{
-           quit( "'data' argument required.");
-       }
-
-       File descriptorFile = null;
-       if( options.has( meta ) ){
-          descriptorFile = new File( options.valueOf( meta ) );
-       }else{
-           quit( "'meta' argument required.");
-       }
-       
-       MySQLbulkLoader.bulkLoadOn();
-       if( options.has( loadMode ) ){
-          String actionArg = options.valueOf( loadMode );
-          if (actionArg.equalsIgnoreCase("directLoad")) {
-             MySQLbulkLoader.bulkLoadOff();
-          } else if (actionArg.equalsIgnoreCase( "bulkLoad" )) {
-             MySQLbulkLoader.bulkLoadOn();
-          } else {
-              quit( "Unknown loadMode action:  " + actionArg );
-          }
-       }
-       
        try {
+    	   Date start = new Date();
+
+    	   String description = "Import 'profile' files that contain data matrices indexed by gene, case";
+	
+	       // using a real options parser, helps avoid bugs
+	       OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
+	       File dataFile = new File((String) options.valueOf("data"));
+	       File descriptorFile = new File((String) options.valueOf( "meta" ) );
+	       
 			SpringUtil.initDataSource();
 	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-	        System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
+	        System.out.println("Reading data from:  " + dataFile.getAbsolutePath());
 	        GeneticProfile geneticProfile = null;
 	         try {
 	            geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
 	         } catch (java.io.FileNotFoundException e) {
-	             quit( "Descriptor file '" + descriptorFile + "' not found." );
+	        	 throw new java.io.FileNotFoundException("Descriptor file '" + descriptorFile + "' not found.");
 	         }
 	
 	        int numLines = FileUtil.getNumLines(dataFile);
-	        System.err.println(" --> profile id:  " + geneticProfile.getGeneticProfileId());
-	        System.err.println(" --> profile name:  " + geneticProfile.getProfileName());
-	        System.err.println(" --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
+	        System.out.println(" --> profile id:  " + geneticProfile.getGeneticProfileId());
+	        System.out.println(" --> profile name:  " + geneticProfile.getProfileName());
+	        System.out.println(" --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
 	        ProgressMonitor.setMaxValue(numLines);
 	        
 	        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
@@ -159,19 +92,18 @@ public class ImportProfileData{
 	            importer.importData(numLines);
 	        }
 	        ConsoleUtil.showMessages();
-	        System.err.println("Done.");
-       }
-       catch (IllegalArgumentException ia) {
-    	   throw ia;
-       }
-       catch (Exception e) {
-    	   ConsoleUtil.showWarnings();
-    	   System.err.println("Error found: " + e.getMessage());
-       }
-       finally {
+	        System.out.println("Done.");
 	        Date end = new Date();
 	        long totalTime = end.getTime() - start.getTime();
 	        System.out.println ("Total time:  " + totalTime + " ms\n");
+       }
+       catch (Exception e) {
+           ConsoleUtil.showWarnings();
+    	   //exit with error status:
+    	   System.err.println ("\nABORTED! Error:  " + e.getMessage());
+    	   if (e.getMessage() == null)
+	        	e.printStackTrace();
+           System.exit(1);
        }
     }
 }

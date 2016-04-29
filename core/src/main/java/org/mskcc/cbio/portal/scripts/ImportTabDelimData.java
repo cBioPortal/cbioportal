@@ -128,24 +128,29 @@ public class ImportTabDelimData {
 	        sampleIds = new String[parts.length - sampleStartIndex];
 	        System.arraycopy(parts, sampleStartIndex, sampleIds, 0, parts.length - sampleStartIndex);
 
-	        //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
-	        //procedure. In this new procedure, Patients and Samples should only be added 
-	        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
-	        //sample per patient, which is not always the case.
-	        ImportDataUtil.addPatients(sampleIds, geneticProfileId);
-	        int nrUnknownSamplesAdded = ImportDataUtil.addSamples(sampleIds, geneticProfileId);
-	        if (nrUnknownSamplesAdded > 0) {
-	        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
-	        }
-	        
+	        int nrUnknownSamplesAdded = 0;
 	        ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleIds.length);	        
 	
 	        // link Samples to the genetic profile
 	        ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
 	        ArrayList <Integer> filteredSampleIndices = new ArrayList<Integer>();
 	        for (int i = 0; i < sampleIds.length; i++) {
-	           Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+	        	// backwards compatible part (i.e. in the new process, the sample should already be there. TODO - replace this workaround later with an exception:
+	            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
 	                                                                       StableIdUtil.getSampleId(sampleIds[i]));
+				if (sample == null ) {
+					//TODO - as stated above, this part should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
+			        //procedure. In this new procedure, Patients and Samples should only be added 
+			        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
+			        //sample per patient, which is not always the case.
+					ImportDataUtil.addPatients(new String[] { sampleIds[i] }, geneticProfileId);
+	                // add the sample (except if it is a 'normal' sample):
+					nrUnknownSamplesAdded += ImportDataUtil.addSamples(new String[] { sampleIds[i] }, geneticProfileId);
+				}
+		        // check again (repeated because of workaround above):
+				sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                           StableIdUtil.getSampleId(sampleIds[i]));
+		        // can be null in case of 'normal' sample:
 	           if (sample == null) {
 	                assert StableIdUtil.isNormal(sampleIds[i]);
 	                filteredSampleIndices.add(i);
@@ -156,6 +161,9 @@ public class ImportTabDelimData {
 	               DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
 	           }
 	           orderedSampleList.add(sample.getInternalId());
+	        }
+	        if (nrUnknownSamplesAdded > 0) {
+	        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
 	        }
 	        if (samplesSkipped > 0) {
 	        	ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
@@ -203,9 +211,6 @@ public class ImportTabDelimData {
 	           MySQLbulkLoader.flushAll();
 	        }
         }
-        catch (Exception e) {
-        	System.err.println(e.getMessage());
-        }
         finally {
 	        buf.close();
 	        if (rppaProfile) {
@@ -239,8 +244,9 @@ public class ImportTabDelimData {
             
             if (parts.length>nrColumns) {
                 if (line.split("\t").length>nrColumns) {
-                    System.err.println("The following line has more fields (" + parts.length
-                            + ") than the headers(" + nrColumns + "): \n"+parts[0]);
+                    ProgressMonitor.logWarning("Ignoring line with more fields (" + parts.length
+                            + ") than specified in the headers(" + nrColumns + "): \n"+parts[0]);
+                    return false;
                 }
             }
             String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
@@ -258,7 +264,7 @@ public class ImportTabDelimData {
                 geneSymbol = null;
             }
             if (rppaProfile && geneSymbol == null) {
-            	ProgressMonitor.logWarning("Ignoring line no Composite.Element.REF value");
+            	ProgressMonitor.logWarning("Ignoring line with no Composite.Element.REF value");
             	return false;
             }
             //get entrez
@@ -353,6 +359,8 @@ public class ImportTabDelimData {
                                 return false;
                             }
                         } else if (genes.size()==1) {
+                        	List<CnaEvent> cnaEventsToAdd = new ArrayList<CnaEvent>();
+                        	
                             if (discritizedCnaProfile) {
                                 long entrezGeneId = genes.get(0).getEntrezGeneId();
                                 int n = values.length;
@@ -372,19 +380,25 @@ public class ImportTabDelimData {
                                            // || values[i].equals(GeneticAlterationType.HEMIZYGOUS_DELETION)
                                             || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
                                         CnaEvent cnaEvent = new CnaEvent(orderedSampleList.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
-                                        
-                                        if (existingCnaEvents.containsKey(cnaEvent.getEvent())) {
-                                            cnaEvent.setEventId(existingCnaEvents.get(cnaEvent.getEvent()).getEventId());
-                                            DaoCnaEvent.addCaseCnaEvent(cnaEvent, false);
-                                        } else {
-                                        	//cnaEvent.setEventId(++cnaEventId); not needed anymore, column now has AUTO_INCREMENT 
-                                            DaoCnaEvent.addCaseCnaEvent(cnaEvent, true);
-                                            existingCnaEvents.put(cnaEvent.getEvent(), cnaEvent.getEvent());
-                                        }
+                                        //delayed add:
+                                        cnaEventsToAdd.add(cnaEvent);
                                     }
                                 }
                             }
                             recordStored = storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0), geneSymbol);
+                            //only add extra CNA related records if the step above worked, otherwise skip:
+                            if (recordStored) {
+	                            for (CnaEvent cnaEvent : cnaEventsToAdd) {
+		                            if (existingCnaEvents.containsKey(cnaEvent.getEvent())) {
+		                                cnaEvent.setEventId(existingCnaEvents.get(cnaEvent.getEvent()).getEventId());
+		                                DaoCnaEvent.addCaseCnaEvent(cnaEvent, false);
+		                            } else {
+		                            	//cnaEvent.setEventId(++cnaEventId); not needed anymore, column now has AUTO_INCREMENT 
+		                                DaoCnaEvent.addCaseCnaEvent(cnaEvent, true);
+		                                existingCnaEvents.put(cnaEvent.getEvent(), cnaEvent.getEvent());
+		                            }
+	                            }
+                            }                            
                         } else {
                         	//TODO - review: is this still correct?
                         	int otherCase = 0;

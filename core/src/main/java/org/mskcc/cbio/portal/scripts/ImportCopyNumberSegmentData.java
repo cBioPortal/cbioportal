@@ -62,122 +62,100 @@ public class ImportCopyNumberSegmentData {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
-        String line = buf.readLine(); // skip header line
-        long segId = DaoCopyNumberSegment.getLargestId();
-        while ((line=buf.readLine()) != null) {
-            ProgressMonitor.incrementCurValue();
-            ConsoleUtil.showProgress();
-            
-            String[] strs = line.split("\t");
-            if (strs.length<6) {
-                System.err.println("wrong format: "+line);
-            }
-
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-            //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
-	        //procedure. In this new procedure, Patients and Samples should only be added 
-	        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
-	        //sample per patient, which is not always the case.
-            ImportDataUtil.addPatients(new String[] { strs[0] }, cancerStudy);
-	        int nrUnknownSamplesAdded = ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
-	        if (nrUnknownSamplesAdded > 0) {
-	        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
+        try {
+	        String line = buf.readLine(); // skip header line
+	        long segId = DaoCopyNumberSegment.getLargestId();
+	        while ((line=buf.readLine()) != null) {
+	            ProgressMonitor.incrementCurValue();
+	            ConsoleUtil.showProgress();
+	            
+	            String[] strs = line.split("\t");
+	            if (strs.length<6) {
+	                System.err.println("wrong format: "+line);
+	            }
+	
+	            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+	            //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
+		        //procedure. In this new procedure, Patients and Samples should only be added 
+		        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
+		        //sample per patient, which is not always the case.
+	            ImportDataUtil.addPatients(new String[] { strs[0] }, cancerStudy);
+		        int nrUnknownSamplesAdded = ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
+		        if (nrUnknownSamplesAdded > 0) {
+		        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
+		        }
+	
+	            String sampleId = StableIdUtil.getSampleId(strs[0]);
+	            String chrom = strs[1].trim(); 
+	            //validate in same way as GistitReader:
+	            ValidationUtils.validateChromosome(chrom);
+	            
+	            long start = Double.valueOf(strs[2]).longValue();
+	            long end = Double.valueOf(strs[3]).longValue();
+	            if (start >= end) {
+	            	//workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
+	            	ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
+	            	entriesSkipped++;
+	            	continue;
+	            }            
+	            int numProbes = new BigDecimal((strs[4])).intValue();
+	            double segMean = Double.parseDouble(strs[5]);
+	            
+	            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+	            if (s == null) {
+	                assert StableIdUtil.isNormal(sampleId);
+	                entriesSkipped++;
+	                continue;
+	            }
+	            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
+	            cns.setSegId(++segId);
+	            DaoCopyNumberSegment.addCopyNumberSegment(cns);
 	        }
-
-            String sampleId = StableIdUtil.getSampleId(strs[0]);
-            String chrom = strs[1].trim(); 
-            //validate in same way as GistitReader:
-            ValidationUtils.validateChromosome(chrom);
-            
-            long start = Double.valueOf(strs[2]).longValue();
-            long end = Double.valueOf(strs[3]).longValue();
-            if (start >= end) {
-            	//workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
-            	ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
-            	entriesSkipped++;
-            	continue;
-            }            
-            int numProbes = new BigDecimal((strs[4])).intValue();
-            double segMean = Double.parseDouble(strs[5]);
-            
-            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
-            if (s == null) {
-                assert StableIdUtil.isNormal(sampleId);
-                entriesSkipped++;
-                continue;
-            }
-            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
-            cns.setSegId(++segId);
-            DaoCopyNumberSegment.addCopyNumberSegment(cns);
+	        MySQLbulkLoader.flushAll();
         }
-        MySQLbulkLoader.flushAll();
+        finally {
+        	buf.close();
+        }
     }
     
     public static void main(String[] args) throws Exception
     {
-    	ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-        if (args.length < 4) {
-            System.out.println("command line usage:  importCopyNumberSegmentData --data <copy_number_segment_file.seg> --meta <meta_cna_seg.txt>");
-            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-            return;
-        }
-        try {
-		    String[] filenames = getFilenames(args);
+    	try {    		
+ 		    ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+		    String description = "Import 'segment data' files";
+	    	
+		    OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
+		    String dataFile = (String) options.valueOf("data");
+		    File descriptorFile = new File((String) options.valueOf("meta"));
+        
 		    Properties properties = new Properties();
-		    properties.load(new FileInputStream(filenames[1]));
+		    properties.load(new FileInputStream(descriptorFile));
 
-		    System.out.println("Reading data from:  " + filenames[0]);
+		    System.out.println("Reading data from:  " + dataFile);
 		    
 			SpringUtil.initDataSource();
 		    CancerStudy cancerStudy = getCancerStudy(properties);
 		    
 		    if (segmentDataExistsForCancerStudy(cancerStudy)) {
-		        System.err.println("Ignoring this file since seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + filenames[0]);
-		        return;
+			     throw new IllegalArgumentException("Seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + dataFile);
 		    }
 		
 		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);
 		    ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-		    importCopyNumberSegmentFileData(cancerStudy, filenames[0]);
+		    importCopyNumberSegmentFileData(cancerStudy, dataFile);
 		    
-		    System.err.println("Done.");
+		    System.out.println("Done.");
+		    ConsoleUtil.showMessages();
 	    } catch (Exception e) {
-	    	String errorMessage = "Error:  " + e.getMessage();
-			System.err.println(errorMessage);
-			ProgressMonitor.logWarning(errorMessage); 
-	    } finally {
-        ConsoleUtil.showMessages();
+	    	ConsoleUtil.showWarnings();
+	    	//exit with error status:
+	    	System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	    	if (e.getMessage() == null)
+	        	e.printStackTrace();
+	    	System.exit(1);
 	    }
     }
 
-    private static String[] getFilenames(String[] args) throws Exception
-    {
-        String[] filenames = new String[2];
-        OptionParser parser = new OptionParser();
-        parser.accepts("noprogress");
-        OptionSpec<String> data = parser.accepts( "data",
-            "copy number segment data file" ).withRequiredArg().describedAs( "copy_number_segment_file.seg" ).ofType( String.class );
-        OptionSpec<String> meta = parser.accepts( "meta",
-            "meta (description) file" ).withRequiredArg().describedAs( "meta_cna_seg.txt" ).ofType( String.class );
-        parser.acceptsAll(Arrays.asList("dbmsAction", "loadMode"));
-        OptionSet options = parser.parse( args );
-
-        if (options.has(data)) {
-            filenames[0] = options.valueOf(data);
-        }
-        else {
-            throw new Exception ("'data' argument is missing!");
-        }
-
-        if (options.has(meta)) {
-            filenames[1] = options.valueOf(meta);
-        }
-        else {
-            throw new Exception ("'meta' argument is missing!");
-        }
-
-        return filenames;
-    }
 
     private static CancerStudy getCancerStudy(Properties properties) throws Exception
     {

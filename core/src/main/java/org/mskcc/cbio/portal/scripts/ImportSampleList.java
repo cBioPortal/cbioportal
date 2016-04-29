@@ -46,10 +46,10 @@ public class ImportSampleList {
 
    public static void importSampleList(File dataFile) throws Exception {
       ProgressMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
-      Properties properties = new Properties();
+      Properties properties = new TrimmedProperties();
       properties.load(new FileInputStream(dataFile));
 
-      String stableId = properties.getProperty("stable_id").trim();
+      String stableId = properties.getProperty("stable_id");
 
       if (stableId.contains(" ")) {
          throw new IllegalArgumentException("stable_id cannot contain spaces:  " + stableId);
@@ -139,29 +139,44 @@ public class ImportSampleList {
    }
 
    public static void main(String[] args) throws Exception {
-
-      // check args
-      if (args.length < 1) {
-         System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
-         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-         return;
+      try {
+    	  // check args
+	      if (args.length < 1) {
+	         System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
+	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	         //use 2 for command line syntax errors:
+	         System.exit(2);
+	      }
+	      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	      File dataFile = new File(args[0]);
+	      if (dataFile.isDirectory()) {
+	         File files[] = dataFile.listFiles();
+	         for (File file : files) {
+	            if (!file.getName().startsWith(".") && !file.getName().endsWith("~")) {
+	               ImportSampleList.importSampleList(file);
+	            }
+	         }
+	         if (files.length == 0) {
+	             ProgressMonitor.logWarning("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
+	         }
+	      } else {
+	    	  if (!dataFile.getName().startsWith(".") && !dataFile.getName().endsWith("~")) {
+	    		  ImportSampleList.importSampleList(dataFile);
+	    	  }
+	    	  else {
+	    		  ProgressMonitor.logWarning("File name starts with '.' or ends with '~', so it was skipped: " + dataFile.getCanonicalPath());
+	    	  }
+	      }
+	      ConsoleUtil.showMessages();
+	      System.out.println("Done.");
       }
-      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-      File dataFile = new File(args[0]);
-      if (dataFile.isDirectory()) {
-         File files[] = dataFile.listFiles();
-         for (File file : files) {
-            if (file.getName().endsWith("txt")) {
-               ImportSampleList.importSampleList(file);
-            }
-         }
-         if (files.length == 0) {
-             ProgressMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
-         }
-      } else {
-         ImportSampleList.importSampleList(dataFile);
+      catch (Exception e) {
+	        ConsoleUtil.showWarnings();
+	        //exit with error status:
+	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        if (e.getMessage() == null)
+	        	e.printStackTrace();
+	        System.exit(1);
       }
-      ConsoleUtil.showWarnings();
-      System.err.println("Done.");
    }
 }

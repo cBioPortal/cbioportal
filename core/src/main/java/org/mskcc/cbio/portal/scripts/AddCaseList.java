@@ -84,7 +84,7 @@ public class AddCaseList {
 	 * @param pMonitor
 	 * @throws Exception
 	 */
-   public static void addCaseList(String stableId, CancerStudy theCancerStudy, 
+	private static void addCaseList(String stableId, CancerStudy theCancerStudy, 
 		   SampleListCategory sampleListCategory, String sampleListName, String sampleListDescription, 
 		   ArrayList<String> sampleIDsList) throws Exception {
 
@@ -113,33 +113,43 @@ public class AddCaseList {
    }
 
    public static void main(String[] args) throws Exception {
-
-      // check args
-      if (args.length < 2) {
-         System.out.println("command line usage:  addCaseList.pl " + "<study identifier> <case list type>");
-         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-         return;
+      try {
+		  // check args
+	      if (args.length < 2) {
+	         System.out.println("command line usage:  addCaseList.pl " + "<study identifier> <case list type>");
+	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	         //use 2 for command line syntax errors:
+	         System.exit(2);
+	      }
+	      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	      
+	      String cancerStudyIdentifier = args[0];
+	      String caseListType = args[1];
+	      if (cancerStudyIdentifier == null) {
+	          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
+	      }
+	 	  SpringUtil.initDataSource();
+	      CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+	      if (theCancerStudy == null) {
+	          throw new IllegalArgumentException("cancer study identified by cancer_study_identifier '"
+	                   + cancerStudyIdentifier + "' not found in dbms or inaccessible to user.");
+	      }
+	      
+	      if (caseListType.equals("all")) {
+		      //Add "all" case list:
+		      AddCaseList.addAllCasesList(theCancerStudy);
+	      }
+	      
+	      ConsoleUtil.showMessages();
+	      System.out.println("Done.");
       }
-      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-      
-      String cancerStudyIdentifier = args[0];
-      String caseListType = args[1];
-      if (cancerStudyIdentifier == null) {
-          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
-      }
- 	  SpringUtil.initDataSource();
-      CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-      if (theCancerStudy == null) {
-          throw new IllegalArgumentException("cancer study identified by cancer_study_identifier '"
-                   + cancerStudyIdentifier + "' not found in dbms or inaccessible to user.");
-      }
-      
-      if (caseListType.equals("all")) {
-	      //Add "all" case list:
-	      AddCaseList.addAllCasesList(theCancerStudy);
-      }
-      
-      ConsoleUtil.showWarnings();
-      System.err.println("Done.");
-   }
+      catch (Exception e) {
+	        ConsoleUtil.showWarnings();
+	        //exit with error status:
+	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        if (e.getMessage() == null)
+	        	e.printStackTrace();
+	        System.exit(1);
+    }
+  }
 }

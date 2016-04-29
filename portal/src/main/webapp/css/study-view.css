@@ -382,9 +382,7 @@ embed {
 }
 .study-view-pie-label {
     height:55px;
-    width:95%;
     float:left;
-    padding: 0 5px;
     display: none;
 }
 .pieLabel:hover{
@@ -426,6 +424,9 @@ embed {
 .study-view-pdf-svg-side.bar {
     /*left: 375px;*/
     /*left: 325px;*/
+}
+.mutated-gene-cna {
+    float: left;
 }
 .w1 {
     width: 180px;
@@ -918,7 +919,9 @@ Style for search box in dataTable of Summaery Tab
     position: absolute;
     top: 30%;
 }
-
+.study-view-pie-label-qtip {
+    padding: 5px;
+}
 /* tag styles */
 /*
 ul {
@@ -1136,7 +1139,8 @@ span.close{
 cursor: pointer;
 }
 
-/* Enhanced fixed datatable styles*/
+/*  Enhanced fixed datatable styles, these are auto-generated from the library
+    Please edit the library sass file directly*/
 #ruler {
     visibility: hidden;
     white-space: nowrap;
@@ -1219,24 +1223,25 @@ cursor: pointer;
     line-height: 1.428571429;
 }
 
-.mutated-gene-cna .EFDT-table {
+#study-view-charts .EFDT-table, .study-view-pie-label-qtip .EFDT-table {
     font-family: Verdana, Arial, sans-serif;
     font-size: 12px;
 }
 
-.mutated-gene-cna .EFDT-table * {
+#study-view-charts .EFDT-table *, .study-view-pie-label-qtip .EFDT-table * {
     box-sizing: border-box;
+    text-align: left;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-top-btn {
+#study-view-charts .EFDT-table .EFDT-top-btn, .study-view-pie-label-qtip .EFDT-table .EFDT-top-btn {
     margin-right: 5px;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-show-hide, .mutated-gene-cna .EFDT-table .EFDT-fixed-choose, .mutated-gene-cna .EFDT-table .EFDT-download {
+#study-view-charts .EFDT-table .EFDT-show-hide, #study-view-charts .EFDT-table .EFDT-fixed-choose, #study-view-charts .EFDT-table .EFDT-download, .study-view-pie-label-qtip .EFDT-table .EFDT-show-hide, .study-view-pie-label-qtip .EFDT-table .EFDT-fixed-choose, .study-view-pie-label-qtip .EFDT-table .EFDT-download {
     float: left;
 }
 
-.mutated-gene-cna .EFDT-table .dropdown-checkbox-toggle {
+#study-view-charts .EFDT-table .dropdown-checkbox-toggle, .study-view-pie-label-qtip .EFDT-table .dropdown-checkbox-toggle {
     color: #333;
     background-color: #fff;
     display: inline-block;
@@ -1259,31 +1264,31 @@ cursor: pointer;
     border-radius: 4px;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-header-filters-reset {
+#study-view-charts .EFDT-table .EFDT-header-filters-reset, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters-reset {
     cursor: pointer;
     text-decoration: underline;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-download-btn {
+#study-view-charts .EFDT-table .EFDT-download-btn, .study-view-pie-label-qtip .EFDT-table .EFDT-download-btn {
     float: left;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-header-filters {
+#study-view-charts .EFDT-table .EFDT-header-filters, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters {
     margin: 3px 0;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-header-filters input {
+#study-view-charts .EFDT-table .EFDT-header-filters input, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters input {
     height: 20px;
     font-size: 12px;
     line-height: 12px;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-header {
+#study-view-charts .EFDT-table .EFDT-header, .study-view-pie-label-qtip .EFDT-table .EFDT-header {
     text-align: center;
     vertical-align: middle;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-header .EFDT-header-sort {
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort {
     width: 100%;
     padding: 3px 8px;
     display: inline-block;
@@ -1291,31 +1296,31 @@ cursor: pointer;
     white-space: nowrap;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-content {
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-content, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-content {
     float: left;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon {
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon {
     float: right;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-header .EFDT-header-sort:hover {
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort:hover, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort:hover {
     cursor: pointer;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-filter {
+#study-view-charts .EFDT-table .EFDT-filter, .study-view-pie-label-qtip .EFDT-table .EFDT-filter {
     float: left;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-table-prefix {
+#study-view-charts .EFDT-table .EFDT-table-prefix, .study-view-pie-label-qtip .EFDT-table .EFDT-table-prefix {
     margin-bottom: 10px;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-result-info {
+#study-view-charts .EFDT-table .EFDT-result-info, .study-view-pie-label-qtip .EFDT-table .EFDT-result-info {
     float: left;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-result-info-content {
+#study-view-charts .EFDT-table .EFDT-result-info-content, .study-view-pie-label-qtip .EFDT-table .EFDT-result-info-content {
     display: inline-block;
     white-space: nowrap;
     padding: 6px 12px;
@@ -1323,38 +1328,52 @@ cursor: pointer;
     line-height: 1.428571429;
 }
 
-.mutated-gene-cna .EFDT-table .gene-selected {
+#study-view-charts .EFDT-table .gene-selected, .study-view-pie-label-qtip .EFDT-table .gene-selected {
     font-weight: bold;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-cell .gene:hover {
+#study-view-charts .EFDT-table .EFDT-cell .gene:hover, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .gene:hover {
     border: 2px solid #1974b8;
     cursor: pointer;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-cell .gene.gene-selected {
+#study-view-charts .EFDT-table .EFDT-cell .gene.gene-selected, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .gene.gene-selected {
     font-weight: bold;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-cell .alt-type-red {
+#study-view-charts .EFDT-table .EFDT-cell .alt-type-red, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .alt-type-red {
     font-weight: bold;
     color: #ff0000;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-cell .alt-type-blue {
+#study-view-charts .EFDT-table .EFDT-cell .alt-type-blue, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .alt-type-blue {
     font-weight: bold;
     color: #0000ff;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-cell .qval-icon {
+#study-view-charts .EFDT-table .EFDT-cell .qval-icon, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .qval-icon {
     margin-bottom: 4px;
     width: 10px;
 }
 
-.mutated-gene-cna .EFDT-table .EFDT-cell-full {
+#study-view-charts .EFDT-table .EFDT-cell-full, .study-view-pie-label-qtip .EFDT-table .EFDT-cell-full {
     width: 100%;
 }
 
-.mutated-gene-cna .EFDT-table .row-selected {
+#study-view-charts .EFDT-table .row-selected, .study-view-pie-label-qtip .EFDT-table .row-selected {
     background-color: lightgrey;
+}
+
+#study-view-charts .EFDT-table .public_fixedDataTable_header, #study-view-charts .EFDT-table .public_fixedDataTable_header .public_fixedDataTableCell_main, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTable_header, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTable_header .public_fixedDataTableCell_main {
+    background-color: white;
+    background-image: none;
+}
+
+#study-view-charts .EFDT-table .fixedDataTableLayout_main, #study-view-charts .EFDT-table .fixedDataTableCellLayout_main, .study-view-pie-label-qtip .EFDT-table .fixedDataTableLayout_main, .study-view-pie-label-qtip .EFDT-table .fixedDataTableCellLayout_main {
+    border: 0;
+}
+
+#study-view-charts .EFDT-table .public_fixedDataTableCell_cellContent, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTableCell_cellContent {
+    line-height: 15px;
+    padding: 7px 6px 8px 6px;
 }

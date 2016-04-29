@@ -49,6 +49,7 @@ var StudyViewInitTables = (function() {
         attr.forEach(function(e, i) {
             var _worker = {};
 
+            _worker.initStatus = 'unknown'; //unknown, initializing, initialized, failed
             _worker.index = workers.length;
             _worker.opts = {};
             _worker.data = {};
@@ -392,10 +393,15 @@ var StudyViewInitTables = (function() {
         StudyViewUtil.addCytobandSorting();
         workers.forEach(function(e, i) {
             workers[i].tableInstance = new Table();
+            workers[i].initStatus = 'initializing';
             workers[i].tableInstance.initDiv(e)
             workers[i].data.getData(function(data, workerId) {
                 workers[workerId].data.arr = data;
-                workers[workerId].tableInstance.draw(workers[workerId].data);
+                workers[workerId]
+                    .tableInstance
+                    .draw(workerId, workers[workerId].data, function(id, status) {
+                        workers[id].initStatus = status;
+                    });
             }, i);
         });
     }
@@ -412,8 +418,8 @@ var StudyViewInitTables = (function() {
                 datum.gene = data[i].gene_symbol;
                 datum.numOfMutations = data[i].num_muts;
                 datum.samples = _.uniq(caseIds).length;
-                datum.sampleRate =
-                    (datum.samples / Number(numOfCases) * 100).toFixed(1) + '%';
+                datum.sampleRate = (numOfCases <= 0 ? 0 :
+                        ((datum.samples / Number(numOfCases) * 100).toFixed(1))) + '%';
 
                 if (data[i].hasOwnProperty('qval') && !isNaN(data[i].qval)) {
                     var qval = Number(data[i].qval);
@@ -458,7 +464,8 @@ var StudyViewInitTables = (function() {
                 datum.cytoband = data.cytoband[i];
                 datum.altType = _altType;
                 datum.samples = data.caseIds[i].length;
-                datum.altrateInSample = (datum.samples / numOfCases * 100).toFixed(1) + '%';
+                datum.altrateInSample = ((numOfCases <= 0 ? 0 :
+                        (datum.samples / numOfCases * 100).toFixed(1))) + '%';
                 if (data.gistic[i] && (data.gistic[i] instanceof Array) && !isNaN(data.gistic[i][0])) {
                     var qval = Number(data.gistic[i][0]);
                     if (qval === 0) {
@@ -518,7 +525,17 @@ var StudyViewInitTables = (function() {
         workers.forEach(function(e, i) {
             // check whether table is visible before doing work
             if (isTableVisible(e.opts.tableId)) {
-                redrawSingleTable(data, e.opts.tableId);
+                if (e.initStatus !== 'initializing') {
+                    redrawSingleTable(data, e.opts.tableId);
+                } else {
+                    var interval = setInterval(function() {
+                        console.log(e.opts.title + ' is initializing...');
+                        if (e.initStatus !== 'initializing') {
+                            clearInterval(interval);
+                            redrawSingleTable(data, e.opts.tableId);
+                        }
+                    }, 500);
+                }
             }
         });
     }

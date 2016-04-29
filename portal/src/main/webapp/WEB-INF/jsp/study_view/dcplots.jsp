@@ -46,7 +46,6 @@
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
-<%--<script src="js/lib/es5-shim.min.js"></script>--%>
 <script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/packery.pkgd.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/draggabilly.pkgd.min.js?<%=GlobalProperties.getAppVersion()%>"></script>

@@ -184,7 +184,7 @@ var Table = function() {
             uniqueId: "uniqueId",
             rowHeight: 30,
             tableWidth: 375,
-            maxHeight: 300,
+            maxHeight: 280,
             headerHeight: 30,
             groupHeaderHeight: 40,
             autoColumnWidth: false,
@@ -387,11 +387,19 @@ var Table = function() {
             initData(input);
             initDiv();
         },
-        draw: function(data){
-            initTable(data);
-            initReactTables();
-            addEvents();
-            stopLoading();
+        draw: function(id, data, callback) {
+            try {
+                initTable(data);
+                initReactTables();
+                addEvents();
+                stopLoading();
+                initStatus = true;
+            } catch (e) {
+                initStatus = false;
+            }
+            if (_.isFunction(callback)) {
+                callback(id, initStatus ? 'initialized' : 'failed');
+            }
         },
         redraw: redraw,
         getInitStatus: getInitStatus,

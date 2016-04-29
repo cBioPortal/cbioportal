@@ -147,14 +147,25 @@ var EnhancedFixedDataTableSpecial = (function() {
             var shortLabel = this.props.shortLabel;
             var className = this.props.className || '';
             var field = this.props.field;
+            var color = this.props.color || '';
+            var tableType = this.props.tableType || '';
 
             if (label && shortLabel && label.toString().length > shortLabel.toString().length) {
                 qtipFlag = true;
             }
             return (
                 React.createElement("span", {className: className + (qtipFlag?" hasQtip " : '') +
-                    (field === 'altType' ? (label === 'AMP' ? ' alt-type-red' : ' alt-type-blue') : ''),
+                    ((field === 'altType' && ['mutatedGene', 'cna'].indexOf(tableType) !== -1) ? (label === 'AMP' ? ' alt-type-red' : ' alt-type-blue') : ''),
                         "data-qtip": label},
+
+                    (field === 'name' && tableType === 'pieLabel') ? (
+                        React.createElement("svg", {width: "15", height: "10"},
+                            React.createElement("g", null,
+                                React.createElement("rect", {height: "10", width: "10", fill: color})
+                            )
+                        )
+                    ) : '',
+
                     shortLabel
                 )
             );
@@ -427,6 +438,12 @@ var EnhancedFixedDataTableSpecial = (function() {
         selectGene: function(rowIndex) {
             this.props.selectGene(rowIndex);
         },
+        enterPieLabel: function(data) {
+            this.props.pieLabelMouseEnterFunc(data);
+        },
+        leavePieLabel: function(data) {
+            this.props.pieLabelMouseLeaveFunc(data);
+        },
         render: function() {
             var Cell = FixedDataTable.Cell;
             var rowIndex = this.props.rowIndex, data = this.props.data, field = this.props.field, filterAll = this.props.filterAll;
@@ -440,12 +457,16 @@ var EnhancedFixedDataTableSpecial = (function() {
                         columnKey: field},
                     React.createElement("span", {style: flag ? {backgroundColor:'yellow'} : {},
                             onClick: field === 'gene' ? this.selectGene.bind(this, data[rowIndex].index) : '',
+                            onMouseEnter: (tableType === 'pieLabel' && _.isFunction(this.props.pieLabelMouseEnterFunc) && field === 'name') ? this.enterPieLabel.bind(this, data[rowIndex].row) : '',
+                            onMouseLeave: (tableType === 'pieLabel' && _.isFunction(this.props.pieLabelMouseLeaveFunc) && field === 'name') ? this.leavePieLabel.bind(this, data[rowIndex].row) : '',
                             "data-qtip": field === 'gene' ? ('Click ' + data[rowIndex].row[field] + ' to ' + ( this.props.selectedGeneRowIndex.indexOf(data[rowIndex].index) === -1 ? 'add to ' : ' remove from ' ) + 'your query') : '',
                             className: (field === 'gene' ? 'gene hasQtip' : '') +
                             ((field === 'gene' && this.props.selectedGeneRowIndex.indexOf(data[rowIndex].index) != -1) ? ' gene-selected' : '')},
                         React.createElement(QtipWrapper, {label: data[rowIndex].row[field],
                             shortLabel: shortLabels[data[rowIndex].index][field],
-                            field: field})
+                            field: field,
+                            tableType: tableType,
+                            color: data[rowIndex].row.color})
                     ),
 
                     field === 'gene' && data[rowIndex].row.qval ?
@@ -494,6 +515,7 @@ var EnhancedFixedDataTableSpecial = (function() {
 
         // Creates Qtip after page scrolling
         onScrollEnd: function() {
+            $(".qtip").remove();
             this.createQtip();
         },
 
@@ -635,7 +657,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                                             selectRow: self.selectRow,
                                             selectGene: self.selectGene,
                                             selectedRowIndex: selectedRowIndex,
-                                            selectedGeneRowIndex: selectedGeneRowIndex}
+                                            selectedGeneRowIndex: selectedGeneRowIndex,
+                                            pieLabelMouseEnterFunc: props.pieLabelMouseEnterFunc,
+                                            pieLabelMouseLeaveFunc: props.pieLabelMouseLeaveFunc}
                                         ),
                                         width: width,
                                         fixed: col.fixed,
@@ -659,7 +683,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                                         selectRow: self.selectRow,
                                         selectGene: self.selectGene,
                                         selectedRowIndex: selectedRowIndex,
-                                        selectedGeneRowIndex: selectedGeneRowIndex}
+                                        selectedGeneRowIndex: selectedGeneRowIndex,
+                                        pieLabelMouseEnterFunc: props.pieLabelMouseEnterFunc,
+                                        pieLabelMouseLeaveFunc: props.pieLabelMouseLeaveFunc}
                                     ),
                                     width: width,
                                     fixed: col.fixed,
@@ -695,6 +721,7 @@ var EnhancedFixedDataTableSpecial = (function() {
                 _.each(rows, function(row) {
                     _.each(row, function(data, attr) {
                         if (data) {
+                            data = data.toString();
                             if (!columnWidth.hasOwnProperty(attr)) {
                                 columnWidth[attr] = 0;
                             }
@@ -706,7 +733,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                                     rulerWidth = ruler.outerWidth();
                                     break;
                                 default:
-                                    rulerWidth = data.toString().toUpperCase().length * 12;
+                                    var upperCaseLength = data.replace(/[^A-Z]/g, "").length;
+                                    var dataLength = data.length;
+                                    rulerWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 15;
                                     break;
                             }
 
@@ -741,15 +770,18 @@ var EnhancedFixedDataTableSpecial = (function() {
                     var _labelShort = _label;
                     var _labelWidth;
                     if (_label) {
+                        _label = _label.toString();
                         switch (measureMethod) {
-                            //case 'jquery':
-                            //  var ruler = $('#ruler');
-                            //  ruler.text(_label);
-                            //  ruler.css('font-size', '14px');
-                            //  _labelWidth = ruler.outerWidth();
-                            //  break;
+                            case 'jquery':
+                                var ruler = $('#ruler');
+                                ruler.text(_label);
+                                ruler.css('font-size', '14px');
+                                _labelWidth = ruler.outerWidth();
+                                break;
                             default:
-                                _labelWidth = _label.toString().toUpperCase().length * 10;
+                                var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
+                                var dataLength = _label.length;
+                                _labelWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 15;
                                 break;
                         }
                         if (_labelWidth > columnWidth[attr]) {
@@ -767,27 +799,30 @@ var EnhancedFixedDataTableSpecial = (function() {
             _.each(cols, function(col) {
                 var _label = col.displayName;
                 var _shortLabel = '';
-                var _labelWidth;
+                var _labelWidth = _label.toString().length * 8 + 20;
 
                 if (_label) {
-                    //switch (measureMethod) {
-                    //  case 'jquery':
-                    //    var ruler = $('#ruler');
-                    //    ruler.text(_label);
-                    //    ruler.css('font-size', '14px');
-                    //    ruler.css('font-weight', 'bold');
-                    //    _labelWidth = ruler.outerWidth() + 20;
-                    //    break;
-                    //  default:
-                    //    _labelWidth = _label.toString().toUpperCase().length * 12 + 20;
-                    //    break;
-                    //}
-                    //if (_labelWidth > columnWidth[col.name]) {
-                    //  var end = Math.floor(_label.length * columnWidth[col.name] / _labelWidth) - 3;
-                    //  _shortLabel = _label.substring(0, end) + '...';
-                    //} else {
-                    _shortLabel = _label;
-                    //}
+                    _label = _label.toString();
+                    switch (measureMethod) {
+                        case 'jquery':
+                            var ruler = $('#ruler');
+                            ruler.text(_label);
+                            ruler.css('font-size', '14px');
+                            ruler.css('font-weight', 'bold');
+                            _labelWidth = ruler.outerWidth() + 20;
+                            break;
+                        default:
+                            var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
+                            var dataLength = _label.length;
+                            _labelWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 20;
+                            break;
+                    }
+                    if (_labelWidth > columnWidth[col.name]) {
+                        var end = Math.floor(_label.length * columnWidth[col.name] / _labelWidth) - 3;
+                        _shortLabel = _label.substring(0, end) + '...';
+                    } else {
+                        _shortLabel = _label;
+                    }
                 }
                 headerShortLabels[col.name] = _shortLabel;
             });
@@ -847,8 +882,8 @@ var EnhancedFixedDataTableSpecial = (function() {
         },
 
         // Sorts rows by selected column
-        sortRowsBy: function(filteredRows, sortBy, switchDir) {
-            var type = this.state.filters[sortBy].type, sortDir = this.state.sortDir,
+        sortRowsBy: function(filters, filteredRows, sortBy, switchDir) {
+            var type = filters[sortBy].type, sortDir = this.state.sortDir,
                 SortTypes = this.SortTypes;
             if (switchDir) {
                 if (sortBy === this.state.sortBy) {
@@ -919,7 +954,7 @@ var EnhancedFixedDataTableSpecial = (function() {
 
         // Sorts and sets state
         sortNSet: function(sortBy) {
-            var result = this.sortRowsBy(this.state.filteredRows, sortBy, true);
+            var result = this.sortRowsBy(this.state.filters, this.state.filteredRows, sortBy, true);
             this.setState({
                 filteredRows: result.filteredRows,
                 sortBy: sortBy,
@@ -930,7 +965,7 @@ var EnhancedFixedDataTableSpecial = (function() {
         // Filters, sorts and sets state
         filterSortNSet: function(filterAll, filters, sortBy) {
             var filteredRows = this.filterRowsBy(filterAll, filters);
-            var result = this.sortRowsBy(filteredRows, sortBy, false);
+            var result = this.sortRowsBy(filters, filteredRows, sortBy, false);
             this.setState({
                 filteredRows: result.filteredRows,
                 sortBy: sortBy,
@@ -1001,7 +1036,7 @@ var EnhancedFixedDataTableSpecial = (function() {
 
         updateCols: function(cols, filters) {
             var filteredRows = this.filterRowsBy(this.state.filterAll, filters);
-            var result = this.sortRowsBy(filteredRows, this.state.sortBy, false);
+            var result = this.sortRowsBy(filters, filteredRows, this.state.sortBy, false);
             this.setState({
                 cols: cols,
                 filteredRows: result.filteredRows,
@@ -1115,7 +1150,7 @@ var EnhancedFixedDataTableSpecial = (function() {
                 data = input.data, dataLength = data.length, col, cell, i, filters = {},
                 uniqueId = uniqueId || 'id', newCol,
                 selectedRow = selectedRow || [],
-                measureMethod = dataLength > 100000 ? 'charNum' : 'jquery',
+                measureMethod = (dataLength > 100000 || !this.props.autoColumnWidth) ? 'charNum' : 'jquery',
                 columnMinWidth = groupHeader ? 130 : 50; //The minimum width to at least fit in number slider.
             var selectedRowIndex = [];
 
@@ -1229,12 +1264,21 @@ var EnhancedFixedDataTableSpecial = (function() {
         },
         // If properties changed
         componentWillReceiveProps: function(newProps) {
-            if (newProps.input.data.length !== this.state.dataSize) {
-                var state = this.parseInputData(newProps.input, newProps.uniqueId,
-                    newProps.selectedRow, newProps.groupHeader, newProps.columnSorting);
-                this.setState(state);
-                this.filterSortNSet(this.state.filterAll, this.state.filters, this.state.sortBy);
-            }
+            var state = this.parseInputData(newProps.input, newProps.uniqueId,
+                newProps.selectedRow, newProps.groupHeader, newProps.columnSorting);
+            state.filteredRows = null;
+            state.filterAll = "";
+            state.sortBy = 'samples';
+            state.goToColumn = null;
+            state.filterTimer = 0;
+
+            var filteredRows = this.filterRowsBy(state.filterAll, state.filters);
+            var result = this.sortRowsBy(state.filters, filteredRows, state.sortBy, false);
+
+            state.filteredRows = result.filteredRows;
+            state.sortDir = result.sortDir;
+
+            this.setState(state);
         },
 
         render: function() {
@@ -1286,6 +1330,8 @@ var EnhancedFixedDataTableSpecial = (function() {
                             columnWidths: this.state.columnWidths,
                             rowClickFunc: this.props.rowClickFunc,
                             geneClickFunc: this.props.geneClickFunc,
+                            pieLabelMouseEnterFunc: this.props.pieLabelMouseEnterFunc,
+                            pieLabelMouseLeaveFunc: this.props.pieLabelMouseLeaveFunc,
                             selectedRowIndex: selectedRowIndex,
                             selectedGeneRowIndex: selectedGeneRowIndex}
                         )

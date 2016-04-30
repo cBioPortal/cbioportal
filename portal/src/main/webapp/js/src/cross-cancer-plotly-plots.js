@@ -471,9 +471,13 @@ var ccPlots = (function (Plotly, _, $) {
 
             // exclude certain studies
             var _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.id === 'esca_tcga'; })[0];
-            document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
+            if (_tmp_study_obj !== undefined) {
+                document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
+            }
             _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.id === 'stad_tcga'; })[0];
-            document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
+            if (_tmp_study_obj !== undefined) {
+                document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
+            }
             
             ccPlots.update();
         }

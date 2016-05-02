@@ -33,7 +33,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List) wher
 * [Deploying cBioPortal in Docker](Build-from-Docker.md)
 
 ## 3. cBioPortal Maintenance
-* [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md) ---> I think the name is wrong here.
+* [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
 
 ## 4. Development      
 * [cBioPortal Entity-relationship Diagram](cBioPortal-ER-Diagram.md)
@@ -50,8 +50,8 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List) wher
    * [Development, Debugging and Maintenance Using cbioportalImporter](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md)
    * [File Formats](File-Formats.md)
        * [Z-Score Normalization](Z-Score-normalization-script.md)
-   * [Data Loading: What you need to change](Data-Loading-:-What-You-Need-To-Change.md)
-   * [Data Loading: Tips and Best Practices](Data-Loading-:-Tips-and-Best-Practices.md)
+   * [Data Loading: What You Need To Change](Data-Loading-%3A-What-You-Need-To-Change)
+   * [Data Loading: Tips and Best Practices](Data-Loading-%3A-Tips-and-Best-Practices.md)
    * [Importer Tool](Importer-Tool.md) (deprecated)
 
 ### 5.2 Datasets

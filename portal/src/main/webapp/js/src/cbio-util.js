@@ -409,6 +409,85 @@ cbio.util = (function() {
         $(this).qtip(opts);
     }
 
+    /**
+     * Converts the given string to title case format. Also replaces each
+     * underdash with a space.
+     *
+     * TODO: Need to remove the same function under network-visualization.js
+     * @param source    source string to be converted to title case
+     */
+    function toTitleCase(source)
+    {
+        var str;
+
+        if (source == null)
+        {
+            return source;
+        }
+
+        // first, trim the string
+        str = source.replace(/\s+$/, "");
+
+        // replace each underdash with a space
+        str = replaceAll(str, "_", " ");
+
+        // change to lower case
+        str = str.toLowerCase();
+
+        // capitalize starting character of each word
+
+        var titleCase = new Array();
+
+        titleCase.push(str.charAt(0).toUpperCase());
+
+        for (var i = 1; i < str.length; i++)
+        {
+            if (str.charAt(i-1) == ' ')
+            {
+                titleCase.push(str.charAt(i).toUpperCase());
+            }
+            else
+            {
+                titleCase.push(str.charAt(i));
+            }
+        }
+
+        return titleCase.join("");
+    }
+
+    /**
+     * Replaces all occurrences of the given string in the source string.
+     *
+     * TODO: Need to remove the same function under network-visualization.js
+     * @param source        string to be modified
+     * @param toFind        string to match
+     * @param toReplace     string to be replaced with the matched string
+     * @return              modified version of the source string
+     */
+    function replaceAll(source, toFind, toReplace)
+    {
+        var target = source;
+        var index = target.indexOf(toFind);
+
+        while (index != -1)
+        {
+            target = target.replace(toFind, toReplace);
+            index = target.indexOf(toFind);
+        }
+
+        return target;
+    }
+    
+    //Get hotspot description. TODO: add type as parameter for different source of hotspot sources.
+    function getHotSpotDesc() {
+        return "<b>Recurrent Hotspot</b><br/>" +
+            "This mutated amino acid was identified as a recurrent hotspot " +
+            "(statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various " +
+            "cancer types (based on <a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>" +
+            "Chang et al., Nat Biotechnol. 2016</a>).<br/><br/>" +
+            "Explore all mutations at <a href=&quot;http://cancerhotspots.org/&quot; target=&quot;_blank&quot;>http://cancerhotspots.org/</a>.";
+    }
+    
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -428,7 +507,10 @@ cbio.util = (function() {
 	    getTargetDocument: getTargetDocument,
         getLinkToPatientView: getLinkToPatientView,
         getLinkToSampleView: getLinkToSampleView,
-        addTargetedQTip: addTargetedQTip
+        addTargetedQTip: addTargetedQTip,
+        toTitleCase: toTitleCase,
+        getHotSpotDesc: getHotSpotDesc,
+        replaceAll: replaceAll
     };
 
 })();

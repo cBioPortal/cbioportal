@@ -31,15 +31,6 @@
         <expression-handler ref="expressionHandler"/>
     </global-method-security>
 
-
-    <!-- support for general annotations within class definitions (used in AccessControl) -->
-    <context:annotation-config/>
-
-    <!-- we do post filtering within AccessControl -->
-    <global-method-security pre-post-annotations="enabled">
-        <expression-handler ref="expressionHandler"/>
-    </global-method-security>
-
     <!-- custom expression handler -->
     <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
@@ -66,21 +57,21 @@
     <http pattern="/saml/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
     <http pattern="/saml/gfx/**" security="none"/>
-
+		
+	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+        <b:property name="arguments">
+            <b:list>
+                <b:ref bean="accessControl"/>
+            </b:list>
+        </b:property>
+    </b:bean>
+ 
     <!-- end beans shared across any authentication provider -->
     </b:beans>
 
     <!-- googleplus beans -->
     <b:beans profile="googleplus">
-
-	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-	    <b:property name="arguments">
-	        <b:list>
-	            <b:ref bean="accessControl"/>
-	        </b:list>
-	   </b:property>
-	</b:bean>
 
     <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
 <intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
@@ -163,15 +154,6 @@
     <!-- openid beans -->
     <b:beans profile="openid">
 
-	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-	    <b:property name="arguments">
-	        <b:list>
-	            <b:ref bean="accessControl"/>
-	        </b:list>
-	   </b:property>
-	</b:bean>
-
     <http use-expressions="true"> 
 
         <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
@@ -207,15 +189,6 @@
 
     <!-- saml beans -->
     <b:beans profile="saml">
-
-	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-	    <b:property name="arguments">
-	        <b:list>
-	            <b:ref bean="accessControl"/>
-	        </b:list>
-	   </b:property>
-	</b:bean>
 
     <http entry-point-ref="samlEntryPoint" use-expressions="true">
 <intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>

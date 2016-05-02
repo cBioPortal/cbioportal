@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.*;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  * 
@@ -100,6 +101,7 @@ public class NormalizeExpressionLevels{
 
 	public static void main (String[]args){
 		try {
+			SpringUtil.initDataSource();
 			driver(args);
 		}
 		catch (RuntimeException e) {

@@ -95,14 +95,14 @@ public class TestImportExtendedMutationData {
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/data_mutations_extended.txt");
         
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(containsString("Gene list 'no_such_germline_whitelistfile' not found"));
+        //TODO - find new exception, germline option was removed some time ago already....
+        //exception.expect(IllegalArgumentException.class);
+        //exception.expectMessage(containsString("Gene list 'no_such_germline_whitelistfile' not found"));
 
-        new ImportExtendedMutationData(file, geneticProfileId, "no_such_germline_whitelistfile");
+        new ImportExtendedMutationData(file, geneticProfileId);
 	}
 	
 	@Test
-	@Ignore("To be fixed")
     public void testImportExtendedMutationDataExtended() throws IOException, DaoException {
 		
         MySQLbulkLoader.bulkLoadOn();
@@ -112,33 +112,18 @@ public class TestImportExtendedMutationData {
         ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
         parser.importData();
         MySQLbulkLoader.flushAll();
+        ConsoleUtil.showMessages();
         
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
         
         checkBasicFilteringRules();
         
         // accept everything else
-        validateMutationAminoAcid (geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
-        validateMutationAminoAcid (geneticProfileId, sampleId, 89, "S116R"); // Unknown  Somatic
+        validateMutationAminoAcid(geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
+        validateMutationAminoAcid(geneticProfileId, sampleId, 89, "S116R"); // Unknown  Somatic
 	}
     
-	@Test
-	@Ignore("To be fixed")
-    public void testImportExtendedMutationDataWhitelisted() throws IOException, DaoException {
 
-        MySQLbulkLoader.bulkLoadOn();
-
-		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/data_mutations_extended.txt");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, "target/test-classes/test_germline_white_list_file2.txt");
-        // put on: CLEC7A
-        parser.importData();
-        MySQLbulkLoader.flushAll();
-        
-        checkBasicFilteringRules();
-        checkGermlineMutations();
-        acceptEverythingElse();
-	}
 	
 	@Test
 	@Ignore("To be fixed")
@@ -150,7 +135,7 @@ public class TestImportExtendedMutationData {
         File file = new File("target/test-classes/data_mutations_extended.txt");
 
 		// TBD: change this to use getResourceAsStream()
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, "target/test-classes/test_germline_white_list_file2.txt");
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);//, "target/test-classes/test_germline_white_list_file2.txt");
         parser.importData();
         MySQLbulkLoader.flushAll();
 
@@ -162,31 +147,6 @@ public class TestImportExtendedMutationData {
         validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");
 	}
 
-	
-	@Test
-	@Ignore("To be fixed")
-    public void testImportExtendedMutationDataWhitelisted3() throws IOException, DaoException {
-
-        MySQLbulkLoader.bulkLoadOn();
-
-		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/data_mutations_extended.txt");
-
-		// TBD: change this to use getResourceAsStream()
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, "target/test-classes/test_germline_white_list_file2.txt");
-        parser.importData();
-        MySQLbulkLoader.flushAll();
-        
-        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
-
-        checkBasicFilteringRules();
-        checkGermlineMutations();
-        acceptEverythingElse();
-        validateMutationAminoAcid(geneticProfileId, sampleId, 54407, "T433A");
-        // Unknown  Somatic mutations on somatic whitelist
-        validateMutationAminoAcid(geneticProfileId, sampleId, 6667, "A513V");
-        // Unknown  Somatic mutations on somatic whitelist2
-    }
 	
 	/**
 	 * Check that import of oncotated data works

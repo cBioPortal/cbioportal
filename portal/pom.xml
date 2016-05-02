@@ -77,6 +77,12 @@
               <filtering>true</filtering>
             </resource>
             <resource>
+              <directory>src/main/webapp/WEB-INF/jsp/global</directory>
+              <include>footer.jsp</include>
+              <targetPath>WEB-INF/jsp/global</targetPath>
+              <filtering>true</filtering>
+            </resource>
+            <resource>
               <directory>src/main/webapp/WEB-INF</directory>
               <includes>
                 <include>**/web.xml</include>
@@ -147,31 +153,6 @@
                   <destFileName>webapp-runner.jar</destFileName>
                 </artifactItem>
               </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <executions>
-          <execution>
-            <id>clean-jar-artifacts</id>
-            <phase>install</phase>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-            <configuration>
-              <excludeDefaultDirectories>true</excludeDefaultDirectories>
-              <filesets>
-                <fileset>
-                  <directory>${project.parent.basedir}/portal/target</directory>
-                  <excludes>
-                    <exclude>*.war</exclude>
-                    <exclude>dependency/webapp-runner.jar</exclude>
-                  </excludes>
-                </fileset>
-              </filesets>
             </configuration>
           </execution>
         </executions>

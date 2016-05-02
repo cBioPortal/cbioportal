@@ -164,7 +164,7 @@
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
             if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
+                out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
@@ -244,7 +244,7 @@
         <% } %>
 
         <% if (has_mrna || has_copy_no || showMutTab) { %>
-            <%@ include file="over_representation_analysis.jsp" %>
+            <%@ include file="enrichments_tab.jsp" %>
         <% } %>
 
         <%@ include file="data_download.jsp" %>

@@ -46,10 +46,10 @@ public class ImportSampleList {
 
    public static void importSampleList(File dataFile) throws Exception {
       ProgressMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
-      Properties properties = new Properties();
+      Properties properties = new TrimmedProperties();
       properties.load(new FileInputStream(dataFile));
 
-      String stableId = properties.getProperty("stable_id").trim();
+      String stableId = properties.getProperty("stable_id");
 
       if (stableId.contains(" ")) {
          throw new IllegalArgumentException("stable_id cannot contain spaces:  " + stableId);
@@ -86,26 +86,26 @@ public class ImportSampleList {
          throw new IllegalArgumentException("case_list_description is not specified.");
       }
 
+      boolean itemsAddedViaPatientLink = false;
       // construct sample id list
       ArrayList<String> sampleIDsList = new ArrayList<String>();
       String[] sampleIds = sampleListStr.split("\t");
       for (String sampleId : sampleIds) {
          Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), sampleId);
          if (s==null) {
-//            throw new RuntimeException("Sample does not exist: "+sampleId);
-             System.err.println("Error: could not find sample "+sampleId);
+             String warningMessage = "Error: could not find sample "+sampleId;
              Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(theCancerStudy.getInternalId(), sampleId);
              if (p!=null) {
-                System.err.println("Error: but found a patient with this ID. Will use it in the sample list.");
+                warningMessage += ". But found a patient with this ID. Will use its samples in the sample list.";
                 List<Sample> samples = DaoSample.getSamplesByPatientId(p.getInternalId());
                 for (Sample sa : samples) {
                       if (!sampleIDsList.contains(sa.getStableId())) {
                           sampleIDsList.add(sa.getStableId());
+                          itemsAddedViaPatientLink = true;
                       }
                 }
-             } else {
-                 //throw new RuntimeException("Sample does not exist: "+sampleId);
-             }
+             } 
+             ProgressMonitor.logWarning(warningMessage);
          } else if (!sampleIDsList.contains(s.getStableId())) {
             sampleIDsList.add(s.getStableId());
          } else {
@@ -133,31 +133,50 @@ public class ImportSampleList {
 
       ProgressMonitor.setCurrentMessage(" --> stable ID:  " + sampleList.getStableId());
       ProgressMonitor.setCurrentMessage(" --> sample list name:  " + sampleList.getName());
-      ProgressMonitor.setCurrentMessage(" --> number of samples:  " + sampleIDsList.size());
+      ProgressMonitor.setCurrentMessage(" --> number of samples in file:  " + sampleIds.length);
+      String warningSamplesViaPatientLink = (itemsAddedViaPatientLink? "(nb: can be higher if samples were added via patient link)" : "");
+      ProgressMonitor.setCurrentMessage(" --> number of samples stored in final sample list " + warningSamplesViaPatientLink + ":  " + sampleIDsList.size());
    }
 
    public static void main(String[] args) throws Exception {
-
-      // check args
-      if (args.length < 1) {
-         System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
-            return;
+      try {
+    	  // check args
+	      if (args.length < 1) {
+	         System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
+	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	         //use 2 for command line syntax errors:
+	         System.exit(2);
+	      }
+	      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+	      File dataFile = new File(args[0]);
+	      if (dataFile.isDirectory()) {
+	         File files[] = dataFile.listFiles();
+	         for (File file : files) {
+	            if (!file.getName().startsWith(".") && !file.getName().endsWith("~")) {
+	               ImportSampleList.importSampleList(file);
+	            }
+	         }
+	         if (files.length == 0) {
+	             ProgressMonitor.logWarning("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
+	         }
+	      } else {
+	    	  if (!dataFile.getName().startsWith(".") && !dataFile.getName().endsWith("~")) {
+	    		  ImportSampleList.importSampleList(dataFile);
+	    	  }
+	    	  else {
+	    		  ProgressMonitor.logWarning("File name starts with '.' or ends with '~', so it was skipped: " + dataFile.getCanonicalPath());
+	    	  }
+	      }
+	      ConsoleUtil.showMessages();
+	      System.out.println("Done.");
       }
-      ProgressMonitor.setConsoleMode(true);
-      File dataFile = new File(args[0]);
-      if (dataFile.isDirectory()) {
-         File files[] = dataFile.listFiles();
-         for (File file : files) {
-            if (file.getName().endsWith("txt")) {
-               ImportSampleList.importSampleList(file);
-            }
-         }
-         if (files.length == 0) {
-             ProgressMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
-         }
-      } else {
-         ImportSampleList.importSampleList(dataFile);
+      catch (Exception e) {
+	        ConsoleUtil.showWarnings();
+	        //exit with error status:
+	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
+	        if (e.getMessage() == null)
+	        	e.printStackTrace();
+	        System.exit(1);
       }
-      ConsoleUtil.showWarnings();
    }
 }

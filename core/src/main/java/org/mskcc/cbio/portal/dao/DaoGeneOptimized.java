@@ -96,7 +96,8 @@ public class DaoGeneOptimized {
                     if (gene!=null) {
                         cbioCancerGenes.add(gene);
                     } else {
-                        System.err.println(line+" in the cbio cancer gene list is not a HUGO gene symbol.");
+                    	ProgressMonitor.logWarning(line+" in the cbio cancer gene list config file [resources" + CBIO_CANCER_GENES_FILE + 
+                        		"] is not a HUGO gene symbol. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
                     }
                 }
                 in.close();
@@ -112,7 +113,8 @@ public class DaoGeneOptimized {
                     String[] parts = line.trim().split("\t",-1);
                     CanonicalGene gene = getGene(Long.parseLong(parts[1]));
                     if (gene==null) {
-                        System.err.println(line+" in gene_symbol_disambiguation.txt is not valid.");
+                    	ProgressMonitor.logWarning(line+" in config file [resources" + GENE_SYMBOL_DISAMBIGUATION_FILE + 
+                        		"]is not valid. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
                     }
                     disambiguousGenes.put(parts[0], gene);
                 }
@@ -205,6 +207,31 @@ public class DaoGeneOptimized {
         return geneSymbolMap.get(hugoGeneSymbol.toUpperCase());
     }
 
+    /**
+     * Looks for a Gene where HUGO Gene Symbol or an alias matches the given symbol. 
+     * 
+     * @param geneSymbol: HUGO Gene Symbol or an alias
+     * @param searchInAliases: set to true if this method should search for a match in this.geneAliasMap 
+     * in case a matching hugo symbol cannot be found in this.geneSymbolMap
+     * 
+     * @return
+     */
+    public List<CanonicalGene> getGene(String geneSymbol, boolean searchInAliases) {
+    	CanonicalGene gene = getGene(geneSymbol);
+    	if (gene!=null) {
+            return Collections.singletonList(gene);
+        }
+        
+    	if (searchInAliases) {
+	        List<CanonicalGene> genes = geneAliasMap.get(geneSymbol.toUpperCase());
+	        if (genes!=null) {
+	        	return Collections.unmodifiableList(genes);
+	        }
+        }
+        
+        return Collections.emptyList();
+    }
+    
     /**
      * Gets Gene By Entrez Gene ID.
      *

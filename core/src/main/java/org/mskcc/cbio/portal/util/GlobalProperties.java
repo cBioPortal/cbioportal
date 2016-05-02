@@ -56,14 +56,14 @@ public class GlobalProperties {
 
     public static final String PATHWAY_COMMONS_URL = "pathway_commons.url";
     public static final String UCSC_CANCER_GENOMICS_URL = "ucsc_cancer_genomics.url";
-	public static final String SEGFILE_URL = "segfile.url";
-	public static final String OPENSSL_BINARY = "openssl.binary";
-	public static final String SIGNATURE_KEY = "signature.key";
-	public static final String ENCRYPTION_KEY = "encryption.key";
-	public static final String BROAD_BAM_URL = "broad.bam.url";
-	public static final String BROAD_BAM_CHECKING_URL = "broad.bam.checking.url";
-	public static final String IGV_BAM_LINKING = "igv.bam.linking";
-	public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
+    public static final String SEGFILE_URL = "segfile.url";
+    public static final String OPENSSL_BINARY = "openssl.binary";
+    public static final String SIGNATURE_KEY = "signature.key";
+    public static final String ENCRYPTION_KEY = "encryption.key";
+    public static final String BROAD_BAM_URL = "broad.bam.url";
+    public static final String BROAD_BAM_CHECKING_URL = "broad.bam.checking.url";
+    public static final String IGV_BAM_LINKING = "igv.bam.linking";
+    public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
     public static final String AUTHENTICATE = "authenticate";
     public static final String AUTHORIZATION = "authorization";
     public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
@@ -191,6 +191,9 @@ public class GlobalProperties {
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
     
     public static final String DB_VERSION = "db.version";
+    
+    public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
+    public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -713,6 +716,22 @@ public class GlobalProperties {
             return "0";
         }
         return version;
+    }
+
+    public static String getDarwinAuthUrlBase() {
+        String darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL);
+        if (darwinAuthUrl != null && !darwinAuthUrl.isEmpty()) {
+            return darwinAuthUrl;
+        }
+        return "";
+    }
+
+    public static String getDarwinResponseUrlBase() {
+        String darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL);
+        if (darwinResponseUrl != null && !darwinResponseUrl.isEmpty()) {
+            return darwinResponseUrl;
+        }
+        return "";
     }
     
     public static void main(String[] args)

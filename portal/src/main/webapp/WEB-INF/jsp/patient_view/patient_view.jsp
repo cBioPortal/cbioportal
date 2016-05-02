@@ -34,6 +34,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.DrugsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccess" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -160,7 +161,7 @@ if (patientViewError!=null) {
                 PatientView.NUM_CASES_IN_SAME_CNA_PROFILE);
     }
 %>
-
+    
 <jsp:include page="../global/header.jsp" flush="true" />
 
 <%if(numTumors>1&&caseIds.size()==1) {%>
@@ -417,6 +418,8 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 var userName = '<%=userName%>';
+
+var darwinAccessUrl = '<%=CheckDarwinAccess.checkAccess(userName, patientID)%>';
 
 $(document).ready(function(){
     OncoKB.setUrl('<%=oncokbUrl%>');
@@ -944,7 +947,14 @@ function outputClinicalData() {
     var info = info.concat(formatDiseaseInfo(patientInfo));
     var info = info.concat(formatPatientStatus(patientInfo));
     row += info.join(", ");
-    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span><br />";
+    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span>";
+    
+    if (darwinAccessUrl !== null && darwinAccessUrl !== '') {
+        //add link to darwin
+        row += "&nbsp;<a target='_blank' href='"+darwinAccessUrl+"'><font color='green'><b>DARWIN</b></font></a>";
+    }
+    
+    row += "<br/>";
     $("#clinical_div").append(row);
     $("#nav_div").appendTo($("#topbar-cancer-study"));
 

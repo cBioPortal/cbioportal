@@ -718,12 +718,20 @@ public class GlobalProperties {
         return version;
     }
     
-    public static String getDarwinAuthUrlBase() {
-        return properties.getProperty(DARWIN_AUTH_URL);
+    public static String getDarwinAuthUrl() {
+        String darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL);
+        if (darwinAuthUrl == null || darwinAuthUrl.isEmpty()) {
+            return "";
+        }
+        return darwinAuthUrl;
     }
     
-    public static String getDarwinResponseUrlBase() {
-        return properties.getProperty(DARWIN_RESPONSE_URL);
+    public static String getDarwinResponseUrl() {
+        String darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL);
+        if (darwinResponseUrl == null || darwinResponseUrl.isEmpty()) {
+            return "";
+        }
+        return darwinResponseUrl;        
     }
     
     public static void main(String[] args)

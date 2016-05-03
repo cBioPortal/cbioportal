@@ -47,24 +47,22 @@ import org.springframework.beans.factory.annotation.Value;
  * @author ochoaa
  */
 public class CheckDarwinAccess {
+    private static String DARWIN_AUTH_URL;
+    private static String DARWIN_RESPONSE_URL;
     
     public static String checkAccess(String userName, String patientId){
+        if (!checkDarwinProperties()) return "";
+        
         RestTemplate restTemplate = new RestTemplate();                 
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity(userName.split("@")[0], patientId);  
-        ResponseEntity<DarwinAccess> responseEntity = restTemplate.exchange(GlobalProperties.getDarwinAuthUrlBase(), HttpMethod.POST, requestEntity, DarwinAccess.class);  
+        ResponseEntity<DarwinAccess> responseEntity = restTemplate.exchange(DARWIN_AUTH_URL, HttpMethod.POST, requestEntity, DarwinAccess.class);  
         DarwinAccess response = responseEntity.getBody();            
         
         if (response.getDarwinAuthResponse().equals("valid")) {
-            return GlobalProperties.getDarwinResponseUrlBase()+patientId;
+            return DARWIN_RESPONSE_URL+patientId;
         }
-        else {
-            System.out.println(response);
-            System.out.println("\nAuthorization\tUserName\tPatientId:");
-            System.out.println(response.getDarwinAuthResponse()+"\t"+
-                    response.getP_UserName()+"\t"+
-                    response.getP_Dmp_Pid());
-            return "";            
-        }
+        
+        return "";
     }
     
     private static HttpEntity<LinkedMultiValueMap<String, Object>> getRequestEntity(String userName, String patientId) {
@@ -75,11 +73,21 @@ public class CheckDarwinAccess {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         return new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
     }
+    
+    private static Boolean checkDarwinProperties() {
+        DARWIN_AUTH_URL = GlobalProperties.getDarwinAuthUrl();
+        DARWIN_RESPONSE_URL = GlobalProperties.getDarwinResponseUrl();
+        
+        if (!DARWIN_AUTH_URL.isEmpty() && !DARWIN_RESPONSE_URL.isEmpty()) {
+            return true;
+        }
+        return false;        
+    }
 
     private static Options getOptions(String[] args) {
         Options gnuOptions = new Options();
         gnuOptions.addOption("h", "help", false, "shows this help document and quits.")
-            .addOption("user_name", "user_name", true, "user name")
+            .addOption("user_name", "user_name", true, "user_name")
             .addOption("patient_id", "patient_id", true, "patient_id");
 
         return gnuOptions;

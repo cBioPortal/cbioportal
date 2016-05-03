@@ -50,12 +50,37 @@ function VolcanoPlot() {
         };
 
         // prepare the data
-        var dataTrace = createDataTrace(orTable.originalData, plotDataAttr)
-
-        //draw the plot with the prepared x,y coordinates data:
-        drawPlot(dataTrace, orTable.plot_div, plotDataAttr);
+        var dataTrace = createDataTrace(orTable.originalData, plotDataAttr);
+        
+        // only draw plot if dataTrace is valid
+        if(!_.isUndefined(dataTrace)){
+            //draw the plot with the prepared x,y coordinates data:
+            drawPlot(dataTrace, orTable.plot_div, plotDataAttr);            
+        }
     }
 
+    /**
+     * shows error if value found is smaller than zero; otherwise returns value
+     * @param element: the current element of the data array
+     * @param index: the index for which to retrieve the value
+     * @returns: the value found or undefined if value < 0
+     */
+    function getValueGTZero(element, index){
+        var val = element[index];
+        if(val<=0){
+            // show error
+            $("#"+self.orTable.plot_div).append(
+                "<p style='color:red'>" +
+                    "<b>Found one or more invalid values.</b><br/>" +
+                    "Unexpected negative value found for datatype " +self.orTable.getDataType()+"<br/>"+
+                    "name: "+index+"<br/>"+
+                    "value: "+val.toFixed(2)+"<br/><br/>" +
+                "</p>");
+            return undefined;
+        }
+        return val;
+    }
+    
     /**
      *
      * @param element: the current element of the data array
@@ -68,7 +93,15 @@ function VolcanoPlot() {
         if (self.orTable.requiresLogRatioCalculation()){
             // check whether the data is already LOG-VALUE. If it is not, divide and calculate ratio
             if(convertToLog){
-                xVal = Math.log2(element["mean of alteration in altered group"] / element["mean of alteration in unaltered group"])
+                var meanInAlteredGroup = getValueGTZero(element, "mean of alteration in altered group");
+                var meanInUnalteredGroup = getValueGTZero(element,"mean of alteration in unaltered group");
+
+                // if either one is undefined, stop 
+                if(_.isUndefined(meanInAlteredGroup) || _.isUndefined(meanInUnalteredGroup)){
+                    return undefined;
+                }
+
+                xVal = Math.log2(meanInAlteredGroup / meanInUnalteredGroup);
             }
             // else we're already in log space; subtract.
             else{
@@ -96,6 +129,10 @@ function VolcanoPlot() {
         //TODO this could be made generic to support also other data with different column names (perhaps add a presenter layer that makes the translation of the specific column names to the generic ones to be supported here)
         for (var i = 0; i < data.length; i++){
             var xValue = getXValue(data[i], convertToLog);
+            // if an undefined xValue is encountered, the dataTrace is invalid
+            if(_.isUndefined(xValue)){
+                return undefined;
+            }
             var yValue = -Math.log10(data[i]["p-Value"]);
             if (xValue < plotDataAttr.min_x) {
                 plotDataAttr.min_x = xValue;

@@ -362,7 +362,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
      * @returns {boolean}
      */
     this.hasLogData = function(){
-        return data_type === "LOG-VALUE";
+        return data_type === "LOG-VALUE" || data_type === "LOG2-VALUE";
     }
 
     /**
@@ -373,6 +373,13 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
         return profile_type === enrichmentsTabSettings.profile_type.mrna || profile_type === enrichmentsTabSettings.profile_type.protein_exp;
     }
 
+    /**
+     * @returns dataType
+     */
+    this.getDataType = function(){
+        return data_type;
+    }
+    
     function attachFilters() {
 
         if (profile_type === enrichmentsTabSettings.profile_type.copy_num || profile_type === enrichmentsTabSettings.profile_type.mutations) {

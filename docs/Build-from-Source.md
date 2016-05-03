@@ -32,4 +32,4 @@ The current version of the code is using an optional feature which is only avail
 ```
 Rebuild with Maven if necessary.
 
-[[Next Step: Import the Seed Database|Import-the-Seed-Database]]
+[Next Step: Import the Seed Database](Import-the-Seed-Database.md)

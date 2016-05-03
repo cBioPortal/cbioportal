@@ -77,4 +77,4 @@ According to the stack overflow answer:
 
 The default JNDI settings above therefore include `testOnBorrow` and `validationQuery`, and you should therefore not see any broken pipe errors.  Should you see these errors, despite the settings, best to consult [here](http://juststuffreally.blogspot.com/2007/10/broken-pipes-with-tomcat-and-dbcp.html), and [here](http://stackoverflow.com/questions/20848219/tomcat-mysql-java-servlet-application-getting-500-error-after-some-hours-of-inac).
 
-[[Steps Complete: Return Home|.]]
+[Steps Complete: Return Home](README.md)

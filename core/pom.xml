@@ -91,6 +91,11 @@
           <artifactId>commons-math3</artifactId>
           <version>3.2</version>
         </dependency>
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>1.3</version>
+    </dependency>         
 
     <!-- guava -->
     <dependency>
@@ -228,7 +233,7 @@
       <artifactId>spring-test</artifactId>
       <version>${spring.version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency>   
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>

@@ -32,6 +32,7 @@
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccess" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.DrugsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
@@ -122,6 +123,8 @@ boolean showClinicalTrials = GlobalProperties.showClinicalTrialsTab();
 boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
 String userName = GlobalProperties.getAuthenticatedUserName();
+
+String darwinAccessURL = CheckDarwinAccess.checkAccess(userName,patientID);
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -418,6 +421,9 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 var userName = '<%=userName%>';
+
+var darwinAccessUrl = '<%=darwinAccessURL%>';
+
 // TODO: hack for including mutation table indices in both cna.jsp and
 // mutations.jsp
 var mutTableIndices =
@@ -952,7 +958,12 @@ function outputClinicalData() {
     var info = info.concat(formatDiseaseInfo(patientInfo));
     var info = info.concat(formatPatientStatus(patientInfo));
     row += info.join(", ");
-    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span><br />";
+    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span>";
+    if (darwinAccessUrl !== null && darwinAccessUrl !== '') {
+        //add link to darwin
+        row += "&nbsp;<a target='_blank' href='"+darwinAccessUrl+"'><font color='green'><b>DARWIN</b></font></a>";
+    }
+    row += "<br />";
     $("#clinical_div").append(row);
     $("#nav_div").appendTo($("#topbar-cancer-study"));
 

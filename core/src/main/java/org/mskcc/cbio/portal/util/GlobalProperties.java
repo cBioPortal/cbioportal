@@ -192,6 +192,9 @@ public class GlobalProperties {
     
     public static final String DB_VERSION = "db.version";
     
+    public static final String DARWIN_AUTH_URL = "darwin.auth_url";
+    public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
+    
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -713,6 +716,14 @@ public class GlobalProperties {
             return "0";
         }
         return version;
+    }
+    
+    public static String getDarwinAuthUrlBase() {
+        return properties.getProperty(DARWIN_AUTH_URL);
+    }
+    
+    public static String getDarwinResponseUrlBase() {
+        return properties.getProperty(DARWIN_RESPONSE_URL);
     }
     
     public static void main(String[] args)

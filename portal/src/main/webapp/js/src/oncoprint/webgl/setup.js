@@ -1496,7 +1496,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 								cbio.download.initDownload(oncoprint.toSVG(), {filename: "oncoprint.svg"});
 							} else if (fileType === 'png')
 							{
-							    var svg = oncoprint.toSVG(true);
+							    oncoprint.toCanvas(function(canvas) {
+								canvas.toBlob(function(blob) {
+								    saveAs(blob, "oncoprint.png");
+								});
+							    });
+							    /*var svg = oncoprint.toSVG(true);
 							    if (xml_serializer.serializeToString(svg).length > 2000000) {
 								    alert("Oncoprint too big to download as PNG - please download as SVG, then convert to PNG using your program of choice.");
 								    return;
@@ -1507,7 +1512,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 									servletName: "svgtopdf.do"
 							    };
 							    
-							    cbio.download.initDownload(svg, downloadOptions);
+							    cbio.download.initDownload(svg, downloadOptions);*/
 							}
 						});
 
@@ -2044,7 +2049,9 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 								cbio.download.initDownload(oncoprint.toSVG(), {filename: "oncoprint.svg"});
 							} else if (fileType === 'png')
 							{
-							    var svg = oncoprint.toSVG(true);
+							    var png_data_url = oncoprint.toPNG();
+							    window.open(png_data_url);
+							    /*var svg = oncoprint.toSVG(true);
 							    if (xml_serializer.serializeToString(svg).length > 2000000) {
 								    alert("Oncoprint too big to download as PNG - please download as SVG, then convert to PNG using your program of choice.");
 								    return;
@@ -2055,7 +2062,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 									servletName: "svgtopdf.do"
 							    };
 							    
-							    cbio.download.initDownload(svg, downloadOptions);
+							    cbio.download.initDownload(svg, downloadOptions);*/
 							}
 						});
 

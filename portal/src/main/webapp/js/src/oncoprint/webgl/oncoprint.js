@@ -495,8 +495,8 @@ var Oncoprint = (function () {
 	return root;
     }
     
-    Oncoprint.prototype.toPNG = function() {
-	// Returns data url
+    Oncoprint.prototype.toCanvas = function(callback) {
+	// Returns data url, requires IE >= 11
 	var svg = this.toSVG(true);
 	var width = parseInt(svg.getAttribute('width'), 10);
 	var height = parseInt(svg.getAttribute('height'), 10);
@@ -504,14 +504,22 @@ var Oncoprint = (function () {
 	canvas.setAttribute('width', width);
 	canvas.setAttribute('height', height);
 	
+	var container = document.createElement("div");
+	container.appendChild(svg);
+	var svg_data_str = container.innerHTML;
+	
+	var svg_blob = new Blob([svg_data_str], {type:'img/svg+xml;charset=utf-8'});
 	var ctx = canvas.getContext('2d');
 	var img = new Image();
-	var url = DOMURL.createObjectURL(svg);
+	var url = URL.createObjectURL(svg_blob);
 	
 	img.onload = function() {
 	    ctx.drawImage(img, 0, 0);
-	    DOMURL.revokeObjectURL(url);
+	    URL.revokeObjectURL(url);
+	    callback(canvas);
 	}
+	
+	img.src = url;
     }
     
     Oncoprint.prototype.getIdOrder = function(all) {

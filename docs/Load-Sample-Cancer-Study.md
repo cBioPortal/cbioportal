@@ -2,9 +2,9 @@ Once you have initialized MySQL with the seed database, you are ready to import 
 
 # Download the Sample Study
 
-To get started, download a sample study from [the public datasets page](https://github.com/cBioPortal/cbioportal/wiki/Public-datasets).
+To get started, download a sample study from [the public datasets page](Public-datasets.md).
 
 # Import the Sample Study
 
-The steps to import a study are described in [Data Loading](Data-loading).
+The steps to import a study are described in [Data Loading](Data-loading.md).
 

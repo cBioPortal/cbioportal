@@ -10,7 +10,7 @@ You can then compile the cBioPortal source code with the following maven command
 mvn -DskipTests clean install
 ```
 
-After this command completes, you will find a `cbioportal.war` file suitable for Apache Tomcat deployment in `$PORTAL_HOME/portal/target/`.  In addition, you will find `core-1.0-SNAPSHOT.jar` in `$PORTAL_HOME/core/target/`, which is required when using our [Importer Tool](https://github.com/cBioPortal/cbioportal/wiki/Importer-Tool) to import study data. 
+After this command completes, you will find a `cbioportal.war` file suitable for Apache Tomcat deployment in `$PORTAL_HOME/portal/target/`.  In addition, you will find `core-1.0-SNAPSHOT.jar` in `$PORTAL_HOME/core/target/`, which is required when using our [Importer Tool](Importer-Tool.md) to import study data. 
 
 If you have placed your properties in the default location, e.g. `src/main/resources`, your `PORTAL_HOME` must point to this exact directory.  For example:
 

@@ -1,4 +1,4 @@
-To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](https://github.com/thehyve/cbioportal/wiki/File-Formats) for the various data types. To validate your files you can use the dataset validator script. 
+To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](File-Formats.md) for the various data types. To validate your files you can use the dataset validator script. 
 
 ## Running the validator
 

@@ -42,15 +42,15 @@ There are just a few rules to follow:
 - data files can be named anything and are referenced by a property `data_filename` set in the meta file. 
 
 ## Validating the study
-Once all files are in place and follow the proper format, you can [validate your files using the dataset validator script](Using-the-dataset-validator). 
+Once all files are in place and follow the proper format, you can [validate your files using the dataset validator script](Using-the-dataset-validator.md). 
 
-The validation can be run standalone, but it is also integrated into the [metaImport script](Using-the-metaImport-script), which validates the data and then loads it if validation succeeds. 
+The validation can be run standalone, but it is also integrated into the [metaImport script](Using-the-metaImport-script.md), which validates the data and then loads it if validation succeeds. 
 
 ## Loading Data
-To load the data into cBioPortal, the [metaImport script](Using-the-metaImport-script) has to be used. This script first validates the data and, if validation succeeds, loads the data. 
+To load the data into cBioPortal, the [metaImport script](Using-the-metaImport-script.md) has to be used. This script first validates the data and, if validation succeeds, loads the data. 
 
 ## Removing a Study
-To remove a study, the [cbioportalImporter script](Development,-debugging-and-maintenance-mode-using-cbioportalImporter#deleting-a-study) can be used. 
+To remove a study, the [cbioportalImporter script](Development,-debugging-and-maintenance-mode-using-cbioportalImporter#deleting-a-study.md) can be used. 
 
 ## Example study
-Examples for the different types of data are available on the [data examples](data-examples) page for use as reference when creating data files.
+Examples for the different types of data are available on the [data examples](data-examples.md) page for use as reference when creating data files.

@@ -2,7 +2,7 @@ The next step is to populate your cBioPortal instance with all the required back
 
 # Download the cBioPortal Database
 
-A cBioPortal seed database can be found on the [Downloads](https://github.com/cBioPortal/cbioportal/wiki/Downloads#seed-database) page.
+A cBioPortal seed database can be found on the [Downloads](Downloads.md#seed-database) page.
 
 After download, this file can be unzipped by entering the following command:
 
@@ -10,7 +10,7 @@ After download, this file can be unzipped by entering the following command:
 
 # Import the cBioPortal Database
 
-*Important:*  Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps#prepare_database) for creating the `cbioportal` database.  
+*Important:*  Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps.md#prepare_database) for creating the `cbioportal` database.  
 
 Then import the seed database via the `mysql` command:
 

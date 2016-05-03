@@ -40,6 +40,18 @@
     <!-- this bean needs to come after context:annotation-config so that annotations are recognized -->
     <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
 
+    <!-- set accessControl into SpringUtil -->
+    <b:bean
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <b:property name="staticMethod"
+            value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl" />
+        <b:property name="arguments">
+            <b:list>
+                <b:ref bean="accessControl" />
+            </b:list>
+        </b:property>
+    </b:bean>
+
     <!-- beans used to access portal user db tables -->
     <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
         <b:constructor-arg ref="dataSource"/>

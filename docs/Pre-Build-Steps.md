@@ -12,7 +12,7 @@ The portal requires two properties files:  one for global configuration (`portal
     cp portal.properties.EXAMPLE portal.properties
     cp log4j.properties.EXAMPLE log4j.properties
 
-For more information about the portal.properties file, see the following [reference] (portal.properties-Reference) page.
+For more information about the portal.properties file, see the following [reference](portal.properties-Reference.md) page.
 
 # Prepare the log4j.properties File
 

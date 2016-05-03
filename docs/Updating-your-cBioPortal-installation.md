@@ -23,7 +23,7 @@ Compile your code again. After restarting the webserver the page should now stat
 
 ## Running the migration script
 
-First, make sure you have the DB connection properties correctly set in your portal.properties file (see [DB connection settings here](portal.properties-Reference#database-settings)).
+First, make sure you have the DB connection properties correctly set in your portal.properties file (see [DB connection settings here](portal.properties-Reference.md#database-settings)).
 
 **Dependencies:** the migration script is a python script that depends on the `MySQL-python` library. If necessary, you can install it with the following commands (example for Ubuntu):
 ```console

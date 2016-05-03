@@ -12,7 +12,7 @@ cBioPortal expects z-score normalization to take place per gene. You can produce
 ## The cBioPortal convertExpressionZscores method
 Given expression and Copy Number Variation data for a set of samples (patients), generate normalized expression values.
 
-Each **gene** is normalized separately. First, the expression distribution for unaltered copies of the gene is estimated by calculating the mean and variance of the expression values for samples in which the gene is diploid (i.e. value is "0" as reported by [discrete CNA data](File-Formats#discrete-copy-number-data)). We call this the unaltered distribution. If the gene has no diploid samples, then its normalized expression is reported as NA. Otherwise, for every sample, the gene's normalized expression is reported as
+Each **gene** is normalized separately. First, the expression distribution for unaltered copies of the gene is estimated by calculating the mean and variance of the expression values for samples in which the gene is diploid (i.e. value is "0" as reported by [discrete CNA data](File-Formats.md#discrete-copy-number-data)). We call this the unaltered distribution. If the gene has no diploid samples, then its normalized expression is reported as NA. Otherwise, for every sample, the gene's normalized expression is reported as
 
 ```
 (r - mu)/sigma
@@ -24,13 +24,13 @@ where `r` is the raw expression value, and `mu` and `sigma` are the mean and sta
 
 `<copy_number_file> <expression_file> <output_file> <normal_sample_suffix> <[min_number_of_diploids]>`
 
-- `<copy_number_file>` : the [discrete copy number (CNA) file](File-Formats#discrete-copy-number-data) 
-- `<expression_file>` : the [expression (exp) data file](File-Formats#expression-data). 
+- `<copy_number_file>` : the [discrete copy number (CNA) file](File-Formats.md#discrete-copy-number-data) 
+- `<expression_file>` : the [expression (exp) data file](File-Formats.md#expression-data). 
 - `<output_file>` : the output file to be generated
 - `<normal_sample_suffix>` : use this to identify which of your samples are "normal" samples (if any). E.g. normal TCGA samples have a suffix "-11". Set it to some dummy value, e.g. "NONE", if you have no normal samples in your data.
 
 ## convertExpressionZscores Transformation Algorithm 
-Input: [discrete copy number (CNA)](File-Formats#discrete-copy-number-data) and [expression (exp)](File-Formats#expression-data) files
+Input: [discrete copy number (CNA)](File-Formats.md#discrete-copy-number-data) and [expression (exp)](File-Formats.md#expression-data) files
 
 ```
     for each gene{

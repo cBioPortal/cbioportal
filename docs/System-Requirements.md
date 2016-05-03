@@ -22,4 +22,4 @@ As of this writing, the cBioPortal can be compiled and run from Java 7.0 and abo
 
 The cBioPortal source code is an [Apache Maven](https://maven.apache.org/) driven project.  The software needs to be downloaded and installed prior to building the application from source code.  It can be found on the [Apache Maven](https://maven.apache.org/download.cgi) website.
 
-[[Next Step: Pre-Build Steps|Pre-Build-Steps]]
+[[Next Step: Pre-Build Steps|Pre-Build-Steps.md]]

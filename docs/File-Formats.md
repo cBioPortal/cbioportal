@@ -18,13 +18,13 @@
 
 # Introduction
 
-This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](Data-Loading#preparing-study-data).
+This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](Data-Loading.md#preparing-study-data).
 
 # Formats
 
 ## Cancer Study
 
-As described in the [Data Loading tool](Data-Loading) page, the following file is needed to describe the cancer study:
+As described in the [Data Loading tool](Data-Loading.md) page, the following file is needed to describe the cancer study:
 
 #### Meta file
 This file contains metadata about the cancer study. The file contains the following fields:
@@ -217,7 +217,7 @@ PATIENT_ID_2<TAB>SAMPLE_ID_2<TAB>Her2 enriched<TAB>...
 ```
 
 ## Discrete Copy Number Data
-The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf). For some help on using GISTIC, check the [Data Loading: Tips and Best Practices](Data-Loading-%3A-Tips-and-Best-Practices) page.
+The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf). For some help on using GISTIC, check the [Data Loading: Tips and Best Practices](Data-Loading-%3A-Tips-and-Best-Practices.md) page.
 
 ##### Meta file 
 The meta file is comprised of the following fields:
@@ -424,7 +424,7 @@ For each gene-sample combination, a value is specified:
 
 ##### z-score instructions
 
-For mRNA expression data, we typically expect the relative expression of an individual gene and tumor to the gene's expression distribution in a reference population. That reference population is either all tumors that are diploid for the gene in question, or, when available, normal adjacent tissue. The returned value indicates the number of standard deviations away from the mean of expression in the reference population (Z-score). This measure is useful to determine whether a gene is up- or down-regulated relative to the normal samples or all other tumor samples.  **Note, the importer tool can create normalized (z-score) expression data on your behalf.  Please visit the [Z-Score normalization script](Z-Score-normalization-script) wiki page for more information.
+For mRNA expression data, we typically expect the relative expression of an individual gene and tumor to the gene's expression distribution in a reference population. That reference population is either all tumors that are diploid for the gene in question, or, when available, normal adjacent tissue. The returned value indicates the number of standard deviations away from the mean of expression in the reference population (Z-score). This measure is useful to determine whether a gene is up- or down-regulated relative to the normal samples or all other tumor samples.  **Note, the importer tool can create normalized (z-score) expression data on your behalf.  Please visit the [Z-Score normalization script](Z-Score-normalization-script.md) wiki page for more information.
 A corresponding z-score metadata file would be something like**:
 ```
 cancer_study_identifier: brca_tcga_pub
@@ -449,7 +449,7 @@ Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ...
 ```
 
-An example data file which includes both Hugo_Symbo and Entrez_Gene_Id would look like (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](How-the-loader-deals-with-Hugo-symbols)):
+An example data file which includes both Hugo_Symbo and Entrez_Gene_Id would look like (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](How-the-loader-deals-with-Hugo-symbols.md)):
 ```
 Hugo_Symbol<TAB>Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ACAP3<TAB>116983<TAB>-0.005<TAB>-0.550<TAB>...
@@ -458,7 +458,7 @@ AGRN<TAB>375790<TAB>0.142<TAB>0.091<TAB>...
 ...
 ```
 
-An example data file with only Hugo_Symbol column (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](How-the-loader-deals-with-Hugo-symbols)):
+An example data file with only Hugo_Symbol column (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](How-the-loader-deals-with-Hugo-symbols.md)):
 ```
 Hugo_Symbol<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ACAP3<TAB>-0.005<TAB>-0.550<TAB>...
@@ -521,7 +521,7 @@ The following extra annotation columns are also important for making sure mutati
 
 *Adding your mutation annotation columns to the complete MAF rows* can also be done. In this way, the portal will parse and store the MAF fields as well. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a 'Mutation Assessor” column in the [mutation table](http://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
 
-The MAF format recognized by the portal (excluding the annotation columns already mentioned above) has 32 columns + 4 columns with information on reference and variant allele counts in tumor and normal samples. A more detailed example MAF can be found on our [Downloads](https://github.com/cBioPortal/cbioportal/wiki/Downloads#maf-example) page. Description of each column is provided below:
+The MAF format recognized by the portal (excluding the annotation columns already mentioned above) has 32 columns + 4 columns with information on reference and variant allele counts in tumor and normal samples. A more detailed example MAF can be found on our [Downloads](https://github.com/cBioPortal/cbioportal/wiki/Downloads.md#maf-example) page. Description of each column is provided below:
 
 1. **Hugo_Symbol (Required)**: A [HUGO](http://www.genenames.org/) gene symbol.
 2. **Entrez_Gene_Id (Optional, but desired)**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
@@ -595,7 +595,7 @@ data_filename: data_methylation_hm27.txt
 
 #### Data file
 
-The methylation data file follows the same format as expression data files. See [Expression Data](Expression-data) for a description of the expression data file format. The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.
+The methylation data file follows the same format as expression data files. See [Expression Data](#Expression-data) for a description of the expression data file format. The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.
 
 
 ## RPPA Data

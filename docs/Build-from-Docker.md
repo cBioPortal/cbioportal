@@ -37,7 +37,7 @@ docker run -d --name "cbioDB" \
 	-v /seed/DB/path:/cbioDB \
 	mysql
 ```
-:warning: change the /seed/DB/path to a local folder on the host machine which contains the seed database `cbioportal-seed.sql.gz` (you can [download the seed DB here](Downloads#seed-database)). 
+:warning: change the /seed/DB/path to a local folder on the host machine which contains the seed database `cbioportal-seed.sql.gz` (you can [download the seed DB here](Downloads.md#seed-database)). 
 
 :information_source: you can check the status of mysql using *Kitematic* tool that comes with Docker. Or run
 ```bash

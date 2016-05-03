@@ -74,7 +74,7 @@ The value in the EMAIL column should be the same email address contained in the 
 The value in the AUTHORITY column is made of two parts:
 
 * The first part is the name of your portal instance.  This name should also match the app.name property found in the `portal.properties` file.  
-* Following a colon delimiter, the second part is the [cancer_study_identifier](File-Formats#cancer-study) of the cancer study this user has rights to access.  If the user has rights to all available cancer studies, a single entry with the keyword "ALL" is sufficient.
+* Following a colon delimiter, the second part is the [cancer_study_identifier](File-Formats.md#cancer-study) of the cancer study this user has rights to access.  If the user has rights to all available cancer studies, a single entry with the keyword "ALL" is sufficient.
 
 You need to add users via MySQL directly.  For example:
 

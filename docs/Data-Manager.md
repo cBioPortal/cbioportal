@@ -26,7 +26,7 @@ Returns the ids of altered samples among those currently queried.
 Returns the ids of unaltered samples among those currently queried.
 
 ### getSampleClinicalAttributes():Promise[Array[Object]] ###
-Returns a list of the clinical attributes for which there is data for the queried samples (see https://github.com/cBioPortal/cbioportal/wiki/The-API-and-API-Client#sample-clinical-attributes for the form of the returned objects).
+Returns a list of the clinical attributes for which there is data for the queried samples (see [The API and API Client](The-API-and-API-Client.md#sample-clinical-attributes) for the form of the returned objects).
 
 ### getSampleClinicalData(Array[String] attribute_ids):Promise[Array[Object]] ###
-Returns sample clinical data for the given attribute ids for the currently queried samples (see https://github.com/cBioPortal/cbioportal/wiki/The-API-and-API-Client#sample-clinical-data for the form of the returned objects).
+Returns sample clinical data for the given attribute ids for the currently queried samples (see [The API and API Client](The-API-and-API-Client.md#sample-clinical-data) for the form of the returned objects).

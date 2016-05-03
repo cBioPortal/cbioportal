@@ -104,4 +104,4 @@ For example, add the following to your `.bash_profile`:
 
 This environment variable should also be set within Apache Tomcat.  Edit your Tomcat startup file (typically $CATALINA_HOME/bin/catalina.sh) and add the export statement anywhere within this file (we typically add it near the JAVA_OPTS statements).  We have had reports that on RHEL 7, this export had to be placed at the top of /usr/libexec/tomcat/preamble.
 
-[[Next Step: Build From Source|Build-from-Source]]
+[Next Step: Build From Source](Build-from-Source.md)

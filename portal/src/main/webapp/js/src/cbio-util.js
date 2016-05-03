@@ -478,6 +478,16 @@ cbio.util = (function() {
         return target;
     }
     
+    //Get hotspot description. TODO: add type as parameter for different source of hotspot sources.
+    function getHotSpotDesc() {
+        return "<b>Recurrent Hotspot</b><br/>" +
+            "This mutated amino acid was identified as a recurrent hotspot " +
+            "(statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various " +
+            "cancer types (based on <a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>" +
+            "Chang et al., Nat Biotechnol. 2016</a>).<br/><br/>" +
+            "Explore all mutations at <a href=&quot;http://cancerhotspots.org/&quot; target=&quot;_blank&quot;>http://cancerhotspots.org/</a>.";
+    }
+    
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -499,6 +509,7 @@ cbio.util = (function() {
         getLinkToSampleView: getLinkToSampleView,
         addTargetedQTip: addTargetedQTip,
         toTitleCase: toTitleCase,
+        getHotSpotDesc: getHotSpotDesc,
         replaceAll: replaceAll
     };
 

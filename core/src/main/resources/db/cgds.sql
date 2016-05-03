@@ -47,11 +47,11 @@ drop table IF EXISTS clinical_patient;
 drop table IF EXISTS patient;
 drop table IF EXISTS authorities;
 drop table IF EXISTS users;
-drop table IF EXISTS entity_link;
-drop table IF EXISTS entity;
 drop table IF EXISTS cancer_study;
 drop table IF EXISTS type_of_cancer;
 drop table IF EXISTS info;
+drop table IF EXISTS gene_panel;
+drop table IF EXISTS gene_panel_list;
 -- --------------------------------------------------------
 
 --
@@ -91,28 +91,6 @@ CREATE TABLE `cancer_study` (
 );
 
 -- --------------------------------------------------------
-
---
--- Table structure for `entity`
---
-CREATE TABLE `entity` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
-  `STABLE_ID` varchar(50) NOT NULL,
-  `ENTITY_TYPE` varchar(50) NOT NULL,
-  PRIMARY KEY (`INTERNAL_ID`)
-);
-
---
--- Table structure for `entity_link`
---
-CREATE TABLE `entity_link` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
-  `PARENT_ID` int(11) NOT NULL,
-  `CHILD_ID` int(11) NOT NULL,
-  PRIMARY KEY  (`INTERNAL_ID`),
-  FOREIGN KEY (`PARENT_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`CHILD_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE
-);
 
 --
 -- Table structure for table `users`
@@ -595,6 +573,34 @@ CREATE TABLE `drug_interaction` (
   `PMIDS` varchar(1024) DEFAULT NULL,
   FOREIGN KEY (`DRUG`) REFERENCES `drug` (`DRUG_ID`)
 );
+
+--
+-- Table structure for table `gene_panel`
+--
+CREATE TABLE `gene_panel` (
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `STABLE_ID` varchar(255) NOT NULL,
+  `DESCRIPTION` mediumtext,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY  (`INTERNAL_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
+  UNIQUE (`STABLE_ID`)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gene_panel_list`
+--
+CREATE TABLE `gene_panel_list` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `GENE_ID` int(255) NOT NULL,
+  PRIMARY KEY  (`INTERNAL_ID`,`GENE_ID`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `gene_panel` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
 
 CREATE TABLE `cna_event` (
   `CNA_EVENT_ID` int(255) NOT NULL auto_increment,

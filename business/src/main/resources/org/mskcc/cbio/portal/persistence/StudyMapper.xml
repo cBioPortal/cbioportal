@@ -5,9 +5,10 @@
     
 <cache/>
 
-<select id="getStudies" resultType="DBStudy">
+<select id="byStableId" resultType="DBStudy">
     select
         CANCER_STUDY_IDENTIFIER as id,
+        CANCER_STUDY_ID as internal_id,
         TYPE_OF_CANCER_ID as type_of_cancer,
         NAME as name,
         SHORT_NAME as short_name,
@@ -16,9 +17,9 @@
         CITATION as citation,
         GROUPS as groups
     from cancer_study
-    where CANCER_STUDY_IDENTIFIER in <foreach item="item" collection="study_ids" open="(" separator="," close=")">#{item}</foreach>
+    where CANCER_STUDY_IDENTIFIER in <foreach item="item" collection="ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
-<select id="getAllStudies" resultType="DBStudy">
+<select id="getAll" resultType="DBStudy">
     select
         CANCER_STUDY_IDENTIFIER as id,
         TYPE_OF_CANCER_ID as type_of_cancer,

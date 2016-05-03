@@ -7,7 +7,8 @@
      xsi:schemaLocation="
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd"
+     xmlns:aop="http://www.springframework.org/schema/aop">
 
      <beans profile="jndi,dbcp">
 
@@ -19,6 +20,8 @@
               <list>
                 <value>file:///${PORTAL_HOME}/portal.properties</value>
                 <value>classpath:/portal.properties</value>
+                <value>file:///${PORTAL_HOME}/importer.properties</value>
+                <value>classpath:/importer.properties</value>
               </list>
             </property>
           </bean>
@@ -32,6 +35,10 @@
         <!-- when creating services via manually loading this context file -->
         <bean id="entityMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
             <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="genePanelMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GenePanelMapper" />
             <property name="sqlSessionFactory" ref="sqlSessionFactory" />
         </bean>
         <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">

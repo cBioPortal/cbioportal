@@ -2,10 +2,6 @@
 
 # ------------------------------------------------------------------------------
 # Data validation script - validates files before import into portal.
-# If create-corrected set to true, the script will create a new version of all the files it detects
-#   and ensure the newlines are correct and that no data is enclosed in quotes. It will also
-#   add entrez IDs if they are not present and the user either provides the file or sets ftp
-#   Also checks for duplicate column headers, repeated header rows
 # ------------------------------------------------------------------------------
 
 
@@ -512,14 +508,7 @@ class Validator(object):
 
     def _checkLineBreaks(self):
         """Checks line breaks, reports to user."""
-        # TODO document these requirements
-        if "\r\n" in self.newlines:
-            self.logger.error('DOS-style line breaks detected (\\r\\n), '
-                              'should be Unix-style (\\n)')
-        elif "\r" in self.newlines:
-            self.logger.error('Classic Mac OS-style line breaks detected '
-                              '(\\r), should be Unix-style (\\n)')
-        elif self.newlines != '\n':
+        if self.newlines not in("\r\n","\r","\n"):
             self.logger.error('No line breaks recognized in file',
                               extra={'cause': repr(self.newlines)[1:-1]})
 

@@ -82,7 +82,7 @@ var OncoprintLegendView = (function() {
 		if (rule.exclude_from_legend) {
 		    continue;
 		}
-		var group = ruleToSVGGroup(rule, view, model);
+		var group = ruleToSVGGroup(rule, view, model, target_svg);
 		group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		rule_set_group.appendChild(group);
 		if (x + group.getBBox().width > view.width) {
@@ -101,7 +101,7 @@ var OncoprintLegendView = (function() {
 	view.$svg[0].setAttribute('height', everything_box.height);
     };
     
-    var ruleToSVGGroup = function(rule, view, model) {
+    var ruleToSVGGroup = function(rule, view, model, target_svg) {
 	var root = svgfactory.group(0,0);
 	var config = rule.getLegendConfig();
 	if (config.type === 'rule') {
@@ -111,7 +111,12 @@ var OncoprintLegendView = (function() {
 	    }
 	    if (typeof rule.legend_label !== 'undefined') {
 		var font_size = 12;
-		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2 - font_size/2, font_size, 'Arial', 'normal'));
+		var text_node = svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2, font_size, 'Arial', 'normal');
+		target_svg.appendChild(text_node);
+		var height = text_node.getBBox().height;
+		text_node.setAttribute('y', parseFloat(text_node.getAttribute('y')) - height/2);
+		target_svg.removeChild(text_node);
+		root.appendChild(text_node);
 	    }
 	} else if (config.type === 'number') {
 	    var num_decimal_digits = 2;

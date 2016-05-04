@@ -194,6 +194,7 @@ public class GlobalProperties {
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
+    public static final String DARWIN_AUTH_STUDIES = "darwin.auth_studies";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -732,6 +733,14 @@ public class GlobalProperties {
             return "";
         }
         return darwinResponseUrl;        
+    }
+    
+    public static String[] getDarwinAuthStudies() {
+        String darwinAuthStudies = properties.getProperty(DARWIN_AUTH_STUDIES);
+        if (darwinAuthStudies.isEmpty() || darwinAuthStudies == null) {
+            return null;
+        }
+        return darwinAuthStudies.split(",");
     }
     
     public static void main(String[] args)

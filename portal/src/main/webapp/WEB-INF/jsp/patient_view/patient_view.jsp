@@ -32,12 +32,12 @@
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccess" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.DrugsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.CheckDarwinAccessMain.CheckDarwinAccess" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
@@ -124,7 +124,7 @@ boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
 String userName = GlobalProperties.getAuthenticatedUserName();
 
-String darwinAccessURL = CheckDarwinAccess.checkAccess(userName,patientID);
+String darwinAccessURL = CheckDarwinAccess.checkAccess(cancerStudy.getCancerStudyStableId(), userName, patientID);
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 

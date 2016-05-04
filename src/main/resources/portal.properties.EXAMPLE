@@ -151,3 +151,4 @@ recache_study_after_update=false
 #darwin url
 darwin.auth_url=
 darwin.response_url=
+darwin.auth_studies=list of comma delimited study ids

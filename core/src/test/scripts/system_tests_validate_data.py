@@ -142,8 +142,6 @@ class ValidateDataSystemTester(unittest.TestCase):
         argv = ['--study_directory','test_data/study_maf_test/',
                 '--portal_info_dir', PORTAL_INFO_DIR,
                 '--error_file', out_file_name]
-                # uncomment to overwrite with the new version
-                #'--error_file', 'test_data/study_maf_test/error_file.txt']
         parsed_args = validateData.interface(argv)
         exit_status = validateData.main_validate(parsed_args)
         # flush logging handlers used in validateData
@@ -196,8 +194,6 @@ class ValidateDataSystemTester(unittest.TestCase):
         args = ['--study_directory','test_data/study_wr_clin/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
                 '--html_table', out_file_name]
-                # uncomment to overwrite with the new version
-                #'--html_table', 'test_data/study_wr_clin/result_report.html']
         # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
         exit_status = validateData.main_validate(args)

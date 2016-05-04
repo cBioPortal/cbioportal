@@ -487,7 +487,7 @@ $(document).ready(function() {
             //Oncoprint summary lines
             $("#oncoprint_sample_set_description").append(window.QuerySession.getSampleSetDescription() + 
                 "("+patientIdArray.length + " patients / " + _sampleIds.length + " samples)");
-            $("#oncoprint_sample_set_name").append(window.QuerySession.getSampleSetName());
+            $("#oncoprint_sample_set_name").append("Case Set: "+window.QuerySession.getSampleSetName());
             $("#oncoprint_num_of_altered_cases").append(altered_samples.length);
             $("#oncoprint_percentage_of_altered_cases").append(altered_samples_percentage);
             if (patientIdArray.length !== _sampleIds.length) {

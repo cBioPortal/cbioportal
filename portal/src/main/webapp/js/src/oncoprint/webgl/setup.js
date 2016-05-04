@@ -215,21 +215,21 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 							    "stroke":"black",
 							    "fill":"white"
 							}));
-	var $loading_bar_msg = $(utils.makeSVGElement("text", {
-							    'x': 2,
-							    'y':15,
-							    'font-size':11,
-							    'font-family':'Arial',
-							    'font-weight':'normal',
-							    'text-anchor':'start',
-							}))
-				.appendTo($loading_bar_svg);
 	var $loading_bar = $(utils.makeSVGElement("rect", {
 							"width":0, 
 							"height":25, 
 							"fill":"green", 
 							"stroke":"dark green"}))
 				.appendTo($loading_bar_svg);
+	var $loading_bar_msg = $(utils.makeSVGElement("text", {
+					    'x': 2,
+					    'y':15,
+					    'font-size':11,
+					    'font-family':'Arial',
+					    'font-weight':'normal',
+					    'text-anchor':'start',
+					}))
+		.appendTo($loading_bar_svg);
 
 	return {
 	    'hide': function() {
@@ -379,7 +379,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    }
 			    data_by_gene[d.gene].push(d);
 			}
-			LoadingBar.msg("");
+			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
 			oncoprint.keepSorted(false);
 			
@@ -402,6 +402,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 			    oncoprint.keepSorted();
 			    oncoprint.releaseRendering();
+			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    done.resolve();
 			});
@@ -438,7 +439,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    }
 			    data_by_gene[d.gene].push(d);
 			}
-			LoadingBar.msg("");
+			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
 			oncoprint.keepSorted(false);
 			
@@ -461,6 +462,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 			    oncoprint.keepSorted();
 			    oncoprint.releaseRendering();
+			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    done.resolve();
 			});
@@ -1600,21 +1602,21 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 							    "stroke":"black",
 							    "fill":"white"
 							}));
-	var $loading_bar_msg = $(utils.makeSVGElement("text", {
-							    'x': 2,
-							    'y':15,
-							    'font-size':11,
-							    'font-family':'Arial',
-							    'font-weight':'normal',
-							    'text-anchor':'start',
-							}))
-				.appendTo($loading_bar_svg);
 	var $loading_bar = $(utils.makeSVGElement("rect", {
 							"width":0, 
 							"height":25, 
 							"fill":"green", 
 							"stroke":"dark green"}))
 				.appendTo($loading_bar_svg);
+	var $loading_bar_msg = $(utils.makeSVGElement("text", {
+					    'x': 2,
+					    'y':15,
+					    'font-size':11,
+					    'font-family':'Arial',
+					    'font-weight':'normal',
+					    'text-anchor':'start',
+					}))
+		.appendTo($loading_bar_svg);
 
 	return {
 	    'hide': function() {

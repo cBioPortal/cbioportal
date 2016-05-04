@@ -171,6 +171,9 @@ A:hover {
 
 #main_submit {
     background-color: #e6e6e6;    
+    color: transparent;     
+    display: inline-block;           
+    text-shadow: 0 0 0 black;
 }
 
 .wpasA {
@@ -1664,6 +1667,10 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 
 /* OncoKB integration styles */
 /*Default max width is 280px*/
+.oncokb {
+    font-size: 12px;
+}
+
 .oncokb-qtip {
     max-width: 400px !important;
     min-width: 300px !important;
@@ -1692,6 +1699,8 @@ ul.oncokb li {
 }
 .qtip-content div.oncokb{
     padding-top: 5px;
+    width: 100%;
+    float: left;
 }
 .oncokbFeedback {
     text-decoration: underline;
@@ -1721,7 +1730,7 @@ table.oncokb-treatments-table td:first-child, table.oncokb-treatments-table th:f
     text-align: center;
 }
 table.oncokb-treatments-table th, table.oncokb-treatments-table td{
-    font-size: 11px;
+    font-size: 12px;
 }
 .oncokb .oncogenic-icon-image.level1.oncogenic {
     background-position: -13px -12px;

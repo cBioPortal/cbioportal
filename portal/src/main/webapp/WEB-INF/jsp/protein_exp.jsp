@@ -41,7 +41,7 @@
 %>
 
 <div class="section" id="protein_exp">
-    <div id="protein_expr_wait"><img src="images/ajax-loader.gif"/></div>
+    <div id="protein_expr_wait"><img src="images/ajax-loader.gif" alt='loading'/></div>
     <table cellpadding="0" cellspacing="0" border="0" id="protein_expr_wrapper" width="100%">
         <tr>
         <td>

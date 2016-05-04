@@ -246,7 +246,7 @@ public class QueryBuilder extends HttpServlet {
                                                sampleSetId, sampleIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-                processData(cancerTypeId, geneticProfileIdSet, profileList, geneList, sampleSetId,
+                processData(cancerTypeId, geneticProfileIdSet, profileList, sampleSetId,
                             sampleIds, sampleSets, patientCaseSelect, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
@@ -316,7 +316,6 @@ public class QueryBuilder extends HttpServlet {
     private void processData(String cancerStudyStableId,
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
-							 String geneListStr,
 							 String sampleSetId, String sampleIds,
 							 ArrayList<SampleList> sampleSetList,
                                                          String patientCaseSelect,

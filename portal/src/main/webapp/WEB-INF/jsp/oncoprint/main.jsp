@@ -72,8 +72,8 @@
                 <div class="dropdown-menu" style="margin-left:10px; margin-right:10px;">
                    <form action="">
                        <input type="radio" name="sortby" value="data"> Data</input><br>
-                       <input type="checkbox" name="type" value="type" style="margin-left:10px;"> Type</input><br>
-                       <input type="checkbox" name="recurrence" value="recurrence" style="margin-left:10px;"> Recurrence</input><br>
+                       <input type="checkbox" name="type" value="type" style="margin-left:10px;"> Mutation Type</input><br>
+                       <input type="checkbox" name="recurrence" value="recurrence" style="margin-left:10px;"> Mutation Recurrence</input><br>
                        <input type="radio" name="sortby" value="id"> Case id (alphabetical)</input><br>
                        <input type="radio" name="sortby" value="custom"> User-defined case list / default</input><br>
                        <br>

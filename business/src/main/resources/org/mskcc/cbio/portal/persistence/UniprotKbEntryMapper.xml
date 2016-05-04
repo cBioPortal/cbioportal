@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.UniprotKbEntryMapper">
+
+<cache/>
+
+<select id="getUniprotKbEntriesByAccession" resultType="DBUniprotKbEntry" parameterType="list">
+    SELECT
+        uniprot_acc AS uniprotkb_accession,
+        uniprot_id AS uniprotkb_name,
+        entrez_gene_id AS entrez_gene_id
+    FROM uniprot_id_mapping
+    WHERE uniprot_acc IN
+    <foreach item="item" collection="accessions" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
+<select id="getUniprotKbEntriesByEntrez" resultType="DBUniprotKbEntry" parameterType="list">
+    SELECT
+        uniprot_acc AS uniprotkb_accession,
+        uniprot_id AS uniprotkb_name,
+        entrez_gene_id AS entrez_gene_id
+    FROM uniprot_id_mapping
+    WHERE entrez_gene_id IN
+    <foreach item="item" collection="entrez_gene_ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
+<select id="getAllUniprotKbEntries" resultType="DBUniprotKbEntry" parameterType="list">
+    SELECT
+        uniprot_acc AS uniprotkb_accession,
+        uniprot_id AS uniprotkb_name,
+        entrez_gene_id AS entrez_gene_id
+    FROM uniprot_id_mapping
+</select>
+
+</mapper>

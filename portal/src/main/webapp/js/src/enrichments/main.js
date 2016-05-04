@@ -182,16 +182,16 @@ var enrichmentsTab = (function() {
         };
 
         $.each(profiles, function(key, curProfile){
-            if(curProfile.GENETIC_ALTERATION_TYPE == enrichmentsTabSettings.profile_type.mrna && !isZScoreProfile(curProfile)){
+            if(curProfile.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.mrna && !isZScoreProfile(curProfile)){
                 validProfiles.expression = true;
             }
-            else if(curProfile.GENETIC_ALTERATION_TYPE == enrichmentsTabSettings.profile_type.protein_exp && !isZScoreProfile(curProfile)){
+            else if(curProfile.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.protein_exp && !isZScoreProfile(curProfile)){
                 validProfiles.protein = true;
             }
-            else if(curProfile.GENETIC_ALTERATION_TYPE == enrichmentsTabSettings.profile_type.copy_num) {
+            else if(curProfile.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.copy_num) {
                 validProfiles.cna = true;
             }
-            else if(curProfile.GENETIC_ALTERATION_TYPE == enrichmentsTabSettings.profile_type.mutations){
+            else if(curProfile.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.mutations){
                 validProfiles.mutations = true;
             }
         });
@@ -206,9 +206,9 @@ var enrichmentsTab = (function() {
      */
     function isZScoreProfile(profile){
         var id = profile.STABLE_ID.toLowerCase();
-        return (profile.DATATYPE.toLowerCase()=='z-score' ||
-            id.indexOf("z-scores") != -1 ||
-            id.indexOf("zscores") != -1);
+        return (//profile.DATATYPE.toLowerCase()==='z-score' ||
+            id.indexOf("z-scores") !== -1 ||
+            id.indexOf("zscores") !== -1);
     }
 
     var init_ajax = function() {

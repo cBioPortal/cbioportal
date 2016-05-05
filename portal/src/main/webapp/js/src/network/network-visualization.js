@@ -3192,6 +3192,9 @@ NetworkVis.prototype._refreshRelationsTabUIVisibility = function()
           //_setComponentVis($("#edge_legend .other"), true);
       }
     }
+
+    // visualization changed, perform layout if necessary
+    this._visChanged();
 }
 /**
  * Initializes the content of the relations tab, by adding content according to

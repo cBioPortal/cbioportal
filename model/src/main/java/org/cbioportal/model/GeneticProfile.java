@@ -3,20 +3,15 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class GeneticProfile implements Serializable {
+
     private Integer geneticProfileId;
-
     private String stableId;
-
+    private String studyId;
     private CancerStudy cancerStudy;
-
     private String geneticAlterationType;
-
     private String datatype;
-
     private String name;
-
     private String description;
-
     private Boolean showProfileInAnalysisTab;
 
     public Integer getGeneticProfileId() {
@@ -33,6 +28,14 @@ public class GeneticProfile implements Serializable {
 
     public void setStableId(String stableId) {
         this.stableId = stableId;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 
     public CancerStudy getCancerStudy() {

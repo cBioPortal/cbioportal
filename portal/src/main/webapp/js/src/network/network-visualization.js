@@ -1886,14 +1886,20 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
         var highlightedElements = nodes[i].neighborhood();
         highlightedElements = highlightedElements.add(nodes[i]);
         highlightedElements.data('highlighted', 'true');
-
-        this._vis.nodes(":visible").css("show-details", "false");
-        this._vis.nodes(":visible").nodes("[highlighted!='true']").css(this.notHighlightNodeCSS);
-        this._vis.edges(":visible").edges("[highlighted!='true']").css(this.notHighlightEdgeCSS);
-        this._vis.nodes(":visible").nodes("[highlighted='true']").removeCss();
-        this._vis.edges(":visible").edges("[highlighted='true']").removeCss();
       }
     }
+
+    this._vis.nodes(":visible").css("show-details", "false");
+    this._vis.nodes(":visible").nodes("[highlighted!='true']").css(this.notHighlightNodeCSS);
+    this._vis.edges(":visible").edges("[highlighted!='true']").css(this.notHighlightEdgeCSS);
+    this._vis.nodes(":visible").nodes("[highlighted='true']").removeCss();
+    this._vis.edges(":visible").edges("[highlighted='true']").removeCss();
+
+    this._vis.layout({
+      'name': 'preset',
+      'fit':  'false'
+    });
+
 };
 
 /**
@@ -1907,6 +1913,11 @@ NetworkVis.prototype._removeHighlights = function()
   this._vis.edges(":visible").edges("[highlighted!='true']").removeCss();
   this._vis.nodes(":visible").nodes().removeData("highlighted");
   this._vis.edges(":visible").edges().removeData("highlighted");
+
+  this._vis.layout({
+    'name': 'preset',
+    'fit':  'false'
+  });
 };
 
 /**

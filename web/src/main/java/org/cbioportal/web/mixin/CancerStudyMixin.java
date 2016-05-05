@@ -8,26 +8,17 @@ import java.util.Date;
 public class CancerStudyMixin {
 
     private Integer cancerStudyId;
-
     private String cancerStudyIdentifier;
-
-    private String citation;
-
-    private String description;
-
-    private String groups;
-
-    private Date importDate;
-
+    private String typeOfCancerId;
     private String name;
-
-    private String pmid;
-
-    private Boolean publicStudy;
-
     private String shortName;
-
+    private String description;
+    private Boolean publicStudy;
+    private String pmid;
+    private String citation;
+    private String groups;
     private Integer status;
+    private Date importDate;
 
     @JsonUnwrapped
     private TypeOfCancer typeOfCancer;

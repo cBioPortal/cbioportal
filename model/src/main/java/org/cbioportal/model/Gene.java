@@ -3,14 +3,11 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class Gene implements Serializable {
+
     private Integer entrezGeneId;
-
     private String hugoGeneSymbol;
-
     private String type;
-
     private String cytoband;
-
     private Integer length;
 
     public Integer getEntrezGeneId() {

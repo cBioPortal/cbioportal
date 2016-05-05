@@ -3,14 +3,13 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class Sample implements Serializable {
+
     private Integer internalId;
-
     private String stableId;
-
     private String sampleType;
-
+    private Integer patientId;
     private Patient patient;
-
+    private String typeOfCancerId;
     private TypeOfCancer typeOfCancer;
 
     public Integer getInternalId() {
@@ -37,12 +36,28 @@ public class Sample implements Serializable {
         this.sampleType = sampleType;
     }
 
+    public Integer getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Integer patientId) {
+        this.patientId = patientId;
+    }
+
     public Patient getPatient() {
         return patient;
     }
 
     public void setPatient(Patient patient) {
         this.patient = patient;
+    }
+
+    public String getTypeOfCancerId() {
+        return typeOfCancerId;
+    }
+
+    public void setTypeOfCancerId(String typeOfCancerId) {
+        this.typeOfCancerId = typeOfCancerId;
     }
 
     public TypeOfCancer getTypeOfCancer() {

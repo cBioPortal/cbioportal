@@ -134,8 +134,10 @@ var enrichmentsTab = (function() {
             var _obj = profile_obj_list[_key];
             if (_obj.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.mrna &&
                 _obj.STABLE_ID.toLowerCase().indexOf("z-scores") === -1 &&
-                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1 &&
-                _obj.DATATYPE.toLowerCase()!="z-score"){
+                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1 
+                //&&
+                //_obj.DATATYPE.toLowerCase()!="z-score"
+                ){
                 _profile_list.push(_obj);
             }
         });

@@ -134,11 +134,19 @@ public class ImportExtendedMutationData{
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
-                ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
-		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+				// backwards compatible part (i.e. in the new process, the sample should already be there. TODO - replace this workaround later with an exception:
+				Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                        StableIdUtil.getSampleId(barCode));
+				if (sample == null ) {
+					ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
+	                // add the sample (except if it is a 'normal' sample):
+					ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
+				}
+		        // check again (repeated because of workaround above):
+				sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                             StableIdUtil.getSampleId(barCode));
-		        if (sample == null) {
+		        // can be null in case of 'normal' sample:
+				if (sample == null) {
 		        	assert StableIdUtil.isNormal(barCode);
 		        	//if new sample:
 		        	if (sampleSet.add(barCode))

@@ -133,11 +133,7 @@ var enrichmentsTab = (function() {
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
             if (_obj.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.mrna &&
-                _obj.STABLE_ID.toLowerCase().indexOf("z-scores") === -1 &&
-                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1 
-                //&&
-                //_obj.DATATYPE.toLowerCase()!="z-score"
-                ){
+                !isZScoreProfile(_obj)){
                 _profile_list.push(_obj);
             }
         });
@@ -208,7 +204,8 @@ var enrichmentsTab = (function() {
      */
     function isZScoreProfile(profile){
         var id = profile.STABLE_ID.toLowerCase();
-        return (//profile.DATATYPE.toLowerCase()==='z-score' ||
+        return (
+            //profile.DATATYPE.toLowerCase()==='z-score' ||
             id.indexOf("z-scores") !== -1 ||
             id.indexOf("zscores") !== -1);
     }

@@ -66,10 +66,9 @@
                     </ul>
                 </p>
 
-                <%--<br>--%>
-                    <%--<% String[] segViewingArgs = IGVLinking.getIGVArgsForSegViewing(cancerTypeId, encodedGeneList); %>--%>
-                    <%--<a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= segViewingArgs[0] %>','<%= segViewingArgs[1] %>','<%= segViewingArgs[2] %>','<%= segViewingArgs[3] %>')"><img src="images/webstart.jpg" alt=""/></a>--%>
-                <%--<br>--%>
+                <br>
+                    <a id="igvLaunch" href="#" onclick="prepIGVForSegView('<%= cancerTypeId %>')"><img src="images/webstart.jpg" alt=""/></a>
+                <br>
 
                 <p>
                     Once you click the launch button, you may need to select Open with Java&#8482;

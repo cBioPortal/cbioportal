@@ -125,7 +125,6 @@ public class IGVLinkingJSON extends HttpServlet {
 					}
 				}
 			}
-			System.out.println(igvArgs.toJSONString());
 			JSONValue.writeJSONString(igvArgs, out);
 		} catch (Exception e) {
 			JSONValue.writeJSONString(new JSONObject(), out);

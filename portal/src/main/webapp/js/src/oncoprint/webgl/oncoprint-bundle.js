@@ -591,8 +591,12 @@ var OncoprintLabelView = (function () {
 	this.tooltip = tooltip;
 	this.tooltip.center = false;
 	// stuff from model
-	this.label_tops = {};
+	this.cell_tops = {};
+	this.cell_tops_view_space = {};
+	this.cell_heights = {};
+	this.cell_heights_view_space = {};
 	this.labels = {};
+	this.track_descriptions = {};
 	this.tracks = [];
 	this.minimum_track_height = Number.POSITIVE_INFINITY;
 	this.maximum_label_width = Number.NEGATIVE_INFINITY;
@@ -609,9 +613,9 @@ var OncoprintLabelView = (function () {
 	    
 	    view.$canvas.on("mousedown", function(evt) {
 		view.tooltip.hide();
-		var track_id = isMouseOnLabel(view, view.supersampling_ratio*evt.offsetY);
+		var track_id = isMouseOnLabel(view, evt.offsetY);
 		if (track_id !== null && model.getContainingTrackGroup(track_id).length > 1) {
-		    startDragging(view, track_id, view.supersampling_ratio*evt.offsetY);
+		    startDragging(view, track_id, evt.offsetY);
 		}
 	    });
 	    
@@ -620,18 +624,25 @@ var OncoprintLabelView = (function () {
 		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
 		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, view.track_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]));
 		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.track_tops[track_group[0]]-5);
-		    view.drag_mouse_y *= view.supersampling_ratio;
 		    renderAllLabels(view);
 		} else {
-		    var hovered_track = isMouseOnLabel(view, view.supersampling_ratio*(evt.pageY - view.$canvas.offset().top));
-		    if (hovered_track !== null && model.getContainingTrackGroup(hovered_track).length > 1) {
-			view.$canvas.css('cursor', 'move');
-			var offset = view.$canvas.offset();
-			var tooltip_html = "<b>hold to drag</b>";
+		    var hovered_track = isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top);
+		    if (hovered_track !== null) {
+			var tooltip_html_lines = [];
+			var offset = view.$canvas.offset();   
 			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])) {
-			    tooltip_html = view.labels[hovered_track] + '<br>' + tooltip_html;
+			    tooltip_html_lines.push('<b>'+view.labels[hovered_track]+'</b>');
 			}
-			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.label_tops[hovered_track] + offset.top, tooltip_html);
+			var track_description = view.track_descriptions[hovered_track];
+			if (track_description.length > 0) {
+			    tooltip_html_lines.push(track_description);
+			}
+			if (model.getContainingTrackGroup(hovered_track).length > 1) {
+			    view.$canvas.css('cursor', 'move');
+			    tooltip_html_lines.push("<b>hold to drag</b>");
+			}
+			var tooltip_html = tooltip_html_lines.join("<br>");
+			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.cell_tops[hovered_track] + offset.top, tooltip_html);
 		    } else {
 			view.$canvas.css('cursor', 'auto');
 			view.tooltip.hide();
@@ -642,7 +653,7 @@ var OncoprintLabelView = (function () {
 	    view.$canvas.on("mouseup mouseleave", function(evt) {
 		if (view.dragged_label_track_id !== null) {
 		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
-		    var previous_track_id = getLabelAbove(view, track_group, view.supersampling_ratio*evt.offsetY, view.dragged_label_track_id);
+		    var previous_track_id = getLabelAboveMouseSpace(view, track_group, evt.offsetY, view.dragged_label_track_id);
 		    stopDragging(view, previous_track_id);
 		}
 		view.tooltip.hide();
@@ -651,14 +662,15 @@ var OncoprintLabelView = (function () {
 	
     }
     var renderedLabelWidth = function(view, label) {
-	return view.ctx.measureText(shortenLabelIfNecessary(view, label)).width;
+	return view.ctx.measureText(shortenLabelIfNecessary(view, label)).width/view.supersampling_ratio;
     };
     var updateFromModel = function(view, model) {
-	var track_tops = model.getTrackTops();
-	var label_tops = model.getLabelTops();
-	view.track_tops = track_tops;
-	view.label_tops = label_tops;
+	view.track_tops = model.getTrackTops();
+	view.cell_tops = model.getCellTops();
+	view.cell_tops_view_space = {};
+	view.cell_heights = {};
 	view.tracks = model.getTracks();
+	view.track_descriptions = {};
 	
 	view.ctx.font = 'bold '+view.getFontSize()+'px Arial';
 	view.minimum_track_height = Number.POSITIVE_INFINITY;
@@ -667,13 +679,17 @@ var OncoprintLabelView = (function () {
 	    view.minimum_track_height = Math.min(view.minimum_track_height, model.getTrackHeight(view.tracks[i]));
 	    var shortened_label = shortenLabelIfNecessary(view, view.labels[view.tracks[i]]);
 	    view.maximum_label_width = Math.max(view.maximum_label_width, view.ctx.measureText(shortened_label).width);
-	    view.label_tops[view.tracks[i]] *= view.supersampling_ratio;
+	    
+	    view.cell_tops_view_space[view.tracks[i]] = view.cell_tops[view.tracks[i]]*view.supersampling_ratio;
+	    view.track_descriptions[view.tracks[i]] = model.getTrackDescription(view.tracks[i]);
+	    view.cell_heights[view.tracks[i]] = model.getCellHeight(view.tracks[i]);
+	    view.cell_heights_view_space[view.tracks[i]] = view.cell_heights[view.tracks[i]]*view.supersampling_ratio;
 	}
     }
     var setUpContext = function(view) {
 	view.ctx = view.$canvas[0].getContext('2d');
 	view.ctx.textAlign="start";
-	view.ctx.textBaseline="top";
+	view.ctx.textBaseline="middle";
     }
     var resizeAndClear = function(view, model) {
 	var visible_height = model.getCellViewHeight();
@@ -704,46 +720,46 @@ var OncoprintLabelView = (function () {
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {
-	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[tracks[i]]), 0, view.label_tops[tracks[i]]);
+	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[tracks[i]]), 0, view.cell_tops_view_space[tracks[i]] + view.cell_heights_view_space[tracks[i]]/2);
 	}
 	if (view.dragged_label_track_id !== null) {
 	    view.ctx.fillStyle = 'rgba(255,0,0,0.95)';
-	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[view.dragged_label_track_id]), 0, view.drag_mouse_y-font_size/2);
+	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[view.dragged_label_track_id]), 0, view.supersampling_ratio*view.drag_mouse_y);
 	    view.ctx.fillStyle = 'rgba(0,0,0,0.15)';
 	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
-	    var label_above_mouse = getLabelAbove(view, group, view.drag_mouse_y, null);
-	    var label_below_mouse = getLabelBelow(view, group, view.drag_mouse_y, null);
+	    var label_above_mouse = getLabelAboveMouseSpace(view, group, view.drag_mouse_y, null);
+	    var label_below_mouse = getLabelBelowMouseSpace(view, group, view.drag_mouse_y, null);
 	    var rect_y, rect_height;
 	    if (label_above_mouse === view.dragged_label_track_id || label_below_mouse === view.dragged_label_track_id) {
 		return;
 	    }
 	    if (label_above_mouse !== null && label_below_mouse !== null) {
-		rect_y = view.label_tops[label_above_mouse] + view.ctx.measureText("m").width;
-		rect_height = view.label_tops[label_below_mouse] - rect_y;
+		rect_y = view.cell_tops_view_space[label_above_mouse] + view.cell_heights_view_space[label_above_mouse];
+		rect_height = view.cell_tops_view_space[label_below_mouse] - rect_y;
 	    } else if (label_above_mouse === null) {
-		rect_y = view.label_tops[group[0]] - view.ctx.measureText("m").width;
+		rect_y = view.cell_tops_view_space[group[0]] - view.ctx.measureText("m").width;
 		rect_height = view.ctx.measureText("m").width;
 	    } else if (label_below_mouse === null) {
-		rect_y = view.label_tops[group[group.length-1]] + view.ctx.measureText("m").width;;
+		rect_y = view.cell_tops_view_space[group[group.length-1]] + view.cell_heights_view_space[group[group.length-1]];
 		rect_height = view.ctx.measureText("m").width;
 	    }
-	    view.ctx.fillRect(0, rect_y, view.getWidth(), rect_height);
+	    view.ctx.fillRect(0, rect_y, view.getWidth()*view.supersampling_ratio, rect_height);
 	}
     }
     
     var isMouseOnLabel = function(view, mouse_y) {
-	var candidate_track = getLabelAbove(view, view.tracks, mouse_y, null);
+	var candidate_track = getLabelAboveMouseSpace(view, view.tracks, mouse_y, null);
 	if (candidate_track === null) {
 	    return null;
 	}
-	if (mouse_y <= view.label_tops[candidate_track] + view.getFontSize()) {
+	if (mouse_y <= view.cell_tops[candidate_track] + view.cell_heights[candidate_track]) {
 	    return candidate_track;
 	} else {
 	    return null;
 	}
     }
-    var getLabelAbove = function(view, track_ids, y, track_to_exclude) {
-	if (y < view.label_tops[track_ids[0]]) {
+    var getLabelAboveMouseSpace = function(view, track_ids, y, track_to_exclude) {
+	if (y < view.cell_tops[track_ids[0]]) {
 	    return null;
 	} else {
 	    var candidate_track = null;
@@ -751,7 +767,7 @@ var OncoprintLabelView = (function () {
 		if (track_to_exclude !== null && track_to_exclude === track_ids[i]) {
 		    continue;
 		}
-		if (view.label_tops[track_ids[i]] > y) {
+		if (view.cell_tops[track_ids[i]] > y) {
 		    break;
 		} else {
 		    candidate_track = track_ids[i];
@@ -760,8 +776,8 @@ var OncoprintLabelView = (function () {
 	    return candidate_track;
 	}
     }
-    var getLabelBelow = function(view, track_ids, y, track_to_exclude) {
-	if (y > view.label_tops[track_ids[track_ids.length-1]]) {
+    var getLabelBelowMouseSpace = function(view, track_ids, y, track_to_exclude) {
+	if (y > view.cell_tops[track_ids[track_ids.length-1]]) {
 	    return null;
 	} else {
 	    var candidate_track = null;
@@ -769,7 +785,7 @@ var OncoprintLabelView = (function () {
 		if (track_to_exclude !== null && track_to_exclude === track_ids[i]) {
 		    continue;
 		}
-		if (view.label_tops[track_ids[i]] < y) {
+		if (view.cell_tops[track_ids[i]] < y) {
 		    break;
 		} else {
 		    candidate_track = track_ids[i];
@@ -791,10 +807,10 @@ var OncoprintLabelView = (function () {
     }
     OncoprintLabelView.prototype.getWidth = function() {
 	//return this.maximum_label_width + 20;
-	return Math.max(this.maximum_label_width + 10, 70);
+	return Math.max(this.maximum_label_width/this.supersampling_ratio + 10, 70);
     }
-    OncoprintLabelView.prototype.getFontSize = function() {
-	return this.supersampling_ratio * Math.max(Math.min(this.base_font_size, this.minimum_track_height), 7);
+    OncoprintLabelView.prototype.getFontSize = function(no_supersampling_adjustment) {
+	return (no_supersampling_adjustment ? 1 : this.supersampling_ratio) * Math.max(Math.min(this.base_font_size, this.minimum_track_height), 7);
     }
     OncoprintLabelView.prototype.setDragCallback = function(callback) {
 	this.drag_callback = callback;
@@ -834,13 +850,14 @@ var OncoprintLabelView = (function () {
     
     OncoprintLabelView.prototype.toSVGGroup = function(model, full_labels, offset_x, offset_y) {
 	var root = svgfactory.group((offset_x || 0), (offset_y || 0));
-	var label_tops = model.getLabelTops();
+	var cell_tops = model.getCellTops();
 	var tracks = model.getTracks();
 	for (var i=0; i<tracks.length; i++) {
 	    var track_id = tracks[i];
-	    var y = label_tops[track_id];
+	    var y = cell_tops[track_id] + model.getCellHeight(track_id)/2;
 	    var label = model.getTrackLabel(track_id);
-	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(), 'Arial', 'bold'); 
+	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(true), 'Arial', 'bold', "bottom"); 
+	    text_elt.setAttribute("dy", "0.35em");
 	    root.appendChild(text_elt);
 	}
 	return root;
@@ -935,7 +952,7 @@ var OncoprintLegendView = (function() {
 		if (rule.exclude_from_legend) {
 		    continue;
 		}
-		var group = ruleToSVGGroup(rule, view, model);
+		var group = ruleToSVGGroup(rule, view, model, target_svg);
 		group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		rule_set_group.appendChild(group);
 		if (x + group.getBBox().width > view.width) {
@@ -954,7 +971,7 @@ var OncoprintLegendView = (function() {
 	view.$svg[0].setAttribute('height', everything_box.height);
     };
     
-    var ruleToSVGGroup = function(rule, view, model) {
+    var ruleToSVGGroup = function(rule, view, model, target_svg) {
 	var root = svgfactory.group(0,0);
 	var config = rule.getLegendConfig();
 	if (config.type === 'rule') {
@@ -964,7 +981,12 @@ var OncoprintLegendView = (function() {
 	    }
 	    if (typeof rule.legend_label !== 'undefined') {
 		var font_size = 12;
-		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2 - font_size/2, font_size, 'Arial', 'normal'));
+		var text_node = svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2, font_size, 'Arial', 'normal');
+		target_svg.appendChild(text_node);
+		var height = text_node.getBBox().height;
+		text_node.setAttribute('y', parseFloat(text_node.getAttribute('y')) - height/2);
+		target_svg.removeChild(text_node);
+		root.appendChild(text_node);
 	    }
 	} else if (config.type === 'number') {
 	    var num_decimal_digits = 2;
@@ -1162,6 +1184,7 @@ var OncoprintModel = (function () {
 	
 	// Track Properties
 	this.track_label = {};
+	this.track_description = {};
 	this.cell_height = {};
 	this.track_padding = {};
 	this.track_data_id_key = {};
@@ -1572,7 +1595,7 @@ var OncoprintModel = (function () {
 	    addTrack(this, params.track_id, params.target_group,
 		    params.cell_height, params.track_padding,
 		    params.data_id_key, params.tooltipFn,
-		    params.removable, params.removeCallback, params.label, params.track_info,
+		    params.removable, params.removeCallback, params.label, params.description, params.track_info,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
 		    params.data, params.rule_set);
 	}
@@ -1582,10 +1605,11 @@ var OncoprintModel = (function () {
     var addTrack = function (model, track_id, target_group,
 	    cell_height, track_padding,
 	    data_id_key, tooltipFn,
-	    removable, removeCallback, label, track_info,
+	    removable, removeCallback, label, description, track_info,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
+	model.track_description[track_id] = ifndef(description, "");
 	model.cell_height[track_id] = ifndef(cell_height, 23);
 	model.track_padding[track_id] = ifndef(track_padding, 5);
 
@@ -1809,6 +1833,10 @@ var OncoprintModel = (function () {
 
     OncoprintModel.prototype.getTrackLabel = function (track_id) {
 	return this.track_label[track_id];
+    }
+    
+    OncoprintModel.prototype.getTrackDescription = function(track_id) {
+	return this.track_description[track_id];
     }
 
     OncoprintModel.prototype.getTrackTooltipFn = function (track_id) {
@@ -3513,7 +3541,7 @@ var OncoprintTrackInfoView = (function() {
 					.addClass('noselect');
 	    $new_label.text(model.getTrackInfo(tracks[i]));
 	    $new_label.appendTo(view.$div);
-	    $new_label.css({'top':label_tops[tracks[i]] + (model.getCellHeight(tracks[i]) - $new_label[0].clientHeight)/2});
+	    $new_label.css({'top':label_tops[tracks[i]] + (model.getCellHeight(tracks[i]) - $new_label.outerHeight())/2});
 	    view.width = Math.max(view.width, $new_label[0].clientWidth);
 	}
     };
@@ -3549,13 +3577,14 @@ var OncoprintTrackInfoView = (function() {
     }
     OncoprintTrackInfoView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
 	var root = svgfactory.group((offset_x || 0), (offset_y || 0));
-	var label_tops = model.getLabelTops();
+	var cell_tops = model.getCellTops();
 	var tracks = model.getTracks();
 	for (var i=0; i<tracks.length; i++) {
 	    var track_id = tracks[i];
-	    var y = label_tops[track_id];
+	    var y = cell_tops[track_id] + model.getCellHeight(track_id)/2;
 	    var info = model.getTrackInfo(track_id);
-	    var text_elt = svgfactory.text(info, 0, y, this.font_size, this.font_family, this.font_weight);
+	    var text_elt = svgfactory.text(info, 0, y, this.font_size, this.font_family, this.font_weight, "bottom");
+	    text_elt.setAttribute("dy", "0.35em");
 	    root.appendChild(text_elt);
 	}
 	return root;
@@ -4522,11 +4551,17 @@ module.exports = OncoprintWebGLCellView;
 var makeSVGElement = require('./makesvgelement.js');
 var shapeToSVG = require('./oncoprintshapetosvg.js');
 module.exports = {
-    text: function(content,x,y,size,family,weight) {
+    text: function(content,x,y,size,family,weight,alignment_baseline) {
 	size = size || 12;
+	var alignment_baseline_y_offset = size;
+	if (alignment_baseline === "middle") {
+	    alignment_baseline_y_offset = size/2;
+	} else if (alignment_baseline === "bottom") {
+	    alignment_baseline_y_offset = 0;
+	}
 	var elt = makeSVGElement('text', {
 	    'x':(x || 0),
-	    'y':(y || 0) + size,
+	    'y':(y || 0) + alignment_baseline_y_offset,
 	    'font-size':size,
 	    'font-family':(family || 'serif'),
 	    'font-weight':(weight || 'normal'),

@@ -138,7 +138,7 @@
             var showNetwork = function() {
                 var networkParams = {
                     <%=QueryBuilder.GENE_LIST%>:window.QuerySession.getQueryGenes().join(" "),
-                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:window.QuerySession.getGeneticProfileIds(),
+                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:window.QuerySession.getGeneticProfileIds().join(" "),
                      <%=QueryBuilder.CANCER_STUDY_ID%>:window.QuerySession.getCancerStudyIds()[0],
                      <%=QueryBuilder.CASE_IDS_KEY%>:window.QuerySession.getCaseIdsKey(),
                      <%=QueryBuilder.CASE_SET_ID%>:window.QuerySession.getCaseSetId(),

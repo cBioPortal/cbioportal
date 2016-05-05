@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class MutationEvent {
+import java.io.Serializable;
+
+public class MutationEvent implements Serializable {
     private Integer mutationEventId;
 
     private Gene gene;

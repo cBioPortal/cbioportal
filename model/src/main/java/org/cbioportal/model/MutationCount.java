@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class MutationCount {
+import java.io.Serializable;
+
+public class MutationCount implements Serializable {
     private GeneticProfile geneticProfile;
 
     private Sample sample;

@@ -25,7 +25,7 @@
 
         <!-- scan for mappers and let them be autowired -->
         <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-            <property name="basePackage" value="org.mskcc.cbio.portal.persistence" />
+            <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />
         </bean>
 
         <!-- these are required to get properly autowired mappers into our service classes -->
@@ -45,8 +45,10 @@
             <property name="entityAttributeMapper" ref="entityAttributeMapper" />
         </bean>
 
-        <!-- enable component scanning (beware that this does not enable mapper scanning!) -->    
+        <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
         <context:component-scan base-package="org.mskcc.cbio.portal.service" />
+         <context:component-scan base-package="org.cbioportal.persistence" />
+         <context:component-scan base-package="org.cbioportal.service" />
 
         <!-- enable autowire -->
         <context:annotation-config />

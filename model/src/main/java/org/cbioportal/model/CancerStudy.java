@@ -4,28 +4,19 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class CancerStudy implements Serializable {
+
     private Integer cancerStudyId;
-
     private String cancerStudyIdentifier;
-
+    private String typeOfCancerId;
     private TypeOfCancer typeOfCancer;
-
     private String name;
-
     private String shortName;
-
     private String description;
-
     private Boolean publicStudy;
-
     private String pmid;
-
     private String citation;
-
     private String groups;
-
     private Integer status;
-
     private Date importDate;
 
     public Integer getCancerStudyId() {
@@ -42,6 +33,14 @@ public class CancerStudy implements Serializable {
 
     public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
+    }
+
+    public String getTypeOfCancerId() {
+        return typeOfCancerId;
+    }
+
+    public void setTypeOfCancerId(String typeOfCancerId) {
+        this.typeOfCancerId = typeOfCancerId;
     }
 
     public TypeOfCancer getTypeOfCancer() {

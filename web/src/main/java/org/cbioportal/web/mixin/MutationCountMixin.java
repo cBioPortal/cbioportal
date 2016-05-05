@@ -6,11 +6,13 @@ import org.cbioportal.model.Sample;
 
 public class MutationCountMixin {
 
+    private Integer geneticProfileId;
+    private Integer sampleId;
+    private Integer mutationCount;
+
     @JsonUnwrapped
     private GeneticProfile geneticProfile;
 
     @JsonUnwrapped
     private Sample sample;
-
-    private Integer mutationCount;
 }

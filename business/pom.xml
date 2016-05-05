@@ -17,6 +17,11 @@
       <artifactId>commons-collections</artifactId>
       <version>3.2.2</version>
     </dependency>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

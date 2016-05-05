@@ -69,14 +69,13 @@
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_sortbyfirst_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span id="oncoprint_diagram_sortby_label" data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
                </button>
-                <div class="dropdown-menu" style="margin-left:10px; margin-right:10px;">
-                   <form action="">
+                <div class="dropdown-menu" style="padding: 10px; width: 250px;">
+                   <form action="" style="margin-bottom: 0;">
                        <input type="radio" name="sortby" value="data"> Data</input><br>
                        <input type="checkbox" name="type" value="type" style="margin-left:10px;"> Mutation Type</input><br>
                        <input type="checkbox" name="recurrence" value="recurrence" style="margin-left:10px;"> Mutation Recurrence</input><br>
                        <input type="radio" name="sortby" value="id"> Case id (alphabetical)</input><br>
-                       <input type="radio" name="sortby" value="custom"> User-defined case list / default</input><br>
-                       <br>
+                       <input type="radio" name="sortby" value="custom"> User-defined case list / default</input>
                    </form>
                </div>
             </div>
@@ -86,11 +85,10 @@
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span>Color Mutations by</span>&nbsp;<span class="caret"></span>
                </button>
-               <div class="dropdown-menu" style="margin-left:10px; margin-right:10px;">
-                   <form action="">
+               <div class="dropdown-menu" style="padding: 10px 5px; width: 120px;min-width: 120px;">
+                   <form action="" style="margin-bottom: 0;">
                        <input type="checkbox" name="type" value="type"> Type</input><br>
-                       <input type="checkbox" name="recurrence" value="recurrence"> Recurrence</input><br>
-                       <br>
+                       <input type="checkbox" name="recurrence" value="recurrence"> Recurrence</input>
                    </form>
                </div>
             </div>

@@ -75,8 +75,7 @@ public class GeneticProfileReader {
       if (existingGeneticProfile != null) {
          // the dbms already contains a GeneticProfile with the file's stable_id. This scenario is not supported
     	 // anymore, so throw error telling user to remove existing profile first:
-         throw new RuntimeException("Error: genetic_profile record found with same Stable ID as the one used in your data:  "
-                  + existingGeneticProfile.getStableId() + ". Remove the existing genetic_profile record first.");
+         return existingGeneticProfile;
       }
       // add new profile
       DaoGeneticProfile.addGeneticProfile(geneticProfile);

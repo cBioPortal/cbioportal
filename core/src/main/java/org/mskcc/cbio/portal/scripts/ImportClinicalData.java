@@ -129,19 +129,6 @@ public class ImportClinicalData {
         int patientIdIndex = findPatientIdColumn(columnAttrs);
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
 
-        //validate required columns:
-        if (patientIdIndex < 0) { //TODO - for backwards compatibility maybe add and !attributesType.toString().equals("MIXED")? See next TODO in addDatum()
-        	//PATIENT_ID is required in both file types:
-        	throw new RuntimeException("Aborting owing to failure to find " +
-                    PATIENT_ID_COLUMN_NAME + 
-                    " in file. Please check your file format and try again.");
-        }
-        if (attributesType.toString().equals("SAMPLE") && sampleIdIndex < 0) {
-        	//SAMPLE_ID is required in SAMPLE file type:
-            throw new RuntimeException("Aborting owing to failure to find " +
-                    SAMPLE_ID_COLUMN_NAME +
-                    " in file. Please check your file format and try again.");
-        }
         importData(buff, columnAttrs);
         
         if (MySQLbulkLoader.isBulkLoad()) {
@@ -272,9 +259,6 @@ public class ImportClinicalData {
         	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
         	if (stableSampleId.startsWith("TCGA-")) {
         		ProgressMonitor.logWarning("Sample " + stableSampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
-        	}
-        	else {
-        		throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
         	}
         }
         else {
@@ -560,7 +544,7 @@ public class ImportClinicalData {
                 }
                 ProgressMonitor.setCurrentMessage("Total number of attribute values skipped because of empty value:  "
                         + importClinicalData.getNumEmptyClinicalAttributesSkipped());
-                if (importClinicalData.getAttributesType() != ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
+                if (importClinicalData.getAttributesType() != ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES && importClinicalData.getAttributesType() != ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES &&
                 	(importClinicalData.getNumSampleSpecificClinicalAttributesAdded() + importClinicalData.getNumSamplesAdded()) == 0) {
                 	//should not occur: 
                 	throw new RuntimeException("No data was added.  " +

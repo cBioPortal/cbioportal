@@ -4128,13 +4128,13 @@ var OncoprintWebGLCellView = (function () {
 	var visible_area_width = view.visible_area_width;
 	view.$dummy_scroll_div.css('width', total_width);
 	view.$canvas[0].height = view.supersampling_ratio*height;
-	view.$canvas[0].style.height = height;
+	view.$canvas[0].style.height = height + 'px';
 	view.$overlay_canvas[0].height = view.supersampling_ratio*height;
-	view.$overlay_canvas[0].style.height = height;
+	view.$overlay_canvas[0].style.height = height + 'px';
 	view.$canvas[0].width = view.supersampling_ratio*visible_area_width;
-	view.$canvas[0].style.width = visible_area_width;
+	view.$canvas[0].style.width = visible_area_width + 'px';
 	view.$overlay_canvas[0].width = view.supersampling_ratio*visible_area_width;
-	view.$overlay_canvas[0].style.width = visible_area_width;
+	view.$overlay_canvas[0].style.width = visible_area_width + 'px';
 	view.$container.css('height', height);
 	view.$container.css('width', visible_area_width);
 	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),total_width-view.visible_area_width))

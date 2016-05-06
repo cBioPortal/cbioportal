@@ -52,6 +52,7 @@ public class DumpPortalInfo {
     private static final String API_PATIENT_ATTRS = "/clinicalattributes/patients";
     private static final String API_GENES = "/genes";
     private static final String API_GENE_ALIASES = "/genesaliases";
+    private static final String API_UNIPROTKB_ENTRIES = "/uniprotkbentries";
 
     public ApiService apiService;
 
@@ -137,6 +138,9 @@ public class DumpPortalInfo {
             writeJsonFile(
                     apiService.getGenesAliases(),
                     nameJsonFile(outputDir, API_GENE_ALIASES));
+            writeJsonFile(
+                    apiService.getUniprotKbEntries(),
+                    nameJsonFile(outputDir, API_UNIPROTKB_ENTRIES));
         } catch (IOException e) {
             System.err.println(
                     "Error writing portal info file: " +

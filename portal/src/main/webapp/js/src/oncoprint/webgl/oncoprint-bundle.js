@@ -521,6 +521,7 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.toSVG = function(with_background) {
+	// Returns svg DOM element
 	var root = svgfactory.svg(10, 10);
 	this.$container.append(root);
 	var everything_group = svgfactory.group(0,0);
@@ -554,6 +555,38 @@ var Oncoprint = (function () {
 	root.parentNode.removeChild(root);
 	
 	return root;
+    }
+    
+    Oncoprint.prototype.toCanvas = function(callback, resolution) {
+	// Returns data url, requires IE >= 11
+	var svg = this.toSVG(true);
+	var width = parseInt(svg.getAttribute('width'), 10);
+	var height = parseInt(svg.getAttribute('height'), 10);
+	var canvas = document.createElement('canvas');
+	
+	resolution = resolution || 1;
+	canvas.setAttribute('width', width*resolution);
+	canvas.setAttribute('height', height*resolution);
+	
+	var container = document.createElement("div");
+	container.appendChild(svg);
+	var svg_data_str = container.innerHTML;
+	var svg_data_uri = "data:image/svg+xml;base64,"+window.btoa(svg_data_str);
+	
+	var ctx = canvas.getContext('2d');
+	ctx.setTransform(resolution,0,0,resolution,0,0);
+	var img = new Image();
+	
+	img.onload = function() {
+	    ctx.drawImage(img, 0, 0);
+	    callback(canvas);
+	};
+	img.onerror = function() {
+	    console.log("IMAGE LOAD ERROR");
+	};
+	
+	img.src = svg_data_uri;
+	return img;
     }
     
     Oncoprint.prototype.getIdOrder = function(all) {
@@ -2827,7 +2860,8 @@ var Shape = (function() {
 	    'y3': '0%',
 	    'stroke': 'rgba(0,0,0,0)', 
 	    'fill': 'rgba(23,23,23,1)', 
-	    'stroke-width': '0'
+	    'stroke-width': '0',
+	    'stroke-opacity': '0'
     };
     var parameter_name_to_dimension_index = {
 	'stroke-width':0,
@@ -3885,13 +3919,13 @@ var OncoprintWebGLCellView = (function () {
 	var visible_area_width = view.visible_area_width;
 	view.$dummy_scroll_div.css('width', total_width);
 	view.$canvas[0].height = view.supersampling_ratio*height;
-	view.$canvas[0].style.height = height;
+	view.$canvas[0].style.height = height + 'px';
 	view.$overlay_canvas[0].height = view.supersampling_ratio*height;
-	view.$overlay_canvas[0].style.height = height;
+	view.$overlay_canvas[0].style.height = height + 'px';
 	view.$canvas[0].width = view.supersampling_ratio*visible_area_width;
-	view.$canvas[0].style.width = visible_area_width;
+	view.$canvas[0].style.width = visible_area_width + 'px';
 	view.$overlay_canvas[0].width = view.supersampling_ratio*visible_area_width;
-	view.$overlay_canvas[0].style.width = visible_area_width;
+	view.$overlay_canvas[0].style.width = visible_area_width + 'px';
 	view.$container.css('height', height);
 	view.$container.css('width', visible_area_width);
 	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),total_width-view.visible_area_width))
@@ -4388,6 +4422,7 @@ module.exports = {
 	return makeSVGElement('svg', {
 	    'width':(width || 0), 
 	    'height':(height || 0),
+	    'xmlns': 'http://www.w3.org/2000/svg',
 	});
     },
     wrapText: function(in_dom_text_svg_elt, width) {

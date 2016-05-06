@@ -1527,37 +1527,24 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 							var two_megabyte_limit = 2000000;
 							if (fileType === 'pdf')
 							{
-								var svg = oncoprint.toSVG();
-								
-								if (xml_serializer.serializeToString(svg).length > two_megabyte_limit) {
-								    alert("Oncoprint too big to download as PDF - please download as SVG, then save as PDF using your program of choice.");
-								    return;
-								}
-								var downloadOptions = {
-									filename: "oncoprint.pdf",
-									contentType: "application/pdf",
-									servletName: "svgtopdf.do"
-								};
-
-								cbio.download.initDownload(svg, downloadOptions);
+							    var resolution = 4;
+							    var img = oncoprint.toCanvas(function (canvas) {
+								var png_data_uri = canvas.toDataURL('image/png');
+								var doc = new jsPDF('landscape', 'pt', [canvas.width/resolution, canvas.height/resolution]);
+								doc.addImage(png_data_uri, 'PNG', 0, 0, canvas.width/resolution, canvas.height/resolution);
+								doc.save('oncoprint.pdf');
+							    }, resolution);
 							}
 							else if (fileType === 'svg')
 							{
 								cbio.download.initDownload(oncoprint.toSVG(), {filename: "oncoprint.svg"});
 							} else if (fileType === 'png')
 							{
-							    var svg = oncoprint.toSVG(true);
-							    if (xml_serializer.serializeToString(svg).length > two_megabyte_limit) {
-								    alert("Oncoprint too big to download as PNG - please download as SVG, then save as PNG using your program of choice.");
-								    return;
-							    }
-							    var downloadOptions = {
-									filename: "oncoprint.png",
-									contentType: "application/png",
-									servletName: "svgtopdf.do"
-							    };
-							    
-							    cbio.download.initDownload(svg, downloadOptions);
+							    var img = oncoprint.toCanvas(function(canvas) {
+								canvas.toBlob(function(blob) {
+								    saveAs(blob, "oncoprint.png");
+								}, 'image/png');
+							    }, 2);
 							}
 						});
 
@@ -2075,36 +2062,24 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 							var fileType = $(this).attr("type");
 							if (fileType === 'pdf')
 							{
-								var svg = oncoprint.toSVG();
-								if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PDF - please download as SVG, then convert to PDF using your program of choice.");
-								    return;
-								}
-								var downloadOptions = {
-									filename: "oncoprint.pdf",
-									contentType: "application/pdf",
-									servletName: "svgtopdf.do"
-								};
-
-								cbio.download.initDownload(svg, downloadOptions);
+							    var resolution = 4;
+							    var img = oncoprint.toCanvas(function (canvas) {
+								var png_data_uri = canvas.toDataURL('image/png');
+								var doc = new jsPDF('landscape', 'pt', [canvas.width/resolution, canvas.height/resolution]);
+								doc.addImage(png_data_uri, 'PNG', 0, 0, canvas.width/resolution, canvas.height/resolution);
+								doc.save('oncoprint.pdf');
+							    }, resolution);
 							}
 							else if (fileType === 'svg')
 							{
 								cbio.download.initDownload(oncoprint.toSVG(), {filename: "oncoprint.svg"});
 							} else if (fileType === 'png')
 							{
-							    var svg = oncoprint.toSVG(true);
-							    if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PNG - please download as SVG, then convert to PNG using your program of choice.");
-								    return;
-							    }
-							    var downloadOptions = {
-									filename: "oncoprint.png",
-									contentType: "application/png",
-									servletName: "svgtopdf.do"
-							    };
-							    
-							    cbio.download.initDownload(svg, downloadOptions);
+							    var img = oncoprint.toCanvas(function(canvas) {
+								canvas.toBlob(function(blob) {
+								    saveAs(blob, "oncoprint.png");
+								}, 'image/png');
+							    }, 2);
 							}
 						});
 

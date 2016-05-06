@@ -557,22 +557,24 @@ var Oncoprint = (function () {
 	return root;
     }
     
-    Oncoprint.prototype.toCanvas = function(callback) {
+    Oncoprint.prototype.toCanvas = function(callback, resolution) {
 	// Returns data url, requires IE >= 11
 	var svg = this.toSVG(true);
 	var width = parseInt(svg.getAttribute('width'), 10);
 	var height = parseInt(svg.getAttribute('height'), 10);
 	var canvas = document.createElement('canvas');
-	canvas.setAttribute('width', width);
-	canvas.setAttribute('height', height);
+	
+	resolution = resolution || 1;
+	canvas.setAttribute('width', width*resolution);
+	canvas.setAttribute('height', height*resolution);
 	
 	var container = document.createElement("div");
 	container.appendChild(svg);
 	var svg_data_str = container.innerHTML;
 	var svg_data_uri = "data:image/svg+xml;base64,"+window.btoa(svg_data_str);
 	
-	var svg_blob = new Blob([svg_data_str], {type:'img/svg+xml;charset=utf-8'});
 	var ctx = canvas.getContext('2d');
+	ctx.setTransform(resolution,0,0,resolution,0,0);
 	var img = new Image();
 	
 	img.onload = function() {
@@ -3067,7 +3069,8 @@ var Shape = (function() {
 	    'y3': '0%',
 	    'stroke': 'rgba(0,0,0,0)', 
 	    'fill': 'rgba(23,23,23,1)', 
-	    'stroke-width': '0'
+	    'stroke-width': '0',
+	    'stroke-opacity': '0'
     };
     var parameter_name_to_dimension_index = {
 	'stroke-width':0,

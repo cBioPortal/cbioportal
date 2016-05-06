@@ -1480,11 +1480,13 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 							var fileType = $(this).attr("type");
 							if (fileType === 'pdf')
 							{
+							    var resolution = 4;
 							    var img = oncoprint.toCanvas(function (canvas) {
-								canvas.toBlob(function (blob) {
-								    saveAs(blob, "oncoprint.pdf");
-								}, 'application/pdf');
-							    });
+								var png_data_uri = canvas.toDataURL('image/png');
+								var doc = new jsPDF('landscape', 'pt', [canvas.width/resolution, canvas.height/resolution]);
+								doc.addImage(png_data_uri, 'PNG', 0, 0, canvas.width/resolution, canvas.height/resolution);
+								doc.save('oncoprint.pdf');
+							    }, resolution);
 							}
 							else if (fileType === 'svg')
 							{
@@ -1495,7 +1497,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 								canvas.toBlob(function(blob) {
 								    saveAs(blob, "oncoprint.png");
 								}, 'image/png');
-							    });
+							    }, 2);
 							}
 						});
 
@@ -2014,18 +2016,13 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 							var fileType = $(this).attr("type");
 							if (fileType === 'pdf')
 							{
-								var svg = oncoprint.toSVG();
-								if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PDF - please download as SVG, then convert to PDF using your program of choice.");
-								    return;
-								}
-								var downloadOptions = {
-									filename: "oncoprint.pdf",
-									contentType: "application/pdf",
-									servletName: "svgtopdf.do"
-								};
-
-								cbio.download.initDownload(svg, downloadOptions);
+							    var resolution = 4;
+							    var img = oncoprint.toCanvas(function (canvas) {
+								var png_data_uri = canvas.toDataURL('image/png');
+								var doc = new jsPDF('landscape', 'pt', [canvas.width/resolution, canvas.height/resolution]);
+								doc.addImage(png_data_uri, 'PNG', 0, 0, canvas.width/resolution, canvas.height/resolution);
+								doc.save('oncoprint.pdf');
+							    }, resolution);
 							}
 							else if (fileType === 'svg')
 							{
@@ -2036,7 +2033,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 								canvas.toBlob(function(blob) {
 								    saveAs(blob, "oncoprint.png");
 								}, 'image/png');
-							    });
+							    }, 2);
 							}
 						});
 

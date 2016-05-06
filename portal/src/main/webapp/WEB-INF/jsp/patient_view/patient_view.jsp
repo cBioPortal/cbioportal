@@ -403,6 +403,7 @@ var caseIdsStr = '<%=caseIdStr%>';
 var caseIds = <%=jsonCaseIds%>;
 var patientId = '<%=patientID%>';
 var cancerStudyName = "<%=cancerStudy.getName()%>";
+var cancerType = "<%=cancerStudy.getTypeOfCancer()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 var drugType = drugType?'<%=drugType%>':null;
@@ -417,6 +418,13 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 var userName = '<%=userName%>';
+// TODO: hack for including mutation table indices in both cna.jsp and
+// mutations.jsp
+var mutTableIndices =
+		["id","case_ids","gene","aa", "annotation", "chr","start","end","ref","_var","validation","type",
+		 "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
+		 "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
+mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
 
 $(document).ready(function(){
     OncoKB.setUrl('<%=oncokbUrl%>');
@@ -1093,6 +1101,10 @@ function outputClinicalData() {
             }
             if (loc!==null)
                 ret += " ("+loc+")";
+        }
+        var sampleClass = guessClinicalData(clinicalData, ["SAMPLE_CLASS"]);
+        if (sampleClass!==null) {
+            ret += ", "+sampleClass;
         }
         return ret;
     }

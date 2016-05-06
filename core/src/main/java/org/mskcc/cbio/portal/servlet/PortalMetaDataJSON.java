@@ -240,16 +240,34 @@ public class PortalMetaDataJSON extends HttpServlet {
                 boolean full_studies_data = (partial_studies_s == null || partial_studies_s.equals("false"));
                 
                 for (CancerStudy cancerStudy : cancerStudiesList) {
+                	//TODO - skip the dummy "all" study still being added by accessControl.getCancerStudies() above
                     Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, !full_studies_data);
                     cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
                     String typeOfCancerId = cancerStudy.getTypeOfCancerId().toLowerCase();
+                    if (typeOfCancerMap.get(typeOfCancerId) == null) {
+                    	//should not occur if DB is on InnoDB mode with referential constraints:
+                    	throw new RuntimeException("Cancer type record not found for: " + typeOfCancerId);
+                    }
                     visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId).getName());
-		    // climb the oncotree
-		    String currId = typeOfCancerMap.get(typeOfCancerId).getParentTypeOfCancerId();
-		    while (!currId.equals("tissue")) {
-			    visibleTypeOfCancerMap.put(currId, typeOfCancerMap.get(currId).getName());
-			    currId = typeOfCancerMap.get(currId).getParentTypeOfCancerId();
-		    }
+
+                    // climb the oncotree
+				    String parentId = typeOfCancerMap.get(typeOfCancerId).getParentTypeOfCancerId();
+				    String childId = typeOfCancerId;
+				    while (!parentId.equals("tissue")) {
+				    	//validations: TODO - these validations need to be at data loading level to block 
+				    	//				such entries...but keeping these exceptions here to help other with troubleshooting in case of old data:
+				    	if (typeOfCancerMap.get(parentId) == null) {
+				    		//if parent type of cancer is wrong, give error:
+	                    	throw new RuntimeException("Cancer type record not found for given 'parent type of cancer': " + parentId);
+				    	}
+				    	if (childId.equalsIgnoreCase(parentId)) {
+				    		//this is also an error as it causes infinite loop when building the tree 
+				    		throw new RuntimeException("Cancer type and parent cancer type cannot be the same. Found: " + childId + "," + parentId);
+				    	}
+					    visibleTypeOfCancerMap.put(parentId, typeOfCancerMap.get(parentId).getName());
+					    childId = parentId;
+					    parentId = typeOfCancerMap.get(parentId).getParentTypeOfCancerId();
+				    }
                     visibleCancerColors.put(typeOfCancerId, cancerColors.get(typeOfCancerId));
                     visibleShortNames.put(typeOfCancerId, shortNames.get(typeOfCancerId));
                 }

@@ -189,10 +189,12 @@ public class CategorizedGeneticProfileSet {
     }
 
     private void addCopyNumberProfile(GeneticProfile copyNumberProfile) {
-        String name = copyNumberProfile.getProfileName();
-        if (name.contains(GISTIC)) {
+    	//Using stableId as this is currently the more reliable than the name for example,
+    	//since stableId is strictly validated before loading into DB:
+        String stableId = copyNumberProfile.getStableId();
+        if (stableId.toLowerCase().endsWith(GISTIC.toLowerCase())) {
             addGisticProfile(copyNumberProfile);
-        } else if (name.contains(RAE)) {
+        } else if (stableId.toLowerCase().endsWith(RAE.toLowerCase())) {
             addRaeProfile(copyNumberProfile);
         } else {
             addOtherCnaProfile(copyNumberProfile);

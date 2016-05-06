@@ -48,6 +48,8 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * JUnit tests for ImportTabDelimData class.
@@ -127,8 +129,9 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/cna_test.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, ImportTabDelimData.BARRY_TARGET, geneticProfileId);
-        parser.importData();
+        ImportTabDelimData parser = new ImportTabDelimData(file, "Barry", geneticProfileId);
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
 
         String value = dao.getGeneticAlteration(geneticProfileId, sample1, 207);
         assertEquals ("0", value);
@@ -191,8 +194,9 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/cna_test2.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, null, geneticProfileId);
-        parser.importData();
+        ImportTabDelimData parser = new ImportTabDelimData(file, geneticProfileId);
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
 
         String value = dao.getGeneticAlteration(geneticProfileId, sample1, 207);
         assertEquals (value, "0");
@@ -242,6 +246,8 @@ public class TestImportTabDelimData {
     @Test
     public void testImportmRnaData1BulkLoadOn() throws Exception {
         // test with both values of MySQLbulkLoader.isBulkLoad()
+    	if (!MySQLbulkLoader.isBulkLoad())
+        	MySQLbulkLoader.bulkLoadOn();
         runImportRnaData1();
     }
     
@@ -271,11 +277,13 @@ public class TestImportTabDelimData {
         
         int newGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("gbm_mrna").getGeneticProfileId();
 
-        ProgressMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/mrna_test.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
-        parser.importData();
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
+        ConsoleUtil.showMessages();
         
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "DD639").getInternalId();
         String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 2978);
@@ -286,4 +294,142 @@ public class TestImportTabDelimData {
         assertEquals ("0.55", value );
     }
 
+    
+    /**
+     * Test importing of data_expression file.
+     * @throws Exception All Errors.
+     */
+    @Test
+    public void testImportmRnaData2() throws Exception {
+        // test with both values of MySQLbulkLoader.isBulkLoad()
+        if (!MySQLbulkLoader.isBulkLoad())
+        	MySQLbulkLoader.bulkLoadOn();
+        
+
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
+
+        //Gene with alias:
+        if (daoGene.getGene(7504) == null) {
+        	//check, because it overlaps with other test and fails if added twice... TODO: why does it fail?
+        	daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
+        }
+        //Other genes:
+        daoGene.addGene(new CanonicalGene(7124, "TNF"));
+        daoGene.addGene(new CanonicalGene(1111, "CHEK1"));
+        daoGene.addGene(new CanonicalGene(19, "ABCA1"));
+        
+        GeneticProfile geneticProfile = new GeneticProfile();
+
+        geneticProfile.setCancerStudyId(studyId);
+        geneticProfile.setStableId("gbm_mrna");
+        geneticProfile.setGeneticAlterationType(GeneticAlterationType.MRNA_EXPRESSION);
+        geneticProfile.setDatatype("CONTINUOUS");
+        geneticProfile.setProfileName("MRNA Data");
+        geneticProfile.setProfileDescription("mRNA Data");
+        DaoGeneticProfile.addGeneticProfile(geneticProfile);
+        
+        int newGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("gbm_mrna").getGeneticProfileId();
+
+        ProgressMonitor.setConsoleMode(true);
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/tabDelimitedData/data_expression2.txt");
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
+        ConsoleUtil.showMessages();
+        
+        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
+        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7124);
+        assertEquals ("0", value );
+        
+        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE3").getInternalId();
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7124);
+        assertEquals ("2", value );
+
+        //gene should also be loaded via its alias "NA" as defined above:
+        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE3").getInternalId();
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7504);
+        assertEquals ("9", value );
+    }
+    
+    
+    /**
+     * Test importing of data_rppa file.
+     * @throws Exception All Errors.
+     */
+    @Test
+    public void testImportRppaData() throws Exception {
+        // test with both values of MySQLbulkLoader.isBulkLoad()
+        if (!MySQLbulkLoader.isBulkLoad())
+        	MySQLbulkLoader.bulkLoadOn();
+        
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
+
+        //Genes with alias:
+        daoGene.addGene(makeGeneWithAlias(31,"ACACA", "ACC1"));
+        daoGene.addGene(makeGeneWithAlias(207,"AKT1", "AKT"));
+        daoGene.addGene(makeGeneWithAlias(597,"SANDER", "ACC1"));
+        daoGene.addGene(makeGeneWithAlias(7158,"TP53BP1", "53BP1"));
+        if (daoGene.getGene(7504) == null) {
+        	//check, because it overlaps with other test and fails if added twice...
+        	daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
+        }
+        //Other genes:
+        daoGene.addGene(new CanonicalGene(32,"ACACB"));
+        daoGene.addGene(new CanonicalGene(208,"AKT2"));
+        daoGene.addGene(new CanonicalGene(369,"ARAF"));
+        daoGene.addGene(new CanonicalGene(1978, "EIF4EBP1"));
+        daoGene.addGene(new CanonicalGene(5562,"PRKAA1"));
+        daoGene.addGene(new CanonicalGene(7531,"YWHAE"));
+        daoGene.addGene(new CanonicalGene(10000,"AKT3"));
+        daoGene.addGene(new CanonicalGene(5578,"PRKCA"));
+        
+        
+        GeneticProfile geneticProfile = new GeneticProfile();
+
+        geneticProfile.setCancerStudyId(studyId);
+        geneticProfile.setStableId("gbm_rppa");
+        geneticProfile.setGeneticAlterationType(GeneticAlterationType.PROTEIN_LEVEL);
+        geneticProfile.setDatatype("LOG2-VALUE");
+        geneticProfile.setProfileName("RPPA Data");
+        geneticProfile.setProfileDescription("RPPA Data");
+        DaoGeneticProfile.addGeneticProfile(geneticProfile);
+        
+        int newGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("gbm_rppa").getGeneticProfileId();
+
+        ProgressMonitor.setConsoleMode(true);
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/tabDelimitedData/data_rppa.txt");
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
+        int numLines = FileUtil.getNumLines(file);
+        parser.importData(numLines);
+        ConsoleUtil.showMessages();
+        
+        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
+        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7531);
+        assertEquals ("1.5", value );
+        
+        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE4").getInternalId();
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7531);
+        assertEquals ("2", value );
+        
+        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE4").getInternalId();
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7504);
+        assertEquals ("NaN", value ); //"NA" is not expected to be stored because of workaround for bug in firehose. See also https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203523078
+        
+        sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 5578);
+        assertEquals ("1.5", value );
+    }
+
+	private CanonicalGene makeGeneWithAlias(int entrez, String symbol, String alias) {
+		CanonicalGene gene = new CanonicalGene(entrez, symbol);
+        Set<String> aliases = new HashSet<String>();
+        aliases.add(alias);
+        gene.setAliases(aliases);
+        return gene;
+	}
+    
 }

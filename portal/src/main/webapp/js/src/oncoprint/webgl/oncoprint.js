@@ -507,19 +507,22 @@ var Oncoprint = (function () {
 	var container = document.createElement("div");
 	container.appendChild(svg);
 	var svg_data_str = container.innerHTML;
+	var svg_data_uri = "data:image/svg+xml;base64,"+window.btoa(svg_data_str);
 	
 	var svg_blob = new Blob([svg_data_str], {type:'img/svg+xml;charset=utf-8'});
 	var ctx = canvas.getContext('2d');
 	var img = new Image();
-	var url = URL.createObjectURL(svg_blob);
 	
 	img.onload = function() {
 	    ctx.drawImage(img, 0, 0);
-	    URL.revokeObjectURL(url);
 	    callback(canvas);
-	}
+	};
+	img.onerror = function() {
+	    console.log("IMAGE LOAD ERROR");
+	};
 	
-	img.src = url;
+	img.src = svg_data_uri;
+	return img;
     }
     
     Oncoprint.prototype.getIdOrder = function(all) {

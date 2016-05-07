@@ -1707,7 +1707,7 @@ var SBGNContainer = Backbone.View.extend({
           // set the query parameters
           var queryParams =
                   {
-                    query: geneName,
+                    query: encodeURIComponent(geneName),
                     org: "human",
                     format: "json",
                   };

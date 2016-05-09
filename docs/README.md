@@ -2,7 +2,7 @@
 
 Welcome to the wiki pages for the cBioPortal project! Below you can find an index of all available documentation to help you to deploy and maintain a local instance of cBioPortal, as well as information on how to upload data. Specific pages are also available for developers. For details on contributing code changes and pull-requests to cBioPortal, please see our [CONTRIBUTING Doc](https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md).
 
-We also maintain an active [list of RFCs (Requests for Comments)](RFC-List) where we describe new features and solicit community feedback.
+We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) where we describe new features and solicit community feedback.
 
 
 ## 1. General

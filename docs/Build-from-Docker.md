@@ -1,4 +1,4 @@
-To learn more on Docker, kindly refer to the [Docker Introduction] (https://github.com/cBioPortal/cbioportal/wiki/Docker-Introduction) wiki page.
+To learn more on Docker, kindly refer to the [Docker Introduction](Docker-Introduction.md) wiki page.
 
 ### Step 1 | Install Docker
 

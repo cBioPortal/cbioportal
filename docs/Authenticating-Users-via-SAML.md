@@ -113,7 +113,7 @@ Please note that you will have to modify all the above to match your own setting
 
 ## Authorizing Users
 
-Next, please read the Wiki page on [User Authorization](User-Authorization), and add user rights for a single user.
+Next, please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
 
 ## Modifying MSKCCPortalUserDetailsService.java
 

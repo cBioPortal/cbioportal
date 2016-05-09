@@ -197,7 +197,7 @@ public class ApiController {
             }
     }
 
-    @ApiOperation(value = "Get known UniprotKB entries, filtered by accession or Entrez gene ID",
+    @ApiOperation(value = "Get locally cached UniprotKB entries, filtered by accession or Entrez gene ID",
             nickname = "getUniprotKbEntries",
             notes = "")
     @Transactional

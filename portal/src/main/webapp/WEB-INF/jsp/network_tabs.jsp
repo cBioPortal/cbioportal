@@ -52,7 +52,7 @@ if (includeHelpTab==null) {
 	    <div class="header">
 		  <span class="title"><label >Drugs of Specified Genes</label></span><br><br>
 	      <div class="combo">
-			<select id="drop_down_select">
+			<select id="drop_down_select" title="Show drugs options">
 			  <option value="HIDE_DRUGS">Hide Drugs</option>
               <option value="SHOW_CANCER"> Show Cancer Drugs</option>
               <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
@@ -64,7 +64,7 @@ if (includeHelpTab==null) {
 	    		<label>Filter Neighbors by Alteration (%)</label>
 	    		<div id="weight_slider_area">
 		    		<span class="slider-value">
-		    			<input id="weight_slider_field" type="text" value="0"/>
+		    			<input id="weight_slider_field" type="text" value="0" title="weight slider"/>
 		    		</span>
 		    		<span class="slider-min"><label>0</label></span>
 		    		<span class="slider-max"><label>MAX</label></span>
@@ -73,7 +73,7 @@ if (includeHelpTab==null) {
 
 	    		<div id="affinity_slider_area" class="hidden-network-ui">
 	    			<span class="slider-value">
-	    				<input id="affinity_slider_field" type="text" value="0.80"/>
+	    				<input id="affinity_slider_field" type="text" value="0.80" title="affinity slider"/>
 	    			</span>
 	    			<span class="slider-min"><label>0</label></span>
 		    		<span class="slider-max"><label>1.0</label></span>
@@ -99,7 +99,7 @@ if (includeHelpTab==null) {
 						</button>
 					</td>
 					<td>
-						<input type="text" id="search_box" value=""/>
+						<input type="text" id="search_box" value="" title="search genes"/>
 					</td>
 					<td>
 						<button id="search_genes" class="tabs-button" title="Search">

@@ -42,7 +42,7 @@
     		    <span class="step_header">Select Patient/Case Set:</span>
 			</td>
 			<td>
-				<select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>"></select>
+				<select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>" title="Select Patient/Case Set"></select>
 	 		</td>
 	 		<td>
                 <!--
@@ -102,7 +102,7 @@
                     <th>Gene Symbol</th>
                     <th>Num Mutations</th>
                     <th>Q-Value</th>
-                    <th><input class="checkall" type="checkbox"></td>
+                    <th>All<input class="checkall" type="checkbox" title="Select All Genes"></th>
                 </tr>
             </thead>
             <tbody>
@@ -190,11 +190,11 @@ if (step3ErrorMsg != null) {
 %>
     <div id='custom_case_list_section' style="display:<%= customCaseListStyle %>;">
         <p><span style="font-size:80%">Enter case IDs below:</span></p>
-<textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80></textarea>
+<textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80 title="Enter case IDs"></textarea>
 <br/>
-<input type="radio" name='patient_case_select' value="sample" checked>By sample ID</input>
+<input type="radio" name='patient_case_select' value="sample" title="Query by sample ID" checked>By sample ID</input>
 <br/>
-<input type="radio" name='patient_case_select' value="patient">By patient ID</input>
+<input type="radio" name='patient_case_select' value="patient" title="Query by patient ID">By patient ID</input>
     </div>
 
 <%

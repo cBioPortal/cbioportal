@@ -58,7 +58,7 @@
                </button>
                 <ul class="dropdown-menu" id="clinical_dropdown" style="height: 0px;background-color:rgba(255,255,255,.0)">
                 <li style="list-style-type:none;cursor:pointer;font-weight: bold;">
-                    <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from chosen-select" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
+                    <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from chosen-select" title="Add a clinical attribute track" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
                     <option value=""></option>
                     </select>
                 </li>
@@ -122,7 +122,7 @@
             <div class="btn-group btn-group-sm">
                 <button type="button" id="oncoprint_zoomout" class="btn btn-default" style="background-color:#efefef;margin:0px;border-right: 0;"><img src="images/zoom-out.svg" alt="icon" width="18" height="18" /></button>
                 <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 100px;display:inline;border-left: 0;border-right: 0;padding-left: 0;padding-right: 0;"></span>
-                <input type="text" id="oncoprint_zoom_scale_input" class="form-control" style="border-radius: 0;float: left;width: 35px;height: 18px;padding: 5px 10px;padding-left:0px; padding-right:0px;border-left: 0;border-right: 0;">
+                <input type="text" id="oncoprint_zoom_scale_input" class="form-control" style="border-radius: 0;float: left;width: 35px;height: 18px;padding: 5px 10px;padding-left:0px; padding-right:0px;border-left: 0;border-right: 0;" title="Zoom scale">
                 <span type="button" id="oncoprint_zoom_scale_input_tail" class="btn btn-default" style="margin: 0px;background-color: rgb(239, 239, 239);border-left: 0;border-right: 0;padding-left:2px;">%</span>
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px;border-left: 0;"><img src="images/zoom-in.svg" alt="icon" width="18" height="18" /></button>
                 <button type="button" id="oncoprint_zoomtofit" class="btn btn-default" style="background-color:#efefef;margin:0px;border-left: 0;"><img src="images/fitalteredcases.svg" alt="icon" width="18" height="18" preserveAspectRatio="none"/></button>

@@ -688,7 +688,6 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 found_one_of_the_expected = True
         self.assertTrue(found_one_of_the_expected)
 
-    
     def test_missing_aa_change_column(self):
         """One of Amino_Acid_Change or HGVSp_Short is required, so
         there should be a warning if both Amino_Acid_Change and HGVSp_Short are missing"""
@@ -703,8 +702,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("hgvsp_short", record_list[0].getMessage().lower())
         self.assertIn("invalid column header", record_list[1].getMessage().lower())
-    
-    
+
     def test_warning_for_missing_SWISSPROT(self):
         """If SWISSPROT is missing (or present and empty), user should be warned about it"""
         # set level according to this test case:
@@ -716,8 +714,34 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 1)
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("swissprot", record_list[0].getMessage().lower())
-        
-    
+
+    def test_unknown_or_invalid_swissprot(self):
+        """Test errors for invalid and unknown accessions under SWISSPROT."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate(
+                'mutations/data_mutations_invalid_swissprot.maf',
+                validateData.MutationsExtendedValidator)
+        self.assertEqual(len(record_list), 3)
+        record_iterator = iter(record_list)
+        # used a name instead of an accession
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.cause, 'A1CF_HUMAN')
+        self.assertNotIn('portal', record.getMessage().lower())
+        # neither a name nor an accession
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.cause, 'spam')
+        self.assertNotIn('accession', record.getMessage().lower())
+        # valid but non-existing accession
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.cause, 'Z9ZZZ9ZZZ9')
+        self.assertIn('portal', record.getMessage().lower())
+
     def test_isValidAminoAcidChange(self):
         """Tests if proper warning is given if aa change column is present, but contains wrong (blank) value"""
         # set level according to this test case:
@@ -729,8 +753,8 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 2)
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("amino acid change cannot be parsed", record_list[0].getMessage().lower())
-    
-    
+
+
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""

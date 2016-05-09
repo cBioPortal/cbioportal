@@ -1188,8 +1188,14 @@ class MutationsExtendedValidator(Validator):
             self.extra = 'SWISSPROT value is not a UniprotKB accession'
             self.extra_exists = True
             return False
-        # TODO test whether the accession is known to the portal
-        # if no reasons to return with a message were found, return True
+        # test whether the accession is known to the portal
+        if (self.portal.uniprotkb_entry_map is not None and
+                value not in self.portal.uniprotkb_entry_map):
+            # return this as an error
+            self.extra = 'This UniprotKB accession is not known to the portal'
+            self.extra_exists = True
+            return False
+        # if no reasons to return with a message were found, return valid
         return True
 
 

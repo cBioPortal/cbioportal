@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
                 python-requests \
         && rm -rf /var/lib/apt/lists/*
 # set up Tomcat to use the MySQL Connector/J Java connector
-RUN ln -s /usr/share/java/mysql-connector-java.jar "$CATALINA_HOME"/lib/
+RUN ln -s /usr/share/java/mysql-connector-java.jar "$CATALINA_HOME"/lib/; \
+rm -rf $CATALINA_HOME/webapps/examples
 #== Set Default Config & Build from Source ==#
 COPY . /cbioportal
 RUN	echo "export PORTAL_HOME=/cbioportal" >> /root/.bashrc; . /root/.bashrc; \

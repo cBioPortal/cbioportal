@@ -1684,10 +1684,12 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 		var track_ids = [];
 		for (var i = 0; i < genes.length; i++) {
 		    var track_params = {
-			'rule_set_params': getGeneticRuleSetParamsFromDOMSetting(),
+			'rule_set_params': (this.mutations_colored_by_type ? 
+					    window.geneticrules.genetic_rule_set_different_colors_no_recurrence : 
+					    window.geneticrules.genetic_rule_set_same_color_for_all_no_recurrence),
 			'label': genes[i],
 			'target_group': 1,
-			'sortCmpFn': getGeneticComparatorFromDOMSetting(),
+			'sortCmpFn': comparator_utils.makeGeneticComparator(this.sorted_by_mutation_type),
 			'tooltipFn': tooltip_utils.makeGeneticTrackTooltip('sample', false),
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];

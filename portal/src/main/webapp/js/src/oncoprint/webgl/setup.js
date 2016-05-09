@@ -550,7 +550,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'clinical_attr_id_to_sample_data': {},
 	    'clinical_attr_id_to_patient_data': {},
 	    
-	    'cell_padding_on': false,
+	    'cell_padding_on': true,
 	    'using_sample_data': (URL.getInitDataType() === 'sample'),
 	    'unaltered_cases_hidden': false,
 	    'clinical_track_legends_shown': false,
@@ -1166,8 +1166,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     })().then(function() {
         var populate_data_promise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
 	    
-        $.when(QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), populate_data_promise).then(function(altered_samples, altered_patients) {
-	    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples : altered_patients);
+        $.when(QuerySession.getPatientIds(), QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), populate_data_promise).then(function(patient_ids, altered_samples, altered_patients) {
+	    if ((State.using_sample_data ? window.QuerySession.getSampleIds() : patient_ids).length > 200) {
+		oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples : altered_patients);
+	    }
 	    oncoprint.scrollTo(0);
 	});
 	
@@ -1652,7 +1654,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 	    'first_genetic_alteration_track': null,
 	    'genetic_alteration_tracks': {}, // track_id -> gene
 
-	    'cell_padding_on': false,
+	    'cell_padding_on': true,
 	    'unaltered_cases_hidden': false,
 	    'mutations_colored_by_type': true,
 	    'sorted_by_mutation_type': true,

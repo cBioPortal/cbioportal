@@ -1,12 +1,6 @@
 # Dockerfile for cBioPortal
 FROM elementolab/jamm:1.3
 MAINTAINER Alexandros Sigaras <als2076@med.cornell.edu>
-#============== MySQL Setup ================#
-RUN chkconfig mysqld on; service mysqld start; \
-	mysql_secret=$(cat /var/log/mysqld.log | grep "A temporary password is generated for" | awk '{print $NF}'); \
-	new_pass="P@ssword1"; cbio_user="cbio"; cbio_pass="P@ssword1"; \
-	mysql -u root -p$mysql_secret --connect-expired-password -e "set password=password('$new_pass'); flush privileges;"; \
-	mysql -u root -p$new_pass -e "create database cbioportal; create database cgds_test; CREATE USER '$cbio_user'@'localhost' IDENTIFIED BY '$cbio_pass'; GRANT ALL ON cbioportal.* TO '$cbio_user'@'localhost'; GRANT ALL ON cgds_test.* TO '$cbio_user'@'localhost'; flush privileges;" ;
 #== Set Default Config & Build from Source ==#
 ADD / /cbioportal
 RUN	echo "export PORTAL_HOME=/cbioportal" >> /root/.bashrc; . /root/.bashrc; \

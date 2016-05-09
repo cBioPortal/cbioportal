@@ -44,6 +44,16 @@ var utils = {
     'objectValues': function(obj) {
 	return Object.keys(obj).map(function(k) { return obj[k]; });
     },
+    'proportionToPercentString': function(p) {
+	var percent = 100*p;
+	if (p < 0.03) {
+	    // if less than 3%, use one decimal figure
+	    percent = Math.round(10*percent)/10;
+	} else {
+	    percent = Math.round(percent);
+	}
+	return percent+'%';
+    }
 };
 
 var tooltip_utils = {
@@ -360,11 +370,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	    $.when(QuerySession.getGenomicEventData(), 
-		    QuerySession.getAlteredSamplesWholePercentageByGene(), 
+		    QuerySession.getAlteredSamplesByGene(), 
 		    QuerySession.getUnalteredSamples(),
 		    ClinicalData.getSampleData(clinical_attrs))
 		    .then(function (genetic_data, 
-				    altered_sample_percentage_by_gene, 
+				    altered_samples_by_gene, 
 				    unaltered_samples,
 				    clinical_data) {
 					
@@ -389,7 +399,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_id, i) {
 			    var gene = State.genetic_alteration_tracks[track_id];
 			    oncoprint.setTrackData(track_id, data_by_gene[gene], 'sample');
-			    oncoprint.setTrackInfo(track_id, altered_sample_percentage_by_gene[gene] + '%');
+			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(Object.keys(altered_samples_by_gene[gene]).length/window.QuerySession.getSampleIds().length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -420,13 +430,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	    $.when(QuerySession.getCombinedPatientGenomicEventData(), 
-		    QuerySession.getAlteredPatientsWholePercentageByGene(), 
+		    QuerySession.getAlteredPatientsByGene(), 
 		    QuerySession.getUnalteredPatients(),
-		    ClinicalData.getPatientData(clinical_attrs))
+		    ClinicalData.getPatientData(clinical_attrs),
+		    QuerySession.getPatientIds())
 		    .then(function (genetic_data, 
-				    altered_patient_percentage_by_gene, 
+				    altered_patients_by_gene, 
 				    unaltered_patients,
-				    clinical_data) {
+				    clinical_data,
+				    patient_ids) {
 					
 			if (State.unaltered_cases_hidden) {
 			    oncoprint.hideIds(unaltered_patients, true);
@@ -449,7 +461,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_id, i) {
 			    var gene = State.genetic_alteration_tracks[track_id];
 			    oncoprint.setTrackData(track_id, data_by_gene[gene], 'patient');
-			    oncoprint.setTrackInfo(track_id, altered_patient_percentage_by_gene[gene] + '%');
+			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(Object.keys(altered_patients_by_gene[gene]).length/patient_ids.length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -530,7 +542,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			var text = "Altered in ";
 			text += (state.using_sample_data ? altered_samples.length : altered_patients.length);
 			text += " (";
-			text += getPercent(state.using_sample_data ? (altered_samples.length / QuerySession.getSampleIds().length) : (altered_patients.length / patient_ids.length));
+			text += utils.proportionToPercentString((state.using_sample_data ? (altered_samples.length / QuerySession.getSampleIds().length) : (altered_patients.length / patient_ids.length)));
 			text +=") of ";
 			text += (state.using_sample_data ? QuerySession.getSampleIds().length : patient_ids.length);
 			text += " ";

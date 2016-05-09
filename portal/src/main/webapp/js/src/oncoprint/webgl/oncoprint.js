@@ -498,6 +498,7 @@ var Oncoprint = (function () {
     Oncoprint.prototype.toCanvas = function(callback, resolution) {
 	// Returns data url, requires IE >= 11
 	var svg = this.toSVG(true);
+	svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 	var width = parseInt(svg.getAttribute('width'), 10);
 	var height = parseInt(svg.getAttribute('height'), 10);
 	var canvas = document.createElement('canvas');

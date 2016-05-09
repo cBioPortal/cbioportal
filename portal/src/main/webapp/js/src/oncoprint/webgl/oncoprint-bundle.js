@@ -560,6 +560,7 @@ var Oncoprint = (function () {
     Oncoprint.prototype.toCanvas = function(callback, resolution) {
 	// Returns data url, requires IE >= 11
 	var svg = this.toSVG(true);
+	svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 	var width = parseInt(svg.getAttribute('width'), 10);
 	var height = parseInt(svg.getAttribute('height'), 10);
 	var canvas = document.createElement('canvas');
@@ -1030,12 +1031,16 @@ var OncoprintLegendView = (function() {
 	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
 	    root.appendChild(svgfactory.text(display_range[1], 50, 0, 12, 'Arial', 'normal'));
 	    var mesh = 100;
+	    var points = [];
+	    points.push([5, 20]);
 	    for (var i=0; i<mesh; i++) {
 		var t = i/mesh;
 		var h = config.interpFn((1-t)*config.range[0] + t*config.range[1]);
 		var height = 20*h;
-		root.appendChild(svgfactory.rect(5 + 40*i/mesh, 20-height, 40/mesh, height, config.color));
+		points.push([5 + 40*i/mesh, 20-height]);
 	    }
+	    points.push([45, 20]);
+	    root.appendChild(svgfactory.path(points, config.color, config.color));
 	}
 	return root;
     };
@@ -4422,7 +4427,6 @@ module.exports = {
 	return makeSVGElement('svg', {
 	    'width':(width || 0), 
 	    'height':(height || 0),
-	    'xmlns': 'http://www.w3.org/2000/svg',
 	});
     },
     wrapText: function(in_dom_text_svg_elt, width) {
@@ -4459,6 +4463,17 @@ module.exports = {
     },
     bgrect: function(width, height, fill) {
 	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});
+    },
+    path: function(points, stroke, fill) {
+	points = points.map(function(pt) { return pt.join(","); });
+	points[0] = 'M'+points[0];
+	for (var i=1; i<points.length; i++) {
+	    points[i] = 'L'+points[i];
+	}
+	return makeSVGElement('path', {
+	    'd': points.join(" "),
+	    'style': 'stroke:'+stroke+'; fill:'+fill+';'
+	});
     }
 };
 

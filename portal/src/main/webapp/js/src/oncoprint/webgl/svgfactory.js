@@ -33,7 +33,6 @@ module.exports = {
 	return makeSVGElement('svg', {
 	    'width':(width || 0), 
 	    'height':(height || 0),
-	    'xmlns': 'http://www.w3.org/2000/svg',
 	});
     },
     wrapText: function(in_dom_text_svg_elt, width) {
@@ -70,6 +69,17 @@ module.exports = {
     },
     bgrect: function(width, height, fill) {
 	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});
+    },
+    path: function(points, stroke, fill) {
+	points = points.map(function(pt) { return pt.join(","); });
+	points[0] = 'M'+points[0];
+	for (var i=1; i<points.length; i++) {
+	    points[i] = 'L'+points[i];
+	}
+	return makeSVGElement('path', {
+	    'd': points.join(" "),
+	    'style': 'stroke:'+stroke+'; fill:'+fill+';'
+	});
     }
 };
 

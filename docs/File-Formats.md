@@ -449,7 +449,7 @@ Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ...
 ```
 
-An example data file which includes both Hugo_Symbo and Entrez_Gene_Id would look like (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](How-the-loader-deals-with-Hugo-symbols.md)):
+An example data file which includes both Hugo_Symbo and Entrez_Gene_Id would look like (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](Data-Loading-%3A-How-the-loader-deals-with-Hugo-symbols.md)):
 ```
 Hugo_Symbol<TAB>Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ACAP3<TAB>116983<TAB>-0.005<TAB>-0.550<TAB>...
@@ -458,7 +458,7 @@ AGRN<TAB>375790<TAB>0.142<TAB>0.091<TAB>...
 ...
 ```
 
-An example data file with only Hugo_Symbol column (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](How-the-loader-deals-with-Hugo-symbols.md)):
+An example data file with only Hugo_Symbol column (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](Data-Loading-%3A-How-the-loader-deals-with-Hugo-symbols.md):
 ```
 Hugo_Symbol<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ACAP3<TAB>-0.005<TAB>-0.550<TAB>...
@@ -521,7 +521,7 @@ The following extra annotation columns are also important for making sure mutati
 
 *Adding your mutation annotation columns to the complete MAF rows* can also be done. In this way, the portal will parse and store the MAF fields as well. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a 'Mutation Assessor” column in the [mutation table](http://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
 
-The MAF format recognized by the portal (excluding the annotation columns already mentioned above) has 32 columns + 4 columns with information on reference and variant allele counts in tumor and normal samples. A more detailed example MAF can be found on our [Downloads](https://github.com/cBioPortal/cbioportal/wiki/Downloads.md#maf-example) page. Description of each column is provided below:
+The MAF format recognized by the portal (excluding the annotation columns already mentioned above) has 32 columns + 4 columns with information on reference and variant allele counts in tumor and normal samples. A more detailed example MAF can be found on our [Downloads](Downloads.md#maf-example) page. Description of each column is provided below:
 
 1. **Hugo_Symbol (Required)**: A [HUGO](http://www.genenames.org/) gene symbol.
 2. **Entrez_Gene_Id (Optional, but desired)**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
@@ -595,7 +595,7 @@ data_filename: data_methylation_hm27.txt
 
 #### Data file
 
-The methylation data file follows the same format as expression data files. See [Expression Data](#Expression-data) for a description of the expression data file format. The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.
+The methylation data file follows the same format as expression data files. See [Expression Data](#expression-data) for a description of the expression data file format. The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.
 
 
 ## RPPA Data

@@ -2,7 +2,7 @@
 ## Introduction
 This page is the starting point for data loading. The [General Overview](#general-overview) section below contains all the required steps to get you started. 
 
-If you're interested in getting a quick overview of the changes you will need to make to your existing data files, please check the [Data Loading: What You Need To Change](Data-Loading-%3A-What-You-Need-To-Change) page.
+If you're interested in getting a quick overview of the changes you will need to make to your existing data files, please check the [Data Loading: What You Need To Change](Data-Loading-%3A-What-You-Need-To-Change.md) page.
 
 ## General Overview
 Getting your study data into cBioPortal requires four steps:
@@ -25,7 +25,7 @@ $ sudo pip2 install jinja2
 
 ## Preparing Study Data 
 A study to be loaded in cBioPortal can basically consist of a directory where all the data files are located. 
-Each *data* file needs a *meta* file that refers to it and both files need to comply to the format required for the specific data type. The format and fields expected for each file are documented in the [File Formats page](File Formats). Below is an example of the files in such a directory.
+Each *data* file needs a *meta* file that refers to it and both files need to comply to the format required for the specific data type. The format and fields expected for each file are documented in the [File Formats page](File-Formats.md). Below is an example of the files in such a directory.
 
 ```
 dir
@@ -50,7 +50,7 @@ The validation can be run standalone, but it is also integrated into the [metaIm
 To load the data into cBioPortal, the [metaImport script](Using-the-metaImport-script.md) has to be used. This script first validates the data and, if validation succeeds, loads the data. 
 
 ## Removing a Study
-To remove a study, the [cbioportalImporter script](Development,-debugging-and-maintenance-mode-using-cbioportalImporter#deleting-a-study.md) can be used. 
+To remove a study, the [cbioportalImporter script](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md#deleting-a-study) can be used. 
 
 ## Example study
-Examples for the different types of data are available on the [data examples](data-examples.md) page for use as reference when creating data files.
+Examples for the different types of data are available on the [data examples](Data-Examples.md) page for use as reference when creating data files.

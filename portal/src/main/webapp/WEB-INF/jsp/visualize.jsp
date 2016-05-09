@@ -340,6 +340,9 @@
                 position: {my:'left top',at:'right bottom', viewport: $(window)}
             }
         );
+        $("#oncoprint-result-tab").click(function() {
+            $(window).trigger('resize');
+        });
         $("#mutex-result-tab").qtip(
             {
                 content: {text: "Mutual exclusivity and co-occurrence analysis"},

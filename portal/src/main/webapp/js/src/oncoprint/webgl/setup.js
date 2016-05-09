@@ -1363,6 +1363,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	})();
 	(function setUpSortByAndColorBy() {
+	    $('#oncoprint_diagram_showmutationcolor_icon').hide();
 	    var updateSortByForm = function() {
 		var sortby_type_checkbox = $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="type"]');;
 		var sortby_recurrence_checkbox = $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="recurrence"]');

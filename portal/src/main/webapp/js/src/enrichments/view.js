@@ -45,6 +45,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, enrichmentsTableInstance, profile_type, profile_id, table_title, data_type;
     var selected_genes = [];
+    var assumeLogSpace=false;
 
     function configTable() {
 
@@ -271,6 +272,13 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     if (_q_val === "<0.001" || _q_val < enrichmentsTabSettings.settings.p_val_threshold) {
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     }
+                    
+                    // Check whether we encounter a negative value. 
+                    // If we do, assume data is already in log-space. This is a workaround for the data not
+                    // having a descriptive data_type
+                    if(Number(aData[col_index.altered_mean])<=0 || Number(aData[col_index.unaltered_mean])<=0){
+                        assumeLogSpace=true;
+                    }
                 }
             },
             "fnDrawCallback": function() {
@@ -354,11 +362,21 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
     }
 
     /**
-     * check whether the datatype is LOG-VALUE to prevent logging it again
+     * check whether the datatype is LOG-VALUE, LOG2-VALUE or whether LOG space is assumed because 
+     * a negative value was found to prevent logging it again
+     * assumeLogSpace is a backwards compatibility for MSK
      * @returns {boolean}
      */
     this.hasLogData = function(){
-        return data_type === "LOG-VALUE";
+        return data_type === "LOG-VALUE" || data_type==="LOG2-VALUE" || assumeLogSpace;
+    }
+
+    /**
+     * return whether log-space was assumed
+     * @returns {boolean}
+     */
+    this.assumedLogSpace = function(){
+        return assumeLogSpace && !(data_type === "LOG-VALUE" || data_type==="LOG2-VALUE");
     }
 
     /**

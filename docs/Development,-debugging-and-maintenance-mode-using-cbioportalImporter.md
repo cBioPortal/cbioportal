@@ -1,7 +1,7 @@
 ## Development, debugging and maintenance mode using cbioportalImporter
 For developers and specific testing and maintenance purposes, an extra script, cbioportalImporter.py, is available which imports data regardless of validation results and includes extra functionality, such as deleting a study. 
 
-* [Running the cbioportalImporter script](#running-the-cbioportalImporter-script)
+* [Running the cbioportalImporter script](#running-the-cbioportalimporter-script)
 * [Importing a complete study automatically](#importing-a-complete-study-automatically)
 * [Importing a complete study manually](#importing-a-complete-study-manually)
 * [Deleting a study](#deleting-a-study)

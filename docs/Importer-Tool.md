@@ -1,4 +1,4 @@
-:warning:  ***Warning: this way of loading data is deprecated. See [[Data loading]] for the recommended method.***
+:warning:  ***Warning: this way of loading data is deprecated. See [Data loading](Data-Loading.md) for the recommended method.***
 
 * [Introduction](#introduction)
 * [Import Cancer Type](#import-cancer-type)
@@ -23,7 +23,7 @@ The following command is used to import cancer type metadata into the cBioPortal
 $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $PORTAL_HOME/core/target/core-1.0-SNAPSHOT.jar" --command import-cancer-type --meta-filename /path-to-cancer-type-file/cancer_type.txt
 ```
 
-The [cancer_type.txt](File%20Formats.md#cancer-study) file should conform to the file format describe on the File Formats wiki page.
+The [cancer_type.txt](File-Formats.md#cancer-study) file should conform to the file format describe on the File Formats wiki page.
 
 # [Import Cancer Study](import-cancer-study)
 
@@ -33,7 +33,7 @@ The following command is used to import cancer study metadata into the cBioPorta
 $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $PORTAL_HOME/core/target/core-1.0-SNAPSHOT.jar" --command import-study --meta-filename /path-to-meta_study-file/meta_study.txt
 ```
 
-The [meta_study.txt](File%20Formats.md#cancer-study) file should conform to the file format describe on the File Formats wiki page.
+The [meta_study.txt](File-Formats.md#cancer-study) file should conform to the file format describe on the File Formats wiki page.
 
 # [Remove Cancer Study](remove-cancer-study)
 
@@ -43,11 +43,11 @@ The following command is used to remove a cancer study from the cBioPortal datab
 $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $PORTAL_HOME/core/target/core-1.0-SNAPSHOT.jar" --command remove-study --meta-filename /path-to-meta_study-file/meta_study.txt
 ```
 
-The [meta_study.txt](File%20Formats.md#cancer-study) file should conform to the file format describe on the File Formats wiki page.
+The [meta_study.txt](File-Formats.md#cancer-study) file should conform to the file format describe on the File Formats wiki page.
 
 # [Import Study Data](import-study-data)
 
-The following command is used to import all types of genomic and clinicla data described on our [File Formats](File%20Formats.md) wiki page.  Below are examples of import copy number and mutation data:
+The following command is used to import all types of genomic and clinicla data described on our [File Formats](File-Formats.md) wiki page.  Below are examples of import copy number and mutation data:
 
 ```
 $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $PORTAL_HOME/core/target/core-1.0-SNAPSHOT.jar" --command import-study-data --meta-filename /path-to-meta_CNA.txt/meta_CNA.txt --data-filename /path-to-data_CNA.txt/data_CNA.txt

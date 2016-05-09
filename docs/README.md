@@ -50,7 +50,8 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List) wher
    * [Development, Debugging and Maintenance Using cbioportalImporter](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md)
    * [File Formats](File-Formats.md)
        * [Z-Score Normalization](Z-Score-normalization-script.md)
-   * [Data Loading: What You Need To Change](Data-Loading-%3A-What-You-Need-To-Change)
+   * [Data Loading: How the loader deals with Hugo Symbols](Data-Loading-%3A-How-the-loader-deals-with-Hugo-symbols.md) (TODO)    
+   * [Data Loading: What You Need To Change](Data-Loading-%3A-What-You-Need-To-Change.md)
    * [Data Loading: Tips and Best Practices](Data-Loading-%3A-Tips-and-Best-Practices.md)
    * [Importer Tool](Importer-Tool.md) (deprecated)
 

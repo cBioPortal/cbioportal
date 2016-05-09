@@ -85,6 +85,8 @@ public class JdbcUtil {
         ds.setUsername(userName);
         ds.setPassword(password);
         ds.setUrl(url);
+        ds.setTestOnBorrow(true);
+        ds.setValidationQuery("SELECT 1");
 
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         ds.setPoolPreparedStatements(true);

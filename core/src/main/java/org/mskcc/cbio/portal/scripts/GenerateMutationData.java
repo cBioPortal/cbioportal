@@ -264,11 +264,12 @@ public class GenerateMutationData {
         if (args.length < 4) {
             System.out.println("command line usage:  generateMutationData.pl " +
                     "<case-list> <sequenced-gene-list> <sequenced-cases> <known-mutation-file>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
 
 		// setup some vars
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         ProgressMonitor.setCurrentMessage("Generating mutation data file...");
         File allCasesFile = new File(args[0]);
         File sequencedGeneFile = new File(args[1]);

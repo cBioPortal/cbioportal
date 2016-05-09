@@ -148,7 +148,7 @@
         <p/>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         &nbsp;<br/>
-        <input id="main_submit" class="btn btn-default btn-lg" type="submit" onclick="submitHandler()" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <input id="main_submit" class="btn btn-default btn-lg" onclick="submitHandler()" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>" readonly/>
         <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
 
         </form>
@@ -192,7 +192,7 @@
                         "title=\"Send data matrix to GenomeSpace.\" " +
                         "href=\"#\" onclick=\"prepGSLaunch($('#main_form'), " +
                         "$('#select_single_study').val(), " +
-                        "$('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"\"/></a>");
+                        "$('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"Send to GenomeSpace\"/></a>");
         }
     }
 %>

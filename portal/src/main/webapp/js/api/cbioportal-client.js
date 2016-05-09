@@ -21,6 +21,7 @@ window.cbioportal_client = (function() {
 			'PatientClinicalData': { endpoint: 'api/clinicaldata/patients' },
 			'SampleClinicalAttributes': { endpoint: 'api/clinicalattributes/samples' },
 			'PatientClinicalAttributes': { endpoint: 'api/clinicalattributes/patients' },
+			'ClinicalAttributes': {endpoint: 'api/clinicalattributes'},
 			'Genes': { endpoint: 'api/genes' },
 			'GeneticProfiles': { endpoint: 'api/geneticprofiles' },
 			'SampleLists': { endpoint: 'api/samplelists' },
@@ -463,7 +464,8 @@ window.cbioportal_client = (function() {
 		}, [["study_id"], ["study_id","sample_ids"]]),
 		getPatientClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getPatientClinicalAttributes(args);
-		}, [["study_id"], ["study_id", "patient_ids"]])
+		}, [["study_id"], ["study_id", "patient_ids"]]),
+		getClinicalAttributes: enforceRequiredArguments(makeOneIndexService('attr_ids', function(d) { return d.attr_id; }, 'getClinicalAttributes'), [[], ["attr_ids"]]),
 	};
 	return cached_service;
 })();

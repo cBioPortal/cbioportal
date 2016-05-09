@@ -12,6 +12,7 @@ import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
 import org.mskcc.cbio.portal.model.DBGene;
+import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBMutationData;
@@ -25,6 +26,7 @@ import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
+import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
@@ -51,6 +53,8 @@ public class ApiService {
 	private ClinicalFieldMapper clinicalFieldMapper;
 	@Autowired
 	private GeneMapper geneMapper;
+	@Autowired
+	private GeneAliasMapper geneAliasMapper;
 	@Autowired
 	private GeneticProfileMapper geneticProfileMapper;
 	@Autowired
@@ -92,6 +96,14 @@ public class ApiService {
 		return clinicalDataMapper.getPatientClinicalDataByPatientAndAttribute(study_id, attribute_ids, patient_ids);
 	}
 
+	@Transactional
+	public List<DBClinicalField> getClinicalAttributes() {
+		return clinicalFieldMapper.getAllClinicalFields();
+	}
+	@Transactional
+	public List<DBClinicalField> getClinicalAttributes(List<String> attr_ids) {
+		return clinicalFieldMapper.getClinicalFieldsById(attr_ids);
+	}
 	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes() {
 		return clinicalFieldMapper.getAllSampleClinicalFields();
@@ -142,6 +154,16 @@ public class ApiService {
 		return geneMapper.getGenesByHugo(hugo_gene_symbols);
 	}
 
+	@Transactional
+	public List<DBGeneAlias> getGenesAliases() {
+		return geneAliasMapper.getAllGenesAliases();
+	}
+
+	@Transactional
+	public List<DBGeneAlias> getGenesAliases(List<Long> entrez_gene_ids) {
+		return geneAliasMapper.getGenesAliasesByEntrez(entrez_gene_ids);
+	}
+	
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles() {
 		return geneticProfileMapper.getAllGeneticProfiles();

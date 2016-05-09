@@ -26,4 +26,7 @@ public interface ClinicalFieldMapper {
     
 	List<DBClinicalField> getAllSampleClinicalFields();
 	List<DBClinicalField> getAllPatientClinicalFields();
+	
+	List<DBClinicalField> getAllClinicalFields();
+	List<DBClinicalField> getClinicalFieldsById(@Param("attr_ids") List<String> attr_ids);
 }

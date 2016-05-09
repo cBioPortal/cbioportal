@@ -38,18 +38,18 @@
 %>
 
 <div class='section' id='mutation_details'>
-    <img src='images/ajax-loader.gif'/>
+    <img src='images/ajax-loader.gif' alt='loading'/>
 </div>
 
 <script type="text/template" id="mutation_table_annotation_template">
     <span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
-        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif"/>
+        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif" alt='loading'/>
     </span>
     <span class='annotation-item mcg' alt='{{mcgAlt}}'>
-        <img width='14' height='14' src='images/mcg_logo.png'>
+        <img width='14' height='14' src='images/mcg_logo.png' alt='My Cancer Genome Symbol'>
     </span>
     <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
-        <img width='14' height='14' src='images/oncokb-flame.svg'>
+        <img width='14' height='14' src='images/oncokb-flame.svg' alt='Recurrent Hotspot Symbol'>
     </span>
 </script>
 
@@ -119,7 +119,7 @@
                             }
 
                             if (showHotspot && mutation['isHotspot']) {
-                                vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>).";
+                                vars.changHotspotAlt = cbio.util.getHotSpotDesc();
                             }
 
                             var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_annotation_template");

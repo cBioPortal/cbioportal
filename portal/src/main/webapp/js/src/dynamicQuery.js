@@ -1476,7 +1476,7 @@ function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, n
         + " name='" + paramName + "'"
         + " class='" + targetClass + "'"
         + " value='" + id +"'>" + '&nbsp;&nbsp;' + name + "</input>"
-        + "  <img class='profile_help' src='images/help.png' title='"
+        + "  <img class='profile_help' alt='help' src='images/help.png' title='"
         + description + "'><br/>";
     return html;
 }

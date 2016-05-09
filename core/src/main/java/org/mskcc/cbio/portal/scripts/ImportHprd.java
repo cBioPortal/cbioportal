@@ -121,9 +121,10 @@ public class ImportHprd {
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("command line usage:  importHprd.pl <hprd.txt>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		SpringUtil.initDataSource();
 
         try {

@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.1.1</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cbioportal</artifactId>
@@ -74,6 +74,12 @@
             <resource>
               <directory>${project.parent.basedir}/web/src/main/resources</directory>
               <targetPath>WEB-INF/classes</targetPath>
+              <filtering>true</filtering>
+            </resource>
+            <resource>
+              <directory>src/main/webapp/WEB-INF/jsp/global</directory>
+              <include>footer.jsp</include>
+              <targetPath>WEB-INF/jsp/global</targetPath>
               <filtering>true</filtering>
             </resource>
             <resource>
@@ -147,31 +153,6 @@
                   <destFileName>webapp-runner.jar</destFileName>
                 </artifactItem>
               </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <executions>
-          <execution>
-            <id>clean-jar-artifacts</id>
-            <phase>install</phase>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-            <configuration>
-              <excludeDefaultDirectories>true</excludeDefaultDirectories>
-              <filesets>
-                <fileset>
-                  <directory>${project.parent.basedir}/portal/target</directory>
-                  <excludes>
-                    <exclude>*.war</exclude>
-                    <exclude>dependency/webapp-runner.jar</exclude>
-                  </excludes>
-                </fileset>
-              </filesets>
             </configuration>
           </execution>
         </executions>

@@ -1,0 +1,8 @@
+type_of_cancer: brca
+cancer_study_identifier: brca_tcga_pub
+name: Breast Invasive Carcinoma (TCGA, Nature 2012)
+description: <a href="http://cancergenome.nih.gov/">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href="http://tcga-data.nci.nih.gov/tcga/">Raw data via the TCGA Data Portal</a>.
+citation: TCGA, Nature 2012
+pmid: 23000897
+groups: PUBLIC;GDAC;SU2C-PI3K
+short_name: BRCA (TCGA)

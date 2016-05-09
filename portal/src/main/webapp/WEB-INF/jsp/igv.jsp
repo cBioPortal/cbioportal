@@ -88,7 +88,7 @@
 
                 <br>
                     <% String[] segViewingArgs = IGVLinking.getIGVArgsForSegViewing(cancerTypeId, encodedGeneList); %>
-                    <a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= segViewingArgs[0] %>','<%= segViewingArgs[1] %>','<%= segViewingArgs[2] %>','<%= segViewingArgs[3] %>')"><img src="images/webstart.jpg" alt=""/></a>
+                    <a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= segViewingArgs[0] %>','<%= segViewingArgs[1] %>','<%= segViewingArgs[2] %>','<%= segViewingArgs[3] %>')"><img src="images/webstart.jpg" alt="webstart"/></a>
                 <br>
 
                 <p>

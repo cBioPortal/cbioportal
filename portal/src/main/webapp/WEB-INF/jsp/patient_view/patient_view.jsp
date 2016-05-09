@@ -418,6 +418,13 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 var userName = '<%=userName%>';
+// TODO: hack for including mutation table indices in both cna.jsp and
+// mutations.jsp
+var mutTableIndices =
+		["id","case_ids","gene","aa", "annotation", "chr","start","end","ref","_var","validation","type",
+		 "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
+		 "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
+mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
 
 $(document).ready(function(){
     OncoKB.setUrl('<%=oncokbUrl%>');

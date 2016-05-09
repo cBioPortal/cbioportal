@@ -140,7 +140,7 @@
                         </div>
                         <div id="plots-x-spec"></div>
                     </div>
-                    <button id='plots-tab-swap-btn'><img src='images/swap.png'></button>
+                    <button id='plots-tab-swap-btn'><img src='images/swap.png' alt='swap'></button>
                     <div id="plots-sidebar-y-div" class="plots">
                         <h4>Vertical Axis</h4>
                         <div id="plots-y-data-type" style="padding-left:20px;">

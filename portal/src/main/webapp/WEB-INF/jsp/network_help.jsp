@@ -65,11 +65,11 @@
 </p>
 <p class="regular">
 	<span class="italic">Seed nodes</span> are represented with a thick border:<br></br>
-	<img class="seed_node_img" src="images/network/seed_node.png"></img>
+	<img class="seed_node_img" src="images/network/seed_node.png" alt='seed node'></img>
 </p>
 <p class="regular">
 	<span class="italic">Linker nodes</span> are represented with a thin border:<br></br>
-	<img class="linker_node_img" src="images/network/linker_node.png"></img>
+	<img class="linker_node_img" src="images/network/linker_node.png" alt='linker node'></img>
 </p>
 
 <p class="heading">
@@ -86,11 +86,11 @@
 </p>
 <p class="regular">
 	For example, EGFR is frequently altered in glibolastoma:<br></br>
-	<img class="altered_node_img" src="images/network/altered_node.png"></img>
+	<img class="altered_node_img" src="images/network/altered_node.png" alt='altered node'></img>
 </p>
 <p class="regular">
 	By contrast, STAT3 is not altered at all in glioblastoma:<br></br>
-	<img class="not_altered_node_img" src="images/network/not_altered_node.png"></img>
+	<img class="not_altered_node_img" src="images/network/not_altered_node.png" alt='not altered node'></img>
 </p>
 
 <p class="regular">

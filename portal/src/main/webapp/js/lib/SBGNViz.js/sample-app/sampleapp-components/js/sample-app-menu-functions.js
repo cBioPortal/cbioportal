@@ -58,7 +58,7 @@ $(document).ready(function ()
     var nodeB = urlString[1];
 
     //Construct PC2 url from pop up url !
-    var pc2URL = "http://beta.pathwaycommons.org/pc2/";
+    var pc2URL = "http://www.pathwaycommons.org/pc2/";
     var format = "graph?format=SBGN";
     var kind = "&kind=PATHSBETWEEN";
     var sourceA = "&source="+nodeA;

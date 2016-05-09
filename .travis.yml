@@ -7,6 +7,9 @@ cache:
         - $HOME/.m2
         - $HOME/maven
 
+services:
+    - docker
+
 env:
     - MAVEN_VERSION=3.3.3
 
@@ -22,17 +25,17 @@ install:
 before_script:
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
-    - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
-    - phantomjs --version
 
 script:
     - export PORTAL_HOME=$(pwd)
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
     - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com clean install
-    - java -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --expand-war portal/target/cbioportal.war &
-    - sleep 20s
-    - bash test/end-to-end/test_make_screenshots.sh
+    - cd test/end-to-end
+    - docker-compose up -d
+    - sleep 30s
+    - cd ../..
+    - bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
 
 notifications:
   slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6

@@ -3,16 +3,12 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class TypeOfCancer implements Serializable {
+
     private String typeOfCancerId;
-
     private String name;
-
     private String clinicalTrialKeywords;
-
     private String dedicatedColor;
-
     private String shortName;
-
     private String parent;
 
     public String getTypeOfCancerId() {

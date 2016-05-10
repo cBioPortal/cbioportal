@@ -6,18 +6,13 @@ import org.cbioportal.model.CancerStudy;
 public class GeneticProfileMixin {
 
     private Integer geneticProfileId;
-
-    private String datatype;
-
-    private String description;
-
-    private String geneticAlterationType;
-
-    private String name;
-
-    private Boolean showProfileInAnalysisTab;
-
     private String stableId;
+    private String studyId;
+    private String geneticAlterationType;
+    private String datatype;
+    private String name;
+    private String description;
+    private Boolean showProfileInAnalysisTab;
 
     @JsonUnwrapped
     private CancerStudy cancerStudy;

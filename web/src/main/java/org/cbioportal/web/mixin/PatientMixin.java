@@ -6,8 +6,8 @@ import org.cbioportal.model.CancerStudy;
 public class PatientMixin {
 
     private Integer internalId;
-
     private String stableId;
+    private Integer cancerStudyId;
 
     @JsonUnwrapped
     private CancerStudy cancerStudy;

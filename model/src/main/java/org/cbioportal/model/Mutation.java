@@ -3,61 +3,47 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class Mutation implements Serializable {
+
+    private Integer mutationEventId;
     private MutationEvent mutationEvent;
-
+    private String geneticProfileId;
     private GeneticProfile geneticProfile;
-
+    private String sampleId;
     private Sample sample;
-
+    private Integer entrezGeneId;
     private Gene gene;
-
-    private String center;
-
+    private String sequencingCenter;
     private String sequencer;
-
     private String mutationStatus;
-
     private String validationStatus;
-
     private String tumorSeqAllele1;
-
     private String tumorSeqAllele2;
-
     private String matchedNormSampleBarcode;
-
     private String matchNormSeqAllele1;
-
     private String matchNormSeqAllele2;
-
     private String tumorValidationAllele1;
-
     private String tumorValidationAllele2;
-
     private String matchNormValidationAllele1;
-
     private String matchNormValidationAllele2;
-
     private String verificationStatus;
-
     private String sequencingPhase;
-
     private String sequenceSource;
-
     private String validationMethod;
-
     private String score;
-
     private String bamFile;
-
-    private Integer tumorAltCount;
-
-    private Integer tumorRefCount;
-
-    private Integer normalAltCount;
-
-    private Integer normalRefCount;
-
+    private Integer variantReadCountTumor;
+    private Integer referenceReadCountTumor;
+    private Integer variantReadCountNormal;
+    private Integer referenceReadCountNormal;
     private String aminoAcidChange;
+
+    public Integer getMutationEventId() {
+        return mutationEventId;
+    }
+
+    public void setMutationEventId(Integer mutationEventId) {
+        this.mutationEventId = mutationEventId;
+    }
 
     public MutationEvent getMutationEvent() {
         return mutationEvent;
@@ -65,6 +51,14 @@ public class Mutation implements Serializable {
 
     public void setMutationEvent(MutationEvent mutationEvent) {
         this.mutationEvent = mutationEvent;
+    }
+
+    public String getGeneticProfileId() {
+        return geneticProfileId;
+    }
+
+    public void setGeneticProfileId(String geneticProfileId) {
+        this.geneticProfileId = geneticProfileId;
     }
 
     public GeneticProfile getGeneticProfile() {
@@ -75,12 +69,28 @@ public class Mutation implements Serializable {
         this.geneticProfile = geneticProfile;
     }
 
+    public String getSampleId() {
+        return sampleId;
+    }
+
+    public void setSampleId(String sampleId) {
+        this.sampleId = sampleId;
+    }
+
     public Sample getSample() {
         return sample;
     }
 
     public void setSample(Sample sample) {
         this.sample = sample;
+    }
+
+    public Integer getEntrezGeneId() {
+        return entrezGeneId;
+    }
+
+    public void setEntrezGeneId(Integer entrezGeneId) {
+        this.entrezGeneId = entrezGeneId;
     }
 
     public Gene getGene() {
@@ -91,12 +101,12 @@ public class Mutation implements Serializable {
         this.gene = gene;
     }
 
-    public String getCenter() {
-        return center;
+    public String getSequencingCenter() {
+        return sequencingCenter;
     }
 
-    public void setCenter(String center) {
-        this.center = center;
+    public void setSequencingCenter(String sequencingCenter) {
+        this.sequencingCenter = sequencingCenter;
     }
 
     public String getSequencer() {
@@ -243,36 +253,36 @@ public class Mutation implements Serializable {
         this.bamFile = bamFile;
     }
 
-    public Integer getTumorAltCount() {
-        return tumorAltCount;
+    public Integer getVariantReadCountTumor() {
+        return variantReadCountTumor;
     }
 
-    public void setTumorAltCount(Integer tumorAltCount) {
-        this.tumorAltCount = tumorAltCount;
+    public void setVariantReadCountTumor(Integer variantReadCountTumor) {
+        this.variantReadCountTumor = variantReadCountTumor;
     }
 
-    public Integer getTumorRefCount() {
-        return tumorRefCount;
+    public Integer getReferenceReadCountTumor() {
+        return referenceReadCountTumor;
     }
 
-    public void setTumorRefCount(Integer tumorRefCount) {
-        this.tumorRefCount = tumorRefCount;
+    public void setReferenceReadCountTumor(Integer referenceReadCountTumor) {
+        this.referenceReadCountTumor = referenceReadCountTumor;
     }
 
-    public Integer getNormalAltCount() {
-        return normalAltCount;
+    public Integer getVariantReadCountNormal() {
+        return variantReadCountNormal;
     }
 
-    public void setNormalAltCount(Integer normalAltCount) {
-        this.normalAltCount = normalAltCount;
+    public void setVariantReadCountNormal(Integer variantReadCountNormal) {
+        this.variantReadCountNormal = variantReadCountNormal;
     }
 
-    public Integer getNormalRefCount() {
-        return normalRefCount;
+    public Integer getReferenceReadCountNormal() {
+        return referenceReadCountNormal;
     }
 
-    public void setNormalRefCount(Integer normalRefCount) {
-        this.normalRefCount = normalRefCount;
+    public void setReferenceReadCountNormal(Integer referenceReadCountNormal) {
+        this.referenceReadCountNormal = referenceReadCountNormal;
     }
 
     public String getAminoAcidChange() {

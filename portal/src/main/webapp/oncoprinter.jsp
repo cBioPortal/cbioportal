@@ -216,7 +216,7 @@
                 <div class="control-group">
                     <label class="control-label" for="mutation">Input Mutation Data File</label>
                     <div class="controls">
-                        <input id="mutation" name="mutation" type="file">
+                        <input id="mutation" name="mutation" type="file" name="files[]">
                     </div>
                 </div>
             </form>

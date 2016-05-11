@@ -197,6 +197,7 @@ function saveSession(fullURL, sessionJSON) {
         } else {
             var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id'];
             $("#session-id").append("<a href='" + bookmark + "'>" + bookmark + "</a>");
+            bitlyURL(bookmark);
         }
     }); 
 }

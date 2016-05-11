@@ -34,6 +34,7 @@
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 <%@ page import="java.util.Map" %>
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
@@ -84,7 +85,6 @@
         if (geneWithScoreList.size() > 0) {
 
             Enumeration paramEnum = request.getParameterNames();
-            StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
             while (paramEnum.hasMoreElements())
             {
@@ -131,7 +131,6 @@
                         //currentValue = StringEscapeUtils.escapeHtml(currentValue);
                         currentValue = URLEncoder.encode(currentValue);
 
-                        buf.append (paramName + "=" + currentValue + "&");
                     }
                 }
             }
@@ -189,12 +188,13 @@
             }
             else
             {
-                out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a id='bookmark-link' href='#'>" + request.getAttribute
-                        (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
+                out.println ("<h4>Select one of the options below and then right click on the link that appears to bookmark your results or send by email:</h4>");
                 out.println("<br><br>");
                 out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
                 out.println("<BR><button type='button' id='bitly-generator'>Shorten URL</button>");
                 out.println("<div id='bitly'></div>");
+                out.println("<BR><button type='button' id='session-service' data-session='" + new ObjectMapper().writeValueAsString(request.getParameterMap()) + "'>Save session</button>");
+                out.println("<div id='session-id'></div>");
             }
 
             out.println("</div>");
@@ -328,6 +328,10 @@
 
         $("#bitly-generator").click(function() {
              bitlyURL(window.location.href);
+        });
+
+        $("#session-service").click(function() {
+            saveSession(window.location.href, $(this).data('session'));
         });
 
         //qtips

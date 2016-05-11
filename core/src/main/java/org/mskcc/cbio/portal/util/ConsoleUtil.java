@@ -98,15 +98,14 @@ public class ConsoleUtil {
     
     /**
      * Prints messages and warnings.
-     * 
      */
     public static void showMessages() {
-    	showWarnings();
-    	List<String> debugMessages = ProgressMonitor.getDebugMessages();
+        showWarnings();
+        List<String> debugMessages = ProgressMonitor.getDebugMessages();
         if (debugMessages.size() > 0) {
-            System.out.println("-------------------");
+            System.err.println("-------------------");
             for (int i = 0; i < debugMessages.size(); i++) {
-                System.out.println(debugMessages.get(i));
+                System.err.println(debugMessages.get(i));
             }
         }
     }

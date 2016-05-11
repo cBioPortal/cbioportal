@@ -85,6 +85,7 @@
         if (geneWithScoreList.size() > 0) {
 
             Enumeration paramEnum = request.getParameterNames();
+            StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
             while (paramEnum.hasMoreElements())
             {
@@ -131,6 +132,7 @@
                         //currentValue = StringEscapeUtils.escapeHtml(currentValue);
                         currentValue = URLEncoder.encode(currentValue);
 
+                        buf.append (paramName + "=" + currentValue + "&");
                     }
                 }
             }
@@ -175,7 +177,9 @@
                 out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
-            out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
+            out.print ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab' data-session='");
+            out.print (new ObjectMapper().writeValueAsString(request.getParameterMap()));
+            out.println ("'>Bookmark</a></li>");
             out.println ("</ul>");
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
@@ -188,13 +192,12 @@
             }
             else
             {
-                out.println ("<h4>Select one of the options below and then right click on the link that appears to bookmark your results or send by email:</h4>");
-                out.println("<br><br>");
-                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                out.println("<BR><button type='button' id='bitly-generator'>Shorten URL</button>");
-                out.println("<div id='bitly'></div>");
-                out.println("<BR><button type='button' id='session-service' data-session='" + new ObjectMapper().writeValueAsString(request.getParameterMap()) + "'>Save session</button>");
+                out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
+                out.println("<br>");
                 out.println("<div id='session-id'></div>");
+                out.println("<br>");
+                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
+                out.println("<div id='bitly'></div>");
             }
 
             out.println("</div>");
@@ -326,11 +329,7 @@
         });
 
 
-        $("#bitly-generator").click(function() {
-             bitlyURL(window.location.href);
-        });
-
-        $("#session-service").click(function() {
+        $("#bookmark-result-tab").click(function() {
             saveSession(window.location.href, $(this).data('session'));
         });
 

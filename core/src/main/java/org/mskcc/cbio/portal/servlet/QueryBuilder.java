@@ -101,6 +101,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String TAB_DOWNLOAD = "tab_download";
     public static final String TAB_VISUALIZE = "tab_visualize";
     public static final String USER_ERROR_MESSAGE = "user_error_message";
+    public static final String ATTRIBUTE_URL_BEFORE_FORWARDING = "ATTRIBUTE_URL_BEFORE_FORWARDING";
     public static final String Z_SCORE_THRESHOLD = "Z_SCORE_THRESHOLD";
     public static final String RPPA_SCORE_THRESHOLD = "RPPA_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
@@ -173,6 +174,11 @@ public class QueryBuilder extends HttpServlet {
 
         xdebug.logMsg(this, "Attempting to initiate new user query.");
         
+        if (httpServletRequest.getRequestURL() != null) {
+            httpServletRequest.setAttribute(ATTRIBUTE_URL_BEFORE_FORWARDING,
+                                            httpServletRequest.getRequestURL().toString());
+        }
+
         //  Get User Selected Action
         String action = httpServletRequest.getParameter(ACTION_NAME);
         

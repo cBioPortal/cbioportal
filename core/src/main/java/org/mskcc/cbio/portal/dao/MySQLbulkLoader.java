@@ -230,7 +230,6 @@ public class MySQLbulkLoader {
         	 if (stmt.getWarnings() != null) {
         		 otherDetails = "More error/warning details: " + stmt.getWarnings().getMessage();
              }
-             throw new DaoException("DB Error: only "+updateCount+" of the "+nLines+" records were inserted in `" + tableName + "`. " + otherDetails);
              
          } else {
              tempFileHandle.delete();

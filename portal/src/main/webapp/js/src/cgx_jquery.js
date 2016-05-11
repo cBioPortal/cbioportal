@@ -179,3 +179,24 @@ function bitlyURL(fullURL){
 
 
 }
+
+/* 
+This function accepts as an argument the session 
+to be saved as a JSON string 
+*/
+function saveSession(fullURL, sessionJSON) {
+    $.ajax({
+        type: 'POST',
+        url: 'api/proxy/session-service',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify(sessionJSON)
+    }).done(function(data) {
+        if (data['id'] == null){
+            $('#session-id').append("An unknown error occurred. Unable to store your session.");
+        } else {
+            var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id'];
+            $("#session-id").append("<a href='" + bookmark + "'>" + bookmark + "</a>");
+        }
+    }); 
+}

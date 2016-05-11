@@ -146,3 +146,6 @@ genomespace=true
 
 # set this to true if you update cancer studies in your production database without shutting the web server
 recache_study_after_update=false
+
+# session-service URL 
+session.service.url=http://localhost:8090/api/sessions/msk_portal/main_session/

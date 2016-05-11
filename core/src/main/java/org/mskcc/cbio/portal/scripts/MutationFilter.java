@@ -50,7 +50,7 @@ public class MutationFilter {
    private int germlineWhitelistAccepts=0;
    private int somaticWhitelistAccepts=0;
    private int unknownAccepts=0;
-   private int decisions=0;
+   public int decisions=0;
    private int silentOrIntronRejects=0;
    private int mutationStatusNoneRejects=0;
    private int lohOrWildTypeRejects=0;

@@ -302,9 +302,10 @@ public class ImportExtendedMutationData{
                 		ProgressMonitor.logWarning(
                             "Treating mutation with gene symbol 'Unknown' " +
                             (mafUtil.getEntrezGeneIdIndex() == -1 ? "" : "and Entrez gene ID 0") + " as intergenic ('IGR') " +
-                            "instead of '" + mutationType + "'. Skipping entry.");
+                            "instead of '" + mutationType + "'. Entry filtered/skipped.");
                 	}
                 	// treat as IGR:
+                	myMutationFilter.decisions++;
                     myMutationFilter.igrRejects++;
                     // skip entry:
                     entriesSkipped++;

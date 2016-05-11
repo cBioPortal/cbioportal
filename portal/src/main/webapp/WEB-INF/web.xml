@@ -117,6 +117,26 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <filter>
+        <filter-name>SessionServiceFilter</filter-name>
+        <display-name>Session Service Filter</display-name>
+        <description>
+            This intercepts the request and puts a wrapper around it.  If
+            session_id is a request parameter, then it is used to look up
+            the stored session using the session-service REST API, and
+            the stored session request parameters are then returned by the
+            wrapper on all calls to getParameter/getParameterMap/etc.  If
+            session_id is not a request parameter, then this returns the current
+            request parameters as normal.
+        </description>
+        <filter-class>org.mskcc.cbio.portal.util.SessionServiceFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>SessionServiceFilter</filter-name>
+        <url-pattern>/index.do</url-pattern>
+    </filter-mapping>
+
     <!-- servlet definitions & mappings -->
     
     <servlet>

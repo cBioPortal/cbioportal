@@ -73,14 +73,17 @@ public class GeneticProfileReader {
                .getStableId());
 
       if (existingGeneticProfile != null) {
-         // the dbms already contains a GeneticProfile with the file's stable_id. This scenario is not supported
-    	 // anymore, so throw error telling user to remove existing profile first:
          if (!existingGeneticProfile.getDatatype().equals("MAF"))
          {
+             // the dbms already contains a GeneticProfile with the file's stable_id. This scenario is not supported
+             // anymore, so throw error telling user to remove existing profile first:
              throw new RuntimeException("Error: genetic_profile record found with same Stable ID as the one used in your data:  "
                   + existingGeneticProfile.getStableId() + ". Remove the existing genetic_profile record first.");
          }
          else {
+             // For mutation data only we can have multiple files with the same genetic_profile.
+             // There is a constraint in the mutation database table to prevent duplicated data
+             // If this constraint is hit (mistakenly importing the same maf twice) MySqlBulkLoader will throw an exception
              return existingGeneticProfile;
          }
       }

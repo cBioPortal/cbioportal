@@ -256,6 +256,7 @@ public class ImportExtendedMutationData{
                 String entrezIdString = record.getGivenEntrezGeneId();
 
                 CanonicalGene gene = null;
+                // try to parse entrez if it is not empty nor 0:
                 if (!(entrezIdString.isEmpty() ||
                       entrezIdString.equals("0"))) {
                     Long entrezGeneId;
@@ -264,7 +265,8 @@ public class ImportExtendedMutationData{
                     } catch (NumberFormatException e) {
                         entrezGeneId = null;
                     }
-                    if (entrezGeneId == null) {
+                    //non numeric values or negative values should not be allowed:
+                    if (entrezGeneId == null || entrezGeneId < 0) {
                         ProgressMonitor.logWarning(
                                 "Ignoring line with invalid Entrez_Id " +
                                 entrezIdString);
@@ -273,7 +275,7 @@ public class ImportExtendedMutationData{
                     } else {
                         gene = daoGene.getGene(entrezGeneId);
                         if (gene == null) {
-                            //skip
+                            //skip if not in DB:
                             ProgressMonitor.logWarning(
                                     "Entrez gene ID " + entrezGeneId +
                                     " not found. Record will be skipped.");
@@ -290,23 +292,27 @@ public class ImportExtendedMutationData{
                     gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
                 }
 
-                // assume Unknown / 0 to imply an intergenic irrespective of
-                // what the column Variant_Classification says
+                // assume symbol=Unknown and entrez=0 (or missing Entrez column) to imply an 
+                // intergenic, irrespective of what the column Variant_Classification says
                 if (geneSymbol.equals("Unknown") &&
-                        entrezIdString.equals("0") &&
-                        mutationType != null &&
-                        !mutationType.equalsIgnoreCase("IGR")) {
-                    ProgressMonitor.logWarning(
+                        (entrezIdString.equals("0") || mafUtil.getEntrezGeneIdIndex() == -1)) { 
+                	// give extra warning if mutationType is something different from IGR:
+                	if (mutationType != null &&
+                			!mutationType.equalsIgnoreCase("IGR")) { 
+                		ProgressMonitor.logWarning(
                             "Treating mutation with gene symbol 'Unknown' " +
-                            "and Entrez gene ID 0 as intergenic ('IGR') " +
-                            "instead of '" + mutationType + "'.");
-                    mutationType = "IGR";
+                            (mafUtil.getEntrezGeneIdIndex() == -1 ? "" : "and Entrez gene ID 0") + " as intergenic ('IGR') " +
+                            "instead of '" + mutationType + "'. Skipping entry.");
+                	}
+                	// treat as IGR:
+                    myMutationFilter.igrRejects++;
+                    // skip entry:
+                    entriesSkipped++;
+                    continue;
                 }
 
                 // skip the record if a gene was expected but not identified
-                if (gene == null &&
-                        (mutationType == null ||
-                         !mutationType.equalsIgnoreCase("IGR"))) {
+                if (gene == null) {
                     ProgressMonitor.logWarning(
                             "Ambiguous or missing gene: " + geneSymbol +
                             " ["+ record.getGivenEntrezGeneId() +

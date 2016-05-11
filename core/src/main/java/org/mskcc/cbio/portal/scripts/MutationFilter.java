@@ -57,7 +57,7 @@ public class MutationFilter {
    private int emptyAnnotationRejects=0;
    private int missenseGermlineRejects=0;
 	private int utrRejects=0;
-	private int igrRejects=0;
+	public int igrRejects=0;
 	private int redactedRejects=0;
 
    /**

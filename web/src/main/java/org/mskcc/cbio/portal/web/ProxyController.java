@@ -52,6 +52,10 @@ public class ProxyController
   @Value("${bitly.url}")
   public void setBitlyURL(String property) { this.bitlyURL = property; }
 
+  private String sessionServiceURL;
+  @Value("${session.service.url}")
+  public void setSessionServiceURL(String property) { this.sessionServiceURL = property; }
+
   private String pdbDatabaseURL;
   @Value("${pdb.database.url}")
   public void setPDBDatabaseURL(String property) { this.pdbDatabaseURL = property; }
@@ -165,6 +169,19 @@ public class ProxyController
 
     ResponseEntity<String> responseEntity =
       restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);
+
+    return responseEntity.getBody();
+  }
+
+  @RequestMapping(value="/session-service")
+  public @ResponseBody String getSessionService(@RequestBody JSONObject body, HttpMethod method,
+                                                HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
+  {
+    RestTemplate restTemplate = new RestTemplate();
+    URI uri = new URI(sessionServiceURL);
+
+    ResponseEntity<String> responseEntity =
+      restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), String.class);
 
     return responseEntity.getBody();
   }

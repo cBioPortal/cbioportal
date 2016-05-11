@@ -262,7 +262,7 @@ public class ImportExtendedMutationData{
 		            	entriesSkipped++;
 				    	continue;
 					}	
-					if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
+					if (entrezGeneId != 0) {
 					    gene = daoGene.getGene(entrezGeneId);
 					    if (gene == null) {
 					    	//skip

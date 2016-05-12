@@ -28,7 +28,13 @@ import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
- * TODO: document this class
+ * A superclass for procedures runnable as a command-line script.
+ *
+ * This keeps the procedure logic in {@link #run()} clean of the
+ * command line-specific functionality added by {@link #runInConsole()},
+ * such as exiting the JVM process with a usage message and exit status code.
+ *
+ * @see {@link UsageException}
  */
 public abstract class ConsoleRunnable implements Runnable {
     

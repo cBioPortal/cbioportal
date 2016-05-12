@@ -7,68 +7,68 @@
     <select id="getMutations" resultType="org.cbioportal.model.Mutation">
         select
 
-        mutation.CENTER as sequencingCenter,
-        mutation.MUTATION_STATUS as mutationStatus,
-        mutation.TUMOR_REF_COUNT as referenceReadCountTumor,
-        mutation.NORMAL_REF_COUNT as referenceReadCountNormal,
-        mutation.TUMOR_ALT_COUNT as variantReadCountTumor,
-        mutation.NORMAL_ALT_COUNT as variantReadCountNormal,
-        mutation.VALIDATION_STATUS as validationStatus,
+        "mutation"."CENTER" as "sequencingCenter",
+        "mutation"."MUTATION_STATUS" as "mutationStatus",
+        "mutation"."TUMOR_REF_COUNT" as "referenceReadCountTumor",
+        "mutation"."NORMAL_REF_COUNT" as "referenceReadCountNormal",
+        "mutation"."TUMOR_ALT_COUNT" as "variantReadCountTumor",
+        "mutation"."NORMAL_ALT_COUNT" as "variantReadCountNormal",
+        "mutation"."VALIDATION_STATUS" as "validationStatus",
 
-        mutation_event.MUTATION_TYPE as "mutationEvent.mutationType",
-        mutation_event.PROTEIN_CHANGE as "mutationEvent.aminoAcidChange",
-        mutation_event.FUNCTIONAL_IMPACT_SCORE as "mutationEvent.functionalImpactScore",
-        mutation_event.LINK_XVAR as "mutationEvent.xvarLink",
-        mutation_event.LINK_PDB as "mutationEvent.xvarLinkPdb",
-        mutation_event.LINK_MSA as "mutationEvent.xvarLinkMsa",
-        mutation_event.CHR as "mutationEvent.chr",
-        mutation_event.START_POSITION as "mutationEvent.startPosition",
-        mutation_event.END_POSITION as "mutationEvent.endPosition",
-        mutation_event.ONCOTATOR_PROTEIN_POS_START as "mutationEvent.proteinStartPosition",
-        mutation_event.ONCOTATOR_PROTEIN_POS_END as "mutationEvent.proteinEndPosition",
-        mutation_event.REFERENCE_ALLELE as "mutationEvent.referenceAllele",
-        mutation_event.TUMOR_SEQ_ALLELE as "mutationEvent.variantAllele",
+        "mutation_event"."MUTATION_TYPE" as "mutationEvent.mutationType",
+        "mutation_event"."PROTEIN_CHANGE" as "mutationEvent.aminoAcidChange",
+        "mutation_event"."FUNCTIONAL_IMPACT_SCORE" as "mutationEvent.functionalImpactScore",
+        "mutation_event"."LINK_XVAR" as "mutationEvent.xvarLink",
+        "mutation_event"."LINK_PDB" as "mutationEvent.xvarLinkPdb",
+        "mutation_event"."LINK_MSA" as "mutationEvent.xvarLinkMsa",
+        "mutation_event"."CHR" as "mutationEvent.chr",
+        "mutation_event"."START_POSITION" as "mutationEvent.startPosition",
+        "mutation_event"."END_POSITION" as "mutationEvent.endPosition",
+        "mutation_event"."ONCOTATOR_PROTEIN_POS_START" as "mutationEvent.proteinStartPosition",
+        "mutation_event"."ONCOTATOR_PROTEIN_POS_END" as "mutationEvent.proteinEndPosition",
+        "mutation_event"."REFERENCE_ALLELE" as "mutationEvent.referenceAllele",
+        "mutation_event"."TUMOR_SEQ_ALLELE" as "mutationEvent.variantAllele",
 
-        gene.HUGO_GENE_SYMBOL as "gene.hugoGeneSymbol",
-        gene.ENTREZ_GENE_ID as "gene.entrezGeneId",
+        "gene"."HUGO_GENE_SYMBOL" as "gene.hugoGeneSymbol",
+        "gene"."ENTREZ_GENE_ID" as "gene.entrezGeneId",
 
-        sample.STABLE_ID as sampleId,
+        "sample"."STABLE_ID" as "sampleId",
 
-        cancer_study.CANCER_STUDY_IDENTIFIER as "geneticProfile.studyId",
+        "cancer_study"."CANCER_STUDY_IDENTIFIER" as "geneticProfile.studyId",
 
-        genetic_profile.STABLE_ID as geneticProfileId
+        "genetic_profile"."STABLE_ID" as "geneticProfileId"
 
-        from mutation
-        inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        inner join sample on mutation.SAMPLE_ID = sample.INTERNAL_ID
-        inner join gene on mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-        inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
-        inner join cancer_study on genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        from "mutation"
+        inner join "mutation_event" on "mutation"."MUTATION_EVENT_ID" = "mutation_event"."MUTATION_EVENT_ID"
+        inner join "sample" on "mutation"."SAMPLE_ID" = "sample"."INTERNAL_ID"
+        inner join "gene" on "mutation"."ENTREZ_GENE_ID" = "gene"."ENTREZ_GENE_ID"
+        inner join "genetic_profile" on "genetic_profile"."GENETIC_PROFILE_ID" = "mutation"."GENETIC_PROFILE_ID"
+        inner join "cancer_study" on "genetic_profile"."CANCER_STUDY_ID" = "cancer_study"."CANCER_STUDY_ID"
         <if test="sampleListStableId != null">
-            inner join sample_list_list on sample_list_list.SAMPLE_ID=sample.INTERNAL_ID
-            inner join sample_list on sample_list.LIST_ID=sample_list_list.LIST_ID
+            inner join "sample_list_list" on "sample_list_list"."SAMPLE_ID"="sample"."INTERNAL_ID"
+            inner join "sample_list" on "sample_list"."LIST_ID"="sample_list_list"."LIST_ID"
         </if>
         <where>
             <if test="geneticProfileStableIds != null and !geneticProfileStableIds.isEmpty()">
-                genetic_profile.STABLE_ID in
+                "genetic_profile"."STABLE_ID" in
                 <foreach item="item" collection="geneticProfileStableIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="hugoGeneSymbols != null and !hugoGeneSymbols.isEmpty()">
-                and gene.HUGO_GENE_SYMBOL in
+                and "gene"."HUGO_GENE_SYMBOL" in
                 <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="sampleStableIds != null and !sampleStableIds.isEmpty()">
-                and sample.STABLE_ID in
+                and "sample"."STABLE_ID" in
                 <foreach item="item" collection="sampleStableIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="sampleListStableId != null">
-                and sample_list.STABLE_ID = #{sampleListStableId}
+                and "sample_list"."STABLE_ID" = #{sampleListStableId}
             </if>
         </where>
     </select>

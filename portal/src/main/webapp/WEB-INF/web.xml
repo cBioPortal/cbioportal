@@ -132,10 +132,6 @@
         <servlet-name>portal</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>portal</servlet-name>                                                                                                                                                 
-      <url-pattern>/</url-pattern>
-    </servlet-mapping>                                                                                                                                                                    
 
     <servlet>
         <servlet-name>query_builder</servlet-name>
@@ -571,7 +567,7 @@
     
     <servlet>
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.OverRepresentationAnalysisJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EnrichmentsJSON</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>

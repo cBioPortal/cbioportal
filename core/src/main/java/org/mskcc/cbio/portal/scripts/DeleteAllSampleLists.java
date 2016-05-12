@@ -42,7 +42,8 @@ import org.mskcc.cbio.portal.util.ProgressMonitor;
 public class DeleteAllSampleLists {
 
     public static void main(String[] args) throws Exception {
-        ProgressMonitor.setConsoleMode(true);
+        // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         DaoSampleList daoSampleList = new DaoSampleList();
         daoSampleList.deleteAllRecords();
         System.out.println ("\nAll Existing Sample Lists Deleted.");

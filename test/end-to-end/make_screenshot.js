@@ -22,6 +22,13 @@ takeScreenshot = function(url, screenshot, delay) {
                 phantom.exit(1);
             } else {
                 window.setTimeout(function () {
+                    // Do not display version number
+                    page.evaluate(function() {
+                        var spanVersion = document.getElementById("footer-span-version");
+                        if (spanVersion) {
+                            spanVersion.style.display = "none";
+                        }
+                    });
                     page.render(screenshot);
                     phantom.exit(0);
                 }, delay);

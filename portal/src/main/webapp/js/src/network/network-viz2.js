@@ -383,6 +383,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 		{
 
 			var edgeType = evt.cyTarget._private.data.type;
+			cy.edges().unselect();
 			evt.cyTarget.select();
 			var sourceNodeID = evt.cyTarget.source()._private.data.label;
 			var targetNodeID = evt.cyTarget.target()._private.data.label;

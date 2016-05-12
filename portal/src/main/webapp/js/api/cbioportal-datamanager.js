@@ -212,14 +212,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				var new_mut = {};
 				new_mut[config.mutation_type_key] = getOncoprintMutationType(mut[config.mutation_type_key]);
 				new_mut[config.mutation_amino_acid_change_key] = mut[config.mutation_amino_acid_change_key];
+				new_mut.position_recurrence = mut.position_recurrence;
 				return new_mut;
 			});
 			if (matching_mutations.length > 0) {
 				var mutation_type_key = config.mutation_type_key;
 				matching_mutations.sort(function(a,b) { return mutation_rendering_priority[a[mutation_type_key]] - mutation_rendering_priority[b[mutation_type_key]]; });
 				ret[config.mutation_type_key] = matching_mutations[0][config.mutation_type_key];
+				ret.mut_type_recurrence = ret[config.mutation_type_key] + (matching_mutations[0].position_recurrence > 10 ? '_rec' : '');
 				ret[config.mutation_key] = matching_mutations.map(function(m) {
-				return m[config.mutation_amino_acid_change_key];
+				    return m[config.mutation_amino_acid_change_key];
 				}).join(",");
 			}
 			if (altered) {
@@ -339,6 +341,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'cancer_study_ids': cancer_study_ids,
 			'sample_ids': sample_ids,
 			'genetic_profile_ids': genetic_profile_ids,
+			'mutation_counts':{},
 			'getOQLQuery': function() {
 				return this.oql_query;
 			},
@@ -655,7 +658,56 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				return ret;
 			};
 			
+			var getMutationCounts = function(sample_data) {
+			    var def = new $.Deferred();
+			    var to_query = {};
+			    for (var i=0; i<sample_data.length; i++) {
+				var datum = sample_data[i];
+				if (datum.mutation) {
+				    var gene = datum.gene;
+				    for (var j=0; j<datum.mutation.length; j++) {
+					var start_pos = datum.mutation[j].mut_start_position;
+					var end_pos = datum.mutation[j].mut_end_position;
+					if (!isNaN(start_pos) && !isNaN(end_pos)) {
+					    to_query[gene+','+start_pos+','+end_pos] = true;
+					}
+				    }
+				}
+			    }
+			    var queries = Object.keys(to_query).map(function(x) {
+				var splitx = x.split(',');
+				return {
+				    gene: splitx[0],
+				    start_pos: splitx[1],
+				    end_pos: splitx[2]
+				};
+			    });
+			    var genes = queries.map(function(q) { return q.gene; });
+			    var starts = queries.map(function(q) { return q.start_pos; });
+			    var ends = queries.map(function(q) { return q.end_pos; });
+			    
+			    cbioportal_client.getMutationCounts({
+				'type': 'count',
+				'per_study': false,
+				'gene': genes,
+				'start': starts,
+				'end': ends
+			    }).then(function(counts) {
+				var counts_map = {};
+				for (var i=0; i<counts.length; i++) {
+				    var gene = counts[i].gene;
+				    var start = parseInt(counts[i].start,10);
+				    var end = parseInt(counts[i].end,10);
+				    counts_map[gene+','+start+','+end] = parseInt(counts[i].count, 10);
+				}
+				def.resolve(counts_map);
+			    }).fail(function() {
+				def.reject();
+			    });
+			    return def.promise();
+			};
 			var makeSampleData = function(webservice_gp_data) {
+				var def = new $.Deferred();
 				var cna_string = {"-2":"HOMODELETED","-1":"HEMIZYGOUSLYDELETED","0":undefined,"1":"GAINED","2":"AMPLIFIED"};
 				var samp_to_gene_to_datum = {};
 				for (var i=0, _len=webservice_gp_data.length; i<_len; i++) {
@@ -674,8 +726,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 							datum.mutation = datum.mutation || [];
 							datum.mutation.push({mut_type: getMutationType(d),
 										amino_acid_change: d.amino_acid_change,
-										mut_start_position: parseInt(d.protein_start_position),
-										mut_end_position: parseInt(d.protein_end_position)});
+										mut_start_position: parseInt(d.protein_start_position, 10),
+										mut_end_position: parseInt(d.protein_end_position, 10)});
 							break;
 						case "COPY_NUMBER_ALTERATION":
 							var cna_str = cna_string[d.profile_data];
@@ -691,7 +743,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 							break;
 					}
 				}
-				var ret = [];
+				var sample_data = [];
 				var samples = dm_ret.getSampleIds();
 				var genes = dm_ret.getQueryGenes();
 				var na_sample_gene = {};
@@ -703,19 +755,32 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				}
 				objEach(samp_to_gene_to_datum, function(gene_to_datum, samp) {
 					objEach(gene_to_datum, function(datum, gene) {
-						ret.push(datum);
+						sample_data.push(datum);
 						na_sample_gene[samp][gene] = false;
 					});
 				});
 				objEach(na_sample_gene, function(gene_to_is_na, samp) {
 					objEach(gene_to_is_na, function(is_na, gene) {
 						if (is_na) {
-							ret.push({'sample':samp, 'gene':gene});
+							sample_data.push({'sample':samp, 'gene':gene});
 						}
 					});
 				});
-
-				return ret;
+				getMutationCounts(sample_data).then(function(mutation_count_map) {
+				    for (var i=0; i<sample_data.length; i++) {
+					var datum = sample_data[i];
+					if (datum.mutation) {
+					    var gene = datum.gene;
+					    for (var j=0; j<datum.mutation.length; j++) {
+						var mutation = datum.mutation[j];
+						var mutation_count_map_key = gene+','+mutation.mut_start_position+','+mutation.mut_end_position;
+						mutation.position_recurrence = mutation_count_map[mutation_count_map_key] || 0;
+					    }
+					}
+				    }
+				    def.resolve(sample_data);
+				});
+				return def.promise();
 			};
 			var makePatientData = function(oql_process_result) {
 				var pat_to_gene_to_datum = {};
@@ -760,6 +825,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						if (extremeness.hasOwnProperty(key)) {
 							if (extremeness[key][val] > extremeness[key][new_datum[key]]) {
 								new_datum[key] = val;
+								if (key === 'mut_type') {
+								    new_datum['mut_type_recurrence'] = d['mut_type_recurrence'];
+								}
 							}
 						} else if (key === "mutation") {
 							new_datum['mutation'] = (new_datum['mutation'] || []).concat(d['mutation']);
@@ -896,24 +964,25 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 									return obj[key];
 								    });
 								};
-								var unmasked_sample_data = makeSampleData(response);
-								var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), unmasked_sample_data);
-								
-								dm_ret.sample_gene_data = oql_process_result.data;
-								dm_ret.altered_samples_by_gene = oql_process_result.altered;
-								dm_ret.unaltered_samples_by_gene = oql_process_result.unaltered;
-								dm_ret.altered_samples = Object.keys(setUnion(objectValues(oql_process_result.altered)));
-								dm_ret.unaltered_samples = Object.keys(setIntersection(objectValues(oql_process_result.unaltered)));
+								makeSampleData(response).then(function (unmasked_sample_data) {
+								    var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), unmasked_sample_data);
 
-								var oql_process_result_patient = makePatientData(oql_process_result);
-								dm_ret.patient_gene_data = oql_process_result_patient.data;
-								dm_ret.altered_patients_by_gene = oql_process_result_patient.altered;
-								dm_ret.unaltered_patients_by_gene = oql_process_result_patient.unaltered;
-								dm_ret.altered_patients = Object.keys(setUnion(objectValues(oql_process_result_patient.altered)));
-								dm_ret.unaltered_patients = Object.keys(setIntersection(objectValues(oql_process_result_patient.unaltered)));
+								    dm_ret.sample_gene_data = oql_process_result.data;
+								    dm_ret.altered_samples_by_gene = oql_process_result.altered;
+								    dm_ret.unaltered_samples_by_gene = oql_process_result.unaltered;
+								    dm_ret.altered_samples = Object.keys(setUnion(objectValues(oql_process_result.altered)));
+								    dm_ret.unaltered_samples = Object.keys(setIntersection(objectValues(oql_process_result.unaltered)));
 
-								data_fetched = true;
-								def.resolve();
+								    var oql_process_result_patient = makePatientData(oql_process_result);
+								    dm_ret.patient_gene_data = oql_process_result_patient.data;
+								    dm_ret.altered_patients_by_gene = oql_process_result_patient.altered;
+								    dm_ret.unaltered_patients_by_gene = oql_process_result_patient.unaltered;
+								    dm_ret.altered_patients = Object.keys(setUnion(objectValues(oql_process_result_patient.altered)));
+								    dm_ret.unaltered_patients = Object.keys(setIntersection(objectValues(oql_process_result_patient.unaltered)));
+
+								    data_fetched = true;
+								    def.resolve();
+								});
 							}).fail(function() {
 								def.reject();
 							});

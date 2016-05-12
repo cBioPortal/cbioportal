@@ -556,16 +556,116 @@ var MutationViewsUtil = (function()
 	 * Mapping between the mutation type (data) values and
 	 * view values.
 	 */
+
+	var _mutationStyleMap = {
+		missense: {label: "Missense",
+			longName: "Missense",
+			style: "missense_mutation",
+			mainType: "missense_mutation",
+			priority: 1},
+		inframe: {label: "IF",
+			longName: "In-frame Mutation",
+			style: "inframe_mutation",
+			mainType: "inframe",
+			priority: 2},
+		truncating: {
+			label: "Truncating",
+			longName: "Truncating Mutation",
+			style: "trunc_mutation",
+			mainType: "truncating",
+			priority: 4},
+		nonsense: {label: "Nonsense",
+			longName: "Nonsense",
+			style: "trunc_mutation",
+			mainType: "truncating",
+			priority: 6},
+		nonstop: {label: "Nonstop",
+			longName: "Nonstop",
+			style: "trunc_mutation",
+			mainType: "truncating",
+			priority: 7},
+		nonstart: {label: "Nonstart",
+			longName: "Nonstart",
+			style: "trunc_mutation",
+			mainType: "truncating",
+			priority: 8},
+		frameshift: {label: "FS",
+			longName: "Frame Shift",
+			style: "trunc_mutation",
+			mainType: "truncating",
+			priority: 4},
+		frame_shift_del: {label: "FS del",
+			longName: "Frame Shift Deletion",
+			style: "trunc_mutation",
+			mainType: "truncating",
+			priority: 4},
+		frame_shift_ins: {label: "FS ins",
+			longName: "Frame Shift Insertion",
+			style: "trunc_mutation",
+			mainType: "truncating",
+			priority: 5},
+		in_frame_ins: {label: "IF ins",
+			longName: "In-frame Insertion",
+			style: "inframe_mutation",
+			mainType: "inframe",
+			priority: 3},
+		in_frame_del: {label: "IF del",
+			longName: "In-frame Deletion",
+			style: "inframe_mutation",
+			mainType: "inframe",
+			priority: 2},
+		splice_site: {label: "Splice",
+			longName: "Splice site",
+			style: "trunc_mutation",
+			mainType: "truncating",
+			priority: 9},
+		fusion: {label: "Fusion",
+			longName: "Fusion",
+			style: "fusion",
+			mainType: "other",
+			priority: 10},
+		other: {style: "other_mutation",
+			mainType: "other",
+			priority: 11}
+	};
+
 	var _mutationTypeMap = {
-		missense_mutation: {label: "Missense", style: "missense_mutation"},
-		nonsense_mutation: {label: "Nonsense", style: "trunc_mutation"},
-		nonstop_mutation: {label: "Nonstop", style: "trunc_mutation"},
-		frame_shift_del: {label: "FS del", style: "trunc_mutation"},
-		frame_shift_ins: {label: "FS ins", style: "trunc_mutation"},
-		in_frame_ins: {label: "IF ins", style: "inframe_mutation"},
-		in_frame_del: {label: "IF del", style: "inframe_mutation"},
-		splice_site: {label: "Splice", style: "trunc_mutation"},
-		other: {style: "other_mutation"}
+		"missense_mutation": _mutationStyleMap.missense,
+		"missense": _mutationStyleMap.missense,
+		"missense_variant": _mutationStyleMap.missense,
+		"frame_shift_ins": _mutationStyleMap.frame_shift_ins,
+		"frame_shift_del": _mutationStyleMap.frame_shift_del,
+		"frameshift": _mutationStyleMap.frameshift,
+		"frameshift_deletion": _mutationStyleMap.frame_shift_del,
+		"frameshift_insertion": _mutationStyleMap.frame_shift_ins,
+		"de_novo_start_outofframe": _mutationStyleMap.frameshift,
+		"frameshift_variant": _mutationStyleMap.frameshift,
+		"nonsense_mutation": _mutationStyleMap.nonsense,
+		"nonsense": _mutationStyleMap.nonsense,
+		"stopgain_snv": _mutationStyleMap.nonsense,
+		"splice_site": _mutationStyleMap.splice_site,
+		"splice": _mutationStyleMap.splice_site,
+		"splice site": _mutationStyleMap.splice_site,
+		"splicing": _mutationStyleMap.splice_site,
+		"splice_site_snp": _mutationStyleMap.splice_site,
+		"splice_site_del": _mutationStyleMap.splice_site,
+		"splice_site_indel": _mutationStyleMap.splice_site,
+		"translation_start_site":  _mutationStyleMap.nonstart,
+		"start_codon_snp": _mutationStyleMap.nonstart,
+		"start_codon_del": _mutationStyleMap.nonstart,
+		"nonstop_mutation": _mutationStyleMap.nonstop,
+		"in_frame_del": _mutationStyleMap.in_frame_del,
+		"in_frame_ins": _mutationStyleMap.in_frame_ins,
+		"indel": _mutationStyleMap.in_frame_del,
+		"nonframeshift_deletion": _mutationStyleMap.inframe,
+		"nonframeshift": _mutationStyleMap.inframe,
+		"nonframeshift insertion": _mutationStyleMap.inframe,
+		"nonframeshift_insertion": _mutationStyleMap.inframe,
+		"targeted_region": _mutationStyleMap.inframe,
+		"inframe": _mutationStyleMap.inframe,
+		"truncating": _mutationStyleMap.truncating,
+		"fusion": _mutationStyleMap.fusion,
+		"other": _mutationStyleMap.other
 	};
 
 	/**
@@ -1679,25 +1779,22 @@ var PileupUtil = (function()
 		return total;
 	}
 
-	function countMutationsByMutationType(pileups)
+	/**
+	 * Returns all the mutation model instances within the given
+	 * collection of pileups.
+	 *
+	 * @param pileups   a collection of pileups
+	 * @returns {Array} mutations within the given pileups
+	 */
+	function getPileupMutations(pileups)
 	{
 		var mutations = [];
 
-		// de-pileup
 		_.each(pileups, function(pileup) {
 			mutations = mutations.concat(pileup.get("mutations") || []);
 		});
 
-		var mapByType = _.groupBy(mutations, function(mutation) {
-			return mutation.get("mutationType").toLowerCase();
-		});
-
-		// we only need the counts...
-		_.each(_.keys(mapByType), function(type) {
-			mapByType[type] = _.size(mapByType[type]);
-		});
-
-		return mapByType;
+		return mutations;
 	}
 
 	return {
@@ -1705,7 +1802,7 @@ var PileupUtil = (function()
 		mapToMutations: mapToMutations,
 		convertToPileups: convertToPileups,
 		countMutations: countMutations,
-		countMutationsByMutationType: countMutationsByMutationType,
+		getPileupMutations: getPileupMutations,
 		getMutationTypeMap: generateTypeMap,
 		getMutationTypeArray: generateTypeArray,
 		getMutationTypeGroups: generateTypeGroupArray
@@ -3795,10 +3892,17 @@ var MutationDetailsUtil = function(mutations)
 	{
 		var summary = "[";
 		var rate;
-
+        var germlineDenominator = mutationCount.numCases;
+                
 		if (mutationCount.numGermline > 0)
 		{
-			rate = (mutationCount.numGermline / mutationCount.numCases) * 100;
+            if (mutationCount.numGermlineCases !== undefined)
+            {
+                if (mutationCount.numGermlineCases > 0) {
+                    germlineDenominator = mutationCount.numGermlineCases;
+                }                        
+            }
+			rate = (mutationCount.numGermline / germlineDenominator) * 100;
 			summary += "Germline Mutation Rate: " + rate.toFixed(1) + "%, ";
 		}
 
@@ -4185,6 +4289,7 @@ var MutationDetailsUtil = function(mutations)
 		this.processMutationData(mutations);
 	}
 };
+
 /*
  * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  *
@@ -7052,7 +7157,6 @@ var MainMutationView = Backbone.View.extend({
 
 		// pass variables in using Underscore.js template
 		var variables = {geneSymbol: self.model.geneSymbol,
-			mutationSummary: self._mutationSummary(),
 			uniprotId: self.model.uniprotId};
 
 		// compile the template using underscore
@@ -7074,6 +7178,7 @@ var MainMutationView = Backbone.View.extend({
 		self.$el.find(".mutation-details-no-data-info").hide();
 		self.$el.find(".mutation-3d-initializer").hide();
 		self.$el.find(".mutation-info-panel-container").hide();
+		self.$el.find(".mutation-summary-view").hide();
 		self.$el.find(".mutation-table-container").hide();
 		self.$el.find(".mutation-diagram-view").hide();
 	},
@@ -7105,29 +7210,28 @@ var MainMutationView = Backbone.View.extend({
 
 		return pdbPanelView;
 	},
-	/**
-	 * Generates a one-line summary of the mutation data.
-	 *
-	 * @return {string} summary string
-	 */
-	_mutationSummary: function()
+	initSummaryView: function()
 	{
 		var self = this;
-		var mutationUtil = self.model.dataProxies.mutationProxy.getMutationUtil();
-		var gene = self.model.geneSymbol;
-		var cases = self.model.sampleArray;
+		var target = self.$el.find(".mutation-summary-view");
+		target.show();
 
-		var summary = "";
+		var summaryOpts = {
+			el: target,
+			model: {
+				mutationProxy: self.model.dataProxies.mutationProxy,
+				clinicalProxy: self.model.dataProxies.clinicalProxy,
+				geneSymbol: self.model.geneSymbol,
+				sampleArray: self.model.sampleArray
+			}
+		};
 
-		if (cases.length > 0)
-		{
-			// calculate somatic & germline mutation rates
-			var mutationCount = mutationUtil.countMutations(gene, cases);
-			// generate summary string for the calculated mutation count values
-			summary = mutationUtil.generateSummary(mutationCount);
-		}
+		var summaryView = new MutationSummaryView(summaryOpts);
+		summaryView.render();
 
-		return summary;
+		self.summaryView = summaryView;
+
+		return summaryView;
 	},
 	init3dView: function(mut3dVisView)
 	{
@@ -7302,6 +7406,12 @@ var MainMutationView = Backbone.View.extend({
 		infoView.render();
 
 		self.infoView = infoView;
+
+		self.dispatcher.trigger(
+			MutationDetailsEvents.INFO_PANEL_INIT,
+			self.infoView);
+
+		return infoView;
 	},
 	/**
 	 * Initializes the filter reset link, which is a part of filter info
@@ -8570,7 +8680,7 @@ var MutationCustomizePanelView = Backbone.View.extend({
 
 		// template vars
 		var variables = {minY: 2,
-			maxY: diagram.getMaxY()};
+			maxY: diagram.getInitialMaxY()};
 
 		// compile the template using underscore
 		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_customize_panel_template");
@@ -8603,19 +8713,30 @@ var MutationCustomizePanelView = Backbone.View.extend({
 		});
 
 		// set initial value of the input field
-		var maxValY = diagram.getMaxY();
-		yAxisInput.val(maxValY);
+		yAxisInput.val(diagram.getMaxY());
 
 		// init y-axis slider controls
-		yAxisSlider.slider({value: maxValY,
-			min: 2,
-			max: maxValY,
+		yAxisSlider.slider({
+			value: diagram.getMaxY(), // set value to current max
+			min: 2, // anything below 2 doesn't make much sense
+			max: diagram.getInitialMaxY(), // set max value to initial max
 			change: function(event, ui) {
+				var value = ui.value;
+
+				// adjust the slider value to the threshold
+				// and stop execution, because this will trigger
+				// this event (change event) again...
+				if (value > diagram.getThreshold()) {
+					value = diagram.getThreshold();
+					$(this).slider('value', value);
+					return;
+				}
+
 				// update input field
-				yAxisInput.val(ui.value);
+				yAxisInput.val(value);
 
 				// update diagram
-				diagram.updateOptions({maxLengthY: ui.value});
+				diagram.updateOptions({maxLengthY: value});
 				diagram.rescaleYAxis();
 			},
 			slide: function(event, ui) {
@@ -8630,19 +8751,22 @@ var MutationCustomizePanelView = Backbone.View.extend({
 			if (event.keyCode == enterCode)
 			{
 				var input = yAxisInput.val();
+				var value = input;
 
 				// not a valid value, update with defaults
-				if (isNaN(input) ||
-				    input > maxValY ||
-				    input < 2)
+				if (isNaN(value) ||
+				    value > diagram.getThreshold())
 				{
-					yAxisInput.val(diagram.getMaxY());
+					value = diagram.getThreshold();
 				}
-				// update weight slider position only if input is valid
-				else
+				else if (input < 2)
 				{
-					yAxisSlider.slider("option", "value", Math.floor(input));
+					value = 2;
 				}
+
+				// update weight slider and input value
+				yAxisInput.val(value);
+				yAxisSlider.slider("option", "value", Math.floor(value));
 			}
 		});
 	},
@@ -8743,7 +8867,6 @@ var MutationDetailsTableView = Backbone.View.extend({
 			self.model.dataProxies,
 			self.model.dataManager);
 
-		// TODO self.mutationTable = table;
 		self.mutationTable = table;
 
 		if (_.isFunction(callback))
@@ -8895,6 +9018,11 @@ var MutationDetailsTableView = Backbone.View.extend({
 		// enable events after filtering
 		self.mutationTable.setFilterEventActive(true);
 	},
+	clearSearchBox: function() {
+		var self = this;
+		var searchBox = self.$el.find(".mutation_datatables_filter input[type=search]");
+		searchBox.val("");
+	},
 	/**
 	 * Filters the given data table with the provided filter string.
 	 *
@@ -8923,14 +9051,15 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var smartFilter = true;
 		var caseInsensitive = true;
 
-		var prevValue = self.$el.find(".mutation_datatables_filter input[type=search]").val();
+		var searchBox = self.$el.find(".mutation_datatables_filter input[type=search]");
+		var prevValue = searchBox.val();
 
 		oTable.fnFilter(filterStr, limit, asRegex, smartFilter, updateBox, caseInsensitive);
 
 		// reset to previous value if updateBox is set to false
 		if (!updateBox)
 		{
-			self.$el.find(".mutation_datatables_filter input[type=search]").val(prevValue);
+			searchBox.val(prevValue);
 		}
 	}
 });
@@ -9576,7 +9705,6 @@ var MutationHelpPanelView = Backbone.View.extend({
  *
  * options: {el: [target container],
  *           model: {},
- *           diagram: reference to the MutationDiagram instance
  *          }
  *
  * @author Selcuk Onur Sumer
@@ -9584,41 +9712,88 @@ var MutationHelpPanelView = Backbone.View.extend({
 var MutationInfoPanelView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
+
+		// custom event dispatcher
+		this.dispatcher = {};
+		_.extend(this.dispatcher, Backbone.Events);
+
+		// initial count by type map
+		//this.initialMapByType = this._mapMutationsByType(this.model.mutations);
+		this.initialMapByType = this._mapMutationsByMainType(this.model.mutations);
+		//this.selectionMap = this.resetSelectionMap();
 	},
 	render: function()
 	{
 		var self = this;
-
-		var pileups = PileupUtil.convertToPileups(new MutationCollection(self.model.mutations));
-		var countByType = PileupUtil.countMutationsByMutationType(pileups);
-		self.updateView(countByType);
+		self.updateView(self.model.mutations);
 	},
 	format: function()
 	{
 		var self = this;
+
+		self.$el.find(".mutation-type-info-link").on('click', function(evt) {
+			evt.preventDefault();
+			var mutationType = $(this).attr("alt");
+
+			//if (self.selectionMap[mutationType] != null)
+			//{
+			//	self.selectionMap[mutationType] += 1;
+			//}
+
+			self.dispatcher.trigger(
+				MutationDetailsEvents.INFO_PANEL_MUTATION_TYPE_SELECTED,
+				mutationType);
+		});
 	},
-	updateView: function(countByType) {
+	updateView: function(mutations) {
 		var self = this;
-
+		//self.currentMapByType = self._mapMutationsByType(mutations);
+		self.currentMapByType = self._mapMutationsByMainType(mutations);
+		var countByType = self._countMutationsByType(self.currentMapByType);
 		var mutationTypeStyle = MutationViewsUtil.getVisualStyleMaps().mutationType;
-
 		var content = [];
 
-		_.each(_.keys(countByType).sort(), function(mutationType) {
+		countByType = _.extend(self._generateZeroCountMap(self.initialMapByType), countByType);
+
+		// sort mutation types by priority
+		var keys = _.keys(countByType).sort(function(a, b) {
+			var priorityA = 1024;
+			var priorityB = 1024;
+
+			if (mutationTypeStyle[a] && mutationTypeStyle[a].priority) {
+				priorityA = mutationTypeStyle[a].priority;
+			}
+
+			if (mutationTypeStyle[b] && mutationTypeStyle[b].priority) {
+				priorityB = mutationTypeStyle[b].priority;
+			}
+
+			return priorityA - priorityB;
+		});
+
+		_.each(keys, function(mutationType) {
 			var templateFn = BackboneTemplateCache.getTemplateFn("mutation_info_panel_type_template");
 
-			var text = mutationType;
+			var text = "Other";
 			var textStyle = mutationTypeStyle["other"].style;
 
-			if (mutationTypeStyle[mutationType])
+			var view = mutationTypeStyle[mutationType];
+
+			if (view && view.mainType)
 			{
-				text = mutationTypeStyle[mutationType].label;
-				textStyle = mutationTypeStyle[mutationType].style;
+				view = mutationTypeStyle[view.mainType];
+			}
+
+			if (view)
+			{
+				text = view.longName || text;
+				textStyle = view.style || textStyle;
 			}
 
 			var count = countByType[mutationType];
 
 			var variables = {
+				mutationType: mutationType,
 				type: text,
 				textStyle: textStyle,
 				count: count,
@@ -9643,9 +9818,193 @@ var MutationInfoPanelView = Backbone.View.extend({
 
 		// format after rendering
 		self.format();
+	},
+	_generateZeroCountMap: function(mapByType) {
+		var zeroCountMap = {};
+
+		_.each(_.keys(mapByType), function (key) {
+			zeroCountMap[key] = 0;
+		});
+
+		return zeroCountMap;
+	},
+	resetSelectionMap: function() {
+		var self = this;
+
+		self.selectionMap = self._generateZeroCountMap(self.initialMapByType);
+	},
+	// TODO move these into a utility class
+	_mapMutationsByType: function(mutations) {
+		return _.groupBy(mutations, function(mutation) {
+			return mutation.get("mutationType").toLowerCase();
+		});
+	},
+	_mapMutationsByMainType: function(mutations) {
+		var mutationTypeStyle = MutationViewsUtil.getVisualStyleMaps().mutationType;
+
+		return _.groupBy(mutations, function(mutation) {
+			var type = mutation.get("mutationType");
+			if (type) {
+				type = type.toLowerCase();
+			}
+			else {
+				type = "other";
+			}
+
+			var mainType;
+
+			if (mutationTypeStyle[type]) {
+				mainType = mutationTypeStyle[type].mainType;
+			}
+			else {
+				mainType = "other";
+			}
+
+			return mainType;
+		});
+	},
+	_countMutationsByType: function(mapByType) {
+		var countByType = {};
+
+		_.each(_.keys(mapByType), function(type) {
+			countByType[type] = _.size(mapByType[type]);
+		});
+
+		return countByType;
 	}
 });
 
+
+/*
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Mutation Details Customization Panel View.
+ *
+ * This view is designed to provide a customization panel for Mutation Details page.
+ *
+ * options: {el: [target container],
+ *           model: {},
+ *          }
+ *
+ * @author Selcuk Onur Sumer
+ */
+var MutationSummaryView = Backbone.View.extend({
+	initialize : function (options) {
+		this.options = options || {};
+
+		// custom event dispatcher
+		//this.dispatcher = {};
+		//_.extend(this.dispatcher, Backbone.Events);
+	},
+	render: function()
+	{
+		var self = this;
+        var mutationSummary;
+
+		self.model.clinicalProxy.getPatientData(self.model.sampleArray, function(data) {
+			if (!data) {
+				mutationSummary = self._mutationSummary();
+			}
+			else {
+				mutationSummary = self._germlineMutationSummary(data);
+			}
+
+			var variables = {
+				mutationSummary: mutationSummary,
+				geneSymbol: self.model.geneSymbol
+			};
+
+			// compile the template using underscore
+			var templateFn = BackboneTemplateCache.getTemplateFn('mutation_summary_view_template');
+			var template = templateFn(variables);
+
+			// load the compiled HTML into the Backbone "el"
+			self.$el.html(template);
+
+			self.format();
+		});
+	},
+	format: function()
+	{
+		var self = this;
+	},
+	/**
+	 * Generates a one-line summary of the mutation data.
+	 *
+	 * @return {string} summary string
+	 */
+	_mutationSummary: function()
+	{
+		var self = this;
+		var mutationUtil = self.model.mutationProxy.getMutationUtil();
+		var gene = self.model.geneSymbol;
+		var cases = self.model.sampleArray;
+
+		var summary = "";
+
+		if (cases.length > 0)
+		{
+			// calculate somatic & germline mutation rates
+			var mutationCount = mutationUtil.countMutations(gene, cases);
+			// generate summary string for the calculated mutation count values
+			summary = mutationUtil.generateSummary(mutationCount);
+		}
+
+		return summary;
+	},
+    _germlineMutationSummary: function(clinicalGermlineData) {
+        var self = this;
+        var mutationUtil = self.model.mutationProxy.getMutationUtil();
+        var gene = self.model.geneSymbol;
+        var cases = self.model.sampleArray;
+        var numGermlineCases = 0;            
+        var summary = "";
+                    
+        if(cases.length > 0) {
+            var mutationCount = mutationUtil.countMutations(gene, cases);
+                        
+            for (var i = 0; i < clinicalGermlineData.length; i++) {
+                var clinicalData = clinicalGermlineData[i];
+                if (clinicalData.attr_val === "YES") {
+                    numGermlineCases++;
+                }
+            }
+                        
+            mutationCount.numGermlineCases = numGermlineCases;
+            summary = mutationUtil.generateSummary(mutationCount);
+        }
+                    
+        return summary;
+    }
+});
 
 /*
  * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
@@ -10733,6 +11092,149 @@ function AbstractDataProxy(options)
 		self._queryQueue.add(options);
 	};
 }
+
+/*
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * This class is designed to retrieve cBio Portal specific data on demand.
+ *
+ * @param options  additional options
+ *
+ * @author Selcuk Onur Sumer
+ */
+function ClinicalDataProxy(options)
+{
+	var self = this;
+
+	// default options
+	var _defaultOpts = {
+		servletName: "api/clinicaldata",
+		subService: {
+			patients: "patients"
+		}
+	};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
+
+	// cache
+	var _data = {};
+
+	/**
+	 * Initializes with full data. Once initialized with full data,
+	 * this proxy class assumes that there will be no additional data.
+	 *
+	 * @param options   data proxy options
+	 */
+	function fullInit(options)
+	{
+		_data = options.data;
+	}
+
+	function getPatientData(samples, callback)
+	{
+		// TODO full init & cache...
+
+		var cancerStudyId;
+		var patientSampleMap = {};
+		var patientIds = [];
+		var portalGlobals = null;
+
+		// TODO we need to find a better way to plug PortalGlobals into MutationMapper!
+		// workaround: since PortalGlobals is actually live in cBioPortal
+		// we need to make sure that it doesn't break the standalone MutationMapper instances
+		try {
+			portalGlobals = PortalGlobals;
+		} catch (e) {
+			// undefined reference: PortalGlobals
+		}
+
+		if (portalGlobals) {
+			cancerStudyId = portalGlobals.getCancerStudyId();
+			patientSampleMap = portalGlobals.getPatientSampleIdMap();
+			for (var i = 0; i < samples.length; i++) {
+				patientIds.push(patientSampleMap[samples[i]]);
+			}
+		}
+		else {
+			cancerStudyId = window.cancer_study_id;
+		}
+
+		// no cancer study id or patient information...
+		if (!cancerStudyId || _.size(patientIds) === 0)
+		{
+			callback(null);
+			return;
+		}
+
+		var args = {study_id:cancerStudyId, attribute_ids:["12_245_PARTC_CONSENTED"], patient_ids:patientIds};
+		var arg_strings = [];
+		for (var k in args) {
+			if (args.hasOwnProperty(k)) {
+				arg_strings.push(k + '=' + [].concat(args[k]).join(","));
+			}
+		}
+
+		var arg_string = arg_strings.join("&") || "?";
+
+		var ajaxOpts = {
+			type: "POST",
+			url: _options.servletName + "/" + _options.subService.patients,
+			data: arg_string,
+			dataType: "json",
+			success: function(data) {
+				callback(data);
+			},
+			error: function(data) {
+				callback(null);
+			}
+		};
+
+		self.requestData(ajaxOpts);
+	}
+
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getPatientData = getPatientData;
+}
+
+// PdbDataProxy extends AbstractDataProxy...
+PortalDataProxy.prototype = new AbstractDataProxy();
+PortalDataProxy.prototype.constructor = ClinicalDataProxy;
 
 /*
  * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
@@ -15700,6 +16202,7 @@ MutationDiagram.prototype.defaultOpts = {
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
 	yAxisFontSize: "10px",      // font size of the y-axis labels
 	yAxisFontColor: "#2E3436",  // font color of the y-axis labels
+	yAxisAutoAdjust: true,      // indicates whether to adjust max y-axis value after plot update
 	animationDuration: 1000,    // transition duration (in ms) used for highlight animations
 	fadeDuration: 1500,         // transition duration (in ms) used for fade animations
 	/**
@@ -15784,34 +16287,62 @@ MutationDiagram.prototype.updateOptions = function(options)
 	self.options = jQuery.extend(true, {}, self.options, options);
 
 	// recalculate global values
-	var xMax = self.xMax = self.calcXMax(self.options, self.data);
-	// TODO use current.pileup instead?
-	var maxCount = self.maxCount = self.calcMaxCount(self.data.pileups);
-	var yMax = self.yMax = self.calcYMax(self.options, maxCount);
-
-	self.bounds = this.calcBounds(self.options);
-	self.xScale = this.xScaleFn(self.bounds, xMax);
-	self.yScale = this.yScaleFn(self.bounds, yMax);
+	self.updateGlobals();
 };
 
 /**
  * Rescales the y-axis by using the updated options and
  * latest (filtered) data.
+ *
+ * @param noUpdatePlot if set true, plot contents are NOT updated
  */
-MutationDiagram.prototype.rescaleYAxis = function()
+MutationDiagram.prototype.rescaleYAxis = function(noUpdatePlot)
 {
 	var self = this;
 
-	// TODO use current Pileup data (self.pileups) instead?
-	var maxCount = self.maxCount = self.calcMaxCount(self.data.pileups);
-	var yMax = self.calcYMax(self.options, maxCount);
+	// recalculate global values
+	self.updateGlobals();
 
 	// remove & draw y-axis
 	self.svg.select(".mut-dia-y-axis").remove();
-	self.drawYAxis(self.svg, self.yScale, yMax, self.options, self.bounds);
+	self.drawYAxis(self.svg, self.yScale, self.yMax, self.options, self.bounds);
 
-	// re-draw the plot with new scale
-	self.updatePlot();
+	if (!noUpdatePlot)
+	{
+		// re-draw the plot with new scale
+		self.updatePlot();
+	}
+};
+
+
+/**
+ * Update global class fields such as bounds, scales, max, etc.
+ * wrt the given options.
+ *
+ * @param options   diagram options
+ */
+MutationDiagram.prototype.updateGlobals = function(options)
+{
+	var self = this;
+	options = options || self.options;
+
+	var pileups = self.data.pileups; // initial pileup data
+
+	// in case auto adjust is enabled,
+	// use current pileup data instead of the initial pileup data
+	if (options.yAxisAutoAdjust)
+	{
+		pileups = self.pileups;
+	}
+
+	var maxCount = self.maxCount = self.calcMaxCount(pileups);
+
+	var xMax = self.xMax = self.calcXMax(options, self.data);
+	var yMax = self.yMax = self.calcYMax(options, maxCount);
+
+	self.bounds = this.calcBounds(options);
+	self.xScale = this.xScaleFn(self.bounds, xMax);
+	self.yScale = this.yScaleFn(self.bounds, yMax);
 };
 
 /**
@@ -16284,7 +16815,7 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 	var formatter = function(value) {
 		var formatted = '';
 
-		if (value == yMax)
+		if (value === yMax)
 		{
 			formatted = value;
 
@@ -16293,7 +16824,7 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 				formatted = ">" + value;
 			}
 		}
-		else if (value == 0)
+		else if (value === 0)
 		{
 			formatted = value;
 		}
@@ -16944,6 +17475,13 @@ MutationDiagram.prototype.updatePlot = function(pileupData)
 	// reset color mapping (for the new data we may have different pileup colors)
 	self.mutationColorMap = {};
 
+	if (self.options.yAxisAutoAdjust)
+	{
+		// rescale y-axis without updating the plot,
+		// otherwise... infinite recursion!
+		self.rescaleYAxis(true);
+	}
+
 	// re-draw plot area contents for new data
 	self.drawPlot(self.svg,
 	              pileups,
@@ -17397,9 +17935,27 @@ MutationDiagram.prototype.isFiltered = function()
 	return filtered;
 };
 
+MutationDiagram.prototype.getThreshold = function()
+{
+	return Math.max(this.maxCount, this.options.minLengthY);
+};
+
 MutationDiagram.prototype.getMaxY = function()
 {
 	return this.yMax;
+};
+
+MutationDiagram.prototype.getInitialMaxY = function()
+{
+	var self = this;
+
+	if (!self.initialYMax)
+	{
+		var maxCount = self.calcMaxCount(self.data.pileups);
+		self.initialYMax = self.calcYMax(self.options, maxCount);
+	}
+
+	return self.initialYMax;
 };
 
 MutationDiagram.prototype.getMinY = function()
@@ -20576,6 +21132,10 @@ function MutationDetailsController(
 				el: "#mutation_details_" + cbio.util.safeProperty(gene),
 				model: model});
 
+			mutationDetailsView.dispatcher.trigger(
+				MutationDetailsEvents.MAIN_VIEW_INIT,
+				mainView);
+
 			mainView.render();
 
 			// update the references after rendering the view
@@ -20654,6 +21214,7 @@ function MutationDetailsController(
 		var tableOpts = viewOptions.mutationTable;
 		var vis3dOpts = viewOptions.vis3d;
 		var infoPanelOpts = viewOptions.infoPanel;
+		var summaryOpts = viewOptions.mutationSummary;
 
 		// init mutation table
 		var tableView = null;
@@ -20662,6 +21223,13 @@ function MutationDetailsController(
 		{
 			tableView = mainView.initMutationTableView(tableOpts);
 			new MutationDetailsTableController(mainView, mutationDetailsView);
+		}
+
+		var summaryView = null;
+
+		if (summaryOpts)
+		{
+			summaryView = mainView.initSummaryView(tableOpts);
 		}
 
 		// init mutation diagram
@@ -20680,15 +21248,17 @@ function MutationDetailsController(
 					mutationTable = tableView.mutationTable;
 				}
 
-				new MutationDiagramController(
-					diagramView.mutationDiagram, mutationTable, mutationUtil);
+				var infoView = null;
 
 				// TODO info view can be initialized without depending on diagram view!
 				if (infoPanelOpts)
 				{
-					mainView.initMutationInfoView(infoPanelOpts);
+					infoView = mainView.initMutationInfoView(infoPanelOpts);
 					new MutationInfoController(mainView);
 				}
+
+				new MutationDiagramController(
+					diagramView.mutationDiagram, mutationTable, infoView, mutationUtil);
 			}
 		}
 
@@ -20779,6 +21349,7 @@ var MutationDetailsEvents = (function()
 	var _allLollipopsDeselected = "mutationDiagramAllDeselected";
 	var _lollipopMouseover = "mutationDiagramLollipopMouseover";
 	var _lollipopMouseout = "mutationDiagramLollipopMouseout";
+	var _mainViewInit = "mainMutationViewInit";
 	var _diagramInit = "mutationDiagramInitialized";
 	var _diagramPlotUpdated = "mutationDiagramPlotUpdated";
 	var _diagramPlotReset = "mutationDiagramPlotReset";
@@ -20787,6 +21358,8 @@ var MutationDetailsEvents = (function()
 	var _mutationTableRedrawn = "mutationTableRedrawn";
 	var _mutationTableHeaderCreated = "mutationTableHeaderCreated";
 	var _proteinChangeLinkClicked = "mutationTableProteinChangeLinkClicked";
+	var _mutationTypeSelected = "infoPanelMutationTypeSelected";
+	var _infoPanelInit = "infoPanelInit";
 	var _pdbLinkClicked = "mutationTablePdbLinkClicked";
 	var _pdbPanelResizeStarted = "mutationPdbPanelResizeStarted";
 	var _pdbPanelResizeEnded = "mutationPdbPanelResizeEnded";
@@ -20808,6 +21381,7 @@ var MutationDetailsEvents = (function()
 		LOLLIPOP_MOUSEOVER: _lollipopMouseover,
 		LOLLIPOP_MOUSEOUT: _lollipopMouseout,
 		ALL_LOLLIPOPS_DESELECTED: _allLollipopsDeselected,
+		MAIN_VIEW_INIT: _mainViewInit,
 		DIAGRAM_INIT: _diagramInit,
 		DIAGRAM_PLOT_UPDATED: _diagramPlotUpdated,
 		DIAGRAM_PLOT_RESET: _diagramPlotReset,
@@ -20816,6 +21390,8 @@ var MutationDetailsEvents = (function()
 		MUTATION_TABLE_REDRAWN: _mutationTableRedrawn,
 		MUTATION_TABLE_HEADER_CREATED: _mutationTableHeaderCreated,
 		PROTEIN_CHANGE_LINK_CLICKED: _proteinChangeLinkClicked,
+		INFO_PANEL_MUTATION_TYPE_SELECTED: _mutationTypeSelected,
+		INFO_PANEL_INIT: _infoPanelInit,
 		PDB_LINK_CLICKED: _pdbLinkClicked,
 		PDB_PANEL_RESIZE_STARTED: _pdbPanelResizeStarted,
 		PDB_PANEL_RESIZE_ENDED: _pdbPanelResizeEnded,
@@ -20890,6 +21466,17 @@ function MutationDetailsTableController(mainMutationView, mutationDetailsView)
 				diagramInitHandler);
 		}
 
+		if (mainMutationView.infoView)
+		{
+			infoPanelInitHandler(mainMutationView.infoView);
+		}
+		else
+		{
+			mainMutationView.dispatcher.on(
+				MutationDetailsEvents.INFO_PANEL_INIT,
+				infoPanelInitHandler);
+		}
+
 		// add listeners for the mutation details view
 		mutationDetailsView.dispatcher.on(
 			MutationDetailsEvents.GENE_TAB_SELECTED,
@@ -20927,6 +21514,17 @@ function MutationDetailsTableController(mainMutationView, mutationDetailsView)
 			diagramResetHandler);
 	}
 
+	function infoPanelInitHandler(infoView)
+	{
+		// add listeners to the custom event dispatcher of the info panel view
+		if (infoView)
+		{
+			infoView.dispatcher.on(
+				MutationDetailsEvents.INFO_PANEL_MUTATION_TYPE_SELECTED,
+				infoPanelFilterHandler);
+		}
+	}
+
 	function diagramResetHandler()
 	{
 		if (mainMutationView.tableView)
@@ -20943,9 +21541,9 @@ function MutationDetailsTableController(mainMutationView, mutationDetailsView)
 			// remove all table highlights
 			mainMutationView.tableView.clearHighlights();
 
-			// roll back the table to its previous state
-			// (to the last state when a manual filtering applied)
-			mainMutationView.tableView.rollBack();
+			// filter with all visible diagram mutations
+			mainMutationView.tableView.filter(PileupUtil.getPileupMutations(
+				_mutationDiagram.pileups));
 		}
 	}
 
@@ -20975,9 +21573,9 @@ function MutationDetailsTableController(mainMutationView, mutationDetailsView)
 			// rollback only if none selected
 			else
 			{
-				// roll back the table to its previous state
-				// (to the last state when a manual filtering applied)
-				mainMutationView.tableView.rollBack();
+				// filter with all visible diagram mutations
+				mainMutationView.tableView.filter(PileupUtil.getPileupMutations(
+					_mutationDiagram.pileups));
 			}
 		}
 	}
@@ -21002,6 +21600,29 @@ function MutationDetailsTableController(mainMutationView, mutationDetailsView)
 
 			// filter table for the selected mutations
 			mainMutationView.tableView.filter(mutations);
+		}
+	}
+
+	function infoPanelFilterHandler(mutationType)
+	{
+		if (mainMutationView.tableView !== null)
+		{
+			// get currently filtered mutations
+			var mutations = mainMutationView.infoView.currentMapByType[mutationType];
+
+			if (_.size(mutations) > 0)
+			{
+				mainMutationView.tableView.filter(mutations);
+			}
+			// if all the mutations of this type are already filtered out,
+			// then show all mutations of this type
+			else
+			{
+				mutations = mainMutationView.infoView.initialMapByType[mutationType];
+				mainMutationView.tableView.filter(mutations);
+				// clear search box value since the filtering with that value is no longer valid
+				mainMutationView.tableView.clearSearchBox();
+			}
 		}
 	}
 
@@ -21077,7 +21698,7 @@ function MutationDetailsTableController(mainMutationView, mutationDetailsView)
  *
  * @author Selcuk Onur Sumer
  */
-function MutationDiagramController(mutationDiagram, mutationTable, mutationUtil)
+function MutationDiagramController(mutationDiagram, mutationTable, infoPanelView, mutationUtil)
 {
 	function init()
 	{
@@ -21087,6 +21708,15 @@ function MutationDiagramController(mutationDiagram, mutationTable, mutationUtil)
 			mutationTable.dispatcher.on(
 				MutationDetailsEvents.MUTATION_TABLE_FILTERED,
 				tableFilterHandler);
+		}
+
+		// TODO add info panel init handler, this will require controller parameter modification/simplification
+		// add listeners to the custom event dispatcher of the info panel view
+		if (infoPanelView)
+		{
+			infoPanelView.dispatcher.on(
+				MutationDetailsEvents.INFO_PANEL_MUTATION_TYPE_SELECTED,
+				infoPanelFilterHandler);
 		}
 
 		// TODO make sure to call these event handlers before 3D controller's handler,
@@ -21138,6 +21768,29 @@ function MutationDiagramController(mutationDiagram, mutationTable, mutationUtil)
 		{
 			var mutationData = new MutationCollection(currentMutations);
 			mutationDiagram.updatePlot(PileupUtil.convertToPileups(mutationData));
+		}
+	}
+
+	function infoPanelFilterHandler(mutationType)
+	{
+		if (mutationDiagram !== null)
+		{
+			// get currently filtered mutations
+			var mutations = infoPanelView.currentMapByType[mutationType];
+
+			if (_.size(mutations) > 0)
+			{
+				mutationDiagram.updatePlot(PileupUtil.convertToPileups(
+					new MutationCollection(mutations)));
+			}
+			// if all the mutations of this type are already filtered out,
+			// then show all mutations of this type
+			else
+			{
+				mutations = infoPanelView.initialMapByType[mutationType];
+				mutationDiagram.updatePlot(PileupUtil.convertToPileups(
+					new MutationCollection(mutations)));
+			}
 		}
 	}
 
@@ -21264,7 +21917,7 @@ function MutationInfoController(mainMutationView)
 			if (pileups.length > 0)
 			{
 				mainMutationView.infoView.updateView(
-					PileupUtil.countMutationsByMutationType(pileups));
+					PileupUtil.getPileupMutations(pileups));
 			}
 			// rollback only if none selected
 			else
@@ -21291,7 +21944,7 @@ function MutationInfoController(mainMutationView)
 		if (mainMutationView.infoView)
 		{
 			mainMutationView.infoView.updateView(
-				PileupUtil.countMutationsByMutationType(_mutationDiagram.pileups));
+				PileupUtil.getPileupMutations(_mutationDiagram.pileups));
 		}
 	}
 
@@ -21356,6 +22009,7 @@ function MutationMapper(options)
 		view: {
 			mutationDiagram: {},
 			mutationTable: {},
+			mutationSummary: {},
 		    pdbPanel: {},
 			pdbTable: {},
 			infoPanel: {},
@@ -21395,6 +22049,13 @@ function MutationMapper(options)
 					data: {},
 					params: {},
 					geneList: ""
+				}
+			},
+			clinicalProxy: {
+				instance: null,
+				instanceClass: ClinicalDataProxy,
+				options: {
+					data: {}
 				}
 			},
 			pdbProxy: {

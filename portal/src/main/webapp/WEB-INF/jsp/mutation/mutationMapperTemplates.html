@@ -295,8 +295,10 @@
 
 <script type="text/template" id="mutation_info_panel_type_template">
     <span class='mutation-type-info'>
-        <span class='mutation-type-count {{countStyle}}'>{{count}}</span>
-        <span class='mutation-type-label {{textStyle}}'>{{type}}</span>
+        <span class="mutation-type-info-link" alt='{{mutationType}}'>
+            <span class='mutation-type-count {{countStyle}}'>{{count}}</span>
+            <span class='mutation-type-label {{textStyle}}'>{{type}}</span>
+        </span>
 	</span>
 </script>
 <script type="text/template" id="mutation_details_table_template">
@@ -524,8 +526,12 @@
 	<br>
 </script>
 
-<script type="text/template" id="mutation_view_template">
+<script type="text/template" id="mutation_summary_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
+</script>
+
+<script type="text/template" id="mutation_view_template">
+	<div class='mutation-summary-view'></div>
 	<div>
 		<table>
 			<tr>

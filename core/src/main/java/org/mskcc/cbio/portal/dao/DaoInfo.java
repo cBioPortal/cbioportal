@@ -32,6 +32,8 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.mskcc.cbio.portal.util.GlobalProperties;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -62,5 +64,15 @@ public class DaoInfo {
     
     public static String getVersion() {
         return version;
+    }
+
+    public static boolean checkVersion() {
+        setVersion();
+        if (GlobalProperties.getDbVersion().equals(getVersion())) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

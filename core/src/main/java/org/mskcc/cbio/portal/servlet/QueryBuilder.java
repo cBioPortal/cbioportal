@@ -257,7 +257,11 @@ public class QueryBuilder extends HttpServlet {
             LOG.info("version - "+dbVersion);
             if (!dbPortalVersion.equals(dbVersion))
             {
-                httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "Portal DB Version: " + dbPortalVersion);
+            	String extraMessage = "";
+            	//extra message for the cases where property is missing (will happen often in transition period to this new versioning model):
+            	if (dbPortalVersion.equals("0"))
+            		extraMessage = "The db.version property also not found in your portal.properties file. This new property needs to be added by the administrator.";
+                httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
             }
 
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,

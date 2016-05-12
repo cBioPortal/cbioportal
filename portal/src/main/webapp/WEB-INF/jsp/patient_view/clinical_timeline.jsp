@@ -144,35 +144,50 @@
                     });
                 }
 
-                // add DECEASED point to STATUS track
-                if ("CAISIS_OS_STATUS" in patientInfo &&
-                    patientInfo["CAISIS_OS_STATUS"] === "DECEASED" &&
-                    "CAISIS_OS_MONTHS" in patientInfo) {
-                    var days = parseInt(parseInt(patientInfo["CAISIS_OS_MONTHS"])*30.4);
-                    var timePoint = {
-                        "starting_time":days,
-                        "ending_time":days,
-                        "display":"circle",
-                        "color": "#000",
-                        "tooltip_tables":[
-                            [
-                                ["START_DATE", days],
-                                ["STATUS", "DECEASED"]
+                // add DECEASED point to Status track using data from
+                // .*OS_MONTHS$ if .*OS_STATUS$ is DECEASED
+                var i;
+                var prefixes;
+                prefixes = Object.keys(patientInfo).filter(function (x) {
+                    // find all keys postfixed with "OS_STATUS"
+                    return /OS_STATUS$/.test(x);
+                }).map(function(x) {
+                    // get the prefixes
+                    return x.substr(0, x.length-"OS_STATUS".length);
+                });
+
+                for (i=0; i < prefixes.length; i++) {
+                    var prefix = prefixes[i];
+                    if (patientInfo[prefix+"OS_STATUS"] === "DECEASED" &&
+                        prefix + "OS_MONTHS" in patientInfo) {
+                        var days = parseInt(parseInt(patientInfo[prefix+"OS_MONTHS"])*30.4);
+                        var timePoint = {
+                            "starting_time":days,
+                            "ending_time":days,
+                            "display":"circle",
+                            "color": "#000",
+                            "tooltip_tables":[
+                                [
+                                    ["START_DATE", days],
+                                    ["STATUS", "DECEASED"]
+                                ]
                             ]
-                        ]
-                    }
+                        }
 
-                    var trackData = timeData.filter(function(x) {
-                       return x.label === "STATUS";
-                    })[0];
+                        var trackData = timeData.filter(function(x) {
+                           return x.label === "Status";
+                        })[0];
 
-                    if (trackData) {
-                        trackData.times = trackData.times.concat(timePoint);
-                    } else {
-                        timeData = timeData.concat({
-                            "label":"STATUS",
-                            "times":[timePoint]
-                        });
+                        if (trackData) {
+                            trackData.times = trackData.times.concat(timePoint);
+                        } else {
+                            timeData = timeData.concat({
+                                "label":"Status",
+                                "times":[timePoint]
+                            });
+                        }
+                        // Add timepoint only once in case of multiple prefixes
+                        break;
                     }
                 }
 

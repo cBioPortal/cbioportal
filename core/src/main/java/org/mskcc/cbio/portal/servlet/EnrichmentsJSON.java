@@ -32,6 +32,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.EnrichmentsAnalysisUtil;
 import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 
 /**
  * Calculate over representation scores
@@ -91,7 +92,7 @@ public class EnrichmentsJSON extends HttpServlet  {
             final int gpId = gp.getGeneticProfileId();
             String gpStableId = gp.getStableId();
             String profileType = gp.getGeneticAlterationType().toString();
-
+            
             //Get cancer study internal id (int)
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             int cancerStudyInternalId = cancerStudy.getInternalId();
@@ -251,7 +252,7 @@ public class EnrichmentsJSON extends HttpServlet  {
             PrintWriter out = httpServletResponse.getWriter();
             mapper.writeValue(out, result);
 
-        } catch (Exception ex) {
+        }catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
     }

@@ -134,6 +134,9 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         String geneName = daoGeneOptimized.getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
         String cytoband = daoGeneOptimized.getGene(entrezGeneId).getCytoband();
+        if (cytoband == null || cytoband.length() == 0) {
+            cytoband = "--";
+        } 
 
         //statistics analysis
         if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {

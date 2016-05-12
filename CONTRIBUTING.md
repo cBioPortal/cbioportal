@@ -54,8 +54,45 @@ When you are ready to submit your pull-request:
 
 For instructions on submitting a pull-request, please see:  [Using Pull Requests ](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
 
+## Automated tests on Travis CI
+All Pull Requests are automatically tested on [Travis
+CI](https://travis-ci.org/cBioPortal/cbioportal/pull_requests). Currently there
+is a set of tests for the core module and a visual regression test that makes
+some screenshots and compares them to the ones stored in the repository.
+
+### What to do if the screenshot test fails
+When the screenshot test fails, it means that the screenshot taken from your
+instance of the portal differs from the screenshot stored in the repo. First
+download the image from Travis CI to your local repo. The Travis CI log will
+show you where the image was uploaded on [clbin.com](https://clbin.com).
+Download the image and replace the screenshot in the repo. For instance run in
+the root dir:
+
+```bash
+curl 'https://clbin.com/[replace-with-clbin-image-from-log].png' > test/end-to-end/screenshots/[replace-with-image-from-repo].png
+```
+
+Then there are two ways to do an image diff:
+
+1. Follow the steps outlined in [this blog
+post](http://www.akikoskinen.info/image-diffs-with-git/) to compare the images
+locally. Then run `git diff` from your repo to see the ImageMagick diff.
+2. Add the screenshot downloaded from [clbin.com](https://clbin.com) to your repo
+and push it to your PR. You can then compare the images in the 'Files changed'
+tab of the PR.
+
+Now that you can compare the images, you'll have to decide whether the change
+is desired or not and handle the failing test accordingly:
+
+- If the change in the screenshot is **undesired**, i.e. there is regression, you
+  should fix your PR.
+- If the change in the screenshot is **desired**, add the screenshot to the
+  repo, commit it and push it to your PR's branch if you haven't already in the
+previous step.
+
 ## Additional Resources
 
 * [cBioPortal Issue Tracker](https://github.com/cBioPortal/cbioportal/issues)
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
+

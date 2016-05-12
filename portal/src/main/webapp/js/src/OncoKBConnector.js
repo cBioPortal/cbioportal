@@ -153,7 +153,7 @@ var OncoKB = (function(_, $) {
         this.source = 'cbioportal';
         this.geneStatus = 'Complete';
         this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE,INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY';
-        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_2B', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_R1'];
+        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_3A', 'LEVEL_R1'];
         this.variantCounter = 0;
         this.variants = {};
         this.evidence = {};
@@ -386,44 +386,58 @@ var OncoKB = (function(_, $) {
                 yWeight = -1;
             }
 
-            if (!x.oncokb || !x.oncokb.hasVariant) {
-                return yWeight;
-            }
-            if (!y.oncokb || !y.oncokb.hasVariant) {
-                return xWeight;
-            }
-
             if (category === 'oncogenic') {
-                if (!x.oncokb || !x.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(x.oncokb.evidence.oncogenic) === -1) {
-                    if (!y.oncokb || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
+                if (!x.oncokb || !x.oncokb.hasVariant) {
+                    if (!y.oncokb || !y.oncokb.hasVariant) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.oncokb || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
+                if (!y.oncokb || !y.oncokb.hasVariant) {
                     return xWeight;
                 }
-                return OncoKB.utils.compareOncogenic(x.oncokb.evidence.oncogenic, y.oncokb.evidence.oncogenic);
-            }
-            if (category === 'oncokb') {
-                if (!x.oncokb || !x.oncokb.hasOwnProperty(levelType) || !x.oncokb[levelType]) {
-                    if (!y.oncokb || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
+
+                if (!x.oncokb.hasOwnProperty('evidence') || !x.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(x.oncokb.evidence.oncogenic) === -1) {
+                    if (!y.oncokb.hasOwnProperty('evidence') || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.oncokb || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
+                if (!y.oncokb.hasOwnProperty('evidence') || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
+                    return xWeight;
+                }
+                return -xWeight * OncoKB.utils.compareOncogenic(x.oncokb.evidence.oncogenic, y.oncokb.evidence.oncogenic);
+            }
+            
+            if (category === 'oncokb') {
+                if (!x.oncokb || !x.oncokb.hasVariant) {
+                    if (!y.oncokb || !y.oncokb.hasVariant) {
+                        return 0;
+                    }
+                    return yWeight;
+                }
+                if (!y.oncokb || !y.oncokb.hasVariant) {
+                    return xWeight;
+                }
+                
+                if (!x.oncokb.hasOwnProperty('evidence') || !x.oncokb.hasVariant || !x.oncokb.hasOwnProperty(levelType) || !x.oncokb[levelType]) {
+                    if (!y.oncokb || !y.oncokb.hasVariant || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
+                        return 0;
+                    }
+                    return yWeight;
+                }
+                if (!y.oncokb.hasOwnProperty('evidence') || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
                     return xWeight;
                 }
                 if (levelType === 'highestSensitiveLevel') {
-                    return OncoKB.utils.compareHighestLevel(x.oncokb[levelType], y.oncokb[levelType], 'sensitivity');
+                    return -xWeight * OncoKB.utils.compareHighestLevel(x.oncokb[levelType], y.oncokb[levelType], 'sensitivity');
                 } else if (levelType === 'highestSensitiveLevel') {
-                    return OncoKB.utils.compareHighestLevel(x.oncokb[levelType], y.oncokb[levelType], 'resistance');
+                    return -xWeight * OncoKB.utils.compareHighestLevel(x.oncokb[levelType], y.oncokb[levelType], 'resistance');
                 }
             }
             if (category === 'mycancergenome') {
                 if (!x.mutation || !x.mutation.myCancerGenome || x.mutation.myCancerGenome.length === 0) {
-                    if (!y.mutation.myCancerGenome || y.mutation.myCancerGenome.length === 0) {
+                    if (!y.mutation || !y.mutation.myCancerGenome || y.mutation.myCancerGenome.length === 0) {
                         return 0;
                     }
                     return yWeight;
@@ -1758,8 +1772,12 @@ OncoKB.Instance.prototype = {
                                                         message: function(dialogRef) {
                                                             var div = $('<div></div>');
                                                             var closeIcon = $('<div><span class="bootstrap-dialog-close">x</span></div>');
-                                                            var message = $('<div><iframe src="https://docs.google.com/forms/d/1lt6TtecxHrhIE06gAKVF_JW4zKFoowNFzxn6PJv4g7A/viewform?entry.1744186665=' + self.variants[oncokbId].gene + '&entry.1671960263=' + self.variants[oncokbId].alteration + '&entry.118699694&entry.1568641202&entry.1381123986=' + user + '&embedded=true" width="550" height="880" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
-
+                                                            var message = $('<div><iframe src="https://docs.google.com/forms/d/1lt6TtecxHrhIE06gAKVF_JW4zKFoowNFzxn6PJv4g7A/viewform?' +
+                                                                'entry.1744186665=' + self.variants[oncokbId].gene + 
+                                                                '&entry.1671960263=' + self.variants[oncokbId].alteration + 
+                                                                '&entry.118699694&entry.1568641202&entry.1381123986=' + user +
+                                                                '&entry.1083850662=' + encodeURIComponent(window.location.href) +
+                                                                '&embedded=true" width="550" height="880" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
                                                             closeIcon
                                                                 .find('.bootstrap-dialog-close')
                                                                 .on('click', {dialogRef: dialogRef}, function(event) {

@@ -38,18 +38,18 @@
 %>
 
 <div class='section' id='mutation_details'>
-    <img src='images/ajax-loader.gif'/>
+    <img src='images/ajax-loader.gif' alt='loading'/>
 </div>
 
 <script type="text/template" id="mutation_table_annotation_template">
     <span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
-        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif"/>
+        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif" alt='loading'/>
     </span>
     <span class='annotation-item mcg' alt='{{mcgAlt}}'>
-        <img width='14' height='14' src='images/mcg_logo.png'>
+        <img width='14' height='14' src='images/mcg_logo.png' alt='My Cancer Genome Symbol'>
     </span>
     <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
-        <img width='14' height='14' src='images/oncokb-flame.svg'>
+        <img width='14' height='14' src='images/oncokb-flame.svg' alt='Recurrent Hotspot Symbol'>
     </span>
 </script>
 

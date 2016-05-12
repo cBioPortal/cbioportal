@@ -18,5 +18,6 @@ public class DBAltCountInput implements Serializable {
     public Boolean per_study ;
     public List<Map<String, String>> data; 
     public List<String> echo;
+    public List<String> studyId;
     
 }

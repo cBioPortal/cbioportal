@@ -992,48 +992,46 @@ class MutationsExtendedValidator(Validator):
         """
 
         super(MutationsExtendedValidator, self).checkLine(data)
+        if self.skipValidation(data):
+            return
 
-        # TODO: skip lines with symbol 'Unknown' and Entrez '0',
-        # that is how the MAF standard signifies an intergenic mutation
-        if not self.skipValidation(data):
-            for col_name in self.CHECK_FUNCTION_MAP:
-                # if optional column was found, validate it:
-                if col_name in self.cols:
-                    col_index = self.cols.index(col_name)
-                    value = data[col_index]
-                    # get the checking method for this column if available, or None
-                    checking_function = getattr(
-                        self,
-                        self.CHECK_FUNCTION_MAP[col_name])
-                    # FIXME: remove the 'data' argument, it's spaghetti
-                    if not checking_function(value, data):
-                        self.printDataInvalidStatement(value, col_index)
-                    elif self.extra_exists or self.extra:
-                        raise RuntimeError(('Checking function %s set an error '
-                                            'message but reported no error') %
-                                           checking_function.__name__)
+        for col_name in self.CHECK_FUNCTION_MAP:
+            # if optional column was found, validate it:
+            if col_name in self.cols:
+                col_index = self.cols.index(col_name)
+                value = data[col_index]
+                # get the checking method for this column if available, or None
+                checking_function = getattr(
+                    self,
+                    self.CHECK_FUNCTION_MAP[col_name])
+                # FIXME: remove the 'data' argument, it's spaghetti
+                if not checking_function(value, data):
+                    self.printDataInvalidStatement(value, col_index)
+                elif self.extra_exists or self.extra:
+                    raise RuntimeError(('Checking function %s set an error '
+                                        'message but reported no error') %
+                                       checking_function.__name__)
 
-            # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
-            sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
-            value = data[sample_id_column_index]
-            self.checkSampleId(value, column_number=sample_id_column_index + 1)
+        # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
+        sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
+        value = data[sample_id_column_index]
+        self.checkSampleId(value, column_number=sample_id_column_index + 1)
 
-            # parse hugo and entrez to validate them together
-            # TODO: handle symbol 'Unknown' / Entrez 0
-            hugo_symbol = None
-            entrez_id = None
-            if 'Hugo_Symbol' in self.cols:
-                hugo_symbol = data[self.cols.index('Hugo_Symbol')]
-                # treat the empty string as a missing value
-                if hugo_symbol == '':
-                    hugo_symbol = None
-            if 'Entrez_Gene_Id' in self.cols:
-                entrez_id = data[self.cols.index('Entrez_Gene_Id')]
-                # treat the empty string as a missing value
-                if entrez_id == '':
-                    entrez_id = None
-            # validate hugo and entrez together:
-            self.checkGeneIdentification(hugo_symbol, entrez_id)
+        # parse hugo and entrez to validate them together
+        hugo_symbol = None
+        entrez_id = None
+        if 'Hugo_Symbol' in self.cols:
+            hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
+            # treat the empty string or 'Unknown' as a missing value
+            if hugo_symbol in ('', 'Unknown'):
+                hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.cols:
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
+            # treat the empty string or 0 as a missing value
+            if entrez_id in ('', '0'):
+                entrez_id = None
+        # validate hugo and entrez together:
+        self.checkGeneIdentification(hugo_symbol, entrez_id)
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -1147,18 +1145,36 @@ class MutationsExtendedValidator(Validator):
         return True
 
     def skipValidation(self, data):
-        """Test whether line should be verified based on the variant classification"""
+        """Test whether the mutation is silent and should be skipped."""
+        is_silent = False
         variant_classification = data[self.cols.index('Variant_Classification')]
-        if variant_classification in self.SKIP_VARIANT_TYPES:
-            self.logger.info('Validation of line skipped due to cBioPortal\'s filtering. '
-                                'Filtered types: [%s]',
-                                ', '.join(self.SKIP_VARIANT_TYPES),
-                                extra={'line_number': self.line_number,
-                                       'cause': 'validation skipped due to filtering', 
-                                       })
-            return True
-        else:
-            return False
+        
+        hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+        entrez_id = '0'
+        if 'Entrez_Gene_Id' in self.cols:
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')]
+        if hugo_symbol == 'Unknown' and entrez_id == '0' and variant_classification != 'IGR':
+            # the MAF specification documents the use of Unknown and 0 here
+            # for intergenic mutations, and since the Variant_Classification
+            # column is often invalid, cBioPortal interprets this combination
+            # (or just the symbol if the Entrez column is absent) as such, 
+            # but with a warning:
+            self.logger.warning(
+                "Gene specification for this mutation implies "
+                "intergenic even though Variant_Classification is "
+                "not 'IGR'; this variant will be filtered out",
+                extra={'line_number': self.line_number,
+                       'cause': "Hugo Symbol 'Unknown', Entrez ID 0"})
+            is_silent = True
+        elif variant_classification in self.SKIP_VARIANT_TYPES:
+            self.logger.info("Validation of line skipped due to cBioPortal's filtering. "
+                             "Filtered types: [%s]",
+                             ', '.join(self.SKIP_VARIANT_TYPES),
+                             extra={'line_number': self.line_number,
+                                    'cause': variant_classification})
+            is_silent = True
+
+        return is_silent
 
     def checkNotBlank(self, value, data):
         """Test whether a string is blank."""

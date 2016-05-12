@@ -101,6 +101,8 @@ public class MutationDataUtils {
 	public static final String CNA_CONTEXT = "cna";
     public static final String MY_CANCER_GENOME = "myCancerGenome";
     public static final String IS_HOTSPOT = "isHotspot";
+    public static final String CIVIC_VARIANT_SUMMARIES = "civicVariantSummaries";
+    public static final String CIVIC_CLINICAL_EVIDENCE_STATS = "civicClinicalEvidenceStats";
 
     /**
      * Generates an array (JSON array) of mutations for the given sample
@@ -225,6 +227,11 @@ public class MutationDataUtils {
         }
         isHotspot = OncokbHotspotUtil.getOncokbHotspot(mutation.getGeneSymbol(), mutation.getProteinChange());
 
+        List<CivicAnotationUtil.VariantSummary> civicVariantSummaries = CivicAnotationUtil.getVariantSummary(
+                mutation.getGeneSymbol(), mutation.getProteinChange());
+        List<CivicAnotationUtil.ClinicalEvidenceStats> civicClinicalEvidenceStats = CivicAnotationUtil.getClinicalEvidenceStats(
+                mutation.getGeneSymbol(), mutation.getProteinChange());
+
         // mutationId is not a unique id wrt the whole DB,
         // but it is unique wrt the returned data set
         mutationData.put(MUTATION_ID, this.generateMutationId(mutation));
@@ -277,6 +284,8 @@ public class MutationDataUtils {
         mutationData.put(CNA_CONTEXT, getCnaData(cnaDataMap, mutation));
         mutationData.put(MY_CANCER_GENOME, mcgLinks);
         mutationData.put(IS_HOTSPOT, isHotspot);
+        mutationData.put(CIVIC_VARIANT_SUMMARIES, CivicAnotationUtil.prepareVariantSummariesForJSON(civicVariantSummaries));
+        mutationData.put(CIVIC_CLINICAL_EVIDENCE_STATS, CivicAnotationUtil.prepareClinicalEvidenceStatsForJSON(civicClinicalEvidenceStats));
 
         return mutationData;
     }

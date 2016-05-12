@@ -414,7 +414,7 @@
       <artifactId>spring-social-google</artifactId>
       <version>${org.springframework.social.google-version}</version>
     </dependency>
-    <!-- OpenID Connect>
+    <!-- OpenID Connect -->
     <dependency>
       <groupId>org.mitre</groupId>
       <artifactId>openid-connect-client</artifactId>

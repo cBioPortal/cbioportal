@@ -34,10 +34,10 @@ public class UsageException extends IllegalArgumentException {
             String prog,
             String description,
             OptionParser parser) {
+        super("Invalid usage of the " + prog + " script");
         this.prog = prog;
         this.description = description;
         this.parser = parser;
-        this.argspec = null;
     }
     
     /**
@@ -57,10 +57,10 @@ public class UsageException extends IllegalArgumentException {
             String prog,
             String description,
             String argspec) {
+        super("Invalid usage of the " + prog + " script");
         this.prog = prog;
         this.description = description;
         this.argspec = argspec;
-        this.parser = null;
     }
 
     /**
@@ -76,7 +76,10 @@ public class UsageException extends IllegalArgumentException {
             String description,
             OptionParser parser,
             String msg) {
-        this(prog, description, parser);
+        super(msg);
+        this.prog = prog;
+        this.description = description;
+        this.parser = parser;
         this.msg = msg;
     }
     
@@ -99,7 +102,10 @@ public class UsageException extends IllegalArgumentException {
             String description,
             String argspec,
             String msg) {
-        this(prog, description, argspec);
+        super(msg);
+        this.prog = prog;
+        this.description = description;
+        this.argspec = argspec;
         this.msg = msg;
     }
     
@@ -108,7 +114,7 @@ public class UsageException extends IllegalArgumentException {
      */
     public void printUsageLine() {
         if (msg != null){
-            System.err.printf("%s\n\n", msg);
+            System.err.printf("%s\n", msg);
         }
         if (argspec != null) {
             System.err.printf("usage: %s %s\n", prog, argspec);

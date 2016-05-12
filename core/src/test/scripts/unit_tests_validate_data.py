@@ -722,7 +722,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.cause, 'spam')
-        self.assertNotIn('accession', record.getMessage().lower())
+        self.assertNotIn('portal', record.getMessage().lower())
         # valid but non-existing accession
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)

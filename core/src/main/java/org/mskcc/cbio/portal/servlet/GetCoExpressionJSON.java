@@ -177,7 +177,7 @@ public class GetCoExpressionJSON extends HttpServlet {
             }
         } else {
             StringBuilder fullResutlStr = new StringBuilder();
-            fullResutlStr.append("Gene Symbol\tPearson Score\tSpearman Score\n");
+            fullResutlStr.append("Gene Symbol\tCytoband\tPearson Score\tSpearman Score\n");
             GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             if (final_gp != null) {
                 try {

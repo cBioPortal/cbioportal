@@ -30,14 +30,14 @@ import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ORAnalysisDiscretizedDataProxy;
+import org.mskcc.cbio.portal.util.EnrichmentsAnalysisUtil;
 import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
 
 /**
  * Calculate over representation scores
  *
  */
-public class OverRepresentationAnalysisJSON extends HttpServlet  {
+public class EnrichmentsJSON extends HttpServlet  {
 
 
     private final int bin = 3000; //size of genes for each thread
@@ -132,8 +132,8 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             //the actual calculation
             final List synced_result = Collections.synchronizedList(new ArrayList());
             synced_result.clear();
-            final ORAnalysisDiscretizedDataProxy dataProxy =
-                    new ORAnalysisDiscretizedDataProxy(
+            final EnrichmentsAnalysisUtil dataProxy =
+                    new EnrichmentsAnalysisUtil(
                             gpStableId,
                             profileType,
                             copyNumType,

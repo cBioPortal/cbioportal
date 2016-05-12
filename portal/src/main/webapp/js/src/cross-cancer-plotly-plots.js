@@ -372,6 +372,7 @@ var ccPlots = (function (Plotly, _, $) {
             } else {
                 _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id === _profile_id; }), "profile_data");
             }
+            
             var _box = {
                 y: _y,
                 x0: mrna_profiles.indexOf(_profile_id),
@@ -416,16 +417,25 @@ var ccPlots = (function (Plotly, _, $) {
                 tickmode: "array",
                 ticktext: _study_short_names,
                 tickvals: vals,
-                tickangle: 45
+                tickangle: 45,
+                linecolor: "#A9A9A9",
+                linewidth: 2,
+                titlefont: {
+                    color: "#000"
+                },
+                mirror: 'all'
             },
             yaxis: {
-                title: apply_log_scale?gene + ' Expression --- RNA Seq V2 (log)':gene + " Expression --- RNA Seq V2"
+                title: apply_log_scale?gene + ' Expression --- RNA Seq V2 (log)':gene + " Expression --- RNA Seq V2",
+                linecolor: "#A9A9A9",
+                linewidth: 2,
+                mirror: 'all'
             }
         };
 
         $("#cc_plots_box").empty();
         Plotly.newPlot('cc_plots_box', data, layout, {showLink: false});
-        $("#cc_plots_box").append("<span style='color:grey;position:relative;top:-40px;left:10px;'>*TCGA provisional only. By default, Stomach Adenocarcinoma and Esophageal Carcinoma are excluded (click <a href='#' onclick='ccPlots.include_all()'>here</a> to include).</span>");
+        $("#cc_plots_box").append("<span style='color:grey;position:relative;top:-40px;left:10px;'>*TCGA provisional only.</span>");
 
         //link to sample view
         var ccPlotsElem = document.getElementById('cc_plots_box');
@@ -459,11 +469,6 @@ var ccPlots = (function (Plotly, _, $) {
                 ccPlots.update();
             });
             
-            // exclude certain studies
-            var _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.short_name.indexOf("Stomach") !== -1 })[0];
-            document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
-            _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.short_name.indexOf("Esophagus") !== -1 })[0];
-            document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
             ccPlots.update();
         }
 
@@ -557,14 +562,11 @@ var ccPlots = (function (Plotly, _, $) {
             apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
             show_mutations = document.getElementById("cc_plots_show_mutations").checked;
             $("#cc_plots_box").empty();
-            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:250px;'/>");
             var _selected_study_ids = $("input[name=cc_plots_selected_studies]:checked").map(function() { return this.value; }).get();
             
             // re-generate the view
             fetch_profile_data(_selected_study_ids);
-        },
-        include_all: function() {
-            $("#cc_plots_study_selection_btn").click();
         }
         
     };

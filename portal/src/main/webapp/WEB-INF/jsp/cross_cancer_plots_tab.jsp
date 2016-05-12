@@ -49,7 +49,7 @@
         border-radius: 4px;
         margin: 15px;
         width: 1160px;
-        height: 840px;
+        height: 600px;
     }
 </style>
 
@@ -81,7 +81,7 @@
         </div>
     </tr>
     <tr>
-        <div id="cc_plots_box"><img style='padding:300px;' src='images/ajax-loader.gif'></div>
+        <div id="cc_plots_box"><img style='padding:250px;' src='images/ajax-loader.gif'></div>
     </tr>
 </table>
 

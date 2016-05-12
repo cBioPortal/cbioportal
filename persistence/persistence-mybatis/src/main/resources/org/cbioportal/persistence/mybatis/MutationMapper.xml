@@ -73,4 +73,30 @@
         </where>
     </select>
 
+    <select id="getMutationCounts" resultType="org.cbioportal.persistence.dto.SampleMutationCount">
+        select
+
+        "sample"."STABLE_ID" as "sampleStableId",
+        "mutation_count"."MUTATION_COUNT" as "count"
+
+        from "mutation_count"
+        inner join "sample" on "mutation_count"."SAMPLE_ID" = "sample"."INTERNAL_ID"
+        inner join "genetic_profile" on "mutation_count"."GENETIC_PROFILE_ID" = "genetic_profile"."GENETIC_PROFILE_ID"
+
+        where "genetic_profile"."STABLE_ID" = #{geneticProfileStableId}
+        <if test="sampleTypes != null and !sampleTypes.isEmpty()">
+            and "sample"."SAMPLE_TYPE" in
+            <foreach item="item" collection="sampleTypes" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="sampleStableIds != null and !sampleStableIds.isEmpty()">
+            and "sample"."STABLE_ID" in
+            <foreach item="item" collection="sampleStableIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
 </mapper>

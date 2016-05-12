@@ -2,6 +2,7 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.persistence.MutationRepository;
+import org.cbioportal.persistence.dto.SampleMutationCount;
 import org.cbioportal.service.MutationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,5 +20,10 @@ public class MutationServiceImpl implements MutationService {
 
         return mutationRepository.getMutations(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds,
                 sampleListStableId);
+    }
+
+    public List<SampleMutationCount> getMutationCounts(String geneticProfileStableId, List<String> sampleStableIds) {
+
+        return mutationRepository.getMutationCounts(geneticProfileStableId, sampleStableIds);
     }
 }

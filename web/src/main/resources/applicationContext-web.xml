@@ -27,7 +27,7 @@
 
     <context:component-scan base-package="org.mskcc.cbio.portal.web" />
     <context:component-scan base-package="org.mskcc.cbio.portal.documentation" />
-    <context:component-scan base-package="org.cbioportal.web.rest" />
+    <context:component-scan base-package="org.cbioportal.web" />
 
     <mvc:resources mapping="/swagger-ui.html" location="classpath:/META-INF/resources/"/>
     <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>

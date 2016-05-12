@@ -3,6 +3,7 @@ package org.cbioportal.service.impl;
 import junit.framework.Assert;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.persistence.MutationRepository;
+import org.cbioportal.persistence.dto.SampleMutationCount;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -46,5 +47,25 @@ public class MutationServiceImplTest {
                 testHugoGeneSymbols, testSampleStableIds, testSampleList);
 
         Assert.assertEquals(expectedMutationList, resultMutationList);
+    }
+
+    @Test
+    public void getMutationCounts() throws Exception {
+
+        String testGeneticProfileStableId = "test_genetic_profile_stable_id";
+        ArrayList<String> testSampleStableIds = new ArrayList<String>();
+        testSampleStableIds.add("test_sample_stable_id");
+
+        List<SampleMutationCount> expectedSampleMutationCountList = new ArrayList<SampleMutationCount>();
+        SampleMutationCount exampleSampleMutationCount = new SampleMutationCount();
+        expectedSampleMutationCountList.add(exampleSampleMutationCount);
+
+        Mockito.when(mutationRepository.getMutationCounts(testGeneticProfileStableId, testSampleStableIds))
+                .thenReturn(expectedSampleMutationCountList);
+
+        List<SampleMutationCount> resultSampleMutationCountList = mutationService.getMutationCounts(
+                testGeneticProfileStableId, testSampleStableIds);
+
+        Assert.assertEquals(expectedSampleMutationCountList, resultSampleMutationCountList);
     }
 }

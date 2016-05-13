@@ -413,7 +413,6 @@ public class ImportExtendedMutationData{
                     try {
                         DaoMutation.addMutationEvent(event);
                     } catch (DaoException ex) {
-                        ex.printStackTrace();
                         throw ex;
                     }
                 }
@@ -422,7 +421,6 @@ public class ImportExtendedMutationData{
                     try {
                         DaoMutation.addMutation(mutation,false);
                     } catch (DaoException ex) {
-                        ex.printStackTrace();
                         throw ex;
                     }
                 }

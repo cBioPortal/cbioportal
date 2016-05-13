@@ -34,43 +34,65 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
 
 /**
  * Command Line Tool to Remove a Single Cancer Study.
  */
-public class RemoveCancerStudy {
+public class RemoveCancerStudy extends ConsoleRunnable {
 
-    public static void main(String[] args) throws Exception {
+    public void run() {
     	try {
 	        if (args.length < 1) {
-	            System.out.println("command line usage: RemoveCancerStudy <cancer_study_identifier>");
 	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-	            //use 2 for command line syntax errors:
-	            System.exit(2);
+                throw new UsageException(
+                        "removeCancerStudy",
+                        null,
+                        "<cancer_study_identifier>");
 	        }
 	        String cancerStudyIdentifier = args[0];
 	
-	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 			SpringUtil.initDataSource();
-			System.out.println("Checking if Cancer study with identifier " + cancerStudyIdentifier + " already exists before removing...");
+            ProgressMonitor.setCurrentMessage(
+                    "Checking if Cancer study with identifier " +
+                    cancerStudyIdentifier +
+                    " already exists before removing...");
 	        if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
-	            System.out.println("Cancer study with identifier " + cancerStudyIdentifier + " found in database, removing...");
+	            ProgressMonitor.setCurrentMessage(
+	                    "Cancer study with identifier " +
+	                    cancerStudyIdentifier +
+	                    " found in database, removing...");
 	            DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);
 	        }
 	        else {
-	            System.out.format("Cancer study with identifier " + cancerStudyIdentifier + " does not exist the the database, not removing...");
+	            ProgressMonitor.setCurrentMessage(
+	                    "Cancer study with identifier " +
+	                    cancerStudyIdentifier +
+	                    " does not exist the the database, not removing...");
 	        }
-	
-	        ConsoleUtil.showMessages();
-	        System.out.println("Done.");
-    	}
-    	catch (Exception e) {
-	        ConsoleUtil.showWarnings();
-	        //exit with error status:
-	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
-	        if (e.getMessage() == null)
-	        	e.printStackTrace();
-	        System.exit(1);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (DaoException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public RemoveCancerStudy(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new RemoveCancerStudy(args);
+        runner.runInConsole();
     }
 }

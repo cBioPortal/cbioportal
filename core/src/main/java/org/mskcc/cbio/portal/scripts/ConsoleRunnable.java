@@ -101,7 +101,9 @@ public abstract class ConsoleRunnable implements Runnable {
                 exceptionClass = t.getClass();
             }
             // Select an appropriate exit status for this class of throwable
-            if (IllegalArgumentException.class.isAssignableFrom(exceptionClass)) {
+            if (IllegalArgumentException.class.isAssignableFrom(exceptionClass) ||
+                    exceptionClass.equals(RuntimeException.class)) {
+                // These are usually thrown because of input data errors
                 return EX_DATAERR;
             } else if (IOException.class.isAssignableFrom(exceptionClass)) {
                 return EX_IOERR;

@@ -1197,8 +1197,8 @@ class MutationsExtendedValidator(Validator):
             return True
         if not re.match(
                 # regex from http://www.uniprot.org/help/accession_numbers
-                r'[OPQ][0-9][A-Z0-9]{3}[0-9]|'
-                r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}',
+                r'^([OPQ][0-9][A-Z0-9]{3}[0-9]|'
+                r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$',
                  value):
             # return this as an error
             self.extra = 'SWISSPROT value is not a UniprotKB accession'

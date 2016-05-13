@@ -721,7 +721,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 5)
-        self.assertEqual(record.cause, 'spam')
+        self.assertEqual(record.cause, 'P99999,Z9ZZZ9ZZZ9')
         self.assertNotIn('portal', record.getMessage().lower())
         # valid but non-existing accession
         record = record_iterator.next()

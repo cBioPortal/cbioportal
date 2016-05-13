@@ -28,17 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ */
 
 
 var StudyViewInitTables = (function() {
     var workers = [];
 
-    function init(input,callback) {
+    function init(input, callback) {
         initData(input);
         initTables();
-        if(typeof callback === 'function'){
+        if (typeof callback === 'function') {
             callback();
         }
     }
@@ -50,48 +49,66 @@ var StudyViewInitTables = (function() {
         attr.forEach(function(e, i) {
             var _worker = {};
 
+            _worker.initStatus = 'unknown'; //unknown, initializing, initialized, failed
+            _worker.index = workers.length;
             _worker.opts = {};
             _worker.data = {};
             _worker.callbacks = {};
 
             switch (e.name) {
                 case 'mutatedGenes':
+                    _worker.data.type = 'mutatedGene';
                     _worker.data.attr = [{
-                            name: 'gene',
-                            displayName: 'Gene'
-                        },{
-                            name: 'numOfMutations',
-                            displayName: '# Mut'
-                        },{
-                            name: 'samples',
-                            displayName: '#',
-                            qtip: 'Number of samples'
-                        },{
-                            name: 'sampleRate',
-                            displayName: 'Freq'
-                        },{
-                            name: 'qval',
-                            displayName: 'MutSig',
-                            hidden: true
-                        },{
-                        displayName: 'Sample IDs',
-                            name: 'caseIds',
-                            hidden: true
-                        },{
-                            name: 'uniqueId',
-                            hidden: true
-                        }
-                    ];
-                    _worker.data.getData = function (callback, workerId){
+                        "attr_id": "gene",
+                        "display_name": "Gene",
+                        "datatype": "STRING",
+                        "column_width": 100
+                    }, {
+                        "attr_id": "numOfMutations",
+                        "display_name": "# Mut",
+                        "datatype": "NUMBER",
+                        "column_width": 90
+                    },
+                        {
+                            "attr_id": "samples",
+                            "display_name": "#",
+                            "datatype": "NUMBER",
+                            "column_width": 90
+                        },
+                        {
+                            "attr_id": "sampleRate",
+                            "display_name": "Freq",
+                            "datatype": "PERCENTAGE",
+                            "column_width": 95
+                        },
+                        {
+                            "attr_id": "caseIds",
+                            "display_name": "Cases",
+                            "datatype": "STRING",
+                            "show": false
+                        },
+                        {
+                            "attr_id": "uniqueId",
+                            "display_name": "uniqueId",
+                            "datatype": "STRING",
+                            "show": false
+                        },
+                        {
+                            "attr_id": "qval",
+                            "datatype": "NUMBER",
+                            "display_name": "MutSig",
+                            "show": false
+                        }];
+                    _worker.data.getData = function(callback, workerId) {
                         StudyViewProxy.getMutatedGenesData().then(
-                            function( data ) {
+                            function(data) {
                                 callback(mutatedGenesData(data, input.numberOfSamples.numberOfSequencedSamples), workerId);
                             },
-                            function( status ) {
+                            function(status) {
                                 callback(mutatedGenesData(null, input.numberOfSamples.numberOfSequencedSamples), workerId);
-                                console.log( status + ", you fail this time" );
+                                console.log(status + ", you fail this time");
                             },
-                            function( status ) {
+                            function(status) {
                                 console.log(status);
                             }
                         );
@@ -101,45 +118,66 @@ var StudyViewInitTables = (function() {
                     _worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 case 'cna':
+                    _worker.data.type = 'cna';
                     _worker.data.attr = [{
-                            name: 'gene',
-                            displayName: 'Gene'
-                        },{
-                            name: 'cytoband',
-                            displayName: 'Cytoband'
-                        },{
-                            name: 'altType',
-                            displayName: 'CNA'
-                        },{
-                            name: 'samples',
-                            displayName: '#',
-                            qtip: 'Number of samples'
-                        },{
-                            name: 'altrateInSample',
-                            displayName: 'Freq'
-                        },{
-                            name: 'qval',
-                            displayName: 'Gistic',
-                            hidden: true
-                        },{
-                            displayName: 'Sample IDs',
-                            name: 'caseIds',
-                            hidden: true
-                        },{
-                            name: 'uniqueId',
-                            hidden: true
+                        "attr_id": "gene",
+                        "display_name": "Gene",
+                        "datatype": "STRING",
+                        "column_width": 80
+                    },
+                        {
+                            "attr_id": "cytoband",
+                            "display_name": "Cytoband",
+                            "datatype": "STRING",
+                            "column_width": 90
+                        },
+                        {
+                            "attr_id": "altType",
+                            "display_name": "CNA",
+                            "datatype": "STRING",
+                            "column_width": 55
+                        },
+                        {
+                            "attr_id": "samples",
+                            "display_name": "#",
+                            "datatype": "NUMBER",
+                            "column_width": 70
+                        },
+                        {
+                            "attr_id": "altrateInSample",
+                            "display_name": "Freq",
+                            "datatype": "PERCENTAGE",
+                            "column_width": 80
+                        },
+                        {
+                            "attr_id": "caseIds",
+                            "display_name": "Cases",
+                            "datatype": "STRING",
+                            "show": false
+                        },
+                        {
+                            "attr_id": "uniqueId",
+                            "display_name": "uniqueId",
+                            "datatype": "STRING",
+                            "show": false
+                        },
+                        {
+                            "attr_id": "qval",
+                            "datatype": "NUMBER",
+                            "display_name": "Gistic",
+                            "show": false
                         }
                     ];
-                    _worker.data.getData = function (callback, workerId){
+                    _worker.data.getData = function(callback, workerId) {
                         StudyViewProxy.getCNAData().then(
-                            function( data ) {
+                            function(data) {
                                 callback(cnaData(data, input.numberOfSamples.numberOfCnaSamples), workerId);
                             },
-                            function( status ) {
+                            function(status) {
                                 callback(cnaData(null, input.numberOfSamples.numberOfCnaSamples), workerId);
-                                console.log( status + ", you fail this time" );
+                                console.log(status + ", you fail this time");
                             },
-                            function( status ) {
+                            function(status) {
                                 console.log(status);
                             }
                         );
@@ -154,6 +192,7 @@ var StudyViewInitTables = (function() {
             _worker.opts.title = e.displayName || '';
             _worker.opts.name = e.name;
             _worker.opts.tableId = 'study-view-table-' + e.name;
+            _worker.opts.tableClassName = 'mutated-gene-cna';
             _worker.opts.parentId = 'study-view-charts';
             _worker.callbacks.deleteTable = deleteTable;
             _worker.callbacks.rowClick = rowClick;
@@ -161,17 +200,18 @@ var StudyViewInitTables = (function() {
         });
     }
 
-    function addGeneClick(clickedRowData){
+    function addGeneClick(clickedRowData) {
         // clickedRowData[0] contains the gene
-        QueryByGeneTextArea.addRemoveGene(clickedRowData[0]);
+        QueryByGeneTextArea.addRemoveGene(clickedRowData.gene);
     }
 
-    var curSelectedGenes=Array();
-    function updateGeneHighlights(geneArray){
+    var curSelectedGenes = Array();
+
+    function updateGeneHighlights(geneArray) {
         // loop the tables
-        for(var i = 0; i < workers.length; i++) {
+        for (var i = 0; i < workers.length; i++) {
             // if the table supports addGeneClick, update the highlights
-            if(workers[i].callbacks.addGeneClick != undefined){
+            if (workers[i].callbacks.addGeneClick != undefined) {
                 updateGeneHighlightTable(workers[i], geneArray);
             }
         }
@@ -179,160 +219,167 @@ var StudyViewInitTables = (function() {
         curSelectedGenes = geneArray;
     }
 
-    function updateGeneHighlightTable(worker, geneArray){
+    function updateGeneHighlightTable(worker, geneArray) {
         // get the dataTable, determine the deselected genes and the selected genes
-        var dataTable = worker.tableInstance.getDataTable();
         var deselectGenes = _.difference(curSelectedGenes, geneArray);
         var selectGenes = _.difference(geneArray, curSelectedGenes);
 
         // update the highlighting
-        doUpdateGeneHighlightTable(dataTable, worker, deselectGenes, true);
-        doUpdateGeneHighlightTable(dataTable, worker, selectGenes, false);
+        worker.tableInstance.updateSelectedGenes(worker.data, geneArray);
     }
 
-    function doUpdateGeneHighlightTable(dataTable, worker, array, deselect){
+    function doUpdateGeneHighlightTable(dataTable, worker, array, deselect) {
         var item;
         // for all the genes
-        for(var i=0; i<array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
             // find the appropriate item
-            if (worker.opts.name == "cna")
+            if (worker.opts.name == "cna") {
                 item = dataTable.$("td[id*='-" + array[i] + "-']").parent().find(".selectHighlight");
-            else
+            } else {
                 item = dataTable.$("td[id$='-" + array[i] + "']").parent().find(".selectHighlight");
+            }
 
             // change class and qtip
-            if(deselect) {
+            if (deselect) {
                 item.removeClass("geneSelected");
-                item.qtip('option', 'content.text', 'Click '+array[i]+' to add to your query');
+                item.qtip('option', 'content.text', 'Click ' + array[i] + ' to add to your query');
             }
-            else{
+            else {
                 item.addClass("geneSelected");
-                item.qtip('option', 'content.text', 'Click '+array[i]+' to remove from your query');
+                item.qtip('option', 'content.text', 'Click ' + array[i] + ' to remove from your query');
             }
         }
     }
 
     function rowClick(tableId, data, clickedRowData, rowSelected) {
         var dcCharts = StudyViewInitCharts.getCharts(),
-            dcChartsL = dcCharts.length,
-            worker = '',
+            worker = findWorker(tableId),
             workerIndex = -1,
             numOfSelectedRows = data.length,
             selectedSamples = [],
             Ids = [],
             exceptionId = [],
-            caseIdChartIndex = StudyViewInitCharts.getCaseIdChartIndex();;
+            caseIdChartIndex = StudyViewInitCharts.getCaseIdChartIndex();
 
-        //Find reletive table data
-        for(var i = 0; i < workers.length; i++) {
-            if(workers[i].opts.tableId === tableId)  {
-                worker = workers[i];
-                workerIndex = i;
-                break;
+        if (worker) {
+            workerIndex = worker.index;
+
+            for (var i = 0; i < numOfSelectedRows; i++) {
+                Ids.push(data[i]);
+            }
+
+            workers[workerIndex].data.selected = Ids;
+
+            if (Ids.length !== 0) {
+                exceptionId.push(tableId);
+                workers[workerIndex].data.selectedSamples = selectedSamples = findSelectedSamples(worker);
+            }else {
+                workers[workerIndex].data.selectedSamples = [];
+                selectedSamples = findSelectedSamples(worker);
+            }
+
+            dcCharts[caseIdChartIndex].getChart().filterAll();
+            if (selectedSamples.length > 0) {
+                dcCharts[caseIdChartIndex].getChart().filter([selectedSamples]);
+            }
+
+            redrawOtherCharts(workerIndex, clickedRowData, rowSelected, exceptionId);
+        } else {
+            console.log('Worker is not available.');
+        }
+    }
+
+    function findSelectedSamples(worker) {
+        var selectedSamples = [];
+        if (worker) {
+            if (worker.data.selected.length === 0) {
+                workers.forEach(function(e, i) {
+                    if (e.data.hasOwnProperty('selectedSamples')) {
+                        selectedSamples = _.union(selectedSamples, e.data.selectedSamples);
+                    }
+                });
+            } else {
+                worker.data.arr.forEach(function(e1, i1) {
+                    if (e1.hasOwnProperty('caseIds')) {
+                        worker.data.selected.forEach(function(e2) {
+                            var match = e2.uniqueId === e1.uniqueId;
+                            if (match && e1.hasOwnProperty('caseIds')) {
+                                selectedSamples = _.union(selectedSamples, e1.caseIds);
+                            }
+                        });
+                    }
+                });
             }
         }
+        return selectedSamples;
+    }
 
-        switch (worker.opts.name) {
-            case 'mutatedGenes':
-                for(var i=0; i < numOfSelectedRows; i++) {
-                    Ids.push({gene: data[i][0]});
-                }
-                break;
-            case 'cna':
-                for(var i=0; i < numOfSelectedRows; i++) {
-                    Ids.push({gene: data[i][0], altType: data[i][2]});
-                }
-                break;
-            default:
-                break;
-        }
+    function removeTableFilter(tableId, filter) {
+        var worker = findWorker(tableId);
+        var selectedSamples = [];
+        var dcCharts = StudyViewInitCharts.getCharts();
+        var caseIdChartIndex = StudyViewInitCharts.getCaseIdChartIndex();
+        var selectedRowData = {};
 
-        workers[workerIndex].data.selected= Ids;
+        worker.data.selected = _.reject(worker.data.selected, function(item) {
+            if (item.uniqueId === filter) {
+                selectedRowData = item;
+                return true;
+            } else {
+                return false;
+            }
+        })
 
-        if(Ids.length === 0) {
-            workers[workerIndex].data.selectedSamples.length=0;
-            workers.forEach(function(e, i){
-                if(e.data.hasOwnProperty('selectedSamples')) {
-                    selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e.data.selectedSamples));
-                }
-            });
-        }else {
-            exceptionId.push(tableId);
-            worker.data.arr.forEach(function(e1, i1){
-                if(e1.hasOwnProperty('caseIds')) {
-                    worker.data.selected.forEach(function(e2, i2){
-                        var match = true;
-                        for(var key in e2) {
-                            if(e2.hasOwnProperty(key)) {
-                                if(e2[key] !== e1[key]) {
-                                    match = false;
-                                    break;
-                                }
-                            }
-                        }
-                        if(match && e1.hasOwnProperty('caseIds')) {
-                            selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e1.caseIds));
-                        }
-                    });
-                }
-            });
-            workers[workerIndex].data.selectedSamples = selectedSamples;
-        }
+        worker.data.selectedSamples = findSelectedSamples(worker);
 
         dcCharts[caseIdChartIndex].getChart().filterAll();
-        if(selectedSamples.length > 0){
+        if (selectedSamples.length > 0) {
             dcCharts[caseIdChartIndex].getChart().filter([selectedSamples]);
         }
-        dc.redrawAll();
+        workers[worker.index] == worker;
 
-        updateBreadCrumb(workerIndex, clickedRowData, rowSelected);
+        redrawOtherCharts(worker.index, selectedRowData, false);
+    }
+
+    function redrawOtherCharts(workerIndex, rowData, rowSelected, exceptionId) {
+        dc.redrawAll();
+        updateBreadCrumb(workerIndex, rowData, rowSelected);
         StudyViewInitCharts.resetBars();
         StudyViewInitCharts.redrawScatter();
         StudyViewInitCharts.redrawWSCharts(exceptionId);
     }
 
     //function updateBreadCrumb(clickedCell, shiftClicked){
-    function updateBreadCrumb(workerIndex, rowData, rowSelected){
+    function updateBreadCrumb(workerIndex, rowData, rowSelected) {
         // we need the id to be able to trigger the click event when the x from the breadcrumb is clicked
         var worker = workers[workerIndex];
         var chartId = worker.opts.tableId;
 
-        if(rowData) {
-            if(rowData.length ===0 && worker.data.selectedSamples.length === 0 && worker.data.selected.length === 0) {
+        if (rowData) {
+            if (Object.keys(rowData).length === 0 && worker.data.selectedSamples.length === 0 && worker.data.selected.length === 0) {
                 BreadCrumbs.deleteBreadCrumbsByChartId(chartId);
-            }else{
+            } else {
                 var cellId = chartId + '-';
                 var chartFilter;
-                var crumbTipText = worker.opts.title+": ";
-                switch (worker.opts.name) {
-                    case 'mutatedGenes':
-                        cellId += rowData[6];
-                        chartFilter = rowData[6];
-                        crumbTipText += rowData[6];
-                        break;
-                    case 'cna':
-                        cellId += rowData[7];
-                        chartFilter = rowData[7];
-                        crumbTipText += rowData[7];
-                        break;
-                    default:
-                        break;
-                }
+                var crumbTipText = worker.opts.title + ": ";
+                cellId += rowData.uniqueId;
+                chartFilter = rowData.uniqueId;
+                crumbTipText += rowData.uniqueId;
                 BreadCrumbs.updateTableBreadCrumb(chartId, chartFilter, "table", cellId, crumbTipText, rowSelected);
             }
         }
     }
 
     function deleteTable(tableId, title) {
-        $('#' + tableId + '-main').css('display','none');
-        $('#study_view_add_chart_chzn').css('display','block');
+        $('#' + tableId + '-main').css('display', 'none');
+        $('#study_view_add_chart_chzn').css('display', 'block');
         $('#study-view-add-chart')
-                .append($('<option></option>')
-                    .attr('id',tableId + '-main' + '-option')
-                    .text(title));
+            .append($('<option></option>')
+                .attr('id', tableId + '-main' + '-option')
+                .text(title));
         // delete breadcrumbs
-        workers.forEach(function (e, i) {
-            if(e.opts.tableId === tableId) {
+        workers.forEach(function(e, i) {
+            if (e.opts.tableId === tableId) {
                 e.data.selectedSamples = [];
                 e.data.selected = [];
             }
@@ -344,12 +391,17 @@ var StudyViewInitTables = (function() {
 
     function initTables() {
         StudyViewUtil.addCytobandSorting();
-        workers.forEach(function(e, i){
+        workers.forEach(function(e, i) {
             workers[i].tableInstance = new Table();
+            workers[i].initStatus = 'initializing';
             workers[i].tableInstance.initDiv(e)
-            workers[i].data.getData(function(data, workerId){
+            workers[i].data.getData(function(data, workerId) {
                 workers[workerId].data.arr = data;
-                workers[workerId].tableInstance.draw(workers[workerId].data);
+                workers[workerId]
+                    .tableInstance
+                    .draw(workerId, workers[workerId].data, function(id, status) {
+                        workers[id].initStatus = status;
+                    });
             }, i);
         });
     }
@@ -357,26 +409,26 @@ var StudyViewInitTables = (function() {
     function mutatedGenesData(data, numOfCases) {
         var genes = [];
 
-        if(data) {
+        if (data) {
             $('#number-of-selected-sequenced-samples').html(numOfCases);
-            for(var i = 0, dataL = data.length; i < dataL; i++){
+            for (var i = 0, dataL = data.length; i < dataL; i++) {
                 var datum = {},
                     caseIds = data[i].caseIds;
 
                 datum.gene = data[i].gene_symbol;
                 datum.numOfMutations = data[i].num_muts;
                 datum.samples = _.uniq(caseIds).length;
-                datum.sampleRate =
-                    (datum.samples / Number(numOfCases)* 100).toFixed(1) + '%';
+                datum.sampleRate = (numOfCases <= 0 ? 0 :
+                        ((datum.samples / Number(numOfCases) * 100).toFixed(1))) + '%';
 
-                if( data[i].hasOwnProperty('qval') && !isNaN(data[i].qval)){
+                if (data[i].hasOwnProperty('qval') && !isNaN(data[i].qval)) {
                     var qval = Number(data[i].qval);
-                    if(qval === 0) {
+                    if (qval === 0) {
                         datum.qval = 0;
-                    }else{
+                    } else {
                         datum.qval = qval.toExponential(1);
                     }
-                }else{
+                } else {
                     datum.qval = '';
                 }
 
@@ -392,13 +444,13 @@ var StudyViewInitTables = (function() {
 
         var genes = [];
 
-        if(data) {
+        if (data) {
             $('#number-of-selected-cna-samples').html(numOfCases);
-            for(var i = 0, dataL = data.gene.length; i < dataL; i++){
+            for (var i = 0, dataL = data.gene.length; i < dataL; i++) {
                 var datum = {},
                     _altType = '';
 
-                switch(data.alter[i]) {
+                switch (data.alter[i]) {
                     case -2:
                         _altType = 'DEL';
                         break;
@@ -412,15 +464,16 @@ var StudyViewInitTables = (function() {
                 datum.cytoband = data.cytoband[i];
                 datum.altType = _altType;
                 datum.samples = data.caseIds[i].length;
-                datum.altrateInSample = (datum.samples / numOfCases * 100).toFixed(1) + '%';
-                if(data.gistic[i] && (data.gistic[i] instanceof Array) && !isNaN(data.gistic[i][0])){
+                datum.altrateInSample = ((numOfCases <= 0 ? 0 :
+                        (datum.samples / numOfCases * 100).toFixed(1))) + '%';
+                if (data.gistic[i] && (data.gistic[i] instanceof Array) && !isNaN(data.gistic[i][0])) {
                     var qval = Number(data.gistic[i][0]);
-                    if(qval === 0) {
+                    if (qval === 0) {
                         datum.qval = 0;
-                    }else{
+                    } else {
                         datum.qval = qval.toExponential(1);
                     }
-                }else{
+                } else {
                     datum.qval = '';
                 }
                 datum.caseIds = data.caseIds[i];
@@ -432,14 +485,13 @@ var StudyViewInitTables = (function() {
     }
 
 
-
-    function redrawSingleTable(data, worker){
+    function redrawSingleTable(data, worker) {
         var numSelectedCasesL = data.selectedCases.length,
             exceptionIds = data.exceptionIds;
 
         // find the worker
         // if the worker is a string, we first need to find the actual worker
-        if(typeof worker === 'string'){
+        if (typeof worker === 'string') {
             worker = findWorker(worker);
         }
 
@@ -448,17 +500,17 @@ var StudyViewInitTables = (function() {
                 if (numSelectedCasesL.length !== 0) {
                     switch (worker.opts.name) {
                         case 'mutatedGenes':
-                            var selectedSequencedSamples = _.intersection(StudyViewProxy.getSequencedSampleIds(), data.selectedCases);
+                            var selectedSequencedSamples = StudyViewUtil.intersection(StudyViewProxy.getSequencedSampleIds(), data.selectedCases);
                             worker.data.arr = mutatedGenesData(StudyViewProxy.getMutatedGeneDataBasedOnSampleIds(data.selectedCases), selectedSequencedSamples.length);
                             break;
                         case 'cna':
-                            var selectedCnaSamples = _.intersection(StudyViewProxy.getCnaSampleIds(), data.selectedCases);
+                            var selectedCnaSamples = StudyViewUtil.intersection(StudyViewProxy.getCnaSampleIds(), data.selectedCases);
                             worker.data.arr = cnaData(StudyViewProxy.getCNABasedOnSampleIds(data.selectedCases), selectedCnaSamples.length);
                             break;
                         default:
                             break;
                     }
-                    worker.tableInstance.redraw(worker.data, function () {
+                    worker.tableInstance.redraw(worker.data, function() {
                         worker.tableInstance.stopLoading();
                     });
                 } else {
@@ -469,29 +521,39 @@ var StudyViewInitTables = (function() {
         }
     }
 
-    function redraw(data){
-        workers.forEach(function (e, i) {
+    function redraw(data) {
+        workers.forEach(function(e, i) {
             // check whether table is visible before doing work
-            if(isTableVisible(e.opts.tableId)) {
-                redrawSingleTable(data, e.opts.tableId);
+            if (isTableVisible(e.opts.tableId)) {
+                if (e.initStatus !== 'initializing') {
+                    redrawSingleTable(data, e.opts.tableId);
+                } else {
+                    var interval = setInterval(function() {
+                        console.log(e.opts.title + ' is initializing...');
+                        if (e.initStatus !== 'initializing') {
+                            clearInterval(interval);
+                            redrawSingleTable(data, e.opts.tableId);
+                        }
+                    }, 500);
+                }
             }
         });
     }
 
     // show loading icon for all workers
-    function showLoadingIcon(data){
+    function showLoadingIcon(data) {
         //Start loaders
-        workers.forEach(function(e, i){
+        workers.forEach(function(e, i) {
             showSingleLoadingIcon(data, e);
         });
     }
 
     // show loading icon for a single worker
-    function showSingleLoadingIcon(data, worker){
+    function showSingleLoadingIcon(data, worker) {
         var exceptionIds = data.exceptionIds;
 
         // if the worker is a string, we first need to find the actual worker
-        if(typeof worker === 'string'){
+        if (typeof worker === 'string') {
             worker = findWorker(worker);
         }
 
@@ -503,8 +565,8 @@ var StudyViewInitTables = (function() {
     }
 
     // find the worker for a tableId
-    function findWorker(tableId){
-        for(var i=0; i<workers.length; i++){
+    function findWorker(tableId) {
+        for (var i = 0; i < workers.length; i++) {
             if (workers[i].opts.tableId === tableId) {
                 return workers[i];
             }
@@ -512,16 +574,16 @@ var StudyViewInitTables = (function() {
     }
 
     // check whether a table is visible
-    function isTableVisible(tableId){
-        return $("#"+tableId+"-main").css("display")!="none";
+    function isTableVisible(tableId) {
+        return $("#" + tableId + "-main").css("display") != "none";
     }
 
     function clearAllSelected() {
-        workers.forEach(function(e, i){
-            if(workers[i].data.hasOwnProperty('selectedSamples')){
+        workers.forEach(function(e, i) {
+            if (workers[i].data.hasOwnProperty('selectedSamples')) {
                 workers[i].data.selectedSamples.length = 0;
             }
-            if(workers[i].data.hasOwnProperty('selected')){
+            if (workers[i].data.hasOwnProperty('selected')) {
                 workers[i].data.selected.length = 0;
             }
         });
@@ -536,9 +598,9 @@ var StudyViewInitTables = (function() {
         showSingleLoadingIcon: showSingleLoadingIcon,
         redrawSingleTable: redrawSingleTable,
         getInitStatus: function() {
-            if(workers.length > 0) {
+            if (workers.length > 0) {
                 return true;
-            }else {
+            } else {
                 return false;
             }
         },
@@ -546,7 +608,8 @@ var StudyViewInitTables = (function() {
             workers.forEach(function(e, i) {
                 e.tableInstance.resize();
             });
-        }
+        },
+        removeTableFilter: removeTableFilter
     };
 
 })();

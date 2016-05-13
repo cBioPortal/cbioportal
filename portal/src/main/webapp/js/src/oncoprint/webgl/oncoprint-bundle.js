@@ -521,6 +521,7 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.toSVG = function(with_background) {
+	// Returns svg DOM element
 	var root = svgfactory.svg(10, 10);
 	this.$container.append(root);
 	var everything_group = svgfactory.group(0,0);
@@ -554,6 +555,39 @@ var Oncoprint = (function () {
 	root.parentNode.removeChild(root);
 	
 	return root;
+    }
+    
+    Oncoprint.prototype.toCanvas = function(callback, resolution) {
+	// Returns data url, requires IE >= 11
+	var svg = this.toSVG(true);
+	svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+	var width = parseInt(svg.getAttribute('width'), 10);
+	var height = parseInt(svg.getAttribute('height'), 10);
+	var canvas = document.createElement('canvas');
+	
+	resolution = resolution || 1;
+	canvas.setAttribute('width', width*resolution);
+	canvas.setAttribute('height', height*resolution);
+	
+	var container = document.createElement("div");
+	container.appendChild(svg);
+	var svg_data_str = container.innerHTML;
+	var svg_data_uri = "data:image/svg+xml;base64,"+window.btoa(svg_data_str);
+	
+	var ctx = canvas.getContext('2d');
+	ctx.setTransform(resolution,0,0,resolution,0,0);
+	var img = new Image();
+	
+	img.onload = function() {
+	    ctx.drawImage(img, 0, 0);
+	    callback(canvas);
+	};
+	img.onerror = function() {
+	    console.log("IMAGE LOAD ERROR");
+	};
+	
+	img.src = svg_data_uri;
+	return img;
     }
     
     Oncoprint.prototype.getIdOrder = function(all) {
@@ -997,12 +1031,16 @@ var OncoprintLegendView = (function() {
 	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
 	    root.appendChild(svgfactory.text(display_range[1], 50, 0, 12, 'Arial', 'normal'));
 	    var mesh = 100;
+	    var points = [];
+	    points.push([5, 20]);
 	    for (var i=0; i<mesh; i++) {
 		var t = i/mesh;
 		var h = config.interpFn((1-t)*config.range[0] + t*config.range[1]);
 		var height = 20*h;
-		root.appendChild(svgfactory.rect(5 + 40*i/mesh, 20-height, 40/mesh, height, config.color));
+		points.push([5 + 40*i/mesh, 20-height]);
 	    }
+	    points.push([45, 20]);
+	    root.appendChild(svgfactory.path(points, config.color, config.color));
 	}
 	return root;
     };
@@ -1868,7 +1906,18 @@ var OncoprintModel = (function () {
 
     OncoprintModel.prototype.shareRuleSet = function(source_track_id, target_track_id) {
 	var curr_rule_set_id = this.track_rule_set_id[target_track_id];
-	delete this.rule_sets[curr_rule_set_id];
+	var should_delete_curr_rule_set = true;
+	for (var track_id in this.track_rule_set_id) {
+	    if (this.track_rule_set_id.hasOwnProperty(track_id) && track_id !== source_track_id + '') {
+		if (this.track_rule_set_id[track_id] === curr_rule_set_id) {
+		    should_delete_curr_rule_set = false;
+		    break;
+		}
+	    }
+	}
+	if (should_delete_curr_rule_set) {
+	    delete this.rule_sets[curr_rule_set_id];
+	}
 	delete this.track_active_rules[target_track_id];
 	this.track_rule_set_id[target_track_id] = this.track_rule_set_id[source_track_id];
     }
@@ -2131,221 +2180,6 @@ var NA_SHAPES = [
 ];
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
-
-var non_mutation_rule_params = {
-    '*': {
-	shapes: [{
-		'type': 'rectangle',
-		'fill': 'rgba(211, 211, 211, 1)',
-		'z': 1
-	    }],
-	exclude_from_legend: true,
-    },
-    'cna': {
-	'AMPLIFIED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(255,0,0,1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		    'z': 2,
-		}],
-	    legend_label: 'Amplification',
-	},
-	'GAINED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(255,182,193,1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		    'z': 2,
-		}],
-	    legend_label: 'Gain',
-	},
-	'HOMODELETED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0,0,255,1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		    'z': 2,
-		}],
-	    legend_label: 'Deep Deletion',
-	},
-	'HEMIZYGOUSLYDELETED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(143, 216, 216,1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		    'z': 2,
-		}],
-	    legend_label: 'Shallow Deletion',
-	}
-    },
-    'mrna': {
-	'UPREGULATED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0, 0, 0, 0)',
-		    'stroke': 'rgba(255, 153, 153, 1)',
-		    'stroke-width': '2',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		    'z': 3,
-		}],
-	    legend_label: 'mRNA Upregulation',
-	},
-	'DOWNREGULATED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0, 0, 0, 0)',
-		    'stroke': 'rgba(102, 153, 204, 1)',
-		    'stroke-width': '2',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		    'z': 3,
-		}],
-	    legend_label: 'mRNA Downregulation',
-	},
-    },
-    'rppa': {
-	'UPREGULATED': {
-	    shapes: [{
-		    'type': 'triangle',
-		    'x1': '50%',
-		    'y1': '0%',
-		    'x2': '100%',
-		    'y2': '33.33%',
-		    'x3': '0%',
-		    'y3': '33.33%',
-		    'fill': 'rgba(0,0,0,1)',
-		    'z': 4,
-		}],
-	    legend_label: 'Protein Upregulation',
-	},
-	'DOWNREGULATED': {
-	    shapes: [{
-		    'type': 'triangle',
-		    'x1': '50%',
-		    'y1': '100%',
-		    'x2': '100%',
-		    'y2': '66.66%',
-		    'x3': '0%',
-		    'y3': '66.66%',
-		    'fill': 'rgba(0,0,0,1)',
-		    'z': 4,
-		}],
-	    legend_label: 'Protein Downregulation',
-	}
-    },
-};
-
-var distinguish_mutation_rule_params = {
-    'mut_type': {
-	'MISSENSE': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': '#008000',
-		    'x': '0%',
-		    'y': '33.33%',
-		    'width': '100%',
-		    'height': '33.33%',
-		    'z': 5.2,
-		}],
-	    legend_label: 'Missense Mutation',
-	},
-	'INFRAME': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(159, 129, 112, 1)',
-		    'x': '0%',
-		    'y': '33.33%',
-		    'width': '100%',
-		    'height': '33.33%',
-		    'z': 5.2,
-		}],
-	    legend_label: 'Inframe Mutation',
-	},
-	'TRUNC': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0, 0, 0, 1)',
-		    'x': '0%',
-		    'y': '33.33%',
-		    'width': '100%',
-		    'height': '33.33%',
-		    'z': 5.2,
-		}],
-	    legend_label: 'Truncating Mutation',
-	},
-	'FUSION': {
-	    shapes: [{
-		    'type': 'triangle',
-		    'fill': 'rgba(0, 0, 0, 1)',
-		    'x1': '0%',
-		    'y1': '0%',
-		    'x2': '100%',
-		    'y2': '50%',
-		    'x3': '0%',
-		    'y3': '100%',
-		    'z': 5.1,
-		}],
-	    legend_label: 'Fusion',
-	}
-    }
-};
-
-var dont_distinguish_mutation_rule_params = {
-    'mut_type': {
-	'MISSENSE,INFRAME,TRUNC': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': '#008000',
-		    'x': '0%',
-		    'y': '33.33%',
-		    'width': '100%',
-		    'height': '33.33%',
-		    'z': 5.2,
-		}],
-	    legend_label: 'Mutation',
-	},
-	'FUSION': {
-	    shapes: [{
-		    'type': 'triangle',
-		    'fill': 'rgba(0, 0, 0, 1)',
-		    'x1': '0%',
-		    'y1': '0%',
-		    'x2': '100%',
-		    'y2': '50%',
-		    'x3': '0%',
-		    'y3': '100%',
-		    'z': 5.1,
-		}],
-	    legend_label: 'Fusion',
-	}
-    }
-};
-
-var DEFAULT_GENETIC_ALTERATION_PARAMS = {
-    rule_params: $.extend({}, non_mutation_rule_params, distinguish_mutation_rule_params)
-};
-
-var DEFAULT_GENETIC_ALTERATION_PARAMS_DONT_DISTINGUISH_MUTATIONS = {
-    rule_params: $.extend({}, non_mutation_rule_params, dont_distinguish_mutation_rule_params)
-};
 
 var extractRGBA = function (str) {
     var ret = [0, 0, 0, 1];
@@ -3012,12 +2846,7 @@ module.exports = function (params) {
     } else if (params.type === 'bar') {
 	return new BarRuleSet(params);
     } else if (params.type === 'gene') {
-	// TODO: specification of params
-	if (!!params.dont_distinguish_mutations) {
-	    return new GeneticAlterationRuleSet($.extend({}, DEFAULT_GENETIC_ALTERATION_PARAMS_DONT_DISTINGUISH_MUTATIONS, params));
-	} else {
-	    return new GeneticAlterationRuleSet($.extend({}, DEFAULT_GENETIC_ALTERATION_PARAMS, params));
-	}
+	return new GeneticAlterationRuleSet(params);
     }
 }
 },{"./oncoprintshape.js":10}],10:[function(require,module,exports){
@@ -3036,7 +2865,8 @@ var Shape = (function() {
 	    'y3': '0%',
 	    'stroke': 'rgba(0,0,0,0)', 
 	    'fill': 'rgba(23,23,23,1)', 
-	    'stroke-width': '0'
+	    'stroke-width': '0',
+	    'stroke-opacity': '0'
     };
     var parameter_name_to_dimension_index = {
 	'stroke-width':0,
@@ -3874,6 +3704,8 @@ var OncoprintWebGLCellView = (function () {
 	this.$canvas = $canvas;
 	this.$overlay_canvas = $overlay_canvas;
 	
+	this.supersampling_ratio = 2;
+	
 	this.antialias = true;
 	this.antialias_on_cell_width_thresh = 5;
 	
@@ -3957,11 +3789,11 @@ var OncoprintWebGLCellView = (function () {
 		    var overlapping_datum = (overlapping_cell === null ? null : model.getTrackDatum(overlapping_cell.track, overlapping_cell.id));
 		    if (overlapping_datum !== null) {
 			var left = model.getZoomedColumnLeft(overlapping_cell.id) - self.scroll_x;
-			overlayPaintRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+			overlayStrokeRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
 			var tracks = model.getTracks();
 			for (var i=0; i<tracks.length; i++) {
 			    if (model.getTrackDatum(tracks[i], overlapping_cell.id) !== null) {
-				overlayPaintRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
+				overlayStrokeRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 			    }
 			}
 			tooltip.show(250, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth() / 2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track) + offset.top, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
@@ -3970,15 +3802,12 @@ var OncoprintWebGLCellView = (function () {
 			tooltip.hideIfNotAlreadyGoingTo(150);
 			overlapping_cell = null;
 		    }
-		}
-		
-		if (dragging) {
+		} else {
 		    overlapping_cell = null;
 		    drag_end_x = mouseX;
 		    var left = Math.min(mouseX, drag_start_x);
 		    var right = Math.max(mouseX, drag_start_x);
-		    self.overlay_ctx.fillStyle = 'rgba(0,0,0,0.3)';
-		    self.overlay_ctx.fillRect(left,0,right-left, model.getCellViewHeight());
+		    overlayFillRect(self, left, 0, right-left, model.getCellViewHeight(), 'rgba(0,0,0,0.3)');
 		}
 	    });
 	    
@@ -4003,11 +3832,17 @@ var OncoprintWebGLCellView = (function () {
 	})(this);
     }
     
-    var overlayPaintRect = function(view, x, y, width, height, color) {
+    var overlayStrokeRect = function(view, x, y, width, height, color) {
 	var ctx = view.overlay_ctx;
 	ctx.strokeStyle = color;
 	ctx.strokeWidth = 10;
-	ctx.strokeRect(x, y, width, height);
+	ctx.strokeRect(view.supersampling_ratio*x, view.supersampling_ratio*y, view.supersampling_ratio*width, view.supersampling_ratio*height);
+    };
+    
+    var overlayFillRect = function(view, x, y, width, height, color) {
+	var ctx = view.overlay_ctx;
+	ctx.fillStyle = color;
+	ctx.fillRect(view.supersampling_ratio*x, view.supersampling_ratio*y, view.supersampling_ratio*width, view.supersampling_ratio*height);
     };
     
     var clearOverlay = function(view) {
@@ -4045,12 +3880,15 @@ var OncoprintWebGLCellView = (function () {
 		'uniform mat4 uMVMatrix;',
 		'uniform mat4 uPMatrix;',
 		'uniform float offsetY;',
+		'uniform float supersamplingRatio;',
 		'varying vec4 vColor;',
 		'void main(void) {',
 		'	gl_Position = vec4(aVertexPosition, 1.0);',
 		'	gl_Position[1] += offsetY;',
 		'	gl_Position[0] *= zoomX;',
 		'	gl_Position -= vec4(scrollX, 0.0, 0.0, 0.0);',
+		'	gl_Position[0] *= supersamplingRatio;',
+		'	gl_Position[1] *= supersamplingRatio;',
 		'	gl_Position = uPMatrix * uMVMatrix * gl_Position;',
 		'	vColor = aVertexColor;',
 		'}'].join('\n');
@@ -4074,6 +3912,7 @@ var OncoprintWebGLCellView = (function () {
 	    shader_program.scrollXUniform = self.ctx.getUniformLocation(shader_program, 'scrollX');
 	    shader_program.zoomXUniform = self.ctx.getUniformLocation(shader_program, 'zoomX');
 	    shader_program.offsetYUniform = self.ctx.getUniformLocation(shader_program, 'offsetY');
+	    shader_program.supersamplingRatioUniform = self.ctx.getUniformLocation(shader_program, 'supersamplingRatio');
 
 	    self.shader_program = shader_program;
 	})(view);
@@ -4084,10 +3923,14 @@ var OncoprintWebGLCellView = (function () {
 	var total_width = view.getTotalWidth(model);
 	var visible_area_width = view.visible_area_width;
 	view.$dummy_scroll_div.css('width', total_width);
-	view.$canvas[0].height = height;
-	view.$overlay_canvas[0].height = height;
-	view.$canvas[0].width = visible_area_width;
-	view.$overlay_canvas[0].width = visible_area_width;
+	view.$canvas[0].height = view.supersampling_ratio*height;
+	view.$canvas[0].style.height = height + 'px';
+	view.$overlay_canvas[0].height = view.supersampling_ratio*height;
+	view.$overlay_canvas[0].style.height = height + 'px';
+	view.$canvas[0].width = view.supersampling_ratio*visible_area_width;
+	view.$canvas[0].style.width = visible_area_width + 'px';
+	view.$overlay_canvas[0].width = view.supersampling_ratio*visible_area_width;
+	view.$overlay_canvas[0].style.width = visible_area_width + 'px';
 	view.$container.css('height', height);
 	view.$container.css('width', visible_area_width);
 	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),total_width-view.visible_area_width))
@@ -4127,6 +3970,7 @@ var OncoprintWebGLCellView = (function () {
 	    view.ctx.uniform1f(view.shader_program.scrollXUniform, scroll_x);
 	    view.ctx.uniform1f(view.shader_program.zoomXUniform, zoom_x);
 	    view.ctx.uniform1f(view.shader_program.offsetYUniform, cell_top);
+	    view.ctx.uniform1f(view.shader_program.supersamplingRatioUniform, view.supersampling_ratio);
 	    view.ctx.drawArrays(view.ctx.TRIANGLES, 0, buffers.position.numItems);
 	}
     };
@@ -4619,6 +4463,17 @@ module.exports = {
     },
     bgrect: function(width, height, fill) {
 	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});
+    },
+    path: function(points, stroke, fill) {
+	points = points.map(function(pt) { return pt.join(","); });
+	points[0] = 'M'+points[0];
+	for (var i=1; i<points.length; i++) {
+	    points[i] = 'L'+points[i];
+	}
+	return makeSVGElement('path', {
+	    'd': points.join(" "),
+	    'style': 'stroke:'+stroke+'; fill:'+fill+';'
+	});
     }
 };
 

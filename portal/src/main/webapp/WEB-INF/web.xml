@@ -41,7 +41,7 @@
 
     <context-param>
       <param-name>log4jConfigLocation</param-name>
-      <param-value>file://${PORTAL_HOME}/log4j.properties</param-value>
+      <param-value>classpath:log4j.properties</param-value>
     </context-param> 
 
     <!-- listeners -->

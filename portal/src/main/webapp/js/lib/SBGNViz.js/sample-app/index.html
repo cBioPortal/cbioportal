@@ -36,12 +36,11 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <input id="file-input" type="file" style="display:none" />
-                                <li><a href="#" type="file" id="new-file">New</a></li>
+                                <!-- <li><a href="#" type="file" id="new-file">New</a></li>
                                 <li><a href="#" type="file" id="load-file">Load...</a></li>
                                 <li class="dropdown-submenu">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                         Samples
-                                        <!--<b class="right-caret"></b>-->
                                     </a>
                                     <ul class="dropdown-menu">
                                         <li><a href="#" id="load-sample1">CaM-CaMK dependent signaling to the nucleus</a></li>
@@ -53,7 +52,7 @@
                                         <li><a href="#" id="load-sample7">ATM mediated phosphorylation of repair proteins</a></li>
                                         <li><a href="#" id="load-sample8">Vitamins B6 activation to pyridoxal phosphate</a></li>
                                     </ul>
-                                </li>
+                                </li> -->
                                 <li><a href="#" id="save-as-sbgnml">Save...</a></li>
                                 <li class="dropdown-submenu">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -75,11 +74,10 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="#" id="select-edit">Select/Edit</a></li>
+                                <!-- <li><a href="#" id="select-edit">Select/Edit</a></li>
                                 <li class="dropdown-submenu">
                                     <a href="#" id="add-node-menu-option" class="dropdown-toggle" data-toggle="dropdown">
                                         Add Node
-                                        <!--<b class="right-caret"></b>-->
                                     </a>
                                     <ul class="dropdown-menu" id="add-node-submenu">
                                         <li><a href="#" class="add-node-menu-item" name="macromolecule">Macromolecule</a></li>
@@ -88,7 +86,6 @@
                                         <li class="dropdown-submenu">
                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="process-menu-option">
                                                 Process
-                                                <!--<b class="right-caret"></b>-->
                                             </a>
                                             <ul class="dropdown-menu">
                                                 <li><a href="#" class="add-node-menu-item process-type" name="process" >Process</a></li>
@@ -108,7 +105,6 @@
                                         <li class="dropdown-submenu">
                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="logical-operator-menu-option">
                                                 Logical Operators
-                                                <!--<b class="right-caret"></b>-->
                                             </a>
                                             <ul class="dropdown-menu">
                                                 <li><a href="#" class="logical-operator-type add-node-menu-item" name="and">AND</a></li>
@@ -143,7 +139,7 @@
                                 <li><a href="#" id="make-compound-complex" >Add Complex for Selected</a></li>
                                 <li><a href="#" id="make-compound-compartment" >Add Compartment for Selected</a></li>
 
-                                <li class="divider"></li>
+                                <li class="divider"></li>-->
 
                                 <li><a href="#" id="delete-selected-simple">Delete Selected Simple</a></li>
                                 <li><a href="#" id="delete-selected-smart">Delete Selected Smart</a></li>
@@ -266,8 +262,8 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a href="#" id="quick-help">Quick Help</a></li>
-                                <li><a href="#" id="how-to-use">How to Use</a></li>
-                                <li><a href="#" id="about">About</a></li>
+                                <!-- <li><a href="#" id="how-to-use">How to Use</a></li> -->
+                                <!-- <li><a href="#" id="about">About</a></li> -->
                             </ul>
                         </li>
                     </ul>
@@ -280,20 +276,19 @@
             <table width="100%" height="100%" align="center" valign="center">
                 <tr>
                 <div class="inside-menu">
-                <img id="new-file-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/new.png" title="New: Create a blank SBGN-PD map">
-                <img id="load-file-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/load.png" title="Load: Load an SBGN-PD map from SBGN-ML file">
+                <!-- <img id="new-file-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/new.png" title="New: Create a blank SBGN-PD map"> -->
+                <!-- <img id="load-file-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/load.png" title="Load: Load an SBGN-PD map from SBGN-ML file"> -->
                 <img id="save-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/save.png" title="Save: Save current SBGN-PD map to an SBGN-ML file">
                 <img id="properties-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/properties.png" title="Properties: Modify general properties of current SBGN-PD map" >
                 </div>
 
                 <div class="menu-break-large sbgn-toolbar-element">&nbsp</div>
                 <div class="inside-menu">
-                <img id="select-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/select.png" title="Select / Edit" >
+                <!-- <img id="select-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/select.png" title="Select / Edit" >
                 <div class="btn-group sbgn-toolbar-element" role="group" id="node-list">
                     <button id="node-list-set-mode-btn" title="Create a new Macromolecule" type="button" class="btn" aria-haspopup="true" aria-expanded="false">
                         <div style="height: 16px;">
                             <img style="float: left; height: 16px; width: auto;" id="sbgn-selected-node-img" src="sampleapp-images/nodes/macromolecule.png"/>
-                            <!--<span style="float: right;" class="caret"></span>-->
                         </div>
                     </button>
                     <button id="node-list-dd-button" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -324,12 +319,11 @@
                         <li class="sbgn-select-node-item"><a class="dd-list-href" href="#"><img src="sampleapp-images/nodes/or.png" class="sbgn-select-img" value="or"/>OR</a></li>
                         <li class="sbgn-select-node-item"><a class="dd-list-href" href="#"><img src="sampleapp-images/nodes/not.png" class="sbgn-select-img" value="not"/>NOT</a></li>
                     </ul>
-                </div>
-                <div class="btn-group sbgn-toolbar-element" role="group" id="edge-list">
+                </div> -->
+                <!-- <div class="btn-group sbgn-toolbar-element" role="group" id="edge-list">
                     <button id="edge-list-set-mode-btn" type="button" class="btn" title="Create a new Consumption" aria-haspopup="true" aria-expanded="false">
                         <div style="height: 16px;">
                             <img style="float: left; height: 16px; width: auto;" id="sbgn-selected-edge-img" src="sampleapp-images/edges/consumption.png"/>
-                            <!--<span style="float: right;" class="caret"></span>-->
                         </div>
                     </button>
                     <button id="edge-list-dd-button" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -349,7 +343,7 @@
                         <li class="sbgn-select-edge-item"><a class="dd-list-href" href="#"><img src="sampleapp-images/edges/logicarc.png" class="sbgn-select-img" value="logic-arc"/>Logic Arc</a></li>
                         <li class="sbgn-select-edge-item"><a class="dd-list-href" href="#"><img src="sampleapp-images/edges/logicarc.png" class="sbgn-select-img" value="equivalence-arc"/>Equivalence Arc</a></li>
                     </ul>
-                </div>
+                </div> -->
 
                 <div class="menu-break-small sbgn-toolbar-element">&nbsp</div>
                 <img id="delete-selected-simple-icon" class="sbgn-toolbar-element" src="sampleapp-images/toolbar-icons/deletesimple.png" title="Delete Selected Simple: Delete selected nodes and interactions" >
@@ -504,16 +498,8 @@
             <div class="quick-help-content">
             <table align="center" valign="center">
             <tr>
-            <td><b>File | Samples | &lt;sample file&gt;</b>:
-            Load a sample model from file in SBGN-ML</td>
-            </tr>
-            <tr>
-            <td><b>File | Load</b>:
-            Load a model from file in SBGN-ML</td>
-            </tr>
-            <tr>
             <td><b>Left-click</b>:
-            Full label of the node</td>
+            Properties of node/interaction</td>
             </tr>
             <tr>
             <td><b>Right-click</b>:

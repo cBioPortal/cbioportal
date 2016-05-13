@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -71,10 +71,10 @@ public class TestImportProfileData {
 	int studyId;
 	int geneticProfileId;
 	@Autowired
-	ApplicationContext applicationContext;
+	static ApplicationContext applicationContext;
 	
-	@Before
-	public void setUp() throws DaoException {
+	@BeforeClass
+	public static void setUp() throws DaoException {
 
 		//set it, to avoid this being set to the runtime application context (instead of the test application context):
 		SpringUtil.setApplicationContext(applicationContext);
@@ -178,7 +178,7 @@ public class TestImportProfileData {
 
 
 
-    private void loadGenes() throws DaoException {
+    private static void loadGenes() throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
 	    // genes for "data_mutations_extended.txt"

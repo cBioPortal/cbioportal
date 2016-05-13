@@ -418,10 +418,7 @@ public class QueryBuilder extends HttpServlet {
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
             dispatcher.forward(request, response);
-        } else {
-//            ShowData.showDataAtSpecifiedIndex(servletContext, request,
-//                    response, 0, xdebug);
-        }
+        } 
     }
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -537,7 +534,6 @@ public class QueryBuilder extends HttpServlet {
         return errorsExist;
     }
 
-    
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,
                                     String userMessage, XDebug xdebug)
             throws ServletException, IOException {

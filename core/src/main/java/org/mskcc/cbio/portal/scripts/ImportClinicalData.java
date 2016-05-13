@@ -261,7 +261,7 @@ public class ImportClinicalData {
         return fields; 
     }
 
-    private void addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    private boolean addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
         String stableSampleId = (sampleIdIndex >= 0) ? fields[sampleIdIndex] : "";
@@ -275,16 +275,15 @@ public class ImportClinicalData {
         //check if sample is not already added:
         Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableSampleId, false);
         if (sample != null) {
+        	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
+        	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
+        	if (stableSampleId.startsWith("TCGA-")) {
+        		ProgressMonitor.logWarning("Sample " + stableSampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
+        		return false;
+        	}
         	//give error or warning if sample is already in DB and this is NOT expected (i.e. not supplemental data):
         	if (!this.isSupplementalData()) {
-	        	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
-	        	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
-	        	if (stableSampleId.startsWith("TCGA-")) {
-	        		ProgressMonitor.logWarning("Sample " + stableSampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
-	        	}
-	        	else {
-	        		throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
-	        	}
+	        	throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
         	}
         	else {
         		internalSampleId = sample.getInternalId();
@@ -304,16 +303,17 @@ public class ImportClinicalData {
         	// sample is new, so attempt to add to DB
 	        internalSampleId = (stableSampleId.length() > 0) ?
 	            addSampleToDatabase(stableSampleId, fields, columnAttrs) : -1;
+	        
         }    
-		//some minimal validation/fail safe for now: only continue if patientId is same as patient id in 
-        //existing sample (can occur in case of this.isSupplementalData or in case of parsing bug in addSampleToDatabase):
-		internalPatientId = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId).getInternalId();
-		if (internalPatientId != sample.getInternalPatientId()) {
-			throw new RuntimeException("Error: Sample " + stableSampleId + " was previously linked to another patient, and not to " + stablePatientId);
-		}
-
-    	//count:
+		
+    	//validate and count:
         if (internalSampleId != -1) {
+        	//some minimal validation/fail safe for now: only continue if patientId is same as patient id in 
+            //existing sample (can occur in case of this.isSupplementalData or in case of parsing bug in addSampleToDatabase):
+    		internalPatientId = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId).getInternalId();
+    		if (internalPatientId != DaoSample.getSampleById(internalSampleId).getInternalPatientId()) {
+    			throw new RuntimeException("Error: Sample " + stableSampleId + " was previously linked to another patient, and not to " + stablePatientId);
+    		}
         	numSamplesProcessed++;
         }
 
@@ -346,7 +346,7 @@ public class ImportClinicalData {
                          ClinicalAttribute.SAMPLE_ATTRIBUTE);
             }
         }
-        
+        return true;
     }
 
     private boolean isSupplementalData() {

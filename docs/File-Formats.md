@@ -781,8 +781,8 @@ Each event type requires its own data file, which contains all the events that e
 
 1. **PATIENT_ID**: the patient ID from the dataset
 2. **START_DATE**: the start point of any event, calculated in **_days_* from the date of diagnosis (which will act as point zero on the timeline scale)
-3. **EVENT_TYPE**: the category of the event. You are free to define any type of event here. For several event types cBioPortal has column naming suggestions and for several events there are column names which have special effects. See [event types](#event-types) for more information.
-4. **STOP_DATE**: The end date of the event is calculated in days from the date of diagnosis (which will act as point zero on the timeline scale). If the event occurs over time (e.g. a Treatment, ...) the STOP_DATE column should have values. If the event occurs at a time point (e.g. a Lab_test, Imaging, ...) the STOP_DATE is still mandatory, but the values should be blanks. 
+3. **STOP_DATE**: The end date of the event is calculated in days from the date of diagnosis (which will act as point zero on the timeline scale). If the event occurs over time (e.g. a Treatment, ...) the STOP_DATE column should have values. If the event occurs at a time point (e.g. a Lab_test, Imaging, ...) the STOP_DATE is still mandatory, but the values should be blanks.
+4. **EVENT_TYPE**: the category of the event. You are free to define any type of event here. For several event types cBioPortal has column naming suggestions and for several events there are column names which have special effects. See [event types](#event-types) for more information. 
 
 And one optional columns with a special effect:
 

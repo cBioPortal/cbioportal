@@ -496,6 +496,8 @@ public class ImportClinicalData {
 	               "meta (description) file" ).withOptionalArg().describedAs( "meta_file.txt" ).ofType( String.class );
 	        OptionSpec<String> study = parser.accepts("study",
 	                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
+	        OptionSpec<String> attributeFlag = parser.accepts("a",
+	                "Flag for using MIXED_ATTRIBUTES (deprecated)").withOptionalArg().describedAs("a").ofType(String.class);
 	        parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
 	          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
 	        parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
@@ -525,6 +527,10 @@ public class ImportClinicalData {
 	            attributesDatatype = properties.getProperty("datatype");
 	            cancerStudyStableId = properties.getProperty("cancer_study_identifier");
 	        }
+                if( options.has ( attributeFlag ) )
+                {
+                    attributesDatatype = "MIXED_ATTRIBUTES";
+                }
 
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);

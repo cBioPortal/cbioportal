@@ -123,7 +123,7 @@ public class TestImportClinicalData {
         ImportClinicalData importClinicalData = new ImportClinicalData(
                 study, clinicalFile, "MIXED_ATTRIBUTES");
         
-        exception.expect(RuntimeException.class);
+        exception.expect(DaoException.class);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
@@ -146,7 +146,7 @@ public class TestImportClinicalData {
         ImportClinicalData importClinicalData = new ImportClinicalData(
                 study, clinicalFile, "PATIENT_ATTRIBUTES");
         
-        exception.expect(RuntimeException.class);
+        exception.expect(DaoException.class);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}

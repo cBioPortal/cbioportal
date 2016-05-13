@@ -44,6 +44,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.net.URL;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 /**
@@ -194,7 +195,8 @@ public class GlobalProperties {
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
-    public static final String DARWIN_AUTH_STUDIES = "darwin.auth_studies";
+    public static final String DARWIN_AUTHORITY = "darwin.authority";
+    public static final String CIS_USER = "cis.user";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -719,12 +721,12 @@ public class GlobalProperties {
         return version;
     }
     
-    public static String getDarwinAuthUrl() {
+    public static String getDarwinAuthCheckUrl() {
         String darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL);
         if (darwinAuthUrl == null || darwinAuthUrl.isEmpty()) {
             return "";
         }
-        return darwinAuthUrl;
+        return darwinAuthUrl.trim();
     }
     
     public static String getDarwinResponseUrl() {
@@ -732,17 +734,17 @@ public class GlobalProperties {
         if (darwinResponseUrl == null || darwinResponseUrl.isEmpty()) {
             return "";
         }
-        return darwinResponseUrl;        
+        return darwinResponseUrl.trim();        
     }
     
-    public static String[] getDarwinAuthStudies() {
-        String darwinAuthStudies = properties.getProperty(DARWIN_AUTH_STUDIES);
-        if (darwinAuthStudies.isEmpty() || darwinAuthStudies == null) {
-            return null;
-        }
-        return darwinAuthStudies.split(",");
+    public static String getDarwinAuthority() {
+        return properties.getProperty(DARWIN_AUTHORITY);
     }
     
+    public static String getCisUser() {
+        return properties.getProperty(CIS_USER).trim();
+    }
+
     public static void main(String[] args)
     {
         System.out.println(getAppVersion());

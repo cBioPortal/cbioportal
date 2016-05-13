@@ -32,6 +32,9 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.portal.service.GDDService;
+import org.springframework.context.support.GenericXmlApplicationContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -44,7 +47,17 @@ public class SpringUtil
 
 	private static AccessControl accessControl;
 	private static ApplicationContext context;
-
+        
+      
+        public static GDDService getGddService() {
+            GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+            ctx.getEnvironment().setActiveProfiles("dbcp");
+            ctx.load("classpath:applicationContext-business.xml");
+            ctx.refresh();
+            return (GDDService)ctx.getBean("gddService");
+	}              
+        
+        
     public static void setAccessControl(AccessControl accessControl) {
     	log.debug("Setting access control");
 		SpringUtil.accessControl = accessControl;

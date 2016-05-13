@@ -408,8 +408,19 @@ var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
+var isImpact = false;
+
+if (cancerStudyId === 'mskimpact') {    
+    isImpact = true;
+    var gddData = {};
+    for (var i=0; i<caseIds.length; i++) {
+        gddData[caseIds[i]] = getGddData(cancerStudyId, [caseIds[i]]);
+    }
+}
+    
 var patientInfo = <%=jsonPatientInfo%>;
 var clinicalAttributes = <%=jsonClinicalAttributes%>;
+
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
 var caseMetaData = {
@@ -426,6 +437,7 @@ var mutTableIndices =
 		 "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
 mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
 
+
 $(document).ready(function(){
     OncoKB.setUrl('<%=oncokbUrl%>');
     if (print) $('#page_wrapper_table').css('width', '900px');
@@ -439,6 +451,24 @@ $(document).ready(function(){
     }
 });
 
+function getGddData(study_id, sample_ids) {
+    var arg_strings = [];
+    arg_strings.push("study_id="+study_id);
+    arg_strings.push("sample_ids="+sample_ids.join(","));
+    var arg_string = arg_strings.join("&") || "?";
+    var gdd_response = [];
+    $.ajax({
+        async: false,
+        url: 'api/gdd',
+        type: 'POST',
+        data: arg_string,
+        dataType: 'json',
+        success: function(response, text, type) { console.log(text); console.log(type); if (type["responseJSON"].length > 0) { gdd_response = JSON.parse(response); } },
+        error: function() { console.log("Request failed.");}
+    });
+    return gdd_response;
+};
+   
 function tweaksStyles() {
     $("div#content").css("margin-top","0px");
     $("body").css("background-color", "#E0E0E0");
@@ -560,7 +590,7 @@ function addMoreClinicalTooltip(elem) {
                     $(nHead).remove();
                 }
             };
-        } else {
+        } else if (thisElem.attr('id') === "more-sample-info"){
             // check if sample has clinical data
             var caseId = $(this).attr('alt');
             if (!clinicalDataMap[caseId]) {
@@ -634,6 +664,190 @@ function addMoreClinicalTooltip(elem) {
                     }
                 },
                     show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"},
+                style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+                position: pos,
+            });
+        }
+    });
+}
+
+function formatClassifierData(caseId) {
+    //format and sort classifier data for GDD
+    var classifierData = [];    
+    for (var key in gddData[caseId]['classification'][0]) {
+        classifierData.push([key, gddData[caseId]['classification'][0][key]]);
+    }    
+    
+    classifierData.sort(function(a,b) {return b[1]-a[1]});
+    sortedData = [];
+    ind = 1; 
+    for (var i=0; i<classifierData.length; i++) {
+        sortedData.push([ind,classifierData[i][0],classifierData[i][1]]);
+        ind++; 
+    }
+    return sortedData;
+}
+
+function getTopCancerType(caseId) {
+    //return cancer type with highest confidence
+    var classifierData = formatClassifierData(caseId);
+    return classifierData[0][1];
+}
+
+function setUpClassificationTable(caseId, classifierData) {
+    //set up the classification table
+    var dataTableClassifier = {
+        "dom": 'C<"clear">lfrtip',
+        "sDom": 't',
+        "bJQueryUI": true,
+        "bDestroy": true,
+        "bSort": false,
+        "aaData": classifierData,
+        "aoColumnDefs": [                              
+            {
+                "sTitle": "",
+                "aTargets": [ 0 ],
+                "sClass": "left-align-td",
+                "mRender": function ( data, type, full ) {
+                    return '<b>'+data+'</b>';
+                }
+            },
+            {
+                "sTitle": "Cancer Type",
+                "aTargets": [ 1 ],
+                "sClass": "left-align-td",
+                "mRender": function ( data, type, full ) {
+                    var attrId = caseId+'-'+data;
+                    var displayName = data.split(".").join(" ");
+                    if (displayName.startsWith("Non Small")){
+                        displayName = displayName.replace("Non Small", "Non-Small");
+                    }
+                    return '<a id="'+attrId+'" name="'+caseId+'" alt="'+data+'" onClick="switchEvidenceTable(this)">'+displayName+'</a>';
+                }                
+            },
+            {
+                "sTitle": "Confidence",
+                "aTargets": [ 2 ],
+                "sClass": "left-align-td"
+            }                    
+        ],
+        "oLanguage": {
+            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+            "sInfoFiltered": "",
+            "sLengthMenu": "Show _MENU_ per page"
+        }
+    };
+    
+    if (classifierData.length === 0) {
+        return null;
+    }
+       
+    return dataTableClassifier;
+}
+
+function setUpEvidenceTable(caseId, cancerType) {
+    //set up evidence table for GDD
+    var evidenceData = [];
+    for (var i=0; i<gddData[caseId]['evidence'][cancerType].length; i++) {
+        var row = gddData[caseId]['evidence'][cancerType][i];
+        evidenceData.push([row['feature'], row['MI'], row['varImp']]);
+    }
+    
+    var dataTableEvidence = {
+        "dom": 'C<"clear">lfrtip',
+        "sDom": 't',
+        "bJQueryUI": true,
+        "bDestroy": true,
+        "aaData": evidenceData,
+        "aoColumnDefs": [                              
+            {
+                "sTitle": "Feature",
+                "aTargets": [ 0 ],
+                "sClass": "left-align-td"
+            },
+            {
+                "sTitle": "MI",
+                "aTargets": [ 1 ],
+                "sClass": "left-align-td"
+            },
+            {
+                "sTitle": "varImp",
+                "aTargets": [ 2 ],
+                "sClass": "left-align-td"
+            }                    
+        ],
+        "aaSorting": [[1,'asc']],
+        "iDisplayLength": evidenceData.length,
+        "oLanguage": {
+            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+            "sInfoFiltered": "",
+            "sLengthMenu": "Show _MENU_ per page"
+        }
+    };
+    
+    if (evidenceData.length > 10) {
+        dataTableEvidence["scrollY"] = "200px";
+        dataTableEvidence["scrollCollapse"] = true;
+    }
+    else if (evidenceData.length === 0) {
+        return null;
+    }    
+    return dataTableEvidence;
+}
+
+function switchEvidenceTable(elem) {
+    //switch evidence table for cancer type selected 
+    var caseId;
+    var cancerType;
+    for (var i=0; i<$(elem)[0].attributes.length; i++) {
+        if ($(elem)[0].attributes[i].name === "name") {
+            caseId = $(elem)[0].attributes[i].value;
+        }
+        if ($(elem)[0].attributes[i].name === "alt") {
+            cancerType = $(elem)[0].attributes[i].value;            
+        }
+    }
+    
+    var evidenceData = [];
+    for (var i=0; i<gddData[caseId]['evidence'][cancerType].length; i++) {
+        var row = gddData[caseId]['evidence'][cancerType][i];
+        evidenceData.push([row['feature'], row['MI'], row['varImp']]);
+    }
+    
+    var dataTableEvidence = setUpEvidenceTable(caseId, cancerType);
+    var parentElem = document.getElementById("gdd-table-header-"+caseId);   
+    $(parentElem).find("#evidence-table-"+caseId).dataTable(dataTableEvidence);
+}
+
+
+function addGddTooltip(elem) {
+    $(elem).each(function( index ) {
+        var thisElem = $(this);
+        var caseId = thisElem.attr('alt');
+        var dataTableClassifier = setUpClassificationTable(caseId, formatClassifierData(caseId));
+        var dataTableEvidence = setUpEvidenceTable(caseId, getTopCancerType(caseId));
+        
+        var content_text = '<div id="gdd-table-wrapper-'+caseId+'"></div>';
+        var html_render_text = "<div id='gdd-table-header-"+caseId+"' class='dataTables_wrapper no-footer' align='left'>&nbsp;&nbsp;<h7><b><u><i><font size='2'>Genome-driven diagnosis</font></i></u></b>&nbsp;&nbsp;<img src='images/help.png' title='some link for GDD'></h7>";
+        html_render_text += "<table id='classification-table-"+caseId+"'></table><br><table id='evidence-table-"+caseId+"'></table></div>";
+
+        if (dataTableClassifier === null) {
+            thisElem.remove();
+        } else {
+            var pos = {my:'top left',at:'bottom left'};
+            thisElem.qtip({
+                content: {
+                    text: content_text
+                },
+                events: {
+                    render: function(event, api) {
+                        $(this).html(html_render_text);
+                        $(this).find("#classification-table-"+caseId).dataTable(dataTableClassifier);
+                        $(thisElem).find("#evidence-table-"+caseId).dataTable(dataTableEvidence);                  
+                    }
+                },
+                show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
                 style: { classes: 'qtip-light qtip-rounded qtip-wide' },
                 position: pos,
@@ -963,8 +1177,8 @@ function outputClinicalData() {
     var is_expanded = false;
     for (var i=0; i<n; i++) {
         var caseId = caseIds[i];
-
-        sample_recs += "<div class='sample-record-inline more-sample-info' alt='"+caseId+"'>";
+                
+        sample_recs += "<div class='sample-record-inline more-sample-info' alt='"+caseId+"'><span id='more-sample-info' alt='"+caseId+"'>";
         if (n>0) {
             sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }
@@ -976,7 +1190,21 @@ function outputClinicalData() {
         var info = [];
         info = info.concat(formatDiseaseInfo(_.omit(clinicalDataMap[caseId], Object.keys(patientInfo))));
         sample_recs += info.join(",&nbsp;");
-        sample_recs += "</a><span class='sample-record-delimiter'>, </span></div>";
+        sample_recs += "</a></span>";
+
+        //if MSK-IMPACT study then add GDD if GDD data exists for caseId
+        if (isImpact) {
+            if (Object.keys(gddData).length > 0 && Object.keys(gddData[caseId]).length > 0) {
+                var topCancerType = getTopCancerType(caseId);
+                topCancerType = topCancerType.split(".").join(" ");
+                if (topCancerType.startsWith("Non Small")) {
+                    topCancerType = topCancerType.replace("Non Small", "Non-Small");
+                }
+                sample_recs += "<span id='gdd-info' data-hasqtip='0' aria-describedby='qtip-0' alt='"+caseId+"'> <b><u>(GDD prediction:</u></b><a> "+topCancerType+"<b>)</a></b></span>";
+            }
+        }
+        sample_recs += "<span class='sample-record-delimiter'>, </span></div>";
+        
 
         if ((n > nr_in_head && i == nr_in_head-1) || (n <= nr_in_head && i == n-1)) {
             head_recs = sample_recs;
@@ -990,7 +1218,7 @@ function outputClinicalData() {
         $("#sample-btn-topbar").click(function() {
             if (!is_expanded) {
                 $("<span id='sample-tail-records'>"+tail_recs+"</span>").insertBefore("#sample-btn-topbar");
-                addMoreClinicalTooltip(".more-sample-info");
+                addMoreClinicalTooltip("#more-sample-info");
                 plotCaseLabel('.case-label-header', false, true);
                 $("#sample-btn-topbar").text("(Show less)");
                 is_expanded = true;
@@ -1007,8 +1235,11 @@ function outputClinicalData() {
         addMoreClinicalTooltip("#more-patient-info");
     }
     if (Object.keys(clinicalDataMap).length > 0) {
-        addMoreClinicalTooltip(".more-sample-info");
+       addMoreClinicalTooltip("#more-sample-info");
     }
+    if (isImpact && Object.keys(gddData).length > 0) {               
+        addGddTooltip("#gdd-info");
+    }    
 
 
     if (n>0) {

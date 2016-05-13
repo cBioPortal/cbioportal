@@ -80,9 +80,18 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			},
 			'background-color': function(ele)
 			{
+				//Paint fda approved drugs
+				if ( ele._private.data['type'] === 'Drug' &&  ele._private.data['FDA_APPROVAL'] === 'true'){
+							return "#E6A90F";
+				}
+				else if (ele._private.data['type'] === 'Drug')
+			  {
+							return "#ffffff";
+				}
+
 				if (ele._private.data['PERCENT_ALTERED'] === undefined)
 				{
-					return "#ffffff";
+							return "#ffffff";
 				}
 
 				var value = ele._private.data['PERCENT_ALTERED']*100;
@@ -374,6 +383,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 		{
 
 			var edgeType = evt.cyTarget._private.data.type;
+			cy.edges().unselect();
+			evt.cyTarget.select();
 			var sourceNodeID = evt.cyTarget.source()._private.data.label;
 			var targetNodeID = evt.cyTarget.target()._private.data.label;
 

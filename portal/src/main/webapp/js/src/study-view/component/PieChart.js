@@ -52,25 +52,16 @@ var PieChart = function(){
         selectedAttrKeys,
         selectedAttrDisplay,
         ndx,
-        labelTable,
-        pieLabelTable,
-
-        //Remember customize order after user clicking header.
-        labelTableOrder = [],
-
-        //Remember previosu filters, if filters changed, dont refresh table
-        //beause the user is modiftying the current chart. If do not changed,
-        //and chart still got redraw, then refresh table.
-        previousFilters = [],
         plotDataButtonFlag = false,
+        tableInitialized = false,
+        pieLabelTableInitialized = false,
         chartColors;
 
-    var label =[],
-        labelSize = 10,
-        sampleSize = 0,
+    var labels =[],
+        allSampleSize = 0,
+        currentSampleSize = 0;
         maxLabelNameLength = 0,
-        maxLabelValue = 0,
-        fontSize = labelSize;
+        maxLabelValue = 0;
 
     var postFilterCallback,
         postRedrawCallback,
@@ -83,41 +74,143 @@ var PieChart = function(){
     var category = ['w1','h1'];
     var currentView = 'pie'; //Default value: pie, table
 
-    var labelWLT = 30; //label length threshold for wider table
-    var labelHeaderWLT = 20; //label header length threshold for wider table
-
-    var labelLT = 4; //label length threshold
-    var labelHeaderLT = 4; //label header length threshold
-
     //The attributes will be converted to table view after initialization
     var tableAttrs = {'CANCER_TYPE':1, 'CANCER_TYPE_DETAILED':1};
 
+    var reactTableData = {};
+    var labelMetaData = [];
+    
     //This function is designed to draw Pie Labels based on current color the
     //Pie Chart has. Pagging function will be added when the number of labels
     //bigger than 5.
     function addPieLabels() {
-        var _filters =[];
-
-        d3.select('#' + DIV.mainDiv).select('.study-view-pie-label').selectAll('*').remove();
-        d3.select('#' + DIV.mainDiv).select('.study-view-pie-label-copy').selectAll('*').remove();
-
-        initLabelInfo();
+        initLabels();
+        initReactData();
         labelFunction();
-
-        _filters = pieChart.filters();
-
-        if(_filters instanceof Array && _filters.length > 0) {
-            $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
-                if(_filters.indexOf($(value).find('td:nth-child(1)').find('span span').attr('oValue')) !== -1) {
-                    $(value).find('td').addClass('highlightRow');
-                    $(value).find('td:nth-child(2) input:checkbox').attr('checked', true);
-                }
-            });
-        }
-
         addPieLabelEvents();
+
+        //Make sure table will be reinitialized when table view selected
+        if (currentView === 'table' && !tableInitialized ) {
+            initReactTable(DIV.labelTableID, reactTableData);
+            tableInitialized = true;
+        }
+    }
+    
+    function updatePieLabels() {
+        updateCurrentLabels();
+        initReactData();
+        updateTables();
+    }
+    
+    function updateTables() {
+        if(pieLabelTableInitialized && currentView === 'pie') {
+            updateQtipReactTable();
+        }
+        if(tableInitialized && currentView === 'table') {
+            updateReactTable();
+        }
     }
 
+    function initReactData() {
+        var result = {
+            data: [],
+            attributes: [
+                {
+                    "attr_id": "name",
+                    "display_name": selectedAttrDisplay,
+                    "datatype": "STRING",
+                    "column_width": 215
+                },
+                {
+                    "attr_id": "color",
+                    "display_name": "Color",
+                    "datatype": "STRING",
+                    "show": false
+                },
+                {
+                    "attr_id": "samples",
+                    "display_name": "#",
+                    "datatype": "NUMBER",
+                    "column_width": 70
+                },
+                {
+                    "attr_id": "sampleRate",
+                    "display_name": "Freq",
+                    "datatype": "PERCENTAGE",
+                    "column_width": 90
+                },
+                {
+                    "attr_id": "caseIds",
+                    "display_name": "Cases",
+                    "datatype": "STRING",
+                    "show": false
+                },
+                {
+                    "attr_id": "uniqueId",
+                    "display_name": "uniqueId",
+                    "datatype": "STRING",
+                    "show": false
+                }
+            ]
+        };
+
+        _.each(labels, function(item, index) {
+            for (var key in item) {
+                var datum = {
+                    'attr_id': key,
+                    'uniqueId': item.id,
+                    'attr_val': item[key]
+                };
+                result.data.push(datum);
+            }
+            result.data.push({
+                'attr_id': 'sampleRate',
+                'uniqueId': item.id,
+                'attr_val': ( currentSampleSize <= 0 ? 0 : (Number(item.samples) * 100 / currentSampleSize).toFixed(1).toString()) + '%'
+            });
+        });
+
+        reactTableData =  result;
+    }
+
+    function initReactTable(targetId, inputData, opts) {
+        var _filters = pieChart.filters();
+        var selectedRows = _.map(_.filter(labels, function(item) {
+            return _.contains(_filters, item.name);
+        }), function(item) {
+            return item.id.toString();
+        });
+        
+        var opts = $.extend({
+            input: inputData,
+            filter: "ALL",
+            download: "NONE",
+            downloadFileName: "data.txt",
+            showHide: false,
+            hideFilter: true,
+            scroller: true,
+            resultInfo: false,
+            groupHeader: false,
+            fixedChoose: false,
+            uniqueId: 'uniqueId',
+            rowHeight: 30,
+            tableWidth: 375,
+            maxHeight: 280,
+            headerHeight: 30,
+            groupHeaderHeight: 40,
+            autoColumnWidth: false,
+            columnMaxWidth: 300,
+            columnSorting: false,
+            tableType: 'pieLabel',
+            selectedRow: selectedRows,
+            rowClickFunc: pieLabelClick
+        }, opts);
+        
+        var testElement = React.createElement(EnhancedFixedDataTableSpecial, opts);
+
+        ReactDOM.render(testElement, document.getElementById(targetId));
+    }
+    
     function addPieLabelEvents() {
         $('#' + DIV.chartDiv + '-download-icon').qtip('destroy', true);
         $('#'+  DIV.chartDiv + '-plot-data').qtip('destroy', true);
@@ -189,10 +282,10 @@ var PieChart = function(){
                         content = content + selectedAttrDisplay + '\t';
                         content = content + 'Count';
 
-                        for(var i = 0; i < label.length; i++){
+                        for(var i = 0; i < labelMetaData.length; i++){
                             content += '\r\n';
-                            content += label[i].name + '\t';
-                            content += label[i].value;
+                            content += labelMetaData[i].name + '\t';
+                            content += labelMetaData[i].value;
                         }
 
                         var downloadOpts = {
@@ -213,78 +306,49 @@ var PieChart = function(){
                 initMainDivQtip();
             });
         }
-        //else if(category === 'extendable'){
+        
         $("#"+ DIV.chartDiv +"-extend").css('display', 'block');
+    }
 
-        //Make sure datatable will be reinitialized when table view selected
-        if (currentView === 'table' && !$.fn.DataTable.isDataTable( '#' + DIV.labelTableID+'-0' ) ) {
-            initPieLabelDataTable();
-        }
+    function updateReactTable() {
+        var data = $.extend(true, {}, reactTableData);
+        initReactTable(DIV.labelTableID, data);
+    }
+    
+    function updateQtipReactTable() {
+        var data = $.extend(true, {}, reactTableData);
+        data.attributes[0].column_width = 140;
+        initReactTable('qtip-' + DIV.mainDiv + '-content-react', data, {
+            tableWidth: 300,
+            pieLabelMouseEnterFunc: pieLabelMouseEnter,
+            pieLabelMouseLeaveFunc: pieLabelMouseLeave
+        });
     }
 
     function initMainDivQtip () {
-        var _sDom = 'rt',
-            _sScrollY = '200';
-        $('#' + DIV.mainDiv).qtip('destroy', true);
         $('#' + DIV.mainDiv).qtip({
             id: DIV.mainDiv,
             style: {
-                classes: 'qtip-light qtip-rounded qtip-shadow forceZindex qtip-max-width study-view-qtip'
+                classes: 'qtip-light qtip-rounded qtip-shadow forceZindex qtip-max-width study-view-qtip study-view-pie-label-qtip'
             },
             show: {event: "mouseover", solo: true, delay: 0, ready: true},
             hide: {fixed:true, delay: 300, event: "mouseleave"},
+            //hide: false,
             position: {my:'left center',at:'center right', viewport: $(window)},
-            content: $("<div />").append($(changePieLabelContent($(copyPieLabelTable())))).html(),
+            content: '<div id="qtip-' + DIV.mainDiv + '-content-react">Loading....</div>',
             events: {
                 render: function(event, api) {
-                    var _filters = pieChart.filters();
-                    $('#qtip-' + DIV.mainDiv + " table").attr('id', 'qtip-' + DIV.mainDiv + "-table");
-                    pieLabelTable = $('#qtip-' + DIV.mainDiv + "-table").dataTable({
-                        "sDom": _sDom,
-                        "sScrollY": _sScrollY,
-                        "bPaginate": false,
-                        "bScrollCollapse": true,
-                        "autoWidth": false,
-                        "fnDrawCallback": function() {
-                            $('#qtip-' + DIV.mainDiv).find('.hasQtip').each(function(e, i) {
-                                qtip(this, $(this).attr('oValue'));
-                            });
-                        }
-                    });
-                    if(_filters instanceof Array && _filters.length > 0) {
-                        $('#qtip-' + DIV.mainDiv + "-table").find('tr').each(function(index, value) {
-                            if(_filters.indexOf($(value).find('td:nth-child(1)').find('span span').attr('oValue')) !== -1) {
-                                $(value).find('td').addClass('highlightRow');
-                                $(value).find('td:nth-child(2) input:checkbox').attr('checked', true);
-                            }
+                    updateCurrentLabels();
+                    initReactData();
+                    var data = $.extend(true, {}, reactTableData);
+                    data.attributes[0].column_width = 140;
+                    initReactTable('qtip-' + DIV.mainDiv + '-content-react',
+                        data, {
+                            tableWidth: 300,
+                            pieLabelMouseEnterFunc: pieLabelMouseEnter,
+                            pieLabelMouseLeaveFunc: pieLabelMouseLeave
                         });
-                    }
-                    $('.pieLabel', api.elements.tooltip).mouseenter(function() {
-                        pieLabelMouseEnter($(this).parent());
-                    });
-
-                    $('.pieLabel', api.elements.tooltip).mouseleave(function(){
-                        pieLabelMouseLeave($(this).parent());
-                    });
-
-                    $('.pieLabel', api.elements.tooltip).click(function(_event){
-                        var _shiftClicked = StudyViewWindowEvents.getShiftKeyDown();
-                        _event.preventDefault();
-                        pieLabelClick($(this).parent(), _shiftClicked);
-                        api.show(_event);
-                    });
-
-                    $('table tbody tr td:nth-child(2) input:checkbox', api.elements.tooltip).change(function(_event){
-                        _event.preventDefault();
-                        pieLabelCheckboxChange(this);
-                        api.show(_event);
-                    });
-                },
-                visible: function(event, api) {
-                    if(!$('#qtip-' + DIV.mainDiv + "-table").hasClass('clicked')){
-                        pieLabelTable.fnAdjustColumnSizing();
-                        $('#qtip-' + DIV.mainDiv + "-table").addClass('clicked');
-                    }
+                    pieLabelTableInitialized = true;
                 }
             }
         });
@@ -312,47 +376,15 @@ var PieChart = function(){
                 }
 
                 removeMarker();
+                
                 // provide the postFilterCallback function with the chartID and the filter for the breadcrumbs
                 postFilterCallback(chartID, filter);
             });
             pieChart.on("preRedraw",function(chart){
-                var _filters = pieChart.filters();
                 removeMarker();
-                $('#qtip-' + DIV.mainDiv + "-table").find("tr").each(function(index, value) {
-                    var keyValue = $(value).find('td:nth-child(1)').find('.pieLabel').find('span').attr('oValue');
-
-                    if(!keyValue){
-                        keyValue = $(value).find('td:nth-child(1)').find('.pieLabel').find('span').text();
-                    }
-
-                    if(_filters.indexOf(keyValue) !== -1) {
-                        $(value).find('td').addClass("highlightRow");
-                        $(value).find('td').find('input:checkbox').attr('checked', true);
-                    }
-                });
-                $("#"+DIV.labelTableID+"-0").find("tr").each(function(index, value) {
-                    var keyValue = $(value).find('td:nth-child(1)').find('.pieLabel').find('span').attr('oValue');
-
-                    if(!keyValue){
-                        keyValue = $(value).find('td:nth-child(1)').find('.pieLabel').find('span').text();
-                    }
-
-                    if(_filters.indexOf(keyValue) !== -1) {
-                        $(value).find('td').addClass("highlightRow");
-                        $(value).find('td').find('input:checkbox').attr('checked', true);
-                    }
-                });
             });
             pieChart.on("postRedraw",function(chart){
-                var _filters = pieChart.filters();
-
-                if(
-                        (!previousFilters.equals(_filters) &&
-                        _filters.length === 0) ||
-                        previousFilters.equals(_filters) ){
-                    addPieLabels();
-                }
-                previousFilters = jQuery.extend(true, [], _filters);
+                updatePieLabels();
                 postRedrawCallback();
             });
             pieChart.on("postRender",function(chart){
@@ -408,7 +440,7 @@ var PieChart = function(){
         if(plotDataButtonFlag) {
             $("#"+DIV.chartDiv+"-plot-data").click(function(){
                 var _casesInfo = {},
-                    _labelLength = label.length,
+                    _labelLength = labels.length,
                     _caseIds = [];
 
                 StudyViewInitCharts.setPlotDataFlag(true);
@@ -426,16 +458,16 @@ var PieChart = function(){
                 _caseIds = getCaseIds();
 
                 for(var i = 0; i < _labelLength; i++){
-                    var _key = label[i].name.toString();
+                    var _key = labels[i].name.toString();
                     var _caseInfoDatum = {};
 
-                    _caseInfoDatum.caseIds = _caseIds[label[i].name];
-                    if(typeof _caseIds[label[i].name] === 'undefined') {
-                        console.log(label[i].name);
-                        console.log(_caseIds[label[i].name]);
+                    _caseInfoDatum.caseIds = _caseIds[labels[i].name];
+                    if(typeof _caseIds[labels[i].name] === 'undefined') {
+                        console.log(labels[i].name);
+                        console.log(_caseIds[labels[i].name]);
                     }
 
-                    _caseInfoDatum.color = label[i].color;
+                    _caseInfoDatum.color = labels[i].color;
                     _casesInfo[_key] = _caseInfoDatum;
                 }
                 plotDataCallback(_casesInfo, [selectedAttr, selectedAttrDisplay]);
@@ -455,9 +487,11 @@ var PieChart = function(){
 
             $('#' + DIV.chartDiv ).css('display','none');
             $('#' + DIV.titleDiv ).css('display','none');
-            if ( !$.fn.DataTable.isDataTable( '#' + DIV.labelTableID+'-0' ) ) {
-                initPieLabelDataTable(animateTable);
+            if ( tableInitialized ) {
+                animateTable();
             }else{
+                initReactTable(DIV.labelTableID, reactTableData);
+                tableInitialized = true;
                 animateTable();
             }
 
@@ -480,13 +514,6 @@ var PieChart = function(){
         });
 
         $("#"+DIV.chartDiv+"-reload-icon").click(function() {
-            $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
-                $(value).find('td').each(function (index1, value1) {
-                    if($(value1).hasClass('highlightRow')) {
-                        $(value1).removeClass('highlightRow');
-                    }
-                });
-            });
             pieChart.filterAll();
             dc.redrawAll();
         });
@@ -513,8 +540,6 @@ var PieChart = function(){
             $("#"+DIV.chartDiv+"-pie-icon").css('display', 'block');
             $("#"+DIV.chartDiv+"-table-icon").css('display', 'none');
             $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
-            if (labelTable)
-                labelTable.fnAdjustColumnSizing();
         });
     }
 
@@ -591,7 +616,7 @@ var PieChart = function(){
 
         _valueXCo = _svgWidth - maxLabelValue.toString().length * 8 -30;
 
-        //Draw label header
+        //Draw sampleSize header
         _pieLabelString += "<g transform='translate(0, "+
                     _pieLabelYCoord+")'>"+ _labelColormarker+
                     "<text x='13' y='10' "+
@@ -695,11 +720,6 @@ var PieChart = function(){
                 "<div id='" + DIV.chartDiv +"-title-wrapper'" +
                 " style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div style='height:16px;float:right;' id='"+DIV.chartDiv+"-header'>"+
-//                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
-//                chartID +").getChart().filterAll();" +
-//                "dc.redrawAll();'><span title='Reset Chart'"+
-//                "class='study-view-dc-chart-change' style='float:left; font-size:10px;'>"+
-//                "RESET</span></a>" +
                 "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+
                 _plotDataButtonDiv +
                 "<img id='"+ DIV.chartDiv +"-pie-icon' class='study-view-title-icon hover' src='images/pie.svg'/>"+
@@ -717,20 +737,7 @@ var PieChart = function(){
                 selectedAttrDisplay + ",pie'>"+
 
                 "<div style='width:180px;float:left;text-align:center'></div></div>"+
-//                "<div id='"+ DIV.chartDiv +"-extend' style='text-align:center;width: 100%;height:15px;float:left;display:none'>" + 
-//                "<img id='"+ DIV.chartDiv +"-arrow-down-icon'"+
-//                "class='study-view-arrow-icon show hover'" + 
-//                "src='images/arrow-down.svg'/>"+
-//                "<img id='"+ DIV.chartDiv +"-arrow-up-icon'"+
-//                "class='study-view-arrow-icon hidden hover'" + 
-//                "src='images/arrow-up.svg'/>"+
-//                "</div>" + 
-                "<div class='study-view-pie-label'></div><div class='study-view-pie-label-copy'></div></div>");
-            //Title has been cut with 8 head character with ..., so the length
-            //still longer than titleLengthCutoff
-//            if(_title.length > titleLengthCutoff) {
-//                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
-//            }
+                "<div class='study-view-pie-label' id='" + DIV.labelTableID + "'></div></div>");
         }
     }
 
@@ -764,30 +771,6 @@ var PieChart = function(){
             _r = Number(_pointsInfo[3]);
 
         if((_x1 - _x2!==0 || _y1 - _y2!==0) && _pointsInfo1.length === 2){
-
-            //This comment function is designed to calculate the central point
-            //between start and end points. Has been abandon since using arc
-            //marker stead of red circle marker.
-            /*
-            var _xm = (_x1 + _x2) /2,
-                _ym = (_y1 + _y2) /2;
-
-            var m = Math.sqrt((Math.pow(_xm,2)+Math.pow(_ym,2)));
-
-
-            var _tmpX = (_r + 3) / m * _xm,
-                _tmpY = (_r + 3) / m * _ym;
-
-            if(_xm === 0 && _ym === 0){
-                _tmpY = 0;
-                _tmpX = _r + 6;
-            }
-            if(_largeArc === 1 && Math.abs(_x1 - _x2) >0.1) {
-                _tmpX = -_tmpX;
-                _tmpY = -_tmpY;
-            }*/
-
-            //
             var _pointOne = Math.atan2(_y1,_x1);
             var _pointTwo = Math.atan2(_y2,_x2);
 
@@ -857,7 +840,7 @@ var PieChart = function(){
                 _color.splice(NAIndex, 0, '#CCCCCC');
             }
 
-            category[1] = selectedAttrKeys.length > 10?'h2':'h1';
+            category[1] = 'h2';
         }
 
         pieChart
@@ -874,24 +857,73 @@ var PieChart = function(){
             .ordering(function(d){ return d.key;});
     }
 
-    //Initial Label Information stored in `label` array
+    function updateCurrentLabels() {
+        labels = filterLabels();
+    }
+    
+    function initLabels() {
+        labelMetaData = initLabelInfo();
+        labels = $.extend(true, [] , labelMetaData);
+    }
+
+    function findLabel(labelName) {
+        for (var i = 0; i < labelMetaData.length; i++) {
+            if (labelMetaData[i].name === labelName) {
+                return labelMetaData[i];
+            }
+        }
+        return '';
+    }
+    
+    function filterLabels() {
+        var _labels = [];
+        currentSampleSize = 0;
+        
+        $('#' + DIV.chartDiv + '>svg>g>g').each(function(){
+            var _labelText = $(this).find('title').text();
+            var _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);
+            var _labelName = _labelText.substring(0, _labelText.lastIndexOf(":"));
+            var _labelValue = Number(_labelText.substring(_labelText.lastIndexOf(":")+1).trim());
+
+            if(_pointsInfo.length >= 10){
+
+                var _x1 = Number( _pointsInfo[1] ),
+                    _y1 = Number( _pointsInfo[2] ),
+                    _x2 = Number( _pointsInfo[8] ),
+                    _y2 = Number( _pointsInfo[9] );
+
+                if(Math.abs(_x1 - _x2) > 0.01 || Math.abs(_y1 - _y2) > 0.01){
+                    var _label = findLabel(_labelName);
+                    if(_label) {
+                        _label.samples = _labelValue;
+                        currentSampleSize += _labelValue;
+                        _labels.push(_label);
+                    }
+
+                    if(maxLabelValue < _labelValue) {
+                        maxLabelValue = _labelValue;
+                    }
+                }
+            }else{
+                StudyViewUtil.echoWarningMessg("Initial Label Error");
+            }
+        });
+        
+        return _labels;
+    }
+    
     function initLabelInfo() {
         var _labelID = 0;
-
-        sampleSize = 0;
-        label.length = 0;
+        var _labels = []
+        currentSampleSize = 0;
 
         $('#' + DIV.chartDiv + '>svg>g>g').each(function(){
-            var _labelDatum = {},
-                _labelText = $(this).find('title').text(),
-                _labelName = "",
-                _labelValue = 0,
-                _color = $(this).find('path').attr('fill'),
-                _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);
-
-            _labelName = _labelText.substring(0, _labelText.lastIndexOf(":"));
-            _labelValue = _labelText.substring(_labelText.lastIndexOf(":")+1);
-            _labelValue = Number(_labelValue.trim());
+            var _labelDatum = {};
+            var _labelText = $(this).find('title').text();
+            var _color = $(this).find('path').attr('fill');
+            var _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);
+            var _labelName = _labelText.substring(0, _labelText.lastIndexOf(":"));
+            var _labelValue = Number(_labelText.substring(_labelText.lastIndexOf(":")+1).trim());
 
             if(_pointsInfo.length >= 10){
 
@@ -905,30 +937,21 @@ var PieChart = function(){
                     _labelDatum.name = _labelName;
                     _labelDatum.color = _color;
                     _labelDatum.parentID = DIV.chartDiv;
-                    _labelDatum.value = _labelValue;
-                    sampleSize += _labelValue;
+                    _labelDatum.samples = _labelValue;
+                    currentSampleSize += _labelValue;
 
                     if(maxLabelValue < _labelValue) {
                         maxLabelValue = _labelValue;
                     }
-                    label.push(_labelDatum);
+                    _labels.push(_labelDatum);
                 }
                 _labelID++;
             }else{
                 StudyViewUtil.echoWarningMessg("Initial Label Error");
             }
         });
-
-        label.sort(function(a, b) {
-            var _a = Number(a.value),
-                _b = Number(b.value);
-
-            if(_a < _b) {
-                return 1;
-            }else {
-                return -1;
-            }
-        });
+        
+        return _labels;
     }
 
     //Initial global parameters by using passed object .
@@ -958,7 +981,7 @@ var PieChart = function(){
             }
         })
 
-        category[0]= _maxAttrL <= labelLT? 'w1' : 'w2';
+        category[0]= 'w2';
 
         if(['CANCER_TYPE', 'CANCER_TYPE_DETAILED'].indexOf(selectedAttr) !== -1) {
             category[0] = 'w2';
@@ -970,93 +993,9 @@ var PieChart = function(){
         $("#" + DIV.chartDiv).find('svg g .mark').remove();
     }
 
-    //Change the label and add tooltip accordingly based on the view width.
-    function changePieLabelContent(tableElement) {
-        var _labelLT = labelWLT; //label length threshold
-        var _labelHeaderLT = labelHeaderWLT; //label header length threshold
-
-        if (category[0] === 'w1') {
-            _labelLT = labelLT;
-            _labelHeaderLT = labelHeaderLT;
-            tableElement.addClass('smallTable');
-        } else {
-            tableElement.addClass('regularTable');
-        }
-
-        tableElement.find('tbody tr').each(function(index, row) {
-            var labelCell = $(row).find('td:nth-child(1) span.pieLabel span');
-            var label = $(labelCell).text();
-            var labelShortName = label;
-            var comparisonStr = '';
-
-            if (label.length >= _labelLT) {
-                labelShortName = label.substring(0, _labelLT - 2) + " ...";
-                labelCell.text(labelShortName);
-                labelCell.addClass('hasQtip');
-            }
-
-            comparisonStr = labelShortName !== label ? labelShortName : label;
-
-            if (maxLabelNameLength < comparisonStr.length) {
-                maxLabelNameLength = comparisonStr.length;
-            }
-        });
-
-        if (selectedAttrDisplay.length > maxLabelNameLength && selectedAttrDisplay.length > _labelHeaderLT) {
-            var firstHeaderCell = tableElement.find('thead th:nth-child(1)');
-            firstHeaderCell.addClass('hasQtip');
-            firstHeaderCell.text(selectedAttrDisplay.substring(0, maxLabelNameLength <= _labelHeaderLT ? _labelHeaderLT - 2 : maxLabelNameLength - 3) + '...');
-        }
-
-        return tableElement;
-    }
-
     //Create pie label tables. One is for table view, the other one is for storing
     //table meta data.
     function labelFunction() {
-        var _tableDiv = [];
-        var _tableDivStr = '';
-
-        _tableDiv.push('<table><thead><th oValue="' + selectedAttrDisplay +
-            '">' + selectedAttrDisplay +
-            '</th><th>#</th><th>Freq</th></thead><tbody>');
-
-        for (var i = 0; i < label.length; i++) {
-            _tableDiv.push("<tr>");
-
-            _tableDiv.push('<td  uniqueId="' +
-                DIV.labelTableTdID + label[i].id + '-' + i +
-                '"  style="font-size:' + fontSize +
-                'px;white-space: nowrap;">' +
-                '<span class="pieLabel"><svg width="' + (labelSize + 3) +
-                '" height="' +
-                labelSize + '"><rect width="' +
-                labelSize + '" height="' + labelSize + '" style="fill:' +
-                label[i].color + ';" /></svg><span' + ' oValue="' +
-                (label[i].name.replace(/'/g, "&#39;")).replace(/"/g, "&#34;") +
-                '" style="vertical-align: top">' + label[i].name +
-                '</span></span></td><td class="pieLabelValue" uniqueId="' +
-                DIV.labelTableTdID + label[i].id + '-' + i +
-                '"><span style="margin: 3px 0;padding-top: 3px;">' + label[i].value +
-                '</span><input type="checkbox" style="float:right; margin: 3px 0;" /></td>' +
-                '<td>' + (Number(label[i].value) / sampleSize * 100).toFixed(1) +
-                '%' + '</td>');
-            _tableDiv.push('</tr>');
-
-            if (maxLabelNameLength < label[i].name.length) {
-                maxLabelNameLength = label[i].name.length;
-            }
-        }
-
-        _tableDiv.push('</tbody></table>');
-        _tableDivStr = _tableDiv.join('');
-
-        d3.select('#' + DIV.mainDiv).select('.study-view-pie-label').html(_tableDivStr);
-
-        $('#' + DIV.mainDiv + ' .study-view-pie-label table').attr('id', DIV.labelTableID + '-0');
-
-        d3.select('#' + DIV.mainDiv).select('.study-view-pie-label-copy').html(_tableDivStr);
-
         if (tableAttrs.hasOwnProperty(selectedAttr) && currentView !== 'table') {
             $("#" + DIV.chartDiv + "-table-icon").click();
         }
@@ -1081,87 +1020,9 @@ var PieChart = function(){
         });
     }
 
-    function initPieLabelDataTable(callback) {
-        var _aaSorting = [], sScrollY = '255', sDom = 'rt<f>';
-
-        if(category[1] === 'h1') {
-            sScrollY = '120';
-            sDom = 'rt'
-        }
-
-        if(labelTableOrder.length === 0) {
-            _aaSorting = [[1, 'desc']];
-        }else {
-            _aaSorting = labelTableOrder;
-        }
-        
-        changePieLabelContent($('#' + DIV.labelTableID+'-0'));
-        
-        labelTable = $('#' + DIV.labelTableID+'-0').dataTable({
-            "sDom": sDom,
-            "sScrollY": sScrollY,
-            "bPaginate": false,
-            "bScrollCollapse": true,
-            "aaSorting": _aaSorting,
-            "fnInitComplete": function(oSettings, json) {
-                $('#'+ DIV.mainDiv + ' .dataTables_filter')
-                        .find('label')
-                        .contents()
-                        .filter(function(){
-                            return this.nodeType === 3;
-                        }).remove();
-
-                $('#'+ DIV.mainDiv + ' .dataTables_filter')
-                        .find('input')
-                        .attr('placeholder', 'Search...');
-
-                labelTableOrder = oSettings.aaSorting;
-            },
-            "fnDrawCallback": function() {
-                $('#'+ DIV.mainDiv).find('table tbody tr').hover(function(e, i) {
-                    $(this).find('td').addClass('hoverRow');
-                },function(e, i) {
-                    $(this).find('td').removeClass('hoverRow');
-                });
-                $('#'+ DIV.mainDiv).find('table .hasQtip').each(function(e, i) {
-                    qtip(this, $(this).attr('oValue'));
-                });
-            }
-        });
-
-        $('#' + DIV.mainDiv+' .study-view-pie-label th').click(function() {
-           labelTableOrder = labelTable.fnSettings().aaSorting;
-        });
-
-        $('#' + DIV.mainDiv+' .pieLabel').mouseenter(function() {
-            pieLabelMouseEnter($(this).parent());
-        });
-
-        $('#' + DIV.mainDiv+' .pieLabel').mouseleave(function(){
-            pieLabelMouseLeave($(this).parent());
-        });
-
-        $('#' + DIV.mainDiv+' .pieLabel').unbind('click');
-        $('#' + DIV.mainDiv+' .pieLabel').click(function(_event){
-            var _shiftClicked = StudyViewWindowEvents.getShiftKeyDown();
-            _event.preventDefault();
-            pieLabelClick($(this).parent(), _shiftClicked);
-        });
-
-        $('#' + DIV.mainDiv+' tbody tr td:nth-child(2) input:checkbox').change(function(_event){
-            _event.preventDefault();
-            pieLabelCheckboxChange(this);
-        });
-
-        if(callback && {}.toString.call(callback) === '[object Function]'){
-            callback();
-        }
-    }
-
-    function pieLabelMouseEnter(_this) {
-        var idArray = $(_this).attr('uniqueId').split('-'),
-            childID = Number(idArray[idArray.length-2])+1,
-            fatherID = Number(idArray[idArray.length-3]);
+    function pieLabelMouseEnter(data) {
+        var childID = Number(data.id) + 1,
+            fatherID = chartID;
 
         $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
             'fill-opacity': '.5',
@@ -1171,10 +1032,9 @@ var PieChart = function(){
         drawMarker(childID,fatherID);
     }
 
-    function pieLabelMouseLeave(_this) {
-        var idArray = $(_this).attr('uniqueId').split('-'),
-            childID = Number(idArray[idArray.length-2])+1,
-            fatherID = Number(idArray[idArray.length-3]),
+    function pieLabelMouseLeave(data) {
+        var childID = Number(data.id) + 1,
+            fatherID = chartID,
             arcID = fatherID+"-"+(Number(childID)-1);
 
         $("#" + DIV.chartDiv + " svg g #arc-" + arcID).remove();
@@ -1185,58 +1045,21 @@ var PieChart = function(){
         });
     }
 
-    function pieLabelClick(_this, _shiftKeyDown) {
-        var idArray = $(_this).attr('uniqueId').split('-');
+    function pieLabelClick(selectedData, selected, allSelectedData) {
+        var childaLabelID = Number(selectedData.id),
+            childID = childaLabelID + 1;
 
-        var childaLabelID = Number(idArray[idArray.length-1]),
-            childID = Number(idArray[idArray.length-2])+1,
-            chartID = Number(idArray[idArray.length-3]);
+        var arcID = chartID + "-" + (Number(childID) - 1);
 
-        var arcID = chartID+"-"+(Number(childID)-1);
-
-        if(_shiftKeyDown) {
-            $(_this).parent().toggleClass('highlightRow');
-            $(_this).parent().find('input:checkbox').attr('checked', !($(this).parent().find('input:checkbox').attr('checked')));
-            $(_this).siblings().addBack().toggleClass('highlightRow');
-            pieChart.onClick({
-                key: label[childaLabelID].name,
-                value: label[childaLabelID].value
-            });
-        }else{
-            var _isClicked = $(this).parent().hasClass('highlightRow');
-            $(_this).parent().parent().find('.highlightRow').removeClass('highlightRow');
-            $(_this).parent().parent().find('input:checkbox').attr('checked', false);
-            pieChart.filterAll();
-
-            if(!_isClicked) {
-                $(_this).parent().toggleClass('highlightRow');
-                $(_this).siblings().addBack().toggleClass('highlightRow');
-                $(_this).parent().find('input:checkbox').attr('checked', true);
-                pieChart.onClick({
-                    key: label[childaLabelID].name,
-                    value: label[childaLabelID].value
-                });
-            }else{
-                dc.redrawAll();
-            }
-        }
+        pieChart.onClick({
+            key: labelMetaData[childaLabelID].name,
+            value: labelMetaData[childaLabelID].value
+        });
         $("#" + DIV.chartDiv + " svg g #" + arcID).remove();
 
-        $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
+        $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID + ')').css({
             'fill-opacity': '1',
             'stroke-width': '1px'
-        });
-    }
-
-    function pieLabelCheckboxChange(_this) {
-        var idArray = $(_this).parent().attr('uniqueId').split('-');
-        var childaLabelID = Number(idArray[idArray.length-1]);
-
-        $(_this).parent().parent().toggleClass('highlightRow');
-        $(_this).parent().siblings().addBack().toggleClass('highlightRow');
-        pieChart.onClick({
-            key: label[childaLabelID].name,
-            value: label[childaLabelID].value
         });
     }
 
@@ -1249,14 +1072,13 @@ var PieChart = function(){
         $('#'+_DivID).qtip(_qtip);
     }
 
-    //Display pie chart or dataTable
+    //Display pie chart or table
     function displayArrange() {
         $("#"+DIV.chartDiv+"-table-icon").css('display', 'block');
         $('#' + DIV.chartDiv ).css('display','block');
         $('#' + DIV.titleDiv).css('display','block');
         $("#"+DIV.mainDiv).css({height: "165px", width: "180px"});
         $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
-        $("#"+DIV.mainDiv + " .study-view-pie-label-copy").css('display','none');
         $("#"+DIV.chartDiv+"-pie-icon").css('display', 'none');
     }
 

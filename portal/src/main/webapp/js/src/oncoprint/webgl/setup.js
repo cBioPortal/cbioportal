@@ -44,6 +44,16 @@ var utils = {
     'objectValues': function(obj) {
 	return Object.keys(obj).map(function(k) { return obj[k]; });
     },
+    'proportionToPercentString': function(p) {
+	var percent = 100*p;
+	if (p < 0.03) {
+	    // if less than 3%, use one decimal figure
+	    percent = Math.round(10*percent)/10;
+	} else {
+	    percent = Math.round(percent);
+	}
+	return percent+'%';
+    }
 };
 
 var tooltip_utils = {
@@ -60,6 +70,9 @@ var tooltip_utils = {
 	    var ret = '';
 	    if (d.mutation) {
 		ret += 'Mutation: <b>' + d.mutation + '</b><br>';
+		if (d.mut_recurrent) {
+		    ret += '<i>Contains mutation at a recurrently mutated position.</i><br>';
+		}
 	    }
 	    if (d.cna) {
 		ret += 'Copy Number Alteration: <b>' + d.cna + '</b><br>';
@@ -101,31 +114,44 @@ var tooltip_utils = {
     }
 };
 
+var makeComparatorMetric = function(array_spec) {
+    var metric = {};
+    for (var i=0; i<array_spec.length; i++) {
+	var equiv_values = [].concat(array_spec[i]);
+	for (var j=0; j<equiv_values.length; j++) {
+	    metric[equiv_values[j]] = i;
+	}
+    }
+    return metric;
+};
 var comparator_utils = {
-    'makeGeneticComparator': function (distinguish_mutations) {
+    'makeGeneticComparator': function (distinguish_mutation_types, distinguish_recurrent) {
 	var cna_key = 'cna';
-	var cna_order = utils.invertArray(['AMPLIFIED', 'HOMODELETED', 'GAINED', 'HEMIZYGOUSLYDELETED', 'DIPLOID', undefined]);
-	var mut_type_key = 'mut_type';
+	var cna_order = makeComparatorMetric(['AMPLIFIED', 'HOMODELETED', 'GAINED', 'HEMIZYGOUSLYDELETED', 'DIPLOID', undefined]);
+	var mut_type_key = distinguish_recurrent? 'mut_type_recurrence' : 'mut_type';
 	var mut_order = (function () {
-	    var _order = utils.invertArray(['FUSION', 'TRUNC', 'INFRAME', 'MISSENSE', undefined, true, false]);
-	    if (!distinguish_mutations) {
+	    var _order;
+	    if (!distinguish_mutation_types && !distinguish_recurrent) {
 		return function (m) {
 		    if (m === 'FUSION') {
 			return 0;
 		    } else {
-			return _order[!!m];
+			return ({'true': 1, 'false': 2})[!!m];
 		    }
 		    //return +(typeof m === 'undefined');
 		}
+	    } else if (!distinguish_mutation_types && distinguish_recurrent) {
+		_order = makeComparatorMetric([['INFRAME_rec', 'MISSENSE_rec'], ['FUSION', 'FUSION_rec', 'INFRAME', 'MISSENSE', 'TRUNC', 'TRUNC_rec'], undefined]); 
 	    } else {
-		return function (m) {
-		    return _order[m];
-		}
+		_order = makeComparatorMetric([['FUSION', 'FUSION_rec'], 'INFRAME_rec', 'MISSENSE_rec', 'INFRAME', 'MISSENSE', ['TRUNC', 'TRUNC_rec'], undefined, true, false]);
+	    }
+	    return function(m) {
+		return _order[m];
 	    }
 	})();
 	var mrna_key = 'mrna';
 	var rppa_key = 'rppa';
-	var regulation_order = utils.invertArray(['UPREGULATED', 'DOWNREGULATED', undefined]);
+	var regulation_order = makeComparatorMetric(['UPREGULATED', 'DOWNREGULATED', undefined]);
 
 	return function (d1, d2) {
 	    var cna_diff = utils.sign(cna_order[d1[cna_key]] - cna_order[d2[cna_key]]);
@@ -199,21 +225,21 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 							    "stroke":"black",
 							    "fill":"white"
 							}));
-	var $loading_bar_msg = $(utils.makeSVGElement("text", {
-							    'x': 2,
-							    'y':15,
-							    'font-size':11,
-							    'font-family':'Arial',
-							    'font-weight':'normal',
-							    'text-anchor':'start',
-							}))
-				.appendTo($loading_bar_svg);
 	var $loading_bar = $(utils.makeSVGElement("rect", {
 							"width":0, 
 							"height":25, 
 							"fill":"green", 
 							"stroke":"dark green"}))
 				.appendTo($loading_bar_svg);
+	var $loading_bar_msg = $(utils.makeSVGElement("text", {
+					    'x': 2,
+					    'y':15,
+					    'font-size':11,
+					    'font-family':'Arial',
+					    'font-weight':'normal',
+					    'text-anchor':'start',
+					}))
+		.appendTo($loading_bar_svg);
 
 	return {
 	    'hide': function() {
@@ -344,11 +370,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	    $.when(QuerySession.getGenomicEventData(), 
-		    QuerySession.getAlteredSamplesWholePercentageByGene(), 
+		    QuerySession.getAlteredSamplesByGene(), 
 		    QuerySession.getUnalteredSamples(),
 		    ClinicalData.getSampleData(clinical_attrs))
 		    .then(function (genetic_data, 
-				    altered_sample_percentage_by_gene, 
+				    altered_samples_by_gene, 
 				    unaltered_samples,
 				    clinical_data) {
 					
@@ -363,7 +389,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    }
 			    data_by_gene[d.gene].push(d);
 			}
-			LoadingBar.msg("");
+			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
 			oncoprint.keepSorted(false);
 			
@@ -373,7 +399,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_id, i) {
 			    var gene = State.genetic_alteration_tracks[track_id];
 			    oncoprint.setTrackData(track_id, data_by_gene[gene], 'sample');
-			    oncoprint.setTrackInfo(track_id, altered_sample_percentage_by_gene[gene] + '%');
+			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(Object.keys(altered_samples_by_gene[gene]).length/window.QuerySession.getSampleIds().length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -386,6 +412,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 			    oncoprint.keepSorted();
 			    oncoprint.releaseRendering();
+			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    done.resolve();
 			});
@@ -403,13 +430,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	    $.when(QuerySession.getCombinedPatientGenomicEventData(), 
-		    QuerySession.getAlteredPatientsWholePercentageByGene(), 
+		    QuerySession.getAlteredPatientsByGene(), 
 		    QuerySession.getUnalteredPatients(),
-		    ClinicalData.getPatientData(clinical_attrs))
+		    ClinicalData.getPatientData(clinical_attrs),
+		    QuerySession.getPatientIds())
 		    .then(function (genetic_data, 
-				    altered_patient_percentage_by_gene, 
+				    altered_patients_by_gene, 
 				    unaltered_patients,
-				    clinical_data) {
+				    clinical_data,
+				    patient_ids) {
 					
 			if (State.unaltered_cases_hidden) {
 			    oncoprint.hideIds(unaltered_patients, true);
@@ -422,7 +451,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    }
 			    data_by_gene[d.gene].push(d);
 			}
-			LoadingBar.msg("");
+			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
 			oncoprint.keepSorted(false);
 			
@@ -432,7 +461,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_id, i) {
 			    var gene = State.genetic_alteration_tracks[track_id];
 			    oncoprint.setTrackData(track_id, data_by_gene[gene], 'patient');
-			    oncoprint.setTrackInfo(track_id, altered_patient_percentage_by_gene[gene] + '%');
+			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(Object.keys(altered_patients_by_gene[gene]).length/patient_ids.length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -445,6 +474,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 			    oncoprint.keepSorted();
 			    oncoprint.releaseRendering();
+			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    done.resolve();
 			});
@@ -512,7 +542,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			var text = "Altered in ";
 			text += (state.using_sample_data ? altered_samples.length : altered_patients.length);
 			text += " (";
-			text += getPercent(state.using_sample_data ? (altered_samples.length / QuerySession.getSampleIds().length) : (altered_patients.length / patient_ids.length));
+			text += utils.proportionToPercentString((state.using_sample_data ? (altered_samples.length / QuerySession.getSampleIds().length) : (altered_patients.length / patient_ids.length)));
 			text +=") of ";
 			text += (state.using_sample_data ? QuerySession.getSampleIds().length : patient_ids.length);
 			text += " ";
@@ -532,7 +562,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'clinical_attr_id_to_sample_data': {},
 	    'clinical_attr_id_to_patient_data': {},
 	    
-	    'cell_padding_on': false,
+	    'cell_padding_on': true,
 	    'using_sample_data': (URL.getInitDataType() === 'sample'),
 	    'unaltered_cases_hidden': false,
 	    'clinical_track_legends_shown': false,
@@ -541,6 +571,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    
 	    'patient_order_loaded': new $.Deferred(),
 	    'patient_order': [],
+	    
+	    'sortby': 'data',
+	    'sortby_type': false,
+	    'sortby_recurrence': false,
+	    'colorby_type': true,
+	    'colorby_recurrence': false,
 	    
 	    'sorting_by_given_order': false,
 	    
@@ -598,13 +634,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		var track_ids = [];
 		for (var i = 0; i < genes.length; i++) {
 		    var track_params = {
-			'rule_set_params': {
-			    'type': 'gene',
-			    'legend_label': 'Genetic Alteration'
-			},
+			'rule_set_params': this.getGeneticRuleSetParams(),
 			'label': genes[i],
 			'target_group': 1,
-			'sortCmpFn': comparator_utils.makeGeneticComparator(true)
+			'sortCmpFn': this.getGeneticComparator()
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];
 		    track_ids.push(new_track_id);
@@ -663,6 +696,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    track_params['rule_set_params']['legend_label'] = attr.display_name;
 		    track_params['rule_set_params']['exclude_from_legend'] = true;
 		    track_params['label'] = attr.display_name;
+		    track_params['description'] = attr.description;
 		    track_params['removable'] = true;
 		    track_params['removeCallback'] = makeRemoveAttributeHandler(attr);
 		    track_params['sortCmpFn'] = (attr.datatype.toLowerCase() === 'number' ? 
@@ -689,6 +723,24 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    def.reject();
 		});
 		return def.promise();
+	    },
+	    'getGeneticComparator': function() {
+		return comparator_utils.makeGeneticComparator(this.colorby_type && this.sortby_type, this.colorby_recurrence && this.sortby_recurrence);
+	    },
+	    'getGeneticRuleSetParams': function() {
+		if (this.colorby_type) {
+		    if (this.colorby_recurrence) {
+			return window.geneticrules.genetic_rule_set_different_colors_recurrence;
+		    } else {
+			return window.geneticrules.genetic_rule_set_different_colors_no_recurrence;
+		    }
+		} else {
+		    if (this.colorby_recurrence) {
+			return window.geneticrules.genetic_rule_set_same_color_for_all_recurrence;
+		    } else {
+			return window.geneticrules.genetic_rule_set_same_color_for_all_no_recurrence;
+		    }
+		}
 	    }
 	};
     })();
@@ -960,7 +1012,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    NUMBER_MUTATIONS_ATTRIBUTE: {attr_id: "# mutations",
 		datatype: "NUMBER",
 		description: "Number of mutations",
-		display_name: "# mutations",
+		display_name: "Total mutations",
 		is_patient_attribute: "0"
 	    },
 	    FRACTION_GENOME_ALTERED_ATTRIBUTE: {attr_id: "FRACTION_GENOME_ALTERED",
@@ -1126,8 +1178,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     })().then(function() {
         var populate_data_promise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
 	    
-        $.when(QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), populate_data_promise).then(function(altered_samples, altered_patients) {
-	    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples : altered_patients);
+        $.when(QuerySession.getPatientIds(), QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), populate_data_promise).then(function(patient_ids, altered_samples, altered_patients) {
+	    if ((State.using_sample_data ? window.QuerySession.getSampleIds() : patient_ids).length > 200) {
+		oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples : altered_patients);
+	    }
 	    oncoprint.scrollTo(0);
 	});
 	
@@ -1284,30 +1338,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    return $slider;
 	})();
 	
-	(function setUpSortBySelector() {
-	    /*$(toolbar_selector + ' #genes_first_a').click(function () {
-		oncoprint.setTrackGroupSortPriority([1, 0]);
-	    });
-	    $(toolbar_selector + ' #clinical_first_a').click(function () {
-		oncoprint.setTrackGroupSortPriority([0, 1]);
-	    });*/
-	    $(toolbar_selector + ' #by_data_a').click(function () {
-		oncoprint.setSortConfig({'type':'tracks'});
-		State.sorting_by_given_order = false;
-	    });
-	    $(toolbar_selector + ' #alphabetically_first_a').click(function() {
-		oncoprint.setSortConfig({'type':'alphabetical'});
-		State.sorting_by_given_order = false;
-	    });
-	    $(toolbar_selector + ' #user_defined_first_a').click(function() {
-		State.sorting_by_given_order = true;
-		State.patient_order_loaded.then(function() {
-		    oncoprint.setSortConfig({'type':'order', order: (State.using_sample_data ? QuerySession.getSampleIds() : State.patient_order)});
-		});
-	    });
-	})();
-	
-	
 	(function setUpToggleCellPadding() {
 	    setUpButton($(toolbar_selector + ' #oncoprint-diagram-removeWhitespace-icon'),
 		    ['images/unremoveWhitespace.svg','images/removeWhitespace.svg'],
@@ -1346,50 +1376,84 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		});
 	    });
 	})();
-	(function setUpChangeMutationRuleSet() {
-	    var setGeneticAlterationTracksRuleSet = function(rule_set_params) {
+	(function setUpSortByAndColorBy() {
+	    $('#oncoprint_diagram_showmutationcolor_icon').hide();
+	    var updateSortByForm = function() {
+		var sortby_type_checkbox = $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="type"]');;
+		var sortby_recurrence_checkbox = $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="recurrence"]');
+		if ((State.sortby !== "data") || !State.colorby_type) {
+		    sortby_type_checkbox.attr("disabled","disabled");
+		} else {
+		    sortby_type_checkbox.removeAttr("disabled");
+		}
+		
+		if ((State.sortby !== "data") || !State.colorby_recurrence) {
+		    sortby_recurrence_checkbox.attr("disabled","disabled");
+		} else {
+		    sortby_recurrence_checkbox.removeAttr("disabled");
+		}
+	    };
+	    
+	    var updateRuleSets = function() {
+		var rule_set_params = State.getGeneticRuleSetParams();
 		var genetic_alteration_track_ids = Object.keys(State.genetic_alteration_tracks);
 		oncoprint.setRuleSet(genetic_alteration_track_ids[0], rule_set_params);
 		for (var i = 1; i < genetic_alteration_track_ids.length; i++) {
 		    oncoprint.shareRuleSet(genetic_alteration_track_ids[0], genetic_alteration_track_ids[i]);
 		}
 	    };
-	    
-	    setUpButton($(toolbar_selector + ' #oncoprint_diagram_showmutationcolor_icon'),
-		    ['images/colormutations.svg', 'images/uncolormutations.svg','images/mutationcolorsort.svg'],
-		    ['Show all mutations with the same color', 'Color-code mutations but don\'t sort by type', 'Color-code mutations and sort by type', ],
-		    function () {
-			if (State.mutations_colored_by_type && State.sorted_by_mutation_type) {
-			    return 0;
-			} else if (!State.mutations_colored_by_type) {
-			    return 1;
-			} else if (State.mutations_colored_by_type && !State.sorted_by_mutation_type) {
-			    return 2;
-			}
-		    },
-		    function () {
-			oncoprint.keepSorted(false);
-			oncoprint.suppressRendering();
-			var genetic_alteration_track_ids = Object.keys(State.genetic_alteration_tracks);
-			if (State.mutations_colored_by_type && !State.sorted_by_mutation_type) {
-			    State.sorted_by_mutation_type = true;
-			    for (var i=0; i<genetic_alteration_track_ids.length; i++) {
-				oncoprint.setTrackSortComparator(genetic_alteration_track_ids[i], comparator_utils.makeGeneticComparator(true));
-			    }
-			} else if (State.mutations_colored_by_type && State.sorted_by_mutation_type) {
-			    State.mutations_colored_by_type = false;
-			    setGeneticAlterationTracksRuleSet({'type':'gene', 'legend_label':'Genetic Alteration', 'dont_distinguish_mutations':true});
-			} else if (!State.mutations_colored_by_type) {
-			    State.mutations_colored_by_type = true;
-			    State.sorted_by_mutation_type = false;
-			    setGeneticAlterationTracksRuleSet({'type':'gene', 'legend_label':'Genetic Alteration'});
-			    for (var i=0; i<genetic_alteration_track_ids.length; i++) {
-				oncoprint.setTrackSortComparator(genetic_alteration_track_ids[i], comparator_utils.makeGeneticComparator(false));
-			    }
-			}
-			oncoprint.keepSorted();
-			oncoprint.releaseRendering();
+	    var updateSortComparators = function() {
+		var comparator = State.getGeneticComparator();
+		oncoprint.keepSorted(false);
+		var genetic_alteration_track_ids = Object.keys(State.genetic_alteration_tracks);
+		for (var i = 0; i < genetic_alteration_track_ids.length; i++) {
+		    oncoprint.setTrackSortComparator(genetic_alteration_track_ids[i], comparator);
+		}
+		oncoprint.keepSorted();
+	    };
+	    var updateSortConfig = function() {
+		if (State.sortby === "data") {
+		    oncoprint.setSortConfig({'type':'tracks'});
+		    State.sorting_by_given_order = false;
+		} else if (State.sortby === "id") {
+		    oncoprint.setSortConfig({'type':'alphabetical'});
+		    State.sorting_by_given_order = false;
+		} else if (State.sortby === "custom") {
+		    State.sorting_by_given_order = true;
+		    State.patient_order_loaded.then(function () {
+			oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? QuerySession.getSampleIds() : State.patient_order)});
 		    });
+		}
+	    };
+	    $('#oncoprint_diagram_sortby_group').find('input[name="sortby"]').change(function() {
+		State.sortby = $('#oncoprint_diagram_sortby_group').find('input[name="sortby"]:checked').val();
+		updateSortByForm();
+		updateSortConfig();
+	    });
+	    $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="type"]').change(function() {
+		State.sortby_type = $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="type"]').is(":checked");
+		updateSortComparators();
+	    });
+	    $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="recurrence"]').change(function() {
+		State.sortby_recurrence = $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="recurrence"]').is(":checked");
+		updateSortComparators();
+	    });
+	    $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"]').change(function() {
+		State.colorby_type = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="type"]').is(":checked");
+		State.colorby_recurrence = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]').is(":checked");
+		updateSortByForm();
+		updateRuleSets();
+	    });
+	    (function initFormsFromState() {
+		$('#oncoprint_diagram_sortby_group').find('input[name="sortby"][value="'+State.sortby+'"]').prop("checked", true);
+		$('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="type"]').prop("checked", State.sortby_type);
+		$('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="recurrence"]').prop("checked", State.sortby_recurrence);
+		
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="type"]').prop("checked", State.colorby_type);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]').prop("checked", State.colorby_recurrence);
+		
+		updateSortByForm();
+	    })();
 	})();
 	(function setUpShowClinicalLegendsBtn() {
 	    setUpButton($(toolbar_selector + ' #oncoprint-diagram-showlegend-icon'),
@@ -1475,38 +1539,27 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					render: function (event) {
 						$('body').on('click', '.oncoprint-diagram-download', function () {
 							var fileType = $(this).attr("type");
+							var two_megabyte_limit = 2000000;
 							if (fileType === 'pdf')
 							{
-								var svg = oncoprint.toSVG();
-								if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PDF - please download as SVG, then convert to PDF using your program of choice.");
-								    return;
-								}
-								var downloadOptions = {
-									filename: "oncoprint.pdf",
-									contentType: "application/pdf",
-									servletName: "svgtopdf.do"
-								};
-
-								cbio.download.initDownload(svg, downloadOptions);
+							    var resolution = 4;
+							    var img = oncoprint.toCanvas(function (canvas) {
+								var png_data_uri = canvas.toDataURL('image/png');
+								var doc = new jsPDF('landscape', 'pt', [canvas.width/resolution, canvas.height/resolution]);
+								doc.addImage(png_data_uri, 'PNG', 0, 0, canvas.width/resolution, canvas.height/resolution);
+								doc.save('oncoprint.pdf');
+							    }, resolution);
 							}
 							else if (fileType === 'svg')
 							{
 								cbio.download.initDownload(oncoprint.toSVG(), {filename: "oncoprint.svg"});
 							} else if (fileType === 'png')
 							{
-							    var svg = oncoprint.toSVG(true);
-							    if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PNG - please download as SVG, then convert to PNG using your program of choice.");
-								    return;
-							    }
-							    var downloadOptions = {
-									filename: "oncoprint.png",
-									contentType: "application/png",
-									servletName: "svgtopdf.do"
-							    };
-							    
-							    cbio.download.initDownload(svg, downloadOptions);
+							    var img = oncoprint.toCanvas(function(canvas) {
+								canvas.toBlob(function(blob) {
+								    saveAs(blob, "oncoprint.png");
+								}, 'image/png');
+							    }, 2);
 							}
 						});
 
@@ -1551,21 +1604,21 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 							    "stroke":"black",
 							    "fill":"white"
 							}));
-	var $loading_bar_msg = $(utils.makeSVGElement("text", {
-							    'x': 2,
-							    'y':15,
-							    'font-size':11,
-							    'font-family':'Arial',
-							    'font-weight':'normal',
-							    'text-anchor':'start',
-							}))
-				.appendTo($loading_bar_svg);
 	var $loading_bar = $(utils.makeSVGElement("rect", {
 							"width":0, 
 							"height":25, 
 							"fill":"green", 
 							"stroke":"dark green"}))
 				.appendTo($loading_bar_svg);
+	var $loading_bar_msg = $(utils.makeSVGElement("text", {
+					    'x': 2,
+					    'y':15,
+					    'font-size':11,
+					    'font-family':'Arial',
+					    'font-weight':'normal',
+					    'text-anchor':'start',
+					}))
+		.appendTo($loading_bar_svg);
 
 	return {
 	    'hide': function() {
@@ -1613,7 +1666,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 	    'first_genetic_alteration_track': null,
 	    'genetic_alteration_tracks': {}, // track_id -> gene
 
-	    'cell_padding_on': false,
+	    'cell_padding_on': true,
 	    'unaltered_cases_hidden': false,
 	    'mutations_colored_by_type': true,
 	    'sorted_by_mutation_type': true,
@@ -1631,13 +1684,12 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 		var track_ids = [];
 		for (var i = 0; i < genes.length; i++) {
 		    var track_params = {
-			'rule_set_params': {
-			    'type': 'gene',
-			    'legend_label': 'Genetic Alteration'
-			},
+			'rule_set_params': (this.mutations_colored_by_type ? 
+					    window.geneticrules.genetic_rule_set_different_colors_no_recurrence : 
+					    window.geneticrules.genetic_rule_set_same_color_for_all_no_recurrence),
 			'label': genes[i],
 			'target_group': 1,
-			'sortCmpFn': comparator_utils.makeGeneticComparator(true),
+			'sortCmpFn': comparator_utils.makeGeneticComparator(this.sorted_by_mutation_type),
 			'tooltipFn': tooltip_utils.makeGeneticTrackTooltip('sample', false),
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];
@@ -1652,11 +1704,11 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 		oncoprint.releaseRendering();
 		return track_ids;
 	    },
-	    setData: function(data_by_gene, id_key, altered_ids_by_gene, id_order) {
+	    setData: function(data_by_gene, id_key, altered_ids_by_gene, id_order, gene_order) {
 		if (id_order) {
-		    this.user_specified_order = id_order;
+		    oncoprint.setSortConfig({'type':'order', 'order':id_order});
 		} else {
-		    this.user_specified_order = null;
+		    oncoprint.setSortConfig({'type': 'tracks'});
 		}
 		
 		LoadingBar.show();
@@ -1713,6 +1765,24 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 			oncoprint.setTrackData(track_id, data_by_gene[gene], id_key);
 			oncoprint.setTrackInfo(track_id, altered_percentage_by_gene[gene] + '%');
 			LoadingBar.update(tracks_done / tracks_total);
+		    }
+		}
+		
+		if (gene_order) {
+		    var gene_to_track = {};
+		    for (var track_id in this.genetic_alteration_tracks) {
+			if (this.genetic_alteration_tracks.hasOwnProperty(track_id)) {
+			    gene_to_track[this.genetic_alteration_tracks[track_id]] = parseInt(track_id,10);
+			}
+		    }
+		    for (var i=0; i<gene_order.length; i++) {
+			var gene = gene_order[i];
+			if (i === 0) {
+			    oncoprint.moveTrack(gene_to_track[gene], null);
+			} else {
+			    var prev_gene = gene_order[i-1];
+			    oncoprint.moveTrack(gene_to_track[gene], gene_to_track[prev_gene]);
+			}
 		    }
 		}
 		oncoprint.keepSorted();
@@ -1941,6 +2011,8 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 	    });
 	})();
 	(function setUpChangeMutationRuleSet() {
+	    $('#oncoprint_diagram_showmutationcolor_icon').show();
+	    $('#oncoprint_diagram_mutation_color').hide();
 	    var setGeneticAlterationTracksRuleSet = function(rule_set_params) {
 		var genetic_alteration_track_ids = Object.keys(State.genetic_alteration_tracks);
 		oncoprint.setRuleSet(genetic_alteration_track_ids[0], rule_set_params);
@@ -2007,36 +2079,24 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 							var fileType = $(this).attr("type");
 							if (fileType === 'pdf')
 							{
-								var svg = oncoprint.toSVG();
-								if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PDF - please download as SVG, then convert to PDF using your program of choice.");
-								    return;
-								}
-								var downloadOptions = {
-									filename: "oncoprint.pdf",
-									contentType: "application/pdf",
-									servletName: "svgtopdf.do"
-								};
-
-								cbio.download.initDownload(svg, downloadOptions);
+							    var resolution = 4;
+							    var img = oncoprint.toCanvas(function (canvas) {
+								var png_data_uri = canvas.toDataURL('image/png');
+								var doc = new jsPDF('landscape', 'pt', [canvas.width/resolution, canvas.height/resolution]);
+								doc.addImage(png_data_uri, 'PNG', 0, 0, canvas.width/resolution, canvas.height/resolution);
+								doc.save('oncoprint.pdf');
+							    }, resolution);
 							}
 							else if (fileType === 'svg')
 							{
 								cbio.download.initDownload(oncoprint.toSVG(), {filename: "oncoprint.svg"});
 							} else if (fileType === 'png')
 							{
-							    var svg = oncoprint.toSVG(true);
-							    if (xml_serializer.serializeToString(svg).length > 2000000) {
-								    alert("Oncoprint too big to download as PNG - please download as SVG, then convert to PNG using your program of choice.");
-								    return;
-							    }
-							    var downloadOptions = {
-									filename: "oncoprint.png",
-									contentType: "application/png",
-									servletName: "svgtopdf.do"
-							    };
-							    
-							    cbio.download.initDownload(svg, downloadOptions);
+							    var img = oncoprint.toCanvas(function(canvas) {
+								canvas.toBlob(function(blob) {
+								    saveAs(blob, "oncoprint.png");
+								}, 'image/png');
+							    }, 2);
 							}
 						});
 
@@ -2057,7 +2117,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 	    });
 	})();
     })();
-    return function(data_by_gene, id_key, altered_ids_by_gene, id_order) {
-	State.setData(data_by_gene, id_key, altered_ids_by_gene, id_order);
+    return function(data_by_gene, id_key, altered_ids_by_gene, id_order, gene_order) {
+	State.setData(data_by_gene, id_key, altered_ids_by_gene, id_order, gene_order);
     };
 }

@@ -82,7 +82,7 @@ var OncoprintLegendView = (function() {
 		if (rule.exclude_from_legend) {
 		    continue;
 		}
-		var group = ruleToSVGGroup(rule, view, model);
+		var group = ruleToSVGGroup(rule, view, model, target_svg);
 		group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		rule_set_group.appendChild(group);
 		if (x + group.getBBox().width > view.width) {
@@ -101,7 +101,7 @@ var OncoprintLegendView = (function() {
 	view.$svg[0].setAttribute('height', everything_box.height);
     };
     
-    var ruleToSVGGroup = function(rule, view, model) {
+    var ruleToSVGGroup = function(rule, view, model, target_svg) {
 	var root = svgfactory.group(0,0);
 	var config = rule.getLegendConfig();
 	if (config.type === 'rule') {
@@ -111,7 +111,12 @@ var OncoprintLegendView = (function() {
 	    }
 	    if (typeof rule.legend_label !== 'undefined') {
 		var font_size = 12;
-		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2 - font_size/2, font_size, 'Arial', 'normal'));
+		var text_node = svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2, font_size, 'Arial', 'normal');
+		target_svg.appendChild(text_node);
+		var height = text_node.getBBox().height;
+		text_node.setAttribute('y', parseFloat(text_node.getAttribute('y')) - height/2);
+		target_svg.removeChild(text_node);
+		root.appendChild(text_node);
 	    }
 	} else if (config.type === 'number') {
 	    var num_decimal_digits = 2;
@@ -122,12 +127,16 @@ var OncoprintLegendView = (function() {
 	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
 	    root.appendChild(svgfactory.text(display_range[1], 50, 0, 12, 'Arial', 'normal'));
 	    var mesh = 100;
+	    var points = [];
+	    points.push([5, 20]);
 	    for (var i=0; i<mesh; i++) {
 		var t = i/mesh;
 		var h = config.interpFn((1-t)*config.range[0] + t*config.range[1]);
 		var height = 20*h;
-		root.appendChild(svgfactory.rect(5 + 40*i/mesh, 20-height, 40/mesh, height, config.color));
+		points.push([5 + 40*i/mesh, 20-height]);
 	    }
+	    points.push([45, 20]);
+	    root.appendChild(svgfactory.path(points, config.color, config.color));
 	}
 	return root;
     };

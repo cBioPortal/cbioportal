@@ -41,7 +41,7 @@
 		<tr>
 			<td id="vis_content">
 				<div id="cytoscapeweb">
-					<img src="images/ajax-loader.gif"/>
+					<img src="images/ajax-loader.gif" alt='loading'/>
 				</div>
 			</td>
 			<td>

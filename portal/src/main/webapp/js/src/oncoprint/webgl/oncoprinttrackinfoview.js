@@ -26,7 +26,7 @@ var OncoprintTrackInfoView = (function() {
 					.addClass('noselect');
 	    $new_label.text(model.getTrackInfo(tracks[i]));
 	    $new_label.appendTo(view.$div);
-	    $new_label.css({'top':label_tops[tracks[i]] + (model.getCellHeight(tracks[i]) - $new_label[0].clientHeight)/2});
+	    $new_label.css({'top':label_tops[tracks[i]] + (model.getCellHeight(tracks[i]) - $new_label.outerHeight())/2});
 	    view.width = Math.max(view.width, $new_label[0].clientWidth);
 	}
     };
@@ -62,13 +62,14 @@ var OncoprintTrackInfoView = (function() {
     }
     OncoprintTrackInfoView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
 	var root = svgfactory.group((offset_x || 0), (offset_y || 0));
-	var label_tops = model.getLabelTops();
+	var cell_tops = model.getCellTops();
 	var tracks = model.getTracks();
 	for (var i=0; i<tracks.length; i++) {
 	    var track_id = tracks[i];
-	    var y = label_tops[track_id];
+	    var y = cell_tops[track_id] + model.getCellHeight(track_id)/2;
 	    var info = model.getTrackInfo(track_id);
-	    var text_elt = svgfactory.text(info, 0, y, this.font_size, this.font_family, this.font_weight);
+	    var text_elt = svgfactory.text(info, 0, y, this.font_size, this.font_family, this.font_weight, "bottom");
+	    text_elt.setAttribute("dy", "0.35em");
 	    root.appendChild(text_elt);
 	}
 	return root;

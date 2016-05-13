@@ -44,7 +44,8 @@
         <%@ include file="controls-templates.jsp" %>
 
         <div id="oncoprint-statment" style="margin-left:3; margin-top: 10px">
-            <p>Case Set: <span id='oncoprint_sample_set_name'></span>: <span id='oncoprint_sample_set_description'></span></span><span><button id="switchPatientSample" type="button" valuetype="patients" class="btn btn-primary btn-xs jstree-node" style="display: none; cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2; font:small-caption;">Show samples in OncoPrint</button></span></p>
+            <p><span id='oncoprint_sample_set_name'></span><span id='oncoprint_sample_set_description'></span></span><br><br>
+                <span><button id="switchPatientSample" type="button" valuetype="patients" class="btn btn-primary btn-xs jstree-node" style="display: none; cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;color:white; background-color:#2986e2; font:small-caption;">Show samples in OncoPrint</button></span></p>
         </div>
         
         <div id="oncoprint_whole_body">
@@ -68,16 +69,29 @@
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_sortbyfirst_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span id="oncoprint_diagram_sortby_label" data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
                </button>
-               <ul class="dropdown-menu">
-                   <!--<li style="list-style-type:none;cursor:pointer" value="genes"><a id="genes_first_a">gene data first</a></li>
-                 <li style="list-style-type:none;cursor:pointer;" value="clinical" id="clinical_first"><a id="clinical_first_a">clinical data first</a></li>-->
-                   <li style="list-style-type:none; cursor:pointer;" value="data" id="by_data"><a id="by_data_a">by data</a></li>
-                 <li style="list-style-type:none;cursor:pointer" value="alphabetical"><a id="alphabetically_first_a">alphabetically by case id</a></li>
-                 <li style="list-style-type:none;cursor:pointer" value="custom"><a id="user_defined_first_a">user-defined case list / default</a></li>
-               </ul>
+                <div class="dropdown-menu" style="padding: 10px; width: 250px;">
+                   <form action="" style="margin-bottom: 0;">
+                       <input type="radio" name="sortby" value="data"> Data</input><br>
+                       <input type="checkbox" name="type" value="type" style="margin-left:10px;"> Mutation Type</input><br>
+                       <input type="checkbox" name="recurrence" value="recurrence" style="margin-left:10px;"> Mutation Recurrence</input><br>
+                       <input type="radio" name="sortby" value="id"> Case id (alphabetical)</input><br>
+                       <input type="radio" name="sortby" value="custom"> User-defined case list / default</input>
+                   </form>
+               </div>
             </div>
             <button type="button" class="btn btn-default" id="oncoprint_diagram_topatientid_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/cool2.svg" alt="icon" width="18" height="18" /></button>
             <button type="button" class="btn btn-default" id="oncoprint_diagram_showmutationcolor_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/colormutations.svg" alt="icon" width="18" height="18" /></button>
+            <div class="btn-group btn-group-sm"   id="oncoprint_diagram_mutation_color">
+               <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
+                 <span>Color Mutations by</span>&nbsp;<span class="caret"></span>
+               </button>
+               <div class="dropdown-menu" style="padding: 10px 5px; width: 120px;min-width: 120px;">
+                   <form action="" style="margin-bottom: 0;">
+                       <input type="checkbox" name="type" value="type"> Type</input><br>
+                       <input type="checkbox" name="recurrence" value="recurrence"> Recurrence</input>
+                   </form>
+               </div>
+            </div>
             <button type="button" class="btn btn-default" id="oncoprint-diagram-showlegend-icon" style="background-color:#efefef;margin:0px;display:none;"><img class="oncoprint-diagram-showlegend-icon" checked="0" src="images/showlegend.svg" alt="icon" width="18" height="18" /></button>
             <button type="button" class="btn btn-default" id="oncoprint-diagram-removeUCases-icon" style="background-color:#efefef;margin:0px"><img class="oncoprint-diagram-removeUCases-icon" checked="0" src="images/removeUCases.svg" alt="icon" width="18" height="18" /></button>
             <button type="button" class="btn btn-default" id="oncoprint-diagram-removeWhitespace-icon" style="background-color:#efefef;margin:0px"><img class="oncoprint-diagram-removeWhitespace-icon" checked="0" src="images/removeWhitespace.svg" alt="icon" width="18" height="18" /></button>
@@ -127,6 +141,13 @@
         <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
         <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/ruleset2.js"?<%=GlobalProperties.getAppVersion()%>"></script>-->
         <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/oncoprint-analysis-setup.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/lib/canvas-toBlob.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/lib/zlib.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/lib/png.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.addimage.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.png_support.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-main.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <!--<script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->

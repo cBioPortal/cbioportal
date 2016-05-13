@@ -148,7 +148,7 @@ var SurvivalCurve = function() {
             if(! $(this).data('qtip' )) {
                 var content = "<font size='2'>";
                 content += text.qTips.id + ": " + "<strong><a href='"
-                        + qtipFunc(cancer_study_id, d.case_id)
+                        + qtipFunc(window.QuerySession.getCancerStudyIds()[0], d.case_id)
                         + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                 content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                 if (d.status === "0") { // If censored, mark it

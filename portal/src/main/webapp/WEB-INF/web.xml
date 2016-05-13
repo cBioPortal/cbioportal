@@ -184,15 +184,6 @@
 	</servlet-mapping>
 
     <servlet>
-        <servlet-name>show_data</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.ShowData</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>show_data</servlet-name>
-        <url-pattern>/show_data.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
     </servlet>
@@ -253,19 +244,6 @@
     <servlet-mapping>
         <servlet-name>oma_redirect</servlet-name>
         <url-pattern>/omaRedirect.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>link_out</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/link.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/ln</url-pattern>
     </servlet-mapping>
 
 	<servlet>
@@ -329,15 +307,6 @@
     <servlet-mapping>
         <servlet-name>GisticJSON</servlet-name>
         <url-pattern>/Gistic.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>GeneDataJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>GeneDataJSON</servlet-name>
-        <url-pattern>/GeneData.json</url-pattern>
     </servlet-mapping>
 
     <servlet>

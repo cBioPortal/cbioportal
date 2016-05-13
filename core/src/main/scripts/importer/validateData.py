@@ -1818,6 +1818,7 @@ class TimelineValidator(Validator):
         'STOP_DATE',
         'EVENT_TYPE']
     REQUIRE_COLUMN_ORDER = True
+    ALLOW_BLANKS = True
 
     def checkLine(self, data):
         super(TimelineValidator, self).checkLine(data)

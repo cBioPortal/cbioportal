@@ -738,11 +738,19 @@ public class GlobalProperties {
     }
     
     public static String getDarwinAuthority() {
-        return properties.getProperty(DARWIN_AUTHORITY);
+        String darwinAuthority = properties.getProperty(DARWIN_AUTHORITY);
+        if (darwinAuthority == null || darwinAuthority.isEmpty()) {
+            return "";
+        }
+        return darwinAuthority.trim();
     }
     
     public static String getCisUser() {
-        return properties.getProperty(CIS_USER).trim();
+        String cisUser = properties.getProperty(CIS_USER).trim();
+        if (cisUser == null || cisUser.isEmpty()) {
+            return "";
+        }            
+        return cisUser;
     }
 
     public static void main(String[] args)

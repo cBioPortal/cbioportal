@@ -6,7 +6,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.1.1</version>
+  <version>1.1.2-SNAPSHOT</version>
   <description>master maven module</description>
 
   <scm>
@@ -127,13 +127,15 @@
       </properties>
     </profile>
     <profile>
-      <!-- copy files in heroku/ to root dir -->
       <id>heroku</id>
       <build>
         <plugins>
+          <!-- copy files in heroku/ to root-->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-resources-plugin</artifactId>
+            <!-- only needs to be executed for parent pom -->
+            <inherited>false</inherited>
             <version>2.7</version>
             <dependencies>
               <dependency>
@@ -161,8 +163,11 @@
               </execution>
             </executions>
           </plugin>
+          <!-- copy portal.properties.EXAMPLE -->
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
+            <!-- only needs to be executed for parent pom -->
+            <inherited>false</inherited>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -171,7 +176,9 @@
                 </goals>
                 <configuration>
                   <tasks>
-                    <copy file="${PORTAL_HOME}/src/main/resources/portal.properties.EXAMPLE" tofile="${PORTAL_HOME}/src/main/resources/portal.properties" />
+                    <copy
+                    file="${basedir}/src/main/resources/portal.properties.EXAMPLE"
+                    tofile="${basedir}/src/main/resources/portal.properties" />
                   </tasks>
                 </configuration>
               </execution>
@@ -202,7 +209,7 @@
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>1.1.0</db.version>
+    <db.version>1.2.0</db.version>
 
   </properties>
 
@@ -477,9 +484,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
-        <version>2.0-beta-1</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.5</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

@@ -62,6 +62,7 @@ public final class ImportCaisesClinicalXML {
         }
         
        OptionParser parser = new OptionParser();
+       parser.accepts("noprogress");
        OptionSpec<String> data = parser.accepts( "data",
                "caises data file" ).withRequiredArg().describedAs( "data_clinical_caises.xml" ).ofType( String.class );
        OptionSpec<String> meta = parser.accepts( "meta",

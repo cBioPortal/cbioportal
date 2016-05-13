@@ -41,7 +41,7 @@
 
     <context-param>
       <param-name>log4jConfigLocation</param-name>
-      <param-value>file://${PORTAL_HOME}/src/main/resources/log4j.properties</param-value>
+      <param-value>classpath:log4j.properties</param-value>
     </context-param> 
 
     <!-- listeners -->
@@ -132,10 +132,6 @@
         <servlet-name>portal</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>portal</servlet-name>                                                                                                                                                 
-      <url-pattern>/</url-pattern>
-    </servlet-mapping>                                                                                                                                                                    
 
     <servlet>
         <servlet-name>query_builder</servlet-name>

@@ -41,14 +41,16 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 public class RemoveCancerStudy {
 
     public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
+        if (args.length < 1) {
             System.out.println("command line usage: RemoveCancerStudy <cancer_study_identifier>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         String cancerStudyIdentifier = args[0];
 
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		SpringUtil.initDataSource();
+		System.out.println("Checking if Cancer study with identifier " + cancerStudyIdentifier + " already exists before removing...");
         if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
             System.out.println("Cancer study with identifier " + cancerStudyIdentifier + " found in database, removing...");
             DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);

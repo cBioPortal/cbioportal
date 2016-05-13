@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.util;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Misc Utility Methods for Console Applications.
@@ -52,7 +53,7 @@ public class ConsoleUtil {
      *
      */
     public static synchronized void showProgress() {
-        if (ProgressMonitor.isConsoleMode()) {
+        if (ProgressMonitor.isShowProgress()) {
             int currentValue = ProgressMonitor.getCurValue();
             if (currentValue % 100 == 0) {
                 System.err.print(".");
@@ -80,12 +81,23 @@ public class ConsoleUtil {
     }
 
     public static void showWarnings() {
-        ArrayList warningList = ProgressMonitor.getWarnings();
+        List<String> warningList = ProgressMonitor.getWarnings();
         if (warningList.size() > 0) {
             System.err.println("\nWarnings / Errors:");
             System.err.println("-------------------");
             for (int i = 0; i < warningList.size(); i++) {
                 System.err.println(i + ".  " + warningList.get(i));
+            }
+        }
+    }
+    
+    public static void showMessages() {
+    	showWarnings();
+    	List<String> debugMessages = ProgressMonitor.getDebugMessages();
+        if (debugMessages.size() > 0) {
+            System.err.println("-------------------");
+            for (int i = 0; i < debugMessages.size(); i++) {
+                System.err.println(debugMessages.get(i));
             }
         }
     }

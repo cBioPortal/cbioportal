@@ -198,6 +198,10 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     }
                 },
                 {
+                    "bSearchable": false,
+                    "aTargets": [ col_index.cytoband ]
+                },
+                {
                     "sType": 'enrichments-p-value',
                     "bSearchable": false,
                     "aTargets": [ col_index.p_val ]

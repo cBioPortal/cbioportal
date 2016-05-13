@@ -12904,14 +12904,69 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			},
 			"proteinChange": function(datum) {
 				var proteinChange = datum.mutation.proteinChange;
-				var matched = proteinChange.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+				//var matched = proteinChange.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+				var alleleAndPosition = /[A-Za-z][0-9]+./g;
+				var position = /[0-9]+/g;
+				var nonNumerical = /[^0-9]+/g;
 
-				if (matched && matched.length > 1)
+				var extractNonNumerical = function(matched) {
+					// this is to sort alphabetically
+					// in case the protein position values are the same
+					var buffer = matched[0].match(nonNumerical);
+
+					if (buffer && buffer.length > 0)
+					{
+						var str = buffer.join("");
+						buffer = [];
+
+						// since we are returning a float value
+						// assigning numerical value for each character.
+						// we have at most 2 characters, so this should be safe...
+						for (var i=0; i<str.length; i++)
+						{
+							buffer.push(str.charCodeAt(i));
+						}
+					}
+
+					return buffer;
+				};
+
+				// first priority is to match values like V600E , V600, E747G, E747, X37_, X37, etc.
+				var matched = proteinChange.match(alleleAndPosition);
+				var buffer = [];
+
+				// if no match, then search for numerical (position) match only
+				if (!matched || matched.length === 0)
 				{
-					return parseInt(matched[1]);
+					matched = proteinChange.match(position);
+				}
+				// if match, then extract the first numerical value for sorting purposes
+				else
+				{
+					// this is to sort alphabetically
+					buffer = extractNonNumerical(matched);
+					matched = matched[0].match(position);
+				}
+
+				// if match, then use the first integer value as sorting data
+				if (matched && matched.length > 0)
+				{
+					var toParse =  matched[0];
+
+					// this is to sort alphabetically
+					if (buffer && buffer.length > 0)
+					{
+						// add the alphabetical information as the decimal part...
+						// (not the best way to ensure alphabetical sorting,
+						// but in this method we are only allowed to return a numerical value)
+						toParse += "." + buffer.join("");
+					}
+
+					return parseFloat(toParse);
 				}
 				else
 				{
+					// no match at all: do not sort
 					return -Infinity;
 				}
 			},

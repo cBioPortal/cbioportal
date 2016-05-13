@@ -478,6 +478,22 @@ cbio.util = (function() {
         return target;
     }
     
+    //Get hotspot description. TODO: add type as parameter for different source of hotspot sources.
+    function getHotSpotDesc() {
+        //Single quote attribute is not supported in mutation view Backbone template.
+        //HTML entity is not supported in patient view.
+        //Another solution is to use unquoted attribute value which has been
+        //supported since HTML2.0
+        return "<b>Recurrent Hotspot</b><br/>" +
+            "This mutated amino acid was identified as a recurrent hotspot " +
+            "(statistically significant) in a population-scale cohort of " +
+            "tumor samples of various cancer types using methodology based in " +
+            "part on <a href=\"http://www.ncbi.nlm.nih.gov/pubmed/26619011\" target=\"_blank\">" +
+            "Chang et al., Nat Biotechnol, 2016</a>.<br/><br/>" +
+            "Explore all mutations at " +
+            "<a href=\"http://cancerhotspots.org/\" target=\"_blank\">http://cancerhotspots.org/</a>.";
+    }
+    
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -499,6 +515,7 @@ cbio.util = (function() {
         getLinkToSampleView: getLinkToSampleView,
         addTargetedQTip: addTargetedQTip,
         toTitleCase: toTitleCase,
+        getHotSpotDesc: getHotSpotDesc,
         replaceAll: replaceAll
     };
 

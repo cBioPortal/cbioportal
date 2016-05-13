@@ -51,7 +51,7 @@ public class ImportClinicalData {
     private int numSampleSpecificClinicalAttributesAdded = 0;
     private int numPatientSpecificClinicalAttributesAdded = 0;
     private int numEmptyClinicalAttributesSkipped = 0;
-    private int numSamplesAdded = 0;
+    private int numSamplesProcessed = 0;
     
     private static Properties properties;
 
@@ -265,65 +265,96 @@ public class ImportClinicalData {
     {
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
         String stableSampleId = (sampleIdIndex >= 0) ? fields[sampleIdIndex] : "";
+        stableSampleId = StableIdUtil.getSampleId(stableSampleId);
+        int patientIdIndex = findPatientIdColumn(columnAttrs);
+        String stablePatientId = (patientIdIndex >= 0) ? fields[patientIdIndex] : "";
+        stablePatientId = StableIdUtil.getPatientId(stablePatientId);
+        int internalSampleId = -1;
+        int internalPatientId = -1;
+        
         //check if sample is not already added:
         Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableSampleId, false);
         if (sample != null) {
-        	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
-        	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
-        	if (stableSampleId.startsWith("TCGA-")) {
-        		ProgressMonitor.logWarning("Sample " + stableSampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
+        	//give error or warning if sample is already in DB and this is NOT expected (i.e. not supplemental data):
+        	if (!this.isSupplementalData()) {
+	        	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
+	        	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
+	        	if (stableSampleId.startsWith("TCGA-")) {
+	        		ProgressMonitor.logWarning("Sample " + stableSampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
+	        	}
+	        	else {
+	        		throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
+	        	}
         	}
         	else {
-        		throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
+        		internalSampleId = sample.getInternalId();
         	}
         }
         else {
-        	// sample is new/unique, go ahead and add its attributes,
-        	// so attempt to add both a patient and sample to database
-            int patientIdIndex = findPatientIdColumn(columnAttrs);
-            int internalPatientId = (patientIdIndex >= 0) ?
-                addPatientToDatabase(fields[patientIdIndex]) : -1; 
-	        int internalSampleId = (stableSampleId.length() > 0) ?
+        	Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);
+        	if (patient != null) {
+        		//patient exists, get internal id:
+        		internalPatientId = patient.getInternalId();
+        	}
+        	else {
+        		//add patient:
+	            internalPatientId = (patientIdIndex >= 0) ?
+	                addPatientToDatabase(fields[patientIdIndex]) : -1;
+        	}
+        	// sample is new, so attempt to add to DB
+	        internalSampleId = (stableSampleId.length() > 0) ?
 	            addSampleToDatabase(stableSampleId, fields, columnAttrs) : -1;
-	            
-	        //count:
-	        if (internalSampleId != -1) {
-	        	numSamplesAdded++;
-	        }
-	
-	        // this will happen when clinical file contains sample id, but not patient id
-	        //TODO - this part, and the dummy patient added in addSampleToDatabase, can be removed as the field PATIENT_ID is now
-	        //always required (as validated at start of importData() ). Probably kept here for "old" studies, but Ben's tests did not find anything...
-	        // --> alternative would be to be less strict in validation at importData() and allow for missing PATIENT_ID when type is MIXED... 
-	        if (internalPatientId == -1 && internalSampleId != -1) {
-	            sample = DaoSample.getSampleById(internalSampleId);
-	            internalPatientId = sample.getInternalPatientId();
-	        }
-	
-	        for (int lc = 0; lc < fields.length; lc++) {
-	            //if lc is sampleIdIndex or patientIdIndex, skip as well since these are the relational fields:
-	            if (lc == sampleIdIndex || lc == patientIdIndex) {
-	            	continue;
-	        	}
-	        	//if the value matches one of the missing values, skip this attribute:
-	            if (MissingAttributeValues.has(fields[lc])) {
-	            	numEmptyClinicalAttributesSkipped++;
-	                continue;
-	            }
-	            boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
-	            if (isPatientAttribute && internalPatientId != -1) {
-	                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
-	                         ClinicalAttribute.PATIENT_ATTRIBUTE);
-	            }
-	            else if (internalSampleId != -1) {
-	                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
-	                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
-	            }
-	        }
+        }    
+		//some minimal validation/fail safe for now: only continue if patientId is same as patient id in 
+        //existing sample (can occur in case of this.isSupplementalData or in case of parsing bug in addSampleToDatabase):
+		internalPatientId = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId).getInternalId();
+		if (internalPatientId != sample.getInternalPatientId()) {
+			throw new RuntimeException("Error: Sample " + stableSampleId + " was previously linked to another patient, and not to " + stablePatientId);
+		}
+
+    	//count:
+        if (internalSampleId != -1) {
+        	numSamplesProcessed++;
         }
+
+        // this will happen when clinical file contains sample id, but not patient id
+        //TODO - this part, and the dummy patient added in addSampleToDatabase, can be removed as the field PATIENT_ID is now
+        //always required (as validated at start of importData() ). Probably kept here for "old" studies, but Ben's tests did not find anything...
+        // --> alternative would be to be less strict in validation at importData() and allow for missing PATIENT_ID when type is MIXED... 
+        if (internalPatientId == -1 && internalSampleId != -1) {
+            sample = DaoSample.getSampleById(internalSampleId);
+            internalPatientId = sample.getInternalPatientId();
+        }
+
+        for (int lc = 0; lc < fields.length; lc++) {
+            //if lc is sampleIdIndex or patientIdIndex, skip as well since these are the relational fields:
+            if (lc == sampleIdIndex || lc == patientIdIndex) {
+            	continue;
+        	}
+        	//if the value matches one of the missing values, skip this attribute:
+            if (MissingAttributeValues.has(fields[lc])) {
+            	numEmptyClinicalAttributesSkipped++;
+                continue;
+            }
+            boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
+            if (isPatientAttribute && internalPatientId != -1) {
+                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                         ClinicalAttribute.PATIENT_ATTRIBUTE);
+            }
+            else if (internalSampleId != -1) {
+                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
+            }
+        }
+        
     }
 
-    private int findPatientIdColumn(List<ClinicalAttribute> attrs)
+    private boolean isSupplementalData() {
+    	//TODO : for now this is only true in MIXED_ATTRIBUTES type. We could add an extra flag "SUPPLEMENTAL_DATA" to make this more explicit:
+    	return this.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES;
+	}
+
+	private int findPatientIdColumn(List<ClinicalAttribute> attrs)
     {
         return findAttributeColumnIndex(PATIENT_ID_COLUMN_NAME, attrs);
     }
@@ -457,7 +488,7 @@ public class ImportClinicalData {
     }
     
     public int getNumSamplesAdded() {
-    	return numSamplesAdded;
+    	return numSamplesProcessed;
     }
     
     /**

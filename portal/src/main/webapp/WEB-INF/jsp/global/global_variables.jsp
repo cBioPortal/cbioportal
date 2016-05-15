@@ -101,6 +101,7 @@
 
     //Info about Patient Set(s)/Patients
     ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
+    String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String sampleSetName = "";
     String sampleSetDescription = "";
@@ -233,7 +234,7 @@
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
                                                             ['<%=cancerTypeId%>'.trim()],
-                                                            '<%=samples%>'.trim().split(/\s+/),
+                                                            JSON.parse('<%=studySampleMapJson%>'),
                                                             parseFloat('<%=zScoreThreshold%>'),
                                                             parseFloat('<%=rppaScoreThreshold%>'),
                                                             {

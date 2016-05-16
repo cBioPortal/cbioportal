@@ -82,7 +82,8 @@ public class TestImportCopyNumberSegmentData {
 
         String[] args = {
         		"--data","target/test-classes/segment/data_cna_hg19.seg",
-        		"--meta","target/test-classes/segment/meta_cna_hg19_seg.txt"        		
+        		"--meta","target/test-classes/segment/meta_cna_hg19_seg.txt",
+        		"--loadMode", "bulkLoad"
         		};
         ImportCopyNumberSegmentData runner = new ImportCopyNumberSegmentData(args);
         runner.run(); 

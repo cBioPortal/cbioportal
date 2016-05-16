@@ -102,22 +102,6 @@
     </filter-mapping>
 
     <filter>
-        <filter-name>XssFilter</filter-name>
-        <display-name>Xss Filter</display-name>
-        <description>
-            Applied to all requests to filter out malicious XSS attacks.
-            Wraps the request, allowing it to be used as a regular request,
-            'as if' it were parsed by the Servlet API.
-        </description>
-        <filter-class>org.mskcc.cbio.portal.util.XssFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>XssFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
         <filter-name>SessionServiceFilter</filter-name>
         <display-name>Session Service Filter</display-name>
         <description>
@@ -135,7 +119,27 @@
     <filter-mapping>
         <filter-name>SessionServiceFilter</filter-name>
         <url-pattern>/index.do</url-pattern>
+        <url-pattern>/cross_cancer.do</url-pattern>
     </filter-mapping>
+
+    <!-- make sure XssFilter runs last, so that any new parameters added
+         (for example in SessionServiceFilter) are also cleaned -->
+    <filter>
+        <filter-name>XssFilter</filter-name>
+        <display-name>Xss Filter</display-name>
+        <description>
+            Applied to all requests to filter out malicious XSS attacks.
+            Wraps the request, allowing it to be used as a regular request,
+            'as if' it were parsed by the Servlet API.
+        </description>
+        <filter-class>org.mskcc.cbio.portal.util.XssFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>XssFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
 
     <!-- servlet definitions & mappings -->
     

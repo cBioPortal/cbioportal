@@ -263,6 +263,10 @@ public final class DaoMutation {
         return geneSet;
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static ArrayList<ExtendedMutation> getMutations (long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -288,6 +292,10 @@ public final class DaoMutation {
         return mutationList;
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static ArrayList<ExtendedMutation> getMutations (long entrezGeneId, String aminoAcidChange) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -314,6 +322,10 @@ public final class DaoMutation {
         return mutationList;
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, int sampleId) throws DaoException {
         return getMutations(geneticProfileId, Arrays.asList(new Integer(sampleId)));
     }
@@ -365,6 +377,10 @@ public final class DaoMutation {
         }
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static ArrayList<ExtendedMutation> getMutations (long entrezGeneId, String aminoAcidChange, int excludeSampleId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -449,7 +465,10 @@ public final class DaoMutation {
      * @param geneticProfileId
      * @return
      * @throws DaoException
+     *
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
      */
+    @Deprecated
     public static ArrayList<ExtendedMutation> getAllMutations (int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -475,6 +494,10 @@ public final class DaoMutation {
         return mutationList;
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static Set<ExtendedMutation.MutationEvent> getAllMutationEvents() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -583,6 +606,10 @@ public final class DaoMutation {
         return event;
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static int getCount() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -654,7 +681,10 @@ public final class DaoMutation {
      * @param profileId
      * @return Map &lt; case id, mutation count &gt;
      * @throws DaoException
+     *
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
      */
+    @Deprecated
     public static int countMutationEvents(int profileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -718,7 +748,10 @@ public final class DaoMutation {
      * get events for each sample
      * @return Map &lt; sample id, list of event ids &gt;
      * @throws DaoException
+     *
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
      */
+    @Deprecated
     public static Map<Integer, Set<Long>> getSamplesWithMutations(Collection<Long> eventIds) throws DaoException {
         return getSamplesWithMutations(StringUtils.join(eventIds, ","));
     }
@@ -728,7 +761,10 @@ public final class DaoMutation {
      * @param concatEventIds event ids concatenated by comma (,)
      * @return Map &lt; sample id, list of event ids &gt;
      * @throws DaoException
+     *
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
      */
+    @Deprecated
     public static Map<Integer, Set<Long>> getSamplesWithMutations(String concatEventIds) throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
@@ -820,7 +856,10 @@ public final class DaoMutation {
      * @param entrezGeneIds event ids concatenated by comma (,)
      * @return Map &lt; sample, list of event ids &gt;
      * @throws DaoException
+     *
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
      */
+    @Deprecated
     public static Map<Sample, Set<Long>> getSimilarSamplesWithMutatedGenes(
             Collection<Long> entrezGeneIds) throws DaoException {
         if (entrezGeneIds.isEmpty()) {
@@ -1191,6 +1230,10 @@ public final class DaoMutation {
         }
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static Set<Long> getGenesOfMutations(
             Collection<Long> eventIds, int profileId) throws DaoException {
         return getGenesOfMutations(StringUtils.join(eventIds, ","), profileId);
@@ -1267,6 +1310,10 @@ public final class DaoMutation {
         return value ? "1" : "0";
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static void deleteAllRecordsInGeneticProfile(long geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

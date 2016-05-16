@@ -34,6 +34,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -170,16 +171,9 @@
             $(".query-toggle").toggle();
         });
 
-        $("a.result-tab").click(function(){
-            if($(this).attr("href")=="#bookmark_email") {
-                $("#bookmark-link").attr("href",window.location.href);
-            }
-        });
-
-        $("#bookmark-link").attr("href", window.location.href);
-        $("#bitly-generator").click(function() {
-            bitlyURL(window.location.href);
-        });
+        $("#cc-bookmark-link").click(function() {
+            saveSession(window.location.href, $(this).data('session'));
+        }); 
 
     });
 
@@ -202,7 +196,7 @@
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
             </li>
             <li>
-                <a href='#cc-bookmark' class='result-tab' title="Bookmark or generate a URL for email">
+                <a href='#cc-bookmark' id='cc-bookmark-link' class='result-tab' title="Bookmark or generate a URL for email" data-session='<%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>'>
                     Bookmark
                 </a>
             </li>
@@ -289,16 +283,13 @@
         </div>
 
         <div class="section" id="cc-bookmark">
-            <h4>Right click</b> on the link below to bookmark your results or send by email:</h4>
+            <h4>Right click on one of the links below to bookmark your results:</h4>
             <br/>
-            <a  id="bookmark-link" href="#">
-                <%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?...
-            </a>
             <br/>
+            <div id='session-id'></div>
             <br/>
 
-            If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>
-            <BR><button type="button" id="bitly-generator">Shorten URL</button>
+            If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>
             <div id='bitly'></div>
         </div>
 

@@ -487,7 +487,7 @@ public class ImportClinicalData {
     	return numEmptyClinicalAttributesSkipped;
     }
     
-    public int getNumSamplesAdded() {
+    public int getNumSamplesProcessed() {
     	return numSamplesProcessed;
     }
     
@@ -580,13 +580,13 @@ public class ImportClinicalData {
                 		importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) { 
                 	ProgressMonitor.setCurrentMessage("Total number of sample specific clinical attributes added:  "
                         + importClinicalData.getNumSampleSpecificClinicalAttributesAdded());
-                	ProgressMonitor.setCurrentMessage("Total number of samples added:  "
-                        + importClinicalData.getNumSamplesAdded());
+                	ProgressMonitor.setCurrentMessage("Total number of samples processed:  "
+                        + importClinicalData.getNumSamplesProcessed());
                 }
                 ProgressMonitor.setCurrentMessage("Total number of attribute values skipped because of empty value:  "
                         + importClinicalData.getNumEmptyClinicalAttributesSkipped());
-                if (importClinicalData.getAttributesType() != ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
-                	(importClinicalData.getNumSampleSpecificClinicalAttributesAdded() + importClinicalData.getNumSamplesAdded()) == 0) {
+                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES &&
+                	(importClinicalData.getNumSampleSpecificClinicalAttributesAdded() + importClinicalData.getNumSamplesProcessed()) == 0) {
                 	//should not occur: 
                 	throw new RuntimeException("No data was added.  " +
                             "Please check your file format and try again.");
@@ -597,6 +597,13 @@ public class ImportClinicalData {
                     throw new RuntimeException("No data was added.  " +
                             "Please check your file format and try again. If you only have sample clinical data, then a patients file with only PATIENT_ID column is not required.");
                 }
+                //backward compatible check (TODO - remove this later):
+                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES &&
+                    (importClinicalData.getNumPatientSpecificClinicalAttributesAdded() + importClinicalData.getNumSampleSpecificClinicalAttributesAdded()) == 0) {
+                    	//should not occur: 
+                    	throw new RuntimeException("No data was added.  " +
+                                "Please check your data and try again.");
+                    }
                 ProgressMonitor.setCurrentMessage("Done.");
 
             }

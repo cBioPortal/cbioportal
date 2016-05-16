@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.service.MutationService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
@@ -290,17 +291,18 @@ public class ApiService {
 		return geneticProfileMapper.getGeneticProfiles(genetic_profile_ids);
 	}
 
-        @Transactional
-        private List<DBSampleList> addSampleIdsToSampleLists(List<DBSampleList> incomplete_lists) {
-            for (DBSampleList l : incomplete_lists) {
-                List<DBSample> sample_list = sampleListMapper.getSampleIds(l.id);
-                l.sample_ids = new ArrayList<>();
-                for (DBSample samp : sample_list) {
-                    l.sample_ids.add(samp.id);
-                }
-            }
-            return incomplete_lists;
-        }
+	@Transactional
+	private List<DBSampleList> addSampleIdsToSampleLists(List<DBSampleList> incomplete_lists) {
+		for (DBSampleList l : incomplete_lists) {
+			List<DBSample> sample_list = sampleListMapper.getSampleIds(l.id);
+			l.sample_ids = new ArrayList<>();
+			for (DBSample samp : sample_list) {
+				l.sample_ids.add(samp.id);
+			}
+		}
+		return incomplete_lists;
+	}
+
 	@Transactional
 	public List<DBSampleList> getSampleLists() {
 		return addSampleIdsToSampleLists(sampleListMapper.getAllIncompleteSampleLists());
@@ -316,7 +318,6 @@ public class ApiService {
 		return addSampleIdsToSampleLists(sampleListMapper.getIncompleteSampleLists(sample_list_ids));
 	}
 
-	
 	@Transactional
 	public List<DBPatient> getPatients(String study_id) {
 		return patientMapper.getPatientsByStudy(study_id);
@@ -326,7 +327,7 @@ public class ApiService {
 	public List<DBPatient> getPatientsByPatient(String study_id, List<String> patient_ids) {
 		return patientMapper.getPatientsByPatient(study_id, patient_ids);
 	}
-	
+
 	@Transactional
 	public List<DBPatient> getPatientsBySample(String study_id, List<String> sample_ids) {
 		return patientMapper.getPatientsBySample(study_id, sample_ids);
@@ -360,16 +361,23 @@ public class ApiService {
 		List<Serializable> result = new ArrayList<>();
 
 		if (!mutationProfiles.isEmpty()) {
-			result.addAll(mutationService.getMutations(mutationProfiles, hugoGeneSymbols, sampleStableIds,
-					sampleListStableId));
+			result.addAll(addSampleListIdToMutationList(mutationService.getMutations(mutationProfiles, hugoGeneSymbols, sampleStableIds, sampleListStableId), sampleListStableId));
 		}
-
 		if (!nonMutationProfiles.isEmpty()) {
 			result.addAll(getNonMutationGeneticProfileData(nonMutationProfiles, hugoGeneSymbols, sampleStableIds,
 					sampleListStableId));
 		}
 
 		return result;
+	}
+
+	private List<MutationWithSampleListId> addSampleListIdToMutationList(List<Mutation> mutations, String sampleListId) {
+
+		ArrayList<MutationWithSampleListId> mutationsWithSampleListId = new ArrayList<MutationWithSampleListId>(mutations.size());
+		for (Mutation mutation : mutations) {
+			mutationsWithSampleListId.add(new MutationWithSampleListId(mutation, sampleListId));
+		}
+		return mutationsWithSampleListId;
 	}
 
 	private List<DBProfileData> getNonMutationGeneticProfileData(List<String> non_mutation_profiles, List<String> genes,
@@ -437,7 +445,6 @@ public class ApiService {
 		return ret;
 	}
 
-
 	@Transactional
 	public List<DBSample> getSamples(String study_id) {
 		return sampleMapper.getSamplesByStudy(study_id);
@@ -447,21 +454,20 @@ public class ApiService {
 	public List<DBSample> getSamplesBySample(String study_id, List<String> sample_ids) {
 		return sampleMapper.getSamplesBySample(study_id, sample_ids);
 	}
-        
-        @Transactional
-        public List<DBSample> getSamplesByPatient(String study_id, List<String> patient_ids) {
-                return sampleMapper.getSamplesByPatient(study_id, patient_ids);
-        }
-	
+
+	@Transactional
+	public List<DBSample> getSamplesByPatient(String study_id, List<String> patient_ids) {
+		return sampleMapper.getSamplesByPatient(study_id, patient_ids);
+	}
+
 	@Transactional
 	public List<DBStudy> getStudies() {
 		return studyMapper.getAllStudies();
 	}
-	
+
 	@Transactional
 	public List<DBStudy> getStudies(List<String> study_ids) {
 		return studyMapper.getStudies(study_ids);
 	}
-
 
 }

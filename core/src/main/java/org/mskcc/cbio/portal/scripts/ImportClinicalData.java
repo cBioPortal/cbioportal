@@ -41,7 +41,7 @@ import joptsimple.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class ImportClinicalData {
+public class ImportClinicalData extends ConsoleRunnable {
 
     public static final String DELIMITER = "\t";
     public static final String METADATA_PREFIX = "#";
@@ -107,7 +107,7 @@ public class ImportClinicalData {
         public String toString() {return attributeType;}
     }
 
-    public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype)
+    public void setFile(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype)
     {
         this.cancerStudy = cancerStudy;
         this.clinicalDataFile = clinicalDataFile;
@@ -472,22 +472,13 @@ public class ImportClinicalData {
     }
 
     /**
-     *
      * Imports clinical data and clinical attributes (from the worksheet)
-     *
-     * @param args
-     * @throws Exception
      */
-    public static void main(String[] args) throws Exception {
+    public void run() {
         try {
-	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-
-	        String usageLine = "Import clinical files.\n" +
-	                   "command line usage for importClinicalData:";
-	         /*
-	          * usage:
-	          * --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
-	          */
+            String progName = "importClinicalData";
+            String description = "Import clinical files.";
+            // usage: --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
 	
 	        OptionParser parser = new OptionParser();
 	        OptionSpec<String> data = parser.accepts( "data",
@@ -506,14 +497,18 @@ public class ImportClinicalData {
 	        try {
 	            options = parser.parse( args );
 	        } catch (OptionException e) {
-	        	ConsoleUtil.quitWithUsageLine(e.getMessage(), usageLine, parser);
+                throw new UsageException(
+                        progName, description, parser,
+                        e.getMessage());
 	        }
 	        File clinical_f = null;
 	        if( options.has( data ) ){
 	            clinical_f = new File( options.valueOf( data ) );
-	        }else{
-	        	ConsoleUtil.quitWithUsageLine("'data argument required.", usageLine, parser);
-	        }
+            } else {
+                throw new UsageException(
+                        progName, description, parser,
+                        "'data' argument required.");
+            }
 	        String attributesDatatype = null;
 	        String cancerStudyStableId = null;
 	        if( options.has ( study ) )
@@ -537,52 +532,63 @@ public class ImportClinicalData {
             if (cancerStudy == null) {
                 throw new IllegalArgumentException("Unknown cancer study: " + cancerStudyStableId);
             }
-            else {
-                ProgressMonitor.setCurrentMessage("Reading data from:  " + clinical_f.getAbsolutePath());
-                int numLines = FileUtil.getNumLines(clinical_f);
-                ProgressMonitor.setCurrentMessage(" --> total number of lines:  " + numLines);
-                ProgressMonitor.setMaxValue(numLines);
+            ProgressMonitor.setCurrentMessage("Reading data from:  " + clinical_f.getAbsolutePath());
+            int numLines = FileUtil.getNumLines(clinical_f);
+            ProgressMonitor.setCurrentMessage(" --> total number of lines:  " + numLines);
+            ProgressMonitor.setMaxValue(numLines);
 
-                ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinical_f, attributesDatatype);
-                importClinicalData.importData();
+            setFile(cancerStudy, clinical_f, attributesDatatype);
+            importData();
 
-                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||
-                		importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) { 
-                	ProgressMonitor.setCurrentMessage("Total number of patient specific clinical attributes added:  "
-                        + importClinicalData.getNumPatientSpecificClinicalAttributesAdded());
-                }
-                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES ||
-                		importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) { 
-                	ProgressMonitor.setCurrentMessage("Total number of sample specific clinical attributes added:  "
-                        + importClinicalData.getNumSampleSpecificClinicalAttributesAdded());
-                	ProgressMonitor.setCurrentMessage("Total number of samples added:  "
-                        + importClinicalData.getNumSamplesAdded());
-                }
-                ProgressMonitor.setCurrentMessage("Total number of attribute values skipped because of empty value:  "
-                        + importClinicalData.getNumEmptyClinicalAttributesSkipped());
-                if (importClinicalData.getAttributesType() != ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
-                	(importClinicalData.getNumSampleSpecificClinicalAttributesAdded() + importClinicalData.getNumSamplesAdded()) == 0) {
-                	//should not occur: 
-                	throw new RuntimeException("No data was added.  " +
-                            "Please check your file format and try again.");
-                }
-                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
-                    importClinicalData.getNumPatientSpecificClinicalAttributesAdded() == 0) {
-                	//could occur if patient clinical file is given with only PATIENT_ID column:
-                    throw new RuntimeException("No data was added.  " +
-                            "Please check your file format and try again. If you only have sample clinical data, then a patients file with only PATIENT_ID column is not required.");
-                }
-                ProgressMonitor.setCurrentMessage("Done.");
-
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||
+                    getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) {
+                ProgressMonitor.setCurrentMessage("Total number of patient specific clinical attributes added:  "
+                    + getNumPatientSpecificClinicalAttributesAdded());
             }
-            ConsoleUtil.showMessages();
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES ||
+                    getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) {
+                ProgressMonitor.setCurrentMessage("Total number of sample specific clinical attributes added:  "
+                    + getNumSampleSpecificClinicalAttributesAdded());
+                ProgressMonitor.setCurrentMessage("Total number of samples added:  "
+                    + getNumSamplesAdded());
+            }
+            ProgressMonitor.setCurrentMessage("Total number of attribute values skipped because of empty value:  "
+                    + getNumEmptyClinicalAttributesSkipped());
+            if (getAttributesType() != ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
+                (getNumSampleSpecificClinicalAttributesAdded() + getNumSamplesAdded()) == 0) {
+                // should not occur
+                throw new RuntimeException("No data was added.  " +
+                        "Please check your file format and try again.");
+            }
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
+                getNumPatientSpecificClinicalAttributesAdded() == 0) {
+                //could occur if patient clinical file is given with only PATIENT_ID column:
+                throw new RuntimeException("No data was added.  " +
+                        "Please check your file format and try again. If you only have sample clinical data, then a patients file with only PATIENT_ID column is not required.");
+            }
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            ConsoleUtil.showWarnings();
-            //exit with error status:
-        	System.err.println ("\nABORTED! Error:  " + e.getMessage());
-        	if (e.getMessage() == null)
-	        	e.printStackTrace();
-            System.exit(1);
+            throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportClinicalData(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportClinicalData(args);
+        runner.runInConsole();
     }
 }

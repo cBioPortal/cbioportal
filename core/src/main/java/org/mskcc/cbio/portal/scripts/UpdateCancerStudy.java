@@ -25,23 +25,23 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.*;
 
 
 /**
  * Command Line Tool to update the status of a Single Cancer Study.
  */
-public class UpdateCancerStudy {
-
-    public static void main(String[] args) throws Exception {
-
+public class UpdateCancerStudy extends ConsoleRunnable {
+    public void run() {
         try {
   		  // check args
   	      if (args.length < 2) {
-  	         System.out.println("command line usage:  updateCancerStudy " + "<study identifier> <status>");
   	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-  	         //use 2 for command line syntax errors:
-  	         System.exit(2);
+             throw new UsageException(
+                     "updateCancerStudy",
+                     null,
+                     "<study identifier> <status>");
   	      }
   	      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
   	      
@@ -64,17 +64,29 @@ public class UpdateCancerStudy {
   	      }
   	      ProgressMonitor.setCurrentMessage("Updating study status to :  '" + status.name() + "' for study: " + cancerStudyIdentifier); 
   	      DaoCancerStudy.setStatus(status, cancerStudyIdentifier);
-  	      
-  	      ConsoleUtil.showMessages();
-  	      System.out.println("Done.");
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (DaoException e) {
+            throw new RuntimeException(e);
         }
-        catch (Exception e) {
-  	        ConsoleUtil.showWarnings();
-  	        //exit with error status:
-  	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
-  	        if (e.getMessage() == null)
-	        	e.printStackTrace();
-  	        System.exit(1);
-      }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public UpdateCancerStudy(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new UpdateCancerStudy(args);
+        runner.runInConsole();
     }
 }

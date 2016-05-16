@@ -38,6 +38,7 @@ import java.text.NumberFormat;
 import java.util.List;
 
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
+import org.mskcc.cbio.portal.scripts.UsageException;
 
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
@@ -98,15 +99,14 @@ public class ConsoleUtil {
     
     /**
      * Prints messages and warnings.
-     * 
      */
     public static void showMessages() {
-    	showWarnings();
-    	List<String> debugMessages = ProgressMonitor.getDebugMessages();
+        showWarnings();
+        List<String> debugMessages = ProgressMonitor.getDebugMessages();
         if (debugMessages.size() > 0) {
-            System.out.println("-------------------");
+            System.err.println("-------------------");
             for (int i = 0; i < debugMessages.size(); i++) {
-                System.out.println(debugMessages.get(i));
+                System.err.println(debugMessages.get(i));
             }
         }
     }
@@ -164,27 +164,30 @@ public class ConsoleUtil {
 			parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
 			          .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
 		}
-		String usageLine = description + "\nCommand line usage:\n";
+		String progName = "importScript";
 		
 		OptionSet options = null;
 		try {
 			options = parser.parse( args );
 		} catch (OptionException e) {
-			quitWithUsageLine(e.getMessage(), usageLine, parser);
+			throw new UsageException(progName, description, parser,
+			        e.getMessage());
 		}
 		  
 		if( options.has( help ) ){
-			quitWithUsageLine("", usageLine, parser);
+			throw new UsageException(progName, description, parser);
 		}
 		
 		//these extra checks are needed, since withRequiredArg above only indicated that the option 
 		//has a mandatory argument but does not make the option itself mandatory.
 		if(!options.has("data")) {
-			quitWithUsageLine("Error: 'data' argument required.", usageLine, parser);
+			throw new UsageException(progName, description, parser,
+			        "Error: 'data' argument required.");
 		}
 		
 		if(!options.has("meta")) {
-			quitWithUsageLine("Error: 'meta' argument required.", usageLine, parser);
+			throw new UsageException(progName, description, parser,
+			        "Error: 'meta' argument required.");
 		}
 
 		if (hasLoadMode) {
@@ -195,11 +198,13 @@ public class ConsoleUtil {
 				} else if (actionArg.equalsIgnoreCase( "bulkLoad" )) {
 					MySQLbulkLoader.bulkLoadOn();
 				} else {
-					quitWithUsageLine("Error: unknown loadMode action:  " + actionArg, usageLine, parser);
+					throw new UsageException(progName, description, parser,
+							"Error: unknown loadMode action:  " + actionArg);
 				}
 			}
 			else {
-				quitWithUsageLine("Error: 'loadMode' argument required.", usageLine, parser);
+				throw new UsageException(progName, description, parser,
+						"Error: 'loadMode' argument required.");
 			}
 		}
 		return options;

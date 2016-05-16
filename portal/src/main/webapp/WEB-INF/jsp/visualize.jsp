@@ -321,11 +321,7 @@
 
                 }
               }, 50);
-            } else {
-                if($(this).attr("href")=="#bookmark_email") {
-                    $("#bookmark-link").attr("href",window.location.href);
-                }
-            }
+            } 
         });
 
 

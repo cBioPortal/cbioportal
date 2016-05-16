@@ -910,7 +910,10 @@ public final class DaoMutation {
      * @param profileId
      * @return Map &lt; event id, sampleCount &gt;
      * @throws DaoException
+     * 
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
      */
+    @Deprecated
     public static Map<Long, Integer> countSamplesWithMutationEvents(String concatEventIds, int profileId) throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();

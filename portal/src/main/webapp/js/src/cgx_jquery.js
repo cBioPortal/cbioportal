@@ -170,9 +170,9 @@ function bitlyURL(fullURL){
     // append the short URL to div with id 'bitly'
     $.getJSON(qurl, function(data){
         if (data.results == null){
-            $('#bitly').append("An unknown error occurred. Unable to shorten your URL.");
+            $('#bitly').html("An unknown error occurred. Unable to shorten your URL.");
         }  else {
-            $('#bitly').append("<br><strong><a href='" + data.results[fullURL].shortUrl+"'>" +
+            $('#bitly').html("<br><strong><a href='" + data.results[fullURL].shortUrl+"'>" +
                     data.results[fullURL].shortUrl + "</a></strong><br>");
         }
     });
@@ -185,19 +185,35 @@ This function accepts as an argument the session
 to be saved as a JSON string 
 */
 function saveSession(fullURL, sessionJSON) {
-    $.ajax({
-        type: 'POST',
-        url: 'api/proxy/session-service',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify(sessionJSON)
-    }).done(function(data) {
-        if (data['id'] == null){
-            $('#session-id').append("An unknown error occurred. Unable to store your session.");
-        } else {
-            var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id'];
-            $("#session-id").append("<a href='" + bookmark + "'>" + bookmark + "</a>");
-            bitlyURL(bookmark);
-        }
-    }); 
+    // if user got here with a bookmark, just display that, don't create a bookmark of a bookmark
+    var bookmarkPattern = /session-id=/ 
+    if (bookmarkPattern.test(fullURL)) {
+        displayBookmark(fullURL);
+    } else {
+	    $.ajax({
+	        type: 'POST',
+	        url: 'api/proxy/session-service',
+	        dataType: 'json',
+	        contentType: 'application/json',
+	        data: JSON.stringify(sessionJSON)
+	    }).done(function(data) {
+	        if (data['id'] == null){
+	            $('#session-id').append("An unknown error occurred. Unable to store your session.");
+	        } else {
+	            var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id']; 
+	            // cross_cancer.do has additional information in URL as #crosscancer/:tab/:priority/:genes/:study_list
+	            // check for that
+	            var additional_info = fullURL.split("#");
+	            if (additional_info.length == 2) {
+	                bookmark += "#" + additional_info[1];
+	            }
+	            displayBookmark(bookmark);
+	        }
+	    });
+    } 
+}
+
+function displayBookmark(bookmark) {
+    $("#session-id").html("<a href='" + bookmark + "'>" + bookmark + "</a>");
+    bitlyURL(bookmark);
 }

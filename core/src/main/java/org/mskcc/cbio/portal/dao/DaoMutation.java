@@ -896,6 +896,10 @@ public final class DaoMutation {
         }
     }
 
+    /**
+     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
+     */
+    @Deprecated
     public static Map<Long, Integer> countSamplesWithMutationEvents(Collection<Long> eventIds, int profileId) throws DaoException {
         return countSamplesWithMutationEvents(StringUtils.join(eventIds, ","), profileId);
     }

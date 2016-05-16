@@ -175,13 +175,13 @@ var plotsData = (function() {
             for (var key in mutationMap) {
                 $.each(mutationMap[key], function(index, obj) {
                     if (dotsContent.hasOwnProperty(key.toUpperCase())) {
-                        if (typeof(dotsContent[key.toUpperCase()].mutation[obj.geneSymbol]) !== "undefined") {
-                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].details += "; " + obj.proteinChange;
-                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].type = mutationTranslator(obj.mutationType);
+                        if (typeof(dotsContent[key.toUpperCase()].mutation[obj.get("geneSymbol")]) !== "undefined") {
+                            dotsContent[key.toUpperCase()].mutation[obj.get("geneSymbol")].details += "; " + obj.get("proteinChange");
+                            dotsContent[key.toUpperCase()].mutation[obj.get("geneSymbol")].type = mutationTranslator(obj.get("mutationType"));
                         } else {
-                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol] = {
-                                "details": obj.proteinChange,
-                                "type": mutationTranslator(obj.mutationType)
+                            dotsContent[key.toUpperCase()].mutation[obj.get("geneSymbol")] = {
+                                "details": obj.get("proteinChange"),
+                                "type": mutationTranslator(obj.get("mutationType"))
                             };
                         }                    
                     }

@@ -1,3 +1,9 @@
+# next release
+*   **Improvements**:
+    * Improved OncoPrint visualization using WebGL
+    * Improved Network tab with SBGN view for a single interaction
+    * Performance improvement of tables in the study view page
+
 # March 31, 2016
 *   **New features**:
     *   Visualization of "Enrichments Analysis" results via volcano plots

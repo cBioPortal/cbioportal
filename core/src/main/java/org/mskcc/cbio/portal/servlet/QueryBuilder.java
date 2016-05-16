@@ -36,9 +36,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.*;
-import org.mskcc.cbio.portal.validate.gene.*;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
 
 import org.apache.commons.lang.*;
 import org.apache.commons.logging.Log;
@@ -54,9 +52,6 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.rmi.RemoteException;
 
-// import org.codehaus.jackson.node.*;
-// import org.codehaus.jackson.JsonNode;
-// import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Central Servlet for building queries.
@@ -78,24 +73,15 @@ public class QueryBuilder extends HttpServlet {
     public static final String SET_OF_CASE_IDS = "set_of_case_ids";
     public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
-    public static final String RAW_GENE_STR = "raw_gene_str";
     public static final String ACTION_NAME = "Action";
-    public static final String OUTPUT = "output";
-    public static final String FORMAT = "format";
-    public static final String PLOT_TYPE = "plot_type";
-    public static final String OS_SURVIVAL_PLOT = "os_survival_plot";
-    public static final String DFS_SURVIVAL_PLOT = "dfs_survival_plot";
     public static final String XDEBUG = "xdebug";
     public static final String ACTION_SUBMIT = "Submit";
     public static final String STEP1_ERROR_MSG = "step1_error_msg";
     public static final String STEP2_ERROR_MSG = "step2_error_msg";
     public static final String STEP3_ERROR_MSG = "step3_error_msg";
     public static final String STEP4_ERROR_MSG = "step4_error_msg";
-    public static final String MERGED_PROFILE_DATA_INTERNAL = "merged_profile_data";
     public static final String PROFILE_DATA_SUMMARY = "profile_data_summary";
-    public static final String WARNING_UNION = "warning_union";
     public static final String DOWNLOAD_LINKS = "download_links";
-    public static final String NETWORK = "network";
     public static final String HTML_TITLE = "html_title";
     public static final String TAB_INDEX = "tab_index";
     public static final String TAB_DOWNLOAD = "tab_download";
@@ -111,14 +97,12 @@ public class QueryBuilder extends HttpServlet {
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
     public static final String INDEX_PAGE = "index.do";
-    public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
     public static final String DATA_PRIORITY = "data_priority";
     public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     public static final String DB_VERSION = "db_version";
     public static final String DB_ERROR = "db_error";
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
-
 
     private static Log LOG = LogFactory.getLog(QueryBuilder.class);
 
@@ -169,6 +153,7 @@ public class QueryBuilder extends HttpServlet {
     protected void doPost(HttpServletRequest httpServletRequest,
                           HttpServletResponse httpServletResponse) throws ServletException,
             IOException {
+        
         XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.startTimer();
 
@@ -191,20 +176,12 @@ public class QueryBuilder extends HttpServlet {
         HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
 
         //  Get User Defined Gene List
-	    // we need the raw gene list...
 	    String geneList = httpServletRequest.getParameter(GENE_LIST);
-
-	    if (httpServletRequest instanceof XssRequestWrapper)
-	    {
+	    if (httpServletRequest instanceof XssRequestWrapper) {
 		    geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
 	    }
-
         geneList = servletXssUtil.getCleanInput(geneList);
-
-        // save the raw gene string as it was entered for other things to work on
-        httpServletRequest.setAttribute(RAW_GENE_STR, geneList);
-
-        xdebug.logMsg(this, "Gene List is set to:  " + geneList);
+        httpServletRequest.setAttribute(GENE_LIST, geneList);
 
         //  Get all Cancer Types
         try {
@@ -252,7 +229,6 @@ public class QueryBuilder extends HttpServlet {
          
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
             
-            // Get the db version
             String dbPortalVersion = GlobalProperties.getDbVersion();
             String dbVersion = DaoInfo.getVersion();
             LOG.info("version - "+dbPortalVersion);
@@ -266,11 +242,11 @@ public class QueryBuilder extends HttpServlet {
                 httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
             }
 
-            boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
+            boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet,
                                                sampleSetId, sampleIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-                processData(cancerTypeId, geneticProfileIdSet, profileList, geneList, sampleSetId,
+                processData(cancerTypeId, geneticProfileIdSet, profileList, sampleSetId,
                             sampleIds, sampleSets, patientCaseSelect, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
@@ -340,34 +316,14 @@ public class QueryBuilder extends HttpServlet {
     private void processData(String cancerStudyStableId,
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
-							 String geneListStr,
 							 String sampleSetId, String sampleIds,
 							 ArrayList<SampleList> sampleSetList,
                                                          String patientCaseSelect,
 							 ServletContext servletContext, HttpServletRequest request,
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
-
-        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
-        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-        double rppaScore = ZScoreUtil.getRPPAScore(request);
-       
-        ParserOutput theOncoPrintSpecParserOutput =
-               OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
-                geneticProfileIdSet, profileList, zScore, rppaScore );
-       
-        ArrayList<String> geneList = new ArrayList<String>();
-        geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
-        ArrayList<String> tempGeneList = new ArrayList<String>();
-        for (String gene : geneList){
-            tempGeneList.add(gene);
-        }
-        geneList = tempGeneList;
-        request.setAttribute(GENE_LIST, geneList);
         
         request.setAttribute(PATIENT_CASE_SELECT, patientCaseSelect);
-
-        xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
         
         HashSet<String> setOfSampleIds = null;
         
@@ -448,119 +404,21 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(CASE_IDS_KEY, sampleIdsKey);
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
-        ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
-
-        Set<String> warningUnion = new HashSet<String>();
-        ArrayList<DownloadLink> downloadLinkSet = new ArrayList<DownloadLink>();
-        ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
-
-        while (profileIterator.hasNext()) {
-            String profileId = profileIterator.next();
-            GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
-            if( null == profile ){
-               continue;
-            } 
-         
-            xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
-            GetProfileData remoteCall =
-              new GetProfileData(profile, geneList, StringUtils.join(setOfSampleIds, " "));
-            ProfileData pData = remoteCall.getProfileData();
-            DownloadLink downloadLink = new DownloadLink(profile, geneList, sampleIds,
-                    remoteCall.getRawContent());
-            downloadLinkSet.add(downloadLink);
-            warningUnion.addAll(remoteCall.getWarnings());
-            if( pData == null ){
-               System.err.println( "pData == null" );
-            }else{
-               if( pData.getGeneList() == null ){
-                  System.err.println( "pData.getValidGeneList() == null" );
-               }
-            }
-            if (pData != null) {
-                xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
-                xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());
-            }
-            xdebug.logMsg(this, "Number of warnings received:  " + remoteCall.getWarnings().size());
-            profileDataList.add(pData);
-
-            //  Optionally, get Extended Mutation Data.
-            if (profile.getGeneticAlterationType().equals
-                    (GeneticAlterationType.MUTATION_EXTENDED)) {
-                if (geneList.size() <= MUTATION_DETAIL_LIMIT) {
-                    xdebug.logMsg(this, "Number genes requested is <= " + MUTATION_DETAIL_LIMIT);
-                    xdebug.logMsg(this, "Therefore, getting extended mutation data");
-                    GetMutationData remoteCallMutation = new GetMutationData();
-                    List<ExtendedMutation> tempMutationList =
-                            remoteCallMutation.getMutationData(profile, geneList, setOfSampleIds, xdebug);
-                    if (tempMutationList != null && tempMutationList.size() > 0) {
-                        xdebug.logMsg(this, "Total number of mutation records retrieved:  "
-                            + tempMutationList.size());
-                        mutationList.addAll(tempMutationList);
-                    }
-                } else {
-                    request.setAttribute(MUTATION_DETAIL_LIMIT_REACHED, Boolean.TRUE);
-                }
-            }
-        }
-        
-        //  Store Extended Mutations
-        request.setAttribute(INTERNAL_EXTENDED_MUTATION_LIST, mutationList);
-
-        // Store download links in session (for possible future retrieval).
-        request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
 
         String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
         if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
             xdebug.logMsg(this, "Merging Profile Data");
-            ProfileMerger merger = new ProfileMerger(profileDataList);
-            ProfileData mergedProfile = merger.getMergedProfile();
 
-            xdebug.logMsg(this, "Merged Profile, Number of genes:  "
-                    + mergedProfile.getGeneList().size());
-            ArrayList<String> mergedProfileGeneList = mergedProfile.getGeneList();
-            for (String currentGene:  mergedProfileGeneList) {
-                xdebug.logMsg(this, "Merged Profile Gene:  " + currentGene);
-            }
-            xdebug.logMsg(this, "Merged Profile, Number of cases:  "
-                    + mergedProfile.getCaseIdList().size());
-            request.setAttribute(MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
-            request.setAttribute(WARNING_UNION, warningUnion);
-
-            String output = request.getParameter(OUTPUT);
-            String format = request.getParameter(FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
             double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
             request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
-            if (output != null) {
-				if (output.equals("text")) {
-                    outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, rppaScoreThreshold);
-                }
-            } else {
-
-                // Store download links in session (for possible future retrieval).
-                request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
-                RequestDispatcher dispatcher =
-                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
-                dispatcher.forward(request, response);
-            }
-        } else {
-            ShowData.showDataAtSpecifiedIndex(servletContext, request,
-                    response, 0, xdebug);
-        }
-    }
-
-    private void outputPlainText(HttpServletResponse response, ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold) throws IOException {
-        response.setContentType("text/plain");
-        ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
-        PrintWriter writer = response.getWriter();
-        writer.write("" + dataSummary.getPercentCasesAffected());
-        writer.flush();
-        writer.close();
+            // Store download links in session (for possible future retrieval).
+            RequestDispatcher dispatcher =
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
+            dispatcher.forward(request, response);
+        } 
     }
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -576,7 +434,7 @@ public class QueryBuilder extends HttpServlet {
     private boolean validateForm(String action,
                                 ArrayList<GeneticProfile> profileList,
                                  HashSet<String> geneticProfileIdSet,
-                                 String geneList, String sampleSetId, String sampleIds,
+                                 String sampleSetId, String sampleIds,
                                  HttpServletRequest httpServletRequest) throws DaoException {
         boolean errorsExist = false;
         String tabIndex = httpServletRequest.getParameter(QueryBuilder.TAB_INDEX);
@@ -647,8 +505,6 @@ public class QueryBuilder extends HttpServlet {
                 	}
                 }
 
-                errorsExist = validateGenes(geneList, httpServletRequest, errorsExist);
-
                 //  Additional validation rules
                 //  If we have selected mRNA Expression Data Check Box, but failed to
                 //  select an mRNA profile, this is an error.
@@ -674,23 +530,10 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
         } 
-        if( errorsExist ){
-           httpServletRequest.setAttribute( GENE_LIST, geneList );
-       }
+
         return errorsExist;
     }
 
-    private boolean validateGenes(String geneList, HttpServletRequest httpServletRequest,
-            boolean errorsExist) throws DaoException {
-        try {
-            GeneValidator geneValidator = new GeneValidator(geneList);
-        } catch (GeneValidationException e) {
-            errorsExist = true;
-            httpServletRequest.setAttribute(STEP4_ERROR_MSG, e.getMessage());
-        }
-        return errorsExist;
-    }
-    
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,
                                     String userMessage, XDebug xdebug)
             throws ServletException, IOException {

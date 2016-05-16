@@ -862,7 +862,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					objEach(gene_to_is_na, function(is_na, gene) {
 						if (is_na) {
 							var sampleData_ = _.findWhere(sampleData, {'id':samp});
-							ret.push({'sample':samp, 'gene':gene, 'study_id':sampleData_.study_id});
+							sample_data.push({'sample':samp, 'gene':gene, 'study_id':sampleData_.study_id});
 						}
 					});
 				});

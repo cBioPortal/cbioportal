@@ -35,20 +35,21 @@ package org.mskcc.cbio.portal.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.io.IOUtils;
-
-import java.nio.charset.Charset;
-
-import java.io.StringWriter;
+import org.apache.commons.httpclient.HttpException;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.codehaus.jackson.JsonNode;
 
+import java.nio.charset.Charset;
+
+import java.io.StringWriter;
+import java.io.IOException;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.MalformedURLException;
 
-import java.io.IOException;
 
 import java.util.Map;
 
@@ -61,9 +62,18 @@ public class SessionServiceUtil {
     private static Log LOG = LogFactory.getLog(SessionServiceUtil.class);
 
     /**
-     * TODO
+     * Returns an ServletRequest parameter map for a given sessionId.  
+     * Returns null if the session was not found.
+     *
+     * @param sessionId
+     * @return an ServletRequest parameter map
+     * @throws HttpException if session service API returns with a response code that is not 404 or 200
+     * @throws MalformedURLException 
+     * @throws IOException
+     * @see ServletRequest#getParameterMap
      */
-    public static Map<String, String[]> getSession(String sessionId) {
+    public static Map<String, String[]> getSession(String sessionId)
+        throws HttpException, MalformedURLException, IOException {
         LOG.debug("SessionServiceUtil.getSession()");
         Map<String, String[]> parameterMap = null;
         HttpURLConnection conn = null;
@@ -79,17 +89,22 @@ public class SessionServiceUtil {
                 JsonNode json = new ObjectMapper().readTree(contentString); 
                 LOG.debug("SessionServiceUtil.getSession(): response.data = '" + json.get("data").getValueAsText() + "'");
                 parameterMap = new ObjectMapper().readValue(json.get("data"), new TypeReference<Map<String, String[]>>(){});
-                //parameterMap = new ObjectMapper().readValue(conn.getInputStream(), new TypeReference<Map<String, String[]>>(){});
             } else {
-                // TODO
                 LOG.warn("SessionServiceUtil.getSession(): conn.getResponseCode() = '" + conn.getResponseCode() + "'");
+                if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+                    return null;
+                } else if (conn.getResponseCode() == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    throw new HttpException("Internal server error");
+                } else {
+                    throw new HttpException("Unexpected error, response code '" + conn.getResponseCode() +"'");
+                }
             } 
         } catch (MalformedURLException mfue) {  
-            // TODO
             LOG.warn("SessionServiceUtil.getSession(): MalformedURLException = '" + mfue.getMessage() + "'");
+            throw mfue;
         } catch (IOException ioe) {
-            // TODO
             LOG.warn("SessionServiceUtil.getSession(): IOException = '" + ioe.getMessage() + "'");
+            throw ioe;
         } finally { 
             if (conn != null) {
                 conn.disconnect();

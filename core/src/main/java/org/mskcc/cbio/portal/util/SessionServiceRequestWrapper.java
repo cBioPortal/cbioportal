@@ -50,25 +50,37 @@ import javax.servlet.http.*;
  */
 public class SessionServiceRequestWrapper extends HttpServletRequestWrapper {
 
+    public static final String SESSION_ERROR = "session_error";
+
     private static Log LOG = LogFactory.getLog(SessionServiceRequestWrapper.class);
-    private static final String SESSION_ID_PARAM = "session_id"; // TODO make public?
+    private static final String SESSION_ID_PARAM = "session_id";
     private Map<String, String[]> storedParameters;
     private String sessionId;
 
     /**
-     * TODO
+     * If session_id is a request parameter, calls session-service API to retrieve
+     * stored session.  Stores SESSION_ERROR as a request attribute if the session is
+     * not found, or the session service returns an error.  Stored session parameters
+     * override current request parameters.  If session_id is not a request parameter,
+     * request behaves as normal.
+     *
+     * @param request wrapped HttpServletRequest
      */
     public SessionServiceRequestWrapper(final HttpServletRequest request) {
         super(request);
         LOG.debug("new SessionServiceRequestWrapper()");
-        // TODO get session object if we have session_id parameter
-        // TODO change to is blank or null
         sessionId = super.getParameter(SESSION_ID_PARAM);
         LOG.debug("new SessionServiceRequestWrapper(): request parameter '" + SESSION_ID_PARAM + "' = '" + sessionId + "'");
         if (!StringUtils.isBlank(sessionId)) {
-            // TODO this might return null, in which case do something 
-            storedParameters = SessionServiceUtil.getSession(sessionId); 
             LOG.debug("new SessionServiceRequestWrapper(): retrieved parameters = '" + storedParameters + "'");
+            try {
+                storedParameters = SessionServiceUtil.getSession(sessionId); 
+                if (storedParameters == null || storedParameters.size() == 0) {
+                    request.setAttribute(SESSION_ERROR, "Session with id '" + sessionId + "' not found.");
+                }
+            } catch (Exception e) { 
+                request.setAttribute(SESSION_ERROR, "Session service error. Session with id '" + sessionId + "' not loaded. Try again later.  If problem persists contact site administrator.");
+            }
         }
     }
 

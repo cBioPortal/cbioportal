@@ -184,21 +184,12 @@
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
-            // diable bookmark link if case set is user-defined
-            if (sampleSetId.equals("-1"))
-            {
-                out.println("<br>");
-                out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
-            }
-            else
-            {
-                out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
-                out.println("<br>");
-                out.println("<div id='session-id'></div>");
-                out.println("<br>");
-                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
-                out.println("<div id='bitly'></div>");
-            }
+            out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
+            out.println("<br>");
+            out.println("<div id='session-id'></div>");
+            out.println("<br>");
+            out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
+            out.println("<div id='bitly'></div>");
 
             out.println("</div>");
         }

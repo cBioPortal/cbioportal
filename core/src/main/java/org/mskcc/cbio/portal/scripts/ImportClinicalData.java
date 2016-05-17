@@ -51,7 +51,7 @@ public class ImportClinicalData {
     private int numSampleSpecificClinicalAttributesAdded = 0;
     private int numPatientSpecificClinicalAttributesAdded = 0;
     private int numEmptyClinicalAttributesSkipped = 0;
-    private int numSamplesAdded = 0;
+    private int numSamplesProcessed = 0;
     
     private static Properties properties;
 
@@ -261,10 +261,17 @@ public class ImportClinicalData {
         return fields; 
     }
 
-    private void addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    private boolean addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
         String stableSampleId = (sampleIdIndex >= 0) ? fields[sampleIdIndex] : "";
+        stableSampleId = StableIdUtil.getSampleId(stableSampleId);
+        int patientIdIndex = findPatientIdColumn(columnAttrs);
+        String stablePatientId = (patientIdIndex >= 0) ? fields[patientIdIndex] : "";
+        stablePatientId = StableIdUtil.getPatientId(stablePatientId);
+        int internalSampleId = -1;
+        int internalPatientId = -1;
+        
         //check if sample is not already added:
         Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableSampleId, false);
         if (sample != null) {
@@ -272,58 +279,82 @@ public class ImportClinicalData {
         	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
         	if (stableSampleId.startsWith("TCGA-")) {
         		ProgressMonitor.logWarning("Sample " + stableSampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
+        		return false;
+        	}
+        	//give error or warning if sample is already in DB and this is NOT expected (i.e. not supplemental data):
+        	if (!this.isSupplementalData()) {
+	        	throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
         	}
         	else {
-        		throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
+        		internalSampleId = sample.getInternalId();
         	}
         }
         else {
-        	// sample is new/unique, go ahead and add its attributes,
-        	// so attempt to add both a patient and sample to database
-            int patientIdIndex = findPatientIdColumn(columnAttrs);
-            int internalPatientId = (patientIdIndex >= 0) ?
-                addPatientToDatabase(fields[patientIdIndex]) : -1; 
-	        int internalSampleId = (stableSampleId.length() > 0) ?
+        	Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);
+        	if (patient != null) {
+        		//patient exists, get internal id:
+        		internalPatientId = patient.getInternalId();
+        	}
+        	else {
+        		//add patient:
+	            internalPatientId = (patientIdIndex >= 0) ?
+	                addPatientToDatabase(fields[patientIdIndex]) : -1;
+        	}
+        	// sample is new, so attempt to add to DB
+	        internalSampleId = (stableSampleId.length() > 0) ?
 	            addSampleToDatabase(stableSampleId, fields, columnAttrs) : -1;
-	            
-	        //count:
-	        if (internalSampleId != -1) {
-	        	numSamplesAdded++;
-	        }
-	
-	        // this will happen when clinical file contains sample id, but not patient id
-	        //TODO - this part, and the dummy patient added in addSampleToDatabase, can be removed as the field PATIENT_ID is now
-	        //always required (as validated at start of importData() ). Probably kept here for "old" studies, but Ben's tests did not find anything...
-	        // --> alternative would be to be less strict in validation at importData() and allow for missing PATIENT_ID when type is MIXED... 
-	        if (internalPatientId == -1 && internalSampleId != -1) {
-	            sample = DaoSample.getSampleById(internalSampleId);
-	            internalPatientId = sample.getInternalPatientId();
-	        }
-	
-	        for (int lc = 0; lc < fields.length; lc++) {
-	            //if lc is sampleIdIndex or patientIdIndex, skip as well since these are the relational fields:
-	            if (lc == sampleIdIndex || lc == patientIdIndex) {
-	            	continue;
-	        	}
-	        	//if the value matches one of the missing values, skip this attribute:
-	            if (MissingAttributeValues.has(fields[lc])) {
-	            	numEmptyClinicalAttributesSkipped++;
-	                continue;
-	            }
-	            boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
-	            if (isPatientAttribute && internalPatientId != -1) {
-	                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
-	                         ClinicalAttribute.PATIENT_ATTRIBUTE);
-	            }
-	            else if (internalSampleId != -1) {
-	                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
-	                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
-	            }
-	        }
+	        
+        }    
+		
+    	//validate and count:
+        if (internalSampleId != -1) {
+        	//some minimal validation/fail safe for now: only continue if patientId is same as patient id in 
+            //existing sample (can occur in case of this.isSupplementalData or in case of parsing bug in addSampleToDatabase):
+    		internalPatientId = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId).getInternalId();
+    		if (internalPatientId != DaoSample.getSampleById(internalSampleId).getInternalPatientId()) {
+    			throw new RuntimeException("Error: Sample " + stableSampleId + " was previously linked to another patient, and not to " + stablePatientId);
+    		}
+        	numSamplesProcessed++;
         }
+
+        // this will happen when clinical file contains sample id, but not patient id
+        //TODO - this part, and the dummy patient added in addSampleToDatabase, can be removed as the field PATIENT_ID is now
+        //always required (as validated at start of importData() ). Probably kept here for "old" studies, but Ben's tests did not find anything...
+        // --> alternative would be to be less strict in validation at importData() and allow for missing PATIENT_ID when type is MIXED... 
+        if (internalPatientId == -1 && internalSampleId != -1) {
+            sample = DaoSample.getSampleById(internalSampleId);
+            internalPatientId = sample.getInternalPatientId();
+        }
+
+        for (int lc = 0; lc < fields.length; lc++) {
+            //if lc is sampleIdIndex or patientIdIndex, skip as well since these are the relational fields:
+            if (lc == sampleIdIndex || lc == patientIdIndex) {
+            	continue;
+        	}
+        	//if the value matches one of the missing values, skip this attribute:
+            if (MissingAttributeValues.has(fields[lc])) {
+            	numEmptyClinicalAttributesSkipped++;
+                continue;
+            }
+            boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
+            if (isPatientAttribute && internalPatientId != -1) {
+                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                         ClinicalAttribute.PATIENT_ATTRIBUTE);
+            }
+            else if (internalSampleId != -1) {
+                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
+            }
+        }
+        return true;
     }
 
-    private int findPatientIdColumn(List<ClinicalAttribute> attrs)
+    private boolean isSupplementalData() {
+    	//TODO : for now this is only true in MIXED_ATTRIBUTES type. We could add an extra flag "SUPPLEMENTAL_DATA" to make this more explicit:
+    	return this.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES;
+	}
+
+	private int findPatientIdColumn(List<ClinicalAttribute> attrs)
     {
         return findAttributeColumnIndex(PATIENT_ID_COLUMN_NAME, attrs);
     }
@@ -456,8 +487,8 @@ public class ImportClinicalData {
     	return numEmptyClinicalAttributesSkipped;
     }
     
-    public int getNumSamplesAdded() {
-    	return numSamplesAdded;
+    public int getNumSamplesProcessed() {
+    	return numSamplesProcessed;
     }
     
     /**
@@ -555,13 +586,13 @@ public class ImportClinicalData {
                 		importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) { 
                 	ProgressMonitor.setCurrentMessage("Total number of sample specific clinical attributes added:  "
                         + importClinicalData.getNumSampleSpecificClinicalAttributesAdded());
-                	ProgressMonitor.setCurrentMessage("Total number of samples added:  "
-                        + importClinicalData.getNumSamplesAdded());
+                	ProgressMonitor.setCurrentMessage("Total number of samples processed:  "
+                        + importClinicalData.getNumSamplesProcessed());
                 }
                 ProgressMonitor.setCurrentMessage("Total number of attribute values skipped because of empty value:  "
                         + importClinicalData.getNumEmptyClinicalAttributesSkipped());
-                if (importClinicalData.getAttributesType() != ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
-                	(importClinicalData.getNumSampleSpecificClinicalAttributesAdded() + importClinicalData.getNumSamplesAdded()) == 0) {
+                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES &&
+                	(importClinicalData.getNumSampleSpecificClinicalAttributesAdded() + importClinicalData.getNumSamplesProcessed()) == 0) {
                 	//should not occur: 
                 	throw new RuntimeException("No data was added.  " +
                             "Please check your file format and try again.");
@@ -572,6 +603,13 @@ public class ImportClinicalData {
                     throw new RuntimeException("No data was added.  " +
                             "Please check your file format and try again. If you only have sample clinical data, then a patients file with only PATIENT_ID column is not required.");
                 }
+                //backward compatible check (TODO - remove this later):
+                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES &&
+                    (importClinicalData.getNumPatientSpecificClinicalAttributesAdded() + importClinicalData.getNumSampleSpecificClinicalAttributesAdded()) == 0) {
+                    	//should not occur: 
+                    	throw new RuntimeException("No data was added.  " +
+                                "Please check your data and try again.");
+                    }
                 ProgressMonitor.setCurrentMessage("Done.");
 
             }

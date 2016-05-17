@@ -180,6 +180,8 @@ public class ProxyController
     RestTemplate restTemplate = new RestTemplate();
     URI uri = new URI(sessionServiceURL);
 
+    // if request fails then this throws a org.springframework.web.util.NestedServletException
+    // we should probably do something more graceful
     ResponseEntity<String> responseEntity =
       restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), String.class);
 

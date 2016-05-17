@@ -51,9 +51,9 @@ import javax.servlet.http.*;
 public class SessionServiceRequestWrapper extends HttpServletRequestWrapper {
 
     public static final String SESSION_ERROR = "session_error";
+    public static final String SESSION_ID_PARAM = "session_id";
 
     private static Log LOG = LogFactory.getLog(SessionServiceRequestWrapper.class);
-    private static final String SESSION_ID_PARAM = "session_id";
     private Map<String, String[]> storedParameters;
     private String sessionId;
 
@@ -86,7 +86,7 @@ public class SessionServiceRequestWrapper extends HttpServletRequestWrapper {
 
     @Override
     public String getParameter(final String name) {
-        if (storedParameters != null) {
+        if (storedParameters != null && !SESSION_ID_PARAM.equals(name)) {
             LOG.debug("SessionServiceRequestWrapper.getParameter(" + name + "): accessing parameters from stored session with id '" + sessionId + "'");
             if (storedParameters.containsKey(name)) {
                 String value = storedParameters.get(name)[0];

@@ -175,9 +175,9 @@ function bitlyURL(fullURL){
             $('#bitly').html("<br><strong><a href='" + data.results[fullURL].shortUrl+"'>" +
                     data.results[fullURL].shortUrl + "</a></strong><br>");
         }
+    }).fail(function() {
+        $('#bitly').html("An unknown error occurred. Unable to shorten your URL.");
     });
-
-
 }
 
 /* 
@@ -209,7 +209,9 @@ function saveSession(fullURL, sessionJSON) {
 	            }
 	            displayBookmark(bookmark);
 	        }
-	    });
+	    }).fail(function(jqXHR) {
+            $('#session-id').append("An error occurred. Unable to store your session.");
+        });
     } 
 }
 

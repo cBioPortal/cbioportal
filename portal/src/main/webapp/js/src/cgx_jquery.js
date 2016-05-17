@@ -190,6 +190,12 @@ function saveSession(fullURL, sessionJSON) {
     if (bookmarkPattern.test(fullURL)) {
         displayBookmark(fullURL);
     } else {
+	    // cross_cancer.do has additional information in URL as #crosscancer/:tab/:priority/:genes/:study_list
+	    // check for that
+	    var additional_info = fullURL.split("#");
+	    if (additional_info.length == 2) {
+	        sessionJSON["url_hash_data"] = [additional_info[1]]; // must be an array like rest of parameter map
+	    }
 	    $.ajax({
 	        type: 'POST',
 	        url: 'api/proxy/session-service',
@@ -201,12 +207,6 @@ function saveSession(fullURL, sessionJSON) {
 	            $('#session-id').append("An unknown error occurred. Unable to store your session.");
 	        } else {
 	            var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id']; 
-	            // cross_cancer.do has additional information in URL as #crosscancer/:tab/:priority/:genes/:study_list
-	            // check for that
-	            var additional_info = fullURL.split("#");
-	            if (additional_info.length == 2) {
-	                bookmark += "#" + additional_info[1];
-	            }
 	            displayBookmark(bookmark);
 	        }
 	    }).fail(function(jqXHR) {

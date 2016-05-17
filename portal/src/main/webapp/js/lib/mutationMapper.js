@@ -11182,8 +11182,8 @@ function ClinicalDataProxy(options)
 		}
 
 		if (portalGlobals) {
-			cancerStudyId = portalGlobals.getCancerStudyId();
-			patientSampleMap = portalGlobals.getPatientSampleIdMap();
+			cancerStudyId = window.QuerySession.getCancerStudyIds()[0];
+			patientSampleMap = window.QuerySession.getPatientSampleIdMap();
 			for (var i = 0; i < samples.length; i++) {
 				patientIds.push(patientSampleMap[samples[i]]);
 			}

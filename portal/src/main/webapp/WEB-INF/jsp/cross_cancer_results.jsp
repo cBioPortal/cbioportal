@@ -31,6 +31,7 @@
 --%>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.SessionServiceRequestWrapper" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
@@ -103,6 +104,14 @@
 <%
     }
 %>
+<% 
+String sessionError = (String) request.getAttribute(SessionServiceRequestWrapper.SESSION_ERROR);
+if (sessionError != null) {  %>  
+<p id="session-warning" style="background-color:red;display:block;">
+    <img src="images/warning.gif"/>
+    <%= sessionError %>
+</p>
+<% } %>
 
 <table>
     <tr>

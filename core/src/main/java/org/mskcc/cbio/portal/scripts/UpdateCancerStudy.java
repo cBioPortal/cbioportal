@@ -36,15 +36,16 @@ public class UpdateCancerStudy extends ConsoleRunnable {
     public void run() {
         try {
   		  // check args
+          String progName = "updateCancerStudy";
+          String argSpec = "<study identifier> <status>";
   	      if (args.length < 2) {
   	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
              throw new UsageException(
-                     "updateCancerStudy",
+                     progName,
                      null,
-                     "<study identifier> <status>");
+                     argSpec);
   	      }
-  	      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-  	      
+
   	      String cancerStudyIdentifier = args[0];
   	      String cancerStudyStatus = args[1];
   	      //validate:
@@ -53,7 +54,8 @@ public class UpdateCancerStudy extends ConsoleRunnable {
   	    	status = DaoCancerStudy.Status.valueOf(cancerStudyStatus);
   	      }
   	      catch (IllegalArgumentException ia) {
-  	    	  throw new IllegalArgumentException("Invalid status parameter: " + cancerStudyStatus, ia);
+              throw new UsageException(progName, null, argSpec,
+                      "Invalid study status parameter: " + cancerStudyStatus);
   	      }
 
   	 	  SpringUtil.initDataSource();

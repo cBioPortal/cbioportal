@@ -130,7 +130,6 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
 		    }
 		
 		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);
-		    ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		    importCopyNumberSegmentFileData(cancerStudy, dataFile);
         } catch (RuntimeException e) {
             throw e;

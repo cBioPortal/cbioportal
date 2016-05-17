@@ -45,6 +45,8 @@ var genome; // the genome parameter
 var locus;  // the locus parameter
 var name;   // the name parameter
 var merge;
+var igv_data_fetched = false;
+var igvForSegViewResp = {};
 
 /*
  * Function to determine webstart version - taken from sun site
@@ -205,6 +207,30 @@ function appRequest(port, dataUrl, genomeID, mergeFlag, locusString, trackName) 
 
 }
 
+
+function prepIGVForSegView(_studyId) {
+	if (igv_data_fetched) {
+		prepIGVLaunch(igvForSegViewResp['segfileUrl'],
+				igvForSegViewResp['geneList'],
+				igvForSegViewResp['referenceId'], igvForSegViewResp['fileName'])
+	} else {
+		$.when($.ajax({
+			method : "POST",
+			url : 'igvlinking.json',
+			data : {
+				cmd : 'get_igv_args',
+				cancer_study_id : _studyId,
+				gene_list : window.QuerySession.getQueryGenes().join(" ")
+			}
+		})).then(
+				function(response) {
+					igvForSegViewResp = response;
+					igv_data_fetched = true;
+					prepIGVLaunch(response['segfileUrl'], response['geneList'],
+							response['referenceId'], response['fileName'])
+				});
+	}
+}
 function prepIGVLaunch(dataURL, locusString, referenceGenome, trackName) {
 
     var port = 60151;

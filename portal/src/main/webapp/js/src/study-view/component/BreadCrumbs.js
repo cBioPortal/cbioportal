@@ -280,11 +280,7 @@ var BreadCrumbs = (function() {
 
     // when the 'x' is pressed for the tablefiltering breadcrumb
     function removeTableFiltering(){
-        var cellID = $(this).attr("cellID");
-
-        // find the checkbox and perform the click, which will deselect it
-        // and trigger other triggers
-        $("#"+cellID).find(":checkbox").click();
+        StudyViewInitTables.removeTableFilter($(this).attr('chartID'), $(this).attr('chartFilter'));
         //dc.redrawAll();
     }
 

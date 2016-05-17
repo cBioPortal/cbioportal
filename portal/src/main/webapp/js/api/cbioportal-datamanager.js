@@ -691,7 +691,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				'per_study': false,
 				'gene': genes,
 				'start': starts,
-				'end': ends
+				'end': ends,
+				'echo': ['gene', 'start', 'end']
 			    }).then(function(counts) {
 				var counts_map = {};
 				for (var i=0; i<counts.length; i++) {

@@ -46,19 +46,10 @@ import java.util.*;
  * Import Segment data into database.
  * @author jj
  */
-public class ImportCopyNumberSegmentData {
-    private int cancerStudyId;
-    private File file;
-    private int entriesSkipped = 0;
+public class ImportCopyNumberSegmentData extends ConsoleRunnable {
+    private int entriesSkipped;
     
-    public ImportCopyNumberSegmentData(File file, int cancerStudyId)
-    {
-        this.file = file;
-        this.cancerStudyId = cancerStudyId;
-    }
-    
-    public void importData() throws Exception
-    {
+    private void importData(File file, int cancerStudyId) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
@@ -118,10 +109,8 @@ public class ImportCopyNumberSegmentData {
         }
     }
     
-    public static void main(String[] args) throws Exception
-    {
-    	try {    		
- 		    ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+    public void run() {
+        try {
 		    String description = "Import 'segment data' files";
 	    	
 		    OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
@@ -130,9 +119,9 @@ public class ImportCopyNumberSegmentData {
         
 		    Properties properties = new Properties();
 		    properties.load(new FileInputStream(descriptorFile));
-
-		    System.out.println("Reading data from:  " + dataFile);
-		    
+            
+            ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile);
+            
 			SpringUtil.initDataSource();
 		    CancerStudy cancerStudy = getCancerStudy(properties);
 		    
@@ -141,38 +130,28 @@ public class ImportCopyNumberSegmentData {
 		    }
 		
 		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);
-		    ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		    importCopyNumberSegmentFileData(cancerStudy, dataFile);
-		    
-		    System.out.println("Done.");
-		    ConsoleUtil.showMessages();
-	    } catch (Exception e) {
-	    	ConsoleUtil.showWarnings();
-	    	//exit with error status:
-	    	System.err.println ("\nABORTED! Error:  " + e.getMessage());
-	    	if (e.getMessage() == null)
-	        	e.printStackTrace();
-	    	System.exit(1);
-	    }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException|DaoException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
-    private static CancerStudy getCancerStudy(Properties properties) throws Exception
-    {
+    private static CancerStudy getCancerStudy(Properties properties) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier").trim());
         if (cancerStudy == null) {
-            throw new Exception("Unknown cancer study: " + properties.getProperty("cancer_study_identifier").trim());
+            throw new RuntimeException("Unknown cancer study: " + properties.getProperty("cancer_study_identifier").trim());
         }
         return cancerStudy;
     }
 
-    private static boolean segmentDataExistsForCancerStudy(CancerStudy cancerStudy) throws Exception
-    {
+    private static boolean segmentDataExistsForCancerStudy(CancerStudy cancerStudy) throws DaoException {
         return (DaoCopyNumberSegment.segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
     }
 
-    private static void importCopyNumberSegmentFileMetadata(CancerStudy cancerStudy, Properties properties) throws Exception
-    {
+    private static void importCopyNumberSegmentFileMetadata(CancerStudy cancerStudy, Properties properties) throws DaoException {
         CopyNumberSegmentFile copyNumSegFile = new CopyNumberSegmentFile();
         copyNumSegFile.cancerStudyId = cancerStudy.getInternalId();
         copyNumSegFile.referenceGenomeId = getRefGenId(properties.getProperty("reference_genome_id").trim()); 
@@ -181,24 +160,41 @@ public class ImportCopyNumberSegmentData {
         DaoCopyNumberSegmentFile.addCopyNumberSegmentFile(copyNumSegFile);
     }
 
-    private static void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws Exception
-    {
+    private void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws IOException, DaoException {
         File file = new File(dataFilename);
         int numLines = FileUtil.getNumLines(file);
         ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
         ProgressMonitor.setMaxValue(numLines);
-        ImportCopyNumberSegmentData parser = new ImportCopyNumberSegmentData(file, cancerStudy.getInternalId());
-        parser.importData();
-        ProgressMonitor.setCurrentMessage(" --> total number of entries skipped:  " + parser.entriesSkipped);
+        entriesSkipped = 0;
+        importData(file, cancerStudy.getInternalId());
+        ProgressMonitor.setCurrentMessage(" --> total number of entries skipped:  " + entriesSkipped);
     }
 
-    private static CopyNumberSegmentFile.ReferenceGenomeId getRefGenId(String potentialRefGenId) throws Exception
-    {
+    private static CopyNumberSegmentFile.ReferenceGenomeId getRefGenId(String potentialRefGenId) {
         if (CopyNumberSegmentFile.ReferenceGenomeId.has(potentialRefGenId)) {
             return CopyNumberSegmentFile.ReferenceGenomeId.valueOf(potentialRefGenId);
         }
         else {
-            throw new Exception ("Unknown reference genome id: " + potentialRefGenId);
+            throw new RuntimeException ("Unknown reference genome id: " + potentialRefGenId);
         }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportCopyNumberSegmentData(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportCopyNumberSegmentData(args);
+        runner.runInConsole();
     }
 }

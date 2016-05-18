@@ -651,7 +651,6 @@ def run_java(*args):
         java_command = os.path.join(java_home, 'bin', 'java')
     else:
         java_command = 'java'
-    print '\n\n'
     process = Popen([java_command] + list(args), stdout=PIPE, stderr=STDOUT,
                     universal_newlines=True)
     ret = []
@@ -662,9 +661,9 @@ def run_java(*args):
             ret.append(line[:-1])
     ret.append(process.returncode)
     # if cmd line parameters error:
-    if process.returncode == 2:
+    if process.returncode == 64 or process.returncode == 2:
         raise RuntimeError('Aborting. Step failed due to wrong parameters passed to subprocess.')
     # any other error:
-    if process.returncode != 0:
+    elif process.returncode != 0:
         raise RuntimeError('Aborting due to error while executing step.')
     return ret

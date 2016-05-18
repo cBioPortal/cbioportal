@@ -40,36 +40,51 @@ import java.io.File;
 /**
  * Command Line Tool to Import a Single Cancer Study.
  */
-public class ImportCancerStudy {
-
-    public static void main(String[] args) throws Exception {
-    	try {
-	        if (args.length < 1) {
-	            System.out.println("command line usage: importCancerStudy.pl <cancer_study.txt>");
-	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-	            //use 2 for command line syntax errors:
-	            System.exit(2);
-	        }
-	
-	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-	
-	        File file = new File(args[0]);
-			SpringUtil.initDataSource();
-	        CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
-	        System.out.println ("Loaded the following cancer study:  ");
-	        System.out.println (" --> Study ID:  " + cancerStudy.getInternalId());
-	        System.out.println (" --> Name:  " + cancerStudy.getName());
-	        System.out.println (" --> Description:  " + cancerStudy.getDescription());
-	        ConsoleUtil.showMessages();
-	        System.out.println("Done.");
-    	}
-    	catch (Exception e) {
-	        ConsoleUtil.showWarnings();
-	        //exit with error status:
-	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
-	        if (e.getMessage() == null)
-	        	e.printStackTrace();
-	        System.exit(1);
+public class ImportCancerStudy extends ConsoleRunnable {
+    
+    public void run() {
+        try {
+            if (args.length < 1) {
+                // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+                throw new UsageException(
+                        "importCancerStudy.pl",
+                        null,
+                        "<cancer_study.txt>");
+            }
+            
+            File file = new File(args[0]);
+            SpringUtil.initDataSource();
+            CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
+            ProgressMonitor.setCurrentMessage(
+                    "Loaded the following cancer study:" +
+                    "\n --> Study ID:  " + cancerStudy.getInternalId() +
+                    "\n --> Name:  " + cancerStudy.getName() +
+                    "\n --> Description:  " + cancerStudy.getDescription());
         }
+        catch (RuntimeException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportCancerStudy(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportCancerStudy(args);
+        runner.runInConsole();
     }
 }

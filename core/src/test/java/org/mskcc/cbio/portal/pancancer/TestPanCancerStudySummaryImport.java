@@ -66,19 +66,23 @@ public class TestPanCancerStudySummaryImport {
     }
 
     private void addCancerStudy(String fileName) throws Exception{
-        ImportCancerStudy.main(new String[]{fileName});
+    	ImportCancerStudy runner = new ImportCancerStudy(new String[]{fileName});
+    	runner.run();
     }
 
     private void addProfileData(String descriptorFileName, String dataFileName) throws Exception{
-        ImportProfileData.main(new String[]{"--meta", descriptorFileName, "--loadMode", "bulkload", "--data", dataFileName});
+    	ImportProfileData runner = new ImportProfileData(new String[]{"--meta", descriptorFileName, "--loadMode", "bulkload", "--data", dataFileName});
+    	runner.run();
     }
 
     private void addSampleLists(String fileName) throws Exception{
-        ImportSampleList.main(new String[]{fileName});
+    	ImportSampleList runner = new ImportSampleList(new String[]{fileName});
+    	runner.run();
     }
 
     private void addClinicalData(String dataFileName, String studyID) throws Exception{
-        ImportClinicalData.main(new String[]{dataFileName, studyID});
+    	ImportClinicalData runner = new ImportClinicalData(new String[]{dataFileName, studyID});
+    	runner.run();
     }
 
 //    @Test

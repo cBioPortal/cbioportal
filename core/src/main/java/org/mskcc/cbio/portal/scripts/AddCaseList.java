@@ -115,18 +115,21 @@ public class AddCaseList extends ConsoleRunnable {
    public void run() {
       try {
           // check args
+          String progName = "addCaseList.pl";
+          String argSpec = "<study identifier> <case list type>";
           if (this.args.length < 2) {
               // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
               throw new UsageException(
-                      "addCaseList.pl",
+                      progName,
                       null,
-                      "<study identifier> <case list type>");
+                      argSpec);
           }
           
 	      String cancerStudyIdentifier = args[0];
 	      String caseListType = args[1];
 	      if (cancerStudyIdentifier == null) {
-	          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
+              throw new UsageException(progName, null, argSpec,
+                      "cancer_study_identifier is not specified.");
 	      }
 	 	  SpringUtil.initDataSource();
 	      CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);

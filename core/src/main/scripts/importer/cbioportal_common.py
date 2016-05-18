@@ -651,7 +651,6 @@ def run_java(*args):
         java_command = os.path.join(java_home, 'bin', 'java')
     else:
         java_command = 'java'
-    print '\n\n'
     process = Popen([java_command] + list(args), stdout=PIPE, stderr=STDOUT,
                     universal_newlines=True)
     ret = []

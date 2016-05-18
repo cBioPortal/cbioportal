@@ -127,7 +127,7 @@ public class TestImportClinicalData {
         // set the info usually parsed from args
         importClinicalData.setFile(study, clinicalFile, "MIXED_ATTRIBUTES");
         
-        exception.expect(RuntimeException.class);
+        exception.expect(DaoException.class);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
@@ -152,7 +152,7 @@ public class TestImportClinicalData {
         // set the info usually parsed from args
         importClinicalData.setFile(study, clinicalFile, "PATIENT_ATTRIBUTES");
         
-        exception.expect(RuntimeException.class);
+        exception.expect(DaoException.class);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}

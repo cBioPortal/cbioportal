@@ -604,7 +604,6 @@ public class ImportClinicalData extends ConsoleRunnable {
                     throw new RuntimeException("No data was added.  " +
                             "Please check your data and try again.");
                 }
-            ProgressMonitor.setCurrentMessage("Done.");
 
             if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
                 getNumPatientSpecificClinicalAttributesAdded() == 0) {

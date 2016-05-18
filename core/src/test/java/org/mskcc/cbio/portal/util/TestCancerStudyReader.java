@@ -57,13 +57,13 @@ public class TestCancerStudyReader {
    @Test
    public void testCancerStudyReaderCancerType() throws Exception {
 
-      File file = new File("target/test-classes/cancer_study.txt");
+      File file = new File("src/test/resources/cancer_study.txt");
       CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy( file );
       
       CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId( "test_brca" );
       assertEquals(expectedCancerStudy, cancerStudy);
       // TBD: change this to use getResourceAsStream()
-      file = new File("target/test-classes/cancer_study_bad.txt");
+      file = new File("src/test/resources/cancer_study_bad.txt");
       try {
          cancerStudy = CancerStudyReader.loadCancerStudy( file );
          fail( "Should have thrown DaoException." );
@@ -75,13 +75,13 @@ public class TestCancerStudyReader {
 	@Test
 	   public void testCancerStudyReaderShortName() throws Exception {
 
-	      File file = new File("target/test-classes/cancer_study.txt");
+	      File file = new File("src/test/resources/cancer_study.txt");
 	      CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy( file );
 	      
 	      CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId( "test_brca" );
 	      assertEquals(expectedCancerStudy, cancerStudy);
 	      // TBD: change this to use getResourceAsStream()
-	      file = new File("target/test-classes/cancer_study_bad_short_name.txt");
+	      file = new File("src/test/resources/cancer_study_bad_short_name.txt");
 	      try {
 	         cancerStudy = CancerStudyReader.loadCancerStudy( file );
 	         fail( "Should have thrown DaoException." );

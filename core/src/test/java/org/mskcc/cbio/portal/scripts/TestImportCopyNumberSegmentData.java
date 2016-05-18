@@ -81,8 +81,8 @@ public class TestImportCopyNumberSegmentData {
         //CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("testnew");
 
         String[] args = {
-        		"--data","target/test-classes/segment/data_cna_hg19.seg",
-        		"--meta","target/test-classes/segment/meta_cna_hg19_seg.txt",
+        		"--data","src/test/resources/segment/data_cna_hg19.seg",
+        		"--meta","src/test/resources/segment/meta_cna_hg19_seg.txt",
         		"--loadMode", "bulkLoad"
         		};
         ImportCopyNumberSegmentData runner = new ImportCopyNumberSegmentData(args);

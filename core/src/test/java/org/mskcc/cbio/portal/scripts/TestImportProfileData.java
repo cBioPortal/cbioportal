@@ -94,8 +94,8 @@ public class TestImportProfileData {
         		"--meta","target/test-classes/meta_mutations_extended.txt",
         		"--loadMode", "bulkLoad"
         		};
-        
-        ImportProfileData.main(args);
+        ImportProfileData runner = new ImportProfileData(args);
+        runner.run();
         //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the 
         //dataset study id (e.g. studyStableId + "_breast_mutations"):
         String studyStableId = "study_tcga_pub";
@@ -129,7 +129,8 @@ public class TestImportProfileData {
         ImportDataUtil.addPatients(sampleIds, study);
         ImportDataUtil.addSamples(sampleIds, study);
         
-        ImportProfileData.main(args);
+        ImportProfileData runner = new ImportProfileData(args);
+        runner.run();
 		
 		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_gistic").getGeneticProfileId();
 		

@@ -98,8 +98,10 @@ public class TestImportClinicalData {
         study = DaoCancerStudy.getCancerStudyByStableId("testnew");
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data_small.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(
-                study, clinicalFile, "MIXED_ATTRIBUTES");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(study, clinicalFile, "MIXED_ATTRIBUTES");
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
@@ -120,8 +122,10 @@ public class TestImportClinicalData {
         study = DaoCancerStudy.getCancerStudyByStableId("testnew2");
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data_small_nonTCGA.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(
-                study, clinicalFile, "MIXED_ATTRIBUTES");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(study, clinicalFile, "MIXED_ATTRIBUTES");
         
         exception.expect(DaoException.class);
         importClinicalData.importData();
@@ -143,8 +147,10 @@ public class TestImportClinicalData {
         study = DaoCancerStudy.getCancerStudyByStableId("testnew3");
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data_small_PATIENT.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(
-                study, clinicalFile, "PATIENT_ATTRIBUTES");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(study, clinicalFile, "PATIENT_ATTRIBUTES");
         
         exception.expect(DaoException.class);
         importClinicalData.importData();
@@ -164,7 +170,10 @@ public class TestImportClinicalData {
 
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES");
         importClinicalData.importData();
 	}
 	
@@ -180,7 +189,10 @@ public class TestImportClinicalData {
 
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES");
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
@@ -222,7 +234,10 @@ public class TestImportClinicalData {
 
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES");
         importClinicalData.importData();
 
         List<ClinicalParameterMap> slice = DaoClinicalData.getDataSlice(study.getInternalId(), Arrays.asList("PLATINUMSTATUS"));
@@ -247,7 +262,10 @@ public class TestImportClinicalData {
 
 		// TBD: change this to use getResourceAsStream()
         File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES");
         importClinicalData.importData();
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(study.getInternalId());

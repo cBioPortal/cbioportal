@@ -46,13 +46,11 @@ import org.mskcc.cbio.portal.util.*;
  * @author ECerami
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
-public class ImportProfileData{
+public class ImportProfileData extends ConsoleRunnable {
 
-   public static void main(String[] args) throws Exception {
+    public void run() {
        try {
-    	   Date start = new Date();
-
-    	   String description = "Import 'profile' files that contain data matrices indexed by gene, case";
+           String description = "Import 'profile' files that contain data matrices indexed by gene, case";
 	
 	       // using a real options parser, helps avoid bugs
 	       OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
@@ -60,8 +58,7 @@ public class ImportProfileData{
 	       File descriptorFile = new File((String) options.valueOf( "meta" ) );
 	       
 			SpringUtil.initDataSource();
-	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-	        System.out.println("Reading data from:  " + dataFile.getAbsolutePath());
+	        ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());
 	        GeneticProfile geneticProfile = null;
 	         try {
 	            geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
@@ -70,9 +67,10 @@ public class ImportProfileData{
 	         }
 	
 	        int numLines = FileUtil.getNumLines(dataFile);
-	        System.out.println(" --> profile id:  " + geneticProfile.getGeneticProfileId());
-	        System.out.println(" --> profile name:  " + geneticProfile.getProfileName());
-	        System.out.println(" --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
+            ProgressMonitor.setCurrentMessage(
+                    " --> profile id:  " + geneticProfile.getGeneticProfileId() +
+                    "\n --> profile name:  " + geneticProfile.getProfileName() +
+                    "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
 	        ProgressMonitor.setMaxValue(numLines);
 	        
 	        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
@@ -91,19 +89,31 @@ public class ImportProfileData{
 	                    geneticProfile.getGeneticProfileId());
 	            importer.importData(numLines);
 	        }
-	        ConsoleUtil.showMessages();
-	        System.out.println("Done.");
-	        Date end = new Date();
-	        long totalTime = end.getTime() - start.getTime();
-	        System.out.println ("Total time:  " + totalTime + " ms\n");
+       }
+       catch (RuntimeException e) {
+           throw e;
        }
        catch (Exception e) {
-           ConsoleUtil.showWarnings();
-    	   //exit with error status:
-    	   System.err.println ("\nABORTED! Error:  " + e.getMessage());
-    	   if (e.getMessage() == null)
-	        	e.printStackTrace();
-           System.exit(1);
+           throw new RuntimeException(e);
        }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportProfileData(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportProfileData(args);
+        runner.runInConsole();
     }
 }

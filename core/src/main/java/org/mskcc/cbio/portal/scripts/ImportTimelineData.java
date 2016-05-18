@@ -46,13 +46,13 @@ import org.mskcc.cbio.portal.util.SpringUtil;
  * 
  * @author jgao, inodb
  */
-public class ImportTimelineData {
+public class ImportTimelineData extends ConsoleRunnable {
 
 	private static void importData(String dataFile, int cancerStudyId) throws IOException, DaoException {
 		MySQLbulkLoader.bulkLoadOn();
 		SpringUtil.initDataSource();
 
-		System.out.print("Reading file " + dataFile + "\n");
+		ProgressMonitor.setCurrentMessage("Reading file " + dataFile);
 		FileReader reader = new FileReader(dataFile);
 		BufferedReader buff = new BufferedReader(reader);
 		try {
@@ -116,32 +116,43 @@ public class ImportTimelineData {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		try {
-			ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+    public void run() {
+        try {
 		    String description = "Import 'timeline' data";
-	    	
+            
 		    OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
 		    String dataFile = (String) options.valueOf("data");
 		    File descriptorFile = new File((String) options.valueOf("meta"));
-	
+            
 			Properties properties = new TrimmedProperties();
 			properties.load(new FileInputStream(descriptorFile));
-	
+            
 			int cancerStudyInternalId = ValidationUtils.getInternalStudyId(properties.getProperty("cancer_study_identifier"));
-			
+            
 			importData(dataFile, cancerStudyInternalId);
-	
-			System.out.println("Done!");
-		    ConsoleUtil.showMessages();		    
-		} 
-		catch (Exception e) {
-	    	ConsoleUtil.showWarnings();
-	    	//exit with error status:
-			System.err.println ("\nABORTED! Error:  " + e.getMessage());
-			if (e.getMessage() == null)
-	        	e.printStackTrace();
-	    	System.exit(1);
-	    } 
-	}
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException|DaoException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportTimelineData(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportTimelineData(args);
+        runner.runInConsole();
+    }
 }

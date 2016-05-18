@@ -497,6 +497,8 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.toCanvas = function(callback, resolution) {
 	// Returns data url, requires IE >= 11
+	
+	var MAX_CANVAS_SIDE = 8192;
 	var svg = this.toSVG(true);
 	svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 	var width = parseInt(svg.getAttribute('width'), 10);
@@ -504,8 +506,9 @@ var Oncoprint = (function () {
 	var canvas = document.createElement('canvas');
 	
 	resolution = resolution || 1;
-	canvas.setAttribute('width', width*resolution);
-	canvas.setAttribute('height', height*resolution);
+	var truncated = width*resolution > MAX_CANVAS_SIDE || height*resolution > MAX_CANVAS_SIDE;
+	canvas.setAttribute('width', Math.min(MAX_CANVAS_SIDE, width*resolution));
+	canvas.setAttribute('height', Math.min(MAX_CANVAS_SIDE, height*resolution));
 	
 	var container = document.createElement("div");
 	container.appendChild(svg);
@@ -518,7 +521,7 @@ var Oncoprint = (function () {
 	
 	img.onload = function() {
 	    ctx.drawImage(img, 0, 0);
-	    callback(canvas);
+	    callback(canvas, truncated);
 	};
 	img.onerror = function() {
 	    console.log("IMAGE LOAD ERROR");

@@ -101,7 +101,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(study, clinicalFile, "MIXED_ATTRIBUTES");
+        importClinicalData.setFile(study, clinicalFile, "MIXED_ATTRIBUTES", true);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
@@ -125,7 +125,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(study, clinicalFile, "MIXED_ATTRIBUTES");
+        importClinicalData.setFile(study, clinicalFile, "MIXED_ATTRIBUTES", true);
         
         exception.expect(DaoException.class);
         importClinicalData.importData();
@@ -150,7 +150,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(study, clinicalFile, "PATIENT_ATTRIBUTES");
+        importClinicalData.setFile(study, clinicalFile, "PATIENT_ATTRIBUTES", false);
         
         exception.expect(DaoException.class);
         importClinicalData.importData();
@@ -173,7 +173,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES", false);
         importClinicalData.importData();
 	}
 	
@@ -192,7 +192,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES", false);
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
@@ -237,7 +237,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES", false);
         importClinicalData.importData();
 
         List<ClinicalParameterMap> slice = DaoClinicalData.getDataSlice(study.getInternalId(), Arrays.asList("PLATINUMSTATUS"));
@@ -265,7 +265,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        importClinicalData.setFile(study, clinicalFile, "SAMPLE_ATTRIBUTES", false);
         importClinicalData.importData();
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(study.getInternalId());

@@ -59,6 +59,7 @@ public class ImportClinicalData extends ConsoleRunnable {
     private File clinicalDataFile;
     private CancerStudy cancerStudy;
     private AttributeTypes attributesType;
+    private boolean relaxed;
     private Set<String> patientIds = new HashSet<String>();
 
     public static enum MissingAttributeValues
@@ -108,11 +109,12 @@ public class ImportClinicalData extends ConsoleRunnable {
         public String toString() {return attributeType;}
     }
 
-    public void setFile(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype)
+    public void setFile(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype, boolean relaxed)
     {
         this.cancerStudy = cancerStudy;
         this.clinicalDataFile = clinicalDataFile;
         this.attributesType = AttributeTypes.valueOf(attributesDatatype);
+        this.relaxed = relaxed;
     }
 
     public void importData() throws Exception
@@ -349,8 +351,14 @@ public class ImportClinicalData extends ConsoleRunnable {
                     attributeMap.put(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc]);
                 }
                 else if(!attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
-                    throw new RuntimeException("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
+                    if (relaxed) {
+                        ProgressMonitor.logWarning("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
                             "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                    }
+                    else {
+                        throw new RuntimeException("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
+                                "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);                        
+                    }
                 }
             }
             else if (internalSampleId != -1) {
@@ -360,8 +368,14 @@ public class ImportClinicalData extends ConsoleRunnable {
                     attributeMap.put(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc]);
                 }
                 else if (!attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
-                    throw new RuntimeException("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
-                            "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                    if (relaxed) {
+                        ProgressMonitor.logWarning("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
+                                "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                    }
+                    else {
+                        throw new RuntimeException("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
+                                "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);                        
+                    }
                 }
             }
         }
@@ -539,6 +553,8 @@ public class ImportClinicalData extends ConsoleRunnable {
 	                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
 	        OptionSpec<String> attributeFlag = parser.accepts("a",
 	                "Flag for using MIXED_ATTRIBUTES (deprecated)").withOptionalArg().describedAs("a").ofType(String.class);
+                	        OptionSpec<String> relaxedFlag = parser.accepts("r",
+	                "Flag for relaxed mode").withOptionalArg().describedAs("r").ofType(String.class);
 	        parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
 	          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
 	        parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
@@ -560,6 +576,7 @@ public class ImportClinicalData extends ConsoleRunnable {
                         "'data' argument required.");
             }
 	        String attributesDatatype = null;
+                boolean relaxed = false;
 	        String cancerStudyStableId = null;
 	        if( options.has ( study ) )
 	        {
@@ -576,7 +593,11 @@ public class ImportClinicalData extends ConsoleRunnable {
                 {
                     attributesDatatype = "MIXED_ATTRIBUTES";
                 }
+                if( options.has ( relaxedFlag ) )
+                {
+                    relaxed = true;
 
+                }
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
             if (cancerStudy == null) {
@@ -587,7 +608,7 @@ public class ImportClinicalData extends ConsoleRunnable {
             ProgressMonitor.setCurrentMessage(" --> total number of lines:  " + numLines);
             ProgressMonitor.setMaxValue(numLines);
 
-            setFile(cancerStudy, clinical_f, attributesDatatype);
+            setFile(cancerStudy, clinical_f, attributesDatatype, relaxed);
             importData();
 
             if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||

@@ -574,6 +574,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				var requests_ = [];
 				var response_ = [];
 				var self = this;
+				var def = new $.Deferred();
 				$.each(this.getCancerStudyIds(),function(key,val){
 					requests_.push(window.cbioportal_client.getSampleClinicalData({study_id: [val], attribute_ids: attribute_ids, sample_ids: self.getStudySampleMap()[val]}));
 				});

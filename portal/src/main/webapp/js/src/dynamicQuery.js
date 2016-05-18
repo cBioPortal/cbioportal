@@ -390,43 +390,30 @@ function chooseAction(evt) {
             // select all by default
             $("#jstree").jstree(true).select_node(window.jstree_root_id);
             selected_studies = $("#jstree").jstree(true).get_selected_leaves()
-    }    
-    if (selected_studies.length > 1) {
-	if ( haveExpInQuery ) {
-            createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
-            return false;
-        }
-        $("#main_form").find("#select_multiple_studies").val("");
-        if ($("#tab_index").val() == 'tab_download') {
-            $("#main_form").get(0).setAttribute('action','index.do');
-        }
-        else {
-                var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
-                var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
-                evt.preventDefault();
-                window.location = 'cross_cancer.do?' + newSearch;
-            //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
-        }
-        
-    } else if (selected_studies.length === 1) {
-        $("#main_form").find("#select_single_study").val(selected_studies[0]);
-        $("#main_form").get(0).setAttribute('action','index.do');
-
-        if ( haveExpInQuery ) {
-            var expCheckBox = $("." + PROFILE_MRNA_EXPRESSION);
-
-            if( expCheckBox.length > 0 && expCheckBox.prop('checked') == false) {
-                    createAnError("Expression specified in the list of genes, but not selected in the" +
-                                        " Genetic Profile Checkboxes.",  $('#gene_list'));
-                    evt.preventDefault();
-            } else if( expCheckBox.length == 0 ) {
-                createAnError("Expression specified in the list of genes, but not selected in the" +
-                                    " Genetic Profile Checkboxes.",  $('#gene_list'));
-                evt.preventDefault();
-            }
-        }
+    }else {
+       $("#main_form").get(0).setAttribute('action','index.do');
+       if(selected_studies.length==1){
+    	   $("#main_form").find("#select_single_study").val(selected_studies[0]);
+    	   if ( haveExpInQuery ) {
+    		   var expCheckBox = $("." + PROFILE_MRNA_EXPRESSION);
+               if( expCheckBox.length > 0 && expCheckBox.prop('checked') == false) {
+            	   createAnError("Expression specified in the list of genes, but not selected in the" +
+            	   		" Genetic Profile Checkboxes.",  $('#gene_list'));
+                		evt.preventDefault();
+               } else if( expCheckBox.length == 0 ) {
+                	createAnError("Expression specified in the list of genes, but not selected in the" +
+                	    " Genetic Profile Checkboxes.",  $('#gene_list'));
+                	evt.preventDefault();
+               }
+    	   }
+       }else{
+    	   if ( haveExpInQuery ) {
+               createAnError("Expression filtering in the gene list is not supported when doing cross " +
+               		"cancer queries.",  $('#gene_list'));
+               evt.preventDefault();
+           }
+       }
     }
-
 }
 
 function createAnError(errorText, targetElt, optClassStr) {

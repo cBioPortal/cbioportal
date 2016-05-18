@@ -845,7 +845,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    data: {
 			cancer_study_id: val,
 			cmd: "get_cna_fraction",
-			case_ids: QuerySession.getSampleIds().join(" ")
+			case_ids: QuerySession.getSampleIds(val).join(" ")
 		    },success: function (response) {
 				response = response.toJSON();
 				_.each(response, function(element, index) {
@@ -859,6 +859,29 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			});
 			return def.promise();
 
+	};
+	var prepareMutationRequest = function(study_id,mutation_profile_id,sample_ids){
+		var def = new $.Deferred();
+		var clinicalMutationColl = new ClinicalMutationColl();
+		clinicalMutationColl.fetch({
+			type: "POST",
+			data: {
+				mutation_profile: mutation_profile_id,
+				cmd: "count_mutations",
+				case_ids: sample_ids.join(" ")
+			},
+			success: function (response) {
+				response = response.toJSON();
+				_.each(response, function(element, index) {
+					_.extend(element, {study_id:study_id});
+				});
+				def.resolve(response);
+			},
+			error: function() {
+				def.reject();
+			}
+		});
+		return def.promise();
 	};
 	var addBlankPatientData = function(attr_id, data) {
 	    // Add blank data for missing ids
@@ -885,29 +908,31 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var fetchData = function(attr) {
 	    var def = new $.Deferred();
 	    if (attr.attr_id === '# mutations') {
-		var clinicalMutationColl = new ClinicalMutationColl();
-		clinicalMutationColl.fetch({
-		    type: "POST",
-		    data: {
-			mutation_profile: window.QuerySession.getMutationProfileId(),
-			cmd: "count_mutations",
-			case_ids: QuerySession.getSampleIds().join(" ")
-		    },
-		    success: function (response) {
-			response = response.toJSON();
-			var sample_data = addBlankSampleData(attr.attr_id, response);
-			sample_clinical_data[attr.attr_id] = sample_data;
-			makePatientDataFromSampleAttrData(response, 'average').then(function(patient_data) {
-			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
-				patient_clinical_data[attr.attr_id] = completed_patient_data;
-				def.resolve();
-			    });
-			});
-		    },
-		    error: function() {
-			def.reject();
-		    }
-		});
+	    	var requests_ = [];
+	    	var response_ = [];
+	    	$.when(window.cbioportal_client.getGeneticProfiles({genetic_profile_ids: window.QuerySession.getMutationProfileId()}))
+			.then(function(mp_response) {
+				$.each(mp_response,function(key,mutation_profile){
+		    		requests_.push(prepareMutationRequest(mutation_profile.study_id, mutation_profile.id, window.QuerySession.getSampleIds(mutation_profile.study_id)));
+		    	});
+		    	$.when.apply($, requests_).done(function() {
+		    		for (var i = 0; i < arguments.length; i++) {
+		    			response_ = response_.concat(arguments[i]);
+		    		}
+					var sample_data = addBlankSampleData(attr.attr_id, response_);
+					sample_clinical_data[attr.attr_id] = sample_data;
+					makePatientDataFromSampleAttrData(response_, 'average').then(function(patient_data) {
+						addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
+							patient_clinical_data[attr.attr_id] = completed_patient_data;
+							def.resolve();
+						});
+					});
+		    	}).fail(function() {
+		    		def.reject();
+		    	});
+			}).fail(function() {
+	    		def.reject();
+	    	});
 	    } else if (attr.attr_id === 'FRACTION_GENOME_ALTERED') {
 	    	var requests_ = [];
 	    	var response_ = [];

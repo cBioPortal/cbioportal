@@ -135,7 +135,7 @@
 
     <servlet>
         <servlet-name>query_builder</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.QueryBuilder</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CommonQueryBuilder</servlet-class>
         <init-param>
             <param-name>pathway_commons_url</param-name>
             <param-value>${pathway_commons.url}</param-value>

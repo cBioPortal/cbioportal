@@ -1,5 +1,6 @@
 package org.mskcc.cbio.portal.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,6 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationWithSampleListId;
+import org.cbioportal.service.MutationService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
@@ -63,6 +68,8 @@ public class ApiService {
 	private SampleMapper sampleMapper;
 	@Autowired
 	private StudyMapper studyMapper;
+	@Autowired
+	private MutationService mutationService;
 
 	@Transactional
 	public List<DBCancerType> getCancerTypes() {
@@ -157,17 +164,18 @@ public class ApiService {
 		return geneticProfileMapper.getGeneticProfiles(genetic_profile_ids);
 	}
 
-        @Transactional
-        private List<DBSampleList> addSampleIdsToSampleLists(List<DBSampleList> incomplete_lists) {
-            for (DBSampleList l : incomplete_lists) {
-                List<DBSample> sample_list = sampleListMapper.getSampleIds(l.id);
-                l.sample_ids = new ArrayList<>();
-                for (DBSample samp : sample_list) {
-                    l.sample_ids.add(samp.id);
-                }
-            }
-            return incomplete_lists;
-        }
+	@Transactional
+	private List<DBSampleList> addSampleIdsToSampleLists(List<DBSampleList> incomplete_lists) {
+		for (DBSampleList l : incomplete_lists) {
+			List<DBSample> sample_list = sampleListMapper.getSampleIds(l.id);
+			l.sample_ids = new ArrayList<>();
+			for (DBSample samp : sample_list) {
+				l.sample_ids.add(samp.id);
+			}
+		}
+		return incomplete_lists;
+	}
+
 	@Transactional
 	public List<DBSampleList> getSampleLists() {
 		return addSampleIdsToSampleLists(sampleListMapper.getAllIncompleteSampleLists());
@@ -183,7 +191,6 @@ public class ApiService {
 		return addSampleIdsToSampleLists(sampleListMapper.getIncompleteSampleLists(sample_list_ids));
 	}
 
-	
 	@Transactional
 	public List<DBPatient> getPatients(String study_id) {
 		return patientMapper.getPatientsByStudy(study_id);
@@ -193,7 +200,7 @@ public class ApiService {
 	public List<DBPatient> getPatientsByPatient(String study_id, List<String> patient_ids) {
 		return patientMapper.getPatientsByPatient(study_id, patient_ids);
 	}
-	
+
 	@Transactional
 	public List<DBPatient> getPatientsBySample(String study_id, List<String> sample_ids) {
 		return patientMapper.getPatientsBySample(study_id, sample_ids);
@@ -210,107 +217,107 @@ public class ApiService {
     }
     
 	@Transactional
-	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes) {
-		return getGeneticProfileData(genetic_profile_ids, genes, null, null);
-	}
-        
-        @Transactional
-	public List<DBProfileData> getGeneticProfileDataBySampleList(List<String> genetic_profile_ids, List<String> genes, String sample_list_id) {
-		return getGeneticProfileData(genetic_profile_ids, genes, null, sample_list_id);
-	}
-        
-        @Transactional
-        public List<DBProfileData> getGeneticProfileDataBySample(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids) {
-            return getGeneticProfileData(genetic_profile_ids, genes, sample_ids, null);
-        }
+	public List<Serializable> getGeneticProfileData(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols,
+													List<String> sampleStableIds, String sampleListStableId) {
 
-	@Transactional
-	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids, String sample_list_id) {
-		List<DBGeneticProfile> profiles = getGeneticProfiles(genetic_profile_ids);
-		List<String> mutation_profiles = new ArrayList<>();
-		List<String> non_mutation_profiles = new ArrayList<>();
-		for (DBGeneticProfile p : profiles) {
-			if (p.genetic_alteration_type.equals("MUTATION_EXTENDED")) {
-				mutation_profiles.add(p.id);
+		List<DBGeneticProfile> profiles = getGeneticProfiles(geneticProfileStableIds);
+		List<String> mutationProfiles = new ArrayList<>();
+		List<String> nonMutationProfiles = new ArrayList<>();
+		for (DBGeneticProfile profile : profiles) {
+			if ("MUTATION_EXTENDED".equals(profile.genetic_alteration_type)) {
+				mutationProfiles.add(profile.id);
 			} else {
-				non_mutation_profiles.add(p.id);
+				nonMutationProfiles.add(profile.id);
 			}
 		}
+
+		List<Serializable> result = new ArrayList<>();
+
+		if (!mutationProfiles.isEmpty()) {
+			result.addAll(addSampleListIdToMutationList(mutationService.getMutations(mutationProfiles, hugoGeneSymbols, sampleStableIds, sampleListStableId), sampleListStableId));
+		}
+		if (!nonMutationProfiles.isEmpty()) {
+			result.addAll(getNonMutationGeneticProfileData(nonMutationProfiles, hugoGeneSymbols, sampleStableIds,
+					sampleListStableId));
+		}
+
+		return result;
+	}
+
+	private List<MutationWithSampleListId> addSampleListIdToMutationList(List<Mutation> mutations, String sampleListId) {
+
+		ArrayList<MutationWithSampleListId> mutationsWithSampleListId = new ArrayList<MutationWithSampleListId>(mutations.size());
+		for (Mutation mutation : mutations) {
+			mutationsWithSampleListId.add(new MutationWithSampleListId(mutation, sampleListId));
+		}
+		return mutationsWithSampleListId;
+	}
+
+	private List<DBProfileData> getNonMutationGeneticProfileData(List<String> non_mutation_profiles, List<String> genes,
+																 List<String> sample_ids, String sample_list_id) {
+
 		List<DBProfileData> ret = new ArrayList<>();
-		if (!mutation_profiles.isEmpty()) {
-			List<DBMutationData> to_add;
-			if (sample_ids == null && sample_list_id == null) {
-				to_add = profileDataMapper.getMutationData(mutation_profiles, genes);
-			} else if (sample_list_id == null) {
-				to_add = profileDataMapper.getMutationDataBySample(mutation_profiles, genes, sample_ids);
-			} else {
-                                to_add = profileDataMapper.getMutationDataBySampleList(mutation_profiles, genes, sample_list_id);
-                        }
-			ret.addAll(to_add);
+		List<DBGeneticAltRow> genetic_alt_rows = profileDataMapper.getGeneticAlterationRow(non_mutation_profiles, genes);
+		List<DBProfileDataCaseList> ordered_sample_lists = profileDataMapper.getProfileCaseLists(non_mutation_profiles);
+
+		Set<String> desired_samples = new HashSet<>();
+		String queried_sample_list_id = null;
+		if (sample_list_id != null) {
+			List<String> sample_list_ids = new LinkedList<>();
+			sample_list_ids.add(sample_list_id);
+			List<DBSampleList> sample_lists = getSampleLists(sample_list_ids);
+			for (DBSampleList list: sample_lists) {
+				desired_samples.addAll(list.sample_ids);
+			}
+			queried_sample_list_id = sample_list_id;
 		}
-		if (!non_mutation_profiles.isEmpty()) {
-			List<DBGeneticAltRow> genetic_alt_rows = profileDataMapper.getGeneticAlterationRow(non_mutation_profiles, genes);
-			List<DBProfileDataCaseList> ordered_sample_lists = profileDataMapper.getProfileCaseLists(non_mutation_profiles);
-                        
-			Set<String> desired_samples = new HashSet<>();
-                        String queried_sample_list_id = null;
-                        if (sample_list_id != null) {
-                            List<String> sample_list_ids = new LinkedList<>();
-                            sample_list_ids.add(sample_list_id);
-                            List<DBSampleList> sample_lists = getSampleLists(sample_list_ids);
-                            for (DBSampleList list: sample_lists) {
-                                desired_samples.addAll(list.sample_ids);
-                            }
-                            queried_sample_list_id = sample_list_id;
-                        }
-			if (sample_ids != null) {
-				for (String sample: sample_ids) {
-					desired_samples.add(sample);
+		if (sample_ids != null) {
+			for (String sample: sample_ids) {
+				desired_samples.add(sample);
+			}
+		}
+		Map<String, String> sample_order_map = new HashMap<>();
+		Map<String, String> stable_sample_id_map = new HashMap<>();
+		for (DBProfileDataCaseList sample_list : ordered_sample_lists) {
+			String[] list = sample_list.ordered_sample_list.split(",");
+			String key_prefix = sample_list.genetic_profile_id + "~";
+			for (int i = 0; i < list.length; i++) {
+				if (!list[i].equals("")) {
+					sample_order_map.put(key_prefix + i, list[i]);
 				}
 			}
-			Map<String, String> sample_order_map = new HashMap<>();
-			Map<String, String> stable_sample_id_map = new HashMap<>();
-			for (DBProfileDataCaseList sample_list : ordered_sample_lists) {
-				String[] list = sample_list.ordered_sample_list.split(",");
-				String key_prefix = sample_list.genetic_profile_id + "~";
-				for (int i = 0; i < list.length; i++) {
-					if (!list[i].equals("")) {
-						sample_order_map.put(key_prefix + i, list[i]);
-					}
-				}
-			}
-			List<String> internal_sample_ids = new ArrayList<>();
-			internal_sample_ids.addAll(sample_order_map.values());
-			List<DBSample> samples = sampleMapper.getSamplesByInternalId(internal_sample_ids);
-			for (DBSample sample: samples) {
-				stable_sample_id_map.put(sample.internal_id, sample.id);
-			}
-			for (DBGeneticAltRow row : genetic_alt_rows) {
-				String[] values = row.values.split(",");
-				String key_prefix = row.genetic_profile_id + "~";
-				for (int i = 0; i < values.length; i++) {
-					if (!values[i].equals("")) {
-						String sample_id = stable_sample_id_map.get(sample_order_map.get(key_prefix + i));
-						if (desired_samples.contains(sample_id) || desired_samples.isEmpty()) {
-							DBSimpleProfileData datum = new DBSimpleProfileData();
-							datum.sample_id = sample_id;
-							datum.genetic_profile_id = row.genetic_profile_id;
-							datum.study_id = row.study_id;
-							datum.hugo_gene_symbol = row.hugo_gene_symbol;
-							datum.entrez_gene_id = row.entrez_gene_id;
-							datum.profile_data = values[i];
-                                                        if (queried_sample_list_id != null) {
-                                                            datum.sample_list_id = queried_sample_list_id;
-                                                        }
-							ret.add(datum);
+		}
+		List<String> internal_sample_ids = new ArrayList<>();
+		internal_sample_ids.addAll(sample_order_map.values());
+		List<DBSample> samples = sampleMapper.getSamplesByInternalId(internal_sample_ids);
+		for (DBSample sample: samples) {
+			stable_sample_id_map.put(sample.internal_id, sample.id);
+		}
+		for (DBGeneticAltRow row : genetic_alt_rows) {
+			String[] values = row.values.split(",");
+			String key_prefix = row.genetic_profile_id + "~";
+			for (int i = 0; i < values.length; i++) {
+				if (!values[i].equals("")) {
+					String sample_id = stable_sample_id_map.get(sample_order_map.get(key_prefix + i));
+					if (desired_samples.contains(sample_id) || desired_samples.isEmpty()) {
+						DBSimpleProfileData datum = new DBSimpleProfileData();
+						datum.sample_id = sample_id;
+						datum.genetic_profile_id = row.genetic_profile_id;
+						datum.study_id = row.study_id;
+						datum.hugo_gene_symbol = row.hugo_gene_symbol;
+						datum.entrez_gene_id = row.entrez_gene_id;
+						datum.profile_data = values[i];
+						if (queried_sample_list_id != null) {
+							datum.sample_list_id = queried_sample_list_id;
 						}
+						ret.add(datum);
 					}
 				}
 			}
 		}
 		return ret;
 	}
-	
+
 	@Transactional
 	public List<DBSample> getSamples(String study_id) {
 		return sampleMapper.getSamplesByStudy(study_id);
@@ -320,21 +327,20 @@ public class ApiService {
 	public List<DBSample> getSamplesBySample(String study_id, List<String> sample_ids) {
 		return sampleMapper.getSamplesBySample(study_id, sample_ids);
 	}
-        
-        @Transactional
-        public List<DBSample> getSamplesByPatient(String study_id, List<String> patient_ids) {
-                return sampleMapper.getSamplesByPatient(study_id, patient_ids);
-        }
-	
+
+	@Transactional
+	public List<DBSample> getSamplesByPatient(String study_id, List<String> patient_ids) {
+		return sampleMapper.getSamplesByPatient(study_id, patient_ids);
+	}
+
 	@Transactional
 	public List<DBStudy> getStudies() {
 		return studyMapper.getAllStudies();
 	}
-	
+
 	@Transactional
 	public List<DBStudy> getStudies(List<String> study_ids) {
 		return studyMapper.getStudies(study_ids);
 	}
-
 
 }

@@ -69,8 +69,8 @@ public class ImportProfileData extends ConsoleRunnable {
 	        int numLines = FileUtil.getNumLines(dataFile);
             ProgressMonitor.setCurrentMessage(
                     " --> profile id:  " + geneticProfile.getGeneticProfileId() +
-                    " --> profile name:  " + geneticProfile.getProfileName() +
-                    " --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
+                    "\n --> profile name:  " + geneticProfile.getProfileName() +
+                    "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
 	        ProgressMonitor.setMaxValue(numLines);
 	        
 	        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {

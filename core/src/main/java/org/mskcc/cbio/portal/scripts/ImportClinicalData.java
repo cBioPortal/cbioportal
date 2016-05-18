@@ -40,6 +40,7 @@ import java.io.*;
 import joptsimple.*;
 import java.util.*;
 import java.util.regex.*;
+import org.apache.commons.collections.map.MultiKeyMap;
 
 public class ImportClinicalData {
 
@@ -233,6 +234,7 @@ public class ImportClinicalData {
     private void importData(BufferedReader buff, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         String line;
+        MultiKeyMap attributeMap = new MultiKeyMap();
         while ((line = buff.readLine()) != null) {
 
             line = line.trim();
@@ -241,7 +243,7 @@ public class ImportClinicalData {
             }
 
             String[] fields = getFields(line, columnAttrs);
-            addDatum(fields, columnAttrs);
+            addDatum(fields, columnAttrs, attributeMap);
         }
     }
 
@@ -261,7 +263,7 @@ public class ImportClinicalData {
         return fields; 
     }
 
-    private boolean addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    private boolean addDatum(String[] fields, List<ClinicalAttribute> columnAttrs, MultiKeyMap attributeMap) throws Exception
     {
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
         String stableSampleId = (sampleIdIndex >= 0) ? fields[sampleIdIndex] : "";
@@ -338,12 +340,29 @@ public class ImportClinicalData {
             }
             boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
             if (isPatientAttribute && internalPatientId != -1) {
-                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                         ClinicalAttribute.PATIENT_ATTRIBUTE);
+                // The attributeMap keeps track what  patient/attribute to value pairs are being added to the DB. If there are duplicates,
+                // (which can happen in a MIXED_ATTRIBUTES type clinical file), we need to make sure that the value for the same
+                // attributes are consistent. This prevents duplicate entries in the temp file that the MySqlBulkLoader uses.
+                if(!attributeMap.containsKey(internalPatientId, columnAttrs.get(lc).getAttrId())) {
+                    addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                        ClinicalAttribute.PATIENT_ATTRIBUTE);
+                    attributeMap.put(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc]);
+                }
+                else if(!attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
+                    throw new RuntimeException("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
+                            "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                }
             }
             else if (internalSampleId != -1) {
-                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
+                if(!attributeMap.containsKey(internalSampleId, columnAttrs.get(lc).getAttrId())) {
+                    addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                        ClinicalAttribute.SAMPLE_ATTRIBUTE);
+                    attributeMap.put(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc]);
+                }
+                else if (!attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
+                    throw new RuntimeException("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
+                            "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                }
             }
         }
         return true;

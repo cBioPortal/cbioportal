@@ -128,9 +128,9 @@ public class DumpPortalInfo extends ConsoleRunnable {
                 writeJsonFile(
                         apiService.getGenesAliases(),
                         nameJsonFile(outputDir, API_GENE_ALIASES));
-            	writeJsonFile(
+                writeJsonFile(
                     apiService.getUniprotKbEntries(),
-                    nameJsonFile(outputDir, API_UNIPROTKB_ENTRIES));                        
+                    nameJsonFile(outputDir, API_UNIPROTKB_ENTRIES));
             } catch (IOException e) {
                 throw new IOException(
                         "Error writing portal info file: " + e.toString(),

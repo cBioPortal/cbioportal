@@ -83,7 +83,7 @@ var MutexData = (function() {
                 $.each(oncoprintData, function(index, _data_obj) {
                     $.each(_data_obj.values, function(_index, _single_gene_obj) {
                         if (_single_gene_obj.gene === _gene) {
-                            if (Object.keys(_single_gene_obj).length > 2) {
+                            if (Object.keys(_single_gene_obj).length > 3) {
                                 _has_alteration = true;
                             }
                         }
@@ -106,12 +106,12 @@ var MutexData = (function() {
                             _alteredGeneB = false;
                         $.each(singleCaseObj.values, function(singleGeneIndex, singleGeneObj) {
                             if (singleGeneObj.gene === _geneA) {
-                                if (Object.keys(singleGeneObj).length > 2) {
+                                if (Object.keys(singleGeneObj).length > 3) {
                                 //if more than two fields(gene and sample) -- meaning there's alterations
                                         _alteredGeneA = true;
                                 }
                             } else if(singleGeneObj.gene === _geneB) {
-                                if (Object.keys(singleGeneObj).length > 2) {
+                                if (Object.keys(singleGeneObj).length > 3) {
                                 //if more than two fields(gene and sample) -- meaning there's alterations
                                         _alteredGeneB = true;
                                 }
@@ -181,9 +181,15 @@ var MutexData = (function() {
                         }
                     });
                 }
+                renderMutexView();
             });
         }
 
+    function renderMutexView(){
+          buildStat();
+          MutexView.init();
+    }
+    
     function buildStat() {
         $.each(dataArr, function(index, obj) {
             if (obj.log_odds_ratio <= settings.log_odds_ratio_threshold || obj.log_odds_ratio === "-Infinity") {
@@ -213,7 +219,7 @@ var MutexData = (function() {
                 $.each(oncoprintData, function(index, _data_obj) {
                     $.each(_data_obj.values, function(_index, _single_gene_obj) {
                         if (_single_gene_obj.gene === _gene) {
-                            if (Object.keys(_single_gene_obj).length > 2) {
+                            if (Object.keys(_single_gene_obj).length > 3) {
                                 _has_alteration = true;
                             }
                         }
@@ -225,20 +231,6 @@ var MutexData = (function() {
             if (_gene_arr.length > 1) {
                 countEventCombinations();
                 calc();
-
-                function detectInstance() {
-                    if (dataArr.length !== 0) {
-                        abortTimer();
-                    }
-                }
-                function abortTimer() {
-                    clearInterval(tid);
-                    buildStat();
-                    MutexView.init();
-                }
-								
-		var tid = setInterval(detectInstance, 600);
-
             } else {
                 $("#mutex").empty();
                 $("#mutex").append("Calculation could not be performed.");

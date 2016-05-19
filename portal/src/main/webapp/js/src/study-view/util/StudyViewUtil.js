@@ -299,6 +299,34 @@ var StudyViewUtil = (function(){
         return str;
     }
     
+    /**
+     * Finds the intersection elements between two arrays in a simple fashion.
+     * Should have O(n) operations, where n is n = MIN(a.length, b.length)
+     *
+     * @param a {Array} first array, must already be sorted
+     * @param b {Array} second array, must already be sorted
+     * @returns {Array}
+     */
+    function intersection(a, b) {
+        var result = [], i = 0, j = 0, aL = a.length, bL = b.length, size = 0;
+        while (i < aL && j < bL) {
+            if (a[i] < b[j]) {
+                ++i;
+            }
+            else if (a[i] > b[j]) {
+                ++j;
+            }
+            else /* they're equal */
+            {
+                result.push(a[i]);
+                ++i;
+                ++j;
+            }
+        }
+
+        return result;
+    }
+    
     return{
         showHideDivision: showHideDivision,
         echoWarningMessg: echoWarningMessg,
@@ -313,6 +341,8 @@ var StudyViewUtil = (function(){
         addQtip: addQtip,
         addCytobandSorting: addCytobandSorting,
         arrayDeDuplicate: arrayDeDuplicate,
-        restrictNumDigits: restrictNumDigits
+        restrictNumDigits: restrictNumDigits,
+        cytobanBaseSort: cytobanBaseSort,
+        intersection: intersection
     };
 })();

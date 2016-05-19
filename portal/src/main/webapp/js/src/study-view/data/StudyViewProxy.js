@@ -238,6 +238,7 @@ var StudyViewProxy = (function() {
                     
                     obtainDataObject.sequencedSampleIds = 
                             _sequencedSampleIds.length>0 ? _sequencedSampleIds : _allSampleIds;
+                    obtainDataObject.sequencedSampleIds.sort();
                     obtainDataObject.cnaSampleIds = 
                             _cnaSampleIds.length>0 ? _cnaSampleIds : _allSampleIds;
                     

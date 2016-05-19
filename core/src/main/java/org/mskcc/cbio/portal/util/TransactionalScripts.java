@@ -1,5 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class TransactionalScripts implements Runnable {
 			String args[] = (String[])ArrayUtils.remove(command, 0);
 			
 			// Now let's look for the class
-			Class scriptClass;
+			Class<?> scriptClass;
 			try {
 				scriptClass = getClass().getClassLoader().loadClass(className);
 			} catch (ClassNotFoundException e) {
@@ -48,11 +49,24 @@ public class TransactionalScripts implements Runnable {
 			}
 			
 			try {
-				Method method = scriptClass.getMethod("main", String[].class);
-				Object result = method.invoke(null, new Object[] { args });
+				Constructor<?>[] ctors = scriptClass.getDeclaredConstructors();
+				Constructor<?> ctor = null;
+				for (int i = 0; i < ctors.length; i++) {
+				    ctor = ctors[i];
+				    if (ctor.getGenericParameterTypes().length == 1)
+					break;
+				}
+				
+				Object newInstance = ctor.newInstance(new Object[] { args });
+				Method method = scriptClass.getMethod("run");
+				
+				Object result = method.invoke(newInstance);
 				if (result != null && result.toString() != "0") {
 					throw new RuntimeException("Nonzero exit status from: " + className + ", exit: " + result.toString());
 				}
+			} catch (InstantiationException e) {
+				e.printStackTrace(System.err);
+				throw new NestableRuntimeException("Can't find instantiate runner for: " + className, e);
 			} catch (NoSuchMethodException e) {
 				e.printStackTrace(System.err);
 				throw new NestableRuntimeException("Can't find main method in: " + className, e);

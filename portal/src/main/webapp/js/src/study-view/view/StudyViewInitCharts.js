@@ -694,7 +694,7 @@ var StudyViewInitCharts = (function(){
     function getRedrawService(exceptionIds){
         var _selectedCases = getSelectedCases().map(function(e){
             return e.CASE_ID;
-        });
+        }).sort();
 
         var redrawService = {
             selectedCases: _selectedCases,

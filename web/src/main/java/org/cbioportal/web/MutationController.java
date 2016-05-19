@@ -16,13 +16,13 @@ public class MutationController {
     @Autowired
     private MutationService mutationService;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/mutations")
+    @RequestMapping(method = RequestMethod.GET, value = "/mutationsdetailed")
     public List<Mutation> getMutation(@RequestParam List<String> geneticProfileStableIds,
                                       @RequestParam List<String> hugoGeneSymbols,
                                       @RequestParam(required = false) List<String> sampleStableIds,
                                       @RequestParam(required = false) String sampleListStableId) {
 
-        return mutationService.getMutations(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds,
+        return mutationService.getMutationsDetailed(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds,
                 sampleListStableId);
     }
 }

@@ -6,7 +6,7 @@ public class Sample implements Serializable {
 
     private Integer internalId;
     private String stableId;
-    private String sampleType;
+    private SampleType sampleType;
     private Integer patientId;
     private Patient patient;
     private String typeOfCancerId;
@@ -28,11 +28,11 @@ public class Sample implements Serializable {
         this.stableId = stableId;
     }
 
-    public String getSampleType() {
+    public SampleType getSampleType() {
         return sampleType;
     }
 
-    public void setSampleType(String sampleType) {
+    public void setSampleType(SampleType sampleType) {
         this.sampleType = sampleType;
     }
 

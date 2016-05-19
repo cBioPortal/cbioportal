@@ -67,6 +67,7 @@ business/target/*
 model/target/*
 persistence/persistence-api/target/*
 persistence/persistence-mybatis/target/*
+persistence/persistence-mybatis-test/target/*
 service/target/*
 web/target/*
 mutation-assessor/target/*

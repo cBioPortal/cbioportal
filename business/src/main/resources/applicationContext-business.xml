@@ -79,6 +79,8 @@
             <property name="maxIdle" value="10"/>
             <property name="maxActive" value="100"/>
             <property name="poolPreparedStatements" value="true"/>
+            <property name="testOnBorrow" value="true" />
+            <property name="validationQuery" value="SELECT 1" />
         </bean>
 		<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 	    	<property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>

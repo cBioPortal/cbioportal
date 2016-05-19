@@ -1048,18 +1048,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 											sample_list_id: [case_set_properties.case_set_id]}));
 									}
 								}
-								return $.when.apply($, profileDataRequests_).done(function() {
+								$.when.apply($, profileDataRequests_).done(function() {
 									var profileResponse_ = []
 									for (var i = 0; i < arguments.length; i++) {
 										profileResponse_ = profileResponse_.concat(arguments[i]);
 									}
-									return profileResponse_;
-								}).fail(function() {
-									def.reject();
-								});
-							}).fail(function() {
-								def.reject();
-							}).then(function(response) {
+								
 								var setUnion = function (list_of_sets) {
 								    var union = {};
 								    for (var i = 0; i < list_of_sets.length; i++) {
@@ -1099,7 +1093,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 									return obj[key];
 								    });
 								};
-								makeSampleData(response).then(function (unmasked_sample_data) {
+								makeSampleData(profileResponse_).then(function (unmasked_sample_data) {
 								    var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), unmasked_sample_data);
 
 								    dm_ret.sample_gene_data = oql_process_result.data;
@@ -1124,7 +1118,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 							}).fail(function() {
 								def.reject();
 							})
-						}
+						}).fail(function() {
+							def.reject();
+						})
+					}
 					}
 				} catch (err) {
 					def.reject();

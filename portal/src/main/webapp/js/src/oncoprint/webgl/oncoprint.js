@@ -459,6 +459,7 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.toSVG = function(with_background) {
+	// Returns svg DOM element
 	var root = svgfactory.svg(10, 10);
 	this.$container.append(root);
 	var everything_group = svgfactory.group(0,0);
@@ -492,6 +493,39 @@ var Oncoprint = (function () {
 	root.parentNode.removeChild(root);
 	
 	return root;
+    }
+    
+    Oncoprint.prototype.toCanvas = function(callback, resolution) {
+	// Returns data url, requires IE >= 11
+	var svg = this.toSVG(true);
+	svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+	var width = parseInt(svg.getAttribute('width'), 10);
+	var height = parseInt(svg.getAttribute('height'), 10);
+	var canvas = document.createElement('canvas');
+	
+	resolution = resolution || 1;
+	canvas.setAttribute('width', width*resolution);
+	canvas.setAttribute('height', height*resolution);
+	
+	var container = document.createElement("div");
+	container.appendChild(svg);
+	var svg_data_str = container.innerHTML;
+	var svg_data_uri = "data:image/svg+xml;base64,"+window.btoa(svg_data_str);
+	
+	var ctx = canvas.getContext('2d');
+	ctx.setTransform(resolution,0,0,resolution,0,0);
+	var img = new Image();
+	
+	img.onload = function() {
+	    ctx.drawImage(img, 0, 0);
+	    callback(canvas);
+	};
+	img.onerror = function() {
+	    console.log("IMAGE LOAD ERROR");
+	};
+	
+	img.src = svg_data_uri;
+	return img;
     }
     
     Oncoprint.prototype.getIdOrder = function(all) {

@@ -107,7 +107,21 @@ $(document).ready(function () {
 		$('#error_msg').show();
 	    }
 	} else if ($('#mutation-form #mutation').val().trim().length > 0) {
-	    postFile('echofile', new FormData($('#mutation-form')[0]), function (mutationResponse) {
+	    var file = $('#mutation-form #mutation')[0].files[0];
+	    var reader = new FileReader();
+	    reader.readAsText(file);
+	    reader.onload = function(e) {
+		var input = reader.result.trim().replace(/\r/g, "\n");
+		if (isInputValid(input)) {
+		    var process_result = processData(input);
+		    updateOncoprinter(process_result.data_by_gene, 'sample', process_result.altered_by_gene, sample_order, gene_order);
+		    $('#error_msg').hide();
+		} else {
+		    $('#error_msg').html("Error in input data");
+		    $('#error_msg').show();
+		}
+	    };
+	    /*postFile('echofile', new FormData($('#mutation-form')[0]), function (mutationResponse) {
 		var input = mutationResponse.mutation.trim();
 		if (isInputValid(input)) {
 		    var process_result = processData(input);
@@ -117,7 +131,7 @@ $(document).ready(function () {
 		    $('#error_msg').html("Error in input data");
 		    $('#error_msg').show();
 		}
-	    });
+	    });*/
 	} else {
 	    $('#error_msg').html("Please input data or select a file.");
 	    $('#error_msg').show();

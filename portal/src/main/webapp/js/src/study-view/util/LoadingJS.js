@@ -65,7 +65,8 @@ var LoadingJS = (function(){
                     'BarChart', 
                     'DataTable',
                     'AddCharts',
-                    'Table'
+                    'Table',
+                    'MutatedGeneCNATable'
                 ],
                 data: ['StudyViewProxy'],
                 util: [

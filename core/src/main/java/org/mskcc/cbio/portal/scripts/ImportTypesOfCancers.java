@@ -44,30 +44,26 @@ import java.util.*;
  *
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
-public class ImportTypesOfCancers {
-    public static void main(String[] args) throws IOException, DaoException {
+public class ImportTypesOfCancers extends ConsoleRunnable {
+    public void run() {
         try {
 	    	if (args.length < 1) {
-	            System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt> <clobber>");
 	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-	            //use 2 for command line syntax errors:
-	            System.exit(2);
+	            throw new UsageException(
+	                    "importTypesOfCancer.pl",
+	                    null,
+	                    "<types_of_cancer.txt> <clobber>");
 	        }
 	
-	        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 	        ProgressMonitor.setCurrentMessage("Loading cancer types...");
 	        File file = new File(args[0]);
 	        // default to clobber = true (existing behavior)
 	        boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
 	        load(file, clobber);
-        }
-        catch (Exception e) {
-	        ConsoleUtil.showWarnings();
-	        //exit with error status:
-	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
-	        if (e.getMessage() == null)
-	        	e.printStackTrace();
-	        System.exit(1);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException|DaoException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -106,6 +102,23 @@ public class ImportTypesOfCancers {
         ProgressMonitor.setCurrentMessage("Done.");
         ConsoleUtil.showMessages();
     }
-    
 
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportTypesOfCancers(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportTypesOfCancers(args);
+        runner.runInConsole();
+    }
 }

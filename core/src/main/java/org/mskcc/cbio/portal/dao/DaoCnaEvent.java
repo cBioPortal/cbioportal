@@ -56,6 +56,8 @@ public final class DaoCnaEvent {
         	long eventId = cnaEvent.getEventId();
         	if (newCnaEvent) {
                 eventId = addCnaEventDirectly(cnaEvent);
+                // update object based on new DB id (since this object is locally cached after this):
+                cnaEvent.setEventId(eventId);
             }
             
             MySQLbulkLoader.getMySQLbulkLoader("sample_cna_event").insertRecord(

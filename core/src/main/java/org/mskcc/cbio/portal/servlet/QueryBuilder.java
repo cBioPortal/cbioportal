@@ -32,7 +32,9 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import org.cbioportal.persistence.MutationRepository;
 import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.*;
@@ -46,7 +48,9 @@ import org.apache.commons.logging.LogFactory;
 
 import org.owasp.validator.html.PolicyException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import java.io.*;
 import java.util.*;
@@ -122,12 +126,25 @@ public class QueryBuilder extends HttpServlet {
 
     private static Log LOG = LogFactory.getLog(QueryBuilder.class);
 
-    public static final String CANCER_TYPES_MAP = "cancer_types_map"; 
+    public static final String CANCER_TYPES_MAP = "cancer_types_map";
 
     private ServletXssUtil servletXssUtil;
 
 	// class which process access control to cancer studies
 	private AccessControl accessControl;
+
+    @Autowired
+    private MutationRepository mutationRepository;
+
+    @Autowired
+    private MutationModelConverter mutationModelConverter;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+                config.getServletContext());
+    }
 
     /**
      * Initializes the servlet.
@@ -485,7 +502,7 @@ public class QueryBuilder extends HttpServlet {
                 if (geneList.size() <= MUTATION_DETAIL_LIMIT) {
                     xdebug.logMsg(this, "Number genes requested is <= " + MUTATION_DETAIL_LIMIT);
                     xdebug.logMsg(this, "Therefore, getting extended mutation data");
-                    GetMutationData remoteCallMutation = new GetMutationData();
+                    GetMutationData remoteCallMutation = new GetMutationData(mutationRepository, mutationModelConverter);
                     List<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile, geneList, setOfSampleIds, xdebug);
                     if (tempMutationList != null && tempMutationList.size() > 0) {

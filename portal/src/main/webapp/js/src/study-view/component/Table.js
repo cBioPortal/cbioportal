@@ -33,15 +33,16 @@
 
 var Table = function() {
     var divs = {},
+        type = '',
         attr = [],
         arr = [],
         attrL = 0,
         arrL = 0,
+        selectedRows = [],
+        selectedGenes = [],
         selectedSamples = [],
-        dataTable = '',
         callbacks = {},
         headerQtip,
-        checkboxChildId = -1,
         initStatus = false;
     
     function init(input) {
@@ -50,7 +51,7 @@ var Table = function() {
             initData(input);
             initDiv();
             initTable(input.data);
-            initDataTable();
+            initReactTables();
             addEvents();
         }catch(e) {
             initStatus = false;
@@ -72,6 +73,7 @@ var Table = function() {
             divs.titleWrapperId = divs.titleId + '-wrapper';
             divs.deleteIconId = divs.titleId + '-delete';
             divs.tableId = tableId;
+            divs.tableClassName = input.opts.tableClassName || '';
             divs.headerId = tableId + '-header';
             divs.reloadId = tableId + '-reload-icon';
             divs.downloadId = tableId + '-download-icon';
@@ -110,7 +112,7 @@ var Table = function() {
                 "</div>"+
                 "<chartTitleH4 id='"+divs.titleId+"'>"+divs.title+"</chartTitleH4>" +
             "</div>"+
-            "<div id='"+divs.tableId+"'>"+
+            "<div id='"+divs.tableId+"' class='" + divs.tableClassName + "'>"+
             "</div>"+
             "<div id='"+divs.loaderId+"' class='study-view-loader' style='top:30%;left:30%'><img src='images/ajax-loader.gif'/></div>"+
         "</div>";
@@ -120,246 +122,82 @@ var Table = function() {
         startLoading();
     }
 
-    function datumIsSelected(selected, datum) {
-        var contain = false;
-        for(var i = 0; i < selected.length; i ++){
-            var allSame = true;
-            for(var key in selected[i]) {
-                if(datum[key] !== selected[i][key]) {
-                    allSame = false;
-                }
-            }
-            if(allSame) {
-                contain = true;
-            }
-        }
-        return contain;
-    }
-
     function initTable(data) {
-        var table = $('#' + divs.tableId);
-        var tableHeaderStr = [];
-        var tableBodyStr = [];
-        var i = 0, j = 0;
-        var hasSelected = false;
-        var selectedKeys = [];
-
         if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0) {
-            hasSelected = true;
+            selectedRows = data.selected.map(function(item) {
+                return item.uniqueId;
+            });
+        }else {
+            selectedRows = [];
         }
 
         if(typeof data === 'object' && data.hasOwnProperty('attr') && data.hasOwnProperty('arr')) {
             arr = data.arr;
             attr = data.attr;
+            type = data.type;
             arrL = arr.length;
             attrL = attr.length;
         }
         if(typeof data === 'object' && data.hasOwnProperty('selectedSamples')) {
             selectedSamples = data.selectedSamples;
         }
-        var tableHtml = ['<table><thead><tr>']; //
-
-        
-        //Append table header
-        for(i=0; i< attrL; i++){
-            tableHeaderStr.push('<th style=" white-space: nowrap;" ');
-            if(attr[i].hasOwnProperty('qtip')) {
-                tableHeaderStr.push(' class="hasQtip" qtip="' + attr[i].qtip + '"');
-            }
-            tableHeaderStr.push('>'+ attr[i].displayName||'Unknown' +'</th>');
-        }
-        tableHtml.push(tableHeaderStr.join(''));
-        tableHtml.push('</tr></thead><tbody>');//
-        
-        //Append table body
-        for(i = 0; i < arrL; i++){
-
-            if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0 && datumIsSelected(data.selected, arr[i])) {
-                tableBodyStr.push('<tr class="highlightRow" style="white-space: nowrap;">');
-            }else{
-                tableBodyStr.push('<tr style="white-space: nowrap;">');
-            }
-
-            for(j = 0; j < attrL; j++) {
-                // added an id for the clickable component
-                tableBodyStr.push('<td' + ( (attr[j].name === 'samples' && +arr[i].hasOwnProperty('uniqueId')) ? ' id='+ divs.tableId + '-' + arr[i].uniqueId : '') + '>' + arr[i][attr[j].name] + '</td>');
-            }
-            tableBodyStr.push('</tr>');
-        }
-        tableHtml.push(tableBodyStr.join(''));
-        tableHtml.push('</tbody></table>');
-
-        table.html(tableHtml.join(''));
         if(selectedSamples.length === 0){
             hideReload();
         }
     }
-
-    function initDataTable() {
-        var dataTableOpts = {
-            "sDom": 'rt<f>',
-            "sScrollY": '270',
-            "bPaginate": false,
-            "aaSorting": [],
-            "bAutoWidth": true,
-            "aoColumnDefs": [],
-            "fnInitComplete": function(oSettings, json) {
-                $('#'+ divs.tableId +' .dataTables_filter')
-                        .find('label')
-                        .contents()
-                        .filter(function(){
-                            return this.nodeType === 3;
-                        }).remove();
-
-                $('#'+ divs.tableId +' .dataTables_filter')
-                        .find('input')
-                        .attr('placeholder', 'Search...');
-            }
+    
+    function initReactTableData() {
+        var data = {
+            data: [],
+            attributes: attr
         };
-        
-        var geneIndex = -1,
-            altTypeIndex = -1,
-            cytobandIndex = -1,
-            samplesIndex = -1,
-            qvalIndex = -1,
-            unvisiable = [];
-        
-        attr.forEach(function(e, i){
-            if(e.name === 'gene') {
-                geneIndex = i;
-            }
-            if(e.name === 'altType') {
-                altTypeIndex = i;
-            }
-            if(e.name === 'cytoband') {
-                cytobandIndex = i;
-            }
-            if(e.name === 'samples') {
-                samplesIndex = i;
-                checkboxChildId = i+1;
-            }
-            if(e.name === 'qval') {
-                qvalIndex = i;
-            }
-            if(e.hidden){
-                unvisiable.push(i);
+
+        _.each(arr, function (item, index) {
+            for(var key in item) {
+                // if(key !== 'uniqueId') {
+                var datum = {
+                    attr_id : key,
+                    uniqueId: item.uniqueId,
+                    attr_val: key === 'caseIds' ? item.caseIds.join(',') : item[key]
+                };
+                data.data.push(datum);
+                // }
             }
         });
         
-        if(unvisiable.length > 0) {
-            dataTableOpts.aoColumnDefs.push({
-                "targets": unvisiable,
-                'visible': false
-            });
-        }
-        
-        if(samplesIndex !== -1) {
-            dataTableOpts.aoColumnDefs.push({
-                "aTargets": [samplesIndex],
-                "mDataProp": function(source,type) {
-                    var _samplesType = source[samplesIndex];
-                    if (type==='display') {
-                        return '<span>'+_samplesType+'</span><input type="checkbox" style="float:right; margin: 3px 0;">';
-                    }
-                    return _samplesType;
-                }
-            });
-            dataTableOpts.aaSorting.push([samplesIndex, 'desc']); 
-        }
-        
-        if(altTypeIndex !== -1) {
-            dataTableOpts.aoColumnDefs.push({
-                "aTargets": [altTypeIndex],
-                "mDataProp": function(source,type) {
-                    var _altType = source[altTypeIndex];
-                    if (type==='display') {
-                        var str = '';
-                        if(_altType === 'AMP') {
-                            str += '<span style="color:red;font-weight:bold">'+_altType+'</span>';
-                        }else {
-                            str += '<span style="color:blue;font-weight:bold">'+_altType+'</span>';
-                        }
-                        return str;
-                    }
-                    return _altType;
-                }
-            });
-            dataTableOpts.aaSorting.push([3, 'desc']);
-        }
-        
-        if(cytobandIndex !== -1) {
-            dataTableOpts.aoColumnDefs.push({
-                "aTargets": [cytobandIndex],
-                "sType": 'cytoband-base',
-                "mDataProp": function(source,type) {
-                    var _cytoband = source[cytobandIndex];
-                    if (type==='display') {
-                        var str = '';
-                        if(_cytoband.toString().length > 8) {
-                            str += '<span class="hasQtip" qtip="'+_cytoband+'">'+_cytoband.substring(0,6) + '...'+'</span>';
-                        }else {
-                            str = _cytoband;
-                        }
-                        return str;
-                    }
-                    return _cytoband;
-                }
-            });
-        }
-        if(geneIndex !== -1) {
-            dataTableOpts.aoColumnDefs.push({
-                "aTargets": [geneIndex],
-                "mDataProp": function(source,type) {
-                    var _gene = source[geneIndex];
-                    if (type==='display') {
-                        var str = '';
+        return data;
+    }
+    
+    function initReactTables() {
+        var data = initReactTableData();
+        var testElement = React.createElement(EnhancedFixedDataTableSpecial, {
+            input: data,
+            filter: "ALL",
+            download: "NONE",
+            downloadFileName: "data.txt",
+            showHide: false,
+            hideFilter: true,
+            scroller: true,
+            resultInfo: false,
+            groupHeader: false,
+            fixedChoose: false,
+            uniqueId: "uniqueId",
+            rowHeight: 30,
+            tableWidth: 375,
+            maxHeight: 280,
+            headerHeight: 30,
+            groupHeaderHeight: 40,
+            autoColumnWidth: false,
+            columnMaxWidth: 300,
+            columnSorting: false,
+            selectedRow: selectedRows,
+            selectedGene: selectedGenes,
+            rowClickFunc: reactRowClickCallback,
+            geneClickFunc: reactGeneClickCallback,
+            tableType: type}//mutatedGene or cna
+        );
 
-                        // add qtip for selecting the gene
-                        str += '<span class="hasQtip selectHighlight" qtip="Click '+_gene+' to add to your query">';
-                        if(_gene.toString().length > 6) {
-                            str += _gene.substring(0,4) + '...'+'</span>';
-                        }else {
-                            str += _gene+'</span>';
-                        }
-
-                        if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {
-                            var _displayName = attr[qvalIndex].displayName.toString().toLowerCase();
-                            str += '<span class="hasQtip" qtip="<b>'+ attr[qvalIndex].displayName +'</b><br/><i>Q-value</i>: ' + source[qvalIndex] + '"><svg width="14" height="14"><g transform="translate(8, 8)"><circle r="5" stroke="#55C" fill="none"></circle><text x="-3" y="3" font-size="7" fill="#66C">';
-                            if(_displayName.indexOf('mutsig') !== -1 && source[qvalIndex]){
-                                str += 'M';
-                            }else if(_displayName.indexOf('gistic') !== -1 && source[qvalIndex]){
-                                str += 'G';
-                            }else {
-                                str += 'Q';
-                            }
-                            str += '</text></g></svg></span>';
-                        }
-
-                        return str;
-                    }
-                    return _gene;
-                }
-            });
-              
-            dataTableOpts.fnDrawCallback = function() {
-                $('#'+ divs.tableId).find('.hasQtip').each(function(e, i) {
-                    $(this).qtip('destroy', true);
-                    qtip(this, $(this).attr('qtip'));
-                });
-
-                $('#'+ divs.tableId).find('table tbody tr').each(function(e, i) {
-                    if($(this).hasClass('highlightRow')){
-                        $(this).find('td').addClass('highlightRow');
-                        $(this).find('td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', true);
-                    }
-                });
-
-                checkboxClick();
-                // add functionality for when the add gene icon is clicked
-                addGeneClickSetup();
-            };
-        }
-        dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
+        ReactDOM.render(testElement, document.getElementById( divs.tableId));
     }
 
     function qtip(el, tip) {
@@ -374,10 +212,8 @@ var Table = function() {
     }
     
     function redraw(data, callback) {
-        dataTable = null;
-        $('#' + divs.tableId).empty();
         initTable(data);
-        initDataTable();
+        initReactTables();
         addEvents();
         if(typeof callback === 'function') {
             callback();
@@ -418,14 +254,14 @@ var Table = function() {
                         var content = '';
 
                         attr.forEach(function(e) {
-                            content += e.name === 'uniqueId' ? '' : ((e.displayName||'Unknown') + '\t');
+                            content += e.attr_id === 'uniqueId' ? '' : ((e.display_name||'Unknown') + '\t');
                         });
                         content = content.slice(0,-1);
 
                         arr.forEach(function(e){
                             content += '\r\n';
                             attr.forEach(function(e1){
-                                content += e1.name === 'uniqueId' ? '' : (e[e1.name] + '\t');
+                                content += e1.attr_id === 'uniqueId' ? '' : (e[e1.attr_id] + '\t');
                             });
                             content = content.slice(0,-1);
                         });
@@ -446,42 +282,22 @@ var Table = function() {
         addTableHeaderQtip();
     }
 
-
-    function addGeneClickSetup(){
-        $('#'+divs.tableId+' table tbody tr td:first-child span').unbind('click');
-        $('#'+divs.tableId+' table tbody tr td:first-child span').click(function () {
-
-            if(callbacks.hasOwnProperty('addGeneClick')) {
-                // call addGeneClick with this row's data
-                callbacks.addGeneClick(dataTable.api().row($(this).parent().parent()).data());
-            }
-        });
-    }
-
-    function checkboxClick() {
-        $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').unbind('change');
-        $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').change(function () {
-            $(this).parent().siblings().addBack().toggleClass('highlightRow');
-            $(this).parent().parent().toggleClass('highlightRow');
-
-            clickFunc(dataTable.api().row($(this).parent().parent()).data() , $(this).prop("checked"));
-        });
-    }
-
-    function clickFunc(clickedRowData, rowChecked) {
-        var highlightedRowsData = dataTable.api().rows('.highlightRow').data();
-
-        if(highlightedRowsData.length === 0) {
+    function reactRowClickCallback(data, selected, selectedRows) {
+        if(selectedRows.length === 0) {
             hideReload();
         }else {
             showReload();
         }
 
         if(callbacks.hasOwnProperty('rowClick')) {
-            callbacks.rowClick(divs.tableId, highlightedRowsData, clickedRowData, rowChecked);
+            callbacks.rowClick(divs.tableId, selectedRows, data, selected);
         }
     }
-
+    
+    function reactGeneClickCallback(selectedRow, selected) {
+        callbacks.addGeneClick(selectedRow);
+    }
+    
     // if there's a qtip for the table header, add it
     function addTableHeaderQtip(){
         if(!_.isUndefined(headerQtip)) {
@@ -503,8 +319,6 @@ var Table = function() {
     function reset() {
         $('#'+ divs.reloadId).unbind('click');
         $('#'+ divs.reloadId).click(function() {
-            $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
-            $('#' + divs.tableId + ' tbody tr td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', false);
             if(callbacks.hasOwnProperty('rowClick')) {
                 callbacks.rowClick(divs.tableId, [], [], false);
             }
@@ -549,10 +363,6 @@ var Table = function() {
         return initStatus;
     }
 
-    function resize() {
-        dataTable.fnAdjustColumnSizing();
-    }
-
     function startLoading() {
         $('#' + divs.loaderId).css('display', 'block');
         $('#' + divs.tableId).css('opacity', '0.3');
@@ -577,21 +387,30 @@ var Table = function() {
             initData(input);
             initDiv();
         },
-        draw: function(data){
-            initTable(data);
-            initDataTable();
-            addEvents();
-            stopLoading();
-        },
-        getDataTable: function() {
-            return dataTable;
+        draw: function(id, data, callback) {
+            try {
+                initTable(data);
+                initReactTables();
+                addEvents();
+                stopLoading();
+                initStatus = true;
+            } catch (e) {
+                initStatus = false;
+            }
+            if (_.isFunction(callback)) {
+                callback(id, initStatus ? 'initialized' : 'failed');
+            }
         },
         redraw: redraw,
         getInitStatus: getInitStatus,
-        resize: resize,
         startLoading: startLoading,
         stopLoading: stopLoading,
         show: show,
-        hide: hide
+        hide: hide,
+        updateSelectedGenes: function(data, genes) {
+            initTable(data);
+            selectedGenes = genes;
+            initReactTables();
+        }
     };
 };

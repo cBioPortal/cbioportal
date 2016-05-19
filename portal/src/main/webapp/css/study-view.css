@@ -382,9 +382,7 @@ embed {
 }
 .study-view-pie-label {
     height:55px;
-    width:95%;
     float:left;
-    padding: 0 5px;
     display: none;
 }
 .pieLabel:hover{
@@ -426,6 +424,9 @@ embed {
 .study-view-pdf-svg-side.bar {
     /*left: 375px;*/
     /*left: 325px;*/
+}
+.mutated-gene-cna {
+    float: left;
 }
 .w1 {
     width: 180px;
@@ -918,7 +919,9 @@ Style for search box in dataTable of Summaery Tab
     position: absolute;
     top: 30%;
 }
-
+.study-view-pie-label-qtip {
+    padding: 5px;
+}
 /* tag styles */
 /*
 ul {
@@ -1136,15 +1139,24 @@ span.close{
 cursor: pointer;
 }
 
-/* Enhanced fixed datatable styles*/
-.EFDT-top-btn {
-    margin-right: 5px;
+/*  Enhanced fixed datatable styles, these are auto-generated from the library
+    Please edit the library sass file directly*/
+#ruler {
+    visibility: hidden;
+    white-space: nowrap;
 }
 
-.EFDT-show-hide, .EFDT-fixed-choose, .EFDT-download {
+#clinical-data-table-div .EFDT-table * {
+    box-sizing: border-box;
+}
+
+#clinical-data-table-div .EFDT-top-btn {
+    margin-right: 5px;
+}
+#clinical-data-table-div .EFDT-show-hide, #clinical-data-table-div .EFDT-fixed-choose, #clinical-data-table-div .EFDT-download {
     float: left;
 }
-.dropdown-checkbox-toggle {
+#clinical-data-table-div .dropdown-checkbox-toggle {
     color: #333;
     background-color: #fff;
     display: inline-block;
@@ -1165,45 +1177,45 @@ cursor: pointer;
     user-select: none;
     background-image: none;
     border: 1px solid #ccc;
-    border-radius: 4px
+    border-radius: 4px;
 }
-
-.EFDT-header-filters-reset {
+#clinical-data-table-div .EFDT-header-filters-reset {
     cursor: pointer;
     text-decoration: underline;
 }
-
-.EFDT-download-btn {
+#clinical-data-table-div .EFDT-download-btn {
     float: left;
 }
-
-.EFDT-header-filters {
+#clinical-data-table-div .EFDT-header-filters {
     margin: 3px 5px;
 }
-
-.EFDT-header {
+#clinical-data-table-div .EFDT-header {
     text-align: center;
     vertical-align: middle;
-    font-size: 12px;
 }
-.EFDT-filter {
-    float: right;
+#clinical-data-table-div .EFDT-header .EFDT-header-sort {
+    width: 100%;
+    padding: 3px 8px;
+    display: inline-block;
+    color: black;
+    white-space: nowrap;
 }
-
-.EFDT-table-prefix {
-    margin-bottom: 10px;
-    width:1200px;
-}
-.EFDT-header-filters .form-control {
-    width: 86%  !important;
-    height: inherit !important;
-}
-
-.EFDT-result-info {
+#clinical-data-table-div .EFDT-header .EFDT-header-sort .EFDT-header-sort-content {
     float: left;
 }
-
-.EFDT-result-info-content {
+#clinical-data-table-div .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon {
+    float: right;
+}
+#clinical-data-table-div .EFDT-filter {
+    float: right;
+}
+#clinical-data-table-div .EFDT-table-prefix {
+    margin-bottom: 10px;
+}
+#clinical-data-table-div .EFDT-result-info {
+    float: left;
+}
+#clinical-data-table-div .EFDT-result-info-content {
     display: inline-block;
     white-space: nowrap;
     padding: 6px 12px;
@@ -1211,6 +1223,157 @@ cursor: pointer;
     line-height: 1.428571429;
 }
 
-.EFDT-table .btn {
-    font-weight: normal !important;
+#study-view-charts .EFDT-table, .study-view-pie-label-qtip .EFDT-table {
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 12px;
+}
+
+#study-view-charts .EFDT-table *, .study-view-pie-label-qtip .EFDT-table * {
+    box-sizing: border-box;
+    text-align: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-top-btn, .study-view-pie-label-qtip .EFDT-table .EFDT-top-btn {
+    margin-right: 5px;
+}
+
+#study-view-charts .EFDT-table .EFDT-show-hide, #study-view-charts .EFDT-table .EFDT-fixed-choose, #study-view-charts .EFDT-table .EFDT-download, .study-view-pie-label-qtip .EFDT-table .EFDT-show-hide, .study-view-pie-label-qtip .EFDT-table .EFDT-fixed-choose, .study-view-pie-label-qtip .EFDT-table .EFDT-download {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .dropdown-checkbox-toggle, .study-view-pie-label-qtip .EFDT-table .dropdown-checkbox-toggle {
+    color: #333;
+    background-color: #fff;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#study-view-charts .EFDT-table .EFDT-header-filters-reset, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters-reset {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#study-view-charts .EFDT-table .EFDT-download-btn, .study-view-pie-label-qtip .EFDT-table .EFDT-download-btn {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-header-filters, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters {
+    margin: 3px 0;
+}
+
+#study-view-charts .EFDT-table .EFDT-header-filters input, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters input {
+    height: 20px;
+    font-size: 12px;
+    line-height: 12px;
+}
+
+#study-view-charts .EFDT-table .EFDT-header, .study-view-pie-label-qtip .EFDT-table .EFDT-header {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort {
+    width: 100%;
+    padding: 3px 8px;
+    display: inline-block;
+    color: black;
+    white-space: nowrap;
+}
+
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-content, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-content {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon {
+    float: right;
+}
+
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort:hover, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort:hover {
+    cursor: pointer;
+}
+
+#study-view-charts .EFDT-table .EFDT-filter, .study-view-pie-label-qtip .EFDT-table .EFDT-filter {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-table-prefix, .study-view-pie-label-qtip .EFDT-table .EFDT-table-prefix {
+    margin-bottom: 10px;
+}
+
+#study-view-charts .EFDT-table .EFDT-result-info, .study-view-pie-label-qtip .EFDT-table .EFDT-result-info {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-result-info-content, .study-view-pie-label-qtip .EFDT-table .EFDT-result-info-content {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.428571429;
+}
+
+#study-view-charts .EFDT-table .gene-selected, .study-view-pie-label-qtip .EFDT-table .gene-selected {
+    font-weight: bold;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .gene:hover, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .gene:hover {
+    border: 2px solid #1974b8;
+    cursor: pointer;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .gene.gene-selected, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .gene.gene-selected {
+    font-weight: bold;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .alt-type-red, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .alt-type-red {
+    font-weight: bold;
+    color: #ff0000;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .alt-type-blue, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .alt-type-blue {
+    font-weight: bold;
+    color: #0000ff;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .qval-icon, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .qval-icon {
+    margin-bottom: 4px;
+    width: 10px;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell-full, .study-view-pie-label-qtip .EFDT-table .EFDT-cell-full {
+    width: 100%;
+}
+
+#study-view-charts .EFDT-table .row-selected, .study-view-pie-label-qtip .EFDT-table .row-selected {
+    background-color: lightgrey;
+}
+
+#study-view-charts .EFDT-table .public_fixedDataTable_header, #study-view-charts .EFDT-table .public_fixedDataTable_header .public_fixedDataTableCell_main, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTable_header, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTable_header .public_fixedDataTableCell_main {
+    background-color: white;
+    background-image: none;
+}
+
+#study-view-charts .EFDT-table .fixedDataTableLayout_main, #study-view-charts .EFDT-table .fixedDataTableCellLayout_main, .study-view-pie-label-qtip .EFDT-table .fixedDataTableLayout_main, .study-view-pie-label-qtip .EFDT-table .fixedDataTableCellLayout_main {
+    border: 0;
+}
+
+#study-view-charts .EFDT-table .public_fixedDataTableCell_cellContent, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTableCell_cellContent {
+    line-height: 15px;
+    padding: 7px 6px 8px 6px;
 }

@@ -84,7 +84,8 @@ public class TestImportCopyNumberSegmentData {
         		"--data","target/test-classes/segment/data_cna_hg19.seg",
         		"--meta","target/test-classes/segment/meta_cna_hg19_seg.txt"        		
         		};
-        ImportCopyNumberSegmentData.main(args); 
+        ImportCopyNumberSegmentData runner = new ImportCopyNumberSegmentData(args);
+        runner.run(); 
         //TODO : fix test to actually store data and add some checks 
        
 	}

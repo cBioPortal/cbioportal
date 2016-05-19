@@ -46,12 +46,10 @@ import joptsimple.OptionSet;
 /**
  * Command line utility for importing (amp/del) Gistic data 
  */
-public class ImportGisticData {
+public class ImportGisticData extends ConsoleRunnable {
 
-    public static void main(String[] args) throws IOException, DaoException {
-    	try {
-	    	ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-	    	
+    public void run () {
+        try {
 	    	String description = "Import GISTIC data.\n" +
                     " Note that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad";
 	    	
@@ -64,11 +62,14 @@ public class ImportGisticData {
 	        File gistic_f = new File(dataFile);
 	        int cancerStudyInternalId = ValidationUtils.getInternalStudyId(studyId);
 	
-	        System.out.println("Reading data from: " + gistic_f.getAbsolutePath());
-	        System.out.println("CancerStudyId: " + cancerStudyInternalId);
+	        ProgressMonitor.setCurrentMessage(
+	                "Reading data from: " + gistic_f.getAbsolutePath());
+	        ProgressMonitor.setCurrentMessage(
+	                "CancerStudyId: " + cancerStudyInternalId);
 	
 	        int lines = FileUtil.getNumLines(gistic_f);
-	        System.out.println(" --> total number of lines: " + lines);
+	        ProgressMonitor.setCurrentMessage(
+	                " --> total number of lines: " + lines);
 	        ProgressMonitor.setMaxValue(lines);
 	
 	        GisticReader gisticReader = new GisticReader();
@@ -85,19 +86,31 @@ public class ImportGisticData {
 	            } catch (validationException e) {
 	                // only catching validationException, not DaoException
 	                ProgressMonitor.logWarning("Error: " + e.getMessage() + ". Skipping record.");
-	            } 
+	            }
 	        }
-	        //Finish with any logged messages and/or warnings:
-	        ConsoleUtil.showMessages();
-	        
-    	} catch (Exception e) {
-	    	ConsoleUtil.showWarnings();
-	    	//exit with error status:
-    		System.err.println ("\nABORTED! Error:  " + e.getMessage());
-    		if (e.getMessage() == null)
-	        	e.printStackTrace();
-	    	System.exit(1);
-	    }
-    	
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException|DaoException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportGisticData(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportGisticData(args);
+        runner.runInConsole();
     }
 }

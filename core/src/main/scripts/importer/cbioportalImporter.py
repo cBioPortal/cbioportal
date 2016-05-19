@@ -321,7 +321,7 @@ def main(args):
                 print 'Expected to find 1 core-*.jar, but found: ' + str(len(jars))
                 sys.exit(2)
             args.jar_path = jars[0]
-            print '\nData loading step using: ' + args.jar_path
+            print 'Data loading step using: {}\n'.format(args.jar_path)
         
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path

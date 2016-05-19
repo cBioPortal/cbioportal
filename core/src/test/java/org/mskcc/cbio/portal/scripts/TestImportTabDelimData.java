@@ -33,6 +33,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
@@ -101,7 +102,6 @@ public class TestImportTabDelimData {
 
         MySQLbulkLoader.bulkLoadOff();
         runImportCnaData();
-        MySQLbulkLoader.bulkLoadOn();
     }
     
     /**
@@ -110,21 +110,23 @@ public class TestImportTabDelimData {
      */
 	@Test
     public void testImportCnaDataBulkLoadOn() throws Exception {
-
+		MySQLbulkLoader.bulkLoadOn();
         runImportCnaData();
     }
     
     private void runImportCnaData() throws DaoException, IOException{
 
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
-//        daoGene.addGene(new CanonicalGene(207, "AKT1"));
-//        daoGene.addGene(new CanonicalGene(208, "AKT2"));
-//        daoGene.addGene(new CanonicalGene(10000, "AKT3"));
-//        daoGene.addGene(new CanonicalGene(369, "ARAF"));
-//        daoGene.addGene(new CanonicalGene(472, "ATM"));
-//        daoGene.addGene(new CanonicalGene(673, "BRAF"));
-//        daoGene.addGene(new CanonicalGene(672, "BRCA1"));
-//        daoGene.addGene(new CanonicalGene(675, "BRCA2"));
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+
+        daoGene.addGene(new CanonicalGene(207, "AKT1"));
+        daoGene.addGene(new CanonicalGene(208, "AKT2"));
+        daoGene.addGene(new CanonicalGene(10000, "AKT3"));
+        daoGene.addGene(new CanonicalGene(369, "ARAF"));
+        daoGene.addGene(new CanonicalGene(472, "ATM"));
+        daoGene.addGene(new CanonicalGene(673, "BRAF"));
+        daoGene.addGene(new CanonicalGene(672, "BRCA1"));
+        daoGene.addGene(new CanonicalGene(675, "BRCA2"));
 
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
@@ -173,7 +175,6 @@ public class TestImportTabDelimData {
         // test with both values of MySQLbulkLoader.isBulkLoad()
         MySQLbulkLoader.bulkLoadOff();
         runImportCnaData2();
-        MySQLbulkLoader.bulkLoadOn();
     }
     
     /**
@@ -184,6 +185,7 @@ public class TestImportTabDelimData {
     @Test
     public void testImportCnaData2BulkLoadOn() throws Exception {
         // test with both values of MySQLbulkLoader.isBulkLoad()
+    	MySQLbulkLoader.bulkLoadOn();
         runImportCnaData2();
     }
     
@@ -236,7 +238,6 @@ public class TestImportTabDelimData {
         // test with both values of MySQLbulkLoader.isBulkLoad()
         MySQLbulkLoader.bulkLoadOff();
         runImportRnaData1();
-        MySQLbulkLoader.bulkLoadOn();
     }
     
     /**
@@ -246,8 +247,7 @@ public class TestImportTabDelimData {
     @Test
     public void testImportmRnaData1BulkLoadOn() throws Exception {
         // test with both values of MySQLbulkLoader.isBulkLoad()
-    	if (!MySQLbulkLoader.isBulkLoad())
-        	MySQLbulkLoader.bulkLoadOn();
+      	MySQLbulkLoader.bulkLoadOn();
         runImportRnaData1();
     }
     
@@ -301,9 +301,7 @@ public class TestImportTabDelimData {
      */
     @Test
     public void testImportmRnaData2() throws Exception {
-        // test with both values of MySQLbulkLoader.isBulkLoad()
-        if (!MySQLbulkLoader.isBulkLoad())
-        	MySQLbulkLoader.bulkLoadOn();
+       	MySQLbulkLoader.bulkLoadOn();
         
 
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
@@ -360,9 +358,7 @@ public class TestImportTabDelimData {
      */
     @Test
     public void testImportRppaData() throws Exception {
-        // test with both values of MySQLbulkLoader.isBulkLoad()
-        if (!MySQLbulkLoader.isBulkLoad())
-        	MySQLbulkLoader.bulkLoadOn();
+       	MySQLbulkLoader.bulkLoadOn();
         
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();

@@ -140,6 +140,9 @@ public class DumpPortalInfo extends ConsoleRunnable {
         catch (RuntimeException e) {
             throw e;
         }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

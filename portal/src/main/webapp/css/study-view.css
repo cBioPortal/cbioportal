@@ -427,6 +427,7 @@ embed {
 }
 .mutated-gene-cna {
     float: left;
+    margin-top: 3px;
 }
 .w1 {
     width: 180px;
@@ -1374,6 +1375,6 @@ cursor: pointer;
 }
 
 #study-view-charts .EFDT-table .public_fixedDataTableCell_cellContent, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTableCell_cellContent {
-    line-height: 14px;
-    padding: 5px;
+    line-height: 13px;
+    padding: 6px 5px;
 }

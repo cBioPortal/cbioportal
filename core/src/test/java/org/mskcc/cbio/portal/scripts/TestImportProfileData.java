@@ -78,10 +78,10 @@ public class TestImportProfileData {
 	@Test
 	public void testImportMutationsFile() throws Exception {
         String[] args = {
-        		"--data","target/test-classes/data_mutations_extended.txt",
-        		"--meta","target/test-classes/meta_mutations_extended.txt",
-        		"--loadMode", "bulkLoad"
-        		};
+                "--data","src/test/resources/data_mutations_extended.txt",
+                "--meta","src/test/resources/meta_mutations_extended.txt",
+                "--loadMode", "bulkLoad"
+        };
         ImportProfileData runner = new ImportProfileData(args);
         runner.run();
         //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the 
@@ -92,10 +92,8 @@ public class TestImportProfileData {
 
         geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations").getGeneticProfileId();
         validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");  
-        
-	}
-	
-	
+    }
+
 	@Test
 	public void testImportCNAFile() throws Exception {
 		
@@ -105,14 +103,14 @@ public class TestImportProfileData {
 	    daoGene.addGene(new CanonicalGene(999999675, "TESTBRCA2"));
 		
         String[] args = {
-        		"--data","src/test/resources/data_CNA_sample.txt",
-        		"--meta","src/test/resources/meta_CNA.txt" ,
-        		"--noprogress",
-        		"--loadMode", "bulkLoad"
-        		};
-        
+                "--data","src/test/resources/data_CNA_sample.txt",
+                "--meta","src/test/resources/meta_CNA.txt" ,
+                "--noprogress",
+                "--loadMode", "bulkLoad"
+        };
+
         String[] sampleIds = {"TCGA-02-0001-01","TCGA-02-0003-01","TCGA-02-0004-01","TCGA-02-0006-01"};
-        
+
         //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the 
         //dataset study id (e.g. studyStableId + "_breast_mutations"):
         String studyStableId = "study_tcga_pub";

@@ -119,14 +119,15 @@ public class TestImportTabDelimData {
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
-        daoGene.addGene(new CanonicalGene(207, "AKT1"));
-        daoGene.addGene(new CanonicalGene(208, "AKT2"));
-        daoGene.addGene(new CanonicalGene(10000, "AKT3"));
-        daoGene.addGene(new CanonicalGene(369, "ARAF"));
-        daoGene.addGene(new CanonicalGene(472, "ATM"));
-        daoGene.addGene(new CanonicalGene(673, "BRAF"));
-        daoGene.addGene(new CanonicalGene(672, "BRCA1"));
-        daoGene.addGene(new CanonicalGene(675, "BRCA2"));
+        // the largest current true Entrez gene ID counts 8 digits
+        daoGene.addGene(new CanonicalGene(999999207, "TESTAKT1"));
+        daoGene.addGene(new CanonicalGene(999999208, "TESTAKT2"));
+        daoGene.addGene(new CanonicalGene(999910000, "TESTAKT3"));
+        daoGene.addGene(new CanonicalGene(999999369, "TESTARAF"));
+        daoGene.addGene(new CanonicalGene(999999472, "TESTATM"));
+        daoGene.addGene(new CanonicalGene(999999673, "TESTBRAF"));
+        daoGene.addGene(new CanonicalGene(999999672, "TESTBRCA1"));
+        daoGene.addGene(new CanonicalGene(999999675, "TESTBRCA2"));
 
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
@@ -135,22 +136,22 @@ public class TestImportTabDelimData {
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
 
-        String value = dao.getGeneticAlteration(geneticProfileId, sample1, 207);
+        String value = dao.getGeneticAlteration(geneticProfileId, sample1, 999999207);
         assertEquals ("0", value);
-        value = dao.getGeneticAlteration(geneticProfileId, sample4, 207);
+        value = dao.getGeneticAlteration(geneticProfileId, sample4, 999999207);
         assertEquals ("-1", value);
-        value = dao.getGeneticAlteration(geneticProfileId, sample2, 207);
+        value = dao.getGeneticAlteration(geneticProfileId, sample2, 999999207);
         assertEquals ("0", value);
-        value = dao.getGeneticAlteration(geneticProfileId, sample2, 10000);
+        value = dao.getGeneticAlteration(geneticProfileId, sample2, 999910000);
         assertEquals ("2", value);
-        value = dao.getGeneticAlteration(geneticProfileId, sample3, 10000);
+        value = dao.getGeneticAlteration(geneticProfileId, sample3, 999910000);
         assertEquals ("2", value);
 
-        int cnaStatus = Integer.parseInt(dao.getGeneticAlteration(geneticProfileId, sample3, 10000));
+        int cnaStatus = Integer.parseInt(dao.getGeneticAlteration(geneticProfileId, sample3, 999910000));
         assertEquals(CopyNumberStatus.COPY_NUMBER_AMPLIFICATION, cnaStatus);
-        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(geneticProfileId, sample2, 10000));
+        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(geneticProfileId, sample2, 999910000));
         assertEquals(CopyNumberStatus.COPY_NUMBER_AMPLIFICATION, cnaStatus);
-        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(geneticProfileId, sample4, 207));
+        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(geneticProfileId, sample4, 999999207));
         assertEquals(CopyNumberStatus.HEMIZYGOUS_DELETION, cnaStatus);
 
         Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "TCGA-A1-A0SB");
@@ -256,14 +257,14 @@ public class TestImportTabDelimData {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
 
-        daoGene.addGene(new CanonicalGene(780, "A"));
-        daoGene.addGene(new CanonicalGene(5982, "B"));
-        daoGene.addGene(new CanonicalGene(3310, "C"));
-        daoGene.addGene(new CanonicalGene(7849, "D"));
-        daoGene.addGene(new CanonicalGene(2978, "E"));
-        daoGene.addGene(new CanonicalGene(7067, "F"));
-        daoGene.addGene(new CanonicalGene(11099, "G"));
-        daoGene.addGene(new CanonicalGene(675, "6352"));
+        daoGene.addGene(new CanonicalGene(999999780, "A"));
+        daoGene.addGene(new CanonicalGene(999995982, "B"));
+        daoGene.addGene(new CanonicalGene(999993310, "C"));
+        daoGene.addGene(new CanonicalGene(999997849, "D"));
+        daoGene.addGene(new CanonicalGene(999992978, "E"));
+        daoGene.addGene(new CanonicalGene(999997067, "F"));
+        daoGene.addGene(new CanonicalGene(999911099, "G"));
+        daoGene.addGene(new CanonicalGene(999999675, "6352"));
 
         GeneticProfile geneticProfile = new GeneticProfile();
 
@@ -286,11 +287,11 @@ public class TestImportTabDelimData {
         ConsoleUtil.showMessages();
         
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "DD639").getInternalId();
-        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 2978);
+        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999992978);
         assertEquals ("2.01", value );
 
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "DD638").getInternalId();
-        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7849);
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999997849);
         assertEquals ("0.55", value );
     }
 
@@ -308,10 +309,7 @@ public class TestImportTabDelimData {
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
 
         //Gene with alias:
-        if (daoGene.getGene(7504) == null) {
-        	//check, because it overlaps with other test and fails if added twice... TODO: why does it fail?
-        	daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
-        }
+        daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
         //Other genes:
         daoGene.addGene(new CanonicalGene(7124, "TNF"));
         daoGene.addGene(new CanonicalGene(1111, "CHEK1"));
@@ -364,23 +362,21 @@ public class TestImportTabDelimData {
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
 
         //Genes with alias:
-        daoGene.addGene(makeGeneWithAlias(31,"ACACA", "ACC1"));
-        daoGene.addGene(makeGeneWithAlias(207,"AKT1", "AKT"));
-        daoGene.addGene(makeGeneWithAlias(597,"SANDER", "ACC1"));
-        daoGene.addGene(makeGeneWithAlias(7158,"TP53BP1", "53BP1"));
-        if (daoGene.getGene(7504) == null) {
-        	//check, because it overlaps with other test and fails if added twice...
-        	daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
-        }
+        daoGene.addGene(makeGeneWithAlias(999999931,"TESTACACA", "TESTACC1"));
+        daoGene.addGene(makeGeneWithAlias(999999207,"TESTAKT1", "TESTAKT"));
+        daoGene.addGene(makeGeneWithAlias(999999597,"TESTSANDER", "TESTACC1"));
+        daoGene.addGene(makeGeneWithAlias(999997158,"TESTTP53BP1", "TEST53BP1"));
+        // test for NA being a special case in RPPA, and not the usual alias
+        daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
         //Other genes:
-        daoGene.addGene(new CanonicalGene(32,"ACACB"));
-        daoGene.addGene(new CanonicalGene(208,"AKT2"));
-        daoGene.addGene(new CanonicalGene(369,"ARAF"));
-        daoGene.addGene(new CanonicalGene(1978, "EIF4EBP1"));
-        daoGene.addGene(new CanonicalGene(5562,"PRKAA1"));
-        daoGene.addGene(new CanonicalGene(7531,"YWHAE"));
-        daoGene.addGene(new CanonicalGene(10000,"AKT3"));
-        daoGene.addGene(new CanonicalGene(5578,"PRKCA"));
+        daoGene.addGene(new CanonicalGene(999999932,"TESTACACB"));
+        daoGene.addGene(new CanonicalGene(999999208,"TESTAKT2"));
+        daoGene.addGene(new CanonicalGene(999999369,"TESTARAF"));
+        daoGene.addGene(new CanonicalGene(999991978, "TESTEIF4EBP1"));
+        daoGene.addGene(new CanonicalGene(999995562,"TESTPRKAA1"));
+        daoGene.addGene(new CanonicalGene(999997531,"TESTYWHAE"));
+        daoGene.addGene(new CanonicalGene(999910000,"TESTAKT3"));
+        daoGene.addGene(new CanonicalGene(999995578,"TESTPRKCA"));
         
         
         GeneticProfile geneticProfile = new GeneticProfile();
@@ -404,19 +400,19 @@ public class TestImportTabDelimData {
         ConsoleUtil.showMessages();
         
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
-        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7531);
+        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999997531);
         assertEquals ("1.5", value );
         
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE4").getInternalId();
-        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7531);
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999997531);
         assertEquals ("2", value );
         
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE4").getInternalId();
-        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7504);
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999997504);
         assertEquals ("NaN", value ); //"NA" is not expected to be stored because of workaround for bug in firehose. See also https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203523078
         
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
-        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 5578);
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999995578);
         assertEquals ("1.5", value );
     }
 

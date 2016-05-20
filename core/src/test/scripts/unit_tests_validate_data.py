@@ -74,18 +74,6 @@ class LogBufferTestCase(unittest.TestCase):
         self.buffer_handler.flush()
         return recs
 
-    @staticmethod
-    def print_log_records(record_list):
-        """Pretty-print a list of log records to standard output.
-
-        This can be used if, while writing unit tests, you want to see
-        what the messages currently are. The final unit tests committed
-        to version control should not actively print log messages.
-        """
-        formatter = cbioportal_common.LogfileStyleFormatter()
-        for record in record_list:
-            print formatter.format(record)
-
 
 class DataFileTestCase(LogBufferTestCase):
 
@@ -688,7 +676,6 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 found_one_of_the_expected = True
         self.assertTrue(found_one_of_the_expected)
 
-    
     def test_missing_aa_change_column(self):
         """One of Amino_Acid_Change or HGVSp_Short is required, so
         there should be a warning if both Amino_Acid_Change and HGVSp_Short are missing"""
@@ -703,8 +690,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("hgvsp_short", record_list[0].getMessage().lower())
         self.assertIn("invalid column header", record_list[1].getMessage().lower())
-    
-    
+
     def test_warning_for_missing_SWISSPROT(self):
         """If SWISSPROT is missing (or present and empty), user should be warned about it"""
         # set level according to this test case:
@@ -729,8 +715,51 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 2)
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("amino acid change cannot be parsed", record_list[0].getMessage().lower())
-    
-    
+
+    def test_silent_mutation_skipped(self):
+        """Test if silent mutations are skipped with a message.
+
+        Silent mutations being ones that have no direct effect on amino acid
+        sequence, which is predicted in the Variant_Classification column.
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('mutations/data_mutations_some_silent.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 5 infos: 3 about silent mutations, 2 general info messages:
+        self.assertEqual(len(record_list), 5)
+        # First 3 INFO messages should be something like: "Validation of line skipped due to cBioPortal's filtering. Filtered types:"
+        for record in record_list[:3]: 
+            self.assertIn("filtered types", record.getMessage().lower())
+        
+
+    def test_alternative_notation_for_intergenic_mutation(self):
+        """Test alternative 'notation' for intergenic mutations.
+
+        The MAF specification documents the use of the 'gene' Unknown / 0 for
+        intergenic mutations, and since the Variant_Classification column is
+        often invalid, cBioPortal assumes it to mean that and skips it.
+        (even if the Entrez column is absent).
+        Here we test whether the 'gene' Unknown / 0 records are skipped 
+        with a warning when Variant_Classification!='IGR'
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_silent_alternative.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 1 ERROR and 2 WARNINGs :
+        self.assertEqual(len(record_list), 3)
+        
+        # ERROR should be something like: "No Entrez id or gene symbol provided for gene"
+        self.assertIn("no entrez id or gene symbol provided", record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        # WARNING should be something like: "Gene specification for this mutation implies intergenic..."
+        self.assertIn("implies intergenic", record_list[1].getMessage().lower())
+        self.assertEqual(record_list[1].levelno, logging.WARNING)
+        self.assertIn("implies intergenic", record_list[2].getMessage().lower())
+        self.assertEqual(record_list[2].levelno, logging.WARNING)
+
+
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""

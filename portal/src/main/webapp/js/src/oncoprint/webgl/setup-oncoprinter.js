@@ -88,27 +88,50 @@ $(document).ready(function () {
     var updateOncoprinter = CreateOncoprinterWithToolbar('#oncoprint #oncoprint_body', '#oncoprint #oncoprint-diagram-toolbar-buttons');
     $('#create_oncoprint').click(function() {
 	var textarea_input = $('#mutation-file-example').val().trim();
+	var gene_order = $('#gene_order').val().trim().split(/\s+/g);
+	if (gene_order.length === 0 || gene_order[0].length === 0) {
+	    gene_order = null;
+	}
+	
+	var sample_order = $('#sample_order').val().trim().split(/\s+/g);
+	if (sample_order.length === 0 || sample_order[0].length === 0) {
+	    sample_order = null;
+	}
 	if (textarea_input.length > 0) {
 	    if (isInputValid(textarea_input)) {
 		var process_result = processData($('#mutation-file-example').val());
-		updateOncoprinter(process_result.data_by_gene, 'sample', process_result.altered_by_gene);
+		updateOncoprinter(process_result.data_by_gene, 'sample', process_result.altered_by_gene, sample_order, gene_order);
 		$('#error_msg').hide();
 	    } else {
 		$('#error_msg').html("Error in input data");
 		$('#error_msg').show();
 	    }
 	} else if ($('#mutation-form #mutation').val().trim().length > 0) {
-	    postFile('echofile', new FormData($('#mutation-form')[0]), function (mutationResponse) {
-		var input = mutationResponse.mutation.trim();
+	    var file = $('#mutation-form #mutation')[0].files[0];
+	    var reader = new FileReader();
+	    reader.readAsText(file);
+	    reader.onload = function(e) {
+		var input = reader.result.trim().replace(/\r/g, "\n");
 		if (isInputValid(input)) {
 		    var process_result = processData(input);
-		    updateOncoprinter(process_result.data_by_gene, 'sample', process_result.altered_by_gene);
+		    updateOncoprinter(process_result.data_by_gene, 'sample', process_result.altered_by_gene, sample_order, gene_order);
 		    $('#error_msg').hide();
 		} else {
 		    $('#error_msg').html("Error in input data");
 		    $('#error_msg').show();
 		}
-	    });
+	    };
+	    /*postFile('echofile', new FormData($('#mutation-form')[0]), function (mutationResponse) {
+		var input = mutationResponse.mutation.trim();
+		if (isInputValid(input)) {
+		    var process_result = processData(input);
+		    updateOncoprinter(process_result.data_by_gene, 'sample', process_result.altered_by_gene, sample_order, gene_order);
+		    $('#error_msg').hide();
+		} else {
+		    $('#error_msg').html("Error in input data");
+		    $('#error_msg').show();
+		}
+	    });*/
 	} else {
 	    $('#error_msg').html("Please input data or select a file.");
 	    $('#error_msg').show();

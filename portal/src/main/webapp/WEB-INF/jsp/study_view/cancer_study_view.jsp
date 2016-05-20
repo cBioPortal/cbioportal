@@ -159,6 +159,7 @@ if (cancerStudyViewError!=null) {
 </table>
 </center>
 </div>
+<span id="ruler"></span>
 <jsp:include page="../global/xdebug.jsp" flush="true" />    
 
 <style type="text/css">

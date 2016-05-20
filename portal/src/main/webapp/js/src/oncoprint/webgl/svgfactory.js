@@ -1,11 +1,17 @@
 var makeSVGElement = require('./makesvgelement.js');
 var shapeToSVG = require('./oncoprintshapetosvg.js');
 module.exports = {
-    text: function(content,x,y,size,family,weight) {
+    text: function(content,x,y,size,family,weight,alignment_baseline) {
 	size = size || 12;
+	var alignment_baseline_y_offset = size;
+	if (alignment_baseline === "middle") {
+	    alignment_baseline_y_offset = size/2;
+	} else if (alignment_baseline === "bottom") {
+	    alignment_baseline_y_offset = 0;
+	}
 	var elt = makeSVGElement('text', {
 	    'x':(x || 0),
-	    'y':(y || 0) + size,
+	    'y':(y || 0) + alignment_baseline_y_offset,
 	    'font-size':size,
 	    'font-family':(family || 'serif'),
 	    'font-weight':(weight || 'normal'),
@@ -63,6 +69,17 @@ module.exports = {
     },
     bgrect: function(width, height, fill) {
 	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});
+    },
+    path: function(points, stroke, fill) {
+	points = points.map(function(pt) { return pt.join(","); });
+	points[0] = 'M'+points[0];
+	for (var i=1; i<points.length; i++) {
+	    points[i] = 'L'+points[i];
+	}
+	return makeSVGElement('path', {
+	    'd': points.join(" "),
+	    'style': 'stroke:'+stroke+'; fill:'+fill+';'
+	});
     }
 };
 

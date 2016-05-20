@@ -716,8 +716,7 @@
 				var pos = $(text_elt.node()).offset();
 				var text = text_elt.text();
 				svg.append('text').style('font-family', font).style('font-weight', weight).style('font-size', size)
-						.attr('transform', utils.translate(pos.left - root.left,pos.top - root.top))
-						.style('alignment-baseline', 'text-before-edge')
+						.attr('transform', utils.translate(pos.left - root.left,pos.top - root.top + parseInt(size)))
 						.text(text);	
 			});
 		})();
@@ -758,8 +757,7 @@
 							var pos = $(text_elt.node()).offset();
 							svg.append('text').style('font-family', font).style('font-weight', weight)
 								.style('font-size', size)
-								.attr('transform', utils.translate(pos.left - root.left, pos.top - root.top))
-								.style('alignment-baseline', 'hanging')
+								.attr('transform', utils.translate(pos.left - root.left, pos.top - root.top + parseInt(size)))
 								.text(text);
 						} else if (this.tagName.toLowerCase() === 'svg') {
 							var elt = d3.select(this);

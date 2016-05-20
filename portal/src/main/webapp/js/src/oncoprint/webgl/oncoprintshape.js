@@ -13,7 +13,8 @@ var Shape = (function() {
 	    'y3': '0%',
 	    'stroke': 'rgba(0,0,0,0)', 
 	    'fill': 'rgba(23,23,23,1)', 
-	    'stroke-width': '0'
+	    'stroke-width': '0',
+	    'stroke-opacity': '0'
     };
     var parameter_name_to_dimension_index = {
 	'stroke-width':0,

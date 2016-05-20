@@ -25,7 +25,6 @@ package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +47,6 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.GeneticProfileReader;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.springframework.test.context.ContextConfiguration;
@@ -161,17 +159,7 @@ public class TestImportProfileData {
 		assertEquals("TESTBRCA1", cnaEvent.getGeneSymbol());
         
 	}
-	
-	
-	@Test
-	public void testException() throws Exception {
 
-        exception.expect(IllegalArgumentException.class);
-        GeneticProfileReader.loadGeneticProfileFromMeta(new File("target/test-classes/meta_mutations_extended_wrong_stable_id.txt"));
-        
-	}
-	
-	
     private void validateMutationAminoAcid (int geneticProfileId, Integer sampleId, long entrezGeneId,
             String expectedAminoAcidChange) throws DaoException {
         ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations

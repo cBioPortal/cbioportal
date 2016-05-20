@@ -169,6 +169,13 @@ public class ImportClinicalData extends ConsoleRunnable {
                     break;
                 case MIXED_ATTRIBUTES:
                     attributeTypes = splitFields(buff.readLine());
+                    //quick validation: attributeTypes values should be either PATIENT or SAMPLE
+                    for (String attributeTypeVal : attributeTypes) {
+                    	if (!attributeTypeVal.equalsIgnoreCase(AttributeTypes.PATIENT_ATTRIBUTES.toString()) && 
+                    			!attributeTypeVal.equalsIgnoreCase(AttributeTypes.SAMPLE_ATTRIBUTES.toString())) {
+                    		throw new RuntimeException("Invalid value for attributeType: " + attributeTypeVal + ". Check the header rows of your data file."); 
+                    	}	
+                    }
                     break;
             }
                      

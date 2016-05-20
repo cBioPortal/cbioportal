@@ -23,16 +23,16 @@
 				<!-- Script 1 - load a study -->
 				<list>
 					<value>org.mskcc.cbio.portal.scripts.ImportCancerStudy</value>
-					<value>#{systemEnvironment['PORTAL_HOME']}/core/src/test/resources/cancer_study.txt</value>
+					<value>src/test/resources/cancer_study.txt</value>
 				</list>
 				
 				<!-- Script 2 - load clinical data - needed to set up patients and samples -->
 				<list>
 					<value>org.mskcc.cbio.portal.scripts.ImportClinicalData</value>
 					<value>--data</value>
-					<value>#{systemEnvironment['PORTAL_HOME']}/core/src/test/resources/clinical_data.txt</value>
+					<value>src/test/resources/clinical_data.txt</value>
 					<value>--meta</value>
-					<value>#{systemEnvironment['PORTAL_HOME']}/core/src/test/resources/clinical_meta.txt</value>
+					<value>src/test/resources/clinical_meta.txt</value>
 					<value>--study</value>
 					<value>test_brca</value>
 					<value>--loadMode</value>

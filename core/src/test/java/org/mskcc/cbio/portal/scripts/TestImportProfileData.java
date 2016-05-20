@@ -43,11 +43,11 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.dao.DaoSample;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.GeneticProfileReader;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -110,9 +110,15 @@ public class TestImportProfileData {
 	
 	@Test
 	public void testImportCNAFile() throws Exception {
+		
+		//genes in this test:
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+	    daoGene.addGene(new CanonicalGene(999999672, "TESTBRCA1"));
+	    daoGene.addGene(new CanonicalGene(999999675, "TESTBRCA2"));
+		
         String[] args = {
-        		"--data","target/test-classes/data_CNA_sample.txt",
-        		"--meta","target/test-classes/meta_CNA.txt" ,
+        		"--data","src/test/resources/data_CNA_sample.txt",
+        		"--meta","src/test/resources/meta_CNA.txt" ,
         		"--noprogress",
         		"--loadMode", "bulkLoad"
         		};
@@ -129,8 +135,15 @@ public class TestImportProfileData {
         ImportDataUtil.addPatients(sampleIds, study);
         ImportDataUtil.addSamples(sampleIds, study);
         
-        ImportProfileData runner = new ImportProfileData(args);
-        runner.run();
+        try {
+        	ImportProfileData runner = new ImportProfileData(args);
+        	runner.run();
+        }
+        catch (Throwable e) {
+    		//useful info for when this fails:
+    		ConsoleUtil.showMessages();
+    		throw e;
+    	}
 		
 		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_gistic").getGeneticProfileId();
 		
@@ -143,19 +156,19 @@ public class TestImportProfileData {
 		List<CnaEvent> cnaEvents = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels);
 		assertEquals(2, cnaEvents.size());
 		//validate specific records. Data looks like:
-		//672	BRCA1	-2	0	1	0
-		//675	BRCA2	0	2	0	-1
+		//999999672	TESTBRCA1	-2	0	1	0
+		//999999675	TESTBRCA1	0	2	0	-1
 		//Check if the first two samples are loaded correctly:
 		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-02-0001-01").getInternalId();
 		sampleInternalIds = Arrays.asList((int)sampleId);
 		CnaEvent cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
 		assertEquals(-2, cnaEvent.getAlteration().getCode());
-		assertEquals("BRCA1", cnaEvent.getGeneSymbol());
+		assertEquals("TESTBRCA1", cnaEvent.getGeneSymbol());
 		sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-02-0003-01").getInternalId();
 		sampleInternalIds = Arrays.asList((int)sampleId);
 		cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
 		assertEquals(2, cnaEvent.getAlteration().getCode());
-		assertEquals("BRCA2", cnaEvent.getGeneSymbol());
+		assertEquals("TESTBRCA1", cnaEvent.getGeneSymbol());
         
 	}
 	
@@ -221,7 +234,7 @@ public class TestImportProfileData {
 	    daoGene.addGene(new CanonicalGene(1952L, "CELSR2"));
 	    daoGene.addGene(new CanonicalGene(2322L, "FLT3"));
 	    daoGene.addGene(new CanonicalGene(867L, "CBL"));
-            
-            MySQLbulkLoader.flushAll();
+	    
+        //MySQLbulkLoader.flushAll();
     }
 }

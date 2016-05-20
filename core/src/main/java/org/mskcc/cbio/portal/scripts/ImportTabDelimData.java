@@ -210,9 +210,7 @@ public class ImportTabDelimData {
 	        if (MySQLbulkLoader.isBulkLoad()) {
 	           MySQLbulkLoader.flushAll();
 	        }
-        }
-        finally {
-	        buf.close();
+	        
 	        if (rppaProfile) {
 	        	ProgressMonitor.setCurrentMessage(" --> total number of extra records added because of multiple genes in one line:  " + nrExtraRecords);
 	        }
@@ -224,6 +222,9 @@ public class ImportTabDelimData {
 	            throw new DaoException ("Something has gone wrong!  I did not save any records" +
 	                    " to the database!");
 	        }
+        }
+        finally {
+	        buf.close();
         }
         
     }

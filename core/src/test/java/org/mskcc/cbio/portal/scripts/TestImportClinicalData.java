@@ -92,7 +92,7 @@ public class TestImportClinicalData {
         
         cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew");
 		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data_small.txt");
+        File clinicalFile = new File("src/test/resources/clinical_data_small.txt");
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
@@ -116,7 +116,7 @@ public class TestImportClinicalData {
         
         cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew2");
 		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data_small_nonTCGA.txt");
+        File clinicalFile = new File("src/test/resources/clinical_data_small_nonTCGA.txt");
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
@@ -141,7 +141,7 @@ public class TestImportClinicalData {
         
         cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew3");
 		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data_small_PATIENT.txt");
+        File clinicalFile = new File("src/test/resources/clinical_data_small_PATIENT.txt");
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args

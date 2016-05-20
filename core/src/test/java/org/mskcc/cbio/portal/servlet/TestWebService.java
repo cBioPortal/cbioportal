@@ -84,6 +84,7 @@ public class TestWebService {
 	   List<CancerStudy> mockTrue = new ArrayList<CancerStudy>();
 	   mockTrue.add(null);
 	   expect(control.isAccessibleCancerStudy(isA(String.class))).andStubReturn(mockTrue);
+	   expect(control.getUserDetails()).andStubReturn(null);
        replay(control);
        SpringUtil.setAccessControl(control);
    }

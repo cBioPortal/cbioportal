@@ -130,7 +130,7 @@ public class TestImportTabDelimData {
 
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/cna_test.txt");
+        File file = new File("src/test/resources/cna_test.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, "Barry", geneticProfileId);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
@@ -195,7 +195,7 @@ public class TestImportTabDelimData {
 
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/cna_test2.txt");
+        File file = new File("src/test/resources/cna_test2.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, geneticProfileId);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
@@ -279,7 +279,7 @@ public class TestImportTabDelimData {
 
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/mrna_test.txt");
+        File file = new File("src/test/resources/mrna_test.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
@@ -331,7 +331,7 @@ public class TestImportTabDelimData {
 
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/tabDelimitedData/data_expression2.txt");
+        File file = new File("src/test/resources/tabDelimitedData/data_expression2.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
@@ -397,7 +397,7 @@ public class TestImportTabDelimData {
 
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/tabDelimitedData/data_rppa.txt");
+        File file = new File("src/test/resources/tabDelimitedData/data_rppa.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);

@@ -42,6 +42,7 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.dao.DaoSample;
+import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CnaEvent;
@@ -101,6 +102,7 @@ public class TestImportProfileData {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 	    daoGene.addGene(new CanonicalGene(999999672, "TESTBRCA1"));
 	    daoGene.addGene(new CanonicalGene(999999675, "TESTBRCA2"));
+	    MySQLbulkLoader.flushAll();
 		
         String[] args = {
                 "--data","src/test/resources/data_CNA_sample.txt",
@@ -131,7 +133,7 @@ public class TestImportProfileData {
     		throw e;
     	}
 		
-		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_gistic").getGeneticProfileId();
+		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_cna").getGeneticProfileId();
 		
 		List<Integer> sampleInternalIds = new ArrayList<Integer>();
 		DaoSample.reCache();
@@ -143,7 +145,7 @@ public class TestImportProfileData {
 		assertEquals(2, cnaEvents.size());
 		//validate specific records. Data looks like:
 		//999999672	TESTBRCA1	-2	0	1	0
-		//999999675	TESTBRCA1	0	2	0	-1
+		//999999675	TESTBRCA2	0	2	0	-1
 		//Check if the first two samples are loaded correctly:
 		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-02-0001-01").getInternalId();
 		sampleInternalIds = Arrays.asList((int)sampleId);
@@ -154,8 +156,7 @@ public class TestImportProfileData {
 		sampleInternalIds = Arrays.asList((int)sampleId);
 		cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
 		assertEquals(2, cnaEvent.getAlteration().getCode());
-		assertEquals("TESTBRCA1", cnaEvent.getGeneSymbol());
-        
+		assertEquals("TESTBRCA2", cnaEvent.getGeneSymbol());
 	}
 
     private void validateMutationAminoAcid (int geneticProfileId, Integer sampleId, long entrezGeneId,
@@ -210,7 +211,7 @@ public class TestImportProfileData {
 	    daoGene.addGene(new CanonicalGene(1952L, "CELSR2"));
 	    daoGene.addGene(new CanonicalGene(2322L, "FLT3"));
 	    daoGene.addGene(new CanonicalGene(867L, "CBL"));
-	    
-        //MySQLbulkLoader.flushAll();
+
+        MySQLbulkLoader.flushAll();
     }
 }

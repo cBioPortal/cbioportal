@@ -57,31 +57,23 @@ public class TransactionalScripts implements Runnable {
 					break;
 				}
 				
-				Object newInstance = ctor.newInstance(new Object[] { args });
-				Method method = scriptClass.getMethod("run");
-				
-				Object result = method.invoke(newInstance);
-				if (result != null && result.toString() != "0") {
-					throw new RuntimeException("Nonzero exit status from: " + className + ", exit: " + result.toString());
-				}
+				Runnable newInstance = (Runnable) ctor.newInstance(new Object[] { args });
+				newInstance.run();				
 			} catch (InstantiationException e) {
 				e.printStackTrace(System.err);
 				throw new NestableRuntimeException("Can't find instantiate runner for: " + className, e);
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't find main method in: " + className, e);
 			} catch (SecurityException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't access main method in: " + className, e);
+				throw new NestableRuntimeException("Can't access run() method in: " + className, e);
 			} catch (IllegalAccessException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Invalid access to main method in: " + className, e);
+				throw new NestableRuntimeException("Invalid access to run() method in: " + className, e);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Invalid arguments for main method in: " + className, e);
+				throw new NestableRuntimeException("Invalid arguments for run() method in: " + className, e);
 			} catch (InvocationTargetException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't call main method in: " + className, e);
+				throw new NestableRuntimeException("Can't call run() method in: " + className, e);
 			}
 		}
 	}

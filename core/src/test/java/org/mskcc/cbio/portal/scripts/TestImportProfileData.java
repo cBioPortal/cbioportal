@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -51,9 +51,6 @@ import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.GeneticProfileReader;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.SpringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -70,23 +67,16 @@ public class TestImportProfileData {
 
 	int studyId;
 	int geneticProfileId;
-	@Autowired
-	static ApplicationContext applicationContext;
 	
-	@BeforeClass
-	public static void setUp() throws DaoException {
-
-		//set it, to avoid this being set to the runtime application context (instead of the test application context):
-		SpringUtil.setApplicationContext(applicationContext);
-		ProgressMonitor.setConsoleMode(false);
-
+    @Before
+    public void setUp() throws DaoException {
+        ProgressMonitor.setConsoleMode(false);
         loadGenes();
-	}
+    }
 	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
-	
 	@Test
 	public void testImportMutationsFile() throws Exception {
         String[] args = {

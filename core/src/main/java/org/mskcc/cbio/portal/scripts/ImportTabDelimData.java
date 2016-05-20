@@ -363,11 +363,7 @@ public class ImportTabDelimData {
                         	
                             if (discritizedCnaProfile) {
                                 long entrezGeneId = genes.get(0).getEntrezGeneId();
-                                int n = values.length;
-                                if (n==0)
-                                    System.out.println();
-                                int i = values[0].equals(""+entrezGeneId) ? 1:0;
-                                for (; i<n; i++) {
+                                for (int i = 0; i < values.length; i++) {
                                     
                                     // temporary solution -- change partial deletion back to full deletion.
                                     if (values[i].equals(GeneticAlterationType.PARTIAL_DELETION)) {

@@ -2921,9 +2921,29 @@
 						show: {delay: 0},
 						hide: {delay: 0, fixed: true}
 					});
+
+					var $patientIcon = $('<i class="fa fa-lg fa-child jstree-node-decorator" style="cursor:pointer; padding-left:0.4em"></i>');
+					obj.append($patientIcon);
+					$patientIcon.mousedown(function(e) {
+						e.preventDefault();
+					});
+					$patientIcon.qtip({
+						content: {text: 'Click to jump to a specific patient.'},
+						style: {classes: 'qtip-light qtip-rounded'},
+						position: {my: 'bottom center', at: 'top center', viewport: $(window)},
+						show: {delay: 0},
+						hide: {delay: 0, fixed: true}
+					});
+					$patientIcon.click(function(e) {
+					e.preventDefault();
+					var caseId = prompt('Please enter a patient ID:', 'TCGA-A1-A0SB');
+					if (caseId) {
+						window.open('case.do?cancer_study_id='+node.id+'&case_id='+caseId);
+					}
+					});
 				}
-                                
-                                var $linkOutIcon = $('<i class="btn btn-default btn-sm jstree-node-decorator" style="cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2">Summary</i>');
+                           
+                var $linkOutIcon = $('<i class="btn btn-default btn-sm jstree-node-decorator" style="cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2">Summary</i>');
 				obj.append($linkOutIcon);
 				$linkOutIcon.mouseenter(function() {
 					$linkOutIcon.fadeTo('fast', 0.7);
@@ -5797,7 +5817,7 @@
 					h = e.height(),
 					dw = $(window).width() + $(window).scrollLeft(),
 					dh = $(window).height() + $(window).scrollTop();
-				// може да се спести е една проверка - дали няма някой от класовете вече нагоре
+				// ÃÂ¼ÃÂ¾ÃÂ¶ÃÂµ ÃÂ´ÃÂ° Ã‘ÂÃÂµ Ã‘ÂÃÂ¿ÃÂµÃ‘ÂÃ‘â€šÃÂ¸ ÃÂµ ÃÂµÃÂ´ÃÂ½ÃÂ° ÃÂ¿Ã‘â‚¬ÃÂ¾ÃÂ²ÃÂµÃ‘â‚¬ÃÂºÃÂ° - ÃÂ´ÃÂ°ÃÂ»ÃÂ¸ ÃÂ½Ã‘ÂÃÂ¼ÃÂ° ÃÂ½Ã‘ÂÃÂºÃÂ¾ÃÂ¹ ÃÂ¾Ã‘â€š ÃÂºÃÂ»ÃÂ°Ã‘ÂÃÂ¾ÃÂ²ÃÂµÃ‘â€šÃÂµ ÃÂ²ÃÂµÃ‘â€¡ÃÂµ ÃÂ½ÃÂ°ÃÂ³ÃÂ¾Ã‘â‚¬ÃÂµ
 				if(right_to_left) {
 					o[x - (w + 10 + o.outerWidth()) < 0 ? "addClass" : "removeClass"]("vakata-context-left");
 				}
@@ -5905,7 +5925,7 @@
 					e.stopImmediatePropagation();
 
 					if($.contains(this, e.relatedTarget)) {
-						// премахнато заради delegate mouseleave по-долу
+						// ÃÂ¿Ã‘â‚¬ÃÂµÃÂ¼ÃÂ°Ã‘â€¦ÃÂ½ÃÂ°Ã‘â€šÃÂ¾ ÃÂ·ÃÂ°Ã‘â‚¬ÃÂ°ÃÂ´ÃÂ¸ delegate mouseleave ÃÂ¿ÃÂ¾-ÃÂ´ÃÂ¾ÃÂ»Ã‘Æ’
 						// $(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
 						return;
 					}
@@ -5918,7 +5938,7 @@
 						.parentsUntil(".vakata-context", "li").addBack().addClass("vakata-context-hover");
 					$.vakata.context._show_submenu(this);
 				})
-				// тестово - дали не натоварва?
+				// Ã‘â€šÃÂµÃ‘ÂÃ‘â€šÃÂ¾ÃÂ²ÃÂ¾ - ÃÂ´ÃÂ°ÃÂ»ÃÂ¸ ÃÂ½ÃÂµ ÃÂ½ÃÂ°Ã‘â€šÃÂ¾ÃÂ²ÃÂ°Ã‘â‚¬ÃÂ²ÃÂ°?
 				.on("mouseleave", "li", function (e) {
 					if($.contains(this, e.relatedTarget)) { return; }
 					$(this).find(".vakata-context-hover").addBack().removeClass("vakata-context-hover");

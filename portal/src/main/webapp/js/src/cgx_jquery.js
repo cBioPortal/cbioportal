@@ -148,10 +148,11 @@ stored in properties file)
  */
 function bitlyURL(fullURL){
 
-    /*testing - can not encode URI component when localhost is in URL.
-              - uncomment following line when testing on localhost.
+    /* 
+        when testing locally use 127.0.0.1 instead of localhost
+        in your browser location bar.
+        bitly: can not encode URI component when localhost is in URL
      */
-    //fullURL = fullURL.replace("localhost","127.0.0.1");
 
     var defaults = {
         version: '3.0',

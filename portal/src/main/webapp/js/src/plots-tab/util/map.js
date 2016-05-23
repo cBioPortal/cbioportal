@@ -1,5 +1,9 @@
 var ids = {
     sidebar: {
+        "study": {
+            div: "plots-sidebar-study-div",
+            study: "plots-sidebar-study",
+        },
         "x": {
             div: "plots-sidebar-x-div",
             data_type: "plots-x-data-type",

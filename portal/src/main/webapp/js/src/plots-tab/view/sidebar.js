@@ -12,6 +12,9 @@ var sidebar = (function() {
                 $("#" + ids.sidebar.y.data_type).hide(); 
                 profileSpec.init("x");
                 profileSpec.init("y");
+                if(plotUtilsModel!==null){
+                    plotUtilsModel.reset();
+                }
                 optSpec.init();
                 //reset the default value of x: default is always x copy num, y mrna
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
@@ -28,6 +31,9 @@ var sidebar = (function() {
             $("input:radio[name='" + ids.sidebar.y.data_type + "'][value='" + vals.data_type.clin + "']").attr('checked', 'checked');
             clinSpec.init("x");
             clinSpec.init("y");
+            if(plotUtilsModel!==null){
+                    plotUtilsModel.reset();
+                }
             optSpec.init();  
         //no plots data at all
         } else if ((metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 0 ||
@@ -40,6 +46,9 @@ var sidebar = (function() {
         } else {
             profileSpec.init("x");
             profileSpec.init("y");
+            if(plotUtilsModel!==null){
+                    plotUtilsModel.reset();
+                }
             optSpec.init();
             //reset the default value of x: default is always x copy num, y mrna
             var _type_arr = [];

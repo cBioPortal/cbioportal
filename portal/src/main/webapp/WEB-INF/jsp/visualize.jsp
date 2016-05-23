@@ -55,11 +55,14 @@
     <%
         Boolean showMutTab = false;
         Boolean showCancerTypesSummary = false;
+        if(geneticProfiles.contains("mutation")){
+        	showMutTab = true;
+        }
 
-            Enumeration paramEnum = request.getParameterNames();
-            StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
+            //Enumeration paramEnum = request.getParameterNames();
+           // StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
-            while (paramEnum.hasMoreElements())
+           /*  while (paramEnum.hasMoreElements())
             {
                 String paramName = (String) paramEnum.nextElement();
                 String values[] = request.getParameterValues(paramName);
@@ -79,9 +82,9 @@
                             && currentValue != null)
                         {
                             //  Spaces must be converted to semis
-                            currentValue = Utilities.appendSemis(currentValue);
+                           // currentValue = Utilities.appendSemis(currentValue);
                             //  Extra spaces must be removed.  Otherwise OMA Links will not work.
-                            currentValue = currentValue.replaceAll("\\s+", " ");
+                           // currentValue = currentValue.replaceAll("\\s+", " ");
                             //currentValue = URLEncoder.encode(currentValue);
                         }
                         else if (paramName.equals(QueryBuilder.CASE_IDS) ||
@@ -99,15 +102,15 @@
                         }
 
                         // this is required to prevent XSS attacks
-                        currentValue = xssUtil.getCleanInput(currentValue);
+                       // currentValue = xssUtil.getCleanInput(currentValue);
                         //currentValue = StringEscapeUtils.escapeJavaScript(currentValue);
                         //currentValue = StringEscapeUtils.escapeHtml(currentValue);
-                        currentValue = URLEncoder.encode(currentValue);
+                        //currentValue = URLEncoder.encode(currentValue);
 
-                        buf.append (paramName + "=" + currentValue + "&");
+                        //buf.append (paramName + "=" + currentValue + "&");
                     }
                 }
-            }
+            } */
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values

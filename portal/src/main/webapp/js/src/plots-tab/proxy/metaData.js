@@ -20,9 +20,9 @@ var metaData = (function() {
 
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
-            cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-            case_set_id: window.QuerySession.getCaseSetId(),
-            case_ids_key: window.QuerySession.getCaseIdsKey(),
+            cancer_study_id: window.PlotsTab.cancerStudyId,
+            case_set_id: window.PlotsTab.CaseSetId,
+            case_ids_key: window.PlotsTab.CaseIdsKey,
             gene_list: window.QuerySession.getQueryGenes().join(" ")
         };
         $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
@@ -31,9 +31,9 @@ var metaData = (function() {
     function fetchClinicalAttrMetaData(profileMetaDataResult) {
         var paramsGetClinicalAttributes = {
             cmd : "getClinicalData",
-            cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-            case_set_id : window.QuerySession.getCaseSetId(),
-            case_ids_key: window.QuerySession.getCaseIdsKey(),
+            cancer_study_id: window.PlotsTab.cancerStudyId,
+            case_set_id : window.PlotsTab.CaseSetId,
+            case_ids_key: window.PlotsTab.CaseIdsKey,
             format : "json"
         };
         $.post("webservice.do", paramsGetClinicalAttributes, function(result) {
@@ -64,7 +64,7 @@ var metaData = (function() {
         for (var gene in profileMetaDataResult) {
             geneticProfiles[gene] = _profile_arr;
         }
-        
+        clinicalAttrs = []
         $.each(clinicalAttrMetaDataResult, function(index, obj) {
             var _datum = jQuery.extend(true, {}, datum_clinical_attr_meta);
             _datum.id = obj.attr_id;

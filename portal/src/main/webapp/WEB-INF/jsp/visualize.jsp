@@ -51,38 +51,11 @@
     </div>
 </div>
 
-<%
-    if (warningUnion.size() > 0) {
-        out.println ("<div class='warning'>");
-        out.println ("<h4>Errors:</h4>");
-        out.println ("<ul>");
-        Iterator<String> warningIterator = warningUnion.iterator();
-        int counter = 0;
-        while (warningIterator.hasNext()) {
-            String warning = warningIterator.next();
-            if (counter++ < 10) {
-                out.println ("<li>" +  warning + "</li>");
-            }
-        }
-        if (warningUnion.size() > 10) {
-            out.println ("<li>...</li>");
-        }
-        out.println ("</ul>");
-        out.println ("</div>");
-    }
-
-    if (geneWithScoreList.size() == 0) {
-        out.println ("<b>Please go back and try again.</b>");
-        out.println ("</div>");
-    } else {
-%>
-
 <div id="tabs">
     <ul>
     <%
         Boolean showMutTab = false;
         Boolean showCancerTypesSummary = false;
-        if (geneWithScoreList.size() > 0) {
 
             Enumeration paramEnum = request.getParameterNames();
             StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
@@ -153,7 +126,7 @@
                 + "Cancer Types Summary</a></li>");
             }
 
-            if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
+            if (computeLogOddsRatio) {
                 out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
             }
@@ -192,7 +165,6 @@
             out.println("<div id='bitly'></div>");
 
             out.println("</div>");
-        }
     %>
 
         <div class="section" id="summary">
@@ -215,7 +187,7 @@
             <%@ include file="survival_tab.jsp" %>
         <% } %>
 
-        <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
+        <% if (computeLogOddsRatio) { %>
             <%@ include file="mutex_tab.jsp" %>
         <% } %>
 
@@ -244,7 +216,7 @@
         <%@ include file="data_download.jsp" %>
 
 </div> <!-- end tabs div -->
-<% } %>
+
 
 </div>
 </td>
@@ -330,6 +302,9 @@
                 position: {my:'left top',at:'right bottom', viewport: $(window)}
             }
         );
+        $("#oncoprint-result-tab").click(function() {
+            $(window).trigger('resize');
+        });
         $("#mutex-result-tab").qtip(
             {
                 content: {text: "Mutual exclusivity and co-occurrence analysis"},

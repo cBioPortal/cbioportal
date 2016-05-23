@@ -1289,10 +1289,12 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE mutation");
             pstmt.executeUpdate();
             pstmt = con.prepareStatement("TRUNCATE TABLE mutation_event");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

@@ -78,6 +78,7 @@ var enrichmentsTabData = function() {
                 } else if (_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
                     // moved the styling of the gene to view.js mDataProp
                     _unit[enrichmentsTabSettings.col_index.protein_exp.gene] = _obj["Gene"];
+                    _unit[enrichmentsTabSettings.col_index.protein_exp.cytoband] = _obj["Cytoband"];
                     _unit[enrichmentsTabSettings.col_index.protein_exp.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
                     _unit[enrichmentsTabSettings.col_index.protein_exp.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                     _unit[enrichmentsTabSettings.col_index.protein_exp.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);

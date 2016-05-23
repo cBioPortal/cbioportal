@@ -33,7 +33,6 @@
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.cbio.portal.util.ValueParser" %>
 <%@ page import="java.util.TreeSet" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.ShowData" %>
 <%@ page import="org.mskcc.cbio.portal.model.DownloadLink" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>

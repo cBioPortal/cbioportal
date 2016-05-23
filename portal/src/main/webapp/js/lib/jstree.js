@@ -2936,10 +2936,26 @@
 					});
 					$patientIcon.click(function(e) {
 					    e.preventDefault();
-					    var caseId = prompt('Please enter a patient ID:', 'TCGA-A1-A0SB');
-					    if (caseId) {
-						window.open('case.do?cancer_study_id='+node.id+'&case_id='+caseId);
-					    }
+					    swal({
+                          title: 'Patient View Shortcut',
+                          text: 'Please enter a patient ID:',
+                          type: 'input',
+                          allowOutsideClick: true,
+                          confirmButtonText: 'Open New Window',
+                          showCancelButton: true,
+                          animation: 'slide-from-top',
+                          inputPlaceholder: ''
+                        },
+                        function(caseId){
+                          if (caseId === false) return false;
+                          
+                          if (caseId === '') {
+                            swal.showInputError('Please enter a patient ID or cancel.');
+                            return false
+                          }
+                          
+                          window.open('case.do?cancer_study_id='+node.id+'&case_id='+caseId);
+                        });
 					});
 				}
                            
@@ -5817,7 +5833,7 @@
 					h = e.height(),
 					dw = $(window).width() + $(window).scrollLeft(),
 					dh = $(window).height() + $(window).scrollTop();
-				// ÃÂ¼ÃÂ¾ÃÂ¶ÃÂµ ÃÂ´ÃÂ° Ã‘ÂÃÂµ Ã‘ÂÃÂ¿ÃÂµÃ‘ÂÃ‘â€šÃÂ¸ ÃÂµ ÃÂµÃÂ´ÃÂ½ÃÂ° ÃÂ¿Ã‘â‚¬ÃÂ¾ÃÂ²ÃÂµÃ‘â‚¬ÃÂºÃÂ° - ÃÂ´ÃÂ°ÃÂ»ÃÂ¸ ÃÂ½Ã‘ÂÃÂ¼ÃÂ° ÃÂ½Ã‘ÂÃÂºÃÂ¾ÃÂ¹ ÃÂ¾Ã‘â€š ÃÂºÃÂ»ÃÂ°Ã‘ÂÃÂ¾ÃÂ²ÃÂµÃ‘â€šÃÂµ ÃÂ²ÃÂµÃ‘â€¡ÃÂµ ÃÂ½ÃÂ°ÃÂ³ÃÂ¾Ã‘â‚¬ÃÂµ
+				// ÃƒÂÃ‚Â¼ÃƒÂÃ‚Â¾ÃƒÂÃ‚Â¶ÃƒÂÃ‚Âµ ÃƒÂÃ‚Â´ÃƒÂÃ‚Â° Ãƒâ€˜Ã‚ÂÃƒÂÃ‚Âµ Ãƒâ€˜Ã‚ÂÃƒÂÃ‚Â¿ÃƒÂÃ‚ÂµÃƒâ€˜Ã‚ÂÃƒâ€˜Ã¢â‚¬Å¡ÃƒÂÃ‚Â¸ ÃƒÂÃ‚Âµ ÃƒÂÃ‚ÂµÃƒÂÃ‚Â´ÃƒÂÃ‚Â½ÃƒÂÃ‚Â° ÃƒÂÃ‚Â¿Ãƒâ€˜Ã¢â€šÂ¬ÃƒÂÃ‚Â¾ÃƒÂÃ‚Â²ÃƒÂÃ‚ÂµÃƒâ€˜Ã¢â€šÂ¬ÃƒÂÃ‚ÂºÃƒÂÃ‚Â° - ÃƒÂÃ‚Â´ÃƒÂÃ‚Â°ÃƒÂÃ‚Â»ÃƒÂÃ‚Â¸ ÃƒÂÃ‚Â½Ãƒâ€˜Ã‚ÂÃƒÂÃ‚Â¼ÃƒÂÃ‚Â° ÃƒÂÃ‚Â½Ãƒâ€˜Ã‚ÂÃƒÂÃ‚ÂºÃƒÂÃ‚Â¾ÃƒÂÃ‚Â¹ ÃƒÂÃ‚Â¾Ãƒâ€˜Ã¢â‚¬Å¡ ÃƒÂÃ‚ÂºÃƒÂÃ‚Â»ÃƒÂÃ‚Â°Ãƒâ€˜Ã‚ÂÃƒÂÃ‚Â¾ÃƒÂÃ‚Â²ÃƒÂÃ‚ÂµÃƒâ€˜Ã¢â‚¬Å¡ÃƒÂÃ‚Âµ ÃƒÂÃ‚Â²ÃƒÂÃ‚ÂµÃƒâ€˜Ã¢â‚¬Â¡ÃƒÂÃ‚Âµ ÃƒÂÃ‚Â½ÃƒÂÃ‚Â°ÃƒÂÃ‚Â³ÃƒÂÃ‚Â¾Ãƒâ€˜Ã¢â€šÂ¬ÃƒÂÃ‚Âµ
 				if(right_to_left) {
 					o[x - (w + 10 + o.outerWidth()) < 0 ? "addClass" : "removeClass"]("vakata-context-left");
 				}
@@ -5925,7 +5941,7 @@
 					e.stopImmediatePropagation();
 
 					if($.contains(this, e.relatedTarget)) {
-						// ÃÂ¿Ã‘â‚¬ÃÂµÃÂ¼ÃÂ°Ã‘â€¦ÃÂ½ÃÂ°Ã‘â€šÃÂ¾ ÃÂ·ÃÂ°Ã‘â‚¬ÃÂ°ÃÂ´ÃÂ¸ delegate mouseleave ÃÂ¿ÃÂ¾-ÃÂ´ÃÂ¾ÃÂ»Ã‘Æ’
+						// ÃƒÂÃ‚Â¿Ãƒâ€˜Ã¢â€šÂ¬ÃƒÂÃ‚ÂµÃƒÂÃ‚Â¼ÃƒÂÃ‚Â°Ãƒâ€˜Ã¢â‚¬Â¦ÃƒÂÃ‚Â½ÃƒÂÃ‚Â°Ãƒâ€˜Ã¢â‚¬Å¡ÃƒÂÃ‚Â¾ ÃƒÂÃ‚Â·ÃƒÂÃ‚Â°Ãƒâ€˜Ã¢â€šÂ¬ÃƒÂÃ‚Â°ÃƒÂÃ‚Â´ÃƒÂÃ‚Â¸ delegate mouseleave ÃƒÂÃ‚Â¿ÃƒÂÃ‚Â¾-ÃƒÂÃ‚Â´ÃƒÂÃ‚Â¾ÃƒÂÃ‚Â»Ãƒâ€˜Ã†â€™
 						// $(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
 						return;
 					}
@@ -5938,7 +5954,7 @@
 						.parentsUntil(".vakata-context", "li").addBack().addClass("vakata-context-hover");
 					$.vakata.context._show_submenu(this);
 				})
-				// Ã‘â€šÃÂµÃ‘ÂÃ‘â€šÃÂ¾ÃÂ²ÃÂ¾ - ÃÂ´ÃÂ°ÃÂ»ÃÂ¸ ÃÂ½ÃÂµ ÃÂ½ÃÂ°Ã‘â€šÃÂ¾ÃÂ²ÃÂ°Ã‘â‚¬ÃÂ²ÃÂ°?
+				// Ãƒâ€˜Ã¢â‚¬Å¡ÃƒÂÃ‚ÂµÃƒâ€˜Ã‚ÂÃƒâ€˜Ã¢â‚¬Å¡ÃƒÂÃ‚Â¾ÃƒÂÃ‚Â²ÃƒÂÃ‚Â¾ - ÃƒÂÃ‚Â´ÃƒÂÃ‚Â°ÃƒÂÃ‚Â»ÃƒÂÃ‚Â¸ ÃƒÂÃ‚Â½ÃƒÂÃ‚Âµ ÃƒÂÃ‚Â½ÃƒÂÃ‚Â°Ãƒâ€˜Ã¢â‚¬Å¡ÃƒÂÃ‚Â¾ÃƒÂÃ‚Â²ÃƒÂÃ‚Â°Ãƒâ€˜Ã¢â€šÂ¬ÃƒÂÃ‚Â²ÃƒÂÃ‚Â°?
 				.on("mouseleave", "li", function (e) {
 					if($.contains(this, e.relatedTarget)) { return; }
 					$(this).find(".vakata-context-hover").addBack().removeClass("vakata-context-hover");

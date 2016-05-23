@@ -346,7 +346,7 @@ public class CommonQueryBuilder extends HttpServlet {
 		HashMap<String, Boolean> studyMap = new HashMap<>();
 		HashSet<String> setOfSampleIds = new HashSet<String>();
 		double zScore = -999;
-		Map<String,List<String>> studySampleMap = new HashMap<String,List<String>>();
+		Map<String,Map<String,ArrayList<Object>>> studySampleMap = new HashMap<String,Map<String,ArrayList<Object>>>();
 		try {
 			cancerStudyList = accessControl.getCancerStudies();
 
@@ -389,7 +389,18 @@ public class CommonQueryBuilder extends HttpServlet {
 				}
 				String[] values = sampleIds.split(" ");
 				List<String> samplesList = new ArrayList<String>(Arrays.asList(values));
-				studySampleMap.put(cancerStudyIdList[0],samplesList);
+				
+				Map<String,ArrayList<Object>> casesMap = new HashMap<String,ArrayList<Object>>();
+
+				ArrayList<Object> temp1_ = new ArrayList<>();
+				temp1_.addAll(samplesList);
+				casesMap.put("samplesList",temp1_);
+				ArrayList<Object> temp2_ = new ArrayList<>();
+				temp2_.add(sampleSetId);
+				casesMap.put("case_set_ids", temp2_);
+				
+				
+				studySampleMap.put(cancerStudyIdList[0],casesMap);
 
 				if (setOfSampleIds == null || setOfSampleIds.isEmpty()) {
 					redirectStudyUnavailable(httpServletRequest, httpServletResponse);
@@ -421,9 +432,18 @@ public class CommonQueryBuilder extends HttpServlet {
 						if (defaultSampleSet == null) {
 							continue;
 						}
+						
+						Map<String,ArrayList<Object>> casesMap = new HashMap<String,ArrayList<Object>>();
 
 						List<String> sampleIdsList = defaultSampleSet.getSampleList();
-						studySampleMap.put(cancerStudy.getCancerStudyStableId(), defaultSampleSet.getSampleList());
+						ArrayList<Object> temp1_ = new ArrayList<>();
+						temp1_.addAll(defaultSampleSet.getSampleList());
+						casesMap.put("samplesList",temp1_);
+						ArrayList<Object> temp2_ = new ArrayList<>();
+						temp2_.add(defaultSampleSet.getStableId());
+						casesMap.put("case_set_ids", temp2_);
+						
+						studySampleMap.put(cancerStudy.getCancerStudyStableId(), casesMap);
 						sampleIds += defaultSampleSet.getSampleListAsString();
 						setOfSampleIds.addAll(sampleIdsList);
 						// Get the default genomic profiles

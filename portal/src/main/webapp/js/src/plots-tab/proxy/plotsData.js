@@ -51,11 +51,11 @@ var plotsData = (function() {
             }
             
             var paramsGetProfileData = {  //webservice call to get profile data
-                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+                cancer_study_id: window.PlotsTab.cancerStudyId,
                 gene_list: $("#" + ids.sidebar[axis].gene).val(),
                 genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
-                case_set_id: window.QuerySession.getCaseSetId(),
-                case_ids_key: window.QuerySession.getCaseIdsKey()
+                case_set_id:  window.PlotsTab.CaseSetId,
+                case_ids_key: window.PlotsTab.CaseIdsKey
             };
 
             $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
@@ -74,9 +74,9 @@ var plotsData = (function() {
             
             var paramsGetClinicalAttributes = { //webservice call to get clinical data
                 cmd : "getClinicalData",
-                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-                case_set_id : window.QuerySession.getCaseSetId(),
-                case_ids_key: window.QuerySession.getCaseIdsKey(),
+                cancer_study_id: window.PlotsTab.cancerStudyId,
+                case_set_id :  window.PlotsTab.CaseSetId,
+                case_ids_key: window.PlotsTab.CaseIdsKey,
                 format : "json"
             };
             $.post("webservice.do", paramsGetClinicalAttributes, inner_callback_func, "json");
@@ -214,11 +214,11 @@ var plotsData = (function() {
                     };
 
                     var paramsGetProfileData = {  //webservice call to get profile data
-                        cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+                        cancer_study_id: window.PlotsTab.cancerStudyId,
                         gene_list: $("#" + ids.sidebar.y.gene).val(),
                         genetic_profile_id: cna_annotation_profile_name,
-                        case_set_id: window.QuerySession.getCaseSetId(),
-                        case_ids_key: window.QuerySession.getCaseIdsKey()
+                        case_set_id:  window.PlotsTab.CaseSetId,
+                        case_ids_key: window.PlotsTab.CaseIdsKey
                     };
                     $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
 

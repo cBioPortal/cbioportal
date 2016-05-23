@@ -397,8 +397,10 @@ public class DaoProteinArrayInfo {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE protein_array_info");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

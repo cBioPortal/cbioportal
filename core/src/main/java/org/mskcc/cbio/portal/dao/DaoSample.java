@@ -250,8 +250,10 @@ public class DaoSample {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoSample.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE sample");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         }
         catch (SQLException e) {
             throw new DaoException(e);

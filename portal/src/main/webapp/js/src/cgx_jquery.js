@@ -151,7 +151,7 @@ function bitlyURL(fullURL){
     /*testing - can not encode URI component when localhost is in URL.
               - uncomment following line when testing on localhost.
      */
-    //fullURL = fullURL.replace("localhost:8080/cgx","cbioportal.org/public-portal");
+    //fullURL = fullURL.replace("localhost","127.0.0.1");
 
     var defaults = {
         version: '3.0',

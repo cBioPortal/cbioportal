@@ -2923,8 +2923,8 @@
 					});
 
 					var $patientIcon = $('<i class="fa fa-lg fa-child jstree-node-decorator" style="cursor:pointer; padding-left:0.4em"></i>');
-					obj.append($patientIcon);
-					$patientIcon.mousedown(function(e) {
+					    obj.append($patientIcon);
+					    $patientIcon.mousedown(function(e) {
 						e.preventDefault();
 					});
 					$patientIcon.qtip({
@@ -2935,11 +2935,11 @@
 						hide: {delay: 0, fixed: true}
 					});
 					$patientIcon.click(function(e) {
-					e.preventDefault();
-					var caseId = prompt('Please enter a patient ID:', 'TCGA-A1-A0SB');
-					if (caseId) {
+					    e.preventDefault();
+					    var caseId = prompt('Please enter a patient ID:', 'TCGA-A1-A0SB');
+					    if (caseId) {
 						window.open('case.do?cancer_study_id='+node.id+'&case_id='+caseId);
-					}
+					    }
 					});
 				}
                            

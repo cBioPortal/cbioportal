@@ -357,15 +357,12 @@ public class ImportClinicalData extends ConsoleRunnable {
                         ClinicalAttribute.PATIENT_ATTRIBUTE);
                     attributeMap.put(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc]);
                 }
-                else if(!attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
-                    if (relaxed) {
-                        ProgressMonitor.logWarning("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
-                            "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
-                    }
-                    else {
-                        throw new RuntimeException("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
-                                "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);                        
-                    }
+                else if (!relaxed) {
+                    throw new RuntimeException("Error: Duplicated patient in file");
+                }
+                else if (!attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
+                    ProgressMonitor.logWarning("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
+                        "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
                 }
             }
             else if (internalSampleId != -1) {
@@ -374,15 +371,12 @@ public class ImportClinicalData extends ConsoleRunnable {
                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
                     attributeMap.put(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc]);
                 }
+                else if (!relaxed) {
+                    throw new RuntimeException("Error: Duplicated sample in file");
+                }
                 else if (!attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
-                    if (relaxed) {
-                        ProgressMonitor.logWarning("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
-                                "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
-                    }
-                    else {
-                        throw new RuntimeException("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
-                                "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);                        
-                    }
+                    ProgressMonitor.logWarning("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
+                        "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
                 }
             }
         }

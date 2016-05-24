@@ -96,33 +96,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", true);
-        importClinicalData.importData();
-        ConsoleUtil.showWarnings();
-	}
-	
-	
-    /**
-     * Test importing of Mixed Data File with sample duplication error.
-     *
-     * @throws DaoException Database Access Error.
-     * @throws IOException  IO Error.
-     */
-	@Test
-    public void testImportMixedDataNewStudy_WithDuplError() throws Exception {
-		//new dummy study to simulate importing clinical data in empty study:
-		CancerStudy cancerStudy = new CancerStudy("testnew2","testnew2","testnew2","brca",true);
-        DaoCancerStudy.addCancerStudy(cancerStudy);
-        
-        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew2");
-		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("src/test/resources/clinical_data_small_nonTCGA.txt");
-        // initialize an ImportClinicalData instance without args to parse
-        ImportClinicalData importClinicalData = new ImportClinicalData(null);
-        // set the info usually parsed from args
-        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", true);
-        
-        exception.expect(DaoException.class);
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
@@ -147,7 +121,7 @@ public class TestImportClinicalData {
         // set the info usually parsed from args
         importClinicalData.setFile(cancerStudy, clinicalFile, "PATIENT_ATTRIBUTES", false);
         
-        exception.expect(DaoException.class);
+        exception.expect(RuntimeException.class);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
@@ -171,7 +145,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", true);
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
@@ -230,7 +204,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", true);
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
 
         List<ClinicalParameterMap> slice = DaoClinicalData.getDataSlice(cancerStudy.getInternalId(), Arrays.asList("PLATINUMSTATUS"));
@@ -262,7 +236,7 @@ public class TestImportClinicalData {
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
         // set the info usually parsed from args
-        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", true);
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(cancerStudy.getInternalId());

@@ -29,6 +29,9 @@ before_script:
     # copy settings for core database
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
+
+script:
+    - export PORTAL_HOME=$(pwd)
     # run mysql db for core tests
     - |
         docker run --name core-tests-mysql \
@@ -38,9 +41,6 @@ before_script:
                  -e MYSQL_PASSWORD=somepassword \
                  -e MYSQL_DATABASE=cbioportal \
                  -d mysql:5.7.12
-
-script:
-    - export PORTAL_HOME=$(pwd)
     # core tests
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties

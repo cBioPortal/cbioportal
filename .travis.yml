@@ -1,4 +1,5 @@
 sudo: false
+# currently running maven on host node, but could use docker container instead
 language: java
 jdk: openjdk7
 
@@ -14,24 +15,28 @@ env:
     - MAVEN_VERSION=3.3.3
 
 install:
+    # download and install maven
     - mkdir -p ~/maven
     - |
         test -d ~/maven/$MAVEN_VERSION/bin || { \
             find ~/maven -mindepth 1 -delete && \
             mkdir -p ~/maven/$MAVEN_VERSION && \
-            wget -O - http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
+            wget -O - \
+                http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
                 tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
 
 before_script:
     # copy settings for core database
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
-    - docker run --name core-tests-mysql \
+    # run mysql db for core tests
+    - |
+        docker run --name core-tests-mysql \
                  -p 3306:3306 \
-                 -e MYSQL_USER=travis \
+                 -e MYSQL_USER=cbio_user \
                  -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
-                 -e MYSQL_PASSWORD=mypassword \
-                 -e MYSQL_DATABASE=cgds_test \
+                 -e MYSQL_PASSWORD=somepassword \
+                 -e MYSQL_DATABASE=cbioportal \
                  -d mysql:latest
 
 script:
@@ -39,15 +44,27 @@ script:
     # core tests
     - cp .travis/src/main/resources/portal.properties $PORTAL_HOME/src/main/resources/portal.properties
     - cp .travis/src/main/resources/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties
-    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic clean test
+    - |
+        ~/maven/$MAVEN_VERSION/bin/mvn \
+            -e -DPORTAL_HOME=$PORTAL_HOME \
+            -Ppublic \
+            clean test
     # end-to-end tests
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
-    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com clean install
+    - |
+        ~/maven/$MAVEN_VERSION/bin/mvn \
+            -e -DPORTAL_HOME=$PORTAL_HOME \
+            -Ppublic -DskipTests \
+            -Ddb.user=cbio_user \
+            -Ddb.password=cbio_pass \
+            -Ddb.portal_db_name=public_test \
+            -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ \
+            -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com \
+            clean install
     - java -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --expand-war portal/target/cbioportal.war &
     - sleep 20s
     - bash test/end-to-end/test_make_screenshots.sh
 
 notifications:
   slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6
-  

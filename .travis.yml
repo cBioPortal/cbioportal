@@ -44,7 +44,7 @@ script:
     # core tests
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
-    - echo 'show tables;' | mysql --user cbio_user --host=docker -P 3306 --password=somepassword cgds_test
+    - echo 'show tables;' | mysql --user cbio_user -P 3306 --password=somepassword cgds_test
     - |
         ~/maven/$MAVEN_VERSION/bin/mvn \
             -e -DPORTAL_HOME=$PORTAL_HOME \

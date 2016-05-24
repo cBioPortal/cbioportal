@@ -54,7 +54,21 @@ var StudyViewClinicalTabController = (function () {
                 }
             }
         });
-
+        
+        _.each(attr, function(item) {
+            if (item.attr_id === 'CASE_ID' || item.attr_id === 'PATIENT_ID') {
+                item.fixed = true;
+                if(StudyViewParams.params.studyId === 'mskimpact') {
+                    if (item.attr_id === 'CASE_ID') {
+                        item.column_width = 200;
+                    }
+                    if (item.attr_id === 'PATIENT_ID') {
+                        item.column_width = 160;
+                    }
+                }
+            }
+        });
+        
         testElement = React.createElement(EnhancedFixedDataTable, {
             input: {
                 data: data,
@@ -69,13 +83,15 @@ var StudyViewClinicalTabController = (function () {
             resultInfo: true,
             groupHeader: true,
             fixedChoose: true,
-            fixed: ["CASE_ID", 'PATIENT_ID'],
             uniqueId: "CASE_ID",
             rowHeight: 30,
             tableWidth: 1200,
             maxHeight: 500,
             headerHeight: 30,
-            groupHeaderHeight: 40
+            groupHeaderHeight: 40,
+            autoColumnWidth: false,
+            columnMaxWidth: 300,
+            columnSorting: true
         });
 
         ReactDOM.render(testElement, document.getElementById('clinical-data-table-div'));

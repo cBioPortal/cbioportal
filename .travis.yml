@@ -23,10 +23,12 @@ before_script:
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
     - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
-    - phantomjs --version
 
 script:
     - export PORTAL_HOME=$(pwd)
+    - cp .travis/src/main/resources/portal.properties $PORTAL_HOME/src/main/resources/portal.properties
+    - cp .travis/src/main/resources/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties
+    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic clean test
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
     - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com clean install

@@ -216,7 +216,7 @@
                 <div class="control-group">
                     <label class="control-label" for="mutation">Input Mutation Data File</label>
                     <div class="controls">
-                        <input id="mutation" name="mutation" type="file">
+                        <input id="mutation" name="mutation" type="file" name="files[]">
                     </div>
                 </div>
             </form>
@@ -237,7 +237,11 @@
 
         <div style="margin-top:20px;">
             <p>Please define the order of genes (optional).</p>
-            <textarea id="filter_example" rows=2 style="width:40%;"></textarea>
+            <textarea id="gene_order" rows=2 style="width:40%;"></textarea>
+        </div>
+        <div style="margin-top:20px;">
+            <p>Please define the order of samples (optional).</p>
+            <textarea id="sample_order" rows=2 style="width:40%;"></textarea>
         </div>
         <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Submit</button>
         <div id="error_msg" style="color:#ff0000"></div>
@@ -278,6 +282,13 @@
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     <!--<script src="js/src/oncoprint/oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/canvas-toBlob.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/zlib.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/png.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.addimage.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.png_support.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </script>

@@ -58,7 +58,7 @@ $(document).ready(function ()
     var nodeB = urlString[1];
 
     //Construct PC2 url from pop up url !
-    var pc2URL = "http://beta.pathwaycommons.org/pc2/";
+    var pc2URL = "http://www.pathwaycommons.org/pc2/";
     var format = "graph?format=SBGN";
     var kind = "&kind=PATHSBETWEEN";
     var sourceA = "&source="+nodeA;
@@ -412,8 +412,8 @@ $(document).ready(function ()
                     _.template($("#node-legend-template").html(), {}),
                     {
                       'autoDimensions': false,
-                      'width': 420,
-                      'height': 393,
+                      'width': 504,
+                      'height': 325,
                       'transitionIn': 'none',
                       'transitionOut': 'none',
                     });
@@ -442,8 +442,8 @@ $(document).ready(function ()
                     _.template($("#edge-legend-template").html(), {}),
                     {
                       'autoDimensions': false,
-                      'width': 400,
-                      'height': 220,
+                      'width': 325,
+                      'height': 285,
                       'transitionIn': 'none',
                       'transitionOut': 'none',
                     });

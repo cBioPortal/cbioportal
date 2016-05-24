@@ -37,7 +37,7 @@
 		None of the mutations can be mapped onto this structure.
 	</div>
 	<div class='mutation-3d-vis-loader'>
-		<img src='{{loaderImage}}'/>
+		<img src='{{loaderImage}}' alt='3d vis loader'/>
 	</div>
 	<div class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
@@ -89,7 +89,7 @@
 									       checked='checked'>
 									Display bound molecules
 								</label>
-								<img class='display-non-protein-help' src='{{helpImage}}'/>
+								<img class='display-non-protein-help' src='{{helpImage}}' alt='display non-protein help'/>
 							</td>
 						</tr>
 						<tr>
@@ -119,7 +119,7 @@
 									        title='Color by Atom Type'
 									        disabled='disabled'>atom type</option>
 								</select>
-								<img class='protein-struct-color-help' src='{{helpImage}}'/>
+								<img class='protein-struct-color-help' src='{{helpImage}}' alt='protein struct color help'/>
 							</td>
 						</tr>
 					</table>
@@ -147,7 +147,7 @@
 									<option value='none'
 									        title='Do not display side chains'>none</option>
 								</select>
-								<img class='display-side-chain-help' src='{{helpImage}}'/>
+								<img class='display-side-chain-help' src='{{helpImage}}' alt='display side-chain help'/>
 							</td>
 						</tr>
 						<tr>
@@ -188,7 +188,7 @@
 									<option value='none'
 									        title='Do not color'>none</option>
 								</select>
-								<img class='mutation-type-color-help' src='{{helpImage}}'/>
+								<img class='mutation-type-color-help' src='{{helpImage}}' alt='mutation type color help'/>
 							</td>
 						</tr>
 					</table>
@@ -284,6 +284,22 @@
 	Displays co-crystalized molecules.
 	This option has no effect if the current structure
 	does not contain any co-crystalized bound molecules.
+</script>
+<script type="text/template" id="mutation_info_panel_template">
+    <div class="mutation-info-panel-content">
+        <div class="mutation-info-panel-mutation-type">
+            {{mutationTypeContent}}
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="mutation_info_panel_type_template">
+    <span class='mutation-type-info'>
+        <span class="mutation-type-info-link" alt='{{mutationType}}'>
+            <span class='mutation-type-count {{countStyle}}'>{{count}}</span>
+            <span class='mutation-type-label {{textStyle}}'>{{type}}</span>
+        </span>
+	</span>
 </script>
 <script type="text/template" id="mutation_details_table_template">
 	<table class='display mutation_details_table'
@@ -402,7 +418,7 @@
 </script>
 
 <script type="text/template" id="mutation_table_placeholder_template">
-    <img width='{{width}}' height='{{height}}' src='{{loaderImage}}'/>
+    <img width='{{width}}' height='{{height}}' src='{{loaderImage}}' alt='loading'/>
 </script>
 
 <script type="text/template" id="mutation_table_mutation_count_template">
@@ -436,7 +452,7 @@
 	Predicted impact score: <b>{{impact}}</b>
 	<div class='mutation-assessor-main-link mutation-assessor-link'>
 		<a href='{{linkOut}}' target='_blank'>
-			<img height=15 width=19 src='images/ma.png'>
+			<img height=15 width=19 src='images/ma.png' alt='mutation assessor'>
 			Go to Mutation Assessor
 		</a>
 	</div>
@@ -472,7 +488,7 @@
 <script type="text/template" id="default_mutation_details_template">
 	<div class='mutation-3d-container'></div>
 	<div class='mutation-details-loader'>
-		<img src='{{loaderImage}}'/>
+		<img src='{{loaderImage}}' alt='mutation details loader'/>
 	</div>
 	<div class='mutation-details-content'>
 		<ul>
@@ -484,7 +500,7 @@
 
 <script type="text/template" id="default_mutation_details_main_content_template">
 	<div id='mutation_details_{{geneId}}'>
-		<img src='{{loaderImage}}'/>
+		<img src='{{loaderImage}}' alt='gene mutation details loader'/>
 	</div>
 </script>
 
@@ -510,8 +526,12 @@
 	<br>
 </script>
 
-<script type="text/template" id="mutation_view_template">
+<script type="text/template" id="mutation_summary_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
+</script>
+
+<script type="text/template" id="mutation_view_template">
+	<div class='mutation-summary-view'></div>
 	<div>
 		<table>
 			<tr>
@@ -528,13 +548,12 @@
 	<div class='mutation-details-no-data-info'>
 		There are no {{geneSymbol}} mutations in the selected samples.
 	</div>
+	<div class='mutation-info-panel-container'></div>
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
 	</div>
-	<div class='mutation-table-container'>
-		<img src='images/ajax-loader.gif'/>
-	</div>
+	<div class='mutation-table-container'></div>
 </script>
 
 <script type="text/template" id="mutation_diagram_view_template">
@@ -715,7 +734,7 @@
 </script>
 <script type="text/template" id="pdb_table_view_template">
 	<div class='pdb-chain-table-loader'>
-		<img src='{{loaderImage}}'/>
+		<img src='{{loaderImage}}' alt='chain table loader'/>
 	</div>
 	<table>
 		<tr>

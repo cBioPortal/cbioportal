@@ -357,10 +357,15 @@ NetworkVis.prototype._createMergingEdges = function()
 /**
 * Hides interaction source popup
  */
-NetworkVis.prototype._closeInteractionSourcePopUp = function ()
+NetworkVis.prototype._closeInteractionSourcePopUp = function (closeWithLayout)
 {
   this.updateEdges();
   $(this.interactionSourceVisibilitySelector).dialog('close');
+
+  if (closeWithLayout) {
+    // visualization changed, perform layout if necessary
+    this._visChanged();
+  }
 }
 
 /**
@@ -1886,14 +1891,20 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
         var highlightedElements = nodes[i].neighborhood();
         highlightedElements = highlightedElements.add(nodes[i]);
         highlightedElements.data('highlighted', 'true');
-
-        this._vis.nodes(":visible").css("show-details", "false");
-        this._vis.nodes(":visible").nodes("[highlighted!='true']").css(this.notHighlightNodeCSS);
-        this._vis.edges(":visible").edges("[highlighted!='true']").css(this.notHighlightEdgeCSS);
-        this._vis.nodes(":visible").nodes("[highlighted='true']").removeCss();
-        this._vis.edges(":visible").edges("[highlighted='true']").removeCss();
       }
     }
+
+    this._vis.nodes(":visible").css("show-details", "false");
+    this._vis.nodes(":visible").nodes("[highlighted!='true']").css(this.notHighlightNodeCSS);
+    this._vis.edges(":visible").edges("[highlighted!='true']").css(this.notHighlightEdgeCSS);
+    this._vis.nodes(":visible").nodes("[highlighted='true']").removeCss();
+    this._vis.edges(":visible").edges("[highlighted='true']").removeCss();
+
+    this._vis.layout({
+      'name': 'preset',
+      'fit':  'false'
+    });
+
 };
 
 /**
@@ -1907,6 +1918,11 @@ NetworkVis.prototype._removeHighlights = function()
   this._vis.edges(":visible").edges("[highlighted!='true']").removeCss();
   this._vis.nodes(":visible").nodes().removeData("highlighted");
   this._vis.edges(":visible").edges().removeData("highlighted");
+
+  this._vis.layout({
+    'name': 'preset',
+    'fit':  'false'
+  });
 };
 
 /**
@@ -2535,13 +2551,13 @@ NetworkVis.prototype._initDialogs = function()
     $(this.interactionTypeVisibilitySelector).dialog({autoOpen: false,
                                    resizable: false,
                                    width: 300,
-                                   close: function( event, ui ) {self._closeInteractionTypePopUp()}});
+                                   close: function( event, ui ) {self._closeInteractionTypePopUp(false)}});
 
    //adjust edge source UI visibility dialog
    $(this.interactionSourceVisibilitySelector).dialog({autoOpen: false,
                                   resizable: false,
                                   width: 300,
-                                  close: function( event, ui ) {self._closeInteractionSourcePopUp()}});
+                                  close: function( event, ui ) {self._closeInteractionSourcePopUp(false)}});
 };
 
 /**
@@ -3458,11 +3474,11 @@ NetworkVis.prototype._initControlFunctions = function()
     };
 
     var closeInteractionTypePopUp = function () {
-        self._closeInteractionTypePopUp();
+        self._closeInteractionTypePopUp(true);
     };
 
     var closeInteractionSourcePopUp = function () {
-        self._closeInteractionSourcePopUp();
+        self._closeInteractionSourcePopUp(true);
     };
 
     var selectAll_InteractionTypeVisibility = function () {
@@ -3713,7 +3729,7 @@ NetworkVis.prototype._performLayout = function()
       //TODO layout options will be changed
 
     //Perform layout only on visible elements !
-    this._vis.filter(':visible').layout(this._graphLayout);
+    this._vis./*filter(':visible').*/layout(this._graphLayout);
 };
 
 /**

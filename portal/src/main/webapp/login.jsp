@@ -117,7 +117,7 @@
                   <input type="hidden" name="action" value="verify" />
                   <p/>
 
-                <% } else if (authenticationMethod.equals("ad")) { %>
+                <% } else if (authenticationMethod.equals("ad") || authenticationMethod.equals("ldap")) { %>
                   <form name='loginForm' action="<c:url value='j_spring_security_check' />" method='POST'>
                 <% } %>
 
@@ -163,7 +163,7 @@
                   </p>
                 </fieldset>
 
-                <% } else if (authenticationMethod.equals("ad")){ %>
+                <% } else if (authenticationMethod.equals("ad") || authenticationMethod.equals("ldap")){ %>
                   <div>
                     <label for=username>Username: </label> <input type='text' id='username' name='j_username' value=''>  <br/>
                     <label for=password>Password: </label> <input type='password' name='j_password' /> <br/>

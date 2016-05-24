@@ -192,7 +192,7 @@
                         "title=\"Send data matrix to GenomeSpace.\" " +
                         "href=\"#\" onclick=\"prepGSLaunch($('#main_form'), " +
                         "$('#select_single_study').val(), " +
-                        "$('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"\"/></a>");
+                        "$('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"Send to GenomeSpace\"/></a>");
         }
     }
 %>

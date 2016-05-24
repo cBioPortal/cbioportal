@@ -181,11 +181,15 @@ function bitlyURL(fullURL){
     });
 }
 
+function addURLBookmark() {
+    displayBookmark(window.location.href, window.location.href.split("?")[0] + "?...");
+}
+
 /* 
 This function accepts as an argument the session 
 to be saved as a JSON string 
 */
-function saveSession(fullURL, sessionJSON) {
+function addSessionServiceBookmark(fullURL, sessionJSON) {
     // if user got here with a bookmark, just display that, don't create a bookmark of a bookmark
     var bookmarkPattern = /session-id=/ 
     if (bookmarkPattern.test(fullURL)) {
@@ -208,7 +212,7 @@ function saveSession(fullURL, sessionJSON) {
 	            $('#session-id').append("An unknown error occurred. Unable to store your session.");
 	        } else {
 	            var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id']; 
-	            displayBookmark(bookmark);
+	            displayBookmark(bookmark, bookmark);
 	        }
 	    }).fail(function(jqXHR) {
             $('#session-id').append("An error occurred. Unable to store your session.");
@@ -216,7 +220,7 @@ function saveSession(fullURL, sessionJSON) {
     } 
 }
 
-function displayBookmark(bookmark) {
-    $("#session-id").html("<a href='" + bookmark + "'>" + bookmark + "</a>");
-    bitlyURL(bookmark);
+function displayBookmark(bookmarkURL, bookmarkDisplay) {
+    $("#session-id").html("<a href='" + bookmarkURL + "'>" + bookmarkDisplay + "</a>");
+    bitlyURL(bookmarkURL);
 }

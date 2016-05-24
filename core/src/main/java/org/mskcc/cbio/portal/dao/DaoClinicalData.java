@@ -488,6 +488,15 @@ public final class DaoClinicalData {
 	 * Previous DaoClinicalData class methods (accessors only)
 	 *********************************************************/
 	
+    /**
+     * Returns the survival data for the given patientSet, NOT necessarily in the 
+     * same order as the patientSet.
+     * 
+     * @param cancerStudyId: the cancerstudy internal id
+     * @param patientSet: set of patient ids
+     * @return
+     * @throws DaoException
+     */
 	public static List<Patient> getSurvivalData(int cancerStudyId, Collection<String> patientSet) throws DaoException {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
             List<ClinicalData> data = getData(cancerStudyId, patientSet);

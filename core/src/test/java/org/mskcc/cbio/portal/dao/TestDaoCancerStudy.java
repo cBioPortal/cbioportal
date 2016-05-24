@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
 /**
  * JUnit Tests for DaoCancer Study.
  *
- * @author Arman Aksoy, Ethan Cerami, Arthur Goldberg.
+ * @author Arman Aksoy, Ethan Cerami, Arthur Goldberg, Ersin Ciftci.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
@@ -85,18 +85,16 @@ public class TestDaoCancerStudy {
         assertEquals("GBM", cancerStudy.getName());
         assertEquals("Glioblastoma", cancerStudy.getDescription());
 
-        cancerStudy.setName("Breast");
-        cancerStudy.setCancerStudyStablId("breast");
-        cancerStudy.setDescription("Breast Description");
-        DaoCancerStudy.addCancerStudy(cancerStudy);
+        CancerStudy cancerStudy2 = new CancerStudy("Breast", "Breast Description", "breast", "brca", false);
+        DaoCancerStudy.addCancerStudy(cancerStudy2);
         
         // Removed testing that depends on internal ids
         // assertEquals(3, cancerStudy.getInternalId());
-        int testInternalId = cancerStudy.getInternalId();
+        int testInternalId = cancerStudy2.getInternalId();
 
-        cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(testInternalId);
-        assertEquals("Breast Description", cancerStudy.getDescription());
-        assertEquals("Breast", cancerStudy.getName());
+        cancerStudy2 = DaoCancerStudy.getCancerStudyByInternalId(testInternalId);
+        assertEquals("Breast Description", cancerStudy2.getDescription());
+        assertEquals("Breast", cancerStudy2.getName());
 
         ArrayList<CancerStudy> list = DaoCancerStudy.getAllCancerStudies();
         assertEquals(3, list.size());
@@ -109,10 +107,16 @@ public class TestDaoCancerStudy {
         assertTrue(DaoCancerStudy.doesCancerStudyExistByInternalId(cancerStudy.getInternalId()));
         assertFalse(DaoCancerStudy.doesCancerStudyExistByInternalId(-1));
 
-        DaoCancerStudy.deleteCancerStudy(cancerStudy.getInternalId());
+        DaoCancerStudy.deleteCancerStudy(cancerStudy2.getInternalId());
 
         list = DaoCancerStudy.getAllCancerStudies();
         assertEquals(2, list.size());
+
+        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("gbm");
+        DaoCancerStudy.deleteCancerStudy(cancerStudy.getInternalId());
+
+        list = DaoCancerStudy.getAllCancerStudies();
+        assertEquals(1, list.size());
     }
 
     /**
@@ -168,18 +172,7 @@ public class TestDaoCancerStudy {
         assertEquals(3, DaoCancerStudy.getCount());
         DaoCancerStudy.deleteCancerStudy(readCancerStudy2.getInternalId());
         assertEquals(2, DaoCancerStudy.getCount());
+        DaoCancerStudy.deleteCancerStudy(readCancerStudy3.getInternalId());
+        assertEquals(1, DaoCancerStudy.getCount());
 	}
-	
-    // Deleting all cancer studies is now a wee bit more complicated. It's transactional. 
-    // A lot depends on it, and its API should not be exposed all that easily.
-    
-	@Ignore
-	@Test
-	public void testDeleteAllRecords() throws DaoException, IOException {
-        
-        DaoCancerStudy.deleteAllRecords();
-        
-        assertEquals(2, DaoCancerStudy.getCount());
-        assertEquals(null, DaoCancerStudy.getCancerStudyByInternalId(CancerStudy.NO_SUCH_STUDY));
-    }
 }

@@ -1,11 +1,9 @@
-sudo: true
+sudo: false
 language: java
 jdk: openjdk7
 
 services:
-    - mysql
     - docker
-
 
 cache:
     directories:
@@ -25,16 +23,24 @@ install:
                 tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
 
 before_script:
+    # copy settings for core database
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
-    - sudo apt-get install mysql
-    - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
+    - docker run --name core-tests-mysql \
+                 -p 3306:3306 \
+                 -e MYSQL_USER=travis \
+                 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+                 -e MYSQL_PASSWORD=mypassword \
+                 -e MYSQL_DATABASE=cgds_test \
+                 -d mysql:latest
 
 script:
     - export PORTAL_HOME=$(pwd)
+    # core tests
     - cp .travis/src/main/resources/portal.properties $PORTAL_HOME/src/main/resources/portal.properties
     - cp .travis/src/main/resources/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties
     - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic clean test
+    # end-to-end tests
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
     - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com clean install

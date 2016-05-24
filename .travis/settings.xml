@@ -4,7 +4,7 @@
     <server>
       <id>settingsKey</id>
       <username>travis</username>
-      <password></password>
+      <password>mypassword</password>
    </server>
  </servers>
 </settings>

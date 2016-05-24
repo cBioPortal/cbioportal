@@ -143,7 +143,7 @@ var comparator_utils = {
 	    } else if (!distinguish_mutation_types && distinguish_recurrent) {
 		_order = makeComparatorMetric([['INFRAME_rec', 'MISSENSE_rec'], ['FUSION', 'FUSION_rec', 'INFRAME', 'MISSENSE', 'TRUNC', 'TRUNC_rec'], undefined]); 
 	    } else {
-		_order = makeComparatorMetric([['FUSION', 'FUSION_rec'], 'INFRAME_rec', 'MISSENSE_rec', 'INFRAME', 'MISSENSE', ['TRUNC', 'TRUNC_rec'], undefined, true, false]);
+		_order = makeComparatorMetric([['FUSION', 'FUSION_rec'], ['TRUNC', 'TRUNC_rec'], 'INFRAME_rec', 'MISSENSE_rec', 'INFRAME', 'MISSENSE',  undefined, true, false]);
 	    }
 	    return function(m) {
 		return _order[m];

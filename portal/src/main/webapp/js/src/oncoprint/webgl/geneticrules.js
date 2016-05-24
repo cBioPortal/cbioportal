@@ -147,18 +147,6 @@ window.geneticrules.genetic_rule_set_same_color_for_all_no_recurrence = {
     'legend_label': 'Genetic Alteration',
     'rule_params': $.extend({}, non_mutation_rule_params, {
 	'mut_type': {
-	    'MISSENSE,INFRAME,TRUNC': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': MISSENSE,
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z': 5.2
-		}],
-		legend_label: 'Mutation'
-	    },
 	    'FUSION': {
 		shapes: [{
 			'type': 'rectangle',
@@ -170,6 +158,18 @@ window.geneticrules.genetic_rule_set_same_color_for_all_no_recurrence = {
 			'z': 5.1
 		    }],
 		legend_label: 'Fusion'
+	    },
+	    'TRUNC,INFRAME,MISSENSE': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': MISSENSE,
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+			'z': 5.2
+		}],
+		legend_label: 'Mutation'
 	    }
 	}
     })
@@ -180,18 +180,6 @@ window.geneticrules.genetic_rule_set_same_color_for_all_recurrence = {
     'rule_params': $.extend({}, non_mutation_rule_params, {
 	'mut_type_recurrence': {
 	    // only need to show recurrence for missense and inframe
-	    'MISSENSE_rec,INFRAME_rec': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': MISSENSE,
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z': 5.2
-		}],
-		legend_label: 'Mutation (recurrent)'
-	    },
 	    'FUSION_rec,FUSION': {
 		shapes: [{
 			'type': 'rectangle',
@@ -203,6 +191,18 @@ window.geneticrules.genetic_rule_set_same_color_for_all_recurrence = {
 			'z': 5.1
 		    }],
 		legend_label: 'Fusion'
+	    },
+	    'MISSENSE_rec,INFRAME_rec': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': MISSENSE,
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+			'z': 5.2
+		}],
+		legend_label: 'Mutation (recurrent)'
 	    },
 	    'MISSENSE,INFRAME,TRUNC,TRUNC_rec': { 
 		shapes: [{
@@ -224,29 +224,17 @@ window.geneticrules.genetic_rule_set_different_colors_no_recurrence = {
     'legend_label': 'Genetic Alteration',
     'rule_params': $.extend({}, non_mutation_rule_params, {
 	'mut_type': {
-	    'MISSENSE': {
+	    'FUSION': {
 		shapes: [{
 			'type': 'rectangle',
-			'fill': MISSENSE,
+			'fill': FUSION,
 			'x': '0%',
-			'y': '33.33%',
+			'y': '20%',
 			'width': '100%',
-			'height': '33.33%',
-			'z': 5.2,
+			'height': '60%',
+			'z': 5.1
 		    }],
-		legend_label: 'Missense Mutation',
-	    },
-	    'INFRAME': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': INFRAME,
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z': 5.2,
-		    }],
-		legend_label: 'Inframe Mutation',
+		legend_label: 'Fusion'
 	    },
 	    'TRUNC': {
 		shapes: [{
@@ -260,7 +248,39 @@ window.geneticrules.genetic_rule_set_different_colors_no_recurrence = {
 		    }],
 		legend_label: 'Truncating Mutation',
 	    },
-	    'FUSION': {
+	    'INFRAME': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': INFRAME,
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+			'z': 5.2,
+		    }],
+		legend_label: 'Inframe Mutation',
+	    },
+	    'MISSENSE': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': MISSENSE,
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+			'z': 5.2,
+		    }],
+		legend_label: 'Missense Mutation',
+	    },
+	}
+    })
+};
+window.geneticrules.genetic_rule_set_different_colors_recurrence = {
+    'type':'gene',
+    'legend_label': 'Genetic Alteration',
+    'rule_params': $.extend({}, non_mutation_rule_params, {
+	'mut_type_recurrence': {
+	    'FUSION,FUSION_rec': {
 		shapes: [{
 			'type': 'rectangle',
 			'fill': FUSION,
@@ -271,38 +291,18 @@ window.geneticrules.genetic_rule_set_different_colors_no_recurrence = {
 			'z': 5.1
 		    }],
 		legend_label: 'Fusion'
-	    }
-	}
-    })
-};
-window.geneticrules.genetic_rule_set_different_colors_recurrence = {
-    'type':'gene',
-    'legend_label': 'Genetic Alteration',
-    'rule_params': $.extend({}, non_mutation_rule_params, {
-	'mut_type_recurrence': {
-	    'MISSENSE_rec': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': MISSENSE,
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z': 5.2,
-		    }],
-		legend_label: 'Missense Mutation (recurrent)',
 	    },
-	    'MISSENSE': {
+	    'TRUNC,TRUNC_rec': {
 		shapes: [{
 			'type': 'rectangle',
-			'fill': MISSENSE_NONREC,
+			'fill': TRUNC,
 			'x': '0%',
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
 			'z': 5.2,
 		    }],
-		legend_label: 'Missense Mutation (non-recurrent)',
+		legend_label: 'Truncating Mutation',
 	    },
 	    'INFRAME_rec': {
 		shapes: [{
@@ -328,30 +328,30 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 		    }],
 		legend_label: 'Inframe Mutation (non-recurrent)',
 	    },
-	    'TRUNC,TRUNC_rec': {
+	    'MISSENSE_rec': {
 		shapes: [{
 			'type': 'rectangle',
-			'fill': TRUNC,
+			'fill': MISSENSE,
 			'x': '0%',
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
 			'z': 5.2,
 		    }],
-		legend_label: 'Truncating Mutation',
+		legend_label: 'Missense Mutation (recurrent)',
 	    },
-	    'FUSION,FUSION_rec': {
+	    'MISSENSE': {
 		shapes: [{
 			'type': 'rectangle',
-			'fill': FUSION,
+			'fill': MISSENSE_NONREC,
 			'x': '0%',
-			'y': '20%',
+			'y': '33.33%',
 			'width': '100%',
-			'height': '60%',
-			'z': 5.1
+			'height': '33.33%',
+			'z': 5.2,
 		    }],
-		legend_label: 'Fusion'
-	    }
+		legend_label: 'Missense Mutation (non-recurrent)',
+	    },
 	}
     })
 };

@@ -131,20 +131,22 @@ public class DaoTypeOfCancer {
       }
    }
 
-   public static void deleteAllRecords() throws DaoException {
-      Connection con = null;
-      PreparedStatement pstmt = null;
-      ResultSet rs = null;
-      try {
-         con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
-         pstmt = con.prepareStatement("TRUNCATE TABLE type_of_cancer");
-         pstmt.executeUpdate();
-      } catch (SQLException e) {
-         throw new DaoException(e);
-      } finally {
-         JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
-      }
-   }
+    public static void deleteAllRecords() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
+            JdbcUtil.disableForeignKeyCheck(con);
+            pstmt = con.prepareStatement("TRUNCATE TABLE type_of_cancer");
+            pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
+        }
+    }
 
    public static void deleteTypeOfCancer(String typeOfCancerId) throws DaoException {
       Connection con = null;

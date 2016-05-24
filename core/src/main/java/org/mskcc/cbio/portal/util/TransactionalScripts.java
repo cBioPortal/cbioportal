@@ -1,5 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class TransactionalScripts implements Runnable {
 			String args[] = (String[])ArrayUtils.remove(command, 0);
 			
 			// Now let's look for the class
-			Class scriptClass;
+			Class<?> scriptClass;
 			try {
 				scriptClass = getClass().getClassLoader().loadClass(className);
 			} catch (ClassNotFoundException e) {
@@ -48,26 +49,31 @@ public class TransactionalScripts implements Runnable {
 			}
 			
 			try {
-				Method method = scriptClass.getMethod("main", String[].class);
-				Object result = method.invoke(null, new Object[] { args });
-				if (result != null && result.toString() != "0") {
-					throw new RuntimeException("Nonzero exit status from: " + className + ", exit: " + result.toString());
+				Constructor<?>[] ctors = scriptClass.getDeclaredConstructors();
+				Constructor<?> ctor = null;
+				for (int i = 0; i < ctors.length; i++) {
+				    ctor = ctors[i];
+				    if (ctor.getGenericParameterTypes().length == 1)
+					break;
 				}
-			} catch (NoSuchMethodException e) {
+				
+				Runnable newInstance = (Runnable) ctor.newInstance(new Object[] { args });
+				newInstance.run();				
+			} catch (InstantiationException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't find main method in: " + className, e);
+				throw new NestableRuntimeException("Can't find instantiate runner for: " + className, e);
 			} catch (SecurityException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't access main method in: " + className, e);
+				throw new NestableRuntimeException("Can't access run() method in: " + className, e);
 			} catch (IllegalAccessException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Invalid access to main method in: " + className, e);
+				throw new NestableRuntimeException("Invalid access to run() method in: " + className, e);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Invalid arguments for main method in: " + className, e);
+				throw new NestableRuntimeException("Invalid arguments for run() method in: " + className, e);
 			} catch (InvocationTargetException e) {
 				e.printStackTrace(System.err);
-				throw new NestableRuntimeException("Can't call main method in: " + className, e);
+				throw new NestableRuntimeException("Can't call run() method in: " + className, e);
 			}
 		}
 	}

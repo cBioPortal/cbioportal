@@ -71,6 +71,9 @@
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
     String userName = GlobalProperties.getAuthenticatedUserName();
 
+    //are we using session service for bookmarking?
+    boolean useSessionServiceBookmark = !StringUtils.isBlank(GlobalProperties.getSessionServiceUrl());
+
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
@@ -181,7 +184,11 @@ if (sessionError != null) {  %>
         });
 
         $("#cc-bookmark-link").click(function() {
-            saveSession(window.location.href, $(this).data('session'));
+            <% if (useSessionServiceBookmark) { %>
+            addSessionServiceBookmark(window.location.href, $(this).data('session'));
+            <% } else { %>
+            addURLBookmark();
+            <% } %>
         }); 
 
     });
@@ -205,7 +212,11 @@ if (sessionError != null) {  %>
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
             </li>
             <li>
+                <% if (useSessionServiceBookmark) { %>
                 <a href='#cc-bookmark' id='cc-bookmark-link' class='result-tab' title="Bookmark or generate a URL for email" data-session='<%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>'>
+                <% } else { %>
+                <a href='#cc-bookmark' id='cc-bookmark-link' class='result-tab' title="Bookmark or generate a URL for email">
+                <% } %>
                     Bookmark
                 </a>
             </li>
@@ -293,7 +304,6 @@ if (sessionError != null) {  %>
 
         <div class="section" id="cc-bookmark">
             <h4>Right click on one of the links below to bookmark your results:</h4>
-            <br/>
             <br/>
             <div id='session-id'></div>
             <br/>

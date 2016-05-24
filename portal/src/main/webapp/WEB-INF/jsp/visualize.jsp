@@ -150,20 +150,31 @@
                 out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
-            out.print ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab' data-session='");
-            out.print (new ObjectMapper().writeValueAsString(request.getParameterMap()));
-            out.println ("'>Bookmark</a></li>");
+            out.print ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'");
+            if (useSessionServiceBookmark) {
+                out.print (" data-session='");
+                out.print (new ObjectMapper().writeValueAsString(request.getParameterMap()));
+                out.print ("'");
+            } 
+            out.println (">Bookmark</a></li>");
             out.println ("</ul>");
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
-            out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
-            out.println("<br>");
-            out.println("<div id='session-id'></div>");
-            out.println("<br>");
-            out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
-            out.println("<div id='bitly'></div>");
-
+            if (!useSessionServiceBookmark && sampleSetId.equals("-1"))
+            {
+                out.println("<br>");
+                out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
+            } 
+            else 
+            {
+                out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
+                out.println("<br>");
+                out.println("<div id='session-id'></div>");
+                out.println("<br>");
+                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
+                out.println("<div id='bitly'></div>");
+            }
             out.println("</div>");
     %>
 
@@ -289,7 +300,11 @@
 
 
         $("#bookmark-result-tab").click(function() {
-            saveSession(window.location.href, $(this).data('session'));
+            <% if (useSessionServiceBookmark) { %>
+            addSessionServiceBookmark(window.location.href, $(this).data('session'));
+            <% } else { %>
+            addURLBookmark();
+            <% } %>
         });
 
         //qtips

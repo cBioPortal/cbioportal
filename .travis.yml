@@ -39,12 +39,18 @@ script:
                  -e MYSQL_USER=cbio_user \
                  -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
                  -e MYSQL_PASSWORD=somepassword \
-                 -e MYSQL_DATABASE=cbioportal \
+                 -e MYSQL_DATABASE=cgds_test \
                  -d mysql:5.7.12
     # core tests
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
     - echo 'show tables;' | mysql --user cbio_user -h 127.0.0.1 -P 3306 --password=somepassword cgds_test
+    - |
+        docker run --rm --link=core-tests-mysql:db \
+            -e PORTAL_HOME=/cbioportal \
+            -v $PWD:/cbioportal \
+            mysql:5.7.12 \
+                /bin/bash -c 'echo "show tables;" | mysql --user cbio_user --host=db -P 3306 --password=somepassword cgds_test'
     - docker ps
     - docker inspect core-tests-mysql
     - |

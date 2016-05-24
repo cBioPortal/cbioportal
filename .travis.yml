@@ -44,10 +44,12 @@ script:
     # core tests
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
-    - echo 'show tables;' | mysql --user cbio_user -P 3306 --password=somepassword cgds_test
+    - echo 'show tables;' | mysql --user cbio_user -h 127.0.0.1 -P 3306 --password=somepassword cgds_test
     - |
         ~/maven/$MAVEN_VERSION/bin/mvn \
             -e -DPORTAL_HOME=$PORTAL_HOME \
+            -Ddb.host=127.0.0.1 \
+            -Ddb.connection_string=jdbc:mysql://127.0.0.1:3306/ \
             -Ppublic \
             clean test
     # end-to-end tests

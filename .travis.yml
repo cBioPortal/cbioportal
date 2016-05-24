@@ -1,6 +1,11 @@
-sudo: false
+sudo: true
 language: java
 jdk: openjdk7
+
+services:
+    - mysql
+    - docker
+
 
 cache:
     directories:
@@ -22,6 +27,7 @@ install:
 before_script:
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
+    - sudo apt-get install mysql
     - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
 
 script:

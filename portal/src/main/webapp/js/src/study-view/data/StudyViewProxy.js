@@ -235,6 +235,11 @@ var StudyViewProxy = (function() {
                             _allSampleIds = _parts[4].trim().split(' ');
                         }
                     }
+
+                    //For efficient comparing, see StudyViewUtil.intersection
+                    _allSampleIds = _allSampleIds.sort();
+                    _sequencedSampleIds = _sequencedSampleIds.sort();
+                    _cnaSampleIds = _cnaSampleIds.sort();
                     
                     obtainDataObject.sequencedSampleIds = 
                             _sequencedSampleIds.length>0 ? _sequencedSampleIds : _allSampleIds;

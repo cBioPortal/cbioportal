@@ -81,7 +81,7 @@ public class AccessControlImpl implements AccessControl {
             //  sort the list
             Collections.sort(accessibleCancerStudies, new CancerStudiesComparator());
 
-            //  Then, insert "All" Cancer Types at beginning
+            //  Then, insert "All" Cancer Types at beginning  //TODO - fix this! It conflicts with ALL (Acute Lymphoid Leukemia)!
             ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
 			String allCancerStudyTitle = (GlobalProperties.usersMustBeAuthorized()) ?
 				"All Authorized Cancer Studies" : "All Cancer Studies";

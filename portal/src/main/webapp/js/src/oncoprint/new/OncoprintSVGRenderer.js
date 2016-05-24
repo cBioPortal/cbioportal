@@ -31,16 +31,12 @@
 	var events = oncoprint_events;
 	var utils = oncoprint_utils;
 
-	var TOOLBAR_CONTAINER_CLASS = 'oncoprint-toolbar-ctr';
 	var LABEL_AREA_CONTAINER_CLASS = 'oncoprint-label-area-ctr';
 	var CELL_AREA_CONTAINER_CLASS = 'oncoprint-cell-area-ctr';
 	var CELL_AREA_CLASS = 'oncoprint-cell-area';
 	var COLUMN_HIGHLIGHT_CLASS = 'oncoprint-column-highlight'
 	
-	var CELL_HOVER_CLASS = 'oncoprint-cell-hover';
-	var LEGEND_HEADER_CLASS = 'oncoprint-legend-header';
 	var LABEL_DRAGGING_CLASS = 'oncoprint-label-dragging';
-	var LABEL_DRAGGABLE_CLASS = 'oncoprint-label-draggable';
 	var CELL_QTIP_CLASS = 'oncoprint-cell-qtip';
 
 	function OncoprintSVGRenderer(container_selector_string, oncoprint, config) {
@@ -720,8 +716,7 @@
 				var pos = $(text_elt.node()).offset();
 				var text = text_elt.text();
 				svg.append('text').style('font-family', font).style('font-weight', weight).style('font-size', size)
-						.attr('transform', utils.translate(pos.left - root.left,pos.top - root.top))
-						.style('alignment-baseline', 'text-before-edge')
+						.attr('transform', utils.translate(pos.left - root.left,pos.top - root.top + parseInt(size)))
 						.text(text);	
 			});
 		})();
@@ -762,8 +757,7 @@
 							var pos = $(text_elt.node()).offset();
 							svg.append('text').style('font-family', font).style('font-weight', weight)
 								.style('font-size', size)
-								.attr('transform', utils.translate(pos.left - root.left, pos.top - root.top))
-								.style('alignment-baseline', 'hanging')
+								.attr('transform', utils.translate(pos.left - root.left, pos.top - root.top + parseInt(size)))
 								.text(text);
 						} else if (this.tagName.toLowerCase() === 'svg') {
 							var elt = d3.select(this);

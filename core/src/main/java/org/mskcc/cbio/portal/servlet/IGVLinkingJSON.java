@@ -32,17 +32,25 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.json.simple.JSONObject;
-import org.mskcc.cbio.portal.util.IGVLinking;
-
-import org.json.simple.JSONValue;
-
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.IGVLinking;
+
+import com.google.common.base.Joiner;
 
 /**
  *
@@ -50,6 +58,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class IGVLinkingJSON extends HttpServlet {
 
+	public static final String CMD = "cmd";
     public static final String CANCER_STUDY_ID = "cancer_study_id";
     public static final String CASE_ID = "case_id";
 	public static final String LOCUS = "locus"; // IGV locus string, e.g. chr1:000-200
@@ -57,6 +66,7 @@ public class IGVLinkingJSON extends HttpServlet {
 	private static final int CANCER_STUDY_ID_INDEX = 0;
 	private static final int CASE_ID_INDEX = 1;
 	private static final int LOCUS_INDEX = 2;
+	private static final String GENE_LIST = "gene_list";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -72,32 +82,57 @@ public class IGVLinkingJSON extends HttpServlet {
         processRequest(request, response);
     }
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException
-	{
+	protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String cmd = request.getParameter(CMD);
+		response.setContentType("application/json");
+		PrintWriter out = response.getWriter();
 		JSONObject igvArgs = new JSONObject();
+		try {
+			if ((cmd != null) && (cmd.equals("get_igv_args"))) {
+				String cancerStudyStableId = request.getParameter(CANCER_STUDY_ID);
+				cancerStudyStableId = cancerStudyStableId == null ? "" : cancerStudyStableId;
+				String geneList = request.getParameter(GENE_LIST);
+				geneList = geneList == null ? "" : geneList;
+				List<String> onlyGenesList = new ArrayList<String>();
 
-		String[] parameters = getParameters(request);
-		if (parameters != null) {
-			String[] args = IGVLinking.getIGVArgsForBAMViewing(parameters[CANCER_STUDY_ID_INDEX],
-															   parameters[CASE_ID_INDEX],
-															   parameters[LOCUS_INDEX]);
-            if (args != null && args.length == 4) {
-                igvArgs.put("bamFileUrl", args[0]);
-                igvArgs.put("encodedLocus", args[1]);
-                igvArgs.put("referenceGenome", args[2]);
-                igvArgs.put("trackName", args[3]);
-            }
+				String[] geneList_ = geneList.split(" ");
+				for (String gene_ : geneList_) {
+					CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(gene_);
+					if (gene != null && !gene.isMicroRNA() && !gene.isPhosphoProtein()) {
+						onlyGenesList.add(gene_);
+					}
+				}
+				String encodedGeneList = "";
+				if (onlyGenesList.size() > 0) {
+					encodedGeneList = URLEncoder.encode(Joiner.on(' ').join(onlyGenesList), "UTF-8");
+				}
+				String[] args = IGVLinking.getIGVArgsForSegViewing(cancerStudyStableId, encodedGeneList);
+				igvArgs.put("segfileUrl", args[0]);
+				igvArgs.put("geneList", args[1]);
+				igvArgs.put("referenceId", args[2]);
+				igvArgs.put("fileName", args[3]);
+			} else {
+				String[] parameters = getParameters(request);
+				if (parameters != null) {
+					String[] args = IGVLinking.getIGVArgsForBAMViewing(parameters[CANCER_STUDY_ID_INDEX],
+							parameters[CASE_ID_INDEX], parameters[LOCUS_INDEX]);
+					if (args != null && args.length == 4) {
+						igvArgs.put("bamFileUrl", args[0]);
+						igvArgs.put("encodedLocus", args[1]);
+						igvArgs.put("referenceGenome", args[2]);
+						igvArgs.put("trackName", args[3]);
+					}
+				}
+			}
+			JSONValue.writeJSONString(igvArgs, out);
+		} catch (Exception e) {
+			JSONValue.writeJSONString(new JSONObject(), out);
+		} finally {
+			out.close();
 		}
 
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        try {
-            JSONValue.writeJSONString(igvArgs, out);
-        } finally {            
-            out.close();
-        }
-    }
+	}
 
 	private String[] getParameters(HttpServletRequest request)
 	{

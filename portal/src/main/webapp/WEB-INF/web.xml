@@ -41,7 +41,7 @@
 
     <context-param>
       <param-name>log4jConfigLocation</param-name>
-      <param-value>file://${PORTAL_HOME}/src/main/resources/log4j.properties</param-value>
+      <param-value>classpath:log4j.properties</param-value>
     </context-param> 
 
     <!-- listeners -->
@@ -132,10 +132,6 @@
         <servlet-name>portal</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>portal</servlet-name>                                                                                                                                                 
-      <url-pattern>/</url-pattern>
-    </servlet-mapping>                                                                                                                                                                    
 
     <servlet>
         <servlet-name>query_builder</servlet-name>
@@ -186,15 +182,6 @@
 		<servlet-name>portal_meta_data</servlet-name>
 		<url-pattern>/portalMetadata.json</url-pattern>
 	</servlet-mapping>
-
-    <servlet>
-        <servlet-name>show_data</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.ShowData</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>show_data</servlet-name>
-        <url-pattern>/show_data.do</url-pattern>
-    </servlet-mapping>
 
     <servlet>
         <servlet-name>network</servlet-name>
@@ -259,19 +246,6 @@
         <url-pattern>/omaRedirect.do</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>link_out</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/link.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/ln</url-pattern>
-    </servlet-mapping>
-
 	<servlet>
 		<servlet-name>pfam_sequence_json</servlet-name>
 		<servlet-class>org.mskcc.cbio.portal.servlet.PfamSequenceServlet</servlet-class>
@@ -333,15 +307,6 @@
     <servlet-mapping>
         <servlet-name>GisticJSON</servlet-name>
         <url-pattern>/Gistic.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>GeneDataJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>GeneDataJSON</servlet-name>
-        <url-pattern>/GeneData.json</url-pattern>
     </servlet-mapping>
 
     <servlet>

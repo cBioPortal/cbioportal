@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.1.1</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
@@ -17,8 +17,8 @@
       <artifactId>business</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- antisamy -->
 
+    <!-- antisamy -->
     <dependency>
       <groupId>org.owasp</groupId>
       <artifactId>antisamy</artifactId>
@@ -194,6 +194,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-codec</artifactId>
+      <version>1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>fop</artifactId>
       <version>1.0</version>
     </dependency>
@@ -318,15 +323,14 @@
         <configuration>
           <forkMode>always</forkMode>
           <filtering>true</filtering>
-          <testFailureIgnore>true</testFailureIgnore>
           <systemProperties>
             <property>
               <name>log4j.configuration</name>
-              <value>file:${PORTAL_HOME}/src/main/resources/log4j.properties</value>
+              <value>file:${project.parent.basedir}/src/main/resources/log4j.properties</value>
             </property>
           </systemProperties>
           <additionalClasspathElements>
-            <additionalClasspathElement>${PORTAL_HOME}/src/main/resources/</additionalClasspathElement>
+            <additionalClasspathElement>${project.parent.basedir}/src/main/resources/</additionalClasspathElement>
           </additionalClasspathElements>
         </configuration>
       </plugin>
@@ -368,6 +372,52 @@
           </execution>
         </executions>
       </plugin>
+      <!-- this plugin lets us grab shared resources from our parent -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-parent-resources</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/classes</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.parent.basedir}/src/main/resources</directory>
+                  <includes>
+                    <include>**/*.properties</include>
+                  </includes>
+                  <excludes>
+                    <exclude>**/portal.properties.*</exclude>
+                    <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/*.EXAMPLE</exclude>
+                  </excludes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+        <!-- JaCoCo Test coverage plugin -->
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
+            <executions>
+                <execution>
+                    <goals><goal>prepare-agent</goal></goals>
+                </execution>
+                <execution>
+                    <id>report</id>
+                    <phase>prepare-package</phase>
+                    <goals><goal>report</goal></goals>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
 
     <!-- prevent some resources from getting into jar -->
@@ -378,6 +428,13 @@
           <exclude>sample_data/**</exclude>
           <exclude>db/**</exclude>
         </excludes>
+      </resource>
+      <resource>
+        <directory>../src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+            <include>**/portal.properties</include>
+        </includes>
       </resource>
     </resources>
   </build>

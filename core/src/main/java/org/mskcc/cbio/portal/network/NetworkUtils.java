@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.network;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -56,10 +57,20 @@ public final class NetworkUtils {
             return null;
         }
 
-        Pattern pattern = Pattern.compile("HGNC:([^;]+)");
+        Pattern pattern = Pattern.compile("HGNC Symbol:([^;]+)|HGNC SYMBOL:([^;]+)|HGNC:([^;]+)");
         Matcher matcher = pattern.matcher(strXrefs);
-        if (matcher.find()) {
-            return matcher.group(1).toUpperCase();
+        if (matcher.find()) 
+        {
+        	if (matcher.group(1) != null) {
+        		return matcher.group(1).toUpperCase();
+			}
+        	else if (matcher.group(2) != null) {
+        		return matcher.group(2).toUpperCase();
+			}
+        	else {
+        		return matcher.group(3).toUpperCase();
+			}
+            
         } else {
             return null;
         }
@@ -134,14 +145,28 @@ public final class NetworkUtils {
         // merge edges
         for (Edge edge : net.getIncidentEdges(mergeFrom)) {
             Node[] ends = net.getNodes(edge);
-            if (ends[0] == mergeFrom) {
+            if (ends[0].equals(mergeFrom)) {
                 ends[0] = mergeTo;
             } else {
                 ends[1] = mergeTo;
             }
             
             net.removeEdge(edge);
-            net.addEdge(edge, ends[0].getId(), ends[1].getId());
+            //TODO check if this edge already occurs between this nodes
+            edge.setSourceID(ends[0].getId());
+            edge.setTargetID(ends[1].getId());
+            
+            if (net.findEdgeSet(mergeTo, mergeFrom).size() > 0) 
+            {
+    			for (Iterator iterator = net.findEdgeSet(mergeTo, mergeFrom).iterator(); iterator.hasNext();) 
+    			{
+    				Edge tempEdge = (Edge) iterator.next();
+    				
+    				if(!tempEdge.hasSameSourceTargetAndType(edge))			
+    		            net.addEdge(edge);
+    			}
+    		}
+            
         }
     }
     

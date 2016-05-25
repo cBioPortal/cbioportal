@@ -48,6 +48,7 @@ script:
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
     - chmod -R 777 .
+    - sudo service docker restart
     - |
         docker run \
             -v $PWD:/cbioportal \

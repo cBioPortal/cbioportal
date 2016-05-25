@@ -25,6 +25,8 @@ docker network create cbio-net
 
 ##### B. Start a MySQL docker container:
 
+In the following command, replace `/PATH/TO/cbioportal-seed.sql.gz` by the local filename of the seed database file `cbioportal-seed.sql.gz` on the host machine (you can [download the seed DB here](Downloads#seed-database)). This will automatically import it before starting the MySQL server if the database does not yet exist, which may take a while.
+
 ```bash
 docker run -d --name "cbioDB" \
 	--restart=always \
@@ -34,12 +36,11 @@ docker run -d --name "cbioDB" \
 	-e MYSQL_USER=cbio \
 	-e MYSQL_PASSWORD=P@ssword1 \
 	-e MYSQL_DATABASE=cbioportal \
-	-v /seed/DB/path:/cbioDB \
+	-v /PATH/TO/cbioportal-seed.sql.gz:/docker-entrypoint-initdb.d/cbioportal-seed.sql.gz:ro \
 	mysql
 ```
-:warning: change the /seed/DB/path to a local folder on the host machine which contains the seed database `cbioportal-seed.sql.gz` (you can [download the seed DB here](Downloads.md#seed-database)). 
 
-:information_source: you can check the status of mysql using *Kitematic* tool that comes with Docker. Or run
+You can check the status of MySQL using the _Kitematic_ tool that comes with the Docker Toolbox. Or run
 ```bash
 docker ps
 ```
@@ -47,22 +48,7 @@ to see if the container is running and
 ```bash
 docker logs cbioDB
 ```
-to see the MySQL server logs.
-
-##### C. Import Seed DB
-
-Connect to the running docker container
-
-```bash
-docker exec -it cbioDB /bin/bash
-```
-
-Once inside the docker container run
-
-```bash
-gunzip /cbioDB/cbioportal-seed.sql.gz
-mysql --user=cbio --password=P@ssword1 cbioportal  < /cbioDB/cbioportal-seed.sql
-```
+to see the MySQL status logs.
 
 [MySQL Docker Hub] (https://hub.docker.com/_/mysql/)    
 [MySQL Docker Github] (https://github.com/docker-library/docs/tree/master/mysql)
@@ -77,8 +63,33 @@ Coming soon...
 
 ### Step 4 | Run docker container
 
-Coming soon...
+```bash
+docker run -d --name "cbioportal" \
+    --restart=always \
+    --net=cbio-net \
+    -p 8080:8080 \
+    -v /custom_config/folder_path/:/custom_config/ \
+    -v /customization/folder_path/:/custom_files/ \
+    -v /logs/folder_path/:/cbio_logs/ \
+    -v /studies/path:/cbio_studies/ \
+    cbioportal/cbioportal
+```
 
 ## Docker Container Maintenance
 
-Coming soon...
+### Restart Docker Container
+
+```bash
+docker restart cbioportal
+```
+### Stop Docker Container
+
+```bash
+docker stop cbioportal
+```
+
+### Remove Docker Container (Make sure container is stopped first)
+
+```bash
+docker rm cbioportal
+```

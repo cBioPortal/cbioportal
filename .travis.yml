@@ -54,7 +54,7 @@ script:
             --privileged \
             -v $PWD:/cbioportal \
             -e PORTAL_HOME=/cbioportal \
-            maven:3.3-jdk-7 \
+            maven:3.3-jdk-8 \
                 /bin/bash -c \
                 'cd $PORTAL_HOME &&
                 mvn -e \

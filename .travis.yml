@@ -4,7 +4,11 @@ services:
 
 sudo: required
 language: java
-jdk: openjdk7
+jdk:
+    - openjdk7
+    - openjdk6
+    - oraclejdk7
+    - oraclejdk8
 
 env:
     - MAVEN_VERSION=3.3.3

@@ -36,17 +36,18 @@ var metaData = (function() {
     function registerMetaData(clinicalAttrMetaDataResult, profileMetaDataResult) {
 
         var _profile_arr = [];
-        for (var _profile in profileMetaDataResult) {
+        $.each(profileMetaDataResult,function(key,profileData){
             var _datum = jQuery.extend(true, {}, datum_genetic_profile_meta);
-            _datum.type = _profile.genetic_alteration_type;
-            _datum.id = _profile.id;
-            _datum.name = _profile.name;
-            _datum.description = _profile.description;
+            _datum.type = profileData.genetic_alteration_type;
+            _datum.id = profileData.id;
+            _datum.name = profileData.name;
+            _datum.description = profileData.description;
             _profile_arr.push(_datum);
-        }
-        for (var gene in window.QuerySession.getQueryGenes()) {
+
+        });
+        $.each(window.QuerySession.getQueryGenes(),function(key,gene){
             geneticProfiles[gene] = _profile_arr;
-        }
+        });
         clinicalAttrs = []
         $.each(clinicalAttrMetaDataResult, function(index, obj) {
             var _datum = jQuery.extend(true, {}, datum_clinical_attr_meta);

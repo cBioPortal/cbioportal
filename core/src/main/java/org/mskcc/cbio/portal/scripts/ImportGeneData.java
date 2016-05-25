@@ -36,13 +36,18 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.util.*;
 
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+
 import java.io.*;
 import java.util.*;
 
 /**
  * Command Line Tool to Import Background Gene Data.
  */
-public class ImportGeneData {
+public class ImportGeneData extends ConsoleRunnable {
 
     public static void importData(File geneFile) throws IOException, DaoException {
         Map<String, Set<CanonicalGene>> genesWithSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
@@ -114,7 +119,6 @@ public class ImportGeneData {
             }
         }
         
-        MySQLbulkLoader.bulkLoadOn();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         // Add genes with symbol from nomenclature authority
@@ -156,9 +160,6 @@ public class ImportGeneData {
 	        		", skipped (because of duplicate symbol entry or because symbol is an 'official symbol' of another gene): " + nrSkipped);
         }
         
-        if (MySQLbulkLoader.isBulkLoad()) {
-           MySQLbulkLoader.flushAll();
-        }        
     }
     
     private static void logDuplicateGeneSymbolWarning(String symbol, Set<CanonicalGene> genes) {
@@ -208,8 +209,6 @@ public class ImportGeneData {
                 loci.add(new long[]{Long.parseLong(parts[1]), Long.parseLong(parts[2])});
             }
         }
-        
-        daoGeneOptimized.flushUpdateToDatabase();
     }
     
     private static int calculateGeneLength(List<long[]> loci) {
@@ -257,50 +256,107 @@ public class ImportGeneData {
         reader.close(); 
     }
 
-    public static void main(String[] args) throws Exception {
-		SpringUtil.initDataSource();
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.deleteAllRecords();
-        if (args.length == 0) {
-            System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <supp-genes.txt> <microrna.txt> <all_exon_loci.bed>");
-            return;
-        }
-        ProgressMonitor.setConsoleMode(true);
-        
-        File geneFile = new File(args[0]);
-        System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
-        int numLines = FileUtil.getNumLines(geneFile);
-        System.out.println(" --> total number of lines:  " + numLines);
-        ProgressMonitor.setMaxValue(numLines);
-        ImportGeneData.importData(geneFile);
-        ConsoleUtil.showWarnings();
-        System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
-        
-        if (args.length>=2) {
-            File suppGeneFile = new File(args[1]);
-            System.out.println("Reading supp. gene data from:  " + suppGeneFile.getAbsolutePath());
-            numLines = FileUtil.getNumLines(suppGeneFile);
-            System.out.println(" --> total number of lines:  " + numLines);
-            ProgressMonitor.setMaxValue(numLines);
-            ImportGeneData.importSuppGeneData(suppGeneFile);
-        }
-        
-        if (args.length>=3) {
-            File miRNAFile = new File(args[2]);
-            System.out.println("Reading miRNA data from:  " + miRNAFile.getAbsolutePath());
-            numLines = FileUtil.getNumLines(miRNAFile);
-            System.out.println(" --> total number of lines:  " + numLines);
-            ProgressMonitor.setMaxValue(numLines);
-            ImportMicroRNAIDs.importData(miRNAFile);
+	@Override
+    public void run() {
+		try {
+			SpringUtil.initDataSource();
+	
+	        String description = "Import 'profile' files that contain data matrices indexed by gene, case";
+	    	
+	        // using a real options parser, helps avoid bugs
+	 		OptionParser parser = new OptionParser();
+	 		OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
+	 		parser.accepts( "genes", "ncbi genes file" ).withRequiredArg().describedAs( "ncbi_genes.txt" ).ofType( String.class );
+	 		parser.accepts( "supp-genes", "alternative genes file" ).withRequiredArg().describedAs( "supp-genes.txt" ).ofType( String.class );
+	 		parser.accepts( "microrna", "microrna file" ).withRequiredArg().describedAs( "microrna.txt" ).ofType( String.class );
+	 		parser.accepts( "exon-loci", "exon loci file for calculating and storing gene lengths" ).withRequiredArg().describedAs( "all_exon_loci.bed" ).ofType( String.class );
+	
+	 		String progName = "importGenes";
+	 		OptionSet options = null;
+			try {
+				options = parser.parse( args );
+			} catch (OptionException e) {
+				throw new UsageException(progName, description, parser,
+				        e.getMessage());
+			}
+			  
+			if( options.has( help ) ){
+				throw new UsageException(progName, description, parser);
+			}
+			
+	        ProgressMonitor.setConsoleMode(true);
+	        
+	        File geneFile;
+			if(options.has("genes")) {
+				geneFile = new File((String) options.valueOf("genes"));
+			}
+			else {
+				throw new UsageException(progName, description, parser,
+				        "Error: 'genes' argument required.");
+			}
+	        System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
+	        int numLines = FileUtil.getNumLines(geneFile);
+	        System.out.println(" --> total number of lines:  " + numLines);
+	        ProgressMonitor.setMaxValue(numLines);
+	        MySQLbulkLoader.bulkLoadOn();
+	        ImportGeneData.importData(geneFile);
+	        ConsoleUtil.showWarnings();
+	        
+	        if(options.has("supp-genes")) {
+	            File suppGeneFile = new File((String) options.valueOf("genes"));
+	            System.out.println("Reading supp. gene data from:  " + suppGeneFile.getAbsolutePath());
+	            numLines = FileUtil.getNumLines(suppGeneFile);
+	            System.out.println(" --> total number of lines:  " + numLines);
+	            ProgressMonitor.setMaxValue(numLines);
+	            ImportGeneData.importSuppGeneData(suppGeneFile);
+	        }
+	        
+	        if(options.has("microrna")) {
+	            File miRNAFile = new File((String) options.valueOf("microrna"));
+	            System.out.println("Reading miRNA data from:  " + miRNAFile.getAbsolutePath());
+	            numLines = FileUtil.getNumLines(miRNAFile);
+	            System.out.println(" --> total number of lines:  " + numLines);
+	            ProgressMonitor.setMaxValue(numLines);
+	            ImportMicroRNAIDs.importData(miRNAFile);
+	        }
+	        
+	        if(options.has("exon-loci")) {
+	            File lociFile = new File((String) options.valueOf("exon-loci"));
+	            System.out.println("Reading loci data from:  " + lociFile.getAbsolutePath());
+	            numLines = FileUtil.getNumLines(lociFile);
+	            System.out.println(" --> total number of lines:  " + numLines);
+	            ProgressMonitor.setMaxValue(numLines);
+	            ImportGeneData.importGeneLength(lociFile);
+	        }
+	        MySQLbulkLoader.flushAll();
+            System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
+
+		}
+		catch (RuntimeException e) {
+			throw e;
+		}
+		catch (Exception e) {
+		   throw new RuntimeException(e);
+		}
     }
-        
-        if (args.length>=4) {
-            File lociFile = new File(args[3]);
-            System.out.println("Reading loci data from:  " + lociFile.getAbsolutePath());
-            numLines = FileUtil.getNumLines(lociFile);
-            System.out.println(" --> total number of lines:  " + numLines);
-            ProgressMonitor.setMaxValue(numLines);
-            ImportGeneData.importGeneLength(lociFile);
-        }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportGeneData(String[] args) {
+        super(args);
     }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportGeneData(args);
+        runner.runInConsole();
+    }
+
 }

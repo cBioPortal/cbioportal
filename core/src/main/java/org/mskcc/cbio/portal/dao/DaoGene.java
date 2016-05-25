@@ -396,6 +396,8 @@ final class DaoGene {
      * Deletes all Gene Records in the Database.
      *
      * @throws DaoException Database Error.
+     * 
+     * @deprecated only used by deprecated code, so deprecating this as well.
      */
     public static void deleteAllRecords() throws DaoException {
         Connection con = null;
@@ -415,6 +417,12 @@ final class DaoGene {
         deleteAllAliasRecords();
     }
     
+    /**
+     * 
+     * @throws DaoException
+     * 
+     * @deprecated only used by deprecated code, so deprecating this as well.
+     */
     private static void deleteAllAliasRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

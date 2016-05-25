@@ -143,22 +143,6 @@ public class DaoGeneOptimized {
         return ret;
     }
     
-    /**
-     * Update database with gene length
-     * @return number of records updated.
-     * @throws DaoException 
-     */
-    public int flushUpdateToDatabase() throws DaoException {
-        DaoGene.deleteAllRecords();
-        MySQLbulkLoader.bulkLoadOn();
-        int ret = 0;
-        for (CanonicalGene gene : getAllGenes()) {
-            ret += DaoGene.addGene(gene);
-        }
-        MySQLbulkLoader.flushAll();
-        return ret;
-    }
-    
     public void deleteGene(CanonicalGene gene) throws DaoException {
         DaoGene.deleteGene(gene.getEntrezGeneId());
         geneSymbolMap.remove(gene.getHugoGeneSymbolAllCaps());
@@ -421,6 +405,8 @@ public class DaoGeneOptimized {
     /**
      * Deletes all Gene Records in the Database.
      * @throws DaoException Database Error.
+     * 
+     * @deprecated  only used by deprecated code, so deprecating this as well.
      */
     public void deleteAllRecords() throws DaoException {
         DaoGene.deleteAllRecords();

@@ -51,7 +51,8 @@ script:
     - sudo service docker restart
     - |
         docker run \
-            -v $PWD:/cbioportal \
+            --privileged \
+            -v $PWD \
             -e PORTAL_HOME=/cbioportal \
             maven:3.3-jdk-7 \
                 /bin/bash -c \

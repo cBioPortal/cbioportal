@@ -118,7 +118,11 @@ var plotsData = (function() {
                     });
                 }
                 if (_gene_list !== "") {
-                    var proxy = DataProxyFactory.getDefaultMutationDataProxy();
+                    var proxy = DataProxyFactory.getCustomMutationDataProxy(
+                    		window.PlotsTab.cancerStudyId+ "_mutations",
+                    		window.PlotsTab.CaseSetId,
+                    		window.PlotsTab.CaseIdsKey,
+                    		window.PlotsTab.caseIds.join(' '));
                     proxy.getMutationData(_gene_list, mutationCallback);
                 } else {
                     mutationCallback();

@@ -52,7 +52,7 @@ script:
     - |
         docker run \
             --privileged \
-            -v $PWD \
+            -v $PWD:/cbioportal \
             -e PORTAL_HOME=/cbioportal \
             maven:3.3-jdk-7 \
                 /bin/bash -c \

@@ -1,26 +1,16 @@
-services:
-    - docker
-    - mysql
-
 sudo: required
 language: java
-jdk:
-    - openjdk7
-
-env:
-    - MAVEN_VERSION=3.3.3
+jdk: openjdk7
 
 cache:
     directories:
         - $HOME/.m2
         - $HOME/maven
 
+env:
+    - MAVEN_VERSION=3.3.3
+
 install:
-    # install mysql
-    - sudo apt-get update
-    - sudo apt-get install -y mysql-server
-    - sudo mysql_install_db
-    # installl maven
     - mkdir -p ~/maven
     - |
         test -d ~/maven/$MAVEN_VERSION/bin || { \
@@ -30,81 +20,23 @@ install:
                 tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
 
 before_script:
-    # create mysql db for core test
-    - |
-        mysql -u root -e "CREATE DATABASE cbioportal; \
-                          CREATE DATABASE cgds_test; \
-                          CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword'; \
-                          GRANT ALL ON cbioportal.* TO 'cbio_user'@'localhost'; \
-                          GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'; \
-                          flush privileges; " 
-    # copy settings for core database
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
+    - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
 
 script:
+    - sudo service docker start
     - export PORTAL_HOME=$(pwd)
-    # core tests
+    - cp .travis/src/main/resources/portal.properties $PORTAL_HOME/src/main/resources/portal.properties
+    - cp .travis/src/main/resources/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties
+    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic clean test
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
-    - chmod -R 777 .
-    - sudo service docker restart
-    - sleep 10s
-    - |
-        docker run \
-            --net=host \
-            --privileged \
-            -v $PWD:/cbioportal \
-            -e PORTAL_HOME=/cbioportal \
-            maven:3.3.3-jdk-8 \
-                /bin/bash -c \
-                'cd $PORTAL_HOME &&
-                mvn -e \
-                -DPORTAL_HOME=$PORTAL_HOME \
-                -Ppublic \
-                -Ddb.user=cbio_user \
-                -Ddb.pass=somepassword \
-                -Ddb.host=localhost \
-                -Ddb.connection_string=jdbc:mysql://localhost:3306/ \
-                clean test'
-    - |
-        docker run \
-            --net=host \
-            --privileged \
-            -v $PWD:/cbioportal \
-            -e PORTAL_HOME=/cbioportal \
-            maven:3.3.3-jdk-9 \
-                /bin/bash -c \
-                'cd $PORTAL_HOME &&
-                mvn -e \
-                -DPORTAL_HOME=$PORTAL_HOME \
-                -Ppublic \
-                -Ddb.host=localhost \
-                -Ddb.connection_string=jdbc:mysql://localhost:3306/ \
-                clean test'
-    - |
-        ~/maven/$MAVEN_VERSION/bin/mvn \
-            -e -DPORTAL_HOME=$PORTAL_HOME \
-            -Ddb.host=localhost \
-            -Ddb.connection_string=jdbc:mysql://localhost:3306/ \
-            -Ppublic \
-            clean test
-    # end-to-end tests
-    - |
-        ~/maven/$MAVEN_VERSION/bin/mvn \
-            -e -DPORTAL_HOME=$PORTAL_HOME \
-            -Ppublic -DskipTests \
-            -Ddb.user=cbio_user \
-            -Ddb.password=cbio_pass \
-            -Ddb.portal_db_name=public_test \
-            -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ \
-            -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com \
-            clean install
-    - cd test/end-to-end
-    - docker-compose up -d
-    - sleep 30s
-    - cd ../..
-    - bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
+    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com clean install
+    - java -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --expand-war portal/target/cbioportal.war &
+    - sleep 20s
+    - bash test/end-to-end/test_make_screenshots.sh
 
 notifications:
   slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6
+  

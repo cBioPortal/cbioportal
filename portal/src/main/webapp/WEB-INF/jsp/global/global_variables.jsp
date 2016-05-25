@@ -95,7 +95,7 @@
   //  CancerStudy cancerStudy = cancerStudies.get(0);
     String[] cancerStudyIdList = (String[])request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
 	String cancerStudyIdListString = "";
-    HashMap<String, Boolean> studyMap = new HashMap<>();
+    HashMap<String, Boolean> studyMap = new HashMap<String, Boolean>();
 	for (String studyId : cancerStudyIdList) {
 		studyMap.put(studyId, Boolean.TRUE);
 	}

@@ -51,6 +51,7 @@ script:
     - sudo service docker restart
     - |
         docker run \
+            --net=host \
             --privileged \
             -v $PWD:/cbioportal \
             -e PORTAL_HOME=/cbioportal \
@@ -65,6 +66,7 @@ script:
                 clean test'
     - |
         docker run \
+            --net=host \
             --privileged \
             -v $PWD:/cbioportal \
             -e PORTAL_HOME=/cbioportal \

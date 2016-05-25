@@ -51,6 +51,17 @@ script:
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
     - |
+        docker run \
+            -v $PWD:/cbioportal \
+            -e PORTAL_HOME=/cbioportal
+            maven:3.3-jdk-7 \
+                mvn -e \
+                -DPORTAL_HOME=$PORTAL_HOME
+                -Ppublic
+                -Ddb.host=localhost \
+                -Ddb.connection_string=jdbc:mysql://localhost:3306/ \
+                clean test
+    - |
         ~/maven/$MAVEN_VERSION/bin/mvn \
             -e -DPORTAL_HOME=$PORTAL_HOME \
             -Ddb.host=localhost \

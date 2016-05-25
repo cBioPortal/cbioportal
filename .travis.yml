@@ -53,11 +53,11 @@ script:
     - |
         docker run \
             -v $PWD:/cbioportal \
-            -e PORTAL_HOME=/cbioportal
+            -e PORTAL_HOME=/cbioportal \
             maven:3.3-jdk-7 \
                 mvn -e \
-                -DPORTAL_HOME=$PORTAL_HOME
-                -Ppublic
+                -DPORTAL_HOME=$PORTAL_HOME \
+                -Ppublic \
                 -Ddb.host=localhost \
                 -Ddb.connection_string=jdbc:mysql://localhost:3306/ \
                 clean test

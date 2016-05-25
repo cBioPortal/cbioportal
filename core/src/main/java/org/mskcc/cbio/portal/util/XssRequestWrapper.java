@@ -81,8 +81,8 @@ public class XssRequestWrapper extends HttpServletRequestWrapper
 
 	public String getRawParameter(String name)
 	{
-        String raw = super.getParameter(name);
-        LOG.debug("XssRequestWrapper.getRawParameter(" + name + "): cleaned = '" + raw + "'");
+		String raw = super.getParameter(name);
+		LOG.debug("XssRequestWrapper.getRawParameter(" + name + "): cleaned = '" + raw + "'");
 		return raw;
 	}
 

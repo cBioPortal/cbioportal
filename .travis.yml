@@ -10,7 +10,8 @@ before_script:
     - cp .travis/settings.xml ~/.m2
 
 install:
-    - sudo apt-get install mysql-server
+    - sudo apt-get update
+    - sudo apt-get install -y mysql-server
     - mysql_install_db
     - /usr/bin/mysqld_safe
     - |

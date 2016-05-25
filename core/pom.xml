@@ -356,7 +356,7 @@
             <!-- username & password gets put in .m2/settings.xml -->
               <settingsKey>settingsKey</settingsKey>
               <driver>com.mysql.jdbc.Driver</driver>
-              <url>jdbc:mysql://127.0.0.1:3306/cgds_test</url>
+              <url>jdbc:mysql://localhost:3306/cgds_test</url>
               <sqlCommand>SET storage_engine=INNODB</sqlCommand>
               <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
               <srcFiles>

@@ -13,10 +13,6 @@ jdk:
 env:
     - MAVEN_VERSION=3.3.3
 
-addons:
-    # fix https://github.com/travis-ci/travis-ci/issues/5227
-    hostname: short-hostname
-
 cache:
     directories:
         - $HOME/.m2
@@ -51,16 +47,14 @@ before_script:
 
 script:
     - export PORTAL_HOME=$(pwd)
-    # run mysql db for core tests
-    - echo 'show tables;' | mysql --user cbio_user -h localhost -P 3306 --password=somepassword cgds_test
     # core tests
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
     - |
         ~/maven/$MAVEN_VERSION/bin/mvn \
             -e -DPORTAL_HOME=$PORTAL_HOME \
-            -Ddb.host=127.0.0.1 \
-            -Ddb.connection_string=jdbc:mysql://127.0.0.1:3306/ \
+            -Ddb.host=localhost \
+            -Ddb.connection_string=jdbc:mysql://localhost:3306/ \
             -Ppublic \
             clean test
     # end-to-end tests

@@ -3,6 +3,11 @@ services:
     - mysql
 
 sudo: required
+language: java
+jdk: openjdk7
+
+env:
+    - MAVEN_VERSION=3.3.3
 
 cache:
     directories:

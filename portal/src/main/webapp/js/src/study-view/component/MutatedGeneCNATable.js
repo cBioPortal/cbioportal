@@ -343,7 +343,7 @@ var EnhancedFixedDataTableSpecial = (function() {
                 return (
                     React.createElement("div", {className: "EFDT-header-filters"},
                         React.createElement("input", {className: "form-control",
-                            placeholder: this.props.hasOwnProperty('placeholder')?this.props.placeholder:"Input a keyword",
+                            placeholder: this.props.hasOwnProperty('placeholder')?this.props.placeholder:"Search...",
                             "data-column": this.props.name,
                             value: this.state.key,
                             onChange: this.handleChange})

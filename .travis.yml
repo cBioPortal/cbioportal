@@ -13,7 +13,6 @@ install:
     - sudo apt-get update
     - sudo apt-get install -y mysql-server
     - sudo mysql_install_db
-    - sudo /usr/bin/mysqld_safe
     - |
         mysql -u root -e "CREATE DATABASE cbioportal; \
                           CREATE DATABASE cgds_test; \

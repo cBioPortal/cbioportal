@@ -1,22 +1,38 @@
 services:
     - docker
+    - mysql
+
+sudo: required
 
 before_script:
     # copy settings for core database
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
 
+install:
+    - sudo apt-get install mysql-server
+    - mysql_install_db
+    - /usr/bin/mysqld_safe
+    - |
+        mysql -u root -e "CREATE DATABASE cbioportal; \
+                          CREATE DATABASE cgds_test; \
+                          CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword'; \
+                          GRANT ALL ON cbioportal.* TO 'cbio_user'@'localhost'; \
+                          GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'; \
+                          flush privileges; " 
+
 script:
     - export PORTAL_HOME=$(pwd)
     # run mysql db for core tests
+    - echo 'show tables;' | mysql --user cbio_user -h localhost -P 3306 --password=somepassword cgds_test
     - |
         docker run --name core-tests-mysql \
-                 -p 3306:3306 \
                  -e MYSQL_USER=cbio_user \
                  -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
                  -e MYSQL_PASSWORD=somepassword \
                  -e MYSQL_DATABASE=cgds_test \
                  -d mysql:5.7.12
+    #expose port to host -p 3306:3306
     # core tests
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties

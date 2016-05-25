@@ -36,7 +36,8 @@ var plotsTab = (function() {
                 profileSpec.appendStudies().then(function(){
                     $("#" + ids.sidebar.study.study).change(function() {
                         window.PlotsTab.cancerStudyId = $("#" + ids.sidebar.study.study).val();
-                        window.PlotsTab.CaseSetId =  window.QuerySession.study_sample_map[window.PlotsTab.cancerStudyId].case_set_ids[0];
+                        window.PlotsTab.caseIds = window.QuerySession.getStudySampleMap()[window.PlotsTab.cancerStudyId];
+                        window.PlotsTab.CaseSetId =  '';
                         window.PlotsTab.CaseIdsKey = '';
 
                          $("#" + ids.sidebar.x.spec_div).empty();
@@ -45,16 +46,19 @@ var plotsTab = (function() {
                         $("#" + ids.sidebar.y.data_type).show();
                         $("input:radio[name='" + ids.sidebar.x.data_type + "'][value='" + vals.data_type.genetic + "']").attr('checked', 'checked');
                         $("input:radio[name='" + ids.sidebar.y.data_type + "'][value='" + vals.data_type.genetic + "']").attr('checked', 'checked');
+                        DataProxyFactory.clearDefaultMutationDataProxy();
                         plotsTabInit();
                     });
                     window.PlotsTab.cancerStudyId = $("#" + ids.sidebar.study.study).val();
-                    window.PlotsTab.CaseSetId =  window.QuerySession.study_sample_map[window.PlotsTab.cancerStudyId].case_set_ids[0];
+                    window.PlotsTab.caseIds = window.QuerySession.getStudySampleMap()[window.PlotsTab.cancerStudyId];
+                    window.PlotsTab.CaseSetId =  '';
                     window.PlotsTab.CaseIdsKey = '';
                     plotsTabInit();
                 })
             }else{
                 window.PlotsTab.cancerStudyId = window.QuerySession.getCancerStudyIds()[0];
-                window.PlotsTab.CaseSetId =  window.QuerySession.study_sample_map[window.PlotsTab.cancerStudyId].case_set_ids[0];
+                window.PlotsTab.caseIds = window.QuerySession.getStudySampleMap()[window.PlotsTab.cancerStudyId];
+                window.PlotsTab.CaseSetId =  window.QuerySession.getCaseSetId();
                 window.PlotsTab.CaseIdsKey = window.QuerySession.getCaseIdsKey();
                 plotsTabInit()
             }

@@ -153,7 +153,9 @@
     }
     String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
     String sampleIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
-
+	if(cancerStudyIdList.length>1){
+		sampleIdsKey="";
+	}
     //Vision Control Tokens
     boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0;
     boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;

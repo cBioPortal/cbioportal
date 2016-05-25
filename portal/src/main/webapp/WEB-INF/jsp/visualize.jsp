@@ -133,6 +133,7 @@
                 + "Mutual Exclusivity</a></li>");
             }
             out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
+            if(cancerStudyIdList.length == 1) {
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
@@ -153,8 +154,10 @@
             }
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
             out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
+            }
             out.println ("</ul>");
 
+            if(cancerStudyIdList.length == 1) {
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
             // diable bookmark link if case set is user-defined
@@ -174,6 +177,7 @@
             }
 
             out.println("</div>");
+            }
     %>
 
         <div class="section" id="summary">
@@ -187,6 +191,7 @@
         <%}%>
 
         <%@ include file="plots_tab.jsp" %>
+        <% if(cancerStudyIdList.length == 1) { %>
 
         <% if (showIGVtab && !((String)cancerStudyIdList[0]).equals("mskimpact")) { %>
             <%@ include file="igv.jsp" %>
@@ -195,11 +200,12 @@
         <% if (has_survival) { %>
             <%@ include file="survival_tab.jsp" %>
         <% } %>
-
+        <% } %>
         <% if (computeLogOddsRatio) { %>
             <%@ include file="mutex_tab.jsp" %>
         <% } %>
 
+        <% if(cancerStudyIdList.length == 1) { %>
         <% if (mutationDetailLimitReached != null) {
             out.println("<div class=\"section\" id=\"mutation_details\">");
             out.println("<P>To retrieve mutation details, please specify "
@@ -223,7 +229,7 @@
         <% } %>
 
         <%@ include file="data_download.jsp" %>
-
+<% } %>
 </div> <!-- end tabs div -->
 
 

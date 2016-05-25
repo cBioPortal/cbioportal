@@ -91,8 +91,62 @@ var DataProxyFactory = (function()
 
 		return _defaultMutationDataProxy;
 	}
+	
+	function getCustomMutationDataProxy(geneticProfiles,caseSetId,caseIdsKey,caseList)
+	{
+		// init default mutation data proxy only once
+		if (_defaultMutationDataProxy == null)
+		{
+			// set servlet params by using global params
+			// note that gene list is not set as a servlet param, it is passed a constructor parameter
+			var servletParams = {};
+
+			servletParams.geneticProfiles = geneticProfiles;
+
+			// first, try to retrieve mutation data by using a predefined case set id
+			if (caseSetId &&
+				caseSetId.length > 0 &&
+				caseSetId != "-1")
+			{
+				servletParams.caseSetId = caseSetId;
+			}
+			// second, try to use a custom case set defined by a hash key
+			else if (caseIdsKey &&
+			         caseIdsKey.length > 0)
+			{
+				servletParams.caseIdsKey = caseIdsKey;
+			}
+			// last resort: send the actual case list as a long string
+			else
+			{
+				servletParams.caseList = caseList;
+			}
+
+			// default servlet name for mutation data
+			var servletName = "getMutationData.json";
+
+			// init mutation data proxy with the data servlet config
+			var proxy = new MutationDataProxy({
+				servletName: servletName,
+				geneList: window.QuerySession.getQueryGenes().join(" "),
+				params: servletParams
+			});
+			proxy.init();
+
+			// update singleton reference
+			_defaultMutationDataProxy = proxy;
+		}
+
+		return _defaultMutationDataProxy;
+	}
+
+	function clearDefaultMutationDataProxy(){
+		_defaultMutationDataProxy = null;
+	}
 
 	return {
-		getDefaultMutationDataProxy: getDefaultMutationDataProxy
+		getDefaultMutationDataProxy: getDefaultMutationDataProxy,
+		clearDefaultMutationDataProxy: clearDefaultMutationDataProxy,
+		getCustomMutationDataProxy: getCustomMutationDataProxy
 	}
 })();

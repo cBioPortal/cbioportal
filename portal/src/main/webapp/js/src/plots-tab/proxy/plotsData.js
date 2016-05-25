@@ -43,43 +43,39 @@ var plotsData = (function() {
             
             function inner_profile_callback_func(profileData) { 
                 var _tmp = {}; //convert to json format
-                for (var key in profileData[$("#" + ids.sidebar[axis].gene).val()]) {
-                    var _obj = profileData[$("#" + ids.sidebar[axis].gene).val()][key];
-                    _tmp[key] = _obj[$("#" + ids.sidebar[axis].profile_name).val()];
-                }
+                $.each(profileData,function(key,sampleProfileData){
+                    _tmp[sampleProfileData.sample_id]=sampleProfileData.profile_data
+                })
                 callback_func(axis, _tmp);
             }
             
             var paramsGetProfileData = {  //webservice call to get profile data
-                cancer_study_id: window.PlotsTab.cancerStudyId,
-                gene_list: $("#" + ids.sidebar[axis].gene).val(),
-                genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
-                case_set_id:  window.PlotsTab.CaseSetId,
-                case_ids_key: window.PlotsTab.CaseIdsKey
+                genes: [$("#" + ids.sidebar[axis].gene).val()],
+                genetic_profile_ids: [$("#" + ids.sidebar[axis].profile_name).val()],
+                sample_ids : window.PlotsTab.caseIds
             };
 
-            $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
-            
+            $.when(window.cbioportal_client.getGeneticProfileDataBySample(paramsGetProfileData))
+            .then(function(response) {
+                inner_profile_callback_func(response)
+            });
         } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
             
             function inner_callback_func(clinicalData) {
                 var _tmp = {};
-                $.each(clinicalData.data, function(index, obj) { //convert to json format
-                    if (obj.attr_id === $("#" + ids.sidebar[axis].clin_attr).val()) {
-                        _tmp[obj.sample] = obj.attr_val;
-                    }
+                $.each(clinicalData, function(index, obj) { //convert to json format
+                    _tmp[obj.sample_id] = obj.attr_val;
                 });
                 callback_func(axis, _tmp);
             }
             
-            var paramsGetClinicalAttributes = { //webservice call to get clinical data
-                cmd : "getClinicalData",
-                cancer_study_id: window.PlotsTab.cancerStudyId,
-                case_set_id :  window.PlotsTab.CaseSetId,
-                case_ids_key: window.PlotsTab.CaseIdsKey,
-                format : "json"
-            };
-            $.post("webservice.do", paramsGetClinicalAttributes, inner_callback_func, "json");
+           $.when(window.cbioportal_client.getSampleClinicalData({
+        	   study_id: [window.PlotsTab.cancerStudyId], 
+        	   attribute_ids: [$("#" + ids.sidebar[axis].clin_attr).val()], 
+        	   sample_ids: window.PlotsTab.caseIds}))
+                .then(function(response_data) {
+                    inner_callback_func(response_data)
+            });
 
         }
     };
@@ -205,23 +201,27 @@ var plotsData = (function() {
 
                     function inner_profile_callback_func(_result) {
                         stat.hasCnaAnno = true;
-                        $.each(Object.keys(dotsContent), function(index, caseId) {
-                            dotsContent[caseId].cna_anno = _result[$("#" + ids.sidebar.y.gene).val()][caseId][cna_annotation_profile_name];
+                        var caseList = Object.keys(dotsContent);
+                        $.each(_result,function(key,sampleProfileData){
+                            if($.inArray(sampleProfileData.sample_id, caseList)!==-1){
+                                dotsContent[sampleProfileData.sample_id].cna_anno= sampleProfileData.profile_data
+                            }
                         });
                         analyseData();
                         stat.retrieved = true;
                         readyCallBackFunction();
                     };
-
+                    
                     var paramsGetProfileData = {  //webservice call to get profile data
-                        cancer_study_id: window.PlotsTab.cancerStudyId,
-                        gene_list: $("#" + ids.sidebar.y.gene).val(),
-                        genetic_profile_id: cna_annotation_profile_name,
-                        case_set_id:  window.PlotsTab.CaseSetId,
-                        case_ids_key: window.PlotsTab.CaseIdsKey
-                    };
-                    $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
+                            genes: [$("#" + ids.sidebar.y.gene).val()],
+                            genetic_profile_ids: [cna_annotation_profile_name],
+                            sample_ids : window.PlotsTab.caseIds
+                        };
 
+                        $.when(window.cbioportal_client.getGeneticProfileDataBySample(paramsGetProfileData))
+                        .then(function(response) {
+                            inner_profile_callback_func(response)
+                        });
                 }
             } else {
                 analyseData();

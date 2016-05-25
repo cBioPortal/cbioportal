@@ -19,49 +19,32 @@ var metaData = (function() {
         retrieve_status = -1; //data not yet retrieved (-1), retrieved (1)
 
     function fetchProfileMetaData() {
-        var paramsGetProfiles = {
-            cancer_study_id: window.PlotsTab.cancerStudyId,
-            case_set_id: window.PlotsTab.CaseSetId,
-            case_ids_key: window.PlotsTab.CaseIdsKey,
-            gene_list: window.QuerySession.getQueryGenes().join(" ")
-        };
-        $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
+        $.when(window.cbioportal_client.getGeneticProfiles({study_id: window.PlotsTab.cancerStudyId}))
+        .then(function(gp_response) {
+            fetchClinicalAttrMetaData(gp_response)
+        });
     }
 
     function fetchClinicalAttrMetaData(profileMetaDataResult) {
-        var paramsGetClinicalAttributes = {
-            cmd : "getClinicalData",
-            cancer_study_id: window.PlotsTab.cancerStudyId,
-            case_set_id : window.PlotsTab.CaseSetId,
-            case_ids_key: window.PlotsTab.CaseIdsKey,
-            format : "json"
-        };
-        $.post("webservice.do", paramsGetClinicalAttributes, function(result) {
-            registerMetaData(result.attributes, profileMetaDataResult);
-            readyCallBackFunction();
-        }, "json");
+        $.when(window.cbioportal_client.getSampleClinicalAttributes({study_id: [window.PlotsTab.cancerStudyId], sample_ids: window.PlotsTab.caseIds}))
+        .then(function(response_attributes) {
+                 registerMetaData(response_attributes, profileMetaDataResult);
+                    readyCallBackFunction();
+        });
     }
 
     function registerMetaData(clinicalAttrMetaDataResult, profileMetaDataResult) {
 
-        var _tmp_id_arr = []; //temporary instore profile id
         var _profile_arr = [];
-        for (var gene in profileMetaDataResult) { //merge all genetic profiles from all queried genes
-            var _gene_obj = profileMetaDataResult[gene];
-            for (var _profile_name in _gene_obj) {
-                var obj = _gene_obj[_profile_name];
-                if ($.inArray(obj.STABLE_ID, _tmp_id_arr) === -1) {
-                    var _datum = jQuery.extend(true, {}, datum_genetic_profile_meta);
-                    _datum.type = obj.GENETIC_ALTERATION_TYPE;
-                    _datum.id = obj.STABLE_ID;
-                    _datum.name = obj.NAME;
-                    _datum.description = obj.DESCRIPTION;    
-                    _profile_arr.push(_datum);
-                    _tmp_id_arr.push(obj.STABLE_ID);
-                }
-            }
+        for (var _profile in profileMetaDataResult) {
+            var _datum = jQuery.extend(true, {}, datum_genetic_profile_meta);
+            _datum.type = _profile.genetic_alteration_type;
+            _datum.id = _profile.id;
+            _datum.name = _profile.name;
+            _datum.description = _profile.description;
+            _profile_arr.push(_datum);
         }
-        for (var gene in profileMetaDataResult) {
+        for (var gene in window.QuerySession.getQueryGenes()) {
             geneticProfiles[gene] = _profile_arr;
         }
         clinicalAttrs = []

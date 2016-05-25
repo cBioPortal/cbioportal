@@ -209,13 +209,13 @@ function addSessionServiceBookmark(fullURL, sessionJSON) {
 	        data: JSON.stringify(sessionJSON)
 	    }).done(function(data) {
 	        if (data['id'] == null){
-	            $('#session-id').append("An unknown error occurred. Unable to store your session.");
+	            $('#session-id').html("An unknown error occurred. Unable to store your session.");
 	        } else {
 	            var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id']; 
 	            displayBookmark(bookmark, bookmark);
 	        }
 	    }).fail(function(jqXHR) {
-            $('#session-id').append("An error occurred. Unable to store your session.");
+            $('#session-id').html("An error occurred. Unable to store your session.");
         });
     } 
 }

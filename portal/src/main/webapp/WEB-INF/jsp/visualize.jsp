@@ -295,15 +295,14 @@
 
                 }
               }, 50);
-            } 
+            }
         });
 
-
-        $("#bookmark-result-tab").click(function() {
+        $("#bookmark-result-tab").parent().click(function() {
             <% if (useSessionServiceBookmark) { %>
-            addSessionServiceBookmark(window.location.href, $(this).data('session'));
+                addSessionServiceBookmark(window.location.href, $(this).children("#bookmark-result-tab").data('session'));
             <% } else { %>
-            addURLBookmark();
+                addURLBookmark();
             <% } %>
         });
 

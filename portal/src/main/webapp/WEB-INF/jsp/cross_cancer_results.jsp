@@ -183,14 +183,14 @@ if (sessionError != null) {  %>
             $(".query-toggle").toggle();
         });
 
-        $("#cc-bookmark-link").click(function() {
-            <% if (useSessionServiceBookmark) { %>
-            addSessionServiceBookmark(window.location.href, $(this).data('session'));
-            <% } else { %>
-            addURLBookmark();
-            <% } %>
-        }); 
 
+        $("#cc-bookmark-link").parent().click(function() {
+            <% if (useSessionServiceBookmark) { %>
+                addSessionServiceBookmark(window.location.href, $(this).children("#cc-bookmark-link").data('session'));
+            <% } else { %>
+                addURLBookmark();
+            <% } %>
+        });
     });
 
 </script>

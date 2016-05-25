@@ -9,6 +9,10 @@ jdk: openjdk7
 env:
     - MAVEN_VERSION=3.3.3
 
+addons:
+    # fix https://github.com/travis-ci/travis-ci/issues/5227
+    hostname: short-hostname
+
 cache:
     directories:
         - $HOME/.m2
@@ -66,9 +70,11 @@ script:
             -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ \
             -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com \
             clean install
-    - java -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --expand-war portal/target/cbioportal.war &
-    - sleep 20s
-    - bash test/end-to-end/test_make_screenshots.sh
+    - cd test/end-to-end
+    - docker-compose up -d
+    - sleep 30s
+    - cd ../..
+    - bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
 
 notifications:
   slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6

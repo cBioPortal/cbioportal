@@ -564,13 +564,13 @@ var MutationViewsUtil = (function()
 			mainType: "missense_mutation",
 			priority: 1},
 		inframe: {label: "IF",
-			longName: "In-frame Mutation",
+			longName: "In-frame",
 			style: "inframe_mutation",
 			mainType: "inframe",
 			priority: 2},
 		truncating: {
 			label: "Truncating",
-			longName: "Truncating Mutation",
+			longName: "Truncating",
 			style: "trunc_mutation",
 			mainType: "truncating",
 			priority: 4},
@@ -4251,7 +4251,7 @@ var MutationDetailsUtil = function(mutations)
 		{
 			for (var i=0; i < mutations.length; i++)
 			{
-				var value = mutations[i][dataField];
+				var value = mutations[i].get(dataField);
 
 				if (value &&
 				    !_.contains(excludeList, value))

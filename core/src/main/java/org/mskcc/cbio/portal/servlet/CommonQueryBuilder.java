@@ -138,6 +138,7 @@ public class CommonQueryBuilder extends HttpServlet {
 	public static final String DB_ERROR = "db_error";
 	private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database."
 			+ "  This could happen if the database does not contain any cancer studies.");
+	private static final String COMMON_ERROR = ("Unknown error while processing request");
 
 	private static Log LOG = LogFactory.getLog(CommonQueryBuilder.class);
 
@@ -331,7 +332,7 @@ public class CommonQueryBuilder extends HttpServlet {
 			forwardToErrorPage(httpServletRequest, httpServletResponse, DB_CONNECT_ERROR, xdebug);
 		} catch (Exception e) {
 			xdebug.logMsg(this, "Common Exception:  " + e.getMessage());
-			forwardToErrorPage(httpServletRequest, httpServletResponse, "Unkown Error", xdebug);
+			forwardToErrorPage(httpServletRequest, httpServletResponse, COMMON_ERROR, xdebug);
 		}
 
 	}
@@ -398,7 +399,6 @@ public class CommonQueryBuilder extends HttpServlet {
 
 			} else {
 				for (CancerStudy cancerStudy : cancerStudyList) {
-					System.out.println("cancer study : " + cancerStudy);
 					String cancerStudyId = cancerStudy.getCancerStudyStableId();
 
 					if (!studyMap.containsKey(cancerStudyId)) {
@@ -451,7 +451,6 @@ public class CommonQueryBuilder extends HttpServlet {
 			}
 			String tabIndex = httpServletRequest.getParameter(QueryBuilder.TAB_INDEX);
 			if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
-				System.out.println("came to forward");
 				xdebug.logMsg(this, "Merging Profile Data");
 				double rppaScore = ZScoreUtil.getRPPAScore(httpServletRequest);
 				Map<String, List<String>> cancerTypeInfo = new HashMap<String, List<String>>();
@@ -467,17 +466,14 @@ public class CommonQueryBuilder extends HttpServlet {
 				dispatcher.forward(httpServletRequest, httpServletResponse);
 			}
 		} catch (DaoException | ProtocolException e) {
-			System.out.println( e.getMessage());
 			xdebug.logMsg(this, "Got DAO Exception:  " + e.getMessage());
 			forwardToErrorPage(httpServletRequest, httpServletResponse, DB_CONNECT_ERROR, xdebug);
 		} catch (ServletException e) {
-			System.out.println( e.getMessage());
 			xdebug.logMsg(this, "Got Servlet Exception:  " + e.getMessage());
-			forwardToErrorPage(httpServletRequest, httpServletResponse, "Unknow Error1"+ e.getMessage(), xdebug);
+			forwardToErrorPage(httpServletRequest, httpServletResponse, COMMON_ERROR, xdebug);
 		} catch (IOException e) {
-			System.out.println( e.getMessage());
 			xdebug.logMsg(this, "Got IO Exception:  " + e.getMessage());
-			forwardToErrorPage(httpServletRequest, httpServletResponse, "Unknow Error2"+ e.getMessage(), xdebug);
+			forwardToErrorPage(httpServletRequest, httpServletResponse, COMMON_ERROR, xdebug);
 		}
 
 	}
@@ -616,7 +612,6 @@ public class CommonQueryBuilder extends HttpServlet {
 
 	private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response, String userMessage,
 			XDebug xdebug) throws ServletException, IOException {
-		System.out.println("userMessage : "+userMessage);
 		request.setAttribute("xdebug_object", xdebug);
 		request.setAttribute(USER_ERROR_MESSAGE, userMessage);
 		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/error.jsp");

@@ -14,6 +14,14 @@ Check out our [tutorial paper](http://www.ncbi.nlm.nih.gov/pubmed/23550210) to g
 
 The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 levels), mRNA and microRNA expression data, non-synonymous mutations, protein-level and phosphoprotein level (RPPA) data, DNA methylation data, and limited de-identified clinical data. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp).
 
+### What is the process of data curation?
+
+The TCGA provisional datasets are directly from [TCGA data center](https://tcga-data.nci.nih.gov/tcga/) partly via [Broad Firehose](http://gdac.broadinstitute.org/) which are updated regularly.
+
+We are also actively curating datasets from literature. Studies from literature were curated from the data published with the papers. We sometimes reach out to the investigators to additional data such as clinical attributes. All the mutation data (VCF or MAF) were processed through an internal pipeline to annotate the variant effects in a consistent way across studies.
+
+Please [contact us](mailto:cbioportal@googlegroups.com) to suggest public datasets to curate. 
+
 ### How do I get updates on new portal developments and new data sets?
 
 Please subscribe to our low-traffic [news mailing list](http://groups.google.com/group/cbioportal-news) or follow us on [Twitter](https://twitter.com/cbioportal).

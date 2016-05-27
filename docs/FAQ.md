@@ -16,11 +16,11 @@ The portal currently stores DNA copy-number data (putative, discrete values per 
 
 ### What is the process of data curation?
 
-The TCGA provisional datasets are directly from TCGA data center (https://tcga-data.nci.nih.gov/tcga/) partly via Broad Firehose (http://gdac.broadinstitute.org/) which are updated regularly.
+The TCGA provisional datasets are directly from [TCGA data center](https://tcga-data.nci.nih.gov/tcga/) partly via [Broad Firehose](http://gdac.broadinstitute.org/) which are updated regularly.
 
 We are also actively curating datasets from literature. Studies from literature were curated from the data published with the papers. We sometimes reach out to the investigators to additional data such as clinical attributes. All the mutation data (VCF or MAF) were processed through an internal pipeline to annotate the variant effects in a consistent way across studies.
 
-Please contact us (cbioportal@googlegroups.com) to suggest public datasets to curate. 
+Please [contact us](mailto:cbioportal@googlegroups.com) to suggest public datasets to curate. 
 
 ### How do I get updates on new portal developments and new data sets?
 

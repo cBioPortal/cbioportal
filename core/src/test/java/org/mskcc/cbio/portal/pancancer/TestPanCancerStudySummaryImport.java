@@ -1,5 +1,7 @@
 package org.mskcc.cbio.portal.pancancer;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
@@ -27,6 +29,26 @@ import static org.junit.Assert.assertEquals;
 @Transactional
 public class TestPanCancerStudySummaryImport {
 
+    @Before
+    public void setUp() throws DaoException {
+        //clear cache to ensure this test is not affected by other tests (i.e. some tests add the same
+        //samples to the DB and these remain in the cache after tests are done...if tests don't implement
+        //teardown properly).
+        DaoPatient.reCache();
+        DaoSample.reCache();
+        DaoGeneticProfile.reCache();
+        DaoGeneOptimized.getInstance().reCache();
+    }
+    
+    @After
+    public void tearDown() {
+        //clear any cached data:
+        DaoPatient.reCache();
+        DaoSample.reCache();
+        DaoGeneticProfile.reCache();
+        DaoGeneOptimized.getInstance().reCache();
+    }
+    
     @Test
     public void testPanCancerImport() throws Exception {
         ProgressMonitor.setConsoleMode(true);

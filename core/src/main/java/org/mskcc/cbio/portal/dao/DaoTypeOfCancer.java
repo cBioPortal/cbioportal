@@ -131,6 +131,13 @@ public class DaoTypeOfCancer {
       }
    }
 
+    /**
+     * Deletes all records from DB using TRUNCATE statement!
+     * 
+     * @throws DaoException
+     * 
+     * @deprecated do not use this! Use deleteAllTypesOfCancer instead
+     */
     public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -145,6 +152,18 @@ public class DaoTypeOfCancer {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
+        }
+    }
+    
+    /**
+     * Deletes all records from DB using DELETE statement.
+     * 
+     * @param typeOfCancerId
+     * @throws DaoException
+     */
+    public static void deleteAllTypesOfCancer() throws DaoException {
+        for (TypeOfCancer typeOfCancer : getAllTypesOfCancer()) {
+            deleteTypeOfCancer(typeOfCancer.getTypeOfCancerId());
         }
     }
 

@@ -425,6 +425,8 @@ public final class DaoCancerStudy {
     /**
      * Deletes all Cancer Studies.
      * @throws DaoException Database Error.
+     * 
+     * @deprecated this should not be used. Use deleteCancerStudy(cancerStudyStableId) instead
      */
     public static void deleteAllRecords() throws DaoException {
         cacheDateByStableId.clear();

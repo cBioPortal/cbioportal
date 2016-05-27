@@ -69,7 +69,7 @@ public final class DaoCancerStudy {
         reCacheAll();
     }
 
-    private static synchronized void reCacheAll() {
+    public static synchronized void reCacheAll() {
         
         System.out.println("Recaching... ");
         DaoCancerStudy.reCache();

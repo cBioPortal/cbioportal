@@ -32,11 +32,13 @@
 
 package org.mskcc.cbio.portal.web_api;
 
-import org.junit.Ignore;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
@@ -47,7 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -65,6 +66,21 @@ public class TestGetTypesOfCancer {
         "</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> " +
         "<a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.";
 
+    
+    @Before
+    public void setUp() throws DaoException {
+        //clear cache to ensure this test is not affected by other tests (i.e. some tests add the same
+        //samples to the DB and these remain in the cache after tests are done...if tests don't implement
+        //teardown properly).
+        DaoCancerStudy.reCacheAll();
+    }
+    
+    @After
+    public void tearDown() {
+        //clear any cached data:
+        DaoCancerStudy.reCacheAll();
+    }    
+    
     /**
      * Tests Get Types of Cancer.
      * @throws DaoException Database Error.
@@ -76,7 +92,8 @@ public class TestGetTypesOfCancer {
 
         // First, verify that protocol exception is thrown when there are no cancer types
         try {
-            DaoTypeOfCancer.deleteAllRecords();
+            DaoCancerStudy.deleteCancerStudy("study_tcga_pub");
+            DaoTypeOfCancer.deleteAllTypesOfCancer();
             String output = GetTypesOfCancer.getTypesOfCancer();
             fail ("ProtocolException should have been thrown.");
         } catch (ProtocolException e) {
@@ -86,21 +103,20 @@ public class TestGetTypesOfCancer {
 	
     @Test
     public void testGetTypesOfCancer() throws DaoException, IOException, ProtocolException {
-
+        //remove study and all cancer types:
+        DaoCancerStudy.deleteCancerStudy("study_tcga_pub");
+        DaoTypeOfCancer.deleteAllTypesOfCancer();
+        
         //  Verify a few of the data lines
-        if (DaoTypeOfCancer.getTypeOfCancerById("acbc") == null) {
-            TypeOfCancer typeOfCancer1 = new TypeOfCancer();
-            typeOfCancer1.setName("Adenoid Cystic Breast Cancer");
-            typeOfCancer1.setTypeOfCancerId("acbc");
-            DaoTypeOfCancer.addTypeOfCancer(typeOfCancer1);
-        }
+        TypeOfCancer typeOfCancer1 = new TypeOfCancer();
+        typeOfCancer1.setName("Adenoid Cystic Breast Cancer");
+        typeOfCancer1.setTypeOfCancerId("acbc");
+        DaoTypeOfCancer.addTypeOfCancer(typeOfCancer1);
 
-        if (DaoTypeOfCancer.getTypeOfCancerById("brca") == null) {
-            TypeOfCancer typeOfCancer2 = new TypeOfCancer();
-            typeOfCancer2.setName("Breast Invasive Carcinoma");
-            typeOfCancer2.setTypeOfCancerId("brca");
-            DaoTypeOfCancer.addTypeOfCancer(typeOfCancer2);
-        }
+        TypeOfCancer typeOfCancer2 = new TypeOfCancer();
+        typeOfCancer2.setName("Breast Invasive Carcinoma");
+        typeOfCancer2.setTypeOfCancerId("brca");
+        DaoTypeOfCancer.addTypeOfCancer(typeOfCancer2);
         
         String output = GetTypesOfCancer.getTypesOfCancer();
         assertTrue(output.contains("acbc\tAdenoid Cystic Breast Cancer"));
@@ -122,7 +138,8 @@ public class TestGetTypesOfCancer {
 
         // First, verify that protocol exception is thrown when there are no cancer studies
         try {
-            DaoCancerStudy.deleteAllRecords();
+            DaoCancerStudy.deleteCancerStudy("study_tcga_pub");
+            DaoTypeOfCancer.deleteAllTypesOfCancer();
             String output = GetTypesOfCancer.getCancerStudies();
             fail ("ProtocolException should have been thrown.");
         } catch (ProtocolException e) {
@@ -133,15 +150,18 @@ public class TestGetTypesOfCancer {
     @Test
     public void testGetCancerStudies() throws DaoException, IOException, ProtocolException {
 
-        if (DaoTypeOfCancer.getTypeOfCancerById("brca") == null) {
-            TypeOfCancer typeOfCancer2 = new TypeOfCancer();
-            typeOfCancer2.setName("Breast Invasive Carcinoma");
-            typeOfCancer2.setTypeOfCancerId("brca");
-            DaoTypeOfCancer.addTypeOfCancer(typeOfCancer2);
-        }
+        //remove study and all cancer types:
+        DaoCancerStudy.deleteCancerStudy("study_tcga_pub");
+        DaoTypeOfCancer.deleteAllTypesOfCancer();
+        
+        //Add dummy cancer type and dummy study on empty DB:
+        TypeOfCancer typeOfCancer2 = new TypeOfCancer();
+        typeOfCancer2.setName("Breast Invasive Carcinoma");
+        typeOfCancer2.setTypeOfCancerId("brca_testapi2");
+        DaoTypeOfCancer.addTypeOfCancer(typeOfCancer2);
         
         CancerStudy cancerStudy = new CancerStudy("Breast Invasive Carcinoma (TCGA, Nature 2012)", DESCRIPTION, 
-            "study_tcga_pub", "brca", true);
+            "study_tcga_pub_testapi2", "brca_testapi2", true);
         DaoCancerStudy.addCancerStudy(cancerStudy, true);
         
         String output = GetTypesOfCancer.getCancerStudies();
@@ -154,6 +174,6 @@ public class TestGetTypesOfCancer {
         assertEquals ("cancer_study_id\tname\tdescription", lines[0].trim());
 
         //  Verify data
-        assertEquals ("study_tcga_pub\tBreast Invasive Carcinoma (TCGA, Nature 2012)\t" + DESCRIPTION, lines[1].trim());
+        assertEquals ("study_tcga_pub_testapi2\tBreast Invasive Carcinoma (TCGA, Nature 2012)\t" + DESCRIPTION, lines[1].trim());
     }
 }

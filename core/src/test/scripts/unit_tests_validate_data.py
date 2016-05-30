@@ -561,7 +561,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_cna_invalid_values.txt',
                                     validateData.CNAValidator)
         # expecting various errors about data values, about one per line
-        self.assertEqual(len(record_list), 4)
+        self.assertEqual(len(record_list), 5)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
         record_iterator = iter(record_list)
@@ -581,6 +581,11 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.line_number, 7)
         self.assertEqual(record.column_number, 6)
         self.assertEqual(record.cause, 'AURKAIP1')
+        # Only "NA" is supported, anything else should be an error:
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, '[Not Available]')
 
     def test_valid_rppa(self):
         """Check a valid RPPA file that should yield no errors."""
@@ -643,6 +648,27 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
 
     # TODO: test other subclasses of FeatureWiseValidator
 
+class ContinuousValuesTestCase(PostClinicalDataFileTestCase):
+
+    """Verify that values are being checked in feature/sample matrix files with float values."""
+
+    def test_invalid_methylation(self):
+        """Check an invalid methylation file that should yield errors."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_methylation_invalid_values.txt',
+                                    validateData.ContinuousValuesValidator)
+        # expecting 3 errors
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.cause, 'n.a.')
+        record = record_iterator.next()
+        self.assertEqual(record.cause, '')
+        record = record_iterator.next()
+        self.assertEqual(record.cause, 'Na')
+        
 
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 

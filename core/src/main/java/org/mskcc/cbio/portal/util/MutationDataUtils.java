@@ -125,10 +125,12 @@ public class MutationDataUtils {
 
         //convert sample list into a set (to be able to use with get mutation data)
         HashSet<String> setOfSampleIds = new HashSet<String>(targetSampleList);
-        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), targetSampleList);
+        List<Integer> internalSampleIds;
 
         if (geneticProfile != null)
         {
+            internalSampleIds = InternalIdUtil.getInternalSampleIds(
+                geneticProfile.getCancerStudyId(), targetSampleList);
             GetMutationData remoteCallMutation = new GetMutationData();
 
             mutationList = remoteCallMutation.getMutationData(geneticProfile,
@@ -165,7 +167,8 @@ public class MutationDataUtils {
         {
             Integer sampleId = mutation.getSampleId();
 
-            if (internalSampleIds.contains(sampleId))
+            if (internalSampleIds!= null &&
+                internalSampleIds.contains(sampleId))
             {
                 mutationArray.add(getMutationDataMap(
 		                mutation, geneticProfile, cancerStudy, countMap, cnaDataMap, cosmic, clinicalDataMap));

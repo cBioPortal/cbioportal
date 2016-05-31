@@ -50,7 +50,8 @@ var DataProxyFactory = (function()
 			// note that gene list is not set as a servlet param, it is passed a constructor parameter
 			var servletParams = {};
 
-			servletParams.geneticProfiles = window.QuerySession.getCancerStudyIds()[0] + "_mutations";
+			//servletParams.geneticProfiles = PortalGlobals.getGeneticProfiles();
+			servletParams.geneticProfiles = window.QuerySession.getMutationProfileId();
 
 			var caseSetId = window.QuerySession.getCaseSetId();
 			var caseIdsKey = window.QuerySession.getCaseIdsKey();

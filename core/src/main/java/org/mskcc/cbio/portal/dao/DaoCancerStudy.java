@@ -69,7 +69,7 @@ public final class DaoCancerStudy {
         reCacheAll();
     }
 
-    private static synchronized void reCacheAll() {
+    public static synchronized void reCacheAll() {
         
         System.out.println("Recaching... ");
         DaoCancerStudy.reCache();
@@ -425,6 +425,8 @@ public final class DaoCancerStudy {
     /**
      * Deletes all Cancer Studies.
      * @throws DaoException Database Error.
+     * 
+     * @deprecated this should not be used. Use deleteCancerStudy(cancerStudyStableId) instead
      */
     public static void deleteAllRecords() throws DaoException {
         cacheDateByStableId.clear();

@@ -363,13 +363,23 @@ function getMapping() {
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
 function chooseAction(evt) {
-    var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
     $(".error_box").remove();
-       
+       var haveExpInQuery = false;
        if (!window.changingTabs) {
 		// validate OQL
 		try {
-			oql_parser.parse($('#gene_list').val());
+			var parsed_result = oql_parser.parse($('#gene_list').val());
+			for (var i = 0; i < parsed_result.length; i++) {
+			    for (var j = 0; j < parsed_result[i].alterations.length; j++) {
+				if (parsed_result[i].alterations[j].constr_val === "EXP") {
+				    haveExpInQuery = true;
+				    break;
+				}
+			    }
+			    if (haveExpInQuery) {
+				break;
+			    }
+			}
 		} catch (err) {
 			var offset = err.offset;
 			if (offset === $('#gene_list').val().length) {

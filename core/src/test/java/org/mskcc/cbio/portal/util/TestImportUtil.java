@@ -38,9 +38,18 @@ import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 /**
  * JUnit tests utility class.
+ * 
+ * @deprecated
  */
 public class TestImportUtil {
 
+    /**
+     * 
+     * @param resetDatabase
+     * @throws DaoException
+     * 
+     * @deprecated let's not do this...the new testing framework does this in another way (via seed_mini.sql)
+     */
     public static void createSmallDbms(boolean resetDatabase) throws DaoException
     {
       if (resetDatabase){

@@ -73,27 +73,26 @@ public class MySQLbulkLoader {
     * @throws DaoException
     */
    public static int flushAll() throws DaoException {
-        try {
+	   int checks = 0;
+       PreparedStatement stmt = null;
+       boolean executedSetFKChecks = false;
+       try {
             Connection con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
-            PreparedStatement stmt = con.prepareStatement("SELECT @@foreign_key_checks;");
+            stmt = con.prepareStatement("SELECT @@foreign_key_checks;");
             ResultSet result = stmt.executeQuery();
             
             result.first();
-            int checks = result.getInt(1);
+            checks = result.getInt(1);
 
             stmt = con.prepareStatement("SET foreign_key_checks = ?;");
             stmt.setLong(1, 0);
             stmt.execute();
+            executedSetFKChecks = true;
             
             int n = 0;
             for (MySQLbulkLoader mySQLbulkLoader : mySQLbulkLoaders.values()) {
                 n += mySQLbulkLoader.loadDataFromTempFileIntoDBMS();
             }
-            
-            mySQLbulkLoaders.clear();
-            
-            stmt.setLong(1, checks);
-            stmt.execute();
             
             return n;
         } catch (IOException e) {
@@ -102,6 +101,18 @@ public class MySQLbulkLoader {
             return -1;
         } catch (SQLException e) {
         	throw new DaoException(e);
+        }
+        finally {
+        	mySQLbulkLoaders.clear();
+            if (executedSetFKChecks && stmt != null) {
+            	try {
+					stmt.setLong(1, checks);
+					stmt.execute();
+				} catch (SQLException e) {
+					throw new DaoException(e);
+				}
+            	
+            }
         }
     }
 
@@ -268,9 +279,4 @@ public class MySQLbulkLoader {
       MySQLbulkLoader.bulkLoad = false;
    }
 
-   private boolean processingClinicalData()
-   {
-      return (tempFileName.contains(DaoClinicalData.SAMPLE_TABLE) ||
-              tempFileName.contains(DaoClinicalData.PATIENT_TABLE));
-   }
 }

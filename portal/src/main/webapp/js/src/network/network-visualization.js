@@ -357,10 +357,15 @@ NetworkVis.prototype._createMergingEdges = function()
 /**
 * Hides interaction source popup
  */
-NetworkVis.prototype._closeInteractionSourcePopUp = function ()
+NetworkVis.prototype._closeInteractionSourcePopUp = function (closeWithLayout)
 {
   this.updateEdges();
   $(this.interactionSourceVisibilitySelector).dialog('close');
+
+  if (closeWithLayout) {
+    // visualization changed, perform layout if necessary
+    this._visChanged();
+  }
 }
 
 /**
@@ -2546,13 +2551,13 @@ NetworkVis.prototype._initDialogs = function()
     $(this.interactionTypeVisibilitySelector).dialog({autoOpen: false,
                                    resizable: false,
                                    width: 300,
-                                   close: function( event, ui ) {self._closeInteractionTypePopUp()}});
+                                   close: function( event, ui ) {self._closeInteractionTypePopUp(false)}});
 
    //adjust edge source UI visibility dialog
    $(this.interactionSourceVisibilitySelector).dialog({autoOpen: false,
                                   resizable: false,
                                   width: 300,
-                                  close: function( event, ui ) {self._closeInteractionSourcePopUp()}});
+                                  close: function( event, ui ) {self._closeInteractionSourcePopUp(false)}});
 };
 
 /**
@@ -3192,9 +3197,6 @@ NetworkVis.prototype._refreshRelationsTabUIVisibility = function()
           //_setComponentVis($("#edge_legend .other"), true);
       }
     }
-
-    // visualization changed, perform layout if necessary
-    this._visChanged();
 }
 /**
  * Initializes the content of the relations tab, by adding content according to
@@ -3472,11 +3474,11 @@ NetworkVis.prototype._initControlFunctions = function()
     };
 
     var closeInteractionTypePopUp = function () {
-        self._closeInteractionTypePopUp();
+        self._closeInteractionTypePopUp(true);
     };
 
     var closeInteractionSourcePopUp = function () {
-        self._closeInteractionSourcePopUp();
+        self._closeInteractionSourcePopUp(true);
     };
 
     var selectAll_InteractionTypeVisibility = function () {
@@ -3727,7 +3729,7 @@ NetworkVis.prototype._performLayout = function()
       //TODO layout options will be changed
 
     //Perform layout only on visible elements !
-    this._vis.filter(':visible').layout(this._graphLayout);
+    this._vis./*filter(':visible').*/layout(this._graphLayout);
 };
 
 /**

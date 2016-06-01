@@ -42,9 +42,9 @@ import java.util.*;
 /**
  * Command Line tool to Import Sample Lists.
  */
-public class ImportSampleList {
+public class ImportSampleList extends ConsoleRunnable {
 
-   public static void importSampleList(File dataFile) throws Exception {
+   public static void importSampleList(File dataFile) throws IOException, DaoException {
       ProgressMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
       Properties properties = new TrimmedProperties();
       properties.load(new FileInputStream(dataFile));
@@ -138,16 +138,16 @@ public class ImportSampleList {
       ProgressMonitor.setCurrentMessage(" --> number of samples stored in final sample list " + warningSamplesViaPatientLink + ":  " + sampleIDsList.size());
    }
 
-   public static void main(String[] args) throws Exception {
+   public void run () {
       try {
     	  // check args
 	      if (args.length < 1) {
-	         System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
 	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-	         //use 2 for command line syntax errors:
-	         System.exit(2);
+             throw new UsageException(
+                     "importCaseListData.pl ",
+                     null,
+                     "<data_file.txt or directory>");
 	      }
-	      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 	      File dataFile = new File(args[0]);
 	      if (dataFile.isDirectory()) {
 	         File files[] = dataFile.listFiles();
@@ -167,16 +167,29 @@ public class ImportSampleList {
 	    		  ProgressMonitor.logWarning("File name starts with '.' or ends with '~', so it was skipped: " + dataFile.getCanonicalPath());
 	    	  }
 	      }
-	      ConsoleUtil.showMessages();
-	      System.out.println("Done.");
-      }
-      catch (Exception e) {
-	        ConsoleUtil.showWarnings();
-	        //exit with error status:
-	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
-	        if (e.getMessage() == null)
-	        	e.printStackTrace();
-	        System.exit(1);
+      } catch (RuntimeException e) {
+          throw e;
+      } catch (IOException|DaoException e) {
+          throw new RuntimeException(e);
       }
    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportSampleList(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportSampleList(args);
+        runner.runInConsole();
+    }
 }

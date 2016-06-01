@@ -564,13 +564,13 @@ var MutationViewsUtil = (function()
 			mainType: "missense_mutation",
 			priority: 1},
 		inframe: {label: "IF",
-			longName: "In-frame Mutation",
+			longName: "In-frame",
 			style: "inframe_mutation",
 			mainType: "inframe",
 			priority: 2},
 		truncating: {
 			label: "Truncating",
-			longName: "Truncating Mutation",
+			longName: "Truncating",
 			style: "trunc_mutation",
 			mainType: "truncating",
 			priority: 4},
@@ -4251,7 +4251,7 @@ var MutationDetailsUtil = function(mutations)
 		{
 			for (var i=0; i < mutations.length; i++)
 			{
-				var value = mutations[i][dataField];
+				var value = mutations[i].get(dataField);
 
 				if (value &&
 				    !_.contains(excludeList, value))
@@ -7146,7 +7146,13 @@ var LollipopTipView = Backbone.View.extend({
  */
 var MainMutationView = Backbone.View.extend({
 	initialize : function (options) {
-		this.options = options || {};
+		var defaultOpts = {
+			config: {
+				loaderImage: "images/ajax-loader.gif"
+			}
+		};
+
+		this.options = jQuery.extend(true, {}, defaultOpts, options);
 
 		// custom event dispatcher
 		this.dispatcher = {};
@@ -7197,6 +7203,7 @@ var MainMutationView = Backbone.View.extend({
 		var panelOpts = {
 			//el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
 			el: self.$el.find(".mutation-pdb-panel-view"),
+			config: {loaderImage: self.options.config.loaderImage},
 			model: {geneSymbol: self.model.geneSymbol,
 				pdbColl: pdbColl,
 				pdbProxy: self.model.dataProxies.pdbProxy},
@@ -7376,6 +7383,7 @@ var MainMutationView = Backbone.View.extend({
 
 		var mutationTableView = new MutationDetailsTableView({
 			el: target,
+			config: {loaderImage: self.options.config.loaderImage},
 			model: {geneSymbol: gene,
 				mutations: mutationData,
 				dataProxies: dataProxies,
@@ -7737,7 +7745,14 @@ var Mutation3dVisInfoView = Backbone.View.extend({
  */
 var Mutation3dVisView = Backbone.View.extend({
 	initialize : function (options) {
-		this.options = options || {};
+		var defaultOpts = {
+			config: {
+				loaderImage: "images/ajax-loader.gif",
+				helpImage: "images/help.png"
+			}
+		};
+
+		this.options = jQuery.extend(true, {}, defaultOpts, options);
 
 		// custom event dispatcher
 		this.dispatcher = {};
@@ -7749,10 +7764,11 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// compile the template using underscore
 		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_3d_vis_template");
-		// TODO make the images customizable?
-		var template = templateFn(
-			{loaderImage: "images/ajax-loader.gif",
-				helpImage: "images/help.png"});
+
+		var template = templateFn({
+			loaderImage: self.options.config.loaderImage,
+			helpImage: self.options.config.helpImage
+		});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -8821,7 +8837,13 @@ var MutationCustomizePanelView = Backbone.View.extend({
  */
 var MutationDetailsTableView = Backbone.View.extend({
 	initialize : function (options) {
-		this.options = options || {};
+		var defaultOpts = {
+			config: {
+				loaderImage: "images/ajax-loader.gif"
+			}
+		};
+
+		this.options = jQuery.extend(true, {}, defaultOpts, options);
 
 		// custom event dispatcher
 		this.dispatcher = {};
@@ -8834,7 +8856,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 		// compile the template using underscore
 		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_table_template");
 		// TODO customize loader image
-		var template = templateFn({loaderImage: "images/ajax-loader.gif"});
+		var template = templateFn({loaderImage: self.options.config.loaderImage});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -9108,6 +9130,7 @@ var MutationDetailsView = Backbone.View.extend({
 	initialize : function (options) {
 		var defaultOpts = {
 			config: {
+				loaderImage: "images/ajax-loader.gif",
 				coreTemplate: "default_mutation_details_template",
 				mainContentTemplate: "default_mutation_details_main_content_template",
 				listContentTemplate: "default_mutation_details_list_content_template"
@@ -9127,8 +9150,7 @@ var MutationDetailsView = Backbone.View.extend({
 
 		var content = self._generateContent();
 
-		// TODO make the image customizable?
-		var variables = {loaderImage: "images/ajax-loader.gif",
+		var variables = {loaderImage: self.options.config.loaderImage,
 			listContent: content.listContent,
 			mainContent: content.mainContent};
 
@@ -9229,7 +9251,7 @@ var MutationDetailsView = Backbone.View.extend({
 			var templateFn = BackboneTemplateCache.getTemplateFn(self.options.config.mainContentTemplate);
 
 			mainContent += templateFn(
-					{loaderImage: "images/ajax-loader.gif",
+					{loaderImage: self.options.config.loaderImage,
 						geneSymbol: gene,
 						geneId: cbio.util.safeProperty(gene)});
 
@@ -10262,7 +10284,13 @@ var PdbChainTipView = Backbone.View.extend({
  */
 var PdbPanelView = Backbone.View.extend({
 	initialize : function (options) {
-		this.options = options || {};
+		var defaultOpts = {
+			config: {
+				loaderImage: "images/ajax-loader.gif"
+			}
+		};
+
+		this.options = jQuery.extend(true, {}, defaultOpts, options);
 		this.collapseTimer = null;
 		this.expandTimer = null;
 	},
@@ -10346,6 +10374,7 @@ var PdbPanelView = Backbone.View.extend({
 
 		var tableOpts = {
 			el: self.$el.find(".mutation-pdb-table-view"),
+			config: {loaderImage: self.options.config.loaderImage},
 			model: {geneSymbol: self.model.geneSymbol,
 				pdbColl: pdbColl,
 				pdbProxy: self.model.pdbProxy}
@@ -10635,7 +10664,13 @@ var PdbPanelView = Backbone.View.extend({
  */
 var PdbTableView = Backbone.View.extend({
 	initialize : function (options) {
-		this.options = options || {};
+		var defaultOpts = {
+			config: {
+				loaderImage: "images/ajax-loader.gif"
+			}
+		};
+
+		this.options = jQuery.extend(true, {}, defaultOpts, options);
 	},
 	render: function(callback)
 	{
@@ -10643,8 +10678,7 @@ var PdbTableView = Backbone.View.extend({
 
 		// compile the template using underscore
 		var templateFn = BackboneTemplateCache.getTemplateFn("pdb_table_view_template");
-		// TODO customize loader image
-		var template = templateFn({loaderImage: "images/ajax-loader.gif"});
+		var template = templateFn({loaderImage: self.options.config.loaderImage});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -11170,59 +11204,64 @@ function ClinicalDataProxy(options)
 		var cancerStudyId;
 		var patientSampleMap = {};
 		var patientIds = [];
-		var portalGlobals = null;
+		var querySession = null;
 
-		// TODO we need to find a better way to plug PortalGlobals into MutationMapper!
-		// workaround: since PortalGlobals is actually live in cBioPortal
+		// TODO we need to find a better way to plug portal data into MutationMapper!
+		// workaround: since QuerySession is actually live in cBioPortal
 		// we need to make sure that it doesn't break the standalone MutationMapper instances
 		try {
-			portalGlobals = PortalGlobals;
+			querySession = window.QuerySession;
 		} catch (e) {
-			// undefined reference: PortalGlobals
+			// undefined reference: QuerySession
 		}
 
-		if (portalGlobals) {
-			cancerStudyId = portalGlobals.getCancerStudyId();
-			patientSampleMap = portalGlobals.getPatientSampleIdMap();
-			for (var i = 0; i < samples.length; i++) {
-				patientIds.push(patientSampleMap[samples[i]]);
-			}
+		if (querySession) {
+			cancerStudyId = querySession.cancer_study_ids[0];
+			querySession.getPatientSampleIdMap().then(function (patientSampleMap){
+                for (var i = 0; i < samples.length; i++) {
+                    patientIds.push(patientSampleMap[samples[i]]);
+                }
+                makePatientData();
+            });
 		}
 		else {
 			cancerStudyId = window.cancer_study_id;
+            makePatientData();
 		}
 
-		// no cancer study id or patient information...
-		if (!cancerStudyId || _.size(patientIds) === 0)
-		{
-			callback(null);
-			return;
-		}
+        function makePatientData() {
+            // no cancer study id or patient information...
+		    if (!cancerStudyId || _.size(patientIds) === 0)
+		    {
+			    callback(null);
+			    return;
+		    }
 
-		var args = {study_id:cancerStudyId, attribute_ids:["12_245_PARTC_CONSENTED"], patient_ids:patientIds};
-		var arg_strings = [];
-		for (var k in args) {
-			if (args.hasOwnProperty(k)) {
-				arg_strings.push(k + '=' + [].concat(args[k]).join(","));
-			}
-		}
+		    var args = {study_id:cancerStudyId, attribute_ids:["12_245_PARTC_CONSENTED"], patient_ids:patientIds};
+		    var arg_strings = [];
+		    for (var k in args) {
+			    if (args.hasOwnProperty(k)) {
+			        arg_strings.push(k + '=' + [].concat(args[k]).join(","));
+			    }
+		    }
 
-		var arg_string = arg_strings.join("&") || "?";
+		    var arg_string = arg_strings.join("&") || "?";
 
-		var ajaxOpts = {
-			type: "POST",
-			url: _options.servletName + "/" + _options.subService.patients,
-			data: arg_string,
-			dataType: "json",
-			success: function(data) {
-				callback(data);
-			},
-			error: function(data) {
-				callback(null);
-			}
-		};
+		    var ajaxOpts = {
+			    type: "POST",
+			    url: _options.servletName + "/" + _options.subService.patients,
+			    data: arg_string,
+			    dataType: "json",
+			    success: function(data) {
+				    callback(data);
+			    },
+			    error: function(data) {
+				    callback(null);
+			    }
+		    };
 
-		self.requestData(ajaxOpts);
+		    self.requestData(ajaxOpts);
+        }
 	}
 
 	// override required base functions
@@ -11232,9 +11271,9 @@ function ClinicalDataProxy(options)
 	self.getPatientData = getPatientData;
 }
 
-// PdbDataProxy extends AbstractDataProxy...
-PortalDataProxy.prototype = new AbstractDataProxy();
-PortalDataProxy.prototype.constructor = ClinicalDataProxy;
+// ClinicalDataProxy extends AbstractDataProxy...
+ClinicalDataProxy.prototype = new AbstractDataProxy();
+ClinicalDataProxy.prototype.constructor = ClinicalDataProxy;
 
 /*
  * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
@@ -21006,8 +21045,11 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
  * @author Selcuk Onur Sumer
  */
 function MutationDetailsController(
-	mutationDetailsView, dataManager, dataProxies, sampleArray, viewOptions)
+	mutationDetailsView, dataManager, dataProxies, options)
 {
+	var sampleArray = options.data.sampleList;
+	var viewOptions = options.view;
+	var renderOptions = options.render;
 	var mutationProxy = dataProxies.mutationProxy;
 	var pfamProxy = dataProxies.pfamProxy;
 	var pdbProxy = dataProxies.pdbProxy;
@@ -21079,11 +21121,13 @@ function MutationDetailsController(
 		if (mut3dVis)
 		{
 			// TODO remove mutationProxy?
-			var mutation3dVisView = new Mutation3dVisView(
-				{el: container3d,
-					mut3dVis: mut3dVis,
-					pdbProxy: pdbProxy,
-					mutationProxy: mutationProxy});
+			var mutation3dVisView = new Mutation3dVisView({
+				el: container3d,
+				config: renderOptions.mutation3dVis,
+				mut3dVis: mut3dVis,
+				pdbProxy: pdbProxy,
+				mutationProxy: mutationProxy
+			});
 
 			mutation3dVisView.render();
 
@@ -21130,6 +21174,7 @@ function MutationDetailsController(
 			// init the main view
 			var mainView = new MainMutationView({
 				el: "#mutation_details_" + cbio.util.safeProperty(gene),
+				config: renderOptions.mainMutation,
 				model: model});
 
 			mutationDetailsView.dispatcher.trigger(
@@ -22015,13 +22060,16 @@ function MutationMapper(options)
 			infoPanel: {},
 			vis3d: {}
 		},
+		// TODO make all backbone view classes customizable this way!
 		// this is mainly to override the default rendering behavior of backbone views
 		render: {
 			// MutationDetailsView options
 			mutationDetails: {
 				init: null, // function for custom init
 				format: null // function for custom format
-			}
+			},
+			mainMutation: {},
+			mutation3dVis: {}
 		},
 		// data proxy configuration
 		// instance: custom instance, if provided all other parameters are ignored
@@ -22137,8 +22185,7 @@ function MutationMapper(options)
 			mutationDetailsView,
 			dataManager,
 			dataProxies,
-			_options.data.sampleList,
-			_options.view);
+			_options);
 
 		_mutationDetailsController = controller;
 

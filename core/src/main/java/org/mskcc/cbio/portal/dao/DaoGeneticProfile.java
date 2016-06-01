@@ -235,8 +235,10 @@ public final class DaoGeneticProfile {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE genetic_profile");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

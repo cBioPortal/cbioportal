@@ -421,6 +421,7 @@ And:
 
 For each gene-sample combination, a value is specified:
 - A real number for each sample id (column) in the dataset, representing the expression value for the gene in the respective sample.
+- or `NA` for when the expression value for the gene in the respective sample could not (or was not) be measured (or detected).
 
 ##### z-score instructions
 

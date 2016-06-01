@@ -1969,7 +1969,7 @@ class GisticGenesValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
-    NULL_VALUES = ['NA', '']
+    NULL_VALUES = ['']
 
     def __init__(self, *args, **kwargs):
         """Initialize a GisticGenesValidator with the given parameters."""
@@ -2073,7 +2073,8 @@ class GisticGenesValidator(Validator):
                                    (cytoband_chromosome,
                                     parsed_cytoband,
                                     parsed_chromosome)})
-            # TODO: validate band/coord sets with the UCSC cytoband definitions
+            # TODO: validate band/coord sets with the UCSC cytoband definitions (using 
+            # parsed_gene_list and some of the other parsed_*list variables 
 
     def parse_chromosome_num(self, value, column_number):
         """Parse a chromosome number, logging any errors for this column

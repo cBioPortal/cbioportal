@@ -32,7 +32,34 @@ script:
     - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic clean test
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
-    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com clean install
+    # make sure mysql docker is running
+    - |
+        while [ 1 != $(docker exec core-tests-mysql /bin/bash -c \
+                       "echo 'select 1;' | \
+                        mysql --user cbio_user  -P 3306 --password=somepassword cbioportal | head -1") ]
+        do 
+            sleep 5s
+        done
+    - |
+        docker exec core-test-mysql /bin/bash -c \
+            "echo 'show tables;' | \
+             mysql --user cbio_user -P 3306 --password=somepassword cbioportal"
+    - |
+        ~/maven/$MAVEN_VERSION/bin/mvn \
+            -e -DPORTAL_HOME=$PORTAL_HOME \
+            -Ppublic \
+            clean test
+    # end-to-end tests
+    - |
+        ~/maven/$MAVEN_VERSION/bin/mvn \
+            -e -DPORTAL_HOME=$PORTAL_HOME \
+            -Ppublic -DskipTests \
+            -Ddb.user=cbio_user \
+            -Ddb.password=cbio_pass \
+            -Ddb.portal_db_name=public_test \
+            -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ \
+            -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com \
+            clean install
     - java -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --expand-war portal/target/cbioportal.war &
     - sleep 20s
     - bash test/end-to-end/test_make_screenshots.sh

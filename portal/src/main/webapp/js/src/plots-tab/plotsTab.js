@@ -30,17 +30,50 @@ var plotsTab = (function() {
 
     return {
         init: function() {
-   
+            window.PlotsTab = {};
             clear_plot_box();
-            metaData.fetch(
-            	//fetch data, and then continue with callback below:
-	            function () { 
-	            	sidebar.init();
-	            	plotsData.fetch("x", function () {
-	                	plotsData.fetch("y", plotsbox.init);
-	                });
-	            });
-            
+            if(window.QuerySession.getCancerStudyIds().length>1){
+                profileSpec.appendStudies().then(function(){
+                    $("#" + ids.sidebar.study.study).change(function() {
+                        window.PlotsTab.cancerStudyId = $("#" + ids.sidebar.study.study).val();
+                        window.PlotsTab.caseIds = window.QuerySession.getStudySampleMap()[window.PlotsTab.cancerStudyId];
+                        window.PlotsTab.CaseSetId =  '';
+                        window.PlotsTab.CaseIdsKey = '';
+
+                         $("#" + ids.sidebar.x.spec_div).empty();
+                        $("#" + ids.sidebar.y.spec_div).empty();
+                        $("#" + ids.sidebar.x.data_type).show();
+                        $("#" + ids.sidebar.y.data_type).show();
+                        $("input:radio[name='" + ids.sidebar.x.data_type + "'][value='" + vals.data_type.genetic + "']").attr('checked', 'checked');
+                        $("input:radio[name='" + ids.sidebar.y.data_type + "'][value='" + vals.data_type.genetic + "']").attr('checked', 'checked');
+                        DataProxyFactory.clearDefaultMutationDataProxy();
+                        plotsTabInit();
+                    });
+                    window.PlotsTab.cancerStudyId = $("#" + ids.sidebar.study.study).val();
+                    window.PlotsTab.caseIds = window.QuerySession.getStudySampleMap()[window.PlotsTab.cancerStudyId];
+                    window.PlotsTab.CaseSetId =  '';
+                    window.PlotsTab.CaseIdsKey = '';
+                    plotsTabInit();
+                })
+            }else{
+                window.PlotsTab.cancerStudyId = window.QuerySession.getCancerStudyIds()[0];
+                window.PlotsTab.caseIds = window.QuerySession.getStudySampleMap()[window.PlotsTab.cancerStudyId];
+                window.PlotsTab.CaseSetId =  window.QuerySession.getCaseSetId();
+                window.PlotsTab.CaseIdsKey = window.QuerySession.getCaseIdsKey();
+                plotsTabInit()
+            }
+
+            function plotsTabInit(){
+                clear_plot_box();
+                metaData.fetch(
+                    //fetch data, and then continue with callback below:
+                    function () { 
+                        sidebar.init();
+                        plotsData.fetch("x", function () {
+                            plotsData.fetch("y", plotsbox.init);
+                        });
+                    });
+            }
         }
         
     };

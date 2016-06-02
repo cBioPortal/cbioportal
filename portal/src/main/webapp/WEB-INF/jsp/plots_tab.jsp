@@ -65,6 +65,10 @@
     #plots-sidebar {
         width: 320px;
     }
+    #plots-sidebar-study-div {
+        width: inherit;
+        height: 70px;
+    }
     #plots-sidebar-x-div {
         width: inherit;
         height: 222px;
@@ -132,6 +136,21 @@
         <tr>
             <td>
                  <div id="plots-sidebar">
+                 <%
+                    if(cancerStudyIdList.length>1){%>
+                        <div id="plots-sidebar-study-div" class="plots">
+                         <h4>Cancer Studies</h4>
+                        </div>
+                        <style>
+                            #plots-box {
+                                width: 850px !important;
+                                height: 755px !important;
+                                float: right !important;
+                            }
+                        </style>
+                 <%     }
+                 %>
+                    
                     <div id="plots-sidebar-x-div" class="plots">
                         <h4>Horizontal Axis</h4>
                         <div id="plots-x-data-type" style="padding-left:20px;">
@@ -169,23 +188,23 @@
 
 <script>
     $(document).ready( function() {
-    	//whether this tab has already been initialized or not:
-    	var tab_init = false;
-    	//function that will listen to tab changes and init this one when applicable:
-    	function tabsUpdate() {
-	        if ($("#plots").is(":visible")) {
-		    	if (tab_init === false) {
-		        	plotsTab.init();
-		            tab_init = true;
-		        }
-		        $(window).trigger("resize");
-	    	}
-    	}
+        //whether this tab has already been initialized or not:
+        var tab_init = false;
+        //function that will listen to tab changes and init this one when applicable:
+        function tabsUpdate() {
+            if ($("#plots").is(":visible")) {
+                if (tab_init === false) {
+                    plotsTab.init();
+                    tab_init = true;
+                }
+                $(window).trigger("resize");
+            }
+        }
         //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
-    	tabsUpdate();
+        tabsUpdate();
         //this is for the scenario where the user navigates to this tab:
         $("#tabs").bind("tabsactivate", function(event, ui) {
-        	tabsUpdate();
+            tabsUpdate();
         });
     });
 </script>

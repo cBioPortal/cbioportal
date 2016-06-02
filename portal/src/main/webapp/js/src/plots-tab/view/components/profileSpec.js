@@ -171,6 +171,33 @@ var profileSpec = (function() {
         }
     }
     
+    function appendStudies() {
+        var defer = $.Deferred();
+         $("#" + ids.sidebar.study.div).append("<br><h5>Cancer Studies</h5>");
+         $("#" + ids.sidebar.study.div).append("<select id='" + ids.sidebar.study.study + "'>");
+         return append();
+         
+         function append() {
+            var studies_ = window.QuerySession.getCancerStudyIds();
+
+            studies_.sort();
+
+            var _get_study_params = {
+                study_ids : studies_
+            };
+            window.cbioportal_client.getStudies(_get_study_params).then(function(studies_meta_info) {
+                $.each(studies_meta_info, function(index, study_meta_info) {
+                    $("#" + ids.sidebar.study.study).append(
+                        "<option value='" + study_meta_info.id + "'>" + study_meta_info.name + "</option>");
+                    });
+                $("#" + ids.sidebar.study.div).append("</select>");  
+                defer.resolve();
+            });      
+            return defer.promise();    
+        }
+         
+    }
+    
     return {
         init: function(axis) {
             $("#" + ids.sidebar[axis].spec_div).empty();
@@ -181,6 +208,7 @@ var profileSpec = (function() {
             appendLockGene();
         },
         appendLockGene: appendLockGene,
-        updateProfileNameList: updateProfileNameList
+        updateProfileNameList: updateProfileNameList,
+        appendStudies: appendStudies
     };
 }());

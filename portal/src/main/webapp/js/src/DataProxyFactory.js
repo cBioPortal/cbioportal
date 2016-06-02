@@ -41,7 +41,7 @@ var DataProxyFactory = (function()
 	 *
 	 * @return singleton instance of MutationDataProxy class
 	 */
-	function getDefaultMutationDataProxy()
+	function getDefaultMutationDataProxy(geneticProfiles,caseSetId,caseIdsKey,caseList)
 	{
 		// init default mutation data proxy only once
 		if (_defaultMutationDataProxy == null)
@@ -50,10 +50,7 @@ var DataProxyFactory = (function()
 			// note that gene list is not set as a servlet param, it is passed a constructor parameter
 			var servletParams = {};
 
-			servletParams.geneticProfiles = window.QuerySession.getCancerStudyIds()[0] + "_mutations";
-
-			var caseSetId = window.QuerySession.getCaseSetId();
-			var caseIdsKey = window.QuerySession.getCaseIdsKey();
+			servletParams.geneticProfiles = geneticProfiles;
 
 			// first, try to retrieve mutation data by using a predefined case set id
 			if (caseSetId &&
@@ -71,7 +68,7 @@ var DataProxyFactory = (function()
 			// last resort: send the actual case list as a long string
 			else
 			{
-				servletParams.caseList = QuerySession.getSampleIds();
+				servletParams.caseList = caseList;
 			}
 
 			// default servlet name for mutation data
@@ -92,7 +89,12 @@ var DataProxyFactory = (function()
 		return _defaultMutationDataProxy;
 	}
 
+	function clearDefaultMutationDataProxy(){
+		_defaultMutationDataProxy = null;
+	}
+
 	return {
-		getDefaultMutationDataProxy: getDefaultMutationDataProxy
+		getDefaultMutationDataProxy: getDefaultMutationDataProxy,
+		clearDefaultMutationDataProxy: clearDefaultMutationDataProxy
 	}
 })();

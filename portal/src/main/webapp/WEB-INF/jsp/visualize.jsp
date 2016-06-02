@@ -55,11 +55,14 @@
     <%
         Boolean showMutTab = false;
         Boolean showCancerTypesSummary = false;
+        if(geneticProfiles.contains("mutation")){
+        	showMutTab = true;
+        }
 
-            Enumeration paramEnum = request.getParameterNames();
-            StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
+            //Enumeration paramEnum = request.getParameterNames();
+           // StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
-            while (paramEnum.hasMoreElements())
+           /*  while (paramEnum.hasMoreElements())
             {
                 String paramName = (String) paramEnum.nextElement();
                 String values[] = request.getParameterValues(paramName);
@@ -79,9 +82,9 @@
                             && currentValue != null)
                         {
                             //  Spaces must be converted to semis
-                            currentValue = Utilities.appendSemis(currentValue);
+                           // currentValue = Utilities.appendSemis(currentValue);
                             //  Extra spaces must be removed.  Otherwise OMA Links will not work.
-                            currentValue = currentValue.replaceAll("\\s+", " ");
+                           // currentValue = currentValue.replaceAll("\\s+", " ");
                             //currentValue = URLEncoder.encode(currentValue);
                         }
                         else if (paramName.equals(QueryBuilder.CASE_IDS) ||
@@ -99,15 +102,15 @@
                         }
 
                         // this is required to prevent XSS attacks
-                        currentValue = xssUtil.getCleanInput(currentValue);
+                       // currentValue = xssUtil.getCleanInput(currentValue);
                         //currentValue = StringEscapeUtils.escapeJavaScript(currentValue);
                         //currentValue = StringEscapeUtils.escapeHtml(currentValue);
-                        currentValue = URLEncoder.encode(currentValue);
+                        //currentValue = URLEncoder.encode(currentValue);
 
-                        buf.append (paramName + "=" + currentValue + "&");
+                        //buf.append (paramName + "=" + currentValue + "&");
                     }
                 }
-            }
+            } */
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values
@@ -130,6 +133,7 @@
                 + "Mutual Exclusivity</a></li>");
             }
             out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
+            if(cancerStudyIdList.length == 1) {
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
@@ -139,19 +143,21 @@
             if (has_mrna || has_copy_no || showMutTab) {
                 out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
-            if (has_survival) {
+            if (hasSurvival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
             }
             if (includeNetworks) {
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
+            if (showIGVtab && !((String)cancerStudyIdList[0]).equals("mskimpact")){
                 out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
             out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
+            }
             out.println ("</ul>");
 
+            if(cancerStudyIdList.length == 1) {
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
             // diable bookmark link if case set is user-defined
@@ -171,6 +177,7 @@
             }
 
             out.println("</div>");
+            }
     %>
 
         <div class="section" id="summary">
@@ -184,19 +191,21 @@
         <%}%>
 
         <%@ include file="plots_tab.jsp" %>
+        <% if(cancerStudyIdList.length == 1) { %>
 
-        <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
+        <% if (showIGVtab && !((String)cancerStudyIdList[0]).equals("mskimpact")) { %>
             <%@ include file="igv.jsp" %>
         <% } %>
 
-        <% if (has_survival) { %>
+        <% if (hasSurvival) { %>
             <%@ include file="survival_tab.jsp" %>
         <% } %>
-
+        <% } %>
         <% if (computeLogOddsRatio) { %>
             <%@ include file="mutex_tab.jsp" %>
         <% } %>
 
+        <% if(cancerStudyIdList.length == 1) { %>
         <% if (mutationDetailLimitReached != null) {
             out.println("<div class=\"section\" id=\"mutation_details\">");
             out.println("<P>To retrieve mutation details, please specify "
@@ -220,7 +229,7 @@
         <% } %>
 
         <%@ include file="data_download.jsp" %>
-
+<% } %>
 </div> <!-- end tabs div -->
 
 

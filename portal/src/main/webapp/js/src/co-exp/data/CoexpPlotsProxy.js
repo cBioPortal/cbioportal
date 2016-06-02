@@ -177,7 +177,11 @@ var CoexpPlotsProxy = (function() {
     }
 
     function getMutationMaps() {
-        var _mutationUtil = DataProxyFactory.getDefaultMutationDataProxy().getMutationUtil();  
+        var _mutationUtil = DataProxyFactory.getDefaultMutationDataProxy(
+        		window.QuerySession.getCancerStudyIds()[0] + "_mutations",
+        		window.QuerySession.getCaseSetId(),
+        		window.QuerySession.getCaseIdsKey(),
+        		window.QuerySession.getSampleIds()).getMutationUtil();  
         mutationMap = jQuery.extend(true, {}, _mutationUtil.getMutationCaseMap()); 
     }
 

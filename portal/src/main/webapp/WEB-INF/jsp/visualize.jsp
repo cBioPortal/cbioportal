@@ -143,7 +143,7 @@
             if (has_mrna || has_copy_no || showMutTab) {
                 out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
-            if (has_survival) {
+            if (hasSurvival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
             }
             if (includeNetworks) {
@@ -197,7 +197,7 @@
             <%@ include file="igv.jsp" %>
         <% } %>
 
-        <% if (has_survival) { %>
+        <% if (hasSurvival) { %>
             <%@ include file="survival_tab.jsp" %>
         <% } %>
         <% } %>

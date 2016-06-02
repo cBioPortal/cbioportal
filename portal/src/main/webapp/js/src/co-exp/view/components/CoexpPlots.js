@@ -69,7 +69,11 @@ var CoexpPlots = function() {
             var alteration_data_result = jQuery.extend(result, {}, true);
             //get mutation data
             if (CoExpView.has_mutation_data()) {
-                var proxy = DataProxyFactory.getDefaultMutationDataProxy();
+                var proxy = DataProxyFactory.getDefaultMutationDataProxy(
+                		window.QuerySession.getCancerStudyIds()[0] + "_mutations",
+                		window.QuerySession.getCaseSetId(),
+                		window.QuerySession.getCaseIdsKey(),
+                		window.QuerySession.getSampleIds());
                 var _genes = _geneX + " " + _geneY;
                 proxy.getMutationData(
                     _genes, 

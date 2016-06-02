@@ -103,6 +103,8 @@ public class QueryBuilder extends HttpServlet {
     public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     public static final String DB_VERSION = "db_version";
     public static final String DB_ERROR = "db_error";
+    public static final String STUDY_SAMPLE_MAP = "study_sample_map";
+    private static final String COMMON_ERROR = ("Unknown error while processing request");
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
 
@@ -174,6 +176,9 @@ public class QueryBuilder extends HttpServlet {
         //  Get User Selected Cancer Type
         String cancerTypeId = httpServletRequest.getParameter(CANCER_STUDY_ID);
 
+        // Get User selected Cancer studies
+        String cancerStudyIdListString = httpServletRequest.getParameter(CANCER_STUDY_LIST);
+        
         //  Get User Selected Genetic Profiles
         HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
 
@@ -192,43 +197,23 @@ public class QueryBuilder extends HttpServlet {
             if (cancerTypeId == null) {
                 cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
             }
+            if(cancerStudyIdListString == null){
+            	cancerStudyIdListString = cancerStudyList.get(0).getCancerStudyStableId();
+            }
             
             httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerTypeId);
+            httpServletRequest.setAttribute(CANCER_STUDY_LIST, cancerStudyIdListString);
             httpServletRequest.setAttribute(CANCER_TYPES_INTERNAL, cancerStudyList);
 
-            //  Get Genetic Profiles for Selected Cancer Type
-            ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles
-                (cancerTypeId);
-            httpServletRequest.setAttribute(PROFILE_LIST_INTERNAL, profileList);
-
-            //  Get Patient Sets for Selected Cancer Type
-            xdebug.logMsg(this, "Using Cancer Study ID:  " + cancerTypeId);
-            ArrayList<SampleList> sampleSets = GetSampleLists.getSampleLists(cancerTypeId);
-            xdebug.logMsg(this, "Total Number of Patient Sets:  " + sampleSets.size());
-            SampleList sampleSet = new SampleList();
-            sampleSet.setName("User-defined Patient List");
-            sampleSet.setDescription("User defined patient list.");
-            sampleSet.setStableId("-1");
-            sampleSets.add(sampleSet);
-            httpServletRequest.setAttribute(CASE_SETS_INTERNAL, sampleSets);
-
-            //  Get User Selected Patient Set
-            String sampleSetId = httpServletRequest.getParameter(CASE_SET_ID);
-            if (sampleSetId != null) {
-                httpServletRequest.setAttribute(CASE_SET_ID, sampleSetId);
-            } else {
-                if (sampleSets.size() > 0) {
-                    SampleList zeroSet = sampleSets.get(0);
-                    httpServletRequest.setAttribute(CASE_SET_ID, zeroSet.getStableId());
-                }
-            }
-            String sampleIds = httpServletRequest.getParameter(CASE_IDS);
-	        // TODO allowing only new line and tab chars, getRawParameter may be vulnerable here...
-	        if (sampleIds != null)
-	        {
-		        sampleIds = sampleIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
-	        }
-         
+            String[] cancerStudyIdList = cancerStudyIdListString.split(",");
+            
+            HashMap<String, Boolean> studyMap = new HashMap<>();
+    		for (String studyId: cancerStudyIdList) {
+    			studyMap.put(studyId, Boolean.TRUE);
+    		}
+    		
+            Integer dataTypePriority = null;
+			
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
             
             String dbPortalVersion = GlobalProperties.getDbVersion();
@@ -244,22 +229,71 @@ public class QueryBuilder extends HttpServlet {
                 httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
             }
 
-            boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet,
-                                               sampleSetId, sampleIds, httpServletRequest);
-            if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
+            if (cancerStudyIdList.length == 1) {
+                //  Get Genetic Profiles for Selected Cancer Type
+                ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles
+                    (cancerTypeId);
+                httpServletRequest.setAttribute(PROFILE_LIST_INTERNAL, profileList);
 
-                processData(cancerTypeId, geneticProfileIdSet, profileList, sampleSetId,
-                            sampleIds, sampleSets, patientCaseSelect, getServletContext(), httpServletRequest,
-                            httpServletResponse, xdebug);
-            } else {
-                if (errorsExist) {
-                   httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE,
-                           "Please fix the errors below.");
+                //  Get Patient Sets for Selected Cancer Type
+                xdebug.logMsg(this, "Using Cancer Study ID:  " + cancerTypeId);
+                ArrayList<SampleList> sampleSets = GetSampleLists.getSampleLists(cancerTypeId);
+                xdebug.logMsg(this, "Total Number of Patient Sets:  " + sampleSets.size());
+                SampleList sampleSet = new SampleList();
+                sampleSet.setName("User-defined Patient List");
+                sampleSet.setDescription("User defined patient list.");
+                sampleSet.setStableId("-1");
+                sampleSets.add(sampleSet);
+                httpServletRequest.setAttribute(CASE_SETS_INTERNAL, sampleSets);
+
+                //  Get User Selected Patient Set
+                String sampleSetId = httpServletRequest.getParameter(CASE_SET_ID);
+                if (sampleSetId != null) {
+                    httpServletRequest.setAttribute(CASE_SET_ID, sampleSetId);
+                } else {
+                    if (sampleSets.size() > 0) {
+                        SampleList zeroSet = sampleSets.get(0);
+                        httpServletRequest.setAttribute(CASE_SET_ID, zeroSet.getStableId());
+                    }
                 }
-                RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
-                dispatcher.forward(httpServletRequest, httpServletResponse);
+                String sampleIds = httpServletRequest.getParameter(CASE_IDS);
+    	        // TODO allowing only new line and tab chars, getRawParameter may be vulnerable here...
+    	        if (sampleIds != null)
+    	        {
+    		        sampleIds = sampleIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
+    	        }
+    	        
+    	        geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
+
+				// Get Genetic Profiles for Selected Cancer Type
+				httpServletRequest.setAttribute(PROFILE_LIST_INTERNAL, profileList);
+
+				boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, sampleSetId, sampleIds,
+						httpServletRequest);
+				if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
+					processDataForSingleStudy(cancerStudyIdList[0], geneticProfileIdSet, profileList, sampleSetId,
+							sampleIds, sampleSets, patientCaseSelect, getServletContext(), httpServletRequest,
+							httpServletResponse, xdebug);
+				} else {
+					if (errorsExist) {
+						httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE,
+								"Please fix the errors below.");
+					}
+					RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+					dispatcher.forward(httpServletRequest, httpServletResponse);
+				}
+
             }
+            else if (cancerStudyIdList.length > 1) {
+				try {
+					dataTypePriority = Integer
+							.parseInt(httpServletRequest.getParameter(QueryBuilder.DATA_PRIORITY).trim());
+				} catch (Exception e) {
+					dataTypePriority = 0;
+				}
+				processDataForMultipleStudy(cancerStudyIdList, geneList, getServletContext(), dataTypePriority,
+						httpServletRequest, httpServletResponse, xdebug);
+			}
         } catch (RemoteException e) {
             xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
@@ -272,7 +306,11 @@ public class QueryBuilder extends HttpServlet {
             xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);
-        }
+        } catch (Exception e) {
+        	e.printStackTrace();
+			xdebug.logMsg(this, "Common Exception:  " + e.getMessage());
+			forwardToErrorPage(httpServletRequest, httpServletResponse, COMMON_ERROR, xdebug);
+		}
     }
 
     /**
@@ -315,7 +353,7 @@ public class QueryBuilder extends HttpServlet {
      * process a good request
      * 
     */
-    private void processData(String cancerStudyStableId,
+    private void processDataForSingleStudy(String cancerStudyStableId,
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
 							 String sampleSetId, String sampleIds,
@@ -381,7 +419,7 @@ public class QueryBuilder extends HttpServlet {
         studySampleMap.put(cancerStudyStableId,samplesList);
         ObjectMapper mapper = new ObjectMapper();
         String studySampleMapString = mapper.writeValueAsString(studySampleMap);
-        request.setAttribute("STUDY_SAMPLE_MAP", studySampleMapString);
+        request.setAttribute(STUDY_SAMPLE_MAP, studySampleMapString);
         
         // Map user selected samples Ids to patient Ids
         HashMap<String, String> patientSampleIdMap = new HashMap<String, String>();
@@ -429,6 +467,100 @@ public class QueryBuilder extends HttpServlet {
             dispatcher.forward(request, response);
         } 
     }
+    
+	private void processDataForMultipleStudy(String[] cancerStudyIdList, String geneList, ServletContext servletContext,
+			Integer dataTypePriority, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+			XDebug xdebug) throws ServletException, IOException {
+
+		List<CancerStudy> cancerStudyList;
+		HashMap<String, Boolean> studyMap = new HashMap<>();
+		HashSet<String> setOfSampleIds = new HashSet<String>();
+		String sampleIds = "";
+		TreeSet<Double> zScores = new TreeSet<Double>();
+		HashSet<String> geneticProfileIdSet = new HashSet<String>();
+		Map<String, List<String>> studySampleMap = new HashMap<String, List<String>>();
+		try {
+			cancerStudyList = accessControl.getCancerStudies();
+
+			for (String studyId : cancerStudyIdList) {
+				studyMap.put(studyId, Boolean.TRUE);
+			}
+
+			for (CancerStudy cancerStudy : cancerStudyList) {
+				String cancerStudyId = cancerStudy.getCancerStudyStableId();
+
+				if (!studyMap.containsKey(cancerStudyId)) {
+					continue;
+				}
+
+				if (cancerStudyId.equalsIgnoreCase("all"))
+					continue;
+
+				ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
+				ArrayList<SampleList> sampleSetList = GetSampleLists.getSampleLists(cancerStudyId);
+
+				if (dataTypePriority != null) {
+					// Get the default patient set
+					AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
+					SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
+					if (defaultSampleSet == null) {
+						continue;
+					}
+
+					List<String> sampleIdsList = defaultSampleSet.getSampleList();
+					studySampleMap.put(cancerStudy.getCancerStudyStableId(), defaultSampleSet.getSampleList());
+					sampleIds += defaultSampleSet.getSampleListAsString();
+					setOfSampleIds.addAll(sampleIdsList);
+					// Get the default genomic profiles
+					CategorizedGeneticProfileSet categorizedGeneticProfileSet = new CategorizedGeneticProfileSet(
+							profileList);
+					HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
+					switch (dataTypePriority) {
+					case 2:
+						defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultCopyNumberMap();
+						break;
+					case 1:
+						defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationMap();
+						break;
+					case 0:
+					default:
+						defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
+					}
+					double zScore_ = ZScoreUtil.getZScore(new HashSet<String>(defaultGeneticProfileSet.keySet()),
+							profileList, httpServletRequest);
+					zScores.add(Double.valueOf(zScore_));
+					geneticProfileIdSet.addAll(defaultGeneticProfileSet.keySet());
+				}
+			}
+
+			String tabIndex = httpServletRequest.getParameter(QueryBuilder.TAB_INDEX);
+			if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
+				xdebug.logMsg(this, "Merging Profile Data");
+				double rppaScore = ZScoreUtil.getRPPAScore(httpServletRequest);
+				Map<String, List<String>> cancerTypeInfo = new HashMap<String, List<String>>();
+				httpServletRequest.setAttribute(CANCER_TYPES_MAP, cancerTypeInfo);
+				httpServletRequest.setAttribute(Z_SCORE_THRESHOLD, zScores.last());
+				httpServletRequest.setAttribute(RPPA_SCORE_THRESHOLD, rppaScore);
+				httpServletRequest.setAttribute(SET_OF_CASE_IDS, sampleIds);
+				ObjectMapper mapper = new ObjectMapper();
+				String studySampleMapString = mapper.writeValueAsString(studySampleMap);
+				httpServletRequest.setAttribute(STUDY_SAMPLE_MAP, studySampleMapString);
+				httpServletRequest.setAttribute(GENETIC_PROFILE_IDS, geneticProfileIdSet);
+				RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
+				dispatcher.forward(httpServletRequest, httpServletResponse);
+			}
+		} catch (DaoException | ProtocolException e) {
+			xdebug.logMsg(this, "Got DAO Exception:  " + e.getMessage());
+			forwardToErrorPage(httpServletRequest, httpServletResponse, DB_CONNECT_ERROR, xdebug);
+		} catch (ServletException e) {
+			xdebug.logMsg(this, "Got Servlet Exception:  " + e.getMessage());
+			forwardToErrorPage(httpServletRequest, httpServletResponse, COMMON_ERROR, xdebug);
+		} catch (IOException e) {
+			xdebug.logMsg(this, "Got IO Exception:  " + e.getMessage());
+			forwardToErrorPage(httpServletRequest, httpServletResponse, COMMON_ERROR, xdebug);
+		}
+
+	}
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{

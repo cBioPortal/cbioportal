@@ -118,7 +118,7 @@ var plotsData = (function() {
                     });
                 }
                 if (_gene_list !== "") {
-                    var proxy = DataProxyFactory.getCustomMutationDataProxy(
+                    var proxy = DataProxyFactory.getDefaultMutationDataProxy(
                     		window.PlotsTab.cancerStudyId+ "_mutations",
                     		window.PlotsTab.CaseSetId,
                     		window.PlotsTab.CaseIdsKey,

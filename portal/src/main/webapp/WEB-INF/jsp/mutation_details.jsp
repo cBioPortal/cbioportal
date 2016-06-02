@@ -71,7 +71,11 @@
     $(document).ready(function () {
         var sampleArray = window.QuerySession.getSampleIds();
         OncoKB.setUrl('<%=oncokbUrl%>');
-        var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
+        var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy(
+        		window.QuerySession.getCancerStudyIds()[0] + "_mutations",
+        		window.QuerySession.getCaseSetId(),
+        		window.QuerySession.getCaseIdsKey(),
+        		window.QuerySession.getSampleIds());
 
         var columnOrder = [
             "datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",

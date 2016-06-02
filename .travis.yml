@@ -25,15 +25,20 @@ install:
 before_script:
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
+	- # create cbio network
+	- docker network create cbio-net
 	- # run mysql db for core tests
     - |
-        docker run --name core-tests-mysql \
+        docker run \
+				 --name core-tests-mysql \
+			     --net=cbio-net \
                  -p 3306:3306 \
                  -e MYSQL_USER=cbio_user \
                  -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
                  -e MYSQL_PASSWORD=somepassword \
                  -e MYSQL_DATABASE=cgds_test \
-                 -d mysql:5.7.12
+                 -d \
+				 mysql:5.7.12
 
 script:
     - export PORTAL_HOME=$(pwd)
@@ -46,14 +51,33 @@ script:
     - |
         while [ 1 != $(docker exec core-tests-mysql /bin/bash -c \
                        "echo 'select 1;' | \
-                        mysql --user cbio_user  -P 3306 --password=somepassword cgds_test | head -1") ]
+                        mysql --user cbio_user -P 3306 --password=somepassword cgds_test | head -1") ]
         do 
             sleep 5s
         done
     - |
-        docker exec core-test-mysql /bin/bash -c \
+        docker exec core-tests-mysql /bin/bash -c \
             "echo 'show tables;' | \
              mysql --user cbio_user -P 3306 --password=somepassword cgds_test"
+	# core tests
+	- |
+        docker run \
+			--name maven \
+			--net=cbio-net \
+            -v $PWD:/cbioportal \
+            -e PORTAL_HOME=/cbioportal \
+            maven:3.3-jdk-7 \
+                /bin/bash -c \
+                'cd $PORTAL_HOME &&
+                mvn -e \
+                -DPORTAL_HOME=$PORTAL_HOME \
+                -Ppublic \
+				-Ddb.user=cbio_user \
+				-Ddb.password=somepassword \
+                -Ddb.host=localhost \
+                -Ddb.connection_string=jdbc:mysql://localhost:3306/ \
+				-X \
+                clean test'
     - |
         ~/maven/$MAVEN_VERSION/bin/mvn \
             -e -DPORTAL_HOME=$PORTAL_HOME \

@@ -2,6 +2,9 @@ sudo: required
 language: java
 jdk: openjdk7
 
+services:
+    - docker
+
 cache:
     directories:
         - $HOME/.m2
@@ -22,10 +25,17 @@ install:
 before_script:
     - mkdir -p ~/.m2
     - cp .travis/settings.xml ~/.m2
-    - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
+	- # run mysql db for core tests
+    - |
+        docker run --name core-tests-mysql \
+                 -p 3306:3306 \
+                 -e MYSQL_USER=cbio_user \
+                 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+                 -e MYSQL_PASSWORD=somepassword \
+                 -e MYSQL_DATABASE=cgds_test \
+                 -d mysql:5.7.12
 
 script:
-    - sudo service docker start
     - export PORTAL_HOME=$(pwd)
     - cp .travis/src/main/resources/portal.properties $PORTAL_HOME/src/main/resources/portal.properties
     - cp .travis/src/main/resources/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties
@@ -36,14 +46,14 @@ script:
     - |
         while [ 1 != $(docker exec core-tests-mysql /bin/bash -c \
                        "echo 'select 1;' | \
-                        mysql --user cbio_user  -P 3306 --password=somepassword cbioportal | head -1") ]
+                        mysql --user cbio_user  -P 3306 --password=somepassword cgds_test | head -1") ]
         do 
             sleep 5s
         done
     - |
         docker exec core-test-mysql /bin/bash -c \
             "echo 'show tables;' | \
-             mysql --user cbio_user -P 3306 --password=somepassword cbioportal"
+             mysql --user cbio_user -P 3306 --password=somepassword cgds_test"
     - |
         ~/maven/$MAVEN_VERSION/bin/mvn \
             -e -DPORTAL_HOME=$PORTAL_HOME \

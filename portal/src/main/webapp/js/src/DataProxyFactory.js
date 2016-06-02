@@ -41,58 +41,7 @@ var DataProxyFactory = (function()
 	 *
 	 * @return singleton instance of MutationDataProxy class
 	 */
-	function getDefaultMutationDataProxy()
-	{
-		// init default mutation data proxy only once
-		if (_defaultMutationDataProxy == null)
-		{
-			// set servlet params by using global params
-			// note that gene list is not set as a servlet param, it is passed a constructor parameter
-			var servletParams = {};
-
-			servletParams.geneticProfiles = window.QuerySession.getCancerStudyIds()[0] + "_mutations";
-
-			var caseSetId = window.QuerySession.getCaseSetId();
-			var caseIdsKey = window.QuerySession.getCaseIdsKey();
-
-			// first, try to retrieve mutation data by using a predefined case set id
-			if (caseSetId &&
-				caseSetId.length > 0 &&
-				caseSetId != "-1")
-			{
-				servletParams.caseSetId = caseSetId;
-			}
-			// second, try to use a custom case set defined by a hash key
-			else if (caseIdsKey &&
-			         caseIdsKey.length > 0)
-			{
-				servletParams.caseIdsKey = caseIdsKey;
-			}
-			// last resort: send the actual case list as a long string
-			else
-			{
-				servletParams.caseList = QuerySession.getSampleIds();
-			}
-
-			// default servlet name for mutation data
-			var servletName = "getMutationData.json";
-
-			// init mutation data proxy with the data servlet config
-			var proxy = new MutationDataProxy({
-				servletName: servletName,
-				geneList: window.QuerySession.getQueryGenes().join(" "),
-				params: servletParams
-			});
-			proxy.init();
-
-			// update singleton reference
-			_defaultMutationDataProxy = proxy;
-		}
-
-		return _defaultMutationDataProxy;
-	}
-	
-	function getCustomMutationDataProxy(geneticProfiles,caseSetId,caseIdsKey,caseList)
+	function getDefaultMutationDataProxy(geneticProfiles,caseSetId,caseIdsKey,caseList)
 	{
 		// init default mutation data proxy only once
 		if (_defaultMutationDataProxy == null)
@@ -146,7 +95,6 @@ var DataProxyFactory = (function()
 
 	return {
 		getDefaultMutationDataProxy: getDefaultMutationDataProxy,
-		clearDefaultMutationDataProxy: clearDefaultMutationDataProxy,
-		getCustomMutationDataProxy: getCustomMutationDataProxy
+		clearDefaultMutationDataProxy: clearDefaultMutationDataProxy
 	}
 })();

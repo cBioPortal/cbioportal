@@ -93,52 +93,41 @@
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
   //  String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
   //  CancerStudy cancerStudy = cancerStudies.get(0);
-    String[] cancerStudyIdList = (String[])request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
-	String cancerStudyIdListString = "";
+    String[] cancerStudyIdList = (String[])((String)request.getAttribute(QueryBuilder.CANCER_STUDY_LIST)).split(",");
     HashMap<String, Boolean> studyMap = new HashMap<String, Boolean>();
 	for (String studyId : cancerStudyIdList) {
 		studyMap.put(studyId, Boolean.TRUE);
 	}
 	//CancerStudy cancerStudy = cancerStudies.get(0);
-    String mutationProfileIDs = "";
-    ArrayList<CancerStudy> selectedCancerStudies = new ArrayList<CancerStudy>();
     boolean showIGVtab = false;
-    boolean has_survival = false;
+    boolean hasSurvival = false;
     //check if show co-expression tab
     boolean showCoexpTab = false;
-    String cancerStudyNames ="";
-    int tempCount=0;
+    ArrayList<String> cancerStudyNamesArray = new ArrayList<String>();
+    ArrayList<String> cancerStudyIdsArray = new ArrayList<String>();
+    ArrayList<String> mutationProfileIdsArray = new ArrayList<String>();
     for (CancerStudy cs : cancerStudies){
         if (studyMap.containsKey(cs.getCancerStudyStableId())) {
-        cancerStudyIdListString = cancerStudyIdListString+"'"+cs.getCancerStudyStableId()+"',";
-            selectedCancerStudies.add(cs);
-            cancerStudyNames = cancerStudyNames +"'"+cs.getName()+"',";
+        	cancerStudyIdsArray.add("'"+cs.getCancerStudyStableId()+"'");
+        	cancerStudyNamesArray.add("'"+cs.getName()+"'");
             showIGVtab = showIGVtab||cs.hasCnaSegmentData();
-            has_survival = has_survival||cs.hasSurvivalData();
+            hasSurvival = hasSurvival||cs.hasSurvivalData();
               GeneticProfile mutationProfile = cs.getMutationProfile();
               if(mutationProfile!=null){
-                  mutationProfileIDs = mutationProfileIDs+"'"+mutationProfile.getStableId()+"',";
+            	  mutationProfileIdsArray.add("'"+mutationProfile.getStableId()+"'");
               }
                 GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cs.getCancerStudyStableId());
                 if (final_gp != null) {
                     showCoexpTab = true;
                 } 
-                tempCount++;
-                
         }
     }
-    cancerStudyIdListString = cancerStudyIdListString.substring(0,cancerStudyIdListString.length()-1);
-    if(mutationProfileIDs.length()>1){
- 		mutationProfileIDs = mutationProfileIDs.substring(0,mutationProfileIDs.length()-1);
-	}
-    cancerStudyNames = cancerStudyNames.substring(0,cancerStudyNames.length()-1);
-
     //Info about Patient Set(s)/Patients
     ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     if(sampleSets==null){
         sampleSets = new ArrayList<SampleList>();
     }
-    String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
+    String studySampleMapJson = (String)request.getAttribute(QueryBuilder.STUDY_SAMPLE_MAP);
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     if(sampleSetId == null){
     	sampleSetId = "";
@@ -268,7 +257,7 @@
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
-                                                            [<%=cancerStudyIdListString%>],
+                                                            <%=cancerStudyIdsArray.toString()%>,
                                                             JSON.parse('<%=studySampleMapJson%>'),
                                                             parseFloat('<%=zScoreThreshold%>'),
                                                             parseFloat('<%=rppaScoreThreshold%>'),
@@ -278,9 +267,9 @@
                                                                 case_set_name: '<%=sampleSetName%>',
                                                                 case_set_description: '<%=sampleSetDescription%>'
                                                             },
-                                                            [<%=cancerStudyNames%>],
+                                                            <%=cancerStudyNamesArray.toString()%>,
                                                             {
-                                                                mutation_profile_id: [<%=(mutationProfileIDs==null?"null":(mutationProfileIDs))%>]
+                                                                mutation_profile_id: <%=(mutationProfileIdsArray.size()==0?"['null']":(mutationProfileIdsArray.toString()))%>
                                                             });
     })();
 </script>

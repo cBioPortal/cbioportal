@@ -1,4 +1,6 @@
-# next release
+# June 3, 2016
+*   **New features**:
+    * OncoKB annotation in the Mutaitons tab and patient view page  
 *   **Improvements**:
     * Improved OncoPrint visualization using WebGL
     * Improved Network tab with SBGN view for a single interaction

@@ -1,6 +1,6 @@
-sudo: false
+sudo: required
 language: java
-jdk: openjdk7
+jdk: oraclejdk7
 
 cache:
     directories:
@@ -18,6 +18,10 @@ install:
             mkdir -p ~/maven/$MAVEN_VERSION && \
             wget -O - http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
                 tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
+    - sudo apt-get update && sudo apt-get -y install python-pip
+    - sudo pip install Jinja2
+    - sudo pip install MySQL-python
+    - sudo pip install requests
 
 before_script:
     - mkdir -p ~/.m2
@@ -26,6 +30,11 @@ before_script:
 
 script:
     - export PORTAL_HOME=$(pwd)
+    - export PYTHONPATH=$PORTAL_HOME/core/src/main/scripts
+    - cd $PORTAL_HOME/core/src/test/scripts/
+    - $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py
+    - $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py
+    - cd $PORTAL_HOME
     - cp .travis/src/main/resources/portal.properties $PORTAL_HOME/src/main/resources/portal.properties
     - cp .travis/src/main/resources/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties
     - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic clean test

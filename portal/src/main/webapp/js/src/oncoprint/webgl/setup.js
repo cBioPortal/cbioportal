@@ -637,7 +637,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'rule_set_params': this.getGeneticRuleSetParams(),
 			'label': genes[i],
 			'target_group': 1,
-			'sortCmpFn': this.getGeneticComparator()
+			'sortCmpFn': this.getGeneticComparator(),
+			'removable': true,
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];
 		    track_ids.push(new_track_id);

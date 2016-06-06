@@ -143,7 +143,7 @@ function VolcanoPlot() {
      */
     function addPlotLayoutOptions(){
         var axisOptions = {
-            width: 375,
+            width: 360,
             height: 400,
             xaxis:{
                 title: 'log Ratio'

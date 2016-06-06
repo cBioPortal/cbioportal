@@ -431,7 +431,10 @@ public class QueryBuilder extends HttpServlet {
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
             dispatcher.forward(request, response);
-        } 
+        } else if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
+            ShowData.showDataAtSpecifiedIndex(servletContext, request,
+                response, 0, xdebug);
+        }
     }
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException

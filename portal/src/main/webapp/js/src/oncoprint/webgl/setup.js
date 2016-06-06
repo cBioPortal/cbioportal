@@ -290,7 +290,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 		after_url = url.substring(next_amp + 1);
 	    }
-	    return before_url + param + '=' + new_value + "&" + after_url;
+	    return before_url 
+		    + (new_value.length > 0 ? (param + '=' + new_value + "&") : "") 
+		    + after_url;
 	};
 	var currURL = function() {
 	    return window.location.href;
@@ -317,13 +319,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	return {
 	    'update': function() {
 		var new_url = currURL();
-		if (State.used_clinical_attributes.length > 0) {
 		new_url = changeURLParam(CLINICAL_ATTRS_PARAM, 
 					    State.used_clinical_attributes
 						    .map(function(attr) { return encodeURIComponent(attr.attr_id);})
 						    .join(","),
 					    new_url);
-		}
 		new_url = changeURLParam(SAMPLE_DATA_PARAM,
 					State.using_sample_data+'',
 					new_url);

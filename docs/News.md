@@ -6,6 +6,7 @@
     * Improved OncoPrint visualization using WebGL: faster, more zooming flexibility, visualization of recurrent variants
     * Improved Network tab with SBGN view for a single interaction
     * Performance improvement of tables in the study view page
+    * Mutation type summary on the Mutations tab
 
 # March 31, 2016
 *   **New features**:

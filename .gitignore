@@ -64,6 +64,10 @@ core/target/*
 annotator/target/*
 importer/target/*
 business/target/*
+model/target/*
+persistence/persistence-api/target/*
+persistence/persistence-mybatis/target/*
+service/target/*
 web/target/*
 mutation-assessor/target/*
 cbioportal-client/target/*

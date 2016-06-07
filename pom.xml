@@ -208,6 +208,7 @@
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
+    <mockito.version>1.10.19</mockito.version>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
     <db.version>1.2.1</db.version>
@@ -219,6 +220,9 @@
     <module>core</module>
     <module>business</module>
     <module>web</module>
+    <module>model</module>
+    <module>persistence</module>
+    <module>service</module>
   </modules>
 
   <dependencies>
@@ -427,6 +431,12 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>19.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

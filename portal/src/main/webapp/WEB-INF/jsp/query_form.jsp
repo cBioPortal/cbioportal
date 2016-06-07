@@ -132,6 +132,7 @@
             }
         }
     %>
+
 </script>
 <div class="main_query_panel">
     <div id="main_query_form">

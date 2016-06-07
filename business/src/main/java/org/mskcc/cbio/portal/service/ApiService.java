@@ -12,6 +12,8 @@ import java.util.Set;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationWithSampleListId;
+import org.cbioportal.persistence.dto.DBAltCount;
+import org.cbioportal.persistence.mybatis.MutationMapper;
 import org.cbioportal.service.MutationService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
@@ -21,9 +23,7 @@ import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
-import org.mskcc.cbio.portal.model.DBAltCount;
 import org.mskcc.cbio.portal.model.DBAltCountInput;
-import org.mskcc.cbio.portal.model.DBMutationData;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBProfileData;
@@ -37,7 +37,6 @@ import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
-import org.mskcc.cbio.portal.persistence.MutationMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapper;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
@@ -56,8 +55,8 @@ public class ApiService {
 
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
-        @Autowired
-        private MutationMapper mutationMapper;
+	@Autowired
+	private MutationMapper mutationMapper;
 	@Autowired
 	private ClinicalDataMapper clinicalDataMapper;
 	@Autowired
@@ -108,7 +107,7 @@ public class ApiService {
                         echo.add(key);
                     }
                 }
-               List<DBAltCount> eles = mutationMapper.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study); 
+               List<DBAltCount> eles = mutationMapper.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study);
                for(DBAltCount ele: eles )
                {
                    result = new HashMap<String,String>();

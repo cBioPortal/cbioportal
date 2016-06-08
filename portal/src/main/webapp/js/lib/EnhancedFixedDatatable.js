@@ -143,33 +143,15 @@ var EnhancedFixedDataTable = (function() {
 // Generates qTip when string length is larger than 20
     var QtipWrapper = React.createClass({displayName: "QtipWrapper",
         render: function() {
-            var label = this.props.label, qtipFlag = false, attr = this.props.attr;
+            var label = this.props.label, qtipFlag = false;
             var shortLabel = this.props.shortLabel;
             var className = this.props.className || '';
 
             if (label && shortLabel && label.toString().length > shortLabel.toString().length) {
                 qtipFlag = true;
             }
-            if (window.hasOwnProperty('cbio') && cbio.hasOwnProperty('util')) {
-                if (attr === 'CASE_ID') {
-                    shortLabel = React.createElement("a", {target: "_blank",
-                        href: cbio.util.getLinkToSampleView(cancerStudyId, label)}, shortLabel)
-                } else if (attr === 'PATIENT_ID') {
-                    shortLabel = React.createElement("a", {target: "_blank",
-                        href: cbio.util.getLinkToPatientView(cancerStudyId, label)}, shortLabel)
-                }
-            }
-
-            if (attr === 'COPY_NUMBER_ALTERATIONS' && !isNaN(label)) {
-                if (Number(label) < 0.01) {
-                    shortLabel = '< 0.01';
-                } else {
-                    shortLabel = Number(shortLabel).toFixed(2);
-                }
-
-            }
             return (
-                React.createElement("span", {className: className + (qtipFlag ? 'hasQtip' : ''),
+                React.createElement("span", {className: className + (qtipFlag?" hasQtip " : ''),
                         "data-qtip": label},
                     shortLabel
                 )
@@ -455,8 +437,7 @@ var EnhancedFixedDataTable = (function() {
                 React.createElement(Cell, {columnKey: field},
                     React.createElement("span", {style: flag ? {backgroundColor:'yellow'} : {}},
                         React.createElement(QtipWrapper, {label: data[rowIndex].row[field],
-                            shortLabel: shortLabels[data[rowIndex].index][field],
-                            attr: field})
+                            shortLabel: shortLabels[data[rowIndex].index][field]})
                     )
                 )
             );
@@ -491,6 +472,7 @@ var EnhancedFixedDataTable = (function() {
 
         // Creates Qtip after page scrolling
         onScrollEnd: function() {
+            $(".qtip").remove();
             this.createQtip();
         },
 
@@ -609,18 +591,21 @@ var EnhancedFixedDataTable = (function() {
                 _.each(rows, function(row) {
                     _.each(row, function(data, attr) {
                         if (data) {
+                            data = data.toString();
                             if (!columnWidth.hasOwnProperty(attr)) {
                                 columnWidth[attr] = 0;
                             }
                             switch (measureMethod) {
                                 case 'jquery':
                                     var ruler = $("#ruler");
-                                    ruler.css('font-size', '12px');
+                                    ruler.css('font-size', '14px');
                                     ruler.text(data);
                                     rulerWidth = ruler.outerWidth();
                                     break;
                                 default:
-                                    rulerWidth = data.toString().toUpperCase().length * 9;
+                                    var upperCaseLength = data.replace(/[^A-Z]/g, "").length;
+                                    var dataLength = data.length;
+                                    rulerWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 15;
                                     break;
                             }
 
@@ -655,6 +640,7 @@ var EnhancedFixedDataTable = (function() {
                     var _labelShort = _label;
                     var _labelWidth;
                     if (_label) {
+                        _label = _label.toString();
                         switch (measureMethod) {
                             case 'jquery':
                                 var ruler = $('#ruler');
@@ -663,12 +649,14 @@ var EnhancedFixedDataTable = (function() {
                                 _labelWidth = ruler.outerWidth();
                                 break;
                             default:
-                                _labelWidth = _label.toString().toUpperCase().length * 9;
+                                var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
+                                var dataLength = _label.length;
+                                _labelWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 15;
                                 break;
                         }
                         if (_labelWidth > columnWidth[attr]) {
                             var end = Math.floor(_label.length * columnWidth[attr] / _labelWidth) - 3;
-                            _labelShort = _label.toString().substring(0, end) + '...';
+                            _labelShort = _label.substring(0, end) + '...';
                         } else {
                             _labelShort = _label;
                         }
@@ -684,6 +672,7 @@ var EnhancedFixedDataTable = (function() {
                 var _labelWidth;
 
                 if (_label) {
+                    _label = _label.toString();
                     switch (measureMethod) {
                         case 'jquery':
                             var ruler = $('#ruler');
@@ -693,7 +682,9 @@ var EnhancedFixedDataTable = (function() {
                             _labelWidth = ruler.outerWidth() + 70;
                             break;
                         default:
-                            _labelWidth = _label.toString().toUpperCase().length * 12 ;
+                            var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
+                            var dataLength = _label.length;
+                            _labelWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 20;
                             break;
                     }
                     if (_labelWidth > columnWidth[col.name]) {
@@ -851,6 +842,9 @@ var EnhancedFixedDataTable = (function() {
         onFilterKeywordChange: function(e) {
             ++this.state.filterTimer;
 
+            //Disable event pooling in react, see https://goo.gl/1mq6qI
+            e.persist();
+
             var self = this;
             var id = setTimeout(function() {
                 var filterAll = self.state.filterAll, filters = self.state.filters;
@@ -903,6 +897,7 @@ var EnhancedFixedDataTable = (function() {
                 }
                 filter.reset = true;
             });
+            this.registerSliders();
             this.filterSortNSet('', filters, this.state.sortBy);
         },
 
@@ -922,13 +917,47 @@ var EnhancedFixedDataTable = (function() {
             });
         },
 
+        registerSliders: function() {
+            var onFilterRangeChange = this.onFilterRangeChange;
+            $('.rangeSlider')
+                .each(function() {
+                    var min = Math.floor(Number($(this).attr('data-min')) * 100) / 100, max = (Math.ceil(Number($(this).attr('data-max')) * 100))/ 100,
+                        column = $(this).attr('data-column'), diff = max - min, step = 1;
+                    var type = $(this).attr('data-type');
+
+                    if (diff < 0.01) {
+                        step = 0.001;
+                    } else if (diff < 0.1) {
+                        step = 0.01;
+                    } else if (diff < 2) {
+                        step = 0.1;
+                    }
+
+                    $(this).slider({
+                        range: true,
+                        min: min,
+                        max: max,
+                        step: step,
+                        values: [min, max],
+                        change: function(event, ui) {
+                            $("#range-" + column).text(ui.values[0] + " to " + ui.values[1]);
+                            onFilterRangeChange(column, ui.values[0], ui.values[1]);
+                        }
+                    });
+                    if (type === 'PERCENTAGE') {
+                        $("#range-" + column).text(min + "% to " + max + '%');
+                    } else {
+                        $("#range-" + column).text(min + " to " + max);
+                    }
+                });
+        },
         // Processes input data, and initializes table states
         getInitialState: function() {
             var cols = [], rows = [], rowsDict = {}, attributes = this.props.input.attributes,
                 data = this.props.input.data, dataLength = data.length, col, cell, i, filters = {},
                 uniqueId = this.props.uniqueId || 'id', newCol,
-                measureMethod = dataLength > 100000 ? 'charNum' : 'jquery',
-                columnMinWidth = this.props.groupHeader ? 150 : 50; //The minimum width to at least fit in number slider.
+                measureMethod = (dataLength > 100000 || !this.props.autoColumnWidth) ? 'charNum' : 'jquery',
+                columnMinWidth = this.props.groupHeader ? 130 : 50; //The minimum width to at least fit in number slider.
 
             // Gets column info from input
             var colsDict = {};
@@ -1045,38 +1074,7 @@ var EnhancedFixedDataTable = (function() {
 
         // Activates range sliders after first rendering
         componentDidMount: function() {
-            var onFilterRangeChange = this.onFilterRangeChange;
-            $('.rangeSlider')
-                .each(function() {
-                    var min = Math.floor(Number($(this).attr('data-min')) * 100) / 100, max = Math.round(Number($(this).attr('data-max')) * 100) / 100,
-                        column = $(this).attr('data-column'), diff = max - min, step = 1;
-                    var type = $(this).attr('data-type');
-
-                    if (diff < 0.01) {
-                        step = 0.001;
-                    } else if (diff < 0.1) {
-                        step = 0.01;
-                    } else if (diff < 2) {
-                        step = 0.1;
-                    }
-
-                    $(this).slider({
-                        range: true,
-                        min: min,
-                        max: max,
-                        step: step,
-                        values: [min, max],
-                        change: function(event, ui) {
-                            $("#range-" + column).text(ui.values[0] + " to " + ui.values[1]);
-                            onFilterRangeChange(column, ui.values[0], ui.values[1]);
-                        }
-                    });
-                    if (type === 'PERCENTAGE') {
-                        $("#range-" + column).text(min + "% to " + max + '%');
-                    } else {
-                        $("#range-" + column).text(min + " to " + max);
-                    }
-                });
+            this.registerSliders();
         },
 
         // Sets default properties

@@ -917,7 +917,8 @@ var StudyViewInitCharts = (function(){
 
     function deleteChart(_chartID,_value){
         var _options;
-
+        
+        $("#study-view-dc-chart-main-" + _chartID).qtip('destroy', true);
         $("div").remove("#study-view-dc-chart-main-" + _chartID);
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();

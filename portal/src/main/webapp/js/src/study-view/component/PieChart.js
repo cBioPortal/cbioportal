@@ -103,10 +103,10 @@ var PieChart = function(){
     }
     
     function updateTables() {
-        if(pieLabelTableInitialized && currentView === 'pie') {
+        if(pieLabelTableInitialized) {
             updateQtipReactTable();
         }
-        if(tableInitialized && currentView === 'table') {
+        if(tableInitialized) {
             updateReactTable();
         }
     }

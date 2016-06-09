@@ -33,17 +33,22 @@
 package org.mskcc.cbio.portal.util;
 
 import org.apache.log4j.Logger;
+import org.cbioportal.persistence.MutationRepository;
 import org.json.simple.JSONArray;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.web_api.GetMutationData;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.*;
 
+@Component
 public class MutationDataUtils {
     private static final Logger logger = Logger.getLogger(MutationDataUtils.class);
 
@@ -99,6 +104,12 @@ public class MutationDataUtils {
     public static final String MY_CANCER_GENOME = "myCancerGenome";
     public static final String IS_HOTSPOT = "isHotspot";
 
+    @Autowired
+    private MutationRepository mutationRepository;
+
+    @Autowired
+    private MutationModelConverter mutationModelConverter;
+
     /**
      * Generates an array (JSON array) of mutations for the given sample
      * and gene lists.
@@ -128,7 +139,7 @@ public class MutationDataUtils {
         {
             internalSampleIds = InternalIdUtil.getInternalSampleIds(
                 geneticProfile.getCancerStudyId(), targetSampleList);
-            GetMutationData remoteCallMutation = new GetMutationData();
+            GetMutationData remoteCallMutation = new GetMutationData(mutationRepository, mutationModelConverter);
 
             mutationList = remoteCallMutation.getMutationData(geneticProfile,
                     targetGeneList,
@@ -334,14 +345,8 @@ public class MutationDataUtils {
         Map<Integer, Integer> counts;
 
         // retrieve count map
-        try
-        {
-            counts = DaoMutation.countMutationEvents(geneticProfileId, sampleIds);
-        }
-        catch (DaoException e)
-        {
-            counts = null;
-        }
+        counts = mutationModelConverter.convertMutationCountToMap(
+                mutationRepository.countMutationEvents(geneticProfileId, sampleIds));
 
         return counts;
     }

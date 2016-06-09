@@ -13,11 +13,8 @@
     <artifactId>persistence-mybatis-test</artifactId>
     
     <properties>
-        <test.db.driverClassName>org.hsqldb.jdbc.JDBCDriver</test.db.driverClassName>
-        <test.db.url>jdbc:hsqldb:file:${project.build.directory}/cbioportal_test;default_schema=true;shutdown=true</test.db.url>
-        <test.db.username>sa</test.db.username>
-        <test.db.password></test.db.password>
-        <test.db.init>src/test/resources/testSql.sql</test.db.init>
+        <test.db.driverClassName>org.h2.Driver</test.db.driverClassName>
+        <test.db.url>jdbc:h2:mem:;MODE=MySQL;DATABASE_TO_UPPER=false;INIT=RUNSCRIPT FROM '${basedir}/src/test/resources/testSql.sql'</test.db.url>
 	</properties>
     
 
@@ -46,11 +43,11 @@
 	        <version>${spring.version}</version>
 	        <scope>test</scope>
 	    </dependency>
-	    <dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.3.3</version>
-		    <scope>test</scope>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.192</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
@@ -67,43 +64,8 @@
                 <filtering>true</filtering>
             </testResource>
         </testResources>
-        
+
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>sql-maven-plugin</artifactId>
-				<version>1.5</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.hsqldb</groupId>
-						<artifactId>hsqldb</artifactId>
-						<version>2.3.3</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<driver>${test.db.driverClassName}</driver>
-					<url>${test.db.url}</url>
-					<username>${test.db.username}</username>
-					<password>${test.db.password}</password>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>process-test-resources</phase>
-						<goals>
-							<goal>execute</goal>
-						</goals>
-						<configuration>
-							<fileset>
-								<basedir>${basedir}</basedir>
-								<includes>
-									<include>${test.db.init}</include>
-								</includes>
-							</fileset>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>

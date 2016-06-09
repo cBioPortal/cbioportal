@@ -20,19 +20,25 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.cbioportal.persistence.MutationRepository;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.util.EnrichmentsAnalysisUtil;
 import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Calculate over representation scores
@@ -44,6 +50,19 @@ public class EnrichmentsJSON extends HttpServlet  {
     private final int bin = 3000; //size of genes for each thread
     private final JsonNodeFactory factory = JsonNodeFactory.instance;
     private final ArrayNode result = new ArrayNode(factory);
+
+    @Autowired
+    private MutationRepository mutationRepository;
+
+    @Autowired
+    private MutationModelConverter mutationModelConverter;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+                config.getServletContext());
+    }
 
     /**
      * Handles HTTP GET Request.
@@ -145,7 +164,13 @@ public class EnrichmentsJSON extends HttpServlet  {
             if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                 final List<Integer> sampleIds = new ArrayList<>(alteredSampleIds);
                 sampleIds.addAll(unalteredSampleIds);
-                final HashMap mutHm = DaoMutation.getSimplifiedMutations(gpId, sampleIds, entrezGeneIds);
+                List<Integer> intEntrezGeneIds = new ArrayList<>(entrezGeneIds.size());
+                for (Long entrezGeneId : entrezGeneIds) {
+                    intEntrezGeneIds.add(entrezGeneId.intValue());
+                }
+                final Map mutHm = mutationModelConverter.convertSampleIdAndEntrezGeneIdToMap(
+                        mutationRepository.getSimplifiedMutations(sampleIds, intEntrezGeneIds, gpId));
+
 
                 //multi-threading settings
                 int nThread = (int)Math.floor(entrezGeneIds.size() / bin) + 1;

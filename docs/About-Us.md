@@ -28,7 +28,9 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan-K
 
 ## Children's Hospital of Philadelphia
 * Pichai Raman
+* Karthik Kalletla
 * John Maris
+* Adam Resnick
 
 ## The Hyve
 * Pieter Lukasse

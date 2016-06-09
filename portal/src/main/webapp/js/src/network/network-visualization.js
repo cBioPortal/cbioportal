@@ -4384,10 +4384,7 @@ NetworkVis.prototype.popUpSBGNView = function(sourceNodeID, targetNodeID, edgeTy
     height="+popupHeight+"px,\
     left="+((window.innerWidth/2)-popUpWidth/2)+"px,\
     top="+((window.innerHeight/2)-popupHeight/2)+"px";
-    var windowHref = window.location.href;
-    var additionalPart = ((windowHref.substr(7)).substr(windowHref.substr(7).indexOf('/')+1));
-    additionalPart = additionalPart.substring(0, additionalPart.lastIndexOf("/"));
-    var sbgnPageURL = "/"+ additionalPart + "/js/lib/SBGNViz.js/sample-app/index.html";
+    var sbgnPageURL = "js/lib/SBGNViz.js/sample-app/index.html";
     windowObjectReference = window.open(sbgnPageURL+"?"+sourceNodeID+"&"+targetNodeID,"SBGN View", strWindowFeatures);
 }
 

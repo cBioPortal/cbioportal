@@ -14790,11 +14790,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 					vars.mutationTypeClass = mutationType.style;
 					vars.mutationTypeText = mutationType.text;
 
-					// 508 compliance to prevent empty label tag
-					if(_.isEmpty(mutationType.text)) {
-						return "";
-					}
-
 					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_mutation_type_template");
 					return templateFn(vars);
 				}
@@ -14805,11 +14800,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				var vars = {};
 				vars.cosmicClass = cosmic.style;
 				vars.cosmicCount = cosmic.count;
-
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(cosmic.count)) {
-					return "";
-				}
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_cosmic_template");
 				return templateFn(vars);
@@ -14822,11 +14812,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				vars.cnaClass = cna.style;
 				vars.cnaTip = cna.tip;
 
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(cna.text)) {
-					return "";
-				}
-
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_cna_template");
 				return templateFn(vars);
 			},
@@ -14836,11 +14821,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				var vars = {};
 				vars.mutationCount = mutationCount.text;
 				vars.mutationCountClass = mutationCount.style;
-
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(mutationCount.text)) {
-					return "";
-				}
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_mutation_count_template");
 				return templateFn(vars);
@@ -14859,11 +14839,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				vars.normalTotalCount = normalFreq.total;
 				vars.normalAltCount = alleleCount.text;
 
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(normalFreq.text)) {
-					return "";
-				}
-
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_normal_freq_template");
 				return templateFn(vars);
 			},
@@ -14881,11 +14856,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				vars.tumorTotalCount = tumorFreq.total;
 				vars.tumorAltCount = alleleCount.text;
 
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(tumorFreq.text)) {
-					return "";
-				}
-
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_tumor_freq_template");
 				return templateFn(vars);
 			},
@@ -14898,11 +14868,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				vars.omaClass = fis.omaClass;
 				vars.fisText = fis.text;
 
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(fis.text)) {
-					return "";
-				}
-
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_mutation_assessor_template");
 				return templateFn(vars);
 			},
@@ -14913,11 +14878,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				vars.mutationStatusTip = mutationStatus.tip;
 				vars.mutationStatusClass = mutationStatus.style;
 				vars.mutationStatusText = mutationStatus.text;
-
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(mutationStatus.text)) {
-					return "";
-				}
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_mutation_status_template");
 				return templateFn(vars);
@@ -14930,11 +14890,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				vars.validationStatusClass = validationStatus.style;
 				vars.validationStatusText = validationStatus.text;
 
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(validationStatus.text)) {
-					return "";
-				}
-
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_validation_status_template");
 				return templateFn(vars);
 			},
@@ -14944,11 +14899,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				var vars = {};
 				vars.normalRefCount = alleleCount.text;
 				vars.normalRefCountClass = alleleCount.style;
-
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(alleleCount.text)) {
-					return "";
-				}
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_normal_ref_count_template");
 				return templateFn(vars);
@@ -14960,11 +14910,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				vars.normalAltCount = alleleCount.text;
 				vars.normalAltCountClass = alleleCount.style;
 
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(alleleCount.text)) {
-					return "";
-				}
-
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_normal_alt_count_template");
 				return templateFn(vars);
 			},
@@ -14975,11 +14920,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				vars.tumorRefCount = alleleCount.text;
 				vars.tumorRefCountClass = alleleCount.style;
 
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(alleleCount.text)) {
-					return "";
-				}
-
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_tumor_ref_count_template");
 				return templateFn(vars);
 			},
@@ -14989,11 +14929,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				var vars = {};
 				vars.tumorAltCount = alleleCount.text;
 				vars.tumorAltCountClass = alleleCount.style;
-
-				// 508 compliance to prevent empty label tag
-				if(_.isEmpty(alleleCount.text)) {
-					return "";
-				}
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_tumor_alt_count_template");
 				return templateFn(vars);
@@ -15015,11 +14950,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 					vars.startPos = startPos.text;
 					vars.startPosClass = startPos.style;
 
-					// 508 compliance to prevent empty label tag
-					if(_.isEmpty(startPos.text)) {
-						return "";
-					}
-
 					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_start_pos_template");
 					return templateFn(vars);
 				}
@@ -15040,11 +14970,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 					var vars = {};
 					vars.endPos = endPos.text;
 					vars.endPosClass = endPos.style;
-
-					// 508 compliance to prevent empty label tag
-					if(_.isEmpty(endPos.text)) {
-						return "";
-					}
 
 					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_end_pos_template");
 					return templateFn(vars);
@@ -15132,11 +15057,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 					var vars = {};
 					vars.portalFrequency = portal.frequency;
 					vars.portalClass = portal.style;
-
-					// 508 compliance to prevent empty label tag
-					if(_.isEmpty(portal.frequency)) {
-						return "";
-					}
 
 					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_cbio_portal_template");
 					return templateFn(vars);

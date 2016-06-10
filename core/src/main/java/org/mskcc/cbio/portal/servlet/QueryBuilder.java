@@ -246,7 +246,7 @@ public class QueryBuilder extends HttpServlet {
                                                sampleSetId, sampleIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-                processData(cancerTypeId, geneticProfileIdSet, profileList, sampleSetId,
+                processData(cancerTypeId, geneList, geneticProfileIdSet, profileList, sampleSetId,
                             sampleIds, sampleSets, patientCaseSelect, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
@@ -314,6 +314,7 @@ public class QueryBuilder extends HttpServlet {
      * 
     */
     private void processData(String cancerStudyStableId,
+                             String geneList,
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
 							 String sampleSetId, String sampleIds,
@@ -404,11 +405,23 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(CASE_IDS_KEY, sampleIdsKey);
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
+        ArrayList<DownloadLink> downloadLinkSet = new ArrayList<>();
+        while (profileIterator.hasNext()) {
+            String profileId = profileIterator.next();
+            GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
+            if( null == profile ){
+                continue;
+            }
+            GetProfileData remoteCall =
+                new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split(" "))), StringUtils.join(setOfSampleIds, " "));
+            DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split(" "))), sampleIds,
+                remoteCall.getRawContent());
+            downloadLinkSet.add(downloadLink);
+        }
 
+        request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
         String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
         if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
-            xdebug.logMsg(this, "Merging Profile Data");
-
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
             double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
@@ -418,7 +431,10 @@ public class QueryBuilder extends HttpServlet {
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
             dispatcher.forward(request, response);
-        } 
+        } else if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
+            ShowData.showDataAtSpecifiedIndex(servletContext, request,
+                response, 0, xdebug);
+        }
     }
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException

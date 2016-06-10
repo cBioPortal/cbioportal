@@ -143,16 +143,33 @@ var EnhancedFixedDataTable = (function() {
 // Generates qTip when string length is larger than 20
     var QtipWrapper = React.createClass({displayName: "QtipWrapper",
         render: function() {
-            var label = this.props.label, qtipFlag = false;
+            var label = this.props.label, qtipFlag = false, attr = this.props.attr;
             var shortLabel = this.props.shortLabel;
-            var className = this.props.className || '';
 
             if (label && shortLabel && label.toString().length > shortLabel.toString().length) {
                 qtipFlag = true;
             }
+
+            if (window.hasOwnProperty('cbio') && cbio.hasOwnProperty('util')) {
+                if (attr === 'CASE_ID') {
+                    shortLabel = React.createElement("a", {target: "_blank",
+                        href: cbio.util.getLinkToSampleView(cancerStudyId, label)}, shortLabel)
+                } else if (attr === 'PATIENT_ID') {
+                    shortLabel = React.createElement("a", {target: "_blank",
+                        href: cbio.util.getLinkToPatientView(cancerStudyId, label)}, shortLabel)
+                }
+            }
+
+            if (attr === 'COPY_NUMBER_ALTERATIONS' && !isNaN(label)) {
+                if (Number(label) < 0.01) {
+                    shortLabel = '< 0.01';
+                } else {
+                    shortLabel = Number(shortLabel).toFixed(2);
+                }
+            }
+
             return (
-                React.createElement("span", {className: className + (qtipFlag?" hasQtip " : ''),
-                        "data-qtip": label},
+                React.createElement("span", {className: qtipFlag?"hasQtip":"", "data-qtip": label},
                     shortLabel
                 )
             );
@@ -437,7 +454,8 @@ var EnhancedFixedDataTable = (function() {
                 React.createElement(Cell, {columnKey: field},
                     React.createElement("span", {style: flag ? {backgroundColor:'yellow'} : {}},
                         React.createElement(QtipWrapper, {label: data[rowIndex].row[field],
-                            shortLabel: shortLabels[data[rowIndex].index][field]})
+                            shortLabel: shortLabels[data[rowIndex].index][field],
+                            attr: field})
                     )
                 )
             );
@@ -506,7 +524,9 @@ var EnhancedFixedDataTable = (function() {
                             maxHeight: props.maxHeight?props.maxHeight:500,
                             headerHeight: props.headerHeight?props.headerHeight:30,
                             groupHeaderHeight: props.groupHeaderHeight?props.groupHeaderHeight:50,
-                            scrollToColumn: props.goToColumn
+                            scrollToColumn: props.goToColumn,
+                            isColumnResizing: false,
+                            onColumnResizeEndCallback: props.onColumnResizeEndCallback
                         },
 
                         props.cols.map(function(col, index) {
@@ -541,7 +561,9 @@ var EnhancedFixedDataTable = (function() {
                                         width: width,
                                         fixed: col.fixed,
                                         allowCellsRecycling: true,
-                                        flexGrow: props.cols.length - index - 1}
+                                        isResizable: props.isResizable,
+                                        columnKey: col.name,
+                                        key: col.name}
                                     )
                                 )
                             } else {
@@ -560,7 +582,9 @@ var EnhancedFixedDataTable = (function() {
                                     width: width,
                                     fixed: col.fixed,
                                     allowCellsRecycling: true,
-                                    key: col.name}
+                                    columnKey: col.name,
+                                    key: col.name,
+                                    isResizable: props.isResizable}
                                 )
                             }
                             return (
@@ -605,7 +629,7 @@ var EnhancedFixedDataTable = (function() {
                                 default:
                                     var upperCaseLength = data.replace(/[^A-Z]/g, "").length;
                                     var dataLength = data.length;
-                                    rulerWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 15;
+                                    rulerWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 15;
                                     break;
                             }
 
@@ -651,7 +675,7 @@ var EnhancedFixedDataTable = (function() {
                             default:
                                 var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
                                 var dataLength = _label.length;
-                                _labelWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 15;
+                                _labelWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 15;
                                 break;
                         }
                         if (_labelWidth > columnWidth[attr]) {
@@ -679,12 +703,12 @@ var EnhancedFixedDataTable = (function() {
                             ruler.text(_label);
                             ruler.css('font-size', '14px');
                             ruler.css('font-weight', 'bold');
-                            _labelWidth = ruler.outerWidth() + 70;
+                            _labelWidth = ruler.outerWidth();
                             break;
                         default:
                             var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
                             var dataLength = _label.length;
-                            _labelWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 20;
+                            _labelWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 40;
                             break;
                     }
                     if (_labelWidth > columnWidth[col.name]) {
@@ -705,32 +729,38 @@ var EnhancedFixedDataTable = (function() {
         // Filters rows by selected column
         filterRowsBy: function(filterAll, filters) {
             var rows = this.rows.slice();
+            var hasGroupHeader = this.props.groupHeader;
             var filterRowsStartIndex = [];
             var filteredRows = _.filter(rows, function(row, index) {
                 var allFlag = false; // Current row contains the global keyword
                 for (var col in filters) {
                     if (!filters[col].hide) {
                         if (filters[col].type == "STRING") {
-                            if (!row[col]) {
+                            if (!row[col] && hasGroupHeader) {
                                 if (filters[col].key.length > 0) {
                                     return false;
                                 }
                             } else {
-                                if (row[col].toLowerCase().indexOf(filters[col].key.toLowerCase()) < 0) {
+                                if (hasGroupHeader && row[col].toLowerCase().indexOf(filters[col].key.toLowerCase()) < 0) {
                                     return false;
                                 }
-                                if (row[col].toLowerCase().indexOf(filterAll.toLowerCase()) >= 0) {
+                                if (row[col] && row[col].toLowerCase().indexOf(filterAll.toLowerCase()) >= 0) {
                                     allFlag = true;
                                 }
                             }
                         } else if (filters[col].type === "NUMBER" || filters[col].type == 'PERCENTAGE') {
                             var cell = _.isUndefined(row[col]) ? row[col] : Number(row[col].toString().replace('%', ''));
                             if (!isNaN(cell)) {
-                                if (Number(cell) < filters[col].min) {
-                                    return false;
+                                if (hasGroupHeader) {
+                                    if (filters[col].min !== filters[col]._min && Number(cell) < filters[col].min) {
+                                        return false;
+                                    }
+                                    if (filters[col].max !== filters[col]._max && Number(cell) > filters[col].max) {
+                                        return false;
+                                    }
                                 }
-                                if (Number(cell) > filters[col].max) {
-                                    return false;
+                                if (row[col] && row[col].toString().toLowerCase().indexOf(filterAll.toLowerCase()) >= 0) {
+                                    allFlag = true;
                                 }
                             }
                         }
@@ -897,7 +927,9 @@ var EnhancedFixedDataTable = (function() {
                 }
                 filter.reset = true;
             });
-            this.registerSliders();
+            if (this.props.groupHeader) {
+                this.registerSliders();
+            }
             this.filterSortNSet('', filters, this.state.sortBy);
         },
 
@@ -909,6 +941,9 @@ var EnhancedFixedDataTable = (function() {
                 filteredRows: result.filteredRows,
                 filters: filters
             });
+            if (this.props.groupHeader) {
+                this.registerSliders();
+            }
         },
 
         updateGoToColumn: function(val) {
@@ -921,7 +956,7 @@ var EnhancedFixedDataTable = (function() {
             var onFilterRangeChange = this.onFilterRangeChange;
             $('.rangeSlider')
                 .each(function() {
-                    var min = Math.floor(Number($(this).attr('data-min')) * 100) / 100, max = (Math.ceil(Number($(this).attr('data-max')) * 100))/ 100,
+                    var min = Math.floor(Number($(this).attr('data-min')) * 100) / 100, max = (Math.ceil(Number($(this).attr('data-max')) * 100)) / 100,
                         column = $(this).attr('data-column'), diff = max - min, step = 1;
                     var type = $(this).attr('data-type');
 
@@ -1063,7 +1098,8 @@ var EnhancedFixedDataTable = (function() {
                 filterTimer: 0,
                 shortLabels: shortLabels,
                 columnWidths: columnWidths,
-                columnMinWidth: columnMinWidth
+                columnMinWidth: columnMinWidth,
+                measureMethod: measureMethod
             };
         },
 
@@ -1072,9 +1108,34 @@ var EnhancedFixedDataTable = (function() {
             this.filterSortNSet(this.state.filterAll, this.state.filters, this.state.sortBy);
         },
 
+        //Will be triggered if the column width has been changed
+        onColumnResizeEndCallback: function(width, key) {
+            var foundMatch = false;
+            var cols = this.state.cols;
+
+            _.each(cols, function(col, attr) {
+                if (col.name === key) {
+                    col.width = width;
+                    foundMatch = true;
+                }
+            });
+            if (foundMatch) {
+                var columnWidths = this.state.columnWidths;
+                columnWidths[key] = width;
+                var shortLabels = this.getShortLabels(this.rows, cols, columnWidths, this.state.measureMethod);
+                this.setState({
+                    columnWidths: columnWidths,
+                    shortLabels: shortLabels,
+                    cols: cols
+                });
+            }
+        },
+
         // Activates range sliders after first rendering
         componentDidMount: function() {
-            this.registerSliders();
+            if (this.props.groupHeader) {
+                this.registerSliders();
+            }
         },
 
         // Sets default properties
@@ -1090,7 +1151,8 @@ var EnhancedFixedDataTable = (function() {
                 downloadFileName: 'data.txt',
                 autoColumnWidth: true,
                 columnMaxWidth: 300,
-                columnSorting: true
+                columnSorting: true,
+                isResizable: false
             };
         },
 
@@ -1136,7 +1198,9 @@ var EnhancedFixedDataTable = (function() {
                             groupHeaderHeight: this.props.groupHeaderHeight,
                             groupHeader: this.props.groupHeader,
                             shortLabels: this.state.shortLabels,
-                            columnWidths: this.state.columnWidths}
+                            columnWidths: this.state.columnWidths,
+                            isResizable: this.props.isResizable,
+                            onColumnResizeEndCallback: this.onColumnResizeEndCallback}
                         )
                     )
                 )

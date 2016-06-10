@@ -285,7 +285,7 @@ var PieChart = function(){
                         for(var i = 0; i < labelMetaData.length; i++){
                             content += '\r\n';
                             content += labelMetaData[i].name + '\t';
-                            content += labelMetaData[i].value;
+                            content += labelMetaData[i].samples;
                         }
 
                         var downloadOpts = {

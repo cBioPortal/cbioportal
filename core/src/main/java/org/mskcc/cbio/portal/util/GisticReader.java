@@ -209,7 +209,7 @@ public class GisticReader {
         // -- end parse genes --
         
         if (genes.size() == 0) {
-        	ProgressMonitor.logWarning("No genes found in database for " + genesField + ". Skipping gistic event");
+        	ProgressMonitor.logWarning("No genes found in database for " + fields[genesField] + ". Skipping gistic event");
             return null;
         }
         gistic.setGenes_in_ROI(genes);

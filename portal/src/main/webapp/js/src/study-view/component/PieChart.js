@@ -483,7 +483,8 @@ var PieChart = function(){
             $("#"+DIV.mainDiv).css('z-index', 16000);
 
             //qtip wont be needed in table view
-            $('#' + DIV.mainDiv).qtip('destroy', true);
+            $('#' + DIV.mainDiv).qtip('api').hide();
+            $('#' + DIV.mainDiv).qtip('api').disable(true);
 
             $('#' + DIV.chartDiv ).css('display','none');
             $('#' + DIV.titleDiv ).css('display','none');
@@ -498,6 +499,8 @@ var PieChart = function(){
         });
         $("#"+DIV.chartDiv+"-pie-icon").click(function() {
             currentView = 'pie';
+            $('#' + DIV.mainDiv).qtip('api').disable(false);
+            $('#' + DIV.mainDiv).qtip('api').show();
             $("#"+DIV.mainDiv).css('z-index', 16000);
             $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
             $("#"+DIV.mainDiv).animate({height: "165px", width: "180px", duration: 300, queue: false}, 300, function() {

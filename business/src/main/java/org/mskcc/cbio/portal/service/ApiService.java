@@ -222,18 +222,20 @@ public class ApiService {
 
 	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id) {
-		return clinicalFieldMapper.getSampleClinicalFieldsByStudy(study_id);
+		List<Integer> internal_sample_ids = sampleMapper.getSampleInternalIdsByStudy(study_id);
+		return getSampleClinicalAttributesByInternalIds(internal_sample_ids);
 	}
 
 	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id, List<String> sample_ids) {
-		return clinicalFieldMapper.getSampleClinicalFieldsBySample(study_id, sample_ids);
+		List<Integer> internal_sample_ids = sampleMapper.getSampleInternalIdsBySample(study_id, sample_ids);
+		return getSampleClinicalAttributesByInternalIds(internal_sample_ids);
 	}
 
-    @Transactional
-    public List<DBClinicalField> getSampleClinicalAttributesByInternalIds(String study_id, List<Integer> sample_ids) {
-        return clinicalFieldMapper.getSampleClinicalFieldsBySampleInternalIds(study_id, sample_ids);
-    }
+	@Transactional
+	public List<DBClinicalField> getSampleClinicalAttributesByInternalIds(List<Integer> sample_ids) {
+	    return clinicalFieldMapper.getSampleClinicalFieldsBySampleInternalIds(sample_ids);
+	}
 
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes() {
@@ -242,18 +244,20 @@ public class ApiService {
 
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id) {
-		return clinicalFieldMapper.getPatientClinicalFieldsByStudy(study_id);
+		List<Integer> internal_patient_ids = patientMapper.getPatientInternalIdsByStudy(study_id);
+		return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(internal_patient_ids);
 	}
 
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id, List<String> patient_ids) {
-		return clinicalFieldMapper.getPatientClinicalFieldsByPatient(study_id, patient_ids);
+		List<Integer> internal_patient_ids = patientMapper.getPatientInternalIdsByPatient(study_id, patient_ids);
+		return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(internal_patient_ids);
 	}
 
-    @Transactional
-    public List<DBClinicalField> getPatientClinicalAttributesByInternalIds(String study_id, List<Integer> patient_ids) {
-        return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(study_id, patient_ids);
-    }
+	@Transactional
+	public List<DBClinicalField> getPatientClinicalAttributesByInternalIds(List<Integer> patient_ids) {
+	    return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(patient_ids);
+	}
     
 	@Transactional
 	public List<DBGene> getGenes() {

@@ -1,7 +1,6 @@
-sudo: false
+sudo: required
 language: java
 jdk: oraclejdk7
-
 services:
     - docker
 
@@ -21,6 +20,8 @@ install:
             mkdir -p ~/maven/$MAVEN_VERSION && \
             wget -O - http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
                 tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
+    # install dependencies for the python unit tests
+    - sudo -H pip install -r requirements.txt
 
 before_script:
     - mkdir -p ~/.m2
@@ -40,6 +41,12 @@ before_script:
 
 script:
     - export PORTAL_HOME=$(pwd)
+    # run the python unit tests (for the dataset validation scripts)
+    - export PYTHONPATH=$PYTHONPATH:$PORTAL_HOME/core/src/main/scripts:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages
+    - cd $PORTAL_HOME/core/src/test/scripts/
+    - $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py
+    - $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py
+    - cd $PORTAL_HOME
     # use EXAMPLE properties files
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties

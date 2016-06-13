@@ -10,8 +10,8 @@ screenshot:
     - study.do?cancer_study_id=lgg_ucsf_2014
   # timeout in seconds
   timeout:
-    - 60
-    - 60
+    - 10
+    - 10
 browsers:
   - firefox
   - chrome

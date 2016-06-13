@@ -163,7 +163,7 @@ public class GlobalProperties {
 
     // properties for the FAQ, about us, news and examples
     public static final String SKIN_BASEURL="skin.documentation.baseurl";
-    public static final String DEFAULT_SKIN_BASEURL="https://github.com/cBioPortal/cbioportal/wiki/";
+    public static final String DEFAULT_SKIN_BASEURL="https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/";
     public static final String SKIN_DOCUMENTATION_MARKDOWN="skin.documentation.markdown";
 
     public static final String SKIN_FAQ="skin.documentation.faq";

@@ -306,8 +306,6 @@ public class CrossCancerJSON extends HttpServlet {
         ProfileMerger merger = new ProfileMerger(profileDataList);
         ProfileData mergedProfile = merger.getMergedProfile();
 
-        request.setAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
-        request.setAttribute(QueryBuilder.WARNING_UNION, warningUnion);
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScore, rppaScore);
         return dataSummary;

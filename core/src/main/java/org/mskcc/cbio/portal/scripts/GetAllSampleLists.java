@@ -44,7 +44,8 @@ import java.util.ArrayList;
 public class GetAllSampleLists {
 
     public static void main(String[] args) throws Exception {
-        ProgressMonitor.setConsoleMode(true);
+        // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         DaoSampleList daoSampleList = new DaoSampleList();
         ArrayList <SampleList> sampleListMaster = daoSampleList.getAllSampleLists();
         for (SampleList sampleList:  sampleListMaster) {

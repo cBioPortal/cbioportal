@@ -28,14 +28,15 @@ TEST_DATA=$PORTAL_HOME/portal/src/test/resources
 ./importClinicalData.pl $SAMPLE_DATA/gbm/GBM_clinical_portal_20110210.txt gbm
 
 # Load Mutation Data
-./importProfileData.pl --data $SAMPLE_DATA/gbm/data_mutations_MAF.txt --meta $SAMPLE_DATA/gbm/meta_mutations_MAF.txt --dbmsAction clobber 
+./importProfileData.pl --data $SAMPLE_DATA/gbm/data_mutations_MAF.txt --meta $SAMPLE_DATA/gbm/meta_mutations_MAF.txt --dbmsAction clobber
 
 # Load CNA Data
 ./importProfileData.pl --data $SAMPLE_DATA/gbm/data_CNA_consensus.txt --meta $SAMPLE_DATA/gbm/meta_CNA_consensus.txt --dbmsAction clobber
 
 # Load network data
-./importSif.pl $SAMPLE_DATA/network/cell-map.sif CELLMAP
-./importSif.pl $SAMPLE_DATA/network/nci-nature.sif NCI_NATURE
+#./importSif.pl $SAMPLE_DATA/network/cell-map.sif CELLMAP
+#./importSif.pl $SAMPLE_DATA/network/nci-nature.sif NCI_NATURE
+./importSif.pl $SAMPLE_DATA/network/reactome.sif REACTOME
 
 # Load MutSig data
 ./importMutSig.pl $TEST_DATA/test_mut_sig_data.txt $TEST_DATA/testCancerStudy.txt

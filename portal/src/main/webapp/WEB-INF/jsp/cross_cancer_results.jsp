@@ -262,7 +262,7 @@
             </div>
 
             <div id="cchistogram" style="width: 1100px; height: 700px;position:relative;margin-top:30px;">
-                <img src="images/ajax-loader.gif"/>
+                <img src="images/ajax-loader.gif" alt='loading'/>
             </div>
 
             <div id="studies-with-no-data">
@@ -272,7 +272,7 @@
 
         <div class="section" id="cc-mutations">
             <div id="mutation_details" class="mutation-details-content">
-                <img src="images/ajax-loader.gif"/>
+                <img src="images/ajax-loader.gif" alt='loading'/>
             </div>
         </div>
         <div class="section" id="cc-plots">
@@ -375,7 +375,7 @@
 
 <script type="text/template" id="mutation_table_annotation_template">
     <span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
-        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif"/>
+        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif" alt='loading'/>
     </span>
     <span class='annotation-item mcg' alt='{{mcgAlt}}'>
         <img width='14' height='14' src='images/mcg_logo.png'>

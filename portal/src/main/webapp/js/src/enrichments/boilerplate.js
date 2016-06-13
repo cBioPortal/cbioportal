@@ -73,7 +73,7 @@ var enrichmentsTabSettings = (function() {
             protein_exp: "PROTEIN_LEVEL"
         },
         col_width : {
-            gene: 190, //150
+            gene: 150, //150
             cytoband: 100,
             altered_pct: 80, //90
             unaltered_pct: 80, //90
@@ -85,7 +85,7 @@ var enrichmentsTabSettings = (function() {
             altered_stdev: 95,
             unaltered_stdev: 95,
             direction: 250,
-            plot: 50
+            plot: 30
         },
         col_index: {
             copy_num: {

@@ -81,7 +81,7 @@
         </div>
     </tr>
     <tr>
-        <div id="cc_plots_box"><img style='padding:250px;' src='images/ajax-loader.gif'></div>
+        <div id="cc_plots_box"><img style='padding:250px;' src='images/ajax-loader.gif' alt='loading'></div>
     </tr>
 </table>
 

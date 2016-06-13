@@ -33,7 +33,6 @@
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.cbio.portal.util.ValueParser" %>
 <%@ page import="java.util.TreeSet" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.ShowData" %>
 <%@ page import="org.mskcc.cbio.portal.model.DownloadLink" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
@@ -43,7 +42,7 @@
 <div class="section" id="data_download">
 
     <div id='data_download_tab_links_li_div'>
-        <h4>The following are downloadable data files (click to donwload) </h4>
+        <h4>The following are downloadable data files (click to download) </h4>
         <ul id='data_download_links_li'></ul>
         <div id='data_download_redirect_home_page'></div>
     </div><!-- end data_download_tab_info_div -->

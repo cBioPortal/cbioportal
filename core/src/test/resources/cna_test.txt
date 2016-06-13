@@ -1,52 +1,52 @@
-		TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SF-01	TCGA-A1-A0SG-01	TCGA-A1-A0SH-01	TCGA-A1-A0SI-01	TCGA-A1-A0SJ-01	TCGA-A1-A0SK-01	TCGA-A1-A0SM-01	TCGA-A1-A0SN-01	TCGA-A1-A0SO-01	TCGA-A1-A0SP-01	TCGA-A1-A0SQ-01
+Name	Hugo_Symbol	TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SF-01	TCGA-A1-A0SG-01	TCGA-A1-A0SH-01	TCGA-A1-A0SI-01	TCGA-A1-A0SJ-01	TCGA-A1-A0SK-01	TCGA-A1-A0SM-01	TCGA-A1-A0SN-01	TCGA-A1-A0SO-01	TCGA-A1-A0SP-01	TCGA-A1-A0SQ-01
 		1	3	6	7	9	10	11	14	21	24	27	28	33	34
-Barry	AKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	-1
-Gaddy Broad	AKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	
-Gaddy HMS	AKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	-1
-Gaddy MSKCC	AKT1	0	0		-1	0	-1	-1	0	0	-1	0	0	0	-1
-Gaddy Stanford	AKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	-1
-Jun	AKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	-1
-Barry	AKT2	0	0	0	0	1	0	0	0	1	0	0	-1	0	0
-Gaddy Broad	AKT2	0	0	0	0	1	0	0	0	1	0	0	-1	0	
-Gaddy HMS	AKT2	0	0	0	0	1	0	0	0	1	0	0	-1	0	0
-Gaddy MSKCC	AKT2	0	0		0	1	0	0	0	1	0	0	-1	0	0
-Gaddy Stanford	AKT2	0	0	0	0	1	0	0	0	1	0	0	-1	0	0
-Jun	AKT2	0	0	0	0	0	0	0	0	0	0	0	-1	0	0
-Barry	AKT3	2	2	2	1	1	-2	0	0	0	1	0	1	0	0
-Gaddy Broad	AKT3	0	0	0	0	0	0	0	0	0	1	0	1	0	
-Gaddy HMS	AKT3	1	0	0	0	0	0	0	0	0	1	0	1	0	0
-Gaddy MSKCC	AKT3	1	0		0	0	0	0	0	0	1	0	1	0	0
-Gaddy Stanford	AKT3	0	0	0	0	0	0	0	0	0	1	0	1	0	0
-Jun	AKT3	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-Barry	ARAF														
-Gaddy Broad	ARAF														
-Gaddy HMS	ARAF														
-Gaddy MSKCC	ARAF														
-Gaddy Stanford	ARAF														
-Jun	ARAF	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-Barry	ATM	0	0	0	0	0	0	0	-1	0	0	0	0	0	0
-Gaddy Broad	ATM	0	0	0	0	0	0	0	-1	0	-1	0	0	0	
-Gaddy HMS	ATM	0	0	0	0	0	0	0	-1	0	-1	0	0	0	0
-Gaddy MSKCC	ATM	0	0		0	0	0	0	-1	0	-1	0	0	0	0
-Gaddy Stanford	ATM	0	0	0	0	0	0	0	-1	0	-1	0	0	0	0
-Jun	ATM	0	0	0	0	0	0	0	-1	0	0	0	0	0	0
-Barry	BRAF	1	1	1	0	1	0	0	1	1	0	1	-1	1	1
-Gaddy Broad	BRAF	1	1	1	0	1	0	0	1	1	-1	1	-1	1	
-Gaddy HMS	BRAF	1	1	1	0	1	0	0	1	1	-1	1	-1	1	1
-Gaddy MSKCC	BRAF	1	1		0	1	0	0	1	1	-1	1	-1	1	1
-Gaddy Stanford	BRAF	1	1	1	0	1	0	0	1	1	-1	1	-1	1	1
-Jun	BRAF	0	0	0	0	0	0	0	0	0	0	0	-1	0	0
-Barry	BRCA1	0	0	0	0	0	0	0	0	0	0	0	0	-1	0
-Gaddy Broad	BRCA1	0	0	0	0	0	0	0	0	0	0	0	0	-1	
-Gaddy HMS	BRCA1	-1	0	0	0	0	0	0	0	0	0	0	0	-1	0
-Gaddy MSKCC	BRCA1	-1	0		0	0	0	0	0	0	0	0	0	-1	0
-Gaddy Stanford	BRCA1	0	0	0	0	0	0	0	0	0	0	0	0	-1	0
-Jun	BRCA1	0	0	0	0	0	0	0	0	0	0	0	0	-1	0
-Barry	BRCA2	0	0	-1	-1	0	-1	-1	0	0	0	0	0	-1	-1
-Gaddy Broad	BRCA2	0	0	-1	-1	0	-1	-1	0	0	0	0	0	-1	
-Gaddy HMS	BRCA2	0	0	-1	-1	0	-1	-1	0	0	0	0	0	-1	-1
-Gaddy MSKCC	BRCA2	0	0		-1	0	-1	-1	0	0	0	0	0	-1	-1
-Gaddy Stanford	BRCA2	0	0	-1	-1	0	-1	-1	0	0	0	0	0	-1	-1
-Jun	BRCA2	0	0	-1	-1	0	0	-1	0	0	0	0	0	-1	-1
+Barry	TESTAKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	-1
+Gaddy Broad	TESTAKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	
+Gaddy HMS	TESTAKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	-1
+Gaddy MSKCC	TESTAKT1	0	0		-1	0	-1	-1	0	0	-1	0	0	0	-1
+Gaddy Stanford	TESTAKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	-1
+Jun	TESTAKT1	0	0	0	-1	0	-1	-1	0	0	-1	0	0	0	-1
+Barry	TESTAKT2	0	0	0	0	1	0	0	0	1	0	0	-1	0	0
+Gaddy Broad	TESTAKT2	0	0	0	0	1	0	0	0	1	0	0	-1	0	
+Gaddy HMS	TESTAKT2	0	0	0	0	1	0	0	0	1	0	0	-1	0	0
+Gaddy MSKCC	TESTAKT2	0	0		0	1	0	0	0	1	0	0	-1	0	0
+Gaddy Stanford	TESTAKT2	0	0	0	0	1	0	0	0	1	0	0	-1	0	0
+Jun	TESTAKT2	0	0	0	0	0	0	0	0	0	0	0	-1	0	0
+Barry	TESTAKT3	2	2	2	1	1	-2	0	0	0	1	0	1	0	0
+Gaddy Broad	TESTAKT3	0	0	0	0	0	0	0	0	0	1	0	1	0	
+Gaddy HMS	TESTAKT3	1	0	0	0	0	0	0	0	0	1	0	1	0	0
+Gaddy MSKCC	TESTAKT3	1	0		0	0	0	0	0	0	1	0	1	0	0
+Gaddy Stanford	TESTAKT3	0	0	0	0	0	0	0	0	0	1	0	1	0	0
+Jun	TESTAKT3	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Barry	TESTARAF														
+Gaddy Broad	TESTARAF														
+Gaddy HMS	TESTARAF														
+Gaddy MSKCC	TESTARAF														
+Gaddy Stanford	TESTARAF														
+Jun	TESTARAF	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Barry	TESTATM	0	0	0	0	0	0	0	-1	0	0	0	0	0	0
+Gaddy Broad	TESTATM	0	0	0	0	0	0	0	-1	0	-1	0	0	0	
+Gaddy HMS	TESTATM	0	0	0	0	0	0	0	-1	0	-1	0	0	0	0
+Gaddy MSKCC	TESTATM	0	0		0	0	0	0	-1	0	-1	0	0	0	0
+Gaddy Stanford	TESTATM	0	0	0	0	0	0	0	-1	0	-1	0	0	0	0
+Jun	TESTATM	0	0	0	0	0	0	0	-1	0	0	0	0	0	0
+Barry	TESTBRAF	1	1	1	0	1	0	0	1	1	0	1	-1	1	1
+Gaddy Broad	TESTBRAF	1	1	1	0	1	0	0	1	1	-1	1	-1	1	
+Gaddy HMS	TESTBRAF	1	1	1	0	1	0	0	1	1	-1	1	-1	1	1
+Gaddy MSKCC	TESTBRAF	1	1		0	1	0	0	1	1	-1	1	-1	1	1
+Gaddy Stanford	TESTBRAF	1	1	1	0	1	0	0	1	1	-1	1	-1	1	1
+Jun	TESTBRAF	0	0	0	0	0	0	0	0	0	0	0	-1	0	0
+Barry	TESTBRCA1	0	0	0	0	0	0	0	0	0	0	0	0	-1	0
+Gaddy Broad	TESTBRCA1	0	0	0	0	0	0	0	0	0	0	0	0	-1	
+Gaddy HMS	TESTBRCA1	-1	0	0	0	0	0	0	0	0	0	0	0	-1	0
+Gaddy MSKCC	TESTBRCA1	-1	0		0	0	0	0	0	0	0	0	0	-1	0
+Gaddy Stanford	TESTBRCA1	0	0	0	0	0	0	0	0	0	0	0	0	-1	0
+Jun	TESTBRCA1	0	0	0	0	0	0	0	0	0	0	0	0	-1	0
+Barry	TESTBRCA2	0	0	-1	-1	0	-1	-1	0	0	0	0	0	-1	-1
+Gaddy Broad	TESTBRCA2	0	0	-1	-1	0	-1	-1	0	0	0	0	0	-1	
+Gaddy HMS	TESTBRCA2	0	0	-1	-1	0	-1	-1	0	0	0	0	0	-1	-1
+Gaddy MSKCC	TESTBRCA2	0	0		-1	0	-1	-1	0	0	0	0	0	-1	-1
+Gaddy Stanford	TESTBRCA2	0	0	-1	-1	0	-1	-1	0	0	0	0	0	-1	-1
+Jun	TESTBRCA2	0	0	-1	-1	0	0	-1	0	0	0	0	0	-1	-1
 # This line references AKT1 again.  However, since we have already loaded data for AKT1, it will be ignored															
-Barry	AKT1	2	2	2	2	2	2	2	2	2	2	2	2	2	2
+Barry	TESTAKT1	2	2	2	2	2	2	2	2	2	2	2	2	2	2

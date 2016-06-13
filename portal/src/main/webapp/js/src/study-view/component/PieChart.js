@@ -53,8 +53,8 @@ var PieChart = function(){
         selectedAttrDisplay,
         ndx,
         plotDataButtonFlag = false,
-        tableInitialized = false,
-        pieLabelTableInitialized = false,
+        tableStatus = 'unavailable', //unavailable, initialized, 
+        pieLabelTableStatus = 'unavailable',
         chartColors;
 
     var labels =[],
@@ -90,9 +90,9 @@ var PieChart = function(){
         addPieLabelEvents();
 
         //Make sure table will be reinitialized when table view selected
-        if (currentView === 'table' && !tableInitialized ) {
+        if (currentView === 'table' && tableStatus === 'unavailable' ) {
             initReactTable(DIV.labelTableID, reactTableData);
-            tableInitialized = true;
+            tableStatus = 'initialized';
         }
     }
     
@@ -103,10 +103,10 @@ var PieChart = function(){
     }
     
     function updateTables() {
-        if(pieLabelTableInitialized) {
+        if(pieLabelTableStatus === 'initialized') {
             updateQtipReactTable();
         }
-        if(tableInitialized) {
+        if(tableStatus === 'initialized') {
             updateReactTable();
         }
     }
@@ -348,7 +348,7 @@ var PieChart = function(){
                             pieLabelMouseEnterFunc: pieLabelMouseEnter,
                             pieLabelMouseLeaveFunc: pieLabelMouseLeave
                         });
-                    pieLabelTableInitialized = true;
+                    pieLabelTableStatus = 'initialized';
                 }
             }
         });
@@ -488,11 +488,11 @@ var PieChart = function(){
 
             $('#' + DIV.chartDiv ).css('display','none');
             $('#' + DIV.titleDiv ).css('display','none');
-            if ( tableInitialized ) {
+            if ( tableStatus === 'initialized' ) {
                 animateTable();
             }else{
                 initReactTable(DIV.labelTableID, reactTableData);
-                tableInitialized = true;
+                tableStatus = 'initialized';
                 animateTable();
             }
 
@@ -1095,6 +1095,11 @@ var PieChart = function(){
             addEvents();
         },
 
+        destroy: function() {
+            tableStatus = 'unavailable';
+            pieLabelTableStatus = 'unavailable';
+        },
+        
         getChart : function(){
             return pieChart;
         },

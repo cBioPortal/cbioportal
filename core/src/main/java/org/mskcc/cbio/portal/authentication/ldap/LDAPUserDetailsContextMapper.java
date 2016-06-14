@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.SortedSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,6 +11,7 @@ import org.mskcc.cbio.portal.authentication.PortalUserDetails;
 import org.mskcc.cbio.portal.dao.PortalUserDAO;
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
+import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
@@ -70,35 +70,30 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
             Collection<? extends GrantedAuthority> authorities) {
         // Query LDAP server for user details, including first/given name and email.
         SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(ldapServer);
+
         String query = MessageFormat.format("({0}='{'0'}')", usernameAttribute);
         DirContextOperations user = ldapTemplate.searchForSingleEntry(baseDn, query, new String[] { username });
 
-        // Extract attributes from the LDAP query result
-        String givenName = null;
+        // Get email, must be available
+        String email;
+        if (user.getAttributeSortedStringSet(emailAttribute).first() == null)
+            throw new RuntimeException("Could not retrieve email for user " + username);
+        else
+            email = (String) user.getAttributeSortedStringSet(emailAttribute).first();
+
+        // Get given and last name, should be available in all LDAP installations.  Use
+        // ugly fallback strings, meant as debugging help.
+        String givenName = "missing-given-name";
         if (user.getAttributeSortedStringSet(givenNameAttribute) != null)
             givenName = (String) user.getAttributeSortedStringSet(givenNameAttribute).first();
-        String lastName = null;
-        if (user.getAttributeSortedStringSet(givenNameAttribute) != null)
-            lastName = (String) user.getAttributeSortedStringSet(givenNameAttribute).first();
-        String email;
-        if (user.getAttributeSortedStringSet(givenNameAttribute) == null) {
-            LOG.warn("Retrieving email failed, using username " + username + " for everything");
-            email = username;
-        } else {
-            email = (String) user.getAttributeSortedStringSet(givenNameAttribute).first();
-        }
+        String lastName = "missing-last-name";
+        if (user.getAttributeSortedStringSet(lastNameAttribute) != null)
+            lastName = (String) user.getAttributeSortedStringSet(lastNameAttribute).first();
 
         // Construct the resulting PortalUserDetails object.
         PortalUserDetails result = new PortalUserDetails(username, getGrantedAuthorities(email));
         result.setEmail(email);
-        if (givenName == null && lastName == null)
-            result.setName(email);
-        else if (givenName == null)
-            result.setName(lastName);
-        else if (lastName == null)
-            result.setName(givenName);
-        else
-            result.setName(MessageFormat.format("{0} {1}", givenName, lastName));
+        result.setName(MessageFormat.format("{0} {1}", givenName, lastName));
         return result;
     }
 

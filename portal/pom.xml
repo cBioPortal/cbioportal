@@ -45,7 +45,6 @@
 
   <build>
     <!-- final name of the app -->
-    <finalName>${final-war-name}</finalName>
     <plugins>
       <!-- java 1.7 support -->
       <plugin>
@@ -159,10 +158,6 @@
       </plugin>
     </plugins>
 
-    <filters>
-        <filter>../src/main/resources/portal.properties</filter>
-    </filters>
-    
     <!-- prevent some resources from getting into war -->
     <resources>
       <resource>

@@ -126,14 +126,14 @@ var makeComparatorMetric = function(array_spec) {
 };
 var comparator_utils = {
     'makeGeneticComparator': function (distinguish_mutation_types, distinguish_recurrent) {
-	var cna_key = 'cna';
-	var cna_order = makeComparatorMetric(['AMPLIFIED', 'HOMODELETED', 'GAINED', 'HEMIZYGOUSLYDELETED', 'DIPLOID', undefined]);
-	var mut_type_key = distinguish_recurrent? 'mut_type_recurrence' : 'mut_type';
+	var cna_key = 'disp_cna';
+	var cna_order = makeComparatorMetric(['amp', 'homdel', 'gain', 'hetloss', 'diploid', undefined]);
+	var mut_type_key = 'disp_mut';
 	var mut_order = (function () {
 	    var _order;
 	    if (!distinguish_mutation_types && !distinguish_recurrent) {
 		return function (m) {
-		    if (m === 'FUSION') {
+		    if (m === 'fusion') {
 			return 0;
 		    } else {
 			return ({'true': 1, 'false': 2})[!!m];
@@ -141,17 +141,17 @@ var comparator_utils = {
 		    //return +(typeof m === 'undefined');
 		}
 	    } else if (!distinguish_mutation_types && distinguish_recurrent) {
-		_order = makeComparatorMetric([['INFRAME_rec', 'MISSENSE_rec'], ['FUSION', 'FUSION_rec', 'INFRAME', 'MISSENSE', 'TRUNC', 'TRUNC_rec'], undefined]); 
+		_order = makeComparatorMetric([['inframe_rec', 'missense_rec'], ['fusion', 'fusion_rec', 'inframe', 'missense', 'trunc', 'trunc_rec'], undefined]); 
 	    } else {
-		_order = makeComparatorMetric([['FUSION', 'FUSION_rec'], ['TRUNC', 'TRUNC_rec'], 'INFRAME_rec', 'MISSENSE_rec', 'INFRAME', 'MISSENSE',  undefined, true, false]);
+		_order = makeComparatorMetric([['fusion', 'fusion_rec'], ['trunc', 'trunc_rec'], 'inframe_rec', 'missense_rec', 'inframe', 'missense',  undefined, true, false]);
 	    }
 	    return function(m) {
 		return _order[m];
 	    }
 	})();
-	var mrna_key = 'mrna';
-	var rppa_key = 'rppa';
-	var regulation_order = makeComparatorMetric(['UPREGULATED', 'DOWNREGULATED', undefined]);
+	var mrna_key = 'disp_mrna';
+	var rppa_key = 'disp_prot';
+	var regulation_order = makeComparatorMetric(['up', 'down', undefined]);
 
 	return function (d1, d2) {
 	    var cna_diff = utils.sign(cna_order[d1[cna_key]] - cna_order[d2[cna_key]]);
@@ -369,7 +369,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var clinical_attrs = utils.objectValues(State.clinical_tracks);
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
-	    $.when(QuerySession.getGenomicEventData(), 
+	    $.when(QuerySession.getOncoprintSampleGenomicEventData(), 
 		    QuerySession.getAlteredSamplesByGene(), 
 		    QuerySession.getUnalteredSamples(),
 		    ClinicalData.getSampleData(clinical_attrs))
@@ -573,7 +573,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'patient_order': [],
 	    
 	    'sortby': 'data',
-	    'sortby_type': false,
+	    'sortby_type': true,
 	    'sortby_recurrence': false,
 	    'colorby_type': true,
 	    'colorby_recurrence': false,
@@ -1141,7 +1141,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	var def = new $.Deferred();
 	oncoprint.setCellPaddingOn(State.cell_padding_on);
-	QuerySession.getGenomicEventData().then(function (data) {
+	QuerySession.getOncoprintSampleGenomicEventData().then(function (data) {
 	    var genes = window.QuerySession.getQueryGenes();
 	    (function invokeOldDataManagers() {
 		window.PortalDataColl.setOncoprintData(window.OncoprintUtils.process_data(data, genes));

@@ -152,6 +152,7 @@
 </script>
 <script type="text/javascript" src="js/lib/oql/oql-parser.js"></script>
 <script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
+<script type="text/javascript" src="js/src/oql/oqlfilter.js"></script>
 <script type="text/javascript">
     var PortalDataColl = (function() {
         var oncoprintData = null,

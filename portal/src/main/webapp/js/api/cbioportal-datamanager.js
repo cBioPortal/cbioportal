@@ -218,8 +218,22 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			if (matching_mutations.length > 0) {
 				var mutation_type_key = config.mutation_type_key;
 				matching_mutations.sort(function(a,b) { return mutation_rendering_priority[a[mutation_type_key]] - mutation_rendering_priority[b[mutation_type_key]]; });
-				ret[config.mutation_type_key] = matching_mutations[0][config.mutation_type_key];
-				ret.mut_type_recurrence = ret[config.mutation_type_key] + (matching_mutations[0].position_recurrence > 10 ? '_rec' : '');
+				var display_mutation = matching_mutations[0][mutation_type_key];
+				ret[config.mutation_type_key] = display_mutation;
+				
+				var display_recurrent = false;
+				for (var i=0; i<matching_mutations.length; i++) {
+				    var mut = matching_mutations[i];
+				    if (mut[mutation_type_key] === display_mutation) {
+					if (mut.position_recurrence > 10) {
+					    display_recurrent = true;
+					    break;
+					}
+				    } else {
+					break;
+				    }
+				}
+				ret.mut_type_recurrence = display_mutation + (display_recurrent ? '_rec' : '');
 				ret[config.mutation_key] = matching_mutations.map(function(m) {
 				    return m[config.mutation_amino_acid_change_key];
 				}).join(",");

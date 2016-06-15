@@ -124,7 +124,11 @@ public class ImportClinicalData extends ConsoleRunnable {
         // a clinical attribute update should be
         // perform instead of an insert
         MySQLbulkLoader.bulkLoadOn();
-
+        
+        if(relaxed) {
+            MySQLbulkLoader.relaxedModeOn();
+        }    
+        
         FileReader reader =  new FileReader(clinicalDataFile);
         BufferedReader buff = new BufferedReader(reader);
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
@@ -149,6 +153,7 @@ public class ImportClinicalData extends ConsoleRunnable {
         
         if (MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
+            MySQLbulkLoader.relaxedModeOff();
         }
     }
 

@@ -96,7 +96,7 @@ final class DaoGene {
             pstmt.setLong(5, gene.getEntrezGeneId());
             rows += pstmt.executeUpdate();
             if (rows != 1)
-                throw new DaoException("Update not succeeded");
+                throw new DaoException("No change for " + gene.getEntrezGeneId() + " " + gene.getHugoGeneSymbolAllCaps() + "? Code " + rows);
             //add the current set of aliases:
             rows += addGeneAliases(gene);
 

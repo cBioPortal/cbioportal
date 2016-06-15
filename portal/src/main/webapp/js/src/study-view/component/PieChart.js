@@ -482,9 +482,11 @@ var PieChart = function(){
             currentView = 'table';
             $("#"+DIV.mainDiv).css('z-index', 16000);
 
-            //qtip wont be needed in table view
-            $('#' + DIV.mainDiv).qtip('api').hide();
-            $('#' + DIV.mainDiv).qtip('api').disable(true);
+            //qtip will not be needed in table view
+            if($('#' + DIV.mainDiv).qtip('api')) {
+                $('#' + DIV.mainDiv).qtip('api').hide();
+                $('#' + DIV.mainDiv).qtip('api').disable(true);
+            }
 
             $('#' + DIV.chartDiv ).css('display','none');
             $('#' + DIV.titleDiv ).css('display','none');

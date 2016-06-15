@@ -41,6 +41,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,6 +71,43 @@ final class DaoGene {
         return addGene(gene);
     }
 
+    /**
+     * Update Gene Record in the Database. It will also replace this 
+     * gene's aliases with the ones found in the given gene object.
+     */
+    public static int updateGene(CanonicalGene gene) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            //delete aliases first:
+            deleteGeneAlias(gene.getEntrezGeneId());
+            
+            int rows = 0;
+            CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
+            if (existingGene == null) {
+                con = JdbcUtil.getDbConnection(DaoGene.class);
+                pstmt = con.prepareStatement
+                        ("UPDATE gene SET `HUGO_GENE_SYMBOL`=?, `TYPE`=?,`CYTOBAND`=?,`LENGTH`=? WHERE `ENTREZ_GENE_ID`=?");
+                pstmt.setString(1, gene.getHugoGeneSymbolAllCaps());
+                pstmt.setString(2, gene.getType());
+                pstmt.setString(3, gene.getCytoband());
+                pstmt.setInt(4, gene.getLength());
+                pstmt.setLong(5, gene.getEntrezGeneId());
+                rows += pstmt.executeUpdate();
+            }
+            //add the current set of aliases:
+            rows += addGeneAliases(gene);
+
+            return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
+        }
+        
+    }
+    
     /**
      * Adds a new Gene Record to the Database.
      *
@@ -247,6 +285,43 @@ final class DaoGene {
         }
     }
 
+    /**
+     * Gets all genes where Hugo gene symbol is marked as deprecated.
+     * 
+     * @return list of genes
+     * 
+     * @throws DaoException 
+     */
+    public static List<CanonicalGene> getDeprecatedGenes() throws DaoException {
+        Map<Long,Set<String>> mapAliases = getAllAliases();
+        ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGene.class);
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM gene WHERE HUGO_GENE_SYMBOL LIKE '~%'");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
+                Set<String> aliases = mapAliases.get(entrezGeneId);
+                CanonicalGene gene = new CanonicalGene(entrezGeneId,
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases);
+                //for completeness we set these...but not really necessary:
+                gene.setCytoband(rs.getString("CYTOBAND"));
+                gene.setLength(rs.getInt("LENGTH"));
+                gene.setType(rs.getString("TYPE"));
+                geneList.add(gene);
+            }
+            return geneList;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
+        }
+    }
+    
     /**
      * Gets all Genes in the Database.
      *

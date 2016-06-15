@@ -168,6 +168,28 @@ public class DaoGeneOptimized {
         return ret;
     }
     
+    /**
+     * Update Gene Record in the Database. It will also replace this 
+     * gene's aliases with the ones found in the given gene object.
+     */
+    public int updateGene(CanonicalGene gene)  throws DaoException {
+        int ret = DaoGene.updateGene(gene);
+        //recache:
+        cacheGene(gene);
+        return ret;
+    }
+
+    /**
+     * Gets all genes where Hugo gene symbol is marked as deprecated.
+     * 
+     * @return list of genes
+     * 
+     * @throws DaoException 
+     */
+    public List<CanonicalGene> getDeprecatedGenes() throws DaoException {
+        return DaoGene.getDeprecatedGenes();
+    }
+    
     public void deleteGene(CanonicalGene gene) throws DaoException {
         DaoGene.deleteGene(gene.getEntrezGeneId());
         geneSymbolMap.remove(gene.getHugoGeneSymbolAllCaps());
@@ -436,4 +458,5 @@ public class DaoGeneOptimized {
     public void deleteAllRecords() throws DaoException {
         DaoGene.deleteAllRecords();
     }
+
 }

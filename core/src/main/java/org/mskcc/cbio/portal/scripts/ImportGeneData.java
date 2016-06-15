@@ -42,6 +42,10 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -49,10 +53,17 @@ import java.util.*;
  */
 public class ImportGeneData extends ConsoleRunnable {
 
+    /**
+     * 
+     * @param geneFile
+     * @throws IOException
+     * @throws DaoException
+     */
     public static void importData(File geneFile) throws IOException, DaoException {
         Map<String, Set<CanonicalGene>> genesWithSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         Map<String, Set<CanonicalGene>> genesWithoutSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         try (FileReader reader = new FileReader(geneFile)) {
+            prepareGeneTablesForUpdate();
             BufferedReader buf = new BufferedReader(reader);
             String line;
             while ((line = buf.readLine()) != null) {
@@ -93,6 +104,7 @@ public class ImportGeneData extends ConsoleRunnable {
                     
                     CanonicalGene gene = null;
                     if (!mainSymbol.equals("-")) {
+                        //try the main symbol:
                         gene = new CanonicalGene(entrezGeneId, mainSymbol, aliases);
                         Set<CanonicalGene> genes = genesWithSymbolFromNomenClatureAuthority.get(mainSymbol);
                         if (genes==null) {
@@ -101,6 +113,7 @@ public class ImportGeneData extends ConsoleRunnable {
                         }
                         genes.add(gene);
                     } else if (!geneSymbol.equals("-")) {
+                        //there is no main symbol, so import using the temporary/unnoficial(?) symbol:
                         gene = new CanonicalGene(entrezGeneId, geneSymbol, aliases);
                         Set<CanonicalGene> genes = genesWithoutSymbolFromNomenClatureAuthority.get(geneSymbol);
                         if (genes==null) {
@@ -125,7 +138,22 @@ public class ImportGeneData extends ConsoleRunnable {
         for (Map.Entry<String, Set<CanonicalGene>> entry : genesWithSymbolFromNomenClatureAuthority.entrySet()) {
             Set<CanonicalGene> genes = entry.getValue();
             if (genes.size()==1) {
-                daoGene.addGene(genes.iterator().next());
+                CanonicalGene gene = genes.iterator().next();
+                //if exists
+                CanonicalGene dbGene = daoGene.getGene(gene.getEntrezGeneId());
+                if (dbGene != null) {
+                    //if symbol has changed, record event:
+                    if (!dbGene.getHugoGeneSymbolAllCaps().equals("~" + gene.getHugoGeneSymbolAllCaps())) {
+                        ProgressMonitor.logWarning("Gene symbol change for EntrezId=" + dbGene.getEntrezGeneId() + ": symbol changed from " + 
+                                    dbGene.getHugoGeneSymbolAllCaps().substring(1) + " to " + gene.getHugoGeneSymbolAllCaps());
+                        //update gene:
+                        daoGene.updateGene(gene);
+                    }
+                }
+                else {
+                    daoGene.addGene(gene);
+                    ProgressMonitor.logWarning("New gene added");
+                }
             } else {
             	//TODO - is unexpected for official symbols...raise Exception instead?
                 logDuplicateGeneSymbolWarning(entry.getKey(), genes);
@@ -142,7 +170,21 @@ public class ImportGeneData extends ConsoleRunnable {
 	            if (genes.size()==1) {
 	                CanonicalGene gene = genes.iterator().next();
 	                if (!genesWithSymbolFromNomenClatureAuthority.containsKey(symbol)) {
-	                    daoGene.addGene(gene);
+	                    //if exists
+	                    CanonicalGene dbGene = daoGene.getGene(gene.getEntrezGeneId());
+	                    if (dbGene != null) {
+    	                    //if symbol has changed, record event:
+    	                    if (!dbGene.getHugoGeneSymbolAllCaps().equals("~" + gene.getHugoGeneSymbolAllCaps())) {
+    	                        ProgressMonitor.logWarning("Gene symbol change for EntrezId=" + dbGene.getEntrezGeneId() + ": symbol changed from " + 
+    	                                dbGene.getHugoGeneSymbolAllCaps().substring(1) + " to " + gene.getHugoGeneSymbolAllCaps());
+    	                        //update gene:
+    	                        daoGene.updateGene(gene);
+    	                    }
+	                    }
+	                    else {
+	                        daoGene.addGene(gene);
+	                        ProgressMonitor.logWarning("New gene with no official symbol added");
+	                    }
 	                    nrImported++;
 	                } else {
 	                    // ignore entries with a symbol that have the same value as stardard one
@@ -160,7 +202,50 @@ public class ImportGeneData extends ConsoleRunnable {
 	        		", skipped (because of duplicate symbol entry or because symbol is an 'official symbol' of another gene): " + nrSkipped);
         }
         
+        //report deprecated genes (i.e. genes where HUGO_GENE_SYMBOL remain with ~ at the start after the update process above):
+        List<CanonicalGene> deprecatedGenes = daoGene.getDeprecatedGenes();
+        for (CanonicalGene deprecatedGene: deprecatedGenes) {
+            ProgressMonitor.logWarning("Deprecated gene (gene found in DB but not in the given file anymore): " + 
+                            deprecatedGene.getHugoGeneSymbolAllCaps() + " (Entrez=" + deprecatedGene.getEntrezGeneId() + ")");  
+        }
     }
+    
+    
+    /**
+     * This method will prepare the gene and gene_alias tables for being updated. The gene_alias table 
+     * will just reflect the new data being imported, so we start by making it empty. The gene table
+     * is a bit more complicated since many other tables refer to it. Here we keep track of the previous symbol
+     * for reporting purposes at the end. See TODO - add method ref. 
+     * 
+     * 
+     * @return
+     * @throws DaoException
+     */
+    private static int prepareGeneTablesForUpdate() throws DaoException {
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            int rows = 0;
+
+            con = JdbcUtil.getDbConnection(ImportGeneData.class);
+            pstmt = con.prepareStatement
+                    ("SET SQL_SAFE_UPDATES = 0;" +
+                     "   UPDATE gene SET HUGO_GENE_SYMBOL = SUBSTRING_INDEX(HUGO_GENE_SYMBOL, '~', -1);" +
+                     "   UPDATE gene SET PREVIOUS_SYMBOL = HUGO_GENE_SYMBOL, HUGO_GENE_SYMBOL=CONCAT('~', HUGO_GENE_SYMBOL); ");
+           
+            rows = pstmt.executeUpdate();
+
+            return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(ImportGeneData.class, con, pstmt, rs);
+        }
+    }
+    
+    
     
     private static void logDuplicateGeneSymbolWarning(String symbol, Set<CanonicalGene> genes) {
         StringBuilder sb = new StringBuilder();
@@ -261,7 +346,7 @@ public class ImportGeneData extends ConsoleRunnable {
 		try {
 			SpringUtil.initDataSource();
 	
-	        String description = "Import 'profile' files that contain data matrices indexed by gene, case";
+	        String description = "Update gene / gene alias tables ";
 	    	
 	        // using a real options parser, helps avoid bugs
 	 		OptionParser parser = new OptionParser();

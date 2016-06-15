@@ -151,11 +151,11 @@
                     </div>
                     <div id="plots-sidebar-util-div" class="plots">
                         <h4>Utilities</h4>
-                        <h5>Search Case(s)</h5><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="Case ID.." title="Search Case(s)" onkeyup="search_case_id();"><br>
-                        <h5>Search Mutation(s)</h5><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="Protein Change.." title="Search Case(s)" onkeyup="search_mutation();"><br>
+                        <label for="case_id_search_keyword"><h5>Search Case(s)</h5></label><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="Case ID.." onkeyup="search_case_id();"><br>
+                        <label for="mutation_search_keyword"><h5>Search Mutation(s)</h5></label><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="Protein Change.." onkeyup="search_mutation();"><br>
                         <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view" style="display:inline;"></div>
                         <h5>Download</h5><div id="download_buttons" style="display: inline;"></div>
-                    </div>        
+                    </div>
                 </div>
             </td>
             <td>

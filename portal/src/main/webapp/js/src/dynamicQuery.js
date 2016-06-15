@@ -1416,9 +1416,11 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
         $('#main_submit').attr('disabled', false);
         //  If we have more than 1 profile, output group checkbox
         //  assign a class to associate the checkbox with any subgroups (radio buttons)
-        profileHtml += "<input type='checkbox' class='" + targetClass + "' title='" + targetTitle + "'>"
-         + targetTitle + " data."
-            + " Select one of the profiles below:";
+        profileHtml += "<div class='checkbox'><label>"
+            + "<input type='checkbox' class='" + targetClass + "'>"
+            + targetTitle + " data."
+            + " Select one of the profiles below:"
+            + "</label></div>";
         profileHtml += "<div class='genomic_profiles_subgroup'>";
     }
 
@@ -1451,18 +1453,20 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
 
     if(targetClass == PROFILE_MRNA_EXPRESSION && downloadTab == false){
         var inputName = 'Z_SCORE_THRESHOLD';
-        profileHtml += "<div id='z_score_threshold' class='score_threshold' label='Enter a z-score threshold for mRNA expression'>Enter a z-score threshold &#177: "
+        profileHtml += "<div id='z_score_threshold' class='score_threshold'>"
+        + "<label>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
-                + window.zscore_threshold + "' title='z-score value'>"
-        + "</div>";
+                + window.zscore_threshold + "'>"
+        + "</label></div>";
     }
 
     if(targetClass == PROFILE_PROTEIN_EXPRESSION && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
-        profileHtml += "<div id='rppa_score_threshold' class='score_threshold' label='Enter a z-score threshold for RPPA expression'>Enter a RPPA z-score threshold &#177: "
+        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>"
+        + "<label>Enter a RPPA z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
-                + window.rppa_score_threshold + "' title='z-score value'>"
-        + "</div>";
+                + window.rppa_score_threshold + "'>"
+        + "</label></div>";
     }
     
     $("#genomic_profiles").append(profileHtml);
@@ -1484,14 +1488,16 @@ function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, n
         paramName = "genetic_profile_ids_" + targetClass;
     }
 
-    var html =  "<input type='" + optionType + "' "
-        + "id='" + id + "'"
+    var html =  "<div class='" + optionType + "'>"
+        + "<label>"
+        + "<input type='" + optionType + "'"
+        + " id='" + id + "'"
         + " name='" + paramName + "'"
         + " class='" + targetClass + "'"
-        + " value='" + id +"' title='"+ name +"' />"
-        + "<label for='" + id + "'>" + name + "</label>"
+        + " value='" + id + "' />"
+        + name
         + "  <img class='profile_help' alt='help' src='images/help.png' title='"
-        + description + "'><br/>";
+        + description + "'></label></div>";
     return html;
 }
 

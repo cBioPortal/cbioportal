@@ -20,4 +20,5 @@ public interface SampleMapper {
 	List<DBSample> getSamplesByInternalId(@Param("sample_ids") List<String> sample_ids);
     List<DBSample> getSamplesByPatient(@Param("study_id") String study_id, @Param("patient_ids") List<String> patient_ids);
     List<Integer> getSampleInternalIdsByStudy(@Param("study_id") String study_id);
+    List<Integer> getSampleInternalIdsBySample(@Param("study_id") String study_id, @Param("sample_ids") List<String> sample_ids);
 }

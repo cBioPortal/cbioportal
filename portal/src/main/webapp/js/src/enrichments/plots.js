@@ -416,7 +416,7 @@ var enrichmentsTabPlots = (function() {
             function(d) {
                 var content = "<font size='2'>";
                 content += "<strong><a href='"
-                    +cbio.util.getLinkToSampleView(cancer_study_id,d.case_id)
+                    +cbio.util.getLinkToSampleView(window.QuerySession.getCancerStudyIds()[0],d.case_id)
                     + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
                 if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
                     content += "mRNA expression: ";

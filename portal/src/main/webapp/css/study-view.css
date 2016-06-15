@@ -427,6 +427,7 @@ embed {
 }
 .mutated-gene-cna {
     float: left;
+    margin-top: 3px;
 }
 .w1 {
     width: 180px;
@@ -1233,6 +1234,10 @@ cursor: pointer;
     text-align: left;
 }
 
+#study-view-charts .EFDT-table input[type=checkbox], #study-view-charts .EFDT-table input[type=radio], .study-view-pie-label-qtip .EFDT-table input[type=checkbox], .study-view-pie-label-qtip .EFDT-table input[type=radio] {
+    margin: 1px 0 0;
+}
+
 #study-view-charts .EFDT-table .EFDT-top-btn, .study-view-pie-label-qtip .EFDT-table .EFDT-top-btn {
     margin-right: 5px;
 }
@@ -1312,10 +1317,6 @@ cursor: pointer;
     float: left;
 }
 
-#study-view-charts .EFDT-table .EFDT-table-prefix, .study-view-pie-label-qtip .EFDT-table .EFDT-table-prefix {
-    margin-bottom: 10px;
-}
-
 #study-view-charts .EFDT-table .EFDT-result-info, .study-view-pie-label-qtip .EFDT-table .EFDT-result-info {
     float: left;
 }
@@ -1374,6 +1375,6 @@ cursor: pointer;
 }
 
 #study-view-charts .EFDT-table .public_fixedDataTableCell_cellContent, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTableCell_cellContent {
-    line-height: 15px;
-    padding: 7px 6px 8px 6px;
+    line-height: 13px;
+    padding: 6px 5px;
 }

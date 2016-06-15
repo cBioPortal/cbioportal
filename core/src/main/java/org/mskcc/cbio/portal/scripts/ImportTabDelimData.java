@@ -210,9 +210,7 @@ public class ImportTabDelimData {
 	        if (MySQLbulkLoader.isBulkLoad()) {
 	           MySQLbulkLoader.flushAll();
 	        }
-        }
-        finally {
-	        buf.close();
+	        
 	        if (rppaProfile) {
 	        	ProgressMonitor.setCurrentMessage(" --> total number of extra records added because of multiple genes in one line:  " + nrExtraRecords);
 	        }
@@ -224,6 +222,9 @@ public class ImportTabDelimData {
 	            throw new DaoException ("Something has gone wrong!  I did not save any records" +
 	                    " to the database!");
 	        }
+        }
+        finally {
+	        buf.close();
         }
         
     }
@@ -363,11 +364,7 @@ public class ImportTabDelimData {
                         	
                             if (discritizedCnaProfile) {
                                 long entrezGeneId = genes.get(0).getEntrezGeneId();
-                                int n = values.length;
-                                if (n==0)
-                                    System.out.println();
-                                int i = values[0].equals(""+entrezGeneId) ? 1:0;
-                                for (; i<n; i++) {
+                                for (int i = 0; i < values.length; i++) {
                                     
                                     // temporary solution -- change partial deletion back to full deletion.
                                     if (values[i].equals(GeneticAlterationType.PARTIAL_DELETION)) {
@@ -514,7 +511,7 @@ public class ImportTabDelimData {
         	ProgressMonitor.logWarning("Gene " + symbol + " not found in DB. Record will be skipped for this gene.");
         }
         
-        Pattern p = Pattern.compile("(p[STY][0-9]+)");
+        Pattern p = Pattern.compile("(p[STY][0-9]+(?:_[STY][0-9]+)*)");
         Matcher m = p.matcher(arrayId);
         String residue;
         if (!m.find()) {

@@ -2,10 +2,6 @@
 
 # ------------------------------------------------------------------------------
 # Data validation script - validates files before import into portal.
-# If create-corrected set to true, the script will create a new version of all the files it detects
-#   and ensure the newlines are correct and that no data is enclosed in quotes. It will also
-#   add entrez IDs if they are not present and the user either provides the file or sets ftp
-#   Also checks for duplicate column headers, repeated header rows
 # ------------------------------------------------------------------------------
 
 
@@ -251,7 +247,6 @@ class Validator(object):
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
-    NULL_VALUES = ['[not available]', '[not applicable]', '']
 
     def __init__(self, study_dir, meta_dict, portal_instance, logger):
         """Initialize a validator for a particular data file.
@@ -512,14 +507,7 @@ class Validator(object):
 
     def _checkLineBreaks(self):
         """Checks line breaks, reports to user."""
-        # TODO document these requirements
-        if "\r\n" in self.newlines:
-            self.logger.error('DOS-style line breaks detected (\\r\\n), '
-                              'should be Unix-style (\\n)')
-        elif "\r" in self.newlines:
-            self.logger.error('Classic Mac OS-style line breaks detected '
-                              '(\\r), should be Unix-style (\\n)')
-        elif self.newlines != '\n':
+        if self.newlines not in("\r\n","\r","\n"):
             self.logger.error('No line breaks recognized in file',
                               extra={'cause': repr(self.newlines)[1:-1]})
 
@@ -835,7 +823,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
     REQUIRED_HEADERS = []
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
     ALLOW_BLANKS = True
-    NULL_VALUES = ["na", "[not available]"]
+    NULL_VALUES = ["NA"]
 
     def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
@@ -889,7 +877,7 @@ class CNAValidator(GenewiseFileValidator):
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        if value.strip().lower() not in self.ALLOWED_VALUES:
+        if value.strip() not in self.ALLOWED_VALUES:
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Invalid CNA value: possible values are [%s]',
@@ -1208,6 +1196,7 @@ class ClinicalValidator(Validator):
     REQUIRE_COLUMN_ORDER = False
     PROP_IS_PATIENT_ATTRIBUTE = None
     NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", ""]
+    ALLOW_BLANKS = True
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
@@ -1749,14 +1738,14 @@ class SegValidator(Validator):
 class ContinuousValuesValidator(GenewiseFileValidator):
     """Validator for matrix files mapping floats to gene/sample combinations.
 
-    Allowing missing values indicated by 'NA' or [Not Available].
+    Allowing missing values indicated by GenewiseFileValidator.NULL_VALUES.
     """
     
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
-        if stripped_value.lower() not in self.NULL_VALUES and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor NA,[Not Available]",
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})
@@ -1792,7 +1781,7 @@ class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
     ALLOW_BLANKS = True
-    NULL_VALUES = ["na", "[not available]"]
+    NULL_VALUES = ["NA"]
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
@@ -1829,8 +1818,8 @@ class RPPAValidator(FeaturewiseFileValidator):
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
-        if stripped_value.lower() not in self.NULL_VALUES and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor NA,[Not Available]",
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})
@@ -1980,6 +1969,7 @@ class GisticGenesValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
+    NULL_VALUES = ['']
 
     def __init__(self, *args, **kwargs):
         """Initialize a GisticGenesValidator with the given parameters."""
@@ -2020,7 +2010,7 @@ class GisticGenesValidator(Validator):
             # of the required columns, only genes_in_region can be blank
             if ((col_name in self.REQUIRED_HEADERS and
                         col_name != 'genes_in_region') and
-                    value.strip() in ('NA', '')):
+                    value.strip() in self.NULL_VALUES):
                 self.logger.error("Empty cell in column '%s'",
                                   col_name,
                                   extra={'line_number': self.line_number,
@@ -2083,7 +2073,8 @@ class GisticGenesValidator(Validator):
                                    (cytoband_chromosome,
                                     parsed_cytoband,
                                     parsed_chromosome)})
-            # TODO: validate band/coord sets with the UCSC cytoband definitions
+            # TODO: validate band/coord sets with the UCSC cytoband definitions (using 
+            # parsed_gene_list and some of the other parsed_*list variables 
 
     def parse_chromosome_num(self, value, column_number):
         """Parse a chromosome number, logging any errors for this column

@@ -62,7 +62,7 @@
                     default:
                         alter = null;
                 }
-                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter, null, alter);
+                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter, cancerType, alter);
             }
             data.push([cnaEventIds[i]]);
         }

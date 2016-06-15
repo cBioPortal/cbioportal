@@ -1,5 +1,4 @@
 var OncoprintModel = require('./oncoprintmodel.js');
-var OncoprintSVGCellView = require('./oncoprintsvgcellview.js');
 var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
 var OncoprintLabelView = require('./oncoprintlabelview.js');
 var OncoprintRuleSet = require('./oncoprintruleset.js');
@@ -9,7 +8,6 @@ var OncoprintToolTip = require('./oncoprinttooltip.js');
 var OncoprintTrackInfoView = require('./oncoprinttrackinfoview.js');
 
 var svgfactory = require('./svgfactory.js');
-var svg2pdf = require('svg2pdf.js');
 
 
 var Oncoprint = (function () {
@@ -107,7 +105,27 @@ var Oncoprint = (function () {
 	    self.id_clipboard = enclosed_ids;
 	});
 	
-	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
+	this.track_options_view = new OncoprintTrackOptionsView($track_options_div,
+								function(track_id) { 
+								    // move up
+								    var tracks = self.model.getContainingTrackGroup(track_id);
+								    var index = tracks.indexOf(track_id);
+								    if (index > 0) {
+									var new_previous_track = null;
+									if (index >= 2) {
+									    new_previous_track = tracks[index-2];
+									}
+									self.moveTrack(track_id, new_previous_track);
+								    }
+								},
+								function(track_id) {
+								    // move down
+								    var tracks = self.model.getContainingTrackGroup(track_id);
+								    var index = tracks.indexOf(track_id);
+								    if (index < tracks.length - 1) {
+									self.moveTrack(track_id, tracks[index+1]);
+								    }
+								},
 								function(track_id) { self.removeTrack(track_id); }, 
 								function(track_id, dir) { self.setTrackSortDirection(track_id, dir); });
 	this.track_info_view = new OncoprintTrackInfoView($track_info_div);
@@ -497,6 +515,8 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.toCanvas = function(callback, resolution) {
 	// Returns data url, requires IE >= 11
+	
+	var MAX_CANVAS_SIDE = 8192;
 	var svg = this.toSVG(true);
 	svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 	var width = parseInt(svg.getAttribute('width'), 10);
@@ -504,8 +524,9 @@ var Oncoprint = (function () {
 	var canvas = document.createElement('canvas');
 	
 	resolution = resolution || 1;
-	canvas.setAttribute('width', width*resolution);
-	canvas.setAttribute('height', height*resolution);
+	var truncated = width*resolution > MAX_CANVAS_SIDE || height*resolution > MAX_CANVAS_SIDE;
+	canvas.setAttribute('width', Math.min(MAX_CANVAS_SIDE, width*resolution));
+	canvas.setAttribute('height', Math.min(MAX_CANVAS_SIDE, height*resolution));
 	
 	var container = document.createElement("div");
 	container.appendChild(svg);
@@ -518,7 +539,7 @@ var Oncoprint = (function () {
 	
 	img.onload = function() {
 	    ctx.drawImage(img, 0, 0);
-	    callback(canvas);
+	    callback(canvas, truncated);
 	};
 	img.onerror = function() {
 	    console.log("IMAGE LOAD ERROR");

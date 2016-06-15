@@ -46,7 +46,10 @@
         return false;
     }
     </script>
-    <span style="font-size:120%; color:black">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a></span>
+
+    <% if (localTabIndex.equals(QueryBuilder.TAB_VISUALIZE)) { %>
+        <% out.println("<span style='font-size:120%; color:black'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='onco_query_lang_desc.jsp' onclick='return popitup('onco_query_lang_desc.jsp')'>Advanced: Onco Query Language (OQL)</a></span>"); %>
+    <% } %>
     
     <div style='padding-top:10px;padding-bottom:5px;'>
         <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select>

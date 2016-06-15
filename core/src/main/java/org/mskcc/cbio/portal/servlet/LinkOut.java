@@ -95,17 +95,24 @@ public class LinkOut extends HttpServlet {
     private void handleCrossCancerLink(LinkOutRequest linkOutRequest,
                                        HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
         throws Exception {
+        
+        String hostURL;
         String geneList = linkOutRequest.getGeneList();
-        /*ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
-        createCrossCancerForwardingRequest(forwardingRequest, geneList);
-        ServletContext context = getServletContext();
-        RequestDispatcher dispatcher = context.getRequestDispatcher("/cross_cancer.do");
-        dispatcher.forward(forwardingRequest, httpServletResponse);*/
-        httpServletResponse.sendRedirect(createCrossCancerForwardingUrl(geneList));
+        if (httpServletRequest.getRequestURL().indexOf("/ln") != -1) {
+            hostURL = httpServletRequest.getRequestURL().substring(0, httpServletRequest.getRequestURL().indexOf("/ln"));
+        } else if (httpServletRequest.getRequestURL().indexOf("/link.do") != -1) {
+            hostURL = httpServletRequest.getRequestURL().substring(0, httpServletRequest.getRequestURL().indexOf("/link.do"));
+        } else {
+            hostURL = "";
+        }
+        String redirectURL = createCrossCancerForwardingUrl(hostURL, geneList);
+        httpServletRequest.setAttribute("redirect_url", redirectURL);
+        RequestDispatcher dispatcher = httpServletRequest.getRequestDispatcher("/WEB-INF/jsp/linkoutRedirect.jsp");
+        dispatcher.forward(httpServletRequest, httpServletResponse);
     }
 
-    private String createCrossCancerForwardingUrl(String geneList) {
-        String ret = "cross_cancer.do?";
+    private String createCrossCancerForwardingUrl(String hostURL, String geneList) {
+        String ret = hostURL + "/cross_cancer.do?";
         ret += QueryBuilder.GENE_LIST+"="+geneList;
         ret += "&";
         ret += QueryBuilder.ACTION_NAME+"="+QueryBuilder.ACTION_SUBMIT;

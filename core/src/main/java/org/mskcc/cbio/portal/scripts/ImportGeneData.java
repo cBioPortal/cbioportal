@@ -46,6 +46,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 /**
@@ -142,12 +143,12 @@ public class ImportGeneData extends ConsoleRunnable {
                 //if exists
                 CanonicalGene dbGene = daoGene.getGene(gene.getEntrezGeneId());
                 if (dbGene != null) {
+                    //update gene:
+                    daoGene.updateGene(gene);
                     //if symbol has changed, record event:
-                    if (!dbGene.getHugoGeneSymbolAllCaps().equals("~" + gene.getHugoGeneSymbolAllCaps())) {
+                    if (!dbGene.getHugoGeneSymbolAllCaps().contains(gene.getHugoGeneSymbolAllCaps())) {
                         ProgressMonitor.logWarning("Gene symbol change for EntrezId=" + dbGene.getEntrezGeneId() + ": symbol changed from " + 
                                     dbGene.getHugoGeneSymbolAllCaps().substring(1) + " to " + gene.getHugoGeneSymbolAllCaps());
-                        //update gene:
-                        daoGene.updateGene(gene);
                     }
                 }
                 else {
@@ -173,12 +174,12 @@ public class ImportGeneData extends ConsoleRunnable {
 	                    //if exists
 	                    CanonicalGene dbGene = daoGene.getGene(gene.getEntrezGeneId());
 	                    if (dbGene != null) {
+	                        //update gene:
+                            daoGene.updateGene(gene);
     	                    //if symbol has changed, record event:
-    	                    if (!dbGene.getHugoGeneSymbolAllCaps().equals("~" + gene.getHugoGeneSymbolAllCaps())) {
+    	                    if (!dbGene.getHugoGeneSymbolAllCaps().contains(gene.getHugoGeneSymbolAllCaps())) {
     	                        ProgressMonitor.logWarning("Gene symbol change for EntrezId=" + dbGene.getEntrezGeneId() + ": symbol changed from " + 
     	                                dbGene.getHugoGeneSymbolAllCaps().substring(1) + " to " + gene.getHugoGeneSymbolAllCaps());
-    	                        //update gene:
-    	                        daoGene.updateGene(gene);
     	                    }
 	                    }
 	                    else {
@@ -230,12 +231,17 @@ public class ImportGeneData extends ConsoleRunnable {
             int rows = 0;
 
             con = JdbcUtil.getDbConnection(ImportGeneData.class);
-            pstmt = con.prepareStatement
-                    ("SET SQL_SAFE_UPDATES = 0;" +
-                     "   UPDATE gene SET HUGO_GENE_SYMBOL = SUBSTRING_INDEX(HUGO_GENE_SYMBOL, '~', -1);" +
-                     "   UPDATE gene SET PREVIOUS_SYMBOL = HUGO_GENE_SYMBOL, HUGO_GENE_SYMBOL=CONCAT('~', HUGO_GENE_SYMBOL); ");
-           
-            rows = pstmt.executeUpdate();
+            
+            Statement stmt = con.createStatement();
+                    String statement1 = "SET SQL_SAFE_UPDATES = 0";
+                    String statement2 = "UPDATE gene SET HUGO_GENE_SYMBOL = SUBSTRING_INDEX(HUGO_GENE_SYMBOL, '~', -1)";
+                    String statement3 = "UPDATE gene SET PREVIOUS_SYMBOL = HUGO_GENE_SYMBOL, HUGO_GENE_SYMBOL=CONCAT('~', HUGO_GENE_SYMBOL)";
+                    con.setAutoCommit(false);
+                    stmt.addBatch(statement1);
+                    stmt.addBatch(statement2);
+                    stmt.addBatch(statement3);
+                    stmt.executeBatch();
+                    con.commit();
 
             return rows;
         } catch (SQLException e) {
@@ -274,7 +280,7 @@ public class ImportGeneData extends ConsoleRunnable {
                 String parts[] = line.split("\t");
                 CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(parts[3], parts[0]);
                 if (gene==null) {
-                    System.err.println("Could not find non ambiguous gene: "+parts[3]);
+                    ProgressMonitor.logWarning("Could not find non ambiguous gene: "+parts[3]);
                     continue;
                 }
                 
@@ -282,9 +288,11 @@ public class ImportGeneData extends ConsoleRunnable {
                     if (currentGene!=null) {
                         int length = calculateGeneLength(loci);
                         if (currentGene.getLength()!=0) {
-                            System.err.println(currentGene.getHugoGeneSymbolAllCaps()+" has multiple length.");
+                            ProgressMonitor.logWarning(currentGene.getHugoGeneSymbolAllCaps()+" has multiple length.");
                         } else {
                             currentGene.setLength(length);
+                            //update gene:
+                            daoGeneOptimized.updateGene(currentGene);
                         }
                     }
                     loci.clear();
@@ -385,7 +393,6 @@ public class ImportGeneData extends ConsoleRunnable {
 	        ProgressMonitor.setMaxValue(numLines);
 	        MySQLbulkLoader.bulkLoadOn();
 	        ImportGeneData.importData(geneFile);
-	        ConsoleUtil.showWarnings();
 	        
 	        if(options.has("supp-genes")) {
 	            File suppGeneFile = new File((String) options.valueOf("genes"));

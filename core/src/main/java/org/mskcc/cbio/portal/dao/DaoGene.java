@@ -33,6 +33,7 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -84,18 +85,18 @@ final class DaoGene {
             deleteGeneAlias(gene.getEntrezGeneId());
             
             int rows = 0;
-            CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
-            if (existingGene == null) {
-                con = JdbcUtil.getDbConnection(DaoGene.class);
-                pstmt = con.prepareStatement
-                        ("UPDATE gene SET `HUGO_GENE_SYMBOL`=?, `TYPE`=?,`CYTOBAND`=?,`LENGTH`=? WHERE `ENTREZ_GENE_ID`=?");
-                pstmt.setString(1, gene.getHugoGeneSymbolAllCaps());
-                pstmt.setString(2, gene.getType());
-                pstmt.setString(3, gene.getCytoband());
-                pstmt.setInt(4, gene.getLength());
-                pstmt.setLong(5, gene.getEntrezGeneId());
-                rows += pstmt.executeUpdate();
-            }
+            con = JdbcUtil.getDbConnection(DaoGene.class);
+            pstmt = con.prepareStatement
+                    ("UPDATE gene SET `HUGO_GENE_SYMBOL`=?, `TYPE`=?,`CYTOBAND`=?,`LENGTH`=? WHERE `ENTREZ_GENE_ID`=?");
+            ProgressMonitor.setCurrentMessage("Updating gene " + gene.getEntrezGeneId() + " " + gene.getHugoGeneSymbolAllCaps());
+            pstmt.setString(1, gene.getHugoGeneSymbolAllCaps());
+            pstmt.setString(2, gene.getType());
+            pstmt.setString(3, gene.getCytoband());
+            pstmt.setInt(4, gene.getLength());
+            pstmt.setLong(5, gene.getEntrezGeneId());
+            rows += pstmt.executeUpdate();
+            if (rows != 1)
+                throw new DaoException("Update not succeeded");
             //add the current set of aliases:
             rows += addGeneAliases(gene);
 

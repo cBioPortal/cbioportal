@@ -37,7 +37,7 @@
 		None of the mutations can be mapped onto this structure.
 	</div>
 	<div class='mutation-3d-vis-loader'>
-		<img src='{{loaderImage}}' alt='3d vis loader'/>
+		<img src='{{loaderImage}}' alt='Loading 3d visualization' />
 	</div>
 	<div class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
@@ -89,13 +89,15 @@
 									       checked='checked'>
 									Display bound molecules
 								</label>
-								<img class='display-non-protein-help' src='{{helpImage}}' alt='display non-protein help'/>
+								<img class='display-non-protein-help' src='{{helpImage}}'
+									alt='Help (non-protein display)' />
 							</td>
 						</tr>
 						<tr>
 							<td>
 								<label>Scheme:</label>
-								<select class='mutation-3d-protein-style-select'>
+								<select class='mutation-3d-protein-style-select'
+										title='Select 3d protein style'>
 									<option value='cartoon'
 									        title='Switch to the Cartoon Scheme'>cartoon</option>
 									<option value='spaceFilling'
@@ -108,7 +110,8 @@
 						<tr>
 							<td>
 								<label>Color:</label>
-								<select class='mutation-3d-protein-color-select'>
+								<select class='mutation-3d-protein-color-select'
+										title='Select 3d protein coloring'>
 									<option value='uniform'
 									        title='Uniform Color'>uniform</option>
 									<option value='bySecondaryStructure'
@@ -119,7 +122,8 @@
 									        title='Color by Atom Type'
 									        disabled='disabled'>atom type</option>
 								</select>
-								<img class='protein-struct-color-help' src='{{helpImage}}' alt='protein struct color help'/>
+								<img class='protein-struct-color-help' src='{{helpImage}}'
+									alt='Help (protein coloring)' />
 							</td>
 						</tr>
 					</table>
@@ -138,7 +142,8 @@
 									Display side chain
 								</label-->
 								<label>Side chain:</label>
-								<select class='mutation-3d-side-chain-select'>
+								<select class='mutation-3d-side-chain-select'
+										title='Select 3d protein side-chain display'>
 									<option value='all'
 									        title='Display side chain for all mapped residues'>all</option>
 									<option value='highlighted'
@@ -147,7 +152,8 @@
 									<option value='none'
 									        title='Do not display side chains'>none</option>
 								</select>
-								<img class='display-side-chain-help' src='{{helpImage}}' alt='display side-chain help'/>
+								<img class='display-side-chain-help' src='{{helpImage}}'
+									alt='Help (side chain display)' />
 							</td>
 						</tr>
 						<tr>
@@ -164,7 +170,8 @@
 												       checked='checked'>
 												mutation type
 											</label>
-											<img class='mutation-type-color-help' src='{{helpImage}}'/>
+											<img class='mutation-type-color-help' src='{{helpImage}}'
+												alt='Help (mutation type coloring)' />
 										</td>
 									</tr>
 									<tr>
@@ -179,7 +186,8 @@
 									</tr>
 								</table-->
 								<label>Color:</label>
-								<select class='mutation-3d-mutation-color-select'>
+								<select class='mutation-3d-mutation-color-select'
+										title='Select 3d protein mutation color'>
 									<option value='uniform'
 									        title='Uniform color'>uniform</option>
 									<option value='byMutationType'
@@ -188,7 +196,8 @@
 									<option value='none'
 									        title='Do not color'>none</option>
 								</select>
-								<img class='mutation-type-color-help' src='{{helpImage}}' alt='mutation type color help'/>
+								<img class='mutation-type-color-help' src='{{helpImage}}'
+									alt='Help (mutation type coloring)' />
 							</td>
 						</tr>
 					</table>
@@ -240,10 +249,6 @@
 			(Nonsense, Nonstop, FS del, FS ins)</li>
 		<li><span class='inframe_mutation'>Inframe Mutations</span>
 			(IF del, IF ins)</li>
-		<li>
-			Residues colored with <span class='mutation-3d-tied'>purple</span> indicate residues
-			that are affected by different mutation types at the same proportion.
-		</li>
 	</ul>
 	<b>None:</b> Disables coloring of the mutated residues
 	except for manually selected (highlighted) residues.<br>
@@ -338,7 +343,7 @@
 	</span>
     <span class='mutation-table-additional-protein-change simple-tip'
           alt='{{additionalProteinChangeTip}}'>
-        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif'>
+        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif' />
     </span>
 	<a href='{{pdbMatchLink}}' class="mutation-table-3d-link">
 		<span class="mutation-table-3d-icon">3D</span>
@@ -418,7 +423,8 @@
 </script>
 
 <script type="text/template" id="mutation_table_placeholder_template">
-    <img width='{{width}}' height='{{height}}' src='{{loaderImage}}' alt='loading'/>
+    <img width='{{width}}' height='{{height}}' src='{{loaderImage}}'
+        alt='Loading mutation table' />
 </script>
 
 <script type="text/template" id="mutation_table_mutation_count_template">
@@ -452,7 +458,8 @@
 	Predicted impact score: <b>{{impact}}</b>
 	<div class='mutation-assessor-main-link mutation-assessor-link'>
 		<a href='{{linkOut}}' target='_blank'>
-			<img height=15 width=19 src='images/ma.png' alt='mutation assessor'>
+			<img height=15 width=19 src='images/ma.png'
+				alt='Mutation Assessor' />
 			Go to Mutation Assessor
 		</a>
 	</div>
@@ -488,7 +495,7 @@
 <script type="text/template" id="default_mutation_details_template">
 	<div class='mutation-3d-container'></div>
 	<div class='mutation-details-loader'>
-		<img src='{{loaderImage}}' alt='mutation details loader'/>
+		<img src='{{loaderImage}}' alt='Loading mutation details' />
 	</div>
 	<div class='mutation-details-content'>
 		<ul>
@@ -500,7 +507,7 @@
 
 <script type="text/template" id="default_mutation_details_main_content_template">
 	<div id='mutation_details_{{geneId}}'>
-		<img src='{{loaderImage}}' alt='gene mutation details loader'/>
+		<img src='{{loaderImage}}' alt='Loading mutation details for gene' />
 	</div>
 </script>
 
@@ -620,9 +627,6 @@
 				: Inframe deletion, Inframe insertion</li>
 			<li><span class='other_mutation'>Other Mutations</span>
 				: All other types of mutations</li>
-			<li>Circles colored with <span class='mutation-3d-tied'>purple</span>
-				indicate residues that are affected by different mutation types<br>
-				at the same proportion.</li>
 		</ul>
 	</div>
 </script>
@@ -631,7 +635,7 @@
 	<div class="diagram-region-tip">
 		<div>{{identifier}} {{type}}, {{description}} ({{start}} - {{end}})</div>
         <div>
-            <a href="http://pfam.xfam.org/family/{{pfamAccession}}" class="diagram-pfam-link "target="_blank">PFAM</a>
+            <a href="http://pfam.xfam.org/family/{{pfamAccession}}" class="diagram-pfam-link" target="_blank">PFAM</a>
             {{mutationAlignerInfo}}
         </div>
 	</div>
@@ -734,7 +738,7 @@
 </script>
 <script type="text/template" id="pdb_table_view_template">
 	<div class='pdb-chain-table-loader'>
-		<img src='{{loaderImage}}' alt='chain table loader'/>
+		<img src='{{loaderImage}}' alt='Loading chain table' />
 	</div>
 	<table>
 		<tr>

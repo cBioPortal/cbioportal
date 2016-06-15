@@ -163,7 +163,7 @@
               </execution>
             </executions>
           </plugin>
-          <!-- copy portal.properties.EXAMPLE -->
+          <!-- copy portal.properties.EXAMPLE and log4j.properties.EXAMPLE -->
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <!-- only needs to be executed for parent pom -->
@@ -179,6 +179,9 @@
                     <copy
                     file="${basedir}/src/main/resources/portal.properties.EXAMPLE"
                     tofile="${basedir}/src/main/resources/portal.properties" />
+                    <copy
+                    file="${basedir}/src/main/resources/log4j.properties.EXAMPLE"
+                    tofile="${basedir}/src/main/resources/log4j.properties" />
                   </tasks>
                 </configuration>
               </execution>

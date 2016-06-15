@@ -212,7 +212,8 @@ class PortalInstance(object):
     """
 
     def __init__(self, cancer_type_dict, clinical_attribute_dict,
-                 hugo_entrez_map, alias_entrez_map):
+                 hugo_entrez_map, alias_entrez_map,
+                 uniprotkb_entry_map):
         """Represent a portal instance with the given dictionaries."""
         self.cancer_type_dict = cancer_type_dict
         self.clinical_attribute_dict = clinical_attribute_dict
@@ -224,6 +225,7 @@ class PortalInstance(object):
                 for entrez_list in entrez_map.values():
                     for entrez_id in entrez_list:
                         self.entrez_set.add(entrez_id)
+        self.uniprotkb_entry_map = uniprotkb_entry_map
 
 
 class Validator(object):
@@ -1169,9 +1171,9 @@ class MutationsExtendedValidator(Validator):
         if value is None or value.strip() == '':
             return False
         return True
-    
+
     def checkSwissProt(self, value, data):
-        """Test whether SWISSPROT string is blank and give warning if blank."""
+        """Validate the accession in the SWISSPROT column."""
         if value is None or value.strip() == '':
             self.logger.warning(
                 'Missing value in SWISSPROT column; this column is '
@@ -1179,8 +1181,25 @@ class MutationsExtendedValidator(Validator):
                 'is used when drawing Pfam domains in the mutations view',
                 extra={'line_number': self.line_number,
                        'cause':'blank value in SWISSPROT column'})
-            
-        # it is just a warning, so we can return True always:
+            # no value to test, return without error
+            return True
+        if not re.match(
+                # regex from http://www.uniprot.org/help/accession_numbers
+                r'^([OPQ][0-9][A-Z0-9]{3}[0-9]|'
+                r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$',
+                 value):
+            # return this as an error
+            self.extra = 'SWISSPROT value is not a UniprotKB accession'
+            self.extra_exists = True
+            return False
+        # test whether the accession is known to the portal
+        if (self.portal.uniprotkb_entry_map is not None and
+                value not in self.portal.uniprotkb_entry_map):
+            # return this as an error
+            self.extra = 'This UniprotKB accession is not known to the portal'
+            self.extra_exists = True
+            return False
+        # if no reasons to return with a message were found, return valid
         return True
 
 
@@ -2528,7 +2547,10 @@ def load_portal_info(path, logger, offline=False):
                                         json_data, 'hugo_gene_symbol')),
             ('genesaliases',
                 lambda json_data: transform_symbol_entrez_map(
-                                        json_data, 'gene_alias'))):
+                                        json_data, 'gene_alias')),
+            ('uniprotkbentries',
+                lambda json_data: index_api_data(
+                                        json_data, 'uniprotkb_accession'))):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -2549,7 +2571,8 @@ def load_portal_info(path, logger, offline=False):
     return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
                           clinical_attribute_dict=clinical_attr_dict,
                           hugo_entrez_map=portal_dict['genes'],
-                          alias_entrez_map=portal_dict['genesaliases'])
+                          alias_entrez_map=portal_dict['genesaliases'],
+                          uniprotkb_entry_map=portal_dict['uniprotkbentries'])
 
 
 # ------------------------------------------------------------------------------
@@ -2610,6 +2633,9 @@ def validate_study(study_dir, portal_instance, logger):
             portal_instance.alias_entrez_map is None):
         logger.warning('Skipping validations relating to gene identifiers and '
                        'aliases defined in the portal')
+    if portal_instance.uniprotkb_entry_map is None:
+        logger.warning('Skipping validations relating to UniprotKB '
+                       'protein identifiers')
 
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
@@ -2787,7 +2813,8 @@ def main_validate(args):
         portal_instance = PortalInstance(cancer_type_dict=None,
                                          clinical_attribute_dict=None,
                                          hugo_entrez_map=None,
-                                         alias_entrez_map=None)
+                                         alias_entrez_map=None,
+                                         uniprotkb_entry_map=None)
     elif args.portal_info_dir:
         portal_instance = load_portal_info(args.portal_info_dir, logger,
                                            offline=True)

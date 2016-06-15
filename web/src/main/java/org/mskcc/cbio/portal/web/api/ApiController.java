@@ -15,6 +15,7 @@ import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
 import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneAlias;
+import org.mskcc.cbio.portal.model.DBUniprotKbEntry;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBProfileData;
@@ -224,6 +225,27 @@ public class ApiController {
             } else {
                     return service.getGenesAliases(entrez_gene_ids);
             }
+    }
+
+    @ApiOperation(value = "Get locally cached UniprotKB entries, filtered by accession or Entrez gene ID",
+            nickname = "getUniprotKbEntries",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/uniprotkbentries", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<DBUniprotKbEntry> getUniprotKbEntries(
+            @ApiParam(required = false, value = "List of UniprotKB accession numbers. Unrecognized values are silently ignored. Empty string returns all. Must be empty to query by gene.")
+            @RequestParam(required = false)
+            List<String> accessions,
+            @ApiParam(required = false, value = "List Entrez gene identifiers. Unrecognized values are silently ignored. Empty string returns all. If accesssions argument was provided, this arument will be ignored.")
+            @RequestParam(required = false)
+            List<Long> entrez_gene_ids) {
+        if (accessions != null) {
+            return service.getUniprotKbEntries(accessions);
+        } else if (entrez_gene_ids != null) {
+            return service.getUniprotKbEntriesByGene(entrez_gene_ids);
+        } else {
+            return service.getUniprotKbEntries();
+        }
     }
 
     @ApiOperation(value = "Get list of genetic profile identifiers by study",

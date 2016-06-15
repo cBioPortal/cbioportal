@@ -244,8 +244,8 @@ public class ImportExtendedMutationData{
 				aaChange = record.getAminoAcidChange();
 				codonChange = record.getCodons();
 				refseqMrnaId = record.getRefSeq();
-				uniprotName = record.getSwissprot();
-				uniprotAccession = DaoUniProtIdMapping.mapFromUniprotIdToAccession(record.getSwissprot());
+                uniprotAccession = record.getSwissprot();
+                uniprotName = DaoUniProtIdMapping.mapFromUniprotAccessionToUniprotId(uniprotAccession);
 				proteinPosStart = ExtendedMutationUtil.getProteinPosStart(
 						record.getProteinPosition(), proteinChange);
 				proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(

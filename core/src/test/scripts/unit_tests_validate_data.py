@@ -728,8 +728,34 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 1)
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("swissprot", record_list[0].getMessage().lower())
-        
-    
+
+    def test_unknown_or_invalid_swissprot(self):
+        """Test errors for invalid and unknown accessions under SWISSPROT."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate(
+                'mutations/data_mutations_invalid_swissprot.maf',
+                validateData.MutationsExtendedValidator)
+        self.assertEqual(len(record_list), 3)
+        record_iterator = iter(record_list)
+        # used a name instead of an accession
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.cause, 'A1CF_HUMAN')
+        self.assertNotIn('portal', record.getMessage().lower())
+        # neither a name nor an accession
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.cause, 'P99999,Z9ZZZ9ZZZ9')
+        self.assertNotIn('portal', record.getMessage().lower())
+        # valid but non-existing accession
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.cause, 'Z9ZZZ9ZZZ9')
+        self.assertIn('portal', record.getMessage().lower())
+
     def test_isValidAminoAcidChange(self):
         """Tests if proper warning is given if aa change column is present, but contains wrong (blank) value"""
         # set level according to this test case:
@@ -757,7 +783,6 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         # First 3 INFO messages should be something like: "Validation of line skipped due to cBioPortal's filtering. Filtered types:"
         for record in record_list[:3]: 
             self.assertIn("filtered types", record.getMessage().lower())
-        
 
     def test_alternative_notation_for_intergenic_mutation(self):
         """Test alternative 'notation' for intergenic mutations.
@@ -775,7 +800,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                     validateData.MutationsExtendedValidator)
         # we expect 1 ERROR and 2 WARNINGs :
         self.assertEqual(len(record_list), 3)
-        
+
         # ERROR should be something like: "No Entrez id or gene symbol provided for gene"
         self.assertIn("no entrez id or gene symbol provided", record_list[0].getMessage().lower())
         self.assertEqual(record_list[0].levelno, logging.ERROR)

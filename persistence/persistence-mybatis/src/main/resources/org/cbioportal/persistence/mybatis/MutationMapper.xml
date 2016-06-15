@@ -153,7 +153,7 @@
                 </foreach>
             </if>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                and ENTREZ_GENE_ID in
+                and mutation.ENTREZ_GENE_ID in
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>

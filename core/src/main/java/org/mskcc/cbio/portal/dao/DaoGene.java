@@ -95,15 +95,18 @@ final class DaoGene {
             con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
                     ("UPDATE gene SET `HUGO_GENE_SYMBOL`=?, `TYPE`=?,`CYTOBAND`=?,`LENGTH`=? WHERE `ENTREZ_GENE_ID`=?");
-            ProgressMonitor.setCurrentMessage("Updating gene " + gene.getEntrezGeneId() + " " + gene.getHugoGeneSymbolAllCaps());
             pstmt.setString(1, gene.getHugoGeneSymbolAllCaps());
             pstmt.setString(2, gene.getType());
             pstmt.setString(3, gene.getCytoband());
             pstmt.setInt(4, gene.getLength());
             pstmt.setLong(5, gene.getEntrezGeneId());
             rows += pstmt.executeUpdate();
-            if (rows != 1)
+            if (rows != 1) {
                 ProgressMonitor.logWarning("No change for " + gene.getEntrezGeneId() + " " + gene.getHugoGeneSymbolAllCaps() + "? Code " + rows);
+            }
+            else {
+                ProgressMonitor.logWarning("Updated gene"); //should be message, but warnings are nicely summarized. TODO - add message summary to ProgressMonitor
+            }
             //add the current set of aliases:
             rows += addGeneAliases(gene);
 

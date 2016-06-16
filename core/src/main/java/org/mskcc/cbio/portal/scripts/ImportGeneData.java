@@ -68,8 +68,6 @@ public class ImportGeneData extends ConsoleRunnable {
             BufferedReader buf = new BufferedReader(reader);
             String line;
             while ((line = buf.readLine()) != null) {
-                ProgressMonitor.incrementCurValue();
-                ConsoleUtil.showProgress();
                 if (line.startsWith("#")) {
                     continue;
                 }
@@ -157,7 +155,7 @@ public class ImportGeneData extends ConsoleRunnable {
                 }
             } else {
             	//TODO - is unexpected for official symbols...raise Exception instead?
-                logDuplicateGeneSymbolWarning(entry.getKey(), genes);
+                logDuplicateGeneSymbolWarning(entry.getKey(), genes, true);
             }
         }
 
@@ -194,7 +192,7 @@ public class ImportGeneData extends ConsoleRunnable {
 	                    nrSkipped++;
 	                }
 	            } else {
-	                logDuplicateGeneSymbolWarning(symbol, genes);
+	                logDuplicateGeneSymbolWarning(symbol, genes, false);
 	                nrSkipped =+ genes.size();
 	            }
 	        }
@@ -253,10 +251,14 @@ public class ImportGeneData extends ConsoleRunnable {
     
     
     
-    private static void logDuplicateGeneSymbolWarning(String symbol, Set<CanonicalGene> genes) {
+    private static void logDuplicateGeneSymbolWarning(String symbol, Set<CanonicalGene> genes, boolean isOfficialSymbol) {
         StringBuilder sb = new StringBuilder();
-        sb.append("More than 1 gene has the same symbol ")
-                .append(symbol)
+        if (isOfficialSymbol)
+            sb.append("More than 1 gene has the same (official) symbol ");
+        else
+            sb.append("More than 1 gene has the same (unofficial) symbol ");
+            
+        sb.append(symbol)
                 .append(":");
         for (CanonicalGene gene : genes) {
             sb.append(" ")
@@ -271,16 +273,23 @@ public class ImportGeneData extends ConsoleRunnable {
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
         String line;
+        String genesNotFound = "";
+        int genesNotFoundCount = 0;
         CanonicalGene currentGene = null;
         List<long[]> loci = new ArrayList<long[]>();
+        ProgressMonitor.setCurrentMessage("\n\nUpdating gene lengths: \n\n");
         while ((line=buf.readLine()) != null) {
-            ProgressMonitor.incrementCurValue();
-            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
                 CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(parts[3], parts[0]);
                 if (gene==null) {
-                    ProgressMonitor.logWarning("Could not find non ambiguous gene: "+parts[3]);
+                    genesNotFoundCount++;
+                    if (genesNotFoundCount <= 3) { 
+                        genesNotFound += parts[3] + ", ";
+                    }
+                    else if (genesNotFoundCount == 4) {
+                        genesNotFound += "...";
+                    }
                     continue;
                 }
                 
@@ -288,6 +297,7 @@ public class ImportGeneData extends ConsoleRunnable {
                     if (currentGene!=null) {
                         int length = calculateGeneLength(loci);
                         if (currentGene.getLength()!=0) {
+                            //TODO - use a map<gene,loci> to fix this
                             ProgressMonitor.logWarning(currentGene.getHugoGeneSymbolAllCaps()+" has multiple length.");
                         } else {
                             currentGene.setLength(length);
@@ -302,6 +312,10 @@ public class ImportGeneData extends ConsoleRunnable {
                 loci.add(new long[]{Long.parseLong(parts[1]), Long.parseLong(parts[2])});
             }
         }
+        if (genesNotFound.length() > 0) {
+            ProgressMonitor.logWarning("Could not find non ambiguous gene(s): " + genesNotFound);
+        }
+            
     }
     
     private static int calculateGeneLength(List<long[]> loci) {

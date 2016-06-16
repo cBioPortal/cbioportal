@@ -61,6 +61,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                        Integer thresholdRecurrence,
                                                                        Integer thresholdNumGenes) {
 
+        mutationMapper.groupConcatMaxLenSet();
         return mutationMapper.getSignificantlyMutatedGenes(geneticProfileId, entrezGeneIds, sampleIds,
                 thresholdRecurrence, thresholdNumGenes);
     }

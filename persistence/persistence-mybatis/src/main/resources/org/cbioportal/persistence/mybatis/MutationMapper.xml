@@ -181,6 +181,10 @@
         )
     </select>
 
+    <insert  id = "groupConcatMaxLenSet">
+        SET SESSION group_concat_max_len = 1000000;
+    </insert>
+
     <select id="getSignificantlyMutatedGenes" resultType="org.cbioportal.persistence.dto.SignificantlyMutatedGene">
         select
 

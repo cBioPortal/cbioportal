@@ -40,7 +40,7 @@ optional arguments:
                         warnings
 ```
 
-For more information on the `--portal_info_dir` option, see [[Offline validation|Using-the-dataset-validator#offline-validation]] below.
+For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below.
 
 ### Example 1
 As an example, you can try the validator with one of the test studies found in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
@@ -72,7 +72,7 @@ Validation of study succeeded.
 ```
 
 When using the `-html` option, a report will be generated, which looks like this for the previous example:
-![](https://raw.githubusercontent.com/thehyve/cbioportal/validator_and_loading_improvements/core/src/main/resources/validator/docs/report.png)
+![Screenshot of a successful validation report](images/scripts/report.png)
 
 ### Example 2
 More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
@@ -97,7 +97,7 @@ INFO: -: Validation complete
 Validation of study failed.
 ```
 And respective HTML report:
-![](https://raw.githubusercontent.com/thehyve/cbioportal/validator_and_loading_improvements/core/src/main/resources/validator/docs/report1.png)
+![Screenshot of an unsuccessful validation report](images/scripts/report1.png)
 
 ## Offline validation ##
 The validation script can be used offline, without connecting to a cBioPortal server. The tests that depend on information specific to the portal (which clinical attributes and cancer types have been previously defined, and which Entrez gene identifiers and corresponding symbols are supported), will instead be read from a folder with .json files generated from the portal.

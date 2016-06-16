@@ -278,9 +278,13 @@ window.OQL = (function () {
 
 	if (opt_by_oql_line) {
 	    return parsed_query.map(function (query_line) {
-		return data.filter(function (datum) {
-		    return isDatumWantedByOQLLine(query_line, datum, accessors.gene(datum).toLowerCase(), accessors);
-		});
+		return {
+		    'gene': query_line.gene,
+		    'parsed_oql_line': query_line,
+		    'data': data.filter(function (datum) {
+			return isDatumWantedByOQLLine(query_line, datum, accessors.gene(datum).toLowerCase(), accessors);
+		    })
+		};
 	    });
 	} else {
 	    return data.filter(function (datum) {

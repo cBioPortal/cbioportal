@@ -490,12 +490,14 @@ var LinearInterpRuleSet = (function () {
 		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
 		var log_range_lower = Math.log(range[0] + shift_to_make_pos);
 		return function(val) {
+		    val = parseFloat(val);
 		    return (Math.log(val + shift_to_make_pos) - log_range_lower)/log_range;
 		};
 	    } else {
 		var range_spread = range[1] - range[0];
 		var range_lower = range[0];
 		return function (val) {
+		    val = parseFloat(val);
 		    return (val - range_lower) / range_spread;
 		};
 	    }

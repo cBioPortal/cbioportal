@@ -369,25 +369,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var clinical_attrs = utils.objectValues(State.clinical_tracks);
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
-	    $.when(QuerySession.getOncoprintSampleGenomicEventData(), 
-		    QuerySession.getAlteredSamplesByGene(), 
+	    $.when(QuerySession.getOncoprintSampleGenomicEventData(),
 		    QuerySession.getUnalteredSamples(),
 		    ClinicalData.getSampleData(clinical_attrs))
-		    .then(function (genetic_data, 
-				    altered_samples_by_gene, 
+		    .then(function (oncoprint_data_by_line,
 				    unaltered_samples,
 				    clinical_data) {
 					
 			if (State.unaltered_cases_hidden) {
 			    oncoprint.hideIds(unaltered_samples, true);
-			}
-			var data_by_gene = {};
-			for (var i = 0; i < genetic_data.length; i++) {
-			    var d = genetic_data[i];
-			    if (!data_by_gene[d.gene]) {
-				data_by_gene[d.gene] = [];
-			    }
-			    data_by_gene[d.gene].push(d);
 			}
 			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
@@ -396,10 +386,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
 						+ Object.keys(State.clinical_tracks).length;
 			
-			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_id, i) {
-			    var gene = State.genetic_alteration_tracks[track_id];
-			    oncoprint.setTrackData(track_id, data_by_gene[gene], 'sample');
-			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(Object.keys(altered_samples_by_gene[gene]).length/window.QuerySession.getSampleIds().length));
+			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
+			    var track_id = State.genetic_alteration_tracks[track_line];
+			    oncoprint.setTrackData(track_id, oncoprint_data_by_line[track_line].oncoprint_data, 'sample');
+			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(oncoprint_data_by_line[track_line].altered_samples.length/window.QuerySession.getSampleIds().length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -429,27 +419,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
-	    $.when(QuerySession.getCombinedPatientGenomicEventData(), 
-		    QuerySession.getAlteredPatientsByGene(), 
+	    $.when(QuerySession.getOncoprintPatientGenomicEventData(),
 		    QuerySession.getUnalteredPatients(),
 		    ClinicalData.getPatientData(clinical_attrs),
 		    QuerySession.getPatientIds())
-		    .then(function (genetic_data, 
-				    altered_patients_by_gene, 
+		    .then(function (oncoprint_data_by_line, 
 				    unaltered_patients,
 				    clinical_data,
 				    patient_ids) {
 					
 			if (State.unaltered_cases_hidden) {
 			    oncoprint.hideIds(unaltered_patients, true);
-			}
-			var data_by_gene = {};
-			for (var i = 0; i < genetic_data.length; i++) {
-			    var d = genetic_data[i];
-			    if (!data_by_gene[d.gene]) {
-				data_by_gene[d.gene] = [];
-			    }
-			    data_by_gene[d.gene].push(d);
 			}
 			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
@@ -458,10 +438,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
 						+ Object.keys(State.clinical_tracks).length;
 			
-			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_id, i) {
-			    var gene = State.genetic_alteration_tracks[track_id];
-			    oncoprint.setTrackData(track_id, data_by_gene[gene], 'patient');
-			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(Object.keys(altered_patients_by_gene[gene]).length/patient_ids.length));
+			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
+			    var track_id = State.genetic_alteration_tracks[track_line];
+			    oncoprint.setTrackData(track_id, oncoprint_data_by_line[track_line].oncoprint_data, 'patient');
+			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(oncoprint_data_by_line[track_line].altered_patients.length/patient_ids.length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -642,7 +622,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];
 		    track_ids.push(new_track_id);
-		    State.genetic_alteration_tracks[new_track_id] = genes[i];
+		    State.genetic_alteration_tracks[i] = new_track_id;
 		    if (State.first_genetic_alteration_track === null) {
 			State.first_genetic_alteration_track = new_track_id;
 		    } else {
@@ -1141,12 +1121,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	var def = new $.Deferred();
 	oncoprint.setCellPaddingOn(State.cell_padding_on);
-	QuerySession.getOncoprintSampleGenomicEventData().then(function (data) {
-	    var genes = window.QuerySession.getQueryGenes();
+	$.when(QuerySession.getWebServiceGenomicEventData(), QuerySession.getOncoprintSampleGenomicEventData()).then(function (ws_data, oncoprint_data) {
+	    var genes = oncoprint_data.map(function(line) { return line.gene.toUpperCase(); });
 	    (function invokeOldDataManagers() {
-		window.PortalDataColl.setOncoprintData(window.OncoprintUtils.process_data(data, genes));
-		PortalDataColl.setOncoprintStat(window.OncoprintUtils.alteration_info(data));
-	    })();
+		window.PortalDataColl.setOncoprintData(window.OncoprintUtils.process_data(ws_data, genes));
+		PortalDataColl.setOncoprintStat(window.OncoprintUtils.alteration_info(ws_data));
+	    });//TODO: replace this
 	    State.addGeneticTracks(genes);
 	}).fail(function() {
 	    def.reject();
@@ -1682,7 +1662,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];
 		    track_ids.push(new_track_id);
-		    State.genetic_alteration_tracks[new_track_id] = genes[i];
+		    State.genetic_alteration_tracks[i] = new_track_id;
 		    if (State.first_genetic_alteration_track === null) {
 			State.first_genetic_alteration_track = new_track_id;
 		    } else {

@@ -1,10 +1,10 @@
-:warning: this is applicable since release 1.0.5
+:warning: this is applicable since release 1.1.0
 
-As of release **1.0.5** cBioPortal has a Database schema update mechanism which comes into play whenever the new version of the portal code relies on specific DB schema changes to be applied. The portal will automatically check if the DB schema is according to what it expects. It does so by comparing the version number of the portal code with the version number of the DB schema. If they are equal, it assumes the DB schema has been upgraded. If not, it will require the administrator to run a migration script. Below are the steps to ensure your DB schema is updated correctly.
+As of release **1.1.0** cBioPortal has a Database schema update mechanism which comes into play whenever the new version of the portal code relies on specific DB schema changes to be applied. The portal will automatically check if the DB schema is according to what it expects. It does so by comparing the version number of the portal code with the version number of the DB schema. If they are equal, it assumes the DB schema has been upgraded. If not, it will require the administrator to run a migration script. Below are the steps to ensure your DB schema is updated correctly.
 
 ## First time
 
-The first time you update from release **1.04**(or lower) to release **1.05**(or higher), you will get the following screen on the homepage after restarting your webserver:
+The first time you update from release **1.0.4** (or lower) to release **1.1.0** (or higher), you will get the following screen on the homepage after restarting your webserver:
 ![Screenshot of the database schema mismatch banner](images/scripts/db_version_warning1.png)
 
 If you get `DB version expected by Portal: 0` (i.e. you are building the new release from source), you need to  add a new property to your `portal.properties` file which is needed for this check. 

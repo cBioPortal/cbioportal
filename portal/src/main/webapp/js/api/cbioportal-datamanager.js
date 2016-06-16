@@ -1,6 +1,9 @@
 window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, z_score_threshold, rppa_score_threshold,
 					case_set_properties, cancer_study_names, profile_ids) {
 	
+	var deepCopyObject = function(obj) {
+	    return $.extend(true, {}, obj);
+	};
 	var objectValues = function (obj) {
 	    return Object.keys(obj).map(function (key) {
 		return obj[key];
@@ -199,26 +202,60 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	   return def.promise();
 	};
 	
-	var makeOncoprintClinicalData = function (webservice_clinical_data, sample_or_patient) {
+	var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, source_sample_or_patient, target_sample_or_patient, 
+						    target_ids, sample_to_patient_map, combine_using_average) {
 	    var id_to_datum = {};
-	    var id_attribute = (sample_or_patient === "sample" ? "sample_id" : "patient_id");
-	    var ret = [];
+	    var id_attribute = (source_sample_or_patient === "sample" ? "sample_id" : "patient_id");
 	    for (var i = 0, _len = webservice_clinical_data.length; i < _len; i++) {
 		var d = webservice_clinical_data[i];
 		var id = d[id_attribute];
+		if (source_sample_or_patient === "sample" && target_sample_or_patient === "patient") {
+		    id = sample_to_patient_map[id];
+		}
 		if (!id_to_datum[id]) {
-		    id_to_datum[id] = {'attr_id': d.attr_id, 'attr_val_counts':{}}
+		    id_to_datum[id] = {'attr_id': attr_id, 'attr_val_counts':{}};
 		}
 		id_to_datum[id].attr_val_counts[d.attr_val] = id_to_datum[id].attr_val_counts[d.attr_val] || 0;
 		id_to_datum[id].attr_val_counts[d.attr_val] += 1;
-		
-		d[sample_or_patient] = id;
 	    }
-	    var data = objectValues(id_to_datum);
-	    for (var i=0; i<data.length; i++) {
+	    var data = [];
+	    for (var i = 0; i<target_ids.length; i++) {
+		var datum_to_add = {};
+		var existing_datum = {};
+		if (source_sample_or_patient === "patient" && target_sample_or_patient === "sample") {
+		    existing_datum = id_to_datum[sample_to_patient_map[target_ids[i]]];
+		} else {
+		    existing_datum = id_to_datum[target_ids[i]];
+		}
+		if (existing_datum) {
+		    datum_to_add = deepCopyObj(existing_datum);
+		} else {
+		    datum_to_add = {'attr_id': attr_id, 'attr_val_counts': {'na': 1}};
+		}
+		datum_to_add[target_sample_or_patient] = target_ids[i];
 		
+		var values = Object.keys(datum_to_add.attr_val_counts);
+		var disp_attr_val = '';
+		if (values.length > 1) {
+		    if (combine_using_average) {
+			var avg = 0;
+			var total = 0;
+			for (var j=0; j<values.length; j++) {
+			    var multiplicity = datum_to_add.attr_val_counts[values[j]];
+			    avg += parseFloat(values[j])*multiplicity;
+			    total += multiplicity;
+			}
+			disp_attr_val = avg/total;
+		    } else {
+			disp_attr_val = "Mixed";
+		    }
+		} else {
+		    disp_attr_val = values[0];
+		}
+		datum_to_add.disp_attr_val = disp_attr_val;
+		data.push(datum_to_add);
 	    }
-	    return ret;
+	    return data;
 	};
 	var makeOncoprintData = function(webservice_data, genes, ids, sample_or_patient, sample_to_patient_map) {
 	    // To fill in for non-existent data, need genes and samples to do so for

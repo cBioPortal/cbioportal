@@ -57,12 +57,12 @@ var utils = {
 };
 
 var tooltip_utils = {
-    'sampleViewAnchorTag': function (sample_id) {
-	var href = cbio.util.getLinkToSampleView(QuerySession.getCancerStudyIds()[0], sample_id);
+    'sampleViewAnchorTag': function (study_id, sample_id) {
+	var href = cbio.util.getLinkToSampleView(study_id, sample_id);
 	return '<a href="' + href + '">' + sample_id + '</a>';
     },
-    'patientViewAnchorTag': function(patient_id) {
-	var href = cbio.util.getLinkToPatientView(QuerySession.getCancerStudyIds()[0], patient_id);
+    'patientViewAnchorTag': function(study_id, patient_id) {
+	var href = cbio.util.getLinkToPatientView(study_id, patient_id);
 	return '<a href="' + href + '">' + patient_id + '</a>';
     },
     'makeGeneticTrackTooltip':function(data_type, link_id) {
@@ -83,7 +83,7 @@ var tooltip_utils = {
 	    if (d.rppa) {
 		ret += 'RPPA: <b>' + d.rppa + '</b><br>';
 	    }
-	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.patient) : d.patient));
+	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.study_id, d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.study_id, d.patient) : d.patient));
 	    return ret;
 	}
     },
@@ -92,7 +92,7 @@ var tooltip_utils = {
 	    return function(d) {
 		var ret = '';
 		ret += 'value: <b>' + d.attr_val + '</b><br>';
-		ret += (link_id ? tooltip_utils.sampleViewAnchorTag(d.sample) : d.sample);
+		ret += (link_id ? tooltip_utils.sampleViewAnchorTag(d.study_id, d.sample) : d.sample);
 		return ret;
 	    };
 	} else {
@@ -107,7 +107,7 @@ var tooltip_utils = {
 		} else {
 		    ret += 'value: <b>' + d.attr_val + '</b><br>';
 		}
-		ret += (link_id ? tooltip_utils.patientViewAnchorTag(d.patient) : d.patient);
+		ret += (link_id ? tooltip_utils.patientViewAnchorTag(d.study_id, d.patient) : d.patient);
 		return ret;
 	    };
 	}
@@ -796,6 +796,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    for (var j=0; j<patient_to_data[patient].length; j++) {
 				if (j===0) {
 				    datum.attr_id = patient_to_data[patient][j].attr_id;
+				    datum.study_id = patient_to_data[patient][j].study_id;
 				}
 				datum.attr_val += patient_to_data[patient][j].attr_val;
 			    }
@@ -837,11 +838,35 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    }
 	    return ret;
 	};
+	var prepareCNARequest = function(val){
+		 var def = new $.Deferred();
+		var clinicalCNAColl = new ClinicalCNAColl();
+			clinicalCNAColl.fetch({
+		    type: "POST",
+		    data: {
+			cancer_study_id: val,
+			cmd: "get_cna_fraction",
+			case_ids: QuerySession.getSampleIds().join(" ")
+		    },success: function (response) {
+				response = response.toJSON();
+				_.each(response, function(element, index) {
+					_.extend(element, {study_id:val});
+				});
+				def.resolve(response);
+		    },
+		    error: function() {
+			def.reject();
+		    }
+			});
+			return def.promise();
+
+	};
 	var addBlankPatientData = function(attr_id, data) {
 	    // Add blank data for missing ids
 	    var def = new $.Deferred();
 	    var present = {};
-	    QuerySession.getPatientIds().then(function (ids) {
+	    QuerySession.getPatientIds(true).then(function (idsMap) {
+	    var ids = Object.keys(idsMap);
 		var ret = data.slice();
 		for (var i = 0; i < data.length; i++) {
 		    present[data[i].patient] = true;
@@ -850,7 +875,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    return !present[id];
 		});
 		for (var i = 0; i < to_add.length; i++) {
-		    ret.push({'patient': to_add[i], 'attr_id': attr_id, 'na': true});
+			ret.push({'patient': to_add[i], 'attr_id': attr_id, 'na': true,'study_id':idsMap[to_add[i]]});
 		}
 		def.resolve(ret);
 	    }).fail(function() {
@@ -885,29 +910,26 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    }
 		});
 	    } else if (attr.attr_id === 'FRACTION_GENOME_ALTERED') {
-		var clinicalCNAColl = new ClinicalCNAColl();
-		clinicalCNAColl.fetch({
-		    type: "POST",
-		    data: {
-			cancer_study_id: QuerySession.getCancerStudyIds()[0],
-			cmd: "get_cna_fraction",
-			case_ids: QuerySession.getSampleIds().join(" ")
-		    },
-		    success: function (response) {
-			response = response.toJSON();
-			var sample_data = addBlankSampleData(attr.attr_id, response);
-			sample_clinical_data[attr.attr_id] = sample_data;
-			makePatientDataFromSampleAttrData(response, 'average').then(function(patient_data) {
-			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
-				patient_clinical_data[attr.attr_id] = completed_patient_data;
-				def.resolve();
-			    })
-			});
-		    },
-		    error: function() {
-			def.reject();
-		    }
-		});
+	    	var requests_ = [];
+	    	var response_ = [];
+	    	$.each(QuerySession.getCancerStudyIds(),function(key,val){
+	    		requests_.push(prepareCNARequest(val));
+	    	});
+	    	$.when.apply($, requests_).done(function() {
+	    		for (var i = 0; i < arguments.length; i++) {
+	    			response_ = response_.concat(arguments[i]);
+	    		}
+	    		var sample_data = addBlankSampleData(attr.attr_id, response_);
+	    		sample_clinical_data[attr.attr_id] = sample_data;
+	    		makePatientDataFromSampleAttrData(response_, 'average').then(function(patient_data) {
+	    			addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
+	    				patient_clinical_data[attr.attr_id] = completed_patient_data;
+	    				def.resolve();
+	    			})
+	    		});
+	    	}).fail(function() {
+	    		def.reject();
+	    	});
 	    } else {
 		if (attr.is_patient_attribute === "0") {
 		    QuerySession.getSampleClinicalData([attr.attr_id]).then(function(sample_data) {

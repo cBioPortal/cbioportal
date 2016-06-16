@@ -5,7 +5,7 @@ As of release **1.0.5** cBioPortal has a Database schema update mechanism which 
 ## First time
 
 The first time you update from release **1.04**(or lower) to release **1.05**(or higher), you will get the following screen on the homepage after restarting your webserver:
-![](https://raw.githubusercontent.com/thehyve/cbioportal/validator_and_loading_improvements/core/src/main/resources/validator/docs/db_version_warning1.png)
+![Screenshot of the database schema mismatch banner](images/scripts/db_version_warning1.png)
 
 If you get `DB version expected by Portal: 0` (i.e. you are building the new release from source), you need to  add a new property to your `portal.properties` file which is needed for this check. 
 

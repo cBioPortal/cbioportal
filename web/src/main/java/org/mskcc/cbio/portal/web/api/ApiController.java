@@ -165,7 +165,7 @@ public class ApiController {
         } else if (study_id != null && sample_ids != null) {
             return service.getSampleClinicalAttributes(study_id, sample_ids);
         } else if (sample_ids == null) {
-            return service.getSampleClinicalAttributesByInternalIds(study_id, service.getSampleInternalIds(study_id));
+            return service.getSampleClinicalAttributesByInternalIds(service.getSampleInternalIds(study_id));
         } else {
             return new ArrayList<>();
         }
@@ -188,7 +188,7 @@ public class ApiController {
         } else if (study_id != null && patient_ids != null) {
             return service.getPatientClinicalAttributes(study_id, patient_ids);
         } else if (patient_ids == null) {
-            return service.getPatientClinicalAttributesByInternalIds(study_id, service.getPatientInternalIdsByStudy(study_id));
+            return service.getPatientClinicalAttributesByInternalIds(service.getPatientInternalIdsByStudy(study_id));
         } else {
             return new ArrayList<>();
         }

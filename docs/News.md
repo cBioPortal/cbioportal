@@ -1,10 +1,12 @@
 # June 6, 2016
 *   **New features**:
     * Annotation of mutation effect and drug sensitivity on the Mutations tab and the patient view pages (via [OncoKB](http://oncokb.org))  
+    ![oncokb-screenshot](https://cloud.githubusercontent.com/assets/840895/15825344/54bbbc44-2bd1-11e6-8b65-e265e03f453a.png)
 *   **Improvements**:
     * Improved OncoPrint visualization using WebGL: faster, more zooming flexibility, visualization of recurrent variants
     * Improved Network tab with SBGN view for a single interaction
     * Performance improvement of tables in the study view page
+    * Mutation type summary on the Mutations tab
 
 # March 31, 2016
 *   **New features**:

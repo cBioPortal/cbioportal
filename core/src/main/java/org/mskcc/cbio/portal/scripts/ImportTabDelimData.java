@@ -511,7 +511,7 @@ public class ImportTabDelimData {
         	ProgressMonitor.logWarning("Gene " + symbol + " not found in DB. Record will be skipped for this gene.");
         }
         
-        Pattern p = Pattern.compile("(p[STY][0-9]+)");
+        Pattern p = Pattern.compile("(p[STY][0-9]+(?:_[STY][0-9]+)*)");
         Matcher m = p.matcher(arrayId);
         String residue;
         if (!m.find()) {

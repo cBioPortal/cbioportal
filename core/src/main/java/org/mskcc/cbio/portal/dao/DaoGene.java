@@ -80,7 +80,14 @@ final class DaoGene {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        boolean setBulkLoadAtEnd = false;
         try {
+            //this method only works well with bulk load off, especially 
+            //when it is called in a process that may update a gene more than once
+            //(e.g. the ImportGeneData updates some of the fields based on one 
+            // input file and other fields based on another input file):
+            setBulkLoadAtEnd = MySQLbulkLoader.isBulkLoad();
+            MySQLbulkLoader.bulkLoadOff();
             //delete aliases first:
             deleteGeneAlias(gene.getEntrezGeneId());
             
@@ -104,6 +111,10 @@ final class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
+            if (setBulkLoadAtEnd) {
+                //reset to original state:
+                MySQLbulkLoader.bulkLoadOn();
+            }   
             JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
         

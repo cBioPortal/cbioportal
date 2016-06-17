@@ -9,6 +9,16 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
 
+	<!-- Put the bean into the SpringUtil static field for access -->
+	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <b:property name="staticMethod"><b:value>org.mskcc.cbio.portal.util.SpringUtil.setAccessControl</b:value></b:property>
+	    <b:property name="arguments">
+	        <b:list>
+	            <b:ref bean="accessControl"/>
+	        </b:list>
+	   </b:property>
+	</b:bean>
+
     <!-- beans shared across any authentication system -->
     <b:beans profile="googleplus,openid,saml,ad,ldap">
         <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">

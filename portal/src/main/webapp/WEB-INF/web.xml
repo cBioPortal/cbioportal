@@ -31,7 +31,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml</param-value>
+        <param-value>/WEB-INF/classes/applicationContext-security.xml /WEB-INF/classes/applicationContext-business.xml</param-value>
     </context-param>
 
     <context-param>
@@ -73,6 +73,10 @@
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>contextAttribute</param-name>
+            <param-value>org.springframework.web.servlet.FrameworkServlet.CONTEXT.portal</param-value>
+        </init-param>
     </filter>
 
     <filter-mapping>

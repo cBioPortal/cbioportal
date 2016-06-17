@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cbioportal.model.Mutation;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
@@ -26,41 +27,44 @@ public class MutationRepositoryTest {
     private MutationRepository mutationRepository;
 
 	@Test
-    public void testGetAllMutations() {
+    public void testGetAllMutationsDetailed() {
 		
 		List<String> geneticProfileStableIds = new ArrayList<String>();
 		List<String> sampleStableIds = new ArrayList<String>();
 		String sampleListStableId = "study_tcga_pub_sequenced";
 		List<String> hugoGeneSymbols = new ArrayList<String>();
-		List<Mutation> result = mutationRepository.getMutations(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds, sampleListStableId);
+		List<Mutation> result = mutationRepository.getMutationsDetailed(geneticProfileStableIds, hugoGeneSymbols,
+				sampleStableIds, sampleListStableId);
     	
 		Assert.assertNotNull(result);
 		Assert.assertEquals(3, result.size());
     }
 
 	@Test
-    public void testGetMutationsForKRAS() {
+    public void testGetMutationsDetailedForKRAS() {
 		
 		List<String> geneticProfileStableIds = new ArrayList<String>();
 		List<String> sampleStableIds = new ArrayList<String>();
 		String sampleListStableId = "study_tcga_pub_sequenced";
 		List<String> hugoGeneSymbols = new ArrayList<String>();
 		hugoGeneSymbols.add("KRAS");
-		List<Mutation> result = mutationRepository.getMutations(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds, sampleListStableId);
+		List<Mutation> result = mutationRepository.getMutationsDetailed(geneticProfileStableIds, hugoGeneSymbols,
+				sampleStableIds, sampleListStableId);
     	
 		Assert.assertNotNull(result);
 		Assert.assertEquals(0, result.size());
     }
 
 	@Test
-    public void testGetMutationsForBRCA1() {
+    public void testGetMutationsDetailedForBRCA1() {
 		
 		List<String> geneticProfileStableIds = new ArrayList<String>();
 		List<String> sampleStableIds = new ArrayList<String>();
 		String sampleListStableId = "study_tcga_pub_sequenced";
 		List<String> hugoGeneSymbols = new ArrayList<String>();
 		hugoGeneSymbols.add("BRCA1");
-		List<Mutation> result = mutationRepository.getMutations(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds, sampleListStableId);
+		List<Mutation> result = mutationRepository.getMutationsDetailed(geneticProfileStableIds, hugoGeneSymbols,
+				sampleStableIds, sampleListStableId);
     	
 		Assert.assertNotNull(result);
 		Assert.assertEquals(3, result.size());

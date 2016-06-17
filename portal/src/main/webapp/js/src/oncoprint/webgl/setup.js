@@ -730,7 +730,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var sample_clinical_data = {};// attr_id -> list of data
 	var patient_clinical_data = {};// attr_id -> list of data
 	
-	var makeSampleDataFromPatientAttrData = function(data) {
+	var makeSampleDataFromPatientAttrData = function(data, attr_id) {
 	    var def = new $.Deferred();
 	    QuerySession.getPatientSampleIdMap().then(function(sample_to_patient) {
 		var sample_data = [];
@@ -743,7 +743,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    var patient = sample_to_patient[samples[i]];
 		    var patient_datum = patient_to_datum[patient];
 		    if (patient_datum) {
-			sample_data.push({'sample':samples[i], 'attr_id':patient_datum.attr_id, 'attr_val':patient_datum.attr_val});
+			if (typeof patient_datum.attr_val !== "undefined") {
+			    sample_data.push({'sample':samples[i], 'attr_id':attr_id, 'attr_val':patient_datum.attr_val});
+			} else {
+			    sample_data.push({'sample':samples[i], 'attr_id':attr_id, 'na':true});
+			}
 		    }
 		}
 		def.resolve(sample_data);
@@ -753,7 +757,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    return def.promise();
 	};
 	
-	var makePatientDataFromSampleAttrData = function(data, combination_type) {
+	var makePatientDataFromSampleAttrData = function(data, attr_id, combination_type) {
 	    var def = new $.Deferred();
 	    QuerySession.getPatientSampleIdMap().then(function(sample_to_patient) {
 		var patient_to_data = {};
@@ -773,24 +777,29 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			var datum = {'patient':patient};
 			if (combination_type === 'average') {
 			    datum.attr_val = 0;
+			    datum.attr_id = attr_id;
 			    for (var j=0; j<patient_to_data[patient].length; j++) {
-				if (j===0) {
-				    datum.attr_id = patient_to_data[patient][j].attr_id;
-				}
 				datum.attr_val += patient_to_data[patient][j].attr_val;
 			    }
 			    datum.attr_val /= patient_to_data[patient].length;
 			} else if (combination_type === 'category') {
 			    var attr_vals = {};
+			    datum.attr_id = attr_id;
 			    for (var j=0; j<patient_to_data[patient].length; j++) {
-				attr_vals[patient_to_data[patient][j].attr_val] = attr_vals[patient_to_data[patient][j].attr_val] || 0;
-				attr_vals[patient_to_data[patient][j].attr_val] += 1;
+				var attr_val = patient_to_data[patient][j].attr_val;
+				if (typeof attr_val !== "undefined") {
+				    attr_vals[patient_to_data[patient][j].attr_val] = attr_vals[patient_to_data[patient][j].attr_val] || 0;
+				    attr_vals[patient_to_data[patient][j].attr_val] += 1;
+				}
 			    }
-			    if (Object.keys(attr_vals).length > 1) {
+			    var attr_vals_keys = Object.keys(attr_vals);
+			    if (attr_vals_keys.length === 0) {
+				datum.na = true;
+			    } else if (attr_vals_keys.length === 1) {
+				datum.attr_val = attr_vals_keys[0];
+			    } else {
 				datum.attr_val = "Mixed";
 				datum.attr_vals = attr_vals;
-			    } else {
-				datum.attr_val = Object.keys(attr_vals)[0];
 			    }
 			}
 			patient_data.push(datum);
@@ -853,7 +862,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			response = response.toJSON();
 			var sample_data = addBlankSampleData(attr.attr_id, response);
 			sample_clinical_data[attr.attr_id] = sample_data;
-			makePatientDataFromSampleAttrData(response, 'average').then(function(patient_data) {
+			makePatientDataFromSampleAttrData(response, attr.attr_id, 'average').then(function(patient_data) {
 			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
 				patient_clinical_data[attr.attr_id] = completed_patient_data;
 				def.resolve();
@@ -877,7 +886,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			response = response.toJSON();
 			var sample_data = addBlankSampleData(attr.attr_id, response);
 			sample_clinical_data[attr.attr_id] = sample_data;
-			makePatientDataFromSampleAttrData(response, 'average').then(function(patient_data) {
+			makePatientDataFromSampleAttrData(response, attr.attr_id, 'average').then(function(patient_data) {
 			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
 				patient_clinical_data[attr.attr_id] = completed_patient_data;
 				def.resolve();
@@ -892,7 +901,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		if (attr.is_patient_attribute === "0") {
 		    QuerySession.getSampleClinicalData([attr.attr_id]).then(function(sample_data) {
 			sample_clinical_data[attr.attr_id] = addBlankSampleData(attr.attr_id, sample_data);
-			makePatientDataFromSampleAttrData(sample_data, 'category').then(function(patient_data) {
+			makePatientDataFromSampleAttrData(sample_data, attr.attr_id, 'category').then(function(patient_data) {
 			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
 				patient_clinical_data[attr.attr_id] = completed_patient_data;
 				def.resolve();
@@ -917,7 +926,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).fail(function() {
 			    def.reject();
 			});
-			makeSampleDataFromPatientAttrData(patient_data).then(function(sample_data) {
+			makeSampleDataFromPatientAttrData(patient_data, attr.attr_id).then(function(sample_data) {
 			    sample_clinical_data[attr.attr_id] = addBlankSampleData(attr.attr_id, sample_data);
 			    calls_completed += 1;
 			    if (calls_completed === 2) {
@@ -1059,16 +1068,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 
     State.clinical_attributes_fetched.then(function () {
 	State.unused_clinical_attributes.sort(function (attrA, attrB) {
-	    return attrA.display_name.localeCompare(attrB.display_name);
+	    if (attrA.attr_id === "FRACTION_GENOME_ALTERED") {
+		return -1;
+	    } else if (attrA.attr_id === '# mutations') {
+		return (attrB.attr_id === "FRACTION_GENOME_ALTERED" ? 1 : -1);
+	    } else if (attrB.attr_id === "FRACTION_GENOME_ALTERED") {
+		return 1;
+	    } else if (attrB.attr_id === '# mutations') {
+		return (attrA.attr_id === 'FRACTION_GENOME_ALTERED' ? -1 : 1);
+	    } else {
+		return attrA.display_name.localeCompare(attrB.display_name);
+	    }
 	});
-
-	if (QuerySession.getMutationProfileId() !== null) {
-	    State.unused_clinical_attributes.unshift(ClinicalData.NUMBER_MUTATIONS_ATTRIBUTE);
-	}
-
-	if (QuerySession.getCancerStudyIds().length > 0) {
-	    State.unused_clinical_attributes.unshift(ClinicalData.FRACTION_GENOME_ALTERED_ATTRIBUTE);
-	}
 
 	for (var i = 0, _len = State.unused_clinical_attributes.length; i < _len; i++) {
 	    State.unused_clinical_attributes[i].display_order = i;
@@ -1170,29 +1181,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     }).then(function() {
 	(function fetchClinicalAttributes() {
 	    // For some reason $.when isn't working
-	    var clinical_attributes_calls_returned = 0;
-	    QuerySession.getSampleClinicalAttributes().then(function (sample_attrs) {
-		for (var i = 0; i < sample_attrs.length; i++) {
-		    sample_attrs[i].type = 'sample';
-		}
-		State.unused_clinical_attributes = State.unused_clinical_attributes.concat(sample_attrs);
-		clinical_attributes_calls_returned += 1;
-		if (clinical_attributes_calls_returned === 2) {
-		    State.clinical_attributes_fetched.resolve();
-		}
-	    }).fail(function () {
-		State.clinical_attributes_fetched.reject();
-	    });
-	    QuerySession.getPatientClinicalAttributes().then(function (patient_attrs) {
-		for (var i = 0; i < patient_attrs.length; i++) {
-		    patient_attrs[i].type = 'patient';
-		}
-		State.unused_clinical_attributes = State.unused_clinical_attributes.concat(patient_attrs);
-		clinical_attributes_calls_returned += 1;
-		if (clinical_attributes_calls_returned === 2) {
-		    State.clinical_attributes_fetched.resolve();
-		}
-	    }).fail(function () {
+	    QuerySession.getClinicalAttributes().then(function(attrs) {
+		State.unused_clinical_attributes = attrs;
+		State.clinical_attributes_fetched.resolve();
+	    }).fail(function() {
 		State.clinical_attributes_fetched.reject();
 	    });
 	})();

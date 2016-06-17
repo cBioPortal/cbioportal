@@ -723,46 +723,42 @@ public class GlobalProperties {
     }
     
     public static String getDarwinAuthCheckUrl() {
-        String darwinAuthUrl;
+        String darwinAuthUrl = "";
         try{
             darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL).trim();            
         }
-        catch (NullPointerException e){
-            darwinAuthUrl = "";
-        }
+        catch (NullPointerException e){}
+        
         return darwinAuthUrl;
     }
     
     public static String getDarwinResponseUrl() {
-        String darwinResponseUrl;
+        String darwinResponseUrl = "";
         try{
             darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL).trim();
         }
-        catch (NullPointerException e) {
-            darwinResponseUrl = "";
-        }
+        catch (NullPointerException e) {}
+        
         return darwinResponseUrl;
     }
     
     public static String getDarwinAuthority() { 
-        String darwinAuthority;
+        String darwinAuthority = "";
         try{
             darwinAuthority = properties.getProperty(DARWIN_AUTHORITY).trim();
         }
-        catch (NullPointerException e) {
-            darwinAuthority = "";
-        }
+        catch (NullPointerException e) {}
+        
         return darwinAuthority;
     }
     
     public static String getCisUser() {
-        String cisUser;
+        String cisUser = "";
         try{
             cisUser = properties.getProperty(CIS_USER).trim();
         }
-        catch (NullPointerException e) {
-            cisUser = "";
-        }
+        catch (NullPointerException e) {}
+        
         return cisUser;         
     }
 

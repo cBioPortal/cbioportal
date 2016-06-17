@@ -41,7 +41,6 @@ import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.apache.commons.logging.*;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 
@@ -131,7 +130,10 @@ public class AccessControlImpl implements AccessControl {
     {
         if (GlobalProperties.usersMustBeAuthorized()) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            return !(auth instanceof AnonymousAuthenticationToken) ? (UserDetails)auth.getPrincipal() : null;
+            if (auth == null) {
+            	return null;
+            }
+            return !(auth instanceof AnonymousAuthenticationToken) ? new SpringUserDetailsWrapper(auth.getPrincipal()) : null;
         }
         return null;
     }

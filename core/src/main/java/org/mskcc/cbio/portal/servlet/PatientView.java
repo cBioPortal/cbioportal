@@ -68,7 +68,6 @@ import org.apache.log4j.Logger;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;

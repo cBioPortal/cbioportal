@@ -429,6 +429,12 @@
       <artifactId>spring-social-google</artifactId>
       <version>${org.springframework.social.google-version}</version>
     </dependency>
+    <!-- OpenID Connect -->
+    <dependency>
+      <groupId>org.mitre</groupId>
+      <artifactId>openid-connect-client</artifactId>
+      <version>1.1.15</version>
+    </dependency>
     <!-- guava -->
     <dependency>
       <groupId>com.google.guava</groupId>

@@ -100,7 +100,7 @@ public class CheckDarwinAccessMain {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             return new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
-        }      
+        }
     }
 
     public static class DarwinAccess {

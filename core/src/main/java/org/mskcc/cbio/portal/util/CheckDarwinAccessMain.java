@@ -69,10 +69,10 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 public class CheckDarwinAccessMain {
     
     public static class CheckDarwinAccess {
-        private static String DARWIN_AUTH_URL = GlobalProperties.getDarwinAuthCheckUrl();
-        private static String DARWIN_RESPONSE_URL = GlobalProperties.getDarwinResponseUrl();
-        private static String DARWIN_AUTHORITY = GlobalProperties.getDarwinAuthority();
-        private static String CIS_USER = GlobalProperties.getCisUser();
+        private static String darwinAuthUrl = GlobalProperties.getDarwinAuthCheckUrl();
+        private static String darwinResponseUrl = GlobalProperties.getDarwinResponseUrl();
+        private static String darwinAuthority = GlobalProperties.getDarwinAuthority();
+        private static String cisUser = GlobalProperties.getCisUser();
 
         public static String checkAccess(HttpServletRequest request) {
             CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
@@ -83,14 +83,14 @@ public class CheckDarwinAccessMain {
         }
         
         public static String getResponse(String cancerStudy, String userName, String patientId){   
-            if (!DARWIN_AUTHORITY.equals(cancerStudy) || CIS_USER.equals(userName)) return "";
+            if (!darwinAuthority.equals(cancerStudy) || cisUser.equals(userName)) return "";
             
             RestTemplate restTemplate = new RestTemplate();                 
             HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity(userName, patientId);  
-            ResponseEntity<DarwinAccess> responseEntity = restTemplate.exchange(DARWIN_AUTH_URL, HttpMethod.POST, requestEntity, DarwinAccess.class);  
+            ResponseEntity<DarwinAccess> responseEntity = restTemplate.exchange(darwinAuthUrl, HttpMethod.POST, requestEntity, DarwinAccess.class);  
             String darwinResponse = responseEntity.getBody().getDarwinAuthResponse();
 
-            return darwinResponse.equals("valid")?DARWIN_RESPONSE_URL+patientId:"";
+            return darwinResponse.equals("valid")?darwinResponseUrl+patientId:"";
         }
 
         private static HttpEntity<LinkedMultiValueMap<String, Object>> getRequestEntity(String userName, String patientId) {

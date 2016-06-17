@@ -1,0 +1,8 @@
+cancer_study_identifier: study_tcga_pub
+genetic_alteration_type: COPY_NUMBER_ALTERATION
+datatype: DISCRETE
+data_filename: data_CNA_sample.txt
+stable_id: cna
+show_profile_in_analysis_tab: true
+profile_description: Putative copy-number calls on 1080 cases determined using GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.
+profile_name: Putative copy-number alterations from GISTIC

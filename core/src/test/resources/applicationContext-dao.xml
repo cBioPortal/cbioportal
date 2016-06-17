@@ -38,6 +38,11 @@
     	<property name="dataSource" ref="businessDataSource"/>
 	</bean>
 
+	<bean id="scriptTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="transactionManager" />
+	    <property name="isolationLevelName" value="ISOLATION_DEFAULT"/>
+	</bean>
+	
 	<!-- Values are for testing only, so need to correspond to the cgds in the pom.xml -->
 	<bean id="dbcpDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
@@ -61,4 +66,13 @@
 	   </property>
 	</bean>
 
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
+	    <property name="arguments">
+	        <list>
+	            <ref bean="businessDataSource"/>
+	        </list>
+	   </property>
+	</bean>
+	
 </beans>

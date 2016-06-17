@@ -56,8 +56,6 @@ function GeneValidator(geneAreaId, geneModel){
 
         // clean the textArea string, removing doubles and non-word characters (except -)
         var genesStr = geneModel.getCleanGeneString(",");
-            //self.cleanAreaString(geneModel.get("geneString")).join(" ")
-        //$(geneAreaId).val(genesStr);
 
         var genes = [];
         var allValid = true;
@@ -103,13 +101,10 @@ function GeneValidator(geneAreaId, geneModel){
 
     // create a notification of a certain type
     function addNotification(message, message_type){
-        //if(showNotification) {
-            notificationSettings.message_type = message_type;
-            new Notification().createNotification(message, notificationSettings);
-        //}
+        notificationSettings.message_type = message_type;
+        new Notification().createNotification(message, notificationSettings);
         nrOfNotifications = $(".alert").length;
     }
-
 
     function clearAllNotifications(){
         // select the notifications of interest

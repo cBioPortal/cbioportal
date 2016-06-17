@@ -1,0 +1,2 @@
+To build: $ gulp
+To serve: $ python -m SimpleHTTPServer      then navigate to localhost:8000

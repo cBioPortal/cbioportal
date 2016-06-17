@@ -1,6 +1,7 @@
 package org.mskcc.cbio.portal.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -12,8 +13,11 @@ import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
 import org.mskcc.cbio.portal.model.DBGene;
+import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
+import org.mskcc.cbio.portal.model.DBAltCount;
+import org.mskcc.cbio.portal.model.DBAltCountInput;
 import org.mskcc.cbio.portal.model.DBMutationData;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBSampleList;
@@ -25,8 +29,10 @@ import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
+import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
+import org.mskcc.cbio.portal.persistence.MutationMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapper;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
@@ -45,12 +51,16 @@ public class ApiService {
 
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
+        @Autowired
+        private MutationMapper mutationMapper;
 	@Autowired
 	private ClinicalDataMapper clinicalDataMapper;
 	@Autowired
 	private ClinicalFieldMapper clinicalFieldMapper;
 	@Autowired
 	private GeneMapper geneMapper;
+	@Autowired
+	private GeneAliasMapper geneAliasMapper;
 	@Autowired
 	private GeneticProfileMapper geneticProfileMapper;
 	@Autowired
@@ -74,6 +84,105 @@ public class ApiService {
 		return cancerTypeMapper.getCancerTypes(cancer_type_ids);
 	}
 
+        @Transactional
+	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> studyIds, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
+
+            List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+            Map<String,String> result;
+            for(int i = 0;i < genes.size();i++)
+            {
+                
+                if(echo == null)
+                {
+                    echo = new ArrayList<String>();
+                    echo.add("gene");
+                    for(String key: customizedAttrs.keySet())
+                    {
+                        echo.add(key);
+                    }
+                }
+               List<DBAltCount> eles = mutationMapper.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study); 
+               for(DBAltCount ele: eles )
+               {
+                   result = new HashMap<String,String>();
+                   for(String key: customizedAttrs.keySet()){
+                       if(echo.contains(key))result.put(key, customizedAttrs.get(key)[i]);
+                   }
+                   if(echo.contains("gene"))result.put("gene", genes.get(i));
+                   if(starts != null)
+                   {
+                       if(echo.contains("start"))result.put("start", starts.get(i).toString());
+                   }
+                   if(ends != null)
+                   {
+                       if(echo.contains("end"))result.put("end", ends.get(i).toString());
+                   }
+
+                    if(type.equals("count"))
+                    {
+                        result.put("count", Integer.toString(ele.count));
+                    }
+                    else if(type.equals("frequency"))
+                    {
+                        result.put("frequency", Double.toString(ele.frequency));
+                    }
+
+                   if(per_study)result.put("studyID", ele.studyID);
+                   results.add(result);
+               }  
+               
+            }
+            
+		return results;
+	}
+        @Transactional
+	public List<Map<String, String>> getMutationsCountsJSON(DBAltCountInput body) {
+            
+            String type = body.type;
+            Boolean per_study = body.per_study;
+            List<String> echo = body.echo;
+            List<String> studyIds = body.studyId;
+            List<Map<String, String>> data = body.data;
+            List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+            Map<String,String> result;
+            for(int i = 0;i < data.size();i++)
+            {
+                
+                Map<String, String> item = data.get(i);
+                if(echo == null)
+                {
+                    echo = new ArrayList<String>();
+                    for(String key: item.keySet())
+                    {
+                        echo.add(key);
+                    }
+                }
+                List<DBAltCount> eles = mutationMapper.getMutationsCounts(type, item.get("gene"), (item.get("start") == null ? null : Integer.parseInt(item.get("start"))), (item.get("end") == null ? null : Integer.parseInt(item.get("end"))), studyIds, per_study) ;
+                for(DBAltCount ele: eles)
+                {
+                    result = new HashMap<String,String>();
+                    for(String key: item.keySet())
+                    {
+                        if(echo.contains(key))result.put(key, item.get(key));
+                    }
+                   if(type.equals("count"))
+                   {
+                        result.put("count", Integer.toString(ele.count));
+                   }
+                   else if(type.equals("frequency"))
+                   {
+                       result.put("frequency", Double.toString(ele.frequency));
+                   }
+                   if(per_study)result.put("studyID", ele.studyID);
+                   results.add(result);
+                }
+                
+               
+            }   
+		return results;
+
+	}
+        
 	@Transactional
 	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> attribute_ids) {
 		return clinicalDataMapper.getSampleClinicalDataByStudyAndAttribute(study_id, attribute_ids);
@@ -93,24 +202,34 @@ public class ApiService {
 	}
 
 	@Transactional
+	public List<DBClinicalField> getClinicalAttributes() {
+		return clinicalFieldMapper.getAllClinicalFields();
+	}
+	@Transactional
+	public List<DBClinicalField> getClinicalAttributes(List<String> attr_ids) {
+		return clinicalFieldMapper.getClinicalFieldsById(attr_ids);
+	}
+	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes() {
 		return clinicalFieldMapper.getAllSampleClinicalFields();
 	}
 
 	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id) {
-		return clinicalFieldMapper.getSampleClinicalFieldsByStudy(study_id);
+		List<Integer> internal_sample_ids = sampleMapper.getSampleInternalIdsByStudy(study_id);
+		return getSampleClinicalAttributesByInternalIds(internal_sample_ids);
 	}
 
 	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id, List<String> sample_ids) {
-		return clinicalFieldMapper.getSampleClinicalFieldsBySample(study_id, sample_ids);
+		List<Integer> internal_sample_ids = sampleMapper.getSampleInternalIdsBySample(study_id, sample_ids);
+		return getSampleClinicalAttributesByInternalIds(internal_sample_ids);
 	}
 
-    @Transactional
-    public List<DBClinicalField> getSampleClinicalAttributesByInternalIds(String study_id, List<Integer> sample_ids) {
-        return clinicalFieldMapper.getSampleClinicalFieldsBySampleInternalIds(study_id, sample_ids);
-    }
+	@Transactional
+	public List<DBClinicalField> getSampleClinicalAttributesByInternalIds(List<Integer> sample_ids) {
+	    return clinicalFieldMapper.getSampleClinicalFieldsBySampleInternalIds(sample_ids);
+	}
 
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes() {
@@ -119,18 +238,20 @@ public class ApiService {
 
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id) {
-		return clinicalFieldMapper.getPatientClinicalFieldsByStudy(study_id);
+		List<Integer> internal_patient_ids = patientMapper.getPatientInternalIdsByStudy(study_id);
+		return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(internal_patient_ids);
 	}
 
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id, List<String> patient_ids) {
-		return clinicalFieldMapper.getPatientClinicalFieldsByPatient(study_id, patient_ids);
+		List<Integer> internal_patient_ids = patientMapper.getPatientInternalIdsByPatient(study_id, patient_ids);
+		return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(internal_patient_ids);
 	}
 
-    @Transactional
-    public List<DBClinicalField> getPatientClinicalAttributesByInternalIds(String study_id, List<Integer> patient_ids) {
-        return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(study_id, patient_ids);
-    }
+	@Transactional
+	public List<DBClinicalField> getPatientClinicalAttributesByInternalIds(List<Integer> patient_ids) {
+	    return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(patient_ids);
+	}
     
 	@Transactional
 	public List<DBGene> getGenes() {
@@ -142,6 +263,16 @@ public class ApiService {
 		return geneMapper.getGenesByHugo(hugo_gene_symbols);
 	}
 
+	@Transactional
+	public List<DBGeneAlias> getGenesAliases() {
+		return geneAliasMapper.getAllGenesAliases();
+	}
+
+	@Transactional
+	public List<DBGeneAlias> getGenesAliases(List<Long> entrez_gene_ids) {
+		return geneAliasMapper.getGenesAliasesByEntrez(entrez_gene_ids);
+	}
+	
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles() {
 		return geneticProfileMapper.getAllGeneticProfiles();

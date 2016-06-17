@@ -75,7 +75,6 @@ public class FetchPfamGraphicsData
                 
                 Set<String> uniprotAccs = ImportUniProtIdMapping.getSwissProtAccessionHuman();
                 
-                ProgressMonitor.setConsoleMode(true);
                 ProgressMonitor.setMaxValue(uniprotAccs.size());
 
 		// read all
@@ -209,6 +208,7 @@ public class FetchPfamGraphicsData
 
                     System.out.println("Fetching started...");
                     Date start = new Date();
+                    ProgressMonitor.setConsoleMode(true);
                     int numErrors = driver(output, incremental);
                     Date end = new Date();
                     System.out.println("Fetching finished.");

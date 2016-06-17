@@ -40,13 +40,6 @@
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
-    var mutTableIndices =
-            ["id","case_ids","gene","aa", "annotation", "chr","start","end","ref","_var","validation","type",
-             "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
-             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
-
-    mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
-
     _.templateSettings = {
         interpolate : /\{\{(.+?)\}\}/g
     };
@@ -131,8 +124,8 @@
             var _id = mutEventIds[i];
             if(oncokbInstance) {
                 oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), 
-                    mutations.getValue(_id, "aa"), null, 
-                    mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : cancerType, 
+                    mutations.getValue(_id, "aa"), cancerType, 
+                    mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : 'any', 
                     findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), 
                     mutations.getValue(_id, "is-hotspot"), mutations.getValue(_id, 'protein-start'), 
                     mutations.getValue(_id, 'protein-end'));
@@ -927,7 +920,7 @@
                     addNoteTooltip("."+table_id+"-tip");
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
                     if(showHotspot) {
-                        addNoteTooltip('.'+table_id+'-hotspot', "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).");
+                        addNoteTooltip('.'+table_id+'-hotspot', cbio.util.getHotSpotDesc());
                     }
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);

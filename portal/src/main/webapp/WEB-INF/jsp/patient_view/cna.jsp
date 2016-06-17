@@ -34,7 +34,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
 
 <script type="text/javascript">
-    
     var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration", "annotation","cytoband","mrna","altrate","drug"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
@@ -58,12 +57,12 @@
                         alter = 'amplification';
                         break;
                     case -2:
-                        alter = 'inactivating mutations';
+                        alter = 'deletion';
                         break;
                     default:
                         alter = null;
                 }
-                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter, null, alter);
+                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter, cancerType, alter);
             }
             data.push([cnaEventIds[i]]);
         }
@@ -139,6 +138,7 @@
                                 }else if(OncoKB.getAccess()){
                                     ret += "<img width='14' height='14' src='images/ajax-loader.gif'/>";
                                 }else {
+                                    
                                     ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
                                 }
                                 return ret;

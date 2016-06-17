@@ -199,6 +199,10 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     }
                 },
                 {
+                    "bSearchable": false,
+                    "aTargets": [ col_index.cytoband ]
+                },
+                {
                     "sType": 'enrichments-p-value',
                     "bSearchable": false,
                     "aTargets": [ col_index.p_val ]
@@ -564,7 +568,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
 
         $("#" + btn_id).click(function() {
 
-            if (window.PortalGlobals.getCaseSetId() !== "-1") {
+            if (window.QuerySession.getCaseSetId() !== "-1") {
             	var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
 				var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
 				var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);

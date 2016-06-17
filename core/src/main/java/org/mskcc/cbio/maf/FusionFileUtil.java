@@ -88,7 +88,7 @@ public class FusionFileUtil
 
 		FusionRecord record = new FusionRecord();
 
-		record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.HUGO_SYMBOL), parts));
+		record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartStringAllowEmpty(this.getColumnIndex(MafUtil.HUGO_SYMBOL), parts));
 		record.setEntrezGeneId(TabDelimitedFileUtil.getPartLong(this.getColumnIndex(MafUtil.ENTREZ_GENE_ID), parts));
 		record.setCenter(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.CENTER), parts));
 		record.setTumorSampleID(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.TUMOR_SAMPLE_BARCODE), parts));

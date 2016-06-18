@@ -88,29 +88,22 @@ var tooltip_utils = {
 	}
     },
     'makeClinicalTrackTooltip':function(data_type, link_id) {
-	if (data_type === 'sample') {
-	    return function(d) {
-		var ret = '';
-		ret += 'value: <b>' + d.attr_val + '</b><br>';
-		ret += (link_id ? tooltip_utils.sampleViewAnchorTag(d.sample) : d.sample);
-		return ret;
-	    };
-	} else {
-	    return function(d) {
-		var ret = '';
-		if (d.attr_vals) {
-		    for (var val in d.attr_vals) {
-			if (typeof d.attr_vals[val] !== 'undefined') {
-			    ret += '<b>' + val + '</b>: '+d.attr_vals[val]+'<br>';
-			}
-		    }
-		} else {
-		    ret += 'value: <b>' + d.attr_val + '</b><br>';
+	return function(d) {
+	    var ret = '';
+	    var attr_vals = ((d.attr_val_counts && Object.keys(d.attr_val_counts)) || []);
+	    if (attr_vals.length > 1) {
+		ret += 'values:<br>';
+		for (var i=0; i<attr_vals.length; i++) {
+		    var val = attr_vals[i];
+		    ret += '<b>' + val + '</b>: '+d.attr_val_counts[val]+'<br>';
 		}
-		ret += (link_id ? tooltip_utils.patientViewAnchorTag(d.patient) : d.patient);
-		return ret;
-	    };
-	}
+	    } else if (attr_vals.length === 1) {
+		ret += 'value: <b>'+attr_vals[0]+'</b><br>';
+	    }
+	    ret += (link_id ? (data_type === 'sample' ? tooltip_utils.sampleViewAnchorTag(d.sample) : tooltip_utils.patientViewAnchorTag(d.patient))
+			    : (data_type === 'sample' ? d.sample : d.patient));
+	    return ret;
+	};
     }
 };
 
@@ -730,214 +723,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var sample_clinical_data = {};// attr_id -> list of data
 	var patient_clinical_data = {};// attr_id -> list of data
 	
-	var makeSampleDataFromPatientAttrData = function(data, attr_id) {
-	    var def = new $.Deferred();
-	    QuerySession.getPatientSampleIdMap().then(function(sample_to_patient) {
-		var sample_data = [];
-		var patient_to_datum = {};
-		for (var i=0; i<data.length; i++) {
-		    patient_to_datum[data[i].patient] = data[i];
-		}
-		var samples = QuerySession.getSampleIds();
-		for (var i=0; i<samples.length; i++) {
-		    var patient = sample_to_patient[samples[i]];
-		    var patient_datum = patient_to_datum[patient];
-		    if (patient_datum) {
-			if (typeof patient_datum.attr_val !== "undefined") {
-			    sample_data.push({'sample':samples[i], 'attr_id':attr_id, 'attr_val':patient_datum.attr_val});
-			} else {
-			    sample_data.push({'sample':samples[i], 'attr_id':attr_id, 'na':true});
-			}
-		    }
-		}
-		def.resolve(sample_data);
-	    }).fail(function() {
-		def.reject();
-	    });
-	    return def.promise();
-	};
-	
-	var makePatientDataFromSampleAttrData = function(data, attr_id, combination_type) {
-	    var def = new $.Deferred();
-	    QuerySession.getPatientSampleIdMap().then(function(sample_to_patient) {
-		var patient_to_data = {};
-		// first gather the data by patient
-		for (var i=0; i<data.length; i++) {
-		    var datum = data[i];
-		    if (typeof sample_to_patient[datum.sample] === 'undefined') {
-			continue;
-		    }
-		    patient_to_data[sample_to_patient[datum.sample]] = patient_to_data[sample_to_patient[datum.sample]] || [];
-		    patient_to_data[sample_to_patient[datum.sample]].push(datum);
-		}
-		// now combine the data
-		var patient_data = [];
-		for (var patient in patient_to_data) {
-		    if (typeof patient_to_data[patient] !== 'undefined') {
-			var datum = {'patient':patient};
-			if (combination_type === 'average') {
-			    datum.attr_val = 0;
-			    datum.attr_id = attr_id;
-			    for (var j=0; j<patient_to_data[patient].length; j++) {
-				datum.attr_val += patient_to_data[patient][j].attr_val;
-			    }
-			    datum.attr_val /= patient_to_data[patient].length;
-			} else if (combination_type === 'category') {
-			    var attr_vals = {};
-			    datum.attr_id = attr_id;
-			    for (var j=0; j<patient_to_data[patient].length; j++) {
-				var attr_val = patient_to_data[patient][j].attr_val;
-				if (typeof attr_val !== "undefined") {
-				    attr_vals[patient_to_data[patient][j].attr_val] = attr_vals[patient_to_data[patient][j].attr_val] || 0;
-				    attr_vals[patient_to_data[patient][j].attr_val] += 1;
-				}
-			    }
-			    var attr_vals_keys = Object.keys(attr_vals);
-			    if (attr_vals_keys.length === 0) {
-				datum.na = true;
-			    } else if (attr_vals_keys.length === 1) {
-				datum.attr_val = attr_vals_keys[0];
-			    } else {
-				datum.attr_val = "Mixed";
-				datum.attr_vals = attr_vals;
-			    }
-			}
-			patient_data.push(datum);
-		    }
-		}
-		def.resolve(patient_data);
-	    }).fail(function() {
-		def.reject();
-	    });
-	    return def.promise();
-	};
-	var addBlankSampleData = function(attr_id, data) {
-	    // Add blank data for missing ids
-	    var ret = data.slice();
-	    var present = {};
-	    for (var i = 0; i < data.length; i++) {
-		present[data[i].sample] = true;
-	    }
-	    var to_add = QuerySession.getSampleIds().filter(function (id) {
-		return !present[id];
-	    });
-	    for (var i = 0; i < to_add.length; i++) {
-		ret.push({'sample': to_add[i], 'attr_id':attr_id, 'na': true});
-	    }
-	    return ret;
-	};
-	var addBlankPatientData = function(attr_id, data) {
-	    // Add blank data for missing ids
-	    var def = new $.Deferred();
-	    var present = {};
-	    QuerySession.getPatientIds().then(function (ids) {
-		var ret = data.slice();
-		for (var i = 0; i < data.length; i++) {
-		    present[data[i].patient] = true;
-		}
-		var to_add = ids.filter(function (id) {
-		    return !present[id];
-		});
-		for (var i = 0; i < to_add.length; i++) {
-		    ret.push({'patient': to_add[i], 'attr_id': attr_id, 'na': true});
-		}
-		def.resolve(ret);
-	    }).fail(function() {
-		def.reject();
-	    });
-	    return def.promise();
-	};
 	var fetchData = function(attr) {
 	    var def = new $.Deferred();
-	    if (attr.attr_id === '# mutations') {
-		var clinicalMutationColl = new ClinicalMutationColl();
-		clinicalMutationColl.fetch({
-		    type: "POST",
-		    data: {
-			mutation_profile: window.QuerySession.getMutationProfileId(),
-			cmd: "count_mutations",
-			case_ids: QuerySession.getSampleIds().join(" ")
-		    },
-		    success: function (response) {
-			response = response.toJSON();
-			var sample_data = addBlankSampleData(attr.attr_id, response);
+	    $.when(QuerySession.getSampleClinicalData([attr.attr_id]), QuerySession.getPatientClinicalData([attr.attr_id]))
+		    .then(function (sample_data, patient_data) {
 			sample_clinical_data[attr.attr_id] = sample_data;
-			makePatientDataFromSampleAttrData(response, attr.attr_id, 'average').then(function(patient_data) {
-			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
-				patient_clinical_data[attr.attr_id] = completed_patient_data;
-				def.resolve();
-			    });
-			});
-		    },
-		    error: function() {
-			def.reject();
-		    }
-		});
-	    } else if (attr.attr_id === 'FRACTION_GENOME_ALTERED') {
-		var clinicalCNAColl = new ClinicalCNAColl();
-		clinicalCNAColl.fetch({
-		    type: "POST",
-		    data: {
-			cancer_study_id: QuerySession.getCancerStudyIds()[0],
-			cmd: "get_cna_fraction",
-			case_ids: QuerySession.getSampleIds().join(" ")
-		    },
-		    success: function (response) {
-			response = response.toJSON();
-			var sample_data = addBlankSampleData(attr.attr_id, response);
-			sample_clinical_data[attr.attr_id] = sample_data;
-			makePatientDataFromSampleAttrData(response, attr.attr_id, 'average').then(function(patient_data) {
-			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
-				patient_clinical_data[attr.attr_id] = completed_patient_data;
-				def.resolve();
-			    })
-			});
-		    },
-		    error: function() {
-			def.reject();
-		    }
-		});
-	    } else {
-		if (attr.is_patient_attribute === "0") {
-		    QuerySession.getSampleClinicalData([attr.attr_id]).then(function(sample_data) {
-			sample_clinical_data[attr.attr_id] = addBlankSampleData(attr.attr_id, sample_data);
-			makePatientDataFromSampleAttrData(sample_data, attr.attr_id, 'category').then(function(patient_data) {
-			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
-				patient_clinical_data[attr.attr_id] = completed_patient_data;
-				def.resolve();
-			    }).fail(function() {
-				def.reject();
-			    })
-			}).fail(function() {
-			    def.reject();
-			});
-		    }).fail(function() {
-			def.reject();
-		    });
-		} else if (attr.is_patient_attribute === "1") {
-		    QuerySession.getPatientClinicalData([attr.attr_id]).then(function(patient_data) {
-			var calls_completed = 0;
-			addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
-			    patient_clinical_data[attr.attr_id] = completed_patient_data;
-			    calls_completed += 1;
-			    if (calls_completed === 2) {
-				def.resolve();
-			    }
-			}).fail(function() {
-			    def.reject();
-			});
-			makeSampleDataFromPatientAttrData(patient_data, attr.attr_id).then(function(sample_data) {
-			    sample_clinical_data[attr.attr_id] = addBlankSampleData(attr.attr_id, sample_data);
-			    calls_completed += 1;
-			    if (calls_completed === 2) {
-				def.resolve();
-			    }
-			}).fail(function() {
-			    def.reject();
-			});
-		    });
-		}
-	    }
+			patient_clinical_data[attr.attr_id] = patient_data;
+			def.resolve();
+		    }).fail(function () {
+		def.reject();
+	    });
 	    return def.promise();
 	};
 	return {
@@ -1017,8 +812,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     
     var Toolbar = (function() {
 	var events = [];
-	var qtips = [];
-	var elements = [];
 	
 	return {
 	    'addEventHandler': function($elt, evt, callback) {

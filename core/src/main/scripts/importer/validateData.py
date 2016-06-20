@@ -1962,6 +1962,8 @@ class CancerTypeValidator(Validator):
 
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
+    # check this in the subclass to avoid emitting an error twice
+    ALLOW_BLANKS = True
 
     COLS = (
         'type_of_cancer',
@@ -2000,10 +2002,67 @@ class CancerTypeValidator(Validator):
             line_cancer_type = data[self.cols.index('type_of_cancer')].lower().strip()
             # check each column
             for col_index, field_name in enumerate(self.cols):
-                # TODO validate whether the color field is one of the
-                # keywords on https://www.w3.org/TR/css3-color/#svg-color
-                if field_name == 'parent_type_of_cancer':
-                    parent_cancer_type = data[col_index].lower().strip()
+                value = data[col_index].strip()
+                if value == '':
+                    self.logger.error(
+                            "Blank value in '%s' column",
+                            field_name,
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+                elif field_name == 'color':
+                    # validate whether the color field is one of the
+                    # keywords on https://www.w3.org/TR/css3-color/#svg-color
+                    if value.lower() not in [
+                            'aliceblue', 'antiquewhite', 'aqua', 'aquamarine',
+                            'azure', 'beige', 'bisque', 'black',
+                            'blanchedalmond', 'blue', 'blueviolet', 'brown',
+                            'burlywood', 'cadetblue', 'chartreuse', 'chocolate',
+                            'coral', 'cornflowerblue', 'cornsilk', 'crimson',
+                            'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod',
+                            'darkgray', 'darkgreen', 'darkgrey', 'darkkhaki',
+                            'darkmagenta', 'darkolivegreen', 'darkorange',
+                            'darkorchid', 'darkred', 'darksalmon',
+                            'darkseagreen', 'darkslateblue', 'darkslategray',
+                            'darkslategrey', 'darkturquoise', 'darkviolet',
+                            'deeppink', 'deepskyblue', 'dimgray', 'dimgrey',
+                            'dodgerblue', 'firebrick', 'floralwhite',
+                            'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite',
+                            'gold', 'goldenrod', 'gray', 'green', 'greenyellow',
+                            'grey', 'honeydew', 'hotpink', 'indianred',
+                            'indigo', 'ivory', 'khaki', 'lavender',
+                            'lavenderblush', 'lawngreen', 'lemonchiffon',
+                            'lightblue', 'lightcoral', 'lightcyan',
+                            'lightgoldenrodyellow', 'lightgray', 'lightgreen',
+                            'lightgrey', 'lightpink', 'lightsalmon',
+                            'lightseagreen', 'lightskyblue', 'lightslategray',
+                            'lightslategrey', 'lightsteelblue', 'lightyellow',
+                            'lime', 'limegreen', 'linen', 'magenta', 'maroon',
+                            'mediumaquamarine', 'mediumblue', 'mediumorchid',
+                            'mediumpurple', 'mediumseagreen', 'mediumslateblue',
+                            'mediumspringgreen', 'mediumturquoise',
+                            'mediumvioletred', 'midnightblue', 'mintcream',
+                            'mistyrose', 'moccasin', 'navajowhite', 'navy',
+                            'oldlace', 'olive', 'olivedrab', 'orange',
+                            'orangered', 'orchid', 'palegoldenrod', 'palegreen',
+                            'paleturquoise', 'palevioletred', 'papayawhip',
+                            'peachpuff', 'peru', 'pink', 'plum', 'powderblue',
+                            'purple', 'red', 'rosybrown', 'royalblue',
+                            'saddlebrown', 'salmon', 'sandybrown', 'seagreen',
+                            'seashell', 'sienna', 'silver', 'skyblue',
+                            'slateblue', 'slategray', 'slategrey', 'snow',
+                            'springgreen', 'steelblue', 'tan', 'teal',
+                            'thistle', 'tomato', 'turquoise', 'violet', 'wheat',
+                            'white', 'whitesmoke', 'yellow', 'yellowgreen',
+                            'rebeccapurple']:
+                        self.logger.error(
+                                'Color field is not a CSS3 color keyword, '
+                                'see the table on https://en.wikipedia.org/wiki/Web_colors#X11_color_names',
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
+                elif field_name == 'parent_type_of_cancer':
+                    parent_cancer_type = value.lower()
                     # if parent_cancer_type is not 'tissue' (which is a special case when building the oncotree), 
                     # then give error if the given parent is not found in the DB or in the given cancer types of the
                     # current study:
@@ -2016,7 +2075,7 @@ class CancerTypeValidator(Validator):
                             line_cancer_type,
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
-                                   'cause': data[col_index]})
+                                   'cause': value})
             # check for duplicated (possibly inconsistent) cancer types
             if line_cancer_type in self.defined_cancer_types:
                 self.logger.error(

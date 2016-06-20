@@ -312,6 +312,7 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.column_number, 4)
+        self.assertIn('blank', record.getMessage().lower())
 
     def test_cancer_type_undefined_parent(self):
         """Test when a new cancer type's parent cancer type is not known."""
@@ -322,6 +323,16 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.column_number, 5)
+
+    def test_cancer_type_invalid_color(self):
+        """Test error if a cancer type's color is not a web color name."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cancertype_invalid_color.txt',
+                                    validateData.CancerTypeValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.column_number, 4)
 
     def test_cancer_type_matching_portal(self):
         """Test when an existing cancer type is defined exactly as known."""

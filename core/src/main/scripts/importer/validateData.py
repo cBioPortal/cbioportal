@@ -147,8 +147,9 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         self.output_filename = output_filename
         self.max_level = logging.NOTSET
         self.closed = False
-        # get the directory name of the currently running script
-        self.template_dir = os.path.dirname(__file__)
+        # get the directory name of the currently running script,
+        # resolving any symlinks
+        self.template_dir = os.path.dirname(os.path.realpath(__file__))
         super(Jinja2HtmlHandler, self).__init__(*args, **kwargs)
 
     def emit(self, record):

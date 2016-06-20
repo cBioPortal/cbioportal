@@ -510,7 +510,7 @@ var OncoKB = (function(_, $) {
                             //if evidence has level information, that means this is treatment evidence.
                             if (['LEVEL_0'].indexOf(evidence.levelOfEvidence) === -1) {
                                 var _treatment = {};
-                                _treatment.tumorType = evidence.tumorType.name;
+                                _treatment.tumorType = _.isObject(evidence.tumorType) ? evidence.tumorType.name : (evidence.subtype || evidence.cancerType);
                                 _treatment.level = evidence.levelOfEvidence;
                                 _treatment.content = evidence.treatments;
                                 _treatment.description = OncoKB.utils.findRegex(description) || 'No yet curated';

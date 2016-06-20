@@ -32,7 +32,7 @@ mysql> select * from users where email = "john.smith@gmail.com";
 1 row in set (0.00 sec)
 ```
 
-Note, if the ENABLED value is set to 0, the user will not be able to login to the portal.
+Note, if the ENABLED value is set to 0, the user will be able to login to the portal, but will see no studies.
 
 You need to add users via MySQL directly.  For example:
 
@@ -73,8 +73,10 @@ The value in the EMAIL column should be the same email address contained in the 
 
 The value in the AUTHORITY column is made of two parts:
 
-* The first part is the name of your portal instance.  This name should also match the app.name property found in the `portal.properties` file.  
-* Following a colon delimiter, the second part is the [cancer_study_identifier](File-Formats.md#cancer-study) of the cancer study this user has rights to access.  If the user has rights to all available cancer studies, a single entry with the keyword "ALL" is sufficient.
+* The first part is the name of your portal instance.  This name should also match the `app.name` property found in the `portal.properties` file.  
+* Following a colon delimiter, the second part is the [cancer_study_identifier](File-Formats.md#cancer-study) of the cancer study this user has rights to access. 
+
+**If the user has rights to all available cancer studies, a single entry with the keyword `app.name` + "ALL" is sufficient (so e.g. "cbioportal:ALL").**
 
 You need to add users via MySQL directly.  For example:
 
@@ -82,4 +84,5 @@ You need to add users via MySQL directly.  For example:
 INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
     ('john.smith@gmail.com', 'cbioportal:CANCER_STUDY_1');
 ```
-**Important Note:**  The cancer study identifier must be specified in UPPER CASE, regardless of how it is stored in the cancer_study table.
+**Important Note:**  The cancer study identifier is *not* CASE sEnsitive. So it can be UPPER CASE, or just how it is stored in the `cancer_study` table.
+Changes to these tables become effective the *next* time the user logs in. 

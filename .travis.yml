@@ -54,7 +54,6 @@ script:
     - export PORTAL_HOME=$(pwd)
     # run the python unit tests (for the dataset validation scripts)
     - |
-
         if [[ "${TEST}" == python-validator ]]
         then
             export PYTHONPATH=$PYTHONPATH:$PORTAL_HOME/core/src/main/scripts:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages
@@ -62,6 +61,13 @@ script:
             $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py
             $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py
             cd $PORTAL_HOME
+        fi
+    # use .travis/settings.xml for core tests
+    - |
+        if [[ "${TEST}" == core ]]
+        then
+            mkdir -p ~/.m2
+            cp .travis/settings.xml ~/.m2
         fi
     # use EXAMPLE properties files
     - |

@@ -17,6 +17,11 @@
       <artifactId>business</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>persistence-mybatis</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- antisamy -->
     <dependency>

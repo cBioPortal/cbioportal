@@ -159,3 +159,9 @@ genomespace=true
 
 # set this to true if you update cancer studies in your production database without shutting the web server
 recache_study_after_update=false
+
+#darwin url
+darwin.auth_url=
+darwin.response_url=
+darwin.authority=
+cis.user=

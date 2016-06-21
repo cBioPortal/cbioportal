@@ -479,7 +479,11 @@ var EnhancedFixedDataTableSpecial = (function() {
 
                     field === 'samples' ?
                         React.createElement("input", {type: "checkbox", style: {float: 'right'},
-                            title: data[rowIndex].row[field],
+                            title: 'Select ' + data[rowIndex].row[field]
+                            + ' sample' + (Number(data[rowIndex].row[field]) > 1 ? 's':'')
+                            + (tableType === 'mutatedGene' ? (' with ' + data[rowIndex].row.gene + ' mutation') :
+                                (tableType === 'cna' ? (' with ' + data[rowIndex].row.gene + ' ' + data[rowIndex].row.altType) :
+                                    (tableType === 'pieLabel' ? (' in ' + data[rowIndex].row.name)  : ''))),
                             checked: this.props.selectedRowIndex.indexOf(data[rowIndex].index) != -1,
                             onChange: this.selectRow.bind(this, data[rowIndex].index)}) : ''
 
@@ -866,7 +870,7 @@ var EnhancedFixedDataTableSpecial = (function() {
                         } else if (filters[col].type === "NUMBER" || filters[col].type == 'PERCENTAGE') {
                             var cell = _.isUndefined(row[col]) ? row[col] : Number(row[col].toString().replace('%', ''));
                             if (!isNaN(cell)) {
-                                if(hasGroupHeader) {
+                                if (hasGroupHeader) {
                                     if (filters[col].min !== filters[col]._min && Number(cell) < filters[col].min) {
                                         return false;
                                     }

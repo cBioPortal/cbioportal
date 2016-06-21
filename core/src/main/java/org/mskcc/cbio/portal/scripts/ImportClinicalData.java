@@ -70,7 +70,10 @@ public class ImportClinicalData extends ConsoleRunnable {
         DISCREPANCY("Discrepancy"),
         COMPLETED("Completed"),
         NULL("null"),
-        MISSING("");
+        MISSING(""),
+        NA("NA"),
+        N_A("N/A"),
+        UNKNOWN("unknown");
 
         private String propertyName;
         

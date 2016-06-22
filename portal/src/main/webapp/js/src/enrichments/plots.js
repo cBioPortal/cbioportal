@@ -64,7 +64,7 @@ var enrichmentsTabPlots = (function() {
 
     function data_process(result) {
 
-	window.QuerySession.getGenomicEventData().then(function(data) {
+	window.QuerySession.getOncoprintSampleGenomicEventData().then(function(data) {
 		var order = {};
 		var sample_ids = window.QuerySession.getSampleIds();
 		for (var i=0; i<sample_ids.length; i++) {
@@ -97,31 +97,31 @@ var enrichmentsTabPlots = (function() {
 				    	//if sample is the current sample, then analyze alterations:
 					    if (_sampleId === inner_obj.sample) {
 					    	var _str = "";
-							if (inner_obj.hasOwnProperty("mutation")) {
+							if (typeof inner_obj.disp_mut !== "undefined") {
 							    _str += " MUT;";
 							}
-							if (inner_obj.hasOwnProperty("cna")) {
-							    if (inner_obj.cna === "AMPLIFIED") {
+							if (typeof inner_obj.disp_cna !== "undefined") {
+							    if (inner_obj.disp_cna === "amp") {
 								_str += " AMP;";
-							    } else if (inner_obj.cna === "GAINED") {
+							    } else if (inner_obj.disp_cna === "gain") {
 								_str += " GAIN;";
-							    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
+							    } else if (inner_obj.disp_cna === "hetloss") {
 								_str += " HETLOSS;";
-							    } else if (inner_obj.cna === "HOMODELETED") {
+							    } else if (inner_obj.disp_cna === "homdel") {
 								_str += " HOMDEL;";
 							    }
 							}
-							if (inner_obj.hasOwnProperty("mrna")) {
-							    if (inner_obj.mrna === "UPREGULATED") {
+							if (typeof inner_obj.disp_mrna !== "undefined") {
+							    if (inner_obj.disp_mrna === "up") {
 								_str += " UP;";
-							    } else if (inner_obj.mrna === "DOWNREGULATED") {
+							    } else if (inner_obj.disp_mrna === "down") {
 								_str += " DOWN;";
 							    }
 							}
-							if (inner_obj.hasOwnProperty("rppa")) {
-							    if (inner_obj.rppa === "UPREGULATED") {
+							if (typeof inner_obj.disp_prot !== "undefined") {
+							    if (inner_obj.disp_prot === "up") {
 								_str += " RPPA-UP;";
-							    } else if (inner_obj.rppa === "DOWNREGULATED") {
+							    } else if (inner_obj.disp_prot === "down") {
 								_str += " RPPA-DOWN;";
 							    }
 							}

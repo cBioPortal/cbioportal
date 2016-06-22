@@ -364,9 +364,9 @@
             </goals>
             <configuration>
             <!-- username & password gets put in .m2/settings.xml -->
-              <settingsKey>settingsKey</settingsKey>
+              <settingsKey>cBioPortalSettingsKey</settingsKey>
               <driver>com.mysql.jdbc.Driver</driver>
-              <url>jdbc:mysql://127.0.0.1:3306/cgds_test</url>
+              <url>${db.test.connection_string}</url>
               <sqlCommand>SET storage_engine=INNODB</sqlCommand>
               <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
               <srcFiles>
@@ -429,6 +429,13 @@
             </executions>
         </plugin>
     </plugins>
+    
+    <testResources>
+    	<testResource>
+    		<directory>src/test/resources</directory>
+    		<filtering>true</filtering> 
+    	</testResource>
+    </testResources>
 
     <!-- prevent some resources from getting into jar -->
     <resources>

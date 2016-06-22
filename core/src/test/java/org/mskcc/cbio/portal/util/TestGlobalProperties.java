@@ -34,41 +34,17 @@ package org.mskcc.cbio.portal.util;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mskcc.cbio.portal.dao.DaoUser;
-import org.mskcc.cbio.portal.model.User;
-import java.io.*;
-import java.util.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
 
 /**
  * JUnit test for DaoUser class.
  */
 
 public class TestGlobalProperties {
-	public final String DB_VERSION = "db.version";
-    public final String PROPERTIES_FILENAME = "portal.properties";
+	public final String APP_NAME = "APP_NAME";
 
     @Test
-    public void testVersionsMatch() throws Exception {
-        InputStream is = TestGlobalProperties.class.getClassLoader().getResourceAsStream(PROPERTIES_FILENAME);
-        Properties properties = loadProperties(is);
-        assertNotNull(properties.getProperty(DB_VERSION));
-
-    }
-
-    private static Properties loadProperties(InputStream is) {
-        Properties properties = new Properties();
-        try {
-            properties.load(is);
-            is.close();
-        }
-        catch (IOException e) {}
-        return properties;
-    
+    public void testNamesMatch() throws Exception {
+        assertEquals("cbioportal", GlobalProperties.getAppName());
     }
 }

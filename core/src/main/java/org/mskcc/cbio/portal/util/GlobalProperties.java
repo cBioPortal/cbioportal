@@ -52,8 +52,11 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public class GlobalProperties {
 
+	private static final String DATABASE_VERSION = "1.2.1";
+
     public static final String HOME_DIR = "PORTAL_HOME";
     private static final String propertiesFilename = "portal.properties";
+    private static final String defaultPropertiesFilename = "default.properties";
 
     public static final String PATHWAY_COMMONS_URL = "pathway_commons.url";
     public static final String UCSC_CANCER_GENOMICS_URL = "ucsc_cancer_genomics.url";
@@ -190,9 +193,7 @@ public class GlobalProperties {
     public static final String SHOW_HOTSPOT = "show.hotspot";
     
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
-    
-    public static final String DB_VERSION = "db.version";
-    
+        
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
     public static final String DARWIN_AUTHORITY = "darwin.authority";
@@ -203,53 +204,54 @@ public class GlobalProperties {
 
     private static Properties initializeProperties()
     {
-        return loadProperties(getResourceStream());
-    }
-
-    private static InputStream getResourceStream()
-    {
-        String resourceFilename = null;
-        InputStream resourceFIS = null;
-
-        try {
-            String home = System.getenv(HOME_DIR);
-            if (home != null) {
-                 resourceFilename =
-                    home + File.separator + GlobalProperties.propertiesFilename;
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Attempting to read properties file: " + resourceFilename);
-                }
-                resourceFIS = new FileInputStream(resourceFilename);
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Successfully read properties file");
-                }
-            }
-        }
-        catch (FileNotFoundException e) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Failed to read properties file: " + resourceFilename);
-            }
-        }
-
-        if (resourceFIS == null) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Attempting to read properties file from classpath");
-            }
-            resourceFIS = GlobalProperties.class.getClassLoader().
-                getResourceAsStream(GlobalProperties.propertiesFilename);
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Successfully read properties file");
-            }
-        }
-         
-        return resourceFIS;
-    }
-
-    private static Properties loadProperties(InputStream resourceInputStream)
-    {
         Properties properties = new Properties();
+        
+        // Change in logic. *always* load a default.properties fropm the classpath, a baked in 
+        // portal.properties, and an external portal.properties if one exists. Note the second
+        // two versions can differ. 
+        loadProperties(properties, getResourceStreamFromClasspath(defaultPropertiesFilename));
+        loadProperties(properties, getResourceStreamFromClasspath(propertiesFilename));
+        loadProperties(properties, getResourceStreamFromFile(propertiesFilename));
+        return properties;
+    }
 
-        try {
+    private static InputStream getResourceStreamFromFile(String filename)
+    {
+    	InputStream resourceFIS = null;
+    	try {
+            String home = System.getenv(HOME_DIR);
+            if (home == null) {
+            	home = System.getProperty("user.dir");
+            }
+            File homeDirectory = new File(home);
+            File resourceFile = new File(homeDirectory, filename);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Attempting to read properties file: " + resourceFile.toString());
+            }
+            resourceFIS = new FileInputStream(resourceFile);
+    	} catch (FileNotFoundException e) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Failed to read properties file");
+            }
+        }
+    	return resourceFIS;
+    }
+    	
+    private static InputStream getResourceStreamFromClasspath(String filename)
+    {
+    	InputStream resourceFIS = GlobalProperties.class.getClassLoader().getResourceAsStream(filename);
+    	if (resourceFIS != null && LOG.isInfoEnabled()) {
+            LOG.info("Successfully read properties from classpath: " + filename);
+        }
+    	return resourceFIS;
+    }
+
+    private static void loadProperties(Properties properties, InputStream resourceInputStream)
+    {
+        if (resourceInputStream == null) 
+        	return;
+        
+    	try {
             properties.load(resourceInputStream);
             resourceInputStream.close();
         }
@@ -258,8 +260,6 @@ public class GlobalProperties {
                 LOG.error("Error loading properties file: " + e.getMessage());
             }
         }
-
-        return properties;
     }
 
     public static String getPathwayCommonsUrl()
@@ -713,12 +713,7 @@ public class GlobalProperties {
     }
     
     public static String getDbVersion() {
-        String version = properties.getProperty(DB_VERSION);
-        if (version == null)
-        {
-            return "0";
-        }
-        return version;
+        return DATABASE_VERSION;
     }
     
     public static String getDarwinAuthCheckUrl() {

@@ -312,7 +312,7 @@ var StudyViewInitCharts = (function(){
                 });
             initParams.numberOfSamples.numberOfCnaSamples = numberOfCnaSamples;
         }
-
+       
         StudyViewInitTables.init(initParams);
     }
 

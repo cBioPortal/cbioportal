@@ -1374,6 +1374,32 @@ cursor: pointer;
     border: 0;
 }
 
+.addChartTable{ 
+    max-width: 800px;
+    background-color: #1974b8 ;
+}
+
+#add-chart-table-main{
+    width: 700px;
+}
+#qtip-add-chart-custom-dialog .qtip-titlebar{
+    background-color: #1974b8 ;
+} 
+
+#DataTables_Table_0_wrapper .dataTables_scrollHeadInner{
+    width: 100% !important;    
+}
+#DataTables_Table_0_wrapper .dataTable{
+    width: 100% !important; 
+}
+#DataTables_Table_0_wrapper th:nth-child(1){
+    width: 7px;
+}
+#DataTables_Table_0_wrapper th:nth-child(2){
+    width: 477px;
+}
+#DataTables_Table_0_wrapper th:nth-child(3){
+    width: 99px;
 #study-view-charts .EFDT-table .public_fixedDataTableCell_cellContent, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTableCell_cellContent {
     line-height: 13px;
     padding: 6px 5px;

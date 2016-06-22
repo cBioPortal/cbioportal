@@ -585,7 +585,7 @@ public class GlobalProperties {
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
     {
-        return "study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+        return "study?" + org.mskcc.cbio.portal.servlet.CancerStudyView.ID
                 + "=" + cancerStudyId;
     }
 

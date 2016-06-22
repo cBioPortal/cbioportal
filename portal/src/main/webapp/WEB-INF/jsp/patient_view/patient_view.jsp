@@ -920,7 +920,7 @@ function guessClinicalData(clinicalData, paramNames) {
     if (!clinicalData) return null;
     for (var i=0, len=paramNames.length; i<len; i++) {
         var data = clinicalData[paramNames[i]];
-        if (typeof data !== 'undefined' && data !== null) return data;
+        if (nonNullParam(typeof data) && nonNullParam(data)) return data;
     }
     return null;
 }
@@ -960,7 +960,7 @@ function outputClinicalData() {
     var info = info.concat(formatPatientStatus(patientInfo));
     row += info.join(", ");
     row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span>";
-    if (darwinAccessUrl !== null && darwinAccessUrl !== '') {
+    if (nonNullParam(darwinAccessUrl)) {
         //add link to darwin
         row += "&nbsp;<a target='_blank' href='"+darwinAccessUrl+"'><font color='green'><b>DARWIN</b></font></a>";
     }
@@ -1198,7 +1198,7 @@ function outputClinicalData() {
         }
 
         var stage = guessClinicalData(clinicalData, ["TUMOR_STAGE_2009"]);
-        if (stage!==null && stage.toLowerCase()!=="unknown") {
+        if (stage!==null) {
             diseaseInfo.push(stage);
         }
 
@@ -1247,24 +1247,24 @@ function outputClinicalData() {
         var osm = guessClinicalData(clinicalData, ["OS_MONTHS"]);
         var dfsm = guessClinicalData(clinicalData, ["DFS_MONTHS"]);
         var ret = [];
-        if (oss!==null && ossLow!=="unknown") {
+        if (oss!==null) {
             var patientStatus = "<font color='"
                     + (ossLow==="living"||ossLow==="alive" ? "green":"red")
                     + "'>"
                     + oss
                     + "</font>";
-            if (osm!==null && osm!=='NA') {
+            if (osm!==null) {
                 patientStatus += " (" + Math.round(osm) + " months)";
             }
             ret.push(patientStatus);
         }
-        if (dfss!==null && dfssLow!=="unknown") {
+        if (dfss!==null) {
             var patientStatus = "<font color='"
                     + (dfssLow==="diseasefree" ? "green":"red")
                     + "'>"
                     + dfss
                     + "</font>";
-            if (dfsm!==null && dfsm!=='NA') {
+            if (dfsm!==null) {
                 patientStatus += " (" + Math.round(dfsm) + " months)";
             }
             ret.push(patientStatus);
@@ -1328,6 +1328,15 @@ function fillColorAndLabelForCase(circle, caseId) {
         .attr("font-size",10)
         .attr("fill","white")
         .text(label);
+}
+
+function nonNullParam(param) {
+    var ret = false;
+    if (param !== null && param.toUpperCase() !== 'NA' && param.toLowerCase() !== 'unknown' 
+          && param !== 'undefined'  && param !== 'N/A' && param !== '') {
+        ret = true;
+    }
+    return ret;
 }
 
 var CaseNavigation = (function(currCaseId){

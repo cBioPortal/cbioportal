@@ -434,6 +434,10 @@
         <servlet-name>cancer_study_view</servlet-name>
         <url-pattern>/study.do</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>cancer_study_view</servlet-name>
+        <url-pattern>/study</url-pattern>
+    </servlet-mapping>
     
     <servlet>
         <servlet-name>DrugsJSON</servlet-name>

@@ -121,7 +121,7 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
 - Row 1: **The attribute Display Names**: The display name for each clinical attribute
 - Row 2: **The attribute Descriptions**: Long(er) description of each clinical attribute
 - Row 3: **The attribute Datatype**: The datatype of each clinical attribute (must be one of:  STRING, NUMBER, BOOLEAN)
-- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study.do?cancer_study_id=brca_tcga)). A lower number indicates a higher priority.
+- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A lower number indicates a higher priority.
 
 #### Example metadata rows
 Below is an example of the first 4 rows with the respective metadata for the attributes defined in the 5th row. 
@@ -143,7 +143,7 @@ Following the metadata rows comes a tab delimited list of clinical attributes (c
 The file containing the patient attributes has one **required** column:
 - **PATIENT_ID (required)**: a unique patient ID.
 
-The following columns are used by the study view as well as the patient view. In the the [study view](http://www.cbioportal.org/study.do?cancer_study_id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header] (http://www.cbioportal.org/case.do?cancer_study_id=lgg_ucsf_2014&case_id=P05). 
+The following columns are used by the study view as well as the patient view. In the the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header] (http://www.cbioportal.org/case.do?cancer_study_id=lgg_ucsf_2014&case_id=P05). 
 - **OS_STATUS**:  Overall patient survival status
     - Possible values: DECEASED, LIVING
     - In the patient view, LIVING creates a green label, DECEASED a red label.
@@ -155,7 +155,7 @@ The following columns are used by the study view as well as the patient view. In
 - **DFS_MONTHS**: Disease free (months) since initial treatment
 
 Optional attributes:
-- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study.do?cancer_study_id=brca_tcga#clinical)) and display.
+- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
 
 ###### Example *patient* data file
 ```
@@ -201,7 +201,7 @@ The following columns affect the [Timeline data](#timeline-data) visualization:
     - Otherwise: black
 
 Optional attributes
-- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute you have tracked and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study.do?cancer_study_id=brca_tcga#clinical)) and display.
+- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute you have tracked and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
 
 
 ###### Example sample data file

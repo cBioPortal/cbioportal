@@ -48,6 +48,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public class CancerStudyView extends HttpServlet {
     private static Logger logger = Logger.getLogger(CancerStudyView.class);
+    public static final String ID = "id";
     public static final String ERROR = "error";
     public static final String CANCER_STUDY = "cancer_study";
     public static final String MUTATION_PROFILE = "mutation_profile";
@@ -102,7 +103,10 @@ public class CancerStudyView extends HttpServlet {
     }
     
     private boolean validate(HttpServletRequest request) throws DaoException {
-        String cancerStudyID = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        String cancerStudyID = request.getParameter(ID);
+        if (cancerStudyID==null) {
+            cancerStudyID = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        }
         
         CancerStudy cancerStudy = DaoCancerStudy
                 .getCancerStudyByStableId(cancerStudyID);

@@ -453,7 +453,7 @@ var ccPlots = (function (Plotly, _, $) {
             // html 
             $("#cc_plots_select_study_box").append("select <a href='#' id='cc_plots_select_all'>all</a> / <a href='#' id='cc_plots_select_none'>none</a><br><br>");
             _.each(study_meta, function(_study_meta_obj) {
-                $("#cc_plots_select_study_box").append("<input type='checkbox' id='cc_plots_" + _study_meta_obj.id + "_sel' name='cc_plots_selected_studies' value='" + _study_meta_obj.id + "' checked>" + _study_meta_obj.name + "<br>");
+                $("#cc_plots_select_study_box").append("<input type='checkbox' id='cc_plots_" + _study_meta_obj.id + "_sel' name='cc_plots_selected_studies' value='" + _study_meta_obj.id + "' title='Select "+_study_meta_obj.name+"' checked>" + _study_meta_obj.name + "<br>");
             });
             $("#cc_plots_select_all").click(function() {
                 _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) { elem.checked = true; });

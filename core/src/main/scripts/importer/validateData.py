@@ -24,6 +24,7 @@ import cbioportal_common
 # globals
 
 # Only supported reference genome build number and name
+# nb: keep this in synch with MutationDataUtils.getNcbiBuild
 NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_NAME = 'hg19'
 
@@ -1044,8 +1045,10 @@ class MutationsExtendedValidator(Validator):
 
 
     def checkNCBIbuild(self, value, data):
-        if self.checkInt(value) and value != '':
-            if int(value) != NCBI_BUILD_NUMBER:
+        if value != '':
+            # based on MutationDataUtils.getNcbiBuild
+            # TODO - make the supported build version a Portal property
+            if value not in [str(NCBI_BUILD_NUMBER), GENOMIC_BUILD_NAME, 'GRCh'+str(NCBI_BUILD_NUMBER)]:
                 return False
         return True
     

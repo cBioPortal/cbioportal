@@ -364,11 +364,16 @@ window.OQL = (function () {
 	},
 	'genes': function (oql_query) {
 	    var parse_result = parseOQLQuery(oql_query);
-	    return parse_result.filter(function (q_line) {
+	    var genes = parse_result.filter(function (q_line) {
 		return q_line.gene.toLowerCase() !== "datatypes";
 	    }).map(function (q_line) {
 		return q_line.gene;
 	    });
+	    var unique_genes_set = {};
+	    for (var i=0; i<genes.length; i++) {
+		unique_genes_set[genes[i]] = true;
+	    }
+	    return Object.keys(unique_genes_set);
 	},
 	'isValid': function (oql_query) {
 	    var ret = true;

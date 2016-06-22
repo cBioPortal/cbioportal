@@ -549,6 +549,34 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getSampleSelect': function () {
 	    return this.sample_select;
 	},
+	'getAlteredGenes': function() {
+	    // A gene is "altered" if, after OQL filtering, there is a datum for it
+	    var def = new $.Deferred();
+	    this.getWebServiceGenomicEventData().then(function(data) {
+		var altered_genes = {};
+		for (var i=0; i<data.length; i++) {
+		    altered_genes[data[i].hugo_gene_symbol] = true;
+		}
+		def.resolve(Object.keys(altered_genes));
+	    }).fail(function() {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getAlteredGenesSetBySample': function() {
+	    var def = new $.Deferred();
+	    this.getWebServiceGenomicEventData().then(function(data) {
+		var ret = {};
+		for (var i=0; i<data.length; i++) {
+		    var sample = data[i].sample_id;
+		    var gene = data[i].hugo_gene_symbol;
+		    ret[sample] = ret[sample] || {};
+		    ret[sample][gene] = true;
+		}
+		def.resolve(ret);
+	    });
+	    return def.promise();
+	},
 	'getWebServiceGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    var profile_types = {};

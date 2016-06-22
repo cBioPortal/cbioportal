@@ -169,19 +169,25 @@ public class DaoGeneOptimized {
     }
     
     /**
-     * Update database with gene length
-     * @return number of records updated.
+     * Update Gene Record in the Database. It will also replace this 
+     * gene's aliases with the ones found in the given gene object.
+     */
+    public int updateGene(CanonicalGene gene)  throws DaoException {
+        int ret = DaoGene.updateGene(gene);
+        //recache:
+        cacheGene(gene);
+        return ret;
+    }
+
+    /**
+     * Gets all genes where Hugo gene symbol is marked as deprecated.
+     * 
+     * @return list of genes
+     * 
      * @throws DaoException 
      */
-    public int flushUpdateToDatabase() throws DaoException {
-        DaoGene.deleteAllRecords();
-        MySQLbulkLoader.bulkLoadOn();
-        int ret = 0;
-        for (CanonicalGene gene : getAllGenes()) {
-            ret += DaoGene.addGene(gene);
-        }
-        MySQLbulkLoader.flushAll();
-        return ret;
+    public List<CanonicalGene> getDeprecatedGenes() throws DaoException {
+        return DaoGene.getDeprecatedGenes();
     }
     
     public void deleteGene(CanonicalGene gene) throws DaoException {
@@ -446,8 +452,11 @@ public class DaoGeneOptimized {
     /**
      * Deletes all Gene Records in the Database.
      * @throws DaoException Database Error.
+     * 
+     * @deprecated  only used by deprecated code, so deprecating this as well.
      */
     public void deleteAllRecords() throws DaoException {
         DaoGene.deleteAllRecords();
     }
+
 }

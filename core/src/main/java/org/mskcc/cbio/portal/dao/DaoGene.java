@@ -33,6 +33,7 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,6 +42,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,6 +72,57 @@ final class DaoGene {
         return addGene(gene);
     }
 
+    /**
+     * Update Gene Record in the Database. It will also replace this 
+     * gene's aliases with the ones found in the given gene object.
+     */
+    public static int updateGene(CanonicalGene gene) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean setBulkLoadAtEnd = false;
+        try {
+            //this method only works well with bulk load off, especially 
+            //when it is called in a process that may update a gene more than once
+            //(e.g. the ImportGeneData updates some of the fields based on one 
+            // input file and other fields based on another input file):
+            setBulkLoadAtEnd = MySQLbulkLoader.isBulkLoad();
+            MySQLbulkLoader.bulkLoadOff();
+            //delete aliases first:
+            deleteGeneAlias(gene.getEntrezGeneId());
+            
+            int rows = 0;
+            con = JdbcUtil.getDbConnection(DaoGene.class);
+            pstmt = con.prepareStatement
+                    ("UPDATE gene SET `HUGO_GENE_SYMBOL`=?, `TYPE`=?,`CYTOBAND`=?,`LENGTH`=? WHERE `ENTREZ_GENE_ID`=?");
+            pstmt.setString(1, gene.getHugoGeneSymbolAllCaps());
+            pstmt.setString(2, gene.getType());
+            pstmt.setString(3, gene.getCytoband());
+            pstmt.setInt(4, gene.getLength());
+            pstmt.setLong(5, gene.getEntrezGeneId());
+            rows += pstmt.executeUpdate();
+            if (rows != 1) {
+                ProgressMonitor.logWarning("No change for " + gene.getEntrezGeneId() + " " + gene.getHugoGeneSymbolAllCaps() + "? Code " + rows);
+            }
+            else {
+                ProgressMonitor.logWarning("Updated gene"); //should be message, but warnings are nicely summarized. TODO - add message summary to ProgressMonitor
+            }
+            //add the current set of aliases:
+            rows += addGeneAliases(gene);
+
+            return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            if (setBulkLoadAtEnd) {
+                //reset to original state:
+                MySQLbulkLoader.bulkLoadOn();
+            }   
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
+        }
+        
+    }
+    
     /**
      * Adds a new Gene Record to the Database.
      *
@@ -248,6 +301,43 @@ final class DaoGene {
     }
 
     /**
+     * Gets all genes where Hugo gene symbol is marked as deprecated.
+     * 
+     * @return list of genes
+     * 
+     * @throws DaoException 
+     */
+    public static List<CanonicalGene> getDeprecatedGenes() throws DaoException {
+        Map<Long,Set<String>> mapAliases = getAllAliases();
+        ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGene.class);
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM gene WHERE HUGO_GENE_SYMBOL LIKE '~%'");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
+                Set<String> aliases = mapAliases.get(entrezGeneId);
+                CanonicalGene gene = new CanonicalGene(entrezGeneId,
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases);
+                //for completeness we set these...but not really necessary:
+                gene.setCytoband(rs.getString("CYTOBAND"));
+                gene.setLength(rs.getInt("LENGTH"));
+                gene.setType(rs.getString("TYPE"));
+                geneList.add(gene);
+            }
+            return geneList;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
+        }
+    }
+    
+    /**
      * Gets all Genes in the Database.
      *
      * @return ArrayList of Canonical Genes.
@@ -396,6 +486,8 @@ final class DaoGene {
      * Deletes all Gene Records in the Database.
      *
      * @throws DaoException Database Error.
+     * 
+     * @deprecated only used by deprecated code, so deprecating this as well.
      */
     public static void deleteAllRecords() throws DaoException {
         Connection con = null;
@@ -415,6 +507,12 @@ final class DaoGene {
         deleteAllAliasRecords();
     }
     
+    /**
+     * 
+     * @throws DaoException
+     * 
+     * @deprecated only used by deprecated code, so deprecating this as well.
+     */
     private static void deleteAllAliasRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

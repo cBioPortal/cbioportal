@@ -40,6 +40,8 @@ import org.mskcc.cbio.portal.util.*;
  *
  * @author Ethan Cerami
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
+ * 
+ * @deprecated use cgds.sql instead if you want a clean DB! 
  */
 public class ResetDatabase {
 
@@ -50,6 +52,8 @@ public class ResetDatabase {
      * Whenever a new Dao* class is defined, must add its deleteAllRecords() method here.
      *
      * @throws DaoException
+     * 
+     * @deprecated use cgds.sql instead if you want a clean DB! 
      */
     public static void resetAnySizeDatabase() throws DaoException {
         System.out.print("resetting all database.");

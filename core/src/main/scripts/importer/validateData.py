@@ -340,7 +340,11 @@ class Validator(object):
                 return
 
             # parse the first non-commented line as the tsv header
-            header_cols = csv.reader([header_line], dialect).next()
+            header_cols = csv.reader(
+                                     [header_line],
+                                     delimiter='\t',
+                                     quoting=csv.QUOTE_NONE,
+                                     strict=True).next()
             if self.checkHeader(header_cols) > 0:
                 self.logger.error(
                     'Invalid column header, file cannot be parsed')
@@ -349,7 +353,9 @@ class Validator(object):
             # read through the data lines of the file
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
-                                   dialect)
+                                   delimiter='\t',
+                                   quoting=csv.QUOTE_NONE,
+                                   strict=True)
             for line_number, fields in enumerate(csvreader,
                                                  start=line_number + 1):
                 self.line_number = line_number

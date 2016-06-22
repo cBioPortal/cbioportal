@@ -136,7 +136,7 @@ var RightMenuStudyStatsUtil = (function($) {
         function addTooltip(d, i) {
             $(this).qtip({
                 content: "<font size='2'>"
-                    + "<center><a href='study.do?cancer_study_id="
+                    + "<center><a href='study?id="
                     + d.linkId + "' title='click to see the details of this study'>"
                     + d.fullName.replace("(", "<br>(")
                     + "</a><br>" + d.size + " cases</font></center>",

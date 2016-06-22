@@ -230,7 +230,7 @@ window.OQL = (function () {
 	    var target_level = alt_cmd.constr_val;
 	    var target_rel = alt_cmd.constr_rel;
 	    var match;
-	    var direction;
+	    var direction = undefined;
 	    if ((target_rel === '<' && level < target_level) || (target_rel === '<=' && level <= target_level)) {
 		match = 1;
 		direction = -1;

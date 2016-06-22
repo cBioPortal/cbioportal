@@ -68,20 +68,44 @@ var tooltip_utils = {
     'makeGeneticTrackTooltip':function(data_type, link_id) {
 	return function (d) {
 	    var ret = '';
-	    if (d.mutation) {
-		ret += 'Mutation: <b>' + d.mutation + '</b><br>';
-		if (d.mut_recurrent) {
+	    var contains_recurrent_mutation = false;
+	    var mutations = [];
+	    var cna = [];
+	    var mrna = [];
+	    var prot = [];
+	    for (var i=0; i<d.data.length; i++) {
+		var datum = d.data[i];
+		if (datum.genetic_alteration_type === "MUTATION_EXTENDED") {
+		    mutations.push(datum.amino_acid_change);
+		    if (datum.cbioportal_mutation_count > 10) {
+			contains_recurrent_mutation = true;
+		    }
+		} else if (datum.genetic_alteration_type === "COPY_NUMBER_ALTERATION") {
+		    var disp_cna = {'-2': 'HOMODELETED', '-1': 'HETLOSS', '1': 'GAIN', '2': 'AMPLIFIED'};
+		    if (disp_cna.hasOwnProperty(datum.profile_data)) {
+			cna.push(disp_cna[datum.profile_data]);
+		    }
+		} else if (datum.genetic_alteration_type === "MRNA_EXPRESSION" || datum.genetic_alteration_type === "PROTEIN_LEVEL") {
+		    if (datum.oql_regulation_direction) {
+			(datum.genetic_alteration_type === "MRNA_EXPRESSION" ? mrna : prot)
+				.push(datum.oql_regulation_direction === 1 ? "UPREGULATED" : "DOWNREGULATED");
+		    }
+		}
+	    }
+	    if (mutations.length > 0) {
+		ret += 'Mutation: <b>' + mutations.join(", ")+'</b><br>';
+		if (contains_recurrent_mutation) {
 		    ret += '<i>Contains mutation at a recurrently mutated position.</i><br>';
 		}
 	    }
-	    if (d.cna) {
-		ret += 'Copy Number Alteration: <b>' + d.cna + '</b><br>';
+	    if (cna.length > 0) {
+		ret += 'Copy Number Alteration: <b>'+cna.join(", ")+'</b><br>';
 	    }
-	    if (d.mrna) {
-		ret += 'MRNA: <b>' + d.mrna + '</b><br>';
+	    if (mrna.length > 0) {
+		ret += 'MRNA: <b>' + mrna.join(", ") + '</b><br>';
 	    }
-	    if (d.rppa) {
-		ret += 'RPPA: <b>' + d.rppa + '</b><br>';
+	    if (prot.length > 0) {
+		ret += 'PROT: <b>' + prot.join(", ") + '</b><br>';
 	    }
 	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.patient) : d.patient));
 	    return ret;
@@ -135,7 +159,9 @@ var comparator_utils = {
 		}
 	    } else if (!distinguish_mutation_types && distinguish_recurrent) {
 		_order = makeComparatorMetric([['inframe_rec', 'missense_rec'], ['fusion', 'fusion_rec', 'inframe', 'missense', 'trunc', 'trunc_rec'], undefined]); 
-	    } else {
+	    } else if (distinguish_mutation_types && !distinguish_recurrent) {
+		_order = makeComparatorMetric([['fusion', 'fusion_rec'], ['trunc', 'trunc_rec'], ['inframe','inframe_rec'], ['missense', 'missense_rec'], undefined, true, false]);
+	    } else if (distinguish_mutation_types && distinguish_recurrent) {
 		_order = makeComparatorMetric([['fusion', 'fusion_rec'], ['trunc', 'trunc_rec'], 'inframe_rec', 'missense_rec', 'inframe', 'missense',  undefined, true, false]);
 	    }
 	    return function(m) {
@@ -1156,7 +1182,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    
 	    var updateRuleSets = function() {
 		var rule_set_params = State.getGeneticRuleSetParams();
-		var genetic_alteration_track_ids = Object.keys(State.genetic_alteration_tracks);
+		var genetic_alteration_track_ids = utils.objectValues(State.genetic_alteration_tracks);
 		oncoprint.setRuleSet(genetic_alteration_track_ids[0], rule_set_params);
 		for (var i = 1; i < genetic_alteration_track_ids.length; i++) {
 		    oncoprint.shareRuleSet(genetic_alteration_track_ids[0], genetic_alteration_track_ids[i]);
@@ -1165,7 +1191,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var updateSortComparators = function() {
 		var comparator = State.getGeneticComparator();
 		oncoprint.keepSorted(false);
-		var genetic_alteration_track_ids = Object.keys(State.genetic_alteration_tracks);
+		var genetic_alteration_track_ids = utils.objectValues(State.genetic_alteration_tracks);
 		for (var i = 0; i < genetic_alteration_track_ids.length; i++) {
 		    oncoprint.setTrackSortComparator(genetic_alteration_track_ids[i], comparator);
 		}
@@ -1447,7 +1473,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];
 		    track_ids.push(new_track_id);
-		    State.genetic_alteration_tracks[i] = new_track_id;
+		    State.genetic_alteration_tracks[new_track_id] = genes[i];
 		    if (State.first_genetic_alteration_track === null) {
 			State.first_genetic_alteration_track = new_track_id;
 		    } else {

@@ -190,7 +190,7 @@
                 {% endmacro %}
                 <td>{{ level_icon(record_class) }}</td>
                 <td>{{ format_aggregated(record, 'line_number') }}</td>
-                {% if record['column_name_list'] is defined %}
+                {% if record['column_name_list'] is defined or record['column_name'] is defined %}
                 <td>{{ format_aggregated(record, 'column_number') }} <br/>Column names: {{ format_aggregated(record, 'column_name') }}</td>
                 {% else %}
                 <td>{{ format_aggregated(record, 'column_number') }}</td>

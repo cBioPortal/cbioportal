@@ -1,5 +1,17 @@
 var svgfactory = require('./svgfactory.js');
 
+var nodeIsVisible = function(node) {
+    var ret = true;
+    while (node.tagName.toLowerCase() !== "body") {
+	if (!$(node).is(":visible")) {
+	    ret = false;
+	    break;
+	}
+	node = node.parentNode;
+    }
+    return ret;
+};
+
 var OncoprintLegendView = (function() {
     function OncoprintLegendView($div, base_width, base_height) {
 	this.$div = $div;
@@ -50,6 +62,9 @@ var OncoprintLegendView = (function() {
 	}
 	if (typeof target_svg === 'undefined') {
 	    target_svg = view.$svg[0];
+	}
+	if (!nodeIsVisible(target_svg)) {
+	    return;
 	}
 	$(target_svg).empty();
 	

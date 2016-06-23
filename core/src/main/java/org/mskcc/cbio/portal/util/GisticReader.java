@@ -157,8 +157,8 @@ public class GisticReader {
         Gistic gistic = new Gistic();
         gistic.setCancerStudyId(cancerStudyId);
 
-        ValidationUtils.validateChromosome(fields[chromosomeField]);
-        gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
+        int chromosomeNumber = ValidationUtils.validateChromosome(fields[chromosomeField]);
+        gistic.setChromosome(chromosomeNumber);
 
         gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
         gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));

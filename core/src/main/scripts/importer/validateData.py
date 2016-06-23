@@ -1205,7 +1205,7 @@ class ClinicalValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     PROP_IS_PATIENT_ATTRIBUTE = None
-    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "na"]
+    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
     ALLOW_BLANKS = True
 
     def __init__(self, *args, **kwargs):

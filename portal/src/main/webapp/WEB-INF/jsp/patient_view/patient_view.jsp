@@ -37,9 +37,11 @@
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.CheckDarwinAccessMain.CheckDarwinAccess" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
+<%@ page import= "java.net.URL" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -122,6 +124,8 @@ boolean showClinicalTrials = GlobalProperties.showClinicalTrialsTab();
 boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
 String userName = GlobalProperties.getAuthenticatedUserName();
+
+String darwinAccessURL = CheckDarwinAccess.checkAccess(request);
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -418,6 +422,9 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 var userName = '<%=userName%>';
+
+var darwinAccessUrl = '<%=darwinAccessURL%>';
+
 // TODO: hack for including mutation table indices in both cna.jsp and
 // mutations.jsp
 var mutTableIndices =
@@ -952,7 +959,12 @@ function outputClinicalData() {
     var info = info.concat(formatDiseaseInfo(patientInfo));
     var info = info.concat(formatPatientStatus(patientInfo));
     row += info.join(", ");
-    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span><br />";
+    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span>";
+    if (darwinAccessUrl !== null && darwinAccessUrl !== '') {
+        //add link to darwin
+        row += "&nbsp;<a target='_blank' href='"+darwinAccessUrl+"'><font color='green'><b>DARWIN</b></font></a>";
+    }
+    row += "<br />";
     $("#clinical_div").append(row);
     $("#nav_div").appendTo($("#topbar-cancer-study"));
 

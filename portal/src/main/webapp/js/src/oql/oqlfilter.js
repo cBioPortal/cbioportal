@@ -367,7 +367,7 @@ window.OQL = (function () {
 	    var genes = parse_result.filter(function (q_line) {
 		return q_line.gene.toLowerCase() !== "datatypes";
 	    }).map(function (q_line) {
-		return q_line.gene;
+		return q_line.gene.toLowerCase();
 	    });
 	    var unique_genes_set = {};
 	    for (var i=0; i<genes.length; i++) {

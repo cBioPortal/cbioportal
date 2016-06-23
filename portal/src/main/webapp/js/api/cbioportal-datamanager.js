@@ -34,6 +34,26 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return union;
     };
+    var objectKeyIntersection = function(list_of_objs) {
+	var intersection = {};
+	for (var i = 0; i < list_of_objs.length; i++) {
+	    if (i === 0) {
+		var keys = Object.keys(list_of_objs[0]);
+		for (var j = 0; j < keys.length; j++) {
+		    intersection[keys[j]] = true;
+		}
+	    } else {
+		var obj = list_of_objs[1];
+		var keys = Object.keys(intersection);
+		for (var j=0; j<keys.length; j++) {
+		    if (!obj[keys[j]]) {
+			delete intersection[keys[j]];
+		    }
+		}
+	    }
+	}
+	return intersection;
+    };
     var stringListToObject = function (list) {
 	var ret = {};
 	for (var i = 0; i < list.length; i++) {
@@ -621,7 +641,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    (function (I) {
 				window.cbioportal_client.getGeneticProfileDataBySample({
 				    'genetic_profile_ids': [genetic_profile_ids[I]],
-				    'genes': self.getQueryGenes(),
+				    'genes': self.getQueryGenes().map(function(x) { return x.toUpperCase(); }),
 				    'sample_ids': self.getSampleIds()
 				}).fail(function () {
 				    fetch_promise.reject();
@@ -695,6 +715,55 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    return def.promise();
 	},
+	'getMutualAlterationCounts': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+			self.getAlteredSampleSetsByGene().then(function(altered_samples_by_gene) {
+			    var genes = Object.keys(altered_samples_by_gene);
+			    var all_samples_set = stringListToObject(self.getSampleIds());
+			    var ret = [];
+			    for (var i=0; i<genes.length; i++) {
+				for (var j=i+1; j<genes.length; j++) {
+				    var count_object = {};
+				    var geneA = genes[i];
+				    var geneB = genes[j];
+				    count_object.geneA = geneA;
+				    count_object.geneB = geneB;
+				    var alteredA = altered_samples_by_gene[geneA];
+				    var alteredB = altered_samples_by_gene[geneB];
+				    count_object.both = Object.keys(objectKeyIntersection([alteredA, alteredB])).length;
+				    count_object.A_not_B = Object.keys(objectKeyDifference(alteredA, alteredB)).length;
+				    count_object.B_not_A = Object.keys(objectKeyDifference(alteredB, alteredA)).length;
+				    count_object.neither = Object.keys(
+								objectKeyDifference(all_samples_set, 
+										    objectKeyUnion([alteredA, alteredB])
+										)
+									).length;
+				    ret.push(count_object);
+				}
+			    }
+			    fetch_promise.resolve(ret);
+			}).fail(function() {
+			    fetch_promise.reject();
+			});
+		}),
+	'getAlteredSampleSetsByGene': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    self.getWebServiceGenomicEventData().then(function(ws_data) {
+			var altered_samples_by_gene = {};
+			var genes = self.getQueryGenes();
+			for (var i=0; i<genes.length; i++) {
+			    altered_samples_by_gene[genes[i]] = {};
+			}
+			for (var i=0; i<ws_data.length; i++) {
+			    var gene = ws_data[i].hugo_gene_symbol.toLowerCase();
+			    var sample = ws_data[i].sample_id;
+			    altered_samples_by_gene[gene] && (altered_samples_by_gene[gene][sample] = true);
+			}
+			fetch_promise.resolve(altered_samples_by_gene);
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
+		}),
 	'getOncoprintPatientGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    $.when(self.getWebServiceGenomicEventData(), self.getPatientIds(), self.getPatientSampleIdMap()).then(function (ws_data, patient_ids, sample_to_patient_map) {

@@ -364,7 +364,7 @@ public class ApiService {
 		List<Serializable> result = new ArrayList<>();
 
 		if (!mutationProfiles.isEmpty()) {
-			result.addAll(addSampleListIdToMutationList(mutationService.getMutations(mutationProfiles, hugoGeneSymbols, sampleStableIds, sampleListStableId), sampleListStableId));
+			result.addAll(addSampleListIdToMutationList(mutationService.getMutationsDetailed(mutationProfiles, hugoGeneSymbols, sampleStableIds, sampleListStableId), sampleListStableId));
 		}
 		if (!nonMutationProfiles.isEmpty()) {
 			result.addAll(getNonMutationGeneticProfileData(nonMutationProfiles, hugoGeneSymbols, sampleStableIds,

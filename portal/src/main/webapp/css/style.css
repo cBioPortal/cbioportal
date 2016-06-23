@@ -446,7 +446,8 @@ td.op_data_cell{
     font: 14px verdana, arial, helvetica, sans-serif;
 }
 
-#genomic_profiles input {
+#genomic_profiles .checkbox,
+#genomic_profiles .radio {
    margin-left: 40px;
 }
 

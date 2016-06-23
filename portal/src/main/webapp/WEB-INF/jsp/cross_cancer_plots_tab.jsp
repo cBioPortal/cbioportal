@@ -58,20 +58,19 @@
         <div id="cc-plots-sidebar">
             <h5>Gene</h5>
             <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
-                <select disabled id="cc_plots_gene_list" style="width:80px"></select>
+                <select disabled id="cc_plots_gene_list" style="width:80px" title="Select gene"></select>
             </span>
             <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" checked/> Cancer Study
-            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="median"/> Median
+            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" title="Sort by cancer study" checked/> Cancer Study
+            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="median" title="Sort by median"/> Median
             <h5>Log Scale</h5>
-            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.update()" checked/>
+            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.update()" title="Log scale" checked/>
             <h5>Show Mutations</h5>
-            <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.update()" checked/>
+            <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.update()" title="Show mutations" checked/>
             <h5>Download</h5>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_pdf_download">PDF</button>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_svg_download">SVG</button>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_data_download">Data</button>
-            <h5></h5>
             <button class="btn btn-default btn-sm disabled" type="button" data-target="#cc_plots_select_study_collapse" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
                 <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span> &nbsp;Select Studies
             </button>

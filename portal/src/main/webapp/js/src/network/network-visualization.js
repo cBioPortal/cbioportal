@@ -3071,7 +3071,7 @@ NetworkVis.prototype._refreshGenesTab = function()
     // clear old content
     $(this.geneListAreaSelector + " select").remove();
 
-    $(this.geneListAreaSelector).append('<select multiple></select>');
+    $(this.geneListAreaSelector).append('<select multiple title="Select genes"></select>');
 
     // add new content
 
@@ -4128,7 +4128,7 @@ NetworkVis.prototype._createGeneLegend = function(divId)
     var html =
         '<div id="' + id + '" class="network_node_legend hidden-network-ui" title="Gene Legend">' +
             '<div id="node_legend_content" class="content ui-widget-content">' +
-                '<img src="images/network/gene_legend.png"/>' +
+                '<img src="images/network/gene_legend.png" alt="gene legend"/>' +
             '</div>' +
         '</div>';
 
@@ -4144,7 +4144,7 @@ NetworkVis.prototype._createDrugLegend = function(divId)
     var html =
         '<div id="' + id + '" class="network_drug_legend hidden-network-ui" title="Drug Legend">' +
             '<div id="drug_legend_content" class="content ui-widget-content">' +
-                '<img src="images/network/drug_legend.png"/>' +
+                '<img src="images/network/drug_legend.png" alt="drug legend"/>' +
             '</div>' +
         '</div>';
 
@@ -4160,7 +4160,7 @@ NetworkVis.prototype._createEdgeLegend = function(divId)
     var html =
         '<div id="' + id + '" class="network_edge_legend hidden-network-ui" title="Interaction Legend">' +
             '<div id="edge_legend_content" class="content ui-widget-content">' +
-                '<img src="images/network/interaction_legend.png"/>' +
+                '<img src="images/network/interaction_legend.png" alt="interaction legend"/>' +
             '</div>' +
         '</div>';
 
@@ -4182,7 +4182,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Gravity</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="gravity" class="layout-properties" value=""/>' +
+                            '<input type="text" id="gravity" class="layout-properties" value="" title="Gravitational constant"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Padding on fit">' +
@@ -4190,7 +4190,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Padding</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="padding" class="layout-properties" value=""/>' +
+                            '<input type="text" id="padding" class="layout-properties" value="" title="Padding on fit"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Uncheck for incremental layout">' +
@@ -4198,7 +4198,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Randomize</label>'+
                         '</td>' +
                         '<td align="left">' +
-                            '<input type="checkbox" id="randomize" value="true" checked="checked"/>' +
+                            '<input type="checkbox" id="randomize" value="true" checked="checked" title="Incremental layout"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Node Repulsion (non-overlapping) multiplier">' +
@@ -4206,7 +4206,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Node Repulsion</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="nodeRepulsion" class="layout-properties" value=""/>' +
+                            '<input type="text" id="nodeRepulsion" class="layout-properties" value=""  title="Node repulsion multiplier"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Maximum number of iterations">' +
@@ -4214,7 +4214,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Iteration Number</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="numIter" class="layout-properties" value=""/>' +
+                            '<input type="text" id="numIter" class="layout-properties" value=""  title="Maximum number of iterations"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Ideal length of an edge">' +
@@ -4222,7 +4222,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Ideal Edge Length</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="idealEdgeLength" class="layout-properties" value=""/>' +
+                            '<input type="text" id="idealEdgeLength" class="layout-properties" value="" title="Ideal edge length"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Divisor to computer edge forces">' +
@@ -4230,7 +4230,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Edge Elasticity</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="edgeElasticity" class="layout-properties" value=""/>' +
+                            '<input type="text" id="edgeElasticity" class="layout-properties" value="" title="Edge elasticity"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Nesting factor (multiplier) to compute ideal edge length for nested edges">' +
@@ -4238,7 +4238,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Nesting Factor</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="nestingFactor" class="layout-properties" value=""/>' +
+                            '<input type="text" id="nestingFactor" class="layout-properties" value="" title="Nesting factor"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Whether or not to display network during layout">' +
@@ -4246,7 +4246,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Animate</label>' +
                         '</td>' +
                         '<td align="left">' +
-                            '<input type="checkbox" id="animate" value="true" checked="checked"/>' +
+                            '<input type="checkbox" id="animate" value="true" checked="checked"  title="Display network during layout"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Whether or not to fit the network into canvas after layout">' +
@@ -4254,7 +4254,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Fit</label>' +
                         '</td>' +
                         '<td align="left">' +
-                            '<input type="checkbox" id="fit" value="true" checked="checked"/>' +
+                            '<input type="checkbox" id="fit" value="true" checked="checked"  title="Fit to canvas after layout"/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Whether or not to tile disconnected nodes on layout">' +
@@ -4262,14 +4262,14 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Tile Disconnected</label>' +
                         '</td>' +
                         '<td align="left">' +
-                            '<input type="checkbox" id="tile" value="true" checked="checked"/>' +
+                            '<input type="checkbox" id="tile" value="true" checked="checked" title="Tile disconnected nodes on layout"/>' +
                         '</td>' +
                     '</tr>' +
                 '</table>' +
             '</div>' +
             '<div class="footer">' +
-                '<input type="button" id="save_layout_settings" value="Save"/>' +
-                '<input type="button" id="default_layout_settings" value="Default"/>' +
+                '<input type="button" id="save_layout_settings" value="Save" title="Save layout settings"/>' +
+                '<input type="button" id="default_layout_settings" value="Default" title="Default layout settings"/>' +
             '</div>' +
         '</div>';
 

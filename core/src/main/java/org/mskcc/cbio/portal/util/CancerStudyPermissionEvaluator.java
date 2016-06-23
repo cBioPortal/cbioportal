@@ -187,9 +187,9 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
         if (log.isDebugEnabled()) {
             if (toReturn == true) {
-                log.debug("hasPermission(), user has access to this cancer study: '" + stableStudyID + "', returning true.");
+                log.debug("hasPermission(), user has access to this cancer study: '" + stableStudyID.toUpperCase() + "', returning true.");
             } else {
-                log.debug("hasPermission(), user does not have access to the cancer study: '" + stableStudyID + "', returning false.");
+                log.debug("hasPermission(), user does not have access to the cancer study: '" + stableStudyID.toUpperCase() + "', returning false.");
             }
         }
 
@@ -205,11 +205,13 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         if (GlobalProperties.filterGroupsByAppName()) {
             for (String au : allAuthorities) {
                 if (au.toUpperCase().startsWith(appName + ":")) {
-                    grantedAuthorities.add(au.substring(appName.length() + 1));
+                    grantedAuthorities.add(au.substring(appName.length() + 1).toUpperCase());
                 }
             }
         } else {
-            grantedAuthorities = allAuthorities;
+            for (String au : allAuthorities) {
+                grantedAuthorities.add(au.toUpperCase());
+            }
         }
 
         // all users are allowed access to PUBLIC studies

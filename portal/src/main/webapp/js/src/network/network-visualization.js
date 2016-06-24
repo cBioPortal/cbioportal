@@ -73,7 +73,7 @@ function NetworkVis(divId)
       INTERACTS_WITH :false,
       NEIGHBOR_OF :false,
       REACTS_WITH :false,
-      DRUG_TARGET :false,
+      DRUG_TARGET :true,
       OTHER :false
     };
 

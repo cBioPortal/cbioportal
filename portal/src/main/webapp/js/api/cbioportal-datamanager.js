@@ -297,7 +297,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	// Gather data by id and gene
 	var gene_and_id_to_datum = {};
 	for (var i = 0; i < genes.length; i++) {
-	    var gene = genes[i].toLowerCase();
+	    var gene = genes[i].toUpperCase();
 	    for (var j = 0; j < ids.length; j++) {
 		var id = ids[j];
 		var new_datum = {};
@@ -309,7 +309,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	for (var i = 0; i < webservice_data.length; i++) {
 	    var datum = webservice_data[i];
-	    var gene = datum.hugo_gene_symbol.toLowerCase();
+	    var gene = datum.hugo_gene_symbol.toUpperCase();
 	    var id = (sample_or_patient === "patient" ? sample_to_patient_map[datum.sample_id] : datum.sample_id);
 	    var gene_id_datum = gene_and_id_to_datum[gene + "," + id];
 	    if (gene_id_datum) {
@@ -755,7 +755,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    altered_samples_by_gene[genes[i]] = {};
 			}
 			for (var i=0; i<ws_data.length; i++) {
-			    var gene = ws_data[i].hugo_gene_symbol.toLowerCase();
+			    var gene = ws_data[i].hugo_gene_symbol.toUpperCase();
 			    var sample = ws_data[i].sample_id;
 			    altered_samples_by_gene[gene] && (altered_samples_by_gene[gene][sample] = true);
 			}

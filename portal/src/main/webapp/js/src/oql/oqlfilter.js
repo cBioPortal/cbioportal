@@ -73,7 +73,7 @@ window.OQL = (function () {
 	 *  Out: Boolean, whether datum is wanted by this OQL query
 	 */
 	
-	var gene = accessors.gene(datum).toLowerCase();
+	var gene = accessors.gene(datum).toUpperCase();
 	// if the datum doesn't have a gene associated with it, it's unwanted.
 	if (!gene) {
 	    return false;
@@ -95,7 +95,7 @@ window.OQL = (function () {
 	 *	- datum_gene, the lower case gene in datum - passed instead of reaccessed as an optimization
 	 *	- accessors, see isDatumWantedByOQL
 	 */
-	var line_gene = query_line.gene.toLowerCase();
+	var line_gene = query_line.gene.toUpperCase();
 	// If the line doesn't have the same gene, the datum is not wanted by this line
 	if (line_gene !== datum_gene) {
 	    return false;
@@ -272,7 +272,7 @@ window.OQL = (function () {
 	opt_default_oql = opt_default_oql || "";
 	var parsed_query = parseOQLQuery(oql_query, opt_default_oql)
 		.map(function (q_line) {
-		    q_line.gene = q_line.gene.toLowerCase();
+		    q_line.gene = q_line.gene.toUpperCase();
 		    return q_line;
 		});
 
@@ -282,7 +282,7 @@ window.OQL = (function () {
 		    'gene': query_line.gene,
 		    'parsed_oql_line': query_line,
 		    'data': data.filter(function (datum) {
-			return isDatumWantedByOQLLine(query_line, datum, accessors.gene(datum).toLowerCase(), accessors);
+			return isDatumWantedByOQLLine(query_line, datum, accessors.gene(datum).toUpperCase(), accessors);
 		    })
 		};
 	    });
@@ -367,7 +367,7 @@ window.OQL = (function () {
 	    var genes = parse_result.filter(function (q_line) {
 		return q_line.gene.toLowerCase() !== "datatypes";
 	    }).map(function (q_line) {
-		return q_line.gene.toLowerCase();
+		return q_line.gene.toUpperCase();
 	    });
 	    var unique_genes_set = {};
 	    for (var i=0; i<genes.length; i++) {

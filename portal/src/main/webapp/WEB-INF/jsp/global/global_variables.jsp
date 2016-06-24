@@ -278,24 +278,10 @@
     }
     
 $(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), window.QuerySession.getPatientSampleIdMap()).then(function(altered_samples, unaltered_samples, sample_patient_map) {
-        PortalDataCollManager.subscribeOncoprint(function() {
-
-            //calculate total alteration
-            var _dataArr = PortalDataColl.getOncoprintData();
-            num_total_cases = _dataArr.length;
-            $.each(_dataArr, function(outerIndex, outerObj) {
-                $.each(outerObj.values, function(innerIndex, innerObj) {
-                    if(Object.keys(innerObj).length > 2) { // has more than 2 fields -- indicates existence of alteration
-                        num_altered_cases += 1;
-                        return false;
-                    }
-                });
-            });     
-
-            var _sampleIds = window.QuerySession.getSampleIds();
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getPatientIds()).then(function(altered_samples, patient_ids) {
+            var sample_ids = window.QuerySession.getSampleIds();
             
-            var altered_samples_percentage = (100 * altered_samples.length / _sampleIds.length).toFixed(1);
+            var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
 
             //Configure the summary line of alteration statstics
             var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
@@ -305,7 +291,7 @@ $(document).ready(function() {
             var _query_smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
                 window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
-                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
+                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " + 
                 "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
             $("#main_smry_query_div").append(_query_smry);
 
@@ -329,28 +315,11 @@ $(document).ready(function() {
                 //  Toggle the icons
                 $(".query-toggle").toggle();
             });
-
-            var uniqStrings = function(arr_of_strings) {
-                var uniq = [];
-                var seen = {};
-                for (var i=0; i<arr_of_strings.length; i++) {
-                    var str = arr_of_strings[i];
-                    if (!seen[str]) {
-                        uniq.push(str);
-                        seen[str] = true;
-                    }
-                }
-                return uniq;
-            };
-            var patientIdArray = uniqStrings(_sampleIds.map(function(s) { return sample_patient_map[s]; }));
-
             //Oncoprint summary lines
             $("#oncoprint_sample_set_description").append(window.QuerySession.getSampleSetDescription() + 
-                "("+patientIdArray.length + " patients / " + _sampleIds.length + " samples)");
+                "("+patient_ids.length + " patients / " + sample_ids.length + " samples)");
             $("#oncoprint_sample_set_name").append("Case Set: "+window.QuerySession.getSampleSetName());
-            $("#oncoprint_num_of_altered_cases").append(altered_samples.length);
-            $("#oncoprint_percentage_of_altered_cases").append(altered_samples_percentage);
-            if (patientIdArray.length !== _sampleIds.length) {
+            if (patient_ids.length !== sample_ids.length) {
                 $("#switchPatientSample").show();
             }
             
@@ -363,9 +332,7 @@ $(document).ready(function() {
             //  Toggle the icons
             $(".query-toggle").toggle();
         });
-
-        });
-    });
+});
 
 
 </script>

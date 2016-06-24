@@ -65,19 +65,31 @@ for ((i=0; i < ${#config_screenshot_names[@]}; i++)); do
     name=${config_screenshot_names[$i]}
     url="${config_portal_url}${config_screenshot_urls[$i]}"
 	timeout_in_seconds=${config_screenshot_timeout[$i]}
+    max_retries=${config_screenshot_retry[$i]}
 
     for browser in "${config_browsers[@]}"; do
         png="screenshots/${browser}/${name}.png"
         echo -e "Checking ${DIR}/${png} at $url..."
-        compare_image $config_python_selenium_container $config_selenium_hub_url \
-					  $browser $url $png $timeout_in_seconds
-        # check exit code
-        if [[ $? -gt 0 ]]; then
+        retry=0
+        while [[ $retry -lt $max_retries ]]; do
+            compare_image $config_python_selenium_container $config_selenium_hub_url \
+                          $browser $url $png $timeout_in_seconds
+            compare_exit_code=$?
+            # break if exit code 0
+            if [[ $compare_exit_code -eq 0 ]]; then
+                echo -e "$GREEN SUCCESS${NC}"
+                break
+            else
+                retry=$(($retry + 1))
+                timeout_in_seconds=$((${timeout_in_seconds} + ${config_screenshot_timeout[$i]}))
+                echo -e "Failure -> retry ${retry}, increase timeout to ${timeout_in_seconds}s"
+            fi
+        done
+        # report error if failure after max_retries
+        if [[ $compare_exit_code -gt 0 ]]; then
             echo -e "$RED FAILED${NC}"
             screenshot_error_count=$(($screenshot_error_count + 1))
             screenshots_failed=( ${screenshots_failed[@]} $png )
-        else
-            echo -e "$GREEN SUCCESS${NC}"
         fi
     done
 done

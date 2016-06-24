@@ -74,19 +74,8 @@ var MutexData = (function() {
 			significant: "(Significant)"
 		};
 
-	function countEventCombinations() {
-	    window.QuerySession.getMutualAlterationCounts().then(function(counts) {
-		dataArr = counts.map(function(count_obj) {
-		    count_obj.odds_ratio = 0;
-		    count_obj.log_odds_ratio = 0;
-		    count_obj.p_value = 0;
-		    count_obj.association = "";
-		    return count_obj;
-		});
-	    });
-	}
-
     function calc() {
+	var def = new $.Deferred();
         //Calculate odds-ratio and p-value
         var params = { params: "" };
         $.each(dataArr, function(index, obj) {
@@ -94,7 +83,7 @@ var MutexData = (function() {
 	    // b: not A, B
 	    // c: A, not B
 	    // d: both
-            params.params += [obj.neither, obj.B_not_A, obj.A_not_B, obj.both].join(" ") + ":";;
+            params.params += [obj.neither, obj.B_not_A, obj.A_not_B, obj.both].join(" ") + ":";
         });
         params.params = params.params.substring(0, params.params.length - 1);
             $.post("calcFisherExact.do", params, function(result) {
@@ -104,8 +93,8 @@ var MutexData = (function() {
                         var _dataObj = dataArr[index];
 
                         _dataObj.p_value = parseFloat(value);
-                        if (_dataObj.b !== 0 && _dataObj.c !== 0) {
-                            _dataObj.odds_ratio = (_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c);
+                        if (_dataObj.B_not_A !== 0 && _dataObj.A_not_B !== 0) {
+                            _dataObj.odds_ratio = (_dataObj.neither * _dataObj.both) / (_dataObj.B_not_A * _dataObj.A_not_B);
                             _dataObj.log_odds_ratio = Math.log(_dataObj.odds_ratio);
 
                             //categorize
@@ -130,7 +119,9 @@ var MutexData = (function() {
                         }
                     });
                 }
+		def.resolve();
             });
+	    return def.promise();
         }
 
     function buildStat() {
@@ -157,22 +148,21 @@ var MutexData = (function() {
 
 	    window.QuerySession.getAlteredGenes().then(function (altered_genes) {
 		if (altered_genes.length > 1) {
-		    countEventCombinations();
-		    calc();
-
-		    function detectInstance() {
-			if (dataArr.length !== 0) {
-			    abortTimer();
-			}
-		    }
-		    function abortTimer() {
-			clearInterval(tid);
+		    window.QuerySession.getMutualAlterationCounts().then(function (counts) {
+			dataArr = counts.map(function (count_obj) {
+			    count_obj.geneA = count_obj.geneA.toUpperCase();
+			    count_obj.geneB = count_obj.geneB.toUpperCase();
+			    count_obj.odds_ratio = 0;
+			    count_obj.log_odds_ratio = 0;
+			    count_obj.p_value = 0;
+			    count_obj.association = "";
+			    return count_obj;
+			});
+			return calc();
+		    }).then(function() {
 			buildStat();
 			MutexView.init();
-		    }
-
-		    var tid = setInterval(detectInstance, 600);
-
+		    });
 		} else {
 		    $("#mutex").empty();
 		    $("#mutex").append("Calculation could not be performed.");

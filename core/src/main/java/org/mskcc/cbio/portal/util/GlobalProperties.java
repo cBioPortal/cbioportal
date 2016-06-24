@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
+import com.mysql.jdbc.StringUtils;
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
@@ -722,35 +723,43 @@ public class GlobalProperties {
     }
     
     public static String getDarwinAuthCheckUrl() {
-        String darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL);
-        if (darwinAuthUrl == null || darwinAuthUrl.isEmpty()) {
-            return "";
+        String darwinAuthUrl = "";
+        try{
+            darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL).trim();            
         }
-        return darwinAuthUrl.trim();
+        catch (NullPointerException e){}
+        
+        return darwinAuthUrl;
     }
     
     public static String getDarwinResponseUrl() {
-        String darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL);
-        if (darwinResponseUrl == null || darwinResponseUrl.isEmpty()) {
-            return "";
+        String darwinResponseUrl = "";
+        try{
+            darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL).trim();
         }
-        return darwinResponseUrl.trim();        
+        catch (NullPointerException e) {}
+        
+        return darwinResponseUrl;
     }
     
-    public static String getDarwinAuthority() {
-        String darwinAuthority = properties.getProperty(DARWIN_AUTHORITY);
-        if (darwinAuthority == null || darwinAuthority.isEmpty()) {
-            return "";
+    public static String getDarwinAuthority() { 
+        String darwinAuthority = "";
+        try{
+            darwinAuthority = properties.getProperty(DARWIN_AUTHORITY).trim();
         }
-        return darwinAuthority.trim();
+        catch (NullPointerException e) {}
+        
+        return darwinAuthority;
     }
     
     public static String getCisUser() {
-        String cisUser = properties.getProperty(CIS_USER).trim();
-        if (cisUser == null || cisUser.isEmpty()) {
-            return "";
-        }            
-        return cisUser;
+        String cisUser = "";
+        try{
+            cisUser = properties.getProperty(CIS_USER).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        return cisUser;         
     }
 
     public static void main(String[] args)

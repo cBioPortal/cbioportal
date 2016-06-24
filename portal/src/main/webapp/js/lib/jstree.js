@@ -2928,7 +2928,7 @@
 						e.preventDefault();
 					});
 					$patientIcon.qtip({
-						content: {text: '<form id="psform"><input type="text" study-id="' + node.id + '" id="psform-text" value="TCGA-A1-0000"/><input type="submit" value="Go to Patient"/></form>'},
+						content: {text: '<form id="patient-shortcut-form"><input type="text" study-id="' + node.id + '" id="patient-shortcut-text" value="TCGA-A1-0000"/><input type="submit" value="Go to Patient"/></form>'},
 						style: {classes: 'qtip-light qtip-rounded'},
 						position: {
 						    my: 'bottom center', 
@@ -7508,10 +7508,10 @@
 	// $.jstree.defaults.plugins.push("wholerow");
 
 
-$(document).on('submit', '#psform', function(e) {
+$(document).on('submit', '#patient-shortcut-form', function(e) {
 	e.preventDefault();
-	var patientId = $('#psform-text').val();
-	var studyId = $('#psform-text').attr('study-id');
+	var patientId = $('#patient-shortcut-text').val();
+	var studyId = $('#patient-shortcut-text').attr('study-id');
 	if (patientId) {
 		window.open('case.do?cancer_study_id='+studyId+'&case_id='+patientId, 'PatientView_'+patientId);
 	}

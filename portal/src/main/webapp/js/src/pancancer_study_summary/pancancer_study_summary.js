@@ -844,19 +844,22 @@ function DataManagerPresenter(dmInitCallBack)
     
 	console.log(new Date() + ": CALL to getOncoprintSampleGenomicEventData()");
 	//keep track of samples and their respective alteration events 
-	self.sampleList = []; //each entry contains alterationEvents[] 
+	self.sampleList = {}; //each entry contains alterationEvents[] 
 	window.QuerySession.getOncoprintSampleGenomicEventData()
 	.then(
-		function (genomicEventData){
+		function (genomicEventDataLines){
 			
 			console.log(new Date() + ": started processing getOncoprintSampleGenomicEventData() data");
 			
-			for (var i = 0; i < genomicEventData.length; i++) {
+			for (var j = 0; j < genomicEventDataLines.length; j++) {
+			    var genomicEventData = genomicEventDataLines[j].oncoprint_data;
+			    for (var i = 0; i < genomicEventData.length; i++) {
 				//init alteration events, if not yet done
 				if (!self.sampleList[genomicEventData[i].sample])
-					self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
+				    self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
 				self.sampleList[genomicEventData[i].sample].alterationEvents.push(genomicEventData[i]);
-				
+
+			    }
 			}
 			console.log(new Date() + ": finished processing getOncoprintSampleGenomicEventData() data");
 			
@@ -893,7 +896,7 @@ function DataManagerPresenter(dmInitCallBack)
 	this.getAlterationEvents = function(cancerType, cancerTypeDetailed, geneId) {
 		//get the sample list based on cancerType, cancerTypeDetailed
 		var sampleIds;
-		if (cancerTypeDetailed == null)
+		if (cancerTypeDetailed === null)
 			sampleIds = self.cancerTypeList[cancerType].sampleIds;
 		else
 			sampleIds = self.cancerTypeList[cancerType].cancerTypeDetailed[cancerTypeDetailed].sampleIds;
@@ -924,7 +927,7 @@ function DataManagerPresenter(dmInitCallBack)
 			for (var j = 0; j < alterationEvents.length; j++) {
 				var alterations = alterationEvents[j];
 				//only count for given gene: 
-				if (alterations.gene == geneId) {
+				if (alterations.gene.toUpperCase() === geneId.toUpperCase()) {
 					//validation (not expected): 
 					if (alterationEventFound)
 						throw "prog error: only one alterations group item expected for a given sample/gene combination"; 
@@ -935,10 +938,10 @@ function DataManagerPresenter(dmInitCallBack)
 					}
 					//cna counts:
 					else if (typeof alterations.disp_cna !== "undefined") {
-						cnaUp += (alterations.disp_cna == "amp" ? 1 : 0);
-						cnaDown += (alterations.disp_cna == "homdel" ? 1 : 0);
-						cnaLoss += (alterations.disp_cna == "hetloss" ? 1 : 0);
-						cnaGain += (alterations.disp_cna == "gain" ? 1 : 0);
+						cnaUp += (alterations.disp_cna === "amp" ? 1 : 0);
+						cnaDown += (alterations.disp_cna === "homdel" ? 1 : 0);
+						cnaLoss += (alterations.disp_cna === "hetloss" ? 1 : 0);
+						cnaGain += (alterations.disp_cna === "gain" ? 1 : 0);
 						//From cbioportal-datamanager.js:
 						//{"-2":"HOMODELETED","-1":"HEMIZYGOUSLYDELETED","0":undefined,"1":"GAINED","2":"AMPLIFIED"};
 					}

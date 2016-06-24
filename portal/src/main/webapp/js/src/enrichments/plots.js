@@ -64,13 +64,13 @@ var enrichmentsTabPlots = (function() {
 
     function data_process(result) {
 
-	window.QuerySession.getOncoprintSampleGenomicEventData().then(function(data) {
+	window.QuerySession.getOncoprintSampleGenomicEventData().then(function(data_by_line) {
 		var order = {};
 		var sample_ids = window.QuerySession.getSampleIds();
 		for (var i=0; i<sample_ids.length; i++) {
 			order[sample_ids[i]] = i;
 		}
-		var oncoprintData = _.sortBy(data, function(d) { return order[d.sample];});
+		var oncoprintData = _.sortBy(_.flatten(data_by_line.map(function(line) { return line.oncoprint_data; })), function(d) { return order[d.sample];});
 		dotsArr = [];
 		dotsArr.length = 0;
 		window.QuerySession.getAlteredSamples().then(function(altered_sample_ids) {

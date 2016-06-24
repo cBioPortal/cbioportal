@@ -699,6 +699,10 @@ var BarChart = function(){
                 xDomain.push(_tmpValue);
             }
         }
+        if(param.distanceArray.absoluteMax > xDomain[xDomain.length - 1]){
+            xDomain.push(xDomain[xDomain.length - 1] + seperateDistance);
+            emptyValueMapping += seperateDistance;
+        }
     }
     
     //Initialize BarChart in DC.js
@@ -716,10 +720,15 @@ var BarChart = function(){
                 returnValue = emptyValueMapping;
             }else{
                 if(d[param.selectedAttr] >= 0){
-                    returnValue =  parseInt( 
-                                    (d[param.selectedAttr]-startPoint) / 
-                                    seperateDistance) * 
-                                    seperateDistance + startPoint + seperateDistance / 2;
+                    if(d[param.selectedAttr] >= xDomain[xDomain.length - 2]){
+                        returnValue = xDomain[xDomain.length - 1];
+                    }else{
+                        returnValue =  parseInt(
+                                (d[param.selectedAttr]-startPoint) /
+                                seperateDistance) *
+                            seperateDistance + startPoint + seperateDistance / 2;
+                    }
+                    
                 }else{
                     returnValue =  ( parseInt( 
                                         d[param.selectedAttr] / 
@@ -750,11 +759,11 @@ var BarChart = function(){
         }
         
         if(hasEmptyValue){
-            xDomain.push( Number( 
-                                cbio.util.toPrecision( 
-                                    Number(emptyValueMapping), 3, 0.1 )
-                                )
-                        );
+            xDomain.push( Number(
+                    cbio.util.toPrecision(
+                        Number(emptyValueMapping), 3, 0.1 )
+                )
+            );
             barColor['NA'] = '#CCCCCC';
         }else {
             barColor[_barValue[_barLength-1]] = color[_barLength-1];
@@ -785,8 +794,10 @@ var BarChart = function(){
         barChart.yAxis().ticks(6);
         barChart.yAxis().tickFormat(d3.format("d"));            
         barChart.xAxis().tickFormat(function(v) {
-            if(v === emptyValueMapping){
-                return 'NA'; 
+            if(v === xDomain[xDomain.length - 2]){
+                return '>' + xDomain[xDomain.length - 3]; 
+            }else if(v === xDomain[xDomain.length - 1]){
+                return 'NA';
             }else{
                 return v;
             }

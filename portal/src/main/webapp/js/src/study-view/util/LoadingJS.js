@@ -74,7 +74,8 @@ var LoadingJS = (function(){
                     'StudyViewUtil',
                     'QueryByGeneUtil',
                     'StudyViewPrototypes',
-                    'GeneValidator'
+                    'GeneValidator',
+                    'SearchOutliers'
                 ],
                 view: [
                     'StudyViewInitCharts', 

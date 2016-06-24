@@ -36,15 +36,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
+import javax.servlet.DispatcherType;
+import javax.servlet.AsyncContext;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.Part;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -162,4 +171,72 @@ public class NullHttpServletRequest implements HttpServletRequest{
       // TODO Auto-generated method stub
       return false;
    }
+
+   public Part getPart(String s) {
+      return null;
+   }
+
+   public Collection<Part> getParts() {
+      return null;
+   }
+
+   public void logout() throws ServletException {
+   }
+
+   public void login(String username, String password) {
+   }
+
+   public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+      return false;
+   }
+
+   public String changeSessionId() {
+      return null;
+   }
+
+   public DispatcherType getDispatcherType() {
+      return null;
+   }
+
+   public AsyncContext getAsyncContext() {
+      return null;
+   }
+
+   public boolean isAsyncSupported() {
+      return false;
+   }
+
+   public boolean isAsyncStarted() {
+      return false;
+   }
+
+   public AsyncContext startAsync(ServletRequest request,ServletResponse response) {
+      return null;
+   }
+
+   public AsyncContext startAsync() {
+      return null;
+   }
+
+   public ServletContext getServletContext() {
+      return null;
+   }
+
+   public int getLocalPort() {
+      return 0;
+   }
+
+   public String getLocalAddr() {
+      return null;
+   }
+
+   public String getLocalName() {
+      return null;
+   }
+
+   public int getRemotePort() {
+      return 0;
+   }
+   public long getContentLengthLong(){return 0;}
+
 }

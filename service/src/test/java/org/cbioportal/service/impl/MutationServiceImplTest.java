@@ -13,8 +13,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 @RunWith(MockitoJUnitRunner.class)
 public class MutationServiceImplTest {
 
@@ -25,7 +23,7 @@ public class MutationServiceImplTest {
     private MutationRepository mutationRepository;
 
     @Test
-    public void getMutations() throws Exception {
+    public void getMutationsDetailed() throws Exception {
 
         ArrayList<String> testGeneticProfileStableIds = new ArrayList<String>();
         testGeneticProfileStableIds.add("test_genetic_profile_stable_id");
@@ -39,10 +37,10 @@ public class MutationServiceImplTest {
         Mutation expectedMutation = new Mutation();
         expectedMutationList.add(expectedMutation);
 
-        Mockito.when(mutationRepository.getMutations(testGeneticProfileStableIds, testHugoGeneSymbols,
+        Mockito.when(mutationRepository.getMutationsDetailed(testGeneticProfileStableIds, testHugoGeneSymbols,
                 testSampleStableIds, testSampleList)).thenReturn(expectedMutationList);
 
-        List<Mutation> resultMutationList = mutationService.getMutations(testGeneticProfileStableIds,
+        List<Mutation> resultMutationList = mutationService.getMutationsDetailed(testGeneticProfileStableIds,
                 testHugoGeneSymbols, testSampleStableIds, testSampleList);
 
         Assert.assertEquals(expectedMutationList, resultMutationList);

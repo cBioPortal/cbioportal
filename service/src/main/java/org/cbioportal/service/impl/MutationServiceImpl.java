@@ -14,10 +14,10 @@ public class MutationServiceImpl implements MutationService {
     @Autowired
     private MutationRepository mutationRepository;
 
-    public List<Mutation> getMutations(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols,
-                                       List<String> sampleStableIds, String sampleListStableId) {
+    public List<Mutation> getMutationsDetailed(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols,
+                                               List<String> sampleStableIds, String sampleListStableId) {
 
-        return mutationRepository.getMutations(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds,
+        return mutationRepository.getMutationsDetailed(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds,
                 sampleListStableId);
     }
 }

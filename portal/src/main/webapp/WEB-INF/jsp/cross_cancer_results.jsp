@@ -218,24 +218,24 @@
                 <div style="margin-top:10px;margin-bottom:10px;">
                     <div style="float:left;margin-right:20px;">
                         Y-Axis value:
-                        <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
+                        <select id="yAxis" title="y-axis value"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
                     </div>
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
                         <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
-                        <input style="float:left;" id="minY" size="3" type="text">
+                        <input style="float:left;" id="minY" size="3" type="text" aria-labelledby="sliderLabel">
                         <span id="suffix">%</span>
                     </div>
                     <div style="float:left;margin-right:20px;">
-                        <span style="float:left;" class="diagram-general-slider-text" >Min. # total samples:</span>
+                        <span style="float:left;" class="diagram-general-slider-text" id="minTotalSamplesLabel">Min. # total samples:</span>
                         <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"></div>
-                        <input style="float:left;" id="minTotal" size="3" type="text">
+                        <input style="float:left;" id="minTotal" size="3" type="text" aria-labelledby="minTotalSamplesLabel">
                     </div>
                     <div style="float:left;margin-right:20px;">
-                        <input type="checkbox" id="histogram-show-colors" checked> Show alteration types
+                        <input type="checkbox" id="histogram-show-colors" title="Show alteration types" checked> Show alteration types
                     </div>
                     <div style="float:left;margin-right:20px;">
-                        <input type="checkbox" id="sortBy"> Sort alphabetically
+                        <input type="checkbox" id="sortBy" title="Sort alphabetically"> Sort alphabetically
                     </div>
                 </div>
 
@@ -283,7 +283,7 @@
                 <br>
                 <h4>Contents can be copied and pasted into Excel.</h4>
                 <p>Frequency of Alteration Across Studies:<p/>
-                <textarea rows="30" cols="40" id="cc-download-text">
+                <textarea rows="30" cols="40" id="cc-download-text" title="Frequency of Alteration Across Studies">
                 </textarea>
             </div>
         </div>

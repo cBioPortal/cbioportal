@@ -962,7 +962,7 @@ function outputClinicalData() {
     row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span>";
     if (darwinAccessUrl !== null && darwinAccessUrl !== '') {
         //add link to darwin
-        row += "&nbsp;<a target='_blank' href='"+darwinAccessUrl+"'><font color='green'><b>DARWIN</b></font></a>";
+        row += "&nbsp;<a target='_blank' href='"+darwinAccessUrl+"'><img src='images/darwin_logo.png'/></a>";
     }
     row += "<br />";
     $("#clinical_div").append(row);

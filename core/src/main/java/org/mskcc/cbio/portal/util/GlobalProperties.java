@@ -132,7 +132,7 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
             "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
             "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
-            "name=\"email\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
+            "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
             "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
             "<i>@cbioportal</i></a> on Twitter</b>\n";
 
@@ -163,7 +163,7 @@ public class GlobalProperties {
 
     // properties for the FAQ, about us, news and examples
     public static final String SKIN_BASEURL="skin.documentation.baseurl";
-    public static final String DEFAULT_SKIN_BASEURL="https://github.com/cBioPortal/cbioportal/wiki/";
+    public static final String DEFAULT_SKIN_BASEURL="https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/";
     public static final String SKIN_DOCUMENTATION_MARKDOWN="skin.documentation.markdown";
 
     public static final String SKIN_FAQ="skin.documentation.faq";
@@ -585,7 +585,7 @@ public class GlobalProperties {
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
     {
-        return "study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+        return "study?" + org.mskcc.cbio.portal.servlet.CancerStudyView.ID
                 + "=" + cancerStudyId;
     }
 

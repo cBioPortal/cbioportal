@@ -212,36 +212,26 @@ var StudyViewInitCharts = (function(){
                 if(_keys.length !== Object.keys(dataArr).length) {
                     _studyDesc = "from " + _keys.length + " patients";
                 }
-            }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){
+            }else if(_dataType === "NUMBER" || _allNumber){
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
-                    if(_keys.length>10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' || _attr_id === 'COPY_NUMBER_ALTERATIONS')
-                        bar.push(_attr[i]);
-                    else
-                        pie.push(_attr[i]);
+                    bar.push(_attr[i]);
                 }
 
-                if(_keys.length > 10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' || _attr_id === 'COPY_NUMBER_ALTERATIONS'){
-                    varType[_attr_id] = "bar";
-                }else{
-                    varType[_attr_id] = "pie";
-                }
+                varType[_attr_id] = "bar";
 
-                if(_dataType === "NUMBER" || _allNumber){
-                    var _varValues = [];
+                var _varValues = [];
 
-                    for(var j=0;j<_arr.length;j++){
-                        if(!isNaN(_arr[j][_attr_id])){
-                            _varValues.push(_arr[j][_attr_id]);
-                        }
+                for(var j=0;j<_arr.length;j++){
+                    if(!isNaN(_arr[j][_attr_id])){
+                        _varValues.push(_arr[j][_attr_id]);
                     }
-
-                    distanceMinMaxArray[_attr_id] = {
-                        diff : Math.max.apply( Math, _varValues ) - Math.min.apply( Math, _varValues ),
-                        min: Math.min.apply( Math, _varValues ),
-                        max:Math.max.apply( Math, _varValues )
-                    };
                 }
 
+                distanceMinMaxArray[_attr_id] = {
+                    diff : Math.max.apply( Math, _varValues ) - Math.min.apply( Math, _varValues ),
+                    min: Math.min.apply( Math, _varValues ),
+                    max:Math.max.apply( Math, _varValues )
+                };
             }else if(_dataType === "STRING"){
                 varType[_attr_id] = "pie";
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
@@ -694,7 +684,7 @@ var StudyViewInitCharts = (function(){
     function getRedrawService(exceptionIds){
         var _selectedCases = getSelectedCases().map(function(e){
             return e.CASE_ID;
-        });
+        }).sort();
 
         var redrawService = {
             selectedCases: _selectedCases,
@@ -927,19 +917,22 @@ var StudyViewInitCharts = (function(){
 
     function deleteChart(_chartID,_value){
         var _options;
-
-        $("div").remove("#study-view-dc-chart-main-" + _chartID);
+        
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
             dc.redrawAll();
             redrawSpecialPlots();
         }
+        varChart[_chartID].destroy();
         dc.deregisterChart(varChart[_chartID].getChart());
 //        $('#study-view-add-chart ul')
 //                .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
 //
 //        $('#study-view-add-chart ul').stop().hide();
 //        $('#study-view-add-chart ul').css('height','100%');
+        $("#study-view-dc-chart-main-" + _chartID).qtip('destroy', true);
+        $("div").remove("#study-view-dc-chart-main-" + _chartID);
+        
         $('#study-view-add-chart')
                 .append($('<option></option>').attr('id',_value[0]).text(_value[1]));
 

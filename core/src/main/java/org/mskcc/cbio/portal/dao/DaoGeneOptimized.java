@@ -58,6 +58,7 @@ public class DaoGeneOptimized {
     private static final String GENE_SYMBOL_DISAMBIGUATION_FILE = "/gene_symbol_disambiguation.txt";
         
     private static final DaoGeneOptimized daoGeneOptimized = new DaoGeneOptimized();
+    //nb: make sure any map is also cleared in clearCache() method below:
     private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
     private final HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
@@ -70,6 +71,10 @@ public class DaoGeneOptimized {
      * @throws DaoException Database Error.
      */
     private DaoGeneOptimized () {
+        fillCache();
+    }
+    
+    private synchronized void fillCache() {
         try {
             //  Automatically populate hashmap upon init
             ArrayList<CanonicalGene> globalGeneList = DaoGene.getAllGenes();
@@ -125,6 +130,26 @@ public class DaoGeneOptimized {
         }
     }
 
+    private void clearCache()
+    {
+        geneSymbolMap.clear();
+        entrezIdMap.clear();
+        geneAliasMap.clear();
+        cbioCancerGenes.clear();
+        disambiguousGenes.clear();
+    }
+
+    /**
+     * Clear and fill cache again. Useful for unit tests and 
+     * for the Import procedure to update the genes table, clearing the
+     * cache without the need to restart the webserver.
+     */
+    public synchronized void reCache()
+    {
+        clearCache();
+        fillCache();
+    }
+    
     /**
      * Adds a new Gene Record to the Database. If the Entrez Gene ID is negative,
      * a fake Entrez Gene ID will be assigned.

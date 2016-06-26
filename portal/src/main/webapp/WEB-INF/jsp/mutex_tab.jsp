@@ -51,7 +51,7 @@
             and <span id='num_of_co_oc' class='stat_num'></span> gene pair<span id='plu_s_co_oc'></span> with co-occurrent alterations<span id='stat_sig_co_oc'> (<span id='num_of_sig_co_oc' class='stat_num'></span> significant)</span>.
         </div>
         <div id='mutex-loading-image'>
-            <img style='padding:200px;' src='images/ajax-loader.gif'>
+            <img style='padding:200px;' src='images/ajax-loader.gif' alt='loading'>
         </div>
         <div id="mutex-table-div" style='margin-top:10px;'></div>
     </div>
@@ -70,7 +70,6 @@
 	    		    window.setTimeout(MutexData.init, 1); 
                     window.setTimeout(MutexView.resize, 1);
 		            tab_init = true;
-		            console.log("mutex tab initialized");
 		        } else {
 	                MutexView.resize();
 	            }

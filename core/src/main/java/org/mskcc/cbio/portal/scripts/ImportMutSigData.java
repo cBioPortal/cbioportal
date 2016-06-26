@@ -32,11 +32,13 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.util.*;
 
 import joptsimple.OptionSet;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * ImportMutSig is used to import the Broad Institute's MutSig data into our CGDS SQL database.
@@ -44,13 +46,9 @@ import java.io.File;
  *
  * @author Lennart Bastian, Gideon Dresdner
  */
-
-public class ImportMutSigData {
-
-    public static void main(String[] args) throws Exception {
-    	try {
-	    	ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-	    	
+public class ImportMutSigData extends ConsoleRunnable {
+    public void run() {
+        try {
 	    	String description = "Import MUTSIG data";
 	    	
 	    	OptionSet options = ConsoleUtil.parseStandardDataAndStudyOptions(args, description);
@@ -59,22 +57,38 @@ public class ImportMutSigData {
 			SpringUtil.initDataSource();
 	
 	        File mutSigFile = new File(dataFile);
-	        System.out.println("Reading data from: " + mutSigFile.getAbsolutePath());
+	        ProgressMonitor.setCurrentMessage(
+	                "Reading data from: " + mutSigFile.getAbsolutePath());
 	        int numLines = FileUtil.getNumLines(mutSigFile);
-	        System.out.println(" --> total number of lines:  " + numLines);
+	        ProgressMonitor.setCurrentMessage(
+	                " --> total number of lines:  " + numLines);
 	        ProgressMonitor.setMaxValue(numLines);
 	
 	        int internalId = ValidationUtils.getInternalStudyId(studyId);
 	        MutSigReader.loadMutSig(internalId, mutSigFile);
-	
-	        ConsoleUtil.showMessages();
-    	} catch (Exception e) {
-	    	ConsoleUtil.showWarnings();
-	    	//exit with error status:
-    		System.err.println ("\nABORTED! Error:  " + e.getMessage());
-    		if (e.getMessage() == null)
-	        	e.printStackTrace();
-	    	System.exit(1);
-	    }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException|DaoException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportMutSigData(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportMutSigData(args);
+        runner.runInConsole();
     }
 }

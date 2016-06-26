@@ -1,11 +1,13 @@
 var OncoprintTrackOptionsView = (function() {
-    function OncoprintTrackOptionsView($div, removeCallback, sortChangeCallback) {
+    function OncoprintTrackOptionsView($div, moveUpCallback, moveDownCallback, removeCallback, sortChangeCallback) {
 	// removeCallback: function(track_id)
 	var position = $div.css('position');
 	if (position !== 'absolute' && position !=='relative') {
 	    console.log("WARNING: div passed to OncoprintTrackOptionsView must be absolute or relative positioned - layout problems will occur");
 	}
 	
+	this.moveUpCallback = moveUpCallback;
+	this.moveDownCallback = moveDownCallback;
 	this.removeCallback = removeCallback; // function(track_id) { ... }
 	this.sortChangeCallback = sortChangeCallback; // function(track_id, dir) { ... }
 	
@@ -94,18 +96,11 @@ var OncoprintTrackOptionsView = (function() {
     
     var renderTrackOptions = function(view, model, track_id) {
 	var $div,$img,$dropdown;
-	if (model.isTrackRemovable(track_id) || model.isTrackSortDirectionChangeable(track_id)) {
+	//if (model.isTrackRemovable(track_id) || model.isTrackSortDirectionChangeable(track_id)) {
 	    $div = $('<div>').appendTo(view.$div).css({'position': 'absolute', 'left': '0px', 'top': model.getTrackTops(track_id) + 'px'});
 	    $img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
 	    $dropdown = $('<ul>').appendTo($div).css({'width': 120, 'display': 'none', 'list-style-type': 'none', 'padding-left': '6', 'padding-right': '6', 'float': 'right', 'background-color': 'rgb(255,255,255)'});
 	    view.track_options_$elts[track_id] = {'$div': $div, '$img': $img, '$dropdown': $dropdown};
-	}
-
-	if (model.isTrackRemovable(track_id)) {	    
-	    $dropdown.append($makeDropdownOption('Remove track', 'normal', function(evt) {
-		evt.stopPropagation();
-		view.removeCallback(track_id);
-	    }));
 	    
 	    $img.hover(function(evt) {
 		if (!view.menu_shown[track_id]) {
@@ -125,6 +120,21 @@ var OncoprintTrackOptionsView = (function() {
 		}
 		hideMenusExcept(view, track_id);
 	    });
+	//}
+
+	$dropdown.append($makeDropdownOption('Move up', 'normal', function(evt) {
+	    evt.stopPropagation();
+	    view.moveUpCallback(track_id);
+	}));
+	$dropdown.append($makeDropdownOption('Move down', 'normal', function(evt) {
+	    evt.stopPropagation();
+	    view.moveDownCallback(track_id);
+	}));
+	if (model.isTrackRemovable(track_id)) {	    
+	    $dropdown.append($makeDropdownOption('Remove track', 'normal', function(evt) {
+		evt.stopPropagation();
+		view.removeCallback(track_id);
+	    }));
 	}
 	if (model.isTrackSortDirectionChangeable(track_id)) {
 	    $dropdown.append($makeDropdownSeparator());

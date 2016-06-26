@@ -216,7 +216,7 @@
                 <div class="control-group">
                     <label class="control-label" for="mutation">Input Mutation Data File</label>
                     <div class="controls">
-                        <input id="mutation" name="mutation" type="file">
+                        <input id="mutation" name="mutation" type="file" name="files[]">
                     </div>
                 </div>
             </form>
@@ -282,6 +282,13 @@
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     <!--<script src="js/src/oncoprint/oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/canvas-toBlob.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/zlib.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/png.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.addimage.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.png_support.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </script>

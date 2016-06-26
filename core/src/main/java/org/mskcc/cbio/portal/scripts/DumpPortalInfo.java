@@ -31,19 +31,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.mskcc.cbio.portal.util.SpringUtil;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.service.ApiService;
 
 /**
  * Command line tool to generate JSON files used by the validation script.
  */
-public class DumpPortalInfo {
-
-    // exit status codes for the script
-    private static final int EX_USAGE = 64;
-    private static final int EX_CANTCREAT = 73;
-    private static final int EX_IOERR = 74;
+public class DumpPortalInfo extends ConsoleRunnable {
 
     // these names are defined in annotations to the methods of ApiController,
     // in org.mskcc.cbio.portal.web
@@ -76,77 +70,93 @@ public class DumpPortalInfo {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(
                         "Error converting API data to JSON file: " +
-                        e.getMessage());
+                                e.toString(),
+                        e);
             }
     }
 
-    public static void main(String[] args) throws Exception {
-
-        // check args
-        if (args.length != 1 ||
-                args[0].equals("-h") || args[0].equals("--help")) {
-            System.err.print(
-                    "Command line usage:  dumpPortalInfo.pl" +
-                    " <name for the output directory>\n" +
-                    "\n" +
-                    "Generate a folder of files describing the portal " +
-                    "configuration.\n" +
-                    "\n" +
-                    "This is a subset of the information provided by the " +
-                    "web API,\n" +
-                    "intended for offline use of the validation script for " +
-                    "study data.\n");
-            System.exit(EX_USAGE);
-        }
-        String outputDirName = args[0];
-        System.err.printf(
-                "Writing portal info files to directory '%s'...\n",
-                outputDirName);
-
-        // initialize progress monitor to print status output
-        ProgressMonitor.setConsoleMode(true);
-        // initialize application context, including database connection
-        SpringUtil.initDataSource();
-        ApiService apiService = SpringUtil.getApplicationContext().getBean(
-                ApiService.class);
-
-        File outputDir = new File(outputDirName);
-        // this will do nothing if the directory already exists:
-        // the files will simply be overwritten
-        outputDir.mkdir();
-        if (!outputDir.isDirectory()) {
-            System.err.printf(
-                    "Could not create directory '%s'.\n",
-                    outputDir.getPath());
-            System.exit(EX_CANTCREAT);
-        }
-
+    public void run() {
         try {
-            writeJsonFile(
-                    apiService.getCancerTypes(),
-                    nameJsonFile(outputDir, API_CANCER_TYPES));
-            writeJsonFile(
-                    apiService.getSampleClinicalAttributes(),
-                    nameJsonFile(outputDir, API_SAMPLE_ATTRS));
-            writeJsonFile(
-                    apiService.getPatientClinicalAttributes(),
-                    nameJsonFile(outputDir, API_PATIENT_ATTRS));
-            writeJsonFile(
-                    apiService.getGenes(),
-                    nameJsonFile(outputDir, API_GENES));
-            writeJsonFile(
-                    apiService.getGenesAliases(),
-                    nameJsonFile(outputDir, API_GENE_ALIASES));
-        } catch (IOException e) {
-            System.err.println(
-                    "Error writing portal info file: " +
-                    e.getMessage());
-            System.exit(EX_IOERR);
+            // check args
+            if (args.length != 1 ||
+                    args[0].equals("-h") || args[0].equals("--help")) {
+                throw new UsageException(
+                        "dumpPortalInfo.pl",
+                        "Generate a folder of files describing the portal " +
+                                "configuration.\n" +
+                                "\n" +
+                                "This is a subset of the information provided " +
+                                "by the web API,\n" +
+                                "intended for offline use of the validation " +
+                                "script for study data.",
+                        "<name for the output directory>");
+            }
+            String outputDirName = args[0];
+            ProgressMonitor.setCurrentMessage(
+                    "Writing portal info files to directory '" +
+                    outputDirName + "'...\n");
+
+            // initialize application context, including database connection
+            SpringUtil.initDataSource();
+            ApiService apiService = SpringUtil.getApplicationContext().getBean(
+                    ApiService.class);
+
+            File outputDir = new File(outputDirName);
+            // this will do nothing if the directory already exists:
+            // the files will simply be overwritten
+            outputDir.mkdir();
+            if (!outputDir.isDirectory()) {
+                throw new IOException(
+                        "Could not create directory '" +
+                        outputDir.getPath() + "'");
+            }
+
+            try {
+                writeJsonFile(
+                        apiService.getCancerTypes(),
+                        nameJsonFile(outputDir, API_CANCER_TYPES));
+                writeJsonFile(
+                        apiService.getSampleClinicalAttributes(),
+                        nameJsonFile(outputDir, API_SAMPLE_ATTRS));
+                writeJsonFile(
+                        apiService.getPatientClinicalAttributes(),
+                        nameJsonFile(outputDir, API_PATIENT_ATTRS));
+                writeJsonFile(
+                        apiService.getGenes(),
+                        nameJsonFile(outputDir, API_GENES));
+                writeJsonFile(
+                        apiService.getGenesAliases(),
+                        nameJsonFile(outputDir, API_GENE_ALIASES));
+            } catch (IOException e) {
+                throw new IOException(
+                        "Error writing portal info file: " + e.toString(),
+                        e);
+            }
         }
+        catch (RuntimeException e) {
+            throw e;
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        ConsoleUtil.showWarnings();
-        System.err.println("Done.");
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public DumpPortalInfo(String[] args) {
+        super(args);
+    }
 
-   }
-
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new DumpPortalInfo(args);
+        runner.runInConsole();
+    }
 }

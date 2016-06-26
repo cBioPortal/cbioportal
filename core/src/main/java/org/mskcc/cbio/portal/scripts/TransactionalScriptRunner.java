@@ -34,22 +34,23 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author stuartw
  *
  */
-public class TransactionalScriptRunner {
+public class TransactionalScriptRunner extends ConsoleRunnable {
 	
 	private TransactionTemplate transactionTemplate;
 	
-	private TransactionalScriptRunner() { }
+	private TransactionalScriptRunner(String[] args) { 
+		super(args);
+	}
 	
 	public static void main (String[] args) {
-		(new TransactionalScriptRunner()).run(args);
+		(new TransactionalScriptRunner(args)).run();
 	}
 
-	public void run (String[] args) {
-		int result = 0;
+	public void run () {
+		String result = null;
 		
 		if (args.length == 0) {
-			System.err.println("usage: TransactionalScriptRunner context_file ...");
-			System.exit(1);
+			throw new UsageException("TransactionalScriptRunner", "context file", "context_file");
 		}
 		
 		FileSystemXmlApplicationContext context = null;
@@ -83,15 +84,14 @@ public class TransactionalScriptRunner {
 			runInTransaction(scripts);
 
 		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			result = 1;
+			result = e.getLocalizedMessage();
 		} finally {
 			if (context != null) {
 				context.close();
 			}
 		}
 		
-		System.exit(result);
+		throw new RuntimeException(result);
 	}
 	
 	public void runInTransaction(final TransactionalScripts scripts) {

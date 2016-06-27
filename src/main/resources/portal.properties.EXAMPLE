@@ -165,3 +165,7 @@ darwin.auth_url=
 darwin.response_url=
 darwin.authority=
 cis.user=
+
+# disabled tabs, | delimited
+# possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
+disabled_tabs=

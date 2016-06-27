@@ -103,22 +103,22 @@ if __name__ == '__main__':
         print >> sys.stderr, "#" * 71
         if exitcode == 1:
             print >> sys.stderr, Color.RED + "One or more errors reported above. Please fix your files accordingly" + Color.END
-            print >> sys.stderr, "!" * 71 + "\n\n"
+            print >> sys.stderr, "!" * 71
         elif exitcode == 3:
             if args.override_warning:
                 print >> sys.stderr, Color.BOLD + "Overriding Warnings. Importing study now" + Color.END
-                print >> sys.stderr, "#" * 71 + "\n\n"
+                print >> sys.stderr, "#" * 71 + "\n"
                 cbioportalImporter.main(args)
             else:
                 print >> sys.stderr, Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END
-                print >> sys.stderr, "#" * 71 + "\n\n"
+                print >> sys.stderr, "#" * 71
         elif exitcode == 0:
             print >> sys.stderr, Color.BOLD + "Everything looks good. Importing study now" + Color.END
-            print >> sys.stderr, "#" * 71 
+            print >> sys.stderr, "#" * 71 + "\n"
             cbioportalImporter.main(args)
     except KeyboardInterrupt:
         print >> sys.stderr, Color.BOLD + "\nProcess interrupted. You will have to run this again to make sure study is completely loaded." + Color.END
-        print >> sys.stderr, "#" * 71 + "\n"
+        print >> sys.stderr, "#" * 71
         raise
     except:
         print >> sys.stderr, "!" * 71

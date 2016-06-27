@@ -33,7 +33,6 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,9 +40,7 @@ import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.SpringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -57,17 +54,15 @@ import java.util.*;
 /**
  * Tests Import of Clinical Data.
  *
- * @author Ethan Cerami, Pieter Lukasse
+ * @author Ethan Cerami.
+ * @author Ersin Ciftci
+ * @author Pieter Lukasse
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
 @Transactional
 public class TestImportClinicalData {
-
-	CancerStudy study;
-	@Autowired
-	ApplicationContext applicationContext;
 	
 	//To use in test cases where we expect an exception:
 	@Rule
@@ -77,9 +72,9 @@ public class TestImportClinicalData {
 	@Before 
 	public void setUp() throws DaoException
 	{
-		//set it, to avoid this being set to the runtime (not for testing) application context:
-		SpringUtil.setApplicationContext(applicationContext);
-		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
+		DaoGeneticProfile.reCache();
+		DaoPatient.reCache();
+		DaoSample.reCache();
 	}
 
 	
@@ -95,35 +90,13 @@ public class TestImportClinicalData {
 		CancerStudy cancerStudy = new CancerStudy("testnew","testnew","testnew","brca",true);
         DaoCancerStudy.addCancerStudy(cancerStudy);
         
-        study = DaoCancerStudy.getCancerStudyByStableId("testnew");
+        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew");
 		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data_small.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(
-                study, clinicalFile, "MIXED_ATTRIBUTES");
-        importClinicalData.importData();
-        ConsoleUtil.showWarnings();
-	}
-	
-	
-    /**
-     * Test importing of Mixed Data File with sample duplication error.
-     *
-     * @throws DaoException Database Access Error.
-     * @throws IOException  IO Error.
-     */
-	@Test
-    public void testImportMixedDataNewStudy_WithDuplError() throws Exception {
-		//new dummy study to simulate importing clinical data in empty study:
-		CancerStudy cancerStudy = new CancerStudy("testnew2","testnew2","testnew2","brca",true);
-        DaoCancerStudy.addCancerStudy(cancerStudy);
-        
-        study = DaoCancerStudy.getCancerStudyByStableId("testnew2");
-		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data_small_nonTCGA.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(
-                study, clinicalFile, "MIXED_ATTRIBUTES");
-        
-        exception.expect(RuntimeException.class);
+        File clinicalFile = new File("src/test/resources/clinical_data_small.txt");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
@@ -140,18 +113,18 @@ public class TestImportClinicalData {
 		CancerStudy cancerStudy = new CancerStudy("testnew3","testnew3","testnew3","brca",true);
         DaoCancerStudy.addCancerStudy(cancerStudy);
         
-        study = DaoCancerStudy.getCancerStudyByStableId("testnew3");
+        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew3");
 		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data_small_PATIENT.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(
-                study, clinicalFile, "PATIENT_ATTRIBUTES");
+        File clinicalFile = new File("src/test/resources/clinical_data_small_PATIENT.txt");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(cancerStudy, clinicalFile, "PATIENT_ATTRIBUTES", false);
         
         exception.expect(RuntimeException.class);
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
-	
-
     /**
      * Test importing of Clinical Data File.
      *
@@ -159,55 +132,57 @@ public class TestImportClinicalData {
      * @throws IOException  IO Error.
      */
 	@Test
-	@Ignore("To be fixed")
-    public void testImportClinicalData() throws Exception {
-
-		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
-        importClinicalData.importData();
-	}
-	
-    /**
-     * Test importing of Clinical Data File.
-     *
-     * @throws DaoException Database Access Error.
-     * @throws IOException  IO Error.
-     */
-	@Test
-	@Ignore("To be fixed")
     public void testImportClinicalDataSurvival() throws Exception {
 
+		//new dummy study to simulate importing clinical data in empty study:
+		CancerStudy cancerStudy = new CancerStudy("testnew4","testnew4","testnew4","brca",true);
+        DaoCancerStudy.addCancerStudy(cancerStudy);
+        
+        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew4");
+        
 		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        File clinicalFile = new File("src/test/resources/clinical_data.txt");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
         caseSet.add("TCGA-A1-A0SB");
-        caseSet.add("TCGA-A1-A0SI");
         caseSet.add("TCGA-A1-A0SE");
+        caseSet.add("TCGA-A1-A0SI");
 
-        List<Patient> clinicalCaseList = DaoClinicalData.getSurvivalData(study.getInternalId(), caseSet);
+        //get survival data, unsorted:
+        List<Patient> clinicalCaseList = DaoClinicalData.getSurvivalData(cancerStudy.getInternalId(), caseSet);
         assertEquals (3, clinicalCaseList.size());
-
-        Patient clinical0 = clinicalCaseList.get(0);
-        assertEquals (new Double(79.04), clinical0.getAgeAtDiagnosis());
-        assertEquals ("DECEASED", clinical0.getOverallSurvivalStatus());
-        assertEquals ("Recurred/Progressed", clinical0.getDiseaseFreeSurvivalStatus());
-        assertEquals (new Double(43.8), clinical0.getOverallSurvivalMonths());
-        assertEquals (new Double(15.05), clinical0.getDiseaseFreeSurvivalMonths());
-
-        Patient clinical1 = clinicalCaseList.get(1);
-        assertEquals (new Double(55.53), clinical1.getAgeAtDiagnosis());
-        assertEquals ("LIVING", clinical1.getOverallSurvivalStatus());
-        assertEquals ("DiseaseFree", clinical1.getDiseaseFreeSurvivalStatus());
-        assertEquals (new Double(49.02), clinical1.getOverallSurvivalMonths());
-        assertEquals (new Double(49.02), clinical1.getDiseaseFreeSurvivalMonths());
-
-        Patient clinical2 = clinicalCaseList.get(2);
-        assertEquals (null, clinical2.getDiseaseFreeSurvivalMonths());
         
+        int countChecks = 0;
+        for (Patient patientData : clinicalCaseList) {
+        	if (patientData.getStableId().equals("TCGA-A1-A0SB")) {
+                assertEquals (new Double(79.04), patientData.getAgeAtDiagnosis());
+                assertEquals ("DECEASED", patientData.getOverallSurvivalStatus());
+                assertEquals ("Recurred/Progressed", patientData.getDiseaseFreeSurvivalStatus());
+                assertEquals (new Double(43.8), patientData.getOverallSurvivalMonths());
+                assertEquals (new Double(15.05), patientData.getDiseaseFreeSurvivalMonths());
+                countChecks++;
+        	}
+        	else if (patientData.getStableId().equals("TCGA-A1-A0SE")) {
+                assertEquals (null, patientData.getDiseaseFreeSurvivalMonths());
+                countChecks++;
+        	}
+        	else {
+        		assertEquals ("TCGA-A1-A0SI", patientData.getStableId());
+        		assertEquals (new Double(55.53), patientData.getAgeAtDiagnosis());
+                assertEquals ("LIVING", patientData.getOverallSurvivalStatus());
+                assertEquals ("DiseaseFree", patientData.getDiseaseFreeSurvivalStatus());
+                assertEquals (new Double(49.02), patientData.getOverallSurvivalMonths());
+                assertEquals (new Double(49.02), patientData.getDiseaseFreeSurvivalMonths());
+                countChecks++;
+        	}
+        }
+        //make sure all entries were checked:
+        assertEquals(3, countChecks);
 	}
 	
     /**
@@ -217,22 +192,29 @@ public class TestImportClinicalData {
      * @throws IOException  IO Error.
      */
 	@Test
-	@Ignore("To be fixed")
     public void testImportClinicalDataSlice() throws Exception {
-
+		//new dummy study to simulate importing clinical data in empty study:
+		CancerStudy cancerStudy = new CancerStudy("testnew5","testnew5","testnew5","brca",true);
+        DaoCancerStudy.addCancerStudy(cancerStudy);
+        
+        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew5");
+        
 		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        File clinicalFile = new File("src/test/resources/clinical_data.txt");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
 
-        List<ClinicalParameterMap> slice = DaoClinicalData.getDataSlice(study.getInternalId(), Arrays.asList("PLATINUMSTATUS"));
+        List<ClinicalParameterMap> slice = DaoClinicalData.getDataSlice(cancerStudy.getInternalId(), Arrays.asList("PLATINUMSTATUS"));
         assertTrue(slice.size() >= 1);
         
 		ClinicalParameterMap paramMap = slice.get(0);
 		assertEquals ("PLATINUMSTATUS", paramMap.getName());
-		assertEquals("Sensitive", paramMap.getValue("TCGA-A1-A0SD"));
+		assertEquals("Sensitive", paramMap.getValue("TCGA-A1-A0SB"));
         assertEquals("NA", paramMap.getValue("TCGA-A1-A0SE"));
-        assertEquals(2, paramMap.getDistinctCategories().size());
+        assertEquals(3, paramMap.getDistinctCategories().size());
 	}
 	
     /**
@@ -242,15 +224,22 @@ public class TestImportClinicalData {
      * @throws IOException  IO Error.
      */
 	@Test
-	@Ignore("To be fixed")
     public void testImportClinicalDataParameters() throws Exception {
-
+		//new dummy study to simulate importing clinical data in empty study:
+		CancerStudy cancerStudy = new CancerStudy("testnew6","testnew6","testnew6","brca",true);
+        DaoCancerStudy.addCancerStudy(cancerStudy);
+        
+        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew6");
+		
 		// TBD: change this to use getResourceAsStream()
-        File clinicalFile = new File("target/test-classes/clinical_data.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile, "SAMPLE_ATTRIBUTES");
+        File clinicalFile = new File("src/test/resources/clinical_data.txt");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
 
-		Set<String> paramSet = DaoClinicalData.getDistinctParameters(study.getInternalId());
+		Set<String> paramSet = DaoClinicalData.getDistinctParameters(cancerStudy.getInternalId());
         assertEquals (9, paramSet.size());
     }
 }

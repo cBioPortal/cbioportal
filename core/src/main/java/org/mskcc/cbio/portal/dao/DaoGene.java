@@ -403,8 +403,10 @@ final class DaoGene {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGene.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE gene");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

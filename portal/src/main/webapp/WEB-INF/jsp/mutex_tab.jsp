@@ -70,7 +70,6 @@
 	    		    window.setTimeout(MutexData.init, 1); 
                     window.setTimeout(MutexView.resize, 1);
 		            tab_init = true;
-		            console.log("mutex tab initialized");
 		        } else {
 	                MutexView.resize();
 	            }

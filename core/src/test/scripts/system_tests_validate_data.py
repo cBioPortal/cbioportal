@@ -31,8 +31,8 @@ class ValidateDataSystemTester(unittest.TestCase):
     '''
 
     def setUp(self):
-        """Set up a temporary directory for output files."""
-        self.temp_dir_path = tempfile.mkdtemp()
+        """not much to do here"""
+        
 
     def tearDown(self):
         """Close logging handlers after running validator and remove tmpdir."""
@@ -43,14 +43,6 @@ class ValidateDataSystemTester(unittest.TestCase):
             logging_handler.close()
         # remove the handlers from the logger to reset it
         validator_logger.handlers = []
-        # TODO: test if this try block fixes the issue on Pieter's system
-        try:
-            shutil.rmtree(self.temp_dir_path)
-        except WindowsError:
-            # wait for any virus scanners or other malware to get out of there
-            time.sleep(5)
-            # remove as much as possible
-            shutil.rmtree(self.temp_dir_path, ignore_errors=True)
         super(ValidateDataSystemTester, self).tearDown()
 
     def assertFileGenerated(self, tmp_file_name, expected_file_name):
@@ -67,6 +59,12 @@ class ValidateDataSystemTester(unittest.TestCase):
         diff_line_list = list(diff_result)
         self.assertEqual(diff_line_list, [],
                          msg='\n' + ''.join(diff_line_list))
+        # remove temp file if all is fine:
+        try:
+            os.remove(tmp_file_name)
+        except WindowsError:
+            # ignore this Windows specific error...probably happens because of virus scanners scanning the temp file...
+            pass        
 
     def test_exit_status_success(self):
         '''study 0 : no errors, expected exit_status = 0.
@@ -126,12 +124,10 @@ class ValidateDataSystemTester(unittest.TestCase):
         Test if html file is correctly generated when 'html_table' is given
         '''
         #Build up arguments and run
-        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
+        out_file_name = 'test_data/study_es_0/result_report.html~'
         args = ['--study_directory','test_data/study_es_0/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
                 '--html_table', out_file_name]
-                # uncomment to overwrite with the new version
-                #'--html_table', 'test_data/study_es_0/result_report.html']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
@@ -141,13 +137,11 @@ class ValidateDataSystemTester(unittest.TestCase):
 
     def test_errorline_output(self):
         '''Test if error file is generated when '--error_file' is given.'''
-        out_file_name = os.path.join(self.temp_dir_path, 'error_file.txt')
+        out_file_name = 'test_data/study_maf_test/error_file.txt~'
         # build up arguments and run
         argv = ['--study_directory','test_data/study_maf_test/',
                 '--portal_info_dir', PORTAL_INFO_DIR,
                 '--error_file', out_file_name]
-                # uncomment to overwrite with the new version
-                #'--error_file', 'test_data/study_maf_test/error_file.txt']
         parsed_args = validateData.interface(argv)
         exit_status = validateData.main_validate(parsed_args)
         # flush logging handlers used in validateData
@@ -195,13 +189,11 @@ class ValidateDataSystemTester(unittest.TestCase):
         be undefined. Validate if the script is giving the proper error.
         '''
         # build the argument list
-        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
+        out_file_name = 'test_data/study_wr_clin/result_report.html~'
         print '==test_problem_in_clinical=='
         args = ['--study_directory','test_data/study_wr_clin/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
                 '--html_table', out_file_name]
-                # uncomment to overwrite with the new version
-                #'--html_table', 'test_data/study_wr_clin/result_report.html']
         # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
         exit_status = validateData.main_validate(args)
@@ -218,13 +210,11 @@ class ValidateDataSystemTester(unittest.TestCase):
         validation works well.
         '''
         #Build up arguments and run
-        out_file_name = os.path.join(self.temp_dir_path, 'result-report.html')
+        out_file_name = 'test_data/study_maf_test/result_report.html~'
         print '==test_normal_samples_list_in_maf=='
         args = ['--study_directory','test_data/study_maf_test/', 
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
                 '--html_table', out_file_name]
-                # uncomment to overwrite with the new version
-                #'--html_table', 'test_data/study_maf_test/result_report.html']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)

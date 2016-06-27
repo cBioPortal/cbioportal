@@ -2,10 +2,6 @@
 
 # ------------------------------------------------------------------------------
 # Data validation script - validates files before import into portal.
-# If create-corrected set to true, the script will create a new version of all the files it detects
-#   and ensure the newlines are correct and that no data is enclosed in quotes. It will also
-#   add entrez IDs if they are not present and the user either provides the file or sets ftp
-#   Also checks for duplicate column headers, repeated header rows
 # ------------------------------------------------------------------------------
 
 
@@ -251,7 +247,6 @@ class Validator(object):
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
-    NULL_VALUES = ['[not available]', '[not applicable]', '']
 
     def __init__(self, study_dir, meta_dict, portal_instance, logger):
         """Initialize a validator for a particular data file.
@@ -512,14 +507,7 @@ class Validator(object):
 
     def _checkLineBreaks(self):
         """Checks line breaks, reports to user."""
-        # TODO document these requirements
-        if "\r\n" in self.newlines:
-            self.logger.error('DOS-style line breaks detected (\\r\\n), '
-                              'should be Unix-style (\\n)')
-        elif "\r" in self.newlines:
-            self.logger.error('Classic Mac OS-style line breaks detected '
-                              '(\\r), should be Unix-style (\\n)')
-        elif self.newlines != '\n':
+        if self.newlines not in("\r\n","\r","\n"):
             self.logger.error('No line breaks recognized in file',
                               extra={'cause': repr(self.newlines)[1:-1]})
 
@@ -835,7 +823,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
     REQUIRED_HEADERS = []
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
     ALLOW_BLANKS = True
-    NULL_VALUES = ["na", "[not available]"]
+    NULL_VALUES = ["NA"]
 
     def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
@@ -889,7 +877,7 @@ class CNAValidator(GenewiseFileValidator):
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        if value.strip().lower() not in self.ALLOWED_VALUES:
+        if value.strip() not in self.ALLOWED_VALUES:
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Invalid CNA value: possible values are [%s]',
@@ -992,48 +980,46 @@ class MutationsExtendedValidator(Validator):
         """
 
         super(MutationsExtendedValidator, self).checkLine(data)
+        if self.skipValidation(data):
+            return
 
-        # TODO: skip lines with symbol 'Unknown' and Entrez '0',
-        # that is how the MAF standard signifies an intergenic mutation
-        if not self.skipValidation(data):
-            for col_name in self.CHECK_FUNCTION_MAP:
-                # if optional column was found, validate it:
-                if col_name in self.cols:
-                    col_index = self.cols.index(col_name)
-                    value = data[col_index]
-                    # get the checking method for this column if available, or None
-                    checking_function = getattr(
-                        self,
-                        self.CHECK_FUNCTION_MAP[col_name])
-                    # FIXME: remove the 'data' argument, it's spaghetti
-                    if not checking_function(value, data):
-                        self.printDataInvalidStatement(value, col_index)
-                    elif self.extra_exists or self.extra:
-                        raise RuntimeError(('Checking function %s set an error '
-                                            'message but reported no error') %
-                                           checking_function.__name__)
+        for col_name in self.CHECK_FUNCTION_MAP:
+            # if optional column was found, validate it:
+            if col_name in self.cols:
+                col_index = self.cols.index(col_name)
+                value = data[col_index]
+                # get the checking method for this column if available, or None
+                checking_function = getattr(
+                    self,
+                    self.CHECK_FUNCTION_MAP[col_name])
+                # FIXME: remove the 'data' argument, it's spaghetti
+                if not checking_function(value, data):
+                    self.printDataInvalidStatement(value, col_index)
+                elif self.extra_exists or self.extra:
+                    raise RuntimeError(('Checking function %s set an error '
+                                        'message but reported no error') %
+                                       checking_function.__name__)
 
-            # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
-            sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
-            value = data[sample_id_column_index]
-            self.checkSampleId(value, column_number=sample_id_column_index + 1)
+        # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
+        sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
+        value = data[sample_id_column_index]
+        self.checkSampleId(value, column_number=sample_id_column_index + 1)
 
-            # parse hugo and entrez to validate them together
-            # TODO: handle symbol 'Unknown' / Entrez 0
-            hugo_symbol = None
-            entrez_id = None
-            if 'Hugo_Symbol' in self.cols:
-                hugo_symbol = data[self.cols.index('Hugo_Symbol')]
-                # treat the empty string as a missing value
-                if hugo_symbol == '':
-                    hugo_symbol = None
-            if 'Entrez_Gene_Id' in self.cols:
-                entrez_id = data[self.cols.index('Entrez_Gene_Id')]
-                # treat the empty string as a missing value
-                if entrez_id == '':
-                    entrez_id = None
-            # validate hugo and entrez together:
-            self.checkGeneIdentification(hugo_symbol, entrez_id)
+        # parse hugo and entrez to validate them together
+        hugo_symbol = None
+        entrez_id = None
+        if 'Hugo_Symbol' in self.cols:
+            hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
+            # treat the empty string or 'Unknown' as a missing value
+            if hugo_symbol in ('', 'Unknown'):
+                hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.cols:
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
+            # treat the empty string or 0 as a missing value
+            if entrez_id in ('', '0'):
+                entrez_id = None
+        # validate hugo and entrez together:
+        self.checkGeneIdentification(hugo_symbol, entrez_id)
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -1147,18 +1133,36 @@ class MutationsExtendedValidator(Validator):
         return True
 
     def skipValidation(self, data):
-        """Test whether line should be verified based on the variant classification"""
+        """Test whether the mutation is silent and should be skipped."""
+        is_silent = False
         variant_classification = data[self.cols.index('Variant_Classification')]
-        if variant_classification in self.SKIP_VARIANT_TYPES:
-            self.logger.info('Validation of line skipped due to cBioPortal\'s filtering. '
-                                'Filtered types: [%s]',
-                                ', '.join(self.SKIP_VARIANT_TYPES),
-                                extra={'line_number': self.line_number,
-                                       'cause': 'validation skipped due to filtering', 
-                                       })
-            return True
-        else:
-            return False
+        
+        hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+        entrez_id = '0'
+        if 'Entrez_Gene_Id' in self.cols:
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')]
+        if hugo_symbol == 'Unknown' and entrez_id == '0' and variant_classification != 'IGR':
+            # the MAF specification documents the use of Unknown and 0 here
+            # for intergenic mutations, and since the Variant_Classification
+            # column is often invalid, cBioPortal interprets this combination
+            # (or just the symbol if the Entrez column is absent) as such, 
+            # but with a warning:
+            self.logger.warning(
+                "Gene specification for this mutation implies "
+                "intergenic even though Variant_Classification is "
+                "not 'IGR'; this variant will be filtered out",
+                extra={'line_number': self.line_number,
+                       'cause': "Hugo Symbol 'Unknown', Entrez ID 0"})
+            is_silent = True
+        elif variant_classification in self.SKIP_VARIANT_TYPES:
+            self.logger.info("Validation of line skipped due to cBioPortal's filtering. "
+                             "Filtered types: [%s]",
+                             ', '.join(self.SKIP_VARIANT_TYPES),
+                             extra={'line_number': self.line_number,
+                                    'cause': variant_classification})
+            is_silent = True
+
+        return is_silent
 
     def checkNotBlank(self, value, data):
         """Test whether a string is blank."""
@@ -1192,6 +1196,7 @@ class ClinicalValidator(Validator):
     REQUIRE_COLUMN_ORDER = False
     PROP_IS_PATIENT_ATTRIBUTE = None
     NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", ""]
+    ALLOW_BLANKS = True
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
@@ -1733,14 +1738,14 @@ class SegValidator(Validator):
 class ContinuousValuesValidator(GenewiseFileValidator):
     """Validator for matrix files mapping floats to gene/sample combinations.
 
-    Allowing missing values indicated by 'NA' or [Not Available].
+    Allowing missing values indicated by GenewiseFileValidator.NULL_VALUES.
     """
     
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
-        if stripped_value.lower() not in self.NULL_VALUES and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor NA,[Not Available]",
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})
@@ -1776,7 +1781,7 @@ class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
     ALLOW_BLANKS = True
-    NULL_VALUES = ["na", "[not available]"]
+    NULL_VALUES = ["NA"]
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
@@ -1813,8 +1818,8 @@ class RPPAValidator(FeaturewiseFileValidator):
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
-        if stripped_value.lower() not in self.NULL_VALUES and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor NA,[Not Available]",
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})
@@ -1964,6 +1969,7 @@ class GisticGenesValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
+    NULL_VALUES = ['']
 
     def __init__(self, *args, **kwargs):
         """Initialize a GisticGenesValidator with the given parameters."""
@@ -2004,7 +2010,7 @@ class GisticGenesValidator(Validator):
             # of the required columns, only genes_in_region can be blank
             if ((col_name in self.REQUIRED_HEADERS and
                         col_name != 'genes_in_region') and
-                    value.strip() in ('NA', '')):
+                    value.strip() in self.NULL_VALUES):
                 self.logger.error("Empty cell in column '%s'",
                                   col_name,
                                   extra={'line_number': self.line_number,
@@ -2067,7 +2073,8 @@ class GisticGenesValidator(Validator):
                                    (cytoband_chromosome,
                                     parsed_cytoband,
                                     parsed_chromosome)})
-            # TODO: validate band/coord sets with the UCSC cytoband definitions
+            # TODO: validate band/coord sets with the UCSC cytoband definitions (using 
+            # parsed_gene_list and some of the other parsed_*list variables 
 
     def parse_chromosome_num(self, value, column_number):
         """Parse a chromosome number, logging any errors for this column

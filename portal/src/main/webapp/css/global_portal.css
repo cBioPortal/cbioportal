@@ -726,7 +726,8 @@ td.op_data_cell{
     font: 14px verdana, arial, helvetica, sans-serif;
 }
 
-#genomic_profiles input {
+#genomic_profiles .checkbox,
+#genomic_profiles .radio {
    margin-left: 40px;
 }
 
@@ -1435,8 +1436,21 @@ cursor: default;
 }
 
 /*  Genomic Profiles Input Box */
-#genomic_profiles input{
+#genomic_profiles .checkbox,
+#genomic_profiles .radio {
+    margin-bottom: 0;
     margin-left: 25px;
+    margin-top: 0;
+}
+
+#genomic_profiles .checkbox input,
+#genomic_profiles .radio input {
+    margin-right: 1em;
+    postition: relative;
+}
+
+.score_threshold label {
+    font-weight: normal;
 }
 
 /* This is the gene_list input text area */

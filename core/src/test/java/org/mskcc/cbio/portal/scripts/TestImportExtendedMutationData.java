@@ -122,31 +122,6 @@ public class TestImportExtendedMutationData {
         validateMutationAminoAcid(geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
         validateMutationAminoAcid(geneticProfileId, sampleId, 89, "S116R"); // Unknown  Somatic
 	}
-    
-
-	
-	@Test
-	@Ignore("To be fixed")
-    public void testImportExtendedMutationDataWhitelisted2() throws IOException, DaoException {
-
-        MySQLbulkLoader.bulkLoadOn();
-
-		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/data_mutations_extended.txt");
-
-		// TBD: change this to use getResourceAsStream()
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);//, "target/test-classes/test_germline_white_list_file2.txt");
-        parser.importData();
-        MySQLbulkLoader.flushAll();
-
-        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
-
-        checkBasicFilteringRules();
-        checkGermlineMutations();
-        acceptEverythingElse();
-        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");
-	}
-
 	
 	/**
 	 * Check that import of oncotated data works

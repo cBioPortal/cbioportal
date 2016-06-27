@@ -62,7 +62,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
 
     }
 
-    public ObjectNode processMutHm(long entrezGeneId, ArrayList<Integer> sampleList, HashMap mutHm) {
+    public ObjectNode processMutHm(long entrezGeneId, ArrayList<Integer> sampleList, Map mutHm) {
         ObjectNode _datum = mapper.createObjectNode();
 
         //create map to pair sample and value

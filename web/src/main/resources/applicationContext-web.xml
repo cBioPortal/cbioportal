@@ -27,6 +27,7 @@
 
     <context:component-scan base-package="org.mskcc.cbio.portal.web" />
     <context:component-scan base-package="org.mskcc.cbio.portal.documentation" />
+    <context:component-scan base-package="org.cbioportal.web" />
 
     <mvc:resources mapping="/swagger-ui.html" location="classpath:/META-INF/resources/"/>
     <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
@@ -37,5 +38,15 @@
     <mvc:resources mapping="/gfx/**" location="/gfx/"/>
     <mvc:resources mapping="/swf/**" location="/swf/"/>
     <mvc:view-controller path="/api" view-name="redirect:/api/swagger-ui.html"/>
-    <mvc:annotation-driven enable-matrix-variables="true"/>
+
+    <mvc:annotation-driven enable-matrix-variables="true">
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="org.cbioportal.web.config.CustomObjectMapper"/>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
 </beans>

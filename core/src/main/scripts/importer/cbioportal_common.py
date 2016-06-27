@@ -199,10 +199,9 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
     MetaFileTypes.SAMPLE_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.PATIENT_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData", # ? how will this import data into cna_event? 
+    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData", 
     MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    # TODO: check if this is correct 
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
     MetaFileTypes.EXPRESSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
@@ -651,7 +650,6 @@ def run_java(*args):
         java_command = os.path.join(java_home, 'bin', 'java')
     else:
         java_command = 'java'
-    print '\n\n'
     process = Popen([java_command] + list(args), stdout=PIPE, stderr=STDOUT,
                     universal_newlines=True)
     ret = []
@@ -662,9 +660,9 @@ def run_java(*args):
             ret.append(line[:-1])
     ret.append(process.returncode)
     # if cmd line parameters error:
-    if process.returncode == 2:
+    if process.returncode == 64 or process.returncode == 2:
         raise RuntimeError('Aborting. Step failed due to wrong parameters passed to subprocess.')
     # any other error:
-    if process.returncode != 0:
+    elif process.returncode != 0:
         raise RuntimeError('Aborting due to error while executing step.')
     return ret

@@ -952,11 +952,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var def = new $.Deferred();
 	oncoprint.setCellPaddingOn(State.cell_padding_on);
 	$.when(QuerySession.getWebServiceGenomicEventData(), QuerySession.getOncoprintSampleGenomicEventData()).then(function (ws_data, oncoprint_data) {
-	    var genes = oncoprint_data.map(function(line) { return line.gene.toUpperCase(); });
-	    (function invokeOldDataManagers() {
-		window.PortalDataColl.setOncoprintData(window.OncoprintUtils.process_data(ws_data, genes));
-		PortalDataColl.setOncoprintStat(window.OncoprintUtils.alteration_info(ws_data));
-	    });//TODO: replace this
 	    State.addGeneticTracks(oncoprint_data);
 	}).fail(function() {
 	    def.reject();

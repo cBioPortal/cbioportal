@@ -627,17 +627,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    return populatePatientData();
 		}
 	    },
-	    'addGeneticTracks': function (genes) {
-		genes = [].concat(genes);
+	    'addGeneticTracks': function (oncoprint_data_by_line) {
 		oncoprint.suppressRendering();
 		var track_ids = [];
-		for (var i = 0; i < genes.length; i++) {
+		for (var i = 0; i < oncoprint_data_by_line.length; i++) {
 		    var track_params = {
 			'rule_set_params': this.getGeneticRuleSetParams(),
-			'label': genes[i],
+			'label': oncoprint_data_by_line[i].gene,
 			'target_group': 1,
 			'sortCmpFn': this.getGeneticComparator(),
 			'removable': true,
+			'description': oncoprint_data_by_line[i].oql_line,
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];
 		    track_ids.push(new_track_id);
@@ -957,7 +957,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		window.PortalDataColl.setOncoprintData(window.OncoprintUtils.process_data(ws_data, genes));
 		PortalDataColl.setOncoprintStat(window.OncoprintUtils.alteration_info(ws_data));
 	    });//TODO: replace this
-	    State.addGeneticTracks(genes);
+	    State.addGeneticTracks(oncoprint_data);
 	}).fail(function() {
 	    def.reject();
 	}).then(function() {

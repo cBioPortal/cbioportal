@@ -35,6 +35,29 @@ window.OQL = (function () {
 	});
     };
     
+    var parsedOQLAlterationToSourceOQL = function(alteration) {
+	if (alteration.alteration_type === "cna") {
+	    return alteration.constr_val;
+	} else if (alteration.alteration_type === "mut") {
+	    return "MUT" + (alteration.constr_rel ? alteration.constr_rel + alteration.constr_val : "");
+	} else if (alteration.alteration_type === "exp") {
+	    return "EXP" + alteration.constr_rel + alteration.constr_val;
+	} else if (alteration.alteration_type === "prot") {
+	    return "PROT" + alteration.constr_rel + alteration.constr_val;
+	}
+    };
+    var unparseOQLQueryLine = function (parsed_oql_query_line) {
+	var ret = "";
+	var gene = parsed_oql_query_line.gene;
+	var alterations = parsed_oql_query_line.alterations;
+	ret += gene;
+	if (alterations.length > 0) {
+	    ret += ": " + alterations.map(parsedOQLAlterationToSourceOQL).join(" ");
+	}
+	ret += ";";
+	return ret;
+    };
+    
     /* For the methods isDatumWantedByOQL, ..., the accessors argument is as follows:
 	     * accessors = {
 	     *	'gene': function(d) {
@@ -281,6 +304,7 @@ window.OQL = (function () {
 		return {
 		    'gene': query_line.gene,
 		    'parsed_oql_line': query_line,
+		    'oql_line': unparseOQLQueryLine(query_line),
 		    'data': data.filter(function (datum) {
 			return isDatumWantedByOQLLine(query_line, datum, accessors.gene(datum).toUpperCase(), accessors);
 		    })

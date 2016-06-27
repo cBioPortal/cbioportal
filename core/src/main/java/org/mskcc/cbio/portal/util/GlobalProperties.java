@@ -192,6 +192,8 @@ public class GlobalProperties {
     
     public static final String DB_VERSION = "db.version";
     
+    public static final String DISABLED_TABS = "disabled_tabs";
+    
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -715,6 +717,17 @@ public class GlobalProperties {
         return version;
     }
     
+    public static List<String> getDisabledTabs() {
+        String disabledTabs = "";
+        try {
+            disabledTabs = properties.getProperty(DISABLED_TABS).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        String[] tabs = disabledTabs.split("\\|");
+        return (tabs.length > 0 && disabledTabs.length() > 0) ? Arrays.asList(tabs) : new ArrayList<String>();
+    }
+
     public static void main(String[] args)
     {
         System.out.println(getAppVersion());

@@ -845,14 +845,12 @@ function DataManagerPresenter(dmInitCallBack)
 	console.log(new Date() + ": CALL to getOncoprintSampleGenomicEventData()");
 	//keep track of samples and their respective alteration events 
 	self.sampleList = {}; //each entry contains alterationEvents[] 
-	window.QuerySession.getOncoprintSampleGenomicEventData()
+	window.QuerySession.getGeneAggregatedOncoprintSampleGenomicEventData()
 	.then(
-		function (genomicEventDataLines){
+		function (genomicEventData){
 			
 			console.log(new Date() + ": started processing getOncoprintSampleGenomicEventData() data");
 			
-			for (var j = 0; j < genomicEventDataLines.length; j++) {
-			    var genomicEventData = genomicEventDataLines[j].oncoprint_data;
 			    for (var i = 0; i < genomicEventData.length; i++) {
 				//init alteration events, if not yet done
 				if (!self.sampleList[genomicEventData[i].sample])
@@ -860,7 +858,6 @@ function DataManagerPresenter(dmInitCallBack)
 				self.sampleList[genomicEventData[i].sample].alterationEvents.push(genomicEventData[i]);
 
 			    }
-			}
 			console.log(new Date() + ": finished processing getOncoprintSampleGenomicEventData() data");
 			
 			//signal "done":

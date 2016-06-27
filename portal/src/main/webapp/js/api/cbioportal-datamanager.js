@@ -673,6 +673,15 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			fetch_promise.reject();
 		    });
 		}),
+	'getGeneAggregatedOncoprintSampleGenomicEventData': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    self.getWebServiceGenomicEventData().then(function (ws_data) {
+			var filtered_ws_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, false);
+			fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), self.getSampleIds()));
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
 	'getOncoprintSampleGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    self.getWebServiceGenomicEventData().then(function (ws_data) {

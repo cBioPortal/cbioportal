@@ -195,10 +195,30 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	});
 	return def.promise();
     };
+    var getOncoKBAnnotations = function(webservice_data) {
+	var is_oncogenic = {}; // #{gene}&#{alteration.toUpperCase()}&{tumor_type.toUpperCase()} is key, boolean is value
+	var query = {
+	    "geneStatus": "Complete",
+	    "source": "cbioportal",
+	    "evidenceTypes": "GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE,INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY",
+	    "queries": [
+		{
+		    "hugoSymbol": "BRAF",
+		    "alteration": "V600E",
+		    "tumorType": "Melanoma"
+		}
+	    ],
+	    "levels": [
+		"LEVEL_1",
+		"LEVEL_2A",
+		"LEVEL_3A",
+		"LEVEL_R1"
+	    ]
+	}
+    };
     var annotateCBioPortalMutationCount = function (webservice_data) {
 	/* in-place, idempotent
 	 * In: - webservice_data, a list of data obtained from the webservice API
-	 *	  - attribute_name, a string, where the count will be recorded in mutation data
 	 * Out: promise, which resolves with the data which has been in-place modified,
 	 *	    the mutation data given the integer attribute 'cbioportal_position_recurrence'
 	 */
@@ -221,7 +241,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	});
 	return def.promise();
     };
-
+    var annotateOncoKBMutationOncogenic = function(webservice_data) {
+	/* in-place, idempotent
+	 * In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: promise, which resolves with the data which has been in-place modified,
+	 *	    the mutation data given the boolean attribute 'oncokb_oncogenic'
+	 */
+	
+    };
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, source_sample_or_patient, target_sample_or_patient,
 	    target_ids, sample_to_patient_map, datatype_number_or_string) {
 	var id_to_datum = {};

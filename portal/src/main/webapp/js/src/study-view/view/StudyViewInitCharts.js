@@ -213,6 +213,9 @@ var StudyViewInitCharts = (function(){
                     _studyDesc = "from " + _keys.length + " patients";
                 }
             }else if(_dataType === "NUMBER" || _allNumber){
+                if(selectedCol(_attr_id) && _createdChartsNum < 21){
+                    bar.push(_attr[i]);
+                }
                 varType[_attr_id] = "bar";
 
                 var _varValues = [];
@@ -222,26 +225,17 @@ var StudyViewInitCharts = (function(){
                         _varValues.push(_arr[j][_attr_id]);
                     }
                 }
-                if(selectedCol(_attr_id) && _createdChartsNum < 21){
-                    bar.push(_attr[i]);
-                    var findExtremeResult = SearchOutliers.findExtremes(_varValues);
-                    var calculatedMin = Math.max(findExtremeResult[0], Math.min.apply( Math, _varValues ));
-                    var calculatedMax = Math.min(findExtremeResult[1], Math.max.apply( Math, _varValues ));
+                var findExtremeResult = cbio.util.findExtremes(_varValues);
+                var calculatedMin = findExtremeResult[0];
+                var calculatedMax = findExtremeResult[1];
 
-                    distanceMinMaxArray[_attr_id] = {
-                        diff: calculatedMax - calculatedMin,
-                        min: calculatedMin,
-                        max: calculatedMax,
-                        absoluteMin: Math.min.apply( Math, _varValues ),
-                        absoluteMax: Math.max.apply( Math, _varValues )
-                    };
-                }else{
-                    distanceMinMaxArray[_attr_id] = {
-                        diff : Math.max.apply( Math, _varValues ) - Math.min.apply( Math, _varValues ),
-                        min: Math.min.apply( Math, _varValues ),
-                        max:Math.max.apply( Math, _varValues )
-                    };
-                }
+                distanceMinMaxArray[_attr_id] = {
+                    diff: calculatedMax - calculatedMin,
+                    min: calculatedMin,
+                    max: calculatedMax,
+                    absoluteMin: Math.min.apply( Math, _varValues ),
+                    absoluteMax: Math.max.apply( Math, _varValues )
+                };
                 
             }else if(_dataType === "STRING"){
                 varType[_attr_id] = "pie";

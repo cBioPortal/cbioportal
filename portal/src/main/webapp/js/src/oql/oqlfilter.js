@@ -281,6 +281,7 @@ window.OQL = (function () {
 	 *	* If opt_by_oql_line is false, then the result is just a flat list,
 	 *	    the data that is wanted by at least one oql line.
 	 */
+	data = $.extend(true, [], data); // deep copy, because of any modifications it will make during filtration
 	var null_fn = function () {
 	    return null;
 	};

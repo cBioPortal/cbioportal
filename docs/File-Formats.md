@@ -771,7 +771,7 @@ Each event type requires its own meta file. A timeline meta file should contain 
 An example metadata file would be:
 ```
 cancer_study_identifier: brca_tcga
-genetic_alteration_type: TIMELINE
+genetic_alteration_type: CLINICAL
 datatype: TIMELINE
 data_filename: data_timeline_imaging.txt
 ```

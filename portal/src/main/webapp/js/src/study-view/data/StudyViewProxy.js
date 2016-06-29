@@ -360,7 +360,7 @@ var StudyViewProxy = (function() {
                         }
                     }, 200);
                 }
-                //add two attributes: the sample is sequenced or not, and the sample has cna data or not
+                //add 3 attributes: sample count per patient, the sample is sequenced or not, and the sample has cna data or not
                 var caseAttr = new CaseAttr();
                 caseAttr.attr_id = 'SEQUENCED';
                 caseAttr.display_name = 'Sequenced';
@@ -377,23 +377,51 @@ var StudyViewProxy = (function() {
                 caseAttr.keys =  ['Yes', 'No'];
                 obtainDataObject.attr.push(caseAttr);
 
-
-                for(var i = 0; i < obtainDataObject.arr.length; i++){
-                    var _sampleId = obtainDataObject.arr[i].CASE_ID;
-                    
-                    if(obtainDataObject.sequencedSampleIds.indexOf(_sampleId) !== -1){
-                        obtainDataObject.arr[i]['SEQUENCED'] = 'Yes';
-                    }else{
-                        obtainDataObject.arr[i]['SEQUENCED'] = 'No';
+                caseAttr = new CaseAttr();
+                caseAttr.attr_id = 'SAMPLE_COUNT_PATIENT';
+                caseAttr.display_name = '# of Samples Per Patient';
+                caseAttr.description = '';
+                caseAttr.datatype = 'NUMBER';
+                caseAttr.numOfNoneEmpty =  obtainDataObject.arr.length;
+                
+                
+                var tempIndex = -1, _sampleCountPerPatient = [], currentItem, uniqueCounts = [], maxCount = 1;
+                //calculate the sample count information per patient
+                for(var i = 0;i < obtainDataObject.arr.length;i++){
+                    currentItem = obtainDataObject.arr[i];
+                    tempIndex = _.map(_sampleCountPerPatient, function(item){return item.patientID}).indexOf(currentItem.PATIENT_ID);
+                    if(tempIndex === -1)
+                        _sampleCountPerPatient.push({patientID: currentItem.PATIENT_ID, samples: [currentItem.CASE_ID], sampleCount: 1});
+                    else {
+                        _sampleCountPerPatient[tempIndex].sampleCount++;
+                        _sampleCountPerPatient[tempIndex].samples.push(currentItem.CASE_ID);
                     }
-                    
-                    if(obtainDataObject.cnaSampleIds.indexOf(_sampleId) !== -1){
-                        obtainDataObject.arr[i]['HAS_CNA_DATA'] = 'Yes';
-                    }else{
-                        obtainDataObject.arr[i]['HAS_CNA_DATA'] = 'No';
-                    }
-                    
                 }
+                
+                for(var i = 0; i < obtainDataObject.arr.length; i++){
+                    currentItem = obtainDataObject.arr[i];
+                    uniqueCounts = [];
+                    if(obtainDataObject.sequencedSampleIds.indexOf(currentItem.CASE_ID) !== -1){
+                        currentItem.SEQUENCED = 'Yes';
+                    }else{
+                        currentItem.SEQUENCED = 'No';
+                    }
+                    
+                    if(obtainDataObject.cnaSampleIds.indexOf(currentItem.CASE_ID) !== -1){
+                        currentItem.HAS_CNA_DATA = 'Yes';
+                    }else{
+                        currentItem.HAS_CNA_DATA = 'No';
+                    }
+                    tempIndex = _.map(_sampleCountPerPatient, function(item){return item.patientID}).indexOf(currentItem.PATIENT_ID);
+                    currentItem.SAMPLE_COUNT_PATIENT = _sampleCountPerPatient[tempIndex].sampleCount;
+                    if(_sampleCountPerPatient[tempIndex].sampleCount > maxCount){
+                        maxCount =  _sampleCountPerPatient[tempIndex].sampleCount;
+                        uniqueCounts.push(maxCount);
+                    }
+                }
+                caseAttr.keys = uniqueCounts;
+                obtainDataObject.attr.push(caseAttr);
+                
             });
     }
 

@@ -3,7 +3,7 @@ package org.cbioportal.persistence.mybatis;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
-import org.cbioportal.persistence.dto.DBAltCount;
+import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.persistence.dto.KeywordSampleCount;
 import org.cbioportal.persistence.dto.MutatedGeneSampleCount;
 import org.cbioportal.persistence.dto.SignificantlyMutatedGene;
@@ -17,9 +17,10 @@ public interface MutationMapper {
                                         @Param("sampleStableIds") List<String> sampleStableIds,
                                         @Param("sampleListStableId") String sampleListStableId);
 
-    List<DBAltCount> getMutationsCounts(@Param("type") String type, @Param("gene") String gene,
-                                        @Param("start") Integer start, @Param("end") Integer end,
-                                        @Param("studyIds") List<String> studyIds, @Param("perStudy") Boolean perStudy);
+    List<AltCount> getMutationsCounts(@Param("type") String type, @Param("hugoGeneSymbol") String hugoGeneSymbol,
+                                      @Param("start") Integer start, @Param("end") Integer end,
+                                      @Param("cancerStudyIdentifiers") List<String> cancerStudyIdentifiers,
+                                      @Param("perStudy") Boolean perStudy);
 
     List<Mutation> getMutations(@Param("sampleIds") List<Integer> sampleIds,
                                 @Param("entrezGeneIds") List<Integer> entrezGeneIds,

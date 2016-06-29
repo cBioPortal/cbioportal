@@ -140,7 +140,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
     var getCBioPortalMutationCounts = function (webservice_data) {
 	/* In: - webservice_data, a list of data obtained from the webservice API
-	 * Out: Map from gene+","+start_pos+","+end_pos to cbioportal mutation count for that position range and gene
+	 * Out: Promise which resolves with map from gene+","+start_pos+","+end_pos to cbioportal mutation count for that position range and gene
 	 */
 	var counts_map = {};
 	var def = new $.Deferred();
@@ -196,18 +196,36 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	return def.promise();
     };
     var getOncoKBAnnotations = function(webservice_data) {
-	var is_oncogenic = {}; // #{gene}&#{alteration.toUpperCase()}&{tumor_type.toUpperCase()} is key, boolean is value
+	/* In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: Promise which resolves with map from gene.toUpperCase() to amino acid change.toUpperCase() to one of ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
+	 */
+	var def = new $.Deferred();
+	var oncogenic = {}; // See Out above
+	
+	// Collect genes and alterations to query
+	for (var i=0; i<webservice_data.length; i++) {
+	    var datum = webservice_data[i];
+	    if (datum.genetic_alteration_type === "MUTATION_EXTENDED") {
+		var gene = datum.hugo_gene_symbol.toUpperCase();
+		var alteration = datum.amino_acid_change.toUpperCase();
+		oncogenic[gene] = oncogenic[gene] || {};
+		oncogenic[gene][alteration] = false;
+	    }
+	}
+	var queries = [];
+	var query_genes = Object.keys(oncogenic);
+	for (var i=0; i<query_genes.length; i++) {
+	    var query_alterations = Object.keys(oncogenic[query_genes[i]]);
+	    for (var j=0; j<query_alterations.length; j++) {
+		queries.push({'hugoSymbol': query_genes[i], 'alteration': query_alterations[j]});
+	    }
+	}
+	// Execute query
 	var query = {
 	    "geneStatus": "Complete",
 	    "source": "cbioportal",
 	    "evidenceTypes": "GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE,INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY",
-	    "queries": [
-		{
-		    "hugoSymbol": "BRAF",
-		    "alteration": "V600E",
-		    "tumorType": "Melanoma"
-		}
-	    ],
+	    "queries": queries,
 	    "levels": [
 		"LEVEL_1",
 		"LEVEL_2A",
@@ -215,6 +233,23 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		"LEVEL_R1"
 	    ]
 	}
+	$.ajax({
+	    type: "POST",
+	    url: "api/proxy/oncokb",
+	    dataType: "json",
+	    contentType: "application/json",
+	    data: JSON.stringify(query)
+	}).then(function(response) {
+	    for (var i=0; i<response.length; i++) {
+		var gene = response[i].query.hugoSymbol.toUpperCase();
+		var alteration = response[i].query.alteration.toUpperCase();
+		oncogenic[gene][alteration] = response[i].oncogenic;
+	    }
+	    def.resolve(oncogenic);
+	}).fail(function() {
+	    def.reject();
+	});
+	return def.promise();
     };
     var annotateCBioPortalMutationCount = function (webservice_data) {
 	/* in-place, idempotent
@@ -247,7 +282,25 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	 * Out: promise, which resolves with the data which has been in-place modified,
 	 *	    the mutation data given the boolean attribute 'oncokb_oncogenic'
 	 */
-	
+	var def = new $.Deferred();
+	var attribute_name = 'oncokb_oncogenic';
+	getOncoKBAnnotations(webservice_data).then(function(oncogenic) {
+	    for (var i=0; i<webservice_data.length; i++) {
+		var datum = webservice_data[i];
+		if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
+		    continue;
+		}
+		var gene = datum.hugo_gene_symbol;
+		gene && (gene = gene.toUpperCase());
+		var alteration = datum.amino_acid_change;
+		alteration && (alteration = alteration.toUpperCase());
+		if (gene && alteration && oncogenic[gene] && oncogenic[gene][alteration]) {
+		    datum[attribute_name] = oncogenic[gene][alteration];
+		}
+	    }
+	    def.resolve(webservice_data);
+	});
+	return def.promise();
     };
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, source_sample_or_patient, target_sample_or_patient,
 	    target_ids, sample_to_patient_map, datatype_number_or_string, na_or_zero) {
@@ -697,7 +750,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    num_calls -= 1;
 				    if (num_calls === 0) {
 					var webservice_genomic_event_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), all_data, default_oql, false);
-					annotateCBioPortalMutationCount(webservice_genomic_event_data).then(function () {
+					$.when(annotateCBioPortalMutationCount(webservice_genomic_event_data), annotateOncoKBMutationOncogenic(webservice_genomic_event_data)).then(function () {
 					    fetch_promise.resolve(webservice_genomic_event_data);
 					});
 				    }

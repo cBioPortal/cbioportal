@@ -221,9 +221,6 @@ var StudyViewInitCharts = (function(){
             var _allNumber = false;
             var _createdChartsNum = pie.length + bar.length;
 
-            if(_attr_id === 'SAMPLE_COUNT_PATIENT'){
-                console.log('here');
-            }
              //If chart only has one category and it is NA, do not show this chart
             if(_keys.length === 1 && _keys[0] === 'NA'){
                 continue;

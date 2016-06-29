@@ -222,6 +222,24 @@ class ValidateDataSystemTester(unittest.TestCase):
         self.assertEquals(1, exit_status)
         self.assertFileGenerated(out_file_name,
                                  'test_data/study_maf_test/result_report.html')
+        
+    def test_files_with_quotes(self):
+        '''
+        Tests the scenario where data files contain quotes. This should give errors.
+        '''
+        #Build up arguments and run
+        out_file_name = 'test_data/study_quotes/result_report.html~'
+        print '==test_files_with_quotes=='
+        args = ['--study_directory','test_data/study_quotes/', 
+                '--portal_info_dir', PORTAL_INFO_DIR, '-v',
+                '--html_table', out_file_name]
+        args = validateData.interface(args)
+        # Execute main function with arguments provided through sys.argv
+        exit_status = validateData.main_validate(args)
+        # should fail because of errors with quotes
+        self.assertEquals(1, exit_status)
+        self.assertFileGenerated(out_file_name,
+                                 'test_data/study_quotes/result_report.html')        
 
 
 if __name__ == '__main__':

@@ -1,7 +1,6 @@
-sudo: false
+sudo: required
 language: java
 jdk: oraclejdk7
-
 services:
     - docker
 
@@ -11,77 +10,123 @@ cache:
         - $HOME/maven
 
 env:
-    - MAVEN_VERSION=3.3.3
+    - MAVEN_VERSION=3.3.3 TEST=core
+    - MAVEN_VERSION=3.3.3 TEST=python-validator
+    - MAVEN_VERSION=3.3.3 TEST=end-to-end
 
 install:
-    - mkdir -p ~/maven
+    # install maven
     - |
-        test -d ~/maven/$MAVEN_VERSION/bin || { \
-            find ~/maven -mindepth 1 -delete && \
-            mkdir -p ~/maven/$MAVEN_VERSION && \
-            wget -O - http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
-                tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
+        if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]
+        then
+            mkdir -p ~/maven
+            test -d ~/maven/$MAVEN_VERSION/bin || { \
+                find ~/maven -mindepth 1 -delete && \
+                mkdir -p ~/maven/$MAVEN_VERSION && \
+                wget -O - http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
+                    tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
+        fi
+    # install dependencies for the python unit tests
+    - |
+        if [[ "${TEST}" == python-validator ]]
+        then
+            sudo -H pip install -r requirements.txt
+        fi
 
 before_script:
-    - mkdir -p ~/.m2
-    - cp .travis/settings.xml ~/.m2
-    - # run mysql db for core tests
+    # run mysql db for core tests
     - |
-        docker run \
-                 --name core-tests-mysql \
-                 --net=host \
-                 -p 3306:3306 \
-                 -e MYSQL_USER=cbio_user \
-                 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
-                 -e MYSQL_PASSWORD=somepassword \
-                 -e MYSQL_DATABASE=cgds_test \
-                 -d \
-                 mysql:5.7.12
+        if [[ "${TEST}" == core ]]
+        then
+            docker run \
+                     --name core-tests-mysql \
+                     --net=host \
+                     -p 3306:3306 \
+                     -e MYSQL_USER=cbio_user \
+                     -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+                     -e MYSQL_PASSWORD=somepassword \
+                     -e MYSQL_DATABASE=cgds_test \
+                     -d \
+                     mysql:5.7.12
+         fi
 
 script:
     - export PORTAL_HOME=$(pwd)
+    # run the python unit tests (for the dataset validation scripts)
+    - |
+        if [[ "${TEST}" == python-validator ]]
+        then
+            export PYTHONPATH=$PYTHONPATH:$PORTAL_HOME/core/src/main/scripts:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages
+            cd $PORTAL_HOME/core/src/test/scripts/
+            $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py
+            $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py
+            cd $PORTAL_HOME
+        fi
+    # use .travis/settings.xml for core tests
+    - |
+        if [[ "${TEST}" == core ]]
+        then
+            mkdir -p ~/.m2
+            cp .travis/settings.xml ~/.m2
+        fi
     # use EXAMPLE properties files
-    - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
-    - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
+    - |
+        if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]
+        then
+            cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
+            cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
+        fi
     # make sure mysql container is running
     - |
-        while [[ 1 != $(echo 'select 1;' | \
-                       mysql --user cbio_user -P 3306 -h 127.0.0.1 --password=somepassword cgds_test | head -1) ]]
-        do 
-            sleep 5s
-        done
+        if [[ "${TEST}" == core ]]
+        then
+            while [[ 1 != $(echo 'select 1;' | \
+                           mysql --user cbio_user -P 3306 -h 127.0.0.1 --password=somepassword cgds_test | head -1 2> /dev/null) ]]
+            do 
+                sleep 5s
+            done
+        fi
     # core tests
     - |
-        ~/maven/$MAVEN_VERSION/bin/mvn \
-            -e \
-            -DPORTAL_HOME=$PORTAL_HOME \
-            -Ppublic \
-            -Ddb.user=cbio_user \
-            -Ddb.password=somepassword \
-            -Ddb.host=127.0.0.1 \
-            -Ddb.connection_string=jdbc:mysql://127.0.0.1:3306/ \
-            clean test
+        if [[ "${TEST}" == core ]]
+        then
+            ~/maven/$MAVEN_VERSION/bin/mvn \
+                -e \
+                -DPORTAL_HOME=$PORTAL_HOME \
+                -Ppublic \
+                -Ddb.user=cbio_user \
+                -Ddb.password=somepassword \
+                -Ddb.host=127.0.0.1 \
+                -Ddb.connection_string=jdbc:mysql://127.0.0.1:3306/ \
+                clean test
+        fi
     # end-to-end tests
-    # recompile war to use amazon db
-    # NOTE: recompilation should not be necessary in the future with env var
+    # compile war to use amazon db
     - |
-        ~/maven/$MAVEN_VERSION/bin/mvn \
-            -e -DPORTAL_HOME=$PORTAL_HOME \
-            -Ppublic -DskipTests \
-            -Ddb.user=cbio_user \
-            -Ddb.password=cbio_pass \
-            -Ddb.portal_db_name=public_test \
-            -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ \
-            -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com \
-            clean install
+        if [[ "${TEST}" == end-to-end ]]
+        then
+            ~/maven/$MAVEN_VERSION/bin/mvn \
+                -e -DPORTAL_HOME=$PORTAL_HOME \
+                -Ppublic -DskipTests \
+                -Ddb.user=cbio_user \
+                -Ddb.password=cbio_pass \
+                -Ddb.portal_db_name=public_test \
+                -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ \
+                -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com \
+                clean install
+        fi
     # spin up selenium docker grid
-    - cd test/end-to-end
-    - docker-compose up -d
-    - sleep 30s
-    - cd ../..
-    # spot visual regression by comparing screenshots in the repo with
-    # screenshots of this portal loaded with the data from the amazon db
-    - bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
+    - |
+        if [[ "${TEST}" == end-to-end ]]
+        then
+            cd test/end-to-end
+            docker-compose up -d
+            sleep 30s
+            cd ../..
+            # spot visual regression by comparing screenshots in the repo with
+            # screenshots of this portal loaded with the data from the amazon db
+            bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
+        fi
 
 notifications:
   slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6

@@ -695,5 +695,5 @@ function openStudyView(){
 	var cancerStudyId = $("#main_form").find("#select_single_study").val();
 
 	// go to the study view
-	window.open("study.do?cancer_study_id="+cancerStudyId, "_self");
+	window.open("study?id="+cancerStudyId, "_self");
 }

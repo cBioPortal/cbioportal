@@ -91,7 +91,8 @@ var StudyViewClinicalTabController = (function () {
             groupHeaderHeight: 40,
             autoColumnWidth: false,
             columnMaxWidth: 300,
-            columnSorting: true
+            columnSorting: true,
+            isResizable: true
         });
 
         ReactDOM.render(testElement, document.getElementById('clinical-data-table-div'));

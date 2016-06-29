@@ -2936,7 +2936,7 @@
 				});
 				$linkOutIcon.click(function(e) {
 					e.preventDefault();
-					window.open('study.do?cancer_study_id='+node.id);
+					window.open('study?id='+node.id);
 				});
 			} else {
 				if (this.node_has_descendant_branches(node.id)) {

@@ -258,6 +258,7 @@ var StudyViewBoilerplate ={
             .attr({
                 method: "post",
                 action: "index.do",
+                target: "_blank"
             })
             .css({
                 float: "left"

@@ -137,6 +137,25 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return ret;
     };
+    var insertionIndex = function(sorted_list, target) {
+	/* In: sorted_list, a sorted list of unique numbers
+	 *     target, a number
+	 * Out: the index of the smallest element >= target
+	 */
+	var lower_inc = 0;
+	var upper_exc = sorted_list.length;
+	while (lower_inc < upper_exc) {
+	    var proposed = Math.floor( (lower_inc + upper_exc) / 2);
+	    if (sorted_list[proposed] === target) {
+		return proposed;
+	    } else if (sorted_list[proposed] < target) {
+		lower_inc = proposed + 1;
+	    } else if (sorted_list[proposed] > target) {
+		upper_exc = proposed;
+	    }
+	}
+	return upper_exc;
+    };
 
     var getCBioPortalMutationCounts = function (webservice_data) {
 	/* In: - webservice_data, a list of data obtained from the webservice API
@@ -266,6 +285,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    continue;
 		}
 		var gene = datum.hugo_gene_symbol;
+		gene && (gene = gene.toUpperCase());
 		var start_pos = datum.protein_start_position;
 		var end_pos = datum.protein_end_position;
 		if (gene && start_pos && end_pos && !isNaN(start_pos) && !isNaN(end_pos)) {
@@ -280,7 +300,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	/* in-place, idempotent
 	 * In: - webservice_data, a list of data obtained from the webservice API
 	 * Out: promise, which resolves with the data which has been in-place modified,
-	 *	    the mutation data given the boolean attribute 'oncokb_oncogenic'
+	 *	    the mutation data given the string attribute 'oncokb_oncogenic', one of ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
 	 */
 	var def = new $.Deferred();
 	var attribute_name = 'oncokb_oncogenic';
@@ -300,6 +320,69 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    }
 	    def.resolve(webservice_data);
 	});
+	return def.promise();
+    };
+    
+    var annotateHotSpots = function(webservice_data) {
+	/* in-place, idempotent
+	 * In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: promise, which resolves with the data which has been in-place modified,
+	 *	    the mutation data given the boolean attribute 'cancer_hotspots_hotspot'
+	 */
+	var sortedNumListHasElementInRange = function(sorted_list, lower_inc, upper_exc) {
+	    /* In: list, list of numbers
+	     *	    lower_inc, inclusive lower bound of range
+	     *	    upper_exc, exclusive upper bound of range
+	     * Out; boolean, whether there is an element in list within the given range
+	     */
+	    // Locate smallest element >= the lower inc
+	    var smallest_element_in_range_index = insertionIndex(sorted_list, lower_inc);
+	    return (smallest_element_in_range_index < sorted_list.length
+		    && sorted_list[smallest_element_in_range_index] < upper_exc);
+	}
+	var def = new $.Deferred();
+	var attribute_name = 'cancer_hotspots_hotspot';
+	$.ajax({
+	    type: 'POST',
+	    url: 'api/proxy/cancerHotSpots',
+	    dataType: 'json',
+	    contentType: 'application/json'
+	}).then(function(response) {
+	    // Gather hotspot codons into sorted order for querying
+	    var gene_to_hotspot_codons = {};
+	    for (var i=0; i<response.length; i++) {
+		var gene = response[i].hugoSymbol.toUpperCase();
+		var codon = parseInt(response[i].codon.substring(1), 10);
+		gene_to_hotspot_codons[gene] = gene_to_hotspot_codons[gene] || {};
+		gene_to_hotspot_codons[gene][codon] = true;
+	    }
+	    var genes = Object.keys(gene_to_hotspot_codons);
+	    for (var i=0; i<genes.length; i++) {
+		gene_to_hotspot_codons[genes[i]] = Object.keys(gene_to_hotspot_codons[genes[i]])
+							.map(function(x) { return parseInt(x, 10); })
+							.sort();
+	    }
+	    for (var i=0; i<webservice_data.length; i++) {
+		var datum = webservice_data[i];
+		if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
+		    continue;
+		}
+		var gene = datum.hugo_gene_symbol;
+		gene && (gene = gene.toUpperCase());
+		var start_pos = datum.protein_start_position;
+		var end_pos = datum.protein_end_position;
+		if (gene && !isNaN(start_pos) && !isNaN(end_pos)) {
+		    if (sortedNumListHasElementInRange(gene_to_hotspot_codons[gene], parseInt(start_pos, 10), parseInt(end_pos, 10) + 1)) {
+			datum[attribute_name] = true;
+		    }
+		}
+		datum[attribute_name] = !!datum[attribute_name]; // ensure all are labeled true or false
+	    }
+	    def.resolve(webservice_data);
+	}).fail(function() {
+	    def.reject();
+	});
+	    
 	return def.promise();
     };
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, source_sample_or_patient, target_sample_or_patient,
@@ -750,7 +833,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    num_calls -= 1;
 				    if (num_calls === 0) {
 					var webservice_genomic_event_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), all_data, default_oql, false);
-					$.when(annotateCBioPortalMutationCount(webservice_genomic_event_data), annotateOncoKBMutationOncogenic(webservice_genomic_event_data)).then(function () {
+					$.when(annotateCBioPortalMutationCount(webservice_genomic_event_data), 
+						annotateOncoKBMutationOncogenic(webservice_genomic_event_data),
+						annotateHotSpots(webservice_genomic_event_data)).then(function () {
 					    fetch_promise.resolve(webservice_genomic_event_data);
 					});
 				    }

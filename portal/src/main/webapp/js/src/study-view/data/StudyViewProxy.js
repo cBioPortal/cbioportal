@@ -204,7 +204,6 @@ var StudyViewProxy = (function() {
                             _dataAttrOfa1[_attrId].keys.push(_attrVal);
                         }
                     }
-
                     obtainDataObject.arr[sampleIdArrMapping[_sampleId]][_attrId] = _attrVal;
                 }
 
@@ -360,6 +359,40 @@ var StudyViewProxy = (function() {
                             callbackFunc(obtainDataObject);
                         }
                     }, 200);
+                }
+                //add two attributes: the sample is sequenced or not, and the sample has cna data or not
+                var caseAttr = new CaseAttr();
+                caseAttr.attr_id = 'SEQUENCED';
+                caseAttr.display_name = 'Sequenced';
+                caseAttr.description = 'If the sample got sequenced';
+                caseAttr.datatype = 'STRING';
+                caseAttr.keys =  ['Yes', 'No'];
+                obtainDataObject.attr.push(caseAttr);
+
+                caseAttr = new CaseAttr();
+                caseAttr.attr_id = 'HAS_CNA_DATA';
+                caseAttr.display_name = 'Has CNA Data';
+                caseAttr.description = 'If the sample has CNA data';
+                caseAttr.datatype = 'STRING';
+                caseAttr.keys =  ['Yes', 'No'];
+                obtainDataObject.attr.push(caseAttr);
+
+
+                for(var i = 0; i < obtainDataObject.arr.length; i++){
+                    var _sampleId = obtainDataObject.arr[i].CASE_ID;
+                    
+                    if(obtainDataObject.sequencedSampleIds.indexOf(_sampleId) !== -1){
+                        obtainDataObject.arr[i]['SEQUENCED'] = 'Yes';
+                    }else{
+                        obtainDataObject.arr[i]['SEQUENCED'] = 'No';
+                    }
+                    
+                    if(obtainDataObject.cnaSampleIds.indexOf(_sampleId) !== -1){
+                        obtainDataObject.arr[i]['HAS_CNA_DATA'] = 'Yes';
+                    }else{
+                        obtainDataObject.arr[i]['HAS_CNA_DATA'] = 'No';
+                    }
+                    
                 }
             });
     }

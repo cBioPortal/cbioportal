@@ -698,7 +698,7 @@ function updateCancerStudyInformation() {
     // check if cancer study has a clinical_free_form data to filter,
     // if there is data to filter, then enable "build custom case set" link,
     // otherwise disable the button
-    jQuery.getJSON("ClinicalFreeForm.json",
+    /*jQuery.getJSON("ClinicalFreeForm.json",
 		{studyId: $("#select_single_study").val()},
 		function(json){
 			var noDataToFilter = false;
@@ -728,9 +728,9 @@ function updateCancerStudyInformation() {
 			if (noDataToFilter)
 			{
 				// no clinical_free_form data to filter for the current
-				// cancer study, so disable the button
+	*/			// cancer study, so disable the button
 				$("#build_custom_case_set").hide();
-			}
+	/*		}
 			else
 			{
 				$("#build_custom_case_set").tipTip({defaultPosition: "right",
@@ -740,7 +740,7 @@ function updateCancerStudyInformation() {
 				
 				$("#build_custom_case_set").hide();//.show(); temporarily disabled build case list
 			}
-		});
+		});*/
 }
 //  Triggered when a cancer study has been selected, either by the user
 //  or programatically.

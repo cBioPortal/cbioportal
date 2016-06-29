@@ -162,7 +162,7 @@ def run_migration(db_version, sql_filename, connection, cursor):
             continue
 
         # skip blank lines
-        if len(line.strip()) < 1 or line.startswith('#'):
+        if len(line.strip()) < 1 or line.startswith('#') or line.startswith('-- '):
             continue
         # only execute sql line if the last version seen in the file is greater than the db_version
         if run_line:

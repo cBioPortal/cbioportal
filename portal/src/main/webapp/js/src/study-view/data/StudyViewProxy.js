@@ -361,6 +361,15 @@ var StudyViewProxy = (function() {
                         }
                     }, 200);
                 }
+                //add a new attribute for sample count per patient
+                var caseAttr = new CaseAttr();
+                caseAttr.attr_id = 'SAMPLE_COUNT_PATIENT';
+                caseAttr.display_name = '# of Samples Per Patient';
+                caseAttr.description = '';
+                caseAttr.datatype = 'NUMBER';
+                caseAttr.keys =  [];
+                caseAttr.numOfNoneEmpty = obtainDataObject.arr.length;
+                obtainDataObject.attr.push(caseAttr);
             });
     }
 

@@ -141,7 +141,12 @@ var StudyViewInitCharts = (function(){
             _arrLength = _arr.length,
             _studyDesc = "",
             _highPriorityAttrs = [],
-            _lowPriorityAttrs = [];
+            _lowPriorityAttrs = [],
+            _sampleCountPerPatient = [],
+            _tempIndex = -1,
+            _sampleCountAllPatients = [],
+            maxCount = 0,
+            uniqueCounts = [];
 
         _highPriorityAttrs.concat(priorityAttrs);
 
@@ -153,7 +158,30 @@ var StudyViewInitCharts = (function(){
         //cna = dataObtained.cna || '';
         numOfCases = _arr.length;
         ndx = crossfilter(_arr);
-
+        //calculate the sample count information per patient
+        for(var i = 0;i < _arr.length;i++){
+            tempIndex = _.map(_sampleCountPerPatient, function(item){return item.patientID}).indexOf(_arr[i].PATIENT_ID);
+            if(tempIndex === -1)
+                _sampleCountPerPatient.push({patientID: _arr[i].PATIENT_ID, samples: [_arr[i].CASE_ID], sampleCount: 1});
+            else {
+                _sampleCountPerPatient[tempIndex].sampleCount++;
+                _sampleCountPerPatient[tempIndex].samples.push(_arr[i].CASE_ID);
+            }
+        }
+        //add the sample count info to each sample
+        for(var i = 0;i < _arr.length;i++){
+            tempIndex = _.map(_sampleCountPerPatient, function(item){return item.patientID}).indexOf(_arr[i].PATIENT_ID);
+            _arr[i].SAMPLE_COUNT_PATIENT = _sampleCountPerPatient[tempIndex].sampleCount;
+            if(_sampleCountPerPatient[tempIndex].sampleCount > maxCount){
+                maxCount =  _sampleCountPerPatient[tempIndex].sampleCount;
+                uniqueCounts.push(maxCount);
+            }   
+        }
+        //update info for attribute SAMPLE_COUNT_PATIENT
+        tempIndex = _.map(_attr, function(item){return item.attr_id}).indexOf('SAMPLE_COUNT_PATIENT');
+        _attr[tempIndex].keys = uniqueCounts;
+        _attr[tempIndex].numOfNoneEmpty = _arr.length;
+       
         //Save data based on CASE_ID
         for( var j = 0; j < _arrLength; j++ ){
             dataArr[_arr[j].CASE_ID] = _arr[j];
@@ -193,6 +221,9 @@ var StudyViewInitCharts = (function(){
             var _allNumber = false;
             var _createdChartsNum = pie.length + bar.length;
 
+            if(_attr_id === 'SAMPLE_COUNT_PATIENT'){
+                console.log('here');
+            }
              //If chart only has one category and it is NA, do not show this chart
             if(_keys.length === 1 && _keys[0] === 'NA'){
                 continue;
@@ -252,7 +283,6 @@ var StudyViewInitCharts = (function(){
                 varName.push(_attr[i].attr_id);
             }
         }
-
         $("#study-desc").append("&nbsp;&nbsp;<b>"+ Object.keys(dataArr).length +" samples " + _studyDesc+"</b>.");
 
         totalCharts = pie.length + bar.length;

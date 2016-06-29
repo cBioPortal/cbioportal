@@ -250,7 +250,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	
     };
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, source_sample_or_patient, target_sample_or_patient,
-	    target_ids, sample_to_patient_map, datatype_number_or_string) {
+	    target_ids, sample_to_patient_map, datatype_number_or_string, na_or_zero) {
+	na_or_zero = na_or_zero || "na";
 	var id_to_datum = {};
 	var id_attribute = source_sample_or_patient + '_id'; // sample_id or patient_id
 	for (var i = 0, _len = webservice_clinical_data.length; i < _len; i++) {
@@ -293,7 +294,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
 	    var disp_attr_val = undefined;
 	    if (values.length === 0) {
-		datum_to_add.na = true;
+		if (na_or_zero === "na") {
+		    datum_to_add.na = true;
+		} else if (na_or_zero === "zero") {
+		    datum_to_add.attr_val_counts[0] = 1;
+		    disp_attr_val = 0;
+		}
 	    } else if (values.length === 1) {
 		disp_attr_val = values[0];
 	    } else {
@@ -305,7 +311,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			avg += values[j] * multiplicity;
 			total += multiplicity;
 		    }
-		    disp_attr_val = avg / total;
+		    disp_attr_val = ((total > 0) ? (avg / total) : 0);
 		} else {
 		    disp_attr_val = "Mixed";
 		}
@@ -347,7 +353,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	// Compute display parameters
 	var data = objectValues(gene_and_id_to_datum);
 	var cna_profile_data_to_string = {
-	    "-2": "homdel",
+	    "-2": "homdel", 
 	    "-1": "hetloss",
 	    "0": undefined,
 	    "1": "gain",
@@ -526,13 +532,15 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var target_ids = (target_sample_or_patient === "sample" ? self.getSampleIds() : patient_ids);
 		for (var i = 0; i < sample_attr_ids.length; i++) {
 		    var attr_id = sample_attr_ids[i];
+		    var na_or_zero = (attr_id === "# mutations" ? "zero" : "na");
 		    var datatype = sorted_attrs.sample[attr_id].datatype.toLowerCase();
-		    data = data.concat(makeOncoprintClinicalData(sample_data_by_attr_id[attr_id], attr_id, "sample", target_sample_or_patient, target_ids, sample_to_patient_map, datatype));
+		    data = data.concat(makeOncoprintClinicalData(sample_data_by_attr_id[attr_id], attr_id, "sample", target_sample_or_patient, target_ids, sample_to_patient_map, datatype, na_or_zero));
 		}
 		for (var i = 0; i < patient_attr_ids.length; i++) {
 		    var attr_id = patient_attr_ids[i];
+		    var na_or_zero = (attr_id === "# mutations" ? "zero" : "na");
 		    var datatype = sorted_attrs.patient[attr_id].datatype.toLowerCase();
-		    data = data.concat(makeOncoprintClinicalData(patient_data_by_attr_id[attr_id], attr_id, "patient", target_sample_or_patient, target_ids, sample_to_patient_map, datatype));
+		    data = data.concat(makeOncoprintClinicalData(patient_data_by_attr_id[attr_id], attr_id, "patient", target_sample_or_patient, target_ids, sample_to_patient_map, datatype, na_or_zero));
 		}
 		def.resolve(data);
 	    });

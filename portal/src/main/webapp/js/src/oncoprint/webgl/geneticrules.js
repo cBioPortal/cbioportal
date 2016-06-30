@@ -202,7 +202,7 @@ window.geneticrules.genetic_rule_set_same_color_for_all_recurrence = {
 			'height': '33.33%',
 			'z': 5.2
 		}],
-		legend_label: 'Mutation (recurrent)'
+		legend_label: 'Mutation (recurrent/prior knowledge)'
 	    },
 	    'missense,inframe,trunc,trunc_rec': { 
 		shapes: [{
@@ -214,7 +214,7 @@ window.geneticrules.genetic_rule_set_same_color_for_all_recurrence = {
 			'height': '33.33%',
 			'z': 5.2
 		}],
-		legend_label: 'Mutation (non-recurrent)'
+		legend_label: 'Mutation (non-recurrent/no prior knowledge)'
 	    },
 	},
     })
@@ -314,7 +314,7 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 			'height': '33.33%',
 			'z': 5.2,
 		    }],
-		legend_label: 'Inframe Mutation (recurrent)',
+		legend_label: 'Inframe Mutation (recurrent/prior knowledge)',
 	    },
 	    'inframe': {
 		shapes: [{
@@ -326,7 +326,7 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 			'height': '33.33%',
 			'z': 5.2,
 		    }],
-		legend_label: 'Inframe Mutation (non-recurrent)',
+		legend_label: 'Inframe Mutation (non-recurrent/no prior knowledge)',
 	    },
 	    'missense_rec': {
 		shapes: [{
@@ -338,7 +338,7 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 			'height': '33.33%',
 			'z': 5.2,
 		    }],
-		legend_label: 'Missense Mutation (recurrent)',
+		legend_label: 'Missense Mutation (recurrent/prior knowledge)',
 	    },
 	    'missense': {
 		shapes: [{
@@ -350,7 +350,7 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 			'height': '33.33%',
 			'z': 5.2,
 		    }],
-		legend_label: 'Missense Mutation (non-recurrent)',
+		legend_label: 'Missense Mutation (non-recurrent/no prior knowledge)',
 	    },
 	}
     })

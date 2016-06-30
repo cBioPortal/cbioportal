@@ -137,6 +137,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return ret;
     };
+    var getOncoprintMutationType = function(type) {
+	// In: output of getSimplifiedMutationType
+	// Out: Everything that's not missense, inframe, or fusion becomes trunc
+	type = type.toLowerCase();
+	return (["missense", "inframe", "fusion"].indexOf(type) > -1 ? type : "trunc");
+    };
     var insertionIndex = function(sorted_list, target) {
 	/* In: sorted_list, a sorted list of unique numbers
 	 *     target, a number
@@ -553,9 +559,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			disp_prot_counts[prot_event] += 1;
 		    }
 		} else if (event.genetic_alteration_type === "MUTATION_EXTENDED") {
-		    var mutation_type = event.simplified_mutation_type;
+		    var oncoprint_mutation_type = event.oncoprint_mutation_type;
 		    // clamp all mutation types into one of the following four
-		    var oncoprint_mutation_type = (["missense", "inframe", "fusion"].indexOf(mutation_type) > -1 ? mutation_type : "trunc");
 		    disp_mut_counts[oncoprint_mutation_type] = disp_mut_counts[oncoprint_mutation_type] || 0;
 		    disp_mut_counts[oncoprint_mutation_type] += 1;
 		}
@@ -690,7 +695,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		fetcher(this, fetch_promise);
 	    }
 	    fetch_promise.then(function (data) {
-		def.resolve(data.map(deepCopyObject));
+		def.resolve(deepCopyObject(data));
 	    });
 	    return def.promise();
 	};
@@ -813,6 +818,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    if (genetic_alteration_type === "MUTATION_EXTENDED") {
 					for (var j = 0; j < data.length; j++) {
 					    data[j].simplified_mutation_type = getSimplifiedMutationType(data[j].mutation_type);
+					    data[j].oncoprint_mutation_type = getOncoprintMutationType(data[j].simplified_mutation_type);
 					    data[j].genetic_alteration_type = genetic_alteration_type;
 					}
 				    } else {

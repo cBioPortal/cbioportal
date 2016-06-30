@@ -104,6 +104,8 @@ public class GeneticAlterationType {
            return PROTEIN_ARRAY_PROTEIN_LEVEL;
         } else if (type.equals(PROTEIN_ARRAY_PHOSPHORYLATION.toString())) {
            return PROTEIN_ARRAY_PHOSPHORYLATION;
+        } else if (type.equals(SV.toString())){
+            return SV;
         } else {
             throw new NullPointerException("Cannot find: '" + type + "'");
         }
@@ -126,7 +128,10 @@ public class GeneticAlterationType {
      */
     public static final GeneticAlterationType COPY_NUMBER_ALTERATION
             = new GeneticAlterationType("COPY_NUMBER_ALTERATION");
-
+    
+    public static final GeneticAlterationType SV
+            = new GeneticAlterationType("SV");
+    
     /**
      * microRNA expression alteration type.
      */

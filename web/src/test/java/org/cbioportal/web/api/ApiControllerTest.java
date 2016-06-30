@@ -10,10 +10,12 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.Patient;
+import org.cbioportal.model.SV;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleType;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SVService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Assert.*;
@@ -48,9 +50,12 @@ public class ApiControllerTest {
     @Autowired
     private MutationService mutationServiceMock;
     @Autowired
+    private SVService svServiceMock;
+    @Autowired
     private WebApplicationContext webApplicationContext;
     private MockMvc mockMvc;
     private static List<Mutation> geneticprofiledataQuery1PersistenceFullMock; //full data from tables
+    private static List<SV> svDataQuery1PersistenceFullMock; //full data from tables
     private static List<Mutation> geneticprofiledataQuery1ServiceMock;
     private static List<DBGeneticProfile> geneticProfileQuery1ServiceMock;
 
@@ -59,6 +64,7 @@ public class ApiControllerTest {
         Mockito.reset(cancerTypeMapperMock);
         Mockito.reset(geneticProfileMapperMock);
         Mockito.reset(mutationServiceMock);
+        Mockito.reset(svServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
@@ -1014,6 +1020,520 @@ public class ApiControllerTest {
         mutation6.setAminoAcidChange(null);
         geneticprofiledataQuery1PersistenceFullMock.add(mutation6);
         return geneticprofiledataQuery1PersistenceFullMock;
+    }
+    
+    @Test
+    public void svDataTest1() throws Exception {
+        List<SV> mockResponse = getSVdataQuerylPersistenceFullMock();
+        Mockito.when(svServiceMock.getSV(
+                org.mockito.Matchers.anyListOf(Integer.class),
+                org.mockito.Matchers.anyListOf(String.class),
+                org.mockito.Matchers.anyListOf(String.class)
+        )).thenReturn(mockResponse);
+        this.mockMvc.perform(
+            MockMvcRequestBuilders.get("/sv")
+            .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
+            .param("genetic_profile_ids","7")
+            .param("genes","ERBB2,GRB7")
+            .param("sample_ids","P-0000068-T01-IM3,P-0001317-T01-IM3,P-0002622-T02-IM5")
+        )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_id").value("P-0000068-T01-IM3"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_variant_id").value("94072"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].breaktpoint_type").value("35333463-N_bc28"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].comments").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].confidence_class").value("AUTO_OK"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].conn_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].connection_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].event_info").value("Transcript fusion (ERBB2-GRB7)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mapq").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normal_read_count").value("5082"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normal_variant_count").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].paired_end_read_support").value("6"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_desc").value("Intron of ERBB2(+): 60bp after exon 26"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_pos").value("37883860"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_desc").value("5-UTR of GRB7(+): 1Kb before coding start"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_gene").value("GRB7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_pos").value("37897388"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].split_read_support").value("20"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_class_name").value("DELETION"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_desc").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_length").value("13528"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumor_read_count").value("5915"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumor_variant_count").value("9"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_status_name").value("NEW_VARIANT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genetic_profile_id").value("7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_id").value("P-0001317-T01-IM3"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_variant_id").value("73009"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].breaktpoint_type").value("PRECISE"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].annotation").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].comments").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].confidence_class").value("AUTO_OK"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].conn_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].connection_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].event_info").value("Protein fusion: mid-exon (ERBB2-GRB7)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].mapq").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].normal_read_count").value("9711"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].normal_variant_count").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].paired_end_read_support").value("63"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_desc").value("Exon 25 of ERBB2(+)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_pos").value("37883150"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_desc").value("Intron of GRB7(+): 68bp before exon 10"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_gene").value("GRB7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_pos").value("37901428"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].split_read_support").value("92"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_class_name").value("DELETION"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_desc").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_length").value("18278"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].tumor_read_count").value("7913"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].tumor_variant_count").value("79"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_status_name").value("NEW_VARIANT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genetic_profile_id").value("7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sample_id").value("P-0002622-T02-IM5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sv_variant_id").value("48168"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].breaktpoint_type").value("PRECISE"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].annotation").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].comments").value("ERBB2 (NM_004448) rearrangement results in the intragenic deletion of exon 16. Its functional significance is undetermined."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].confidence_class").value("MANUAL_OK"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].conn_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].connection_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].event_info").value("Deletion of 1 exon: in frame"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].mapq").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].normal_read_count").value("2742"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].normal_variant_count").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].paired_end_read_support").value("10"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site1_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site1_desc").value("Intron of ERBB2(+): 60bp after exon 15"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site1_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site1_pos").value("37873794"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site2_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site2_desc").value("Intron of ERBB2(+): 516bp before exon 17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site2_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site2_pos").value("37879056"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].split_read_support").value("10"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sv_class_name").value("DELETION"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sv_desc").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sv_length").value("2600"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].tumor_read_count").value("16735"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].tumor_variant_count").value("18"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].variant_status_name").value("NEW_VARIANT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genetic_profile_id").value("7"));
+    }
+    
+    @Test
+    public void svDataTest2() throws Exception{
+        List <SV> mockResponse = getSVdataQuerylPersistenceFullMock();
+        Mockito.when(svServiceMock.getSV(
+                org.mockito.Matchers.anyListOf(Integer.class),
+                org.mockito.Matchers.anyListOf(String.class),
+                org.mockito.Matchers.anyListOf(String.class)
+        )).thenReturn(mockResponse);
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.get("/sv")
+                .accept("application/json;charset=UTF-8")
+                .param("genetic_profile_ids", "7")
+                .param("genes", "ERBB2")
+                .param("sample_ids", "P-0000068-T01-IM3,P-0001317-T01-IM3,P-0002622-T02-IM5")
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_id").value("P-0000068-T01-IM3"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_variant_id").value("94072"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].breaktpoint_type").value("35333463-N_bc28"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].comments").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].confidence_class").value("AUTO_OK"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].conn_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].connection_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].event_info").value("Transcript fusion (ERBB2-GRB7)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mapq").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normal_read_count").value("5082"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normal_variant_count").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].paired_end_read_support").value("6"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_desc").value("Intron of ERBB2(+): 60bp after exon 26"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_pos").value("37883860"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_desc").value("5-UTR of GRB7(+): 1Kb before coding start"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_gene").value("GRB7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_pos").value("37897388"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].split_read_support").value("20"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_class_name").value("DELETION"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_desc").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_length").value("13528"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumor_read_count").value("5915"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumor_variant_count").value("9"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_status_name").value("NEW_VARIANT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genetic_profile_id").value("7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_id").value("P-0001317-T01-IM3"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_variant_id").value("73009"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].breaktpoint_type").value("PRECISE"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].annotation").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].comments").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].confidence_class").value("AUTO_OK"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].conn_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].connection_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].event_info").value("Protein fusion: mid-exon (ERBB2-GRB7)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].mapq").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].normal_read_count").value("9711"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].normal_variant_count").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].paired_end_read_support").value("63"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_desc").value("Exon 25 of ERBB2(+)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_pos").value("37883150"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_desc").value("Intron of GRB7(+): 68bp before exon 10"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_gene").value("GRB7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_pos").value("37901428"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].split_read_support").value("92"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_class_name").value("DELETION"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_desc").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_length").value("18278"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].tumor_read_count").value("7913"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].tumor_variant_count").value("79"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_status_name").value("NEW_VARIANT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genetic_profile_id").value("7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sample_id").value("P-0002622-T02-IM5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sv_variant_id").value("48168"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].breaktpoint_type").value("PRECISE"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].annotation").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].comments").value("ERBB2 (NM_004448) rearrangement results in the intragenic deletion of exon 16. Its functional significance is undetermined."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].confidence_class").value("MANUAL_OK"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].conn_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].connection_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].event_info").value("Deletion of 1 exon: in frame"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].mapq").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].normal_read_count").value("2742"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].normal_variant_count").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].paired_end_read_support").value("10"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site1_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site1_desc").value("Intron of ERBB2(+): 60bp after exon 15"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site1_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site1_pos").value("37873794"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site2_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site2_desc").value("Intron of ERBB2(+): 516bp before exon 17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site2_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].site2_pos").value("37879056"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].split_read_support").value("10"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sv_class_name").value("DELETION"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sv_desc").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sv_length").value("2600"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].tumor_read_count").value("16735"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].tumor_variant_count").value("18"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].variant_status_name").value("NEW_VARIANT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genetic_profile_id").value("7"));
+    }
+    
+    @Test
+    public void svDataTest3() throws Exception{
+        List <SV> mockResponse = getSVdataQuerylPersistenceFullMock();
+        Mockito.when(svServiceMock.getSV(
+                org.mockito.Matchers.anyListOf(Integer.class),
+                org.mockito.Matchers.anyListOf(String.class),
+                org.mockito.Matchers.anyListOf(String.class)
+        )).thenReturn(mockResponse);
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.get("/sv")
+                .accept("application/json;charset=UTF-8")
+                .param("genetic_profile_ids", "7")
+                .param("genes", "GRB7")
+                .param("sample_ids", "P-0000068-T01-IM3,P-0001317-T01-IM3")
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_id").value("P-0000068-T01-IM3"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_variant_id").value("94072"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].breaktpoint_type").value("35333463-N_bc28"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].comments").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].confidence_class").value("AUTO_OK"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].conn_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].connection_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].event_info").value("Transcript fusion (ERBB2-GRB7)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mapq").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normal_read_count").value("5082"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normal_variant_count").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].paired_end_read_support").value("6"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_desc").value("Intron of ERBB2(+): 60bp after exon 26"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1_pos").value("37883860"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_desc").value("5-UTR of GRB7(+): 1Kb before coding start"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_gene").value("GRB7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2_pos").value("37897388"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].split_read_support").value("20"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_class_name").value("DELETION"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_desc").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sv_length").value("13528"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumor_read_count").value("5915"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumor_variant_count").value("9"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_status_name").value("NEW_VARIANT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genetic_profile_id").value("7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_id").value("P-0001317-T01-IM3"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_variant_id").value("73009"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].breaktpoint_type").value("PRECISE"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].annotation").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].comments").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].confidence_class").value("AUTO_OK"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].conn_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].connection_type").value("3to5"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].event_info").value("Protein fusion: mid-exon (ERBB2-GRB7)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].mapq").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].normal_read_count").value("9711"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].normal_variant_count").value("0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].paired_end_read_support").value("63"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_desc").value("Exon 25 of ERBB2(+)"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_gene").value("ERBB2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site1_pos").value("37883150"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_chrom").value("17"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_desc").value("Intron of GRB7(+): 68bp before exon 10"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_gene").value("GRB7"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].site2_pos").value("37901428"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].split_read_support").value("92"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_class_name").value("DELETION"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_desc").value("n/a"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sv_length").value("18278"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].tumor_read_count").value("7913"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].tumor_variant_count").value("79"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_status_name").value("NEW_VARIANT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genetic_profile_id").value("7"))
+                ;
+    }
+    
+    @Test
+    public void svDataTest4() throws Exception{
+        List <SV> mockResponse = getSVdataQuerylPersistenceFullMock();
+        Mockito.when(svServiceMock.getSV(
+                org.mockito.Matchers.anyListOf(Integer.class),
+                org.mockito.Matchers.anyListOf(String.class),
+                org.mockito.Matchers.anyListOf(String.class)
+        )).thenReturn(mockResponse);
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.get("/sv")
+                .accept("application/json;charset=UTF-8")
+                .param("genetic_profile_ids", "7")
+                .param("genes", "unrecognized_gene_identifier")
+                .param("sample_ids", "")
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)))
+                ;
+    }
+    
+    private List<SV> getSVdataQuerylPersistenceFullMock(){
+        if(svDataQuery1PersistenceFullMock != null){
+            return svDataQuery1PersistenceFullMock;
+        }
+        svDataQuery1PersistenceFullMock = new ArrayList<>();
+        TypeOfCancer typeOfCancerSV = new TypeOfCancer();
+        typeOfCancerSV.setName("Mixed Cancer Types");
+        typeOfCancerSV.setTypeOfCancerId("mixed");
+        typeOfCancerSV.setDedicatedColor("Black");
+        typeOfCancerSV.setParent("cup");
+        typeOfCancerSV.setClinicalTrialKeywords("mixed cancer types");
+        typeOfCancerSV.setShortName("MIXED");
+        
+        CancerStudy cancerStudySV = new CancerStudy();
+        cancerStudySV.setCancerStudyId(6);
+        cancerStudySV.setCancerStudyIdentifier("mskimpact");
+        cancerStudySV.setTypeOfCancer(typeOfCancerSV);
+        cancerStudySV.setName("MSK-IMPACT Clinical Sequencing Cohort (MSKCC)");
+        cancerStudySV.setShortName("MSK-IMPACT");
+        cancerStudySV.setDescription("Targeted sequencing of clinical cases via MSK-IMPACT. Please follow the <a href=\"http://cmo.mskcc.org/cmo/initiatives/msk-impact/\">publication guidelines</a> when using these data in abstracts or journal articles.<br/> <font color=\"red\">These data are available to MSK investigators only, are unpublished, and cannot be shared with anyone outside of MSK.</font>");
+        cancerStudySV.setPublicStudy(true);
+        cancerStudySV.setPmid(null);
+        cancerStudySV.setCitation(null);
+        cancerStudySV.setGroups("BERGERM1;MSKPUB;DMP;SOLITD");
+        cancerStudySV.setStatus(0);
+        cancerStudySV.setImportDate(null);
+        
+        Patient patient_63187 = new Patient();
+        patient_63187.setCancerStudy(cancerStudySV);
+        patient_63187.setCancerStudyId(6);
+        patient_63187.setInternalId(63187);
+        patient_63187.setStableId("P-0000068");
+        Patient patient_64250 = new Patient();
+        patient_64250.setCancerStudy(cancerStudySV);
+        patient_64250.setCancerStudyId(6);
+        patient_64250.setInternalId(64250);
+        patient_64250.setStableId("P-0001317");
+        Patient patient_55025 = new Patient();
+        patient_55025.setCancerStudy(cancerStudySV);
+        patient_55025.setCancerStudyId(6);
+        patient_55025.setInternalId(55025);
+        patient_55025.setStableId("P-0002622");
+        
+        Sample sampleSV1 = new Sample();
+        sampleSV1.setInternalId(67148);
+        sampleSV1.setStableId("P-0000068-T01-IM3");
+        sampleSV1.setSampleType(SampleType.PRIMARY_SOLID_TUMOR);
+        sampleSV1.setPatientId(63187);
+        sampleSV1.setTypeOfCancerId("mixed");
+        sampleSV1.setTypeOfCancer(typeOfCancerSV);
+        Sample sampleSV2 = new Sample();
+        sampleSV2.setInternalId(68139);
+        sampleSV2.setStableId("P-0001317-T01-IM3");
+        sampleSV2.setSampleType(SampleType.PRIMARY_SOLID_TUMOR);
+        sampleSV2.setPatientId(64250);
+        sampleSV2.setPatient(patient_64250);
+        sampleSV2.setTypeOfCancerId("mixed");
+        sampleSV2.setTypeOfCancer(typeOfCancerSV);
+        Sample sampleSV3 = new Sample();
+        sampleSV3.setInternalId(65516);
+        sampleSV3.setStableId("P-0002622-T02-IM5");
+        sampleSV3.setSampleType(SampleType.PRIMARY_SOLID_TUMOR);
+        sampleSV3.setPatientId(55025);
+        sampleSV3.setPatient(patient_55025);
+        sampleSV3.setTypeOfCancerId("mixed");
+        sampleSV3.setTypeOfCancer(typeOfCancerSV);
+        
+        
+        GeneticProfile geneticProfile_mskimpact_sv = new GeneticProfile();
+        geneticProfile_mskimpact_sv.setGeneticProfileId(7);
+        geneticProfile_mskimpact_sv.setStableId("mskimpact_sv");
+        geneticProfile_mskimpact_sv.setCancerStudy(cancerStudySV);
+        geneticProfile_mskimpact_sv.setGeneticAlterationType("SV");
+        geneticProfile_mskimpact_sv.setDatatype("SV");
+        geneticProfile_mskimpact_sv.setName("SV (MSK-IMPACT)");
+        geneticProfile_mskimpact_sv.setDescription("Targeted sequencing of various tumor types via MSK-IMPACT on Illumina HiSeq sequencers.");
+        geneticProfile_mskimpact_sv.setShowProfileInAnalysisTab(true);
+        
+        Gene gene_ERBB2 = new Gene();
+        gene_ERBB2.setHugoGeneSymbol("ERBB2");
+        gene_ERBB2.setEntrezGeneId(2064);
+        gene_ERBB2.setCytoband("17q12");
+        gene_ERBB2.setLength(10321);
+        gene_ERBB2.setType("protein-coding");
+        Gene gene_GRB7 = new Gene();
+        gene_GRB7.setHugoGeneSymbol("GRB7");
+        gene_GRB7.setEntrezGeneId(2886);
+        gene_GRB7.setType("protein-coding");
+        gene_GRB7.setCytoband("17q12");
+        gene_GRB7.setLength(3597);
+        
+        SV sv1 = new SV();
+        sv1.setSampleId("P-0000068-T01-IM3");
+        sv1.setSample(sampleSV1);
+        sv1.setSv_variant_id(94072);
+        sv1.setBreakpoint_type("35333463-N_bc28");
+        sv1.setAnnotation("n/a");
+        sv1.setComments("n/a");
+        sv1.setConfidence_class("AUTO_OK");
+        sv1.setConn_type("3to5");
+        sv1.setConnection_type("3to5");
+        sv1.setEvent_info("Transcript fusion (ERBB2-GRB7");
+        sv1.setMapq(0);
+        sv1.setNormal_read_count(5082);
+        sv1.setNormal_variant_count(0);
+        sv1.setPaired_end_read_support(6);
+        sv1.setSite1_chrom("17");
+        sv1.setSite1_desc("Intron of ERBB2(+): 60bp after exon 26");
+        sv1.setSite1_gene("ERBB2");
+        sv1.setGene1(gene_ERBB2);
+        sv1.setSite1_pos(37883860);
+        sv1.setSite2_chrom("17");
+        sv1.setSite2_desc("5-UTR of GRB7(+): 1Kb before coding start");
+        sv1.setSite2_gene("GRB7");
+        sv1.setGene2(gene_GRB7);
+        sv1.setSite2_pos(37897388);
+        sv1.setSplit_read_support(20);
+        sv1.setSv_class_name("DELETION");
+        sv1.setSv_desc("n/a");
+        sv1.setSv_length(13528);
+        sv1.setTumor_read_count(5915);
+        sv1.setTumor_variant_count(9);
+        sv1.setVariant_status_name("NEW_VARIANT");
+        sv1.setGeneticProfileId(7);
+        sv1.setGeneticProfile(geneticProfile_mskimpact_sv);
+        svDataQuery1PersistenceFullMock.add(sv1);
+        SV sv2 = new SV();
+        sv2.setSampleId("P-0001317-T01-IM3");
+        sv2.setSample(sampleSV2);
+        sv2.setSv_variant_id(73009);
+        sv2.setBreakpoint_type("PRECISE");
+        sv2.setAnnotation("n/a");
+        sv2.setComments("n/a");
+        sv2.setConfidence_class("AUTO_OK");
+        sv2.setConn_type("3to5");
+        sv2.setConnection_type("3to5");
+        sv2.setEvent_info("Protein fusion: mid-exon (ERBB2-GB7)");
+        sv2.setMapq(0);
+        sv2.setNormal_read_count(9711);
+        sv2.setNormal_variant_count(0);
+        sv2.setPaired_end_read_support(63);
+        sv2.setSite1_chrom("17");
+        sv2.setSite1_desc("Exon 25 of ERBB2(+)");
+        sv2.setSite1_gene("ERBB2");
+        sv2.setGene1(gene_ERBB2);
+        sv2.setSite1_pos(37883150);
+        sv2.setSite2_chrom("17");
+        sv2.setSite2_desc("Intron of GRB7(+): 68bp before exon 10");
+        sv2.setSite2_gene("GRB7");
+        sv2.setGene2(gene_GRB7);
+        sv2.setSite1_pos(37901428);
+        sv2.setSplit_read_support(92);
+        sv2.setSv_class_name("DELETION");
+        sv2.setSv_desc("n/a");
+        sv2.setSv_length(18278);
+        sv2.setTumor_read_count(7913);
+        sv2.setTumor_variant_count(79);
+        sv2.setVariant_status_name("NEW_VARIANT");
+        sv2.setGeneticProfileId(7);
+        sv2.setGeneticProfile(geneticProfile_mskimpact_sv);
+        svDataQuery1PersistenceFullMock.add(sv2);
+        SV sv3 = new SV();
+        sv3.setSampleId("P-0002622-T02-IM5");
+        sv3.setSample(sampleSV3);
+        sv3.setSv_variant_id(48168);
+        sv3.setBreakpoint_type("PRECISE");
+        sv3.setAnnotation("n/a");
+        sv3.setComments("ERBB2 (NM_004448) rearrangement results in the intragenic deletion of exon 16. Its functional significance is undetermined.");
+        sv3.setConfidence_class("MANUAL_OK");
+        sv3.setConn_type("3to5");
+        sv3.setConnection_type("3to5");
+        sv3.setEvent_info("Deletion of 1 exon: in frame");
+        sv3.setMapq(0);
+        sv3.setNormal_read_count(2742);
+        sv3.setNormal_variant_count(0);
+        sv3.setPaired_end_read_support(10);
+        sv3.setSite1_chrom("17");
+        sv3.setSite1_desc("Intron of ERBB2(+): 61bp after exon 15");
+        sv3.setSite1_gene("ERBB2");
+        sv3.setGene1(gene_ERBB2);
+        sv3.setSite1_pos(37873794);
+        sv3.setSite2_chrom("17");
+        sv3.setSite2_desc("Intron of ERBB2(+): 516bp before exon 17");
+        sv3.setSite1_gene("ERBB2");
+        sv3.setGene2(gene_ERBB2);
+        sv3.setSite2_pos(37879056);
+        sv3.setSplit_read_support(10);
+        sv3.setSv_class_name("DELETION");
+        sv3.setSv_desc("n/a");
+        sv3.setSv_length(2600);
+        sv3.setTumor_read_count(16735);
+        sv3.setTumor_variant_count(18);
+        sv3.setVariant_status_name("NEW_VARIANT");
+        sv3.setGeneticProfileId(7);
+        sv3.setGeneticProfile(geneticProfile_mskimpact_sv);
+        svDataQuery1PersistenceFullMock.add(sv3);
+        
+        return svDataQuery1PersistenceFullMock;
     }
 
     private void applyFieldShiftsToMutationModel(Mutation mutation) {

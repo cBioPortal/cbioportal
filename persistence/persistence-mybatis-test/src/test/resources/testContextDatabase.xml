@@ -5,17 +5,15 @@
 	xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-	                    http://www.springframework.org/schema/beans/spring-beans.xsd
-						http://www.springframework.org/schema/context
-						http://www.springframework.org/schema/context/spring-context.xsd
-	                    http://www.springframework.org/schema/util
-	                    http://www.springframework.org/schema/util/spring-util.xsd">
 	
- 	<bean id="dbcpDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="url" value="jdbc:h2:mem:;MODE=MySQL;DATABASE_TO_UPPER=false;INIT=RUNSCRIPT FROM '${basedir}/src/test/resources/testSql.sql'" />
-	</bean>
+    <bean id="dbcpDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="@test.db.driverClassName@" />
+        <property name="url" value="@test.db.url@" />
+        <property name="username" value="@test.db.username@" />
+        <property name="password" value="@test.db.password@" />
+    </bean>
 	
-	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dbcpDataSource" />
     </bean>
 
@@ -24,5 +22,29 @@
 	</bean>
 
 	<context:component-scan base-package="org.cbioportal.persistence.mybatis"/>
+	
+    <bean id="mutationMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="org.cbioportal.persistence.mybatis.MutationMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    
+    <bean id="svMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="org.cbioportal.persistence.mybatis.SVMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dbcpDataSource" />
+    </bean>
+	
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+        <constructor-arg ref="dbcpDataSource"/>
+    </bean>
+	
+    <bean id="mutationRepository" class="org.cbioportal.persistence.mybatis.MutationMyBatisRepository">
+    </bean>
+    
+    <bean id="svRepository" class="org.cbioportal.persistence.mybatis.SVMyBatisRepository">
+    </bean>
     
 </beans>

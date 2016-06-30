@@ -27,6 +27,7 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(Patient.class, PatientMixin.class);
         mixinMap.put(Sample.class, SampleMixin.class);
         mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
+        mixinMap.put(SV.class, SVMixin.class);
         super.setMixInAnnotations(mixinMap);
         super.configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true);
     }

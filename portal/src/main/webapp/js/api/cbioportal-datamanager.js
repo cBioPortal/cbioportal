@@ -558,20 +558,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    var oncoprint_mutation_type = (["missense", "inframe", "fusion"].indexOf(mutation_type) > -1 ? mutation_type : "trunc");
 		    disp_mut_counts[oncoprint_mutation_type] = disp_mut_counts[oncoprint_mutation_type] || 0;
 		    disp_mut_counts[oncoprint_mutation_type] += 1;
-
-		    if (event.cbioportal_mutation_count > 10) {
-			disp_mut_has_rec[oncoprint_mutation_type] = true;
-		    }
 		}
 	    }
 	    datum.disp_cna = selectDisplayValue(disp_cna_counts, cna_rendering_priority);
 	    datum.disp_mrna = selectDisplayValue(disp_mrna_counts, mrna_rendering_priority);
 	    datum.disp_prot = selectDisplayValue(disp_prot_counts, prot_rendering_priority);
-	    var disp_mut = selectDisplayValue(disp_mut_counts, mut_rendering_priority);
-	    datum.disp_mut = disp_mut;
-	    if (disp_mut) {
-		datum.disp_mut += (disp_mut_has_rec[disp_mut] ? '_rec' : '');
-	    }
+	    datum.disp_mut = selectDisplayValue(disp_mut_counts, mut_rendering_priority);
 	}
 	return data;
     };
@@ -684,7 +676,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	return def.promise();
     };
 
-    var makeCachedPromiseFunction = function (fetcher, should_deep_copy_result) {
+    var makeCachedPromiseFunction = function (fetcher) {
 	// In: fetcher, a function that takes a promise as an argument, and resolves it with the desired data
 	// Out: a function which returns a promise that resolves with the desired data, deep copied
 	//	The idea is that the fetcher is only ever called once, even if the output function
@@ -698,7 +690,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		fetcher(this, fetch_promise);
 	    }
 	    fetch_promise.then(function (data) {
-		def.resolve((should_deep_copy_result ? data.map(deepCopyObject) : data));
+		def.resolve(data.map(deepCopyObject));
 	    });
 	    return def.promise();
 	};

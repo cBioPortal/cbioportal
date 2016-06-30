@@ -199,9 +199,9 @@ The following columns affect the header of the patient view by adding text to th
 - **HISTOLOGY**
 - **TUMOR_STAGE_2009**
 - **TUMOR_GRADE**
-- **ETS/RAF/SPINK1_STATUS**
-- **TMPRSS2-ERG_FUSION_STATUS**
-- **ERG-FUSION_ACGH**
+- **ETS_RAF_SPINK1_STATUS**
+- **TMPRSS2_ERG_FUSION_STATUS**
+- **ERG_FUSION_ACGH**
 - **SERUM_PSA**
 - **DRIVER_MUTATIONS**
 

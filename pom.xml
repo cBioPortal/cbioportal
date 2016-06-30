@@ -214,7 +214,7 @@
     <mockito.version>1.10.19</mockito.version>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>1.2.1</db.version>
+    <db.version>1.2.2</db.version>
 
   </properties>
 

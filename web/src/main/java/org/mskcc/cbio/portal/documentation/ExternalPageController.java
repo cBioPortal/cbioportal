@@ -27,6 +27,21 @@ public class ExternalPageController {
     @Transactional
     @RequestMapping(value = "/getexternalpage.json", method = {RequestMethod.GET})
     public @ResponseBody Map<String, String> getExternalPage(@RequestParam(required = true) String sourceURL) throws IOException {
+        // return the contents as a singletonMap for json
+        return Collections.singletonMap("response", getExternalPageContents(sourceURL));
+    }
+    
+    // service name: getexternalpage.plain
+    // available via GET method
+    // sourceURL is required
+    @Transactional
+    @RequestMapping(value = "/getexternalpage.plain", produces = "text/plain", method = {RequestMethod.GET})
+    public @ResponseBody String getExternalPagePlain(@RequestParam(required = true) String sourceURL) throws IOException {
+        // return the contents as is
+        return getExternalPageContents(sourceURL);
+    }
+    
+    private String getExternalPageContents(String sourceURL) throws IOException {
         String decodedString, pageText = "";
 
         // decode the sourceURL and open a connection
@@ -43,7 +58,7 @@ public class ExternalPageController {
         }
         in.close();
 
-        // turn the pageText into a singletonMap for json and return
-        return Collections.singletonMap("response", pageText);
+        // return the pageText 
+        return pageText;
     }
 }

@@ -3,6 +3,7 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
 import org.cbioportal.persistence.MutationRepository;
+import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.persistence.dto.KeywordSampleCount;
 import org.cbioportal.persistence.dto.MutatedGeneSampleCount;
 import org.cbioportal.persistence.dto.SignificantlyMutatedGene;
@@ -61,9 +62,23 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                        Integer thresholdRecurrence,
                                                                        Integer thresholdNumGenes) {
 
-        mutationMapper.groupConcatMaxLenSet();
+        return getSignificantlyMutatedGenes(geneticProfileId, entrezGeneIds, sampleIds, thresholdRecurrence,
+                thresholdNumGenes, true);
+    }
+
+    public List<SignificantlyMutatedGene> getSignificantlyMutatedGenes(Integer geneticProfileId,
+                                                                       List<Integer> entrezGeneIds,
+                                                                       List<Integer> sampleIds,
+                                                                       Integer thresholdRecurrence,
+                                                                       Integer thresholdNumGenes,
+                                                                       boolean setGroupConcatMaxLen) {
+
+        if (setGroupConcatMaxLen) {
+            mutationMapper.groupConcatMaxLenSet();
+        }
         return mutationMapper.getSignificantlyMutatedGenes(geneticProfileId, entrezGeneIds, sampleIds,
                 thresholdRecurrence, thresholdNumGenes);
+
     }
 
     public List<MutationCount> countMutationEvents(Integer geneticProfileId, List<Integer> sampleIds) {
@@ -87,5 +102,11 @@ public class MutationMyBatisRepository implements MutationRepository {
 
     public List<String> getKeywordsOfMutations(List<Integer> mutationEventIds) {
         return mutationMapper.getKeywordsOfMutations(mutationEventIds);
+    }
+
+    public List<AltCount> getMutationsCounts(String type, String hugoGeneSymbol, Integer start, Integer end,
+                                             List<String> cancerStudyIdentifiers, Boolean perStudy) {
+
+        return mutationMapper.getMutationsCounts(type, hugoGeneSymbol, start, end, cancerStudyIdentifiers, perStudy);
     }
 }

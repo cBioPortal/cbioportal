@@ -2,7 +2,6 @@ package org.mskcc.cbio.portal.service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -12,8 +11,7 @@ import java.util.Set;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationWithSampleListId;
-import org.cbioportal.persistence.dto.DBAltCount;
-import org.cbioportal.persistence.mybatis.MutationMapper;
+import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.service.MutationService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
@@ -55,8 +53,6 @@ public class ApiService {
 
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
-	@Autowired
-	private MutationMapper mutationMapper;
 	@Autowired
 	private ClinicalDataMapper clinicalDataMapper;
 	@Autowired
@@ -107,8 +103,8 @@ public class ApiService {
                         echo.add(key);
                     }
                 }
-               List<DBAltCount> eles = mutationMapper.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study);
-               for(DBAltCount ele: eles )
+               List<AltCount> eles = mutationService.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study);
+               for(AltCount ele: eles )
                {
                    result = new HashMap<String,String>();
                    for(String key: customizedAttrs.keySet()){
@@ -126,14 +122,14 @@ public class ApiService {
 
                     if(type.equals("count"))
                     {
-                        result.put("count", Integer.toString(ele.count));
+                        result.put("count", Integer.toString(ele.getCount()));
                     }
                     else if(type.equals("frequency"))
                     {
-                        result.put("frequency", Double.toString(ele.frequency));
+                        result.put("frequency", Double.toString(ele.getFrequency()));
                     }
 
-                   if(per_study)result.put("studyID", ele.studyID);
+                   if(per_study)result.put("studyID", ele.getCancerStudyIdentifier());
                    results.add(result);
                }  
                
@@ -163,8 +159,8 @@ public class ApiService {
                         echo.add(key);
                     }
                 }
-                List<DBAltCount> eles = mutationMapper.getMutationsCounts(type, item.get("gene"), (item.get("start") == null ? null : Integer.parseInt(item.get("start"))), (item.get("end") == null ? null : Integer.parseInt(item.get("end"))), studyIds, per_study) ;
-                for(DBAltCount ele: eles)
+                List<AltCount> eles = mutationService.getMutationsCounts(type, item.get("gene"), (item.get("start") == null ? null : Integer.parseInt(item.get("start"))), (item.get("end") == null ? null : Integer.parseInt(item.get("end"))), studyIds, per_study) ;
+                for(AltCount ele: eles)
                 {
                     result = new HashMap<String,String>();
                     for(String key: item.keySet())
@@ -173,13 +169,13 @@ public class ApiService {
                     }
                    if(type.equals("count"))
                    {
-                        result.put("count", Integer.toString(ele.count));
+                        result.put("count", Integer.toString(ele.getCount()));
                    }
                    else if(type.equals("frequency"))
                    {
-                       result.put("frequency", Double.toString(ele.frequency));
+                       result.put("frequency", Double.toString(ele.getFrequency()));
                    }
-                   if(per_study)result.put("studyID", ele.studyID);
+                   if(per_study)result.put("studyID", ele.getCancerStudyIdentifier());
                    results.add(result);
                 }
                 

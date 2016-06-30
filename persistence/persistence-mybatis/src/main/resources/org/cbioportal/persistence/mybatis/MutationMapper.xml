@@ -323,39 +323,43 @@
         </where>
     </select>
 
-    <select id="getMutationsCounts" resultType="org.cbioportal.persistence.dto.DBAltCount">
+    <select id="getMutationsCounts" resultType="org.cbioportal.persistence.dto.AltCount">
 
         select
 
-        <if test="perStudy == true">
-            distinct cancer_study.CANCER_STUDY_IDENTIFIER as studyID,
+        <if test="perStudy">
+            distinct cancer_study.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
         </if>
         <if test="type == 'count'">
             count(patient.INTERNAL_ID) as count
         </if>
         <if test="type == 'frequency'">
-            count(patient.INTERNAL_ID) / (select count(sll.SAMPLE_ID) from sample_list_list sll, sample_list sl where sl.CATEGORY = "all_cases_with_mutation_data" and sll.LIST_ID = sl.LIST_ID and sl.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID) as frequency
+            count(patient.INTERNAL_ID) / (select count(sll.SAMPLE_ID) from sample_list_list sll, sample_list sl
+            where sl.CATEGORY = 'all_cases_with_mutation_data' and sll.LIST_ID = sl.LIST_ID
+            and sl.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID) as frequency
         </if>
         from mutation_event, mutation, gene, sample, patient, cancer_study
-        where gene.HUGO_GENE_SYMBOL = #{gene} and mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        where gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol} and mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         <if test="start != null">
-            and mutation_event.ONCOTATOR_PROTEIN_POS_START <![CDATA[ >= ]]>  #{start}
+            and mutation_event.ONCOTATOR_PROTEIN_POS_START >= #{start}
         </if>
         <if test="end != null">
             and mutation_event.ONCOTATOR_PROTEIN_POS_END <![CDATA[ <= ]]>  #{end}
         </if>
-        and mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID and mutation.SAMPLE_ID = sample.INTERNAL_ID and sample.PATIENT_ID = patient.INTERNAL_ID  and cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
-        <if test="studyIds != null">
+        and mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+        and mutation.SAMPLE_ID = sample.INTERNAL_ID
+        and sample.PATIENT_ID = patient.INTERNAL_ID
+        and cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
+        <if test="cancerStudyIdentifiers != null and !cancerStudyIdentifiers.isEmpty()">
             and cancer_study.CANCER_STUDY_IDENTIFIER in
-            <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+            <foreach item="item" collection="cancerStudyIdentifiers" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
-        <if test="perStudy == true">
+        <if test="perStudy">
             group by  patient.CANCER_STUDY_ID;
         </if>
 
     </select>
-
 
 </mapper>

@@ -2,6 +2,7 @@ package org.cbioportal.persistence;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
+import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.persistence.dto.KeywordSampleCount;
 import org.cbioportal.persistence.dto.MutatedGeneSampleCount;
 import org.cbioportal.persistence.dto.SignificantlyMutatedGene;
@@ -39,4 +40,7 @@ public interface MutationRepository {
     List<Integer> getGenesOfMutations(List<Integer> mutationEventIds);
 
     List<String> getKeywordsOfMutations(List<Integer> mutationEventIds);
+
+    List<AltCount> getMutationsCounts(String type, String hugoGeneSymbol, Integer start, Integer end,
+                                      List<String> cancerStudyIdentifiers, Boolean perStudy);
 }

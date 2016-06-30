@@ -46,6 +46,8 @@ import org.owasp.validator.html.PolicyException;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.*;
 import java.util.*;
 import javax.servlet.*;
@@ -375,6 +377,13 @@ public class QueryBuilder extends HttpServlet {
 		}
                 
         request.setAttribute(SET_OF_CASE_IDS, sampleIds);
+        Map<String,List<String>> studySampleMap = new HashMap<String,List<String>>();
+        String[] values = sampleIds.split(" ");
+        List<String> samplesList = new ArrayList<String>(Arrays.asList(values));
+        studySampleMap.put(cancerStudyStableId,samplesList);
+        ObjectMapper mapper = new ObjectMapper();
+        String studySampleMapString = mapper.writeValueAsString(studySampleMap);
+        request.setAttribute("STUDY_SAMPLE_MAP", studySampleMapString);
         
         // Map user selected samples Ids to patient Ids
         HashMap<String, String> patientSampleIdMap = new HashMap<String, String>();

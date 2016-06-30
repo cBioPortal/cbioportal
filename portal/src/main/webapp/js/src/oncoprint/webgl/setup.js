@@ -407,7 +407,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
 			    var track_id = State.genetic_alteration_tracks[track_line];
-			    oncoprint.setTrackData(track_id, annotateOncoprintDataWithRecurrence(State, oncoprint_data_by_line[track_line].oncoprint_data), 'sample');
+			    var track_data = oncoprint_data_by_line[track_line].oncoprint_data;
+			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
+			    oncoprint.setTrackData(track_id, track_data, 'sample');
 			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(oncoprint_data_by_line[track_line].altered_samples.length/window.QuerySession.getSampleIds().length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
 			    LoadingBar.update(i / total_tracks_to_add);
@@ -459,7 +461,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
 			    var track_id = State.genetic_alteration_tracks[track_line];
-			    oncoprint.setTrackData(track_id, annotateOncoprintDataWithRecurrence(State, oncoprint_data_by_line[track_line].oncoprint_data), 'patient');
+			    var track_data = oncoprint_data_by_line[track_line].oncoprint_data;
+			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
+			    oncoprint.setTrackData(track_id, track_data, 'patient');
 			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(oncoprint_data_by_line[track_line].altered_patients.length/patient_ids.length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
 			    LoadingBar.update(i / total_tracks_to_add);
@@ -577,6 +581,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			if (isRecurrent(datum)) {
 			    oncoprint_datum.disp_mut += "_rec";
 			    break;
+			} else {
+			    if (state.hide_unknown_mutations) {
+				oncoprint_datum.disp_mut = undefined;
+			    }
 			}
 		    }
 		}

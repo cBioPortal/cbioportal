@@ -1910,18 +1910,7 @@ $.fn.dataTableExt.oSort['sort-icons-asc'] = function(x, y) {
         }
     }
 
-    //Compare cosmicCount
-    if (x.mutation && _.isNumber(x.mutation.cosmicCount)) {
-        if (y.mutation && _.isNumber(y.mutation.cosmicCount)) {
-            return x.mutation.cosmicCount < y.mutation.cosmicCount ? 1 : -1;
-        } else {
-            return -1;
-        }
-    } else {
-        return 1;
-    }
-
-    return -1;
+    return 0;
 };
 
 $.fn.dataTableExt.oSort['sort-icons-desc'] = function(x, y) {
@@ -1945,16 +1934,5 @@ $.fn.dataTableExt.oSort['sort-icons-desc'] = function(x, y) {
         }
     }
 
-    //Compare cosmicCount
-    if (x.mutation && _.isNumber(x.mutation.cosmicCount)) {
-        if (y.mutation && _.isNumber(y.mutation.cosmicCount)) {
-            return x.mutation.cosmicCount < y.mutation.cosmicCount ? -1 : 1;
-        } else {
-            return 1;
-        }
-    } else {
-        return -1;
-    }
-
-    return 1;
+    return 0;
 };

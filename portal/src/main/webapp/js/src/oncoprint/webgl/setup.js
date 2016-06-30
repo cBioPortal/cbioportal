@@ -574,8 +574,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'sortby': 'data',
 	    'sortby_type': true,
 	    'sortby_recurrence': false,
+	    
 	    'colorby_type': true,
-	    'colorby_recurrence': false,
+	    'colorby_knowledge': true,
+	    'incorp_hotspots': true,
+	    'incorp_cbioportal_count': true,
+	    'incorp_cosmic': true,
+	    'incorp_oncokb': true,
+	    'hide_unknown_mutations': false,
+	    
 	    
 	    'sorting_by_given_order': false,
 	    
@@ -725,17 +732,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		return def.promise();
 	    },
 	    'getGeneticComparator': function() {
-		return comparator_utils.makeGeneticComparator(this.colorby_type && this.sortby_type, this.colorby_recurrence && this.sortby_recurrence);
+		return comparator_utils.makeGeneticComparator(this.colorby_type && this.sortby_type, this.colorby_knowledge && this.sortby_recurrence);
 	    },
 	    'getGeneticRuleSetParams': function() {
 		if (this.colorby_type) {
-		    if (this.colorby_recurrence) {
+		    if (this.colorby_knowledge) {
 			return window.geneticrules.genetic_rule_set_different_colors_recurrence;
 		    } else {
 			return window.geneticrules.genetic_rule_set_different_colors_no_recurrence;
 		    }
 		} else {
-		    if (this.colorby_recurrence) {
+		    if (this.colorby_knowledge) {
 			return window.geneticrules.genetic_rule_set_same_color_for_all_recurrence;
 		    } else {
 			return window.geneticrules.genetic_rule_set_same_color_for_all_no_recurrence;
@@ -1168,10 +1175,33 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    sortby_type_checkbox.removeAttr("disabled");
 		}
 		
-		if ((State.sortby !== "data") || !State.colorby_recurrence) {
+		if ((State.sortby !== "data") || !State.colorby_knowledge) {
 		    sortby_recurrence_checkbox.attr("disabled","disabled");
 		} else {
 		    sortby_recurrence_checkbox.removeAttr("disabled");
+		}
+	    };
+	    
+	    var updateMutationColorForm = function() {
+		var colorby_knowledge_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]');
+		var colorby_hotspots_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hotspots"]');
+		var colorby_cbioportal_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cbioportal"]');
+		var colorby_cosmic_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]');
+		var colorby_oncokb_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]');
+		var hide_unknown_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hide_unknown"]');
+		var cosmic_threshold_input = $('#oncoprint_diagram_mutation_color').find('#cosmic_threshold');
+		var cbioportal_threshold_input = $('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold');
+		
+		var to_disable = [colorby_hotspots_checkbox, colorby_cbioportal_checkbox, colorby_cosmic_checkbox, 
+				colorby_oncokb_checkbox, hide_unknown_checkbox, cosmic_threshold_input, cbioportal_threshold_input];
+		if (colorby_knowledge_checkbox.is(":checked")) {
+		    for (var i=0; i<to_disable.length; i++) {
+			to_disable[i].removeAttr("disabled");
+		    }
+		} else {
+		    for (var i=0; i<to_disable.length; i++) {
+			to_disable[i].attr("disabled", "disabled");
+		    }
 		}
 	    };
 	    
@@ -1221,7 +1251,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	    $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"]').change(function() {
 		State.colorby_type = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="type"]').is(":checked");
-		State.colorby_recurrence = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]').is(":checked");
+		State.colorby_knowledge = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]').is(":checked");
+		State.incorp_hotspots = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hotspots"]').is(":checked");
+		State.incorp_cbioportal = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cbioportal"]').is(":checked");
+		State.incorp_cosmic = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]').is(":checked");
+		State.incorp_oncokb = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]').is(":checked");
+		State.hide_unknown_mutations = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hide_unknown"]').is(":checked");
+		
+		updateMutationColorForm();
 		updateSortByForm();
 		updateRuleSets();
 	    });
@@ -1231,8 +1268,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		$('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="recurrence"]').prop("checked", State.sortby_recurrence);
 		
 		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="type"]').prop("checked", State.colorby_type);
-		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]').prop("checked", State.colorby_recurrence);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]').prop("checked", State.colorby_knowledge);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hotspots"]').prop("checked", State.incorp_hotspots);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cbioportal"]').prop("checked", State.incorp_cbioportal_count);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]').prop("checked", State.incorp_cosmic);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]').prop("checked", State.incorp_oncokb);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hide_unknown"]').prop("checked", State.hide_unknown_mutations);
 		
+		updateMutationColorForm();
 		updateSortByForm();
 	    })();
 	})();

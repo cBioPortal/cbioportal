@@ -83,10 +83,16 @@
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span>Mutation Color</span>&nbsp;<span class="caret"></span>
                </button>
-               <div class="dropdown-menu" style="padding: 10px 5px; width: 120px;min-width: 120px;">
+               <div class="dropdown-menu" style="padding: 10px 5px; width: 250px;min-width: 250px;">
                    <form action="" style="margin-bottom: 0;">
                        <input type="checkbox" name="type" value="type"> Type</input><br>
-                       <input type="checkbox" name="recurrence" value="recurrence"> Recurrence</input>
+                       <input type="checkbox" name="recurrence" value="recurrence"> Recurrence/Prior Knowledge<br>
+                       <input type="checkbox" name="hotspots" value="hotspots" style="margin-left:10px;"> HotSpots<br>
+                       <input type="checkbox" name="cbioportal" value="cbioportal" style="margin-left:10px;"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/><br>
+                       <input type="checkbox" name="cosmic" value="cosmic" style="margin-left:10px;"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/><br>
+                       <input type="checkbox" name="oncokb" value="oncokb" style="margin-left:10px;"> OncoKB<br>
+                       <span style="border-bottom: 2px dashed #000000;"></span><br>
+                       <input type="checkbox" name="hide_unknown" value="hide_unknown" style="margin-left:10px;"> Hide non-recurrent / unknown mutations (as defined above)</input>
                    </form>
                </div>
             </div>

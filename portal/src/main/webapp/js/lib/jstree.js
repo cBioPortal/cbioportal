@@ -568,6 +568,14 @@
 		 * @name bind()
 		 */
 		bind : function () {
+		 	$(document).on('submit', '.patient-shortcut-form', function(e) {
+ 				e.preventDefault();
+ 				var patientId = $(this).find('.patient-shortcut-text').val();
+ 				var cancerStudyId = $(this).find('.patient-shortcut-text').attr('data-study-id');
+ 				if (patientId) {
+ 					window.open('case.do?cancer_study_id='+cancerStudyId+'&case_id='+patientId, 'PatientView_'+patientId);
+ 				}
+ 			});
 			var word = '',
 				tout = null,
 				was_click = 0;
@@ -2922,8 +2930,28 @@
 						hide: {delay: 0, fixed: true}
 					});
 				}
-                                
-                                var $linkOutIcon = $('<i class="btn btn-default btn-sm jstree-node-decorator" style="cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2">Summary</i>');
+            
+             	var $patientIcon = $('<i class="fa fa-lg fa-search jstree-node-decorator" style="cursor:pointer; padding-left:0.4em"></i>');
+ 					    obj.append($patientIcon);
+ 					    $patientIcon.mousedown(function(e) {
+ 						e.preventDefault();
+ 					});
+ 					$patientIcon.qtip({
+ 						content: {text: '<form class="patient-shortcut-form"><input type="text" data-study-id="'+node.id+'" class="patient-shortcut-text" value="TCGA-A1-0000"/><input type="submit" value="Go to Patient"/></form>'},
+ 						style: {classes: 'qtip-light qtip-rounded'},
+ 						position: {
+ 						    my: 'bottom center', 
+ 						    //at: 'top center', 
+ 						    viewport: $(window),
+ 						    target: 'mouse',
+ 						    adjust: {mouse: false},
+ 						    hide: {delay: 1000, fixed: true},
+ 						},
+ 						show: {delay: 0},
+ 						hide: {delay: 1000, fixed: true}
+ 					});
+                              
+            var $linkOutIcon = $('<i class="btn btn-default btn-sm jstree-node-decorator" style="cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2">Summary</i>');
 				obj.append($linkOutIcon);
 				$linkOutIcon.mouseenter(function() {
 					$linkOutIcon.fadeTo('fast', 0.7);
@@ -2936,7 +2964,7 @@
 				});
 				$linkOutIcon.click(function(e) {
 					e.preventDefault();
-					window.open('study?id='+node.id);
+					window.open('study.do?cancer_study_id='+node.id);
 				});
 			} else {
 				if (this.node_has_descendant_branches(node.id)) {
@@ -2992,6 +3020,7 @@
 			obj = this.get_node(obj, true);
 			obj.children('.jstree-external-node-decorator').hide();
 			obj.children('.jstree-node-decorator').remove();
+			$('.qtip').remove();
 		},
 		/**
 		 * applies the hover state on a node, called when a node is hovered by the user. Used internally.

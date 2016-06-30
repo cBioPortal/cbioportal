@@ -242,4 +242,17 @@ public class TestImportClinicalData {
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(cancerStudy.getInternalId());
         assertEquals (9, paramSet.size());
     }
+	
+
+	/** 
+	 * Tests to try out the MissingAttributeValues enum and ensure it filters out the 
+	 * correct values. 
+	 * 
+	 */
+    @Test
+    public void testHasMethod() {
+        assertTrue(ImportClinicalData.MissingAttributeValues.has("NA"));
+        assertTrue(ImportClinicalData.MissingAttributeValues.has("na"));
+        assertFalse(ImportClinicalData.MissingAttributeValues.has("n/a"));
+    }
 }

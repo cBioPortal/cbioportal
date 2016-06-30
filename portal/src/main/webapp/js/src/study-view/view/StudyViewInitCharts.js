@@ -917,19 +917,22 @@ var StudyViewInitCharts = (function(){
 
     function deleteChart(_chartID,_value){
         var _options;
-
-        $("div").remove("#study-view-dc-chart-main-" + _chartID);
+        
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
             dc.redrawAll();
             redrawSpecialPlots();
         }
+        varChart[_chartID].destroy();
         dc.deregisterChart(varChart[_chartID].getChart());
 //        $('#study-view-add-chart ul')
 //                .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
 //
 //        $('#study-view-add-chart ul').stop().hide();
 //        $('#study-view-add-chart ul').css('height','100%');
+        $("#study-view-dc-chart-main-" + _chartID).qtip('destroy', true);
+        $("div").remove("#study-view-dc-chart-main-" + _chartID);
+        
         $('#study-view-add-chart')
                 .append($('<option></option>').attr('id',_value[0]).text(_value[1]));
 

@@ -68,7 +68,6 @@ var tooltip_utils = {
     'makeGeneticTrackTooltip':function(data_type, link_id) {
 	return function (d) {
 	    var ret = '';
-	    var contains_recurrent_mutation = false;
 	    var mutations = [];
 	    var cna = [];
 	    var mrna = [];
@@ -77,9 +76,6 @@ var tooltip_utils = {
 		var datum = d.data[i];
 		if (datum.genetic_alteration_type === "MUTATION_EXTENDED") {
 		    mutations.push(datum.amino_acid_change);
-		    if (datum.cbioportal_mutation_count > 10) {
-			contains_recurrent_mutation = true;
-		    }
 		} else if (datum.genetic_alteration_type === "COPY_NUMBER_ALTERATION") {
 		    var disp_cna = {'-2': 'HOMODELETED', '-1': 'HETLOSS', '1': 'GAIN', '2': 'AMPLIFIED'};
 		    if (disp_cna.hasOwnProperty(datum.profile_data)) {
@@ -94,9 +90,6 @@ var tooltip_utils = {
 	    }
 	    if (mutations.length > 0) {
 		ret += 'Mutation: <b>' + mutations.join(", ")+'</b><br>';
-		if (contains_recurrent_mutation) {
-		    ret += '<i>Contains mutation at a recurrently mutated position.</i><br>';
-		}
 	    }
 	    if (cna.length > 0) {
 		ret += 'Copy Number Alteration: <b>'+cna.join(", ")+'</b><br>';
@@ -1314,11 +1307,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		State.refreshData();
 	    });
 	    $('#oncoprint_diagram_mutation_color').find('#cosmic_threshold').change(function() {
-		State.cosmic_threshold = parseInt($('#oncoprint_diagram_mutation_color').find('#cosmic_threshold').val(), 10) || Number.POSITIVE_INFINITY;
+		State.cosmic_threshold = parseInt($('#oncoprint_diagram_mutation_color').find('#cosmic_threshold').val(), 10) || 0;
 		State.refreshData();
 	    });
 	    $('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold').change(function() {
-		State.cbioportal_count_threshold = parseInt($('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold').val(), 10) || Number.POSITIVE_INFINITY;
+		State.cbioportal_count_threshold = parseInt($('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold').val(), 10) || 0;
 		State.refreshData();
 	    });
 	    (function initFormsFromState() {

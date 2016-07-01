@@ -192,8 +192,8 @@ var StudyViewInitCharts = (function(){
             var _dataType = _attr[i].datatype.toUpperCase();
             var _createdChartsNum = pie.length + bar.length;
 
-             //If chart only has one category and it is NA, do not show this chart
-            if(_keys.length === 1 && _keys[0] === 'NA'){
+             //If chart only has one category, do not show this chart
+            if(_keys.length === 1){
                 continue;
             }
            

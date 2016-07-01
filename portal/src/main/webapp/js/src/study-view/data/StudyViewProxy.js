@@ -383,10 +383,8 @@ var StudyViewProxy = (function() {
                 caseAttr.description = '';
                 caseAttr.datatype = 'STRING';
                 caseAttr.numOfNoneEmpty =  obtainDataObject.arr.length;
-                caseAttr.keys = [];
-                obtainDataObject.attr.push(caseAttr);
                 
-                var currentItem, uniqueCounts = [];
+                var currentItem, uniqueCounts = [1], maxCount = 1;
           
                 for(var i = 0; i < obtainDataObject.arr.length; i++){
                     currentItem = obtainDataObject.arr[i];
@@ -404,8 +402,14 @@ var StudyViewProxy = (function() {
                     }
                      
                     currentItem.SAMPLE_COUNT_PATIENT = patientToSampleMapping[currentItem.PATIENT_ID].length;  
+                    if(patientToSampleMapping[currentItem.PATIENT_ID].length > maxCount){
+                        maxCount = patientToSampleMapping[currentItem.PATIENT_ID].length;
+                        uniqueCounts.push(maxCount);
+                    }
                      
                 }
+                caseAttr.keys = uniqueCounts;
+                obtainDataObject.attr.push(caseAttr);
                 
                 
             });

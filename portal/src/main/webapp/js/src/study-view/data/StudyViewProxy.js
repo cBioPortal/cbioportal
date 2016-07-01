@@ -363,7 +363,7 @@ var StudyViewProxy = (function() {
                 //add 3 attributes: sample count per patient, the sample is sequenced or not, and the sample has cna data or not
                 var caseAttr = new CaseAttr();
                 caseAttr.attr_id = 'SEQUENCED';
-                caseAttr.display_name = 'Sequenced';
+                caseAttr.display_name = 'With Mutation Data';
                 caseAttr.description = 'If the sample got sequenced';
                 caseAttr.datatype = 'STRING';
                 caseAttr.keys =  ['Yes', 'No'];
@@ -371,7 +371,7 @@ var StudyViewProxy = (function() {
 
                 caseAttr = new CaseAttr();
                 caseAttr.attr_id = 'HAS_CNA_DATA';
-                caseAttr.display_name = 'Has CNA Data';
+                caseAttr.display_name = 'With CNA Data';
                 caseAttr.description = 'If the sample has CNA data';
                 caseAttr.datatype = 'STRING';
                 caseAttr.keys =  ['Yes', 'No'];
@@ -381,26 +381,16 @@ var StudyViewProxy = (function() {
                 caseAttr.attr_id = 'SAMPLE_COUNT_PATIENT';
                 caseAttr.display_name = '# of Samples Per Patient';
                 caseAttr.description = '';
-                caseAttr.datatype = 'NUMBER';
+                caseAttr.datatype = 'STRING';
                 caseAttr.numOfNoneEmpty =  obtainDataObject.arr.length;
+                caseAttr.keys = [];
+                obtainDataObject.attr.push(caseAttr);
                 
-                
-                var tempIndex = -1, _sampleCountPerPatient = [], currentItem, uniqueCounts = [], maxCount = 1;
-                //calculate the sample count information per patient
-                for(var i = 0;i < obtainDataObject.arr.length;i++){
-                    currentItem = obtainDataObject.arr[i];
-                    tempIndex = _.map(_sampleCountPerPatient, function(item){return item.patientID}).indexOf(currentItem.PATIENT_ID);
-                    if(tempIndex === -1)
-                        _sampleCountPerPatient.push({patientID: currentItem.PATIENT_ID, samples: [currentItem.CASE_ID], sampleCount: 1});
-                    else {
-                        _sampleCountPerPatient[tempIndex].sampleCount++;
-                        _sampleCountPerPatient[tempIndex].samples.push(currentItem.CASE_ID);
-                    }
-                }
-                
+                var currentItem, uniqueCounts = [];
+          
                 for(var i = 0; i < obtainDataObject.arr.length; i++){
                     currentItem = obtainDataObject.arr[i];
-                    uniqueCounts = [];
+                    
                     if(obtainDataObject.sequencedSampleIds.indexOf(currentItem.CASE_ID) !== -1){
                         currentItem.SEQUENCED = 'Yes';
                     }else{
@@ -412,15 +402,11 @@ var StudyViewProxy = (function() {
                     }else{
                         currentItem.HAS_CNA_DATA = 'No';
                     }
-                    tempIndex = _.map(_sampleCountPerPatient, function(item){return item.patientID}).indexOf(currentItem.PATIENT_ID);
-                    currentItem.SAMPLE_COUNT_PATIENT = _sampleCountPerPatient[tempIndex].sampleCount;
-                    if(_sampleCountPerPatient[tempIndex].sampleCount > maxCount){
-                        maxCount =  _sampleCountPerPatient[tempIndex].sampleCount;
-                        uniqueCounts.push(maxCount);
-                    }
+                     
+                    currentItem.SAMPLE_COUNT_PATIENT = patientToSampleMapping[currentItem.PATIENT_ID].length;  
+                     
                 }
-                caseAttr.keys = uniqueCounts;
-                obtainDataObject.attr.push(caseAttr);
+                
                 
             });
     }

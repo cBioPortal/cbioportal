@@ -667,7 +667,7 @@ The fusion metadata file should contain the following fields:
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
 2. **genetic_alteration_type**: FUSION
 3. **datatype**: FUSION
-4. **stable_id**: fusion
+4. **stable_id**: mutations
 5. **show_profile_in_analysis_tab**: true.
 6. **profile_name**: A name for the fusion data, e.g., "Fusions.".
 7. **profile_description**: A description of the fusion data.
@@ -679,7 +679,7 @@ An example metadata file would be:
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: FUSION
 datatype: FUSION
-stable_id: fusion
+stable_id: mutations
 profile_description: Fusions.
 show_profile_in_analysis_tab: true
 profile_name: Fusions

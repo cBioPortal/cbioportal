@@ -192,6 +192,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.column_number, 2)
         self.assertIn('display_name', record.getMessage().lower())
+        self.assertIn('portal', record.getMessage().lower())
 
     def test_unknown_attribute(self):
         """Test when a new attribute is defined in the data file."""
@@ -215,6 +216,24 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].line_number, 4)
         self.assertEqual(record_list[1].column_number, 6)
 
+    def test_hardcoded_attributes(self):
+        """Test if some attrs have requirements irrespective of the portal."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 2)
+        osmonths_records = []
+        other_sid_records = []
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertNotIn('portal', record.getMessage().lower())
+            if 'OS_MONTHS' in record.getMessage():
+                osmonths_records.append(record)
+            if hasattr(record, 'cause') and record.cause == 'OTHER_SAMPLE_ID':
+                other_sid_records.append(record)
+        self.assertEqual(len(osmonths_records), 1)
+        self.assertEqual(len(other_sid_records), 1)
+
 
 class ClinicalValuesTestCase(DataFileTestCase):
 
@@ -232,7 +251,7 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.assertEqual(record.column_number, 2)
 
     def test_tcga_sample_twice_in_one_file(self):
-        """Test when a sample is defined twice in the same file."""
+        """Test when a TCGA sample is defined twice in the same file."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_repeated_tcga_sample.txt',
                                     validateData.SampleClinicalValidator)
@@ -1257,10 +1276,11 @@ class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clinical_pat_no_hdr.txt', 
                                     validateData.PatientClinicalValidator, None, True)
-        # we expect 8 errors or warnings: 2 for new patient-level attributes, 2
+        # we expect 8 errors or warnings: 2 for new patient-level attributes,
+        # 1 for the sample attribute CANCER_TYPE in a patient-level file, 2
         # for missing survival status attributes, 4 for patients with no samples
         # and 1 for not being able to parse the header in the clinical file
-        self.assertEqual(len(record_list), 9)               
+        self.assertEqual(len(record_list), 10)
 
 
 class DataFileIOTestCase(PostClinicalDataFileTestCase):

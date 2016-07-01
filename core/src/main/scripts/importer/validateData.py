@@ -1285,6 +1285,130 @@ class ClinicalValidator(Validator):
     PROP_IS_PATIENT_ATTRIBUTE = None
     NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
     ALLOW_BLANKS = True
+    # attributes required to have certain properties because of hard-coded use
+    # TODO add unit tests for this functionality
+    PREDEFINED_ATTRIBUTES = {
+        'AGE': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'CANCER_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'CANCER_TYPE_DETAILED': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'DETAILED_CANCER_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'DFS_STATUS': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'DFS_MONTHS': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'DRIVER_MUTATIONS': {
+            'is_patient_attribute': '0'
+        },
+        'ERG-FUSION_ACGH': {
+            'is_patient_attribute': '0'
+        },
+        'ETS/RAF/SPINK1_STATUS': {
+            'is_patient_attribute': '0'
+        },
+        'GENDER': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'GLEASON_SCORE': {
+            'is_patient_attribute': '0'
+        },
+        'GLEASON_SCORE_1': {
+            'is_patient_attribute': '0'
+        },
+        'GLEASON_SCORE_2': {
+            'is_patient_attribute': '0'
+        },
+        'HISTOLOGY': {
+            'is_patient_attribute': '0'
+        },
+        'KNOWN_MOLECULAR_CLASSIFIER': {
+            'is_patient_attribute': '0'
+        },
+        'METASTATIC_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'OS_STATUS': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'OS_MONTHS': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'OTHER_SAMPLE_ID': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'PATIENT_DISPLAY_NAME': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'PRIMARY_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_CLASS': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_DISPLAY_NAME': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SERUM_PSA': {
+            'is_patient_attribute': '0'
+        },
+        'SEX': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'TMPRSS2-ERG_FUSION_STATUS': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_GRADE': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TUMOR_STAGE_2009': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_TISSUE_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TUMOR_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TYPE_OF_CANCER': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+    }
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
@@ -1432,6 +1556,30 @@ class ClinicalValidator(Validator):
                                              'datatype': 'STRING',
                                              'priority': '0'}
                 continue
+            # check predefined (hard-coded) attribute definitions
+            if col_name in self.PREDEFINED_ATTRIBUTES:
+                for attr_property in self.PREDEFINED_ATTRIBUTES[col_name]:
+                    if attr_property == 'is_patient_attribute':
+                        expected_level = \
+                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                        if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
+                            self.logger.error(
+                                'Attribute must be a %s-level attribute',
+                                {'0': 'sample', '1': 'patient'}[expected_level],
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': col_name})
+                    else:
+                        value = self.attr_defs[col_index][attr_property]
+                        expected_value = \
+                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                        if (value != expected_value and
+                                not self.fill_in_attr_defs):
+                            self.logger.error(
+                                "%s definition for attribute '%s' must be %s",
+                                attr_property,
+                                col_name,
+                                expected_value)
             # skip all further checks for this column if portal info is absent
             if self.portal.clinical_attribute_dict is None:
                 continue
@@ -1449,8 +1597,7 @@ class ClinicalValidator(Validator):
                 self.newly_defined_attributes.add(col_name)
             # disallow homonymous patient-level and sample-level attributes,
             # except for the patient ID by which samples reference a patient
-            elif col_name != 'PATIENT_ID' and (
-                    srv_attr_properties['is_patient_attribute'] !=
+            elif (srv_attr_properties['is_patient_attribute'] !=
                     self.PROP_IS_PATIENT_ATTRIBUTE):
                 self.logger.error(
                     'Attribute is defined in the portal installation as a '
@@ -1468,7 +1615,7 @@ class ClinicalValidator(Validator):
                     # store original property as found in file
                     if value != srv_attr_properties[attr_property]:
                         self.attr_defs_overridden[col_index][attr_property] = value
-                        if not self.fill_in_attr_defs:                            
+                        if not self.fill_in_attr_defs:
                             self.logger.warning(
                                 "%s definition for attribute '%s' does not match "
                                 "the portal, and will be loaded as '%s'",

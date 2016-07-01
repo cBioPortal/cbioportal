@@ -72,8 +72,8 @@
                 <div class="dropdown-menu" style="padding: 10px; width: 250px;">
                    <form action="" style="margin-bottom: 0;">
                        <input type="radio" name="sortby" value="data"> Sort by data</input><br>
-                       <input type="checkbox" name="type" value="type" style="margin-left:10px;"> Mutation Type</input><br>
-                       <input type="checkbox" name="recurrence" value="recurrence" style="margin-left:10px;"> Mutation Recurrence</input><br>
+                       <input type="checkbox" name="type" value="type" style="margin-left:20px;"> Mutation Type</input><br>
+                       <input type="checkbox" name="recurrence" value="recurrence" style="margin-left:20px;"> Mutation Recurrence</input><br>
                        <input type="radio" name="sortby" value="id"> Sort by case id (alphabetical)</input><br>
                        <input type="radio" name="sortby" value="custom"> Sort by user-defined order / default</input>
                    </form>
@@ -87,12 +87,12 @@
                    <form action="" style="margin-bottom: 0;">
                        <input type="checkbox" name="type" value="type"> Type</input><br>
                        <input type="checkbox" name="recurrence" value="recurrence"> Recurrence/Prior Knowledge<br>
-                       <input type="checkbox" name="hotspots" value="hotspots" style="margin-left:10px;"> HotSpots<br>
-                       <input type="checkbox" name="cbioportal" value="cbioportal" style="margin-left:10px;"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/><br>
-                       <input type="checkbox" name="cosmic" value="cosmic" style="margin-left:10px;"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/><br>
-                       <input type="checkbox" name="oncokb" value="oncokb" style="margin-left:10px;"> OncoKB<br>
-                       <span style="border-bottom: 2px dashed #000000;"></span><br>
-                       <input type="checkbox" name="hide_unknown" value="hide_unknown" style="margin-left:10px;"> Hide non-recurrent / unknown mutations (as defined above)</input>
+                       <input type="checkbox" name="hotspots" value="hotspots" style="margin-left:20px;"> HotSpots <img id="colorby_hotspot_info" src="images/oncokb-flame.svg" style="height:15px; width:15px; cursor:pointer;"/><br>
+                       <input type="checkbox" name="cbioportal" value="cbioportal" style="margin-left:20px;"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/><br>
+                       <input type="checkbox" name="cosmic" value="cosmic" style="margin-left:20px;"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/><br>
+                       <input type="checkbox" name="oncokb" value="oncokb" style="margin-left:20px;"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/><br>
+                       <br>
+                       <input type="checkbox" name="hide_unknown" value="hide_unknown" style="margin-left:20px;"> Hide non-recurrent / unknown mutations (as defined above)</input>
                    </form>
                </div>
             </div>

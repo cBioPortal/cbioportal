@@ -43,7 +43,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    intersection[keys[j]] = true;
 		}
 	    } else {
-		var obj = list_of_objs[1];
+		var obj = list_of_objs[i];
 		var keys = Object.keys(intersection);
 		for (var j=0; j<keys.length; j++) {
 		    if (!obj[keys[j]]) {

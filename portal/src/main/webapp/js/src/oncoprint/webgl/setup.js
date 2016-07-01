@@ -1333,6 +1333,28 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		updateMutationColorForm();
 		updateSortByForm();
 	    })();
+	    (function initKnowledgeTooltipAndLinkout() {
+		$('#oncoprint_diagram_mutation_color').find('#colorby_hotspot_info').click(function() {
+		    window.open("http://www.cancerhotspots.org");
+		});
+		$('#oncoprint_diagram_mutation_color').find('#colorby_oncokb_info').click(function() {
+		    window.open("http://www.oncokb.org");
+		});
+		addQTipTo($('#oncoprint_diagram_mutation_color').find('#colorby_hotspot_info'), {
+		    content: {text: "cancerhotspots.org description"},
+		    position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
+		    style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
+		    show: {event: "mouseover"},
+		    hide: {fixed: true, delay: 100, event: "mouseout"}
+		});
+		addQTipTo($('#oncoprint_diagram_mutation_color').find('#colorby_oncokb_info'), {
+		    content: {text:"oncokb description"},
+		    position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
+		    style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
+		    show: {event: "mouseover"},
+		    hide: {fixed: true, delay: 100, event: "mouseout"}
+		});
+	    })();
 	})();
 	(function setUpShowClinicalLegendsBtn() {
 	    // set initial state

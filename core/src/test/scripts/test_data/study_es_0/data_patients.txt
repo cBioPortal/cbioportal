@@ -13,9 +13,9 @@ TCGA-B6-A0I6	DECEASED	32.56	Recurred/Progressed	[Not Available]
 TCGA-BH-A18V	DECEASED	51.09	[Not Available]	[Not Available]
 TCGA-BH-A18Q	DECEASED	55.59	[Not Available]	[Not Available]
 TCGA-BH-A18K	DECEASED	90.74	Recurred/Progressed	[Not Available]
-TCGA-BH-A0HL	LIVING	2.37	DiseaseFree	2.37
-TCGA-BH-A0E0	LIVING	4.37	DiseaseFree	4.37
-TCGA-BH-A0RX	LIVING	5.59	DiseaseFree	5.59
+TCGA-BH-A0HL	LIVING	2.37	[Unknown]	2.37
+TCGA-BH-A0E0	LIVING	4.37	DiseaseFree	NA
+TCGA-BH-A0RX	LIVING	N/A	DiseaseFree	5.59
 TCGA-A7-A13D	LIVING	8.77	DiseaseFree	8.77
 TCGA-BH-A0E6	LIVING	9.59	DiseaseFree	9.59
 TCGA-AO-A0J4	LIVING	9.66	DiseaseFree	9.66

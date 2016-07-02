@@ -70,7 +70,10 @@ public class ImportClinicalData extends ConsoleRunnable {
         DISCREPANCY("Discrepancy"),
         COMPLETED("Completed"),
         NULL("null"),
-        MISSING("");
+        MISSING(""),
+        NA("NA"),
+        N_A("N/A"), //has() method replaces N/A --> NA, keeping N_A enum for reference
+        UNKNOWN("unknown");
 
         private String propertyName;
         
@@ -81,7 +84,7 @@ public class ImportClinicalData extends ConsoleRunnable {
             if (value == null) return false;
             if (value.trim().equals("")) return true;
             try { 
-                value = value.replaceAll("[\\[|\\]]", "");
+                value = value.replaceAll("[\\[|\\]\\/]", "");
                 value = value.replaceAll(" ", "_");
                 return valueOf(value.toUpperCase()) != null; 
             }

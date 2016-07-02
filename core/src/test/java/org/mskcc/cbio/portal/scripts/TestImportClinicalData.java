@@ -45,7 +45,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-
 import static org.junit.Assert.*;
 
 import java.io.*;
@@ -241,5 +240,17 @@ public class TestImportClinicalData {
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(cancerStudy.getInternalId());
         assertEquals (9, paramSet.size());
+    }
+    
+    /**
+     * Test the MissingAttributeValues enum.
+     * 
+     */
+    @Test
+    public void testHasMethod() {
+        assertTrue(ImportClinicalData.MissingAttributeValues.has("NA"));
+        assertTrue(ImportClinicalData.MissingAttributeValues.has("N/A"));
+        assertTrue(ImportClinicalData.MissingAttributeValues.has("unknown"));
+        assertFalse(ImportClinicalData.MissingAttributeValues.has("undefined"));
     }
 }

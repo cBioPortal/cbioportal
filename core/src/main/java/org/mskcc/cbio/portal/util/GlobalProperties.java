@@ -198,6 +198,7 @@ public class GlobalProperties {
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
     public static final String DARWIN_AUTHORITY = "darwin.authority";
     public static final String CIS_USER = "cis.user";
+    public static final String DISABLED_TABS = "disabled_tabs";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -523,17 +524,17 @@ public class GlobalProperties {
         String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
-    // show or hide the clinical trials tab in the patient view
+    // show the clinical trials tab in the patient view
     public static boolean showClinicalTrialsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
+        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
-    // show or hide the drugs tab in the patient view
+    // show the drugs tab in the patient view
     public static boolean showDrugsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
+        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // get the text for the What's New in the right navigation bar
     public static String getRightNavWhatsNewBlurb(){
@@ -760,6 +761,17 @@ public class GlobalProperties {
         catch (NullPointerException e) {}
         
         return cisUser;         
+    }
+    
+    public static List<String> getDisabledTabs() {
+        String disabledTabs = "";
+        try {
+            disabledTabs = properties.getProperty(DISABLED_TABS).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        String[] tabs = disabledTabs.split("\\|");
+        return (tabs.length > 0 && disabledTabs.length() > 0) ? Arrays.asList(tabs) : new ArrayList<String>();
     }
 
     public static void main(String[] args)

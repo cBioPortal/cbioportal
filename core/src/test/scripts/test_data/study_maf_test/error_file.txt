@@ -2,5 +2,11 @@
 6,7,8,9,10,11,12,13,14,15,39,103,104,105,106,107,108,109,111,112,119,159,162,163,164,165,166,168,169,170,171,173,175,176,177,178,179,180,181,182,183,184,185,196,242,276,372,392,394,395,396,397,398,399,401,402,403,406,407,425,428,441,520,528,529,530,531,532,533,534,535,536,537,538,539,540,541,542,543,544,545,546,547,548,549,550,551,552,553,554,555,566,605,639,794,795,808,809,810,811,823,824,825,826,827,828,829
 >brca_tcga_pub.maf | WARNING: Entrez gene id not known to the cBioPortal instance. This gene will not be loaded
 2,3,5,8,9,11,12,16
+>data_patients.txt | WARNING: datatype definition for attribute 'DFS_MONTHS' does not match the portal, and will be loaded as 'NUMBER'
+3
+>data_patients.txt | ERROR: Value of attribute to be loaded as NUMBER is not a real number (nb: even though 'datatype' definition in file is STRING, attribute is being validated as NUMBER according to the portal's definition - see also previous warning for this attribute)
+8,10
+>data_patients.txt | ERROR: Value of attribute to be loaded as NUMBER is not a real number
+536,540
 >brca_tcga_pub.maf | ERROR: Normal sample id not in list of sample ids configured in corresponding metafile. Please check your metafile field 'normal_samples_list'.
 8,9,11,12

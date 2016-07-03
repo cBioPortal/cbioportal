@@ -36,7 +36,7 @@
   <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
   <![endif]-->
-  <title>cBioPortal validation report: study in 'test_data/study_maf_test/'</title>
+  <title>cBioPortal validation report: study in 'test_data/study_quotes/'</title>
 </head>
 
 <body>
@@ -46,8 +46,8 @@
     <div class="header">
       <div class="jumbotron">
         <h1>cBioPortal validation report</h1>
-        <p>Study directory:<br />test_data/study_maf_test/</p>
-        <p>For details, please see <a href='https://github.com/cbioportal/cbioportal/blob/master/docs/File-Formats.md'>the documentation on file formats supported by cBioPortal</a></p>
+        <p>Study directory:<br />test_data/study_quotes/</p>
+        <p>For details, please see <a href='https://github.com/cbioportal/cbioportal/wiki/File%20Formats'>the documentation on file formats supported by cBioPortal</a></p>
       </div>
     </div>
 
@@ -93,13 +93,13 @@
     </div>
 
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-      <div class="panel panel-danger">
+      <div class="panel panel-success">
         <div class="panel-heading" role="tab"
               id="heading_2689738401393696111">
-          <span class="header-icon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></span>
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_2689738401393696111" href="#collapse_2689738401393696111">
-            <span class="badge">9</span>
+            <span class="badge">8</span>
             <h4 class="panel-title">General</h4>
           </a>
         </div>
@@ -159,13 +159,6 @@
                 <td>Validating case lists</td>
                 <td>&ndash;</td>
               </tr>
-              <tr class="danger">
-                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>No  case list found for stable_id &#39;brca_tcga_pub_all&#39;. Consider adding &#39;add_global_case_list: true&#39; to the study metadata file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -193,7 +186,7 @@
           <span class="header-icon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_-5095920511176882161" href="#collapse_-5095920511176882161">
-            <span class="badge">6</span>
+            <span class="badge">7</span>
             <h4 class="panel-title">brca_tcga_pub.maf</h4>
           </a>
         </div>
@@ -220,24 +213,31 @@
               </tr>
               <tr class="warning">
                 <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
-                <td>2, 3, 5, (5 more)</td>
                 <td>&ndash;</td>
-                <td>Entrez gene id not known to the cBioPortal instance. This gene will not be loaded</td>
-                <td>29974, 2, 144568</td>
+                <td>&ndash;</td>
+                <td>Found quotation marks around field(s) in the first rows of the file. Fields and values surrounded by quotation marks might be incorrectly loaded (i.e. with the quotation marks included as part of the value)</td>
+                <td>quotation marks of type: [&#34;] </td>
               </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
-                <td>4, 6, 7, (4 more)</td>
+                <td>7, 9, 14</td>
                 <td>&ndash;</td>
                 <td>Validation of line skipped due to cBioPortal&#39;s filtering. Filtered types: [Silent, Intron, 3&#39;UTR, 3&#39;Flank, 5&#39;UTR, 5&#39;Flank, IGR, RNA]</td>
                 <td>Silent</td>
               </tr>
               <tr class="danger">
                 <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
-                <td>8, 9, 11, (1 more)</td>
-                <td>17</td>
-                <td>Normal sample id not in list of sample ids configured in corresponding metafile. Please check your metafile field &#39;normal_samples_list&#39;.</td>
-                <td>TCGA-A8-A08G-10, TCGA-B6-A0IQ-10, TCGA-A1-A0SO-10, (1 more)</td>
+                <td>8</td>
+                <td>4</td>
+                <td>Value in column &#39;NCBI_Build&#39; is invalid</td>
+                <td>GRCh37&#34;</td>
+              </tr>
+              <tr class="danger">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+                <td>8</td>
+                <td>24</td>
+                <td>Value in column &#39;Verification_Status&#39; is invalid</td>
+                <td>&#34;Unknown</td>
               </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
@@ -250,7 +250,7 @@
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Read 16 lines. Lines with warning: 8. Lines with error: 4</td>
+                <td>Read 15 lines. Lines with warning: 0. Lines with error: 1</td>
                 <td>&ndash;</td>
               </tr>
             </tbody>
@@ -259,13 +259,13 @@
         </div>
       </div>
 
-      <div class="panel panel-success">
+      <div class="panel panel-danger">
         <div class="panel-heading" role="tab"
               id="heading_-8084637708731552141">
-          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <span class="header-icon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_-8084637708731552141" href="#collapse_-8084637708731552141">
-            <span class="badge">2</span>
+            <span class="badge">3</span>
             <h4 class="panel-title">case_lists/cases_custom.txt</h4>
           </a>
         </div>
@@ -297,6 +297,71 @@
                 <td>Validation of meta file complete</td>
                 <td>&ndash;</td>
               </tr>
+              <tr class="danger">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Sample id not defined in clinical file</td>
+                <td>&#34;TCGA-A1-A0SE-01&#34;, &#34;TCGA-A1-A0SF-01, TCGA-AR-A1AR-01</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-danger">
+        <div class="panel-heading" role="tab"
+              id="heading_-1211125621321342529">
+          <span class="header-icon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_-1211125621321342529" href="#collapse_-1211125621321342529">
+            <span class="badge">4</span>
+            <h4 class="panel-title">data_CNA.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_-1211125621321342529" id="collapse_-1211125621321342529">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="warning">
+                <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Found quotation marks around field(s) in the first rows of the file. Fields and values surrounded by quotation marks might be incorrectly loaded (i.e. with the quotation marks included as part of the value)</td>
+                <td>quotation marks of type: [&#34;] </td>
+              </tr>
+              <tr class="danger">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+                <td>1</td>
+                <td>315</td>
+                <td>Sample ID not defined in clinical file</td>
+                <td>TCGA-AR-A1AR-01</td>
+              </tr>
+              <tr class="danger">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Invalid column header, file cannot be parsed</td>
+                <td>&ndash;</td>
+              </tr>
             </tbody>
             </table>
           </div>
@@ -309,7 +374,7 @@
           <span class="header-icon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_2670945268483421722" href="#collapse_2670945268483421722">
-            <span class="badge">7</span>
+            <span class="badge">6</span>
             <h4 class="panel-title">data_patients.txt</h4>
           </a>
         </div>
@@ -334,33 +399,26 @@
                 <td>Starting validation of file</td>
                 <td>&ndash;</td>
               </tr>
+              <tr class="danger">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+                <td>19, 24</td>
+                <td>3, 5 <br/>Column names: OS_MONTHS, DFS_MONTHS</td>
+                <td>Value of attribute to be loaded as NUMBER is not a real number</td>
+                <td>&#34;8.77&#34;, &#34;12.25, 12.25&#34;</td>
+              </tr>
               <tr class="warning">
                 <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
-                <td>3</td>
-                <td>5</td>
-                <td>datatype definition for attribute &#39;DFS_MONTHS&#39; does not match the portal, and will be loaded as &#39;NUMBER&#39;</td>
-                <td>STRING</td>
-              </tr>
-              <tr class="danger">
-                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
-                <td>8, 10</td>
-                <td>5 <br/>Column names: DFS_MONTHS</td>
-                <td>Value of attribute to be loaded as NUMBER is not a real number (nb: even though &#39;datatype&#39; definition in file is STRING, attribute is being validated as NUMBER according to the portal&#39;s definition - see also previous warning for this attribute)</td>
-                <td>TEST</td>
-              </tr>
-              <tr class="danger">
-                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
-                <td>536, 540</td>
-                <td>3 <br/>Column names: OS_MONTHS</td>
-                <td>Value of attribute to be loaded as NUMBER is not a real number</td>
-                <td>TEST</td>
+                <td>432</td>
+                <td>1</td>
+                <td>Clinical data defined for a patient with no samples</td>
+                <td>&#34;TCGA-BH-A0HW&#34;</td>
               </tr>
               <tr class="warning">
                 <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
                 <td>Missing clinical data for a patient associated with samples</td>
-                <td>TCGA-A2-A0T2</td>
+                <td>TCGA-BH-A0HW</td>
               </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
@@ -373,7 +431,7 @@
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Read 829 lines. Lines with warning: 1. Lines with error: 4</td>
+                <td>Read 830 lines. Lines with warning: 1. Lines with error: 2</td>
                 <td>&ndash;</td>
               </tr>
             </tbody>
@@ -382,13 +440,13 @@
         </div>
       </div>
 
-      <div class="panel panel-success">
+      <div class="panel panel-warning">
         <div class="panel-heading" role="tab"
               id="heading_2353294301845676894">
-          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <span class="header-icon"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_2353294301845676894" href="#collapse_2353294301845676894">
-            <span class="badge">3</span>
+            <span class="badge">4</span>
             <h4 class="panel-title">data_samples.txt</h4>
           </a>
         </div>
@@ -413,6 +471,13 @@
                 <td>Starting validation of file</td>
                 <td>&ndash;</td>
               </tr>
+              <tr class="warning">
+                <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Found quotation marks around field(s) in the first rows of the file. Fields and values surrounded by quotation marks might be incorrectly loaded (i.e. with the quotation marks included as part of the value)</td>
+                <td>quotation marks of type: [&#34;] </td>
+              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -425,6 +490,50 @@
                 <td>&ndash;</td>
                 <td>&ndash;</td>
                 <td>Read 831 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+              id="heading_6496178228918583572">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+              aria-controls="collapse_6496178228918583572" href="#collapse_6496178228918583572">
+            <span class="badge">2</span>
+            <h4 class="panel-title">meta_CNA.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+              aria-labelledby="heading_6496178228918583572" id="collapse_6496178228918583572">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
                 <td>&ndash;</td>
               </tr>
             </tbody>
@@ -477,13 +586,13 @@
         </div>
       </div>
 
-      <div class="panel panel-warning">
+      <div class="panel panel-success">
         <div class="panel-heading" role="tab"
               id="heading_-3052465516861932937">
-          <span class="header-icon"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></span>
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_-3052465516861932937" href="#collapse_-3052465516861932937">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">meta_patients.txt</h4>
           </a>
         </div>
@@ -507,13 +616,6 @@
                 <td>&ndash;</td>
                 <td>Starting validation of meta file</td>
                 <td>&ndash;</td>
-              </tr>
-              <tr class="warning">
-                <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Unrecognized field in meta file</td>
-                <td>show_profile_in_analysis_tab, stable_id, profile_name, (1 more)</td>
               </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>

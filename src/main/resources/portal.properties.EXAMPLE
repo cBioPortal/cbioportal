@@ -61,8 +61,8 @@ skin.login.contact_html=If you think you have received this message in error, pl
 skin.login.saml.registration_html=Sign in with MSK
 
 # setting controlling which tabs to hide/show in the patient view
-skin.patient_view.show_clinical_trials_tab=true
-skin.patient_view.show_drugs_tab=true
+skin.patient_view.show_clinical_trials_tab=false
+skin.patient_view.show_drugs_tab=false
 
 # settings controlling what to show in the right navigation bar
 skin.right_nav.show_data_sets=true
@@ -160,8 +160,6 @@ genomespace=true
 # set this to true if you update cancer studies in your production database without shutting the web server
 recache_study_after_update=false
 
-#darwin url
-darwin.auth_url=
-darwin.response_url=
-darwin.authority=
-cis.user=
+# disabled tabs, | delimited
+# possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
+disabled_tabs=

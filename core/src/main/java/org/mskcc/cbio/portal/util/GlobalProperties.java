@@ -522,13 +522,13 @@ public class GlobalProperties {
     public static boolean showClinicalTrialsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
+        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // show or hide the drugs tab in the patient view
     public static boolean showDrugsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
+        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // get the text for the What's New in the right navigation bar
     public static String getRightNavWhatsNewBlurb(){

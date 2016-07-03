@@ -518,13 +518,13 @@ public class GlobalProperties {
         String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
-    // show or hide the clinical trials tab in the patient view
+    // show the clinical trials tab in the patient view
     public static boolean showClinicalTrialsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
         return showFlag != null && Boolean.parseBoolean(showFlag);
     }
-    // show or hide the drugs tab in the patient view
+    // show the drugs tab in the patient view
     public static boolean showDrugsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);

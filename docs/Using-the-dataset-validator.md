@@ -5,7 +5,7 @@ To facilitate the loading of new studies into its database, cBioPortal [provides
 To run the validator first go to the importer folder
 `<your_cbioportal_dir>/core/src/main/scripts/importer` 
 and then run the following command:
-```console
+```bash
 ./validateData.py --help
 ```
 This will tell you the parameters you can use: 
@@ -42,7 +42,7 @@ For more information on the `--portal_info_dir` option, see [Offline validation]
 
 ### Example 1
 As an example, you can try the validator with one of the test studies found in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
-```console
+```bash
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080/cbioportal -v
 ```
 Results in:
@@ -144,7 +144,7 @@ When using the `-html` option, a report will be generated, which looks like this
 
 ### Example 2
 More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
-```console
+```bash
 ./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080/cbioportal -v
 ```
 Results in:
@@ -190,8 +190,10 @@ The validation script can be used offline, without connecting to a cBioPortal se
 
 ### Example 3: validation with a portal info folder ###
 To run the validator with a folder of portal information files, add the `-p/--portal_info_dir` option to the command line, followed by the path to the folder:
-```console
+```bash
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -p ../../../test/scripts/test_data/api_json_system_tests/ -v
+```
+```console
 DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/cancertypes.json
 DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/clinicalattributes_patients.json
 DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/clinicalattributes_samples.json
@@ -286,7 +288,7 @@ Validation of study succeeded.
 
 ### Example 4: generating the portal info folder ###
 The portal information files can be generated on the server, using the dumpPortalInfo script. Go to `<your cbioportal dir>/core/src/main/scripts`, make sure the environment variables `$JAVA_HOME` and `$PORTAL_HOME` are set, and run dumpPortalInfo.pl with the name of the directory you want to create:
-```console
+```bash
 export JAVA_HOME='/usr/lib/jvm/java-7-openjdk-amd64'
 export PORTAL_HOME='../../../..'
 ./dumpPortalInfo.pl /home/johndoe/my_portal_info_folder/
@@ -295,8 +297,10 @@ export PORTAL_HOME='../../../..'
 ### Example 5: validating without portal-specific information ###
 Alternatively, you can run the validation script with the `-n/--no_portal_checks` flag to entirely skip checks relating to installation-specific metadata. Be warned that files succeeding this validation may still fail to load (correctly).
 
+```bash
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n -v
+```
 ```console
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n -v 
 WARNING: -: Skipping validations relating to cancer types defined in the portal
 WARNING: -: Skipping validations relating to clinical attributes defined in the portal
 WARNING: -: Skipping validations relating to gene identifiers and aliases defined in the portal

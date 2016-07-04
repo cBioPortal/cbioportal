@@ -216,7 +216,6 @@ var StudyViewInitCharts = (function(){
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
                     bar.push(_attr[i]);
                 }
-
                 varType[_attr_id] = "bar";
 
                 var _varValues = [];
@@ -226,12 +225,18 @@ var StudyViewInitCharts = (function(){
                         _varValues.push(_arr[j][_attr_id]);
                     }
                 }
+                var findExtremeResult = cbio.util.findExtremes(_varValues);
+                var calculatedMin = findExtremeResult[0];
+                var calculatedMax = findExtremeResult[1];
 
                 distanceMinMaxArray[_attr_id] = {
-                    diff : Math.max.apply( Math, _varValues ) - Math.min.apply( Math, _varValues ),
-                    min: Math.min.apply( Math, _varValues ),
-                    max:Math.max.apply( Math, _varValues )
+                    diff: calculatedMax - calculatedMin,
+                    min: calculatedMin,
+                    max: calculatedMax,
+                    absoluteMin: Math.min.apply( Math, _varValues ),
+                    absoluteMax: Math.max.apply( Math, _varValues )
                 };
+                
             }else if(_dataType === "STRING"){
                 varType[_attr_id] = "pie";
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
@@ -917,19 +922,22 @@ var StudyViewInitCharts = (function(){
 
     function deleteChart(_chartID,_value){
         var _options;
-
-        $("div").remove("#study-view-dc-chart-main-" + _chartID);
+        
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
             dc.redrawAll();
             redrawSpecialPlots();
         }
+        varChart[_chartID].destroy();
         dc.deregisterChart(varChart[_chartID].getChart());
 //        $('#study-view-add-chart ul')
 //                .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
 //
 //        $('#study-view-add-chart ul').stop().hide();
 //        $('#study-view-add-chart ul').css('height','100%');
+        $("#study-view-dc-chart-main-" + _chartID).qtip('destroy', true);
+        $("div").remove("#study-view-dc-chart-main-" + _chartID);
+        
         $('#study-view-add-chart')
                 .append($('<option></option>').attr('id',_value[0]).text(_value[1]));
 

@@ -1,0 +1,9 @@
+type_of_cancer: brca
+cancer_study_identifier: study_es_0
+name: Test study es_0
+description: Test study es_0
+citation: The Hyve
+pmid: 23000897
+groups: PUBLIC;GDAC;SU2C-PI3K
+short_name: BRCA (TCGA)
+add_global_case_list: true

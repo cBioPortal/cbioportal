@@ -55,6 +55,12 @@
     <%
         Boolean showMutTab = false;
         Boolean showCancerTypesSummary = false;
+        Boolean showEnrichmentsTab = true;
+        Boolean showSurvivalTab = true;
+        Boolean showPlotsTab = true;
+        Boolean showDownloadTab = true;
+        Boolean showBookmarkTab = true;
+        List<String> disabledTabs = GlobalProperties.getDisabledTabs();
 
             Enumeration paramEnum = request.getParameterNames();
             StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
@@ -70,11 +76,46 @@
                     {
                         String currentValue = values[i].trim();
 
-                        if (currentValue.contains("mutation"))
+                        if (currentValue.contains("mutation") && !disabledTabs.contains("mutations"))
                         {
                             showMutTab = true;
+                        }                        
+                        if (disabledTabs.contains("co_expression")) 
+                        {
+                            showCoexpTab = false;
+                        }                        
+                        if (disabledTabs.contains("IGV")) 
+                        {
+                            showIGVtab = false;
+                        }                        
+                        if (disabledTabs.contains("mutual_exclusivity")) 
+                        {
+                            computeLogOddsRatio = false;
+                        }                        
+                        if (disabledTabs.contains("enrichments")) 
+                        {
+                            showEnrichmentsTab = false;
+                        }                        
+                        if (disabledTabs.contains("survival")) 
+                        {
+                            has_survival = false;
+                        }                        
+                        if (disabledTabs.contains("network")) 
+                        {
+                            includeNetworks = false;
+                        }                        
+                        if (disabledTabs.contains("plots")) 
+                        {
+                            showPlotsTab = false;
                         }
-
+                        if (disabledTabs.contains("download")) 
+                        {
+                            showDownloadTab = false;
+                        }
+                        if (disabledTabs.contains("bookmark")) {
+                            showBookmarkTab = false;
+                        }
+                        
                         if (paramName.equals(QueryBuilder.GENE_LIST)
                             && currentValue != null)
                         {
@@ -118,6 +159,9 @@
             else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
             	showCancerTypesSummary = true;
             }
+            if (disabledTabs.contains("cancer_types_summary")) {
+                showCancerTypesSummary = false;
+            }
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
             // if showCancerTypesSummary is try, add the list item
             if(showCancerTypesSummary){
@@ -129,14 +173,16 @@
                 out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
             }
-            out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
+            if (showPlotsTab) {
+                out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
+            }            
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
             if (showCoexpTab) {
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
-            if (has_mrna || has_copy_no || showMutTab) {
+            if (has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) {
                 out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
@@ -148,8 +194,12 @@
             if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
                 out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
-            out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
-            out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
+            if (showDownloadTab) {
+                out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
+            }       
+            if (showBookmarkTab) {
+                out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
+            }            
             out.println ("</ul>");
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");

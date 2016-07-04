@@ -479,6 +479,11 @@ var EnhancedFixedDataTableSpecial = (function() {
 
                     field === 'samples' ?
                         React.createElement("input", {type: "checkbox", style: {float: 'right'},
+                            title: 'Select ' + data[rowIndex].row[field]
+                            + ' sample' + (Number(data[rowIndex].row[field]) > 1 ? 's':'')
+                            + (tableType === 'mutatedGene' ? (' with ' + data[rowIndex].row.gene + ' mutation') :
+                                (tableType === 'cna' ? (' with ' + data[rowIndex].row.gene + ' ' + data[rowIndex].row.altType) :
+                                    (tableType === 'pieLabel' ? (' in ' + data[rowIndex].row.name)  : ''))),
                             checked: this.props.selectedRowIndex.indexOf(data[rowIndex].index) != -1,
                             onChange: this.selectRow.bind(this, data[rowIndex].index)}) : ''
 
@@ -622,7 +627,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                             maxHeight: props.maxHeight?props.maxHeight:500,
                             headerHeight: props.headerHeight?props.headerHeight:30,
                             groupHeaderHeight: props.groupHeaderHeight?props.groupHeaderHeight:50,
-                            scrollToColumn: props.goToColumn
+                            scrollToColumn: props.goToColumn,
+                            isColumnResizing: false,
+                            onColumnResizeEndCallback: props.onColumnResizeEndCallback
                         },
 
                         props.cols.map(function(col, index) {
@@ -664,7 +671,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                                         width: width,
                                         fixed: col.fixed,
                                         allowCellsRecycling: true,
-                                        flexGrow: props.cols.length - index - 1}
+                                        isResizable: props.isResizable,
+                                        columnKey: col.name,
+                                        key: col.name}
                                     )
                                 )
                             } else {
@@ -690,7 +699,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                                     width: width,
                                     fixed: col.fixed,
                                     allowCellsRecycling: true,
-                                    key: col.name}
+                                    columnKey: col.name,
+                                    key: col.name,
+                                    isResizable: props.isResizable}
                                 )
                             }
                             return (
@@ -735,7 +746,7 @@ var EnhancedFixedDataTableSpecial = (function() {
                                 default:
                                     var upperCaseLength = data.replace(/[^A-Z]/g, "").length;
                                     var dataLength = data.length;
-                                    rulerWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 15;
+                                    rulerWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 15;
                                     break;
                             }
 
@@ -781,7 +792,7 @@ var EnhancedFixedDataTableSpecial = (function() {
                             default:
                                 var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
                                 var dataLength = _label.length;
-                                _labelWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 15;
+                                _labelWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 15;
                                 break;
                         }
                         if (_labelWidth > columnWidth[attr]) {
@@ -797,34 +808,36 @@ var EnhancedFixedDataTableSpecial = (function() {
             });
 
             _.each(cols, function(col) {
-                var _label = col.displayName;
-                var _shortLabel = '';
-                var _labelWidth = _label.toString().length * 8 + 20;
+                if (!col.hasOwnProperty('show') || col.show) {
+                    var _label = col.displayName;
+                    var _shortLabel = '';
+                    var _labelWidth = _label.toString().length * 8 + 20;
 
-                if (_label) {
-                    _label = _label.toString();
-                    switch (measureMethod) {
-                        case 'jquery':
-                            var ruler = $('#ruler');
-                            ruler.text(_label);
-                            ruler.css('font-size', '14px');
-                            ruler.css('font-weight', 'bold');
-                            _labelWidth = ruler.outerWidth() + 20;
-                            break;
-                        default:
-                            var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
-                            var dataLength = _label.length;
-                            _labelWidth = upperCaseLength * 10 +  (dataLength - upperCaseLength) * 8 + 20;
-                            break;
+                    if (_label) {
+                        _label = _label.toString();
+                        switch (measureMethod) {
+                            case 'jquery':
+                                var ruler = $('#ruler');
+                                ruler.text(_label);
+                                ruler.css('font-size', '14px');
+                                ruler.css('font-weight', 'bold');
+                                _labelWidth = ruler.outerWidth() + 20;
+                                break;
+                            default:
+                                var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
+                                var dataLength = _label.length;
+                                _labelWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 20;
+                                break;
+                        }
+                        if (_labelWidth > columnWidth[col.name]) {
+                            var end = Math.floor(_label.length * columnWidth[col.name] / _labelWidth) - 3;
+                            _shortLabel = _label.substring(0, end) + '...';
+                        } else {
+                            _shortLabel = _label;
+                        }
                     }
-                    if (_labelWidth > columnWidth[col.name]) {
-                        var end = Math.floor(_label.length * columnWidth[col.name] / _labelWidth) - 3;
-                        _shortLabel = _label.substring(0, end) + '...';
-                    } else {
-                        _shortLabel = _label;
-                    }
+                    headerShortLabels[col.name] = _shortLabel;
                 }
-                headerShortLabels[col.name] = _shortLabel;
             });
 
             return {
@@ -835,32 +848,38 @@ var EnhancedFixedDataTableSpecial = (function() {
         // Filters rows by selected column
         filterRowsBy: function(filterAll, filters) {
             var rows = this.rows.slice();
+            var hasGroupHeader = this.props.groupHeader;
             var filterRowsStartIndex = [];
             var filteredRows = _.filter(rows, function(row, index) {
                 var allFlag = false; // Current row contains the global keyword
                 for (var col in filters) {
                     if (!filters[col].hide) {
                         if (filters[col].type == "STRING") {
-                            if (!row[col]) {
+                            if (!row[col] && hasGroupHeader) {
                                 if (filters[col].key.length > 0) {
                                     return false;
                                 }
                             } else {
-                                if (row[col].toLowerCase().indexOf(filters[col].key.toLowerCase()) < 0) {
+                                if (hasGroupHeader && row[col].toLowerCase().indexOf(filters[col].key.toLowerCase()) < 0) {
                                     return false;
                                 }
-                                if (row[col].toLowerCase().indexOf(filterAll.toLowerCase()) >= 0) {
+                                if (row[col] && row[col].toLowerCase().indexOf(filterAll.toLowerCase()) >= 0) {
                                     allFlag = true;
                                 }
                             }
                         } else if (filters[col].type === "NUMBER" || filters[col].type == 'PERCENTAGE') {
                             var cell = _.isUndefined(row[col]) ? row[col] : Number(row[col].toString().replace('%', ''));
                             if (!isNaN(cell)) {
-                                if (Number(cell) < filters[col].min) {
-                                    return false;
+                                if (hasGroupHeader) {
+                                    if (filters[col].min !== filters[col]._min && Number(cell) < filters[col].min) {
+                                        return false;
+                                    }
+                                    if (filters[col].max !== filters[col]._max && Number(cell) > filters[col].max) {
+                                        return false;
+                                    }
                                 }
-                                if (Number(cell) > filters[col].max) {
-                                    return false;
+                                if (row[col] && row[col].toString().toLowerCase().indexOf(filterAll.toLowerCase()) >= 0) {
+                                    allFlag = true;
                                 }
                             }
                         }
@@ -979,6 +998,9 @@ var EnhancedFixedDataTableSpecial = (function() {
         onFilterKeywordChange: function(e) {
             ++this.state.filterTimer;
 
+            //Disable event pooling in react, see https://goo.gl/1mq6qI
+            e.persist();
+
             var self = this;
             var id = setTimeout(function() {
                 var filterAll = self.state.filterAll, filters = self.state.filters;
@@ -1031,6 +1053,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                 }
                 filter.reset = true;
             });
+            if (this.props.groupHeader) {
+                this.registerSliders();
+            }
             this.filterSortNSet('', filters, this.state.sortBy);
         },
 
@@ -1042,6 +1067,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                 filteredRows: result.filteredRows,
                 filters: filters
             });
+            if (this.props.groupHeader) {
+                this.registerSliders();
+            }
         },
 
         updateGoToColumn: function(val) {
@@ -1050,6 +1078,40 @@ var EnhancedFixedDataTableSpecial = (function() {
             });
         },
 
+        registerSliders: function() {
+            var onFilterRangeChange = this.onFilterRangeChange;
+            $('.rangeSlider')
+                .each(function() {
+                    var min = Math.floor(Number($(this).attr('data-min')) * 100) / 100, max = (Math.ceil(Number($(this).attr('data-max')) * 100)) / 100,
+                        column = $(this).attr('data-column'), diff = max - min, step = 1;
+                    var type = $(this).attr('data-type');
+
+                    if (diff < 0.01) {
+                        step = 0.001;
+                    } else if (diff < 0.1) {
+                        step = 0.01;
+                    } else if (diff < 2) {
+                        step = 0.1;
+                    }
+
+                    $(this).slider({
+                        range: true,
+                        min: min,
+                        max: max,
+                        step: step,
+                        values: [min, max],
+                        change: function(event, ui) {
+                            $("#range-" + column).text(ui.values[0] + " to " + ui.values[1]);
+                            onFilterRangeChange(column, ui.values[0], ui.values[1]);
+                        }
+                    });
+                    if (type === 'PERCENTAGE') {
+                        $("#range-" + column).text(min + "% to " + max + '%');
+                    } else {
+                        $("#range-" + column).text(min + " to " + max);
+                    }
+                });
+        },
         // Processes input data, and initializes table states
         getInitialState: function() {
             var state = this.parseInputData(this.props.input, this.props.uniqueId,
@@ -1087,62 +1149,6 @@ var EnhancedFixedDataTableSpecial = (function() {
         // Initializes filteredRows before first rendering
         componentWillMount: function() {
             this.filterSortNSet(this.state.filterAll, this.state.filters, this.state.sortBy);
-        },
-
-        // Activates range sliders after first rendering
-        componentDidMount: function() {
-            var onFilterRangeChange = this.onFilterRangeChange;
-            $('.rangeSlider')
-                .each(function() {
-                    var min = Math.floor(Number($(this).attr('data-min')) * 100) / 100, max = Math.round(Number($(this).attr('data-max')) * 100) / 100,
-                        column = $(this).attr('data-column'), diff = max - min, step = 1;
-                    var type = $(this).attr('data-type');
-
-                    if (diff < 0.01) {
-                        step = 0.001;
-                    } else if (diff < 0.1) {
-                        step = 0.01;
-                    } else if (diff < 2) {
-                        step = 0.1;
-                    }
-
-                    $(this).slider({
-                        range: true,
-                        min: min,
-                        max: max,
-                        step: step,
-                        values: [min, max],
-                        change: function(event, ui) {
-                            $("#range-" + column).text(ui.values[0] + " to " + ui.values[1]);
-                            onFilterRangeChange(column, ui.values[0], ui.values[1]);
-                        }
-                    });
-                    if (type === 'PERCENTAGE') {
-                        $("#range-" + column).text(min + "% to " + max + '%');
-                    } else {
-                        $("#range-" + column).text(min + " to " + max);
-                    }
-                });
-        },
-
-        // Sets default properties
-        getDefaultProps: function() {
-            return {
-                filter: "NONE",
-                download: "NONE",
-                showHide: false,
-                hideFilter: true,
-                scroller: false,
-                resultInfo: true,
-                groupHeader: true,
-                downloadFileName: 'data.txt',
-                autoColumnWidth: true,
-                columnMaxWidth: 300,
-                columnSorting: true,
-                tableType: 'mutatedGene',
-                selectedRow: [],
-                selectedGene: []
-            };
         },
 
         parseInputData: function(input, uniqueId, selectedRow, groupHeader, columnSorting) {
@@ -1259,7 +1265,8 @@ var EnhancedFixedDataTableSpecial = (function() {
                 columnWidths: columnWidths,
                 columnMinWidth: columnMinWidth,
                 selectedRowIndex: selectedRowIndex,
-                dataSize: dataLength
+                dataSize: dataLength,
+                measureMethod: measureMethod
             };
         },
         // If properties changed
@@ -1267,18 +1274,68 @@ var EnhancedFixedDataTableSpecial = (function() {
             var state = this.parseInputData(newProps.input, newProps.uniqueId,
                 newProps.selectedRow, newProps.groupHeader, newProps.columnSorting);
             state.filteredRows = null;
-            state.filterAll = "";
-            state.sortBy = 'samples';
+            state.filterAll = this.state.filterAll || '';
+            state.sortBy = this.state.sortBy || 'samples';
+            state.sortDir = this.state.sortDir || '';
             state.goToColumn = null;
             state.filterTimer = 0;
 
             var filteredRows = this.filterRowsBy(state.filterAll, state.filters);
             var result = this.sortRowsBy(state.filters, filteredRows, state.sortBy, false);
-
             state.filteredRows = result.filteredRows;
-            state.sortDir = result.sortDir;
 
             this.setState(state);
+        },
+
+        //Will be triggered if the column width has been changed
+        onColumnResizeEndCallback: function(width, key) {
+            var foundMatch = false;
+            var cols = this.state.cols;
+
+            _.each(cols, function(col, attr) {
+                if (col.name === key) {
+                    col.width = width;
+                    foundMatch = true;
+                }
+            });
+            if (foundMatch) {
+                var columnWidths = this.state.columnWidths;
+                columnWidths[key] = width;
+                var shortLabels = this.getShortLabels(this.rows, cols, columnWidths, this.state.measureMethod);
+                this.setState({
+                    columnWidths: columnWidths,
+                    shortLabels: shortLabels,
+                    cols: cols
+                });
+            }
+        },
+
+        // Activates range sliders after first rendering
+        componentDidMount: function() {
+            if (this.props.groupHeader) {
+                this.registerSliders();
+            }
+        },
+
+        // Sets default properties
+        getDefaultProps: function() {
+            return {
+                filter: "NONE",
+                download: "NONE",
+                showHide: false,
+                hideFilter: true,
+                scroller: false,
+                resultInfo: true,
+                groupHeader: true,
+                downloadFileName: 'data.txt',
+                autoColumnWidth: true,
+                columnMaxWidth: 300,
+                columnSorting: true,
+                tableType: 'mutatedGene',
+                selectedRow: [],
+                selectedGene: [],
+                isResizable: false
+            };
         },
 
         render: function() {
@@ -1333,7 +1390,9 @@ var EnhancedFixedDataTableSpecial = (function() {
                             pieLabelMouseEnterFunc: this.props.pieLabelMouseEnterFunc,
                             pieLabelMouseLeaveFunc: this.props.pieLabelMouseLeaveFunc,
                             selectedRowIndex: selectedRowIndex,
-                            selectedGeneRowIndex: selectedGeneRowIndex}
+                            selectedGeneRowIndex: selectedGeneRowIndex,
+                            isResizable: this.props.isResizable,
+                            onColumnResizeEndCallback: this.onColumnResizeEndCallback}
                         )
                     ),
                     React.createElement("div", {className: "EFDT-filter"},

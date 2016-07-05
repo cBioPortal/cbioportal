@@ -1,4 +1,4 @@
-# Load a Sample Study
+# Loading a Sample Study
 
 Once you have initialized MySQL with the seed database, you are ready to import a sample cancer study.  This is recommended, so that you can verify everything is working.
 

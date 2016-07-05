@@ -1,15 +1,17 @@
+## Run cBioPortal using Docker
+
 To learn more on Docker, kindly refer here: [What is Docker?](https://www.docker.com/what-docker).
 
-### 1 | Install Docker
+### 1. Install Docker
 
 First, make sure that you have the latest version of Docker installed on your machine.
 [Get latest Docker version](https://www.docker.com/products/docker)
 
-### 2 | Database Setup
+### 2. Database Setup
 
-#### 2.1 | Setup a Docker MySQL instance
+#### 2.1 Setup a Docker MySQL instance
 
-##### 2.1.1 | Setup a Docker Network
+##### 2.1.1 Setup a Docker Network
 
 Because MySQL and cBioPortal are running on separate containers, Docker needs to know how to link them. Using Docker's legacy --link flag tends to be fragile since it will break if the MySQL container is restarted. We can get around this by using the newer ‘Docker networks’ feature.
 
@@ -17,7 +19,7 @@ Because MySQL and cBioPortal are running on separate containers, Docker needs to
 docker network create cbio-net
 ```
 
-##### 2.1.2 | Start a MySQL docker container:
+##### 2.1.2 Start a MySQL docker container:
 
 In the following command, replace `{/PATH/TO/cbioportal-seed.sql.gz}` by the local filename of the seed database file `cbioportal-seed.sql.gz` on the host machine (you can [download the seed DB here](Downloads.md#seed-database)). This will automatically import it before starting the MySQL server if the database does not yet exist, which may take a while.
 
@@ -49,23 +51,23 @@ to see the MySQL status logs.
 [MySQL Docker Hub](https://hub.docker.com/_/mysql/)
 [MySQL Docker Github](https://github.com/docker-library/docs/tree/master/mysql)
 
-#### 2.2 | Setup a MySQL instance running on a host
+#### 2.2 Setup a MySQL instance running on a host
 
-##### 2.2.1 | Install MySQL
+##### 2.2.1 Install MySQL
 
 To install MySQL kindly follow the installation instructions below:
 [Installing and Upgrading MySQL](http://dev.mysql.com/doc/refman/5.7/en/installing.html)
 
-##### 2.2.2 | Create cBioPortal MySQL Databases and User
+##### 2.2.2 Create cBioPortal MySQL Databases and User
 
 Once MySQL is installed on host please follow the configuration instructions below:
 [Create the cBioPortal MYSQL Databases and User](https://github.com/cBioPortal/cbioportal/blob/master/docs/Pre-Build-Steps.md#create-the-cbioportal-mysql-databases-and-user)
 
-### 3 | Prepare Configuration files
+### 3. Prepare Configuration files
 
 Coming soon...
 
-### Step 4 | Run docker container
+### 4. Run docker container
 
 ```bash
 docker run -d --name "cbioportal" \
@@ -81,18 +83,18 @@ docker run -d --name "cbioportal" \
 
 ## Docker Container Maintenance
 
-### Restart Docker Container
+### 1. Restart Docker Container
 
 ```bash
 docker restart cbioportal
 ```
-### Stop Docker Container
+### 2. Stop Docker Container
 
 ```bash
 docker stop cbioportal
 ```
 
-### Remove Docker Container (Make sure container is stopped first)
+### 3. Remove Docker Container (Make sure container is stopped first)
 
 ```bash
 docker rm cbioportal

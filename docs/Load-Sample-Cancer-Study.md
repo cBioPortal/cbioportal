@@ -1,10 +1,10 @@
 Once you have initialized MySQL with the seed database, you are ready to import a sample cancer study.  This is recommended, so that you can verify everything is working.
 
-# Sample Study:  study_es_0
+# Sample Study
 
 The cBioPortal distribution includes a [small dummy study, study_es_0](https://github.com/cBioPortal/cbioportal/tree/master/core/src/test/scripts/test_data/study_es_0), which you can use to verfiy that everything is working propertly.
 
-# Running the validator
+# Validating the Sample Study
 
 First, validate `study_es_0`.
 
@@ -19,5 +19,15 @@ and then run the following command:
 ```
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n
 ```
+
+If all goes well, you should see the final outout message:
+
+```
+Validation of study succeeded with warnings.
+```
+
+# Importing the Sample Study
+
+[Under construction]
 
 [Next Step: Deploying the Web Application](Deploying.md)

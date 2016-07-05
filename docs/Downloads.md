@@ -18,9 +18,3 @@ This file is a MySQL database dump for seeding a new instance of the cBioPortal.
 This is an example of the file format used to import mutation data into the cBioPortal.  It is derived from the [Mutation Annotation Format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification) created as part of the [TCGA](https://wiki.nci.nih.gov/display/TCGA/TCGA+Home) project.  The example MAF file is available for download here:
 
 [MAF_example.txt](http://cbio.mskcc.org/cancergenomics/public-portal/downloads/MAF_example.txt)
-
-# [Cancer Study Example](cancer-study-example)
-
-This is an example cancer study dataset for use as reference when creating private data files:
-
-[brca-example-study.tar.gz](http://cbio.mskcc.org/cancergenomics/public-portal/downloads/brca-example-study.tar.gz)

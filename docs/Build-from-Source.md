@@ -1,5 +1,5 @@
 
-# Build from Source
+# Building from Source
 
 ## Building with Maven
 

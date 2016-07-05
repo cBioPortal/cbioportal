@@ -1,4 +1,6 @@
 
+# Build from Source
+
 ## Building with Maven
 
 First, set your `$PORTAL_HOME` environment variable to point at your cbioportal.org check-out.

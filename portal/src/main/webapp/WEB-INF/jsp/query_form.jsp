@@ -146,12 +146,13 @@
         	value='<%= request.getParameter("clinical_param_selection") %>'>
         <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
            value="<%= localTabIndex %>">
-        <p/>
+        <p>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
-        &nbsp;<br/>
+        </p>
+        <p>
         <input id="main_submit" class="btn btn-default btn-lg" onclick="submitHandler()" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>" title='Submit Query' readonly/>
         <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
-
+        </p>
         </form>
     </div>
 </div>      
@@ -169,11 +170,11 @@
         String checked = hasUserSelectedTheTransposeOption(clientTranspose);
         out.println ("&nbsp;Clicking submit will generate a tab-delimited file "
             + " containing your requested data.");
-        out.println ("<p/>");
+        out.println ("<div class='checkbox'><label>");
         out.println ("<input id='client_transpose_matrix' type=\"checkbox\" "+ checked + " name=\""
                 + QueryBuilder.CLIENT_TRANSPOSE_MATRIX
-                + "\"/> Transpose data matrix.");
-        out.println ("<p/>");
+                + "\"/> <p>Transpose data matrix.</p>");
+        out.println ("</label></div>");
     }
 
     private String hasUserSelectedTheTransposeOption(String clientTranspose) {

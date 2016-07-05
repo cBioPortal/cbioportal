@@ -220,15 +220,16 @@
                         Y-Axis value:
                         <select id="yAxis" title="y-axis value"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
                     </div>
+                    <!-- explicitly set anchors without href for the handles, as jQuery UI 1.10 otherwise adds href="#" which may confuse assistive technologies -->
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
-                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"><a class="ui-slider-handle" tabindex="0"></a></div>
                         <input style="float:left;" id="minY" size="3" type="text" aria-labelledby="sliderLabel">
                         <span id="suffix">%</span>
                     </div>
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" id="minTotalSamplesLabel">Min. # total samples:</span>
-                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"></div>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"><a class="ui-slider-handle" tabindex="0"></a></div>
                         <input style="float:left;" id="minTotal" size="3" type="text" aria-labelledby="minTotalSamplesLabel">
                     </div>
                     <div style="float:left;margin-right:20px;">

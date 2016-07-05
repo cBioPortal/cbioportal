@@ -6,9 +6,15 @@ The cBioPortal distribution includes a [small dummy study, study_es_0](https://g
 
 # Running the validator
 
-First, validate `study_es_0`:
+First, validate `study_es_0`.
 
-To do so, go to the importer folder `<your_cbioportal_dir>/core/src/main/scripts/importer` and then run the following command:
+To do so, go to the importer folder: 
+
+```
+cd <your_cbioportal_dir>/core/src/main/scripts/importer
+```
+
+and then run the following command:
 
 ```
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n

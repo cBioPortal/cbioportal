@@ -611,7 +611,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                 var _gene_name = aData[0];
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
-                enrichmentsTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
+                enrichmentsTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif' alt='loading' /></div>", "rppa-details");
                 enrichmentsTabPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[col_index.p_val]);
             }
         });
@@ -847,7 +847,7 @@ var orSubTabView = function() {
                     });
                 });
                 //adding loading image for table
-                $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>")
+                $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>")
             }
 
             $.each(_profile_list, function(_index, _profile_obj) {
@@ -863,7 +863,7 @@ var orSubTabView = function() {
                     var html = "<div id='"+_profile_obj.STABLE_ID.replace(/\./g, "_")+"_container' style='float: left; position: relative'>"+
                         "<div id='" + _plot_div + "' style='width: 30%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
                         "<div id='" + _table_div + "' style='width: 65%; display:table; margin-left: auto; margin-right: 0; '></div>"+
-                        "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif'/></div>"+
+                        "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif' alt='loading' /></div>"+
                         "</div>";
                     $("#" + _div_id).append(html);
                     //adding this to contain floated plot (see "float: left"  above):

@@ -289,7 +289,7 @@ function bubble_up(_arr, _index) {
 }
 
 var append_loading_img = function(div) {
-    $("#" + div).append("<img style='padding-top:200px; padding-left:300px;' src='images/ajax-loader.gif'>");
+    $("#" + div).append("<img style='padding-top:200px; padding-left:300px;' src='images/ajax-loader.gif' alt='loading' />");
 };
 
 var clear_plot_box = function() {

@@ -1,7 +1,6 @@
 * [Introduction](#introduction)
 * [Seed Database](#seed-database)
 * [MAF Example](#maf-example)
-* [Cancer Study Example](#cancer-study-example)
 
 # [Introduction](introduction)
 

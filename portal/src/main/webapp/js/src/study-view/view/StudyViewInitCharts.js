@@ -112,7 +112,7 @@ var StudyViewInitCharts = (function(){
         tableCharts = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'],
 
         //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
-        priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'],
+        priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID', 'SEQUENCED', 'HAS_CNA_DATA', 'SAMPLE_COUNT_PATIENT'],
 
         //Study specific prioritise attributes
         studyPrioritiseAttrs = {
@@ -143,7 +143,7 @@ var StudyViewInitCharts = (function(){
             _highPriorityAttrs = [],
             _lowPriorityAttrs = [];
 
-        _highPriorityAttrs.concat(priorityAttrs);
+        _highPriorityAttrs = _highPriorityAttrs.concat(priorityAttrs);
 
         if(studyPrioritiseAttrs.hasOwnProperty(cancerStudyId)) {
             _highPriorityAttrs = studyPrioritiseAttrs[cancerStudyId].high.concat(_highPriorityAttrs);
@@ -190,17 +190,14 @@ var StudyViewInitCharts = (function(){
             var _attr_id = _attr[i].attr_id;
             var _keys = _attr[i].keys;
             var _dataType = _attr[i].datatype.toUpperCase();
-            var _allNumber = false;
             var _createdChartsNum = pie.length + bar.length;
 
-             //If chart only has one category and it is NA, do not show this chart
-            if(_keys.length === 1 && _keys[0] === 'NA'){
+             //If chart only has one category, do not show this chart
+            if(_keys.length === 1){
                 continue;
             }
 
-            _allNumber = allNumberElements(_keys);
-
-            if(_dataType === "NUMBER" || _allNumber){
+            if(_dataType === "NUMBER"){
                 dataType[_attr_id] = 'allnumeric';
             }else{
                 dataType[_attr_id] = 'string';
@@ -212,7 +209,7 @@ var StudyViewInitCharts = (function(){
                 if(_keys.length !== Object.keys(dataArr).length) {
                     _studyDesc = "from " + _keys.length + " patients";
                 }
-            }else if(_dataType === "NUMBER" || _allNumber){
+            }else if(_dataType === "NUMBER"){
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
                     bar.push(_attr[i]);
                 }
@@ -966,7 +963,7 @@ var StudyViewInitCharts = (function(){
     //This filter is the same one which used in previous Google Charts Version,
     //should be revised later.
     function selectedCol(col) {
-        return col.toLowerCase().match(/(^age)|(gender)|(sex)|(darwin_vital_status)|(darwin_patient_age)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
+        return col.toLowerCase().match(/(^age)|(gender)|(sex)|(darwin_vital_status)|(darwin_patient_age)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)|(sequenced)|(has_cna_data)|(sample_count_patient)/);
     }
 
     function redrawChartsAfterDeletion(){

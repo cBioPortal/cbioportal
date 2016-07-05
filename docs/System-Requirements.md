@@ -1,4 +1,4 @@
-# cBioPortal Hardware and Software Requirements
+# Hardware and Software Requirements
 
 This page describes various system software required to run the cBioPortal.
 

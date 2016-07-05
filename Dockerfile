@@ -26,14 +26,15 @@ RUN	echo "export PORTAL_HOME=/cbioportal" >> /root/.bashrc; . /root/.bashrc; \
 RUN . /root/.bashrc; cp $PORTAL_HOME/portal/target/cbioportal.war $CATALINA_HOME/webapps/
 #======== cBioPortal Startup ===============#
 CMD . /root/.bashrc; \
-    cp /cbio_config/portal.properties $PORTAL_HOME/src/main/resources/portal.properties; \
-    cp /cbio_config/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties; \
-    /bin/cp -u --force cp /cbio_config/context.xml $CATALINA_HOME/conf/context.xml; \
+    cp /custom_config/portal.properties $PORTAL_HOME/src/main/resources/portal.properties; \
+    cp /custom_config/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties; \
+    /bin/cp -u --force /custom_config/context.xml $CATALINA_HOME/conf/context.xml; \
     /bin/cp -u --force $PORTAL_HOME/docker/build/gene_sets.txt $PORTAL_HOME/core/src/main/resources/; \
-    mkdir /root/.m2/; cp /cbio_config/settings.xml /root/.m2/; \
-    cd $PORTAL_HOME; mvn -DskipTests clean install/bin/bash; \
+    cp /custom_config/settings.xml /root/.m2/; \
+    cd $PORTAL_HOME; mvn -DskipTests clean install; \
     cp $PORTAL_HOME/portal/target/cbioportal.war $CATALINA_HOME/webapps/; \
     cd $CATALINA_HOME; \
     ./bin/startup.sh; \
-    tail -f ../logs/catalina.out
+    sleep 5; \
+    tail -f $CATALINA_HOME/logs/catalina.out
 #===========================================#

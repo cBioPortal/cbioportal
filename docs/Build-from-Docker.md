@@ -29,7 +29,7 @@ Kindly also replace any content between brackets {} with your own preferences.
 docker run -d --name "{container_name}" \
 	--restart=always \
 	--net=cbio-net \
-	-p 8306:3306 \
+	-p {preferred_port}:3306 \
 	-e MYSQL_ROOT_PASSWORD={root_password} \
 	-e MYSQL_USER=cbio \
 	-e MYSQL_PASSWORD={mysql_password} \

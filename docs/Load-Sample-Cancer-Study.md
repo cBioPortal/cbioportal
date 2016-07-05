@@ -20,7 +20,7 @@ and then run the following command:
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n
 ```
 
-If all goes well, you should see the final outout message:
+If all goes well, you should see the final output message:
 
 ```
 Validation of study succeeded with warnings.

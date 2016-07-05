@@ -15,7 +15,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 ### 2.1 Deployment
 * [Hardware and Software Requirements](System-Requirements.md)
 * [Pre-Build Steps](Pre-Build-Steps.md)
-* [Building cBioPortal from Source](Build-from-Source.md)
+* [Building from Source](Build-from-Source.md)
 * [Importing the Seed Database](Import-the-Seed-Database.md)
 * [Loading a Sample Cancer Study](Load-Sample-Cancer-Study.md)  
 * [Deploying the Web Application](Deploying.md)

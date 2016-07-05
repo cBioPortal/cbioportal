@@ -2,7 +2,7 @@ Once you have initialized MySQL with the seed database, you are ready to import 
 
 # Sample Study
 
-The cBioPortal distribution includes a [small dummy study, study_es_0](https://github.com/cBioPortal/cbioportal/tree/master/core/src/test/scripts/test_data/study_es_0), which you can use to verify that everything is working propertly.
+The cBioPortal distribution includes a [small dummy study, study_es_0](https://github.com/cBioPortal/cbioportal/tree/master/core/src/test/scripts/test_data/study_es_0), which you can use to verify that everything is working properly.
 
 # Validating the Sample Study
 

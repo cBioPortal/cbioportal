@@ -213,7 +213,6 @@ var StudyViewInitCharts = (function(){
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
                     bar.push(_attr[i]);
                 }
-
                 varType[_attr_id] = "bar";
 
                 var _varValues = [];
@@ -223,12 +222,18 @@ var StudyViewInitCharts = (function(){
                         _varValues.push(_arr[j][_attr_id]);
                     }
                 }
+                var findExtremeResult = cbio.util.findExtremes(_varValues);
+                var calculatedMin = findExtremeResult[0];
+                var calculatedMax = findExtremeResult[1];
 
                 distanceMinMaxArray[_attr_id] = {
-                    diff : Math.max.apply( Math, _varValues ) - Math.min.apply( Math, _varValues ),
-                    min: Math.min.apply( Math, _varValues ),
-                    max:Math.max.apply( Math, _varValues )
+                    diff: calculatedMax - calculatedMin,
+                    min: calculatedMin,
+                    max: calculatedMax,
+                    absoluteMin: Math.min.apply( Math, _varValues ),
+                    absoluteMax: Math.max.apply( Math, _varValues )
                 };
+                
             }else if(_dataType === "STRING"){
                 varType[_attr_id] = "pie";
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){

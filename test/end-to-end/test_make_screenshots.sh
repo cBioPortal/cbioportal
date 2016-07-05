@@ -2,6 +2,7 @@
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
 
@@ -47,6 +48,9 @@ upload_image() {
 
     curl -s -F "clbin=@$png" https://clbin.com
 }
+
+# Google URL shortener
+googl () { curl -s -d "url=${1}" http://goo.gl/api/url | sed -n "s/.*:\"\([^\"]*\).*/\1\n/p" ;}
 
 # parse config file
 CONFIG_FILE=$1
@@ -94,15 +98,36 @@ for ((i=0; i < ${#config_screenshot_names[@]}; i++)); do
     done
 done
 
-# show dev how to download failing test screenshots
+# handle errors
 if [[ $screenshot_error_count -gt 0 ]]; then
-    echo -e "${RED}${screenshot_error_count} SCREENSHOT TESTS FAILED!${NC}"
-    echo -e "FOR STEPS TO SEE IMAGE DIFF ${RED}READ CONTRIBUTING.md${NC}"
-    echo "TO DOWNLOAD FAILING SCREENSHOTS TO LOCAL REPO ROOT RUN:"
-    for png in "${screenshots_failed[@]}"; do
-        echo "curl '"$(upload_image $png)"' > test/end-to-end/${png}"
-    done
-    exit 1
+	# upload screenshots
+	screenshots_uploaded=()
+	for png in "${screenshots_failed[@]}"; do
+		screenshots_uploaded=( ${screenshots_uploaded[@]} "$(upload_image $png)" )
+	done
+
+	# show dev how to download failing test screenshots
+	echo -e "${RED}${screenshot_error_count} SCREENSHOT TESTS FAILED!${NC}"
+	echo -e "FOR STEPS TO SEE IMAGE DIFF ${RED}READ CONTRIBUTING.md${NC}"
+	echo "TO DOWNLOAD FAILING SCREENSHOTS TO LOCAL REPO ROOT RUN:"
+	for ((i=0; i < ${#screenshots_failed[@]}; i++)); do
+		png=${screenshots_failed[$i]}
+		url=${screenshots_uploaded[$i]}
+		echo "curl '"${url}"' > test/end-to-end/${png}"
+	done
+
+	# on travis show where to view failing screenshots online
+	if [[ $TRAVIS ]]; then
+		echo "OR CHECK OUT FAILED SCREENSHOTS ONLINE:"
+		for ((i=0; i < ${#screenshots_failed[@]}; i++)); do
+			png=${screenshots_failed[$i]}
+			url=${screenshots_uploaded[$i]}
+            repo_url=${TRAVIS_REPO_SLUG}/${TRAVIS_COMMIT}
+			original_screenshot_url="https://raw.githubusercontent.com/${repo_url}/test/end-to-end/${png}"
+			echo -e "COPY+PASTE in BROWSER TO COMPARE FAILED SCREENSHOT: ${YELLOW}http://rawgit.com/${repo_url}/test/end-to-end/image-compare/index.html?img1=${original_screenshot_url}&img2=${url}&label1=${TRAVIS_BRANCH}&label2=$(git rev-parse --short HEAD)&screenshot_name=test/end-to-end/${png}${NC}"
+		done
+	fi
+	exit 1
 else
     echo -e "${GREEN}SCREENSHOT TESTS SUCCEEDED${NC}"
     exit 0

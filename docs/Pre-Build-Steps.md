@@ -1,10 +1,12 @@
-# Get the Latest Code
+# Pre-Build Steps
+
+## Get the Latest Code
 
 Make sure that you have cloned the last code.
 
 These documents also **only apply to code obtained from the master branch**.
 
-# Prepare the Property File
+## Prepare the Property File
 
 The portal requires two properties files:  one for global configuration (`portal.properties`) and one for logging (`log4j.properties`).  Example files are available within GitHub, but you must take the following steps to prepare them.
 
@@ -14,7 +16,7 @@ The portal requires two properties files:  one for global configuration (`portal
 
 For more information about the portal.properties file, see the following [reference](portal.properties-Reference.md) page.
 
-# Prepare the log4j.properties File
+## Prepare the log4j.properties File
 
 Update the following lines with paths that make sense for your local system.
 
@@ -22,7 +24,8 @@ Update the following lines with paths that make sense for your local system.
     log4j.appender.a.File = /srv/www/sander-tomcat/tomcat6/logs/public-portal.log
 
 <a name='prepare_database'>
-#  Create the cBioPortal MySQL Databases and User
+
+##  Create the cBioPortal MySQL Databases and User
 
 You must create a `cbioportal` database and a `cgds_test` database within MySQL, and a user account with rights to access both databases.  This is done via the `mysql` shell.
 
@@ -53,7 +56,7 @@ You must create a `cbioportal` database and a `cgds_test` database within MySQL,
     mysql>  flush privileges;
     Query OK, 0 rows affected (0.00 sec)
 
-# Create a Maven Settings File
+## Create a Maven Settings File
 
 In order to access your database, you must create a Maven settings.xml file, and populate it with your database username and password.
 
@@ -71,7 +74,7 @@ A sample file is shown below:
       </servers>
     </settings>
 
-# Add the MySQL JDBC Driver to Apache Tomcat
+## Add the MySQL JDBC Driver to Apache Tomcat
 
 A proper JDBC driver will also need to be accessible by Apache Tomcat.  If using MySQL, the [Connector/J](http://dev.mysql.com/downloads/connector/j/) driver jar file should be placed in `$CATALINA_HOME/lib`.
 
@@ -79,7 +82,7 @@ More information on configuring Apache Tomcat connection pooling can be found [h
 
 ***We have reports that the Tomcat package that comes with (at least) Ubuntu 14.04 cannot handle the connection pool from resources.  If you are encountering this is, we suggest you download the Tomcat archive from Apache and install from there.***
 
-# Configure the Database Connection Pool Resource to Apache Tomcat
+## Configure the Database Connection Pool Resource to Apache Tomcat
 
 Apache Tomcat provides the database database connection pool to the cBioPortal. To setup a database connection pool managed by Tomcat, add the following line to $CATALINA_HOME/conf/context.xml, where USER, PASSWORD, DRIVER_NAME, LOCALHOST, and DATABASE_NAME are properties local to your environment (note if using the MySQL Connector/J driver, the DRIVER_NAME would be com.mysql.jdbc.Driver):
 
@@ -94,7 +97,7 @@ Apache Tomcat provides the database database connection pool to the cBioPortal. 
       ...
     </Context>
 
-# Set the PORTAL_HOME Variable
+## Set the PORTAL_HOME Variable
 
 Prior to building, you must specify an environment variable for `PORTAL_HOME`.  This must point to the root directory containing the portal source code.
 

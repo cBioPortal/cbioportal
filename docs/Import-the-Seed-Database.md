@@ -1,4 +1,4 @@
-# Import the Seed Database
+# Importing the Seed Database
 
 The next step is to populate your cBioPortal instance with all the required background data sets.  This includes, for example:  gene data, ID mappings, and network interactions.  Rather than importing each of these data sets individually, we have provided a simple "seed" database that you can import directly.
 

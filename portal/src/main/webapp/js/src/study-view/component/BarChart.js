@@ -699,6 +699,10 @@ var BarChart = function(){
                 xDomain.push(_tmpValue);
             }
         }
+        if(param.distanceArray.absoluteMax > xDomain[xDomain.length - 1]){
+            xDomain.push(xDomain[xDomain.length - 1] + seperateDistance);
+            emptyValueMapping += seperateDistance;
+        }
     }
     
     //Initialize BarChart in DC.js
@@ -715,16 +719,15 @@ var BarChart = function(){
                 hasEmptyValue = true;
                 returnValue = emptyValueMapping;
             }else{
-                if(d[param.selectedAttr] >= 0){
-                    returnValue =  parseInt( 
-                                    (d[param.selectedAttr]-startPoint) / 
-                                    seperateDistance) * 
-                                    seperateDistance + startPoint + seperateDistance / 2;
+                if(d[param.selectedAttr] < xDomain[1]){
+                    returnValue = xDomain[0];
+                }else if(d[param.selectedAttr] >= xDomain[xDomain.length - 2]){
+                    returnValue = xDomain[xDomain.length - 1];
                 }else{
-                    returnValue =  ( parseInt( 
-                                        d[param.selectedAttr] / 
-                                        seperateDistance ) - 1 ) * 
-                                    seperateDistance + seperateDistance / 2;
+                    returnValue =  parseInt(
+                            (d[param.selectedAttr]-startPoint) /
+                            seperateDistance) *
+                        seperateDistance + startPoint + seperateDistance / 2;
                 }
             }
             
@@ -750,11 +753,11 @@ var BarChart = function(){
         }
         
         if(hasEmptyValue){
-            xDomain.push( Number( 
-                                cbio.util.toPrecision( 
-                                    Number(emptyValueMapping), 3, 0.1 )
-                                )
-                        );
+            xDomain.push( Number(
+                    cbio.util.toPrecision(
+                        Number(emptyValueMapping), 3, 0.1 )
+                )
+            );
             barColor['NA'] = '#CCCCCC';
         }else {
             barColor[_barValue[_barLength-1]] = color[_barLength-1];
@@ -785,8 +788,13 @@ var BarChart = function(){
         barChart.yAxis().ticks(6);
         barChart.yAxis().tickFormat(d3.format("d"));            
         barChart.xAxis().tickFormat(function(v) {
-            if(v === emptyValueMapping){
-                return 'NA'; 
+            if(v === xDomain[0]){
+                return '<' + xDomain[1];
+            }
+            else if(v === xDomain[xDomain.length - 2]){
+                return '>' + xDomain[xDomain.length - 3]; 
+            }else if(v === xDomain[xDomain.length - 1]){
+                return 'NA';
             }else{
                 return v;
             }
@@ -807,57 +815,54 @@ var BarChart = function(){
     
     //Initialize BarChart in DC.js
     function initDCLogBarChart() {
-        
         var _xunitsNum,
             _domainLength,
             _maxDomain = 10000,
             _barValue = [];
-    
+
         emptyValueMapping = "1000";//Will be changed later based on maximum value
         xDomain.length =0;
-        
+
         barChart = dc.barChart("#" + DIV.chartDiv);
-        
+
         for(var i=0; ;i+=0.5){
             var _tmpValue = parseInt(Math.pow(10,i));
-            
+
             xDomain.push(_tmpValue);
             if(_tmpValue > param.distanceArray.max){
-                
+
                 emptyValueMapping = Math.pow(10,i+0.5);
                 xDomain.push(emptyValueMapping);
                 _maxDomain = Math.pow(10,i+1);
                 break;
             }
         }
-        
+
         _domainLength = xDomain.length;
-        
+
         cluster = param.ndx.dimension(function (d) {
             var i, _returnValue = Number(d[param.selectedAttr]);
-            
+
             if(isNaN(_returnValue)){
                 _returnValue = emptyValueMapping;
                 hasEmptyValue = true;
             }else{
-                        
+
                 _returnValue = Number(_returnValue);
                 for(i = 1;i < _domainLength; i++){
-                    if( d[param.selectedAttr] < xDomain[i] && 
+                    if( d[param.selectedAttr] < xDomain[i] &&
                         d[param.selectedAttr] >= xDomain[i-1]){
-                        
                         _returnValue = parseInt( Math.pow(10, i / 2 - 0.25 ));
                     }
                 }
             }
-            
+
             if(_barValue.indexOf(_returnValue) === -1) {
                 _barValue.push(Number(_returnValue));
             }
-            
+
             return _returnValue;
-        }); 
-        
+        });
         _barValue.sort(function(a, b) {
             if(a < b){
                 return -1;
@@ -865,19 +870,19 @@ var BarChart = function(){
                 return 1;
             }
         });
-        
+
         var _barLength = _barValue.length;
-        
+
         for( var i = 0; i < _barLength-1; i++) {
             barColor[_barValue[i]] = color[i];
         }
-        
+
         if(hasEmptyValue){
             barColor['NA'] = '#CCCCCC';
         }else {
             barColor[_barValue[_barLength-1]] = color[_barLength-1];
         }
-        
+
         barChart
             .width(chartWidth)
             .height(chartHeight)
@@ -893,11 +898,11 @@ var BarChart = function(){
             .transitionDuration(StudyViewParams.summaryParams.transitionDuration)
             .renderHorizontalGridLines(false)
             .renderVerticalGridLines(false);
-    
+
         barChart.centerBar(true);
         barChart.x(d3.scale.log().nice().domain([0.7,_maxDomain]));
         barChart.yAxis().ticks(6);
-        barChart.yAxis().tickFormat(d3.format("d"));            
+        barChart.yAxis().tickFormat(d3.format("d"));
         barChart.xAxis().tickFormat(function(v) {
             var _returnValue = v;
             if(v === emptyValueMapping){
@@ -909,13 +914,13 @@ var BarChart = function(){
                 else
                     return '';
             }
-            return _returnValue; 
-        });            
-        
+            return _returnValue;
+        });
+
         barChart.xAxis().tickValues(xDomain);
-        
+
         _xunitsNum = xDomain.length*1.3;
-        
+
         if(_xunitsNum <= 5){
             barChart.xUnits(function(){return 5;});
         }else{
@@ -935,7 +940,7 @@ var BarChart = function(){
         param.needLogScale = _param.needLogScale;
         param.distanceArray = _param.distanceArray;
         param.plotDataButtonFlag = _param.plotDataButtonFlag;
-        
+       
         if(typeof _param.chartWidth !== 'undefined'){
             chartWidth = _param.chartWidth;
         }

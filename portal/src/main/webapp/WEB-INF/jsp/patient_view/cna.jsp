@@ -62,7 +62,9 @@
                     default:
                         alter = null;
                 }
-                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter, cancerType, alter);
+                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter,
+                    (_.isObject(patientInfo) ? (patientInfo.CANCER_TYPE_DETAILED || patientInfo.CANCER_TYPE) : '') || cancerType,
+                    alter);
             }
             data.push([cnaEventIds[i]]);
         }
@@ -196,7 +198,7 @@
                         }
                     },
                     {// annotation
-                        "aTargets": [mutTableIndices["annotation"]],
+                        "aTargets": [cnaTableIndices["annotation"]],
                         "sClass": "no-wrap-td",
                         "sType": "sort-icons",
                         "mDataProp": function (source, type, value) {
@@ -331,7 +333,7 @@
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
-                "aaSorting": [[cnaTableIndices['altrate'],'desc']],
+                "aaSorting": [[cnaTableIndices["annotation"], 'asc'], [cnaTableIndices['altrate'],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",

@@ -64,6 +64,11 @@ core/target/*
 annotator/target/*
 importer/target/*
 business/target/*
+model/target/*
+persistence/persistence-api/target/*
+persistence/persistence-mybatis/target/*
+persistence/persistence-mybatis-test/target/*
+service/target/*
 web/target/*
 mutation-assessor/target/*
 cbioportal-client/target/*
@@ -72,8 +77,11 @@ nbactions.xml
 */*.iml
 *.iml
 *.class
-*/.settings/*
-*/.classpath
-*/.project
+.settings/
+.classpath
+.project
+.pydevproject
+*/**/.gitignore
+.externalToolBuilders/
 dependency-reduced-pom.xml
 /core/nbactions-private.xml

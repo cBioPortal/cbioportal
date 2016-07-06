@@ -82,6 +82,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String STEP4_ERROR_MSG = "step4_error_msg";
     public static final String PROFILE_DATA_SUMMARY = "profile_data_summary";
     public static final String DOWNLOAD_LINKS = "download_links";
+    public static final String OUTPUT = "output";
     public static final String HTML_TITLE = "html_title";
     public static final String TAB_INDEX = "tab_index";
     public static final String TAB_DOWNLOAD = "tab_download";
@@ -413,8 +414,8 @@ public class QueryBuilder extends HttpServlet {
                 continue;
             }
             GetProfileData remoteCall =
-                new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split(" "))), StringUtils.join(setOfSampleIds, " "));
-            DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split(" "))), sampleIds,
+                new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), StringUtils.join(setOfSampleIds, " "));
+            DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIds,
                 remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
         }

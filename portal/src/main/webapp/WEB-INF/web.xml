@@ -31,7 +31,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml</param-value>
+        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml</param-value>
     </context-param>
 
     <context-param>
@@ -434,6 +434,10 @@
         <servlet-name>cancer_study_view</servlet-name>
         <url-pattern>/study.do</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>cancer_study_view</servlet-name>
+        <url-pattern>/study</url-pattern>
+    </servlet-mapping>
     
     <servlet>
         <servlet-name>DrugsJSON</servlet-name>
@@ -542,6 +546,18 @@
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>
         <url-pattern>/oranalysis.do</url-pattern>
     </servlet-mapping>
-    
+
+    <servlet>
+        <servlet-name>link_out</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>link_out</servlet-name>
+        <url-pattern>/link.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>link_out</servlet-name>
+        <url-pattern>/ln</url-pattern>
+    </servlet-mapping>
 
 </web-app>

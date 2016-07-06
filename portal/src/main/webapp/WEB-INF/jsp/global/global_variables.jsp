@@ -227,7 +227,7 @@ $(document).ready(function() {
             $("#main_smry_stat_div").append(_stat_smry);
 
             //Configure the summary line of query
-            var _query_smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
+            var _query_smry = "<h3 style='font-size:110%;'><a href='study?id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
                 window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
                 "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " + 

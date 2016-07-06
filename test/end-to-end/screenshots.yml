@@ -12,6 +12,10 @@ screenshot:
   timeout:
     - 10
     - 10
+  # number of retries before failing
+  retry:
+    - 3
+    - 2
 browsers:
   - firefox
   - chrome

@@ -30,7 +30,7 @@ window.cbioportal_client = (function() {
 			'GeneticProfileData': { endpoint: 'api/geneticprofiledata' },
 			'Samples': { endpoint: 'api/samples' },
 			'Studies': { endpoint: 'api/studies' },
-			'MutationCounts': { endpoint: 'http://www.cbioportal.org/api/mutation_count' }
+			'MutationCounts': { endpoint: 'api/mutation_count' }
 		};
 		var ret = {};
 		for (var fn_name in functionNameToEndpointProperties) {

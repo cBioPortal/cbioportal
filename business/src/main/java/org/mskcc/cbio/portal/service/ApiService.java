@@ -1,13 +1,14 @@
 package org.mskcc.cbio.portal.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
@@ -18,6 +19,7 @@ import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBAltCount;
 import org.mskcc.cbio.portal.model.DBAltCountInput;
+import org.mskcc.cbio.portal.model.DBCosmicCount;
 import org.mskcc.cbio.portal.model.DBMutationData;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBSampleList;
@@ -29,6 +31,7 @@ import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
+import org.mskcc.cbio.portal.persistence.CosmicCountMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
@@ -51,6 +54,8 @@ public class ApiService {
 
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
+	@Autowired
+	private CosmicCountMapper cosmicCountMapper;
         @Autowired
         private MutationMapper mutationMapper;
 	@Autowired
@@ -73,7 +78,7 @@ public class ApiService {
 	private SampleMapper sampleMapper;
 	@Autowired
 	private StudyMapper studyMapper;
-
+	
 	@Transactional
 	public List<DBCancerType> getCancerTypes() {
 		return cancerTypeMapper.getAllCancerTypes();
@@ -370,6 +375,7 @@ public class ApiService {
 		List<DBProfileData> ret = new ArrayList<>();
 		if (!mutation_profiles.isEmpty()) {
 			List<DBMutationData> to_add;
+			// Get mutation data
 			if (sample_ids == null && sample_list_id == null) {
 				to_add = profileDataMapper.getMutationData(mutation_profiles, genes);
 			} else if (sample_list_id == null) {
@@ -377,6 +383,34 @@ public class ApiService {
 			} else {
                                 to_add = profileDataMapper.getMutationDataBySampleList(mutation_profiles, genes, sample_list_id);
                         }
+			// Annotate with COSMIC count and null 'keyword' field
+			List<String> keywords = new LinkedList<>();
+			for (DBMutationData mut: to_add) {
+				keywords.add(mut.keyword);
+			}
+			List<DBCosmicCount> cosmic_counts = cosmicCountMapper.getCosmicCountsByKeyword(keywords);
+			Map<String, List<DBCosmicCount>> keyword_to_cosmic_counts = new HashMap<>();
+			for (DBCosmicCount cosmic_count: cosmic_counts) {
+				if (!keyword_to_cosmic_counts.containsKey(cosmic_count.keyword)) {
+					keyword_to_cosmic_counts.put(cosmic_count.keyword, new LinkedList<DBCosmicCount>());
+				}
+				keyword_to_cosmic_counts.get(cosmic_count.keyword).add(cosmic_count);
+			}
+			Pattern first_integer_p = Pattern.compile("[0-9]+");
+			for (DBMutationData mut: to_add) {
+				int protein_start_position = Integer.parseInt(mut.protein_start_position, 10);
+				List<DBCosmicCount> cosmic_count_candidates = keyword_to_cosmic_counts.get(mut.keyword);
+				if (cosmic_count_candidates != null) {
+					for (DBCosmicCount cosmic_count: cosmic_count_candidates) {
+						Matcher m = first_integer_p.matcher(cosmic_count.protein_change);
+						if (m.find() && Integer.parseInt(m.group(), 10) == protein_start_position) {
+							mut.cosmic_count = cosmic_count.count;
+							break;
+						}
+					}
+				}
+				mut.keyword = null;
+			}
 			ret.addAll(to_add);
 		}
 		if (!non_mutation_profiles.isEmpty()) {

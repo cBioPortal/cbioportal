@@ -62,37 +62,32 @@ some screenshots and compares them to the ones stored in the repository.
 
 ### What to do if the screenshot test fails
 When the screenshot test fails, it means that the screenshot taken from your
-instance of the portal differs from the screenshot stored in the repo. First
-download the image from Travis CI to your local repo. The Travis CI log will
-show you where the image was uploaded on [clbin.com](https://clbin.com).
-Download the image and replace the screenshot in the repo. For instance run in
-the root dir:
+instance of the portal differs from the screenshot stored in the repo.
+Copy+Paste the URL in the Travis CI log to view the image diff online. Further
+instructions are outlined on that page.
+
+If you prefer to compare the images locally, you need to first download the
+failing screenshot. The Travis CI log will show you where the image was
+uploaded on [clbin.com](https://clbin.com). First, download the image and
+replace the screenshot in the repo. For instance run in the root dir of
+cBioPortal:
 
 ```bash
 curl 'https://clbin.com/[replace-with-clbin-image-from-log].png' > test/end-to-end/screenshots/[replace-with-image-from-repo].png
-```
+``` 
 
-Then there are two ways to do an image diff:
+Then follow the steps outlined in [this blog post](http://www.akikoskinen.info/image-diffs-with-git/) to compare the 
+images locally. Run `git diff` from your repo to see the ImageMagick diff.
 
-1. Follow the steps outlined in [this blog
-post](http://www.akikoskinen.info/image-diffs-with-git/) to compare the images
-locally. Then run `git diff` from your repo to see the ImageMagick diff.
-2. Add the screenshot downloaded from [clbin.com](https://clbin.com) to your repo
-and push it to your PR. You can then compare the images in the 'Files changed'
-tab of the PR.
-
-Now that you can compare the images, you'll have to decide whether the change
-is desired or not and handle the failing test accordingly:
+Once you downloaded the images you do the following for each screenshot:
 
 - If the change in the screenshot is **undesired**, i.e. there is regression, you
   should fix your PR.
 - If the change in the screenshot is **desired**, add the screenshot to the
-  repo, commit it and push it to your PR's branch if you haven't already in the
-previous step.
+  repo, commit it and push it to your PR's branch.
 
 ## Additional Resources
 
 * [cBioPortal Issue Tracker](https://github.com/cBioPortal/cbioportal/issues)
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
-

@@ -2,14 +2,14 @@ package org.cbioportal.persistence.dto;
 
 import java.io.Serializable;
 
-public class DBAltCount implements Serializable {
+public class AltCount implements Serializable {
 
-    public Integer count;
-    public Double frequency;
-    public String studyID;
-    public String gene;
-    public Integer start;
-    public Integer end;
+    private Integer count;
+    private Double frequency;
+    private String cancerStudyIdentifier;
+    private String hugoGeneSymbol;
+    private Integer start;
+    private Integer end;
 
     public Integer getCount() {
         return count;
@@ -27,20 +27,20 @@ public class DBAltCount implements Serializable {
         this.frequency = frequency;
     }
 
-    public String getStudyID() {
-        return studyID;
+    public String getCancerStudyIdentifier() {
+        return cancerStudyIdentifier;
     }
 
-    public void setStudyID(String studyID) {
-        this.studyID = studyID;
+    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+        this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
 
-    public String getGene() {
-        return gene;
+    public String getHugoGeneSymbol() {
+        return hugoGeneSymbol;
     }
 
-    public void setGene(String gene) {
-        this.gene = gene;
+    public void setHugoGeneSymbol(String hugoGeneSymbol) {
+        this.hugoGeneSymbol = hugoGeneSymbol;
     }
 
     public Integer getStart() {

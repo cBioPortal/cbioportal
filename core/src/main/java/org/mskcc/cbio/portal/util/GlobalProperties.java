@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
+import com.mysql.jdbc.StringUtils;
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
@@ -133,7 +134,7 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
             "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
             "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
-            "name=\"email\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
+            "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
             "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
             "<i>@cbioportal</i></a> on Twitter</b>\n";
 
@@ -197,6 +198,7 @@ public class GlobalProperties {
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
     public static final String DARWIN_AUTHORITY = "darwin.authority";
     public static final String CIS_USER = "cis.user";
+    public static final String DISABLED_TABS = "disabled_tabs";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -522,17 +524,17 @@ public class GlobalProperties {
         String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
-    // show or hide the clinical trials tab in the patient view
+    // show the clinical trials tab in the patient view
     public static boolean showClinicalTrialsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
+        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
-    // show or hide the drugs tab in the patient view
+    // show the drugs tab in the patient view
     public static boolean showDrugsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
+        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // get the text for the What's New in the right navigation bar
     public static String getRightNavWhatsNewBlurb(){
@@ -591,7 +593,7 @@ public class GlobalProperties {
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
     {
-        return "study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+        return "study?" + org.mskcc.cbio.portal.servlet.CancerStudyView.ID
                 + "=" + cancerStudyId;
     }
 
@@ -722,35 +724,54 @@ public class GlobalProperties {
     }
     
     public static String getDarwinAuthCheckUrl() {
-        String darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL);
-        if (darwinAuthUrl == null || darwinAuthUrl.isEmpty()) {
-            return "";
+        String darwinAuthUrl = "";
+        try{
+            darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL).trim();            
         }
-        return darwinAuthUrl.trim();
+        catch (NullPointerException e){}
+        
+        return darwinAuthUrl;
     }
     
     public static String getDarwinResponseUrl() {
-        String darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL);
-        if (darwinResponseUrl == null || darwinResponseUrl.isEmpty()) {
-            return "";
+        String darwinResponseUrl = "";
+        try{
+            darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL).trim();
         }
-        return darwinResponseUrl.trim();        
+        catch (NullPointerException e) {}
+        
+        return darwinResponseUrl;
     }
     
-    public static String getDarwinAuthority() {
-        String darwinAuthority = properties.getProperty(DARWIN_AUTHORITY);
-        if (darwinAuthority == null || darwinAuthority.isEmpty()) {
-            return "";
+    public static String getDarwinAuthority() { 
+        String darwinAuthority = "";
+        try{
+            darwinAuthority = properties.getProperty(DARWIN_AUTHORITY).trim();
         }
-        return darwinAuthority.trim();
+        catch (NullPointerException e) {}
+        
+        return darwinAuthority;
     }
     
     public static String getCisUser() {
-        String cisUser = properties.getProperty(CIS_USER).trim();
-        if (cisUser == null || cisUser.isEmpty()) {
-            return "";
-        }            
-        return cisUser;
+        String cisUser = "";
+        try{
+            cisUser = properties.getProperty(CIS_USER).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        return cisUser;         
+    }
+    
+    public static List<String> getDisabledTabs() {
+        String disabledTabs = "";
+        try {
+            disabledTabs = properties.getProperty(DISABLED_TABS).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        String[] tabs = disabledTabs.split("\\|");
+        return (tabs.length > 0 && disabledTabs.length() > 0) ? Arrays.asList(tabs) : new ArrayList<String>();
     }
 
     public static void main(String[] args)

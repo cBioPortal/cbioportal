@@ -45,9 +45,6 @@ and then run the following command:
 You will see a series of output messages, hopefulling ending with a status message like this:
 
 ```
-If all goes well, you should see the final output message:
-
-```
 Done.
 Total time:  7742 ms
 ```

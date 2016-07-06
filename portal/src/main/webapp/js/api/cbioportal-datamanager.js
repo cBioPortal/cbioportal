@@ -377,7 +377,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		gene && (gene = gene.toUpperCase());
 		var start_pos = datum.protein_start_position;
 		var end_pos = datum.protein_end_position;
-		if (gene && !isNaN(start_pos) && !isNaN(end_pos)) {
+		if (gene && !isNaN(start_pos) && !isNaN(end_pos) && typeof gene_to_hotspot_codons[gene] !== "undefined") {
 		    if (sortedNumListHasElementInRange(gene_to_hotspot_codons[gene], parseInt(start_pos, 10), parseInt(end_pos, 10) + 1)) {
 			datum[attribute_name] = true;
 		    }

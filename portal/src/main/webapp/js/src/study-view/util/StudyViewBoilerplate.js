@@ -250,7 +250,10 @@ var StudyViewBoilerplate ={
         _span1
             .attr({
                 'id': 'study-view-header-right-1',
-                'class': 'study-view-header-button'})
+                'class': 'study-view-header-button',
+                'role': 'button',
+                'tabindex': '0'
+            })
             .val('Select cases by IDs');
 
         // Build query button
@@ -308,21 +311,26 @@ var StudyViewBoilerplate ={
         _span3
             .attr({
                 'id': 'study-view-header-left-3'
-                })
+            })
             .text('Samples selected: ');
 
         // span5 attributes
         _span5.attr({
             'id': 'study-view-header-left-5',
-            'class': 'study-view-header-button'
+            'class': 'study-view-header-button',
+            'role': 'button',
+            'tabindex': '0',
         });
 
         //Download button
         _span6
             .attr({
                 'id': 'study-view-header-left-6',
-                'class': 'study-view-header-button'})
-            .html('<img src="images/in.svg" />');
+                'class': 'study-view-header-button',
+                'role': 'button',
+                'tabindex': '0',
+            })
+            .html('<img src="images/in.svg" alt="download" />');
 
         _successBanner
             .attr({

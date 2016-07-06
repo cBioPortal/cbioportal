@@ -553,7 +553,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    || (state.incorp_cbioportal_count && (typeof webservice_datum.cbioportal_mutation_count !== "undefined")
 						    && webservice_datum.cbioportal_mutation_count >= state.cbioportal_count_threshold)
 		    || (state.incorp_cosmic && (typeof webservice_datum.cosmic_count !== "undefined")
-						    && webservice_datum.cosmic_count >= state.cosmic_threshold)
+						    && parseInt(webservice_datum.cosmic_count, 10) >= state.cosmic_threshold)
 		    || (state.incorp_oncokb && (typeof webservice_datum.oncokb_oncogenic !== "undefined")
 					    && ["Likely Oncogenic", "Oncogenic"].indexOf(webservice_datum.oncokb_oncogenic) > -1);
 	    };

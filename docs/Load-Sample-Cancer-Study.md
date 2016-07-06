@@ -30,6 +30,26 @@ Validation of study succeeded with warnings.
 
 ## Importing the Sample Study
 
-[Under construction]
+To import the sample study:
+
+```
+cd <your_cbioportal_dir>/core/src/main/scripts/importer
+```
+
+and then run the following command:
+
+```
+./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -n -o
+```
+
+You will see a series of output messages, hopefulling ending with a status message like this:
+
+```
+If all goes well, you should see the final output message:
+
+```
+Done.
+Total time:  7742 ms
+```
 
 [Next Step: Deploying the Web Application](Deploying.md)

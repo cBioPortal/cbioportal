@@ -387,6 +387,14 @@ var Oncoprint = (function () {
 	return this.model.getVertZoom();
     }
 
+    Oncoprint.prototype.getTrackData = function (track_id) {
+	return this.model.getTrackData(track_id);
+    }
+    
+    Oncoprint.prototype.getTrackDataIdKey = function(track_id) {
+	return this.model.getTrackDataIdKey(track_id);
+    }
+    
     Oncoprint.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.model.setTrackData(track_id, data, data_id_key);
 	this.cell_view.setTrackData(this.model, track_id);

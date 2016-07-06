@@ -375,6 +375,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     })();
     
     var State = (function () {
+	var oncoprintDatumIsAltered = function(datum) {
+	    return ['disp_mut', 'disp_cna', 'disp_mrna', 'disp_prot']
+		    .map(function(x) { return (typeof datum[x] !== "undefined"); })
+		    .reduce(function(x,y) { return x || y; }, false);
+	};
 	var populateSampleData = function() {
 	    var done = new $.Deferred();
 	    oncoprint.hideIds([], true);
@@ -403,7 +408,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    var track_data = oncoprint_data_by_line[track_line].oncoprint_data;
 			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
 			    oncoprint.setTrackData(track_id, track_data, 'sample');
-			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(oncoprint_data_by_line[track_line].altered_samples.length/window.QuerySession.getSampleIds().length));
+			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(track_data.filter(oncoprintDatumIsAltered).length/window.QuerySession.getSampleIds().length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -418,6 +423,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    oncoprint.releaseRendering();
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
+			    updateAlteredPercentIndicator(State);
 			    done.resolve();
 			});
 		    }).fail(function() {
@@ -457,7 +463,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    var track_data = oncoprint_data_by_line[track_line].oncoprint_data;
 			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
 			    oncoprint.setTrackData(track_id, track_data, 'patient');
-			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(oncoprint_data_by_line[track_line].altered_patients.length/patient_ids.length));
+			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(track_data.filter(oncoprintDatumIsAltered).length/patient_ids.length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -472,6 +478,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    oncoprint.releaseRendering();
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
+			    updateAlteredPercentIndicator(State);
 			    done.resolve();
 			});
 		    }).fail(function() {
@@ -528,17 +535,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    oncoprint.setSortConfig({'type':'order', 'order':order});
 	};
 	
-	var getPercent = function(proportion) {
-	    return Math.round(proportion*100) + '%';
-	};
-	
 	var updateAlteredPercentIndicator = function(state) {
-	    $.when(QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), QuerySession.getPatientIds())
-		    .then(function(altered_samples, altered_patients, patient_ids) {
+	    $.when(QuerySession.getPatientIds())
+		    .then(function(patient_ids) {
+			var altered_ids = state.getAlteredIds();
 			var text = "Altered in ";
-			text += (state.using_sample_data ? altered_samples.length : altered_patients.length);
+			text += altered_ids.length;
 			text += " (";
-			text += utils.proportionToPercentString((state.using_sample_data ? (altered_samples.length / QuerySession.getSampleIds().length) : (altered_patients.length / patient_ids.length)));
+			text += utils.proportionToPercentString(altered_ids.length / (state.using_sample_data ? QuerySession.getSampleIds().length : patient_ids.length));
 			text +=") of ";
 			text += (state.using_sample_data ? QuerySession.getSampleIds().length : patient_ids.length);
 			text += " ";
@@ -564,6 +568,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 		var disp_mut = oncoprint_datum.disp_mut.toLowerCase();
 		var webservice_data = oncoprint_datum.data;
+		var has_known_disp_mut = false;
 		for (var j=0; j<webservice_data.length; j++) {
 		    var datum = webservice_data[j];
 		    if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
@@ -572,13 +577,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    var mutation_type = datum.oncoprint_mutation_type.toLowerCase();
 		    if (mutation_type === disp_mut) {
 			if (isRecurrent(datum)) {
-			    oncoprint_datum.disp_mut += "_rec";
+			    has_known_disp_mut = true;
 			    break;
-			} else {
-			    if (state.hide_unknown_mutations) {
-				oncoprint_datum.disp_mut = undefined;
-			    }
 			}
+		    }
+		}
+		if (has_known_disp_mut) {
+		    oncoprint_datum.disp_mut += "_rec";
+		} else {
+		    if (state.hide_unknown_mutations) {
+			oncoprint_datum.disp_mut = undefined;
 		    }
 		}
 	    }
@@ -791,6 +799,19 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			return window.geneticrules.genetic_rule_set_same_color_for_all_no_recurrence;
 		    }
 		}
+	    },
+	    'getAlteredIds': function() {
+		var track_ids = utils.objectValues(State.genetic_alteration_tracks);
+		var altered = {};
+		for (var i=0; i<track_ids.length; i++){
+		    var data = oncoprint.getTrackData(track_ids[i]);
+		    var data_id_key = oncoprint.getTrackDataIdKey(track_ids[i]);
+		    var altered_ids = data.filter(oncoprintDatumIsAltered).map(function(x) { return x[data_id_key]; });
+		    for (var j=0; j<altered_ids.length; j++) {
+			altered[altered_ids[j]] = true;
+		    }
+		}
+		return Object.keys(altered);
 	    }
 	};
     })();
@@ -1001,7 +1022,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	var def = new $.Deferred();
 	oncoprint.setCellPaddingOn(State.cell_padding_on);
-	$.when(QuerySession.getWebServiceGenomicEventData(), QuerySession.getOncoprintSampleGenomicEventData()).then(function (ws_data, oncoprint_data) {
+	$.when(QuerySession.getOncoprintSampleGenomicEventData()).then(function (oncoprint_data) {
 	    State.addGeneticTracks(oncoprint_data);
 	}).fail(function() {
 	    def.reject();
@@ -1032,17 +1053,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	});
 	return def.promise();
     })().then(function() {
-        var populate_data_promise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
-	    
-        $.when(QuerySession.getPatientIds(), QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), populate_data_promise).then(function(patient_ids, altered_samples, altered_patients) {
-	    if ((State.using_sample_data ? window.QuerySession.getSampleIds() : patient_ids).length > 200) {
-		oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples : altered_patients);
-	    }
-	    oncoprint.scrollTo(0);
-	});
-	
-	return populate_data_promise;
+        return State.setDataType(State.using_sample_data ? 'sample' : 'patient');
     }).then(function() {
+	if (window.QuerySession.getSampleIds().length > 200) {
+	    oncoprint.setHorzZoomToFit(State.getAlteredIds());
+	}
+	oncoprint.scrollTo(0);
 	(function fetchClinicalAttributes() {
 	    // For some reason $.when isn't working
 	    QuerySession.getClinicalAttributes().then(function(attrs) {
@@ -1200,11 +1216,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	})();
 	(function setUpZoomToFit() {
-	    $.when(QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients()).then(function(altered_samples, altered_patients) {
-		setUpButton($(toolbar_selector + ' #oncoprint_zoomtofit'), [], ["Zoom to fit altered cases in screen"], null, function() {
-		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples : altered_patients);
-		    oncoprint.scrollTo(0);
-		});
+	    setUpButton($(toolbar_selector + ' #oncoprint_zoomtofit'), [], ["Zoom to fit altered cases in screen"], null, function () {
+		oncoprint.setHorzZoomToFit(State.getAlteredIds());
+		oncoprint.scrollTo(0);
 	    });
 	})();
 	(function setUpSortByAndColorBy() {

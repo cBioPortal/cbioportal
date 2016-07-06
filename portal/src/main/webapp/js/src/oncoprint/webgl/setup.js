@@ -424,6 +424,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    updateAlteredPercentIndicator(State);
+			    oncoprint.updateHorzZoomToFitIds(State.getAlteredIds());
 			    done.resolve();
 			});
 		    }).fail(function() {
@@ -479,6 +480,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    updateAlteredPercentIndicator(State);
+			    oncoprint.updateHorzZoomToFitIds(State.getAlteredIds());
 			    done.resolve();
 			});
 		    }).fail(function() {

@@ -281,6 +281,9 @@ var Oncoprint = (function () {
 	this.keep_horz_zoomed_to_fit_ids = ids;
 	updateHorzZoomToFit(this);
     }
+    Oncoprint.prototype.updateHorzZoomToFitIds = function(ids) {
+	this.keep_horz_zoomed_to_fit_ids = ids;
+    }
     var updateHorzZoomToFit = function(oncoprint) {
 	oncoprint.setHorzZoom(getHorzZoomToFit(oncoprint, oncoprint.keep_horz_zoomed_to_fit_ids));
     };

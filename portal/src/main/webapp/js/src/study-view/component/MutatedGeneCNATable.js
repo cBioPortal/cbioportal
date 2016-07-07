@@ -472,9 +472,11 @@ var EnhancedFixedDataTableSpecial = (function() {
                     field === 'gene' && data[rowIndex].row.qval ?
                         (tableType === 'mutatedGene' ?
                             React.createElement("img", {src: "images/mutsig.png", className: "hasQtip qval-icon",
-                                "data-qtip": '<b>MutSig</b><br/><i>Q-value</i>: ' + data[rowIndex].row.qval}) :
+                                "data-qtip": '<b>MutSig</b><br/><i>Q-value</i>: ' + data[rowIndex].row.qval,
+                                alt: 'MutSig'}) :
                             React.createElement("img", {src: "images/gistic.png", className: "hasQtip qval-icon",
-                                "data-qtip": '<b>Gistic</b><br/><i>Q-value</i>: ' + data[rowIndex].row.qval})) : '',
+                                "data-qtip": '<b>Gistic</b><br/><i>Q-value</i>: ' + data[rowIndex].row.qval,
+                                alt: 'GISTIC'})) : '',
 
 
                     field === 'samples' ?

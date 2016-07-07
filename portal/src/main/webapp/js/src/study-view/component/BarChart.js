@@ -507,7 +507,7 @@ var BarChart = function(){
 //            _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
 //                "style='clear:right;float:right;font-size:10px' value='Survival' />";
             _plotDataDiv = "<img id='"+
-                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
+                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg' alt='survival' />";
         }else {
             _plotDataDiv = "";
         }
@@ -520,12 +520,12 @@ var BarChart = function(){
 //                "dc.redrawAll();'>"+
 //                "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
 //                "RESET</span></a>"+
-                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+    
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg' alt='reload' />"+
                 _logCheckBox +
                 _plotDataDiv +
-                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+ 
-                DIV.chartDiv+"-download-icon' style='float:left' src='images/in.svg'/></div>"+
-                "<img class='study-view-drag-icon' src='images/move.svg'/>"+
+                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+
+                DIV.chartDiv+"-download-icon' style='float:left' src='images/in.svg' alt='download' /></div>"+
+                "<img class='study-view-drag-icon' src='images/move.svg' alt='move' />"+
                 "<span chartID="+param.chartID+" class='study-view-dc-chart-delete'>x</span>"+
                 "</div></div><div id=\"" + DIV.chartDiv + 
                 "\" class='"+ param.className +"'  oValue='" + param.selectedAttr + "," + 

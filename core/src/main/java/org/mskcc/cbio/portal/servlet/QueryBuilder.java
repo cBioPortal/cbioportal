@@ -243,6 +243,12 @@ public class QueryBuilder extends HttpServlet {
                 httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
             }
 
+            // Get the example study queries configured as a skin property
+            String[] exampleStudyQueries = GlobalProperties.getExampleStudyQueries().split("\n");
+            httpServletRequest.setAttribute(
+                    "exampleStudyQueries",
+                    exampleStudyQueries);
+
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet,
                                                sampleSetId, sampleIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {

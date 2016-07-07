@@ -1111,7 +1111,7 @@ function outputClinicalData() {
 
     function formatCancerStudyInfo(max_length) {
         var studyNameShort = (cancerStudyName.length > max_length)? cancerStudyName.substring(0, max_length - 4) + "&nbsp;..." : cancerStudyName;
-        return "<a title='"+cancerStudyName+"' href=\"study.do?cancer_study_id="+cancerStudyId+"\"><b>"+studyNameShort+"</b></a>";
+        return "<a title='"+cancerStudyName+"' href=\"study?id="+cancerStudyId+"\"><b>"+studyNameShort+"</b></a>";
     }
 
     function formatNav() {

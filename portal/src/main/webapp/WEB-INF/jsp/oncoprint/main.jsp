@@ -58,7 +58,7 @@
                </button>
                 <ul class="dropdown-menu" id="clinical_dropdown" style="height: 0px;background-color:rgba(255,255,255,.0)">
                 <li style="list-style-type:none;cursor:pointer;font-weight: bold;">
-                    <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from chosen-select" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
+                    <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from chosen-select" title="Add a clinical attribute track" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
                     <option value=""></option>
                     </select>
                 </li>
@@ -71,11 +71,13 @@
                </button>
                 <div class="dropdown-menu" style="padding: 10px; width: 250px;">
                    <form action="" style="margin-bottom: 0;">
-                       <input type="radio" name="sortby" value="data"> Sort by data</input><br>
-                       <input type="checkbox" name="type" value="type" style="margin-left:10px;"> Mutation Type</input><br>
-                       <input type="checkbox" name="recurrence" value="recurrence" style="margin-left:10px;"> Mutation Recurrence</input><br>
-                       <input type="radio" name="sortby" value="id"> Sort by case id (alphabetical)</input><br>
-                       <input type="radio" name="sortby" value="custom"> Sort by user-defined order / default</input>
+                       <div class="radio"><label><input type="radio" name="sortby" value="data" /> Sort by data</label></div>
+                       <div style="margin-left: 10px;">
+                          <div class="checkbox"><label><input type="checkbox" name="type" value="type" /> Mutation Type</label></div>
+                          <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence" /> Mutation Recurrence</label></div>
+                       </div>
+                       <div class="radio"><label><input type="radio" name="sortby" value="id" /> Sort by case id (alphabetical)</label></div>
+                       <div class="radio"><label><input type="radio" name="sortby" value="custom" /> Sort by user-defined order / default</label></div>
                    </form>
                </div>
             </div>
@@ -85,8 +87,8 @@
                </button>
                <div class="dropdown-menu" style="padding: 10px 5px; width: 120px;min-width: 120px;">
                    <form action="" style="margin-bottom: 0;">
-                       <input type="checkbox" name="type" value="type"> Type</input><br>
-                       <input type="checkbox" name="recurrence" value="recurrence"> Recurrence</input>
+                       <div class="checkbox"><label><input type="checkbox" name="type" value="type" /> Type</label></div>
+                       <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence" /> Recurrence</label></div>
                    </form>
                </div>
             </div>
@@ -96,13 +98,14 @@
                </button>
                <div class="dropdown-menu" style="padding: 10px 5px; width: 270px;min-width: 270px;">
                    <form action="" style="margin-bottom: 0;">
-                       <span>Data type:</span><br>
-                       <input type="radio" name="datatype" style="margin-left:10px" value="sample"> Events per sample</input><br>
-                       <input type="radio" name="datatype" style="margin-left:10px" value="patient"> Events per patient</input><br>
-                       <br>
-                       <input type="checkbox" name="show_unaltered" value="show_unaltered"> Show unaltered columns</input><br>
-                       <input type="checkbox" name="show_whitespace" value="show_whitespace"> Show whitespace between columns</input><br>
-                       <input type="checkbox" name="show_clinical_legends" value="show_clinical_legends"> Show legends for clinical tracks</input>
+                       <fieldset style="border: 0; padding-bottom: 0;">
+                           <legend style="margin-bottom: 0; font-size: 18px;">Data type:</legend>
+                           <div class="radio"><label><input type="radio" name="datatype"  value="sample"> Events per sample</label></div>
+                           <div class="radio"><label><input type="radio" name="datatype"  value="patient"> Events per patient</label></div>
+                       </fieldset>
+                       <div class="checkbox"><label><input type="checkbox" name="show_unaltered" value="show_unaltered"> Show unaltered columns</label></div>
+                       <div class="checkbox"><label><input type="checkbox" name="show_whitespace" value="show_whitespace"> Show whitespace between columns</label></div>
+                       <div class="checkbox"><label><input type="checkbox" name="show_clinical_legends" value="show_clinical_legends"> Show legends for clinical tracks</label></div>
                    </form>
                </div>
             </div>
@@ -122,7 +125,7 @@
             <div class="btn-group btn-group-sm">
                 <button type="button" id="oncoprint_zoomout" class="btn btn-default" style="background-color:#efefef;margin:0px;border-right: 0;"><img src="images/zoom-out.svg" alt="icon" width="18" height="18" /></button>
                 <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 100px;display:inline;border-left: 0;border-right: 0;padding-left: 0;padding-right: 0;"></span>
-                <input type="text" id="oncoprint_zoom_scale_input" class="form-control" style="border-radius: 0;float: left;width: 35px;height: 18px;padding: 5px 10px;padding-left:0px; padding-right:0px;border-left: 0;border-right: 0;">
+                <input type="text" id="oncoprint_zoom_scale_input" class="form-control" style="border-radius: 0;float: left;width: 35px;height: 18px;padding: 5px 10px;padding-left:0px; padding-right:0px;border-left: 0;border-right: 0;" title="Zoom scale">
                 <span type="button" id="oncoprint_zoom_scale_input_tail" class="btn btn-default" style="margin: 0px;background-color: rgb(239, 239, 239);border-left: 0;border-right: 0;padding-left:2px;">%</span>
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px;border-left: 0;"><img src="images/zoom-in.svg" alt="icon" width="18" height="18" /></button>
                 <button type="button" id="oncoprint_zoomtofit" class="btn btn-default" style="background-color:#efefef;margin:0px;border-left: 0;"><img src="images/fitalteredcases.svg" alt="icon" width="18" height="18" preserveAspectRatio="none"/></button>

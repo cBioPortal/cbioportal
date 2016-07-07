@@ -414,8 +414,8 @@ public class QueryBuilder extends HttpServlet {
                 continue;
             }
             GetProfileData remoteCall =
-                new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split(" "))), StringUtils.join(setOfSampleIds, " "));
-            DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split(" "))), sampleIds,
+                new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), StringUtils.join(setOfSampleIds, " "));
+            DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIds,
                 remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
         }

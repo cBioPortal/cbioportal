@@ -124,7 +124,8 @@
             var _id = mutEventIds[i];
             if(oncokbInstance) {
                 oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), 
-                    mutations.getValue(_id, "aa"), cancerType, 
+                    mutations.getValue(_id, "aa"), 
+                    (_.isObject(patientInfo) ? (patientInfo.CANCER_TYPE_DETAILED || patientInfo.CANCER_TYPE) : '') || cancerType, 
                     mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : 'any', 
                     findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), 
                     mutations.getValue(_id, "is-hotspot"), mutations.getValue(_id, 'protein-start'), 
@@ -934,7 +935,7 @@
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
-                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc'], [mutTableIndices["gene"], 'asc']],
+                "aaSorting": [[mutTableIndices["annotation"], 'asc'], [mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc'], [mutTableIndices["gene"], 'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",

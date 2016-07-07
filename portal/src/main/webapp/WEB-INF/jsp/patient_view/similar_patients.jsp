@@ -91,7 +91,7 @@ A genomic overview with events aligned across patients goes here...
                                 source[1]=value;
                             } else if (type==='display') {
                                 var study = source[ 1 ];
-                                return "<a href='study.do?cancer_study_id="+study[0]
+                                return "<a href='study?id="+study[0]
                                     + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'><b>"+study[1]+"</b></a>";
                             } else if (type==='sort') {
                                 return source[1][1];

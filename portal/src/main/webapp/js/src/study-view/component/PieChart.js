@@ -53,8 +53,8 @@ var PieChart = function(){
         selectedAttrDisplay,
         ndx,
         plotDataButtonFlag = false,
-        tableInitialized = false,
-        pieLabelTableInitialized = false,
+        tableStatus = 'unavailable', //unavailable, initialized, 
+        pieLabelTableStatus = 'unavailable',
         chartColors;
 
     var labels =[],
@@ -90,9 +90,9 @@ var PieChart = function(){
         addPieLabelEvents();
 
         //Make sure table will be reinitialized when table view selected
-        if (currentView === 'table' && !tableInitialized ) {
+        if (currentView === 'table' && tableStatus === 'unavailable' ) {
             initReactTable(DIV.labelTableID, reactTableData);
-            tableInitialized = true;
+            tableStatus = 'initialized';
         }
     }
     
@@ -103,10 +103,10 @@ var PieChart = function(){
     }
     
     function updateTables() {
-        if(pieLabelTableInitialized && currentView === 'pie') {
+        if(pieLabelTableStatus === 'initialized') {
             updateQtipReactTable();
         }
-        if(tableInitialized && currentView === 'table') {
+        if(tableStatus === 'initialized') {
             updateReactTable();
         }
     }
@@ -285,7 +285,7 @@ var PieChart = function(){
                         for(var i = 0; i < labelMetaData.length; i++){
                             content += '\r\n';
                             content += labelMetaData[i].name + '\t';
-                            content += labelMetaData[i].value;
+                            content += labelMetaData[i].samples;
                         }
 
                         var downloadOpts = {
@@ -348,7 +348,7 @@ var PieChart = function(){
                             pieLabelMouseEnterFunc: pieLabelMouseEnter,
                             pieLabelMouseLeaveFunc: pieLabelMouseLeave
                         });
-                    pieLabelTableInitialized = true;
+                    pieLabelTableStatus = 'initialized';
                 }
             }
         });
@@ -482,22 +482,27 @@ var PieChart = function(){
             currentView = 'table';
             $("#"+DIV.mainDiv).css('z-index', 16000);
 
-            //qtip wont be needed in table view
-            $('#' + DIV.mainDiv).qtip('destroy', true);
+            //qtip will not be needed in table view
+            if($('#' + DIV.mainDiv).qtip('api')) {
+                $('#' + DIV.mainDiv).qtip('api').hide();
+                $('#' + DIV.mainDiv).qtip('api').disable(true);
+            }
 
             $('#' + DIV.chartDiv ).css('display','none');
             $('#' + DIV.titleDiv ).css('display','none');
-            if ( tableInitialized ) {
+            if ( tableStatus === 'initialized' ) {
                 animateTable();
             }else{
                 initReactTable(DIV.labelTableID, reactTableData);
-                tableInitialized = true;
+                tableStatus = 'initialized';
                 animateTable();
             }
 
         });
         $("#"+DIV.chartDiv+"-pie-icon").click(function() {
             currentView = 'pie';
+            $('#' + DIV.mainDiv).qtip('api').disable(false);
+            $('#' + DIV.mainDiv).qtip('api').show();
             $("#"+DIV.mainDiv).css('z-index', 16000);
             $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
             $("#"+DIV.mainDiv).animate({height: "165px", width: "180px", duration: 300, queue: false}, 300, function() {
@@ -1092,6 +1097,11 @@ var PieChart = function(){
             addEvents();
         },
 
+        destroy: function() {
+            tableStatus = 'unavailable';
+            pieLabelTableStatus = 'unavailable';
+        },
+        
         getChart : function(){
             return pieChart;
         },

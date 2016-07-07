@@ -290,7 +290,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 		after_url = url.substring(next_amp + 1);
 	    }
-	    return before_url + param + '=' + new_value + "&" + after_url;
+	    return before_url 
+		    + (new_value.length > 0 ? (param + '=' + new_value + "&") : "") 
+		    + after_url;
 	};
 	var currURL = function() {
 	    return window.location.href;
@@ -317,13 +319,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	return {
 	    'update': function() {
 		var new_url = currURL();
-		if (State.used_clinical_attributes.length > 0) {
 		new_url = changeURLParam(CLINICAL_ATTRS_PARAM, 
 					    State.used_clinical_attributes
 						    .map(function(attr) { return encodeURIComponent(attr.attr_id);})
 						    .join(","),
 					    new_url);
-		}
 		new_url = changeURLParam(SAMPLE_DATA_PARAM,
 					State.using_sample_data+'',
 					new_url);
@@ -637,7 +637,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'rule_set_params': this.getGeneticRuleSetParams(),
 			'label': genes[i],
 			'target_group': 1,
-			'sortCmpFn': this.getGeneticComparator()
+			'sortCmpFn': this.getGeneticComparator(),
+			'removable': true,
 		    };
 		    var new_track_id = oncoprint.addTracks([track_params])[0];
 		    track_ids.push(new_track_id);
@@ -792,13 +793,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			var datum = {'patient':patient};
 			if (combination_type === 'average') {
 			    datum.attr_val = 0;
-			    for (var j=0; j<patient_to_data[patient].length; j++) {
-				if (j===0) {
-				    datum.attr_id = patient_to_data[patient][j].attr_id;
+			    if (patient_to_data[patient].length > 0) {
+				for (var j=0; j<patient_to_data[patient].length; j++) {
+				    if (j===0) {
+					datum.attr_id = patient_to_data[patient][j].attr_id;
+				    }
+				    datum.attr_val += patient_to_data[patient][j].attr_val;
 				}
-				datum.attr_val += patient_to_data[patient][j].attr_val;
+				datum.attr_val /= patient_to_data[patient].length;
 			    }
-			    datum.attr_val /= patient_to_data[patient].length;
 			} else if (combination_type === 'category') {
 			    var attr_vals = {};
 			    for (var j=0; j<patient_to_data[patient].length; j++) {
@@ -821,8 +824,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	    return def.promise();
 	};
-	var addBlankSampleData = function(attr_id, data) {
+	var addBlankSampleData = function(attr_id, data, na_or_zero) {
 	    // Add blank data for missing ids
+	    na_or_zero = na_or_zero || "na";
 	    var ret = data.slice();
 	    var present = {};
 	    for (var i = 0; i < data.length; i++) {
@@ -832,12 +836,19 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		return !present[id];
 	    });
 	    for (var i = 0; i < to_add.length; i++) {
-		ret.push({'sample': to_add[i], 'attr_id':attr_id, 'na': true});
+		var new_datum = {'sample': to_add[i], 'attr_id':attr_id};
+		if (na_or_zero === "na") {
+		    new_datum.na = true;
+		} else if (na_or_zero === "zero") {
+		    new_datum.attr_val = 0;
+		}
+		ret.push(new_datum);
 	    }
 	    return ret;
 	};
-	var addBlankPatientData = function(attr_id, data) {
+	var addBlankPatientData = function(attr_id, data, na_or_zero) {
 	    // Add blank data for missing ids
+	    na_or_zero = na_or_zero || "na";
 	    var def = new $.Deferred();
 	    var present = {};
 	    QuerySession.getPatientIds().then(function (ids) {
@@ -849,7 +860,13 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    return !present[id];
 		});
 		for (var i = 0; i < to_add.length; i++) {
-		    ret.push({'patient': to_add[i], 'attr_id': attr_id, 'na': true});
+		    var new_datum = {'patient': to_add[i], 'attr_id': attr_id};
+		    if (na_or_zero === "na") {
+			new_datum.na = true;
+		    } else if (na_or_zero === "zero") {
+			new_datum.attr_val = 0;
+		    }
+		    ret.push(new_datum);
 		}
 		def.resolve(ret);
 	    }).fail(function() {
@@ -870,10 +887,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    },
 		    success: function (response) {
 			response = response.toJSON();
-			var sample_data = addBlankSampleData(attr.attr_id, response);
+			var sample_data = addBlankSampleData(attr.attr_id, response, "zero");
 			sample_clinical_data[attr.attr_id] = sample_data;
 			makePatientDataFromSampleAttrData(response, 'average').then(function(patient_data) {
-			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
+			    addBlankPatientData(attr.attr_id, patient_data, "zero").then(function(completed_patient_data) {
 				patient_clinical_data[attr.attr_id] = completed_patient_data;
 				def.resolve();
 			    });
@@ -894,10 +911,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    },
 		    success: function (response) {
 			response = response.toJSON();
-			var sample_data = addBlankSampleData(attr.attr_id, response);
+			var sample_data = addBlankSampleData(attr.attr_id, response, "na");
 			sample_clinical_data[attr.attr_id] = sample_data;
 			makePatientDataFromSampleAttrData(response, 'average').then(function(patient_data) {
-			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
+			    addBlankPatientData(attr.attr_id, patient_data, "na").then(function(completed_patient_data) {
 				patient_clinical_data[attr.attr_id] = completed_patient_data;
 				def.resolve();
 			    })
@@ -910,9 +927,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    } else {
 		if (attr.is_patient_attribute === "0") {
 		    QuerySession.getSampleClinicalData([attr.attr_id]).then(function(sample_data) {
-			sample_clinical_data[attr.attr_id] = addBlankSampleData(attr.attr_id, sample_data);
+			sample_clinical_data[attr.attr_id] = addBlankSampleData(attr.attr_id, sample_data, "na");
 			makePatientDataFromSampleAttrData(sample_data, 'category').then(function(patient_data) {
-			    addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
+			    addBlankPatientData(attr.attr_id, patient_data, "na").then(function(completed_patient_data) {
 				patient_clinical_data[attr.attr_id] = completed_patient_data;
 				def.resolve();
 			    }).fail(function() {
@@ -927,7 +944,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		} else if (attr.is_patient_attribute === "1") {
 		    QuerySession.getPatientClinicalData([attr.attr_id]).then(function(patient_data) {
 			var calls_completed = 0;
-			addBlankPatientData(attr.attr_id, patient_data).then(function(completed_patient_data) {
+			addBlankPatientData(attr.attr_id, patient_data, "na").then(function(completed_patient_data) {
 			    patient_clinical_data[attr.attr_id] = completed_patient_data;
 			    calls_completed += 1;
 			    if (calls_completed === 2) {
@@ -937,7 +954,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    def.reject();
 			});
 			makeSampleDataFromPatientAttrData(patient_data).then(function(sample_data) {
-			    sample_clinical_data[attr.attr_id] = addBlankSampleData(attr.attr_id, sample_data);
+			    sample_clinical_data[attr.attr_id] = addBlankSampleData(attr.attr_id, sample_data, "na");
 			    calls_completed += 1;
 			    if (calls_completed === 2) {
 				def.resolve();
@@ -1100,6 +1117,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	
 	Toolbar.refreshClinicalAttributeSelector();
 	$(toolbar_selector + ' #select_clinical_attributes').chosen({width: "330px", "font-size": "12px", search_contains: true});
+	// add a title to the text input fields generated by Chosen for
+	// Section 508 accessibility compliance
+	$("div.chzn-search > input:first-child").attr("title", "Search");
 
 	Toolbar.onClick($(toolbar_selector + ' #select_clinical_attributes_chzn .chzn-search input'), function(e) { e.stopPropagation(); });
 	
@@ -1320,12 +1340,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 
 	    appendTo($slider, zoom_elt);
 	    addQTipTo($slider, {
+		id: 'oncoprint_zoom_slider_tooltip',
+		prerender: true,
 		content: {text: 'Zoom in/out of oncoprint'},
 		position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
 		style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
 		show: {event: "mouseover"},
 		hide: {fixed: true, delay: 100, event: "mouseout"}
 	    });
+	    // use aria-labelledby instead of aria-describedby, as Section 508
+	    // requires that inputs have an explicit label for accessibility
+	    $slider.attr('aria-labelledby', 'qtip-oncoprint_zoom_slider_tooltip');
+	    $slider.removeAttr('aria-describedby');
 	    setUpHoverEffect($slider);
 
 	    setUpButton($(toolbar_selector + ' #oncoprint_zoomout'), [], ["Zoom out of oncoprint"], null, function () {
@@ -1927,12 +1953,18 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 
 	    appendTo($slider, zoom_elt);
 	    addQTipTo($slider, {
+		id: 'oncoprint_zoom_slider_tooltip',
+		prerender: true,
 		content: {text: 'Zoom in/out of oncoprint'},
 		position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
 		style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
 		show: {event: "mouseover"},
 		hide: {fixed: true, delay: 100, event: "mouseout"}
 	    });
+	    // use aria-labelledby instead of aria-describedby, as Section 508
+	    // requires that inputs have an explicit label for accessibility
+	    $slider.attr('aria-labelledby', 'qtip-oncoprint_zoom_slider_tooltip');
+	    $slider.removeAttr('aria-describedby');
 	    setUpHoverEffect($slider);
 
 	    setUpButton($(toolbar_selector + ' #oncoprint_zoomout'), [], ["Zoom out of oncoprint"], null, function () {

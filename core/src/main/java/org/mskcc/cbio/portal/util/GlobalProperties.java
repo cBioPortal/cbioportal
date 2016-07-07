@@ -132,7 +132,7 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
             "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
             "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
-            "name=\"email\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
+            "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
             "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
             "<i>@cbioportal</i></a> on Twitter</b>\n";
 
@@ -191,6 +191,8 @@ public class GlobalProperties {
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
     
     public static final String DB_VERSION = "db.version";
+    
+    public static final String DISABLED_TABS = "disabled_tabs";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -516,17 +518,17 @@ public class GlobalProperties {
         String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
-    // show or hide the clinical trials tab in the patient view
+    // show the clinical trials tab in the patient view
     public static boolean showClinicalTrialsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
+        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
-    // show or hide the drugs tab in the patient view
+    // show the drugs tab in the patient view
     public static boolean showDrugsTab()
     {
         String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
+        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // get the text for the What's New in the right navigation bar
     public static String getRightNavWhatsNewBlurb(){
@@ -585,7 +587,7 @@ public class GlobalProperties {
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
     {
-        return "study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+        return "study?" + org.mskcc.cbio.portal.servlet.CancerStudyView.ID
                 + "=" + cancerStudyId;
     }
 
@@ -715,6 +717,17 @@ public class GlobalProperties {
         return version;
     }
     
+    public static List<String> getDisabledTabs() {
+        String disabledTabs = "";
+        try {
+            disabledTabs = properties.getProperty(DISABLED_TABS).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        String[] tabs = disabledTabs.split("\\|");
+        return (tabs.length > 0 && disabledTabs.length() > 0) ? Arrays.asList(tabs) : new ArrayList<String>();
+    }
+
     public static void main(String[] args)
     {
         System.out.println(getAppVersion());

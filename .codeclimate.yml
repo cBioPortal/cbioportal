@@ -1,4 +1,10 @@
 engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript
+      - python
   rubocop:
     enabled: true
   golint:
@@ -7,12 +13,22 @@ engines:
     enabled: true
   csslint:
     enabled: true
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
+  fixme:
+    enabled: true
 ratings:
    paths:
    - app/**
    - lib/**
    - "**.rb"
    - "**.go"
+   - "**.css"
+   - "**.js"
+   - "**.jsx"
+   - "**.py"
 exclude_paths:
 - spec/**/*
 - vendor/**/*

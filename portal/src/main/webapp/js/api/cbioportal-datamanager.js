@@ -1,4 +1,4 @@
-window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, z_score_threshold, rppa_score_threshold,
+window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, study_sample_map, z_score_threshold, rppa_score_threshold,
 	case_set_properties, cancer_study_names, profile_ids) {
 
     var deepCopyObject = function (obj) {
@@ -77,6 +77,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     };
     var stringListUnique = function (list) {
 	return Object.keys(stringListToObject(list));
+    };
+    var flatten = function(list_of_lists) {
+	return list_of_lists.reduce(function(a,b) { return a.concat(b); }, []);
     };
     var getSimplifiedMutationType = function (type) {
 	var ret = null;
@@ -571,7 +574,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     return {
 	'oql_query': oql_query,
 	'cancer_study_ids': cancer_study_ids,
-	'sample_ids': sample_ids,
+	'study_sample_map': study_sample_map,
 	'genetic_profile_ids': genetic_profile_ids,
 	'mutation_counts': {},
 	'getOQLQuery': function () {
@@ -584,7 +587,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return this.genetic_profile_ids;
 	},
 	'getSampleIds': function () {
-	    return this.sample_ids;
+	    return flatten(objectValues(this.study_sample_map));
 	},
 	'getPatientIds': makeCachedPromiseFunction(
 		function (self, fetch_promise) {

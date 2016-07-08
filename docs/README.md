@@ -29,7 +29,6 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [More portal.properties Settings](portal.properties-Reference.md)
 
 ### 2.4 Docker
-* [Introduction to Docker](Docker-Introduction.md)
 * [Deploying cBioPortal in Docker](Build-from-Docker.md)
 
 ## 3. cBioPortal Maintenance

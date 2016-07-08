@@ -9,32 +9,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
                 python-jinja2 \
                 python-mysqldb \
                 python-requests \
-    && rm -rf /var/lib/apt/lists/*
-# set up Tomcat to use the MySQL Connector/J Java connector
-RUN ln -s /usr/share/java/mysql-connector-java.jar "$CATALINA_HOME"/lib/; \
-rm -rf $CATALINA_HOME/webapps/examples
-#== Set Default Config & Build from Source ==#
-COPY . /cbioportal
-RUN	echo "export PORTAL_HOME=/cbioportal" >> /root/.bashrc; . /root/.bashrc; \
-	cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties; \
-	cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties; \
-	/bin/cp -u --force $PORTAL_HOME/docker/build/context.xml $CATALINA_HOME/conf/context.xml; \
-	/bin/cp -u --force $PORTAL_HOME/docker/build/gene_sets.txt $PORTAL_HOME/core/src/main/resources/; \
-	mkdir /root/.m2/; cp /cbioportal/docker/build/settings.xml /root/.m2/; \
-	cd $PORTAL_HOME; mvn -DskipTests clean install
-#======== Copy cBioPortal .war file ========#
-RUN . /root/.bashrc; cp $PORTAL_HOME/portal/target/cbioportal.war $CATALINA_HOME/webapps/
-#======== cBioPortal Startup ===============#
-CMD . /root/.bashrc; \
-    cp /custom_config/portal.properties $PORTAL_HOME/src/main/resources/portal.properties; \
-    cp /custom_config/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties; \
-    /bin/cp -u --force /custom_config/context.xml $CATALINA_HOME/conf/context.xml; \
-    /bin/cp -u --force $PORTAL_HOME/docker/build/gene_sets.txt $PORTAL_HOME/core/src/main/resources/; \
-    cp /custom_config/settings.xml /root/.m2/; \
-    cd $PORTAL_HOME; mvn -DskipTests clean install; \
-    cp $PORTAL_HOME/portal/target/cbioportal.war $CATALINA_HOME/webapps/; \
-    cd $CATALINA_HOME; \
-    ./bin/startup.sh; \
-    sleep 5; \
-    tail -f $CATALINA_HOME/logs/catalina.out
-#===========================================#
+            && rm -rf /var/lib/apt/lists/* \
+            && ln -s /usr/share/java/mysql-connector-java.jar "$CATALINA_HOME"/lib/ \
+            && rm -rf $CATALINA_HOME/webapps/examples \
+            && mkdir /root/.m2/
+ENV PORTAL_HOME /cbioportal
+COPY . $PORTAL_HOME
+WORKDIR $PORTAL_HOME
+EXPOSE 8080
+#======== Build cBioPortal on Startup ===============#
+CMD cp /cbio_config/portal.properties $PORTAL_HOME/src/main/resources/portal.properties \
+    && cp /cbio_config/log4j.properties $PORTAL_HOME/src/main/resources/log4j.properties \
+    && cp /cbio_config/log4j.properties $PORTAL_HOME/log4j.properties \
+    && cp /cbio_config/context.xml $CATALINA_HOME/conf/context.xml \
+    && cp /cbio_config/gene_sets.txt $PORTAL_HOME/core/src/main/resources/ \
+    && cp /cbio_config/settings.xml /root/.m2/ \
+    && mvn -DskipTests clean install \
+    && cp $PORTAL_HOME/portal/target/cbioportal.war $CATALINA_HOME/webapps/ \
+    && sh $CATALINA_HOME/bin/catalina.sh run

@@ -31,7 +31,7 @@ docker run -d --name "{container_name}" \
 	--net=cbio-net \
 	-p {preferred_port}:3306 \
 	-e MYSQL_ROOT_PASSWORD={root_password} \
-	-e MYSQL_USER=cbio \
+	-e MYSQL_USER={mysql_user} \
 	-e MYSQL_PASSWORD={mysql_password} \
 	-e MYSQL_DATABASE=cbioportal \
 	-v {/PATH/TO/cbioportal-seed.sql.gz}:/docker-entrypoint-initdb.d/cbioportal-seed.sql.gz:ro \
@@ -74,8 +74,8 @@ docker run -d --name "cbioportal" \
     --restart=always \
     --net=cbio-net \
     -p 8080:8080 \
-    -v {/custom_config/folder_path/}:/custom_config/ \
-    -v {/customization/folder_path/}:/custom_files/ \
+    -v {/custom_config/folder_path/}:/cbio_config/ \
+    -v {/customization/folder_path/}:/cbio_cutomization/ \
     -v {/logs/folder_path/}:/cbio_logs/ \
     -v {/studies/path/}:/cbio_studies/ \
     cbioportal/cbioportal

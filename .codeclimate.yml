@@ -1,10 +1,4 @@
 engines:
-  duplication:
-    enabled: true
-    config:
-      languages:
-      - javascript
-      - python
   rubocop:
     enabled: true
   golint:

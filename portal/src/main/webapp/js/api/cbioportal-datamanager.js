@@ -551,7 +551,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	return def.promise();
     };
 
-    var makeCachedPromiseFunction = function (fetcher, should_deep_copy_result) {
+    var makeCachedPromiseFunction = function (fetcher) {
 	// In: fetcher, a function that takes a promise as an argument, and resolves it with the desired data
 	// Out: a function which returns a promise that resolves with the desired data, deep copied
 	//	The idea is that the fetcher is only ever called once, even if the output function
@@ -565,7 +565,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		fetcher(this, fetch_promise);
 	    }
 	    fetch_promise.then(function (data) {
-		def.resolve((should_deep_copy_result ? data.map(deepCopyObject) : data));
+		def.resolve(deepCopyObject(data));
 	    });
 	    return def.promise();
 	};
@@ -586,21 +586,53 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getGeneticProfileIds': function () {
 	    return this.genetic_profile_ids;
 	},
-	'getSampleIds': function () {
-	    return flatten(objectValues(this.study_sample_map));
+	'getSampleIds': function (opt_study_id) {
+	    if (typeof opt_study_id !== "undefined") {
+		return this.study_sample_map[opt_study_id] || [];
+	    } else {
+		return stringListUnique(flatten(objectValues(this.study_sample_map)));
+	    }
 	},
-	'getPatientIds': makeCachedPromiseFunction(
+	'getStudySampleMap': function() {
+	    return deepCopyObject(this.study_sample_map);
+	},
+	'getStudyPatientMap': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
-		    var patients = {};
-		    window.cbioportal_client.getSamples({study_id: [self.getCancerStudyIds()[0]], sample_ids: self.getSampleIds()}).then(function (samples) {
-			for (var i = 0; i < samples.length; i++) {
-			    patients[samples[i].patient_id] = true;
-			}
-			fetch_promise.resolve(Object.keys(patients));
-		    }).fail(function () {
-			fetch_promise.reject();
+		    var study_patient_map = {};
+		    var cancer_study_ids = self.getCancerStudyIds();
+		    var study_done_promises = cancer_study_ids.map(function() { return new $.Deferred(); });
+		    for (var i=0; i<cancer_study_ids.length; i++) {
+			(function (I) {
+			    var cancer_study_id = cancer_study_ids[I];
+			    window.cbioportal_client.getSamples({study_id: [cancer_study_id], sample_ids: self.study_sample_map[cancer_study_id]}).then(function (samples) {
+				study_patient_map[cancer_study_id] = [];
+				for (var j=0; j<samples.length; j++) {
+				    study_patient_map[cancer_study_id].push(samples[j].patient_id);
+				}
+				study_patient_map[cancer_study_id] = stringListUnique(study_patient_map[cancer_study_id]);	
+			study_done_promises[I].resolve();
+			    }).fail(function() {
+				fetch_promise.reject();
+			    });
+			})(i);
+		    }
+		    $.when.apply($, study_done_promises).then(function() {
+			fetch_promise.resolve(study_patient_map);
 		    });
 		}),
+	'getPatientIds': function(opt_study_id) {
+	    var def = new $.Deferred();
+	    this.getStudyPatientMap().then(function(study_patient_map) {
+		if (typeof opt_study_id !== "undefined") {
+		    def.resolve(study_patient_map[opt_study_id] || []);
+		} else {
+		    def.resolve(stringListUnique(flatten(objectValues(study_patient_map))));
+		}
+	    }).fail(function() {
+		def.reject();
+	    });
+	    return def.promise();
+	},
 	'getCancerStudyIds': function () {
 	    return this.cancer_study_ids;
 	},
@@ -878,11 +910,22 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getSampleClinicalAttributesSet': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    // TODO: handle more than one study
-		    window.cbioportal_client.getSampleClinicalAttributes({study_id: [self.getCancerStudyIds()[0]], sample_ids: self.getSampleIds()}).then(function (response) {
-			var sample_clinical_attributes_set = {};
-			for (var i = 0; i < response.length; i++) {
-			    sample_clinical_attributes_set[response[i].attr_id] = response[i];
-			}
+		    var study_sample_map = self.getStudySampleMap();
+		    var sample_clinical_attributes_set = {};
+		    var requests = self.getCancerStudyIds().map(
+			    function(cancer_study_id) { 
+				var def = new $.Deferred();
+				window.cbioportal_client.getSampleClinicalAttributes({study_id:[cancer_study_id], sample_ids: study_sample_map[cancer_study_id]}).then(function(attrs) {
+				    for (var i=0; i<attrs.length; i++) {
+					sample_clinical_attributes_set[attrs[i].attr_id] = attrs[i];
+				    }
+				    def.resolve();
+				}).fail(function() {
+				    fetch_promise.reject();
+				});
+				return def.promise();
+			    });
+		    $.when.apply($, requests).then(function() {
 			if (self.getMutationProfileId() !== null) {
 			    sample_clinical_attributes_set['# mutations'] = {attr_id: "# mutations",
 				datatype: "NUMBER",
@@ -900,24 +943,28 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    };
 			}
 			fetch_promise.resolve(deepCopyObject(sample_clinical_attributes_set));
-		    }).fail(function () {
-			fetch_promise.reject();
 		    });
 		}),
 	'getPatientClinicalAttributesSet': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
-		    self.getPatientIds().then(function (patient_ids) {
-			window.cbioportal_client.getPatientClinicalAttributes({study_id: [self.getCancerStudyIds()[0]], patient_ids: patient_ids}).then(function (attrs) {
-			    var patient_clinical_attributes_set = {};
-			    for (var i = 0; i < attrs.length; i++) {
-				patient_clinical_attributes_set[attrs[i].attr_id] = attrs[i];
-			    }
+		    self.getStudyPatientMap().then(function (study_patient_map) {
+			var patient_clinical_attributes_set = {};
+			var requests = self.getCancerStudyIds().map(
+				function (cancer_study_id) {
+				    var def = new $.Deferred();
+				    window.cbioportal_client.getPatientClinicalAttributes({study_id: [cancer_study_id], patient_ids: study_patient_map[cancer_study_id]}).then(function (attrs) {
+					for (var i = 0; i < attrs.length; i++) {
+					    patient_clinical_attributes_set[attrs[i].attr_id] = attrs[i];
+					}
+					def.resolve();
+				    }).fail(function () {
+					fetch_promise.reject();
+				    });
+				    return def.promise();
+				});
+			$.when.apply($, requests).then(function () {
 			    fetch_promise.resolve(patient_clinical_attributes_set);
-			}).fail(function () {
-			    fetch_promise.reject();
 			});
-		    }).fail(function () {
-			fetch_promise.reject();
 		    });
 		}),
 	'sortClinicalAttributesByDataType': function (attr_ids) {

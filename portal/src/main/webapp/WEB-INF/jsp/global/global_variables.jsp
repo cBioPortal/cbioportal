@@ -87,10 +87,10 @@
 
     //Info about queried cancer study
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
-    String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+    String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     CancerStudy cancerStudy = cancerStudies.get(0);
     for (CancerStudy cs : cancerStudies){
-        if (cancerTypeId.equals(cs.getCancerStudyStableId())){
+        if (cancerStudyId.equals(cs.getCancerStudyStableId())){
             cancerStudy = cs;
             break;
         }
@@ -137,7 +137,7 @@
 
     //check if show co-expression tab
     boolean showCoexpTab = false;
-    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerTypeId);
+    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyId);
     if (final_gp != null) {
         showCoexpTab = true;
     } 
@@ -173,7 +173,7 @@
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
-                                                            ['<%=cancerTypeId%>'.trim()],
+                                                            ['<%=cancerStudyId%>'.trim()],
                                                             JSON.parse('<%=studySampleMapJson%>'),
                                                             parseFloat('<%=zScoreThreshold%>'),
                                                             parseFloat('<%=rppaScoreThreshold%>'),

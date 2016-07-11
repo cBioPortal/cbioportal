@@ -13,12 +13,12 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ## 2. cBioPortal Deployment
 ### 2.1 Deployment
-* [cBioPortal Hardware and Software Requirements](System-Requirements.md)
+* [Hardware and Software Requirements](System-Requirements.md)
 * [Pre-Build Steps](Pre-Build-Steps.md)
-* [Build cBioPortal from Source](Build-from-Source.md)
-* [Import the Seed Database](Import-the-Seed-Database.md)
-* [Loading a Sample Cancer Study](Load-Sample-Cancer-Study.md)  
-* [Deploying cBioPortal](Deploying.md)
+* [Building from Source](Build-from-Source.md)
+* [Importing the Seed Database](Import-the-Seed-Database.md)
+* [Loading a Sample Study](Load-Sample-Cancer-Study.md)  
+* [Deploying the Web Application](Deploying.md)
 
 ### 2.2 Authorization and Authentication
 * [User Authorization](User-Authorization.md)

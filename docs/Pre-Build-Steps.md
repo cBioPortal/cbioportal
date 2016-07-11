@@ -2,11 +2,12 @@
 
 ## Get the Latest Code
 
-Make sure that you have cloned the last code.
+Make sure that you have cloned the last code, and make sure you are on the ```master``` branch:
 
-These documents also **only apply to code obtained from the master branch**.
+	git clone https://github.com/cBioPortal/cbioportal.git
+	git checkout master
 
-## Prepare the Property File
+## Prepare Property Files
 
 The portal requires two properties files:  one for global configuration (`portal.properties`) and one for logging (`log4j.properties`).  Example files are available within GitHub, but you must take the following steps to prepare them.
 
@@ -14,7 +15,7 @@ The portal requires two properties files:  one for global configuration (`portal
     cp portal.properties.EXAMPLE portal.properties
     cp log4j.properties.EXAMPLE log4j.properties
 
-For more information about the portal.properties file, see the following [reference](portal.properties-Reference.md) page.
+For more information about the `portal.properties` file, see the following [reference](portal.properties-Reference.md) page.
 
 ## Prepare the log4j.properties File
 
@@ -74,29 +75,6 @@ A sample file is shown below:
       </servers>
     </settings>
 
-## Add the MySQL JDBC Driver to Apache Tomcat
-
-A proper JDBC driver will also need to be accessible by Apache Tomcat.  If using MySQL, the [Connector/J](http://dev.mysql.com/downloads/connector/j/) driver jar file should be placed in `$CATALINA_HOME/lib`.
-
-More information on configuring Apache Tomcat connection pooling can be found [here](http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html).
-
-***We have reports that the Tomcat package that comes with (at least) Ubuntu 14.04 cannot handle the connection pool from resources.  If you are encountering this is, we suggest you download the Tomcat archive from Apache and install from there.***
-
-## Configure the Database Connection Pool Resource to Apache Tomcat
-
-Apache Tomcat provides the database database connection pool to the cBioPortal. To setup a database connection pool managed by Tomcat, add the following line to $CATALINA_HOME/conf/context.xml, where USER, PASSWORD, DRIVER_NAME, LOCALHOST, and DATABASE_NAME are properties local to your environment (note if using the MySQL Connector/J driver, the DRIVER_NAME would be com.mysql.jdbc.Driver):
-
-    <Context>
-
-     <Resource name="jdbc/cbioportal" auth="Container" type="javax.sql.DataSource"
-      maxActive="100" maxIdle="30" maxWait="10000"
-      username="USER" password="PASSWORD" driverClassName="DRIVER_NAME"
-      connectionProperties="zeroDateTimeBehavior=convertToNull;"
-      url="jdbc:mysql://LOCALHOST:3306/DATABASE_NAME"/>
-      ...
-      ...
-    </Context>
-
 ## Set the PORTAL_HOME Variable
 
 Prior to building, you must specify an environment variable for `PORTAL_HOME`.  This must point to the root directory containing the portal source code.
@@ -105,6 +83,5 @@ For example, add the following to your `.bash_profile`:
 
     export PORTAL_HOME=/Users/ecerami/dev/cbioportal
 
-This environment variable should also be set within Apache Tomcat.  Edit your Tomcat startup file (typically $CATALINA_HOME/bin/catalina.sh) and add the export statement anywhere within this file (we typically add it near the JAVA_OPTS statements).  We have had reports that on RHEL 7, this export had to be placed at the top of /usr/libexec/tomcat/preamble.
 
 [Next Step: Building From Source](Build-from-Source.md)

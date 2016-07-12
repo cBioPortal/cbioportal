@@ -2,6 +2,8 @@ function QueryByGeneUtil() {
 
     // add the field
     function addFormField(formId, itemName, itemValue) {
+        //remove previous duplicate hidden input before appending
+        $("[name=" + itemName + "]").remove();
         $('<input>').attr({
             type: 'hidden',
             value: itemValue,
@@ -14,7 +16,6 @@ function QueryByGeneUtil() {
         var formId = "#study-view-form";
         addFormField(formId, "gene_set_choice", "user-defined-list");
         addFormField(formId, "gene_list", QueryByGeneTextArea.getGenes());
-
         addFormField(formId, "cancer_study_list", window.cancerStudyId);
         addFormField(formId, "Z_SCORE_THRESHOLD", 2.0);
         addFormField(formId, "genetic_profile_ids_PROFILE_MUTATION_EXTENDED", window.mutationProfileId);
@@ -23,5 +24,6 @@ function QueryByGeneUtil() {
         addFormField(formId, "data_priority", 0);
         addFormField(formId, "tab_index", "tab_visualize");
         addFormField(formId, "Action", "Submit");
+       
     }
 }

@@ -256,7 +256,7 @@ var StudyViewBoilerplate ={
         // Build query button
         _form
             .attr({
-                method: "post",
+                method: "get",
                 action: "index.do",
                 target: "_blank"
             })

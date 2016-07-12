@@ -326,35 +326,42 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return data;
     };
-    var makeOncoprintData = function (webservice_data, genes, ids, sample_or_patient, sample_to_patient_map) {
+    var makeOncoprintData = function (webservice_data, genes, study_to_id_map, sample_or_patient, sample_to_patient_map) {
 	// To fill in for non-existent data, need genes and samples to do so for
 	genes = genes || [];
-	ids = ids || []; // to make blank data
+	study_to_id_map = study_to_id_map || {}; // to make blank data
 	// Gather data by id and gene
-	var gene_and_id_to_datum = {};
+	var gene_id_study_to_datum = {};
+	var studies = Object.keys(study_to_id_map);
 	for (var i = 0; i < genes.length; i++) {
 	    var gene = genes[i].toUpperCase();
-	    for (var j = 0; j < ids.length; j++) {
-		var id = ids[j];
-		var new_datum = {};
-		new_datum['gene'] = gene;
-		new_datum[sample_or_patient] = id;
-		new_datum['data'] = [];
-		gene_and_id_to_datum[gene + "," + id] = new_datum;
+	    for (var j = 0; j<studies.length; j++) {
+		var study = studies[j];
+		var ids = study_to_id_map[study];
+		for (var h=0; h<ids.length; h++) {
+		    var id = ids[h];
+		    var new_datum = {};
+		    new_datum['gene'] = gene;
+		    new_datum[sample_or_patient] = id;
+		    new_datum['data'] = [];
+		    new_datum['study_id'] = study;
+		    gene_id_study_to_datum[gene+','+id+','+study] = new_datum;
+		}
 	    }
 	}
 	for (var i = 0; i < webservice_data.length; i++) {
 	    var datum = webservice_data[i];
 	    var gene = datum.hugo_gene_symbol.toUpperCase();
 	    var id = (sample_or_patient === "patient" ? sample_to_patient_map[datum.sample_id] : datum.sample_id);
-	    var gene_id_datum = gene_and_id_to_datum[gene + "," + id];
+	    var study = datum.study_id;
+	    var gene_id_datum = gene_id_study_to_datum[gene + "," + id +"," + study];
 	    if (gene_id_datum) {
 		gene_id_datum.data.push(datum);
 	    }
 	}
 
 	// Compute display parameters
-	var data = objectValues(gene_and_id_to_datum);
+	var data = objectValues(gene_id_study_to_datum);
 	var cna_profile_data_to_string = {
 	    "-2": "homdel", 
 	    "-1": "hetloss",
@@ -442,11 +449,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return data;
     };
-    var makeOncoprintSampleData = function (webservice_data, genes, sample_ids) {
-	return makeOncoprintData(webservice_data, genes, sample_ids, "sample");
+    var makeOncoprintSampleData = function (webservice_data, genes, study_sample_map) {
+	return makeOncoprintData(webservice_data, genes, study_sample_map, "sample");
     };
-    var makeOncoprintPatientData = function (webservice_data, genes, patient_ids, sample_to_patient_map) {
-	return makeOncoprintData(webservice_data, genes, patient_ids, "patient", sample_to_patient_map);
+    var makeOncoprintPatientData = function (webservice_data, genes, study_patient_map, sample_to_patient_map) {
+	return makeOncoprintData(webservice_data, genes, study_patient_map, "patient", sample_to_patient_map);
     };
 
     var default_oql = '';
@@ -750,20 +757,20 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		}),
 	'getGeneAggregatedOncoprintSampleGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
-		    self.getWebServiceGenomicEventData().then(function (ws_data) {
+		    $.when(self.getWebServiceGenomicEventData(), self.getStudySampleMap()).then(function (ws_data, study_sample_map) {
 			var filtered_ws_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, false);
-			fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), self.getSampleIds()));
+			fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), study_sample_map));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
 		}),
 	'getOncoprintSampleGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
-		    self.getWebServiceGenomicEventData().then(function (ws_data) {
+		    $.when(self.getWebServiceGenomicEventData(), self.getStudySampleMap()).then(function (ws_data, study_sample_map) {
 			var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
 			for (var i = 0; i < ws_data_by_oql_line.length; i++) {
 			    var line = ws_data_by_oql_line[i];
-			    line.oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], self.getSampleIds());
+			    line.oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], study_sample_map);
 			    line.altered_samples = line.oncoprint_data.filter(function (datum) {
 				return datum.data.length > 0;
 			    })
@@ -850,11 +857,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		}),
 	'getOncoprintPatientGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
-		    $.when(self.getWebServiceGenomicEventData(), self.getPatientIds(), self.getPatientSampleIdMap()).then(function (ws_data, patient_ids, sample_to_patient_map) {
+		    $.when(self.getWebServiceGenomicEventData(), self.getPatientIds(), self.getStudyPatientMap(), self.getPatientSampleIdMap()).then(function (ws_data, patient_ids, study_patient_map, sample_to_patient_map) {
 			var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
 			for (var i = 0; i < ws_data_by_oql_line.length; i++) {
 			    var line = ws_data_by_oql_line[i];
-			    line.oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], patient_ids, sample_to_patient_map);
+			    line.oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], study_patient_map, sample_to_patient_map);
 			    line.altered_patients = line.oncoprint_data.filter(function (datum) {
 				return datum.data.length > 0;
 			    })

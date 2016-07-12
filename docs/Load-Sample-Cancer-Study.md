@@ -1,50 +1,52 @@
+# Loading a Sample Study
+
 Once you have initialized MySQL with the seed database, you are ready to import a sample cancer study.  This is recommended, so that you can verify everything is working.
 
-# Download the Sample Study
+## Sample Study
 
-To get started, download the sample study:  [brca-example-study.tar.gz](http://cbio.mskcc.org/cancergenomics/public-portal/downloads/brca-example-study.tar.gz).
+The cBioPortal distribution includes a [small dummy study, study_es_0](https://github.com/cBioPortal/cbioportal/tree/master/core/src/test/scripts/test_data/study_es_0), which you can use to verify that everything is working properly.
 
-Then, unpack and move the directory into your root cbio portal development directory.  The directory should be called `portal-study`.
+## Validating the Sample Study
 
-# Import the Sample Study
+First, validate `study_es_0`.
 
-This is done in a few steps:
+To do so, go to the importer folder: 
 
-First set the path to the jar of the JDBC Connector:
+```
+cd <your_cbioportal_dir>/core/src/main/scripts/importer
+```
 
-    CONNECTOR_JAR=$(echo $CATALINA_HOME/lib/mysql-connector-java-*-bin.jar)
+and then run the following command:
 
-Make sure the ``CONNECTOR_JAR`` variable is pointing to one jar:
+```
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n
+```
 
-    echo $CONNECTOR_JAR
-    # output e.g. /Library/Tomcat/lib/mysql-connector-java-5.1.35-bin.jar
+If all goes well, you should see the final output message:
 
-Second, set the path to the core jar of cbioportal:
+```
+Validation of study succeeded with warnings.
+```
 
-    CORE_JAR=$(echo $PORTAL_HOME/core/target/core-*.jar)
+## Importing the Sample Study
 
-Again, make sure the ``CORE_JAR`` variable is pointing to one jar:
+To import the sample study:
 
-    echo $CORE_JAR
-    # output e.g. /Users/inodb/git/cbioportal/core/target/core-0.1.2-SNAPSHOT.jar   
+```
+cd <your_cbioportal_dir>/core/src/main/scripts/importer
+```
 
-Then, load the meta-data for the sample study:
+and then run the following command:
 
-    $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $CONNECTOR_JAR:$CORE_JAR" --command import-study --meta-filename portal-study/meta_study.txt
+```
+./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -n -o
+```
 
-Then, load copy number, mutation data and expression data:
+You will see a series of output messages, hopefulling ending with a status message like this:
 
-    $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $CONNECTOR_JAR:$CORE_JAR" --command import-study-data --meta-filename portal-study/meta_CNA.txt --data-filename portal-study/data_CNA.txt
-    $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $CONNECTOR_JAR:$CORE_JAR" --command import-study-data --meta-filename portal-study/meta_mutations_extended.txt --data-filename portal-study/data_mutations_extended.txt
-    $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $CONNECTOR_JAR:$CORE_JAR" --command import-study-data --meta-filename portal-study/meta_expression_median.txt --data-filename portal-study/data_expression_median.txt
-
-Lastly, load the case sets and clinical attributes:
-
-    $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $CONNECTOR_JAR:$CORE_JAR" --command import-case-list --meta-filename portal-study/case_lists
-    $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $CONNECTOR_JAR:$CORE_JAR" --command import-study-data --meta-filename portal-study/meta_clinical.txt --data-filename portal-study/data_clinical.txt
-
-# Important
-
-Please note that these data files are intentionally small, and do not contain all genes or all samples.  Therefore, when you deploy in the next step, and search for, e.g. BRCA1, you may not see any mutations.  If you want to see mutations, try searching for:  ACVR1B.
+```
+Done.
+Total time:  7742 ms
+```
 
 [Next Step: Deploying the Web Application](Deploying.md)

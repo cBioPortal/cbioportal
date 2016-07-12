@@ -1,5 +1,5 @@
 window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, study_sample_map, z_score_threshold, rppa_score_threshold,
-	case_set_properties, cancer_study_names, profile_ids) {
+	case_set_properties) {
 
     var deepCopyObject = function (obj) {
 	return $.extend(true, ($.isArray(obj) ? [] : {}), obj);
@@ -457,59 +457,64 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	var special_sample_data = [];
 	var special_sample_data_promises = [];
 	attr_ids = attr_ids.slice();
-	if (attr_ids.indexOf('# mutations') > -1) {
-	    var clinicalMutationColl = new ClinicalMutationColl();
-	    var num_mutations_promise = new $.Deferred();
-	    special_sample_data_promises.push(num_mutations_promise.promise());
-	    clinicalMutationColl.fetch({
-		type: "POST",
-		data: {
-		    mutation_profile: self.getMutationProfileId(),
-		    cmd: "count_mutations",
-		    case_ids: self.getSampleIds().join(" ")
-		},
-		success: function (response) {
-		    response = response.toJSON();
-		    for (var i = 0; i < response.length; i++) {
-			response[i].sample_id = response[i].sample; // standardize
-		    }
-		    special_sample_data = special_sample_data.concat(response);
-		    num_mutations_promise.resolve();
-		},
-		error: function () {
-		    num_mutations_promise.reject();
-		}
-	    });
-	}
-	if (attr_ids.indexOf('FRACTION_GENOME_ALTERED') > -1) {
-	    var clinicalCNAColl = new ClinicalCNAColl();
-	    var fraction_genome_altered_promise = new $.Deferred();
-	    special_sample_data_promises.push(fraction_genome_altered_promise.promise());
-	    clinicalCNAColl.fetch({
-		type: "POST",
-		data: {
-		    cancer_study_id: self.getCancerStudyIds()[0],
-		    cmd: "get_cna_fraction",
-		    case_ids: self.getSampleIds().join(" ")
-		},
-		success: function (response) {
-		    response = response.toJSON();
-		    for (var i = 0; i < response.length; i++) {
-			response[i].sample_id = response[i].sample; // standardize
-		    }
-		    special_sample_data = special_sample_data.concat(response);
-		    fraction_genome_altered_promise.resolve();
-		},
-		error: function () {
-		    fraction_genome_altered_promise.reject();
-		}
-	    });
-	}
-	$.when(self.sortClinicalAttributesByDataType(attr_ids), self.getPatientIds()).then(function (sorted_attrs, patient_ids) {
+	$.when(self.sortClinicalAttributesByDataType(attr_ids), self.getPatientIds(), self.getGeneticProfiles(), self.getStudySampleMap()).then(function (sorted_attrs, patient_ids, genetic_profiles, study_sample_map) {
 	    if (attr_ids.indexOf('# mutations') > -1) {
+		var clinicalMutationColl = new ClinicalMutationColl();
+		special_sample_data_promises = special_sample_data_promises.concat(
+			genetic_profiles.filter(function(gp) { return gp.genetic_alteration_type === "MUTATION_EXTENDED"; })
+			.map(function(mutation_gp) {
+			   var def = new $.Deferred();
+			   clinicalMutationColl.fetch({
+				type: "POST",
+				data: {
+				    mutation_profile: mutation_gp.id,
+				    cmd: "count_mutations",
+				    case_ids: study_sample_map[mutation_gp.study_id].join(" ")
+				},
+				success: function (response) {
+				    response = response.toJSON();
+				    for (var i = 0; i < response.length; i++) {
+					response[i].sample_id = response[i].sample; // standardize
+					response[i].study_id = mutation_gp.study_id;
+				    }
+				    special_sample_data = special_sample_data.concat(response);
+				    def.resolve();
+				},
+				error: function () {
+				    def.reject();
+				}
+			   });
+			   return def.promise();
+			}));
 		attr_ids.splice(attr_ids.indexOf('# mutations'), 1);
 	    }
 	    if (attr_ids.indexOf('FRACTION_GENOME_ALTERED') > -1) {
+		var clinicalCNAColl = new ClinicalCNAColl();
+		special_sample_data_promises = special_sample_data_promises.concat(
+			self.getCancerStudyIds().map(function(cancer_study_id) {
+			    var def = new $.Deferred();
+			    clinicalCNAColl.fetch({
+				type: "POST",
+				data: {
+				    cancer_study_id: cancer_study_id,
+				    cmd: "get_cna_fraction",
+				    case_ids: study_sample_map[cancer_study_id].join(" ")
+				},
+				success: function (response) {
+				    response = response.toJSON();
+				    for (var i = 0; i < response.length; i++) {
+					response[i].sample_id = response[i].sample; // standardize
+					response[i].study_id = cancer_study_id;
+				    }
+				    special_sample_data = special_sample_data.concat(response);
+				    def.resolve();
+				},
+				error: function () {
+				    def.reject();
+				}
+			    });
+			   return def.promise();
+			}));
 		attr_ids.splice(attr_ids.indexOf('FRACTION_GENOME_ALTERED'), 1);
 	    }
 	    $.when(window.cbioportal_client.getSampleClinicalData({study_id: [self.getCancerStudyIds()[0]], attribute_ids: Object.keys(sorted_attrs.sample), sample_ids: self.getSampleIds()}),
@@ -926,23 +931,27 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				return def.promise();
 			    });
 		    $.when.apply($, requests).then(function() {
-			if (self.getMutationProfileId() !== null) {
-			    sample_clinical_attributes_set['# mutations'] = {attr_id: "# mutations",
-				datatype: "NUMBER",
-				description: "Number of mutations",
-				display_name: "Total mutations",
-				is_patient_attribute: "0"
-			    };
-			}
-			if (self.getCancerStudyIds().length > 0) {
-			    sample_clinical_attributes_set["FRACTION_GENOME_ALTERED"] = {attr_id: "FRACTION_GENOME_ALTERED",
-				datatype: "NUMBER",
-				description: "Fraction Genome Altered",
-				display_name: "Fraction Genome Altered",
-				is_patient_attribute: "0"
-			    };
-			}
-			fetch_promise.resolve(deepCopyObject(sample_clinical_attributes_set));
+			self.getMutationProfileIds().then(function(mutation_profile_ids) {
+			    if (mutation_profile_ids.length > 0) {
+				sample_clinical_attributes_set['# mutations'] = {attr_id: "# mutations",
+				    datatype: "NUMBER",
+				    description: "Number of mutations",
+				    display_name: "Total mutations",
+				    is_patient_attribute: "0"
+				};
+			    }
+			    if (self.getCancerStudyIds().length > 0) {
+				sample_clinical_attributes_set["FRACTION_GENOME_ALTERED"] = {attr_id: "FRACTION_GENOME_ALTERED",
+				    datatype: "NUMBER",
+				    description: "Fraction Genome Altered",
+				    display_name: "Fraction Genome Altered",
+				    is_patient_attribute: "0"
+				};
+			    }
+			    fetch_promise.resolve(deepCopyObject(sample_clinical_attributes_set));
+			}).fail(function() {
+			    fetch_promise.reject();
+			});
 		    });
 		}),
 	'getPatientClinicalAttributesSet': makeCachedPromiseFunction(
@@ -1021,12 +1030,28 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			fetch_promise.reject();
 		    });
 		}),
-	'getCancerStudyNames': function () {
-	    return cancer_study_names;
+	'getCancerStudyNames': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    window.cbioportal_client.getStudies({study_ids: self.cancer_study_ids}).then(function (studies) {
+			fetch_promise.resolve(studies.map(function (s) {
+			    return s.name;
+			}));
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
+	'getGeneticProfiles': function() {
+	    return window.cbioportal_client.getGeneticProfiles({genetic_profile_ids: this.genetic_profile_ids});
 	},
-	'getMutationProfileId': function () {
-	    return profile_ids.mutation_profile_id;
-	}
-
+	'getMutationProfileIds': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    self.getGeneticProfiles().then(function (profiles) {
+			fetch_promise.resolve(profiles.map(function (p) {
+			    return p.id;
+			}));
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
     };
 };

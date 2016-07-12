@@ -182,10 +182,6 @@
                                                                 case_ids_key: '<%=sampleIdsKey%>',
                                                                 case_set_name: '<%=sampleSetName%>',
                                                                 case_set_description: '<%=sampleSetDescription%>'
-                                                            },
-                                                            ['<%=cancerStudyName%>'],
-                                                            {
-                                                                mutation_profile_id: <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>
                                                             });
     })();
 </script>
@@ -218,7 +214,7 @@
     }
     
 $(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getPatientIds()).then(function(altered_samples, patient_ids) {
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getPatientIds(), window.QuerySession.getCancerStudyNames()).then(function(altered_samples, patient_ids, cancer_study_names) {
             var sample_ids = window.QuerySession.getSampleIds();
             
             var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
@@ -230,7 +226,7 @@ $(document).ready(function() {
             //Configure the summary line of query
             var _query_smry = "<h3 style='font-size:110%;'><a href='study?id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
-                window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
+                cancer_study_names[0] + "</a><br>" + " " +  
                 "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " + 
                 "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
             $("#main_smry_query_div").append(_query_smry);

@@ -57,12 +57,12 @@ var utils = {
 };
 
 var tooltip_utils = {
-    'sampleViewAnchorTag': function (sample_id) {
-	var href = cbio.util.getLinkToSampleView(QuerySession.getCancerStudyIds()[0], sample_id);
+    'sampleViewAnchorTag': function (study_id, sample_id) {
+	var href = cbio.util.getLinkToSampleView(study_id, sample_id);
 	return '<a href="' + href + '">' + sample_id + '</a>';
     },
-    'patientViewAnchorTag': function(patient_id) {
-	var href = cbio.util.getLinkToPatientView(QuerySession.getCancerStudyIds()[0], patient_id);
+    'patientViewAnchorTag': function(study_id, patient_id) {
+	var href = cbio.util.getLinkToPatientView(study_id, patient_id);
 	return '<a href="' + href + '">' + patient_id + '</a>';
     },
     'makeGeneticTrackTooltip':function(data_type, link_id) {
@@ -107,7 +107,7 @@ var tooltip_utils = {
 	    if (prot.length > 0) {
 		ret += 'PROT: <b>' + prot.join(", ") + '</b><br>';
 	    }
-	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.patient) : d.patient));
+	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.study_id, d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.study_id, d.patient) : d.patient));
 	    return ret;
 	}
     },
@@ -124,7 +124,7 @@ var tooltip_utils = {
 	    } else if (attr_vals.length === 1) {
 		ret += 'value: <b>'+attr_vals[0]+'</b><br>';
 	    }
-	    ret += (link_id ? (data_type === 'sample' ? tooltip_utils.sampleViewAnchorTag(d.sample) : tooltip_utils.patientViewAnchorTag(d.patient))
+	    ret += (link_id ? (data_type === 'sample' ? tooltip_utils.sampleViewAnchorTag(d.study_id, d.sample) : tooltip_utils.patientViewAnchorTag(d.study_id, d.patient))
 			    : (data_type === 'sample' ? d.sample : d.patient));
 	    return ret;
 	};

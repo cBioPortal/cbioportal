@@ -1,0 +1,106 @@
+.ColVis {
+        float: left;
+        margin-bottom: 0
+}
+.dataTables_filter {
+        width: 40%;
+}
+.dataTables_length {
+        width: auto;
+        float: right;
+}
+.dataTables_info {
+        clear: none;
+        width: auto;
+        float: right;
+}
+.div.datatable-paging {
+        width: auto;
+        float: right;
+}
+.gene_mutation_percent_div {
+        display: block;
+        float: left;
+        background-color: lightgreen;
+        height: 12px;
+}
+.mutation_percent_div {
+        display: block;
+        float: left;
+        background-color: green;
+        height: 12px;
+}
+.amp_percent_div {
+        display: block;
+        float: left;
+        background-color: red;
+        height: 12px;
+}
+.del_percent_div {
+        display: block;
+        float: left;
+        background-color: blue;
+        height: 12px;
+}
+.left_float_div {
+        display: block;
+        float: left;
+}
+.right_float_div {
+        display: block;
+        float: right;
+}
+.qtip-wide {
+    max-width: 600px;
+}
+.qtip {
+    font-size: 11px;
+}
+.datatable-name {
+        float: left;
+        font-weight: bold;
+        font-size: 120%;
+        vertical-align: middle;
+}
+.datatable-show-more {
+    float: left;
+}
+.igv-link {
+    cursor: pointer;
+}
+#cancer-study-name-link {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 400px;
+}
+/* Sample records style */
+.sample-record-inline {
+    display: inline-block;
+    color: #428bca;
+    padding: 0 5px;
+}
+.sample-record-inline:last-child .sample-record-delimiter {
+    visibility: hidden;
+}
+#page_wrapper_table {
+    background-color: white;
+}
+#clinical_div {
+    overflow: hidden;
+}
+
+/* Clinical Attributes Styling */
+#more-patient-info {
+    display: inline-flex;
+}
+#more-patient-info a {
+    display: inline-flex;
+}
+.more-sample-info {
+    display: inline-flex;
+}
+.more-sample-info a {
+    display: inline-flex;
+}

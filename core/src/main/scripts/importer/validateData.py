@@ -2298,6 +2298,10 @@ def process_metadata_files(directory, portal_instance, logger):
                 if ('add_global_case_list' in meta and
                         meta['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
+            # raise a warning if pmid is existing, but no citation is available. 
+            if 'pmid' in meta and not 'citation' in meta:
+                logger.warning(
+                'Citation is required when giving a pubmed id (pmid).')
 
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
@@ -2310,6 +2314,7 @@ def process_metadata_files(directory, portal_instance, logger):
             validators_by_type[meta_file_type].append(validator)
         else:
             validators_by_type[meta_file_type].append(None)
+        
 
     if study_cancer_type is None:
         logger.error(

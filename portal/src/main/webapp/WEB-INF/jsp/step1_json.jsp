@@ -30,6 +30,9 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <%
     String step1ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP1_ERROR_MSG);
 %>
@@ -44,16 +47,10 @@
                   <span class="caret"></span>
                   <span class="sr-only">Toggle Dropdown</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu" title="Select from dropdown">
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga");$("#jstree_search_input").trigger("input");' >tcga</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga -provisional");$("#jstree_search_input").trigger("input");' >tcga -provisional</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga -moratorium");$("#jstree_search_input").trigger("input");' >tcga -moratorium</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga OR icgc");$("#jstree_search_input").trigger("input");'>tcga OR icgc</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("-\"cell line\"");$("#jstree_search_input").trigger("input");'>-"cell line"</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("prostate mskcc");$("#jstree_search_input").trigger("input");'>prostate mskcc</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("esophageal OR stomach");$("#jstree_search_input").trigger("input");'>esophageal OR stomach</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("serous");$("#jstree_search_input").trigger("input");'>serous</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("breast");$("#jstree_search_input").trigger("input");'>breast</a></li>
+                <%-- loop over the configured query suggestions --%>
+                <ul class="dropdown-menu dropdown-menu-right" role="menu" title="Select from dropdown"><c:forEach var="query" items="${exampleStudyQueries}">
+                    <%-- escape \ to \\ and " to \" inside the JS string --%>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href='javascript:void(0)' onclick='$("#jstree_search_input").val("${fn:escapeXml(fn:replace(fn:replace(query, "\\", "\\\\"), "\"", "\\\""))}");$("#jstree_search_input").trigger("input");'><c:out value="${query}" /></a></li></c:forEach>
                 </ul>
             </div>
         </div>

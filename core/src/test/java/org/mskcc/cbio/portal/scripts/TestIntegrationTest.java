@@ -48,12 +48,18 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
+import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBSimpleProfileData;
+import org.mskcc.cbio.portal.model.Gistic;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -94,9 +100,10 @@ public class TestIntegrationTest {
      * Test to check if study_es_0 can be loaded correctly into DB. 
      * Should fail if any warning is given by loader classes or if expected
      * data is not found in DB at the end of the test.
+     * @throws Throwable 
      */
 	@Test
-	public void testLoadStudyEs0() {
+	public void testLoadStudyEs0() throws Throwable {
 	    try {
 	        //=== assumptions that we rely upon in the checks later on: ====
 	        ApiService apiService = applicationContext.getBean(ApiService.class);
@@ -123,6 +130,8 @@ public class TestIntegrationTest {
     		
     		//check that ALL data really got into DB correctly. In the spirit of integration tests,
     		//we want to query via the same service layer as the one used by the web API here.
+    		CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("study_es_0");
+    		assertEquals("Test study es_0", cancerStudy.getName());
     		
     		//===== Check MUTATION data ========
     		MutationService mutationService = applicationContext.getBean(MutationServiceImpl.class);
@@ -149,6 +158,23 @@ public class TestIntegrationTest {
                 }
             }
             assertEquals(63, countAMP_DEL);
+            //log2CNA
+            geneticProfileStableIds = new ArrayList<String>();
+            geneticProfileStableIds.add("study_es_0_log2CNA");
+            hugoGeneSymbols = new ArrayList<String>(Arrays.asList("ACAP3","AGRN","ATAD3A","ATAD3B","ATAD3C","AURKAIP1","ERCC5"));
+    		cnaProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
+    		//there is data for 7 genes x 778 samples:
+    		assertEquals(7*778, cnaProfileData.size());
+    		//there are 273 CNA entries that have value between -0.6 and 0.5;
+    		int count0506 = 0;
+            for (Serializable profileEntry: cnaProfileData) {
+                String profileData = ((DBSimpleProfileData)profileEntry).profile_data;
+                double profileDataValue = Double.parseDouble(profileData);
+                if (profileDataValue > -0.6 && profileDataValue <= -0.5) {
+                	count0506++;
+                }
+            }
+            assertEquals(273, count0506);    		
     		
             //===== Check CLINICAL data ========
     		//in total 5 clinical attributes should be added (4 "patient type" 
@@ -176,7 +202,76 @@ public class TestIntegrationTest {
             }
             assertEquals(50, countGte2Lt3);
     		
+            //===== check cancer_type
+            List<DBCancerType> cancerTypes = apiService.getCancerTypes(Arrays.asList("brca-es0"));
+            assertEquals(1, cancerTypes.size());
+            assertEquals("Breast Invasive Carcinoma", cancerTypes.get(0).name);
+            
+            //===== check fusion data
+            //TODO - depends on fix for #1102 and #1314
+            
+            
+            //===== check gistic data
+            //servlet uses this query:
+            ArrayList<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudy.getInternalId());
+            assertEquals(14, gistics.size());
+            Gistic gisticChr10 = null, gisticChr20 = null;
+            for (Gistic gistic: gistics) {
+                if (gistic.getChromosome() == 20) {
+                    //assert not yet set:
+                    assertEquals(null, gisticChr20);
+                    gisticChr20 = gistic;
+                }
+                else if (gistic.getChromosome() == 10) {
+                    //assert not yet set:
+                    assertEquals(null, gisticChr10);
+                    gisticChr10 = gistic;
+                }
+            }
+            assertEquals(8, gisticChr10.getGenes_in_ROI().size());
+            assertEquals(1, gisticChr20.getGenes_in_ROI().size());
+            assertEquals("ZNF217", gisticChr20.getGenes_in_ROI().get(0).getHugoGeneSymbolAllCaps());
+            
+            //===== check methylation
+            geneticProfileStableIds = new ArrayList<String>();
+            geneticProfileStableIds.add("study_es_0_methylation_hm27");
+            hugoGeneSymbols = new ArrayList<String>(Arrays.asList("ATP2A1","SLMAP","HOXD3","PANX1","IMPA2","RHOC","TAF15","CCDC88B"));
+    		List<Serializable> methylationProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
+    		//there is data for 8 genes x 311 samples:
+    		assertEquals(8*311, methylationProfileData.size());
+    		//simple check: there are 199 entries that have value between 0.5 and 0.6;
+    		int count0506Pos = 0;
+            for (Serializable profileEntry: methylationProfileData) {
+                String profileData = ((DBSimpleProfileData)profileEntry).profile_data;
+                double profileDataValue = Double.parseDouble(profileData);
+                if (profileDataValue >= 0.5 && profileDataValue < 0.6) {
+                	count0506Pos++;
+                }
+            }
+            assertEquals(199, count0506Pos);
+            
+            //===== check case lists
+            //study is set to generate global "all" case list, so check this:
+            //study has 2 lists:
+            List<DBSampleList> sampleLists = apiService.getSampleLists("study_es_0");
+            assertEquals(2, sampleLists.size());
+            //for list "all" there are 826 samples expected:
+            sampleLists = apiService.getSampleLists(Arrays.asList("study_es_0_all"));
+            assertEquals(1, sampleLists.size());
+            assertEquals("All cases in study", sampleLists.get(0).name);
+            
+            //there is a custom case list with 778 samples, and name "this is an optional custom case list", 
+            //so check this:
+            sampleLists = apiService.getSampleLists(Arrays.asList("study_es_0_custom"));
+            assertEquals(1, sampleLists.size());
+            assertEquals("this is an optional custom case list", sampleLists.get(0).name);
+            
+            //===== check mutsig
+            //TODO
     		
+            //===== check study status
+            assertEquals(DaoCancerStudy.Status.AVAILABLE, DaoCancerStudy.getStatus("study_es_0"));
+            
 	    }
 	    catch (Throwable t) {
             ConsoleUtil.showWarnings();

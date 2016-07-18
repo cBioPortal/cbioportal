@@ -109,6 +109,22 @@ public class ImportClinicalData extends ConsoleRunnable {
         
         public String toString() {return attributeType;}
     }
+    
+    public static enum DataTypes 
+    {
+        STRING,
+        NUMBER,
+        BOOLEAN;
+    	
+    	static public boolean has(String value) {
+    		try { 
+                return valueOf(value.toUpperCase()) != null; 
+            }
+            catch (IllegalArgumentException x) { 
+                return false;
+            }
+    	}
+    }
 
     public void setFile(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype, boolean relaxed)
     {
@@ -138,7 +154,7 @@ public class ImportClinicalData extends ConsoleRunnable {
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
 
         //validate required columns:
-        if (patientIdIndex < 0) { //TODO - for backwards compatibility maybe add and !attributesType.toString().equals("MIXED")? See next TODO in addDatum()
+        if (patientIdIndex < 0) {
         	//PATIENT_ID is required in both file types:
         	throw new RuntimeException("Aborting owing to failure to find " +
                     PATIENT_ID_COLUMN_NAME + 
@@ -186,6 +202,13 @@ public class ImportClinicalData extends ConsoleRunnable {
                     	}	
                     }
                     break;
+            }
+            
+            //quick validation: datatypes values should be one of the valid types
+            for (String datatype : datatypes) {
+            	if (!DataTypes.has(datatype)) {
+            		throw new RuntimeException("Invalid value for datatype: " + datatype + ". Check the header rows of your data file."); 
+            	}	
             }
                      
             priorities = splitFields(buff.readLine());
@@ -251,13 +274,13 @@ public class ImportClinicalData extends ConsoleRunnable {
         String line;
         MultiKeyMap attributeMap = new MultiKeyMap();
         while ((line = buff.readLine()) != null) {
-
+            String untrimmedLine = line;
             line = line.trim();
             if (skipLine(line)) {
                 continue;
             }
 
-            String[] fields = getFields(line, columnAttrs);
+            String[] fields = getFields(line, untrimmedLine, columnAttrs);
             addDatum(fields, columnAttrs, attributeMap);
         }
     }
@@ -267,7 +290,7 @@ public class ImportClinicalData extends ConsoleRunnable {
         return (line.isEmpty() || line.substring(0,1).equals(METADATA_PREFIX));
     }
 
-    private String[] getFields(String line, List<ClinicalAttribute> columnAttrs)
+    private String[] getFields(String line, String untrimmedLine, List<ClinicalAttribute> columnAttrs)
     {
         String[] fields = line.split(DELIMITER, -1);
         if (fields.length < columnAttrs.size()) {
@@ -275,6 +298,11 @@ public class ImportClinicalData extends ConsoleRunnable {
             fields = Arrays.copyOf(fields, columnAttrs.size());
             Arrays.fill(fields, origFieldsLen, columnAttrs.size(), "");
         }
+        String [] untrimmedFields = untrimmedLine.split(DELIMITER, -1);
+        if (untrimmedFields.length < columnAttrs.size()) {
+            ProgressMonitor.logWarning("Data row found to have less columns than the header row. Missing end columns were given empty values");
+        }
+        
         return fields; 
     }
 
@@ -332,15 +360,6 @@ public class ImportClinicalData extends ConsoleRunnable {
     			throw new RuntimeException("Error: Sample " + stableSampleId + " was previously linked to another patient, and not to " + stablePatientId);
     		}
         	numSamplesProcessed++;
-        }
-
-        // this will happen when clinical file contains sample id, but not patient id
-        //TODO - this part, and the dummy patient added in addSampleToDatabase, can be removed as the field PATIENT_ID is now
-        //always required (as validated at start of importData() ). Probably kept here for "old" studies, but Ben's tests did not find anything...
-        // --> alternative would be to be less strict in validation at importData() and allow for missing PATIENT_ID when type is MIXED... 
-        if (internalPatientId == -1 && internalSampleId != -1) {
-            sample = DaoSample.getSampleById(internalSampleId);
-            internalPatientId = sample.getInternalPatientId();
         }
 
         for (int lc = 0; lc < fields.length; lc++) {

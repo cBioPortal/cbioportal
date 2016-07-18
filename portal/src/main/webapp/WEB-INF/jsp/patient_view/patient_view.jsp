@@ -125,7 +125,7 @@ boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
 String userName = GlobalProperties.getAuthenticatedUserName();
 
-// String darwinAccessURL = CheckDarwinAccess.checkAccess(request);
+String darwinAccessURL = CheckDarwinAccess.checkAccess(request);
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -342,7 +342,7 @@ var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 var userName = '<%=userName%>';
 
-var darwinAccessUrl = null;
+var darwinAccessUrl = '<%=darwinAccessURL%>';
 
 // TODO: hack for including mutation table indices in both cna.jsp and
 // mutations.jsp

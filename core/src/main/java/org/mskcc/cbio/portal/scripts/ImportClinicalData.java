@@ -70,7 +70,8 @@ public class ImportClinicalData extends ConsoleRunnable {
         DISCREPANCY("Discrepancy"),
         COMPLETED("Completed"),
         NULL("null"),
-        MISSING("");
+        MISSING(""),
+        NA("NA");
 
         private String propertyName;
         
@@ -365,6 +366,10 @@ public class ImportClinicalData extends ConsoleRunnable {
                 else if (!relaxed) {
                     throw new RuntimeException("Error: Duplicated patient in file");
                 }
+                // if the "relaxed" flag was given, and the new record e.g. tries to override a previously set attribute for 
+                // an existing patient (e.g. set AGE from 2 to 10...in same study, or GENDER from M to F), then the system will keep 
+                // the previous value and give a warning. NB: this is a kind of "random" harmonization strategy and is 
+                // NOT recommended! TODO - change this to an Exception instead of just a warning. 
                 else if (!attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
                     ProgressMonitor.logWarning("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
                         "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
@@ -558,9 +563,9 @@ public class ImportClinicalData extends ConsoleRunnable {
 	        OptionSpec<String> study = parser.accepts("study",
 	                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
 	        OptionSpec<String> attributeFlag = parser.accepts("a",
-	                "Flag for using MIXED_ATTRIBUTES (deprecated)").withOptionalArg().describedAs("a").ofType(String.class);
+	                "(deprecated) Flag for using MIXED_ATTRIBUTES").withOptionalArg().describedAs("a").ofType(String.class);
                 	        OptionSpec<String> relaxedFlag = parser.accepts("r",
-	                "Flag for relaxed mode").withOptionalArg().describedAs("r").ofType(String.class);
+	                "(not recommended) Flag for relaxed mode, determining how to handle detected data harmonization problems in the same study").withOptionalArg().describedAs("r").ofType(String.class);
 	        parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
 	          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
 	        parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");

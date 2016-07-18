@@ -1,13 +1,13 @@
 #Patient Identifier	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
 #Patient identifier	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
-#STRING	STRING	NUMBER	STRING	NUMBER
+#STRING	STRING	NUMBER	STRING	STRING
 #1	1	1	1	1
 PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
 TCGA-A2-A04P	DECEASED	17.97	Recurred/Progressed	NA
 TCGA-A1-A0SK	DECEASED	31.77	NA	NA
-TCGA-A2-A0CM	DECEASED	24.77	Recurred/Progressed	NA
+TCGA-A2-A0CM	DECEASED	24.77	Recurred/Progressed	TEST
 TCGA-AR-A1AR	DECEASED	17.18	NA	NA
-TCGA-B6-A0WX	DECEASED	21.45	Recurred/Progressed	NA
+TCGA-B6-A0WX	DECEASED	21.45	Recurred/Progressed	TEST
 TCGA-BH-A1F0	DECEASED	25.79	Recurred/Progressed	NA
 TCGA-B6-A0I6	DECEASED	32.56	Recurred/Progressed	NA
 TCGA-BH-A18V	DECEASED	51.09	NA	NA
@@ -533,11 +533,11 @@ TCGA-BH-A1F8	DECEASED	24.61	Recurred/Progressed	NA
 TCGA-BH-A1F2	DECEASED	31.51	DiseaseFree	NA
 TCGA-BH-A1FD	DECEASED	33.12	Recurred/Progressed	NA
 TCGA-BH-A1FH	DECEASED	36.89	Recurred/Progressed	NA
-TCGA-BH-A203	NA	NA	NA	NA
+TCGA-BH-A203	NA	TEST	NA	NA
 TCGA-BH-A1FM	DECEASED	45.6	NA	NA
 TCGA-BH-A1EX	DECEASED	49.54	Recurred/Progressed	NA
 TCGA-BH-A1FL	DECEASED	54.96	Recurred/Progressed	NA
-TCGA-BH-A208	NA	NA	NA	NA
+TCGA-BH-A208	NA	TEST	NA	NA
 TCGA-GM-A2D9	DECEASED	59.53	Recurred/Progressed	NA
 TCGA-BH-A1FJ	DECEASED	63.31	NA	NA
 TCGA-BH-A1EN	DECEASED	67.42	DiseaseFree	NA

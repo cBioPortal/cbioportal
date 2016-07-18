@@ -24,6 +24,7 @@ import cbioportal_common
 # globals
 
 # Only supported reference genome build number and name
+# nb: keep this in synch with MutationDataUtils.getNcbiBuild
 NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_NAME = 'hg19'
 
@@ -339,7 +340,11 @@ class Validator(object):
                 return
 
             # parse the first non-commented line as the tsv header
-            header_cols = csv.reader([header_line], dialect).next()
+            header_cols = csv.reader(
+                                     [header_line],
+                                     delimiter='\t',
+                                     quoting=csv.QUOTE_NONE,
+                                     strict=True).next()
             if self.checkHeader(header_cols) > 0:
                 self.logger.error(
                     'Invalid column header, file cannot be parsed')
@@ -348,7 +353,9 @@ class Validator(object):
             # read through the data lines of the file
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
-                                   dialect)
+                                   delimiter='\t',
+                                   quoting=csv.QUOTE_NONE,
+                                   strict=True)
             for line_number, fields in enumerate(csvreader,
                                                  start=line_number + 1):
                 self.line_number = line_number
@@ -499,8 +506,9 @@ class Validator(object):
                                               repr(dialect.delimiter)})
             return False
         if dialect.quoting != csv.QUOTE_NONE:
-            self.logger.error('Found quotation marks around field(s) in the first rows of the file. '
-                              'Fields and values should not be surrounded by quotation marks.',
+            self.logger.warning('Found quotation marks around field(s) in the first rows of the file. '
+                              'Fields and values surrounded by quotation marks might be incorrectly '
+                              'loaded (i.e. with the quotation marks included as part of the value)',
                               extra={'cause': 'quotation marks of type: [%s] ' %
                                               repr(dialect.quotechar)[1:-1]})
         return True
@@ -1043,8 +1051,10 @@ class MutationsExtendedValidator(Validator):
 
 
     def checkNCBIbuild(self, value, data):
-        if self.checkInt(value) and value != '':
-            if int(value) != NCBI_BUILD_NUMBER:
+        if value != '':
+            # based on MutationDataUtils.getNcbiBuild
+            # TODO - make the supported build version a Portal property
+            if value not in [str(NCBI_BUILD_NUMBER), GENOMIC_BUILD_NAME, 'GRCh'+str(NCBI_BUILD_NUMBER)]:
                 return False
         return True
     
@@ -1195,12 +1205,15 @@ class ClinicalValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     PROP_IS_PATIENT_ATTRIBUTE = None
-    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", ""]
+    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
     ALLOW_BLANKS = True
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.attr_defs = []
+        # keep track of original attribute definitions that are overriden by portal (i.e. have a 
+        # mismatch between file and portal). Here we keep track of definitions as found in file
+        self.attr_defs_overridden = []
         self.newly_defined_attributes = set()
 
     def processTopLines(self, line_list):
@@ -1305,7 +1318,9 @@ class ClinicalValidator(Validator):
                 len(self.cols),
                 extra={'line_number': self.line_number})
             num_errors += 1
+        
         for col_index, col_name in enumerate(self.cols):
+            self.attr_defs_overridden.append({})
             if not col_name.isupper():
                 self.logger.warning(
                     "Clinical attribute name not in all caps",
@@ -1352,7 +1367,9 @@ class ClinicalValidator(Validator):
                 # compare values defined in the file with the existing ones
                 for attr_property in self.attr_defs[col_index]:
                     value = self.attr_defs[col_index][attr_property]
+                    # store original property as found in file
                     if value != srv_attr_properties[attr_property]:
+                        self.attr_defs_overridden[col_index][attr_property] = value
                         self.logger.warning(
                             "%s definition for attribute '%s' does not match "
                             "the portal, and will be loaded as '%s'",
@@ -1380,10 +1397,12 @@ class ClinicalValidator(Validator):
             
             according_to_portal = ''
             data_type = self.attr_defs[col_index]['datatype']
-            if col_name not in self.newly_defined_attributes:
+            if 'datatype' in self.attr_defs_overridden[col_index]:
                 # Extra info for existing fields to make it clear that the 
                 # check is being done based on the definition found in the portal:
-                according_to_portal = 'According to portal, attribute should be loaded as %s. '%(data_type)
+                according_to_portal = (" (nb: even though 'datatype' definition in file is %s, attribute is "
+                    "being validated as %s according to the portal's definition - see also previous "  
+                    "warning for this attribute)")%(self.attr_defs_overridden[col_index]['datatype'], data_type)
             
             # if not blank, check if values match the datatype
             if value.strip().lower() in self.NULL_VALUES:
@@ -1391,7 +1410,7 @@ class ClinicalValidator(Validator):
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
                     self.logger.error(
-                        according_to_portal + 'Value of attribute to be loaded as NUMBER is not a real number',                        
+                        'Value of attribute to be loaded as NUMBER is not a real number' + according_to_portal,
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,
@@ -1401,9 +1420,9 @@ class ClinicalValidator(Validator):
                 VALID_BOOLEANS = ('TRUE', 'FALSE')
                 if not value in VALID_BOOLEANS:
                     self.logger.error(
-                        according_to_portal + 'Invalid value of attribute to be loaded as BOOLEAN, must be one '
+                        'Invalid value of attribute to be loaded as BOOLEAN, must be one '
                         'of [%s]',
-                        ', '.join(VALID_BOOLEANS),
+                        ', '.join(VALID_BOOLEANS) + according_to_portal,
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,

@@ -23,7 +23,7 @@ public class COSMICCountMyBatisRepositoryTest {
 	@Test
 	public void getCOSMICCountsByKeywordsEmptyQuery() {
 		List<COSMICCount> result = cosmicCountMyBatisRepository.getCOSMICCountsByKeywords(new LinkedList<String>());
-		Assert.assertEquals(0, result.size());
+		Assert.assertEquals(6, result.size());
 	}
 	
 	@Test
@@ -33,7 +33,7 @@ public class COSMICCountMyBatisRepositoryTest {
 		List<COSMICCount> result = cosmicCountMyBatisRepository.getCOSMICCountsByKeywords(keywords);
 		Assert.assertEquals(1, result.size());
 		COSMICCount count = result.get(0);
-		Assert.assertEquals("367745", count.getCosmicMutationId());
+		Assert.assertEquals("3677745", count.getCosmicMutationId());
 		Assert.assertEquals("OR4F5 D45 missense", count.getKeyword());
 		Assert.assertEquals((Integer)1, count.getCount());
 		Assert.assertEquals("D45A", count.getProteinChange());

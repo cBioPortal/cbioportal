@@ -38,8 +38,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cbioportal.model.Mutation;
-import org.cbioportal.service.MutationService;
-import org.cbioportal.service.impl.MutationServiceImpl;
+import org.cbioportal.persistence.MutationRepository;
+import org.cbioportal.persistence.mybatis.MutationMyBatisRepository;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -125,7 +125,7 @@ public class TestIntegrationTest {
     		//we want to query via the same service layer as the one used by the web API here.
     		
     		//===== Check MUTATION data ========
-    		MutationService mutationService = applicationContext.getBean(MutationServiceImpl.class);
+    		MutationRepository mutationService = applicationContext.getBean(MutationMyBatisRepository.class);
     		List<String> geneticProfileStableIds = new ArrayList<String>();
     		geneticProfileStableIds.add("study_es_0_mutations");
     		List<Mutation> mutations = mutationService.getMutationsDetailed(geneticProfileStableIds,null,null,null);

@@ -31,7 +31,6 @@
 --%>
 
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -1140,7 +1139,7 @@
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;
         }
 
-        $.post("mutations.json",
+        $.get("api/mutationmatrix",
                 params,
                 function(data) {
                     determineOverviewMutations(data);

@@ -1,6 +1,8 @@
 package org.cbioportal.web.api;
 
 import java.util.List;
+
+import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.persistence.mybatis.MutationMapper;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.config.CustomObjectMapper;
@@ -38,6 +40,10 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
         mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
         converters.add(mappingJackson2HttpMessageConverter);
+    }
+    @Bean
+    public MutationRepository mutationRepository() {
+        return Mockito.mock(MutationRepository.class);
     }
     @Bean
     public MutationService mutationService() {

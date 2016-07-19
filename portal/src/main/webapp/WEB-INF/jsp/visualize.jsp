@@ -154,10 +154,10 @@
             // retrieve the cancerTypesMap and create an iterator for the values
             Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
             if(cancerTypesMap.keySet().size() > 1) {
-            	showCancerTypesSummary = true;
+                showCancerTypesSummary = true;
             }
             else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
-            	showCancerTypesSummary = true;
+                showCancerTypesSummary = true;
             }
             if (disabledTabs.contains("cancer_types_summary")) {
                 showCancerTypesSummary = false;
@@ -298,23 +298,23 @@
         if ($("div.section#network").is(":visible"))
         {
             // init the network tab
-	        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-	        //firstTime = false;
+            //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+            //firstTime = false;
 
-	        // TODO window.networkGraphJSON is null at this point,
-	        // this is a workaround to wait for graphJSON to get ready
-	        var interval = setInterval(function() {
-		        if (window.networkGraphJSON != null)
-		        {
-			        clearInterval(interval);
-			        if (firstTime)
-			        {
+            // TODO window.networkGraphJSON is null at this point,
+            // this is a workaround to wait for graphJSON to get ready
+            var interval = setInterval(function() {
+                if (window.networkGraphJSON != null)
+                {
+                    clearInterval(interval);
+                    if (firstTime)
+                    {
                 $(window).resize();
-				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-				        firstTime = false;
-			        }
-		        }
-	        }, 50);
+                        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                        firstTime = false;
+                    }
+                }
+            }, 50);
         }
 
         $("a.result-tab").click(function(){

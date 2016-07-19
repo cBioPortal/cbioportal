@@ -41,54 +41,67 @@
 <%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
 <%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
 
-<div class="section" id="igv_tab">
-    <table>
-        <tr>
-            <td style="padding-right:25px; vertical-align:top;"><img src="images/IGVlogo.png" alt=""/></td>
-            <td style="vertical-align:top">
+    <!-- Bootstrap CSS - for demo only, NOT REQUIRED FOR IGV -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 
-                <P>Use the <a href="http://www.broadinstitute.org/igv/home">Integrative Genomics
-                    Viewer (IGV)</a> to explore and visualize copy number data.
-                <p>
-                    The <a href="http://www.broadinstitute.org/igv/home">Integrative Genomics
-                    Viewer (IGV)</a> is a high-performance visualization tool for interactive exploration
-                    of large, integrated datasets. It supports a wide variety of data types including sequence alignments,
-                    gene expression, copy number amplifications and deletions, mutations, and genomic annotations
-                </p>
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" type="text/css"
+          href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/>
 
-                <p>Clicking the launch button below will:</p>
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" type="text/css"
+          href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>
 
-                <p>
-                <ul>
-                    <li>start IGV via Java Web Start.</li>
-                    <li>load copy number data (segmented) for your selected cancer study; and</li>
-                    <li>automatically highlight your query genes.</li>
-                </ul>
-                </p>
+    <!-- IGV CSS -->
+    <link rel="stylesheet" type="text/css" href="//igv.org/web/release/1.0.1/igv-1.0.1.css">
 
-                <br>
+    <!-- bam.css n - for demo only, NOT REQUIRED FOR IGV -->
+    <link rel="stylesheet" type="text/css" href="././css/bam.css">
+
+    <!--
+   <script type="text/javascript" src="././js/lib/jquery.min.js"></script>
+    
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
+     
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+-->
+    
+    <script type="text/javascript" src="//igv.org/web/release/1.0.1/igv-1.0.1.js"></script>
+
+
+<div class="section" id="igv_tab">IGV
+    <!---<div id="gene"> </div>
+ 
                 <a id="igvLaunch" href="#" onclick="prepIGVForSegView('<%= cancerTypeId %>')"><img src="images/webstart.jpg" alt="Launch IGV"/></a>
                 <br>
 
-                <p>
-                    Once you click the launch button, you may need to select Open with Java&#8482;
-                    Web Start and click OK. If the system displays messages about trusting the application,
-                    confirm that you trust the application. Web Start will then download and start IGV.
-                    This process can take a few minutes.
-                </p>
-                <br>
-                <p>
-                    For information regarding IGV, please see:
-                <ul>
-                    <li><a href="http://www.broadinstitute.org/software/igv/QuickStart">IGV Quick Start Tutorial</a></li>
-                    <li><a href="http://www.broadinstitute.org/software/igv/UserGuide">IGV User Guide</a></li>
-                </ul>
-                </p>
-
-                <p>
-                    IGV is developed at the <a href="http://www.broadinstitute.org/">Broad Institute of MIT and Harvard</a>.
-                </p>
-            </td>
-        </tr>
-    </table>
+ -->               
+        
 </div>
+
+<script type="text/javascript">
+/*{geneList: "KRAS+NRAS+BRAF", 
+fileName: "coadread_tcga_pub_data_cna_hg19.seg", 
+referenceId: "hg19",
+segfileUrl:"http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"}
+*/
+/*
+options = {
+            showNavigation: true,
+            showRuler: true,
+            genome: "hg19",
+            locus: "egfr",
+            tracks: [
+                        {
+                            url: 'http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg',
+                            indexed: false,
+                            name: 'Segmented CN'
+                        }                      
+            ]
+        };
+igv.createBrowser("#gene", options);
+
+*/
+
+</script>

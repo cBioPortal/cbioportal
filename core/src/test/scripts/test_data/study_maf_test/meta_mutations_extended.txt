@@ -7,3 +7,4 @@ profile_description: Mutation data from whole exome sequencing.
 profile_name: Mutations
 data_filename: brca_tcga_pub.maf
 normal_samples_list: TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11,TCGA-BH-A18H-10,TCGA-C8-A138-10,TCGA-BH-A0HP-10
+swissprot_identifier: accession

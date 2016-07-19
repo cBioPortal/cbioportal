@@ -85,3 +85,4 @@ nbactions.xml
 .externalToolBuilders/
 dependency-reduced-pom.xml
 /core/nbactions-private.xml
+scripts/target

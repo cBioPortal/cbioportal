@@ -445,9 +445,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	return def.promise();
     };
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, study_id, source_sample_or_patient, target_sample_or_patient,
-	    target_ids, sample_to_patient_map, case_uid_map, datatype_number_or_string, na_or_zero) {
+	    target_ids, sample_to_patient_map, case_uid_map, datatype, na_or_zero) {
 	na_or_zero = na_or_zero || "na";
-	var id_to_datum = {};
+	
+	// First collect all the data by id
+	var id_to_data = {};
 	var id_attribute = source_sample_or_patient + '_id'; // sample_id or patient_id
 	for (var i = 0, _len = webservice_clinical_data.length; i < _len; i++) {
 	    var d = webservice_clinical_data[i];
@@ -455,66 +457,104 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    if (source_sample_or_patient === "sample" && target_sample_or_patient === "patient") {
 		id = sample_to_patient_map[id];
 	    }
-	    if (!id_to_datum[id]) {
-		id_to_datum[id] = {'attr_id': attr_id, 'attr_val_counts': {}};
+	    if (!id_to_data[id]) {
+		id_to_data[id] = [];
 	    }
-	    if (typeof d.attr_val !== 'undefined') {
-		id_to_datum[id].attr_val_counts[d.attr_val] = id_to_datum[id].attr_val_counts[d.attr_val] || 0;
-		id_to_datum[id].attr_val_counts[d.attr_val] += 1;
-	    }
+	    id_to_data[id].push(d);
 	}
+	// Then combine it
 	var data = [];
-	var datatype_is_number = (datatype_number_or_string.toLowerCase() === "number");
 	for (var i = 0; i < target_ids.length; i++) {
-	    var datum_to_add = {};
-	    var existing_datum = {};
-	    if (source_sample_or_patient === "patient" && target_sample_or_patient === "sample") {
-		existing_datum = id_to_datum[sample_to_patient_map[target_ids[i]]];
-	    } else {
-		existing_datum = id_to_datum[target_ids[i]];
-	    }
-	    if (existing_datum) {
-		datum_to_add = deepCopyObject(existing_datum);
-	    } else {
-		datum_to_add = {'attr_id': attr_id, 'attr_val_counts': {}};
-	    }
+	    var datum_to_add = {'attr_id': attr_id, 'study_id': study_id, 'uid': case_uid_map[study_id][target_ids[i]], 'attr_val_counts': {}};
 	    datum_to_add[target_sample_or_patient] = target_ids[i];
-	    datum_to_add.study_id = study_id;
-	    datum_to_add.uid = case_uid_map[study_id][target_ids[i]];
-
-	    var values = Object.keys(datum_to_add.attr_val_counts);
-	    if (datatype_is_number) {
-		values = values.map(function (x) {
-		    return (isNaN(x) ? x : parseFloat(x));
-		});
+	    var data_to_combine;
+	    if (source_sample_or_patient === "patient" && target_sample_or_patient === "sample") {
+		data_to_combine = id_to_data[sample_to_patient_map[target_ids[i]]];
+	    } else {
+		data_to_combine = id_to_data[target_ids[i]];
 	    }
-
-	    var disp_attr_val = undefined;
-	    if (values.length === 0) {
+	    data_to_combine = data_to_combine || [];
+	    if (data_to_combine.length === 0) {
 		if (na_or_zero === "na") {
 		    datum_to_add.na = true;
 		} else if (na_or_zero === "zero") {
 		    datum_to_add.attr_val_counts[0] = 1;
-		    disp_attr_val = 0;
+		    datum_to_add.attr_val = 0;
 		}
-	    } else if (values.length === 1) {
-		disp_attr_val = values[0];
+	    } else if (data_to_combine.length === 1) {
+		if (datatype.toLowerCase() === "number") {
+		    var attr_val = parseFloat(data_to_combine[0].attr_val);
+		    if (!isNaN(attr_val)) {
+			datum_to_add.attr_val = attr_val;
+			datum_to_add.attr_val_counts[attr_val] = 1;
+		    } else {
+			datum_to_add.na = true;
+		    }
+		} else if (datatype.toLowerCase() === "string") {
+		    datum_to_add.attr_val = data_to_combine[0].attr_val;
+		    datum_to_add.attr_val_counts[datum_to_add.attr_val] = 1;
+		} else if (datatype.toLowerCase() === "counts_map") {
+		    datum_to_add.attr_val_counts = data_to_combine[0].attr_val;
+		    for (var k in datum_to_add.attr_val_counts) {
+			if (typeof datum_to_add.attr_val_counts[k] !== "undefined") {
+			    var count = parseFloat(datum_to_add.attr_val_counts[k]);
+			    if (!isNaN(count)) {
+				datum_to_add.attr_val_counts[k] = count;
+			    }
+			}
+		    }
+		}
 	    } else {
-		if (datatype_is_number) {
+		if (datatype.toLowerCase() === "number") {
 		    var avg = 0;
 		    var total = 0;
-		    for (var j = 0; j < values.length; j++) {
-			var multiplicity = datum_to_add.attr_val_counts[values[j]];
-			avg += values[j] * multiplicity;
-			total += multiplicity;
+		    for (var j = 0; j < data_to_combine.length; j++) {
+			if (typeof data_to_combine[j].attr_val !== "undefined") {
+			    var attr_val = parseFloat(data_to_combine[j].attr_val)
+			    if (!isNaN(attr_val)) {
+				avg += attr_val;
+				total += 1;
+			    }
+			}
 		    }
-		    disp_attr_val = ((total > 0) ? (avg / total) : 0);
-		} else {
-		    disp_attr_val = "Mixed";
+		    datum_to_add.attr_val = ((total > 0) ? (avg / total) : 0);
+		} else if (datatype.toLowerCase() === "string") {
+		    for (var j = 0; j < data_to_combine.length; j++) {
+			if (typeof data_to_combine[j].attr_val !== "undefined") {
+			    datum_to_add.attr_val_counts[data_to_combine[j].attr_val] = datum_to_add.attr_val_counts[data_to_combine[j].attr_val] || 0;
+			    datum_to_add.attr_val_counts[data_to_combine[j].attr_val] += 1;
+			}
+		    }
+		    datum_to_add.attr_val = "Mixed";
+		} else if (datatype.toLowerCase() === "counts_map") {
+		    for (var j = 0; j < data_to_combine.length; j++) {
+			for (var k in data_to_combine[j].attr_val) {
+			    if (typeof data_to_combine[j].attr_val[k] !== "undefined") {
+				var count = parseFloat(data_to_combine[j].attr_val[k]);
+				if (!isNaN(count)) {
+				    datum_to_add.attr_val_counts[k] = datum_to_add.attr_val_counts[k] || 0;
+				    datum_to_add.attr_val_counts[k] += count;
+				}
+			    }
+			}
+		    }
 		}
 	    }
-	    if (typeof disp_attr_val !== "undefined") {
-		datum_to_add.attr_val = disp_attr_val;
+	    if (datatype.toLowerCase() === "counts_map") {
+		// if all 0, then change to 'na'
+		var all_0 = true;
+		for (var k in datum_to_add.attr_val_counts) {
+		    if (typeof datum_to_add.attr_val_counts[k] !== "undefined" && !isNaN(datum_to_add.attr_val_counts[k])) {
+			if (datum_to_add.attr_val_counts[k] !== 0) {
+			    all_0 = false;
+			    break;
+			}
+		    }
+		}
+		if (all_0) {
+		    datum_to_add.na = true;
+		}
+		datum_to_add.attr_val = datum_to_add.attr_val_counts;
 	    }
 	    data.push(datum_to_add);
 	}
@@ -719,6 +759,37 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			   return _def.promise();
 			}));
 		attr_ids.splice(attr_ids.indexOf('FRACTION_GENOME_ALTERED'), 1);
+	    }
+	    if (attr_ids.indexOf('NO_CONTEXT_MUTATION_SIGNATURE') > -1) {
+		var mutation_signatures_promise = new $.Deferred();
+		fetch_promises.push(mutation_signatures_promise.promise());
+		self.getGeneticProfiles().then(function(genetic_profiles) {
+		    var mutation_profiles = genetic_profiles.filter(function(x) { return x.genetic_alteration_type === "MUTATION_EXTENDED"; });
+		    $.when.apply($, mutation_profiles.map(function(mutation_profile) {
+			var _def = new $.Deferred();
+			$.ajax({
+			    type: 'POST',
+			    url: 'api/mutationsignatures',
+			    data: ['genetic_profile_id=', mutation_profile.id, '&', 'context_size=0', '&', 'sample_ids=', self.getSampleIds().join(",")].join(""),
+			    dataType: 'json'
+			}).then(function(response) {
+			    for (var i=0; i<response.length; i++) {
+				// standardize
+				response[i].sample_id = response[i].id;
+				response[i].study_id = mutation_profile.study_id;
+				response[i].attr_val = response[i].counts;
+			    }
+			    clinical_data = clinical_data.concat(makeOncoprintClinicalData(response, "NO_CONTEXT_MUTATION_SIGNATURE", mutation_profile.study_id, "sample", target_sample_or_patient, study_target_ids_map[mutation_profile.study_id], sample_to_patient_map, case_uid_map, "counts_map", "na"));
+			    _def.resolve();
+			}).fail(function() {
+			    _def.reject();
+			});
+			return _def.promise();
+		    })).then(function() {
+			mutation_signatures_promise.resolve();
+		    });
+		});
+		attr_ids.splice(attr_ids.indexOf('NO_CONTEXT_MUTATION_SIGNATURE'), 1);
 	    }
 	    
 	    fetch_promises = fetch_promises.concat(self.getCancerStudyIds().map(function(cancer_study_id) {
@@ -1199,6 +1270,15 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    display_name: "Total mutations",
 				    is_patient_attribute: "0"
 				};
+				sample_clinical_attributes_set['NO_CONTEXT_MUTATION_SIGNATURE'] = {
+				    attr_id: "NO_CONTEXT_MUTATION_SIGNATURE",
+				    datatype: "COUNTS_MAP",
+				    description: "Number of point mutations in the sample counted by different types of nucleotide changes.",
+				    display_name: "Nucleotide change of point mutations",
+				    is_patient_attribute: "0",
+				    categories: ["C>A", "C>G", "C>T", "T>A", "T>C", "T>G"],
+				    fills: ['#3D6EB1', '#8EBFDC', '#DFF1F8', '#FCE08E', '#F78F5E', '#D62B23']
+				};
 			    }
 			    if (self.getCancerStudyIds().length > 0) {
 				sample_clinical_attributes_set["FRACTION_GENOME_ALTERED"] = {attr_id: "FRACTION_GENOME_ALTERED",
@@ -1310,6 +1390,31 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    return p.id;
 			}));
 		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
+	'getSampleNoContextMutationSignatures': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    var distribution_order = ["CA", "CG", "CT", "TA", "TC", "TG"];
+		    
+		}),
+	'getPatientNoContextMutationSignatures': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    $.when(self.getSampleSNPTypeDistributions(), self.getPatientSampleIdMap()).then(function(sample_snp_type_distributions, sample_to_patient_map) {
+			var ret = {};
+			var snp_types = ["CA", "CG", "CT", "TA", "TC", "TG"];
+			for (var i=0; i<sample_snp_type_distributions; i++) {
+			    var sample_data = sample_snp_type_distributions[i];
+			    var patient = sample_to_patient_map[sample_data.sample];
+			    if (typeof patient !== "undefined") {
+				ret[patient] = ret[patient] || {"patient":patient, "CA":0, "CG":0, "CT":0, "TA":0, "TC":0, "TG":0};
+				for (var j=0; j<snp_types.length; j++) {
+				    ret[patient][snp_types[j]] += sample_data[snp_types[j]];
+				}
+			    }
+			}
+			fetch_promise.resolve(objectValues(ret));
+		    }).fail(function() {
 			fetch_promise.reject();
 		    });
 		}),

@@ -2,6 +2,7 @@ package org.mskcc.cbio.portal.service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationSignature;
+import org.cbioportal.model.MutationSignatureFactory;
 import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.service.MutationService;
@@ -85,7 +88,49 @@ public class ApiService {
 	public List<DBCancerType> getCancerTypes(List<String> cancer_type_ids) {
 		return cancerTypeMapper.getCancerTypes(cancer_type_ids);
 	}
+	
+	@Transactional
+	public List<MutationSignature> getAllSampleMutationSignatures(String genetic_profile_id, int context_size_on_each_side_of_snp) {
+		// Get sample ids from patient ids
+		List<String> sample_ids = new LinkedList<>();
+		List<String> genetic_profile_ids = new LinkedList<>();
+		genetic_profile_ids.add(genetic_profile_id);
+		List<DBGeneticProfile> profiles = getGeneticProfiles(genetic_profile_ids);
+		List<String> study_ids = new LinkedList<>();
+		study_ids.add(profiles.get(0).study_id);
+		List<DBStudy> studies = getStudies(study_ids);
+		String study_id = studies.get(0).id;
+		List<DBSample> samples = getSamples(study_id);
+		for (DBSample sample: samples) {
+			sample_ids.add(sample.id);
+		}
+		
+		return getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size_on_each_side_of_snp);
+	}
 
+	@Transactional
+	public List<MutationSignature> getSampleMutationSignatures(String genetic_profile_id, List<String> sample_ids, int context_size_on_each_side_of_snp) {
+		List<String> genetic_profile_ids = new LinkedList<>();
+		genetic_profile_ids.add(genetic_profile_id);
+		List<Mutation> mutations = mutationService.getMutationsDetailed(genetic_profile_ids, new LinkedList<String>(), sample_ids, null);
+		HashMap<String, List<Mutation>> mutationsBySample = new HashMap<>();
+		for (Mutation mutation:  mutations) {
+			String id = mutation.getSampleId();
+			if (!mutationsBySample.containsKey(id)) {
+				mutationsBySample.put(id, new LinkedList<Mutation>());
+			}
+			mutationsBySample.get(id).add(mutation);
+		}
+		List<MutationSignature> signatures = new LinkedList<>();
+		if (context_size_on_each_side_of_snp == 0) {
+			for (Map.Entry kv: mutationsBySample.entrySet()) {
+				signatures.add(MutationSignatureFactory.NoContextMutationSignature((String)kv.getKey(), (List<Mutation>)kv.getValue()));
+			}
+		}
+		// TODO: implement other contexts
+		return signatures;
+	}
+	
         @Transactional
 	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> studyIds, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
 
@@ -342,7 +387,7 @@ public class ApiService {
         return sampleMapper.getSampleInternalIdsByStudy(study_id);
     }
     
-	@Transactional
+    @Transactional
 	public List<Serializable> getGeneticProfileData(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols,
 													List<String> sampleStableIds, String sampleListStableId) {
 

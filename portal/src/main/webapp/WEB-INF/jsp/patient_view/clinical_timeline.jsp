@@ -210,6 +210,9 @@
                         .toggleTrackCollapse("Specimen")
                         .enableTrackTooltips(false)
                         .enableZoom(false)
+                        .advancedView(false)
+                        .enableTrimmedTimeline(true)
+                        .enableVerticalLine(false)
                         .addPostTimelineHook(plotCaseLabelsInTimeline);
                 timeline();
                 $("#timeline-container").show();

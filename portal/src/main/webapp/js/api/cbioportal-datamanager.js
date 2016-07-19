@@ -1114,5 +1114,30 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			fetch_promise.reject();
 		    });
 		}),
+	'getSampleSNPTypeDistributions': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    var distribution_order = ["CA", "CG", "CT", "TA", "TC", "TG"];
+		    
+		}),
+	'getPatientSNPTypeDistributions': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    $.when(self.getSampleSNPTypeDistributions(), self.getPatientSampleIdMap()).then(function(sample_snp_type_distributions, sample_to_patient_map) {
+			var ret = {};
+			var snp_types = ["CA", "CG", "CT", "TA", "TC", "TG"];
+			for (var i=0; i<sample_snp_type_distributions; i++) {
+			    var sample_data = sample_snp_type_distributions[i];
+			    var patient = sample_to_patient_map[sample_data.sample];
+			    if (typeof patient !== "undefined") {
+				ret[patient] = ret[patient] || {"patient":patient, "CA":0, "CG":0, "CT":0, "TA":0, "TC":0, "TG":0};
+				for (var j=0; j<snp_types.length; j++) {
+				    ret[patient][snp_types[j]] += sample_data[snp_types[j]];
+				}
+			    }
+			}
+			fetch_promise.resolve(objectValues(ret));
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
+		}),
     };
 };

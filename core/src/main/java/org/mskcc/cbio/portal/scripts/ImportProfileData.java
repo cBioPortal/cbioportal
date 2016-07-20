@@ -78,6 +78,16 @@ public class ImportProfileData extends ConsoleRunnable {
 	   
 	            ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
 	                  geneticProfile.getGeneticProfileId());
+	            String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
+	            if (swissprotIdType != null && swissprotIdType.equals("accession")) {
+	                importer.setSwissprotIsAccession(true);
+	            } else if (
+	                    swissprotIdType != null &&
+	                    swissprotIdType != "name") {
+	                throw new RuntimeException(
+	                        "Unrecognized swissprot_identifier " +
+	                        "specification, must be 'name' or 'accession'.");
+	            }
 	            importer.importData();
 	        }
 		    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {

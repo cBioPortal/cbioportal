@@ -34,7 +34,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.GisticJSON" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
-<div id="gistic-msg"><img src="images/ajax-loader.gif"/></div><br/>
+<div id="gistic-msg"><img src="images/ajax-loader.gif" alt="loading" /></div><br/>
 <table cellpadding="0" cellspacing="0" border="0" id="gistic_wrapper_table" width="100%">
     <tr>
         <td>

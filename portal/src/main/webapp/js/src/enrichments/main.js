@@ -61,7 +61,7 @@ var enrichmentsTab = (function() {
         gene_set_stat.copy_num = gene_set;
 
         $("#" + enrichmentsTabSettings.ids.sub_tab_copy_num).empty();
-        $("#" + enrichmentsTabSettings.ids.sub_tab_copy_num).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_copy_num + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+        $("#" + enrichmentsTabSettings.ids.sub_tab_copy_num).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_copy_num + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>");
 
         var _profile_list = [];
 
@@ -107,7 +107,7 @@ var enrichmentsTab = (function() {
         gene_set_stat.mut = gene_set;
 
         $("#" + enrichmentsTabSettings.ids.sub_tab_mutations).empty();
-        $("#" + enrichmentsTabSettings.ids.sub_tab_mutations).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_mutations + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+        $("#" + enrichmentsTabSettings.ids.sub_tab_mutations).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_mutations + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>");
 
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
@@ -127,7 +127,7 @@ var enrichmentsTab = (function() {
         gene_set_stat.mrna = gene_set;
 
         $("#" + enrichmentsTabSettings.ids.sub_tab_mrna_exp).empty();
-        $("#" + enrichmentsTabSettings.ids.sub_tab_mrna_exp).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_mrna_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+        $("#" + enrichmentsTabSettings.ids.sub_tab_mrna_exp).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_mrna_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>");
 
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
@@ -149,7 +149,7 @@ var enrichmentsTab = (function() {
         gene_set_stat.protein_exp = gene_set;
 
         $("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp).empty();
-        $("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_protein_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+        $("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp).append("<div id='" + enrichmentsTabSettings.ids.sub_tab_protein_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>");
 
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {

@@ -713,7 +713,7 @@ var PieChart = function(){
 
             if(plotDataButtonFlag) {
                 _plotDataButtonDiv = "<img id='"+
-                        DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
+                        DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg' alt='survival' />";
             }else {
                 _plotDataButtonDiv = "";
             }
@@ -725,15 +725,15 @@ var PieChart = function(){
                 "<div id='" + DIV.chartDiv +"-title-wrapper'" +
                 " style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div style='height:16px;float:right;' id='"+DIV.chartDiv+"-header'>"+
-                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg' alt='reload' />"+
                 _plotDataButtonDiv +
-                "<img id='"+ DIV.chartDiv +"-pie-icon' class='study-view-title-icon hover' src='images/pie.svg'/>"+
-                "<img id='"+ DIV.chartDiv +"-table-icon' class='study-view-title-icon study-view-table-icon hover' src='images/table.svg'/>"+
+                "<img id='"+ DIV.chartDiv +"-pie-icon' class='study-view-title-icon hover' src='images/pie.svg' alt='pie chart' />"+
+                "<img id='"+ DIV.chartDiv +"-table-icon' class='study-view-title-icon study-view-table-icon hover' src='images/table.svg' alt='table' />"+
                 "<div id='"+ DIV.chartDiv+"-download-icon-wrapper'" +
                 "class='study-view-download-icon'><img id='"+
                 DIV.chartDiv+"-download-icon' style='float:left'"+
-                "src='images/in.svg'/></div>"+
-                "<img class='study-view-drag-icon' src='images/move.svg'/>"+
+                "src='images/in.svg' alt='download' /></div>"+
+                "<img class='study-view-drag-icon' src='images/move.svg' alt='move' />"+
                 "<span chartID="+chartID+" class='study-view-dc-chart-delete'>x</span>"+
                 "</div><chartTitleH4 id='"+DIV.chartDiv +"-title'>" +
                 _title + "</chartTitleH4></div>"+

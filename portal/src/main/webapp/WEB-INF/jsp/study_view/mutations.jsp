@@ -34,7 +34,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutSigJSON" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>  
 
-<div id="mut-sig-msg"><img src="images/ajax-loader.gif"/></div><br/>
+<div id="mut-sig-msg"><img src="images/ajax-loader.gif" alt="loading" /></div><br/>
 <table cellpadding="0" cellspacing="0" border="0" id="smg_wrapper_table" width="60%">
     <tr>
         <td>

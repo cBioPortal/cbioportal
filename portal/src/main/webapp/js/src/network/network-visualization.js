@@ -732,7 +732,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
             "format": "json"};
 
         $(self.detailsTabSelector + " .biogene-content").append(
-            '<img src="images/ajax-loader.gif">');
+            '<img src="images/ajax-loader.gif" alt="loading" />');
 
         $.post("bioGeneQuery.do",
             queryParams,

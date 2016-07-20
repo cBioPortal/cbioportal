@@ -4,7 +4,7 @@ To learn more on Docker, kindly refer here: [What is Docker?](https://www.docker
 
 ## 1. Install Docker
 
-First, make sure that you have the latest version of Docker installed on your machine.
+First, make sure that you have the latest version of Docker installed on your machine.    
 [Get latest Docker version](https://www.docker.com/products/docker)
 
 ## 2. Database Setup
@@ -13,13 +13,13 @@ First, make sure that you have the latest version of Docker installed on your ma
 
 #### 2.1.1 Setup a Docker Network
 
-Because MySQL and cBioPortal are running on separate containers, Docker needs to know how to link them. Using Docker's legacy --link flag tends to be fragile since it will break if the MySQL container is restarted. We can get around this by using the newer ‘Docker networks’ feature.
+Because MySQL and cBioPortal are running on separate containers, Docker needs to know how to link them. Using Docker's legacy --link flag tends to be fragile since it will break if the MySQL container is restarted. We can get around this by using the newer *‘Docker networks’* feature.
 
 ```bash
-docker network create "{DOCKER_NETWORK_NAME}"
+docker network create **"{DOCKER_NETWORK_NAME}"**
 ```
 
-Where {DOCKER_NETWORK_NAME} is the name of the network that cBioPortal and the cBioPortal DB are going to be accessible.
+Where **{DOCKER_NETWORK_NAME}** is the name of the network that cBioPortal and the cBioPortal DB are going to be accessible.
 
 i.e If the network is called "cbioportal_network" the command should be:
 
@@ -34,27 +34,27 @@ In the following command, replace `{/PATH/TO/cbioportal-seed.sql.gz}` by the loc
 Kindly also replace any content between brackets {} with your own preferences.
 
 ```bash
-docker run -d --name "{CONTAINER_NAME}" \
+docker run -d --name "**{CONTAINER_NAME}**" \
     --restart=always \
-    --net="{DOCKER_NETWORK_NAME}" \
-    -p {PREFERRED_EXTERNAL_PORT}:3306 \
-    -e MYSQL_ROOT_PASSWORD={MYSQL_ROOT_PASSWORD} \
-    -e MYSQL_USER={MYSQL_USER} \
-    -e MYSQL_PASSWORD={MYSQL_PASSWORD} \
-    -e MYSQL_DATABASE={MYSQL_DATABASE} \
-    -v {/PATH/TO/cbioportal-seed.sql.gz}:/docker-entrypoint-initdb.d/cbioportal-seed.sql.gz:ro \
+    --net=**"{DOCKER_NETWORK_NAME}"** \
+    -p **{PREFERRED_EXTERNAL_PORT}**:3306 \
+    -e MYSQL_ROOT_PASSWORD=**{MYSQL_ROOT_PASSWORD}** \
+    -e MYSQL_USER=**{MYSQL_USER}** \
+    -e MYSQL_PASSWORD=**{MYSQL_PASSWORD}** \
+    -e MYSQL_DATABASE=**{MYSQL_DATABASE}** \
+    -v **{/PATH/TO/cbioportal-seed.sql.gz}**:/docker-entrypoint-initdb.d/cbioportal-seed.sql.gz:ro \
     mysql
 ```
 
 Where:
-- {CONTAINER_NAME}: The name of your container instance i.e cbio_DB
-- {DOCKER_NETWORK_NAME}: The name of your network i.e cbioportal_network
-- {PREFERRED_EXTERNAL_PORT}: The port that the container internal port will be mapped to i.e 8306
-- {MYSQL_ROOT_PASSWORD}: The root password for the MySQL installation. For password restrictions please read carefully this [link](http://dev.mysql.com/doc/refman/5.7/en/user-names.html)
-- {MYSQL_USER}: The MySQL user name i.e cbio_user
-- {MYSQL_PASSWORD}: The MySQL user password i.e P@ssword1 . For password restrictions please read carefully this [link](http://dev.mysql.com/doc/refman/5.7/en/user-names.html)
-- {MYSQL_DATABASE}: The MySQL Database Name i.e cbioportal
-- {/PATH/TO/cbioportal-seed.sql.gz}: The actual absolute filepath were the cbioportal-seed.sql.gz file is stored on the machine that has docker installed.
+- **{CONTAINER_NAME}**: The name of your container instance i.e cbio_DB
+- **{DOCKER_NETWORK_NAME}**: The name of your network i.e cbioportal_network
+- **{PREFERRED_EXTERNAL_PORT}**: The port that the container internal port will be mapped to i.e 8306
+- **{MYSQL_ROOT_PASSWORD}**: The root password for the MySQL installation. For password restrictions please read carefully this [link](http://dev.mysql.com/doc/refman/5.7/en/user-names.html)
+- **{MYSQL_USER}**: The MySQL user name i.e cbio_user
+- **{MYSQL_PASSWORD}**: The MySQL user password i.e P@ssword1 . For password restrictions please read carefully this [link](http://dev.mysql.com/doc/refman/5.7/en/user-names.html)
+- **{MYSQL_DATABASE}**: The MySQL Database Name i.e cbioportal
+- **{/PATH/TO/cbioportal-seed.sql.gz}**: The actual absolute filepath were the cbioportal-seed.sql.gz file is stored on the machine that has docker installed.
 
 You can check the status of MySQL using the _Kitematic_ tool that comes with the Docker Toolbox. Or run
 
@@ -92,26 +92,26 @@ Coming soon...
 ## 4. Run docker container
 
 ```bash
-docker run -d --name "{CONTAINER_NAME}" \
+docker run -d --name "**{CONTAINER_NAME}**" \
     --restart=always \
-    --net={DOCKER_NETWORK_NAME} \
-    -p {PREFERRED_EXTERNAL_PORT}:8080 \
-    -v {/PATH/TO/CONFIG/}:/cbio_config/:ro \
-    -v {/PATH/TO/CUSTOMIZATION}:/cbio_customization/:ro \
-    -v {/PATH/TO/LOGS}:/cbio_logs/ \
-    -v {/PATH/TO/STUDIES}:/cbio_studies/:ro \
-    cbioportal/cbioportal:{CBIOPORTAL_VERSION}
+    --net=**{DOCKER_NETWORK_NAME}** \
+    -p **{PREFERRED_EXTERNAL_PORT}**:8080 \
+    -v **{/PATH/TO/CONFIG/}**:/cbio_config/:ro \
+    -v **{/PATH/TO/CUSTOMIZATION}**:/cbio_customization/:ro \
+    -v **{/PATH/TO/LOGS}**:/cbio_logs/ \
+    -v **{/PATH/TO/STUDIES}**:/cbio_studies/:ro \
+    cbioportal/cbioportal:**{CBIOPORTAL_VERSION}**
 ```
 
 Where:
-- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
-- {DOCKER_NETWORK_NAME}: The name of your network, i.e cbioportal_network.
-- {PREFERRED_EXTERNAL_PORT}: The port that the container internal port will be mapped to, i.e 8306.
-- {/PATH/TO/CONFIG/}: The external path were configuration files are stored.
-- {/PATH/TO/CUSTOMIZATION}: The external path were customization files are stored.
-- {/PATH/TO/LOGS}: The external path where you want cBioPortal Logs to be stored.
-- {/PATH/TO/STUDIES}: The external path where cBioPortal studies are stored.
-- {CBIOPORTAL_VERSION}: The cBioPortal Version that you would like to run, i.e latest
+- **{CONTAINER_NAME}**: The name of your container instance, i.e cbio_DB.
+- **{DOCKER_NETWORK_NAME}**: The name of your network, i.e cbioportal_network.
+- **{PREFERRED_EXTERNAL_PORT}**: The port that the container internal port will be mapped to, i.e 8306.
+- **{/PATH/TO/CONFIG/}**: The external path were configuration files are stored.
+- **{/PATH/TO/CUSTOMIZATION}**: The external path were customization files are stored.
+- **{/PATH/TO/LOGS}**: The external path where you want cBioPortal Logs to be stored.
+- **{/PATH/TO/STUDIES}**: The external path where cBioPortal studies are stored.
+- **{CBIOPORTAL_VERSION}**: The cBioPortal Version that you would like to run, i.e latest
 
 # Importing Studies
 

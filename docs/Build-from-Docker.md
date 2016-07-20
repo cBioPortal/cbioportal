@@ -140,16 +140,34 @@ Where:
 ## 1. Restart Docker Container
 
 ```bash
-docker restart cbioportal
+docker restart {CONTAINER_NAME}
 ```
+
+Where:
+- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
+
 ## 2. Stop Docker Container
 
 ```bash
-docker stop cbioportal
+docker stop {CONTAINER_NAME}
 ```
+
+Where:
+- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
 
 ## 3. Remove Docker Container (Make sure container is stopped first)
 
 ```bash
-docker rm cbioportal
+docker rm {CONTAINER_NAME}
 ```
+Where:
+- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
+
+## 4. Remove Docker Container (If unresponsive)
+
+```bash
+docker rm -fv {CONTAINER_NAME}
+```
+
+Where:
+- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.

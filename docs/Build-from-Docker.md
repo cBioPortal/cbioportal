@@ -94,11 +94,11 @@ Once MySQL is installed on host please follow the configuration instructions bel
 ## 3. Prepare Configuration files (Pending)
 
 Coming soon...
-- portal.properties
-- log4j.properties
-- context.xml
-- settings.xml
-- gene_sets.txt (optional)
+- portal.properties (Placed in cbio_config)
+- log4j.properties (Placed in cbio_config)
+- context.xml (Placed in cbio_config)
+- settings.xml (Placed in cbio_config)
+- gene_sets.txt (optional) (Placed in cbio_config)
 - Logos (optional)
 
 ## 4. Run the cBioPortal docker container (Pending)

@@ -33,10 +33,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
@@ -47,7 +44,6 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -82,26 +78,8 @@ public class TestImportExtendedMutationData {
         ProgressMonitor.setConsoleMode(false);
 
         loadGenes();
-	}
-	
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
+    }
 
-	
-	@Test
-	public void testException() {
-        MySQLbulkLoader.bulkLoadOn();
-        
-		// TBD: change this to use getResourceAsStream()
-        File file = new File("src/test/resources/data_mutations_extended.txt");
-        
-        //TODO - find new exception, germline option was removed some time ago already....
-        //exception.expect(IllegalArgumentException.class);
-        //exception.expectMessage(containsString("Gene list 'no_such_germline_whitelistfile' not found"));
-
-        new ImportExtendedMutationData(file, geneticProfileId);
-	}
-	
 	@Test
     public void testImportExtendedMutationDataExtended() throws IOException, DaoException {
 		
@@ -222,14 +200,6 @@ public class TestImportExtendedMutationData {
 //		assertEquals("p.E366_Q409del(13)|p.Q367R(1)|p.E366_K477del(1)",
 //		             mutationList.get(15).getOncotatorCosmicOverlapping());
 }
-
-    // reject somatic mutations that aren't valid somatic, or on one of the somatic whitelists
-    private void acceptEverythingElse() throws DaoException {
-        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
-
-        assertEquals(1, DaoMutation.getMutations(geneticProfileId, sampleId, 51806).size());   // valid Unknown
-        assertEquals(1, DaoMutation.getMutations(geneticProfileId, sampleId, 89).size()); // Unknown  Somatic
-    }
 
     private void checkBasicFilteringRules() throws DaoException {
         rejectSilentLOHIntronWildtype();

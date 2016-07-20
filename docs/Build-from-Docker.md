@@ -150,7 +150,7 @@ Where:
 ## 1. Restart Docker Container
 
 ```bash
-docker restart {CONTAINER_NAME}
+docker restart "{CONTAINER_NAME}"
 ```
 
 Where:
@@ -159,7 +159,7 @@ Where:
 ## 2. Stop Docker Container
 
 ```bash
-docker stop {CONTAINER_NAME}
+docker stop "{CONTAINER_NAME}"
 ```
 
 Where:
@@ -168,7 +168,7 @@ Where:
 ## 3. Remove Docker Container (Stop Docker container first)
 
 ```bash
-docker rm {CONTAINER_NAME}
+docker rm "{CONTAINER_NAME}"
 ```
 Where:
 - `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.
@@ -176,7 +176,7 @@ Where:
 ## 4. Remove Docker Container (If docker container is unresponsive)
 
 ```bash
-docker rm -fv {CONTAINER_NAME}
+docker rm -fv "{CONTAINER_NAME}"
 ```
 
 Where:

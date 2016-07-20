@@ -34,27 +34,27 @@ In the following command, replace `{/PATH/TO/cbioportal-seed.sql.gz}` by the loc
 Kindly also replace any content between brackets {} with your own preferences.
 
 ```bash
-docker run -d --name "**{CONTAINER_NAME}**" \
+docker run -d --name "{CONTAINER_NAME}" \
     --restart=always \
-    --net=**"{DOCKER_NETWORK_NAME}"** \
-    -p **{PREFERRED_EXTERNAL_PORT}**:3306 \
-    -e MYSQL_ROOT_PASSWORD=**{MYSQL_ROOT_PASSWORD}** \
-    -e MYSQL_USER=**{MYSQL_USER}** \
-    -e MYSQL_PASSWORD=**{MYSQL_PASSWORD}** \
-    -e MYSQL_DATABASE=**{MYSQL_DATABASE}** \
-    -v **{/PATH/TO/cbioportal-seed.sql.gz}**:/docker-entrypoint-initdb.d/cbioportal-seed.sql.gz:ro \
+    --net="{DOCKER_NETWORK_NAME}" \
+    -p {PREFERRED_EXTERNAL_PORT}:3306 \
+    -e MYSQL_ROOT_PASSWORD={MYSQL_ROOT_PASSWORD} \
+    -e MYSQL_USER={MYSQL_USER} \
+    -e MYSQL_PASSWORD={MYSQL_PASSWORD} \
+    -e MYSQL_DATABASE={MYSQL_DATABASE} \
+    -v {/PATH/TO/cbioportal-seed.sql.gz}:/docker-entrypoint-initdb.d/cbioportal-seed.sql.gz:ro \
     mysql
 ```
 
 Where:
-- **{CONTAINER_NAME}**: The name of your container instance i.e cbio_DB
-- **{DOCKER_NETWORK_NAME}**: The name of your network i.e cbioportal_network
-- **{PREFERRED_EXTERNAL_PORT}**: The port that the container internal port will be mapped to i.e 8306
-- **{MYSQL_ROOT_PASSWORD}**: The root password for the MySQL installation. For password restrictions please read carefully this [link](http://dev.mysql.com/doc/refman/5.7/en/user-names.html)
-- **{MYSQL_USER}**: The MySQL user name i.e cbio_user
-- **{MYSQL_PASSWORD}**: The MySQL user password i.e P@ssword1 . For password restrictions please read carefully this [link](http://dev.mysql.com/doc/refman/5.7/en/user-names.html)
-- **{MYSQL_DATABASE}**: The MySQL Database Name i.e cbioportal
-- **{/PATH/TO/cbioportal-seed.sql.gz}**: The actual absolute filepath were the cbioportal-seed.sql.gz file is stored on the machine that has docker installed.
+- `{CONTAINER_NAME}`: The name of your container instance i.e cbio_DB
+- `{DOCKER_NETWORK_NAME}`: The name of your network i.e cbioportal_network
+- `{PREFERRED_EXTERNAL_PORT}`: The port that the container internal port will be mapped to i.e 8306
+- `{MYSQL_ROOT_PASSWORD}`: The root password for the MySQL installation. For password restrictions please read carefully this [link](http://dev.mysql.com/doc/refman/5.7/en/user-names.html)
+- `{MYSQL_USER}`: The MySQL user name i.e cbio_user
+- `{MYSQL_PASSWORD}`: The MySQL user password i.e P@ssword1 . For password restrictions please read carefully this [link](http://dev.mysql.com/doc/refman/5.7/en/user-names.html)
+- `{MYSQL_DATABASE}`: The MySQL Database Name i.e cbioportal
+- `{/PATH/TO/cbioportal-seed.sql.gz}`: The actual absolute filepath were the cbioportal-seed.sql.gz file is stored on the machine that has docker installed.
 
 You can check the status of MySQL using the _Kitematic_ tool that comes with the Docker Toolbox. Or run
 
@@ -92,30 +92,28 @@ Coming soon...
 ## 4. Run docker container
 
 ```bash
-docker run -d --name "**{CONTAINER_NAME}**" \
+docker run -d --name "{CONTAINER_NAME}" \
     --restart=always \
-    --net=**{DOCKER_NETWORK_NAME}** \
-    -p **{PREFERRED_EXTERNAL_PORT}**:8080 \
-    -v **{/PATH/TO/CONFIG/}**:/cbio_config/:ro \
-    -v **{/PATH/TO/CUSTOMIZATION}**:/cbio_customization/:ro \
-    -v **{/PATH/TO/LOGS}**:/cbio_logs/ \
-    -v **{/PATH/TO/STUDIES}**:/cbio_studies/:ro \
-    cbioportal/cbioportal:**{CBIOPORTAL_VERSION}**
+    --net={DOCKER_NETWORK_NAME} \
+    -p {PREFERRED_EXTERNAL_PORT}:8080 \
+    -v {/PATH/TO/CONFIG/}:/cbio_config/:ro \
+    -v {/PATH/TO/CUSTOMIZATION}:/cbio_customization/:ro \
+    -v {/PATH/TO/LOGS}:/cbio_logs/ \
+    -v {/PATH/TO/STUDIES}:/cbio_studies/:ro \
+    cbioportal/cbioportal:{CBIOPORTAL_VERSION}
 ```
 
 Where:
-- **{CONTAINER_NAME}**: The name of your container instance, i.e cbio_DB.
-- **{DOCKER_NETWORK_NAME}**: The name of your network, i.e cbioportal_network.
-- **{PREFERRED_EXTERNAL_PORT}**: The port that the container internal port will be mapped to, i.e 8306.
-- **{/PATH/TO/CONFIG/}**: The external path were configuration files are stored.
-- **{/PATH/TO/CUSTOMIZATION}**: The external path were customization files are stored.
-- **{/PATH/TO/LOGS}**: The external path where you want cBioPortal Logs to be stored.
-- **{/PATH/TO/STUDIES}**: The external path where cBioPortal studies are stored.
-- **{CBIOPORTAL_VERSION}**: The cBioPortal Version that you would like to run, i.e latest
+- `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.
+- `{DOCKER_NETWORK_NAME}`: The name of your network, i.e cbioportal_network.
+- `{PREFERRED_EXTERNAL_PORT}`: The port that the container internal port will be mapped to, i.e 8306.
+- `{/PATH/TO/CONFIG/}`: The external path were configuration files are stored.
+- `{/PATH/TO/CUSTOMIZATION}`: The external path were customization files are stored.
+- `{/PATH/TO/LOGS}`: The external path where you want cBioPortal Logs to be stored.
+- `{/PATH/TO/STUDIES}`: The external path where cBioPortal studies are stored.
+- `{CBIOPORTAL_VERSION}`: The cBioPortal Version that you would like to run, i.e latest
 
 # Importing Studies
-
-Coming soon...
 
 Access the container interactively using the following command:
 
@@ -124,7 +122,7 @@ docker exec -it "{CONTAINER_NAME}" /bin/bash
 ```
 
 Where:
-- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
+- `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.
 
 Then import the study by running:
 
@@ -133,7 +131,7 @@ python core/src/main/scripts/importer/metaImport.py -s {CANCER_STUDY_DIRECTORY} 
 ```
 
 Where:
-- {CANCER_STUDY_DIRECTORY}: Is the absolute path where the cancer study is stored.
+- `{CANCER_STUDY_DIRECTORY}`: Is the absolute path where the cancer study is stored.
 
 # Docker Container Maintenance
 
@@ -144,7 +142,7 @@ docker restart {CONTAINER_NAME}
 ```
 
 Where:
-- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
+- `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.
 
 ## 2. Stop Docker Container
 
@@ -153,7 +151,7 @@ docker stop {CONTAINER_NAME}
 ```
 
 Where:
-- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
+- `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.
 
 ## 3. Remove Docker Container (Make sure container is stopped first)
 
@@ -161,7 +159,7 @@ Where:
 docker rm {CONTAINER_NAME}
 ```
 Where:
-- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
+- `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.
 
 ## 4. Remove Docker Container (If unresponsive)
 
@@ -170,4 +168,4 @@ docker rm -fv {CONTAINER_NAME}
 ```
 
 Where:
-- {CONTAINER_NAME}: The name of your container instance, i.e cbio_DB.
+- `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.

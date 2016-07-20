@@ -41,67 +41,58 @@
 <%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
 <%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
 
-    <!-- Bootstrap CSS - for demo only, NOT REQUIRED FOR IGV -->
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-
-    <!-- jQuery UI CSS -->
-    <link rel="stylesheet" type="text/css"
-          href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/>
-
-    <!-- Font Awesome CSS -->
-    <link rel="stylesheet" type="text/css"
-          href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>
-
-    <!-- IGV CSS -->
-    <link rel="stylesheet" type="text/css" href="//igv.org/web/release/1.0.1/igv-1.0.1.css">
-
-    <!-- bam.css n - for demo only, NOT REQUIRED FOR IGV -->
-    <link rel="stylesheet" type="text/css" href="././css/bam.css">
-
-    <!--
-   <script type="text/javascript" src="././js/lib/jquery.min.js"></script>
-    
-  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-
-     
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
--->
-    
-    <script type="text/javascript" src="//igv.org/web/release/1.0.1/igv-1.0.1.js"></script>
-
-
-<div class="section" id="igv_tab">IGV
-    <!---<div id="gene"> </div>
- 
-                <a id="igvLaunch" href="#" onclick="prepIGVForSegView('<%= cancerTypeId %>')"><img src="images/webstart.jpg" alt="Launch IGV"/></a>
-                <br>
-
- -->               
-        
+<div class="section" id="igv_tab">
 </div>
 
 <script type="text/javascript">
-/*{geneList: "KRAS+NRAS+BRAF", 
-fileName: "coadread_tcga_pub_data_cna_hg19.seg", 
-referenceId: "hg19",
-segfileUrl:"http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"}
+           //igv graph
+    $("a.result-tab").click(function(){
+ /*      $.when($.ajax({
+            method : "POST",
+            url : 'igvlinking.json',
+            data : {
+                cmd : 'get_igv_args',
+                cancer_study_id : _studyId,
+                gene_list : window.QuerySession.getQueryGenes().join(" ")
+            }
+        })).then(
+                function(response) {
+                    igvForSegViewResp = response;
+                    igv_data_fetched = true;
+                    response['segfileUrl'], response['geneList'],
+                            response['referenceId'], response['fileName'])
+                });
 */
-/*
-options = {
-            showNavigation: true,
-            showRuler: true,
-            genome: "hg19",
-            locus: "egfr",
-            tracks: [
+        var querryGenes =window.QuerySession.getQueryGenes();
+        var targetGene = querryGenes[1];
+          
+        /*         
+        {
+            fileName:"coadread_tcga_pub_data_cna_hg19.seg"
+            geneList:"KRAS+NRAS+BRAF"
+            referenceId:"hg19"
+            segfileUrl:"http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"
+        }
+        */
+        options = {
+                    showNavigation: true,
+                    showRuler: true,
+                    genome: "hg19",
+                    locus: targetGene.toLowerCase(),
+                    tracks: [
                         {
-                            url: 'http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg',
+                            url: "http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg",
                             indexed: false,
                             name: 'Segmented CN'
-                        }                      
-            ]
-        };
-igv.createBrowser("#gene", options);
-
-*/
-
+                        },
+                        {
+                            name: "Genes",
+                            url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed",
+                            order: Number.MAX_VALUE,
+                            displayMode: "EXPANDED"
+                        }
+                    ]
+                };
+        igv.createBrowser("#igv_tab", options);
+    });
 </script>

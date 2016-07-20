@@ -16,10 +16,9 @@ First, make sure that you have the latest version of Docker installed on your ma
 Because MySQL and cBioPortal are running on separate containers, Docker needs to know how to link them. Using Docker's legacy --link flag tends to be fragile since it will break if the MySQL container is restarted. We can get around this by using the newer *‘Docker networks’* feature.
 
 ```bash
-docker network create **"{DOCKER_NETWORK_NAME}"**
+docker network create "{DOCKER_NETWORK_NAME}"
 ```
-
-Where **{DOCKER_NETWORK_NAME}** is the name of the network that cBioPortal and the cBioPortal DB are going to be accessible.
+Where `{DOCKER_NETWORK_NAME}` is the name of the network that cBioPortal and the cBioPortal DB are going to be accessible.
 
 i.e If the network is called "cbioportal_network" the command should be:
 
@@ -27,11 +26,15 @@ i.e If the network is called "cbioportal_network" the command should be:
 docker network create "cbioportal_network"
 ```
 
+Running the above command will create a docker network called "cbioportal_network".
+
 #### 2.1.2 Start a MySQL docker container:
 
-In the following command, replace `{/PATH/TO/cbioportal-seed.sql.gz}` by the local filename of the seed database file `cbioportal-seed.sql.gz` on the host machine (you can [download the seed DB here](Downloads.md#seed-database)). This will automatically import it before starting the MySQL server if the database does not yet exist, which may take a while.
+##### 2.1.2.1 Download Seed Database
 
-Kindly also replace any content between brackets {} with your own preferences.
+You can [download the seed DB here](Downloads.md#seed-database)
+
+##### 2.1.2.2 Run the cBioPortal DB Container
 
 ```bash
 docker run -d --name "{CONTAINER_NAME}" \
@@ -56,7 +59,10 @@ Where:
 - `{MYSQL_DATABASE}`: The MySQL Database Name i.e cbioportal
 - `{/PATH/TO/cbioportal-seed.sql.gz}`: The actual absolute filepath were the cbioportal-seed.sql.gz file is stored on the machine that has docker installed.
 
-You can check the status of MySQL using the _Kitematic_ tool that comes with the Docker Toolbox. Or run
+Running the above command will create a MySQL docker container and will automatically import the Seed Database.
+Please note that the Seed Database import can take some time.
+
+You can check the status of MySQL using the _Kitematic_ tool that comes with the Docker Toolbox. Or simply run:
 
 ```bash
 docker ps
@@ -85,11 +91,17 @@ To install MySQL kindly follow the installation instructions below:
 Once MySQL is installed on host please follow the configuration instructions below:
 [Create the cBioPortal MYSQL Databases and User](https://github.com/cBioPortal/cbioportal/blob/master/docs/Pre-Build-Steps.md#create-the-cbioportal-mysql-databases-and-user)
 
-## 3. Prepare Configuration files
+## 3. Prepare Configuration files (Pending)
 
 Coming soon...
+- portal.properties
+- log4j.properties
+- context.xml
+- settings.xml
+- gene_sets.txt (optional)
+- Logos (optional)
 
-## 4. Run docker container
+## 4. Run the cBioPortal docker container (Pending)
 
 ```bash
 docker run -d --name "{CONTAINER_NAME}" \
@@ -113,7 +125,7 @@ Where:
 - `{/PATH/TO/STUDIES}`: The external path where cBioPortal studies are stored.
 - `{CBIOPORTAL_VERSION}`: The cBioPortal Version that you would like to run, i.e latest
 
-# Importing Studies
+# Importing Studies (Pending)
 
 Access the container interactively using the following command:
 
@@ -153,7 +165,7 @@ docker stop {CONTAINER_NAME}
 Where:
 - `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.
 
-## 3. Remove Docker Container (Make sure container is stopped first)
+## 3. Remove Docker Container (Stop Docker container first)
 
 ```bash
 docker rm {CONTAINER_NAME}
@@ -161,7 +173,7 @@ docker rm {CONTAINER_NAME}
 Where:
 - `{CONTAINER_NAME}`: The name of your container instance, i.e cbio_DB.
 
-## 4. Remove Docker Container (If unresponsive)
+## 4. Remove Docker Container (If docker container is unresponsive)
 
 ```bash
 docker rm -fv {CONTAINER_NAME}

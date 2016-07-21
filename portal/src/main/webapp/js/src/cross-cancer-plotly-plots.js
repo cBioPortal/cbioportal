@@ -572,7 +572,7 @@ var ccPlots = (function (Plotly, _, $) {
             apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
             show_mutations = document.getElementById("cc_plots_show_mutations").checked;
             $("#cc_plots_box").empty();
-            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:250px;'/>");
+            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:250px;' alt='loading' />");
             var _selected_study_ids = $("input[name=cc_plots_selected_studies]:checked").map(function() { return this.value; }).get();
             
             // re-generate the view

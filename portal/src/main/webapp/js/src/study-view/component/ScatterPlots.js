@@ -323,7 +323,7 @@ var ScatterPlots = function() {
             .attr("width", "50")
             .attr("height", "15")
             .attr("style", "font-size:'11px';margin:0;")
-            .html("<input id='study-view-scatter-plot-log-scale-x' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
+            .html("<input id='study-view-scatter-plot-log-scale-x' type='checkbox' style='float:left' "+_checked+"/><label for='study-view-scatter-plot-log-scale-x' style='float:left; margin-top: 2px; margin-bottom: 0; font-weight: normal; font-size-adjust: 0.5;'>Log</label>");
         $("#study-view-scatter-plot-log-scale-x").change(function() {
             if($(this).prop("checked")){
                 axisXLogFlag = true;
@@ -389,7 +389,7 @@ var ScatterPlots = function() {
             .attr("width", "50")
             .attr("height", "15")
             .attr("style", "font-size:'11px';margin:0;")
-            .html("<input id='study-view-scatter-plot-log-scale-y' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
+            .html("<input id='study-view-scatter-plot-log-scale-y' type='checkbox' style='float:left' "+_checked+"/><label for='study-view-scatter-plot-log-scale-y' style='float:left; margin-top: 2px; margin-bottom: 0; font-weight: normal; font-size-adjust: 0.5;'>Log</label>");
         
         $("#study-view-scatter-plot-log-scale-y").change(function() {
             if($(this).prop("checked")){

@@ -68,7 +68,9 @@ Lastly, open a browser and go to:
 
 ## Important
 
-Each time you add new data or modify any code, you must redeploy the WAR file.
+- Each time you modify any java code, you must recompile and redeploy the WAR file.
+- Each time you modify any properties (see customization options), you must recompile and redeploy the WAR file.
+- Each time you add new data, you must restart tomcat.
 
 ## Developer Tip
 

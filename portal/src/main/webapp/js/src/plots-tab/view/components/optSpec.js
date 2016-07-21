@@ -24,11 +24,13 @@ var optSpec = (function() {
     	//if these conditions apply, we want to show an extra switch to allow different visualization of the data:
         if (genetic_vs_genetic() && isSameGene() && hasCNA()) {
         	if ($("#" + ids.sidebar.util.view_switch).is(':empty')) {
-	            $("#" + ids.sidebar.util.view_switch).append(
-	                "<h5>View</h5>" + 
-	                "<input type='radio' value='mutation_details' name='"+ids.sidebar.util.view_switch+"' checked>Mutation Type" + 
-	                "<input type='radio' value='gistic' name='"+ids.sidebar.util.view_switch+"' >Copy-number"
-	            );                    
+                $("#" + ids.sidebar.util.view_switch).append(
+                    "<div class='form-inline'>" +
+                    "<h5>View</h5>" +
+                    "<label class='radio-inline'><input type='radio' value='mutation_details' name='"+ids.sidebar.util.view_switch+"' checked>Mutation Type</label>" +
+                    "<label class='radio-inline'><input type='radio' value='gistic' name='"+ids.sidebar.util.view_switch+"' >Copy-number</label>" +
+                    "</div>"
+                );
             }
         }
     	//switch is not applicable in this case, so remove from UI:

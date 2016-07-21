@@ -404,5 +404,5 @@
     </thead>
 
 </table>
-<div id="drugs_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="drugs_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>
 

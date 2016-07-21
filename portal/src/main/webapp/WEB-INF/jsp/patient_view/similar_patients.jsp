@@ -168,7 +168,7 @@ A genomic overview with events aligned across patients goes here...
     );
 </script>
 
-<div id="similar_patients_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="similar_patients_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>
 
 <table cellpadding="0" cellspacing="0" border="0" id="similar_patients_wrapper_table" width="100%">
     <tr>

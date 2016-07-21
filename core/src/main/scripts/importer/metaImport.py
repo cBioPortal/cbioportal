@@ -52,6 +52,11 @@ def interface():
                                    help='Path to a directory of cBioPortal '
                                         'info files to be used instead of '
                                         'contacting the web API')
+    #  temporary workaround to simplify import process when no web-server is running. TODO: replace by solution for #1466
+    portal_mode_group.add_argument('-n', '--no_portal_checks', default=False,
+                                       action='store_true',
+                                       help='Skip tests requiring information '
+                                            'from the cBioPortal installation')
     parser.add_argument('-jar', '--jar_path', type=str, required=False,
                         help='Path to core JAR file')
     parser.add_argument('-html', '--html_table', type=str,
@@ -74,7 +79,6 @@ if __name__ == '__main__':
     args = interface()
     # supply parameters that the validation script expects to have parsed
     args.error_file = False
-    args.no_portal_checks = False
 
     study_dir = args.study_directory
 

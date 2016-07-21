@@ -40,59 +40,10 @@
 <%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
 <%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
+<script type="text/javascript" src="/js/lib/igv_webstart.js"></script>
 
 <div class="section" id="igv_tab">
+<a id="igvLaunch" href="#" onclick="prepIGVForSegView('<%= cancerTypeId %>')"><img src="images/webstart.jpg" alt="Launch IGV"/></a>
 </div>
+<!--<script type="text/javascript" src="/js/src/igv/igv_segmentCN.js"></script>-->
 
-<script type="text/javascript">
-           //igv graph
-    $("a.result-tab").click(function(){
- /*      $.when($.ajax({
-            method : "POST",
-            url : 'igvlinking.json',
-            data : {
-                cmd : 'get_igv_args',
-                cancer_study_id : _studyId,
-                gene_list : window.QuerySession.getQueryGenes().join(" ")
-            }
-        })).then(
-                function(response) {
-                    igvForSegViewResp = response;
-                    igv_data_fetched = true;
-                    response['segfileUrl'], response['geneList'],
-                            response['referenceId'], response['fileName'])
-                });
-*/
-        var querryGenes =window.QuerySession.getQueryGenes();
-        var targetGene = querryGenes[1];
-          
-        /*         
-        {
-            fileName:"coadread_tcga_pub_data_cna_hg19.seg"
-            geneList:"KRAS+NRAS+BRAF"
-            referenceId:"hg19"
-            segfileUrl:"http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"
-        }
-        */
-        options = {
-                    showNavigation: true,
-                    showRuler: true,
-                    genome: "hg19",
-                    locus: targetGene.toLowerCase(),
-                    tracks: [
-                        {
-                            url: "http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg",
-                            indexed: false,
-                            name: 'Segmented CN'
-                        },
-                        {
-                            name: "Genes",
-                            url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed",
-                            order: Number.MAX_VALUE,
-                            displayMode: "EXPANDED"
-                        }
-                    ]
-                };
-        igv.createBrowser("#igv_tab", options);
-    });
-</script>

@@ -209,27 +209,55 @@ function appRequest(port, dataUrl, genomeID, mergeFlag, locusString, trackName) 
 
 
 function prepIGVForSegView(_studyId) {
-	if (igv_data_fetched) {
-		prepIGVLaunch(igvForSegViewResp['segfileUrl'],
-				igvForSegViewResp['geneList'],
-				igvForSegViewResp['referenceId'], igvForSegViewResp['fileName'])
-	} else {
-		$.when($.ajax({
-			method : "POST",
-			url : 'igvlinking.json',
-			data : {
-				cmd : 'get_igv_args',
-				cancer_study_id : _studyId,
-				gene_list : window.QuerySession.getQueryGenes().join(" ")
-			}
-		})).then(
-				function(response) {
-					igvForSegViewResp = response;
-					igv_data_fetched = true;
-					prepIGVLaunch(response['segfileUrl'], response['geneList'],
-							response['referenceId'], response['fileName'])
-				});
-	}
+    //if (igv_data_fetched) {
+    //    prepIGVLaunch(igvForSegViewResp['segfileUrl'],
+   //             igvForSegViewResp['geneList'],
+    //            igvForSegViewResp['referenceId'], igvForSegViewResp['fileName'])
+   // } else {
+        $.when($.ajax({
+            method : "POST",
+            url : 'igvlinking.json',
+            data : {
+                cmd : 'get_igv_args',
+                cancer_study_id : _studyId,
+                gene_list : window.QuerySession.getQueryGenes().join(" ")
+            }
+        })).then(
+                function(response) {
+                    igvForSegViewResp = response;
+                    igv_data_fetched = true;
+                    console.log("response:");
+                    console.log(response);
+                   var segGene =response['geneList'].split('+');
+                    startIGV (segGene[0], response['segfileUrl']);
+                    //prepIGVLaunch(response['segfileUrl'], response['geneList'],
+                     //       response['referenceId'], response['fileName'])
+                });
+    //}
+}
+
+function  startIGV (targetGene, segUrl) {
+
+options = {
+                    showNavigation: true,
+                    showRuler: true,
+                    genome: "hg19",
+                    locus: targetGene.toLowerCase(),
+                    tracks: [
+                        {
+                            url: segUrl,
+                            indexed: false,
+                            name: 'Segmented CN'
+                        },
+                        {
+                            name: "Genes",
+                            url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed",
+                            order: Number.MAX_VALUE,
+                            displayMode: "EXPANDED"
+                        }
+                    ]
+                };
+    igv.createBrowser("#igv_tab", options);
 }
 function prepIGVLaunch(dataURL, locusString, referenceGenome, trackName) {
 

@@ -37,8 +37,8 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <!-- IGV JS-->
-    <script type="text/javascript" src="https://igv.org/web/release/1.0.1/igv-1.0.1.js"></script>
-<script type="text/javascript" src="/js/lib/igv_webstart.js"></script>
+<script type="text/javascript" src="https://igv.org/web/release/1.0.1/igv-1.0.1.js"></script>
+<!--<script type="text/javascript" src="/js/lib/igv_webstart.js"></script>-->
 
 <%@ page import="java.util.Map" %>
 
@@ -296,6 +296,9 @@
 </form>
 
 <script type="text/javascript">
+   //console.log("changed:" + cancerTypeId);
+   
+
     // it is better to check selected tab after document gets ready
     $(document).ready(function() {
         var firstTime = true;

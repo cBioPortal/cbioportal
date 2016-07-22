@@ -44,4 +44,4 @@
     $("#link-tissue-images").click(loadImages);
 </script>
 
-<div id="tissue-images-div"><img src="images/ajax-loader.gif"/></div>
+<div id="tissue-images-div"><img src="images/ajax-loader.gif" alt="loading" /></div>

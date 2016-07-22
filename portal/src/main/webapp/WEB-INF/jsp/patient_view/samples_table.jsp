@@ -308,7 +308,7 @@
 <a id="load-patient-table" class="table-link activated">Patient</a> / <a id="load-samples-table" class="table-link">Samples</a>
 <table id="samples-table">
 </table>
-<div id="samples_table_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="samples_table_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>
 <table id="patient-table">
 </table>
-<div id="patient_table_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="patient_table_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>

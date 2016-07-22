@@ -572,7 +572,7 @@ function addDrugsTooltip(elem, my, at) {
     $(elem).each(function(){
         $(this).qtip({
             content: {
-                text: '<img src="images/ajax-loader.gif"/>',
+                text: '<img src="images/ajax-loader.gif" alt="loading" />',
                 ajax: {
                     url: 'drugs.json',
                     type: 'POST',

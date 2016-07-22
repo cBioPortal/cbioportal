@@ -5,6 +5,7 @@ import os
 import sys
 import MySQLdb
 import argparse
+from collections import OrderedDict
 
 # Globals
 
@@ -153,7 +154,7 @@ def run_migration(db_version, sql_filename, connection, cursor):
     sql_file = open(sql_filename, 'r')
     sql_version = (0,0,0)
     run_line = False
-    statements = {}
+    statements = OrderedDict()
     statement = ''
     for line in sql_file:
         if line.startswith('##'):

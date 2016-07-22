@@ -135,24 +135,6 @@ class ValidateDataSystemTester(unittest.TestCase):
         self.assertFileGenerated(out_file_name,
                                  'test_data/study_es_0/result_report.html')
 
-    def test_errorline_output(self):
-        '''Test if error file is generated when '--error_file' is given.'''
-        out_file_name = 'test_data/study_maf_test/error_file.txt~'
-        # build up arguments and run
-        argv = ['--study_directory','test_data/study_maf_test/',
-                '--portal_info_dir', PORTAL_INFO_DIR,
-                '--error_file', out_file_name]
-        parsed_args = validateData.interface(argv)
-        exit_status = validateData.main_validate(parsed_args)
-        # flush logging handlers used in validateData
-        validator_logger = logging.getLogger(validateData.__name__)
-        for logging_handler in validator_logger.handlers:
-            logging_handler.flush()
-        # assert that the results are as expected
-        self.assertEquals(1, exit_status)
-        self.assertFileGenerated(out_file_name,
-                                 'test_data/study_maf_test/error_file.txt')
-
     def test_portal_mismatch(self):
         '''Test if validation fails when data contradicts the portal.'''
         # build up arguments and run
@@ -202,27 +184,38 @@ class ValidateDataSystemTester(unittest.TestCase):
         self.assertFileGenerated(out_file_name,
                                  'test_data/study_wr_clin/result_report.html')
 
-    def test_normal_samples_list_in_maf(self):
+    def test_various_issues(self):
+        '''Test if output is generated for a mix of errors and warnings.
+
+        This includes HTML ouput, the error line file and the exit status.
         '''
-        For mutations MAF files there is a column called "Matched_Norm_Sample_Barcode". 
-        In the respective meta file it is possible to give a list of sample codes against which this 
-        column "Matched_Norm_Sample_Barcode" is validated. Here we test if this 
-        validation works well.
-        '''
-        #Build up arguments and run
-        out_file_name = 'test_data/study_maf_test/result_report.html~'
-        print '==test_normal_samples_list_in_maf=='
-        args = ['--study_directory','test_data/study_maf_test/', 
+        # build the argument list
+        html_file_name = 'test_data/study_various_issues/result_report.html~'
+        error_file_name = 'test_data/study_various_issues/error_file.txt~'
+        args = ['--study_directory','test_data/study_various_issues/',
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
-                '--html_table', out_file_name]
+                '--html_table', html_file_name,
+                '--error_file', error_file_name]
         args = validateData.interface(args)
-        # Execute main function with arguments provided through sys.argv
+        # execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
-        # should fail because of errors with invalid Matched_Norm_Sample_Barcode values
+        # flush logging handlers used in validateData
+        validator_logger = logging.getLogger(validateData.__name__)
+        for logging_handler in validator_logger.handlers:
+            logging_handler.flush()
+        # should fail because of various errors in addition to warnings
         self.assertEquals(1, exit_status)
-        self.assertFileGenerated(out_file_name,
-                                 'test_data/study_maf_test/result_report.html')
-        
+        # In MAF files (mutation data) there is a column called
+        # "Matched_Norm_Sample_Barcode". The respective metadata file supports
+        # giving a list of sample codes against which this column is validated.
+        # This and other errors are expected in these output files.
+        self.assertFileGenerated(
+                html_file_name,
+                'test_data/study_various_issues/result_report.html')
+        self.assertFileGenerated(
+                error_file_name,
+                'test_data/study_various_issues/error_file.txt')
+
     def test_files_with_quotes(self):
         '''
         Tests the scenario where data files contain quotes. This should give errors.

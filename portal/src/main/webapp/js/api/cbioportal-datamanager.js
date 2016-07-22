@@ -220,6 +220,28 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	});
 	return def.promise();
     };
+    var getCOSMICCounts = function(webservice_data) {
+	/* In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: Promise which resolves with map from keyword to COSMIC count records
+	 */
+	var def = new $.Deferred();
+	var keywords = webservice_data.filter(function(datum) { return datum.genetic_alteration_type === "MUTATION_EXTENDED" && typeof datum.keyword !== 'undefined' && datum.keyword !== null; })
+					.map(function(mutation_datum_with_keyword) { return mutation_datum_with_keyword.keyword; });
+	var counts = {};
+	$.ajax({
+	    type: 'POST',
+	    url: 'api/cosmic_count',
+	    data: 'keywords='+keywords.join(",")
+	}).then(function(cosmic_count_records) {
+	    for (var i=0; i<cosmic_count_records.length; i++) {
+		var keyword = cosmic_count_records[i].keyword;
+		counts[keyword] = counts[keyword] || [];
+		counts[keyword].push(cosmic_count_records[i]);
+	    }
+	    def.resolve(counts);
+	});
+	return def.promise();
+    };
     var getOncoKBAnnotations = function(webservice_data) {
 	/* In: - webservice_data, a list of data obtained from the webservice API
 	 * Out: Promise which resolves with map from gene.toUpperCase() to amino acid change.toUpperCase() to one of ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
@@ -328,6 +350,35 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	});
 	return def.promise();
     };
+    var annotateCOSMICCount = function(webservice_data) {
+	/* in-place, idempotent
+	 * In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: promise, which resolves with the data which has been in-place modified,
+	 *	    the mutation data given the string attribute 'cosmic_count'
+	 */
+	var def = new $.Deferred();
+	var attribute_name = 'cosmic_count';
+	
+	getCOSMICCounts(webservice_data).then(function(cosmic_counts) {
+	    for (var i=0; i<webservice_data.length; i++) {
+		var datum = webservice_data[i];
+		if (datum.genetic_alteration_type === "MUTATION_EXTENDED" && typeof cosmic_counts[datum.keyword] !== "undefined") {
+		    var count_records = cosmic_counts[datum.keyword];
+		    // Filter by position if 'truncating'
+		    if (datum.keyword.indexOf("truncating") > -1) {
+			var protein_start_position = parseInt(datum.protein_start_position, 10);
+			count_records = count_records.filter(function(count_record) {
+			    return count_record.protein_change && parseInt(count_record.protein_change, 10) === protein_start_position;
+			});
+		    }
+		    datum[attribute_name] = count_records.map(function(count_record) { return parseInt(count_record.count, 10); })
+							.reduce(function(x,y) { return x+y; }, 0);
+		}
+	    }
+	    def.resolve(webservice_data);
+	});
+	return def.promise();
+    };
     
     var annotateHotSpots = function(webservice_data) {
 	/* in-place, idempotent
@@ -357,7 +408,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var gene_to_hotspot_codons = {};
 	    for (var i=0; i<response.length; i++) {
 		var gene = response[i].hugoSymbol.toUpperCase();
-		var codon = parseInt(response[i].codon.substring(1), 10);
+		var codon = parseInt(response[i].residue.substring(1), 10);
 		gene_to_hotspot_codons[gene] = gene_to_hotspot_codons[gene] || {};
 		gene_to_hotspot_codons[gene][codon] = true;
 	    }
@@ -832,7 +883,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					var webservice_genomic_event_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), all_data, default_oql, false);
 					$.when(annotateCBioPortalMutationCount(webservice_genomic_event_data), 
 						annotateOncoKBMutationOncogenic(webservice_genomic_event_data),
-						annotateHotSpots(webservice_genomic_event_data)).then(function () {
+						annotateHotSpots(webservice_genomic_event_data), 
+						annotateCOSMICCount(webservice_genomic_event_data)).then(function () {
 					    fetch_promise.resolve(webservice_genomic_event_data);
 					});
 				    }

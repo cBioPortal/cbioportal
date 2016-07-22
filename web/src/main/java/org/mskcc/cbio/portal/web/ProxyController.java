@@ -85,7 +85,7 @@ public class ProxyController
             URL = oncokbURL + "summary.json";
             break;
 	case "cancerHotSpots":
-		URL = "http://cancerhotspots.org/api/hotspots/";
+		URL = "http://cancerhotspots.org/api/hotspots/single/";
 		break;
       default:
         URL = "";

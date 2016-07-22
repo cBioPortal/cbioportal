@@ -56,13 +56,13 @@ var OncoKB = (function(_, $) {
         'R1': '#FF0000'
     };
     self.levelsInfo = {
-        '1': '<b>FDA-approved</b> biomarker and drug <b>in this indication</b>.',
-        '2A': '<b>Standard-of-care</b> biomarker and drug <b>in this indication</b> but not FDA-approved.',
-        '2B': '<b>FDA-approved</b> biomarker and drug <b>in another indication</b> but not FDA or Standard-of-care for this indication.',
-        '3A': '<b>Clinical evidence</b> links biomarker to drug response <b>in this indication</b> but neither biomarker or drug are FDA-approved or Standard-of-care.',
-        '3B': '<b>Clinical evidence</b> links biomarker to drug response <b>in another indication</b> but neither biomarker or drug are FDA-approved or Standard-of-care.',
-        '4': '<b>Preclinical evidence</b> associates this biomarker to drug response but neither biomarker or drug are FDA-approved or Standard-of-care.',
-        'R1': 'NCCN-compendium listed biomarker for resistance to a FDA-approved drug.'
+        '1': '<span><b>FDA-recognized</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in this indication</b></span>',
+        '2A': '<span><b>Standard of care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in this indication</b></span>',
+        '2B': '<span><b>Standard of care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in another indication</b> but not standard of care for this indication</span>',
+        '3A': '<span><b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in this indication</b> but neither biomarker and drug are standard of care</span>',
+        '3B': '<span><b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in another indication</b> but neither biomarker and drug are standard of care</span>',
+        '4': '<span><b>Compelling biological evidence</b> supports the biomarker as being predictive of response to a drug but neither biomarker and drug are standard of care</span>',
+        'R1': '<span><b>Standard of care</b> biomarker predictive of <b>resistance</b> to an <b>FDA-approved</b> drug <b>in this indication</b></span>',
     };
     self.instanceManagers = {};
 
@@ -1259,12 +1259,13 @@ var OncoKB = (function(_, $) {
         function evidenceLevels() {
             var levels = {
 //            '0': 'FDA-approved drug in this indication irrespective of gene/variant biomarker.',
-                '1': 'FDA-approved biomarker and drug association in this indication.',
-                '2A': 'FDA-approved biomarker and drug association in another indication, and NCCN-compendium listed for this indication.',
-                '2B': 'FDA-approved biomarker in another indication, but not FDA or NCCN-compendium-listed for this indication.',
-                '3': 'Clinical evidence links this biomarker to drug response but no FDA-approved or NCCN compendium-listed biomarker and drug association.',
-                '4': 'Preclinical evidence potentially links this biomarker to response but no FDA-approved or NCCN compendium-listed biomarker and drug association.',
-                'R1': 'NCCN-compendium listed biomarker for resistance to a FDA-approved drug.',
+                '1': 'FDA-recognized biomarker predictive of response to an FDA-approved drug in this indication',
+                '2A': 'Standard of care biomarker predictive of response to an FDA-approved drug in this indication',
+                '2B': 'Standard of care biomarker predictive of response to an FDA-approved drug in another indication but not standard of care for this indication',
+                '3A': 'Compelling clinical evidence supports the biomarker as being predictive of response to a drug in this indication but neither biomarker and drug are standard of care',
+                '3B': 'Compelling clinical evidence supports the biomarker as being predictive of response to a drug in another indication but neither biomarker and drug are standard of care',
+                '4': 'Compelling biological evidence supports the biomarker as being predictive of response to a drug but neither biomarker and drug are standard of care',
+                'R1': 'Standard of care biomarker predictive of resistance to an FDA-approved drug in this indication',
                 'R2': 'Not NCCN compendium-listed biomarker, but clinical evidence linking this biomarker to drug resistance.',
                 'R3': 'Not NCCN compendium-listed biomarker, but preclinical evidence potentially linking this biomarker to drug resistance.'
             };

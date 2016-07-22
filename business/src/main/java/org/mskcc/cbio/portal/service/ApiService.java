@@ -342,7 +342,7 @@ public class ApiService {
         return sampleMapper.getSampleInternalIdsByStudy(study_id);
     }
     
-	@Transactional
+    @Transactional
 	public List<Serializable> getGeneticProfileData(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols,
 													List<String> sampleStableIds, String sampleListStableId) {
 

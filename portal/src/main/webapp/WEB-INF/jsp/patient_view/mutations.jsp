@@ -1123,7 +1123,7 @@
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
         var params = {
-            <%=PatientView.SAMPLE_ID%>:caseIdsStr,
+            <%=PatientView.SAMPLE_ID%>:caseIds,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
 
@@ -1138,6 +1138,10 @@
         if (drugType) {
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;
         }
+
+        $.ajaxSetup({
+            traditional:true
+        });
 
         $.get("api/mutationmatrix",
                 params,
@@ -1256,6 +1260,10 @@
                 }
                 ,"json"
         );
+
+        $.ajaxSetup({
+            traditional:false
+        });
     });
 
     var patient_view_mutsig_qvalue_threhold = 0.05;

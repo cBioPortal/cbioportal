@@ -20,7 +20,7 @@ public class MutationCountCalculator {
     @Autowired
     private MutationModelConverter mutationModelConverter;
 
-    public Map<String, Integer> calculate(String mutationGeneticProfileStableId, String sampleStableIds) {
+    public Map<String, Integer> calculate(String mutationGeneticProfileStableId, List<String> sampleStableIds) {
 
         List<Integer> sampleIds = null;
 
@@ -28,11 +28,12 @@ public class MutationCountCalculator {
         Map<String, Integer> count = Collections.emptyMap();
 
         mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationGeneticProfileStableId);
-        if (sampleStableIds!=null) {
-            List<String> stableSampleIds = Arrays.asList(sampleStableIds.split("[ ,]+"));
-            sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(mutationProfile.getCancerStudyId(), stableSampleIds);
+        if (sampleStableIds != null) {
+            sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(mutationProfile.getCancerStudyId(),
+                    sampleStableIds);
         }
-        if (mutationProfile!=null) {
+
+        if (mutationProfile != null) {
             count = convertMapSampleKeys(mutationModelConverter.convertMutationCountToMap(
                     mutationRepository.countMutationEvents(mutationProfile.getGeneticProfileId(), sampleIds)));
         }
@@ -40,8 +41,8 @@ public class MutationCountCalculator {
         return count;
     }
 
-    private Map<String, Integer> convertMapSampleKeys(Map<Integer, Integer> mutationEventCounts)
-    {
+    private Map<String, Integer> convertMapSampleKeys(Map<Integer, Integer> mutationEventCounts) {
+
         Map<String, Integer> toReturn = new HashMap<>();
         for (Integer sampleId : mutationEventCounts.keySet()) {
             Sample s = DaoSample.getSampleById(sampleId);

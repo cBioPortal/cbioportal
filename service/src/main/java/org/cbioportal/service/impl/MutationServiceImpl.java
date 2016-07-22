@@ -43,7 +43,7 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    public Map<String, Integer> getMutationCount(String mutationGeneticProfileStableId, String sampleStableIds) {
+    public Map<String, Integer> getMutationCount(String mutationGeneticProfileStableId, List<String> sampleStableIds) {
 
         return mutationCountCalculator.calculate(mutationGeneticProfileStableId, sampleStableIds);
     }

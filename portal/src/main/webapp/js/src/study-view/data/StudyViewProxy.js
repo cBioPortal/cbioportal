@@ -97,7 +97,6 @@ var StudyViewProxy = (function() {
                 case_list: sampleIdStr
             },
             mutationsData: {
-                cases_ids: sampleIdStr,
                 mutation_profile: parObject.mutationProfileId
             },
             cnaFraction: {

@@ -369,15 +369,15 @@ public class ApiController {
     @Transactional
     @RequestMapping(value = "/mutationmatrix", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody Map<String,List> getMutationMatrix(
-            @RequestParam(PatientView.SAMPLE_ID) String sampleStableIds,
+            @RequestParam(PatientView.SAMPLE_ID) List<String> sampleStableIds,
             @RequestParam(PatientView.MUTATION_PROFILE) String mutationGeneticProfileStableId,
             @RequestParam(value = PatientView.MRNA_PROFILE, required = false) String mrnaGeneticProfileStableId,
             @RequestParam(value = PatientView.CNA_PROFILE, required = false) String cnaGeneticProfileStableId,
             @RequestParam(value = PatientView.DRUG_TYPE, required = false) String drugType)
             throws IOException, DaoException {
 
-        return mutationService.getMutationMatrix(Arrays.asList(sampleStableIds.split(" +")),
-                mutationGeneticProfileStableId, mrnaGeneticProfileStableId, cnaGeneticProfileStableId, drugType);
+        return mutationService.getMutationMatrix(sampleStableIds, mutationGeneticProfileStableId,
+                mrnaGeneticProfileStableId, cnaGeneticProfileStableId, drugType);
     }
 
     @ApiOperation(value = "Get mutation count",
@@ -387,7 +387,7 @@ public class ApiController {
     @RequestMapping(value = "/mutationcount", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody Map<String, Integer> getMutationCount(
             @RequestParam(value = PatientView.MUTATION_PROFILE, required = false) String mutationGeneticProfileStableId,
-            @RequestParam(value = QueryBuilder.CASE_IDS, required = false) String sampleStableIds) {
+            @RequestParam(value = QueryBuilder.CASE_IDS, required = false) List<String> sampleStableIds) {
 
         return mutationService.getMutationCount(mutationGeneticProfileStableId, sampleStableIds);
     }

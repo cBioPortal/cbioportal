@@ -26,7 +26,7 @@ public class SmgCalculator {
     @Autowired
     private MutSigUtil mutSigUtil;
 
-    public List<Map<String,Object>> calculate(String mutationGeneticProfileStableId, String sampleStableIds)
+    public List<Map<String, Object>> calculate(String mutationGeneticProfileStableId, String sampleStableIds)
             throws DaoException {
 
         GeneticProfile mutationProfile;
@@ -35,9 +35,9 @@ public class SmgCalculator {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
         mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationGeneticProfileStableId);
-        if (mutationProfile!=null) {
+        if (mutationProfile != null) {
             int profileId = mutationProfile.getGeneticProfileId();
-            List<Integer> selectedCaseList = new ArrayList<Integer>();
+            List<Integer> selectedCaseList = new ArrayList<>();
 
             if (sampleStableIds != null) {
                 Pattern p = Pattern.compile("[,\\s]+");
@@ -46,28 +46,25 @@ public class SmgCalculator {
                 selectedCaseList = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds));
             }
 
-            // get all recurrently mutation genes
             smgs = mutationModelConverter.convertSignificantlyMutatedGeneToMap(
                     mutationRepository.getSignificantlyMutatedGenes(profileId, null, selectedCaseList, 2, DEFAULT_THERSHOLD_NUM_SMGS));
 
-            // get all cbio cancer genes
             Set<Long> cbioCancerGeneIds = daoGeneOptimized.getEntrezGeneIds(
                     daoGeneOptimized.getCbioCancerGenes());
             cbioCancerGeneIds.removeAll(smgs.keySet());
             appendGenes(smgs, profileId, selectedCaseList, cbioCancerGeneIds);
 
-            // added mutsig results
             mutsig = mutSigUtil.getMutSig(mutationProfile.getCancerStudyId());
             if (!mutsig.isEmpty()) {
-                Set<Long> mutsigGenes = new HashSet<Long>(mutsig.keySet());
+                Set<Long> mutsigGenes = new HashSet<>(mutsig.keySet());
                 mutsigGenes.removeAll(smgs.keySet());
                 appendGenes(smgs, profileId, selectedCaseList, mutsigGenes);
             }
         }
 
-        List<Map<String,Object>> data = new ArrayList<Map<String,Object>>();
+        List<Map<String, Object>> data = new ArrayList<>();
         for (Map.Entry<Long, Map<String, String>> entry : smgs.entrySet()) {
-            Map<String,Object> map = new HashMap<String,Object>();
+            Map<String, Object> map = new HashMap<>();
 
             Long entrez = entry.getKey();
             CanonicalGene gene = daoGeneOptimized.getGene(entrez);
@@ -79,7 +76,7 @@ public class SmgCalculator {
             map.put("cytoband", cytoband);
 
             int length = gene.getLength();
-            if (length>0) {
+            if (length > 0) {
                 map.put("length", length);
             }
 
@@ -87,14 +84,14 @@ public class SmgCalculator {
             map.put("num_muts", count);
 
             Double qvalue = mutsig.get(entrez);
-            if (qvalue!=null) {
+            if (qvalue != null) {
                 map.put("qval", qvalue);
             }
 
             Pattern p = Pattern.compile("[,\\s]+");
             String sampleIds[] = p.split(entry.getValue().get("caseIds"));
             List<Integer> sampleInternalIds = new ArrayList<>();
-            for(String s : sampleIds) {
+            for (String s : sampleIds) {
                 sampleInternalIds.add(Integer.valueOf(s));
             }
 

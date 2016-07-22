@@ -19,7 +19,7 @@ public interface MutationService {
                                        String mrnaGeneticProfileStableId, String cnaGeneticProfileStableId,
                                        String drugType) throws IOException, DaoException;
 
-    Map<String, Integer> getMutationCount(String mutationGeneticProfileStableId, String sampleStableIds);
+    Map<String, Integer> getMutationCount(String mutationGeneticProfileStableId, List<String> sampleStableIds);
 
     List<Map<String,Object>> getSmg(String mutationGeneticProfileStableId, String sampleStableIds) throws DaoException;
 }

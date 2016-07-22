@@ -12,20 +12,12 @@ import java.util.Map;
 public class MutSigUtil {
 
     public Map<Long,Double> getMutSig(int cancerStudyId) throws DaoException {
-        Map<Long,Double> mapGeneQvalue;
-        Map<Integer,Map<Long,Double>> mutSigMap = new HashMap<>();
 
-        mapGeneQvalue = mutSigMap.get(cancerStudyId);
-        if (mapGeneQvalue == null) {
-            mapGeneQvalue = new HashMap<>();
-            mutSigMap.put(cancerStudyId, mapGeneQvalue);
-            for (MutSig ms : DaoMutSig.getAllMutSig(cancerStudyId)) {
-                double qvalue = ms.getqValue();
-                mapGeneQvalue.put(ms.getCanonicalGene().getEntrezGeneId(),
-                        qvalue);
-            }
+        Map<Long, Double> mapGeneQvalue = new HashMap<>();
+
+        for (MutSig ms : DaoMutSig.getAllMutSig(cancerStudyId)) {
+            mapGeneQvalue.put(ms.getCanonicalGene().getEntrezGeneId(), (double) ms.getqValue());
         }
-
         return mapGeneQvalue;
     }
 }

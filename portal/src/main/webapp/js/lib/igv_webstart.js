@@ -47,6 +47,7 @@ var name;   // the name parameter
 var merge;
 var igv_data_fetched = false;
 var igvForSegViewResp = {};
+var segGene = [];
 
 /*
  * Function to determine webstart version - taken from sun site
@@ -209,6 +210,8 @@ function appRequest(port, dataUrl, genomeID, mergeFlag, locusString, trackName) 
 
 
 function prepIGVForSegView(_studyId) {
+    console.log("studyId:" + _studyId);
+    
     //if (igv_data_fetched) {
     //    prepIGVLaunch(igvForSegViewResp['segfileUrl'],
    //             igvForSegViewResp['geneList'],
@@ -225,24 +228,47 @@ function prepIGVForSegView(_studyId) {
         })).then(
                 function(response) {
                     igvForSegViewResp = response;
-                    igv_data_fetched = true;
-                    console.log("response:");
-                    console.log(response);
-                   var segGene =response['geneList'].split('+');
-                    startIGV (segGene[0], response['segfileUrl']);
+                    //igv_data_fetched = true;
+                    //console.log("response:");
+                    //console.log(response);
+                    segGene =response['geneList'].split('+');
+                   addIGVButtons(segGene);
+                    console.log(segGene[0]);
+                    console.log(response['segfileUrl']);
+                    startIGV (segGene[0].toLowerCase(), response['segfileUrl']);
                     //prepIGVLaunch(response['segfileUrl'], response['geneList'],
                      //       response['referenceId'], response['fileName'])
                 });
     //}
 }
 
-function  startIGV (targetGene, segUrl) {
+//genes is an array
+var addIGVButtons = function (genes){
+    var buttonNumber = genes.length;
+    $("#igv_logo").hide();
+    $("#igvExplain").hide();
+    for (i=0; i<buttonNumber; i++){
+        $('#switchGenes').append(
+            '<div class="btn btn-secondary" onclick="switchGenes()">' +genes[i]+'</div>');
+    }
+}
 
-options = {
+var switchGenes = function(){
+    alert($(this));
+    $(this).on("click", function(){
+        gene = $(this).text().toLowerCase();
+        startIGV(gene, igvForSegViewResp['segfileUrl']);
+    });
+    
+}
+
+var startIGV = function(targetGene, segUrl) {
+
+    options = {
                     showNavigation: true,
                     showRuler: true,
                     genome: "hg19",
-                    locus: targetGene.toLowerCase(),
+                    locus: targetGene,
                     tracks: [
                         {
                             url: segUrl,

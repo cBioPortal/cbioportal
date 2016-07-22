@@ -40,10 +40,20 @@
 <%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
 <%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <script type="text/javascript" src="/js/lib/igv_webstart.js"></script>
 
-<div class="section" id="igv_tab">
-<a id="igvLaunch" href="#" onclick="prepIGVForSegView('<%= cancerTypeId %>')"><img src="images/webstart.jpg" alt="Launch IGV"/></a>
+<div class="section" id="igv_tab" >text
+     
+    <div class='btn-group' role='group' aria-label='switch genes' id='switchGenes' value='<%= cancerTypeId %>'>    
+    </div>   
 </div>
 <!--<script type="text/javascript" src="/js/src/igv/igv_segmentCN.js"></script>-->
 

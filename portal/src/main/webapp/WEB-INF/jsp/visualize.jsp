@@ -199,7 +199,7 @@
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
             if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
-                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
+                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab' onclick='prepIGVForSegView("+'"'+ cancerTypeId+'"'+")' >IGV</a></li>");
             }
             if (showDownloadTab) {
                 out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
@@ -356,7 +356,6 @@
                 }
             }
             
- 
         });
 
 

@@ -50,7 +50,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <script type="text/javascript" src="/js/lib/igv_webstart.js"></script>
 
-<div class="section" id="igv_tab" >text
+<div class="section" id="igv_tab" >
      
     <div class='btn-group' role='group' aria-label='switch genes' id='switchGenes' value='<%= cancerTypeId %>'>    
     </div>   

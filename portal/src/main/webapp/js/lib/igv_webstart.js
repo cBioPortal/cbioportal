@@ -249,16 +249,16 @@ var addIGVButtons = function (genes){
     $("#igvExplain").hide();
     for (i=0; i<buttonNumber; i++){
         $('#switchGenes').append(
-            '<div class="btn btn-secondary" onclick="switchGenes()">' +genes[i]+'</div>');
+            '<div class="btn btn-secondary" onclick="switchGenes('+"'"+genes[i].toLowerCase()+"'"+')">' +genes[i]+'</div>');
     }
 }
 
-var switchGenes = function(){
-    alert($(this));
-    $(this).on("click", function(){
-        gene = $(this).text().toLowerCase();
-        startIGV(gene, igvForSegViewResp['segfileUrl']);
-    });
+var switchGenes = function(buttonVal){
+    //alert($(this));
+    //$(this).on("click", function(){
+    //    gene = $(this).text().toLowerCase();
+        startIGV(buttonVal, igvForSegViewResp['segfileUrl']);
+    //});
     
 }
 

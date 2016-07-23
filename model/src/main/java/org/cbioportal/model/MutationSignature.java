@@ -13,6 +13,25 @@ public class MutationSignature implements Serializable {
 	private static final List<String> NUCLEOTIDES = Arrays.asList(new String[]{"A", "C", "T", "G"});
 	private static final String[] CANONICAL_SNP_TYPES = new String[]{"CA", "CG", "CT", "TA", "TC", "TG"};
 	
+	private static final String[] NO_CONTEXT_MUTATION_TYPES;
+	private static final String[] ONE_BP_CONTEXT_MUTATION_TYPES;
+	
+	static {
+		NO_CONTEXT_MUTATION_TYPES = new String[CANONICAL_SNP_TYPES.length];
+		System.arraycopy(CANONICAL_SNP_TYPES, 0, NO_CONTEXT_MUTATION_TYPES, 0, CANONICAL_SNP_TYPES.length);
+
+		ONE_BP_CONTEXT_MUTATION_TYPES = new String[NUCLEOTIDES.size() * CANONICAL_SNP_TYPES.length * NUCLEOTIDES.size()];
+		int i = 0;
+		for (String snp : CANONICAL_SNP_TYPES) {
+			for (String before : NUCLEOTIDES) {
+				for (String after : NUCLEOTIDES) {
+					ONE_BP_CONTEXT_MUTATION_TYPES[i] = before + snp + after;
+					i++;
+				}
+			}
+		}
+	}
+	
 	private final MutationSignatureType signatureType;
 	private final Integer[] counts;
 	private final String[] mutationTypes;
@@ -22,20 +41,10 @@ public class MutationSignature implements Serializable {
 		switch(type) {
 			default:
 			case NO_CONTEXT:
-				mutationTypes = new String[CANONICAL_SNP_TYPES.length];
-				System.arraycopy(CANONICAL_SNP_TYPES, 0, mutationTypes, 0, CANONICAL_SNP_TYPES.length);
+				mutationTypes = NO_CONTEXT_MUTATION_TYPES;
 				break;
 			case ONE_BP_CONTEXT:
-				mutationTypes = new String[NUCLEOTIDES.size() * CANONICAL_SNP_TYPES.length * NUCLEOTIDES.size()];
-				int i = 0;
-				for (String snp: CANONICAL_SNP_TYPES) {
-					for (String before: NUCLEOTIDES) {
-						for (String after: NUCLEOTIDES) {
-							mutationTypes[i] = before + snp + after;
-							i++;
-						}
-					}
-				}
+				mutationTypes = ONE_BP_CONTEXT_MUTATION_TYPES;
 				break;
 				
 		}

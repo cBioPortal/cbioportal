@@ -1366,14 +1366,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    window.open("http://www.oncokb.org");
 		});
 		addQTipTo($('#oncoprint_diagram_mutation_color').find('#colorby_hotspot_info'), {
-		    content: {text: "cancerhotspots.org description"},
+		    content: {text: "HotSpots from cancerhotspots.org"},
 		    position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
 		    style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
 		    show: {event: "mouseover"},
 		    hide: {fixed: true, delay: 100, event: "mouseout"}
 		});
 		addQTipTo($('#oncoprint_diagram_mutation_color').find('#colorby_oncokb_info'), {
-		    content: {text:"oncokb description"},
+		    content: {text:"Oncogenicity from OncoKB"},
 		    position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
 		    style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
 		    show: {event: "mouseover"},

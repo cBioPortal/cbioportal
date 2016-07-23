@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationSignature;
+import org.cbioportal.model.MutationSignatureFactory;
 import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.service.MutationService;
@@ -85,7 +87,109 @@ public class ApiService {
 	public List<DBCancerType> getCancerTypes(List<String> cancer_type_ids) {
 		return cancerTypeMapper.getCancerTypes(cancer_type_ids);
 	}
+	
+	@Transactional
+	public List<MutationSignature> getAllSampleMutationSignatures(String genetic_profile_id, int context_size_on_each_side_of_snp) {
+		// Get sample ids from patient ids
+		List<String> sample_ids = new LinkedList<>();
+		List<String> genetic_profile_ids = new LinkedList<>();
+		genetic_profile_ids.add(genetic_profile_id);
+		List<DBGeneticProfile> profiles = getGeneticProfiles(genetic_profile_ids);
+		List<String> study_ids = new LinkedList<>();
+		study_ids.add(profiles.get(0).study_id);
+		List<DBStudy> studies = getStudies(study_ids);
+		String study_id = studies.get(0).id;
+		List<DBSample> samples = getSamples(study_id);
+		for (DBSample sample: samples) {
+			sample_ids.add(sample.id);
+		}
+		
+		return getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size_on_each_side_of_snp);
+	}
 
+	@Transactional
+	public List<MutationSignature> getSampleMutationSignatures(String genetic_profile_id, List<String> sample_ids, int context_size_on_each_side_of_snp) {
+		List<String> genetic_profile_ids = new LinkedList<>();
+		genetic_profile_ids.add(genetic_profile_id);
+		List<Mutation> mutations = mutationService.getMutationsDetailed(genetic_profile_ids, new LinkedList<String>(), sample_ids, null);
+		HashMap<String, List<Mutation>> mutationsBySample = new HashMap<>();
+		for (Mutation mutation:  mutations) {
+			String id = mutation.getSampleId();
+			if (!mutationsBySample.containsKey(id)) {
+				mutationsBySample.put(id, new LinkedList<Mutation>());
+			}
+			mutationsBySample.get(id).add(mutation);
+		}
+		List<MutationSignature> signatures = new LinkedList<>();
+		MutationSignatureFactory.MutationSignatureType signatureType;
+		switch (context_size_on_each_side_of_snp) {
+			case 0:
+				signatureType = MutationSignatureFactory.MutationSignatureType.NO_CONTEXT;
+				break;
+			case 1:
+				signatureType = MutationSignatureFactory.MutationSignatureType.ONE_BP_CONTEXT;
+				break;
+			default:
+				signatureType = MutationSignatureFactory.MutationSignatureType.NO_CONTEXT;
+				break;
+		}
+		for (Map.Entry kv: mutationsBySample.entrySet()) {
+			signatures.add(MutationSignatureFactory.MutationSignature((String)kv.getKey(), signatureType, (List<Mutation>)kv.getValue()));
+		}
+		return signatures;
+	}
+	
+	public List<MutationSignature> getPatientMutationSignatures(String genetic_profile_id, List<String> patient_ids, int context_size_on_each_side_of_snp) {
+		// Get sample ids from patient ids
+		List<String> sample_ids = new LinkedList<>();
+		List<String> genetic_profile_ids = new LinkedList<>();
+		genetic_profile_ids.add(genetic_profile_id);
+		List<DBGeneticProfile> profiles = getGeneticProfiles(genetic_profile_ids);
+		List<String> study_ids = new LinkedList<>();
+		study_ids.add(profiles.get(0).study_id);
+		List<DBStudy> studies = getStudies(study_ids);
+		String study_id = studies.get(0).id;
+		List<DBSample> samples = getSamplesByPatient(study_id, patient_ids);
+		
+		// Map sample to patient
+		HashMap<String, String> sampleToPatient = new HashMap<>();
+		for (DBSample sample: samples) {
+			sampleToPatient.put(sample.id, sample.patient_id);
+		}
+		List<MutationSignature> sampleMutationSignatures = getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size_on_each_side_of_snp);
+		// Combine the sample mutation signatures
+		HashMap<String, Integer[]> patientMutationCounts = new HashMap<>();
+		
+		MutationSignatureFactory.MutationSignatureType signatureType;
+		switch (context_size_on_each_side_of_snp) {
+			case 0:
+				signatureType = MutationSignatureFactory.MutationSignatureType.NO_CONTEXT;
+				break;
+			case 1:
+				signatureType = MutationSignatureFactory.MutationSignatureType.ONE_BP_CONTEXT;
+				break;
+			default:
+				signatureType = MutationSignatureFactory.MutationSignatureType.NO_CONTEXT;
+				break;
+		}
+		for (MutationSignature sampleSignature: sampleMutationSignatures) {
+			String patient = sampleToPatient.get(sampleSignature.getId());
+			if (!patientMutationCounts.containsKey(patient)) {
+				patientMutationCounts.put(patient, new Integer[sampleSignature.getCounts().length]);
+			}
+			Integer[] existingCounts = patientMutationCounts.get(patient);
+			Integer[] toAddCounts = sampleSignature.getCounts();
+			for (int i=0; i<toAddCounts.length; i++) {
+				existingCounts[i] += toAddCounts[i];
+			}
+		}
+		List<MutationSignature> patientMutationSignatures = new LinkedList<>();
+		for (Map.Entry kv: patientMutationCounts.entrySet()) {
+			patientMutationSignatures.add(MutationSignatureFactory.MutationSignature((String)kv.getKey(), signatureType, (Integer[])kv.getValue()));
+		}
+		return patientMutationSignatures;
+	}
+	
         @Transactional
 	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> studyIds, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
 

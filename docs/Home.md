@@ -8,7 +8,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ## Steps to Build cBioPortal from Source
 
-* Step 1:  [System Requirements](System%20Requirements.md)
+* Step 1:  [System Requirements](System-Requirements.md)
 * Step 2:  [Pre-Build Steps](Pre-Build-Steps.md)
 * Step 3:  [Build From Source](Build-from-Source.md)
 * Step 4:  [Import the Seed Database](Import-the-Seed-Database.md)
@@ -19,8 +19,8 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 * [Customizing your instance of cBioPortal](Customizing-your-instance-of-cBioPortal.md)
 * [portal.properties Reference](portal.properties-Reference.md)
-* [File Formats](File%20Formats.md)
-* [Importer Tool](Importer%20Tool.md)
+* [File Formats](File-Formats.md)
+* [Importer Tool](Importer-Tool.md)
 * [User Authorization](User-Authorization.md)
 * [Authenticating Users via SAML](Authenticating-Users-via-SAML.md)
 * [cBioPortal ER Diagram](cBioPortal-ER-Diagram.md)

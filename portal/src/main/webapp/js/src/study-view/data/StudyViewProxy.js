@@ -399,10 +399,10 @@ var StudyViewProxy = (function() {
                         currentItem.HAS_CNA_DATA = 'No';
                         hasCNAValues.push('No');
                     }
-                    currentItem.SAMPLE_COUNT_PATIENT = patientToSampleMapping[currentItem.PATIENT_ID].length;
+                    currentItem.SAMPLE_COUNT_PATIENT = patientToSampleMapping[currentItem.PATIENT_ID].length.toString();
                     if(patientToSampleMapping[currentItem.PATIENT_ID].length > maxCount){
                         maxCount = patientToSampleMapping[currentItem.PATIENT_ID].length;
-                        uniqueCounts.push(maxCount);
+                        uniqueCounts.push(maxCount.toString());
                     }
                 }
                 sequenced_caseAttr.keys = _.uniq(sequencedValues);

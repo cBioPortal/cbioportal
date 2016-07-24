@@ -100,6 +100,17 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
     public static final String SKIN_AUTHORIZATION_MESSAGE = "skin.authorization_message";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only available to authorized users.";
+    public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
+    public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =
+            "tcga\n" +
+            "tcga -provisional\n" +
+            "tcga -moratorium\n" +
+            "tcga OR icgc\n" +
+            "-\"cell line\"\n" +
+            "prostate mskcc\n" +
+            "esophageal OR stomach\n" +
+            "serous\n" +
+            "breast";
     public static final String SKIN_DATASETS_HEADER = "skin.data_sets_header";
     public static final String DEFAULT_SKIN_DATASETS_HEADER = "The portal currently contains data from the following " +
             "cancer genomics studies.  The table below lists the number of available samples per data type and tumor.";
@@ -562,6 +573,12 @@ public class GlobalProperties {
     {
         String authMessage = properties.getProperty(SKIN_AUTHORIZATION_MESSAGE);
         return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
+    }
+
+    public static String getExampleStudyQueries() {
+        return properties.getProperty(
+                SKIN_EXAMPLE_STUDY_QUERIES,
+                DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES);
     }
 
     // added usage of default data sets header

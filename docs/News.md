@@ -1,3 +1,33 @@
+# July 24, 2016
+*   **Added data** of 4,375 samples from 21 published studies:
+    *   [Adenoid Cystic Carcinoma (MDA, Clin Cancer Res 2015)](http://www.cbioportal.org/beta/study?id=acyc_mda_2015) *102 samples*
+    *   [Adenoid Cystic Carcinoma (FMI, Am J Surg Pathl. 2014)](http://www.cbioportal.org/beta/study?id=acyc_fmi_2014) *28 samples*
+    *   [Adenoid Cystic Carcinoma (Sanger/MDA, JCI 2013)](http://www.cbioportal.org/beta/study?id=acyc_sanger_2013) *24 samples*
+    *   [Adenoid Cystic Carcinoma of the Breast (MSKCC, J Pathol. 2015)](http://www.cbioportal.org/beta/study?id=acbc_mskcc_2015) *12 samples*
+    *   [Bladder Cancer, Plasmacytoid Variant (MSKCC, Nat Genet 2016)](http://www.cbioportal.org/beta/study?id=blca_plasmacytoid_mskcc_2016) *34 samples*
+    *   [Breast Cancer (METABRIC, Nat Commun 2016)](http://www.cbioportal.org/beta/study?id=brca_metabric) *1980 samples*
+    *   [Chronic Lymphocytic Leukemia (Broad, Cell 2013)](http://www.cbioportal.org/beta/study?id=lcll_broad_2013) *160 samples*
+    *   [Chronic Lymphocytic Leukemia (IUOPA, Nature 2015)](http://www.cbioportal.org/beta/study?id=cll_iuopa_2015) *506 samples*
+    *   [Colorectal Adenocarcinoma (DFCI, Cell Reports 2016)](http://www.cbioportal.org/beta/study?id=coadread_dfci_2016) *619 samples*
+    *   [Cutaneous T Cell Lymphoma (Columbia U, Nat Genet 2015)](http://www.cbioportal.org/beta/study?id=ctcl_columbia_2015) *42 samples*
+    *   [Diffuse Large B-Cell Lymphoma (Broad, PNAS 2012)](http://www.cbioportal.org/beta/study?id=dlbc_broad_2012) *58 samples*
+    *   [Hepatocellular Adenoma (Inserm, Cancer Cell 2014)](http://www.cbioportal.org/beta/study?id=liad_inserm_fr_2014) *46 samples*
+    *   [Hypodiploid Acute Lymphoid Leukemia (St Jude, Nat Genet 2013)](http://www.cbioportal.org/beta/study?id=all_stjude_2013) *44 samples*
+    *   [Insulinoma (Shanghai, Nat Commun 2013)](http://www.cbioportal.org/beta/study?id=panet_shanghai_2013) *10 samples*
+    *   [Malignant Pleural Mesothelioma (NYU, Cancer Res 2015)](http://www.cbioportal.org/beta/study?id=plmeso_nyu_2015) *22 samples*
+    *   [Mantle Cell Lymphoma (IDIBIPS, PNAS 2013)](http://www.cbioportal.org/beta/study?id=mcl_idibips_2013) *29 samples*
+    *   [Myelodysplasia (Tokyo, Nature 2011)](http://www.cbioportal.org/beta/study?id=mds_tokyo_2011) *29 samples*
+    *   [Neuroblastoma (Broad, Nat Genet 2013)](http://www.cbioportal.org/beta/study?id=nbl_ucologne_2015) *56 samples*
+    *   [Oral Squamous Cell Carcinoma (MD Anderson, Cancer Discov 2013)](http://www.cbioportal.org/beta/study?id=hnsc_mdanderson_2013) *40 samples*
+    *   [Pancreatic Adenocarcinoma (QCMG, Nature 2016)](http://www.cbioportal.org/beta/study?id=paad_qcmg_uq_2016) *383 samples*
+    *   [Recurrent and Metastatic Head & Neck Cancer (JAMA Oncology, 2016)](http://www.cbioportal.org/beta/study?id=hnc_mskcc_2016) *151 samples*
+*   **New TCGA study**:
+    *   [Pan-Lung Cancer (TCGA, Nat Genet 2016)](http://www.cbioportal.org/beta/study?id=nsclc_tcga_broad_2016) *1144 samples*
+* Updated **TCGA provisional studies**
+    *   updated to the Firehose run of January 28, 2016
+    *   RPPA data updated with the latest data from MD Anderson
+    *   [OncoTree](http://oncotree.mskcc.org/) codes assigned per sample
+
 # June 6, 2016
 *   **New features**:
     * Annotation of mutation effect and drug sensitivity on the Mutations tab and the patient view pages (via [OncoKB](http://oncokb.org))  

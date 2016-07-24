@@ -1,4 +1,4 @@
-# July 22, 2016
+# July 24, 2016
 *   **Added data** of 4,375 samples from 21 published studies:
     *   [Adenoid Cystic Carcinoma (MDA, Clin Cancer Res 2015)](http://www.cbioportal.org/beta/study?id=acyc_mda_2015) *102 samples*
     *   [Adenoid Cystic Carcinoma (FMI, Am J Surg Pathl. 2014)](http://www.cbioportal.org/beta/study?id=acyc_fmi_2014) *28 samples*
@@ -23,7 +23,10 @@
     *   [Recurrent and Metastatic Head & Neck Cancer (JAMA Oncology, 2016)](http://www.cbioportal.org/beta/study?id=hnc_mskcc_2016) *151 samples*
 *   **New TCGA study**:
     *   [Pan-Lung Cancer (TCGA, Nat Genet 2016)](http://www.cbioportal.org/beta/study?id=nsclc_tcga_broad_2016) *1144 samples*
-* All **TCGA provisional data** updated to the Firehose run of January 28, 2016.
+* Updated **TCGA provisional studies**
+    *   updated to the Firehose run of January 28, 2016
+    *   RPPA data updated with the latest data from MD Anderson
+    *   [OncoTree](http://oncotree.mskcc.org/) codes assigned per sample
 
 # June 6, 2016
 *   **New features**:

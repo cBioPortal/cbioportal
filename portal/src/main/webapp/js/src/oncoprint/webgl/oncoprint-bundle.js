@@ -2804,6 +2804,55 @@ var BarRuleSet = (function () {
     return BarRuleSet;
 })();
 
+var StackedBarRuleSet = (function() {
+    function StackedBarRuleSet(params) {
+	/* params
+	 * - legend_labels
+	 * - values_key
+	 * - fills
+	 * 
+	 * Range always [0,1]
+	 */
+	ConditionRuleSet.call(this, params);
+	var values_key = params.values_key;
+	var fills = params.fills;
+	var legend_labels = params.legend_labels;
+	
+	for (var i=0; i < fills.length; i++) {
+	    (function(I) {
+		var legend_target = {};
+		legend_target[values_key] = [];
+		for (var j=0; j<fills.length; j++) {
+		    legend_target[values_key].push(0);
+		}
+		legend_target[values_key][I] = 1;
+		this.addRule(function(d) {
+		    return d[NA_STRING] !== true;
+		},
+		{shapes: [{
+		    type: 'rectangle',
+		    fill: fills[I],
+		    width: '100%',
+		    height: function(d) {
+			return d[values_key][I]*100 + '%';
+		    },
+		    y: function(d) {
+			var prev_vals_sum = 0;
+			for (var j=0; j<I; j++) {
+			    prev_vals_sum += d[values_key][j];
+			}
+			return prev_vals_sum*100 + '%';
+		    }
+		}],
+	    exclude_from_legend: false,
+	    legend_config: {'type': 'rule', 'target': legend_target},
+	    legend_label: legend_labels[I]});
+	    })(i);
+	}
+    }
+    StackedBarRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
+    
+})();
 var GeneticAlterationRuleSet = (function () {
     function GeneticAlterationRuleSet(params) {
 	/* params:
@@ -2883,6 +2932,8 @@ module.exports = function (params) {
 	return new GradientRuleSet(params);
     } else if (params.type === 'bar') {
 	return new BarRuleSet(params);
+    } else if (params.type === 'stacked_bar') {
+	return new StackedBarRuleSet(params);
     } else if (params.type === 'gene') {
 	return new GeneticAlterationRuleSet(params);
     }
@@ -3428,7 +3479,7 @@ var OncoprintTrackOptionsView = (function() {
 	var $div,$img,$dropdown;
 	//if (model.isTrackRemovable(track_id) || model.isTrackSortDirectionChangeable(track_id)) {
 	    $div = $('<div>').appendTo(view.$div).css({'position': 'absolute', 'left': '0px', 'top': model.getTrackTops(track_id) + 'px'});
-	    $img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size, 'alt': 'Track options'}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
+	    $img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
 	    $dropdown = $('<ul>').appendTo($div).css({'width': 120, 'display': 'none', 'list-style-type': 'none', 'padding-left': '6', 'padding-right': '6', 'float': 'right', 'background-color': 'rgb(255,255,255)'});
 	    view.track_options_$elts[track_id] = {'$div': $div, '$img': $img, '$dropdown': $dropdown};
 	    

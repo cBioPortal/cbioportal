@@ -2,6 +2,7 @@ package org.mskcc.cbio.portal.service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -154,6 +155,7 @@ public class ApiService {
 		// Map sample to patient
 		HashMap<String, String> sampleToPatient = new HashMap<>();
 		for (DBSample sample: samples) {
+			sample_ids.add(sample.id);
 			sampleToPatient.put(sample.id, sample.patient_id);
 		}
 		List<MutationSignature> sampleMutationSignatures = getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size_on_each_side_of_snp);
@@ -173,9 +175,14 @@ public class ApiService {
 				break;
 		}
 		for (MutationSignature sampleSignature: sampleMutationSignatures) {
+			if (!sampleToPatient.containsKey(sampleSignature.getId())) {
+				continue;
+			}
 			String patient = sampleToPatient.get(sampleSignature.getId());
 			if (!patientMutationCounts.containsKey(patient)) {
-				patientMutationCounts.put(patient, new Integer[sampleSignature.getCounts().length]);
+				Integer[] newCounts = new Integer[sampleSignature.getCounts().length];
+				Arrays.fill(newCounts, 0);
+				patientMutationCounts.put(patient, newCounts);
 			}
 			Integer[] existingCounts = patientMutationCounts.get(patient);
 			Integer[] toAddCounts = sampleSignature.getCounts();

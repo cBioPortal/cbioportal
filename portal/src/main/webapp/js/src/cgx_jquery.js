@@ -203,7 +203,7 @@ function addSessionServiceBookmark(fullURL, sessionJSON) {
 	    }
 	    $.ajax({
 	        type: 'POST',
-	        url: 'api/proxy/session-service',
+	        url: 'api/proxy/session-service/main_session',
 	        dataType: 'json',
 	        contentType: 'application/json',
 	        data: JSON.stringify(sessionJSON)

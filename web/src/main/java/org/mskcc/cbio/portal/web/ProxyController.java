@@ -173,12 +173,12 @@ public class ProxyController
     return responseEntity.getBody();
   }
 
-  @RequestMapping(value="/session-service")
-  public @ResponseBody String getSessionService(@RequestBody JSONObject body, HttpMethod method,
+  @RequestMapping(value="/session-service/{type}")
+  public @ResponseBody String getSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
                                                 HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
   {
     RestTemplate restTemplate = new RestTemplate();
-    URI uri = new URI(sessionServiceURL);
+    URI uri = new URI(sessionServiceURL + type);
 
     // if request fails then this throws a org.springframework.web.util.NestedServletException
     // we should probably do something more graceful

@@ -78,7 +78,7 @@ public class SessionServiceUtil {
         Map<String, String[]> parameterMap = null;
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(GlobalProperties.getSessionServiceUrl() + "/" + sessionId);
+            URL url = new URL(GlobalProperties.getSessionServiceUrl() + "main_session/" + sessionId);
             LOG.debug("SessionServiceUtil.getSession(): url = '" + url + "'");
             conn = (HttpURLConnection) url.openConnection();
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {

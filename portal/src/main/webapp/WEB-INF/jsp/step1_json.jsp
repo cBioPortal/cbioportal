@@ -31,7 +31,7 @@
 --%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="s" uri="http://www.springframework.org/tags" %>
 
 <%
     String step1ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP1_ERROR_MSG);
@@ -50,7 +50,8 @@
                 <%-- loop over the configured query suggestions --%>
                 <ul class="dropdown-menu dropdown-menu-right" role="menu" title="Select from dropdown"><c:forEach var="query" items="${exampleStudyQueries}">
                     <%-- escape \ to \\ and " to \" inside the JS string --%>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href='javascript:void(0)' onclick='$("#jstree_search_input").val("${fn:escapeXml(fn:replace(fn:replace(query, "\\", "\\\\"), "\"", "\\\""))}");$("#jstree_search_input").trigger("input");'><c:out value="${query}" /></a></li></c:forEach>
+                    <c:set var="escapedJsString"><s:escapeBody javaScriptEscape="true"><c:out value="${query}" escapeXml="false" /></s:escapeBody></c:set>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href='javascript:void(0)' onclick='$("#jstree_search_input").val("${escapedJsString}");$("#jstree_search_input").trigger("input");'><c:out value="${query}" /></a></li></c:forEach>
                 </ul>
             </div>
         </div>

@@ -40,20 +40,24 @@
 <%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
 <%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<style type="text/css">
+.igv-ui-tabs{
+    display: block;
+    border: 1px solid #aaaaaa;
+    padding: 2px;
+    background: none;
+}
+</style>
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+<!-- IGV CSS -->
+ <link rel="stylesheet" type="text/css" href="https://igv.org/web/release/1.0.1/igv-1.0.1.css">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-<script type="text/javascript" src="/js/lib/igv_webstart.js"></script>
-
-<div class="section" id="igv_tab" >
-     
-    <div class='btn-group' role='group' aria-label='switch genes' id='switchGenes' value='<%= cancerTypeId %>'>    
-    </div>   
+<div class="section ui-corner-bottom" >
+    <div class="igv-ui-tabs ui-corner-bottom" id="igv_tab" >
+        <ul class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all' role='group' aria-label='switch genes' id='switchGenes' value='<%= cancerTypeId %>'>    
+        </ul>
+    </div>  
 </div>
-<!--<script type="text/javascript" src="/js/src/igv/igv_segmentCN.js"></script>-->
 
+<!-- IGV JS-->
+<script type="text/javascript" src="https://igv.org/web/release/1.0.1/igv-1.0.1.js"></script>

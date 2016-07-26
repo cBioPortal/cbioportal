@@ -669,36 +669,30 @@ var BarRuleSet = (function () {
 var StackedBarRuleSet = (function() {
     function StackedBarRuleSet(params) {
 	/* params
-	 * - num_categories
-	 * - legend_labels
-	 * - values_key
+	 * - categories
+	 * - value_key
 	 * - fills
-	 * 
-	 * Range always [0,1]
 	 */
 	ConditionRuleSet.call(this, params);
-	var values_key = params.values_key;
+	var value_key = params.value_key;
 	var fills = params.fills || [];
-	var legend_labels = params.legend_labels || [];
+	var categories = params.categories || [];
 	var getUnusedColor = makeUniqueColorGetter(fills);
 	
 	// Initialize with default values
-	while (fills.length < params.num_categories) {
+	while (fills.length < categories.length) {
 	    fills.push(getUnusedColor());
-	}
-	while (legend_labels.length < params.num_categories) {
-	    legend_labels.push("");
 	}
 	
 	var self = this;
-	for (var i=0; i < fills.length; i++) {
+	for (var i=0; i < categories.length; i++) {
 	    (function(I) {
 		var legend_target = {};
-		legend_target[values_key] = [];
-		for (var j=0; j<fills.length; j++) {
-		    legend_target[values_key].push(0);
+		legend_target[value_key] = {};
+		for (var j=0; j<categories.length; j++) {
+		    legend_target[value_key][categories[j]] = 0;
 		}
-		legend_target[values_key][I] = 1;
+		legend_target[value_key][categories[I]] = 1;
 		self.addRule(function(d) {
 		    return d[NA_STRING] !== true;
 		},
@@ -707,19 +701,28 @@ var StackedBarRuleSet = (function() {
 		    fill: fills[I],
 		    width: '100%',
 		    height: function(d) {
-			return d[values_key][I]*100 + '%';
+			var total = 0;
+			for (var j=0; j<categories.length; j++) {
+			    total += parseFloat(d[value_key][categories[j]]);
+			}
+			return parseFloat(d[value_key][categories[I]])*100/total + '%';
 		    },
 		    y: function(d) {
+			var total = 0;
 			var prev_vals_sum = 0;
-			for (var j=0; j<I; j++) {
-			    prev_vals_sum += d[values_key][j];
+			for (var j=0; j<categories.length; j++) {
+			    var new_val = parseFloat(d[value_key][categories[j]]);
+			    if (j < I) {
+				prev_vals_sum += new_val;
+			    }
+			    total += new_val;
 			}
-			return prev_vals_sum*100 + '%';
+			return prev_vals_sum*100/total + '%';
 		    }
 		}],
 	    exclude_from_legend: false,
 	    legend_config: {'type': 'rule', 'target': legend_target},
-	    legend_label: legend_labels[I]});
+	    legend_label: categories[I]});
 	    })(i);
 	}
     }

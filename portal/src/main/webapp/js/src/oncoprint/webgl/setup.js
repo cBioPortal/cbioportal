@@ -682,9 +682,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			track_params = {
 			    'rule_set_params': {
 				'type': 'stacked_bar',
-				'values_key': 'attr_val',
-				'num_categories': 6,
-				'legend_labels': attr.mutation_type_order
+				'value_key': 'attr_val_counts',
+				'categories': ["CA", "CT", "CG", "TA", "TC", "TG"]
 			    }
 			};
 		    } else {
@@ -708,7 +707,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    track_params['description'] = attr.description;
 		    track_params['removable'] = true;
 		    track_params['removeCallback'] = makeRemoveAttributeHandler(attr);
-		    if (typeof attr.datatype !== "undefined") {
+		    if (attr.datatype.toLowerCase() !== "counts_map") {
 			track_params['sortCmpFn'] = (attr.datatype.toLowerCase() === 'number' ? 
 							comparator_utils.numericalClinicalComparator :
 							comparator_utils.stringClinicalComparator);

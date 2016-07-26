@@ -65,11 +65,9 @@ public class ApiController {
             notes = "")
     @Transactional
     @RequestMapping(value = "/mutationsignatures", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<MutationSignature> getMutationSignatures(@RequestParam(required = true) String genetic_profile_id, @RequestParam(required = true) int context_size, @RequestParam(required = false) List<String> sample_ids, @RequestParam(required = false) List<String> patient_ids) {
+    public @ResponseBody List<MutationSignature> getMutationSignatures(@RequestParam(required = true) String genetic_profile_id, @RequestParam(required = true) int context_size, @RequestParam(required = false) List<String> sample_ids) {
 	    if (sample_ids != null) {
 		    return service.getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size);
-	    } else if (patient_ids != null) {
-		    return service.getPatientMutationSignatures(genetic_profile_id, patient_ids, context_size);
 	    } else {
 		    return service.getAllSampleMutationSignatures(genetic_profile_id, context_size);
 	    }

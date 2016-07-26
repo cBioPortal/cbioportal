@@ -2181,6 +2181,37 @@ function makeIdCounter() {
     };
 }
 
+function makeUniqueColorGetter(init_used_colors) {
+    init_used_colors = init_used_colors || [];
+    var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
+	"#990099", "#0099c6", "#dd4477", "#66aa00",
+	"#b82e2e", "#316395", "#994499", "#22aa99",
+	"#aaaa11", "#6633cc", "#e67300", "#8b0707",
+	"#651067", "#329262", "#5574a6", "#3b3eac",
+	"#b77322", "#16d620", "#b91383", "#f4359e",
+	"#9c5935", "#a9c413", "#2a778d", "#668d1c",
+	"#bea413", "#0c5922", "#743411"]; // Source: D3
+    var index = 0;
+    var used_colors = {};
+    for (var i=0; i<init_used_colors.length; i++) {
+	used_colors[init_used_colors[i]] = true;
+    }
+    return function() {
+	var next_color = colors[index % colors.length];
+	while (used_colors[next_color]) {
+	    var darker_next_color = darkenHexColor(next_color);
+	    if (darker_next_color === next_color) {
+		break;
+	    }
+	    next_color = darker_next_color;
+	}
+	used_colors[next_color] = true;
+	index += 1;
+	
+	return next_color;
+    };
+};
+
 function shallowExtend(target, source) {
     var ret = {};
     for (var key in target) {
@@ -2196,6 +2227,9 @@ function shallowExtend(target, source) {
     return ret;
 }
 
+function objectValues(obj) {
+    return Object.keys(obj).map(function(key) { return obj[key]; });
+}
 
 var NA_SHAPES = [
     {
@@ -2544,19 +2578,9 @@ var CategoricalRuleSet = (function () {
 	 */
 	LookupRuleSet.call(this, params);
 	
-	this.colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
-	"#990099", "#0099c6", "#dd4477", "#66aa00",
-	"#b82e2e", "#316395", "#994499", "#22aa99",
-	"#aaaa11", "#6633cc", "#e67300", "#8b0707",
-	"#651067", "#329262", "#5574a6", "#3b3eac",
-	"#b77322", "#16d620", "#b91383", "#f4359e",
-	"#9c5935", "#a9c413", "#2a778d", "#668d1c",
-	"#bea413", "#0c5922", "#743411"]; // Source: D3
-	this.colors_index = 0;
-	this.used_colors = {};
-	
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
+	this.getUnusedColor = makeUniqueColorGetter(objectValues(this.category_to_color).map(colorToHex));
 	for (var category in this.category_to_color) {
 	    if (this.category_to_color.hasOwnProperty(category)) {
 		var color = this.category_to_color[category];
@@ -2582,20 +2606,6 @@ var CategoricalRuleSet = (function () {
 	ruleset.addRule(ruleset.category_key, category, rule_params);
     };
 
-    var getUnusedColor = function(rule_set) {
-	var next_color = rule_set.colors[rule_set.colors_index % rule_set.colors.length];
-	while (rule_set.used_colors[next_color]) {
-	    var darker_next_color = darkenHexColor(next_color);
-	    if (darker_next_color === next_color) {
-		break;
-	    }
-	    next_color = darker_next_color;
-	}
-	rule_set.used_colors[next_color] = true;
-	rule_set.colors_index += 1;
-	
-	return next_color;
-    };
     CategoricalRuleSet.prototype.apply = function (data, cell_width, cell_height, out_active_rules) {
 	// First ensure there is a color for all categories
 	for (var i = 0, data_len = data.length; i < data_len; i++) {
@@ -2604,7 +2614,7 @@ var CategoricalRuleSet = (function () {
 	    }
 	    var category = data[i][this.category_key];
 	    if (!this.category_to_color.hasOwnProperty(category)) {
-		var color = getUnusedColor(this);
+		var color = this.getUnusedColor(this);
 		
 		this.category_to_color[category] = color;
 		addCategoryRule(this, category, color);
@@ -2807,6 +2817,7 @@ var BarRuleSet = (function () {
 var StackedBarRuleSet = (function() {
     function StackedBarRuleSet(params) {
 	/* params
+	 * - num_categories
 	 * - legend_labels
 	 * - values_key
 	 * - fills
@@ -2815,9 +2826,19 @@ var StackedBarRuleSet = (function() {
 	 */
 	ConditionRuleSet.call(this, params);
 	var values_key = params.values_key;
-	var fills = params.fills;
-	var legend_labels = params.legend_labels;
+	var fills = params.fills || [];
+	var legend_labels = params.legend_labels || [];
+	var getUnusedColor = makeUniqueColorGetter(fills);
 	
+	// Initialize with default values
+	while (fills.length < params.num_categories) {
+	    fills.push(getUnusedColor());
+	}
+	while (legend_labels.length < params.num_categories) {
+	    legend_labels.push("");
+	}
+	
+	var self = this;
 	for (var i=0; i < fills.length; i++) {
 	    (function(I) {
 		var legend_target = {};
@@ -2826,7 +2847,7 @@ var StackedBarRuleSet = (function() {
 		    legend_target[values_key].push(0);
 		}
 		legend_target[values_key][I] = 1;
-		this.addRule(function(d) {
+		self.addRule(function(d) {
 		    return d[NA_STRING] !== true;
 		},
 		{shapes: [{
@@ -2851,7 +2872,7 @@ var StackedBarRuleSet = (function() {
 	}
     }
     StackedBarRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
-    
+    return StackedBarRuleSet;
 })();
 var GeneticAlterationRuleSet = (function () {
     function GeneticAlterationRuleSet(params) {

@@ -15,9 +15,7 @@ import java.util.Map;
  * @author abeshoua
  */
 public class MutationSignatureFactory {
-	public static enum MutationSignatureType {
-		NO_CONTEXT, ONE_BP_CONTEXT
-	}
+	
 	private static final List<String> NUCLEOTIDES = Arrays.asList(new String[]{"A", "C", "T", "G"});
 	
 	private static final String[] CANONICAL_SNP_TYPES = new String[]{"CA", "CG", "CT", "TA", "TC", "TG"};
@@ -60,22 +58,7 @@ public class MutationSignatureFactory {
 		return comp;
 	}
 	
-	private static String[] getMutationTypes(MutationSignatureType type) {
-		String[] mutationTypes;
-		switch(type) {
-			default:
-			case NO_CONTEXT:
-				mutationTypes = NO_CONTEXT_MUTATION_TYPES;
-				break;
-			case ONE_BP_CONTEXT:
-				mutationTypes = ONE_BP_CONTEXT_MUTATION_TYPES;
-				break;
-				
-		}
-		return mutationTypes;
-	}
-	
-	private static String getMutationTypeFromMutation(MutationSignatureType type, Mutation mutation) {
+	private static String getNoContextMutationTypeString(Mutation mutation) {
 		String ref = mutation.getMutationEvent().getReferenceAllele();
 		if (ref == null || ref.length() != 1) {
 			// Not a SNP
@@ -97,43 +80,31 @@ public class MutationSignatureFactory {
 			tum = complementaryNucleotide(tum);
 		}
 		String snp = ref + tum;
-		String ret;
-		switch (type) {
-			default:
-			case NO_CONTEXT:
-				ret = snp;
-				break;
-			case ONE_BP_CONTEXT:
-				// REF TRI NOT YET IMPLEMENTED
-				ret = null;
-				break;
-		}
-		return ret;
+		return snp;
 	}
 	
-	private static Integer[] makeSignature(MutationSignatureType type, List<Mutation> mutations) {
-		String[] mutationTypes = getMutationTypes(type);
-		Integer[] ret = new Integer[mutationTypes.length];
-		Arrays.fill(ret, 0);
-		// Keep map for quick reference
-		Map<String, Integer> mutationTypeToIndex = new HashMap<>();
-		for (int i=0; i<mutationTypes.length; i++) {
-			mutationTypeToIndex.put(mutationTypes[i], i);
-		}
+	private static Map<String, Integer> makeNoContextSignature(List<Mutation> mutations) {
+		Map<String, Integer> noContextSignature = new HashMap<>();
 		
 		for (Mutation mutation: mutations) {
-			String mutationType = getMutationTypeFromMutation(type, mutation);
+			String mutationType = getNoContextMutationTypeString(mutation);
 			if (mutationType != null) {
-				ret[mutationTypeToIndex.get(mutationType)] += 1;
+				Integer currentCount = noContextSignature.get(mutationType);
+				if (currentCount == null) {
+					currentCount = 0;
+				}
+				currentCount += 1;
+				noContextSignature.put(mutationType, currentCount);
 			}
 		}
-		return ret;
+		for (String mutationType: NO_CONTEXT_MUTATION_TYPES) {
+			if (!noContextSignature.containsKey(mutationType)) {
+				noContextSignature.put(mutationType, 0);
+			}
+		}
+		return noContextSignature;
 	}
-	public static MutationSignature MutationSignature(String id, MutationSignatureType type, List<Mutation> mutations) {
-		return new MutationSignature(id, getMutationTypes(type), makeSignature(type, mutations));
-	}
-	
-	public static MutationSignature MutationSignature(String id, MutationSignatureType type, Integer[] counts) {
-		return new MutationSignature(id, getMutationTypes(type), counts);
+	public static MutationSignature NoContextMutationSignature(String id, List<Mutation> mutations) {
+		return new MutationSignature(id, makeNoContextSignature(mutations));
 	}
 }

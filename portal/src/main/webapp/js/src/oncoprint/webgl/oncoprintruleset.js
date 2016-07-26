@@ -690,6 +690,7 @@ var StackedBarRuleSet = (function() {
 	    legend_labels.push("");
 	}
 	
+	var self = this;
 	for (var i=0; i < fills.length; i++) {
 	    (function(I) {
 		var legend_target = {};
@@ -698,7 +699,7 @@ var StackedBarRuleSet = (function() {
 		    legend_target[values_key].push(0);
 		}
 		legend_target[values_key][I] = 1;
-		this.addRule(function(d) {
+		self.addRule(function(d) {
 		    return d[NA_STRING] !== true;
 		},
 		{shapes: [{
@@ -723,7 +724,7 @@ var StackedBarRuleSet = (function() {
 	}
     }
     StackedBarRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
-    
+    return StackedBarRuleSet;
 })();
 var GeneticAlterationRuleSet = (function () {
     function GeneticAlterationRuleSet(params) {

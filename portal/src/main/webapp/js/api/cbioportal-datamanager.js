@@ -1062,7 +1062,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    datatype: "COUNTS_MAP",
 				    description: "SNP-type mutational signature, no nucleotide context",
 				    display_name: "SNP-type mutational signature (no context)",
-				    is_patient_attribute: "0"
+				    is_patient_attribute: "0",
+				    categories: ["CA", "CT", "CG", "TA", "TC", "TG"]
 				};
 			    }
 			    if (self.getCancerStudyIds().length > 0) {

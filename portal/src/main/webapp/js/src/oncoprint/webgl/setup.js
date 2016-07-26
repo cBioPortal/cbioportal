@@ -217,6 +217,49 @@ var comparator_utils = {
 	} else {
 	    return d1.attr_val.localeCompare(d2.attr_val);
 	}
+    },
+    'makeCountsMapClinicalComparator': function(categories) {
+	return function (d1, d2) {
+	    if (d1.na && d2.na) {
+		return 0;
+	    } else if (d1.na && !d2.na) {
+		return 2;
+	    } else if (!d1.na && d2.na) {
+		return -2;
+	    } else {
+		var d1_total = 0;
+		var d2_total = 0;
+		for (var i = 0; i < categories.length; i++) {
+		    d1_total += (d1.attr_val[categories[i]] || 0);
+		    d2_total += (d2.attr_val[categories[i]] || 0);
+		}
+		if (d1_total === 0 && d2_total === 0) {
+		    return 0;
+		} else if (d1_total === 0) {
+		    return 1;
+		} else if (d2_total === 0) {
+		    return -1;
+		} else {
+		    var ret = 0;
+		    for (var i = 0; i < categories.length; i++) {
+			var d1_val = d1.attr_val[categories[i]];
+			var d2_val = d2.attr_val[categories[i]];
+			d1_val = (typeof d1_val === "undefined" ? 0 : d1_val);
+			d2_val = (typeof d2_val === "undefined" ? 0 : d2_val);
+			d1_val /= d1_total;
+			d2_val /= d2_total;
+			if (d1_val < d2_val) {
+			    ret = -1;
+			    break;
+			} else if (d1_val > d2_val) {
+			    ret = 1;
+			    break;
+			}
+		    }
+		    return ret;
+		}
+	    }
+	}
     }
 	
 };
@@ -683,7 +726,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    'rule_set_params': {
 				'type': 'stacked_bar',
 				'value_key': 'attr_val_counts',
-				'categories': ["CA", "CT", "CG", "TA", "TC", "TG"]
+				'categories': attr.categories
 			    }
 			};
 		    } else {
@@ -707,14 +750,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    track_params['description'] = attr.description;
 		    track_params['removable'] = true;
 		    track_params['removeCallback'] = makeRemoveAttributeHandler(attr);
-		    if (attr.datatype.toLowerCase() !== "counts_map") {
-			track_params['sortCmpFn'] = (attr.datatype.toLowerCase() === 'number' ? 
-							comparator_utils.numericalClinicalComparator :
-							comparator_utils.stringClinicalComparator);
-			track_params['sort_direction_changeable'] = true;
-		    } else {
-			track_params['sortCmpFn'] = function() { return 0;};
-			track_params['sort_direction_changeable'] = false;
+		    track_params['sort_direction_changeable'] = true;
+		    
+		    if (attr.datatype.toLowerCase() === "number") {
+			track_params['sortCmpFn'] = comparator_utils.numericalClinicalComparator;
+		    } else if (attr.datatype.toLowerCase() === "string") {
+			track_params['sortCmpFn'] = comparator_utils.stringClinicalComparator;
+		    } else if (attr.datatype.toLowerCase() === "counts_map") {
+			track_params['sortCmpFn'] = comparator_utils.makeCountsMapClinicalComparator(attr.categories);
 		    }
 		    
 		    track_params['init_sort_direction'] = 0;

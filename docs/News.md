@@ -20,7 +20,7 @@
     *   [Neuroblastoma (Broad, Nat Genet 2013)](http://www.cbioportal.org/study?id=nbl_ucologne_2015) *56 samples*
     *   [Oral Squamous Cell Carcinoma (MD Anderson, Cancer Discov 2013)](http://www.cbioportal.org/study?id=hnsc_mdanderson_2013) *40 samples*
     *   [Pancreatic Adenocarcinoma (QCMG, Nature 2016)](http://www.cbioportal.org/study?id=paad_qcmg_uq_2016) *383 samples*
-    *   [Recurrent and Metastatic Head & Neck Cancer (JAMA Oncology, 2016)](http://www.cbioportal.org/study?id=hnc_mskcc_2016) *151 samples*
+    *   [Recurrent and Metastatic Head & Neck Cancer (MSKCC, JAMA Oncol 2016)](http://www.cbioportal.org/study?id=hnc_mskcc_2016) *151 samples*
 *   **New TCGA study**:
     *   [Pan-Lung Cancer (TCGA, Nat Genet 2016)](http://www.cbioportal.org/study?id=nsclc_tcga_broad_2016) *1144 samples*
 * Updated **TCGA provisional studies**

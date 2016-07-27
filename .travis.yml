@@ -119,6 +119,11 @@ script:
     - |
         if [[ "${TEST}" == end-to-end ]]
         then
+            # export FINAL_WAR_NAME for use in docker-compose.yml
+            export FINAL_WAR_NAME=$(mvn -q \
+                                        -Dexec.executable="echo"
+                                        -Dexec.args='${final.war.name}'
+                                        --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)
             cd test/end-to-end
             docker-compose up -d
             sleep 30s

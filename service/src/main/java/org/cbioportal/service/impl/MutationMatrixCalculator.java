@@ -35,13 +35,6 @@ public class MutationMatrixCalculator {
                                        String mrnaGeneticProfileStableId, String cnaGeneticProfileStableId,
                                        String drugType) throws DaoException, IOException {
 
-        boolean fdaOnly = false;
-        boolean cancerDrug = true;
-        if (drugType != null && drugType.equalsIgnoreCase(DRUG_TYPE_FDA_ONLY)) {
-            fdaOnly = true;
-            cancerDrug = false;
-        }
-
         Map<String, List> data = initMap();
         Map<Long, Map<String, Object>> mrnaContext = Collections.emptyMap();
         Map<Long, String> cnaContext = Collections.emptyMap();
@@ -59,7 +52,9 @@ public class MutationMatrixCalculator {
         Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutations);
 
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        Map<Long, Set<String>> drugs = getDrugs(mutations, fdaOnly, cancerDrug);
+        Map<Long, Set<String>> drugs = getDrugs(mutations,
+                drugType != null && drugType.equalsIgnoreCase(DRUG_TYPE_FDA_ONLY));
+
         Map<String, Integer> geneContextMap = getGeneContextMap(mutations, mutationProfile.getGeneticProfileId(),
                 daoGeneOptimized);
         Map<String, Integer> keywordContextMap = getKeywordContextMap(mutations, mutationProfile.getGeneticProfileId());
@@ -81,32 +76,30 @@ public class MutationMatrixCalculator {
 
         Map<Long, Integer> mapMutationEventIndex = new HashMap<>();
         for (ExtendedMutation mutation : mutations) {
+
             List<String> mcgLinks;
-            Boolean isHotspot;
             if (mutation.getMutationType().equalsIgnoreCase(FUSION)) {
                 mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(), FUSION, false);
             } else {
                 mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(),
                         mutation.getProteinChange(), false);
             }
-            isHotspot = OncokbHotspotUtil.getOncokbHotspot(mutation.getGeneSymbol(), mutation.getProteinChange());
+
             exportMutation(data, mapMutationEventIndex, mutation, cancerStudy,
                     drugs.get(mutation.getEntrezGeneId()), geneContextMap.get(mutation.getGeneSymbol()),
                     mutation.getKeyword() == null ? 1 : keywordContextMap.get(mutation.getKeyword()),
                     cosmic.get(mutation.getMutationEventId()),
                     mrnaContext.get(mutation.getEntrezGeneId()),
                     cnaContext.get(mutation.getEntrezGeneId()),
-                    mcgLinks,
-                    isHotspot,
-                    daoGeneOptimized);
+                    mcgLinks);
         }
 
         return data;
     }
 
-    private Map<Long, Set<String>> getDrugs(List<ExtendedMutation> mutations, boolean fdaOnly,
-                                            boolean cancerDrug)
+    private Map<Long, Set<String>> getDrugs(List<ExtendedMutation> mutations, boolean fdaOnly)
             throws DaoException {
+
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
         List<Integer> result = getGenesOfMutations(mutations);
 
@@ -124,7 +117,7 @@ public class MutationMatrixCalculator {
         }
         genes.addAll(moreTargets);
 
-        Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes, fdaOnly, cancerDrug);
+        Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes, fdaOnly, !fdaOnly);
         Map<Long, Set<String>> ret = new HashMap<>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
             ret.put(entry.getKey(), new HashSet<>(entry.getValue()));
@@ -143,6 +136,7 @@ public class MutationMatrixCalculator {
 
     private Map<Long, String> getCnaContext(Sample sample, List<ExtendedMutation> mutations,
                                             String cnaProfileId) throws DaoException {
+
         Map<Long, String> mapGeneCna = new HashMap<>();
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         for (ExtendedMutation mutEvent : mutations) {
@@ -162,6 +156,7 @@ public class MutationMatrixCalculator {
     }
 
     private Map<String, List> initMap() {
+
         Map<String, List> map = new HashMap<>();
         map.put("id", new ArrayList());
         map.put("caseIds", new ArrayList());
@@ -203,8 +198,8 @@ public class MutationMatrixCalculator {
     private void exportMutation(Map<String, List> data, Map<Long, Integer> mapMutationEventIndex,
                                 ExtendedMutation mutation, CancerStudy cancerStudy, Set<String> drugs,
                                 int geneContext, int keywordContext, Set<CosmicMutationFrequency> cosmic,
-                                Map<String, Object> mrna, String cna, List<String> mycancergenomelinks,
-                                Boolean isHotspot, DaoGeneOptimized daoGeneOptimized) throws DaoException {
+                                Map<String, Object> mrna, String cna, List<String> mycancergenomelinks)
+            throws DaoException, IOException {
 
         Sample sample = DaoSample.getSampleById(mutation.getSampleId());
         Long eventId = mutation.getMutationEventId();
@@ -233,9 +228,8 @@ public class MutationMatrixCalculator {
         data.get("chr").add(mutation.getChr());
         data.get("start").add(mutation.getStartPosition());
         data.get("end").add(mutation.getEndPosition());
-        String symbol = mutation.getGeneSymbol();
         data.get("entrez").add(mutation.getEntrezGeneId());
-        data.get("gene").add(symbol);
+        data.get("gene").add(mutation.getGeneSymbol());
         data.get("protein-start").add(mutation.getOncotatorProteinPosStart());
         data.get("protein-end").add(mutation.getOncotatorProteinPosEnd());
         data.get("aa").add(mutation.getProteinChange());
@@ -256,29 +250,14 @@ public class MutationMatrixCalculator {
         data.get("cna").add(cna);
         data.get("mrna").add(mrna);
         data.get("mycancergenome").add(mycancergenomelinks);
-        data.get("is-hotspot").add(isHotspot);
-
-
+        data.get("is-hotspot").add(OncokbHotspotUtil.getOncokbHotspot(mutation.getGeneSymbol(),
+                mutation.getProteinChange()));
         data.get("cosmic").add(alterationUtil.convertCosmicDataToMatrix(cosmic));
-
-        Double mutSigQvalue;
-
-        mutSigQvalue = mutSigUtil.getMutSig(cancerStudy.getInternalId()).get(mutation.getEntrezGeneId());
-
-        data.get("mutsig").add(mutSigQvalue);
-
+        data.get("mutsig").add(mutSigUtil.getMutSig(cancerStudy.getInternalId()).get(mutation.getEntrezGeneId()));
         data.get("genemutrate").add(geneContext);
         data.get("keymutrate").add(keywordContext);
-
-        boolean isSangerGene;
-        boolean isCbioCancerGene;
-
-        isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
-        isCbioCancerGene = daoGeneOptimized.isCbioCancerGene(mutation.getGene());
-
-        data.get("sanger").add(isSangerGene);
-        data.get("cancer-gene").add(isCbioCancerGene);
-
+        data.get("sanger").add(DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(mutation.getGeneSymbol()));
+        data.get("cancer-gene").add(DaoGeneOptimized.getInstance().isCbioCancerGene(mutation.getGene()));
         data.get("drug").add(drugs);
 
         Map<String, String> ma = new HashMap<>();

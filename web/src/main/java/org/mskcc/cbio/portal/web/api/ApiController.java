@@ -398,10 +398,9 @@ public class ApiController {
     @Transactional
     @RequestMapping(value = "/smg", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<Map<String,Object>> getSmg(
-            @RequestParam(PatientView.MUTATION_PROFILE) String mutationGeneticProfileStableId,
-            @RequestParam(value = "case_list", required = false) String sampleStableIds)
+            @RequestParam(PatientView.MUTATION_PROFILE) String mutationGeneticProfileStableId)
             throws DaoException {
 
-        return mutationService.getSmg(mutationGeneticProfileStableId, sampleStableIds);
+        return mutationService.getSmg(mutationGeneticProfileStableId);
     }
 }

@@ -99,7 +99,13 @@ window.setUpOncoprint = function(ctr_id, config) {
 		var index = url.indexOf(param + '=');
 		var before_url, after_url;
 		if (index === -1) {
-			before_url = url + "&";
+			before_url = url;
+			var indexOfQuestionMark = url.indexOf('?');
+			if (indexOfQuestionMark === -1) {
+				before_url += "?";
+			} else if (before_url[before_url.length - 1] !== "&") {
+				before_url += "&";
+			}
 			after_url = "";
 			index = url.length;
 		} else {
@@ -108,9 +114,9 @@ window.setUpOncoprint = function(ctr_id, config) {
 			if (next_amp === -1) {
 				next_amp = url.length;
 			}
-			after_url = url.substring(next_amp + 1);
+			after_url = url.substring(next_amp);
 		}
-		return before_url + param + '=' + new_value + "&" + after_url;
+		return before_url + param + '=' + new_value + after_url;
 	};
 	
 	(function initOncoprint() {

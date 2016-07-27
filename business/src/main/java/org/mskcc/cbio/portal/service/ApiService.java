@@ -34,7 +34,6 @@ import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
-import org.mskcc.cbio.portal.persistence.CosmicCountMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
@@ -56,8 +55,6 @@ public class ApiService {
 
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
-	@Autowired
-	private CosmicCountMapper cosmicCountMapper;
         @Autowired
         private MutationMapper mutationMapper;
 	@Autowired

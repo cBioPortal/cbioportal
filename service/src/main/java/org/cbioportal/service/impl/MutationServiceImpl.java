@@ -49,9 +49,9 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    public List<Map<String, Object>> getSmg(String mutationGeneticProfileStableId)
+    public List<Map<String, Object>> getSmg(String mutationGeneticProfileStableId, List<String> sampleStableIds)
             throws DaoException {
 
-        return smgCalculator.calculate(mutationGeneticProfileStableId);
+        return smgCalculator.calculate(mutationGeneticProfileStableId, sampleStableIds);
     }
 }

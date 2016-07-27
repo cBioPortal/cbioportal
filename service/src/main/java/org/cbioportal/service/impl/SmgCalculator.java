@@ -26,7 +26,7 @@ public class SmgCalculator {
     @Autowired
     private MutSigUtil mutSigUtil;
 
-    public List<Map<String, Object>> calculate(String mutationGeneticProfileStableId)
+    public List<Map<String, Object>> calculate(String mutationGeneticProfileStableId, List<String> sampleStableIds)
             throws DaoException {
 
         GeneticProfile mutationProfile;
@@ -37,21 +37,27 @@ public class SmgCalculator {
         mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationGeneticProfileStableId);
         if (mutationProfile != null) {
             int profileId = mutationProfile.getGeneticProfileId();
+            List<Integer> selectedCaseList = new ArrayList<>();
+
+            if (sampleStableIds != null) {
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
+                selectedCaseList = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), sampleStableIds);
+            }
 
             smgs = mutationModelConverter.convertSignificantlyMutatedGeneToMap(
-                    mutationRepository.getSignificantlyMutatedGenes(profileId, null, null, 2,
+                    mutationRepository.getSignificantlyMutatedGenes(profileId, null, selectedCaseList, 2,
                             DEFAULT_THERSHOLD_NUM_SMGS));
 
             Set<Long> cbioCancerGeneIds = daoGeneOptimized.getEntrezGeneIds(
                     daoGeneOptimized.getCbioCancerGenes());
             cbioCancerGeneIds.removeAll(smgs.keySet());
-            appendGenes(smgs, profileId, cbioCancerGeneIds);
+            appendGenes(smgs, profileId, selectedCaseList, cbioCancerGeneIds);
 
             mutsig = mutSigUtil.getMutSig(mutationProfile.getCancerStudyId());
             if (!mutsig.isEmpty()) {
                 Set<Long> mutsigGenes = new HashSet<>(mutsig.keySet());
                 mutsigGenes.removeAll(smgs.keySet());
-                appendGenes(smgs, profileId, mutsigGenes);
+                appendGenes(smgs, profileId, selectedCaseList, mutsigGenes);
             }
         }
 
@@ -95,7 +101,8 @@ public class SmgCalculator {
         return data;
     }
 
-    private void appendGenes(Map<Long, Map<String, String>> smgs, int profileId, Set<Long> geneIds) {
+    private void appendGenes(Map<Long, Map<String, String>> smgs, int profileId, List<Integer> selectedCaseList,
+                             Set<Long> geneIds) {
 
         if (!geneIds.isEmpty()) {
             List<Integer> intEntrezGeneIds = new ArrayList<>(geneIds.size());
@@ -103,7 +110,7 @@ public class SmgCalculator {
                 intEntrezGeneIds.add(entrezGeneId.intValue());
             }
             smgs.putAll(mutationModelConverter.convertSignificantlyMutatedGeneToMap(
-                    mutationRepository.getSignificantlyMutatedGenes(profileId, intEntrezGeneIds, null, -1,
+                    mutationRepository.getSignificantlyMutatedGenes(profileId, intEntrezGeneIds, selectedCaseList, -1,
                             -1)));
         }
     }

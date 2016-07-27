@@ -99,14 +99,17 @@ public class MutationServiceImplTest {
     public void getSmg() throws Exception {
 
         String mutationGeneticProfileStableId = "test_mutation_genetic_profile_stable_id";
+        List<String> testSampleStableIds = new ArrayList<>();
+        testSampleStableIds.add("test_sample_stable_id");
 
         List<Map<String, Object>> expectedResult = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
         expectedResult.add(map);
 
-        Mockito.when(smgCalculator.calculate(mutationGeneticProfileStableId)).thenReturn(expectedResult);
+        Mockito.when(smgCalculator.calculate(mutationGeneticProfileStableId, testSampleStableIds))
+                .thenReturn(expectedResult);
 
-        List<Map<String, Object>> result = mutationService.getSmg(mutationGeneticProfileStableId);
+        List<Map<String, Object>> result = mutationService.getSmg(mutationGeneticProfileStableId, testSampleStableIds);
 
         Assert.assertEquals(expectedResult, result);
     }

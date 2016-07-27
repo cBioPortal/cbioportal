@@ -176,6 +176,7 @@ META_FIELD_MAP = {
     MetaFileTypes.TIMELINE: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
+        'datatype': True,
         'data_filename': True
     },
     MetaFileTypes.CASE_LIST: {

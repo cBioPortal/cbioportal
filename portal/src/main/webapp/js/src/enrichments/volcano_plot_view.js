@@ -142,11 +142,14 @@ function VolcanoPlot() {
      * extra layout options: title axis and second y-axis
      */
     function addPlotLayoutOptions(){
+        // let xLabel depend on whether we've guessed the data is in log-space.
+        var xLabel = self.orTable.assumedLogSpace()?'mean alt. group - mean unalt. group':'log Ratio';
+        
         var axisOptions = {
             width: 360,
             height: 400,
             xaxis:{
-                title: 'log Ratio'
+                title: xLabel
             },
             yaxis:{
                 title: '-log10 p-value'
@@ -166,6 +169,7 @@ function VolcanoPlot() {
                 side: 'right',
             }
         }
+        
         self.scatterPlot.addPlotLayoutOptions(axisOptions);
     }
 

@@ -140,12 +140,10 @@ def check_version(jvm_args):
         raise
 
 def process_case_lists(jvm_args, case_list_dir):
-    case_list_files = (os.path.join(case_list_dir, x) for
-                       x in os.listdir(case_list_dir))
-    for case_list in case_list_files:
+    for case_list in os.listdir(case_list_dir):
         # skip "temp"/backup files made by some text editors:
         if not (case_list.startswith('.') or case_list.endswith('~')):
-            import_case_list(jvm_args,case_list)
+            import_case_list(jvm_args, os.path.join(case_list_dir, case_list))
 
 def process_command(jvm_args, command, meta_filename, data_filename):
     if command == IMPORT_CANCER_TYPE:

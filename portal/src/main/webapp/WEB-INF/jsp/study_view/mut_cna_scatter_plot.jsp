@@ -42,7 +42,7 @@
     <legend style="color:blue;font-weight:bold;">Mutation Count vs CNA</legend>
     <div id="case-id-div" style="float:right;position:relative;z-index:1;margin-right:10px;"></div>
     <div id="mut-cna-scatter-plot" class="large-plot-div">
-        <img src="images/ajax-loader.gif"/>
+        <img src="images/ajax-loader.gif" alt="loading" />
     </div>
     <table style="display:none;width:100%;" class="mut-cna-config">
         <tr width="100%">

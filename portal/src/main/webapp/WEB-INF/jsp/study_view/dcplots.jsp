@@ -68,7 +68,7 @@
 
 
 <div id="summary-loading-wait">
-    <img src="images/ajax-loader.gif"/>
+    <img src="images/ajax-loader.gif" alt="loading" />
 </div>
 
 <div id="study-view-main" style="display: none;">

@@ -1,6 +1,6 @@
 # Deploying the Web Application
 
-## Environment Variables
+## Set Environment Variables
 
 The following environment variable is referenced in this document and is required for successful portal setup:
 
@@ -10,15 +10,25 @@ To make it available to your bash shell, add the following to your `.bash_profil
 
     export CATALINA_HOME=/path/to/tomcat
 
-## Adding PORTAL_HOME to Tomcat
+Note:  If you are following the [recommended Ubuntu instructions](https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-14-04):  you should set ```export CATALINA_HOME=/opt/tomcat```
+
+## Add PORTAL_HOME to Tomcat
 
 The `PORTAL_HOME` environment variable needs to be available to the `cbioportal.war` file which runs within the Tomcat server. To make it available to Tomcat, edit your Tomcat startup file (typically `$CATALINA_HOME/bin/catalina.sh`) and add the following line anywhere within this file (we typically add it near the `JAVA_OPTS` statements):
 
     export PORTAL_HOME= $CATALINA_HOME + "/webapps/cbioportal/WEB-INF/classes/"
 
+## Add the MySQL JDBC Driver to Apache Tomcat
+
+A proper JDBC driver will also need to be accessible by Apache Tomcat.  If using MySQL, the [Connector/J](http://dev.mysql.com/downloads/connector/j/) driver jar file should be placed in `$CATALINA_HOME/lib`.
+
+More information on configuring Apache Tomcat connection pooling can be found [here](http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html).
+
+***We have reports that the Tomcat package that comes with (at least) Ubuntu 14.04 cannot handle the connection pool from resources.  If you are encountering this is, we suggest you [download the Tomcat archive from Apache and install from there](https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-14-04).***
+
 ## Set up the Database Connection Pool
 
-Apache Tomcat provides the database database connection pool to the cBioPortal.  To setup a database connection pool managed by Tomcat, add the following line to `$CATALINA_HOME/conf/context.xml`, making sure that the properties match your system (note if using the MySQL Connector/J driver described below, the DRIVER_NAME would be com.mysql.jdbc.Driver) :
+Apache Tomcat provides the database database connection pool to the cBioPortal.  To setup a database connection pool managed by Tomcat, add the following line to `$CATALINA_HOME/conf/context.xml`, making sure that the properties match your system:
 
      <Context>
          ...
@@ -36,7 +46,11 @@ Apache Tomcat provides the database database connection pool to the cBioPortal. 
 
 A tomcat server is usually started by running the following command:
 
-    $CATALINA_HOME/bin/catalina.sh start
+	$CATALINA_HOME/bin/catalina.sh start
+
+or, if you are following the [recommended Ubuntu instructions](https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-14-04)
+
+	sudo initctl restart tomcat
 
 After the tomcat server has been started, to deploy the WAR file, run the following command:
 
@@ -54,7 +68,9 @@ Lastly, open a browser and go to:
 
 ## Important
 
-Each time you add new data or modify any code, you must redeploy the WAR file.
+- Each time you modify any java code, you must recompile and redeploy the WAR file.
+- Each time you modify any properties (see customization options), you must recompile and redeploy the WAR file.
+- Each time you add new data, you must restart tomcat.
 
 ## Developer Tip
 

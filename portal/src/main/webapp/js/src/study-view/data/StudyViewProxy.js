@@ -361,6 +361,59 @@ var StudyViewProxy = (function() {
                         }
                     }, 200);
                 }
+                //add 3 attributes: sample count per patient, the sample is sequenced or not, and the sample has cna data or not
+                var sequenced_caseAttr = new CaseAttr();
+                sequenced_caseAttr.attr_id = 'SEQUENCED';
+                sequenced_caseAttr.display_name = 'With Mutation Data';
+                sequenced_caseAttr.description = 'If the sample got sequenced';
+                sequenced_caseAttr.datatype = 'STRING';
+                
+                var has_cna_data_caseAttr = new CaseAttr();
+                has_cna_data_caseAttr.attr_id = 'HAS_CNA_DATA';
+                has_cna_data_caseAttr.display_name = 'With CNA Data';
+                has_cna_data_caseAttr.description = 'If the sample has CNA data';
+                has_cna_data_caseAttr.datatype = 'STRING';
+                
+                var sample_count_patient_caseAttr = new CaseAttr();
+                sample_count_patient_caseAttr.attr_id = 'SAMPLE_COUNT_PATIENT';
+                sample_count_patient_caseAttr.display_name = '# of Samples Per Patient';
+                sample_count_patient_caseAttr.description = '';
+                sample_count_patient_caseAttr.datatype = 'STRING';
+                sample_count_patient_caseAttr.numOfNoneEmpty =  obtainDataObject.arr.length;
+
+                var currentItem, uniqueCounts = [1], maxCount = 1, sequencedValues = [], hasCNAValues = [];
+
+                for(var i = 0; i < obtainDataObject.arr.length; i++){
+                    currentItem = obtainDataObject.arr[i];
+                    if(obtainDataObject.sequencedSampleIds.indexOf(currentItem.CASE_ID) !== -1){
+                        currentItem.SEQUENCED = 'Yes';
+                        sequencedValues.push('Yes');
+                    }else{
+                        currentItem.SEQUENCED = 'No';
+                        sequencedValues.push('No');
+                    }
+                    if(obtainDataObject.cnaSampleIds.indexOf(currentItem.CASE_ID) !== -1){
+                        currentItem.HAS_CNA_DATA = 'Yes';
+                        hasCNAValues.push('Yes');
+                    }else{
+                        currentItem.HAS_CNA_DATA = 'No';
+                        hasCNAValues.push('No');
+                    }
+                    currentItem.SAMPLE_COUNT_PATIENT = patientToSampleMapping[currentItem.PATIENT_ID].length.toString();
+                    if(patientToSampleMapping[currentItem.PATIENT_ID].length > maxCount){
+                        maxCount = patientToSampleMapping[currentItem.PATIENT_ID].length;
+                        uniqueCounts.push(maxCount.toString());
+                    }
+                }
+                sequenced_caseAttr.keys = _.uniq(sequencedValues);
+                obtainDataObject.attr.push(sequenced_caseAttr);
+                
+                has_cna_data_caseAttr.keys = _.uniq(hasCNAValues);
+                obtainDataObject.attr.push(has_cna_data_caseAttr);
+
+                sample_count_patient_caseAttr.keys = uniqueCounts;
+                obtainDataObject.attr.push(sample_count_patient_caseAttr);
+                
             });
     }
 

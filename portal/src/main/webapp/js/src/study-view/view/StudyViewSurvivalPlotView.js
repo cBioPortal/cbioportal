@@ -504,12 +504,12 @@ var StudyViewSurvivalPlotView = (function() {
 //                "<input type='submit' style='font-size:10px' value='SVG'>" +
 //                "</form>" +
 //                "<img id='" + _opt.divs.menu + "' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>" +
-                "<img id='"+_opt.divs.downloadIcon+"' class='study-view-download-icon' src='images/in.svg'/>" +
-                "<img style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>" +
+                "<img id='"+_opt.divs.downloadIcon+"' class='study-view-download-icon' src='images/in.svg' alt='download' />" +
+                "<img style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg' alt='move' />" +
                 "<span class='study-view-chart-plot-delete study-view-survival-plot-delete'>x</span>" +
                 "</div></div>" +
                 "<div id='" + _opt.divs.loader + "' class='study-view-loader'>" +
-                "<img src='images/ajax-loader.gif'/></div>" +
+                "<img src='images/ajax-loader.gif' alt='loading' /></div>" +
                 "<div id='" + _opt.divs.body + "' class='study-view-survival-plot-body'>" +
                 "<div id='" + _opt.divs.bodySvg + "' style='float:left'></div>" +
                 "<div id='" + _opt.divs.bodyLabel +

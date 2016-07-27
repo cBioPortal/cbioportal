@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.portal.servlet;
 
 import java.io.BufferedReader;
 import java.io.IOException;

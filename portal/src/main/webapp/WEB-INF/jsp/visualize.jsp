@@ -36,6 +36,18 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
+<%
+    // we have session service running AND this was a post, 
+    // then modify URL to include session service id so bookmarking will work
+    if (useSessionServiceBookmark && "POST".equals(request.getMethod())) {
+%>
+    <script>
+        changeURLToSessionServiceURL(window.location.href, 
+            window.location.pageTitle, 
+            <%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>);
+   </script>
+<% } // end if isPost and we have session service running %>
+
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
     <div id='main_smry_info_div'>

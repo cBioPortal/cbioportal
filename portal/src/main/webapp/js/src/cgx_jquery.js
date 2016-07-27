@@ -189,38 +189,57 @@ function addURLBookmark() {
 This function accepts as an argument the session 
 to be saved as a JSON string 
 */
-function addSessionServiceBookmark(fullURL, sessionJSON) {
-    // if user got here with a bookmark, just display that, don't create a bookmark of a bookmark
+function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
+    // if user got here with a bookmark, just return that, don't create a bookmark of a bookmark
     var bookmarkPattern = /session-id=/ 
     if (bookmarkPattern.test(fullURL)) {
-        displayBookmark(fullURL);
+        callback(fullURL);
     } else {
-	    // cross_cancer.do has additional information in URL as #crosscancer/:tab/:priority/:genes/:study_list
-	    // check for that
-	    var additional_info = fullURL.split("#");
-	    if (additional_info.length == 2) {
-	        sessionJSON["url_hash_data"] = [additional_info[1]]; // must be an array like rest of parameter map
-	    }
-	    $.ajax({
-	        type: 'POST',
-	        url: 'api/proxy/session-service/main_session',
-	        dataType: 'json',
-	        contentType: 'application/json',
-	        data: JSON.stringify(sessionJSON)
-	    }).done(function(data) {
-	        if (data['id'] == null){
-	            $('#session-id').html("An unknown error occurred. Unable to store your session.");
-	        } else {
-	            var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id']; 
-	            displayBookmark(bookmark, bookmark);
-	        }
-	    }).fail(function(jqXHR) {
-            $('#session-id').html("An error occurred. Unable to store your session.");
+        // cross_cancer.do has additional information in URL as #crosscancer/:tab/:priority/:genes/:study_list
+        // check for that
+        var additional_info = fullURL.split("#");
+        if (additional_info.length == 2) {
+            sessionJSON["url_hash_data"] = [additional_info[1]]; // must be an array like rest of parameter map
+        }   
+        var bookmark = null;
+        $.ajax({
+            type: 'POST',
+            url: 'api/proxy/session-service/main_session',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(sessionJSON)
+        }).done(function(data) {
+            if (data['id'] !== null) {
+                var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id'];
+                callback(bookmark);
+            }
         });
-    } 
+    }
 }
 
-function displayBookmark(bookmarkURL, bookmarkDisplay) {
-    $("#session-id").html("<a href='" + bookmarkURL + "'>" + bookmarkDisplay + "</a>");
-    bitlyURL(bookmarkURL);
+/* 
+This function accepts as an argument the session 
+to be saved as a JSON string 
+*/
+function addSessionServiceBookmark(fullURL, sessionJSON) {
+    getSessionServiceBookmark(fullURL, sessionJSON, displayBookmark);
+}
+
+/* 
+This function accepts as an argument the session 
+to be saved as a JSON string 
+*/
+function changeURLToSessionServiceURL(fullURL, pageTitle, sessionJSON) {
+    getSessionServiceBookmark(fullURL, sessionJSON, function(bookmark) {
+        window.history.pushState({ "html": fullURL, "pageTitle": pageTitle }, "", bookmark);
+    });
+}
+
+function displayBookmark(bookmarkURL) {
+    if (bookmarkURL === null){
+        $('#session-id').html("An unknown error occurred. Unable to store your session.");
+    } else {
+        $("#session-id").html("<a href='" + bookmarkURL + "'>" + bookmarkURL + "</a>");
+        bitlyURL(bookmarkURL);
+    }
 }

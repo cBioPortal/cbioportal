@@ -271,7 +271,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	var query = {
 	    "geneStatus": "Complete",
 	    "source": "cbioportal",
-	    "evidenceTypes": "GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE,INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY",
+	    "evidenceTypes": "ONCOGENIC",
 	    "queries": queries,
 	    "levels": [
 		"LEVEL_1",

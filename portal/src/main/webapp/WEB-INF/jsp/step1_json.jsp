@@ -30,6 +30,9 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <%
     String step1ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP1_ERROR_MSG);
 %>
@@ -44,7 +47,8 @@
                   <span class="caret"></span>
                   <span class="sr-only">Toggle Dropdown</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu" title="Select from dropdown">
+                <%-- loop over the configured query suggestions --%>
+               <ul class="dropdown-menu dropdown-menu-right" role="menu" title="Select from dropdown">
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga");$("#jstree_search_input").trigger("input");' >tcga</a></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga -provisional");$("#jstree_search_input").trigger("input");' >tcga -provisional</a></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga -moratorium");$("#jstree_search_input").trigger("input");' >tcga -moratorium</a></li>

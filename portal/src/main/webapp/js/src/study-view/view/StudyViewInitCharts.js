@@ -192,25 +192,21 @@ var StudyViewInitCharts = (function(){
             var _dataType = _attr[i].datatype.toUpperCase();
             var _createdChartsNum = pie.length + bar.length;
 
-             //If chart only has one category, do not show this chart
-            if(_keys.length === 1){
-                continue;
-            }
-
             if(_dataType === "NUMBER"){
                 dataType[_attr_id] = 'allnumeric';
             }else{
                 dataType[_attr_id] = 'string';
             }
-
-            if(_attr_id === "CASE_ID" ){
+            
+            //hide the chart at first display if it only has one value
+            if(_attr_id === "CASE_ID" && _keys.length > 1){
                 pie.push(_attr[i]);
             }else if(_attr_id === "PATIENT_ID") {
                 if(_keys.length !== Object.keys(dataArr).length) {
                     _studyDesc = "from " + _keys.length + " patients";
                 }
             }else if(_dataType === "NUMBER"){
-                if(selectedCol(_attr_id) && _createdChartsNum < 21){
+                if(selectedCol(_attr_id) && _createdChartsNum < 21  && _keys.length > 1){
                     bar.push(_attr[i]);
                 }
                 varType[_attr_id] = "bar";
@@ -222,7 +218,7 @@ var StudyViewInitCharts = (function(){
                         _varValues.push(_arr[j][_attr_id]);
                     }
                 }
-                var findExtremeResult = cbio.util.findExtremes(_varValues);
+                var findExtremeResult = cbio.util.findExtremes(_varValues, true);
                 var calculatedMin = findExtremeResult[0];
                 var calculatedMax = findExtremeResult[1];
 
@@ -239,7 +235,7 @@ var StudyViewInitCharts = (function(){
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
                     if (tableCharts.indexOf(_attr_id) !== -1) {
                         pie.unshift(_attr[i]);
-                    } else {
+                    } else if(_keys.length > 1){
                         pie.push(_attr[i]);
                     }
                 }

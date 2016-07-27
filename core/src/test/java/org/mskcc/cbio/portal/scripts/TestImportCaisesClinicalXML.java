@@ -96,7 +96,10 @@ public class TestImportCaisesClinicalXML {
      @Test
      public void test() throws Exception {
         File xmlFile = new File("target/test-classes/data_clinical_caises.xml");
-        ImportCaisesClinicalXML.importData(xmlFile, 1);
+        CancerStudy cancerStudy = new CancerStudy("prad","prad","prad","prad",true);
+        ImportCaisesClinicalXML importCaisesClinicalXML = new ImportCaisesClinicalXML(null);
+        importCaisesClinicalXML.setFile(xmlFile, cancerStudy);
+        importCaisesClinicalXML.importData();
      }
      
 //     @Test

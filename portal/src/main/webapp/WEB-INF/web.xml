@@ -5,9 +5,8 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
     <!-- general settings -->
-
     <session-config>
-      <session-timeout>720</session-timeout>
+        <session-timeout>720</session-timeout>
     </session-config>
     <mime-mapping>
         <extension>wsdl</extension>
@@ -24,11 +23,10 @@
         <param-name>spring.profiles.active</param-name>
         <param-value>${dbconnector:jndi},${authenticate}</param-value>
     </context-param>
-    <context-param>  
-        <param-name>spring.liveBeansView.mbeanDomain</param-name>  
+    <context-param>
+        <param-name>spring.liveBeansView.mbeanDomain</param-name>
         <param-value>${dbconnector:jndi},${authenticate}</param-value>
-    </context-param> 
-
+    </context-param>
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml classpath:applicationContext-service.xml</param-value>
@@ -40,9 +38,9 @@
     </context-param>
 
     <context-param>
-      <param-name>log4jConfigLocation</param-name>
-      <param-value>classpath:log4j.properties</param-value>
-    </context-param> 
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>classpath:log4j.properties</param-value>
+    </context-param>
 
     <!-- listeners -->
     <listener>
@@ -50,34 +48,30 @@
     </listener>
     <!-- Required by the Apache FileUpload tool. -->
     <listener>
-        <listener-class>
-            org.apache.commons.fileupload.servlet.FileCleanerCleanup
-        </listener-class>
+        <listener-class>org.apache.commons.fileupload.servlet.FileCleanerCleanup</listener-class>
     </listener>
     <!-- custom location for log4j config -->
     <listener>
-      <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
     </listener>
 
     <!-- filters -->
     <filter>
-      <filter-name>CorsFilter</filter-name>
-      <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
     </filter>
-
     <filter-mapping>
-      <filter-name>CorsFilter</filter-name>
-      <url-pattern>/*</url-pattern>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
-
     <filter-mapping>
-      <filter-name>springSecurityFilterChain</filter-name>
-      <url-pattern>/*</url-pattern>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <filter>
@@ -85,17 +79,15 @@
         <display-name>File Upload</display-name>
         <description>
             Applied to file upload requests.
-            Wraps the request, allowing it to be used as a regular request, 
+            Wraps the request, allowing it to be used as a regular request,
             'as if' it were parsed by the Servlet API.
         </description>
         <filter-class>org.mskcc.cbio.portal.util.FileUploadFilter</filter-class>
     </filter>
-
     <filter-mapping>
         <filter-name>FileUpload</filter-name>
         <url-pattern>/netviz.jsp</url-pattern>
     </filter-mapping>
-
     <filter-mapping>
         <filter-name>FileUpload</filter-name>
         <url-pattern>/oncoprint_converter.svg</url-pattern>
@@ -111,14 +103,12 @@
         </description>
         <filter-class>org.mskcc.cbio.portal.util.XssFilter</filter-class>
     </filter>
-
     <filter-mapping>
         <filter-name>XssFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <!-- servlet definitions & mappings -->
-    
     <servlet>
         <servlet-name>portal</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -174,14 +164,14 @@
         <url-pattern>/portal_meta_data.json</url-pattern>
     </servlet-mapping>
 
-	<servlet>
-		<servlet-name>portal_meta_data</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.PortalMetaData</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>portal_meta_data</servlet-name>
-		<url-pattern>/portalMetadata.json</url-pattern>
-	</servlet-mapping>
+    <servlet>
+        <servlet-name>portal_meta_data</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PortalMetaData</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>portal_meta_data</servlet-name>
+        <url-pattern>/portalMetadata.json</url-pattern>
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>network</servlet-name>
@@ -192,19 +182,19 @@
         <url-pattern>/network.do</url-pattern>
     </servlet-mapping>
 
-	<servlet>
-		<servlet-name>network_sbgn</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.NetworkSbgnServlet</servlet-class>
-	</servlet>
+    <servlet>
+        <servlet-name>network_sbgn</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.NetworkSbgnServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>network_sbgn</servlet-name>
         <url-pattern>/networkSbgn.do</url-pattern>
     </servlet-mapping>
 
-	<servlet>
-		<servlet-name>bioGeneQuery</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.BioGeneServlet</servlet-class>
-	</servlet>
+    <servlet>
+        <servlet-name>bioGeneQuery</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.BioGeneServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>bioGeneQuery</servlet-name>
         <url-pattern>/bioGeneQuery.do</url-pattern>
@@ -220,16 +210,16 @@
     </servlet-mapping>
 
     <servlet>
-    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <servlet-name>CheckGeneSymbolJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CheckGeneSymbolJSON</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>CheckGeneSymbolJSON</servlet-name>
         <url-pattern>/CheckGeneSymbol.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
-    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
+        <servlet-name>ClinicalFreeFormJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalFreeFormJSON</servlet-class>
     </servlet>
     <servlet-mapping>
@@ -246,40 +236,31 @@
         <url-pattern>/omaRedirect.do</url-pattern>
     </servlet-mapping>
 
-	<servlet>
-		<servlet-name>pfam_sequence_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.PfamSequenceServlet</servlet-class>
-	</servlet>
+    <servlet>
+        <servlet-name>pfam_sequence_json</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PfamSequenceServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>pfam_sequence_json</servlet-name>
         <url-pattern>/getPfamSequence.json</url-pattern>
     </servlet-mapping>
 
-	<servlet>
-		<servlet-name>mutation_aligner_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.MutationAlignerServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>mutation_aligner_json</servlet-name>
-		<url-pattern>/getMutationAligner.json</url-pattern>
-	</servlet-mapping>
+    <servlet>
+        <servlet-name>mutation_aligner_json</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.MutationAlignerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mutation_aligner_json</servlet-name>
+        <url-pattern>/getMutationAligner.json</url-pattern>
+    </servlet-mapping>
 
-	<servlet>
-		<servlet-name>mutation_3d_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.PdbDataServlet</servlet-class>
-	</servlet>
+    <servlet>
+        <servlet-name>mutation_3d_json</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PdbDataServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>mutation_3d_json</servlet-name>
         <url-pattern>/get3dPdb.json</url-pattern>
-    </servlet-mapping>
-
-	<servlet>
-		<servlet-name>mutation_data_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.MutationDataServlet</servlet-class>
-	</servlet>
-    <servlet-mapping>
-        <servlet-name>mutation_data_json</servlet-name>
-        <url-pattern>/getMutationData.json</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -353,7 +334,7 @@
         <servlet-name>ClinicalTimelineData</servlet-name>
         <url-pattern>/clinical_timeline_data.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>patient_view</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
@@ -372,15 +353,6 @@
         <url-pattern>/crosscancerquery.json</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>CrossCancerMutationJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerMutationDataServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CrossCancerMutationJSON</servlet-name>
-        <url-pattern>/crosscancermutation.json</url-pattern>
-    </servlet-mapping>
-    
     <servlet>
         <servlet-name>CnaJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CnaJSON</servlet-class>
@@ -407,7 +379,7 @@
         <servlet-name>ClinicalTrialsJSON</servlet-name>
         <url-pattern>/clinicaltrials.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>SimilarPatientsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.SimilarPatientsJSON</servlet-class>
@@ -416,7 +388,7 @@
         <servlet-name>SimilarPatientsJSON</servlet-name>
         <url-pattern>/similar_patients.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>cancer_study_view</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyView</servlet-class>
@@ -429,7 +401,7 @@
         <servlet-name>cancer_study_view</servlet-name>
         <url-pattern>/study</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>DrugsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
@@ -528,7 +500,7 @@
         <servlet-name>calcFisherExactTest</servlet-name>
         <url-pattern>/calcFisherExact.do</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.EnrichmentsJSON</servlet-class>

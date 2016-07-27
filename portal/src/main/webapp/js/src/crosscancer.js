@@ -1207,7 +1207,7 @@
                                 data_priority: priority,
 				cancer_study_list: histData.map(function(d) { return d.studyId;}).join(",")
                             };
-                            var servletName = "crosscancermutation.json";
+                            var servletName = "api/mutationsforstudiesandgenes";
                             // init mutation data proxy with the data servlet config
                             var proxy = new MutationDataProxy({
 								servletName: servletName,

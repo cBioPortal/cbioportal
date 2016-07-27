@@ -11635,10 +11635,11 @@ function MutationDataProxy(options)
 
 	// default options
 	var _defaultOpts = {
-		servletName: "getMutationData.json",
+		servletName: "api/mutationsforprofilesandgenes",
 		geneList: "", // list of target genes (genes of interest) as a string
 		params: {}    // fixed servlet params
 	};
+        //TODO: relocate this functionality into the Web API data client
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);

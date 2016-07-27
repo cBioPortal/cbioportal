@@ -953,6 +953,11 @@ POST /api/studies
 |short_name||false|string||
 |type_of_cancer||false|string||
 
+#### <a name="NewlyConsolidated">Newly Consolidated (need swagger documentation update)</a>
+* **/api/mutationsforprofilesandgenes** : Get mutations across genetic profiles (was getMutationData.json)
+* **/api/mutationsforstudiesandgenes** : Query by Studies and Genes, return patients and mutations (was crosscancermutation.json)
+* **mutations.json** : Bundle of functions providing study/gene/annotation merges for mutation tab
+
 ## <a name="Upcoming">Upcoming</a>
 ####Services to be rewritten to use the new Web API
 * **getProfileData.json** : get genetic alterations for profile, genes
@@ -964,11 +969,9 @@ POST /api/studies
 * **portal_meta_data.json** : Fetch meta data for study
 * **clinical_timeline_data.json** : Fetch clinical data for a patient ID
 * **ClinicalFreeForm.json** : fetch clinical data based on availability
-* **getMutationData.json** : Get mutations across genetic profile (with gene filter)
 * **portalMetadata.json** : Get sample profile metadata
 
 ####Services to be migrated into additional Web API functionality
-* **mutations.json** : Bundle of functions providing study/gene/annotation merges for mutation tab
 * **Gistic.json** : lookup gistic entries for a study
 * **cna.json** : Bundle of functions providing copy number changes and segment metadata
 * **MutSig.json** : Fetch mutsig data for a study
@@ -980,7 +983,6 @@ POST /api/studies
 * **pancancerMutations.json** : Bundle of functions to find mutations in several ways
 * **get3dPdb.json** : Bundle of functions to get pdb data and related sequence data
 * **crosscancerquery.json** : Query by Studies and Genes, return profiles and patients
-* **crosscancermutation.json** : Query by Studies and Genes, return patients and mutations
 * **igvlinking.json** : Make igv links for study/case/locus
 * **getMutationAligner.json** : Create URL links to mutation aligner
 * **bioGeneQuery.do** : Create URL links to bioGene

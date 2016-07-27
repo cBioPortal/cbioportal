@@ -241,7 +241,7 @@ var comparator_utils = {
 		    return -1;
 		} else {
 		    var ret = 0;
-		    for (var i = 0; i < categories.length; i++) {
+		    for (var i = categories.length - 1; i >= 0; i--) {
 			var d1_val = d1.attr_val[categories[i]];
 			var d2_val = d2.attr_val[categories[i]];
 			d1_val = (typeof d1_val === "undefined" ? 0 : d1_val);

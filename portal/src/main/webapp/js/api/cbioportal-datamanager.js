@@ -291,8 +291,13 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		}
 	    } else if (data_to_combine.length === 1) {
 		if (datatype.toLowerCase() === "number") {
-		    datum_to_add.attr_val = parseFloat(data_to_combine[0].attr_val);
-		    datum_to_add.attr_val_counts[datum_to_add.attr_val] = 1;
+		    var attr_val = parseFloat(data_to_combine[0].attr_val);
+		    if (!isNaN(attr_val)) {
+			datum_to_add.attr_val = attr_val;
+			datum_to_add.attr_val_counts[attr_val] = 1;
+		    } else {
+			datum_to_add.na = true;
+		    }
 		} else if (datatype.toLowerCase() === "string") {
 		    datum_to_add.attr_val = data_to_combine[0].attr_val;
 		    datum_to_add.attr_val_counts[datum_to_add.attr_val] = 1;
@@ -300,7 +305,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    datum_to_add.attr_val_counts = data_to_combine[0].attr_val;
 		    for (var k in datum_to_add.attr_val_counts) {
 			if (typeof datum_to_add.attr_val_counts[k] !== "undefined") {
-			    datum_to_add.attr_val_counts[k] = parseFloat(datum_to_add.attr_val_counts[k]);
+			    var count = parseFloat(datum_to_add.attr_val_counts[k]);
+			    if (!isNaN(count)) {
+				datum_to_add.attr_val_counts[k] = count;
+			    }
 			}
 		    }
 		}
@@ -310,8 +318,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    var total = 0;
 		    for (var j = 0; j < data_to_combine.length; j++) {
 			if (typeof data_to_combine[j].attr_val !== "undefined") {
-			    avg += parseFloat(data_to_combine.attr_val);
-			    total += 1;
+			    var attr_val = parseFloat(data_to_combine[j].attr_val)
+			    if (!isNaN(attr_val)) {
+				avg += attr_val;
+				total += 1;
+			    }
 			}
 		    }
 		    datum_to_add.attr_val = ((total > 0) ? (avg / total) : 0);
@@ -327,8 +338,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    for (var j = 0; j < data_to_combine.length; j++) {
 			for (var k in data_to_combine[j].attr_val) {
 			    if (typeof data_to_combine[j].attr_val[k] !== "undefined") {
-				datum_to_add.attr_val_counts[k] = datum_to_add.attr_val_counts[k] || 0;
-				datum_to_add.attr_val_counts[k] += parseFloat(data_to_combine[j].attr_val[k]);
+				var count = parseFloat(data_to_combine[j].attr_val[k]);
+				if (!isNaN(count)) {
+				    datum_to_add.attr_val_counts[k] = datum_to_add.attr_val_counts[k] || 0;
+				    datum_to_add.attr_val_counts[k] += count;
+				}
 			    }
 			}
 		    }
@@ -338,7 +352,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		// if all 0, then change to 'na'
 		var all_0 = true;
 		for (var k in datum_to_add.attr_val_counts) {
-		    if (typeof datum_to_add.attr_val_counts[k] !== "undefined") {
+		    if (typeof datum_to_add.attr_val_counts[k] !== "undefined" && !isNaN(datum_to_add.attr_val_counts[k])) {
 			if (datum_to_add.attr_val_counts[k] !== 0) {
 			    all_0 = false;
 			    break;

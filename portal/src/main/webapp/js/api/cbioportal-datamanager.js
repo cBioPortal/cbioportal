@@ -839,6 +839,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				switch (type) {
 				    case "MUTATION_EXTENDED":
 					default_oql_uniq["MUT"] = true;
+					default_oql_uniq["FUSION"] = true;
 					break;
 				    case "COPY_NUMBER_ALTERATION":
 					default_oql_uniq["AMP"] = true;

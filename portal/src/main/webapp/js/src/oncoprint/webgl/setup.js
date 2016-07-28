@@ -240,23 +240,26 @@ var comparator_utils = {
 		} else if (d2_total === 0) {
 		    return -1;
 		} else {
-		    var ret = 0;
-		    for (var i = categories.length - 1; i >= 0; i--) {
-			var d1_val = d1.attr_val[categories[i]];
-			var d2_val = d2.attr_val[categories[i]];
-			d1_val = (typeof d1_val === "undefined" ? 0 : d1_val);
-			d2_val = (typeof d2_val === "undefined" ? 0 : d2_val);
-			d1_val /= d1_total;
-			d2_val /= d2_total;
-			if (d1_val < d2_val) {
-			    ret = -1;
-			    break;
-			} else if (d1_val > d2_val) {
-			    ret = 1;
-			    break;
+		    var d1_max_category = 0;
+		    var d2_max_category = 0;
+		    for (var i=0; i<categories.length; i++) {
+			if (d1.attr_val[categories[i]] > d1.attr_val[categories[d1_max_category]]) {
+			    d1_max_category = i;
+			}
+			if (d2.attr_val[categories[i]] > d2.attr_val[categories[d2_max_category]]) {
+			    d2_max_category = i;
 			}
 		    }
-		    return ret;
+		    if (d1_max_category < d2_max_category) {
+			return -1;
+		    } else if (d1_max_category > d2_max_category) {
+			return 1;
+		    } else {
+			var cmp_category = categories[d1_max_category];
+			var d1_prop = d1.attr_val[cmp_category]/d1_total;
+			var d2_prop = d2.attr_val[cmp_category]/d2_total;
+			return utils.sign(d1_prop - d2_prop);
+		    }
 		}
 	    }
 	}

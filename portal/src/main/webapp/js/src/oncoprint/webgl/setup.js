@@ -72,10 +72,15 @@ var tooltip_utils = {
 	    var cna = [];
 	    var mrna = [];
 	    var prot = [];
+	    var fusions = [];
 	    for (var i=0; i<d.data.length; i++) {
 		var datum = d.data[i];
 		if (datum.genetic_alteration_type === "MUTATION_EXTENDED") {
-		    mutations.push(datum.amino_acid_change);
+		    if (datum.oncoprint_mutation_type !== "fusion") {
+			mutations.push(datum.amino_acid_change);
+		    } else {
+			fusions.push(datum.amino_acid_change);
+		    }
 		} else if (datum.genetic_alteration_type === "COPY_NUMBER_ALTERATION") {
 		    var disp_cna = {'-2': 'HOMODELETED', '-1': 'HETLOSS', '1': 'GAIN', '2': 'AMPLIFIED'};
 		    if (disp_cna.hasOwnProperty(datum.profile_data)) {
@@ -87,6 +92,9 @@ var tooltip_utils = {
 				.push(datum.oql_regulation_direction === 1 ? "UPREGULATED" : "DOWNREGULATED");
 		    }
 		}
+	    }
+	    if (fusions.length > 0) {
+		ret += "Fusion: <b>" + fusions.join(", ")+"</b><br>";
 	    }
 	    if (mutations.length > 0) {
 		ret += 'Mutation: <b>' + mutations.join(", ")+'</b><br>';
@@ -136,6 +144,7 @@ var makeComparatorMetric = function(array_spec) {
 };
 var comparator_utils = {
     'makeGeneticComparator': function (distinguish_mutation_types, distinguish_recurrent) {
+	var fusion_key = 'disp_fusion';
 	var cna_key = 'disp_cna';
 	var cna_order = makeComparatorMetric(['amp', 'homdel', 'gain', 'hetloss', 'diploid', undefined]);
 	var mut_type_key = 'disp_mut';
@@ -143,19 +152,14 @@ var comparator_utils = {
 	    var _order;
 	    if (!distinguish_mutation_types && !distinguish_recurrent) {
 		return function (m) {
-		    if (m === 'fusion') {
-			return 0;
-		    } else {
-			return ({'true': 1, 'false': 2})[!!m];
-		    }
-		    //return +(typeof m === 'undefined');
+		    return ({'true': 1, 'false': 2})[!!m];
 		}
 	    } else if (!distinguish_mutation_types && distinguish_recurrent) {
-		_order = makeComparatorMetric([['inframe_rec', 'missense_rec'], ['fusion', 'fusion_rec', 'inframe', 'missense', 'trunc', 'trunc_rec'], undefined]); 
+		_order = makeComparatorMetric([['inframe_rec', 'missense_rec'], ['inframe', 'missense', 'trunc', 'trunc_rec'], undefined]); 
 	    } else if (distinguish_mutation_types && !distinguish_recurrent) {
-		_order = makeComparatorMetric([['fusion', 'fusion_rec'], ['trunc', 'trunc_rec'], ['inframe','inframe_rec'], ['missense', 'missense_rec'], undefined, true, false]);
+		_order = makeComparatorMetric([['trunc', 'trunc_rec'], ['inframe','inframe_rec'], ['missense', 'missense_rec'], undefined, true, false]);
 	    } else if (distinguish_mutation_types && distinguish_recurrent) {
-		_order = makeComparatorMetric([['fusion', 'fusion_rec'], ['trunc', 'trunc_rec'], 'inframe_rec', 'missense_rec', 'inframe', 'missense',  undefined, true, false]);
+		_order = makeComparatorMetric([['trunc', 'trunc_rec'], 'inframe_rec', 'missense_rec', 'inframe', 'missense',  undefined, true, false]);
 	    }
 	    return function(m) {
 		return _order[m];
@@ -166,26 +170,38 @@ var comparator_utils = {
 	var regulation_order = makeComparatorMetric(['up', 'down', undefined]);
 
 	return function (d1, d2) {
+	    // First, test fusion
+	    if (d1[fusion_key] && !(d2[fusion_key])) {
+		return -1;
+	    } else if (!(d1[fusion_key]) && d2[fusion_key]) {
+		return 1;
+	    }
+	    
+	    // Next, CNA
 	    var cna_diff = utils.sign(cna_order[d1[cna_key]] - cna_order[d2[cna_key]]);
 	    if (cna_diff !== 0) {
 		return cna_diff;
 	    }
 
+	    // Next, mutation type
 	    var mut_type_diff = utils.sign(mut_order(d1[mut_type_key]) - mut_order(d2[mut_type_key]));
 	    if (mut_type_diff !== 0) {
 		return mut_type_diff;
 	    }
 
+	    // Next, mrna expression
 	    var mrna_diff = utils.sign(regulation_order[d1[mrna_key]] - regulation_order[d2[mrna_key]]);
 	    if (mrna_diff !== 0) {
 		return mrna_diff;
 	    }
 
+	    // Next, protein expression
 	    var rppa_diff = utils.sign(regulation_order[d1[rppa_key]] - regulation_order[d2[rppa_key]]);
 	    if (rppa_diff !== 0) {
 		return rppa_diff;
 	    }
 
+	    // If we reach this point, there's no order difference
 	    return 0;
 	};
     },
@@ -376,28 +392,23 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     
     var State = (function () {
 	var oncoprintDatumIsAltered = function(datum) {
-	    return ['disp_mut', 'disp_cna', 'disp_mrna', 'disp_prot']
+	    return ['disp_mut', 'disp_cna', 'disp_mrna', 'disp_prot', 'disp_fusion']
 		    .map(function(x) { return (typeof datum[x] !== "undefined"); })
 		    .reduce(function(x,y) { return x || y; }, false);
 	};
 	var populateSampleData = function() {
 	    var done = new $.Deferred();
-	    oncoprint.hideIds([], true);
 	    var clinical_attrs = utils.objectValues(State.clinical_tracks);
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	    $.when(QuerySession.getOncoprintSampleGenomicEventData(),
-		    QuerySession.getUnalteredSamples(),
 		    ClinicalData.getSampleData(clinical_attrs))
 		    .then(function (oncoprint_data_by_line,
-				    unaltered_samples,
 				    clinical_data) {
 					
-			if (State.unaltered_cases_hidden) {
-			    oncoprint.hideIds(unaltered_samples, true);
-			}
 			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
+			oncoprint.hideIds([], true);
 			oncoprint.keepSorted(false);
 			
 			var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
@@ -420,6 +431,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    });
 			}).then(function () {
 			    oncoprint.keepSorted();
+			    if (State.unaltered_cases_hidden) {
+				oncoprint.hideIds(State.getUnalteredIds(), true);
+			    }
 			    oncoprint.releaseRendering();
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
@@ -435,25 +449,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	
 	var populatePatientData = function() {
 	    var done = new $.Deferred();
-	    oncoprint.hideIds([], true);
 	    var clinical_attrs = utils.objectValues(State.clinical_tracks);
-	    
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	    $.when(QuerySession.getOncoprintPatientGenomicEventData(),
-		    QuerySession.getUnalteredPatients(),
 		    ClinicalData.getPatientData(clinical_attrs),
 		    QuerySession.getPatientIds())
 		    .then(function (oncoprint_data_by_line, 
-				    unaltered_patients,
 				    clinical_data,
 				    patient_ids) {
-					
-			if (State.unaltered_cases_hidden) {
-			    oncoprint.hideIds(unaltered_patients, true);
-			}
 			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
+			oncoprint.hideIds([], true);
 			oncoprint.keepSorted(false);
 			
 			var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
@@ -476,10 +483,13 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    });
 			}).then(function () {
 			    oncoprint.keepSorted();
+			    if (State.unaltered_cases_hidden) {
+				oncoprint.hideIds(State.getUnalteredIds(), true);
+			    }
 			    oncoprint.releaseRendering();
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
-			    updateAlteredPercentIndicator(State);
+			    updateAlteredPercentIndicator(State);   					
 			    oncoprint.updateHorzZoomToFitIds(State.getAlteredIds());
 			    done.resolve();
 			});
@@ -814,7 +824,32 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    }
 		}
 		return Object.keys(altered);
-	    }
+	    },
+	    'getUnalteredIds': function() {
+		var track_ids = utils.objectValues(State.genetic_alteration_tracks);
+		var unaltered = {};
+		for (var i=0; i<track_ids.length; i++){
+		    var data = oncoprint.getTrackData(track_ids[i]);
+		    var data_id_key = oncoprint.getTrackDataIdKey(track_ids[i]);
+		    if (i === 0) {
+			var unaltered_ids = data.filter(function (d) {
+			    return !oncoprintDatumIsAltered(d);
+			}).map(function (x) {
+			    return x[data_id_key];
+			});
+			for (var j = 0; j < unaltered_ids.length; j++) {
+			    unaltered[unaltered_ids[j]] = true;
+			}
+		    } else {
+			var altered_ids = data.filter(oncoprintDatumIsAltered)
+				.map(function(x) { return x[data_id_key]; });
+			for (var j=0; j<altered_ids.length; j++) {
+			    unaltered[altered_ids[j]] = false;
+			}
+		    }
+		}
+		return Object.keys(unaltered).filter(function(x) { return !!unaltered[x]; });
+	    },
 	};
     })();
     
@@ -1212,18 +1247,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	})();
 	(function setUpHideUnalteredCases() {
-	    $.when(QuerySession.getUnalteredSamples(), QuerySession.getUnalteredPatients()).then(function (unaltered_samples, unaltered_patients) {
-		var $show_unaltered_checkbox = $(toolbar_selector).find('#oncoprint_diagram_view_menu')
+	    var $show_unaltered_checkbox = $(toolbar_selector).find('#oncoprint_diagram_view_menu')
 		    .find('input[type="checkbox"][name="show_unaltered"]');
-		$show_unaltered_checkbox[0].checked = !State.unaltered_cases_hidden;
-		$show_unaltered_checkbox.change(function() {
-		    State.unaltered_cases_hidden = !($show_unaltered_checkbox.is(":checked"));
-		    if (State.unaltered_cases_hidden) {
-			oncoprint.hideIds((State.using_sample_data ? unaltered_samples : unaltered_patients), true);
-		    } else {
-			oncoprint.hideIds([], true);
-		    }
-		});
+	    $show_unaltered_checkbox[0].checked = !State.unaltered_cases_hidden;
+	    $show_unaltered_checkbox.change(function () {
+		State.unaltered_cases_hidden = !($show_unaltered_checkbox.is(":checked"));
+		if (State.unaltered_cases_hidden) {
+		    oncoprint.hideIds(State.getUnalteredIds(), true);
+		} else {
+		    oncoprint.hideIds([], true);
+		}
 	    });
 	})();
 	(function setUpZoomToFit() {

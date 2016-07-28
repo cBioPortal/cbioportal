@@ -139,9 +139,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     };
     var getOncoprintMutationType = function(type) {
 	// In: output of getSimplifiedMutationType
-	// Out: Everything that's not missense, inframe, or fusion becomes trunc
+	// Out: Everything that's not missense, inframe, promoter, or fusion becomes trunc
 	type = type.toLowerCase();
-	return (["missense", "inframe", "fusion"].indexOf(type) > -1 ? type : "trunc");
+	return (["missense", "inframe", "fusion", "promoter"].indexOf(type) > -1 ? type : "trunc");
     };
     var insertionIndex = function(sorted_list, target) {
 	/* In: sorted_list, a sorted list of unique numbers
@@ -876,7 +876,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    if (genetic_alteration_type === "MUTATION_EXTENDED") {
 					for (var j = 0; j < data.length; j++) {
 					    data[j].simplified_mutation_type = getSimplifiedMutationType(data[j].mutation_type);
-					    data[j].oncoprint_mutation_type = getOncoprintMutationType(data[j].simplified_mutation_type);
+					    if (data[j].amino_acid_change.toLowerCase() === "promoter") {
+						data[j].oncoprint_mutation_type = "promoter";
+					    } else {
+						data[j].oncoprint_mutation_type = getOncoprintMutationType(data[j].simplified_mutation_type);
+					    }
 					    data[j].genetic_alteration_type = genetic_alteration_type;
 					}
 				    } else {

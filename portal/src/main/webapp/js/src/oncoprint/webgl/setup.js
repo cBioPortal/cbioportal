@@ -293,7 +293,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}
 			after_url= url.substring(next_amp);
 		}
-		return before_url + param + '=' + new_value + after_url;
+		return before_url
+			+ (new_value.length > 0 ? (param + '=' + new_value) : "")
+			+ after_url;
 	};
 	var currURL = function() {
 	    return window.location.href;

@@ -551,7 +551,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    "1": "gain",
 	    "2": "amp"
 	};
-	var mut_rendering_priority = {'fusion': 0, 'trunc': 1, 'inframe': 2, 'missense': 3};
+	var mut_rendering_priority = {'trunc': 1, 'inframe': 2, 'missense': 3};
 	var cna_rendering_priority = {'amp': 0, 'homdel': 0, 'gain': 1, 'hetloss': 1};
 	var mrna_rendering_priority = {'up': 0, 'down': 0};
 	var prot_rendering_priority = {'up': 0, 'down': 0};
@@ -584,6 +584,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var datum = data[i];
 	    var datum_events = datum.data;
 
+	    var disp_fusion = false;
 	    var disp_cna_counts = {};
 	    var disp_mrna_counts = {};
 	    var disp_prot_counts = {};
@@ -610,10 +611,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    }
 		} else if (event.genetic_alteration_type === "MUTATION_EXTENDED") {
 		    var oncoprint_mutation_type = event.oncoprint_mutation_type;
-		    // clamp all mutation types into one of the following four
-		    disp_mut_counts[oncoprint_mutation_type] = disp_mut_counts[oncoprint_mutation_type] || 0;
-		    disp_mut_counts[oncoprint_mutation_type] += 1;
+		    if (oncoprint_mutation_type === "fusion") {
+			disp_fusion = true;
+		    } else {
+			disp_mut_counts[oncoprint_mutation_type] = disp_mut_counts[oncoprint_mutation_type] || 0;
+			disp_mut_counts[oncoprint_mutation_type] += 1;
+		    }
 		}
+	    }
+	    if (disp_fusion) {
+		datum.disp_fusion = true;
 	    }
 	    datum.disp_cna = selectDisplayValue(disp_cna_counts, cna_rendering_priority);
 	    datum.disp_mrna = selectDisplayValue(disp_mrna_counts, mrna_rendering_priority);

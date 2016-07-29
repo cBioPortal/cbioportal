@@ -1,6 +1,6 @@
-# Introduction
+# cBioPortal Documentation
 
-Welcome to the wiki pages for the cBioPortal project! Below you can find an index of all available documentation to help you to deploy and maintain a local instance of cBioPortal, as well as information on how to upload data. Specific pages are also available for developers. For details on contributing code changes and pull-requests to cBioPortal, please see our [CONTRIBUTING Doc](https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md).
+Welcome to the documentation for cBioPortal! Below you can find an index of all available documentation to help you to deploy and maintain a local instance of cBioPortal, as well as information on how to upload data. Specific pages are also available for developers. For details on contributing code changes and pull-requests to cBioPortal, please see our [CONTRIBUTING Doc](https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md).
 
 We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) where we describe new features and solicit community feedback.
 
@@ -13,12 +13,12 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ## 2. cBioPortal Deployment
 ### 2.1 Deployment
-* [cBioPortal Hardware and Software Requirements](System-Requirements.md)
+* [Hardware and Software Requirements](System-Requirements.md)
 * [Pre-Build Steps](Pre-Build-Steps.md)
-* [Build cBioPortal from Source](Build-from-Source.md)
-* [Import the Seed Database](Import-the-Seed-Database.md)
-* [Loading a Sample Cancer Study](Load-Sample-Cancer-Study.md)  
-* [Deploying cBioPortal](Deploying.md)
+* [Building from Source](Build-from-Source.md)
+* [Importing the Seed Database](Import-the-Seed-Database.md)
+* [Loading a Sample Study](Load-Sample-Cancer-Study.md)  
+* [Deploying the Web Application](Deploying.md)
 
 ### 2.2 Authorization and Authentication
 * [User Authorization](User-Authorization.md)
@@ -50,9 +50,9 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
    * [Development, Debugging and Maintenance Using cbioportalImporter](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md)
    * [File Formats](File-Formats.md)
        * [Z-Score Normalization](Z-Score-normalization-script.md)
-   * [Data Loading: How the loader deals with Hugo Symbols](Data-Loading-%3A-How-the-loader-deals-with-Hugo-symbols.md) (TODO)    
-   * [Data Loading: What You Need To Change](Data-Loading-%3A-What-You-Need-To-Change.md)
-   * [Data Loading: Tips and Best Practices](Data-Loading-%3A-Tips-and-Best-Practices.md)
+   * [Data Loading: How the loader deals with Hugo Symbols](Data-Loading-How-the-loader-deals-with-Hugo-symbols.md) (TODO)    
+   * [Data Loading: What You Need To Change](Data-Loading-What-You-Need-To-Change.md)
+   * [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
    * [Importer Tool](Importer-Tool.md) (deprecated)
 
 ### 5.2 Datasets

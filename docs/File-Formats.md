@@ -217,7 +217,7 @@ PATIENT_ID_2<TAB>SAMPLE_ID_2<TAB>Her2 enriched<TAB>...
 ```
 
 ## Discrete Copy Number Data
-The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf). For some help on using GISTIC, check the [Data Loading: Tips and Best Practices](Data-Loading-%3A-Tips-and-Best-Practices.md) page.
+The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf). For some help on using GISTIC, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page.
 
 ##### Meta file 
 The meta file is comprised of the following fields:
@@ -450,7 +450,7 @@ Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ...
 ```
 
-An example data file which includes both Hugo_Symbo and Entrez_Gene_Id would look like (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](Data-Loading-%3A-How-the-loader-deals-with-Hugo-symbols.md)):
+An example data file which includes both Hugo_Symbo and Entrez_Gene_Id would look like (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](Data-Loading-How-the-loader-deals-with-Hugo-symbols.md)):
 ```
 Hugo_Symbol<TAB>Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ACAP3<TAB>116983<TAB>-0.005<TAB>-0.550<TAB>...
@@ -459,7 +459,7 @@ AGRN<TAB>375790<TAB>0.142<TAB>0.091<TAB>...
 ...
 ```
 
-An example data file with only Hugo_Symbol column (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](Data-Loading-%3A-How-the-loader-deals-with-Hugo-symbols.md):
+An example data file with only Hugo_Symbol column (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](Data-Loading-How-the-loader-deals-with-Hugo-symbols.md):
 ```
 Hugo_Symbol<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ACAP3<TAB>-0.005<TAB>-0.550<TAB>...
@@ -764,14 +764,14 @@ This type data is not yet being validated. It can, however, be uploaded.
 Each event type requires its own meta file. A timeline meta file should contain the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
-2. **genetic_alteration_type**: TIMELINE
+2. **genetic_alteration_type**: CLINICAL
 3. **datatype**: TIMELINE
 4. **data_filename**: &lt;your datafile&gt;
 
 An example metadata file would be:
 ```
 cancer_study_identifier: brca_tcga
-genetic_alteration_type: TIMELINE
+genetic_alteration_type: CLINICAL
 datatype: TIMELINE
 data_filename: data_timeline_imaging.txt
 ```
@@ -782,11 +782,8 @@ Each event type requires its own data file, which contains all the events that e
 
 1. **PATIENT_ID**: the patient ID from the dataset
 2. **START_DATE**: the start point of any event, calculated in **_days_* from the date of diagnosis (which will act as point zero on the timeline scale)
-3. **EVENT_TYPE**: the category of the event. You are free to define any type of event here. For several event types cBioPortal has column naming suggestions and for several events there are column names which have special effects. See [event types](#event-types) for more information.
-
-There is one conditionally required column:
-
-1. **STOP_DATE**: The end date of the event is calculated in days from the date of diagnosis (which will act as point zero on the timeline scale). If the event occurs over time (e.g. a Treatment, ...) STOP_DATE should be used. If the event occurs at a time point (e.g. a Lab_test, Imaging, ...) STOP_DATE should not be used. 
+3. **STOP_DATE**: The end date of the event is calculated in days from the date of diagnosis (which will act as point zero on the timeline scale). If the event occurs over time (e.g. a Treatment, ...) the STOP_DATE column should have values. If the event occurs at a time point (e.g. a Lab_test, Imaging, ...) the STOP_DATE is still mandatory, but the values should be blanks.
+4. **EVENT_TYPE**: the category of the event. You are free to define any type of event here. For several event types cBioPortal has column naming suggestions and for several events there are column names which have special effects. See [event types](#event-types) for more information. 
 
 And one optional columns with a special effect:
 

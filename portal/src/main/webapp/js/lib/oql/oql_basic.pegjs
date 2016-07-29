@@ -92,6 +92,7 @@ Mutation
 	/ "INFRAME"i { return {"type":"class", "value":"INFRAME"}; }
 	/ "SPLICE"i { return {"type":"class", "value":"SPLICE"}; }
 	/ "TRUNC"i { return {"type":"class", "value":"TRUNC"}; }
+        / "PROMOTER"i { return {"type":"class", "value":"PROMOTER"}; }
         / letter:AminoAcid position:NaturalNumber string:String { return {"type":"name" , "value":(letter+position+string)};}
         / letter:AminoAcid position:NaturalNumber { return {"type":"position", "value":parseInt(position)}; }
 	/ mutation_name:String { return {"type":"name", "value":mutation_name}; }

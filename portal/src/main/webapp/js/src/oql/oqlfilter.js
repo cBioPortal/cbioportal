@@ -70,7 +70,7 @@ window.OQL = (function () {
 	     *	    //  or null
 	     *	},
 	     *	'mut_type': function(d) {
-	     *	    // returns 'missense', 'nonsense', 'nonstart', 'nonstop', 'frameshift', 'inframe', 'splice', or 'trunc',
+	     *	    // returns 'missense', 'nonsense', 'nonstart', 'nonstop', 'frameshift', 'inframe', 'splice', 'trunc', or 'promoter'
 	     *	    //  or null
 	     *	},
 	     *	'mut_position': function(d) {
@@ -367,6 +367,8 @@ window.OQL = (function () {
 		    if (d.genetic_alteration_type === 'MUTATION_EXTENDED') {
 			if (d.simplified_mutation_type === "fusion") {
 			    return null;
+			} else if (d.amino_acid_change.toLowerCase() === "promoter") {
+			    return "promoter";
 			} else {
 			    return d.simplified_mutation_type;
 			}

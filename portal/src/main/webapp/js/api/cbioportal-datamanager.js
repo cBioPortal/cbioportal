@@ -139,9 +139,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     };
     var getOncoprintMutationType = function(type) {
 	// In: output of getSimplifiedMutationType
-	// Out: Everything that's not missense, inframe, promoter, or fusion becomes trunc
+	// Out: Everything that's not missense, inframe, or fusion becomes trunc
 	type = type.toLowerCase();
-	return (["missense", "inframe", "fusion", "promoter"].indexOf(type) > -1 ? type : "trunc");
+	return (["missense", "inframe", "fusion"].indexOf(type) > -1 ? type : "trunc");
     };
     var insertionIndex = function(sorted_list, target) {
 	/* In: sorted_list, a sorted list of unique numbers

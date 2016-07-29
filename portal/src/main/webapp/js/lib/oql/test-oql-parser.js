@@ -57,6 +57,7 @@ doTest("TP53;", [{gene:"TP53", alterations:false}]);
 doTest("TP53\n", [{gene:"TP53", alterations:false}]);
 doTest("TP53 BRCA1 KRAS NRAS", [{gene:"TP53", alterations:false}, {gene:"BRCA1", alterations:false}, {gene:"KRAS", alterations:false}, {gene:"NRAS", alterations:false}]);
 doTest("TP53:MUT", [{gene:"TP53", alterations:[{alteration_type: "mut"}]}])
+doTest("TP53:MISSENSE PROMOTER", [{gene:"TP53", alterations:[{alteration_type: "mut", constr_rel: "=", constr_type: "class", constr_val: "MISSENSE"},{alteration_type: "mut", constr_rel: "=", constr_type: "class", constr_val: "PROMOTER"}]}])
 doTest("TP53:MUT;", [{gene:"TP53", alterations:[{alteration_type: "mut"}]}])
 doTest("TP53:MUT\n", [{gene:"TP53", alterations:[{alteration_type: "mut"}]}])
 doTest("TP53:MUT; BRCA1: AMP HOMDEL EXP>=3 PROT<1", [{gene:"TP53", alterations:[{alteration_type: "mut"}]},

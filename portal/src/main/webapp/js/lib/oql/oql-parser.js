@@ -144,9 +144,12 @@ oql_parser = (function() {
         peg$c109 = "trunc",
         peg$c110 = { type: "literal", value: "TRUNC", description: "\"TRUNC\"" },
         peg$c111 = function() { return {"type":"class", "value":"TRUNC"}; },
-        peg$c112 = function(letter, position, string) { return {"type":"name" , "value":(letter+position+string)};},
-        peg$c113 = function(letter, position) { return {"type":"position", "value":parseInt(position)}; },
-        peg$c114 = function(mutation_name) { return {"type":"name", "value":mutation_name}; },
+        peg$c112 = "promoter",
+        peg$c113 = { type: "literal", value: "PROMOTER", description: "\"PROMOTER\"" },
+        peg$c114 = function() { return {"type":"class", "value":"PROMOTER"}; },
+        peg$c115 = function(letter, position, string) { return {"type":"name" , "value":(letter+position+string)};},
+        peg$c116 = function(letter, position) { return {"type":"position", "value":parseInt(position)}; },
+        peg$c117 = function(mutation_name) { return {"type":"name", "value":mutation_name}; },
 
         peg$currPos          = 0,
         peg$reportedPos      = 0,
@@ -1601,36 +1604,33 @@ oql_parser = (function() {
                     s0 = s1;
                     if (s0 === peg$FAILED) {
                       s0 = peg$currPos;
-                      s1 = peg$parseAminoAcid();
-                      if (s1 !== peg$FAILED) {
-                        s2 = peg$parseNaturalNumber();
-                        if (s2 !== peg$FAILED) {
-                          s3 = peg$parseString();
-                          if (s3 !== peg$FAILED) {
-                            peg$reportedPos = s0;
-                            s1 = peg$c112(s1, s2, s3);
-                            s0 = s1;
-                          } else {
-                            peg$currPos = s0;
-                            s0 = peg$c1;
-                          }
-                        } else {
-                          peg$currPos = s0;
-                          s0 = peg$c1;
-                        }
+                      if (input.substr(peg$currPos, 8).toLowerCase() === peg$c112) {
+                        s1 = input.substr(peg$currPos, 8);
+                        peg$currPos += 8;
                       } else {
-                        peg$currPos = s0;
-                        s0 = peg$c1;
+                        s1 = peg$FAILED;
+                        if (peg$silentFails === 0) { peg$fail(peg$c113); }
                       }
+                      if (s1 !== peg$FAILED) {
+                        peg$reportedPos = s0;
+                        s1 = peg$c114();
+                      }
+                      s0 = s1;
                       if (s0 === peg$FAILED) {
                         s0 = peg$currPos;
                         s1 = peg$parseAminoAcid();
                         if (s1 !== peg$FAILED) {
                           s2 = peg$parseNaturalNumber();
                           if (s2 !== peg$FAILED) {
-                            peg$reportedPos = s0;
-                            s1 = peg$c113(s1, s2);
-                            s0 = s1;
+                            s3 = peg$parseString();
+                            if (s3 !== peg$FAILED) {
+                              peg$reportedPos = s0;
+                              s1 = peg$c115(s1, s2, s3);
+                              s0 = s1;
+                            } else {
+                              peg$currPos = s0;
+                              s0 = peg$c1;
+                            }
                           } else {
                             peg$currPos = s0;
                             s0 = peg$c1;
@@ -1641,12 +1641,30 @@ oql_parser = (function() {
                         }
                         if (s0 === peg$FAILED) {
                           s0 = peg$currPos;
-                          s1 = peg$parseString();
+                          s1 = peg$parseAminoAcid();
                           if (s1 !== peg$FAILED) {
-                            peg$reportedPos = s0;
-                            s1 = peg$c114(s1);
+                            s2 = peg$parseNaturalNumber();
+                            if (s2 !== peg$FAILED) {
+                              peg$reportedPos = s0;
+                              s1 = peg$c116(s1, s2);
+                              s0 = s1;
+                            } else {
+                              peg$currPos = s0;
+                              s0 = peg$c1;
+                            }
+                          } else {
+                            peg$currPos = s0;
+                            s0 = peg$c1;
                           }
-                          s0 = s1;
+                          if (s0 === peg$FAILED) {
+                            s0 = peg$currPos;
+                            s1 = peg$parseString();
+                            if (s1 !== peg$FAILED) {
+                              peg$reportedPos = s0;
+                              s1 = peg$c117(s1);
+                            }
+                            s0 = s1;
+                          }
                         }
                       }
                     }

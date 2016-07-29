@@ -403,6 +403,7 @@ var utils = {
           oncoprint.keepSorted(false);
 
           var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
+          + Object.keys(State.heatmap_tracks).length
           + Object.keys(State.clinical_tracks).length;
 
           utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
@@ -416,13 +417,14 @@ var utils = {
               var hm_id = State.heatmap_tracks[hm_line];
               oncoprint.setTrackData(hm_id, oncoprint_data_by_line[hm_line].oncoprint_data, 'sample');
               oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
+              LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
             });
           }).then(function() {
             return utils.timeoutSeparatedLoop(Object.keys(State.clinical_tracks), function(track_id, i) {
               var attr = State.clinical_tracks[track_id];
               oncoprint.setTrackData(track_id, clinical_data[attr.attr_id], 'sample');
               oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeClinicalTrackTooltip('sample', true));
-              LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+              LoadingBar.update((i + Object.keys(State.heatmap_tracks).length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
             });
           }).then(function () {
             oncoprint.keepSorted();
@@ -461,6 +463,7 @@ var utils = {
           oncoprint.keepSorted(false);
 
           var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
+          + Object.keys(State.heatmap_tracks).length
           + Object.keys(State.clinical_tracks).length;
 
           utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
@@ -474,6 +477,7 @@ var utils = {
               var hm_id = State.heatmap_tracks[hm_line];
               oncoprint.setTrackData(hm_id, oncoprint_data_by_line[hm_line].oncoprint_data, 'patient');
               oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
+              LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
             });
           }).then(function() {
             return utils.timeoutSeparatedLoop(Object.keys(State.clinical_tracks), function(track_id, i) {
@@ -481,6 +485,7 @@ var utils = {
               oncoprint.setTrackData(track_id, clinical_data[attr.attr_id], 'patient');
               oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeClinicalTrackTooltip('patient', true));
               LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+              LoadingBar.update((i + Object.keys(State.heatmap_tracks).length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
             });
           }).then(function () {
             oncoprint.keepSorted();

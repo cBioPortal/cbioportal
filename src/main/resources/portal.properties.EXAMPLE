@@ -121,7 +121,7 @@ tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftp
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
 # Enable OncoKB annotation
-oncokb.url=
+oncokb.url=http://oncokb.org/legacy-api/
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true

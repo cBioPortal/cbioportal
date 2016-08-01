@@ -11,7 +11,7 @@ import org.cbioportal.model.CosmicCount;
 import org.cbioportal.service.CosmicCountService;
 
 @RestController
-public class COSMICCountController {
+public class CosmicCountController {
 
     @Autowired
     private CosmicCountService cosmicCountService;

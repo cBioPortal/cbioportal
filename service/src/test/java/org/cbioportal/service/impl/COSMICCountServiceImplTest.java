@@ -26,7 +26,7 @@ public class COSMICCountServiceImplTest {
     public void getCOSMICCountsByKeywords() throws Exception {
 
 	    
-        ArrayList<String> testKeywords = new ArrayList<String>();
+        ArrayList<String> testKeywords = new ArrayList<>();
         testKeywords.add("test_keyword");
 
         List<CosmicCount> expectedCOSMICCountList = new ArrayList<>();

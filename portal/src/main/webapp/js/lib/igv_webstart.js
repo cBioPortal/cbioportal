@@ -243,9 +243,11 @@ var addIGVButtons = function (genes){
             '<a href="#" class="ui-tabs-anchor" onclick="switchGenes('+"'"+genes[i]+"'"+')"><span>' +genes[i]+'</span></a>'+
             '</li>');
     }
+ 
     $('#switchGenes').append(
             '<li class="ui-state-default ui-corner-top" role="tab" tabindex="0" >'+
-            '<a href="#" class="ui-tabs-anchor" onclick="showAllGenesPanel()"><span>' +"All Genes"+'</span></a></li>');
+            '<a href="#" class="ui-tabs-anchor" onclick="showAllGenesPanel('+"'"+genes+"'"+')"><span>' +"All Genes"+'</span></a>'+
+            '</li>');
    
 }
 
@@ -255,20 +257,27 @@ var switchGenes = function(buttonVal){
     $("#all_genes").hide();  
 }
 
-var showAllGenesPanel = function (){
+//genes is an array
+var showAllGenesPanel = function (genes){
+    
     $("#all_genes").show();
-   if(allGenesCN==false) {
+    if(allGenesCN==false) {
        startAllGenes();
     }
-    var inputNumber = 3; 
-    for (i=0; i<inputNumber; i++){
-    $("#sort").append(
-            '<label><input type="radio" name="sort" value="sortingGene"  onclick="checkedSort()"/>'+"sortingGene"+'</label>');  
+
+    var genesArray = genes.split(',');
+    var inputNumber = genesArray.length; 
+console.log("$('input[name=sort]')");
+console.log($('input[name="sort"]'));
+    if($('input[name="sort"]').length==0){
+        for (i=0; i<inputNumber; i++){
+            $("#sort").append(
+            '<label><input type="radio" name="sort" value="' + genesArray[i]+'"  onclick="checkedSort()"/>'+genesArray[i]+'</label>');  
+        }
     }
+    
     $("#igvRootDiv").hide();
 }
-
-
 
 var allGenesCN = false;
 var startAllGenes = function(){
@@ -288,12 +297,13 @@ var startAllGenes = function(){
    
       var g = svg.append("g")
                   .attr("transform", "translate("+margin.left+","+margin.top+")");
- 
+    readTextFile("http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg");
+      
       d3.json("data/cbioportal_TCGA_small.json", function(data) {
         console.log(data);
         var min=0;
         geneNumber=1;
-        var barwidth =20;
+        var barwidth =10;
         var rect = g.selectAll("rect")
                     .data(data)
                   .enter()
@@ -305,26 +315,12 @@ var startAllGenes = function(){
                     .attr("fill", function(d) {
 
                         if (d.value>0) {
-                            return "rgb("+ 255 + ","+ (255-Math.round(d.value*80))+","+ (255-Math.round(d.value*80))+")";
+                            return "rgb("+ 255 + ","+ (255-Math.round(d.value*50))+","+ (255-Math.round(d.value*50))+")";
                         } else{
-                            return "rgb("+(255+Math.round(d.value*80))+","+(255+Math.round(d.value*80))+"," + 255 + ")"; 
+                            return "rgb("+(255+Math.round(d.value*50))+","+(255+Math.round(d.value*50))+"," + 255 + ")"; 
                         }                        
                     });  
 
-  /*          g.selectAll("text")
-                .data(data)
-               .enter()
-               .append("text")
-               .text(function(d) {
-                    return d.sample;
-               })
-                .attr("x", min-10)
-                .attr("y", function(i) { return height/data.length*i+8; })
-               .attr("font-family", "sans-serif")
-               .attr("font-size", "10px")
-               .attr("height", 11)
-               .attr("text-anchor", "end");
-*/
           
             //sorting bar chart                
             d3.selectAll('input[name="sort"]').on("click", function(){ 
@@ -348,25 +344,26 @@ var startAllGenes = function(){
               .attr("x", min)
               .attr("y", function(d,i) { return (barwidth+samplePadding)*i;})
               .attr("fill", function(d) {
-
-                        if (d.value>0) {
-                            return "rgb("+ 255 + ","+ (255-Math.round(d.value*80))+","+ (255-Math.round(d.value*80))+")";
-                        } else{
-                            return "rgb("+(255+Math.round(d.value*80))+","+(255+Math.round(d.value*80))+"," + 255 + ")"; 
-                        }                        
-                    });   
+                    if (d.value>0) {
+                        return "rgb("+ 255 + ","+ (255-Math.round(d.value*80))+","+ (255-Math.round(d.value*80))+")";
+                    } else{
+                        return "rgb("+(255+Math.round(d.value*80))+","+(255+Math.round(d.value*80))+"," + 255 + ")"; 
+                    }                        
+                });   
             rect.exit().remove();
         }
 
         //function for sorting bars
         var sortBars=function(data){          
-            refined_data=data.sort(function(a,b){return d3.ascending(a.value, b.value);
-            });
-        } 
-
-          
+            if (sortChecked==="KRAS"){
+                refined_data=data.sort(function(a,b){return d3.ascending(a.value, b.value)});
+            } else {
+                refined_data=data;
+            }
+        }           
     });
 }
+
   //function for checking which sorted radio box is checked
         var sortChecked ="";
         function checkedSort(){
@@ -410,20 +407,69 @@ var startIGV = function(targetGene, segUrl) {
     sourceType:"file",
     type:"seg",
     url:"http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"
-}*/
-//igv.FeatureTrack.prototype.getFeatures = function (12r, 25357180, bpEnd)      
-//
-//igv.segTrack.getGeneData();
- //   console.log("geneData");
-  //  console.log(geneData);
-   // igv.browser.search('KRAS');
-    //igv.browser.search('nras');
-    //igv.browser.search('BRAF');
 }
-//igv.segTrack =new igv.SegTrack();
-//igv.segTrack.getGeneData();=
- //   console.log("geneData");
-//     console.log(geneData);
+*/
+
+}
+
+/*var features =[];
+var getSegments = function(text){
+    var line = text.split('/n');
+    console.log("line");
+    console.log(line);
+var geneMapping=[
+                    {
+                    "gene": "KRAS",
+                    "chr":12,
+                    "bpStart": 25204789,
+                    "bpEnd": 25252093
+                    },
+                    {
+                    "gene": "NRAS",
+                    "chr":1,
+                    "bpStart": 114704464,
+                    "bpEnd": 114716894
+                    },
+                    {
+                    "gene": "BRAF",
+                    "chr":7,
+                    "bpStart": 140719331,
+                    "bpEnd": 140924764
+                    }
+                ];
+
+    while(line.hasNext()){
+        var segment = line.split(' ');
+        if (segment[1]==geneMapping[0].chr && ((segment[2]>=bpStart &&segment[2]<=bpEnd) || (segment[3]>=bpStart&& segment[3]<=bpEnd)){
+           // features.push(
+           {
+            "sample": segment[0],
+            "chr": segment[1],
+            "start": segment[2],
+            "end":segment[3],
+            'value': segment[4]
+           });
+        }
+    } 
+}*/
+
+var allText;
+function readTextFile(file)
+{
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                allText = rawFile.responseText;
+            }
+        }
+    }
+    rawFile.send(null);
+}
 
 
 function prepIGVLaunch(dataURL, locusString, referenceGenome, trackName) {

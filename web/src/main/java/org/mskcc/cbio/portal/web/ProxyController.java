@@ -42,10 +42,8 @@ import org.springframework.beans.factory.annotation.*;
 
 import java.net.*;
 import javax.servlet.http.*;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/proxy")
@@ -176,24 +174,18 @@ public class ProxyController
     return responseEntity.getBody();
   }
 
-  @RequestMapping(value="/session-service/{type}")
-  public @ResponseBody String getSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
+  @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
+  public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
                                                 HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
   {
     RestTemplate restTemplate = new RestTemplate();
     URI uri = new URI(sessionServiceURL + type);
 
-    // force this to use StringHttpMessageConverter
-    // when Jackson 2 is present on the classpath
-    // MappingJackson2HttpMessageConverter is used, which encoded the response
-    List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
-    converters.add(new StringHttpMessageConverter());
-    restTemplate.setMessageConverters(converters);
-
-    // if request fails then this throws a org.springframework.web.util.NestedServletException
-    // we should probably do something more graceful
-    ResponseEntity<String> responseEntity =
-      restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), String.class);
+    // returns {"id":"5799648eef86c0e807a2e965"}
+    // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
+    // was String when default converter StringHttpMessageConverter was used
+    ResponseEntity<HashMap> responseEntity =
+      restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
 
     return responseEntity.getBody();
   }

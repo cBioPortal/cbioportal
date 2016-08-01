@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.web;
 
 import org.json.simple.*;
 import org.springframework.http.*;
+import org.springframework.http.converter.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.stereotype.Controller;
@@ -43,6 +44,8 @@ import java.net.*;
 import javax.servlet.http.*;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/proxy")
@@ -179,6 +182,13 @@ public class ProxyController
   {
     RestTemplate restTemplate = new RestTemplate();
     URI uri = new URI(sessionServiceURL + type);
+
+    // force this to use StringHttpMessageConverter
+    // when Jackson 2 is present on the classpath
+    // MappingJackson2HttpMessageConverter is used, which encoded the response
+    List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
+    converters.add(new StringHttpMessageConverter());
+    restTemplate.setMessageConverters(converters);
 
     // if request fails then this throws a org.springframework.web.util.NestedServletException
     // we should probably do something more graceful

@@ -5,9 +5,13 @@
  */
 package org.mskcc.cbio.portal.web.api;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.cbioportal.service.MutationService;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
@@ -21,6 +25,8 @@ import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.model.DBSample;
 import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBStudy;
+import org.mskcc.cbio.portal.servlet.PatientView;
+import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +52,8 @@ import org.mskcc.cbio.portal.model.DBAltCountInput;
 public class ApiController {
     @Autowired
     private ApiService service;
+    @Autowired
+    private MutationService mutationService;
 
     /* DISPATCHERS */
     @ApiOperation(value = "Get cancer types with meta data",
@@ -353,5 +361,47 @@ public class ApiController {
         } else {
             return service.getStudies(study_ids);
         }
+    }
+
+    @ApiOperation(value = "Get mutation matrix",
+            nickname = "mutationmatrix",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/mutationmatrix", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody Map<String,List> getMutationMatrix(
+            @RequestParam(PatientView.SAMPLE_ID) List<String> sampleStableIds,
+            @RequestParam(PatientView.MUTATION_PROFILE) String mutationGeneticProfileStableId,
+            @RequestParam(value = PatientView.MRNA_PROFILE, required = false) String mrnaGeneticProfileStableId,
+            @RequestParam(value = PatientView.CNA_PROFILE, required = false) String cnaGeneticProfileStableId,
+            @RequestParam(value = PatientView.DRUG_TYPE, required = false) String drugType)
+            throws IOException, DaoException {
+
+        return mutationService.getMutationMatrix(sampleStableIds, mutationGeneticProfileStableId,
+                mrnaGeneticProfileStableId, cnaGeneticProfileStableId, drugType);
+    }
+
+    @ApiOperation(value = "Get mutation count",
+            nickname = "mutationcount",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/mutationcount", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody Map<String, Integer> getMutationCount(
+            @RequestParam(value = PatientView.MUTATION_PROFILE, required = false) String mutationGeneticProfileStableId,
+            @RequestParam(value = QueryBuilder.CASE_IDS, required = false) List<String> sampleStableIds) {
+
+        return mutationService.getMutationCount(mutationGeneticProfileStableId, sampleStableIds);
+    }
+
+    @ApiOperation(value = "Get SMG",
+            nickname = "smg",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/smg", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<Map<String,Object>> getSmg(
+            @RequestParam(PatientView.MUTATION_PROFILE) String mutationGeneticProfileStableId,
+            @RequestParam(value = "case_list", required = false) List<String> sampleStableIds)
+            throws DaoException {
+
+        return mutationService.getSmg(mutationGeneticProfileStableId, sampleStableIds);
     }
 }

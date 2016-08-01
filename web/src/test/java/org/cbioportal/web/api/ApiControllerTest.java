@@ -8,15 +8,13 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationEvent;
-import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleType;
 import org.cbioportal.model.TypeOfCancer;
-import org.cbioportal.service.MutationService;
+import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
-import org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +30,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -46,7 +43,7 @@ public class ApiControllerTest {
     @Autowired
     private GeneticProfileMapper geneticProfileMapperMock;
     @Autowired
-    private MutationService mutationServiceMock;
+    private MutationRepository mutationRepositoryMock;
     @Autowired
     private WebApplicationContext webApplicationContext;
     private MockMvc mockMvc;
@@ -58,7 +55,7 @@ public class ApiControllerTest {
     public void setup() {
         Mockito.reset(cancerTypeMapperMock);
         Mockito.reset(geneticProfileMapperMock);
-        Mockito.reset(mutationServiceMock);
+        Mockito.reset(mutationRepositoryMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
@@ -133,7 +130,7 @@ public class ApiControllerTest {
         Mockito.when(geneticProfileMapperMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
-        Mockito.when(mutationServiceMock.getMutationsDetailed(
+        Mockito.when(mutationRepositoryMock.getMutationsDetailed(
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
@@ -192,31 +189,31 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].validation_status").value("Untested"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].validation_status").value("Untested"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].validation_status").value("Untested"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value("207"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value(207))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugo_gene_symbol").value("AKT1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_id").value("TCGA-AN-A0XR-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].amino_acid_change").value("L52R"))
@@ -225,13 +222,13 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].xvar_link_pdb").value("getma.org/pdb.php?prot=AKT1_HUMAN&from=6&to=108&var=L52R"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=AKT1_HUMAN&rb=6&re=108&var=L52R"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].chr").value("14"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].start_position").value("105246445"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].end_position").value("105246445"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_start_position").value("52"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_end_position").value("52"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].start_position").value(105246445))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].end_position").value(105246445))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_start_position").value(52))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_end_position").value(52))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_allele").value("A"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_allele").value("C"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value("207"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value(207))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugo_gene_symbol").value("AKT1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_id").value("TCGA-GM-A3NW-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].amino_acid_change").value("V4L"))
@@ -240,13 +237,13 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].xvar_link_pdb").value("getma.org/pdb.php?prot=AKT1_HUMAN&from=1&to=5&var=V4L"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=AKT1_HUMAN&rb=1&re=35&var=V4L"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].chr").value("14"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].start_position").value("105258971"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].end_position").value("105258971"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_start_position").value("4"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_end_position").value("4"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].start_position").value(105258971))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].end_position").value(105258971))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_start_position").value(4))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_end_position").value(4))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_allele").value("C"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_allele").value("G"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].entrez_gene_id").value("7046"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].entrez_gene_id").value(7046))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].hugo_gene_symbol").value("TGFBR1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].sample_id").value("TCGA-AO-A12D-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].amino_acid_change").value("E228V"))
@@ -255,13 +252,13 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].xvar_link_pdb").value("getma.org/pdb.php?prot=TGFR1_HUMAN&from=205&to=492&var=E228V"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=TGFR1_HUMAN&rb=205&re=492&var=E228V"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].chr").value("9"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].start_position").value("101900249"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].end_position").value("101900249"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].protein_start_position").value("228"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].protein_end_position").value("228"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].start_position").value(101900249))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].end_position").value(101900249))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].protein_start_position").value(228))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].protein_end_position").value(228))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].reference_allele").value("A"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].variant_allele").value("T"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].entrez_gene_id").value("7046"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].entrez_gene_id").value(7046))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].hugo_gene_symbol").value("TGFBR1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].sample_id").value("TCGA-BH-A0B5-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].amino_acid_change").value("F396L"))
@@ -270,13 +267,13 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].xvar_link_pdb").value("getma.org/pdb.php?prot=TGFR1_HUMAN&from=205&to=492&var=F396L"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=TGFR1_HUMAN&rb=205&re=492&var=F396L"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].chr").value("9"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].start_position").value("101908824"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].end_position").value("101908824"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].protein_start_position").value("396"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].protein_end_position").value("396"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].start_position").value(101908824))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].end_position").value(101908824))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].protein_start_position").value(396))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].protein_end_position").value(396))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].reference_allele").value("C"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].variant_allele").value("G"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].entrez_gene_id").value("7046"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].entrez_gene_id").value(7046))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].hugo_gene_symbol").value("TGFBR1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].sample_id").value("TCGA-AR-A2LE-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].amino_acid_change").value("R80Q"))
@@ -285,13 +282,13 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].xvar_link_pdb").value("getma.org/pdb.php?prot=TGFR1_HUMAN&from=34&to=114&var=R80Q"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=TGFR1_HUMAN&rb=34&re=114&var=R80Q"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].chr").value("9"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].start_position").value("101891278"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].end_position").value("101891278"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].protein_start_position").value("80"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[4].protein_end_position").value("80"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].start_position").value(101891278))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].end_position").value(101891278))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].protein_start_position").value(80))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].protein_end_position").value(80))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].reference_allele").value("G"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].variant_allele").value("A"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].entrez_gene_id").value("7046"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].entrez_gene_id").value(7046))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].hugo_gene_symbol").value("TGFBR1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].sample_id").value("TCGA-AC-A23H-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].amino_acid_change").value("D400Y"))
@@ -300,10 +297,10 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].xvar_link_pdb").value("getma.org/pdb.php?prot=TGFR1_HUMAN&from=205&to=492&var=D400Y"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=TGFR1_HUMAN&rb=205&re=492&var=D400Y"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].chr").value("9"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].start_position").value("101908834"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].end_position").value("101908834"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].protein_start_position").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].protein_end_position").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].start_position").value(101908834))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].end_position").value(101908834))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].protein_start_position").value(400))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].protein_end_position").value(400))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].reference_allele").value("G"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[5].variant_allele").value("T"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutation_event_id").doesNotExist())
@@ -311,8 +308,7 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].mutation_event_id").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].mutation_event_id").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[4].mutation_event_id").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[5].mutation_event_id").doesNotExist())
-                ;
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].mutation_event_id").doesNotExist());
     }
 
     @Test
@@ -322,7 +318,7 @@ public class ApiControllerTest {
         Mockito.when(geneticProfileMapperMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
-        Mockito.when(mutationServiceMock.getMutationsDetailed(
+        Mockito.when(mutationRepositoryMock.getMutationsDetailed(
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
@@ -353,15 +349,15 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutation_type").value("Missense_Mutation"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].validation_status").value("Untested"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].validation_status").value("Untested"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value("207"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value(207))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugo_gene_symbol").value("AKT1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_id").value("TCGA-AN-A0XR-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].amino_acid_change").value("L52R"))
@@ -370,13 +366,13 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].xvar_link_pdb").value("getma.org/pdb.php?prot=AKT1_HUMAN&from=6&to=108&var=L52R"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=AKT1_HUMAN&rb=6&re=108&var=L52R"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].chr").value("14"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].start_position").value("105246445"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].end_position").value("105246445"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_start_position").value("52"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_end_position").value("52"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].start_position").value(105246445))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].end_position").value(105246445))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_start_position").value(52))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_end_position").value(52))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_allele").value("A"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_allele").value("C"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value("207"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value(207))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugo_gene_symbol").value("AKT1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_id").value("TCGA-GM-A3NW-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].amino_acid_change").value("V4L"))
@@ -385,10 +381,10 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].xvar_link_pdb").value("getma.org/pdb.php?prot=AKT1_HUMAN&from=1&to=5&var=V4L"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=AKT1_HUMAN&rb=1&re=35&var=V4L"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].chr").value("14"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].start_position").value("105258971"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].end_position").value("105258971"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_start_position").value("4"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_end_position").value("4"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].start_position").value(105258971))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].end_position").value(105258971))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_start_position").value(4))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_end_position").value(4))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_allele").value("C"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_allele").value("G"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutation_event_id").doesNotExist())
@@ -403,7 +399,7 @@ public class ApiControllerTest {
         Mockito.when(geneticProfileMapperMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
-        Mockito.when(mutationServiceMock.getMutationsDetailed(
+        Mockito.when(mutationRepositoryMock.getMutationsDetailed(
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
@@ -430,7 +426,7 @@ public class ApiControllerTest {
         Mockito.when(geneticProfileMapperMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
-        Mockito.when(mutationServiceMock.getMutationsDetailed(
+        Mockito.when(mutationRepositoryMock.getMutationsDetailed(
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
@@ -460,15 +456,15 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutation_type").value("Missense_Mutation"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].validation_status").value("Untested"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].validation_status").value("Untested"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_tumor").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_normal").value("-1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value("207"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_tumor").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_read_count_normal").value(-1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value(207))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugo_gene_symbol").value("AKT1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_id").value("TCGA-AN-A0XR-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].amino_acid_change").value("L52R"))
@@ -477,13 +473,13 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].xvar_link_pdb").value("getma.org/pdb.php?prot=AKT1_HUMAN&from=6&to=108&var=L52R"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=AKT1_HUMAN&rb=6&re=108&var=L52R"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].chr").value("14"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].start_position").value("105246445"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].end_position").value("105246445"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_start_position").value("52"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_end_position").value("52"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].start_position").value(105246445))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].end_position").value(105246445))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_start_position").value(52))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].protein_end_position").value(52))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].reference_allele").value("A"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].variant_allele").value("C"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value("207"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value(207))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugo_gene_symbol").value("AKT1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_id").value("TCGA-GM-A3NW-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].amino_acid_change").value("V4L"))
@@ -492,10 +488,10 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].xvar_link_pdb").value("getma.org/pdb.php?prot=AKT1_HUMAN&from=1&to=5&var=V4L"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].xvar_link_msa").value("getma.org/?cm=msa&ty=f&p=AKT1_HUMAN&rb=1&re=35&var=V4L"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].chr").value("14"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].start_position").value("105258971"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].end_position").value("105258971"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_start_position").value("4"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_end_position").value("4"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].start_position").value(105258971))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].end_position").value(105258971))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_start_position").value(4))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].protein_end_position").value(4))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].reference_allele").value("C"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_allele").value("G"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutation_event_id").doesNotExist())

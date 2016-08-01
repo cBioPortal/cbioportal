@@ -114,7 +114,7 @@ public class MutSigJSON extends HttpServlet {
                 log.debug("cancerStudyId passed to MutSigJSON: " + cancerStudy.getInternalId());
             }
 
-            ArrayList<MutSig> mutSigList = DaoMutSig.getAllMutSig(cancerStudy.getInternalId());
+            List<MutSig> mutSigList = DaoMutSig.getAllMutSig(cancerStudy.getInternalId());
 
             if (log.isDebugEnabled()) {
                 log.debug("no of mutsigs associated with cancerStudy: " + mutSigList.size() + "\n");

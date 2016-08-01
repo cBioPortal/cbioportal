@@ -31,7 +31,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml</param-value>
+        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml classpath:applicationContext-service.xml</param-value>
     </context-param>
 
     <context-param>
@@ -379,15 +379,6 @@
     <servlet-mapping>
         <servlet-name>CrossCancerMutationJSON</servlet-name>
         <url-pattern>/crosscancermutation.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>MutationsJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>MutationsJSON</servlet-name>
-        <url-pattern>/mutations.json</url-pattern>
     </servlet-mapping>
     
     <servlet>

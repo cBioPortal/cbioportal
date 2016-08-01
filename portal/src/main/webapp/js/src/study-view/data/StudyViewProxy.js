@@ -97,8 +97,6 @@ var StudyViewProxy = (function() {
                 case_list: sampleIdStr
             },
             mutationsData: {
-                cmd: "count_mutations",
-                cases_ids: sampleIdStr,
                 mutation_profile: parObject.mutationProfileId
             },
             cnaFraction: {
@@ -107,7 +105,6 @@ var StudyViewProxy = (function() {
                 cancer_study_id: parObject.studyId
             },
             mutatedGenesData: {
-                cmd: 'get_smg',
                 mutation_profile: parObject.mutationProfileId
             },
             gisticData: {
@@ -140,7 +137,7 @@ var StudyViewProxy = (function() {
     function getDataFunc(callbackFunc){
         $.when(
             $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.webserviceData}),
-            $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutationsData}),
+            $.ajax({type: "GET", url: "api/mutationcount", data: ajaxParameters.mutationsData}),
             $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaFraction}),
             $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}),
             $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.caseLists})
@@ -583,7 +580,7 @@ var StudyViewProxy = (function() {
             deferred.resolve(obtainDataObject.mutatedGenes);
         }else{
             if(hasMutation){
-                $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
+                $.ajax({type: "GET", url: "api/smg", data: ajaxParameters.mutatedGenesData})
                     .then(function(data){
                         obtainDataObject.mutatedGenes = data;
                         obtainDataObject.mutatedGenesSampleBased = convertMutatedGeneData(data);

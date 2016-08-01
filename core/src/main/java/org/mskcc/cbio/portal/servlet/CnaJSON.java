@@ -38,9 +38,12 @@ import org.mskcc.cbio.portal.util.*;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import java.io.*;
 import java.util.*;
+import javax.servlet.ServletConfig;
 import javax.servlet.http.*;
 import javax.servlet.ServletException;
 
@@ -57,7 +60,17 @@ public class CnaJSON extends HttpServlet {
     public static final String GET_CNA_FRACTION_CMD = "get_cna_fraction";
     public static final String CNA_EVENT_ID = "cna_id";
     public static final String CBIO_GENES_FILTER = "cbio_genes_filter";//Only get cna events from Cbio Cancer genes
-    
+
+    @Autowired
+    private AlterationUtil alterationUtil;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+                config.getServletContext());
+    }
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -124,7 +137,11 @@ public class CnaJSON extends HttpServlet {
             drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
             contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
             if (mrnaProfileId!=null && sampleIds.length==1) {
-                mrnaContext = getMrnaContext(internalSampleIds.get(0), cnaEvents, mrnaProfileId);
+                List<Long> entrezGeneIds = new ArrayList<>();
+                for (CnaEvent cnaEvent : cnaEvents) {
+                    entrezGeneIds.add(cnaEvent.getEntrezGeneId());
+                }
+                mrnaContext = alterationUtil.getMrnaContext(internalSampleIds.get(0), entrezGeneIds, mrnaProfileId);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -273,92 +290,23 @@ public class CnaJSON extends HttpServlet {
             // Temporary way of handling cases such as akt inhibitor for pten loss
             Set<Long> targets = daoDrugInteraction.getMoreTargets(gene, cnaEvent.getAlteration().name());
             genes.addAll(targets);
-            for (Long target : targets) {
-                Set<Long> eventGenes = mapTargetToEventGenes.get(target);
-                if (eventGenes==null) {
-                    eventGenes = new HashSet<Long>();
-                    mapTargetToEventGenes.put(target, eventGenes);
-                }
-                eventGenes.add(gene);
-            }
+            alterationUtil.addEventGenes(mapTargetToEventGenes, gene, targets);
             // end Temporary way of handling cases such as akt inhibitor for pten loss
         }
         
         Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes,fdaOnly,cancerDrug);
-        Map<Long, Set<String>> ret = new HashMap<Long, Set<String>>(map.size());
+        Map<Long, Set<String>> ret = new HashMap<>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
-            ret.put(entry.getKey(), new HashSet<String>(entry.getValue()));
+            ret.put(entry.getKey(), new HashSet<>(entry.getValue()));
         }
         
         // Temporary way of handling cases such as akt inhibitor for pten loss
-        for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
-            Set<Long> eventGenes = mapTargetToEventGenes.get(entry.getKey());
-            if (eventGenes!=null) {
-                for (long eventGene : eventGenes) {
-                    Set<String> drugs = ret.get(eventGene);
-                    if (drugs==null) {
-                        drugs = new HashSet<String>();
-                        ret.put(eventGene, drugs);
-                    }
-                    drugs.addAll(entry.getValue());
-                }
-            }
-        }
+        alterationUtil.addDrugs(mapTargetToEventGenes, map, ret);
         // end Temporary way of handling cases such as akt inhibitor for pten loss
         
         return ret;
     }
-    
-    private Map<Long, Map<String,Object>> getMrnaContext(Integer internalSampleId, List<CnaEvent> cnaEvents,
-            String mrnaProfileId) throws DaoException {
-        Map<Long, Map<String,Object>> mapGenePercentile = new HashMap<Long, Map<String,Object>>();
-        DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        for (CnaEvent cnaEvent : cnaEvents) {
-            long gene = cnaEvent.getEntrezGeneId();
-            if (mapGenePercentile.containsKey(gene)) {
-                continue;
-            }
-            
-            Map<Integer,String> mrnaMap = daoGeneticAlteration.getGeneticAlterationMap(
-                    DaoGeneticProfile.getGeneticProfileByStableId(mrnaProfileId).getGeneticProfileId(),
-                    gene);
-            double mrnaCase = parseNumber(mrnaMap.get(internalSampleId));
-            if (Double.isNaN(mrnaCase)) {
-                continue;
-            }
-            
-            Map<String,Object> map = new HashMap<String,Object>();
-            mapGenePercentile.put(gene, map);
-            
-            map.put("zscore", mrnaCase);
-            
-            int total = 0, below = 0;
-            for (String strMrna : mrnaMap.values()) {
-                double mrna = parseNumber(strMrna);
-                if (Double.isNaN(mrna)) {
-                    continue;
-                }
-                
-                total++;
-                if (mrna <= mrnaCase) {
-                    below++;
-                }
-            }
-            
-            map.put("perc", 100*below/total);
-        }
-        
-        return mapGenePercentile;
-    }
-    
-    private double parseNumber(String mrna) {
-        try {
-            return Double.parseDouble(mrna);
-        } catch (Exception e) {
-            return Double.NaN;
-        }
-    }
-    
+
     private Map<String,List> initMap() {
         Map<String,List> map = new HashMap<String,List>();
         map.put("id", new ArrayList());

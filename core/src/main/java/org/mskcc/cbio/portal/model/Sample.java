@@ -94,6 +94,9 @@ public class Sample {
 		this.cancerTypeId = cancerTypeId;
     }
 
+    public Sample() {
+    }
+
     private Type getType(String stableId)
     {
         Matcher tcgaSampleBarcodeMatcher = StableIdUtil.TCGA_SAMPLE_TYPE_BARCODE_REGEX.matcher(stableId);
@@ -110,11 +113,19 @@ public class Sample {
         return internalId;
     }
 
+    public void setInternalId(int internalId) {
+        this.internalId = internalId;
+    }
+
     public String getStableId()
     {
         return stableId;
     }
-   
+
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
+    }
+
     public Type getType()
     {
         return sampleType;

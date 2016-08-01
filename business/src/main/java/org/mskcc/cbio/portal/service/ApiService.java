@@ -11,8 +11,8 @@ import java.util.Set;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationWithSampleListId;
+import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.persistence.dto.AltCount;
-import org.cbioportal.service.MutationService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
@@ -74,7 +74,7 @@ public class ApiService {
 	@Autowired
 	private StudyMapper studyMapper;
 	@Autowired
-	private MutationService mutationService;
+	private MutationRepository mutationRepository;
 
 	@Transactional
 	public List<DBCancerType> getCancerTypes() {
@@ -103,7 +103,7 @@ public class ApiService {
                         echo.add(key);
                     }
                 }
-               List<AltCount> eles = mutationService.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study);
+               List<AltCount> eles = mutationRepository.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study);
                for(AltCount ele: eles )
                {
                    result = new HashMap<String,String>();
@@ -159,7 +159,7 @@ public class ApiService {
                         echo.add(key);
                     }
                 }
-                List<AltCount> eles = mutationService.getMutationsCounts(type, item.get("gene"), (item.get("start") == null ? null : Integer.parseInt(item.get("start"))), (item.get("end") == null ? null : Integer.parseInt(item.get("end"))), studyIds, per_study) ;
+                List<AltCount> eles = mutationRepository.getMutationsCounts(type, item.get("gene"), (item.get("start") == null ? null : Integer.parseInt(item.get("start"))), (item.get("end") == null ? null : Integer.parseInt(item.get("end"))), studyIds, per_study) ;
                 for(AltCount ele: eles)
                 {
                     result = new HashMap<String,String>();
@@ -360,7 +360,7 @@ public class ApiService {
 		List<Serializable> result = new ArrayList<>();
 
 		if (!mutationProfiles.isEmpty()) {
-			result.addAll(addSampleListIdToMutationList(mutationService.getMutationsDetailed(mutationProfiles, hugoGeneSymbols, sampleStableIds, sampleListStableId), sampleListStableId));
+			result.addAll(addSampleListIdToMutationList(mutationRepository.getMutationsDetailed(mutationProfiles, hugoGeneSymbols, sampleStableIds, sampleListStableId), sampleListStableId));
 		}
 		if (!nonMutationProfiles.isEmpty()) {
 			result.addAll(getNonMutationGeneticProfileData(nonMutationProfiles, hugoGeneSymbols, sampleStableIds,

@@ -58,6 +58,11 @@
         <ul class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all' role='group' aria-label='switch genes' id='switchGenes' value='<%= cancerTypeId %>'>    
         </ul>
         <div id="all_genes" class="igv-root-div">
+          <!--for selecting which gene to sort-->
+          <!--for sorting-->
+          <div id ="sort" class="form-group">
+            <label>Sort By:</label>
+          </div>
         </div>
     </div>
 </div>

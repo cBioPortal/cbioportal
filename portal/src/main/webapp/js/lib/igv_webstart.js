@@ -233,6 +233,8 @@ var prepIGVForSegView = function (_studyId) {
 
 //The parameter genes is an array
 var addIGVButtons = function (genes){
+    console.log ("genes");
+    console.log (genes);
      $("#all_genes").hide();
     var buttonNumber = genes.length+1;    
     for (i=0; i<buttonNumber-1; i++){
@@ -258,8 +260,15 @@ var showAllGenesPanel = function (){
    if(allGenesCN==false) {
        startAllGenes();
     }
+    var inputNumber = 3; 
+    for (i=0; i<inputNumber; i++){
+    $("#sort").append(
+            '<label><input type="radio" name="sort" value="sortingGene"  onclick="checkedSort()"/>'+"sortingGene"+'</label>');  
+    }
     $("#igvRootDiv").hide();
 }
+
+
 
 var allGenesCN = false;
 var startAllGenes = function(){
@@ -284,7 +293,7 @@ var startAllGenes = function(){
         console.log(data);
         var min=0;
         geneNumber=1;
-        var barwidth =5;
+        var barwidth =20;
         var rect = g.selectAll("rect")
                     .data(data)
                   .enter()
@@ -316,8 +325,58 @@ var startAllGenes = function(){
                .attr("height", 11)
                .attr("text-anchor", "end");
 */
-    }); 
+          
+            //sorting bar chart                
+            d3.selectAll('input[name="sort"]').on("click", function(){ 
+                //maintain an original aggregated/unaggregated and sorted/unsorted status
+                update(data);
+            });
+
+
+        //function for updating barchart but also maintaining an original sorted/unsorted status
+        function update(data){
+            //check whether need to sort data
+            sortBars(data);
+
+            //update rect
+            var rect= g.selectAll("rect")
+                .data(data);
+            rect.enter()
+                .append("rect");
+            rect.attr("width", width/geneNumber-genePadding) 
+              .attr("height", barwidth) 
+              .attr("x", min)
+              .attr("y", function(d,i) { return (barwidth+samplePadding)*i;})
+              .attr("fill", function(d) {
+
+                        if (d.value>0) {
+                            return "rgb("+ 255 + ","+ (255-Math.round(d.value*80))+","+ (255-Math.round(d.value*80))+")";
+                        } else{
+                            return "rgb("+(255+Math.round(d.value*80))+","+(255+Math.round(d.value*80))+"," + 255 + ")"; 
+                        }                        
+                    });   
+            rect.exit().remove();
+        }
+
+        //function for sorting bars
+        var sortBars=function(data){          
+            refined_data=data.sort(function(a,b){return d3.ascending(a.value, b.value);
+            });
+        } 
+
+          
+    });
 }
+  //function for checking which sorted radio box is checked
+        var sortChecked ="";
+        function checkedSort(){
+            d3.selectAll('input[name="sort"]').each(function (d) {
+                if(d3.select(this).attr("type") == "radio" &&d3.select(this).node().checked) {
+                    sortChecked =d3.select(this).attr("value");
+                }         
+            });   
+        }      
+
 
 var startIGV = function(targetGene, segUrl) {
 

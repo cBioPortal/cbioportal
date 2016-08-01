@@ -82,6 +82,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String STEP4_ERROR_MSG = "step4_error_msg";
     public static final String PROFILE_DATA_SUMMARY = "profile_data_summary";
     public static final String DOWNLOAD_LINKS = "download_links";
+    public static final String OUTPUT = "output";
     public static final String HTML_TITLE = "html_title";
     public static final String TAB_INDEX = "tab_index";
     public static final String TAB_DOWNLOAD = "tab_download";
@@ -242,11 +243,17 @@ public class QueryBuilder extends HttpServlet {
                 httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
             }
 
+            // Get the example study queries configured as a skin property
+            String[] exampleStudyQueries = GlobalProperties.getExampleStudyQueries().split("\n");
+            httpServletRequest.setAttribute(
+                    "exampleStudyQueries",
+                    exampleStudyQueries);
+
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet,
                                                sampleSetId, sampleIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-                processData(cancerTypeId, geneticProfileIdSet, profileList, sampleSetId,
+                processData(cancerTypeId, geneList, geneticProfileIdSet, profileList, sampleSetId,
                             sampleIds, sampleSets, patientCaseSelect, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
@@ -314,6 +321,7 @@ public class QueryBuilder extends HttpServlet {
      * 
     */
     private void processData(String cancerStudyStableId,
+                             String geneList,
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
 							 String sampleSetId, String sampleIds,
@@ -404,11 +412,23 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(CASE_IDS_KEY, sampleIdsKey);
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
+        ArrayList<DownloadLink> downloadLinkSet = new ArrayList<>();
+        while (profileIterator.hasNext()) {
+            String profileId = profileIterator.next();
+            GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
+            if( null == profile ){
+                continue;
+            }
+            GetProfileData remoteCall =
+                new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), StringUtils.join(setOfSampleIds, " "));
+            DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIds,
+                remoteCall.getRawContent());
+            downloadLinkSet.add(downloadLink);
+        }
 
+        request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
         String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
         if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
-            xdebug.logMsg(this, "Merging Profile Data");
-
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
             double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
@@ -418,7 +438,10 @@ public class QueryBuilder extends HttpServlet {
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
             dispatcher.forward(request, response);
-        } 
+        } else if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
+            ShowData.showDataAtSpecifiedIndex(servletContext, request,
+                response, 0, xdebug);
+        }
     }
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException

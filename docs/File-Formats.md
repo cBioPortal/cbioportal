@@ -121,7 +121,7 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
 - Row 1: **The attribute Display Names**: The display name for each clinical attribute
 - Row 2: **The attribute Descriptions**: Long(er) description of each clinical attribute
 - Row 3: **The attribute Datatype**: The datatype of each clinical attribute (must be one of:  STRING, NUMBER, BOOLEAN)
-- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study.do?cancer_study_id=brca_tcga)). A lower number indicates a higher priority.
+- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A lower number indicates a higher priority.
 
 #### Example metadata rows
 Below is an example of the first 4 rows with the respective metadata for the attributes defined in the 5th row. 
@@ -143,7 +143,7 @@ Following the metadata rows comes a tab delimited list of clinical attributes (c
 The file containing the patient attributes has one **required** column:
 - **PATIENT_ID (required)**: a unique patient ID.
 
-The following columns are used by the study view as well as the patient view. In the the [study view](http://www.cbioportal.org/study.do?cancer_study_id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header] (http://www.cbioportal.org/case.do?cancer_study_id=lgg_ucsf_2014&case_id=P05). 
+The following columns are used by the study view as well as the patient view. In the the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header] (http://www.cbioportal.org/case.do?cancer_study_id=lgg_ucsf_2014&case_id=P05). 
 - **OS_STATUS**:  Overall patient survival status
     - Possible values: DECEASED, LIVING
     - In the patient view, LIVING creates a green label, DECEASED a red label.
@@ -155,7 +155,7 @@ The following columns are used by the study view as well as the patient view. In
 - **DFS_MONTHS**: Disease free (months) since initial treatment
 
 Optional attributes:
-- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study.do?cancer_study_id=brca_tcga#clinical)) and display.
+- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
 
 ###### Example *patient* data file
 ```
@@ -201,7 +201,7 @@ The following columns affect the [Timeline data](#timeline-data) visualization:
     - Otherwise: black
 
 Optional attributes
-- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute you have tracked and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study.do?cancer_study_id=brca_tcga#clinical)) and display.
+- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute you have tracked and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
 
 
 ###### Example sample data file
@@ -421,6 +421,7 @@ And:
 
 For each gene-sample combination, a value is specified:
 - A real number for each sample id (column) in the dataset, representing the expression value for the gene in the respective sample.
+- or `NA` for when the expression value for the gene in the respective sample could not (or was not) be measured (or detected).
 
 ##### z-score instructions
 
@@ -666,7 +667,7 @@ The fusion metadata file should contain the following fields:
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
 2. **genetic_alteration_type**: FUSION
 3. **datatype**: FUSION
-4. **stable_id**: fusion
+4. **stable_id**: mutations
 5. **show_profile_in_analysis_tab**: true.
 6. **profile_name**: A name for the fusion data, e.g., "Fusions.".
 7. **profile_description**: A description of the fusion data.
@@ -678,7 +679,7 @@ An example metadata file would be:
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: FUSION
 datatype: FUSION
-stable_id: fusion
+stable_id: mutations
 profile_description: Fusions.
 show_profile_in_analysis_tab: true
 profile_name: Fusions
@@ -763,14 +764,14 @@ This type data is not yet being validated. It can, however, be uploaded.
 Each event type requires its own meta file. A timeline meta file should contain the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
-2. **genetic_alteration_type**: TIMELINE
+2. **genetic_alteration_type**: CLINICAL
 3. **datatype**: TIMELINE
 4. **data_filename**: &lt;your datafile&gt;
 
 An example metadata file would be:
 ```
 cancer_study_identifier: brca_tcga
-genetic_alteration_type: TIMELINE
+genetic_alteration_type: CLINICAL
 datatype: TIMELINE
 data_filename: data_timeline_imaging.txt
 ```
@@ -781,11 +782,8 @@ Each event type requires its own data file, which contains all the events that e
 
 1. **PATIENT_ID**: the patient ID from the dataset
 2. **START_DATE**: the start point of any event, calculated in **_days_* from the date of diagnosis (which will act as point zero on the timeline scale)
-3. **EVENT_TYPE**: the category of the event. You are free to define any type of event here. For several event types cBioPortal has column naming suggestions and for several events there are column names which have special effects. See [event types](#event-types) for more information.
-
-There is one conditionally required column:
-
-1. **STOP_DATE**: The end date of the event is calculated in days from the date of diagnosis (which will act as point zero on the timeline scale). If the event occurs over time (e.g. a Treatment, ...) STOP_DATE should be used. If the event occurs at a time point (e.g. a Lab_test, Imaging, ...) STOP_DATE should not be used. 
+3. **STOP_DATE**: The end date of the event is calculated in days from the date of diagnosis (which will act as point zero on the timeline scale). If the event occurs over time (e.g. a Treatment, ...) the STOP_DATE column should have values. If the event occurs at a time point (e.g. a Lab_test, Imaging, ...) the STOP_DATE is still mandatory, but the values should be blanks.
+4. **EVENT_TYPE**: the category of the event. You are free to define any type of event here. For several event types cBioPortal has column naming suggestions and for several events there are column names which have special effects. See [event types](#event-types) for more information. 
 
 And one optional columns with a special effect:
 

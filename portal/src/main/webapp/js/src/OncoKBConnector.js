@@ -510,7 +510,7 @@ var OncoKB = (function(_, $) {
                             //if evidence has level information, that means this is treatment evidence.
                             if (['LEVEL_0'].indexOf(evidence.levelOfEvidence) === -1) {
                                 var _treatment = {};
-                                _treatment.tumorType = evidence.tumorType.name;
+                                _treatment.tumorType = _.isObject(evidence.tumorType) ? evidence.tumorType.name : (evidence.subtype || evidence.cancerType);
                                 _treatment.level = evidence.levelOfEvidence;
                                 _treatment.content = evidence.treatments;
                                 _treatment.description = OncoKB.utils.findRegex(description) || 'No yet curated';
@@ -644,7 +644,7 @@ var OncoKB = (function(_, $) {
 
             // Always attach oncogenic description. It will be filled after
             // user hovering OncoKB icon. Also attach a loading gif.
-            str += '<br/><span class="oncogenic-description" style="float:left;"><span class="oncogenic-description-loading" style="display: none;"><img src="images/ajax-loader.gif" height="50px" width="50px"/></span><span class="oncogenic-description-content">';
+            str += '<br/><span class="oncogenic-description" style="float:left;"><span class="oncogenic-description-loading" style="display: none;"><img src="images/ajax-loader.gif" height="50px" width="50px" alt="loading" /></span><span class="oncogenic-description-content">';
             if (oncokbInfo.oncogenicDescription && oncokbInfo.oncogenicDescription !== 'null') {
                 str += oncokbInfo.oncogenicDescription;
             }
@@ -655,10 +655,10 @@ var OncoKB = (function(_, $) {
         }
 
         function getOncogenicityFooterStr() {
-            return '<div class="oncokb"><i>The information above is intended for research purposes only and should not be used as a substitute for professional diagnosis and treatment.</i></div><br/><div class="oncokb"><button class="oncokbFeedback-btn" style="margin-top: 0">Feedback</button><span style="float: right;">  <img src="images/oncokb.png" height="14px" style="margin-bottom: 5px">(Beta) <i class="fa fa-chevron-right oncokb_footer_moreInfo"></i><i class="fa fa-chevron-down oncokb_footer_lessInfo" style="display: none;"></i></span>' +
-                '<br/><div class="oncokb_footer" style="color: grey; display: none;"><i>OncoKB is under development. To report errors or missing annotation about this variant, please ' +
-                '<span class="oncokbFeedback">send us feedback</span>. For general feedback, please send an email to ' +
-                '<a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i></div></div>';
+            return '<div class="oncokb"><i>The information above is intended for research purposes only and should not be used as a substitute for professional diagnosis and treatment.</i></div><br/><div class="oncokb"><button class="oncokbFeedback-btn" style="margin-top: 0">Feedback</button><span style="float: right;">  <a href="http://oncokb.org" target="_blank"><img src="images/oncokb.png" height="14px" style="margin-bottom: 5px"></a> <i class="fa fa-chevron-right oncokb_footer_moreInfo"></i><i class="fa fa-chevron-down oncokb_footer_lessInfo" style="display: none;"></i></span>' +
+                '<br/><div class="oncokb_footer" style="color: grey; display: none;"><i>To report errors or missing annotation about this variant, please ' +
+                '<span class="oncokbFeedback">send us feedback</span>. For general questions, please send an email to ' +
+                '<a href="mailto:info@oncokb.org" title="Contact us">info@oncokb.org</a></i></div></div>';
         }
 
         function getMutationSummaryStrByTreatments(oncokbInfo) {
@@ -885,7 +885,7 @@ var OncoKB = (function(_, $) {
                     tooltip += '<b>Gene Summary</b><br/>' + gene.summary;
                 }
                 if (gene.background) {
-                    tooltip += '<br/><div><span class="oncokb_gene_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_gene_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
+                    tooltip += '<br/><div><span class="oncokb_gene_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB</i></span><br/><span class="oncokb_gene_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB</i></span></div>';
                 }
             }
 
@@ -1638,7 +1638,7 @@ OncoKB.Instance.prototype = {
                     if (_.isObject(gene) && Object.keys(gene).length > 0) {
                         _tip = OncoKB.str.getGeneSummaryBackground(gene);
                     } else if (hasGene) {
-                        _tip = '<span class="oncogenic-loading"><img src="images/ajax-loader.gif" height="50px" width="50px"/></span>'
+                        _tip = '<span class="oncogenic-loading"><img src="images/ajax-loader.gif" height="50px" width="50px" alt="loading" /></span>'
                     } else {
                         _tip = OncoKB.str.getNCBIGeneLink(self.variants[oncokbId].entrezGeneId);
                     }
@@ -1688,7 +1688,7 @@ OncoKB.Instance.prototype = {
 
                     $(this).empty();
                     if (self.variants.hasOwnProperty(oncokbId)) {
-                        var _tip = '', _oncogenicTip = '<span class="oncogenic-loading"><img src="images/ajax-loader.gif" height="50px" width="50px"/></span>', _hotspotTip = '';
+                        var _tip = '', _oncogenicTip = '<span class="oncogenic-loading"><img src="images/ajax-loader.gif" height="50px" width="50px" alt="loading" /></span>', _hotspotTip = '';
                         var variantNotExist = !self.variants[oncokbId].hasVariant;
                         var qtipMaxWidthClass = '';
 
@@ -1910,18 +1910,7 @@ $.fn.dataTableExt.oSort['sort-icons-asc'] = function(x, y) {
         }
     }
 
-    //Compare cosmicCount
-    if (x.mutation && _.isNumber(x.mutation.cosmicCount)) {
-        if (y.mutation && _.isNumber(y.mutation.cosmicCount)) {
-            return x.mutation.cosmicCount < y.mutation.cosmicCount ? 1 : -1;
-        } else {
-            return -1;
-        }
-    } else {
-        return 1;
-    }
-
-    return -1;
+    return 0;
 };
 
 $.fn.dataTableExt.oSort['sort-icons-desc'] = function(x, y) {
@@ -1945,16 +1934,5 @@ $.fn.dataTableExt.oSort['sort-icons-desc'] = function(x, y) {
         }
     }
 
-    //Compare cosmicCount
-    if (x.mutation && _.isNumber(x.mutation.cosmicCount)) {
-        if (y.mutation && _.isNumber(y.mutation.cosmicCount)) {
-            return x.mutation.cosmicCount < y.mutation.cosmicCount ? -1 : 1;
-        } else {
-            return 1;
-        }
-    } else {
-        return -1;
-    }
-
-    return 1;
+    return 0;
 };

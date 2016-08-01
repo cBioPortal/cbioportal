@@ -40,6 +40,7 @@ import java.io.*;
 import joptsimple.*;
 import java.util.*;
 import java.util.regex.*;
+import org.apache.commons.collections.map.MultiKeyMap;
 
 public class ImportClinicalData extends ConsoleRunnable {
 
@@ -58,6 +59,7 @@ public class ImportClinicalData extends ConsoleRunnable {
     private File clinicalDataFile;
     private CancerStudy cancerStudy;
     private AttributeTypes attributesType;
+    private boolean relaxed;
     private Set<String> patientIds = new HashSet<String>();
 
     public static enum MissingAttributeValues
@@ -68,7 +70,8 @@ public class ImportClinicalData extends ConsoleRunnable {
         DISCREPANCY("Discrepancy"),
         COMPLETED("Completed"),
         NULL("null"),
-        MISSING("");
+        MISSING(""),
+        NA("NA");
 
         private String propertyName;
         
@@ -107,11 +110,12 @@ public class ImportClinicalData extends ConsoleRunnable {
         public String toString() {return attributeType;}
     }
 
-    public void setFile(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype)
+    public void setFile(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype, boolean relaxed)
     {
         this.cancerStudy = cancerStudy;
         this.clinicalDataFile = clinicalDataFile;
         this.attributesType = AttributeTypes.valueOf(attributesDatatype);
+        this.relaxed = relaxed;
     }
 
     public void importData() throws Exception
@@ -121,7 +125,11 @@ public class ImportClinicalData extends ConsoleRunnable {
         // a clinical attribute update should be
         // perform instead of an insert
         MySQLbulkLoader.bulkLoadOn();
-
+        
+        if(relaxed) {
+            MySQLbulkLoader.relaxedModeOn();
+        }    
+        
         FileReader reader =  new FileReader(clinicalDataFile);
         BufferedReader buff = new BufferedReader(reader);
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
@@ -146,6 +154,7 @@ public class ImportClinicalData extends ConsoleRunnable {
         
         if (MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
+            MySQLbulkLoader.relaxedModeOff();
         }
     }
 
@@ -240,6 +249,7 @@ public class ImportClinicalData extends ConsoleRunnable {
     private void importData(BufferedReader buff, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         String line;
+        MultiKeyMap attributeMap = new MultiKeyMap();
         while ((line = buff.readLine()) != null) {
 
             line = line.trim();
@@ -248,7 +258,7 @@ public class ImportClinicalData extends ConsoleRunnable {
             }
 
             String[] fields = getFields(line, columnAttrs);
-            addDatum(fields, columnAttrs);
+            addDatum(fields, columnAttrs, attributeMap);
         }
     }
 
@@ -268,7 +278,7 @@ public class ImportClinicalData extends ConsoleRunnable {
         return fields; 
     }
 
-    private boolean addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    private boolean addDatum(String[] fields, List<ClinicalAttribute> columnAttrs, MultiKeyMap attributeMap) throws Exception
     {
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
         String stableSampleId = (sampleIdIndex >= 0) ? fields[sampleIdIndex] : "";
@@ -345,12 +355,39 @@ public class ImportClinicalData extends ConsoleRunnable {
             }
             boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
             if (isPatientAttribute && internalPatientId != -1) {
-                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                         ClinicalAttribute.PATIENT_ATTRIBUTE);
+                // The attributeMap keeps track what  patient/attribute to value pairs are being added to the DB. If there are duplicates,
+                // (which can happen in a MIXED_ATTRIBUTES type clinical file), we need to make sure that the value for the same
+                // attributes are consistent. This prevents duplicate entries in the temp file that the MySqlBulkLoader uses.
+                if(!attributeMap.containsKey(internalPatientId, columnAttrs.get(lc).getAttrId())) {
+                    addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                        ClinicalAttribute.PATIENT_ATTRIBUTE);
+                    attributeMap.put(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc]);
+                }
+                else if (!relaxed) {
+                    throw new RuntimeException("Error: Duplicated patient in file");
+                }
+                // if the "relaxed" flag was given, and the new record e.g. tries to override a previously set attribute for 
+                // an existing patient (e.g. set AGE from 2 to 10...in same study, or GENDER from M to F), then the system will keep 
+                // the previous value and give a warning. NB: this is a kind of "random" harmonization strategy and is 
+                // NOT recommended! TODO - change this to an Exception instead of just a warning. 
+                else if (!attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
+                    ProgressMonitor.logWarning("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
+                        "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                }
             }
             else if (internalSampleId != -1) {
-                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
+                if(!attributeMap.containsKey(internalSampleId, columnAttrs.get(lc).getAttrId())) {
+                    addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                        ClinicalAttribute.SAMPLE_ATTRIBUTE);
+                    attributeMap.put(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc]);
+                }
+                else if (!relaxed) {
+                    throw new RuntimeException("Error: Duplicated sample in file");
+                }
+                else if (!attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
+                    ProgressMonitor.logWarning("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
+                        "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                }
             }
         }
         return true;
@@ -526,7 +563,9 @@ public class ImportClinicalData extends ConsoleRunnable {
 	        OptionSpec<String> study = parser.accepts("study",
 	                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
 	        OptionSpec<String> attributeFlag = parser.accepts("a",
-	                "Flag for using MIXED_ATTRIBUTES (deprecated)").withOptionalArg().describedAs("a").ofType(String.class);
+	                "(deprecated) Flag for using MIXED_ATTRIBUTES").withOptionalArg().describedAs("a").ofType(String.class);
+                	        OptionSpec<String> relaxedFlag = parser.accepts("r",
+	                "(not recommended) Flag for relaxed mode, determining how to handle detected data harmonization problems in the same study").withOptionalArg().describedAs("r").ofType(String.class);
 	        parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
 	          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
 	        parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
@@ -548,6 +587,7 @@ public class ImportClinicalData extends ConsoleRunnable {
                         "'data' argument required.");
             }
 	        String attributesDatatype = null;
+                boolean relaxed = false;
 	        String cancerStudyStableId = null;
 	        if( options.has ( study ) )
 	        {
@@ -564,7 +604,11 @@ public class ImportClinicalData extends ConsoleRunnable {
                 {
                     attributesDatatype = "MIXED_ATTRIBUTES";
                 }
+                if( options.has ( relaxedFlag ) )
+                {
+                    relaxed = true;
 
+                }
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
             if (cancerStudy == null) {
@@ -575,7 +619,7 @@ public class ImportClinicalData extends ConsoleRunnable {
             ProgressMonitor.setCurrentMessage(" --> total number of lines:  " + numLines);
             ProgressMonitor.setMaxValue(numLines);
 
-            setFile(cancerStudy, clinical_f, attributesDatatype);
+            setFile(cancerStudy, clinical_f, attributesDatatype, relaxed);
             importData();
 
             if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||

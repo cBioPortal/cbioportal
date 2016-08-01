@@ -124,8 +124,9 @@
             var _id = mutEventIds[i];
             if(oncokbInstance) {
                 oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), 
-                    mutations.getValue(_id, "aa"), null, 
-                    mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : cancerType, 
+                    mutations.getValue(_id, "aa"), 
+                    (_.isObject(patientInfo) ? (patientInfo.CANCER_TYPE_DETAILED || patientInfo.CANCER_TYPE) : '') || cancerType, 
+                    mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : 'any', 
                     findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), 
                     mutations.getValue(_id, "is-hotspot"), mutations.getValue(_id, 'protein-start'), 
                     mutations.getValue(_id, 'protein-end'));
@@ -206,7 +207,7 @@
                                 if(mutations.colExists('oncokb')) {
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else if(OncoKB.getAccess()){
-                                    ret += "<img width='14' height='14' src='images/ajax-loader.gif'/>";
+                                    ret += "<img width='14' height='14' src='images/ajax-loader.gif' alt='loading' />";
                                 } else {
                                     ret = "<div class='"+table_id
                                             +"-tip' alt='"+tip+"'>"+ret+"</div>";
@@ -235,7 +236,7 @@
 
                                     ret += "<span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
                                 } else if (OncoKB.getAccess()) {
-                                    ret += '<span class="annotation-item"><img width="14" height="14" src="images/ajax-loader.gif"/></span>';
+                                    ret += '<span class="annotation-item"><img width="14" height="14" src="images/ajax-loader.gif" alt="loading" /></span>';
                                 }
 
                                 var mcg = mutations.getValue(source[0], 'mycancergenome');
@@ -751,7 +752,7 @@
                                 var proteinPos = hugo+"_"+mutations.getValue(source[0], "protein-start");
 
                                 var ret = "<div class='pancan_mutations_histogram_thumbnail' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
-                                    ret += "<img width='14' height='14' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif'/>";
+                                    ret += "<img width='14' height='14' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif' alt='loading' />";
                                     ret += "<div class='pancan_mutations_histogram_count' style='float:right' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
 
                                 return ret;
@@ -934,7 +935,7 @@
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
-                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc'], [mutTableIndices["gene"], 'asc']],
+                "aaSorting": [[mutTableIndices["annotation"], 'asc'], [mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc'], [mutTableIndices["gene"], 'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -1172,7 +1173,7 @@
                     <li>or recurrently mutated, namely\n\
                         <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                         <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
-                    <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
+                    <li>or with > 5 overlapping entries in COSMIC.</li></ul>' alt='help' />";
                     }
                     $('.mutation-summary-table-name').html(mutationSummary);
                     $('#mutations-summary-help').qtip({
@@ -1419,7 +1420,7 @@
 
 </script>
 
-<div id="mutation_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="mutation_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>
 <div id="mutation_id_filter_msg"><font color="red">The following table contains filtered mutations.</font>
 <button onclick="unfilterMutationsTableByIds(); return false;" style="font-size: 1em;">Show all mutations</button></div>
 <div  id="pancan_mutations_histogram_container"></div>

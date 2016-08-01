@@ -32,18 +32,23 @@
 
 package org.mskcc.cbio.portal.web_api;
 
+import org.cbioportal.persistence.MutationRepository;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.servlet.WebService;
 
 import org.apache.commons.httpclient.URI;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 /**
  * Class to get mutation data
  */
+@Component
 public class GetMutationData {
 
     public static final int GENE_SYMBOL = 0;
@@ -54,6 +59,15 @@ public class GetMutationData {
     private URI uri;
     private String content;
     private ArrayList<String> warningList = new ArrayList<String>();
+
+    private static MutationRepository mutationRepository;
+    private static MutationModelConverter mutationModelConverter;
+
+    @Autowired
+    public GetMutationData(MutationRepository mutationRepository, MutationModelConverter mutationModelConverter) {
+        GetMutationData.mutationRepository = mutationRepository;
+        GetMutationData.mutationModelConverter = mutationModelConverter;
+    }
 
     /**
      * Gets MutationData Data for all specified genes in a specific genetic profile.
@@ -85,23 +99,21 @@ public class GetMutationData {
                     }
                 }
             }
-            try {
-                List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(profile.getCancerStudyId(), new ArrayList<String>(sampleIdSet));
-                //parse each Mutation List retrieved from DaoMutation and add to Main Mutation List
-                for (Long entrezID : entrezIDList) {
-                    ArrayList<ExtendedMutation> tempmutationList =
-                            DaoMutation.getMutations(GeneticProfile, entrezID);
-                    for (ExtendedMutation mutation : tempmutationList){
-                        // seperate out mutations for the given set of sampleIDS.
-                        if (internalSampleIds.contains(mutation.getSampleId()))
-                            mutationList.add(mutation);
-                    }
 
+            List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(profile.getCancerStudyId(), new ArrayList<String>(sampleIdSet));
+            //parse each Mutation List retrieved from DaoMutation and add to Main Mutation List
+            for (Long entrezID : entrezIDList) {
+                List<ExtendedMutation> tempmutationList = mutationModelConverter.convert(
+                        mutationRepository.getMutations(entrezID.intValue(), GeneticProfile));
+                for (ExtendedMutation mutation : tempmutationList){
+                    // seperate out mutations for the given set of sampleIDS.
+                    if (internalSampleIds.contains(mutation.getSampleId()))
+                        mutationList.add(mutation);
                 }
-                return mutationList;
-            } catch (DaoException e) {
-                System.err.println("Database Error: " + e.getMessage());
+
             }
+            return mutationList;
+
         }
         System.err.println("Invalid list of Genes entered");
         return null;
@@ -167,9 +179,8 @@ public class GetMutationData {
         //  Iterate through all validated genes, and extract mutation data.
         for (Gene gene : geneList) {
             CanonicalGene canonicalGene = (CanonicalGene) gene;
-            ArrayList<ExtendedMutation> mutationList =
-                    DaoMutation.getMutations(geneticProfile.getGeneticProfileId(),
-                            canonicalGene.getEntrezGeneId());
+            List<ExtendedMutation> mutationList = mutationModelConverter.convert(mutationRepository.getMutations(
+                    (int) canonicalGene.getEntrezGeneId(), geneticProfile.getGeneticProfileId()));
             for (ExtendedMutation mutation:  mutationList) {
                 Integer sampleId = mutation.getSampleId();
                 if (targetSampleList==null || internalSampleIds.contains(sampleId)) {

@@ -45,6 +45,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, enrichmentsTableInstance, profile_type, profile_id, table_title, data_type;
     var selected_genes = [];
+    var assumeLogSpace=false;
 
     function configTable() {
 
@@ -275,6 +276,13 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     if (_q_val === "<0.001" || _q_val < enrichmentsTabSettings.settings.p_val_threshold) {
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     }
+                    
+                    // Check whether we encounter a negative value. 
+                    // If we do, assume data is already in log-space. This is a workaround for the data not
+                    // having a descriptive data_type
+                    if(Number(aData[col_index.altered_mean])<=0 || Number(aData[col_index.unaltered_mean])<=0){
+                        assumeLogSpace=true;
+                    }
                 }
             },
             "fnDrawCallback": function() {
@@ -358,11 +366,21 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
     }
 
     /**
-     * check whether the datatype is LOG-VALUE to prevent logging it again
+     * check whether the datatype is LOG-VALUE, LOG2-VALUE or whether LOG space is assumed because 
+     * a negative value was found to prevent logging it again
+     * assumeLogSpace is a backwards compatibility for MSK
      * @returns {boolean}
      */
     this.hasLogData = function(){
-        return data_type === "LOG-VALUE";
+        return data_type === "LOG-VALUE" || data_type==="LOG2-VALUE" || assumeLogSpace;
+    }
+
+    /**
+     * return whether log-space was assumed
+     * @returns {boolean}
+     */
+    this.assumedLogSpace = function(){
+        return assumeLogSpace && !(data_type === "LOG-VALUE" || data_type==="LOG2-VALUE");
     }
 
     /**
@@ -593,7 +611,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                 var _gene_name = aData[0];
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
-                enrichmentsTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
+                enrichmentsTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif' alt='loading' /></div>", "rppa-details");
                 enrichmentsTabPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[col_index.p_val]);
             }
         });
@@ -829,7 +847,7 @@ var orSubTabView = function() {
                     });
                 });
                 //adding loading image for table
-                $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>")
+                $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>")
             }
 
             $.each(_profile_list, function(_index, _profile_obj) {
@@ -845,7 +863,7 @@ var orSubTabView = function() {
                     var html = "<div id='"+_profile_obj.STABLE_ID.replace(/\./g, "_")+"_container' style='float: left; position: relative'>"+
                         "<div id='" + _plot_div + "' style='width: 30%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
                         "<div id='" + _table_div + "' style='width: 65%; display:table; margin-left: auto; margin-right: 0; '></div>"+
-                        "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif'/></div>"+
+                        "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif' alt='loading' /></div>"+
                         "</div>";
                     $("#" + _div_id).append(html);
                     //adding this to contain floated plot (see "float: left"  above):

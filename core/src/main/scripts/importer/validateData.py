@@ -2,10 +2,6 @@
 
 # ------------------------------------------------------------------------------
 # Data validation script - validates files before import into portal.
-# If create-corrected set to true, the script will create a new version of all the files it detects
-#   and ensure the newlines are correct and that no data is enclosed in quotes. It will also
-#   add entrez IDs if they are not present and the user either provides the file or sets ftp
-#   Also checks for duplicate column headers, repeated header rows
 # ------------------------------------------------------------------------------
 
 
@@ -28,6 +24,7 @@ import cbioportal_common
 # globals
 
 # Only supported reference genome build number and name
+# nb: keep this in synch with MutationDataUtils.getNcbiBuild
 NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_NAME = 'hg19'
 
@@ -251,7 +248,6 @@ class Validator(object):
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
-    NULL_VALUES = ['[not available]', '[not applicable]', '']
 
     def __init__(self, study_dir, meta_dict, portal_instance, logger):
         """Initialize a validator for a particular data file.
@@ -344,7 +340,11 @@ class Validator(object):
                 return
 
             # parse the first non-commented line as the tsv header
-            header_cols = csv.reader([header_line], dialect).next()
+            header_cols = csv.reader(
+                                     [header_line],
+                                     delimiter='\t',
+                                     quoting=csv.QUOTE_NONE,
+                                     strict=True).next()
             if self.checkHeader(header_cols) > 0:
                 self.logger.error(
                     'Invalid column header, file cannot be parsed')
@@ -353,7 +353,9 @@ class Validator(object):
             # read through the data lines of the file
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
-                                   dialect)
+                                   delimiter='\t',
+                                   quoting=csv.QUOTE_NONE,
+                                   strict=True)
             for line_number, fields in enumerate(csvreader,
                                                  start=line_number + 1):
                 self.line_number = line_number
@@ -504,22 +506,16 @@ class Validator(object):
                                               repr(dialect.delimiter)})
             return False
         if dialect.quoting != csv.QUOTE_NONE:
-            self.logger.error('Found quotation marks around field(s) in the first rows of the file. '
-                              'Fields and values should not be surrounded by quotation marks.',
+            self.logger.warning('Found quotation marks around field(s) in the first rows of the file. '
+                              'Fields and values surrounded by quotation marks might be incorrectly '
+                              'loaded (i.e. with the quotation marks included as part of the value)',
                               extra={'cause': 'quotation marks of type: [%s] ' %
                                               repr(dialect.quotechar)[1:-1]})
         return True
 
     def _checkLineBreaks(self):
         """Checks line breaks, reports to user."""
-        # TODO document these requirements
-        if "\r\n" in self.newlines:
-            self.logger.error('DOS-style line breaks detected (\\r\\n), '
-                              'should be Unix-style (\\n)')
-        elif "\r" in self.newlines:
-            self.logger.error('Classic Mac OS-style line breaks detected '
-                              '(\\r), should be Unix-style (\\n)')
-        elif self.newlines != '\n':
+        if self.newlines not in("\r\n","\r","\n"):
             self.logger.error('No line breaks recognized in file',
                               extra={'cause': repr(self.newlines)[1:-1]})
 
@@ -835,7 +831,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
     REQUIRED_HEADERS = []
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
     ALLOW_BLANKS = True
-    NULL_VALUES = ["na", "[not available]"]
+    NULL_VALUES = ["NA"]
 
     def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
@@ -889,7 +885,7 @@ class CNAValidator(GenewiseFileValidator):
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
-        if value.strip().lower() not in self.ALLOWED_VALUES:
+        if value.strip() not in self.ALLOWED_VALUES:
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Invalid CNA value: possible values are [%s]',
@@ -1055,8 +1051,10 @@ class MutationsExtendedValidator(Validator):
 
 
     def checkNCBIbuild(self, value, data):
-        if self.checkInt(value) and value != '':
-            if int(value) != NCBI_BUILD_NUMBER:
+        if value != '':
+            # based on MutationDataUtils.getNcbiBuild
+            # TODO - make the supported build version a Portal property
+            if value not in [str(NCBI_BUILD_NUMBER), GENOMIC_BUILD_NAME, 'GRCh'+str(NCBI_BUILD_NUMBER)]:
                 return False
         return True
     
@@ -1207,11 +1205,15 @@ class ClinicalValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     PROP_IS_PATIENT_ATTRIBUTE = None
-    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", ""]
+    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
+    ALLOW_BLANKS = True
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.attr_defs = []
+        # keep track of original attribute definitions that are overriden by portal (i.e. have a 
+        # mismatch between file and portal). Here we keep track of definitions as found in file
+        self.attr_defs_overridden = []
         self.newly_defined_attributes = set()
 
     def processTopLines(self, line_list):
@@ -1316,7 +1318,9 @@ class ClinicalValidator(Validator):
                 len(self.cols),
                 extra={'line_number': self.line_number})
             num_errors += 1
+        
         for col_index, col_name in enumerate(self.cols):
+            self.attr_defs_overridden.append({})
             if not col_name.isupper():
                 self.logger.warning(
                     "Clinical attribute name not in all caps",
@@ -1363,7 +1367,9 @@ class ClinicalValidator(Validator):
                 # compare values defined in the file with the existing ones
                 for attr_property in self.attr_defs[col_index]:
                     value = self.attr_defs[col_index][attr_property]
+                    # store original property as found in file
                     if value != srv_attr_properties[attr_property]:
+                        self.attr_defs_overridden[col_index][attr_property] = value
                         self.logger.warning(
                             "%s definition for attribute '%s' does not match "
                             "the portal, and will be loaded as '%s'",
@@ -1391,10 +1397,12 @@ class ClinicalValidator(Validator):
             
             according_to_portal = ''
             data_type = self.attr_defs[col_index]['datatype']
-            if col_name not in self.newly_defined_attributes:
+            if 'datatype' in self.attr_defs_overridden[col_index]:
                 # Extra info for existing fields to make it clear that the 
                 # check is being done based on the definition found in the portal:
-                according_to_portal = 'According to portal, attribute should be loaded as %s. '%(data_type)
+                according_to_portal = (" (nb: even though 'datatype' definition in file is %s, attribute is "
+                    "being validated as %s according to the portal's definition - see also previous "  
+                    "warning for this attribute)")%(self.attr_defs_overridden[col_index]['datatype'], data_type)
             
             # if not blank, check if values match the datatype
             if value.strip().lower() in self.NULL_VALUES:
@@ -1402,7 +1410,7 @@ class ClinicalValidator(Validator):
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
                     self.logger.error(
-                        according_to_portal + 'Value of attribute to be loaded as NUMBER is not a real number',                        
+                        'Value of attribute to be loaded as NUMBER is not a real number' + according_to_portal,
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,
@@ -1412,9 +1420,9 @@ class ClinicalValidator(Validator):
                 VALID_BOOLEANS = ('TRUE', 'FALSE')
                 if not value in VALID_BOOLEANS:
                     self.logger.error(
-                        according_to_portal + 'Invalid value of attribute to be loaded as BOOLEAN, must be one '
+                        'Invalid value of attribute to be loaded as BOOLEAN, must be one '
                         'of [%s]',
-                        ', '.join(VALID_BOOLEANS),
+                        ', '.join(VALID_BOOLEANS) + according_to_portal,
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,
@@ -1749,14 +1757,14 @@ class SegValidator(Validator):
 class ContinuousValuesValidator(GenewiseFileValidator):
     """Validator for matrix files mapping floats to gene/sample combinations.
 
-    Allowing missing values indicated by 'NA' or [Not Available].
+    Allowing missing values indicated by GenewiseFileValidator.NULL_VALUES.
     """
     
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
-        if stripped_value.lower() not in self.NULL_VALUES and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor NA,[Not Available]",
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})
@@ -1792,7 +1800,7 @@ class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
     ALLOW_BLANKS = True
-    NULL_VALUES = ["na", "[not available]"]
+    NULL_VALUES = ["NA"]
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
@@ -1829,8 +1837,8 @@ class RPPAValidator(FeaturewiseFileValidator):
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
-        if stripped_value.lower() not in self.NULL_VALUES and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor NA,[Not Available]",
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})
@@ -1844,6 +1852,7 @@ class TimelineValidator(Validator):
         'STOP_DATE',
         'EVENT_TYPE']
     REQUIRE_COLUMN_ORDER = True
+    ALLOW_BLANKS = True
 
     def checkLine(self, data):
         super(TimelineValidator, self).checkLine(data)
@@ -1980,6 +1989,7 @@ class GisticGenesValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
+    NULL_VALUES = ['']
 
     def __init__(self, *args, **kwargs):
         """Initialize a GisticGenesValidator with the given parameters."""
@@ -2020,7 +2030,7 @@ class GisticGenesValidator(Validator):
             # of the required columns, only genes_in_region can be blank
             if ((col_name in self.REQUIRED_HEADERS and
                         col_name != 'genes_in_region') and
-                    value.strip() in ('NA', '')):
+                    value.strip() in self.NULL_VALUES):
                 self.logger.error("Empty cell in column '%s'",
                                   col_name,
                                   extra={'line_number': self.line_number,
@@ -2083,7 +2093,8 @@ class GisticGenesValidator(Validator):
                                    (cytoband_chromosome,
                                     parsed_cytoband,
                                     parsed_chromosome)})
-            # TODO: validate band/coord sets with the UCSC cytoband definitions
+            # TODO: validate band/coord sets with the UCSC cytoband definitions (using 
+            # parsed_gene_list and some of the other parsed_*list variables 
 
     def parse_chromosome_num(self, value, column_number):
         """Parse a chromosome number, logging any errors for this column

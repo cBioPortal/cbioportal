@@ -250,7 +250,10 @@ var StudyViewBoilerplate ={
         _span1
             .attr({
                 'id': 'study-view-header-right-1',
-                'class': 'study-view-header-button'})
+                'class': 'study-view-header-button',
+                'role': 'button',
+                'tabindex': '0'
+            })
             .val('Select cases by IDs');
 
         // Build query button
@@ -258,6 +261,7 @@ var StudyViewBoilerplate ={
             .attr({
                 method: "post",
                 action: "index.do",
+                target: "_blank"
             })
             .css({
                 float: "left"
@@ -300,28 +304,33 @@ var StudyViewBoilerplate ={
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
-                'class': 'study-view-header-clear-all'})
+                'class': 'btn btn-default btn-xs study-view-header-clear-all'})
             .val('Clear all');
 
         // changed the initialisation for span 3
         _span3
             .attr({
                 'id': 'study-view-header-left-3'
-                })
+            })
             .text('Samples selected: ');
 
         // span5 attributes
         _span5.attr({
             'id': 'study-view-header-left-5',
-            'class': 'study-view-header-button'
+            'class': 'study-view-header-button',
+            'role': 'button',
+            'tabindex': '0',
         });
 
         //Download button
         _span6
             .attr({
                 'id': 'study-view-header-left-6',
-                'class': 'study-view-header-button'})
-            .html('<img src="images/in.svg" />');
+                'class': 'study-view-header-button',
+                'role': 'button',
+                'tabindex': '0',
+            })
+            .html('<img src="images/in.svg" alt="download" />');
 
         _successBanner
             .attr({
@@ -330,12 +339,11 @@ var StudyViewBoilerplate ={
                style: 'display: none'
             });
 
-        // span3 is now the first item, span5 added, image added
         _headerLeft.append(_span3);
         _headerLeft.append(_span5);
         _headerLeft.append(_span6);
         _headerLeft.append(_queryByGene);
-        _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
+        _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png' alt='' />");
         _headerLeft.append(_form);
 
         _headerRight.attr('id','study-view-header-right');
@@ -356,7 +364,8 @@ var StudyViewBoilerplate ={
                 'id': 'query-by-gene-textarea',
                 'class': 'expand expandFocusOut',
                 'rows': '1',
-                'cols': '10'
+                'cols': '10',
+                'title': 'query genes'
             });
 
         _queryByGene.append('<span id="queryByGeneTextSpan"></span>');
@@ -379,8 +388,8 @@ var StudyViewBoilerplate ={
     
     customDialogDiv:
             "<div class='study-view-hidden' id='study-view-case-select-custom-dialog'>" +
-                '<b>Please input IDs (one per line)</b>' +
-                "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea><br/>" +
+                '<label>Please input IDs (one per line)' +
+                "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea></label><br/>" +
                 '<label><input type="radio" id="study-view-case-select-custom-radio-sample" name="study-view-case-select-custom-radio" value="sample" checked>' +
                 'By sample ID</label>' +
                 '<label><input type="radio" id="study-view-case-select-custom-radio-patient"  name="study-view-case-select-custom-radio" value="patient">' +
@@ -388,7 +397,7 @@ var StudyViewBoilerplate ={
                 "<button type='button' id='study-view-case-select-custom-submit-btn' style='float: right;'>Select</button>" +
             "</div>",
     addChartDiv:
-            "<select id='study-view-add-chart' class='chosen-select'><option id=''>Add Chart</option></select>",
+            "<select id='study-view-add-chart' class='chosen-select' title='Add Chart'><option id=''>Add Chart</option></select>",
     
     tutorialDiv:
             "<div  id='study-view-tutorial' class='study-view-header'>" +
@@ -428,8 +437,8 @@ var StudyViewBoilerplate ={
             "<chartTitleH4 id='study-view-scatter-plot-title'>"+
             "Mutation Count vs CNA</chartTitleH4>"+
             "<div id='study-view-scatter-plot-header'>"+
-            "<img id='study-view-scatter-plot-download-icon' class='study-view-download-icon' src='images/in.svg'/>" +
-            "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;float:left;' class='study-view-drag-icon' src='images/move.svg'/>"+
+            "<img id='study-view-scatter-plot-download-icon' class='study-view-download-icon' src='images/in.svg' alt='download' />" +
+            "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;float:left;' class='study-view-drag-icon' src='images/move.svg' alt='move' />"+
             "<span style='float:left;' class='study-view-chart-plot-delete study-view-scatter-plot-delete'>x</span>"+
             "</div></div>"+
             
@@ -438,7 +447,7 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-body-svg'></div>"+
             "<div id='study-view-scatter-plot-body-right-chart'></div></div>"+
             "<div id='study-view-scatter-plot-loader' class='study-view-loader'>"+
-            "<img src='images/ajax-loader.gif'/></div>"+
+            "<img src='images/ajax-loader.gif' alt='loading' /></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",
     
@@ -454,7 +463,7 @@ var StudyViewBoilerplate ={
     breadCrumbDiv:
         "<div class='breadcrumb_container'>"+
             "<span class='breadcrumb_item'></span>"+
-            "<img class='breadcrumb_remove' src='images/remove_breadcrumb_icon.png'>"+
+            "<img class='breadcrumb_remove' src='images/remove_breadcrumb_icon.png' alt='remove' />"+
         "</div>"
 
 };

@@ -31,7 +31,7 @@
 --%>
 
 <div id="clinical-data-table-loading-wait">
-    <img src="images/ajax-loader.gif"/>
+    <img src="images/ajax-loader.gif" alt="loading" />
 </div>
 
 <div id="clinical-data-table-div" style="width: 1200px;">

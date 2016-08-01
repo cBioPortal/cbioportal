@@ -110,6 +110,9 @@ public class MutationDataUtils {
     @Autowired
     private MutationModelConverter mutationModelConverter;
 
+    @Autowired
+    private AlterationUtil alterationUtil;
+
     /**
      * Generates an array (JSON array) of mutations for the given sample
      * and gene lists.
@@ -254,7 +257,7 @@ public class MutationDataUtils {
         mutationData.put(PROTEIN_CHANGE, mutation.getProteinChange());
 	    mutationData.put(AMINO_ACID_CHANGE, mutation.getAminoAcidChange());
         mutationData.put(MUTATION_TYPE, mutation.getMutationType());
-        mutationData.put(COSMIC, convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
+        mutationData.put(COSMIC, alterationUtil.convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
         mutationData.put(FUNCTIONAL_IMPACT_SCORE, mutation.getFunctionalImpactScore());
         mutationData.put(FIS_VALUE, this.getFisValue(mutation));
         mutationData.put(MSA_LINK, this.getMsaLink(mutation));
@@ -670,20 +673,4 @@ public class MutationDataUtils {
 
 		return tumorType;
 	}
-
-    protected List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
-        if (cosmic==null) {
-            return null;
-        }
-        List<List> mat = new ArrayList(cosmic.size());
-        for (CosmicMutationFrequency cmf : cosmic) {
-            List l = new ArrayList(3);
-            l.add(cmf.getId());
-            l.add(cmf.getAminoAcidChange());
-            l.add(cmf.getFrequency());
-            mat.add(l);
-        }
-        return mat;
-    }
-
 }

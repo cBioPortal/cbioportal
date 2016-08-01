@@ -459,11 +459,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var num_mutations_promise = new $.Deferred();
 	    special_sample_data_promises.push(num_mutations_promise.promise());
 	    clinicalMutationColl.fetch({
-		type: "POST",
+		type: "GET", traditional: true,
 		data: {
 		    mutation_profile: self.getMutationProfileId(),
-		    cmd: "count_mutations",
-		    case_ids: self.getSampleIds().join(" ")
+		    case_ids: self.getSampleIds()
 		},
 		success: function (response) {
 		    response = response.toJSON();

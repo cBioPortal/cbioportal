@@ -31,7 +31,6 @@
 --%>
 
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -1124,7 +1123,7 @@
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
         var params = {
-            <%=PatientView.SAMPLE_ID%>:caseIdsStr,
+            <%=PatientView.SAMPLE_ID%>:caseIds,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
 
@@ -1140,7 +1139,11 @@
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;
         }
 
-        $.post("mutations.json",
+        $.ajaxSetup({
+            traditional:true
+        });
+
+        $.get("api/mutationmatrix",
                 params,
                 function(data) {
                     determineOverviewMutations(data);
@@ -1257,6 +1260,10 @@
                 }
                 ,"json"
         );
+
+        $.ajaxSetup({
+            traditional:false
+        });
     });
 
     var patient_view_mutsig_qvalue_threhold = 0.05;

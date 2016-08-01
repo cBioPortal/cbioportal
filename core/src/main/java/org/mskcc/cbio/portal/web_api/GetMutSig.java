@@ -38,6 +38,7 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.MutSig;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -60,7 +61,7 @@ public class GetMutSig {
     public static StringBuffer getMutSig(int cancerStudy)
             throws DaoException {
         StringBuffer toReturn = header(new StringBuffer());
-        ArrayList<MutSig> mutSigList = DaoMutSig.getAllMutSig(cancerStudy);
+        List<MutSig> mutSigList = DaoMutSig.getAllMutSig(cancerStudy);
         for (int i = 0; i < mutSigList.size(); i++) {
             toReturn.append(parseMutSig(mutSigList.get(i)));
         }

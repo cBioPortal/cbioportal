@@ -41,6 +41,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -180,7 +181,7 @@ public class DaoMutSig {
         }
     }
 
-    public static ArrayList<MutSig> getAllMutSig(int cancerStudy) throws DaoException {
+    public static List<MutSig> getAllMutSig(int cancerStudy) throws DaoException {
         ArrayList<MutSig> mutSigList = new ArrayList<MutSig>();
         Connection con = null;
         PreparedStatement pstmt = null;

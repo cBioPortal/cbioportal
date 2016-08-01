@@ -19,7 +19,7 @@
     </dependency>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
-      <artifactId>service</artifactId>
+      <artifactId>persistence-mybatis</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

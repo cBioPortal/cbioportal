@@ -86,6 +86,9 @@ public class CancerStudy {
         this.publicStudy = publicStudy;
     }
 
+    public CancerStudy() {
+    }
+
     /**
      * Indicates that this is a public study.
      * @return true or false.

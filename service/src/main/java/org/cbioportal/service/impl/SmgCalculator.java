@@ -17,7 +17,8 @@ import java.util.regex.Pattern;
 @Component
 public class SmgCalculator {
 
-    private static int DEFAULT_THERSHOLD_NUM_SMGS = 500;
+    public static int DEFAULT_THERSHOLD_NUM_SMGS = 500;
+    public static int DEFAULT_THERSHOLD_RECURRENCE = 2;
 
     @Autowired
     private MutationRepository mutationRepository;
@@ -29,24 +30,23 @@ public class SmgCalculator {
     public List<Map<String, Object>> calculate(String mutationGeneticProfileStableId, List<String> sampleStableIds)
             throws DaoException {
 
-        GeneticProfile mutationProfile;
         Map<Long, Double> mutsig = Collections.emptyMap();
         Map<Long, Map<String, String>> smgs = Collections.emptyMap();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
-        mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationGeneticProfileStableId);
+        GeneticProfile mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationGeneticProfileStableId);
         if (mutationProfile != null) {
             int profileId = mutationProfile.getGeneticProfileId();
             List<Integer> selectedCaseList = new ArrayList<>();
 
             if (sampleStableIds != null) {
-                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
-                selectedCaseList = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), sampleStableIds);
+                selectedCaseList = InternalIdUtil.getInternalSampleIds(mutationProfile.getCancerStudyId(),
+                        sampleStableIds);
             }
 
             smgs = mutationModelConverter.convertSignificantlyMutatedGeneToMap(
-                    mutationRepository.getSignificantlyMutatedGenes(profileId, null, selectedCaseList, 2,
-                            DEFAULT_THERSHOLD_NUM_SMGS));
+                    mutationRepository.getSignificantlyMutatedGenes(profileId, null, selectedCaseList,
+                            DEFAULT_THERSHOLD_RECURRENCE, DEFAULT_THERSHOLD_NUM_SMGS));
 
             Set<Long> cbioCancerGeneIds = daoGeneOptimized.getEntrezGeneIds(
                     daoGeneOptimized.getCbioCancerGenes());

@@ -11,7 +11,7 @@ import java.util.Map;
 @Component
 public class MutSigUtil {
 
-    public Map<Long,Double> getMutSig(int cancerStudyId) throws DaoException {
+    public Map<Long, Double> getMutSig(int cancerStudyId) throws DaoException {
 
         Map<Long, Double> mapGeneQvalue = new HashMap<>();
 

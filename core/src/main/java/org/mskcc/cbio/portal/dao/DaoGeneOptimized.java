@@ -57,7 +57,7 @@ public class DaoGeneOptimized {
     private static final String CBIO_CANCER_GENES_FILE = "/cbio_cancer_genes.txt";
     private static final String GENE_SYMBOL_DISAMBIGUATION_FILE = "/gene_symbol_disambiguation.txt";
         
-    private static final DaoGeneOptimized daoGeneOptimized = new DaoGeneOptimized();
+    private static DaoGeneOptimized daoGeneOptimized = null;
     //nb: make sure any map is also cleared in clearCache() method below:
     private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
@@ -219,6 +219,11 @@ public class DaoGeneOptimized {
      * @throws DaoException Database Error.
      */
     public static DaoGeneOptimized getInstance() {
+
+        if (daoGeneOptimized == null) {
+            daoGeneOptimized = new DaoGeneOptimized();
+        }
+
         return daoGeneOptimized;
     }
 

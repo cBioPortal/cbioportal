@@ -10,17 +10,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cbioportal.model.COSMICCount;
-import org.cbioportal.persistence.COSMICCountRepository;
+import org.cbioportal.model.CosmicCount;
+import org.cbioportal.persistence.CosmicCountRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class COSMICCountServiceImplTest {
 
     @InjectMocks
-    private COSMICCountServiceImpl cosmicCountService;
+    private CosmicCountServiceImpl cosmicCountService;
 
     @Mock
-    private COSMICCountRepository cosmicCountRepository;
+    private CosmicCountRepository cosmicCountRepository;
     
     @Test
     public void getCOSMICCountsByKeywords() throws Exception {
@@ -29,13 +29,13 @@ public class COSMICCountServiceImplTest {
         ArrayList<String> testKeywords = new ArrayList<String>();
         testKeywords.add("test_keyword");
 
-        List<COSMICCount> expectedCOSMICCountList = new ArrayList<>();
-	COSMICCount cosmicCount = new COSMICCount();
+        List<CosmicCount> expectedCOSMICCountList = new ArrayList<>();
+	CosmicCount cosmicCount = new CosmicCount();
 	expectedCOSMICCountList.add(cosmicCount);
 
         Mockito.when(cosmicCountRepository.getCOSMICCountsByKeywords(testKeywords)).thenReturn(expectedCOSMICCountList);
 
-	List<COSMICCount> resultCOSMICCountList = cosmicCountService.getCOSMICCountsByKeywords(testKeywords);
+	List<CosmicCount> resultCOSMICCountList = cosmicCountService.getCOSMICCountsByKeywords(testKeywords);
 	Assert.assertEquals(expectedCOSMICCountList, resultCOSMICCountList);
     }
 }

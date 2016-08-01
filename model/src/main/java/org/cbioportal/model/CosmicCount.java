@@ -5,7 +5,7 @@ import java.io.Serializable;
 /*
 	Class to represent a COSMIC count record.
 */
-public class COSMICCount implements Serializable {
+public class CosmicCount implements Serializable {
 	private String proteinChange;
 	private String keyword;
 	private Integer count;

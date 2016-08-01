@@ -8,12 +8,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.cbioportal.model.COSMICCount;
+import org.cbioportal.model.CosmicCount;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.persistence.mybatis.MutationMapper;
-import org.cbioportal.service.COSMICCountService;
 import org.cbioportal.service.MutationService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
@@ -45,6 +44,7 @@ import org.mskcc.cbio.portal.persistence.StudyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.cbioportal.service.CosmicCountService;
 
 /**
  *
@@ -81,7 +81,7 @@ public class ApiService {
 	@Autowired
 	private MutationService mutationService;
 	@Autowired
-	private COSMICCountService cosmicCountService;
+	private CosmicCountService cosmicCountService;
 
 	@Transactional
 	public List<DBCancerType> getCancerTypes() {
@@ -94,7 +94,7 @@ public class ApiService {
 	}
 
 	@Transactional
-	public List<COSMICCount> getCOSMICCountsByKeywords(List<String> keywords) {
+	public List<CosmicCount> getCOSMICCountsByKeywords(List<String> keywords) {
 		return cosmicCountService.getCOSMICCountsByKeywords(keywords);
 		/*
 			Pattern first_integer_p = Pattern.compile("[0-9]+");

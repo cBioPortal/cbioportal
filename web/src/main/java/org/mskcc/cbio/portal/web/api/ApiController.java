@@ -31,7 +31,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.cbioportal.model.COSMICCount;
+import org.cbioportal.model.CosmicCount;
 
 /**
  *
@@ -63,7 +63,7 @@ public class ApiController {
     @ApiOperation(value = "Get COSMIC counts for given keywords.", nickname = "getCOSMICCounts", notes="")
     @Transactional
     @RequestMapping(value = "/cosmic_count", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<COSMICCount> getCosmicCounts(@ApiParam(required = true, value = "COSMIC event keywords, the keyword in a mutation object")
+    public @ResponseBody List<CosmicCount> getCosmicCounts(@ApiParam(required = true, value = "COSMIC event keywords, the keyword in a mutation object")
 							  @RequestParam(required = true)
 							  List<String> keywords) {
 	    return service.getCOSMICCountsByKeywords(keywords);

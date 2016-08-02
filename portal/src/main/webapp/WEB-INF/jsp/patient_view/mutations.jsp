@@ -290,8 +290,9 @@
                                 if (aa.length>2&&aa.substring(0,2)=='p.')
                                     aa = aa.substring(2);
                                 var ret = "<b><i>"+aa+"</i></b>";
-                                if (mutations.getValue(source[0],'status')==="Germline")
-                                    ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
+                                var status = mutations.getValue(source[0],'status');
+                                if (!cbio.util.checkNullOrUndefined(status) && status.toLowerCase()==="germline")
+                                    ret += "&nbsp;<span style='background-color:red;color:white;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
 
                                 var aaOriginal = mutations.getValue(source[0], 'aa-orig');

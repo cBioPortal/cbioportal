@@ -296,18 +296,17 @@ var startAllGenes = function(){
    
       var g = svg.append("g")
                   .attr("transform", "translate("+margin.left+","+margin.top+")");
-    readTextFile("data/test.seg");
+    readTextFile("http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg");
  
     getSegments(allText);
     console.log("features inside d3");
     console.log(sample_data);
-      d3.json("data/cbioportal_TCGA_small.json", function(data) {
-
+  
         var min=0;
         geneNumber=1;
         var barwidth =6;
         var rect = g.selectAll("rect")
-                    .data(data)
+                    .data(sample_data)
                   .enter()
                     .append("rect"); 
             rect.attr("width", width/geneNumber-genePadding)
@@ -327,7 +326,7 @@ var startAllGenes = function(){
             //sorting bar chart                
             d3.selectAll('input[name="sort"]').on("click", function(){ 
                 //maintain an original aggregated/unaggregated and sorted/unsorted status
-                update(data);
+                update(sample_data);
             });
 
 
@@ -363,7 +362,6 @@ var startAllGenes = function(){
                 refined_data=data;
             }
         }           
-    });
 }
 
   //function for checking which sorted radio box is checked
@@ -447,9 +445,9 @@ var getSegments = function(text){
 
         var allSegment = lines[i].split('\t');  
         var geneChr = geneMapping[0].chr.toString();
-        console.log(geneChr);
+
         if (allSegment[1]===geneChr){
-                console.log("first if start");
+
                  chrSegment.push(
                {
                 "sample": allSegment[0],
@@ -467,7 +465,7 @@ var getSegments = function(text){
         var genebpStart = geneMapping[0].bpStart; 
 
         if(chrSegment[i].CNEnd>=genebpStart &&chrSegment[i].CNStart<=genebpEnd){
-            console.log("start 2nd"); 
+
             sample_data.push(
            {
             "sample": chrSegment[i].sample,

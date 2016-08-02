@@ -191,9 +191,10 @@ to be saved as a JSON string
 */
 function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
     // if user got here with a bookmark, just return that, don't create a bookmark of a bookmark
-    var bookmarkPattern = /session_id=/ 
-    if (bookmarkPattern.test(fullURL)) {
-        callback(fullURL);
+    var bookmarkMatch = /session_id=([^&]+)/.exec(fullURL); 
+    if (bookmarkMatch) {
+        var bookmark = createBookmark(fullURL, bookmarkMatch[1]);
+        callback(bookmark);
     } else {
         // cross_cancer.do has additional information in URL as #crosscancer/:tab/:priority/:genes/:study_list
         // check for that
@@ -210,11 +211,15 @@ function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
             data: JSON.stringify(sessionJSON)
         }).done(function(data) {
             if (data['id'] !== null) {
-                var bookmark = fullURL.split("?")[0] + "?session_id=" + data['id'];
+                var bookmark = createBookmark(fullURL, data['id']);
                 callback(bookmark);
             }
         });
     }
+}
+
+function createBookmark(fullURL, sessionId) {
+    return fullURL.split("?")[0] + "?session_id=" + sessionId;
 }
 
 /* 

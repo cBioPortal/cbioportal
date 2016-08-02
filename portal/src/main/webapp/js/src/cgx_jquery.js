@@ -191,7 +191,7 @@ to be saved as a JSON string
 */
 function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
     // if user got here with a bookmark, just return that, don't create a bookmark of a bookmark
-    var bookmarkPattern = /session-id=/ 
+    var bookmarkPattern = /session_id=/ 
     if (bookmarkPattern.test(fullURL)) {
         callback(fullURL);
     } else {

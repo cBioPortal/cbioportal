@@ -61,7 +61,7 @@
           <!--for selecting which gene to sort-->
           <!--for sorting-->
           <div id ="sort" class="form-group">
-            <label>Sort By:</label>
+            <label>Sort Value By:</label>
           </div>
         </div>
     </div>

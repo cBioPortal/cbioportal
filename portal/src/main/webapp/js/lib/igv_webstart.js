@@ -296,47 +296,45 @@ var startAllGenes = function(){
    
       var g = svg.append("g")
                   .attr("transform", "translate("+margin.left+","+margin.top+")");
-    readTextFile("http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg");
- 
-    getSegments(allText);
-    console.log("features inside d3");
-    console.log(sample_data);
-  
-        var min=0;
-        geneNumber=1;
-        var barwidth =6;
-        var rect = g.selectAll("rect")
-                    .data(sample_data)
-                  .enter()
-                    .append("rect"); 
-            rect.attr("width", width/geneNumber-genePadding)
-                    .attr("height", barwidth)
-                    .attr("x", min)
-                    .attr("y", function(d,i) { return (barwidth+samplePadding)*i; })
-                    .attr("fill", function(d) {
 
-                        if (d.value>0) {
-                            return "rgb("+ 255 + ","+ (255-Math.round(d.value*50))+","+ (255-Math.round(d.value*50))+")";
-                        } else{
-                            return "rgb("+(255+Math.round(d.value*50))+","+(255+Math.round(d.value*50))+"," + 255 + ")"; 
-                        }                        
-                    });  
+    readTextFile("http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"); 
+    getSegmentSampleData(allText);
 
+    var min=0;
+    geneNumber=1;
+    var barwidth =3;
+
+    var rect = g.selectAll("rect")
+                .data(sample_data)
+                .enter()
+                .append("rect"); 
+        rect.attr("width", width/geneNumber-genePadding)
+                .attr("height", barwidth)
+                .attr("x", min)
+                .attr("y", function(d,i) { return (barwidth+samplePadding)*i; })
+                .attr("fill", function(d) {
+
+                    if (d.value>0) {
+                        return "rgb("+ 255 + ","+ (255-Math.round(d.value*50))+","+ (255-Math.round(d.value*50))+")";
+                    } else{
+                        return "rgb("+(255+Math.round(d.value*50))+","+(255+Math.round(d.value*50))+"," + 255 + ")"; 
+                    }                        
+                });  
           
-            //sorting bar chart                
-            d3.selectAll('input[name="sort"]').on("click", function(){ 
-                //maintain an original aggregated/unaggregated and sorted/unsorted status
-                update(sample_data);
-            });
+    //sorting bar chart                
+    d3.selectAll('input[name="sort"]').on("click", function(){ 
+        //maintain an original aggregated/unaggregated and sorted/unsorted status
+        update(refined_data);
+    });
 
 
-        //function for updating barchart but also maintaining an original sorted/unsorted status
-        function update(data){
-            //check whether need to sort data
-            sortBars(data);
+    //function for updating barchart but also maintaining an original sorted/unsorted status
+    function update(data){
+        //check whether need to sort data
+        sortBars(data);
 
-            //update rect
-            var rect= g.selectAll("rect")
+        //update rect
+        var rect = g.selectAll("rect")
                 .data(data);
             rect.enter()
                 .append("rect");
@@ -352,31 +350,30 @@ var startAllGenes = function(){
                     }                        
                 });   
             rect.exit().remove();
-        }
+    }
 
-        //function for sorting bars
-        var sortBars=function(data){          
-            if (sortChecked==="KRAS"){
-                refined_data=data.sort(function(a,b){return d3.descending(a.value, b.value)});
-            } else {
-                refined_data=data;
-            }
-        }           
+    //function for sorting bars
+    var sortBars=function(data){          
+        if (sortChecked==="KRAS"){
+            refined_data=data.sort(function(a,b){return d3.descending(a.value, b.value)});
+        } else {
+            refined_data=data;
+        }
+    }           
 }
 
-  //function for checking which sorted radio box is checked
-        var sortChecked ="";
-        function checkedSort(){
-            d3.selectAll('input[name="sort"]').each(function (d) {
-                if(d3.select(this).attr("type") == "radio" &&d3.select(this).node().checked) {
-                    sortChecked =d3.select(this).attr("value");
-                }         
-            });   
-        }      
+//function for checking which sorted radio box is checked
+var sortChecked ="";
+function checkedSort(){
+    d3.selectAll('input[name="sort"]').each(function (d) {
+        if(d3.select(this).attr("type") == "radio" &&d3.select(this).node().checked) {
+            sortChecked =d3.select(this).attr("value");
+        }         
+    });   
+}      
 
 
 var startIGV = function(targetGene, segUrl) {
-
     options = {
                 showNavigation: true,
                 showRuler: true,
@@ -398,27 +395,23 @@ var startIGV = function(targetGene, segUrl) {
             };
      
     igv.createBrowser("#igv_tab", options);
-/*
+    /*
     config = {
-    format:"seg",
-    indexed: false, 
-    name: "Segmented CN", 
-    order: 1, 
-    sourceType:"file",
-    type:"seg",
-    url:"http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"
-}
-*/
-
+        format:"seg",
+        indexed: false, 
+        name: "Segmented CN", 
+        order: 1, 
+        sourceType:"file",
+        type:"seg",
+        url:"http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"
+    }
+    */
 }
 
 var sample_data =[];
-var lines=[];
-var chrSegment=[];
-var getSegments = function(text){
-
+var getSegmentSampleData = function(text){
+    var lines=[];
     lines = text.split('\n');
-
     var geneMapping=[
                     {
                     "gene": "KRAS",
@@ -440,7 +433,7 @@ var getSegments = function(text){
                     }
                 ];
 
-  
+    var chrSegment=[];            
     for(var i=1; i<lines.length-1; i++){
 
         var allSegment = lines[i].split('\t');  
@@ -448,7 +441,7 @@ var getSegments = function(text){
 
         if (allSegment[1]===geneChr){
 
-                 chrSegment.push(
+            chrSegment.push(
                {
                 "sample": allSegment[0],
                 "chr": parseInt(allSegment[1]),
@@ -456,7 +449,7 @@ var getSegments = function(text){
                 "CNEnd": parseInt(allSegment[3]),
                 "num_probes": parseInt(allSegment[4]),
                 "CNValue": parseFloat(allSegment[5])
-               });
+            });
         }        
     }
 
@@ -477,9 +470,6 @@ var getSegments = function(text){
            });
         }
     }
-
-    console.log("sample_data");
-    console.log(sample_data);
 }
 
 var allText;
@@ -500,11 +490,3 @@ var readTextFile = function(file){
     rawFile.send(null);
 }
 
-function prepIGVLaunch(dataURL, locusString, referenceGenome, trackName) {
-
-    var port = 60151;
-    var genomeID = referenceGenome;
-    var mergeFlag = false;
-
-    appRequest(port, dataURL, genomeID, mergeFlag, locusString, trackName);
-}

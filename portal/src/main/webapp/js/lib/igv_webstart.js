@@ -261,76 +261,44 @@ var switchGenes = function(buttonVal){
 var showAllGenesPanel = function (genes){
     
     $("#all_genes").show();
-    if(allGenesCN==false) {
-       startAllGenes();
-    }
+    
 
     var genesArray = genes.split(',');
     var inputNumber = genesArray.length; 
-console.log("$('input[name=sort]')");
-console.log($('input[name="sort"]'));
+
     if($('input[name="sort"]').length==0){
         for (i=0; i<inputNumber; i++){
             $("#sort").append(
             '<label><input type="radio" name="sort" value="' + genesArray[i]+'"  onclick="checkedSort()"/>'+genesArray[i]+'</label>');  
         }
     }
-    
+
+/*    for (i=0; i<inputNumber; i++){
+        console.log("I am inside d3_segment");
+        console.log(genesArray[i]);
+        $("#d3_segment").append(
+            '<div class="gene_segmentCN col-lg-4 col-sm-4 col-md-4" id="'+genesArray[i]+'_panel">'+genesArray[i]+'</div>'
+        );
+    } 
+*/   
+    if(allGenesCN==false) {
+       startAllGenes(genesArray);
+    }
     $("#igvRootDiv").hide();
 }
 
 var allGenesCN = false;
-var startAllGenes = function(){
-     allGenesCN = true;
-
-      var margin = {top: 50, bottom: 50, left:30, right: 40};
-      var width = 900 - margin.left - margin.right;
-      var height = 2500 - margin.top - margin.bottom;
-      var samplePadding = 1;
-      var genePadding = 3;
-      var xScale = d3.scale.linear().range([0, width]);
-      var yScale = d3.scale.ordinal().rangeRoundBands([0, height], .8, 0);
+var startAllGenes = function(genesArray){
+    allGenesCN = true;
    
-      var svg = d3.select("#all_genes").append("svg")
-                  .attr("width", width+margin.left+margin.right)
-                  .attr("height", height+margin.top+margin.bottom);
-   
-      var g = svg.append("g")
-                  .attr("transform", "translate("+margin.left+","+margin.top+")");
-   
-      d3.json("data/cbioportal_TCGA_small.json", function(dat) {
+    d3.json("data/cbioportal_TCGA_small.json", function(dat) {
         readTextFile("http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg");
         getSegmentSampleData(allText);  
-        var min=0;
-        geneNumber=1;
-        var barwidth =6;
-        var rect = g.selectAll("rect")
-                    .data(data)
-                  .enter()
-                    .append("rect"); 
-            rect.attr("width", width/geneNumber-genePadding)
-                    .attr("height", barwidth)
-                    .attr("x", min)
-                    .attr("y", function(d,i) { return (barwidth+samplePadding)*i; })
-                    .attr("fill", function(d) {
+        var geneNumber=genesArray.length;
 
-                        if (d.value>0) {
-                            return "rgb("+ 255 + ","+ (255-Math.round(d.value*50))+","+ (255-Math.round(d.value*50))+")";
-                        } else{
-                            return "rgb("+(255+Math.round(d.value*50))+","+(255+Math.round(d.value*50))+"," + 255 + ")"; 
-                        }                        
-                    });  
-
-          
-            //sorting bar chart                
-            d3.selectAll('input[name="sort"]').on("click", function(){ 
-                console.log("clicked");
-                //maintain an original aggregated/unaggregated and sorted/unsorted status
-                update(data);
-            });
-
-
-        //function for updating barchart but also maintaining an original sorted/unsorted status
+        var segmenCNViz= new D3SegmentCNViz(data, geneNumber); 
+               
+       //function for updating barchart but also maintaining an original sorted/unsorted status
         function update(data){
             //check whether need to sort data
             sortBars(data);
@@ -361,7 +329,7 @@ var startAllGenes = function(){
             } else {
                 refined_data=data;
             }
-        }           
+        }        
     });
 }
 
@@ -412,46 +380,6 @@ var startIGV = function(targetGene, segUrl) {
 */
 
 }
-
-/*var features =[];
-var getSegments = function(text){
-    var line = text.split('/n');
-    console.log("line");
-    console.log(line);
-var geneMapping=[
-                    {
-                    "gene": "KRAS",
-                    "chr":12,
-                    "bpStart": 25204789,
-                    "bpEnd": 25252093
-                    },
-                    {
-                    "gene": "NRAS",
-                    "chr":1,
-                    "bpStart": 114704464,
-                    "bpEnd": 114716894
-                    },
-                    {
-                    "gene": "BRAF",
-                    "chr":7,
-                    "bpStart": 140719331,
-                    "bpEnd": 140924764
-                    }
-                ];
-    while(line.hasNext()){
-        var segment = line.split(' ');
-        if (segment[1]==geneMapping[0].chr && ((segment[2]>=bpStart &&segment[2]<=bpEnd) || (segment[3]>=bpStart&& segment[3]<=bpEnd)){
-           // features.push(
-           {
-            "sample": segment[0],
-            "chr": segment[1],
-            "start": segment[2],
-            "end":segment[3],
-            'value': segment[4]
-           });
-        }
-    } 
-}*/
 
 var data =[];
 var getSegmentSampleData = function(text){
@@ -536,12 +464,3 @@ function readTextFile(file)
     rawFile.send(null);
 }
 
-
-function prepIGVLaunch(dataURL, locusString, referenceGenome, trackName) {
-
-    var port = 60151;
-    var genomeID = referenceGenome;
-    var mergeFlag = false;
-
-    appRequest(port, dataURL, genomeID, mergeFlag, locusString, trackName);
-}

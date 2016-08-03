@@ -828,7 +828,7 @@ function DataManagerPresenter(dmInitCallBack)
 				{
 					//track cancer type detailed per cancer type:
 					var cancerType = sampleIdAndCancerTypeIdx[sampleClinicalData[i].sample];
-                    if ("cancerTypeDetailed" in cancerType) {
+                    if (!cbio.util.checkNullOrUndefined(cancerType) && "cancerTypeDetailed" in cancerType) {
                         if (!cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val])
                             cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val] = {sampleIds: []};
                         cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val].sampleIds.push(sampleClinicalData[i].sample);

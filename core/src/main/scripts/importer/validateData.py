@@ -1792,6 +1792,8 @@ class PatientClinicalValidator(ClinicalValidator):
     def checkLine(self, data):
         """Check the values in a line of data."""
         super(PatientClinicalValidator, self).checkLine(data)
+        osstatus_is_deceased = False
+        osmonths_value = None
         for col_index, col_name in enumerate(self.cols):
             # treat cells beyond the end of the line as blanks,
             # super().checkLine() has already logged an error
@@ -1823,7 +1825,41 @@ class PatientClinicalValidator(ClinicalValidator):
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
-            # TODO: check the values for other documented columns
+            elif col_name == 'OS_STATUS':
+                if value == 'DECEASED':
+                    osstatus_is_deceased = True
+                elif (value.lower() not in self.NULL_VALUES and
+                        value not in ('LIVING', 'DECEASED')):
+                    self.logger.error(
+                            'Value in OS_STATUS column is not LIVING or '
+                            'DECEASED',
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+            elif col_name == 'DFS_STATUS':
+                if (value.lower() not in self.NULL_VALUES and
+                        value not in ('DiseaseFree',
+                                      'Recurred/Progressed',
+                                      'Recurred',
+                                      'Progressed')):
+                    self.logger.error(
+                            'Value in DFS_STATUS column is not DiseaseFree, '
+                            'Recurred/Progressed, Recurred or Progressed',
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+            elif col_name == 'OS_MONTHS':
+                osmonths_value = value
+
+        if osstatus_is_deceased and (
+                    osmonths_value is None or
+                    osmonths_value.lower() in self.NULL_VALUES):
+            if osmonths_value is None or osmonths_value == '':
+                osmonths_value = '<none>'
+            self.logger.error(
+                "OS_STATUS is 'DECEASED', but OS_MONTHS is not specified",
+                extra={'line_number': self.line_number,
+                       'cause': osmonths_value})
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""

@@ -291,6 +291,43 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.cause, 'TEST-PAT4')
         self.assertIn('missing', record.getMessage().lower())
 
+    def test_hardcoded_attr_values(self):
+        """Test if attributes with set meanings have recognized values."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_hardcoded_attr_vals.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 5)
+        record_iterator = iter(record_list)
+        # OS_STATUS not in controlled vocabulary
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, 'ALIVE')
+        # DFS_STATUS having an OS_STATUS value
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 7)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, 'LIVING')
+        # wrong casing for OS_STATUS
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, 'living')
+        # DFS_STATUS not in controlled vocabulary (wrong casing)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 11)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, 'recurred/progressed')
+        # unspecified OS_MONTHS while OS_STATUS is DECEASED
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 13)
+        self.assertIn('DECEASED', record.getMessage())
+
 
 # TODO: make tests in this testcase check the number of properly defined types
 class CancerTypeFileValidationTestCase(DataFileTestCase):

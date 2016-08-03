@@ -69,10 +69,7 @@
             <label>Sort Value By:</label>
           </div>
           <div id ="d3_segment" class="row">
-          <div id ="test1" class="col-lg-4 col-md-4 col-sm-4"></div>
-          <div id ="test2" class="col-lg-4 col-md-4 col-sm-4"></div>  
-          <div id ="test3" class="col-lg-4 col-md-4 col-sm-4"></div>             
-          </div>
+      </div>
         </div>
     </div>
 </div>
@@ -180,5 +177,5 @@
     <script type="text/javascript" src="js/lib/igv/js/variant/variant.js"></script>
  
 <script type="text/javascript" src="js/src/segmentCN/d3_segmentCNViz.js"></script>
-<!--<script type="text/javascript" src="js/src/segmentCN/broadInstituteGeneInfo.js"></script>-->
+<script type="text/javascript" src="js/src/segmentCN/broadInstituteGeneInfo.js"></script>
 <!--<script type="text/javascript" src="js/src/segmentCN/readTextFile.js"></script>-->

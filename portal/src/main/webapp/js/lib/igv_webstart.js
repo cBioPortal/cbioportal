@@ -233,8 +233,7 @@ var prepIGVForSegView = function (_studyId) {
 
 //The parameter genes is an array
 var addIGVButtons = function (genes){
-    console.log ("genes");
-    console.log (genes);
+
      $("#all_genes").hide();
     var buttonNumber = genes.length+1;    
     for (i=0; i<buttonNumber-1; i++){
@@ -262,7 +261,6 @@ var showAllGenesPanel = function (genes){
     
     $("#all_genes").show();
     
-
     var genesArray = genes.split(',');
     var inputNumber = genesArray.length; 
 
@@ -272,15 +270,7 @@ var showAllGenesPanel = function (genes){
             '<label><input type="radio" name="sort" value="' + genesArray[i]+'"  onclick="checkedSort()"/>'+genesArray[i]+'</label>');  
         }
     }
-
-/*    for (i=0; i<inputNumber; i++){
-        console.log("I am inside d3_segment");
-        console.log(genesArray[i]);
-        $("#d3_segment").append(
-            '<div class="gene_segmentCN col-lg-4 col-sm-4 col-md-4" id="'+genesArray[i]+'_panel">'+genesArray[i]+'</div>'
-        );
-    } 
-*/   
+   
     if(allGenesCN==false) {
        startAllGenes(genesArray);
     }
@@ -297,52 +287,35 @@ var startAllGenes = function(genesArray){
         var geneNumber=genesArray.length;
 
         var segmenCNViz= new D3SegmentCNViz(data, geneNumber); 
-               
-       //function for updating barchart but also maintaining an original sorted/unsorted status
-        function update(data){
-            //check whether need to sort data
+         
+        //sorting bar chart                
+        d3.selectAll('input[name="sort"]').on("click", function(){ 
             sortBars(data);
-
-            //update rect
-            var rect= g.selectAll("rect")
-                .data(data);
-            rect.enter()
-                .append("rect");
-            rect.attr("width", width/geneNumber-genePadding) 
-              .attr("height", barwidth) 
-              .attr("x", min)
-              .attr("y", function(d,i) { return (barwidth+samplePadding)*i;})
-              .attr("fill", function(d) {
-                    if (d.value>0) {
-                        return "rgb("+ 255 + ","+ (255-Math.round(d.value*80))+","+ (255-Math.round(d.value*80))+")";
-                    } else{
-                        return "rgb("+(255+Math.round(d.value*80))+","+(255+Math.round(d.value*80))+"," + 255 + ")"; 
-                    }                        
-                });   
-            rect.exit().remove();
-        }
+            //maintain an original aggregated/unaggregated and sorted/unsorted status
+            segmenCNViz.update(refined_data);
+        });  
 
         //function for sorting bars
         var sortBars=function(data){          
             if (sortChecked==="KRAS"){
-                refined_data=data.sort(function(a,b){return d3.ascending(a.value, b.value)});
+                refined_data=data.sort(function(a,b){return d3.descending(a.value, b.value)});
             } else {
                 refined_data=data;
             }
-        }        
+        } 
+      
     });
 }
 
   //function for checking which sorted radio box is checked
-        var sortChecked ="";
-        function checkedSort(){
-            d3.selectAll('input[name="sort"]').each(function (d) {
-                if(d3.select(this).attr("type") == "radio" &&d3.select(this).node().checked) {
-                    sortChecked =d3.select(this).attr("value");
-                }         
-            });   
-        }      
-
+    var sortChecked ="";
+    function checkedSort(){
+        d3.selectAll('input[name="sort"]').each(function (d) {
+            if(d3.select(this).attr("type") == "radio" &&d3.select(this).node().checked) {
+                sortChecked =d3.select(this).attr("value");
+            }         
+        });    
+    }      
 
 var startIGV = function(targetGene, segUrl) {
 
@@ -385,6 +358,12 @@ var data =[];
 var getSegmentSampleData = function(text){
     var lines=[];
     lines = text.split('\n');
+
+
+   /* var geneinfo = new BroadInstituteGeneInfo (genes);
+    geneinfo.getGeneMapping();
+
+    */
     var geneMapping=[
                     {
                     "gene": "KRAS",

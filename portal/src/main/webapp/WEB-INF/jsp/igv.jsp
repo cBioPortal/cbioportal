@@ -177,5 +177,5 @@
     <script type="text/javascript" src="js/lib/igv/js/variant/variant.js"></script>
  
 <script type="text/javascript" src="js/src/segmentCN/d3_segmentCNViz.js"></script>
-<script type="text/javascript" src="js/src/segmentCN/broadInstituteGeneInfo.js"></script>
-<!--<script type="text/javascript" src="js/src/segmentCN/readTextFile.js"></script>-->
+<!--<script type="text/javascript" src="js/src/segmentCN/broadInstituteGeneInfo.js"></script>-->
+<script type="text/javascript" src="js/src/segmentCN/readTextFile.js"></script>

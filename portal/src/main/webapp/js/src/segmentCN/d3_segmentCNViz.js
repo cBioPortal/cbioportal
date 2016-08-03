@@ -46,7 +46,8 @@ D3SegmentCNViz.prototype.initViz = function(){
                         
     for(j=0; j<this.num; j++){
         var genebpStart = geneMapping[this.genes[j]].bpStart; 
-
+        console.log(genebpStart);
+        
         this.svg[j] = d3.select("#d3_segment").append("svg")
                     .attr("width", this.width+ this.margin.left + this.margin.right)
                     .attr("height", this.height + this.margin.top + this.margin.bottom);

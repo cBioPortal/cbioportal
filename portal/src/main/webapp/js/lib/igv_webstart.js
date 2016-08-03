@@ -314,7 +314,7 @@ var startAllGenes = function(genesArray){
         for(j =0; j<genesArray.length; j++){
             var geneName= genesArray[j];
             var chrSegment=[];  
-
+            data['"'+geneName+'"']=[];
             for(var i=1; i<lines.length-1; i++){
 
                 var allSegment = lines[i].split('\t'); 
@@ -348,10 +348,21 @@ var startAllGenes = function(genesArray){
                 var bpStart;
                 var bpEnd;
 
+                var previousName = "";
                 if(chrSegment[i].CNEnd>=genebpStart &&chrSegment[i].CNStart<=genebpEnd){
+                    if(previousName == chrSegment[i].sample){
+                        console.log("I am repeat");
+                        console.log(chrSegment[i].sample);
+                        console.log(geneName);
+                    }
+
                     if(chrSegment[i].CNStart < genebpStart){
                         bpStart = genebpStart;
                     } else {
+                        console.log("outofline");
+                        console.log(chrSegment[i].CNStart);
+                        console.log(chrSegment[i].sample);
+                        console.log(geneName);
                         bpStart = chrSegment[i].CNStart;
                     }
                     
@@ -359,13 +370,17 @@ var startAllGenes = function(genesArray){
                         bpEnd = genebpEnd;
                     } else {
                         bpEnd = chrSegment[i].CNEnd;
+                        console.log("outofline");
+                        console.log(chrSegment[i].CNEnd);
+                        console.log(chrSegment[i].sample);
+                        console.log(geneName);
                     }
 
                     var averageVal = chrSegment[i].CNValue
                     var sampleName = chrSegment[i].sample;
           
                
-                    geneCNAData.push(
+                    data['"'+geneName+'"'].push(
                        {
                         "sample": chrSegment[i].sample,
                         "chr": chrSegment[i].chr,
@@ -374,6 +389,10 @@ var startAllGenes = function(genesArray){
                         "num_probs": chrSegment[i].num_probes,
                         "value": averageVal
                        });
+                } else{
+                    console.log("I am empty");
+                    console.log(chrSegment[i].sample);
+                    console.log(geneName);
                 }
 
      
@@ -387,7 +406,7 @@ var startAllGenes = function(genesArray){
                 console.log(samples);
                 */
             }
-            data['"'+geneName+'"'] = geneCNAData;
+
         }
         console.log("data");
         console.log(data); 

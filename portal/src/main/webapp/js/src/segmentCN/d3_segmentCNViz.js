@@ -26,23 +26,6 @@ D3SegmentCNViz.prototype.initViz = function(){
     this.g =[];
     this.genebpStart=[];
     this.genebpEnd=[];
-    var geneMapping={
-                    "KRAS": {
-                             "chr": 12,
-                            "bpStart": 25204789,
-                            "bpEnd": 25252093
-                            },
-                    "NRAS": {
-                            "chr": 1,
-                            "bpStart": 115247084,
-                            "bpEnd": 115259515 
-                            },
-                    "BRAF": {"chr": 7,
-                            "bpStart": 140433812,
-                            "bpEnd": 140624564
-                            }
-                    };
-   
                         
     for(j=0; j<this.num; j++){
 
@@ -121,8 +104,4 @@ D3SegmentCNViz.prototype.update =function(data, button){
                 });   
             this.rect[index].exit().remove();  
 }
-
-    
-
-
 

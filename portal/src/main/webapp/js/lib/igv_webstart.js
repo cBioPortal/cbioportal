@@ -54,6 +54,7 @@ var data ={};
 var geneCNAData = [];
 var samples = [];
 var sample ={};
+var geneMapping;
 /*
  * Function to determine webstart version - taken from sun site
  */
@@ -300,7 +301,7 @@ var startAllGenes = function(genesArray){
         geneinfo.getGeneMapping();
     */  
 
-        var geneMapping={
+        geneMapping={
                         "KRAS": {
                                  "chr": 12,
                                 "bpStart": 25204789,
@@ -314,6 +315,14 @@ var startAllGenes = function(genesArray){
                         "BRAF": {"chr": 7,
                                 "bpStart": 140433812,
                                 "bpEnd": 140624564
+                                },
+                         "BRCA1": {"chr": 1,
+                            "bpStart":41196311,
+                            "bpEnd": 41277500
+                            },
+                        "BRCA2": {"chr": 13,
+                                "bpStart":32889616,
+                                "bpEnd": 32973809
                                 }
                         };
   

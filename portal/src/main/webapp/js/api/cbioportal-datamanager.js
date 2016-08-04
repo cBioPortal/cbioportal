@@ -247,7 +247,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	 * Out: promise, which resolves with the data which has been in-place modified,
 	 *	    the mutation data given the boolean attribute 'oncokb_oncogenic'
 	 */
-	
+
     };
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, source_sample_or_patient, target_sample_or_patient,
 	    target_ids, sample_to_patient_map, datatype_number_or_string, na_or_zero) {
@@ -353,7 +353,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	// Compute display parameters
 	var data = objectValues(gene_and_id_to_datum);
 	var cna_profile_data_to_string = {
-	    "-2": "homdel", 
+	    "-2": "homdel",
 	    "-1": "hetloss",
 	    "0": undefined,
 	    "1": "gain",
@@ -632,6 +632,34 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    return def.promise();
 	},
+	// make new functions for heatmap to bypass OQL filters
+	// QuerySession.getHeatmapDataBySample(QuerySession.getQueryGenes(), QuerySession.getGeneticProfileIds()[0]).then(function(data) {console.log(data);})
+	'getHeatmapDataBySample': function (genes, genetic_profile_id) {
+		var def = new $.Deferred();
+		var self = this;
+		window.cbioportal_client.getGeneticProfileDataBySample({
+				'genetic_profile_ids': [genetic_profile_id],
+				'genes': genes.map(function(x) { return x.toUpperCase(); }),
+				'sample_ids': self.getSampleIds()
+		}).then(function (sample_data) {
+				
+				def.resolve(sample_data);
+		}).fail(function () {
+				def.reject();
+		});
+		return def.promise();
+	},
+	'getHeatmapDataByPatient': function (genes, genetic_profile_id) {
+			var def = new $.Deferred();
+			self.getHeatmapDataBySample(genes, genetic_profile_id).then(function (sample_data) {
+					var patient_data = [];
+					// convert sample_data to patient data
+					def.resolve(patient_data);
+			}).fail(function () {
+					def.reject();
+			});
+			return def.promise();
+	},
 	'getWebServiceGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    var profile_types = {};
@@ -778,7 +806,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    count_object.A_not_B = Object.keys(objectKeyDifference(alteredA, alteredB)).length;
 				    count_object.B_not_A = Object.keys(objectKeyDifference(alteredB, alteredA)).length;
 				    count_object.neither = Object.keys(
-								objectKeyDifference(all_samples_set, 
+								objectKeyDifference(all_samples_set,
 										    objectKeyUnion([alteredA, alteredB])
 										)
 									).length;

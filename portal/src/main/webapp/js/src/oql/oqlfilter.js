@@ -111,7 +111,7 @@ window.OQL = (function () {
 		}, false);
     };
     
-    var isDatumWantedByOQLLine = function(query_line, datum, datum_gene, accessors) {
+    var isDatumWantedByOQLLine = function(query_line, datum, datum_gene, accessors, opt_mark_oql_regulation_direction) {
 	/*  Helper method for isDatumWantedByOQL
 	 *  In: - query_line, one element of a parseOQLQuery output array
 	 *	- datum, see isDatumWantedByOQL
@@ -129,7 +129,7 @@ window.OQL = (function () {
 	}
 	return (query_line.alterations
 		.map(function(alteration_cmd) {
-		    return isDatumWantedByOQLAlterationCommand(alteration_cmd, datum, accessors);
+		    return isDatumWantedByOQLAlterationCommand(alteration_cmd, datum, accessors, opt_mark_oql_regulation_direction);
 		})
 		.reduce(function(acc, next) {
 		    if (next === 1) {
@@ -151,7 +151,7 @@ window.OQL = (function () {
 		=== 1);
     };
     
-    var isDatumWantedByOQLAlterationCommand = function(alt_cmd, datum, accessors) {
+    var isDatumWantedByOQLAlterationCommand = function(alt_cmd, datum, accessors, opt_mark_oql_regulation_direction) {
 	/*  Helper method for isDatumWantedByOQLLine
 	 *  In: - alt_cmd, a parsed oql alteration
 	 *	- datum, see isDatumWantedByOQL
@@ -165,7 +165,7 @@ window.OQL = (function () {
 	} else if (alt_cmd.alteration_type === 'mut') {
 	    return isDatumWantedByOQLMUTCommand(alt_cmd, datum, accessors);
 	} else if (alt_cmd.alteration_type === 'exp' || alt_cmd.alteration_type === 'prot') {
-	    return isDatumWantedByOQLEXPOrPROTCommand(alt_cmd, datum, accessors);
+	    return isDatumWantedByOQLEXPOrPROTCommand(alt_cmd, datum, accessors, opt_mark_oql_regulation_direction);
 	}
     };
     
@@ -240,7 +240,7 @@ window.OQL = (function () {
 	}
 	    
     };
-    var isDatumWantedByOQLEXPOrPROTCommand = function(alt_cmd, datum, accessors) {
+    var isDatumWantedByOQLEXPOrPROTCommand = function(alt_cmd, datum, accessors, opt_mark_oql_regulation_direction) {
 	/*  Helper method for isDatumWantedByOQLAlterationCommand
 	 *  In/Out: See isDatumWantedByOQLAlterationCommand
 	 */
@@ -263,12 +263,14 @@ window.OQL = (function () {
 	    } else {
 		match = -1;
 	    }
-	    datum.oql_regulation_direction = direction;
+	    if (opt_mark_oql_regulation_direction) {
+		datum.oql_regulation_direction = (typeof datum.oql_regulation_direction === "undefined" ? direction : datum.oql_regulation_direction);
+	    }
 	    return match;
 	}
     };
     
-    var filterData = function (oql_query, data, _accessors, opt_default_oql, opt_by_oql_line) {
+    var filterData = function (oql_query, data, _accessors, opt_default_oql, opt_by_oql_line, opt_mark_oql_regulation_direction) {
 	/* In:	- oql_query, a string
 	 *	- data, a list of data
 	 *	- accessors, accessors as defined above,
@@ -307,7 +309,7 @@ window.OQL = (function () {
 		    'parsed_oql_line': query_line,
 		    'oql_line': unparseOQLQueryLine(query_line),
 		    'data': data.filter(function (datum) {
-			return isDatumWantedByOQLLine(query_line, datum, accessors.gene(datum).toUpperCase(), accessors);
+			return isDatumWantedByOQLLine(query_line, datum, accessors.gene(datum).toUpperCase(), accessors, opt_mark_oql_regulation_direction);
 		    })
 		};
 	    });
@@ -318,7 +320,7 @@ window.OQL = (function () {
 	}
     };
     return {
-	'filterCBioPortalWebServiceData': function(oql_query, data, opt_default_oql, opt_by_oql_line) {
+	'filterCBioPortalWebServiceData': function(oql_query, data, opt_default_oql, opt_by_oql_line, opt_mark_oql_regulation_direction) {
 	    /* Wrapper method for filterData that has the cBioPortal default accessor functions
 	     * Note that for use, the input data must have the field 'genetic_alteration_type,' which
 	     * takes one of the following values: 
@@ -385,7 +387,7 @@ window.OQL = (function () {
 		    }
 		}
 	    };
-	    return filterData(oql_query, data, accessors, opt_default_oql, opt_by_oql_line);
+	    return filterData(oql_query, data, accessors, opt_default_oql, opt_by_oql_line, opt_mark_oql_regulation_direction);
 	},
 	'genes': function (oql_query) {
 	    var parse_result = parseOQLQuery(oql_query);

@@ -1099,6 +1099,33 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    return def.promise();
 	},
+	// make new functions for heatmap to bypass OQL filters
+	// QuerySession.getHeatmapDataBySample(QuerySession.getQueryGenes(), QuerySession.getGeneticProfileIds()[0]).then(function(data) {console.log(data);})
+	'getHeatmapDataBySample': function (genes, genetic_profile_id) {
+	    var def = new $.Deferred();
+	    var self = this;
+	    window.cbioportal_client.getGeneticProfileDataBySample({
+		'genetic_profile_ids': [genetic_profile_id],
+		'genes': genes.map(function(x) { return x.toUpperCase(); }),
+		'sample_ids': self.getSampleIds()
+	    }).then(function (sample_data) {
+		def.resolve(sample_data);
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getHeatmapDataByPatient': function (genes, genetic_profile_id) {
+	    var def = new $.Deferred();
+	    self.getHeatmapDataBySample(genes, genetic_profile_id).then(function (sample_data) {
+		var patient_data = [];
+		// convert sample_data to patient data
+		def.resolve(patient_data);
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
 	'getWebServiceGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    var profile_types = {};

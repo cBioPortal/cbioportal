@@ -51,7 +51,25 @@
 .gene_segmentCN{
   border: 1px solid blue;
 }
-
+.segmentSvg{
+    border :3px solid #dbd7d7;
+    margin :5px;
+    box-shadow: 2px 2px 1px #888888;
+}
+.geneName{
+    text-align:center;
+    padding:7px;
+    font-size: 20px;
+    background: #bfbfbf; 
+    background: -webkit-linear-gradient(#bfbfbf, #c2d6d6); 
+    background: -o-linear-gradient(#bfbfbf, #c2d6d6); 
+    background: -moz-linear-gradient(#bfbfbf, #c2d6d6); 
+    background: linear-gradient(#bfbfbf, #c2d6d6); 
+}
+#sort{
+    padding-top:5px;
+    font-size: 18px;
+}
 </style>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <!-- IGV CSS -->
@@ -69,6 +87,7 @@
             <label>Sort Value By:</label>
           </div>
           <div id ="d3_segment" class="row">
+
       </div>
         </div>
     </div>

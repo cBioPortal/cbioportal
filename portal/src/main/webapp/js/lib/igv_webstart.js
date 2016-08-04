@@ -279,7 +279,7 @@ var showAllGenesPanel = function (genes){
     if(allGenesCN==false) {
         for (i=0; i<inputNumber; i++){
             $("#d3_segment").append(
-            '<div class="col-lg-4 col-md-4 col-sm-4"><h1>'+genesArray[i]+'</h1></div>');  
+            '<div class="col-lg-4 col-md-4 col-sm-4 geneName">'+genesArray[i]+'</h1></div>');  
         }
        startAllGenes(genesArray);
     }
@@ -336,7 +336,7 @@ var startAllGenes = function(genesArray){
                         count++;
                     }
                 }                   
-*/
+    */
                 var geneChr = geneMapping[geneName].chr.toString();
 
                 if (allSegment[1]===geneChr){
@@ -372,11 +372,6 @@ var startAllGenes = function(genesArray){
                     if(chrSegment[i].CNStart < genebpStart){
                         bpStart = genebpStart;
                     } else {
-                        console.log("outofline bpstart");
-                        console.log(count);
-                        console.log(chrSegment[i].CNStart);
-                        console.log(chrSegment[i].sample);
-                        console.log(geneName);
                         bpStart = chrSegment[i].CNStart;
                     }
                     
@@ -384,11 +379,6 @@ var startAllGenes = function(genesArray){
                         bpEnd = genebpEnd;
                     } else {
                         bpEnd = chrSegment[i].CNEnd;
-                        console.log("outofline bpEnd");
-                        console.log(count);
-                        console.log(chrSegment[i].CNEnd);
-                        console.log(chrSegment[i].sample);
-                        console.log(geneName);
                     }
 
                     var averageVal = chrSegment[i].CNValue
@@ -414,12 +404,10 @@ var startAllGenes = function(genesArray){
                samples['"'+data['"'+geneName+'"'].sample+'"'] = value -1+ geneSegmentVal;
                 console.log("samples");
                 console.log(samples);
-*/
+            */
             }
 
         }
-        console.log("data");
-        console.log(data); 
 
         var segmenCNViz= new D3SegmentCNViz(data, genesArray); 
          
@@ -428,15 +416,21 @@ var startAllGenes = function(genesArray){
             sortBars(data);
             //maintain an original aggregated/unaggregated and sorted/unsorted status
             segmenCNViz.update(refined_data,sortChecked);
-        });  
+        }); 
 
         //function for sorting bars
-        var sortBars=function(data){ 
-        console.log(sortChecked);  
-        console.log(data);       
-            refined_data=data['"'+sortChecked+'"'].sort(function(a,b){return d3.descending(a.value, b.value)});
-
-        }       
+        var direction="original";
+        var sortBars=function(data){  
+    
+            if(direction === "ascending"){
+                refined_data=data['"'+sortChecked+'"'].sort(function(a,b){return d3.descending(a.value, b.value)});
+                direction = "descending";
+            } else{
+                refined_data=data['"'+sortChecked+'"'].sort(function(a,b){return d3.ascending(a.value, b.value)});
+                direction = "ascending";
+            }
+        } 
+      
     });
 }
 
@@ -484,5 +478,4 @@ var startIGV = function(targetGene, segUrl) {
     url:"http://cbio.mskcc.org/cancergenomics/public-portal/seg/coadread_tcga_pub_data_cna_hg19.seg"
 }
 */
-
 }

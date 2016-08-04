@@ -53,6 +53,7 @@ var fetchedFileData ={};
 var data ={};
 var geneCNAData = [];
 var samples = [];
+var sample ={};
 /*
  * Function to determine webstart version - taken from sun site
  */
@@ -271,11 +272,15 @@ var showAllGenesPanel = function (genes){
     if($('input[name="sort"]').length==0){
         for (i=0; i<inputNumber; i++){
             $("#sort").append(
-            '<label><input type="radio" name="sort" value="' + genesArray[i]+'"  onclick="checkedSort()"/>'+genesArray[i]+'</label>');  
+            '<label><input type="radio" name="sort" value="' + genesArray[i]+'"  onclick="checkedSort()"/>'+genesArray[i]+'</label>'); 
         }
     }
    
     if(allGenesCN==false) {
+        for (i=0; i<inputNumber; i++){
+            $("#d3_segment").append(
+            '<div class="col-lg-4 col-md-4 col-sm-4"><h1>'+genesArray[i]+'</h1></div>');  
+        }
        startAllGenes(genesArray);
     }
     $("#igvRootDiv").hide();
@@ -288,12 +293,12 @@ var startAllGenes = function(genesArray){
     d3.json("data/cbioportal_TCGA_small.json", function(dat) {
 
         fetchedFileData.read();        
-            var lines=[];
+        var lines=[];
         lines = allText.split('\n');
 
-       /* var geneinfo = new BroadInstituteGeneInfo (genes);
+    /*   var geneinfo = new BroadInstituteGeneInfo (genesArray);
         geneinfo.getGeneMapping();
-        */
+    */  
 
         var geneMapping={
                         "KRAS": {
@@ -311,20 +316,27 @@ var startAllGenes = function(genesArray){
                                 "bpEnd": 140624564
                                 }
                         };
+  
         for(j =0; j<genesArray.length; j++){
             var geneName= genesArray[j];
             var chrSegment=[];  
             data['"'+geneName+'"']=[];
             for(var i=1; i<lines.length-1; i++){
+             
+                var allSegment = lines[i].split('\t');                 
+ 
+      /*             var previousName = "";
+        var count =0;  
 
-                var allSegment = lines[i].split('\t'); 
-                var previousName = "";
-                /* if(j=0) {
-                    previousName != allSegment[0],
-                    samples[count] ={allSegment[0] :{} }
-                }              
-                */      
-         
+       while(j=0) {
+                    if(previousName != allSegment[0]){                        
+                       sample['"'+allSegment[0]+'"']=0; 
+                       samples.push({sample});
+                        previousName = allSegment[0],
+                        count++;
+                    }
+                }                   
+*/
                 var geneChr = geneMapping[geneName].chr.toString();
 
                 if (allSegment[1]===geneChr){
@@ -338,6 +350,10 @@ var startAllGenes = function(genesArray){
                         "num_probes": parseInt(allSegment[4]),
                         "CNValue": parseFloat(allSegment[5])
                     });
+                    /*if(samples.hasOwnProperty(allSegment[0])==false){
+                        samples.push(allSegment[0]);
+                    }
+                    */
                 } 
 
             }
@@ -349,17 +365,15 @@ var startAllGenes = function(genesArray){
                 var bpEnd;
 
                 var previousName = "";
+                var count=0;
                 if(chrSegment[i].CNEnd>=genebpStart &&chrSegment[i].CNStart<=genebpEnd){
-                    if(previousName == chrSegment[i].sample){
-                        console.log("I am repeat");
-                        console.log(chrSegment[i].sample);
-                        console.log(geneName);
-                    }
+                    count++;
 
                     if(chrSegment[i].CNStart < genebpStart){
                         bpStart = genebpStart;
                     } else {
-                        console.log("outofline");
+                        console.log("outofline bpstart");
+                        console.log(count);
                         console.log(chrSegment[i].CNStart);
                         console.log(chrSegment[i].sample);
                         console.log(geneName);
@@ -370,7 +384,8 @@ var startAllGenes = function(genesArray){
                         bpEnd = genebpEnd;
                     } else {
                         bpEnd = chrSegment[i].CNEnd;
-                        console.log("outofline");
+                        console.log("outofline bpEnd");
+                        console.log(count);
                         console.log(chrSegment[i].CNEnd);
                         console.log(chrSegment[i].sample);
                         console.log(geneName);
@@ -390,21 +405,16 @@ var startAllGenes = function(genesArray){
                         "value": averageVal
                        });
                 } else{
-                    console.log("I am empty");
-                    console.log(chrSegment[i].sample);
-                    console.log(geneName);
+                    
                 }
 
      
-            /*  var geneSegmentVal = (bpEnd-bpStart)*averageVal; 
-                if(!samples[geneCNAData.sample]['"'+geneName+'"']){
-                    samples[geneCNAData.sample]['"'+geneName+'"'] = geneSegmentVal;
-                } else{
-                    samples[geneCNAData.sample]['"'+geneName+'"'] + = geneSegmentVal;
-                }
+           /* var geneSegmentVal = (bpEnd-bpStart)*averageVal; 
+              var value =  samples['"'+data['"'+geneName+'"'].sample+'"'] ;
+               samples['"'+data['"'+geneName+'"'].sample+'"'] = value -1+ geneSegmentVal;
                 console.log("samples");
                 console.log(samples);
-                */
+*/
             }
 
         }
@@ -417,12 +427,15 @@ var startAllGenes = function(genesArray){
         d3.selectAll('input[name="sort"]').on("click", function(){ 
             sortBars(data);
             //maintain an original aggregated/unaggregated and sorted/unsorted status
-            segmenCNViz.update(refined_data);
+            segmenCNViz.update(refined_data,sortChecked);
         });  
 
         //function for sorting bars
-        var sortBars=function(data){          
-            refined_data=data[sortChecked].sort(function(a,b){return d3.descending(a.value, b.value)});
+        var sortBars=function(data){ 
+        console.log(sortChecked);  
+        console.log(data);       
+            refined_data=data['"'+sortChecked+'"'].sort(function(a,b){return d3.descending(a.value, b.value)});
+
         }       
     });
 }

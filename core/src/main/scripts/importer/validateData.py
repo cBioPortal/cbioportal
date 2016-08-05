@@ -2370,28 +2370,28 @@ def process_metadata_files(directory, portal_instance, logger):
 
 
 def processCaseListDirectory(caseListDir, cancerStudyId, logger,
-                             stableid_files=None):
-    """Validate the case lists in a directory and log findings.
+                             prev_stableid_files=None):
+    """Validate the case lists in a directory and return an id/file mapping.
 
     Args:
         caseListDir (str): path to the case list directory.
         cancerStudyId (str): cancer_study_identifier expected in the files.
         logger: logging.Logger instance through which to send output.
-        stableid_files (Optional): dict mapping the stable ids of any case
+        prev_stableid_files (Optional): dict mapping the stable IDs of any case
             lists already defined to the files they were defined in.
+
+    Returns:
+        Dict[str, str]: dict mapping the stable IDs of all valid defined case
+            lists to the files they were defined in, including the
+            prev_stableid_files argument
     """
 
     logger.debug('Validating case lists')
 
-    # start with an empty dictionary if none was given
-    # (using mutable objects as default arguments directly is confusing)
-    if stableid_files == None:
-        stableid_files = {}
-
-    # TODO: include ids based on the defined profiles here
-    required_id_suffixes = ('all', )
-    required_stable_ids = [cancerStudyId + '_' + suffix for suffix in
-                           required_id_suffixes]
+    stableid_files = {}
+    # include the previously defined stable IDs
+    if prev_stableid_files is not None:
+        stableid_files.update(prev_stableid_files)
 
     case_list_fns = [os.path.join(caseListDir, fn) for
                      fn in os.listdir(caseListDir) if
@@ -2437,21 +2437,30 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                     'White space in sample id is not supported',
                     extra={'filename_': case,
                            'cause': value})
-                
 
-    for required_id in required_stable_ids:
-        if required_id not in stableid_files:
-            if required_id == cancerStudyId + '_all':
-                suggestion = ("Consider adding 'add_global_case_list: true' "
-                              "to the study metadata file")
-            else:
-                suggestion = "Please define it in the 'case_lists' folder"
-            logger.error("No  case list found for stable_id '%s'. %s",
-                         required_id,
-                         suggestion)
+    logger.info('Validation of case list folder complete')
 
-    logger.info('Validation of case lists complete')
+    return stableid_files
 
+
+def validate_defined_caselists(cancer_study_id, case_list_fns, file_types, logger):
+
+    """Validate the set of case lists defined in a study.
+
+    Args:
+        cancer_study_id (str): the study ID to be expected in the stable IDs
+        case_list_fns (Iterable[str]): stable ids of defined case lists
+        file_types (Dict[str, str]): listing of the MetaFileTypes with high-
+            dimensional data in this study--these may imply certain case lists
+        logger: logging.Logger instance to log output to
+    """
+
+    if cancer_study_id + '_all' not in case_list_fns:
+        logger.error(
+                "No case list found for stable_id '%s', consider adding "
+                    "'add_global_case_list: true' to the study metadata file",
+                cancer_study_id + '_all')
+    # TODO: check for required suffixes based on the defined profiles
 
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
@@ -2767,8 +2776,14 @@ def validate_study(study_dir, portal_instance, logger):
     if not os.path.isdir(case_list_dirname):
         logger.info("No directory named 'case_lists' found, so assuming no custom case lists.")
     else:
-        processCaseListDirectory(case_list_dirname, study_id, logger,
-                                 stableid_files=defined_case_list_fns)
+        defined_case_list_fns = processCaseListDirectory(
+                case_list_dirname, study_id, logger,
+                prev_stableid_files=defined_case_list_fns)
+
+    validate_defined_caselists(
+        study_id, defined_case_list_fns,
+        file_types=validators_by_meta_type.keys(),
+        logger=logger)
 
     logger.info('Validation complete')
 

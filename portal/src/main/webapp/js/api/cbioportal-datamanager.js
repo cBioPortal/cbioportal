@@ -1099,28 +1099,54 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    return def.promise();
 	},
-	// make new functions for heatmap to bypass OQL filters
-	// QuerySession.getHeatmapDataBySample(QuerySession.getQueryGenes(), QuerySession.getGeneticProfileIds()[0]).then(function(data) {console.log(data);})
-	'getHeatmapDataBySample': function (genes, genetic_profile_id) {
+	// make new functions for heatmap to bypass OQL filters and handle continuous data
+	//
+	'getHeatmapData': function (genetic_profile_id, genes, sample_or_patient, sample_to_patient_map) {
 	    var def = new $.Deferred();
 	    var self = this;
-	    window.cbioportal_client.getGeneticProfileDataBySample({
+	    var sample_ids = self.getSampleIds();
+	    var genes = genes || [];
+	    var sample_or_patient = sample_or_patient || "sample";
+	    window.cbioportal_client.getGeneticProfileDataBySample({ // can only get it by sample for now
 		'genetic_profile_ids': [genetic_profile_id],
 		'genes': genes.map(function(x) { return x.toUpperCase(); }),
-		'sample_ids': self.getSampleIds()
-	    }).then(function (sample_data) {
-		def.resolve(sample_data);
-	    }).fail(function () {
-		def.reject();
-	    });
-	    return def.promise();
-	},
-	'getHeatmapDataByPatient': function (genes, genetic_profile_id) {
-	    var def = new $.Deferred();
-	    self.getHeatmapDataBySample(genes, genetic_profile_id).then(function (sample_data) {
-		var patient_data = [];
-		// convert sample_data to patient data
-		def.resolve(patient_data);
+		'sample_ids': sample_ids
+	    }).then(function (client_sample_data) {
+		var interim_data = {};
+		for (var i = 0; i < genes.length; i++) {
+		    var gene = genes[i].toUpperCase();
+		    interim_data[gene] = {};
+		    for (var j = 0; j < sample_ids.length; j++) {
+			var id = sample_ids[j];
+			interim_data[gene][id] = {};
+			interim_data[gene][id]["hugo_gene_symbol"] = gene;
+			interim_data[gene][id][sample_or_patient + "_id"] = (sample_or_patient === "patient" ? sample_to_patient_map[id] : id);
+			interim_data[gene][id]["profile_data"] = null;
+		    }
+		}
+		for (var i = 0; i < client_sample_data.length; i++) {
+		    var receive_datum = client_sample_data[i];
+		    var gene = receive_datum.hugo_gene_symbol.toUpperCase();
+		    var id = receive_datum.sample_id;
+		    var interim_datum = interim_data[gene][id];
+		    if (interim_datum) {
+			interim_data[gene][id]["profile_data"] = receive_datum.profile_data;
+		    }
+		}
+		var send_data = [];
+		for (var i = 0; i < genes.length; i++) {
+		    var gene = genes[i].toUpperCase();
+		    var track_data = {};
+		    track_data["hugo_gene_symbol"] = gene;
+		    track_data["genetic_profile_id"] = genetic_profile_id;
+		    var oncoprint_data = [];
+		    for (var j = 0; j < sample_ids.length; j++) {
+			oncoprint_data.push(interim_data[gene][id]);
+		    }
+		    track_data["oncoprint_data"] = oncoprint_data;
+		    send_data.push(track_data);
+		}
+		def.resolve(send_data);
 	    }).fail(function () {
 		def.reject();
 	    });

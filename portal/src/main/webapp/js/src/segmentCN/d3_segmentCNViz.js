@@ -6,7 +6,7 @@
 *
 */
 
-D3SegmentCNViz = function(_data, _genes){
+D3SegmentCNViz = function(_data, _genes, _geneMapping){
     this.data=_data; 
     this.genes = _genes;
     this.num =_genes.length;
@@ -16,11 +16,11 @@ D3SegmentCNViz = function(_data, _genes){
     this.height = 3400 - this.margin.top - this.margin.bottom;      
     this.yScale = d3.scale.ordinal().rangeRoundBands([0, this.height], .8, 0);
     this.min=0;
-       
+    this.geneMapping =_geneMapping; 
     this.initViz();
 }
 
-D3SegmentCNViz.prototype.initViz = function(){    
+D3SegmentCNViz.prototype.initViz = function(){ 
     this.svg=[];
     this.rect=[];
     this.g =[];
@@ -29,8 +29,8 @@ D3SegmentCNViz.prototype.initViz = function(){
                         
     for(j=0; j<this.num; j++){
 
-        this.genebpStart[j] = geneMapping[this.genes[j]].bpStart; 
-        this.genebpEnd[j] = geneMapping[this.genes[j]].bpEnd; 
+        this.genebpStart[j] = this.geneMapping[this.genes[j]].bpStart; 
+        this.genebpEnd[j] = this.geneMapping[this.genes[j]].bpEnd; 
         var xScale = d3.scale.linear()
                            .domain([this.genebpStart[j], this.genebpEnd[j]])
                            .range([0,this.width]);

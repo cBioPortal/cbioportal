@@ -54,7 +54,7 @@ var data ={};
 var geneCNAData = [];
 var samples = [];
 var sample ={};
-var geneMapping;
+//var geneMapping;
 /*
  * Function to determine webstart version - taken from sun site
  */
@@ -231,6 +231,7 @@ var prepIGVForSegView = function (_studyId) {
                     igv_data_fetched = true; 
                     addIGVButtons(segGene);
                     startIGV (segGene[0].toLowerCase(), segCNUrl);
+                    console.log(segCNUrl);
                     fetchedFileData =new ReadTextFile(segCNUrl);                   
                 });
         
@@ -262,7 +263,9 @@ var switchGenes = function(buttonVal){
     $("#all_genes").hide();  
 }
 
-//genes is an array
+/**
+* @genes     a gene array
+*/
 var showAllGenesPanel = function (genes){
     
     $("#all_genes").show();
@@ -280,7 +283,7 @@ var showAllGenesPanel = function (genes){
     if(allGenesCN==false) {
         for (i=0; i<inputNumber; i++){
             $("#d3_segment").append(
-            '<div class="col-lg-4 col-md-4 col-sm-4 geneName">'+genesArray[i]+'</h1></div>');  
+            '<div class="geneName" style="width:'+99/inputNumber+'%">'+genesArray[i]+'</h1></div>');  
         }
        startAllGenes(genesArray);
     }
@@ -291,41 +294,16 @@ var allGenesCN = false;
 var startAllGenes = function(genesArray){
     allGenesCN = true;
 
-    d3.json("data/cbioportal_TCGA_small.json", function(dat) {
-
+    d3.json("data/geneMapping.json", function(geneMapping) {
+        console.log(geneMapping);
         fetchedFileData.read();        
         var lines=[];
         lines = allText.split('\n');
 
-    /*   var geneinfo = new BroadInstituteGeneInfo (genesArray);
+    /*  var geneinfo = new BroadInstituteGeneInfo (genesArray);
         geneinfo.getGeneMapping();
     */  
-
-        geneMapping={
-                        "KRAS": {
-                                 "chr": 12,
-                                "bpStart": 25204789,
-                                "bpEnd": 25252093
-                                },
-                        "NRAS": {
-                                "chr": 1,
-                                "bpStart": 115247084,
-                                "bpEnd": 115259515 
-                                },
-                        "BRAF": {"chr": 7,
-                                "bpStart": 140433812,
-                                "bpEnd": 140624564
-                                },
-                         "BRCA1": {"chr": 1,
-                            "bpStart":41196311,
-                            "bpEnd": 41277500
-                            },
-                        "BRCA2": {"chr": 13,
-                                "bpStart":32889616,
-                                "bpEnd": 32973809
-                                }
-                        };
-  
+         
         for(j =0; j<genesArray.length; j++){
             var geneName= genesArray[j];
             var chrSegment=[];  
@@ -334,10 +312,10 @@ var startAllGenes = function(genesArray){
              
                 var allSegment = lines[i].split('\t');                 
  
-      /*             var previousName = "";
+      /*var previousName = "";
         var count =0;  
 
-       while(j=0) {
+        while(j=0) {
                     if(previousName != allSegment[0]){                        
                        sample['"'+allSegment[0]+'"']=0; 
                        samples.push({sample});
@@ -417,8 +395,8 @@ var startAllGenes = function(genesArray){
             }
 
         }
-
-        var segmenCNViz= new D3SegmentCNViz(data, genesArray); 
+        console.log(geneMapping);
+        var segmenCNViz= new D3SegmentCNViz(data, genesArray, geneMapping); 
          
         //sorting bar chart                
         d3.selectAll('input[name="sort"]').on("click", function(){ 
@@ -443,7 +421,7 @@ var startAllGenes = function(genesArray){
     });
 }
 
-  //function for checking which sorted radio box is checked
+//function for checking which sorted radio box is checked
     var sortChecked ="";
     function checkedSort(){
         d3.selectAll('input[name="sort"]').each(function (d) {

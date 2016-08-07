@@ -57,6 +57,7 @@
     box-shadow: 2px 2px 1px #888888;
 }
 .geneName{
+    display:inline-block;
     text-align:center;
     padding:7px;
     font-size: 20px;

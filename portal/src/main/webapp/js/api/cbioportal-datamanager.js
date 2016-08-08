@@ -1120,7 +1120,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			var id = sample_ids[j];
 			interim_data[gene][id] = {};
 			interim_data[gene][id]["hugo_gene_symbol"] = gene;
-			interim_data[gene][id][sample_or_patient + "_id"] = (sample_or_patient === "patient" ? sample_to_patient_map[id] : id);
+			interim_data[gene][id][sample_or_patient] = (sample_or_patient === "patient" ? sample_to_patient_map[id] : id);
 			interim_data[gene][id]["profile_data"] = null;
 		    }
 		}
@@ -1141,6 +1141,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    track_data["genetic_profile_id"] = genetic_profile_id;
 		    var oncoprint_data = [];
 		    for (var j = 0; j < sample_ids.length; j++) {
+			var id = sample_ids[j];
 			oncoprint_data.push(interim_data[gene][id]);
 		    }
 		    track_data["oncoprint_data"] = oncoprint_data;

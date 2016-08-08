@@ -66,6 +66,22 @@ var tooltip_utils = {
 	return '<a href="' + href + '">' + patient_id + '</a>';
     },
     'makeGeneticTrackTooltip':function(data_type, link_id) {
+	var listOfTooltipDataToHTML = function(tooltip_data) {
+	    var ret = [];
+	    for (var i=0; i<tooltip_data.length; i++) {
+		var new_ret_elt = '';
+		var tooltip_datum = tooltip_data[i];
+		new_ret_elt += tooltip_datum.amino_acid_change;
+		if (tooltip_datum.cancer_hotspots_hotspot) {
+		    new_ret_elt += ' <img src="images/oncokb-flame.svg" title="Hotspot" style="height:11px; width:11px;"/>';
+		}
+		if (tooltip_datum.oncokb_oncogenic) {
+		    new_ret_elt += ' <img src="images/oncokb-oncogenic-1.svg" title="'+tooltip_datum.oncokb_oncogenic+'" style="height:11px; width:11px;"/>';
+		}
+		ret.push(new_ret_elt);
+	    }
+	    return ret.join(", ");
+	};
 	return function (d) {
 	    var ret = '';
 	    var mutations = [];
@@ -76,11 +92,14 @@ var tooltip_utils = {
 	    for (var i=0; i<d.data.length; i++) {
 		var datum = d.data[i];
 		if (datum.genetic_alteration_type === "MUTATION_EXTENDED") {
-		    if (datum.oncoprint_mutation_type !== "fusion") {
-			mutations.push(datum.amino_acid_change);
-		    } else {
-			fusions.push(datum.amino_acid_change);
+		    var tooltip_datum = {'amino_acid_change': datum.amino_acid_change};
+		    if (datum.cancer_hotspots_hotspot) {
+			tooltip_datum.cancer_hotspots_hotspot = true;
 		    }
+		    if (typeof datum.oncokb_oncogenic !== "undefined" && ["Likely Oncogenic", "Oncogenic"].indexOf(datum.oncokb_oncogenic) > -1) {
+			tooltip_datum.oncokb_oncogenic = datum.oncokb_oncogenic;
+		    }
+		    (datum.oncoprint_mutation_type === "fusion" ? fusions : mutations).push(tooltip_datum);
 		} else if (datum.genetic_alteration_type === "COPY_NUMBER_ALTERATION") {
 		    var disp_cna = {'-2': 'HOMODELETED', '-1': 'HETLOSS', '1': 'GAIN', '2': 'AMPLIFIED'};
 		    if (disp_cna.hasOwnProperty(datum.profile_data)) {
@@ -94,10 +113,10 @@ var tooltip_utils = {
 		}
 	    }
 	    if (fusions.length > 0) {
-		ret += "Fusion: <b>" + fusions.join(", ")+"</b><br>";
+		ret += "Fusion: <b>" + listOfTooltipDataToHTML(fusions) +"</b><br>";
 	    }
 	    if (mutations.length > 0) {
-		ret += 'Mutation: <b>' + mutations.join(", ")+'</b><br>';
+		ret += 'Mutation: <b>' + listOfTooltipDataToHTML(mutations) +'</b><br>';
 	    }
 	    if (cna.length > 0) {
 		ret += 'Copy Number Alteration: <b>'+cna.join(", ")+'</b><br>';

@@ -20,6 +20,7 @@
  */
 
 var Shape = require('./oncoprintshape.js');
+var extractRGBA = require('./extractrgba.js');
 
 function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
@@ -102,25 +103,6 @@ var NA_SHAPES = [
 ];
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
-
-var extractRGBA = function (str) {
-    var ret = [0, 0, 0, 1];
-    if (str[0] === "#") {
-	// hex, convert to rgba
-	var r = parseInt(str[1] + str[2], 16);
-	var g = parseInt(str[3] + str[4], 16);
-	var b = parseInt(str[5] + str[6], 16);
-	str = 'rgba('+r+','+g+','+b+',1)';
-    }
-    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match.length === 5) {
-	ret = [parseFloat(match[1]) / 255,
-	    parseFloat(match[2]) / 255,
-	    parseFloat(match[3]) / 255,
-	    parseFloat(match[4])];
-    }
-    return ret;
-};
 
 var colorToHex = function(str) {
     var r;
@@ -574,16 +556,11 @@ var GradientRuleSet = (function () {
 	    var color_start;
 	    var color_end;
 	    try {
-		color_start = params.color_range[0]
-			.match(/rgba\(([\d.,]+)\)/)
-			.split(',')
-			.map(parseFloat);
-		color_end = params.color_range[1]
-			.match(/rgba\(([\d.,]+)\)/)
-			.split(',')
-			.map(parseFloat);
-		if (color_start.length !== 4 || color_end.length !== 4) {
-		    throw "wrong number of color components";
+		color_start = extractRGBA(params.color_range[0]);
+		color_end = extractRGBA(params.color_range[1]);
+		for (var i=0; i<3; i++) {
+		    color_start[i] *= 255;
+		    color_end[i] *= 255;
 		}
 	    } catch (err) {
 		color_start = [0, 0, 0, 1];

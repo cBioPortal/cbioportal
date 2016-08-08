@@ -48,8 +48,28 @@ module.exports = function(array, target_key, keyFn, return_closest_if_not_found)
     }
 }
 },{}],3:[function(require,module,exports){
+module.exports = function (str) {
+    var ret = [0, 0, 0, 1];
+    if (str[0] === "#") {
+	// hex, convert to rgba
+	var r = parseInt(str[1] + str[2], 16);
+	var g = parseInt(str[3] + str[4], 16);
+	var b = parseInt(str[5] + str[6], 16);
+	str = 'rgba('+r+','+g+','+b+',1)';
+    }
+    var match = str.match(/^[\s]*rgba\([\s]*([0-9.]+)[\s]*,[\s]*([0-9.]+)[\s]*,[\s]*([0-9.]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
+    if (match && match.length === 5) {
+	ret = [parseFloat(match[1]) / 255,
+	    parseFloat(match[2]) / 255,
+	    parseFloat(match[3]) / 255,
+	    parseFloat(match[4])];
+    }
+    return ret;
+};
+
+},{}],4:[function(require,module,exports){
 window.Oncoprint = require('./oncoprint.js');
-},{"./oncoprint.js":5}],4:[function(require,module,exports){
+},{"./oncoprint.js":6}],5:[function(require,module,exports){
 module.exports = function (tag, attrs) {
     var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
     for (var k in attrs) {
@@ -59,7 +79,7 @@ module.exports = function (tag, attrs) {
     }
     return el;
 };
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var OncoprintModel = require('./oncoprintmodel.js');
 var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
 var OncoprintLabelView = require('./oncoprintlabelview.js');
@@ -642,7 +662,7 @@ var Oncoprint = (function () {
     return Oncoprint;
 })();
 module.exports = Oncoprint;
-},{"./oncoprintlabelview.js":6,"./oncoprintlegendrenderer.js":7,"./oncoprintmodel.js":8,"./oncoprintruleset.js":9,"./oncoprinttooltip.js":12,"./oncoprinttrackinfoview.js":13,"./oncoprinttrackoptionsview.js":14,"./oncoprintwebglcellview.js":15,"./svgfactory.js":16}],6:[function(require,module,exports){
+},{"./oncoprintlabelview.js":7,"./oncoprintlegendrenderer.js":8,"./oncoprintmodel.js":9,"./oncoprintruleset.js":10,"./oncoprinttooltip.js":13,"./oncoprinttrackinfoview.js":14,"./oncoprinttrackoptionsview.js":15,"./oncoprintwebglcellview.js":16,"./svgfactory.js":17}],7:[function(require,module,exports){
 var svgfactory = require('./svgfactory.js');
 
 var OncoprintLabelView = (function () {
@@ -933,7 +953,7 @@ var OncoprintLabelView = (function () {
 })();
 
 module.exports = OncoprintLabelView;
-},{"./svgfactory.js":16}],7:[function(require,module,exports){
+},{"./svgfactory.js":17}],8:[function(require,module,exports){
 var svgfactory = require('./svgfactory.js');
 
 var nodeIsVisible = function(node) {
@@ -1145,7 +1165,7 @@ var OncoprintLegendView = (function() {
 })();
 
 module.exports = OncoprintLegendView;
-},{"./svgfactory.js":16}],8:[function(require,module,exports){
+},{"./svgfactory.js":17}],9:[function(require,module,exports){
 var binarysearch = require('./binarysearch.js');
 var CachedProperty = require('./CachedProperty.js');
 
@@ -2156,7 +2176,7 @@ var PrecomputedComparator = (function() {
     return PrecomputedComparator;
 })();
 module.exports = OncoprintModel;
-},{"./CachedProperty.js":1,"./binarysearch.js":2}],9:[function(require,module,exports){
+},{"./CachedProperty.js":1,"./binarysearch.js":2}],10:[function(require,module,exports){
 /* Rule:
  * 
  * condition: function from datum to boolean
@@ -2179,6 +2199,7 @@ module.exports = OncoprintModel;
  */
 
 var Shape = require('./oncoprintshape.js');
+var extractRGBA = require('./extractrgba.js');
 
 function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
@@ -2261,25 +2282,6 @@ var NA_SHAPES = [
 ];
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
-
-var extractRGBA = function (str) {
-    var ret = [0, 0, 0, 1];
-    if (str[0] === "#") {
-	// hex, convert to rgba
-	var r = parseInt(str[1] + str[2], 16);
-	var g = parseInt(str[3] + str[4], 16);
-	var b = parseInt(str[5] + str[6], 16);
-	str = 'rgba('+r+','+g+','+b+',1)';
-    }
-    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match.length === 5) {
-	ret = [parseFloat(match[1]) / 255,
-	    parseFloat(match[2]) / 255,
-	    parseFloat(match[3]) / 255,
-	    parseFloat(match[4])];
-    }
-    return ret;
-};
 
 var colorToHex = function(str) {
     var r;
@@ -2733,16 +2735,11 @@ var GradientRuleSet = (function () {
 	    var color_start;
 	    var color_end;
 	    try {
-		color_start = params.color_range[0]
-			.match(/rgba\(([\d.,]+)\)/)
-			.split(',')
-			.map(parseFloat);
-		color_end = params.color_range[1]
-			.match(/rgba\(([\d.,]+)\)/)
-			.split(',')
-			.map(parseFloat);
-		if (color_start.length !== 4 || color_end.length !== 4) {
-		    throw "wrong number of color components";
+		color_start = extractRGBA(params.color_range[0]);
+		color_end = extractRGBA(params.color_range[1]);
+		for (var i=0; i<3; i++) {
+		    color_start[i] *= 255;
+		    color_end[i] *= 255;
 		}
 	    } catch (err) {
 		color_start = [0, 0, 0, 1];
@@ -2973,7 +2970,7 @@ module.exports = function (params) {
 	return new GeneticAlterationRuleSet(params);
     }
 }
-},{"./oncoprintshape.js":10}],10:[function(require,module,exports){
+},{"./extractrgba.js":3,"./oncoprintshape.js":11}],11:[function(require,module,exports){
 var Shape = (function() {
     var default_parameter_values = {
 	    'width': '100%', 
@@ -3111,7 +3108,7 @@ module.exports = {
     'Ellipse':Ellipse,
     'Line':Line
 };
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var makeSVGElement = function (tag, attrs) {
     var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
     for (var k in attrs) {
@@ -3122,24 +3119,7 @@ var makeSVGElement = function (tag, attrs) {
     return el;
 };
 
-var extractRGBA = function (str) {
-    var ret = [0, 0, 0, 1];
-    if (str[0] === "#") {
-	// hex, convert to rgba
-	var r = parseInt(str[1] + str[2], 16);
-	var g = parseInt(str[3] + str[4], 16);
-	var b = parseInt(str[5] + str[6], 16);
-	str = 'rgba('+r+','+g+','+b+',1)';
-    }
-    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match && match.length === 5) {
-	ret = [parseFloat(match[1]) / 255,
-	    parseFloat(match[2]) / 255,
-	    parseFloat(match[3]) / 255,
-	    parseFloat(match[4])];
-    }
-    return ret;
-};
+var extractRGBA = require('./extractrgba.js');
 
 var extractColor = function(str) {
     if (str.indexOf("rgb(") > -1) {
@@ -3227,7 +3207,7 @@ module.exports = function(oncoprint_shape_computed_params, offset_x, offset_y) {
 	return lineToSVG(oncoprint_shape_computed_params, offset_x, offset_y);
     }
 };
-},{}],12:[function(require,module,exports){
+},{"./extractrgba.js":3}],13:[function(require,module,exports){
 var OncoprintToolTip = (function() {
     function OncoprintToolTip($container, params) {
 	params = params || {};
@@ -3332,7 +3312,7 @@ var OncoprintToolTip = (function() {
 })();
 
 module.exports = OncoprintToolTip;
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var svgfactory = require('./svgfactory.js');
 
 var OncoprintTrackInfoView = (function() {
@@ -3413,7 +3393,7 @@ var OncoprintTrackInfoView = (function() {
 })();
 
 module.exports = OncoprintTrackInfoView;
-},{"./svgfactory.js":16}],14:[function(require,module,exports){
+},{"./svgfactory.js":17}],15:[function(require,module,exports){
 var OncoprintTrackOptionsView = (function() {
     function OncoprintTrackOptionsView($div, moveUpCallback, moveDownCallback, removeCallback, sortChangeCallback) {
 	// removeCallback: function(track_id)
@@ -3514,7 +3494,7 @@ var OncoprintTrackOptionsView = (function() {
 	var $div,$img,$dropdown;
 	//if (model.isTrackRemovable(track_id) || model.isTrackSortDirectionChangeable(track_id)) {
 	    $div = $('<div>').appendTo(view.$div).css({'position': 'absolute', 'left': '0px', 'top': model.getTrackTops(track_id) + 'px'});
-	    $img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size, 'alt': 'Track options'}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
+	    $img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
 	    $dropdown = $('<ul>').appendTo($div).css({'width': 120, 'display': 'none', 'list-style-type': 'none', 'padding-left': '6', 'padding-right': '6', 'float': 'right', 'background-color': 'rgb(255,255,255)'});
 	    view.track_options_$elts[track_id] = {'$div': $div, '$img': $img, '$dropdown': $dropdown};
 	    
@@ -3614,9 +3594,10 @@ var OncoprintTrackOptionsView = (function() {
 })();
 
 module.exports = OncoprintTrackOptionsView;
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var gl_matrix = require('gl-matrix');
 var svgfactory = require('./svgfactory.js');
+var extractRGBA = require('./extractrgba.js');
 
 // TODO: antialiasing
 
@@ -3649,24 +3630,6 @@ var getWebGLCanvasContext = function (view) {
     }
 };
 
-var extractRGBA = function (str) {
-    var ret = [0, 0, 0, 1];
-    if (str[0] === "#") {
-	// hex, convert to rgba
-	var r = parseInt(str[1] + str[2], 16);
-	var g = parseInt(str[3] + str[4], 16);
-	var b = parseInt(str[5] + str[6], 16);
-	str = 'rgba('+r+','+g+','+b+',1)';
-    }
-    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match && match.length === 5) {
-	ret = [parseFloat(match[1]) / 255,
-	    parseFloat(match[2]) / 255,
-	    parseFloat(match[3]) / 255,
-	    parseFloat(match[4])];
-    }
-    return ret;
-};
 var createShaderProgram = function (view, vertex_shader, fragment_shader) {
     var program = view.ctx.createProgram();
     view.ctx.attachShader(program, vertex_shader);
@@ -4385,28 +4348,10 @@ var OncoprintWebGLCellView = (function () {
 
 module.exports = OncoprintWebGLCellView;
 
-},{"./svgfactory.js":16,"gl-matrix":17}],16:[function(require,module,exports){
+},{"./extractrgba.js":3,"./svgfactory.js":17,"gl-matrix":18}],17:[function(require,module,exports){
 var makeSVGElement = require('./makesvgelement.js');
 var shapeToSVG = require('./oncoprintshapetosvg.js');
-
-var extractRGBA = function (str) {
-    var ret = [0, 0, 0, 1];
-    if (str[0] === "#") {
-	// hex, convert to rgba
-	var r = parseInt(str[1] + str[2], 16);
-	var g = parseInt(str[3] + str[4], 16);
-	var b = parseInt(str[5] + str[6], 16);
-	str = 'rgba('+r+','+g+','+b+',1)';
-    }
-    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match && match.length === 5) {
-	ret = [parseFloat(match[1]) / 255,
-	    parseFloat(match[2]) / 255,
-	    parseFloat(match[3]) / 255,
-	    parseFloat(match[4])];
-    }
-    return ret;
-};
+var extractRGBA = require('./extractrgba.js');
 
 var extractColor = function(str) {
     if (str.indexOf("rgb(") > -1) {
@@ -4512,7 +4457,7 @@ module.exports = {
 
 
 
-},{"./makesvgelement.js":4,"./oncoprintshapetosvg.js":11}],17:[function(require,module,exports){
+},{"./extractrgba.js":3,"./makesvgelement.js":5,"./oncoprintshapetosvg.js":12}],18:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -4550,7 +4495,7 @@ exports.quat = require("./gl-matrix/quat.js");
 exports.vec2 = require("./gl-matrix/vec2.js");
 exports.vec3 = require("./gl-matrix/vec3.js");
 exports.vec4 = require("./gl-matrix/vec4.js");
-},{"./gl-matrix/common.js":18,"./gl-matrix/mat2.js":19,"./gl-matrix/mat2d.js":20,"./gl-matrix/mat3.js":21,"./gl-matrix/mat4.js":22,"./gl-matrix/quat.js":23,"./gl-matrix/vec2.js":24,"./gl-matrix/vec3.js":25,"./gl-matrix/vec4.js":26}],18:[function(require,module,exports){
+},{"./gl-matrix/common.js":19,"./gl-matrix/mat2.js":20,"./gl-matrix/mat2d.js":21,"./gl-matrix/mat3.js":22,"./gl-matrix/mat4.js":23,"./gl-matrix/quat.js":24,"./gl-matrix/vec2.js":25,"./gl-matrix/vec3.js":26,"./gl-matrix/vec4.js":27}],19:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4604,7 +4549,7 @@ glMatrix.toRadian = function(a){
 
 module.exports = glMatrix;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4908,7 +4853,7 @@ mat2.LDU = function (L, D, U, a) {
 
 module.exports = mat2;
 
-},{"./common.js":18}],20:[function(require,module,exports){
+},{"./common.js":19}],21:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5227,7 +5172,7 @@ mat2d.frob = function (a) {
 
 module.exports = mat2d;
 
-},{"./common.js":18}],21:[function(require,module,exports){
+},{"./common.js":19}],22:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5794,7 +5739,7 @@ mat3.frob = function (a) {
 
 module.exports = mat3;
 
-},{"./common.js":18}],22:[function(require,module,exports){
+},{"./common.js":19}],23:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7079,7 +7024,7 @@ mat4.frob = function (a) {
 
 module.exports = mat4;
 
-},{"./common.js":18}],23:[function(require,module,exports){
+},{"./common.js":19}],24:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7634,7 +7579,7 @@ quat.str = function (a) {
 
 module.exports = quat;
 
-},{"./common.js":18,"./mat3.js":21,"./vec3.js":25,"./vec4.js":26}],24:[function(require,module,exports){
+},{"./common.js":19,"./mat3.js":22,"./vec3.js":26,"./vec4.js":27}],25:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8159,7 +8104,7 @@ vec2.str = function (a) {
 
 module.exports = vec2;
 
-},{"./common.js":18}],25:[function(require,module,exports){
+},{"./common.js":19}],26:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8870,7 +8815,7 @@ vec3.str = function (a) {
 
 module.exports = vec3;
 
-},{"./common.js":18}],26:[function(require,module,exports){
+},{"./common.js":19}],27:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -9409,4 +9354,4 @@ vec4.str = function (a) {
 
 module.exports = vec4;
 
-},{"./common.js":18}]},{},[3]);
+},{"./common.js":19}]},{},[4]);

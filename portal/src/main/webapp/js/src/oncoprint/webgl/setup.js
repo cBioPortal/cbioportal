@@ -819,9 +819,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'rule_set_params': {
 			    'type': 'gradient',
 			    'value_key': 'profile_data',
-			    'value_range': [-1.0, 1.0],
+			    //'value_range': [-2, 2],
 			    'color_range': ['rgba(0,0,255,1)', 'rgba(255,0,0,1)']
 			},
+			//'track_padding': 0,
 			'label': heatmap_data_by_line[i].hugo_gene_symbol,
 			'target_group': 2,
 			//'sortCmpFn': function(d1, d2) {return 0;},

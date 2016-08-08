@@ -1130,7 +1130,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    var id = receive_datum.sample_id;
 		    var interim_datum = interim_data[gene][id];
 		    if (interim_datum) {
-			interim_data[gene][id]["profile_data"] = receive_datum.profile_data;
+			interim_data[gene][id]["profile_data"] = parseFloat(receive_datum.profile_data);
 		    }
 		}
 		var send_data = [];

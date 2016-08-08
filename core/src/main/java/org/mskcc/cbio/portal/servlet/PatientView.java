@@ -500,7 +500,7 @@ public class PatientView extends HttpServlet {
         // path report
         String typeOfCancer = cancerStudy.getTypeOfCancerId();
         if (patientId!=null && patientId.startsWith("TCGA-")) {
-            String pathReport = getTCGAPathReport(typeOfCancer, patientId);
+            String pathReport = getTCGAPathReport(patientId);
             if (pathReport!=null) {
                 request.setAttribute(PATH_REPORT_URL, pathReport);
             }
@@ -549,45 +549,38 @@ public class PatientView extends HttpServlet {
     }
     
     // Map<TypeOfCancer, Map<CaseId, List<ImageName>>>
-    private static Map<String,Map<String,String>> pathologyReports
-            = new HashMap<String,Map<String,String>>();
-    static final Pattern tcgaPathReportDirLinePattern = Pattern.compile("<a href=[^>]+>([^/]+/)</a>");
+    private static Map<String, String> pathologyReports = new HashMap<String, String>();
     static final Pattern tcgaPathReportPdfLinePattern = Pattern.compile("<a href=[^>]+>([^/]+\\.pdf)</a>");
     static final Pattern tcgaPathReportPattern = Pattern.compile("^(TCGA-..-....).+");
-    private synchronized String getTCGAPathReport(String typeOfCancer, String caseId) {
-        Map<String,String> map = pathologyReports.get(typeOfCancer);
-        if (map==null) {
-            map = new HashMap<String,String>();
+    
+    private synchronized String getTCGAPathReport(String caseId) {
+        String pathologyReportUrl = pathologyReports.get(caseId);
+        if (pathologyReportUrl==null) {
             
-            String[] pathReportUrls = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
-            if (pathReportUrls!=null) {
-                for (String pathReportUrl : pathReportUrls) {
-                    List<String> pathReportDirs = extractLinksByPattern(pathReportUrl,tcgaPathReportDirLinePattern);
-                    for (String dir : pathReportDirs) {
-                        String url = pathReportUrl+dir;
-                        List<String> pathReports = extractLinksByPattern(url,tcgaPathReportPdfLinePattern);
-                        for (String report : pathReports) {
-                            Matcher m = tcgaPathReportPattern.matcher(report);
-                            if (m.find()) {
-                                if (m.groupCount()>0) {
-                                    String exist = map.put(m.group(1), url+report);
-                                    if (exist!=null) {
-                                        String msg = "Multiple Pathology reports for "+m.group(1)+": \n\t"
-                                                + exist + "\n\t" + url+report;
-                                        System.err.println(url);
-                                        logger.error(msg);
-                                    }
-                                }
+            String pathReportUrl = GlobalProperties.getTCGAPathReportUrl();
+            if (pathReportUrl!=null) {
+                String url = pathReportUrl;
+                List<String> pathReports = extractLinksByPattern(url,tcgaPathReportPdfLinePattern);
+                for (String report : pathReports) {
+                    Matcher m = tcgaPathReportPattern.matcher(report);
+                    if (m.find()) {
+                        if (m.groupCount()>0) {
+                            // If the data source changes, this replace should be changed or removed. It's only there for accessing
+                            // the file from datahub (from github)
+                            String exist = pathologyReports.put(m.group(1), url.replace("/tree/", "/raw/")+report);
+                            if (exist!=null) {
+                                String msg = "Multiple Pathology reports for "+m.group(1)+": \n\t"
+                                        + exist + "\n\t" + url+report;
+                                System.err.println(url);
+                                logger.error(msg);
                             }
                         }
                     }
-                }
+                }               
             }
-            
-            pathologyReports.put(typeOfCancer, map);
         }
         
-        return map.get(caseId);
+        return pathologyReports.get(caseId);
     }
     
     private static List<String> extractLinksByPattern(String reportsUrl, Pattern p) {

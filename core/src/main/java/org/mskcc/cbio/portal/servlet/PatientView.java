@@ -71,6 +71,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.regex.*;
 import javax.servlet.*;
@@ -486,7 +487,7 @@ public class PatientView extends HttpServlet {
         // path report
         String typeOfCancer = cancerStudy.getTypeOfCancerId();
         if (patientId!=null && patientId.startsWith("TCGA-")) {
-            String pathReport = getTCGAPathReport(typeOfCancer, patientId);
+            String pathReport = getTCGAPathReport(patientId);
             if (pathReport!=null) {
                 request.setAttribute(PATH_REPORT_URL, pathReport);
             }
@@ -535,79 +536,36 @@ public class PatientView extends HttpServlet {
     }
     
     // Map<TypeOfCancer, Map<CaseId, List<ImageName>>>
-    private static Map<String,Map<String,String>> pathologyReports
-            = new HashMap<String,Map<String,String>>();
-    static final Pattern tcgaPathReportDirLinePattern = Pattern.compile("<a href=[^>]+>([^/]+/)</a>");
-    static final Pattern tcgaPathReportPdfLinePattern = Pattern.compile("<a href=[^>]+>([^/]+\\.pdf)</a>");
-    static final Pattern tcgaPathReportPattern = Pattern.compile("^(TCGA-..-....).+");
-    private synchronized String getTCGAPathReport(String typeOfCancer, String caseId) {
-        Map<String,String> map = pathologyReports.get(typeOfCancer);
-        if (map==null) {
-            map = new HashMap<String,String>();
-            
-            String[] pathReportUrls = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
-            if (pathReportUrls!=null) {
-                for (String pathReportUrl : pathReportUrls) {
-                    List<String> pathReportDirs = extractLinksByPattern(pathReportUrl,tcgaPathReportDirLinePattern);
-                    for (String dir : pathReportDirs) {
-                        String url = pathReportUrl+dir;
-                        List<String> pathReports = extractLinksByPattern(url,tcgaPathReportPdfLinePattern);
-                        for (String report : pathReports) {
-                            Matcher m = tcgaPathReportPattern.matcher(report);
-                            if (m.find()) {
-                                if (m.groupCount()>0) {
-                                    String exist = map.put(m.group(1), url+report);
-                                    if (exist!=null) {
-                                        String msg = "Multiple Pathology reports for "+m.group(1)+": \n\t"
-                                                + exist + "\n\t" + url+report;
-                                        System.err.println(url);
-                                        logger.error(msg);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            pathologyReports.put(typeOfCancer, map);
-        }
-        
-        return map.get(caseId);
-    }
+    private static Map<String, String> pathologyReports = new HashMap<String, String>();
     
-    private static List<String> extractLinksByPattern(String reportsUrl, Pattern p) {
-        HttpClient client = ConnectionManager.getHttpClient(20000);
-        GetMethod method = new GetMethod(reportsUrl);
-        try {
-            int statusCode = client.executeMethod(method);
-            if (statusCode == HttpStatus.SC_OK) {
-                BufferedReader bufReader = new BufferedReader(
-                        new InputStreamReader(method.getResponseBodyAsStream()));
-                List<String> dirs = new ArrayList<String>();
-                for (String line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
-                    Matcher m = p.matcher(line);
-                    if (m.find()) {
-                        if (m.groupCount()>0) {
-                            dirs.add(m.group(1));
-                        }
-                    }
-                }
-                return dirs;
-            } else {
-                //  Otherwise, throw HTTP Exception Object
-                logger.error(statusCode + ": " + HttpStatus.getStatusText(statusCode)
-                        + " Base URL:  " + reportsUrl);
+    private synchronized String getTCGAPathReport(String caseId) {
+        String pathologyReportUrl = pathologyReports.get(caseId);
+        if (pathologyReportUrl==null) {
+            
+            String pathReportUrl = GlobalProperties.getTCGAPathReportUrl();            
+            
+            if (pathReportUrl != null) {
+                //Strip the last item to replace it with the actual pathology report
+                String baseUrl = pathReportUrl.substring(0, pathReportUrl.lastIndexOf("/") + 1);
+                try {
+                    URL url = new URL(pathReportUrl);
+                    Scanner s = new Scanner(url.openStream());                                           
+                    
+                    // skip the first line (header)
+                    s.nextLine();
+                        for (String line=s.nextLine(); line!=null; line=s.nextLine()) {
+                            String patientId = line.split("\t")[0];
+                            String filename = line.split("\t")[1];
+                            pathologyReports.put(patientId, baseUrl + filename);
+                            }               
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage());
+                }                   
             }
-        } catch (Exception ex) {
-            logger.error(ex.getMessage());
-        } finally {
-            //  Must release connection back to Apache Commons Connection Pool
-            method.releaseConnection();
         }
         
-        return Collections.emptyList();
-    }
+        return pathologyReports.get(caseId);
+    }    
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,
                                     String userMessage, XDebug xdebug)

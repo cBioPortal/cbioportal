@@ -1003,7 +1003,7 @@ class MutationsExtendedValidator(Validator):
                     self,
                     self.CHECK_FUNCTION_MAP[col_name])
                 # FIXME: remove the 'data' argument, it's spaghetti
-                if not checking_function(value, data):
+                if not checking_function(value):
                     self.printDataInvalidStatement(value, col_index)
                 elif self.extra_exists or self.extra:
                     raise RuntimeError(('Checking function %s set an error '
@@ -1068,7 +1068,7 @@ class MutationsExtendedValidator(Validator):
     # the function name that is created to check it.
 
 
-    def checkNCBIbuild(self, value, data):
+    def checkNCBIbuild(self, value):
         if value != '':
             # based on MutationDataUtils.getNcbiBuild
             # TODO - make the supported build version a Portal property
@@ -1076,7 +1076,7 @@ class MutationsExtendedValidator(Validator):
                 return False
         return True
     
-    def checkMatchedNormSampleBarcode(self, value, data):
+    def checkMatchedNormSampleBarcode(self, value):
         if value != '':
             if 'normal_samples_list' in self.meta_dict and self.meta_dict['normal_samples_list'] != '':
                 normal_samples_list = [x.strip() for x in self.meta_dict['normal_samples_list'].split(',')]
@@ -1088,40 +1088,40 @@ class MutationsExtendedValidator(Validator):
         return True
     
     
-    def checkVerificationStatus(self, value, data):
+    def checkVerificationStatus(self, value):
         # if value is not blank, then it should be one of these:
-        if self.checkNotBlank(value, data) and value.lower() not in ('verified', 'unknown'):
+        if self.checkNotBlank(value) and value.lower() not in ('verified', 'unknown'):
             return False
         return True
     
-    def checkValidationStatus(self, value, data):
+    def checkValidationStatus(self, value):
         # if value is not blank, then it should be one of these:
-        if self.checkNotBlank(value, data) and value.lower() not in ('untested', 'inconclusive',
+        if self.checkNotBlank(value) and value.lower() not in ('untested', 'inconclusive',
                                  'valid', 'invalid'):
             return False
         return True
     
-    def check_t_alt_count(self, value, data):
+    def check_t_alt_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
         return True
     
-    def check_t_ref_count(self, value, data):
+    def check_t_ref_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
         return True
     
-    def check_n_alt_count(self, value, data):
+    def check_n_alt_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
         return True
 
-    def check_n_ref_count(self, value, data):
+    def check_n_ref_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
         return True
 
-    def checkAminoAcidChange(self, value, data):
+    def checkAminoAcidChange(self, value):
         """Test whether a string is a valid amino acid change specification."""
         # TODO implement this test more properly,
         # may require bundling the hgvs package:
@@ -1184,13 +1184,13 @@ class MutationsExtendedValidator(Validator):
 
         return is_silent
 
-    def checkNotBlank(self, value, data):
+    def checkNotBlank(self, value):
         """Test whether a string is blank."""
         if value is None or value.strip() == '':
             return False
         return True
     
-    def checkSwissProt(self, value, data):
+    def checkSwissProt(self, value):
         """Test whether SWISSPROT string is blank and give warning if blank."""
         if value is None or value.strip() == '':
             self.logger.warning(

@@ -389,7 +389,7 @@ var utils = {
         LoadingBar.show();
         LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
         $.when(QuerySession.getOncoprintSampleGenomicEventData(),
-        QuerySession.getHeatmapData(QuerySession.getGeneticProfileIds()[0], QuerySession.getQueryGenes(), "sample"),
+        QuerySession.getHeatmapData(QuerySession.getDefaultGeneticProfileId(), QuerySession.getQueryGenes(), "sample"),
         QuerySession.getUnalteredSamples(),
         ClinicalData.getSampleData(clinical_attrs))
         .then(function (oncoprint_data_by_line,
@@ -448,7 +448,7 @@ var utils = {
         LoadingBar.show();
         LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
         $.when(QuerySession.getOncoprintPatientGenomicEventData(),
-        QuerySession.getHeatmapData(QuerySession.getGeneticProfileIds()[0], QuerySession.getQueryGenes(), "sample"),
+        QuerySession.getHeatmapData(QuerySession.getDefaultGeneticProfileId(), QuerySession.getQueryGenes(), 'patient'),
         QuerySession.getUnalteredPatients(),
         ClinicalData.getPatientData(clinical_attrs),
         QuerySession.getPatientIds())
@@ -680,7 +680,7 @@ var utils = {
               'rule_set_params': {
                 'type': 'gradient',
                 'value_key': 'profile_data',
-                //'value_range': [-2, 2],
+                //'value_range': [-3, 3],
                 'color_range': ['rgba(0,0,255,1)', 'rgba(255,0,0,1)']
               },
               //'track_padding': 0,
@@ -1007,7 +1007,7 @@ var utils = {
       oncoprint.setCellPaddingOn(State.cell_padding_on);
       $.when(QuerySession.getWebServiceGenomicEventData(),
       QuerySession.getOncoprintSampleGenomicEventData(),
-      QuerySession.getHeatmapData(QuerySession.getGeneticProfileIds()[0], QuerySession.getQueryGenes(), "sample")
+      QuerySession.getHeatmapData(QuerySession.getDefaultGeneticProfileId(), QuerySession.getQueryGenes(), "sample")
       ).then(function (ws_data, oncoprint_data, heatmap_data) {
         State.addGeneticTracks(oncoprint_data);
         State.addHeatmapTracks(heatmap_data);

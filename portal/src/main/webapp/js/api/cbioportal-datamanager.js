@@ -953,6 +953,25 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getGeneticProfileIds': function () {
 	    return this.genetic_profile_ids;
 	},
+	'getDefaultGeneticProfileId': function () {
+	    var gp_ids = this.getGeneticProfileIds();
+	    var chosen_ids = [];
+	    for (var i = 0; i < gp_ids.length; i++) {
+		if (~gp_ids[i].indexOf('Zscores') && ~gp_ids[i].indexOf('mrna')) {
+		    chosen_ids.push(gp_ids[i]);
+		}
+	    }
+	    for (var i = 0; i < gp_ids.length; i++) {
+		if (~gp_ids[i].indexOf('Zscores') && ~gp_ids[i].indexOf('rppa')) {
+		    chosen_ids.push(gp_ids[i]);
+		}
+	    }
+	    if (chosen_ids.length > 0) {
+		return chosen_ids[0];
+	    } else {
+		return null;
+	    }
+	},
 	'getSampleIds': function (opt_study_id) {
 	    if (typeof opt_study_id !== "undefined") {
 		return this.study_sample_map[opt_study_id].slice() || [];
@@ -1101,17 +1120,18 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	},
 	// make new functions for heatmap to bypass OQL filters and handle continuous data
 	//
-	'getHeatmapData': function (genetic_profile_id, genes, sample_or_patient, sample_to_patient_map) {
+	'getHeatmapData': function (genetic_profile_id, genes, sample_or_patient) {
 	    var def = new $.Deferred();
 	    var self = this;
 	    var sample_ids = self.getSampleIds();
 	    var genes = genes || [];
 	    var sample_or_patient = sample_or_patient || "sample";
-	    window.cbioportal_client.getGeneticProfileDataBySample({ // can only get it by sample for now
+	    $.when(window.cbioportal_client.getGeneticProfileDataBySample({
 		'genetic_profile_ids': [genetic_profile_id],
 		'genes': genes.map(function(x) { return x.toUpperCase(); }),
 		'sample_ids': sample_ids
-	    }).then(function (client_sample_data) {
+	    }), self.getPatientSampleIdMap()
+	    ).then(function (client_sample_data, sample_to_patient_map) {
 		var interim_data = {};
 		for (var i = 0; i < genes.length; i++) {
 		    var gene = genes[i].toUpperCase();

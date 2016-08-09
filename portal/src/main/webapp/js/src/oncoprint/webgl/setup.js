@@ -74,6 +74,21 @@ var tooltip_utils = {
 	var href = cbio.util.getLinkToPatientView(study_id, patient_id);
 	return '<a href="' + href + '" target="_blank">' + patient_id + '</a>';
     },
+    'makeHeatmapTrackTooltip': function(genetic_profile_id, data_type, link_id) {
+	return function (d) {
+	    if (~genetic_profile_id.indexOf('mrna')) {
+		var data_header = 'MRNA: ';
+	    } else if (~genetic_profile_id.indexOf('rppa')) {
+		var data_header = 'PROT: ';
+	    } else {
+		var data_header = '';
+	    }
+	    var profile_data = d.profile_data.toString();
+	    var ret = data_header + '<b>' + profile_data + '</b><br>';
+	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.patient) : d.patient));
+	    return ret;
+	}
+    },
     'makeGeneticTrackTooltip':function(data_type, link_id) {
 	var listOfTooltipDataToHTML = function(tooltip_data) {
 	    var ret = [];
@@ -512,6 +527,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
 				var hm_id = State.heatmap_tracks[hm_line];
 				oncoprint.setTrackData(hm_id, heatmap_data_by_line[hm_line].oncoprint_data, 'sample');
+				oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeHeatmapTrackTooltip(QuerySession.getDefaultGeneticProfileId(), 'sample', true));
 				LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
@@ -574,6 +590,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
 				var hm_id = State.heatmap_tracks[hm_line];
 				oncoprint.setTrackData(hm_id, heatmap_data_by_line[hm_line].oncoprint_data, 'patient');
+				oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeHeatmapTrackTooltip(QuerySession.getDefaultGeneticProfileId(), 'patient', true));
 				LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
@@ -827,7 +844,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'target_group': 2,
 			//'sortCmpFn': function(d1, d2) {return 0;},
 			'removable': true,
-			'description': heatmap_data_by_line[i].genetic_profile_id,
+			'description': heatmap_data_by_line[i].hugo_gene_symbol,
 		    };
 		    var new_hm_id = oncoprint.addTracks([track_params])[0];
 		    hm_ids.push(new_hm_id);

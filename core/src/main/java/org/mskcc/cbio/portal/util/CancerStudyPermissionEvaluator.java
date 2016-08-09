@@ -175,7 +175,12 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         } catch (DaoException e) {
             groups = cancerStudy.getGroups();
         }
-        if (!Collections.disjoint(groups, grantedAuthorities)) {
+        // to upperCase to make the comparison with grantedAuthorities case insensitive:
+        Set<String> groupsUpper = new HashSet<String>();
+		for (String group: groups) {
+        	groupsUpper.add(group.toUpperCase());
+        }
+        if (!Collections.disjoint(groupsUpper, grantedAuthorities)) {
             if (log.isDebugEnabled()) {
                 log.debug("hasPermission(), user has access by groups return true");
             }

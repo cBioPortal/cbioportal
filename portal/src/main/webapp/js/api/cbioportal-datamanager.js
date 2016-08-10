@@ -757,13 +757,122 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return def.promise();
 	};
     };
+    
+    var getOncoprintSampleGenomicEventData = function (self, ws_data) {
+	var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
+	for (var i = 0; i < ws_data_by_oql_line.length; i++) {
+	    var line = ws_data_by_oql_line[i];
+	    line.oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], self.getSampleIds());
+	    line.altered_samples = line.oncoprint_data.filter(function (datum) {
+		return datum.data.length > 0;
+	    }).map(function (datum) {
+		return datum.sample;
+	    });
+	    line.unaltered_samples = stringListDifference(self.getSampleIds(), line.altered_samples);
+	}
+	return ws_data_by_oql_line.map(deepCopyObject);
+    };
 
+    var getGeneAggregatedOncoprintSampleGenomicEventData = function (self, ws_data) {
+	var filtered_ws_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, false);
+	return makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), self.getSampleIds());
+    };
+    var getAlteredSamples = function (self, oncoprint_sample_genomic_event_data) {
+	return stringListUnion(oncoprint_sample_genomic_event_data.map(function (line) {
+	    return line.altered_samples;
+	}));
+    };
+    var getUnalteredSamples = function (self, altered_samples) {
+	return stringListDifference(self.getSampleIds(), altered_samples);
+    };
+    var getMutualAlterationCounts = function (self, altered_sample_sets_by_gene) {
+	var genes = Object.keys(altered_sample_sets_by_gene);
+	var all_samples_set = stringListToObject(self.getSampleIds());
+	var ret = [];
+	for (var i = 0; i < genes.length; i++) {
+	    for (var j = i + 1; j < genes.length; j++) {
+		var count_object = {};
+		var geneA = genes[i];
+		var geneB = genes[j];
+		count_object.geneA = geneA;
+		count_object.geneB = geneB;
+		var alteredA = altered_sample_sets_by_gene[geneA];
+		var alteredB = altered_sample_sets_by_gene[geneB];
+		count_object.both = Object.keys(objectKeyIntersection([alteredA, alteredB])).length;
+		count_object.A_not_B = Object.keys(objectKeyDifference(alteredA, alteredB)).length;
+		count_object.B_not_A = Object.keys(objectKeyDifference(alteredB, alteredA)).length;
+		count_object.neither = Object.keys(
+			objectKeyDifference(all_samples_set,
+				objectKeyUnion([alteredA, alteredB])
+				)
+			).length;
+		ret.push(count_object);
+	    }
+	}
+	return ret;
+    };
+
+    var getAlteredSampleSetsByGene = function (self, ws_data) {
+	var altered_samples_by_gene = {};
+	var genes = self.getQueryGenes();
+	for (var i = 0; i < genes.length; i++) {
+	    altered_samples_by_gene[genes[i]] = {};
+	}
+	for (var i = 0; i < ws_data.length; i++) {
+	    var gene = ws_data[i].hugo_gene_symbol.toUpperCase();
+	    var sample = ws_data[i].sample_id;
+	    altered_samples_by_gene[gene] && (altered_samples_by_gene[gene][sample] = true);
+	}
+	return altered_samples_by_gene;
+    };
+
+    var getOncoprintPatientGenomicEventData = function (self, ws_data, patient_ids, sample_to_patient_map) {
+	var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
+	for (var i = 0; i < ws_data_by_oql_line.length; i++) {
+	    var line = ws_data_by_oql_line[i];
+	    line.oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], patient_ids, sample_to_patient_map);
+	    line.altered_patients = line.oncoprint_data.filter(function (datum) {
+		return datum.data.length > 0;
+	    })
+		    .map(function (datum) {
+			return datum.patient;
+		    });
+	    line.unaltered_patients = stringListDifference(patient_ids, line.altered_patients);
+	}
+	return ws_data_by_oql_line.map(deepCopyObject);
+    };
+
+    var getAlteredPatients = function (self, altered_samples, sample_to_patient_map) {
+	return stringListUnique(altered_samples.map(function (s) {
+	    return sample_to_patient_map[s];
+	}));
+    };
+
+    var getUnalteredPatients = function (self, altered_patients, patient_ids) {
+	return stringListDifference(patient_ids, altered_patients);
+    };
+    
+    var mutation_session_filters = {};
+    var mutation_session_filter_callbacks = [];
+    var onMutationSessionFiltersChanged = function() {
+	for (var i=0; i<mutation_session_filter_callbacks.length; i++) {
+	    mutation_session_filter_callbacks[i]();
+	}
+    };
+    
     return {
 	'oql_query': oql_query,
 	'cancer_study_ids': cancer_study_ids,
 	'sample_ids': sample_ids,
 	'genetic_profile_ids': genetic_profile_ids,
 	'mutation_counts': {},
+	'setMutationSessionFilter': function(key, filterFn) {
+	    mutation_session_filters[key] = filterFn;
+	    onMutationSessionFiltersChanged();
+	},
+	'onMutationSessionFiltersChanged': function(callback) {
+	    mutation_session_filter_callbacks.push(callback);
+	},
 	'getOQLQuery': function () {
 	    return this.oql_query;
 	},
@@ -910,8 +1019,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getGeneAggregatedOncoprintSampleGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    self.getWebServiceGenomicEventData().then(function (ws_data) {
-			var filtered_ws_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, false);
-			fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), self.getSampleIds()));
+			fetch_promise.resolve(getGeneAggregatedOncoprintSampleGenomicEventData(self, ws_data));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
@@ -919,20 +1027,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getOncoprintSampleGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    self.getWebServiceGenomicEventData().then(function (ws_data) {
-			var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
-			for (var i = 0; i < ws_data_by_oql_line.length; i++) {
-			    var line = ws_data_by_oql_line[i];
-			    line.oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], self.getSampleIds());
-			    line.altered_samples = line.oncoprint_data.filter(function (datum) {
-				return datum.data.length > 0;
-			    })
-				    .map(function (datum) {
-					return datum.sample;
-				    });
-			    line.unaltered_samples = stringListDifference(self.getSampleIds(), line.altered_samples);
-			}
-			var oncoprint_sample_genomic_event_data = ws_data_by_oql_line;
-			fetch_promise.resolve(oncoprint_sample_genomic_event_data.map(deepCopyObject));
+			fetch_promise.resolve(getOncoprintSampleGenomicEventData(self, ws_data));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
@@ -940,10 +1035,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getAlteredSamples': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    self.getOncoprintSampleGenomicEventData().then(function (data_by_line) {
-			var altered_samples = stringListUnion(data_by_line.map(function (line) {
-			    return line.altered_samples;
-			}));
-			fetch_promise.resolve(altered_samples);
+			fetch_promise.resolve(getAlteredSamples(self, data_by_line));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
@@ -952,57 +1044,24 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var def = new $.Deferred();
 	    var self = this;
 	    this.getAlteredSamples().then(function (altered_samples) {
-		def.resolve(stringListDifference(self.getSampleIds(), altered_samples));
+		def.resolve(getUnalteredSamples(self, altered_samples));
 	    }).fail(function () {
 		def.reject();
 	    });
 	    return def.promise();
 	},
 	'getMutualAlterationCounts': makeCachedPromiseFunction(
-		function(self, fetch_promise) {
-			self.getAlteredSampleSetsByGene().then(function(altered_samples_by_gene) {
-			    var genes = Object.keys(altered_samples_by_gene);
-			    var all_samples_set = stringListToObject(self.getSampleIds());
-			    var ret = [];
-			    for (var i=0; i<genes.length; i++) {
-				for (var j=i+1; j<genes.length; j++) {
-				    var count_object = {};
-				    var geneA = genes[i];
-				    var geneB = genes[j];
-				    count_object.geneA = geneA;
-				    count_object.geneB = geneB;
-				    var alteredA = altered_samples_by_gene[geneA];
-				    var alteredB = altered_samples_by_gene[geneB];
-				    count_object.both = Object.keys(objectKeyIntersection([alteredA, alteredB])).length;
-				    count_object.A_not_B = Object.keys(objectKeyDifference(alteredA, alteredB)).length;
-				    count_object.B_not_A = Object.keys(objectKeyDifference(alteredB, alteredA)).length;
-				    count_object.neither = Object.keys(
-								objectKeyDifference(all_samples_set, 
-										    objectKeyUnion([alteredA, alteredB])
-										)
-									).length;
-				    ret.push(count_object);
-				}
-			    }
-			    fetch_promise.resolve(ret);
-			}).fail(function() {
-			    fetch_promise.reject();
-			});
-		}),
+	    function (self, fetch_promise) {
+	    self.getAlteredSampleSetsByGene().then(function (altered_sample_sets_by_gene) {
+		fetch_promise.resolve(getMutualAlterationCounts(self, altered_sample_sets_by_gene));
+	    }).fail(function () {
+		fetch_promise.reject();
+	    });
+	}),
 	'getAlteredSampleSetsByGene': makeCachedPromiseFunction(
 		function(self, fetch_promise) {
 		    self.getWebServiceGenomicEventData().then(function(ws_data) {
-			var altered_samples_by_gene = {};
-			var genes = self.getQueryGenes();
-			for (var i=0; i<genes.length; i++) {
-			    altered_samples_by_gene[genes[i]] = {};
-			}
-			for (var i=0; i<ws_data.length; i++) {
-			    var gene = ws_data[i].hugo_gene_symbol.toUpperCase();
-			    var sample = ws_data[i].sample_id;
-			    altered_samples_by_gene[gene] && (altered_samples_by_gene[gene][sample] = true);
-			}
-			fetch_promise.resolve(altered_samples_by_gene);
+			fetch_promise.resolve(getAlteredSampleSetsByGene(self, ws_data));
 		    }).fail(function() {
 			fetch_promise.reject();
 		    });
@@ -1010,30 +1069,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getOncoprintPatientGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    $.when(self.getWebServiceGenomicEventData(), self.getPatientIds(), self.getPatientSampleIdMap()).then(function (ws_data, patient_ids, sample_to_patient_map) {
-			var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
-			for (var i = 0; i < ws_data_by_oql_line.length; i++) {
-			    var line = ws_data_by_oql_line[i];
-			    line.oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], patient_ids, sample_to_patient_map);
-			    line.altered_patients = line.oncoprint_data.filter(function (datum) {
-				return datum.data.length > 0;
-			    })
-				    .map(function (datum) {
-					return datum.patient;
-				    });
-			    line.unaltered_patients = stringListDifference(patient_ids, line.altered_patients);
-			}
-			var oncoprint_patient_genomic_event_data = ws_data_by_oql_line;
-			fetch_promise.resolve(oncoprint_patient_genomic_event_data.map(deepCopyObject));
+			fetch_promise.resolve(getOncoprintPatientGenomicEventData(self, ws_data, patient_ids, sample_to_patient_map));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
 		}),
 	'getAlteredPatients': function () {
 	    var def = new $.Deferred();
+	    var self = this;
 	    $.when(this.getAlteredSamples(), this.getPatientSampleIdMap()).then(function (altered_samples, sample_to_patient_map) {
-		def.resolve(stringListUnique(altered_samples.map(function (s) {
-		    return sample_to_patient_map[s];
-		})));
+		def.resolve(getAlteredPatients(self, altered_samples, sample_to_patient_map));
 	    }).fail(function () {
 		def.reject();
 	    });
@@ -1041,8 +1086,122 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	},
 	'getUnalteredPatients': function () {
 	    var def = new $.Deferred();
+	    var self = this;
 	    $.when(this.getAlteredPatients(), this.getPatientIds()).then(function (altered_patients, patient_ids) {
-		def.resolve(stringListDifference(patient_ids, altered_patients));
+		def.resolve(getUnalteredPatients(self, altered_patients, patient_ids));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredWebserviceGenomicEventData': function() {
+	    var def = new $.Deferred();
+	    this.getWebServiceGenomicEventData().then(function(ws_data) {
+		var mutation_filters = objectValues(mutation_session_filters);
+		def.resolve(ws_data.filter(function (d) {
+		    if (d.genetic_alteration_type === "MUTATION_EXTENDED") {
+			return mutation_filters.map(function (f) {
+			    if (typeof f === "function") {
+				return f(d);
+			    } else {
+				// If filter has been deleted or something else is wrong,
+				//  skip it.
+				return false;
+			    }
+			}).reduce(function (a, b) {
+			    return a || b;
+			}, false);
+		    } else {
+			return true;
+		    }
+		}));
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredGeneAggregatedOncoprintSampleGenomicEventData': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    this.getSessionFilteredWebServiceGenomicEventData().then(function (ws_data) {
+		def.resolve(getGeneAggregatedOncoprintSampleGenomicEventData(self, ws_data));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredOncoprintSampleGenomicEventData': function() {
+	    var def = new $.Deferred();
+	    var self = this;
+	    self.getSessionFilteredWebServiceGenomicEventData().then(function (ws_data) {
+		def.resolve(getOncoprintSampleGenomicEventData(self, ws_data));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredAlteredSamples': function() {
+	    var def = new $.Deferred();
+	    var self = this;
+	    self.getSessionFilteredOncoprintSampleGenomicEventData().then(function (data_by_line) {
+		def.resolve(getAlteredSamples(self, data_by_line));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredUnalteredSamples': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    this.getSessionFilteredAlteredSamples().then(function (altered_samples) {
+		def.resolve(getUnalteredSamples(self, altered_samples));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredMutualAlterationCounts': function() {
+	    var def = new $.Deferred();
+	    var self = this;
+	    self.getSessionFilteredAlteredSampleSetsByGene().then(function (altered_sample_sets_by_gene) {
+		def.resolve(getMutualAlterationCounts(self, altered_sample_sets_by_gene));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredAlteredSampleSetsByGene': function() {
+	    var def = new $.Deferred();
+	    var self = this;
+	    self.getSessionFilteredWebServiceGenomicEventData().then(function (ws_data) {
+		def.resolve(getAlteredSampleSetsByGene(self, ws_data));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredOncoprintPatientGenomicEventData': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    $.when(self.getSessionFilteredWebServiceGenomicEventData(), self.getPatientIds(), self.getPatientSampleIdMap()).then(function (ws_data, patient_ids, sample_to_patient_map) {
+		def.resolve(getOncoprintPatientGenomicEventData(self, ws_data, patient_ids, sample_to_patient_map));
+	    }).fail(function () {
+		def.reject();
+	    });
+	},
+	'getSessionFilteredAlteredPatients': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    $.when(this.getSessionFilteredAlteredSamples(), this.getPatientSampleIdMap()).then(function (altered_samples, sample_to_patient_map) {
+		def.resolve(getAlteredPatients(self, altered_samples, sample_to_patient_map));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredUnalteredPatients': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    $.when(this.getSessionFilteredAlteredPatients(), this.getPatientIds()).then(function (altered_patients, patient_ids) {
+		def.resolve(getUnalteredPatients(self, altered_patients, patient_ids));
 	    }).fail(function () {
 		def.reject();
 	    });

@@ -84,7 +84,12 @@ public class ImportProfileData extends ConsoleRunnable {
 		        ImportFusionData importer = new ImportFusionData(dataFile,
 					geneticProfile.getGeneticProfileId());
 		        importer.importData();
-	        } else {
+	        } 
+                    else if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.SV)){
+                        ImportSVData importer = new ImportSVData(dataFile, geneticProfile.getStableId());
+                        importer.importData();
+                    }
+                    else {
 	            ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
 	                    geneticProfile.getGeneticProfileId());
 	            importer.importData(numLines);

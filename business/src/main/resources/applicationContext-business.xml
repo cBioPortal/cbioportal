@@ -38,6 +38,11 @@
             <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
             <property name="sqlSessionFactory" ref="sqlSessionFactory" />
         </bean>
+        <bean id="svMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.cbioportal.persistence.mybatis.SVMapper"/>
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="svService" class="org.cbioportal.service.impl.SVServiceImpl"/>
         <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
             <property name="entityMapper" ref="entityMapper" />
         </bean>
@@ -90,6 +95,15 @@
 	        	</list>
 	   		</property>
 		</bean>
+                <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    	<property name="staticMethod" value="org.mskcc.cbio.portal.scripts.ImportSVData.setSVService"/>
+	    	<property name="arguments">
+	        	<list>
+	            	<ref bean="svService"/>
+	        	</list>
+	   		</property>
+		</bean>
+                
     </beans>
 
     <beans profile="jndi">

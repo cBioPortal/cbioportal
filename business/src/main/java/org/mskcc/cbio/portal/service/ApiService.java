@@ -12,7 +12,12 @@ import java.util.Set;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.persistence.dto.AltCount;
+import org.cbioportal.persistence.dto.DBAltCount;
+import org.cbioportal.persistence.mybatis.MutationMapper;
+import org.cbioportal.persistence.mybatis.SVMapper;
+>>>>>>> Addition of unit tests for persistence and service layers
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SVService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
@@ -54,6 +59,10 @@ public class ApiService {
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
 	@Autowired
+	private MutationMapper mutationMapper;
+    @Autowired
+    private SVMapper svMapper;
+	@Autowired
 	private ClinicalDataMapper clinicalDataMapper;
 	@Autowired
 	private ClinicalFieldMapper clinicalFieldMapper;
@@ -75,6 +84,8 @@ public class ApiService {
 	private StudyMapper studyMapper;
 	@Autowired
 	private MutationService mutationService;
+    @Autowired
+    private SVService svService;
 
 	@Transactional
 	public List<DBCancerType> getCancerTypes() {

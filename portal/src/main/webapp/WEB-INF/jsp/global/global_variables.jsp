@@ -251,8 +251,22 @@ $(document).ready(function() {
                 //  Toggle the icons
                 $(".query-toggle").toggle();
             });
+            
+            var uniqStrings = function(arr_of_strings) {
+                var uniq = [];
+                var seen = {};
+                for (var i=0; i<arr_of_strings.length; i++) {
+                    var str = arr_of_strings[i];
+                    if (!seen[str]) {
+                        uniq.push(str);
+                        seen[str] = true;
+                    }
+                }
+                return uniq;
+            };
+            var patientIdArray = uniqStrings(_sampleIds.map(function(s) { return sample_patient_map[s]; }));
+            
             //Oncoprint summary lines
-
             $("#oncoprint_sample_set_description").append("Case Set: " + window.QuerySession.getSampleSetName()
                                                         + " "
                                                         + "("+patientIdArray.length + " patients / " + _sampleIds.length + " samples)");

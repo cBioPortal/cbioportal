@@ -1,5 +1,7 @@
 <%--
  - Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ - Code written by: Linghong Chen, final revision on August 10, 2016
+ - Authors: Linghong Chen
  -
  - This library is distributed in the hope that it will be useful, but WITHOUT
  - ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,16 +32,6 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.net.URLEncoder" %>
-<%@ page import="com.google.common.base.Joiner" %>
-<%@ page import="java.io.UnsupportedEncodingException" %>
-<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
-<%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
-<%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
 <style type="text/css">
 .igv-ui-tabs{
     display: block;
@@ -48,49 +40,15 @@
     background: none;
 }
 
-.gene_segmentCN{
-  border: 1px solid blue;
-}
-.segmentSvg{
-    border :3px solid #dbd7d7;
-    margin :5px;
-    box-shadow: 2px 2px 1px #888888;
-}
-.geneName{
-    display:inline-block;
-    text-align:center;
-    padding:7px;
-    font-size: 20px;
-    background: #bfbfbf; 
-    background: -webkit-linear-gradient(#bfbfbf, #c2d6d6); 
-    background: -o-linear-gradient(#bfbfbf, #c2d6d6); 
-    background: -moz-linear-gradient(#bfbfbf, #c2d6d6); 
-    background: linear-gradient(#bfbfbf, #c2d6d6); 
-}
-#sort{
-    padding-top:5px;
-    font-size: 18px;
-}
 </style>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+
 <!-- IGV CSS -->
 <link rel="stylesheet" type="text/css" href="https://igv.org/web/release/1.0.1/igv-1.0.1.css">
    
-
 <div class="section ui-corner-bottom" >
     <div class="igv-ui-tabs ui-corner-bottom" id="igv_tab" >
         <ul class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all' role='group' aria-label='switch genes' id='switchGenes' value='<%= cancerTypeId %>'>    
         </ul>
-        <div id="all_genes" class="igv-root-div">
-          <!--for selecting which gene to sort-->
-          <!--for sorting-->
-          <div id ="sort" class="form-group">
-            <label>Sort Value By:</label>
-          </div>
-          <div id ="d3_segment" class="row">
-
-      </div>
-        </div>
     </div>
 </div>
 
@@ -196,6 +154,3 @@
     <script type="text/javascript" src="js/lib/igv/js/variant/vcfParser.js"></script>
     <script type="text/javascript" src="js/lib/igv/js/variant/variant.js"></script>
  
-<script type="text/javascript" src="js/src/segmentCN/d3_segmentCNViz.js"></script>
-<!--<script type="text/javascript" src="js/src/segmentCN/broadInstituteGeneInfo.js"></script>-->
-<script type="text/javascript" src="js/src/segmentCN/readTextFile.js"></script>

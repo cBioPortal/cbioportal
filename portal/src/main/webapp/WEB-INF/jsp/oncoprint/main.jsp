@@ -85,10 +85,17 @@
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span>Mutation Color</span>&nbsp;<span class="caret"></span>
                </button>
-               <div class="dropdown-menu" style="padding: 10px 5px; width: 120px;min-width: 120px;">
+               <div class="dropdown-menu" style="padding: 10px 5px; width: 250px;min-width: 250px;">
                    <form action="" style="margin-bottom: 0;">
-                       <div class="checkbox"><label><input type="checkbox" name="type" value="type" /> Type</label></div>
-                       <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence" /> Recurrence</label></div>
+                       <div class="checkbox"><label><input type="checkbox" name="type" value="type"/> Type</label></div>
+                       <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence"> Recurrence/Prior Knowledge</label></div>
+                       <div style="margin-left: 20px;">
+                           <div class="checkbox"><label><input type="checkbox" name="hotspots" value="hotspots"> HotSpots <img id="colorby_hotspot_info" src="images/oncokb-flame.svg" style="height:15px; width:15px; cursor:pointer;"/></label></div>
+                           <div class="checkbox"><label><input type="checkbox" name="cbioportal" value="cbioportal"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/></label></div>
+                           <div class="checkbox"><label><input type="checkbox" name="cosmic" value="cosmic"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/></label></div>
+                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/></label></div>
+                           <div class="checkbox"><label><input type="checkbox" name="hide_unknown" value="hide_unknown"> Hide non-recurrent / unknown mutations (as defined above)</label></div>
+                       </div>
                    </form>
                </div>
             </div>

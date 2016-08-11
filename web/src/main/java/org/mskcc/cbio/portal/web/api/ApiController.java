@@ -17,7 +17,6 @@ import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
-import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.model.DBSample;
 import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBStudy;
@@ -27,16 +26,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.Example;
-import io.swagger.annotations.ExampleProperty;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.mskcc.cbio.portal.model.DBAltCountInput;
+import org.cbioportal.model.CosmicCount;
 
 /**
  *
@@ -64,6 +59,15 @@ public class ApiController {
         }
     }
     
+    
+    @ApiOperation(value = "Get COSMIC counts for given keywords.", nickname = "getCOSMICCounts", notes="")
+    @Transactional
+    @RequestMapping(value = "/cosmic_count", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<CosmicCount> getCosmicCounts(@ApiParam(required = true, value = "COSMIC event keywords, the keyword in a mutation object")
+							  @RequestParam(required = true)
+							  List<String> keywords) {
+	    return service.getCOSMICCountsByKeywords(keywords);
+    }
     
     @ApiOperation(value = "Get mutation count for certain gene. If per_study is true will return count for each study, if false will return the total count. User can specify specifc study set to look for.",
             nickname = "getMutationCount",

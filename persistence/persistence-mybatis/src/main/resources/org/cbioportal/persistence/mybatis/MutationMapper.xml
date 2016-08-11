@@ -28,6 +28,7 @@
         mutation_event.ONCOTATOR_PROTEIN_POS_END as "mutationEvent.proteinEndPosition",
         mutation_event.REFERENCE_ALLELE as "mutationEvent.referenceAllele",
         mutation_event.TUMOR_SEQ_ALLELE as "mutationEvent.variantAllele",
+        mutation_event.KEYWORD as "mutationEvent.keyword",
 
         gene.HUGO_GENE_SYMBOL as "gene.hugoGeneSymbol",
         gene.ENTREZ_GENE_ID as "gene.entrezGeneId",

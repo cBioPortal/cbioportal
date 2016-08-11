@@ -140,10 +140,35 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return ret;
     };
+    var getOncoprintMutationType = function(type) {
+	// In: output of getSimplifiedMutationType
+	// Out: Everything that's not missense, inframe, or fusion becomes trunc
+	type = type.toLowerCase();
+	return (["missense", "inframe", "fusion"].indexOf(type) > -1 ? type : "trunc");
+    };
+    var insertionIndex = function(sorted_list, target) {
+	/* In: sorted_list, a sorted list of unique numbers
+	 *     target, a number
+	 * Out: the index of the smallest element >= target
+	 */
+	var lower_inc = 0;
+	var upper_exc = sorted_list.length;
+	while (lower_inc < upper_exc) {
+	    var proposed = Math.floor( (lower_inc + upper_exc) / 2);
+	    if (sorted_list[proposed] === target) {
+		return proposed;
+	    } else if (sorted_list[proposed] < target) {
+		lower_inc = proposed + 1;
+	    } else if (sorted_list[proposed] > target) {
+		upper_exc = proposed;
+	    }
+	}
+	return upper_exc;
+    };
 
     var getCBioPortalMutationCounts = function (webservice_data) {
 	/* In: - webservice_data, a list of data obtained from the webservice API
-	 * Out: Map from gene+","+start_pos+","+end_pos to cbioportal mutation count for that position range and gene
+	 * Out: Promise which resolves with map from gene+","+start_pos+","+end_pos to cbioportal mutation count for that position range and gene
 	 */
 	var counts_map = {};
 	var def = new $.Deferred();
@@ -198,19 +223,59 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	});
 	return def.promise();
     };
+    var getCOSMICCounts = function(webservice_data) {
+	/* In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: Promise which resolves with map from keyword to COSMIC count records
+	 */
+	var def = new $.Deferred();
+	var keywords = webservice_data.filter(function(datum) { return datum.genetic_alteration_type === "MUTATION_EXTENDED" && typeof datum.keyword !== 'undefined' && datum.keyword !== null; })
+					.map(function(mutation_datum_with_keyword) { return mutation_datum_with_keyword.keyword; });
+	var counts = {};
+	$.ajax({
+	    type: 'POST',
+	    url: 'api/cosmic_count',
+	    data: 'keywords='+keywords.join(",")
+	}).then(function(cosmic_count_records) {
+	    for (var i=0; i<cosmic_count_records.length; i++) {
+		var keyword = cosmic_count_records[i].keyword;
+		counts[keyword] = counts[keyword] || [];
+		counts[keyword].push(cosmic_count_records[i]);
+	    }
+	    def.resolve(counts);
+	});
+	return def.promise();
+    };
     var getOncoKBAnnotations = function(webservice_data) {
-	var is_oncogenic = {}; // #{gene}&#{alteration.toUpperCase()}&{tumor_type.toUpperCase()} is key, boolean is value
+	/* In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: Promise which resolves with map from gene.toUpperCase() to amino acid change.toUpperCase() to one of ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
+	 */
+	var def = new $.Deferred();
+	var oncogenic = {}; // See Out above
+	
+	// Collect genes and alterations to query
+	for (var i=0; i<webservice_data.length; i++) {
+	    var datum = webservice_data[i];
+	    if (datum.genetic_alteration_type === "MUTATION_EXTENDED") {
+		var gene = datum.hugo_gene_symbol.toUpperCase();
+		var alteration = datum.amino_acid_change.toUpperCase();
+		oncogenic[gene] = oncogenic[gene] || {};
+		oncogenic[gene][alteration] = false;
+	    }
+	}
+	var queries = [];
+	var query_genes = Object.keys(oncogenic);
+	for (var i=0; i<query_genes.length; i++) {
+	    var query_alterations = Object.keys(oncogenic[query_genes[i]]);
+	    for (var j=0; j<query_alterations.length; j++) {
+		queries.push({'hugoSymbol': query_genes[i], 'alteration': query_alterations[j]});
+	    }
+	}
+	// Execute query
 	var query = {
 	    "geneStatus": "Complete",
 	    "source": "cbioportal",
-	    "evidenceTypes": "GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE,INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY",
-	    "queries": [
-		{
-		    "hugoSymbol": "BRAF",
-		    "alteration": "V600E",
-		    "tumorType": "Melanoma"
-		}
-	    ],
+	    "evidenceTypes": "ONCOGENIC",
+	    "queries": queries,
 	    "levels": [
 		"LEVEL_1",
 		"LEVEL_2A",
@@ -218,6 +283,23 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		"LEVEL_R1"
 	    ]
 	}
+	$.ajax({
+	    type: "POST",
+	    url: "api/proxy/oncokb",
+	    contentType: "application/json",
+	    data: JSON.stringify(query)
+	}).then(function(response) {
+	    response = JSON.parse(response);
+	    for (var i=0; i<response.length; i++) {
+		var gene = response[i].query.hugoSymbol.toUpperCase();
+		var alteration = response[i].query.alteration.toUpperCase();
+		oncogenic[gene][alteration] = response[i].oncogenic;
+	    }
+	    def.resolve(oncogenic);
+	}).fail(function() {
+	    def.reject();
+	});
+	return def.promise();
     };
     var annotateCBioPortalMutationCount = function (webservice_data) {
 	/* in-place, idempotent
@@ -234,6 +316,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    continue;
 		}
 		var gene = datum.hugo_gene_symbol;
+		gene && (gene = gene.toUpperCase());
 		var start_pos = datum.protein_start_position;
 		var end_pos = datum.protein_end_position;
 		if (gene && start_pos && end_pos && !isNaN(start_pos) && !isNaN(end_pos)) {
@@ -248,9 +331,118 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	/* in-place, idempotent
 	 * In: - webservice_data, a list of data obtained from the webservice API
 	 * Out: promise, which resolves with the data which has been in-place modified,
-	 *	    the mutation data given the boolean attribute 'oncokb_oncogenic'
+	 *	    the mutation data given the string attribute 'oncokb_oncogenic', one of ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
 	 */
+	var def = new $.Deferred();
+	var attribute_name = 'oncokb_oncogenic';
+	getOncoKBAnnotations(webservice_data).then(function(oncogenic) {
+	    for (var i=0; i<webservice_data.length; i++) {
+		var datum = webservice_data[i];
+		if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
+		    continue;
+		}
+		var gene = datum.hugo_gene_symbol;
+		gene && (gene = gene.toUpperCase());
+		var alteration = datum.amino_acid_change;
+		alteration && (alteration = alteration.toUpperCase());
+		if (gene && alteration && oncogenic[gene] && oncogenic[gene][alteration]) {
+		    datum[attribute_name] = oncogenic[gene][alteration];
+		}
+	    }
+	    def.resolve(webservice_data);
+	});
+	return def.promise();
+    };
+    var annotateCOSMICCount = function(webservice_data) {
+	/* in-place, idempotent
+	 * In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: promise, which resolves with the data which has been in-place modified,
+	 *	    the mutation data given the string attribute 'cosmic_count'
+	 */
+	var def = new $.Deferred();
+	var attribute_name = 'cosmic_count';
 	
+	getCOSMICCounts(webservice_data).then(function(cosmic_counts) {
+	    for (var i=0; i<webservice_data.length; i++) {
+		var datum = webservice_data[i];
+		if (datum.genetic_alteration_type === "MUTATION_EXTENDED" && typeof cosmic_counts[datum.keyword] !== "undefined") {
+		    var count_records = cosmic_counts[datum.keyword];
+		    // Filter by position if 'truncating'
+		    if (datum.keyword.indexOf("truncating") > -1) {
+			var protein_start_position = parseInt(datum.protein_start_position, 10);
+			count_records = count_records.filter(function(count_record) {
+			    return count_record.protein_change && parseInt(count_record.protein_change, 10) === protein_start_position;
+			});
+		    }
+		    datum[attribute_name] = count_records.map(function(count_record) { return parseInt(count_record.count, 10); })
+							.reduce(function(x,y) { return x+y; }, 0);
+		}
+	    }
+	    def.resolve(webservice_data);
+	});
+	return def.promise();
+    };
+    
+    var annotateHotSpots = function(webservice_data) {
+	/* in-place, idempotent
+	 * In: - webservice_data, a list of data obtained from the webservice API
+	 * Out: promise, which resolves with the data which has been in-place modified,
+	 *	    the mutation data given the boolean attribute 'cancer_hotspots_hotspot'
+	 */
+	var sortedNumListHasElementInRange = function(sorted_list, lower_inc, upper_exc) {
+	    /* In: list, list of numbers
+	     *	    lower_inc, inclusive lower bound of range
+	     *	    upper_exc, exclusive upper bound of range
+	     * Out; boolean, whether there is an element in list within the given range
+	     */
+	    // Locate smallest element >= the lower inc
+	    var smallest_element_in_range_index = insertionIndex(sorted_list, lower_inc);
+	    return (smallest_element_in_range_index < sorted_list.length
+		    && sorted_list[smallest_element_in_range_index] < upper_exc);
+	}
+	var def = new $.Deferred();
+	var attribute_name = 'cancer_hotspots_hotspot';
+	$.ajax({
+	    type: 'GET',
+	    url: 'api/proxy/cancerHotSpots',
+	}).then(function(response) {
+	    response = JSON.parse(response);
+	    // Gather hotspot codons into sorted order for querying
+	    var gene_to_hotspot_codons = {};
+	    for (var i=0; i<response.length; i++) {
+		var gene = response[i].hugoSymbol.toUpperCase();
+		var codon = parseInt(response[i].residue.substring(1), 10);
+		gene_to_hotspot_codons[gene] = gene_to_hotspot_codons[gene] || {};
+		gene_to_hotspot_codons[gene][codon] = true;
+	    }
+	    var genes = Object.keys(gene_to_hotspot_codons);
+	    for (var i=0; i<genes.length; i++) {
+		gene_to_hotspot_codons[genes[i]] = Object.keys(gene_to_hotspot_codons[genes[i]])
+							.map(function(x) { return parseInt(x, 10); })
+							.sort();
+	    }
+	    for (var i=0; i<webservice_data.length; i++) {
+		var datum = webservice_data[i];
+		if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
+		    continue;
+		}
+		var gene = datum.hugo_gene_symbol;
+		gene && (gene = gene.toUpperCase());
+		var start_pos = datum.protein_start_position;
+		var end_pos = datum.protein_end_position;
+		if (gene && !isNaN(start_pos) && !isNaN(end_pos) && typeof gene_to_hotspot_codons[gene] !== "undefined") {
+		    if (sortedNumListHasElementInRange(gene_to_hotspot_codons[gene], parseInt(start_pos, 10), parseInt(end_pos, 10) + 1)) {
+			datum[attribute_name] = true;
+		    }
+		}
+		datum[attribute_name] = !!datum[attribute_name]; // ensure all are labeled true or false
+	    }
+	    def.resolve(webservice_data);
+	}).fail(function() {
+	    def.reject();
+	});
+	    
+	return def.promise();
     };
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, study_id, source_sample_or_patient, target_sample_or_patient,
 	    target_ids, sample_to_patient_map, case_uid_map, datatype_number_or_string, na_or_zero) {
@@ -372,7 +564,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    "1": "gain",
 	    "2": "amp"
 	};
-	var mut_rendering_priority = {'fusion': 0, 'trunc': 1, 'inframe': 2, 'missense': 3};
+	var mut_rendering_priority = {'trunc': 1, 'inframe': 2, 'missense': 3};
 	var cna_rendering_priority = {'amp': 0, 'homdel': 0, 'gain': 1, 'hetloss': 1};
 	var mrna_rendering_priority = {'up': 0, 'down': 0};
 	var prot_rendering_priority = {'up': 0, 'down': 0};
@@ -405,6 +597,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var datum = data[i];
 	    var datum_events = datum.data;
 
+	    var disp_fusion = false;
 	    var disp_cna_counts = {};
 	    var disp_mrna_counts = {};
 	    var disp_prot_counts = {};
@@ -430,25 +623,22 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			disp_prot_counts[prot_event] += 1;
 		    }
 		} else if (event.genetic_alteration_type === "MUTATION_EXTENDED") {
-		    var mutation_type = event.simplified_mutation_type;
-		    // clamp all mutation types into one of the following four
-		    var oncoprint_mutation_type = (["missense", "inframe", "fusion"].indexOf(mutation_type) > -1 ? mutation_type : "trunc");
-		    disp_mut_counts[oncoprint_mutation_type] = disp_mut_counts[oncoprint_mutation_type] || 0;
-		    disp_mut_counts[oncoprint_mutation_type] += 1;
-
-		    if (event.cbioportal_mutation_count > 10) {
-			disp_mut_has_rec[oncoprint_mutation_type] = true;
+		    var oncoprint_mutation_type = event.oncoprint_mutation_type;
+		    if (oncoprint_mutation_type === "fusion") {
+			disp_fusion = true;
+		    } else {
+			disp_mut_counts[oncoprint_mutation_type] = disp_mut_counts[oncoprint_mutation_type] || 0;
+			disp_mut_counts[oncoprint_mutation_type] += 1;
 		    }
 		}
+	    }
+	    if (disp_fusion) {
+		datum.disp_fusion = true;
 	    }
 	    datum.disp_cna = selectDisplayValue(disp_cna_counts, cna_rendering_priority);
 	    datum.disp_mrna = selectDisplayValue(disp_mrna_counts, mrna_rendering_priority);
 	    datum.disp_prot = selectDisplayValue(disp_prot_counts, prot_rendering_priority);
-	    var disp_mut = selectDisplayValue(disp_mut_counts, mut_rendering_priority);
-	    datum.disp_mut = disp_mut;
-	    if (disp_mut) {
-		datum.disp_mut += (disp_mut_has_rec[disp_mut] ? '_rec' : '');
-	    }
+	    datum.disp_mut = selectDisplayValue(disp_mut_counts, mut_rendering_priority);
 	}
 	return data;
     };
@@ -601,13 +791,122 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return def.promise();
 	};
     };
+    
+    var getOncoprintSampleGenomicEventData = function (self, ws_data) {
+	var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
+	for (var i = 0; i < ws_data_by_oql_line.length; i++) {
+	    var line = ws_data_by_oql_line[i];
+	    line.oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], self.getSampleIds());
+	    line.altered_samples = line.oncoprint_data.filter(function (datum) {
+		return datum.data.length > 0;
+	    }).map(function (datum) {
+		return datum.sample;
+	    });
+	    line.unaltered_samples = stringListDifference(self.getSampleIds(), line.altered_samples);
+	}
+	return ws_data_by_oql_line.map(deepCopyObject);
+    };
 
+    var getGeneAggregatedOncoprintSampleGenomicEventData = function (self, ws_data) {
+	var filtered_ws_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, false);
+	return makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), self.getSampleIds());
+    };
+    var getAlteredSamples = function (self, oncoprint_sample_genomic_event_data) {
+	return stringListUnion(oncoprint_sample_genomic_event_data.map(function (line) {
+	    return line.altered_samples;
+	}));
+    };
+    var getUnalteredSamples = function (self, altered_samples) {
+	return stringListDifference(self.getSampleIds(), altered_samples);
+    };
+    var getMutualAlterationCounts = function (self, altered_sample_sets_by_gene) {
+	var genes = Object.keys(altered_sample_sets_by_gene);
+	var all_samples_set = stringListToObject(self.getSampleIds());
+	var ret = [];
+	for (var i = 0; i < genes.length; i++) {
+	    for (var j = i + 1; j < genes.length; j++) {
+		var count_object = {};
+		var geneA = genes[i];
+		var geneB = genes[j];
+		count_object.geneA = geneA;
+		count_object.geneB = geneB;
+		var alteredA = altered_sample_sets_by_gene[geneA];
+		var alteredB = altered_sample_sets_by_gene[geneB];
+		count_object.both = Object.keys(objectKeyIntersection([alteredA, alteredB])).length;
+		count_object.A_not_B = Object.keys(objectKeyDifference(alteredA, alteredB)).length;
+		count_object.B_not_A = Object.keys(objectKeyDifference(alteredB, alteredA)).length;
+		count_object.neither = Object.keys(
+			objectKeyDifference(all_samples_set,
+				objectKeyUnion([alteredA, alteredB])
+				)
+			).length;
+		ret.push(count_object);
+	    }
+	}
+	return ret;
+    };
+
+    var getAlteredSampleSetsByGene = function (self, ws_data) {
+	var altered_samples_by_gene = {};
+	var genes = self.getQueryGenes();
+	for (var i = 0; i < genes.length; i++) {
+	    altered_samples_by_gene[genes[i]] = {};
+	}
+	for (var i = 0; i < ws_data.length; i++) {
+	    var gene = ws_data[i].hugo_gene_symbol.toUpperCase();
+	    var sample = ws_data[i].sample_id;
+	    altered_samples_by_gene[gene] && (altered_samples_by_gene[gene][sample] = true);
+	}
+	return altered_samples_by_gene;
+    };
+
+    var getOncoprintPatientGenomicEventData = function (self, ws_data, patient_ids, sample_to_patient_map) {
+	var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
+	for (var i = 0; i < ws_data_by_oql_line.length; i++) {
+	    var line = ws_data_by_oql_line[i];
+	    line.oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], patient_ids, sample_to_patient_map);
+	    line.altered_patients = line.oncoprint_data.filter(function (datum) {
+		return datum.data.length > 0;
+	    })
+		    .map(function (datum) {
+			return datum.patient;
+		    });
+	    line.unaltered_patients = stringListDifference(patient_ids, line.altered_patients);
+	}
+	return ws_data_by_oql_line.map(deepCopyObject);
+    };
+
+    var getAlteredPatients = function (self, altered_samples, sample_to_patient_map) {
+	return stringListUnique(altered_samples.map(function (s) {
+	    return sample_to_patient_map[s];
+	}));
+    };
+
+    var getUnalteredPatients = function (self, altered_patients, patient_ids) {
+	return stringListDifference(patient_ids, altered_patients);
+    };
+    
+    var mutation_session_filters = {};
+    var mutation_session_filter_callbacks = [];
+    var onMutationSessionFiltersChanged = function() {
+	for (var i=0; i<mutation_session_filter_callbacks.length; i++) {
+	    mutation_session_filter_callbacks[i]();
+	}
+    };
+    
     return {
 	'oql_query': oql_query,
 	'cancer_study_ids': cancer_study_ids,
 	'study_sample_map': study_sample_map,
 	'genetic_profile_ids': genetic_profile_ids,
 	'mutation_counts': {},
+	'setMutationSessionFilter': function(key, filterFn) {
+	    mutation_session_filters[key] = filterFn;
+	    onMutationSessionFiltersChanged();
+	},
+	'onMutationSessionFiltersChanged': function(callback) {
+	    mutation_session_filter_callbacks.push(callback);
+	},
 	'getOQLQuery': function () {
 	    return this.oql_query;
 	},
@@ -750,6 +1049,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				switch (type) {
 				    case "MUTATION_EXTENDED":
 					default_oql_uniq["MUT"] = true;
+					default_oql_uniq["FUSION"] = true;
 					break;
 				    case "COPY_NUMBER_ALTERATION":
 					default_oql_uniq["AMP"] = true;
@@ -786,6 +1086,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    if (genetic_alteration_type === "MUTATION_EXTENDED") {
 					for (var j = 0; j < data.length; j++) {
 					    data[j].simplified_mutation_type = getSimplifiedMutationType(data[j].mutation_type);
+					    if (data[j].amino_acid_change.toLowerCase() === "promoter") {
+						data[j].oncoprint_mutation_type = "promoter";
+					    } else {
+						data[j].oncoprint_mutation_type = getOncoprintMutationType(data[j].simplified_mutation_type);
+					    }
 					    data[j].genetic_alteration_type = genetic_alteration_type;
 					}
 				    } else {
@@ -797,8 +1102,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
 				    num_calls -= 1;
 				    if (num_calls === 0) {
-					var webservice_genomic_event_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), all_data, default_oql, false, false);
-					annotateCBioPortalMutationCount(webservice_genomic_event_data).then(function () {
+					var webservice_genomic_event_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), all_data, default_oql, false);
+					$.when(annotateCBioPortalMutationCount(webservice_genomic_event_data), 
+						annotateOncoKBMutationOncogenic(webservice_genomic_event_data),
+						annotateHotSpots(webservice_genomic_event_data), 
+						annotateCOSMICCount(webservice_genomic_event_data)).then(function () {
 					    fetch_promise.resolve(webservice_genomic_event_data);
 					});
 				    }
@@ -811,30 +1119,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		}),
 	'getGeneAggregatedOncoprintSampleGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
-		    $.when(self.getWebServiceGenomicEventData(), self.getStudySampleMap(), self.getCaseUIDMap()).then(function (ws_data, study_sample_map, case_uid_map) {
-			var filtered_ws_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, false);
-			fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), study_sample_map, case_uid_map));
+		    self.getWebServiceGenomicEventData().then(function (ws_data) {
+			fetch_promise.resolve(getGeneAggregatedOncoprintSampleGenomicEventData(self, ws_data));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
 		}),
 	'getOncoprintSampleGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
-		    $.when(self.getWebServiceGenomicEventData(), self.getStudySampleMap(), self.getCaseUIDMap()).then(function (ws_data, study_sample_map, case_uid_map) {
-			var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
-			for (var i = 0; i < ws_data_by_oql_line.length; i++) {
-			    var line = ws_data_by_oql_line[i];
-			    line.oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], study_sample_map, case_uid_map);
-			    line.altered_samples = line.oncoprint_data.filter(function (datum) {
-				return datum.data.length > 0;
-			    })
-				    .map(function (datum) {
-					return datum.sample;
-				    });
-			    line.unaltered_samples = stringListDifference(self.getSampleIds(), line.altered_samples);
-			}
-			var oncoprint_sample_genomic_event_data = ws_data_by_oql_line;
-			fetch_promise.resolve(oncoprint_sample_genomic_event_data.map(deepCopyObject));
+		    self.getWebServiceGenomicEventData().then(function (ws_data) {
+			fetch_promise.resolve(getOncoprintSampleGenomicEventData(self, ws_data));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
@@ -842,10 +1136,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getAlteredSamples': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    self.getOncoprintSampleGenomicEventData().then(function (data_by_line) {
-			var altered_samples = stringListUnion(data_by_line.map(function (line) {
-			    return line.altered_samples;
-			}));
-			fetch_promise.resolve(altered_samples);
+			fetch_promise.resolve(getAlteredSamples(self, data_by_line));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
@@ -854,88 +1145,41 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var def = new $.Deferred();
 	    var self = this;
 	    this.getAlteredSamples().then(function (altered_samples) {
-		def.resolve(stringListDifference(self.getSampleIds(), altered_samples));
+		def.resolve(getUnalteredSamples(self, altered_samples));
 	    }).fail(function () {
 		def.reject();
 	    });
 	    return def.promise();
 	},
 	'getMutualAlterationCounts': makeCachedPromiseFunction(
-		function(self, fetch_promise) {
-			self.getAlteredSampleSetsByGene().then(function(altered_samples_by_gene) {
-			    var genes = Object.keys(altered_samples_by_gene);
-			    var all_samples_set = stringListToObject(self.getSampleIds());
-			    var ret = [];
-			    for (var i=0; i<genes.length; i++) {
-				for (var j=i+1; j<genes.length; j++) {
-				    var count_object = {};
-				    var geneA = genes[i];
-				    var geneB = genes[j];
-				    count_object.geneA = geneA;
-				    count_object.geneB = geneB;
-				    var alteredA = altered_samples_by_gene[geneA];
-				    var alteredB = altered_samples_by_gene[geneB];
-				    count_object.both = Object.keys(objectKeyIntersection([alteredA, alteredB])).length;
-				    count_object.A_not_B = Object.keys(objectKeyDifference(alteredA, alteredB)).length;
-				    count_object.B_not_A = Object.keys(objectKeyDifference(alteredB, alteredA)).length;
-				    count_object.neither = Object.keys(
-								objectKeyDifference(all_samples_set, 
-										    objectKeyUnion([alteredA, alteredB])
-										)
-									).length;
-				    ret.push(count_object);
-				}
-			    }
-			    fetch_promise.resolve(ret);
-			}).fail(function() {
-			    fetch_promise.reject();
-			});
-		}),
+	    function (self, fetch_promise) {
+	    self.getAlteredSampleSetsByGene().then(function (altered_sample_sets_by_gene) {
+		fetch_promise.resolve(getMutualAlterationCounts(self, altered_sample_sets_by_gene));
+	    }).fail(function () {
+		fetch_promise.reject();
+	    });
+	}),
 	'getAlteredSampleSetsByGene': makeCachedPromiseFunction(
 		function(self, fetch_promise) {
 		    self.getWebServiceGenomicEventData().then(function(ws_data) {
-			var altered_samples_by_gene = {};
-			var genes = self.getQueryGenes();
-			for (var i=0; i<genes.length; i++) {
-			    altered_samples_by_gene[genes[i]] = {};
-			}
-			for (var i=0; i<ws_data.length; i++) {
-			    var gene = ws_data[i].hugo_gene_symbol.toUpperCase();
-			    var sample = ws_data[i].sample_id;
-			    altered_samples_by_gene[gene] && (altered_samples_by_gene[gene][sample] = true);
-			}
-			fetch_promise.resolve(altered_samples_by_gene);
+			fetch_promise.resolve(getAlteredSampleSetsByGene(self, ws_data));
 		    }).fail(function() {
 			fetch_promise.reject();
 		    });
 		}),
 	'getOncoprintPatientGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
-		    $.when(self.getWebServiceGenomicEventData(), self.getPatientIds(), self.getStudyPatientMap(), self.getPatientSampleIdMap(), self.getCaseUIDMap()).then(function (ws_data, patient_ids, study_patient_map, sample_to_patient_map, case_uid_map) {
-			var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true);
-			for (var i = 0; i < ws_data_by_oql_line.length; i++) {
-			    var line = ws_data_by_oql_line[i];
-			    line.oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], study_patient_map, sample_to_patient_map, case_uid_map);
-			    line.altered_patients = line.oncoprint_data.filter(function (datum) {
-				return datum.data.length > 0;
-			    })
-				    .map(function (datum) {
-					return datum.patient;
-				    });
-			    line.unaltered_patients = stringListDifference(patient_ids, line.altered_patients);
-			}
-			var oncoprint_patient_genomic_event_data = ws_data_by_oql_line;
-			fetch_promise.resolve(oncoprint_patient_genomic_event_data.map(deepCopyObject));
+		    $.when(self.getWebServiceGenomicEventData(), self.getPatientIds(), self.getPatientSampleIdMap()).then(function (ws_data, patient_ids, sample_to_patient_map) {
+			fetch_promise.resolve(getOncoprintPatientGenomicEventData(self, ws_data, patient_ids, sample_to_patient_map));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });
 		}),
 	'getAlteredPatients': function () {
 	    var def = new $.Deferred();
+	    var self = this;
 	    $.when(this.getAlteredSamples(), this.getPatientSampleIdMap()).then(function (altered_samples, sample_to_patient_map) {
-		def.resolve(stringListUnique(altered_samples.map(function (s) {
-		    return sample_to_patient_map[s];
-		})));
+		def.resolve(getAlteredPatients(self, altered_samples, sample_to_patient_map));
 	    }).fail(function () {
 		def.reject();
 	    });
@@ -943,8 +1187,122 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	},
 	'getUnalteredPatients': function () {
 	    var def = new $.Deferred();
+	    var self = this;
 	    $.when(this.getAlteredPatients(), this.getPatientIds()).then(function (altered_patients, patient_ids) {
-		def.resolve(stringListDifference(patient_ids, altered_patients));
+		def.resolve(getUnalteredPatients(self, altered_patients, patient_ids));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredWebserviceGenomicEventData': function() {
+	    var def = new $.Deferred();
+	    this.getWebServiceGenomicEventData().then(function(ws_data) {
+		var mutation_filters = objectValues(mutation_session_filters);
+		def.resolve(ws_data.filter(function (d) {
+		    if (d.genetic_alteration_type === "MUTATION_EXTENDED") {
+			return mutation_filters.map(function (f) {
+			    if (typeof f === "function") {
+				return f(d);
+			    } else {
+				// If filter has been deleted or something else is wrong,
+				//  skip it.
+				return false;
+			    }
+			}).reduce(function (a, b) {
+			    return a || b;
+			}, false);
+		    } else {
+			return true;
+		    }
+		}));
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredGeneAggregatedOncoprintSampleGenomicEventData': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    this.getSessionFilteredWebServiceGenomicEventData().then(function (ws_data) {
+		def.resolve(getGeneAggregatedOncoprintSampleGenomicEventData(self, ws_data));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredOncoprintSampleGenomicEventData': function() {
+	    var def = new $.Deferred();
+	    var self = this;
+	    self.getSessionFilteredWebServiceGenomicEventData().then(function (ws_data) {
+		def.resolve(getOncoprintSampleGenomicEventData(self, ws_data));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredAlteredSamples': function() {
+	    var def = new $.Deferred();
+	    var self = this;
+	    self.getSessionFilteredOncoprintSampleGenomicEventData().then(function (data_by_line) {
+		def.resolve(getAlteredSamples(self, data_by_line));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredUnalteredSamples': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    this.getSessionFilteredAlteredSamples().then(function (altered_samples) {
+		def.resolve(getUnalteredSamples(self, altered_samples));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredMutualAlterationCounts': function() {
+	    var def = new $.Deferred();
+	    var self = this;
+	    self.getSessionFilteredAlteredSampleSetsByGene().then(function (altered_sample_sets_by_gene) {
+		def.resolve(getMutualAlterationCounts(self, altered_sample_sets_by_gene));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredAlteredSampleSetsByGene': function() {
+	    var def = new $.Deferred();
+	    var self = this;
+	    self.getSessionFilteredWebServiceGenomicEventData().then(function (ws_data) {
+		def.resolve(getAlteredSampleSetsByGene(self, ws_data));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredOncoprintPatientGenomicEventData': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    $.when(self.getSessionFilteredWebServiceGenomicEventData(), self.getPatientIds(), self.getPatientSampleIdMap()).then(function (ws_data, patient_ids, sample_to_patient_map) {
+		def.resolve(getOncoprintPatientGenomicEventData(self, ws_data, patient_ids, sample_to_patient_map));
+	    }).fail(function () {
+		def.reject();
+	    });
+	},
+	'getSessionFilteredAlteredPatients': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    $.when(this.getSessionFilteredAlteredSamples(), this.getPatientSampleIdMap()).then(function (altered_samples, sample_to_patient_map) {
+		def.resolve(getAlteredPatients(self, altered_samples, sample_to_patient_map));
+	    }).fail(function () {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getSessionFilteredUnalteredPatients': function () {
+	    var def = new $.Deferred();
+	    var self = this;
+	    $.when(this.getSessionFilteredAlteredPatients(), this.getPatientIds()).then(function (altered_patients, patient_ids) {
+		def.resolve(getUnalteredPatients(self, altered_patients, patient_ids));
 	    }).fail(function () {
 		def.reject();
 	    });

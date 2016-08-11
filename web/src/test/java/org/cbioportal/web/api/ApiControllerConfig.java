@@ -1,7 +1,9 @@
 package org.cbioportal.web.api;
 
 import java.util.List;
+import org.cbioportal.persistence.mybatis.CosmicCountMapper;
 import org.cbioportal.persistence.mybatis.MutationMapper;
+import org.cbioportal.service.CosmicCountService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.mockito.Mockito;
@@ -18,12 +20,9 @@ import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.SampleMapper;
 import org.mskcc.cbio.portal.persistence.StudyMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -38,6 +37,14 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
         mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
         converters.add(mappingJackson2HttpMessageConverter);
+    }
+    @Bean
+    public CosmicCountService cosmicCountService() {
+	return Mockito.mock(CosmicCountService.class);
+    }
+    @Bean
+    public CosmicCountMapper cosmicCountMapper() {
+	return Mockito.mock(CosmicCountMapper.class);
     }
     @Bean
     public MutationService mutationService() {

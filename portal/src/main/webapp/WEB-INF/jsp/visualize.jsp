@@ -34,7 +34,7 @@
 <%@ include file="global/global_variables.jsp" %> 
 <jsp:include page="global/header.jsp" flush="true" />
 <!-- Latest compiled and minified CSS -->
-
+ <script type="text/javascript" src="js/src/segmentCN/igvjs_webstart.js"></script>
 <%@ page import="java.util.Map" %>
 
 <div class='main_smry'>
@@ -194,7 +194,9 @@
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
             if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
-                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab' onclick='prepIGVForSegView("+'"'+ cancerTypeId+'"'+")' >IGV</a></li>");
+                out.println (
+                "<li><a href='#igv_tab' class='result-tab' id='igv-result-tab' onclick='prepIGVForSegView("+'"'+ cancerTypeId+'"'+")' >IGV</a></li>" +
+                "<li><a href='#igvjs_tab' class='result-tab' id='igvjs-result-tab' onclick='prepJSIGVForSegView("+'"'+ cancerTypeId+'"'+")' >Copy Number Segment</a></li>");
             }
             if (showDownloadTab) {
                 out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
@@ -239,8 +241,8 @@
 
         <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
             <%@ include file="igv.jsp" %>
+            <%@ include file="igvjs.jsp" %>
         <% } %>
-
         <% if (has_survival) { %>
             <%@ include file="survival_tab.jsp" %>
         <% } %>
@@ -438,6 +440,15 @@
         $("#igv-result-tab").qtip(
             {
                 content: {text: "Visualize copy number data via the Integrative Genomics Viewer (IGV)"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#igvjs-result-tab").qtip(
+            {
+                content: {text: "Visualize copy number data via the Integrative Genomics Viewer JS File"},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
                 show: {event: "mouseover", delay: 0},
                 hide: {fixed:true, delay: 100, event: "mouseout"},

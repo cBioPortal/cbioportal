@@ -33,6 +33,7 @@
 --%>
 
 <style type="text/css">
+
 .igv-ui-tabs{
     display: block;
     border: 1px solid #aaaaaa;

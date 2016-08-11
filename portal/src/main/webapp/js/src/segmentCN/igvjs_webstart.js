@@ -1,7 +1,7 @@
 /** 
-*This file is written to replace the original igv_webstart.js
-* The original file was written by: Ethan Cerami, Benjamin Gross
-* The latest revision of the Original file can be found on:
+*This file is written to replace the original igv_webstart.js that was used for launching desktop IGV
+* The original file was written by: Ethan Cerami, Benjamin Gross, Gary Bader, Chris Sander and Jim Robinson
+* The latest revision of the original file can be found on:
 * https://github.com/cBioPortal/cbioportal/commit/b98bf18c990f48653ebce971373f87afd631f92a#diff-e929d0e9191a3b674595ee01bc6baa49
 */
 //------------------------------------------------------------------------------
@@ -40,12 +40,12 @@ var igv_data_fetched = false;
 var segGene = [];
 var segCNUrl;
 
-
+//function for clicking event that is used to lauch IGVJS tab and fetch data
 var prepJSIGVForSegView = function (_studyId) {
     
     if (!igv_data_fetched) {
         $.when($.ajax({
-            method : "POST",
+            method : "GET",
             url : 'igvlinking.json',
             data : {
                 cmd : 'get_igv_args',
@@ -58,13 +58,14 @@ var prepJSIGVForSegView = function (_studyId) {
                     segCNUrl=response['segfileUrl'];
                     igv_data_fetched = true; 
                     addIGVButtons(segGene);
-                    startIGV (segGene[0].toLowerCase(), segCNUrl);
-                    console.log("Iam called");                  
+                    startIGV (segGene[0].toLowerCase(), segCNUrl);                
                 });        
     } 
 }
 
-//The parameter, genes, is an array
+/**unction for adding buttons
+*@gene      an array for buttons that represents genes
+*/
 var addIGVButtons = function (genes){
 
     var buttonNumber = genes.length;    
@@ -76,12 +77,12 @@ var addIGVButtons = function (genes){
     }  
 }
 
-//buttons for switching genes
+//function for switching butons
 var switchGenes = function(buttonVal){
     startIGV(buttonVal.toLowerCase(), segCNUrl);  
 }
 
-//used for displaying segmentCN for one gene   
+//function used for displaying a gene's segmentCN  for a group of samples  
 var startIGV = function(targetGene, segUrl) {
 
     options = {

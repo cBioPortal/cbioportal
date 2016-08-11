@@ -8,10 +8,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import org.cbioportal.model.CosmicCount;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.persistence.dto.AltCount;
+import org.cbioportal.persistence.mybatis.MutationMapper;
 import org.cbioportal.service.MutationService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
@@ -43,6 +44,7 @@ import org.mskcc.cbio.portal.persistence.StudyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.cbioportal.service.CosmicCountService;
 
 /**
  *
@@ -53,6 +55,8 @@ public class ApiService {
 
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
+        @Autowired
+        private MutationMapper mutationMapper;
 	@Autowired
 	private ClinicalDataMapper clinicalDataMapper;
 	@Autowired
@@ -73,8 +77,11 @@ public class ApiService {
 	private SampleMapper sampleMapper;
 	@Autowired
 	private StudyMapper studyMapper;
+
 	@Autowired
 	private MutationService mutationService;
+	@Autowired
+	private CosmicCountService cosmicCountService;
 
 	@Transactional
 	public List<DBCancerType> getCancerTypes() {
@@ -86,6 +93,27 @@ public class ApiService {
 		return cancerTypeMapper.getCancerTypes(cancer_type_ids);
 	}
 
+	@Transactional
+	public List<CosmicCount> getCOSMICCountsByKeywords(List<String> keywords) {
+		return cosmicCountService.getCOSMICCountsByKeywords(keywords);
+		/*
+			Pattern first_integer_p = Pattern.compile("[0-9]+");
+			for (DBMutationData mut: to_add) {
+				int protein_start_position = Integer.parseInt(mut.protein_start_position, 10);
+				List<DBCosmicCount> cosmic_count_candidates = keyword_to_cosmic_counts.get(mut.keyword);
+				if (cosmic_count_candidates != null) {
+					for (DBCosmicCount cosmic_count: cosmic_count_candidates) {
+						Matcher m = first_integer_p.matcher(cosmic_count.protein_change);
+						if (m.find() && Integer.parseInt(m.group(), 10) == protein_start_position) {
+							mut.cosmic_count = cosmic_count.count;
+							break;
+						}
+					}
+				}
+				mut.keyword = null;
+			}*/
+	}
+	
         @Transactional
 	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> studyIds, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
 

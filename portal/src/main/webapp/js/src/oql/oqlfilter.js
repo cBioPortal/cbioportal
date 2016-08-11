@@ -56,6 +56,8 @@ window.OQL = (function () {
 	    return "EXP" + alteration.constr_rel + alteration.constr_val;
 	} else if (alteration.alteration_type === "prot") {
 	    return "PROT" + alteration.constr_rel + alteration.constr_val;
+	} else if (alteration.alteration_type === "fusion") {
+	    return "FUSION";
 	}
     };
     var unparseOQLQueryLine = function (parsed_oql_query_line) {
@@ -80,7 +82,7 @@ window.OQL = (function () {
 	     *	    //  or null
 	     *	},
 	     *	'mut_type': function(d) {
-	     *	    // returns 'missense', 'nonsense', 'nonstart', 'nonstop', 'frameshift', 'inframe', 'splice', or 'trunc',
+	     *	    // returns 'missense', 'nonsense', 'nonstart', 'nonstop', 'frameshift', 'inframe', 'splice', 'trunc', or 'promoter'
 	     *	    //  or null
 	     *	},
 	     *	'mut_position': function(d) {
@@ -98,6 +100,9 @@ window.OQL = (function () {
 	     *	'prot': function(d) {
 	     *	    // returns a double, protein expression,
 	     *	    // or null
+	     *	},
+	     *	'fusion': function(d) {
+	     *	    // returns true, false, or null
 	     *	}
 	     * }
 	     */
@@ -177,7 +182,22 @@ window.OQL = (function () {
 	} else if (alt_cmd.alteration_type === 'mut') {
 	    return isDatumWantedByOQLMUTCommand(alt_cmd, datum, accessors);
 	} else if (alt_cmd.alteration_type === 'exp' || alt_cmd.alteration_type === 'prot') {
-	    return isDatumWantedByOQLEXPOrPROTCommand(alt_cmd, datum, accessors, opt_mark_oql_regulation_direction);
+	    return isDatumWantedByOQLEXPOrPROTCommand(alt_cmd, datum, accessors);
+	} else if (alt_cmd.alteration_type === 'fusion') {
+	    return isDatumWantedByFUSIONCommand(alt_cmd, datum, accessors);
+	}
+    };
+    
+    var isDatumWantedByFUSIONCommand = function(alt_cmd, datum, accessors) {
+	/* Helper method for isDatumWantedByOQLAlterationCommand
+	 * In/Out: See isDatumWantedByOQLAlterationCommand
+	 */
+	var d_fusion = accessors.fusion(datum);
+	if (d_fusion === null) {
+	    // If no fusion data, it's not addressed
+	    return 0;
+	} else {
+	    return 2*(+d_fusion) - 1;
 	}
     };
     
@@ -316,7 +336,7 @@ window.OQL = (function () {
 	    return null;
 	};
 	var required_accessors = ['gene', 'cna', 'mut_type', 'mut_position',
-	    'mut_amino_acid_change', 'exp', 'prot'];
+	    'mut_amino_acid_change', 'exp', 'prot', 'fusion'];
 	// default every non-given accessor function to null
 	var accessors = {};
 	for (var i = 0; i < required_accessors.length; i++) {
@@ -375,7 +395,13 @@ window.OQL = (function () {
 		},
 		'mut_type': function(d) {
 		    if (d.genetic_alteration_type === 'MUTATION_EXTENDED') {
-			return d.simplified_mutation_type;
+			if (d.simplified_mutation_type === "fusion") {
+			    return null;
+			} else if (d.amino_acid_change.toLowerCase() === "promoter") {
+			    return "promoter";
+			} else {
+			    return d.simplified_mutation_type;
+			}
 		    } else {
 			return null;
 		    }
@@ -410,6 +436,13 @@ window.OQL = (function () {
 		'prot': function(d) {
 		    if (d.genetic_alteration_type === 'PROTEIN_LEVEL') {
 			return parseFloat(d.profile_data);
+		    } else {
+			return null;
+		    }
+		},
+		'fusion': function(d) {
+		    if (d.genetic_alteration_type === 'MUTATION_EXTENDED') {
+			return (d.simplified_mutation_type === "fusion");
 		    } else {
 			return null;
 		    }

@@ -68,6 +68,7 @@ doTest("TP53;", [{gene:"TP53", alterations:false}]);
 doTest("TP53\n", [{gene:"TP53", alterations:false}]);
 doTest("TP53 BRCA1 KRAS NRAS", [{gene:"TP53", alterations:false}, {gene:"BRCA1", alterations:false}, {gene:"KRAS", alterations:false}, {gene:"NRAS", alterations:false}]);
 doTest("TP53:MUT", [{gene:"TP53", alterations:[{alteration_type: "mut"}]}])
+doTest("TP53:MISSENSE PROMOTER", [{gene:"TP53", alterations:[{alteration_type: "mut", constr_rel: "=", constr_type: "class", constr_val: "MISSENSE", info: {}},{alteration_type: "mut", constr_rel: "=", constr_type: "class", constr_val: "PROMOTER", info: {}}]}])
 doTest("TP53:MUT;", [{gene:"TP53", alterations:[{alteration_type: "mut"}]}])
 doTest("TP53:MUT\n", [{gene:"TP53", alterations:[{alteration_type: "mut"}]}])
 doTest("TP53:MUT; BRCA1: gAiN hetloss EXP>=3 PROT<1", [{gene:"TP53", alterations:[{alteration_type: "mut"}]},
@@ -95,6 +96,8 @@ doTest("TP53:PROT<=-2\n", [{gene:"TP53", alterations:[{alteration_type: "prot", 
 
 doTest("BRAF:MUT=V600E", [{gene:"BRAF", alterations:[{alteration_type: "mut", constr_rel: "=", constr_type:"name", constr_val:"V600E", info:{}}]}])
 doTest("BRAF:MUT=V600", [{gene:"BRAF", alterations:[{alteration_type: "mut", constr_rel: "=", constr_type:"position", constr_val:600, info:{amino_acid:"V"}}]}])
+doTest("BRAF:FUSION MUT=V600", [{gene:"BRAF", alterations:[{alteration_type:'fusion'}, {alteration_type: "mut", constr_rel: "=", constr_type:"position", constr_val:600, info:{}}]}])
+doTest("BRAF:FUSION", [{gene:"BRAF", alterations:[{alteration_type:'fusion'}]}])
 doTest("MIR-493*:MUT=V600", [{gene:"MIR-493*", alterations:[{alteration_type: "mut", constr_rel: "=", constr_type:"position", constr_val:600, info:{amino_acid:"V"}}]}])
 
 doTest("BRAF:CNA >= gain", [{gene:"BRAF", alterations:[{alteration_type:"cna", constr_rel:">=", constr_val:"GAIN"}]}])

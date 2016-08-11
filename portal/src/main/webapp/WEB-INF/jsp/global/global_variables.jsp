@@ -214,7 +214,7 @@
     }
     
 $(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), window.QuerySession.getPatientSampleIdMap()).then(function(altered_samples, unaltered_samples, sample_patient_map) {
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), window.QuerySession.getPatientSampleIdMap(), window.QuerySession.getCancerStudyNames()).then(function(altered_samples, unaltered_samples, sample_patient_map, cancer_study_names) {
         PortalDataCollManager.subscribeOncoprint(function() {
             //calculate total alteration
             var _dataArr = PortalDataColl.getOncoprintData();
@@ -236,7 +236,7 @@ $(document).ready(function() {
             //Configure the summary line of query
             var _query_smry = "<h3 style='font-size:110%;'><a href='study?id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
-                window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
+                cancer_study_names[0] + "</a><br>" + " " +  
                 "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
                 "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
             $("#main_smry_query_div").append(_query_smry);

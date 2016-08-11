@@ -214,27 +214,35 @@
     }
     
 $(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getPatientIds(), window.QuerySession.getCancerStudyNames()).then(function(altered_samples, patient_ids, cancer_study_names) {
-            var sample_ids = window.QuerySession.getSampleIds();
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), window.QuerySession.getPatientSampleIdMap()).then(function(altered_samples, unaltered_samples, sample_patient_map) {
+        PortalDataCollManager.subscribeOncoprint(function() {
+            //calculate total alteration
+            var _dataArr = PortalDataColl.getOncoprintData();
+            num_total_cases = _dataArr.length;
+            $.each(_dataArr, function(outerIndex, outerObj) {
+                $.each(outerObj.values, function(innerIndex, innerObj) {
+                    if(Object.keys(innerObj).length > 2) { // has more than 2 fields -- indicates existence of alteration
+                        num_altered_cases += 1;
+                        return false;
+                    }
+                });
+            });     
+            var _sampleIds = window.QuerySession.getSampleIds();
             
-            var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
-
+            var altered_samples_percentage = (100 * altered_samples.length / _sampleIds.length).toFixed(1);
             //Configure the summary line of alteration statstics
             var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
             $("#main_smry_stat_div").append(_stat_smry);
-
             //Configure the summary line of query
             var _query_smry = "<h3 style='font-size:110%;'><a href='study?id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
-                cancer_study_names[0] + "</a><br>" + " " +  
-                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " + 
+                window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
+                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
                 "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
             $("#main_smry_query_div").append(_query_smry);
-
             //Append the modify query button
             var _modify_query_btn = "<button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
             $("#main_smry_modify_query_btn").append(_modify_query_btn);
-
             //Set Event listener for the modify query button (expand the hidden form)
             $("#modify_query_btn").click(function () {
                 $("#query_form_on_results_page").toggle();
@@ -251,7 +259,6 @@ $(document).ready(function() {
                 //  Toggle the icons
                 $(".query-toggle").toggle();
             });
-            
             var uniqStrings = function(arr_of_strings) {
                 var uniq = [];
                 var seen = {};
@@ -265,7 +272,6 @@ $(document).ready(function() {
                 return uniq;
             };
             var patientIdArray = uniqStrings(_sampleIds.map(function(s) { return sample_patient_map[s]; }));
-            
             //Oncoprint summary lines
             $("#oncoprint_sample_set_description").append("Case Set: " + window.QuerySession.getSampleSetName()
                                                         + " "
@@ -285,8 +291,8 @@ $(document).ready(function() {
             //  Toggle the icons
             $(".query-toggle").toggle();
         });
-});
-
+        });
+    });
 
 </script>
 

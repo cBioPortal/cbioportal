@@ -490,7 +490,13 @@ var LinearInterpRuleSet = (function () {
 		var range_lower = range[0];
 		return function (val) {
 		    val = parseFloat(val);
+        if (val <= range[0]) {
+          return 0.0
+        } else if (val >= range[1]) {
+          return 1.0
+        } else {
 		    return (val - range_lower) / range_spread;
+        }
 		};
 	    }
 	};
@@ -549,6 +555,7 @@ var GradientRuleSet = (function () {
     function GradientRuleSet(params) {
 	/* params
 	 * - color_range
+   * - null_color
 	 */
 	LinearInterpRuleSet.call(this, params);
 	this.color_range;
@@ -571,6 +578,7 @@ var GradientRuleSet = (function () {
 	    });
 	})(this);
 	this.gradient_rule;
+  this.null_color = params.null_color || "rgba(211,211,211,1)";
     }
     GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
 
@@ -581,18 +589,23 @@ var GradientRuleSet = (function () {
 	var interpFn = this.makeInterpFn();
 	var value_key = this.value_key;
 	var color_range = this.color_range;
+  var null_color = this.null_color;
 	this.gradient_rule = this.addRule(function (d) {
 	    return d[NA_STRING] !== true;
 	},
 		{shapes: [{
 			    type: 'rectangle',
 			    fill: function (d) {
+          if (d[value_key]) {
 				var t = interpFn(d[value_key]);
 				return "rgba(" + color_range.map(
 					function (arr) {
 					    return (1 - t) * arr[0]
 						    + t * arr[1];
 					}).join(",") + ")";
+          } else {
+            return null_color;
+          }
 			    }
 			}],
 		    exclude_from_legend: false,

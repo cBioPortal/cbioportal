@@ -83,7 +83,11 @@ var tooltip_utils = {
 	    } else {
 		var data_header = '';
 	    }
-	    var profile_data = d.profile_data.toString();
+	    if (d.profile_data) {
+		var profile_data = d.profile_data.toString();
+	    } else {
+		var profile_data = 'NaN';
+	    }
 	    var ret = data_header + '<b>' + profile_data + '</b><br>';
 	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.patient) : d.patient));
 	    return ret;
@@ -836,8 +840,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'rule_set_params': {
 			    'type': 'gradient',
 			    'value_key': 'profile_data',
-			    //'value_range': [-3, 3],
-			    'color_range': ['rgba(0,0,255,1)', 'rgba(255,0,0,1)']
+			    'value_range': [-1, 1],
+			    'color_range': ['rgba(0,0,255,1)', 'rgba(255,0,0,1)'],
+			    'null_color': 'rgba(211,211,211,1)'
 			},
 			//'track_padding': 0,
 			'label': heatmap_data_by_line[i].hugo_gene_symbol,

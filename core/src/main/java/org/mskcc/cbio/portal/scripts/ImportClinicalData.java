@@ -230,9 +230,7 @@ public class ImportClinicalData extends ConsoleRunnable {
                 DaoClinicalAttribute.addDatum(attr);
             }
             else if (attrInDb.isPatientAttribute() != attr.isPatientAttribute()) {
-            	throw new DaoException("Illegal change in attribute type[SAMPLE/PATIENT] for attribute " + attr.getAttrId() + 
-            			". An attribute cannot change from SAMPLE type to PATIENT type (or vice-versa) during import. This should " + 
-            			"be changed manually first in DB.");
+        		ProgressMonitor.logWarning("WARNING: Change in attribute type [SAMPLE/PATIENT] for attribute " + attr.getAttrId() + ".");
             }
         }
 

@@ -32,11 +32,12 @@
  **/
 // global variables
 var igvjs_data_fetched = false;
-var segGene = [];
-var segCNUrl;
+
 
 //function for clicking event that is used to lauch IGVJS tab and fetch data
 var prepJSIGVForSegView = function (_studyId) {
+    var segGene = [];
+    var segCNUrl;
     
     if (!igvjs_data_fetched) {
         $.when($.ajax({

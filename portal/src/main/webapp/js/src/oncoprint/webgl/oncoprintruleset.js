@@ -1,18 +1,18 @@
 /* Rule:
- * 
+ *
  * condition: function from datum to boolean
  * shapes - a list of Shapes
  * legend_label
  * exclude_from_legend
- * 
+ *
  * Shape:
  * type
  * x
  * y
  * ... shape-specific attrs ...
- * 
+ *
  * Attrs by shape:
- * 
+ *
  * rectangle: x, y, width, height, stroke, stroke-width, fill
  * triangle: x1, y1, x2, y2, x3, y3, stroke, stroke-width, fill
  * ellipse: x, y, width, height, stroke, stroke-width, fill
@@ -90,7 +90,7 @@ var colorToHex = function(str) {
 	}
 	return '#' + r + g + b;
     }
-    
+
     var rgb_match = str.match(/^[\s]*rgb\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*\)[\s]*$/);
     if (rgb_match && rgb_match.length === 4) {
 	r = parseInt(rgb_match[1]).toString(16);
@@ -107,7 +107,7 @@ var colorToHex = function(str) {
 	}
 	return '#' + r + g + b;
     }
-    
+
     return str;
 };
 
@@ -377,7 +377,7 @@ var CategoricalRuleSet = (function () {
 	 * - categoryToColor
 	 */
 	LookupRuleSet.call(this, params);
-	
+
 	this.colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
 	"#990099", "#0099c6", "#dd4477", "#66aa00",
 	"#b82e2e", "#316395", "#994499", "#22aa99",
@@ -388,7 +388,7 @@ var CategoricalRuleSet = (function () {
 	"#bea413", "#0c5922", "#743411"]; // Source: D3
 	this.colors_index = 0;
 	this.used_colors = {};
-	
+
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
 	for (var category in this.category_to_color) {
@@ -427,7 +427,7 @@ var CategoricalRuleSet = (function () {
 	}
 	rule_set.used_colors[next_color] = true;
 	rule_set.colors_index += 1;
-	
+
 	return next_color;
     };
     CategoricalRuleSet.prototype.apply = function (data, cell_width, cell_height, out_active_rules) {
@@ -439,7 +439,7 @@ var CategoricalRuleSet = (function () {
 	    var category = data[i][this.category_key];
 	    if (!this.category_to_color.hasOwnProperty(category)) {
 		var color = getUnusedColor(this);
-		
+
 		this.category_to_color[category] = color;
 		addCategoryRule(this, category, color);
 	    }
@@ -466,7 +466,7 @@ var LinearInterpRuleSet = (function () {
 
 	this.makeInterpFn = function () {
 	    var range = this.getEffectiveValueRange();
-	    
+
 	    if (this.log_scale) {
 		var shift_to_make_pos = Math.abs(range[0]) + 1;
 		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
@@ -480,7 +480,13 @@ var LinearInterpRuleSet = (function () {
 		var range_lower = range[0];
 		return function (val) {
 		    val = parseFloat(val);
-		    return (val - range_lower) / range_spread;
+        if (val <= range[0]) {
+          return 0.0
+        } else if (val >= range[1]) {
+          return 1.0
+        } else {
+          return (val - range_lower) / range_spread;
+        }
 		};
 	    }
 	};
@@ -539,6 +545,7 @@ var GradientRuleSet = (function () {
     function GradientRuleSet(params) {
 	/* params
 	 * - color_range
+   * - null_color
 	 */
 	LinearInterpRuleSet.call(this, params);
 	this.color_range;
@@ -561,6 +568,7 @@ var GradientRuleSet = (function () {
 	    });
 	})(this);
 	this.gradient_rule;
+  this.null_color = params.null_color || "rgba(211,211,211,1)";
     }
     GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
 
@@ -571,20 +579,25 @@ var GradientRuleSet = (function () {
 	var interpFn = this.makeInterpFn();
 	var value_key = this.value_key;
 	var color_range = this.color_range;
+  var null_color = this.null_color;
 	this.gradient_rule = this.addRule(function (d) {
 	    return d[NA_STRING] !== true;
 	},
-		{shapes: [{
-			    type: 'rectangle',
-			    fill: function (d) {
-				var t = interpFn(d[value_key]);
-				return "rgba(" + color_range.map(
-					function (arr) {
-					    return (1 - t) * arr[0]
-						    + t * arr[1];
-					}).join(",") + ")";
-			    }
-			}],
+  {shapes: [{
+        type: 'rectangle',
+        fill: function (d) {
+          if (d[value_key]) {
+            var t = interpFn(d[value_key]);
+            return "rgba(" + color_range.map(
+              function (arr) {
+                  return (1 - t) * arr[0]
+                    + t * arr[1];
+              }).join(",") + ")";
+          } else {
+            return null_color;
+          }
+        }
+    }],
 		    exclude_from_legend: false,
 		    legend_config: {'type': 'gradient', 'range': this.getEffectiveValueRange()}
 		});
@@ -623,8 +636,8 @@ var BarRuleSet = (function () {
 			    fill: this.fill,
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'number', 
-				    'range': this.getEffectiveValueRange(), 
+		    legend_config: {'type': 'number',
+				    'range': this.getEffectiveValueRange(),
 				    'color': this.fill,
 				    'interpFn': interpFn}
 		});

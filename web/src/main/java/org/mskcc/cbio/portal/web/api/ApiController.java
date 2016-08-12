@@ -36,6 +36,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.cbioportal.model.Gene;
+import org.cbioportal.service.GeneService;
 import org.mskcc.cbio.portal.model.DBAltCountInput;
 
 /**
@@ -354,4 +356,28 @@ public class ApiController {
             return service.getStudies(study_ids);
         }
     }
+    
+    @Autowired
+    private GeneService geneService;
+    
+    @ApiOperation(value = "Get single gene",
+            nickname = "getGeneByHugoSymbol",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/geneByHugoSymbol", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody Gene getGeneByHugoSymbol(@ApiParam(required = true, value = "gene hugo symbol")
+            @RequestParam(required = true) String hugoSymbol){
+        return geneService.getGeneByHugoSymbol(hugoSymbol);
+    }
+    
+    @ApiOperation(value = "Get gene list",
+            nickname = "getGeneListByHugoSymbols",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/geneListByHugoSymbols", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<Gene> getGeneListByHugoSymbols(@ApiParam(required = true, value = "gene hugo symbol list")
+            @RequestParam(required = true) List<String> hugoSymbols){
+        return geneService.getGeneListByHugoSymbols(hugoSymbols);
+    }
+    
 }

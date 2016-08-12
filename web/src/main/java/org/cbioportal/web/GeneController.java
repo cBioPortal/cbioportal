@@ -23,11 +23,13 @@ public class GeneController {
     @Autowired
     private GeneService geneService;
     
+    //get a single gene from hugo symbol
     @RequestMapping(method = RequestMethod.GET, value = "/geneByHugoSymbol")
     public Gene getGeneByHugoSymbol(@RequestParam(required = true) String hugoSymbol){
         return geneService.getGeneByHugoSymbol(hugoSymbol);
     }
     
+    //get gene list from hugo symbols
     @RequestMapping(method = RequestMethod.GET, value = "/geneListByHugoSymbols")
     public List<Gene> getGeneListByHugoSymbols(@RequestParam(required = true) List<String> hugoSymbols){
         return geneService.getGeneListByHugoSymbols(hugoSymbols);

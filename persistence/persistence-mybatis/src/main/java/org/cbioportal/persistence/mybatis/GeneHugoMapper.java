@@ -6,6 +6,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.cbioportal.model.Gene;
 
 /**
@@ -13,6 +14,6 @@ import org.cbioportal.model.Gene;
  * @author jiaojiao
  */
 public interface GeneHugoMapper {
-    Gene getGeneByHugoSymbol(String hugoSymbol);
-    List<Gene> getGeneListByHugoSymbols(List<String> hugoSymbols);
+    Gene getGeneByHugoSymbol(@Param("hugoSymbol") String hugoSymbol);
+    List<Gene> getGeneListByHugoSymbols(@Param("hugoSymbols") List<String> hugoSymbols);
 }

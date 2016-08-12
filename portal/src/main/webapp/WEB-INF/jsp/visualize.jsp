@@ -33,8 +33,9 @@
 
 <%@ include file="global/global_variables.jsp" %> 
 <jsp:include page="global/header.jsp" flush="true" />
+
 <!-- Latest compiled and minified CSS -->
- <script type="text/javascript" src="js/src/segmentCN/igvjs_webstart.js"></script>
+
 <%@ page import="java.util.Map" %>
 
 <div class='main_smry'>
@@ -195,7 +196,7 @@
             }
             if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
                 out.println (
-                "<li><a href='#igv_tab' class='result-tab' id='igv-result-tab' onclick='prepIGVForSegView("+'"'+ cancerTypeId+'"'+")' >IGV</a></li>" +
+                "<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>" +
                 "<li><a href='#igvjs_tab' class='result-tab' id='igvjs-result-tab' onclick='prepJSIGVForSegView("+'"'+ cancerTypeId+'"'+")' >Copy Number Segment</a></li>");
             }
             if (showDownloadTab) {

@@ -21,6 +21,7 @@
 
 var Shape = require('./oncoprintshape.js');
 var extractRGBA = require('./extractrgba.js');
+var heatmapColors = require('./heatmapcolors.js');
 
 function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
@@ -558,7 +559,9 @@ var GradientRuleSet = (function () {
    * - null_color
 	 */
 	LinearInterpRuleSet.call(this, params);
+
 	this.color_range;
+  if (params.color_range) {
 	(function setUpColorRange(self) {
 	    var color_start;
 	    var color_end;
@@ -577,16 +580,60 @@ var GradientRuleSet = (function () {
 		return [c, color_end[i]];
 	    });
 	})(this);
+  } else {
+    this.color_range = null;
+  }
+
 	this.gradient_rule;
   this.null_color = params.null_color || "rgba(211,211,211,1)";
+  this.colormap = params.colormap || "viridis";
     }
     GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
+
+    // interpScaleColors,
+    // were adapted from politiken-journalism's scale-color-perceptual repo on Github
+    GradientRuleSet.prototype.interpScaleColors = function (a, b) {
+      var ar = a[0];
+      var ag = a[1];
+      var ab = a[2];
+      var br = b[0] - ar;
+      var bg = b[1] - ag;
+      var bb = b[2] - ab;
+      return function (t) {
+        return [
+          ar + br * t,
+          ag + bg * t,
+          ab + bb * t,
+          1
+        ];
+      };
+    };
+
+    GradientRuleSet.prototype.makeColormapFn = function (scaleArr) {
+      var N = scaleArr.length - 2;
+      var intervalWidth = 1 / N;
+      var intervals = [];
+      for (var i = 0; i <= N; i++) {
+        intervals[i] = this.interpScaleColors(scaleArr[i], scaleArr[i + 1]);
+      }
+      return function (t) {
+        if (t < 0) {
+          return scaleArr[0];
+        } else if (t > 1) {
+          return scaleArr[N];
+        } else {
+          var i = Math.floor(t * N);
+          return intervals[i](t)
+        }
+      };
+    };
 
     GradientRuleSet.prototype.updateLinearRules = function () {
 	if (typeof this.gradient_rule !== "undefined") {
 	    this.removeRule(this.gradient_rule);
 	}
 	var interpFn = this.makeInterpFn();
+  var colormapFn = this.makeColormapFn(heatmapColors[this.colormap]);
 	var value_key = this.value_key;
 	var color_range = this.color_range;
   var null_color = this.null_color;
@@ -598,11 +645,16 @@ var GradientRuleSet = (function () {
 			    fill: function (d) {
           if (d[value_key]) {
 				var t = interpFn(d[value_key]);
+            if (color_range) {
 				return "rgba(" + color_range.map(
 					function (arr) {
 					    return (1 - t) * arr[0]
 						    + t * arr[1];
 					}).join(",") + ")";
+          } else {
+              var interp_array = colormapFn(t);
+              return "rgba(" + interp_array.join(",") + ")";
+            }
           } else {
             return null_color;
           }

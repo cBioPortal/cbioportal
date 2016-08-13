@@ -67,7 +67,7 @@
                 </p>
 
                 <br>
-                <a id="igvLaunch" href="#" onclick="prepIGVForSegView('<%= cancerTypeId %>')"><img src="images/webstart.jpg" alt="Launch IGV"/></a>
+                <a id="igvLaunch" href="#" onclick="prepIGVForSegView('<%= cancerStudyId %>')"><img src="images/webstart.jpg" alt="Launch IGV"/></a>
                 <br>
 
                 <p>

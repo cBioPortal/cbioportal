@@ -943,6 +943,7 @@ OncoKB.Instance.prototype = {
                 data: JSON.stringify(oncokbServiceData)
             })
                 .done(function(d1) {
+		    d1 = JSON.parse(d1);
                     var result = OncoKB.utils.processEvidence(d1);
                     _.each(result, function(item, index) {
                         self.variants[index].evidence.gene = item.gene;
@@ -1003,6 +1004,7 @@ OncoKB.Instance.prototype = {
                 data: JSON.stringify(oncokbSummaryData)
             })
                 .done(function(d) {
+		    d = JSON.parse(d);
                     var data = _.isArray(d) && _.isObject(d[0]) ? d[0] : null;
                     if (data && data.summary) {
                         if (data.id) {

@@ -61,6 +61,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletResponse;
 import javax.servlet.ServletOutputStream;
 import java.util.Locale;
+import java.util.Collection;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -90,6 +91,9 @@ public class NullHttpServletResponse implements  HttpServletResponse {
 
         public void write(int b) {
             // do nothing
+        }
+        public boolean isReady() {
+            return false;
         }
     }
 
@@ -201,6 +205,28 @@ public class NullHttpServletResponse implements  HttpServletResponse {
     public void setStatus(int sc, String sm) {
     }
 
+    public Collection<String> getHeaderNames() {
+        return null;
+    }
+
+    public Collection<String> getHeaders(String name) {
+        return null;
+    }
+
+    public int getStatus() {
+        return 0;
+    }
+
+    public void setContentLengthLong(long len) {
+    }
+
+    public void setCharacterEncoding(String s) {
+    }
+
+    public String getContentType() {
+        return null;
+    }
+
     // properties ///////////////////////////////////////////////////////////////
 
     private ServletOutputStream servletOutputStream =  null; // new NullServletOutputStream();;
@@ -208,6 +234,10 @@ public class NullHttpServletResponse implements  HttpServletResponse {
     
     public String getOutput(){
        return myStringWriter.toString();
+    }
+
+    public String getHeader(String name) {
+        return null;
     }
 
     // attributes ///////////////////////////////////////////////////////////////

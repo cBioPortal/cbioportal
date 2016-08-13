@@ -6537,7 +6537,6 @@ var MutationModel = Backbone.Model.extend({
 		this.proteinPosStart = attributes.proteinPosStart;
 		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;
-		this.specialGeneData = attributes.specialGeneData;
 		this.keyword = attributes.keyword;
 		this.cna = attributes.cna;
 		this.myCancerGenome = attributes.myCancerGenome;
@@ -11753,12 +11752,13 @@ function MutationDataProxy(options)
 				mutationData = mutationData.concat(mutations.models);
 				callback(mutationData);
 			};
-
-			// some (or all) data is missing,
-			// send ajax request for missing genes
-			if (genesToQuery.length > 0)
-			{
-				var servletParams = _options.params;
+			
+			var paramsPromise = _options.paramsPromise || (new $.Deferred()).resolve(_options.params);
+			paramsPromise.then(function (servletParams) {
+			    // some (or all) data is missing,
+			    // send ajax request for missing genes
+			    if (genesToQuery.length > 0)
+			    {
 
 				// add genesToQuery to the servlet params
 				servletParams.geneList = genesToQuery.join(" ");
@@ -11766,26 +11766,27 @@ function MutationDataProxy(options)
 				// retrieve data from the server
 				//$.post(_options.servletName, servletParams, process, "json");
 				var ajaxOpts = {
-					type: "POST",
-					url: _options.servletName,
-					data: servletParams,
-					success: process,
-					error: function() {
-						console.log("[MutationDataProxy.getMutationData] " +
-							"error retrieving mutation data for genetic profiles: " + servletParams.geneticProfiles);
-						process([]);
-					},
-					dataType: "json"
+				    type: "POST",
+				    url: _options.servletName,
+				    data: servletParams,
+				    success: process,
+				    error: function () {
+					console.log("[MutationDataProxy.getMutationData] " +
+						"error retrieving mutation data for genetic profiles: " + servletParams.geneticProfiles);
+					process([]);
+				    },
+				    dataType: "json"
 				};
 
 				self.requestData(ajaxOpts);
-			}
-			// data for all requested genes already cached
-			else
-			{
+			    }
+			    // data for all requested genes already cached
+			    else
+			    {
 				// just forward the data to the callback function
 				callback(mutationData);
-			}
+			    }
+			});
 		}
 	}
 

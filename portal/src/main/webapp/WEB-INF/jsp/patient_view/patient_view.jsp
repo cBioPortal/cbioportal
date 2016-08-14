@@ -276,7 +276,7 @@ if (patientViewError!=null) {
 
     <%if(showSamplesTable){%>
         <div class="samples-table-section" id="tab_samples-table">
-            <%@ include file="samples_table.jsp" %>
+            <%@ include file="clinical_table.html" %>
         </div>
     <%}%>
 

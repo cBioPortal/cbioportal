@@ -859,6 +859,7 @@ OncoKB.Instance.prototype = {
             contentType: 'application/json',
             data: JSON.stringify(oncokbServiceData)
         }).done(function(d1) {
+            d1 = JSON.parse(d1);
             if (d1 && d1.length > 0) {
                 d1.forEach(function(record) {
                     var id = record.query.id;

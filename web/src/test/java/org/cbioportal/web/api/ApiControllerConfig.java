@@ -3,6 +3,7 @@ package org.cbioportal.web.api;
 import java.util.List;
 import org.cbioportal.persistence.mybatis.MutationMapper;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.GeneService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.mockito.Mockito;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
@@ -42,6 +43,10 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
     @Bean
     public MutationService mutationService() {
         return Mockito.mock(MutationService.class);
+    }
+    @Bean
+    public GeneService geneService() {
+        return Mockito.mock(GeneService.class);
     }
     @Bean
     public MutationMapper mutationMapper() {

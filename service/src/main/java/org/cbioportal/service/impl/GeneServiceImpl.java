@@ -5,6 +5,7 @@
  */
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.Gene;
 import org.cbioportal.persistence.GeneRepository;
@@ -23,6 +24,11 @@ public class GeneServiceImpl implements GeneService{
     
     @Override
     public List<Gene> getGeneListByHugoSymbols(List<String> hugoSymbols){
-        return geneRepository.getGeneListByHugoSymbols(hugoSymbols);
+        if(hugoSymbols == null || hugoSymbols.size() == 0)
+        {
+            return (new ArrayList<Gene>());
+        }else{
+            return geneRepository.getGeneListByHugoSymbols(hugoSymbols);
+        }
     }
 }

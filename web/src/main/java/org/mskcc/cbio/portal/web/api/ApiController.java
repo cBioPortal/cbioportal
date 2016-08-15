@@ -17,7 +17,6 @@ import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
-import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.model.DBSample;
 import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBStudy;
@@ -27,10 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.Example;
-import io.swagger.annotations.ExampleProperty;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,7 +33,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
-import org.mskcc.cbio.portal.model.DBAltCountInput;
 
 /**
  *
@@ -367,6 +361,7 @@ public class ApiController {
     @RequestMapping(value = "/geneListByHugoSymbols", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<Gene> getGeneListByHugoSymbols(@ApiParam(required = true, value = "gene hugo symbol list")
             @RequestParam(required = true) List<String> hugoSymbols){
+        
         return geneService.getGeneListByHugoSymbols(hugoSymbols);
     }
     

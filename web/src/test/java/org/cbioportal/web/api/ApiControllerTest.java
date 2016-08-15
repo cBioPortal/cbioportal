@@ -1,13 +1,13 @@
 package org.cbioportal.web.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang.SerializationUtils;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
@@ -33,7 +33,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -528,20 +527,20 @@ public class ApiControllerTest {
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/geneListByHugoSymbols")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-                .param("hugoSymbols","BRAF,EGFR"))
+                .param("hugoSymbols", "BRAF,EGFR"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(673))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value("BRAF"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value("673"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugo_gene_symbol").value("BRAF"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].type").value("protein-coding"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value("7q34"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(4564))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(1956))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value("EGFR"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value("4564"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value("1956"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugo_gene_symbol").value("EGFR"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].type").value("protein-coding"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value("7p12"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value(12961))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value("12961"))
                 ;
     }
 

@@ -14,6 +14,5 @@ import org.cbioportal.model.Gene;
  * @author jiaojiao
  */
 public interface GeneHugoMapper {
-    Gene getGeneByHugoSymbol(@Param("hugoSymbol") String hugoSymbol);
     List<Gene> getGeneListByHugoSymbols(@Param("hugoSymbols") List<String> hugoSymbols);
 }

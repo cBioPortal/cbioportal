@@ -4,15 +4,6 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.GeneHugoMapper">
     <cache/>
 
-    <select id="getGeneByHugoSymbol" resultType="org.cbioportal.model.Gene">
-        select ENTREZ_GENE_ID as entrezGeneId,
-        HUGO_GENE_SYMBOL as hugoGeneSymbol,
-        TYPE as type,
-        CYTOBAND as cytoband,
-        LENGTH as length 
-        from gene where HUGO_GENE_SYMBOL = #{hugoSymbol}
-    </select>
-    
     <select id="getGeneListByHugoSymbols" resultType="org.cbioportal.model.Gene">
         select ENTREZ_GENE_ID as entrezGeneId,
         HUGO_GENE_SYMBOL as hugoGeneSymbol,

@@ -360,16 +360,6 @@ public class ApiController {
     @Autowired
     private GeneService geneService;
     
-    @ApiOperation(value = "Get single gene",
-            nickname = "getGeneByHugoSymbol",
-            notes = "")
-    @Transactional
-    @RequestMapping(value = "/geneByHugoSymbol", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody Gene getGeneByHugoSymbol(@ApiParam(required = true, value = "gene hugo symbol")
-            @RequestParam(required = true) String hugoSymbol){
-        return geneService.getGeneByHugoSymbol(hugoSymbol);
-    }
-    
     @ApiOperation(value = "Get gene list",
             nickname = "getGeneListByHugoSymbols",
             notes = "")

@@ -19,10 +19,6 @@ import org.springframework.stereotype.Repository;
 public class GeneMyBatisRepository implements GeneRepository{
     @Autowired
     GeneHugoMapper geneHugoMapper;
-    @Override
-    public Gene getGeneByHugoSymbol(String hugoSymbol){
-        return geneHugoMapper.getGeneByHugoSymbol(hugoSymbol);
-    }
     
     @Override
     public List<Gene> getGeneListByHugoSymbols(List<String> hugoSymbols){

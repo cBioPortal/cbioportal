@@ -20,10 +20,8 @@ import org.springframework.stereotype.Service;
 public class GeneServiceImpl implements GeneService{
     @Autowired
     private GeneRepository geneRepository;
-    public Gene getGeneByHugoSymbol(String hugoSymbol){
-        return geneRepository.getGeneByHugoSymbol(hugoSymbol);
-    }
     
+    @Override
     public List<Gene> getGeneListByHugoSymbols(List<String> hugoSymbols){
         return geneRepository.getGeneListByHugoSymbols(hugoSymbols);
     }

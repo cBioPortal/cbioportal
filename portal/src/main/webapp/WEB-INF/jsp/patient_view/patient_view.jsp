@@ -314,7 +314,6 @@ if (patientViewError!=null) {
 <script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/util/PatientViewUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/util/ClinicalAttributesUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 

@@ -252,11 +252,12 @@ $(document).ready(function() {
                 $(".query-toggle").toggle();
             });
             //Oncoprint summary lines
-            $("#oncoprint_sample_set_description").append(window.QuerySession.getSampleSetDescription() + 
-                "("+patient_ids.length + " patients / " + sample_ids.length + " samples)");
+            $("#oncoprint_sample_set_description").append("Case Set: " + window.QuerySession.getSampleSetName()
+							+ " "
+							+ "("+patient_ids.length + " patients / " + sample_ids.length + " samples)");
             $("#oncoprint_sample_set_name").append("Case Set: "+window.QuerySession.getSampleSetName());
             if (patient_ids.length !== sample_ids.length) {
-                $("#switchPatientSample").show();
+                $("#switchPatientSample").css("display", "inline-block");
             }
             
         });

@@ -408,11 +408,9 @@ var utils = {
         LoadingBar.show();
         LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
         $.when(QuerySession.getOncoprintSampleGenomicEventData(),
-        QuerySession.getHeatmapData(QuerySession.getDefaultGeneticProfileId(), QuerySession.getQueryGenes(), "sample"),
         QuerySession.getUnalteredSamples(),
         ClinicalData.getSampleData(clinical_attrs))
         .then(function (oncoprint_data_by_line,
-        heatmap_data_by_line,
         unaltered_samples,
         clinical_data) {
 
@@ -434,12 +432,20 @@ var utils = {
             oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
             LoadingBar.update(i / total_tracks_to_add);
           }).then(function() {
-            return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
-              var hm_id = State.heatmap_tracks[hm_line];
-              oncoprint.setTrackData(hm_id, heatmap_data_by_line[hm_line].oncoprint_data, 'sample');
-              oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeHeatmapTrackTooltip(QuerySession.getDefaultGeneticProfileId(), 'sample', true));
-              LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
-            });
+            var default_profile_id = QuerySession.getDefaultGeneticProfileId();
+            if (default_profile_id) {
+              QuerySession.getHeatmapData(default_profile_id, QuerySession.getQueryGenes(), 'sample')
+              .then(function (heatmap_data_by_line) {
+                return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
+                  var hm_id = State.heatmap_tracks[hm_line];
+                  oncoprint.setTrackData(hm_id, heatmap_data_by_line[hm_line].oncoprint_data, 'sample');
+                  oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeHeatmapTrackTooltip(QuerySession.getDefaultGeneticProfileId(), 'sample', true));
+                  LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+                });
+              });
+            } else {
+              return $.when();
+            }
           }).then(function() {
             return utils.timeoutSeparatedLoop(Object.keys(State.clinical_tracks), function(track_id, i) {
               var attr = State.clinical_tracks[track_id];
@@ -468,12 +474,10 @@ var utils = {
         LoadingBar.show();
         LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
         $.when(QuerySession.getOncoprintPatientGenomicEventData(),
-        QuerySession.getHeatmapData(QuerySession.getDefaultGeneticProfileId(), QuerySession.getQueryGenes(), 'patient'),
         QuerySession.getUnalteredPatients(),
         ClinicalData.getPatientData(clinical_attrs),
         QuerySession.getPatientIds())
         .then(function (oncoprint_data_by_line,
-        heatmap_data_by_line,
         unaltered_patients,
         clinical_data,
         patient_ids) {
@@ -496,12 +500,20 @@ var utils = {
             oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
             LoadingBar.update(i / total_tracks_to_add);
           }).then(function() {
-            return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
-              var hm_id = State.heatmap_tracks[hm_line];
-              oncoprint.setTrackData(hm_id, heatmap_data_by_line[hm_line].oncoprint_data, 'patient');
-              oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeHeatmapTrackTooltip(QuerySession.getDefaultGeneticProfileId(), 'patient', true));
-              LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
-            });
+            var default_profile_id = QuerySession.getDefaultGeneticProfileId();
+            if (default_profile_id) {
+              QuerySession.getHeatmapData(default_profile_id, QuerySession.getQueryGenes(), 'patient')
+              .then(function (heatmap_data_by_line) {
+                return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
+                  var hm_id = State.heatmap_tracks[hm_line];
+                  oncoprint.setTrackData(hm_id, heatmap_data_by_line[hm_line].oncoprint_data, 'patient');
+                  oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeHeatmapTrackTooltip(QuerySession.getDefaultGeneticProfileId(), 'patient', true));
+                  LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+                });
+              });
+            } else {
+              return $.when();
+            }
           }).then(function() {
             return utils.timeoutSeparatedLoop(Object.keys(State.clinical_tracks), function(track_id, i) {
               var attr = State.clinical_tracks[track_id];
@@ -1029,13 +1041,20 @@ var utils = {
       var def = new $.Deferred();
       oncoprint.setCellPaddingOn(State.cell_padding_on);
       $.when(QuerySession.getWebServiceGenomicEventData(),
-      QuerySession.getOncoprintSampleGenomicEventData(),
-      QuerySession.getHeatmapData(QuerySession.getDefaultGeneticProfileId(), QuerySession.getQueryGenes(), "sample")
-      ).then(function (ws_data, oncoprint_data, heatmap_data) {
+      QuerySession.getOncoprintSampleGenomicEventData()
+      ).then(function (ws_data, oncoprint_data) {
         State.addGeneticTracks(oncoprint_data);
-        State.addHeatmapTracks(heatmap_data);
-      }).fail(function() {
-        def.reject();
+        var default_profile_id = QuerySession.getDefaultGeneticProfileId();
+        if (default_profile_id) {
+          QuerySession.getHeatmapData(QuerySession.getDefaultGeneticProfileId(), QuerySession.getQueryGenes(), "sample")
+            .then(function (heatmap_data) {
+              State.addHeatmapTracks(heatmap_data);
+            })
+        } else {
+          return $.when();
+        }
+      //}).fail(function() {
+        //def.reject();
       }).then(function() {
         var url_clinical_attrs = URL.getInitUsedClinicalAttrs() || [];
         if (url_clinical_attrs.length > 0) {

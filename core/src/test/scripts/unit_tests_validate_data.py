@@ -83,14 +83,14 @@ class DataFileTestCase(LogBufferTestCase):
     particular validator class and collect the log records emitted.
     """
 
-    def validate(self, data_filename, validator_class, extra_meta_fields=None):
+    def validate(self, data_filename, validator_class, extra_meta_fields=None, relaxed_mode=False):
         """Validate a file with a Validator and return the log records."""
         meta_dict = {'data_filename': data_filename}
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
         validator = validator_class('test_data', meta_dict,
                                     PORTAL_INSTANCE,
-                                    self.logger)
+                                    self.logger, relaxed_mode)
         validator.validate()
         return self.get_log_records()
 
@@ -1062,7 +1062,7 @@ class StudyCompositionTestCase(LogBufferTestCase):
         validateData.validate_study(
             'test_data/study_cancertype_two_files',
             PORTAL_INSTANCE,
-            self.logger)
+            self.logger, False)
         record_list = self.get_log_records()
         # expecting two errors: one about the two cancer type files, and
         # about the cancer type of the study not having been defined
@@ -1107,7 +1107,7 @@ class StableIdValidationTestCase(LogBufferTestCase):
         validateData.process_metadata_files(
             'test_data/study_metastableid',
             PORTAL_INSTANCE,
-            self.logger)
+            self.logger, False)
         record_list = self.get_log_records()
         # expecting 1 warning, 1 error:
         self.assertEqual(len(record_list), 3)
@@ -1128,6 +1128,27 @@ class StableIdValidationTestCase(LogBufferTestCase):
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
 
+
+class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
+    
+    """Superclass for validating headerless clinical data."""
+    
+    def test_headerless_clinical_sample(self):
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clinical_sam_no_hdr.txt', 
+                                    validateData.SampleClinicalValidator, None, True)
+        # we expect 3 errors or warnings for 2 new sample-level attributes in data
+        # and 1 for not being able to parse the header in the clinical file
+        self.assertEqual(len(record_list), 3)
+    
+    def test_headerless_clinical_patient(self):
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clinical_pat_no_hdr.txt', 
+                                    validateData.PatientClinicalValidator, None, True)
+        # we expect 8 errors or warnings: 2 for new patient-level attributes, 2
+        # for missing survival status attributes, 4 for patients with no samples
+        # and 1 for not being able to parse the header in the clinical file
+        self.assertEqual(len(record_list), 9)               
 
 if __name__ == '__main__':
     unittest.main(buffer=True)

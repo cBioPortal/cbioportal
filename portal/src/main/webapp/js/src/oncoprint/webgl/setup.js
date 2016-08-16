@@ -1049,12 +1049,12 @@ var utils = {
           QuerySession.getHeatmapData(QuerySession.getDefaultGeneticProfileId(), QuerySession.getQueryGenes(), "sample")
             .then(function (heatmap_data) {
               State.addHeatmapTracks(heatmap_data);
-            })
+            });
         } else {
           return $.when();
         }
-      //}).fail(function() {
-        //def.reject();
+      }).fail(function() {
+        def.reject();
       }).then(function() {
         var url_clinical_attrs = URL.getInitUsedClinicalAttrs() || [];
         if (url_clinical_attrs.length > 0) {

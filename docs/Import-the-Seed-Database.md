@@ -1,6 +1,8 @@
-The next step is to populate your cBioPortal instance with all the required background data sets.  This includes, for example:  gene data, ID mappings, and network interactions.  Rather than importing each of these data sets individually, we have provided a simpler "seed" database that you can import directly.
+# Importing the Seed Database
 
-# Download the cBioPortal Database
+The next step is to populate your cBioPortal instance with all the required background data sets.  This includes, for example:  gene data, ID mappings, and network interactions.  Rather than importing each of these data sets individually, we have provided a simple "seed" database that you can import directly.
+
+## Download the cBioPortal Database
 
 A cBioPortal seed database can be found on the [Downloads](Downloads.md#seed-database) page.
 
@@ -8,7 +10,7 @@ After download, this file can be unzipped by entering the following command:
 
     gunzip cbioportal-seed.sql.gz
 
-# Import the cBioPortal Database
+## Import the cBioPortal Database
 
 *Important:*  Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps.md#prepare_database) for creating the `cbioportal` database.  
 
@@ -16,8 +18,8 @@ Then import the seed database via the `mysql` command:
 
     > mysql --user=cbio_user --password=somepassword cbioportal  < cbioportal-seed.sql
 
-# Drug-target and Clinical Trial Data
+## Drug-target and Clinical Trial Data
 
 Due to data provider specific restrictions on data re-distribution, the database setup, as outlined above, will lack some of the drug-gene relationships from specific data-resources and also all clinical trial information. If you would like to obtain the complete the data sets from these resources, we encourage you to take advantage of [PiHelper](http://bitbucket.org/armish/pihelper) for aggregating drug-target associations and [NCI's Data Dissemination Program](http://www.cancer.gov/publications/pdq), PDQ, for clinical trials data; and use the corresponding data importers, `importPiHelperData.sh` and `importClinicalTrialData.pl`, that are distributed as part of cBioPortal.
 
-[Next Step: Load a Sample Cancer Study](Load-Sample-Cancer-Study.md)
+[Next Step: Loading a Sample Study](Load-Sample-Cancer-Study.md)

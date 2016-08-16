@@ -51,6 +51,7 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.rmi.RemoteException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 
 /**
@@ -243,6 +244,12 @@ public class QueryBuilder extends HttpServlet {
                 httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
             }
 
+            // Get the example study queries configured as a skin property
+            String[] exampleStudyQueries = GlobalProperties.getExampleStudyQueries().split("\n");
+            httpServletRequest.setAttribute(
+                    "exampleStudyQueries",
+                    exampleStudyQueries);
+
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet,
                                                sampleSetId, sampleIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
@@ -375,6 +382,18 @@ public class QueryBuilder extends HttpServlet {
 		}
                 
         request.setAttribute(SET_OF_CASE_IDS, sampleIds);
+	Map<String,List<String>> studySampleMap = new HashMap<>();
+	String[] values;
+	if (sampleIds != null) {
+		values = sampleIds.split(" ");
+	} else {
+		values = new String[0];
+	}
+	List<String> samplesList = new ArrayList<>(Arrays.asList(values));
+	studySampleMap.put(cancerStudyStableId,samplesList);
+	ObjectMapper mapper = new ObjectMapper();
+	String studySampleMapString = mapper.writeValueAsString(studySampleMap);
+	request.setAttribute("STUDY_SAMPLE_MAP", studySampleMapString);
         
         // Map user selected samples Ids to patient Ids
         HashMap<String, String> patientSampleIdMap = new HashMap<String, String>();

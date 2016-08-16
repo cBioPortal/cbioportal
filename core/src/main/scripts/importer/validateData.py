@@ -920,6 +920,8 @@ class MutationsExtendedValidator(Validator):
         'RNA'
     ]
 
+    NULL_AA_CHANGE_VALUES = ('', 'NULL', 'NA')
+
     # Used for mapping column names to the corresponding function that does a check on the value.
     CHECK_FUNCTION_MAP = {
         'Matched_Norm_Sample_Barcode':'checkMatchedNormSampleBarcode',
@@ -932,7 +934,7 @@ class MutationsExtendedValidator(Validator):
         'n_ref_count':'check_n_ref_count',
         'Tumor_Sample_Barcode': 'checkNotBlank',
         'Hugo_Symbol': 'checkNotBlank', 
-        'HGVSp_Short': 'checkHgvspShort',
+        'HGVSp_Short': 'checkAminoAcidChange',
         'Amino_Acid_Change': 'checkAminoAcidChange',
         'Variant_Classification': 'checkNotBlank',
         'SWISSPROT': 'checkSwissProt'
@@ -1001,7 +1003,7 @@ class MutationsExtendedValidator(Validator):
                     self,
                     self.CHECK_FUNCTION_MAP[col_name])
                 # FIXME: remove the 'data' argument, it's spaghetti
-                if not checking_function(value, data):
+                if not checking_function(value):
                     self.printDataInvalidStatement(value, col_index)
                 elif self.extra_exists or self.extra:
                     raise RuntimeError(('Checking function %s set an error '
@@ -1029,6 +1031,22 @@ class MutationsExtendedValidator(Validator):
         # validate hugo and entrez together:
         self.checkGeneIdentification(hugo_symbol, entrez_id)
 
+        # check if a non-blank amino acid change exists for non-splice sites
+        if ('Variant_Classification' not in self.cols or
+                data[self.cols.index('Variant_Classification')] not in (
+                        'Splice_Site', )):
+            aachange_value_found = False
+            for aa_col in ('HGVSp_Short', 'Amino_Acid_Change'):
+                if (aa_col in self.cols and
+                        data[self.cols.index(aa_col)] not in
+                                self.NULL_AA_CHANGE_VALUES):
+                    aachange_value_found = True
+            if not aachange_value_found:
+                self.logger.warning(
+                        'No Amino_Acid_Change or HGVSp_Short value. This '
+                            'mutation record will get a generic "MUTATED" flag',
+                        extra={'line_number': self.line_number})
+
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
         message = ("Value in column '%s' is invalid" %
@@ -1050,7 +1068,7 @@ class MutationsExtendedValidator(Validator):
     # the function name that is created to check it.
 
 
-    def checkNCBIbuild(self, value, data):
+    def checkNCBIbuild(self, value):
         if value != '':
             # based on MutationDataUtils.getNcbiBuild
             # TODO - make the supported build version a Portal property
@@ -1058,7 +1076,7 @@ class MutationsExtendedValidator(Validator):
                 return False
         return True
     
-    def checkMatchedNormSampleBarcode(self, value, data):
+    def checkMatchedNormSampleBarcode(self, value):
         if value != '':
             if 'normal_samples_list' in self.meta_dict and self.meta_dict['normal_samples_list'] != '':
                 normal_samples_list = [x.strip() for x in self.meta_dict['normal_samples_list'].split(',')]
@@ -1070,83 +1088,75 @@ class MutationsExtendedValidator(Validator):
         return True
     
     
-    def checkVerificationStatus(self, value, data):
+    def checkVerificationStatus(self, value):
         # if value is not blank, then it should be one of these:
-        if self.checkNotBlank(value, data) and value.lower() not in ('verified', 'unknown'):
+        if self.checkNotBlank(value) and value.lower() not in ('verified', 'unknown'):
             return False
         return True
     
-    def checkValidationStatus(self, value, data):
+    def checkValidationStatus(self, value):
         # if value is not blank, then it should be one of these:
-        if self.checkNotBlank(value, data) and value.lower() not in ('untested', 'inconclusive',
+        if self.checkNotBlank(value) and value.lower() not in ('untested', 'inconclusive',
                                  'valid', 'invalid'):
             return False
         return True
     
-    def check_t_alt_count(self, value, data):
+    def check_t_alt_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
         return True
     
-    def check_t_ref_count(self, value, data):
+    def check_t_ref_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
         return True
     
-    def check_n_alt_count(self, value, data):
+    def check_n_alt_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
         return True
 
-    def check_n_ref_count(self, value, data):
+    def check_n_ref_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
         return True
 
-    def isValidAminoAcidChange(self, value, data):
+    def checkAminoAcidChange(self, value):
         """Test whether a string is a valid amino acid change specification."""
-        # TODO implement this test, may require bundling the hgvs package:
+        # TODO implement this test more properly,
+        # may require bundling the hgvs package:
         # https://pypi.python.org/pypi/hgvs/
-        
-        # for now, we will only check as follows: 
-        if self.checkNotBlank(value, data):
-            return True
-        else:
-            # is blank, so check:
-            # if Variant_Classification in ["Splice_Site", ....] 
-            # then it is allowed to be blank, 
-            # otherwise it should not be blank 
-            variant_classification = data[self.cols.index('Variant_Classification')]
-            if variant_classification in ('Splice_Site'):
-                return True
-            else:
+        if value not in self.NULL_AA_CHANGE_VALUES:
+            value = value.strip()
+            # there should only be a 'p.' prefix at the very start
+            if len(value) > 1 and 'p.' in value[1:]:
+                # return with an error message
+                self.extra = ("Unexpected 'p.' within amino acid change, "
+                              "only one variant can be listed on each line")
+                self.extra_exists = True
                 return False
-            
-            
-    def checkHgvspShort(self, value, data):
-        """Test whether HGVSp_Short can be parsed as an amino acid change."""
-        return self.checkAminoAcidChange(value, data, column_name = 'HGVSp_Short') 
-
-
-    def checkAminoAcidChange(self, value, data, column_name = 'Amino_Acid_Change'):
-        """Test whether the amino acid change value is 'valid' according to isValidAminoAcidChange."""
-        if not self.isValidAminoAcidChange(value, data):
-            # we give a warning if value is not valid telling user his 
-            # record will get a default value "MUTATED" when loaded in the DB.
-            self.logger.warning('Amino acid change cannot be parsed from %s column value. '
-                                'This mutation record will get a generic "MUTATED" flag',
-                                column_name,
-                              extra={'line_number': self.line_number,
-                                     'cause': 'empty value found'}) 
-        
-        # it is just a warning, so we can return True always:
+            # lines in this format are single mutations, so the haplotype
+            # syntax supported by HGVS strings is not applicable
+            if ';' in value or '+' in value:
+                # return with an error message
+                self.extra = ("Unexpected ';' or '+' in amino acid change, "
+                              "multi-variant allele notation is not supported")
+                self.extra_exists = True
+                return False
+            # commas are not allowed. They are used internally in certain
+            # servlets, via GeneticAlterationUtil.getMutationMap().
+            if ',' in value:
+                # return with an error message
+                self.extra = 'Comma in amino acid change'
+                self.extra_exists = True
+                return False
         return True
 
     def skipValidation(self, data):
         """Test whether the mutation is silent and should be skipped."""
         is_silent = False
         variant_classification = data[self.cols.index('Variant_Classification')]
-        
+
         hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_id = '0'
         if 'Entrez_Gene_Id' in self.cols:
@@ -1174,13 +1184,13 @@ class MutationsExtendedValidator(Validator):
 
         return is_silent
 
-    def checkNotBlank(self, value, data):
+    def checkNotBlank(self, value):
         """Test whether a string is blank."""
         if value is None or value.strip() == '':
             return False
         return True
     
-    def checkSwissProt(self, value, data):
+    def checkSwissProt(self, value):
         """Test whether SWISSPROT string is blank and give warning if blank."""
         if value is None or value.strip() == '':
             self.logger.warning(
@@ -1852,6 +1862,7 @@ class TimelineValidator(Validator):
         'STOP_DATE',
         'EVENT_TYPE']
     REQUIRE_COLUMN_ORDER = True
+    ALLOW_BLANKS = True
 
     def checkLine(self, data):
         super(TimelineValidator, self).checkLine(data)
@@ -2298,6 +2309,10 @@ def process_metadata_files(directory, portal_instance, logger):
                 if ('add_global_case_list' in meta and
                         meta['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
+            # raise a warning if pmid is existing, but no citation is available. 
+            if 'pmid' in meta and not 'citation' in meta:
+                logger.warning(
+                'Citation is required when giving a pubmed id (pmid).')
 
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
@@ -2310,6 +2325,7 @@ def process_metadata_files(directory, portal_instance, logger):
             validators_by_type[meta_file_type].append(validator)
         else:
             validators_by_type[meta_file_type].append(None)
+        
 
     if study_cancer_type is None:
         logger.error(

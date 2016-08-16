@@ -104,6 +104,23 @@ var StudyViewInitTopComponents = (function() {
             window.open(_url);
         });
 
+        // handle the space key to make the span act like a button
+        $("#study-view-header-left-5").keyup(function(event) {
+            event = event || window.event;
+            if (event.keyCode === 32) {  // the Space key
+                event.stopPropagation();
+                event.target.click();
+            }
+        });
+        // do not scroll when the space key is depressed
+        $("#study-view-header-left-5").keydown(function(event) {
+            event = event || window.event;
+            if (event.keyCode === 32) {  // the Space key
+                event.preventDefault();
+                return false;
+            }
+        });
+
         $("#study-view-header-left-6").click(function () {
             var content = '';
             var sampleIds = StudyViewInitCharts.getSelectedCasesID();
@@ -144,6 +161,23 @@ var StudyViewInitTopComponents = (function() {
             cbio.download.initDownload(content, downloadOpts);
         });
 
+        // handle the space key to make the span act like a button
+        $("#study-view-header-left-6").keyup(function(event) {
+            event = event || window.event;
+            if (event.keyCode === 32) {  // the Space key
+                event.stopPropagation();
+                event.target.click();
+            }
+        })
+        // do not scroll when the space key is depressed
+        $("#study-view-header-left-6").keydown(function(event) {
+            event = event || window.event;
+            if (event.keyCode === 32) {  // the Space key
+                event.preventDefault();
+                return false;
+            }
+        })
+
 
         $("#study-view-form").click(function(event){
             // add the necessary fields to the form
@@ -175,12 +209,22 @@ var StudyViewInitTopComponents = (function() {
         });
 
         $('#study-view-header-left-5').qtip({
+            prerender: true,
             content: {text: 'Click to view the selected cases' },
             style: { classes: 'qtip-light qtip-rounded qtip-shadow' },
             show: {event: 'mouseover'},
             hide: {fixed:true, delay: 100, event: 'mouseout'},
             position: {my:'bottom center', at:'top center', viewport: $(window)}
         });
+
+        $('#study-view-header-left-6').qtip({
+            prerender: true,
+            content: {text: 'Click to download the selected cases' },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow' },
+            show: {event: 'mouseover'},
+            hide: {fixed:true, delay: 100, event: 'mouseout'},
+            position: {my:'bottom center', at:'top center', viewport: $(window)}
+        })
     }
 
     // decide whether to proceed with the submit of the form

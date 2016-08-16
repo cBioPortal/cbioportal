@@ -1,8 +1,12 @@
 var processData = function (str) {
+    // Need to mock webservice data to be compatible with tooltip
     var gene_to_sample_to_datum = {};
-    var cna = {'AMP': 'AMPLIFIED', 'GAIN': 'GAINED', 'HETLOSS': 'HEMIZYGOUSLYDELETED', 'HOMDEL': 'HOMODELETED'};
-    var mrna = {'UP': 'UPREGULATED', 'DOWN': 'DOWNREGULATED'};
-    var rppa = {'PROT-UP': 'UPREGULATED', 'PROT-DOWN': 'DOWNREGULATED'};
+    var cna = {'AMP': 'amp', 'GAIN': 'gain', 'HETLOSS': 'hetloss', 'HOMDEL': 'homdel'};
+    var cna_int = {'AMP': '2', 'GAIN': '1', 'HETLOSS': '-1', 'HOMDEL': '-2'};
+    var mrna = {'UP': 'up', 'DOWN': 'down'};
+    var mrna_int = {'UP': 1, 'DOWN': -1};
+    var prot = {'PROT-UP': 'up', 'PROT-DOWN': 'down'};
+    var prot_int = {'PROT-UP': 1, 'PROT-DOWN': -1};
     var lines = str.split('\n');
     var samples = {};
     for (var i = 1; i < lines.length; i++) {
@@ -21,17 +25,32 @@ var processData = function (str) {
 	var type = sline[3].trim();
 
 	gene_to_sample_to_datum[gene] = gene_to_sample_to_datum[gene] || {};
-	gene_to_sample_to_datum[gene][sample] = gene_to_sample_to_datum[gene][sample] || {'gene': gene, 'sample': sample};
+	gene_to_sample_to_datum[gene][sample] = gene_to_sample_to_datum[gene][sample] || {'gene': gene, 'sample': sample, 'data':[]};
 
 	if (cna.hasOwnProperty(alteration)) {
-	    gene_to_sample_to_datum[gene][sample].cna = cna[alteration];
+	    gene_to_sample_to_datum[gene][sample].data.push({
+		genetic_alteration_type: 'COPY_NUMBER_ALTERATION',
+		profile_data: cna_int[alteration]
+	    });
+	    gene_to_sample_to_datum[gene][sample].disp_cna = cna[alteration];
 	} else if (mrna.hasOwnProperty(alteration)) {
-	    gene_to_sample_to_datum[gene][sample].mrna = mrna[alteration];
-	} else if (rppa.hasOwnProperty(alteration)) {
-	    gene_to_sample_to_datum[gene][sample].rppa = rppa[alteration];
+	    gene_to_sample_to_datum[gene][sample].data.push({
+		genetic_alteration_type: 'MRNA_EXPRESSION',
+		oql_regulation_direction: mrna_int[alteration]
+	    });
+	    gene_to_sample_to_datum[gene][sample].disp_mrna = mrna[alteration];
+	} else if (prot.hasOwnProperty(alteration)) {
+	    gene_to_sample_to_datum[gene][sample].disp_prot = prot[alteration];
+	    gene_to_sample_to_datum[gene][sample].data.push({
+		genetic_alteration_type: 'PROTEIN_LEVEL',
+		oql_regulation_direction: prot_int[alteration]
+	    });
 	} else {
-	    gene_to_sample_to_datum[gene][sample].mutation = alteration;
-	    gene_to_sample_to_datum[gene][sample].mut_type = type;
+	    gene_to_sample_to_datum[gene][sample].data.push({
+		genetic_alteration_type: 'MUTATION_EXTENDED',
+		amino_acid_change: alteration,
+	    });
+	    gene_to_sample_to_datum[gene][sample].disp_mut = type.toLowerCase();
 	}
     }
     var data_by_gene = {};
@@ -42,7 +61,7 @@ var processData = function (str) {
 	_.each(Object.keys(samples), function (sample) {
 	    // pad out data
 	    if (!sample_data.hasOwnProperty(sample)) {
-		data_by_gene[gene].push({'gene': gene, 'sample': sample});
+		data_by_gene[gene].push({'gene': gene, 'sample': sample, 'data': []});
 	    }
 	});
 	_.each(sample_data, function (datum, sample) {

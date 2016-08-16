@@ -507,7 +507,7 @@ var BarChart = function(){
 //            _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
 //                "style='clear:right;float:right;font-size:10px' value='Survival' />";
             _plotDataDiv = "<img id='"+
-                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
+                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg' alt='survival' />";
         }else {
             _plotDataDiv = "";
         }
@@ -520,12 +520,12 @@ var BarChart = function(){
 //                "dc.redrawAll();'>"+
 //                "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
 //                "RESET</span></a>"+
-                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+    
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg' alt='reload' />"+
                 _logCheckBox +
                 _plotDataDiv +
-                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+ 
-                DIV.chartDiv+"-download-icon' style='float:left' src='images/in.svg'/></div>"+
-                "<img class='study-view-drag-icon' src='images/move.svg'/>"+
+                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+
+                DIV.chartDiv+"-download-icon' style='float:left' src='images/in.svg' alt='download' /></div>"+
+                "<img class='study-view-drag-icon' src='images/move.svg' alt='move' />"+
                 "<span chartID="+param.chartID+" class='study-view-dc-chart-delete'>x</span>"+
                 "</div></div><div id=\"" + DIV.chartDiv + 
                 "\" class='"+ param.className +"'  oValue='" + param.selectedAttr + "," + 
@@ -677,7 +677,7 @@ var BarChart = function(){
             //If the current tmpValue already bigger than maxmium number, the
             //function should decrease the number of bars and also reset the
             //Mappped empty value.
-            if(_tmpValue > param.distanceArray.max){
+            if(_tmpValue >= param.distanceArray.max){
                 //if i = 0 and tmpValue bigger than maximum number, that means
                 //all data fall into NA category.
                 if(i !== 0){
@@ -699,6 +699,12 @@ var BarChart = function(){
                 xDomain.push(_tmpValue);
             }
         }
+        //currently we always add ">max" and "NA" marker 
+        //add marker for greater than maximum
+        xDomain.push(Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+        //add marker for NA values
+        xDomain.push(Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+        
     }
     
     //Initialize BarChart in DC.js
@@ -707,24 +713,21 @@ var BarChart = function(){
             _barValue = [];
         
         barChart = dc.barChart("#" + DIV.chartDiv);
-        
        
         cluster = param.ndx.dimension(function (d) {
             var returnValue = d[param.selectedAttr];
+       
             if(returnValue === "NA" || returnValue === '' || returnValue === 'NaN'){
                 hasEmptyValue = true;
-                returnValue = emptyValueMapping;
+                returnValue = xDomain[xDomain.length - 1];
             }else{
-                if(d[param.selectedAttr] >= 0){
-                    returnValue =  parseInt( 
-                                    (d[param.selectedAttr]-startPoint) / 
-                                    seperateDistance) * 
-                                    seperateDistance + startPoint + seperateDistance / 2;
+                if(d[param.selectedAttr] <= xDomain[1]){
+                    returnValue = xDomain[0];
+                }else if(d[param.selectedAttr] > xDomain[xDomain.length - 3]){
+                    returnValue = xDomain[xDomain.length - 2];
                 }else{
-                    returnValue =  ( parseInt( 
-                                        d[param.selectedAttr] / 
-                                        seperateDistance ) - 1 ) * 
-                                    seperateDistance + seperateDistance / 2;
+                    //minus half of seperateDistance to make the margin values always map to the left side. Thus for any value x, it is in the range of (a, b] which means a < x <= b
+                    returnValue =  Math.ceil( (d[param.selectedAttr]-startPoint) / seperateDistance) * seperateDistance + startPoint - seperateDistance / 2;
                 }
             }
             
@@ -750,11 +753,6 @@ var BarChart = function(){
         }
         
         if(hasEmptyValue){
-            xDomain.push( Number( 
-                                cbio.util.toPrecision( 
-                                    Number(emptyValueMapping), 3, 0.1 )
-                                )
-                        );
             barColor['NA'] = '#CCCCCC';
         }else {
             barColor[_barValue[_barLength-1]] = color[_barLength-1];
@@ -785,8 +783,13 @@ var BarChart = function(){
         barChart.yAxis().ticks(6);
         barChart.yAxis().tickFormat(d3.format("d"));            
         barChart.xAxis().tickFormat(function(v) {
-            if(v === emptyValueMapping){
-                return 'NA'; 
+            if(v === xDomain[0]){
+                return '<=' + xDomain[1];
+            }
+            else if(v === xDomain[xDomain.length - 2]){
+                return '>' + xDomain[xDomain.length - 3]; 
+            }else if(v === xDomain[xDomain.length - 1]){
+                return 'NA';
             }else{
                 return v;
             }
@@ -807,57 +810,54 @@ var BarChart = function(){
     
     //Initialize BarChart in DC.js
     function initDCLogBarChart() {
-        
         var _xunitsNum,
             _domainLength,
             _maxDomain = 10000,
             _barValue = [];
-    
+
         emptyValueMapping = "1000";//Will be changed later based on maximum value
         xDomain.length =0;
-        
+
         barChart = dc.barChart("#" + DIV.chartDiv);
-        
+
         for(var i=0; ;i+=0.5){
             var _tmpValue = parseInt(Math.pow(10,i));
-            
+
             xDomain.push(_tmpValue);
             if(_tmpValue > param.distanceArray.max){
-                
+
                 emptyValueMapping = Math.pow(10,i+0.5);
                 xDomain.push(emptyValueMapping);
                 _maxDomain = Math.pow(10,i+1);
                 break;
             }
         }
-        
+
         _domainLength = xDomain.length;
-        
+
         cluster = param.ndx.dimension(function (d) {
             var i, _returnValue = Number(d[param.selectedAttr]);
-            
+
             if(isNaN(_returnValue)){
                 _returnValue = emptyValueMapping;
                 hasEmptyValue = true;
             }else{
-                        
+
                 _returnValue = Number(_returnValue);
                 for(i = 1;i < _domainLength; i++){
-                    if( d[param.selectedAttr] < xDomain[i] && 
+                    if( d[param.selectedAttr] < xDomain[i] &&
                         d[param.selectedAttr] >= xDomain[i-1]){
-                        
                         _returnValue = parseInt( Math.pow(10, i / 2 - 0.25 ));
                     }
                 }
             }
-            
+
             if(_barValue.indexOf(_returnValue) === -1) {
                 _barValue.push(Number(_returnValue));
             }
-            
+
             return _returnValue;
-        }); 
-        
+        });
         _barValue.sort(function(a, b) {
             if(a < b){
                 return -1;
@@ -865,19 +865,19 @@ var BarChart = function(){
                 return 1;
             }
         });
-        
+
         var _barLength = _barValue.length;
-        
+
         for( var i = 0; i < _barLength-1; i++) {
             barColor[_barValue[i]] = color[i];
         }
-        
+
         if(hasEmptyValue){
             barColor['NA'] = '#CCCCCC';
         }else {
             barColor[_barValue[_barLength-1]] = color[_barLength-1];
         }
-        
+
         barChart
             .width(chartWidth)
             .height(chartHeight)
@@ -893,11 +893,11 @@ var BarChart = function(){
             .transitionDuration(StudyViewParams.summaryParams.transitionDuration)
             .renderHorizontalGridLines(false)
             .renderVerticalGridLines(false);
-    
+
         barChart.centerBar(true);
         barChart.x(d3.scale.log().nice().domain([0.7,_maxDomain]));
         barChart.yAxis().ticks(6);
-        barChart.yAxis().tickFormat(d3.format("d"));            
+        barChart.yAxis().tickFormat(d3.format("d"));
         barChart.xAxis().tickFormat(function(v) {
             var _returnValue = v;
             if(v === emptyValueMapping){
@@ -909,13 +909,13 @@ var BarChart = function(){
                 else
                     return '';
             }
-            return _returnValue; 
-        });            
-        
+            return _returnValue;
+        });
+
         barChart.xAxis().tickValues(xDomain);
-        
+
         _xunitsNum = xDomain.length*1.3;
-        
+
         if(_xunitsNum <= 5){
             barChart.xUnits(function(){return 5;});
         }else{
@@ -935,7 +935,7 @@ var BarChart = function(){
         param.needLogScale = _param.needLogScale;
         param.distanceArray = _param.distanceArray;
         param.plotDataButtonFlag = _param.plotDataButtonFlag;
-        
+       
         if(typeof _param.chartWidth !== 'undefined'){
             chartWidth = _param.chartWidth;
         }

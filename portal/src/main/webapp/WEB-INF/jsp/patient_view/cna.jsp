@@ -62,7 +62,9 @@
                     default:
                         alter = null;
                 }
-                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter, cancerType, alter);
+                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter,
+                    (_.isObject(patientInfo) ? (patientInfo.CANCER_TYPE_DETAILED || patientInfo.CANCER_TYPE) : '') || cancerType,
+                    alter);
             }
             data.push([cnaEventIds[i]]);
         }
@@ -136,7 +138,7 @@
                                 if(cnas.colExists('oncokb')) {
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else if(OncoKB.getAccess()){
-                                    ret += "<img width='14' height='14' src='images/ajax-loader.gif'/>";
+                                    ret += "<img width='14' height='14' src='images/ajax-loader.gif' alt='loading' />";
                                 }else {
                                     
                                     ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
@@ -196,7 +198,7 @@
                         }
                     },
                     {// annotation
-                        "aTargets": [mutTableIndices["annotation"]],
+                        "aTargets": [cnaTableIndices["annotation"]],
                         "sClass": "no-wrap-td",
                         "sType": "sort-icons",
                         "mDataProp": function (source, type, value) {
@@ -208,7 +210,7 @@
                                     str += "&nbsp;<span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
                                     str += "<span class='oncokb oncokb_column' oncokbId='" + source[0] + "'></span>";
                                 } else if (OncoKB.getAccess()) {
-                                    str += '<img width="14" height="14" src="images/ajax-loader.gif"/>';
+                                    str += '<img width="14" height="14" src="images/ajax-loader.gif" alt="loading" />';
                                 }
                                 return str;
                             } else if (type === 'sort') {
@@ -331,7 +333,7 @@
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
-                "aaSorting": [[cnaTableIndices['altrate'],'desc']],
+                "aaSorting": [[cnaTableIndices["annotation"], 'asc'], [cnaTableIndices['altrate'],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -499,7 +501,7 @@
                      <ul><li>either annotated cancer genes</li>\n\
                      <li>or recurrently copy number altered, namely\n\
                         <ul><li>contained in a Gistic peak with less than 10 genes and Q < 0.05, if Gistic results are available</li>\n\
-                        <li>otherwise, altered in >5% of samples in the study with &ge; 50 samples.</li></ul></li></ul>'/>");
+                        <li>otherwise, altered in >5% of samples in the study with &ge; 50 samples.</li></ul></li></ul>' alt='help' />");
                 $('#cna-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },
@@ -585,7 +587,7 @@
     }
 </script>
 
-<div id="cna_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="cna_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>
 <div id="cna_id_filter_msg"><font color="red">The following table contains filtered copy number alterations (CNAs).</font>
 <button onclick="unfilterCnaTableByIds(); return false;" style="font-size: 1em;">Show all CNAs</button></div>
 

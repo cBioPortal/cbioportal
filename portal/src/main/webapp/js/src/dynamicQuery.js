@@ -637,7 +637,7 @@ function updateCancerStudyInformation() {
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION", PROFILE_METHYLATION, "DNA Methylation");
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION_BINARY", PROFILE_METHYLATION, "DNA Methylation");
     //addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN, "Protein Level");
-    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN_EXPRESSION, "Protein/phosphoprotein level (by RPPA)");
+    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN_EXPRESSION, "Protein/phosphoprotein level");
 
 
     //  if no genomic profiles available, set message and disable submit button
@@ -698,7 +698,7 @@ function updateCancerStudyInformation() {
     // check if cancer study has a clinical_free_form data to filter,
     // if there is data to filter, then enable "build custom case set" link,
     // otherwise disable the button
-    jQuery.getJSON("ClinicalFreeForm.json",
+    /*jQuery.getJSON("ClinicalFreeForm.json",
 		{studyId: $("#select_single_study").val()},
 		function(json){
 			var noDataToFilter = false;
@@ -728,9 +728,9 @@ function updateCancerStudyInformation() {
 			if (noDataToFilter)
 			{
 				// no clinical_free_form data to filter for the current
-				// cancer study, so disable the button
+	*/			// cancer study, so disable the button
 				$("#build_custom_case_set").hide();
-			}
+	/*		}
 			else
 			{
 				$("#build_custom_case_set").tipTip({defaultPosition: "right",
@@ -740,7 +740,7 @@ function updateCancerStudyInformation() {
 				
 				$("#build_custom_case_set").hide();//.show(); temporarily disabled build case list
 			}
-		});
+		});*/
 }
 //  Triggered when a cancer study has been selected, either by the user
 //  or programatically.
@@ -1463,7 +1463,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
     if(targetClass == PROFILE_PROTEIN_EXPRESSION && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
         profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>"
-        + "<label>Enter a RPPA z-score threshold &#177: "
+        + "<label>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.rppa_score_threshold + "'>"
         + "</label></div>";

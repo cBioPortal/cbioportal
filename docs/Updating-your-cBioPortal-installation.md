@@ -1,4 +1,4 @@
-:warning: this is applicable since release 1.0.5
+# Updating your cBioPortal installation
 
 As of release **1.0.5** cBioPortal has a Database schema update mechanism which comes into play whenever the new version of the portal code relies on specific DB schema changes to be applied. The portal will automatically check if the DB schema is according to what it expects. It does so by comparing the version number of the portal code with the version number of the DB schema. If they are equal, it assumes the DB schema has been upgraded. If not, it will require the administrator to run a migration script. Below are the steps to ensure your DB schema is updated correctly.
 

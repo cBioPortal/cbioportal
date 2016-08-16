@@ -490,12 +490,14 @@ var LinearInterpRuleSet = (function () {
 		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
 		var log_range_lower = Math.log(range[0] + shift_to_make_pos);
 		return function(val) {
+		    val = parseFloat(val);
 		    return (Math.log(val + shift_to_make_pos) - log_range_lower)/log_range;
 		};
 	    } else {
 		var range_spread = range[1] - range[0];
 		var range_lower = range[0];
 		return function (val) {
+		    val = parseFloat(val);
 		    return (val - range_lower) / range_spread;
 		};
 	    }
@@ -702,7 +704,7 @@ var Rule = (function () {
 		return new Shape.Line(shape);
 	    }
 	});
-	this.legend_label = params.legend_label || "";
+	this.legend_label = typeof params.legend_label === "undefined" ? "" : params.legend_label;
 	this.exclude_from_legend = params.exclude_from_legend;
 	this.legend_config = params.legend_config;// {'type':'rule', 'target': {'mut_type':'MISSENSE'}} or {'type':'number', 'color':'rgba(1,2,3,1), 'range':[lower, upper]} or {'type':'gradient', 'color_range':['rgba(...)' or '#...', 'rgba(...)' or '#...'], 'number_range':[lower, upper]}
     }

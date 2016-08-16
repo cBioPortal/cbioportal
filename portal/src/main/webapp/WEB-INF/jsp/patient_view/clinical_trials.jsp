@@ -51,7 +51,7 @@
     </tr>
    </thead>
 </table>
-<div id="trials_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="trials_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>
 <p><small><b>*</b> The data for the clinical trials listed on this page was kindly provided
     by NCI's <a href="http://cancer.gov">Cancer.Gov</a> website
     through <a href="http://www.cancer.gov/global/syndication/content-use">the content dissemination program</a>.

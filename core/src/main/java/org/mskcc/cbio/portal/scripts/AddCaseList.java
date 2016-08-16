@@ -40,7 +40,7 @@ import org.mskcc.cbio.portal.util.SpringUtil;
 /**
  * Command Line tool to Add new case lists by generating them based on some rules.
  */
-public class AddCaseList {
+public class AddCaseList extends ConsoleRunnable {
 
 	
 	/**
@@ -112,21 +112,24 @@ public class AddCaseList {
       }
    }
 
-   public static void main(String[] args) throws Exception {
+   public void run() {
       try {
-		  // check args
-	      if (args.length < 2) {
-	         System.out.println("command line usage:  addCaseList.pl " + "<study identifier> <case list type>");
-	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-	         //use 2 for command line syntax errors:
-	         System.exit(2);
-	      }
-	      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-	      
+          // check args
+          String progName = "addCaseList.pl";
+          String argSpec = "<study identifier> <case list type>";
+          if (this.args.length < 2) {
+              // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+              throw new UsageException(
+                      progName,
+                      null,
+                      argSpec);
+          }
+          
 	      String cancerStudyIdentifier = args[0];
 	      String caseListType = args[1];
 	      if (cancerStudyIdentifier == null) {
-	          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
+              throw new UsageException(progName, null, argSpec,
+                      "cancer_study_identifier is not specified.");
 	      }
 	 	  SpringUtil.initDataSource();
 	      CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
@@ -139,17 +142,31 @@ public class AddCaseList {
 		      //Add "all" case list:
 		      AddCaseList.addAllCasesList(theCancerStudy);
 	      }
-	      
-	      ConsoleUtil.showMessages();
-	      System.out.println("Done.");
+      }
+      catch (RuntimeException e) {
+          throw e;
       }
       catch (Exception e) {
-	        ConsoleUtil.showWarnings();
-	        //exit with error status:
-	        System.err.println ("\nABORTED! Error:  " + e.getMessage());
-	        if (e.getMessage() == null)
-	        	e.printStackTrace();
-	        System.exit(1);
-    }
+          throw new RuntimeException(e);
+      }
   }
+    
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public AddCaseList(String[] args) {
+        super(args);
+    }
+    
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new AddCaseList(args);
+        runner.runInConsole();
+    }
 }

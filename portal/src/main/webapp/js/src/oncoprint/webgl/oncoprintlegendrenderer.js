@@ -1,5 +1,17 @@
 var svgfactory = require('./svgfactory.js');
 
+var nodeIsVisible = function(node) {
+    var ret = true;
+    while (node.tagName.toLowerCase() !== "body") {
+	if (!$(node).is(":visible")) {
+	    ret = false;
+	    break;
+	}
+	node = node.parentNode;
+    }
+    return ret;
+};
+
 var OncoprintLegendView = (function() {
     function OncoprintLegendView($div, base_width, base_height) {
 	this.$div = $div;
@@ -50,6 +62,9 @@ var OncoprintLegendView = (function() {
 	}
 	if (typeof target_svg === 'undefined') {
 	    target_svg = view.$svg[0];
+	}
+	if (!nodeIsVisible(target_svg)) {
+	    return;
 	}
 	$(target_svg).empty();
 	
@@ -127,12 +142,16 @@ var OncoprintLegendView = (function() {
 	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
 	    root.appendChild(svgfactory.text(display_range[1], 50, 0, 12, 'Arial', 'normal'));
 	    var mesh = 100;
+	    var points = [];
+	    points.push([5, 20]);
 	    for (var i=0; i<mesh; i++) {
 		var t = i/mesh;
 		var h = config.interpFn((1-t)*config.range[0] + t*config.range[1]);
 		var height = 20*h;
-		root.appendChild(svgfactory.rect(5 + 40*i/mesh, 20-height, 40/mesh, height, config.color));
+		points.push([5 + 40*i/mesh, 20-height]);
 	    }
+	    points.push([45, 20]);
+	    root.appendChild(svgfactory.path(points, config.color, config.color));
 	}
 	return root;
     };

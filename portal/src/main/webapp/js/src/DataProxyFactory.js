@@ -51,7 +51,7 @@ var DataProxyFactory = (function()
 			var servletParams = {};
 
 			//servletParams.geneticProfiles = PortalGlobals.getGeneticProfiles();
-			servletParams.geneticProfiles = window.QuerySession.getCancerStudyIds()[0] + "_mutations";
+			servletParams.geneticProfiles = window.QuerySession.getMutationProfileId();
 
 			var caseSetId = window.QuerySession.getCaseSetId();
 			var caseIdsKey = window.QuerySession.getCaseIdsKey();

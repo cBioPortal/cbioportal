@@ -146,9 +146,15 @@ var SurvivalCurve = function() {
                 .style("opacity", .9);
 
             if(! $(this).data('qtip' )) {
+                //TODO: need to find a better way to grab cancer study ID. 
+                //QuerySession is only available after submitting query.
+                //cancerStudyId is only available in study view
+                //cancer_study_id and cancer_study_id_selected are only available in certain pages.
+                //But they all point to same attribute.
+                var cancerStudy = window.QuerySession ? window.QuerySession.getCancerStudyIds()[0] : (window.cancerStudyId || window.cancer_study_id || window.cancer_study_id_selected);
                 var content = "<font size='2'>";
                 content += text.qTips.id + ": " + "<strong><a href='"
-                        + qtipFunc(cancer_study_id, d.case_id)
+                        + qtipFunc(cancerStudy, d.case_id)
                         + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                 content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                 if (d.status === "0") { // If censored, mark it

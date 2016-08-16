@@ -300,7 +300,7 @@ var StudyViewBoilerplate ={
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
-                'class': 'study-view-header-clear-all'})
+                'class': 'btn btn-default btn-xs study-view-header-clear-all'})
             .val('Clear all');
 
         // changed the initialisation for span 3

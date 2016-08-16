@@ -533,7 +533,7 @@ SOFTWARE.
             if( cy.elements().size() === 0 ){
               cy.reset();
             } else {
-              cy.fit( options.fitPadding );
+              cy.fit( cy.elements(':visible'),options.fitPadding );
             }
 
             return false;

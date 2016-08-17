@@ -167,11 +167,39 @@
       <groupId>org.biojava</groupId>
       <artifactId>biojava-core</artifactId>
       <version>4.2.0</version>
+      <exclusions>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-slf4j-impl</artifactId>
+      	</exclusion>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-api</artifactId>
+      	</exclusion>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-core</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.biojava</groupId>
       <artifactId>biojava-structure</artifactId>
       <version>4.2.0</version>
+      <exclusions>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-slf4j-impl</artifactId>
+      	</exclusion>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-api</artifactId>
+      	</exclusion>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-core</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Mockito -->
@@ -287,34 +315,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.3</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <artifactSet>
-                <excludes>
-                  <exclude>org.bouncycastle:bcprov-jdk15</exclude>
-                </excludes>
-              </artifactSet>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                  <resource>META-INF/spring.handlers</resource>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                  <resource>META-INF/spring.schemas</resource>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <!-- surefire (test) config -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -355,8 +355,10 @@
             <configuration>
             <!-- username & password gets put in .m2/settings.xml -->
               <settingsKey>settingsKey</settingsKey>
-              <driver>com.mysql.jdbc.Driver</driver>
-              <url>jdbc:mysql://127.0.0.1:3306/cgds_test</url>
+              <driver>${db.test.driver}</driver>
+              <url>${db.test.url}</url>
+              <username>${db.test.username}</username>
+              <password>${db.test.password}</password>
               <sqlCommand>SET storage_engine=INNODB</sqlCommand>
               <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
               <srcFiles>

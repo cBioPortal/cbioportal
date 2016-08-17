@@ -637,7 +637,7 @@ function updateCancerStudyInformation() {
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION", PROFILE_METHYLATION, "DNA Methylation");
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION_BINARY", PROFILE_METHYLATION, "DNA Methylation");
     //addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN, "Protein Level");
-    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN_EXPRESSION, "Protein/phosphoprotein level (by RPPA)");
+    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN_EXPRESSION, "Protein/phosphoprotein level");
 
 
     //  if no genomic profiles available, set message and disable submit button
@@ -1463,7 +1463,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
     if(targetClass == PROFILE_PROTEIN_EXPRESSION && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
         profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>"
-        + "<label>Enter a RPPA z-score threshold &#177: "
+        + "<label>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.rppa_score_threshold + "'>"
         + "</label></div>";

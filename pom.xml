@@ -43,6 +43,11 @@
     </profile>
     <profile>
       <id>heroku</id>
+      <properties>
+          <!--Our heroku instance uses jetty and therefore needs to include the tomcat lib-->
+          <tomcat.catalina.scope>runetime</tomcat.catalina.scope>
+      </properties>
+
       <build>
         <plugins>
           <!-- copy files in heroku/ to root-->
@@ -134,6 +139,9 @@
 	<db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
+    
+    <!--For tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in portal module.-->
+    <tomcat.catalina.scope>provided</tomcat.catalina.scope>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
     <db.version>1.2.1</db.version>

@@ -37,7 +37,7 @@ var StudyViewSummaryTabController = (function() {
         StudyViewInitCharts.init(_data);
         StudyViewInitTopComponents.init();
         StudyViewWindowEvents.init();
-        $('#dc-plots-loading-wait').hide();
+        $('#summary-loading-wait').hide();
         $('#study-view-main').show();
         //StudyViewInitTables.resizeTable();
     };

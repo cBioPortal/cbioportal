@@ -1,5 +1,8 @@
 var plotsData = (function() {
     
+    //global variable for the callback function
+	var readyCallBackFunction;
+	
     var data = {
                 x: {
                     raw: [],
@@ -48,11 +51,11 @@ var plotsData = (function() {
             }
             
             var paramsGetProfileData = {  //webservice call to get profile data
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                 gene_list: $("#" + ids.sidebar[axis].gene).val(),
                 genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
-                case_set_id: window.PortalGlobals.getCaseSetId(),
-                case_ids_key: window.PortalGlobals.getCaseIdsKey()
+                case_set_id: window.QuerySession.getCaseSetId(),
+                case_ids_key: window.QuerySession.getCaseIdsKey()
             };
 
             $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
@@ -71,9 +74,9 @@ var plotsData = (function() {
             
             var paramsGetClinicalAttributes = { //webservice call to get clinical data
                 cmd : "getClinicalData",
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                case_set_id : window.PortalGlobals.getCaseSetId(),
-                case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+                case_set_id : window.QuerySession.getCaseSetId(),
+                case_ids_key: window.QuerySession.getCaseIdsKey(),
                 format : "json"
             };
             $.post("webservice.do", paramsGetClinicalAttributes, inner_callback_func, "json");
@@ -149,13 +152,19 @@ var plotsData = (function() {
                 if (clinical_attr_is_discretized("x") &&
                     clinical_attr_is_discretized("y")) {
                     stat.retrieved = true;
+                    readyCallBackFunction();
                 } else {
                     analyseData();
-                    stat.retrieved = true;                     
+                    stat.retrieved = true;  
+                    readyCallBackFunction();
                 }
-
+                
             }
         }
+        else if (data.x.stat || data.y.stat) {
+        	readyCallBackFunction();
+        }
+        
     };
     
     function mutationCallback(mutationData) {
@@ -166,13 +175,13 @@ var plotsData = (function() {
             for (var key in mutationMap) {
                 $.each(mutationMap[key], function(index, obj) {
                     if (dotsContent.hasOwnProperty(key.toUpperCase())) {
-                        if (typeof(dotsContent[key.toUpperCase()].mutation[obj.geneSymbol]) !== "undefined") {
-                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].details += "; " + obj.proteinChange;
-                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].type = mutationTranslator(obj.mutationType);
+                        if (typeof(dotsContent[key.toUpperCase()].mutation[obj.get("geneSymbol")]) !== "undefined") {
+                            dotsContent[key.toUpperCase()].mutation[obj.get("geneSymbol")].details += "; " + obj.get("proteinChange");
+                            dotsContent[key.toUpperCase()].mutation[obj.get("geneSymbol")].type = mutationTranslator(obj.get("mutationType"));
                         } else {
-                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol] = {
-                                "details": obj.proteinChange,
-                                "type": mutationTranslator(obj.mutationType)
+                            dotsContent[key.toUpperCase()].mutation[obj.get("geneSymbol")] = {
+                                "details": obj.get("proteinChange"),
+                                "type": mutationTranslator(obj.get("mutationType"))
                             };
                         }                    
                     }
@@ -201,14 +210,15 @@ var plotsData = (function() {
                         });
                         analyseData();
                         stat.retrieved = true;
+                        readyCallBackFunction();
                     };
 
                     var paramsGetProfileData = {  //webservice call to get profile data
-                        cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                        cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                         gene_list: $("#" + ids.sidebar.y.gene).val(),
                         genetic_profile_id: cna_annotation_profile_name,
-                        case_set_id: window.PortalGlobals.getCaseSetId(),
-                        case_ids_key: window.PortalGlobals.getCaseIdsKey()
+                        case_set_id: window.QuerySession.getCaseSetId(),
+                        case_ids_key: window.QuerySession.getCaseIdsKey()
                     };
                     $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
 
@@ -216,6 +226,7 @@ var plotsData = (function() {
             } else {
                 analyseData();
                 stat.retrieved = true;
+                readyCallBackFunction();
             }
         } else if (genetic_vs_clinical()) {
             //translate: assign text value a numeric value for clinical data
@@ -240,6 +251,7 @@ var plotsData = (function() {
             }
             analyseData();
             stat.retrieved = true; 
+            readyCallBackFunction();
         } 
     }
 
@@ -293,31 +305,31 @@ var plotsData = (function() {
     }
 
     return {
-        fetch: function(axis) {
+    	/**
+    	 * This function will fetch the data for the given axis and call the callback function
+    	 * given in readyCallBack once the data is received. 
+    	 * 
+    	 * @axis: x or y axis
+    	 * @readyCallBack: function to call once data is received
+    	 */
+        fetch: function(axis, readyCallBack) {
             
+        	readyCallBackFunction = readyCallBack;
+        	
             stat.retrieved = false;
             
             data[axis].stat = false;
             data[axis].raw.length = 0;
             dotsContent = {}; 
             
-            var tmp = setInterval(function () {timer();}, 1000);
-            function timer() {
-                if (metaData.getRetrieveStatus() !== -1) {
-                    clearInterval(tmp);
-                    ajaxCall(axis, merge);
-                }
-            }
+            ajaxCall(axis, merge);
         },
-        get: function(callback_func) {
-            var tmp = setInterval(function () {timer();}, 1000);
-            function timer() {
-                //if (Object.keys(dotsContent).length !== 0) {
-                if (stat.retrieved) {
-                    clearInterval(tmp);
-                    callback_func(dotsContent); 
-                }
-            }
+        /**
+         * Returns the object with the data items in a format ready
+         * for rendering the view
+         */
+        get: function() {
+        	return dotsContent; 
         },
         stat: function() {
             return stat;

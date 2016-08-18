@@ -37,7 +37,6 @@ import java.util.Date;
 
 import joptsimple.*;
 
-import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
@@ -47,148 +46,74 @@ import org.mskcc.cbio.portal.util.*;
  * @author ECerami
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
-public class ImportProfileData{
+public class ImportProfileData extends ConsoleRunnable {
 
-    public static final int ACTION_CLOBBER = 1;
-    private static String usageLine;
-    private static OptionParser parser;
-
-    private static void quit(String msg)
-    {
-        if( null != msg ){
-            System.err.println( msg );
-        }
-        System.err.println( usageLine );
-        try {
-            parser.printHelpOn(System.err);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void run() {
+       try {
+           String description = "Import 'profile' files that contain data matrices indexed by gene, case";
+	
+	       // using a real options parser, helps avoid bugs
+	       OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
+	       File dataFile = new File((String) options.valueOf("data"));
+	       File descriptorFile = new File((String) options.valueOf( "meta" ) );
+	       
+			SpringUtil.initDataSource();
+	        ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());
+	        GeneticProfile geneticProfile = null;
+	         try {
+	            geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
+	         } catch (java.io.FileNotFoundException e) {
+	        	 throw new java.io.FileNotFoundException("Descriptor file '" + descriptorFile + "' not found.");
+	         }
+	
+	        int numLines = FileUtil.getNumLines(dataFile);
+            ProgressMonitor.setCurrentMessage(
+                    " --> profile id:  " + geneticProfile.getGeneticProfileId() +
+                    "\n --> profile name:  " + geneticProfile.getProfileName() +
+                    "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
+	        ProgressMonitor.setMaxValue(numLines);
+	        
+	        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+	
+	   
+	            ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
+	                  geneticProfile.getGeneticProfileId());
+	            importer.importData();
+	        }
+		    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
+		        ImportFusionData importer = new ImportFusionData(dataFile,
+					geneticProfile.getGeneticProfileId());
+		        importer.importData();
+	        } else {
+	            ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
+	                    geneticProfile.getGeneticProfileId());
+	            importer.importData(numLines);
+	        }
+       }
+       catch (RuntimeException e) {
+           throw e;
+       }
+       catch (Exception e) {
+           throw new RuntimeException(e);
+       }
     }
 
-   public static void main(String[] args) throws Exception {
-       Date start = new Date();
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportProfileData(String[] args) {
+        super(args);
+    }
 
-       // use a real options parser, help avoid bugs
-       usageLine = "Import 'profile' files that contain data matrices indexed by gene, case.\n" +
-       		"command line usage for importProfileData:";
-       /*
-        * usage:
-        * --data <data_file.txt> --meta <meta_file.txt> --dbmsAction [clobber (default)]  --loadMode
-        *  [directLoad|bulkLoad (default)] " +
-        * --germlineWhiteList <filename> --acceptRemainingMutations --somaticWhiteList <filename>
-        * --somaticWhiteList <filename>
-        */
-
-       parser = new OptionParser();
-       OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
-       OptionSpec<String> data = parser.accepts( "data",
-               "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
-       OptionSpec<String> meta = parser.accepts( "meta",
-               "meta (description) file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
-       OptionSpec<String> dbmsAction = parser.accepts( "dbmsAction",
-               "database action; 'clobber' deletes exsiting data" )
-          .withRequiredArg().describedAs( "[clobber (default)]" ).ofType( String.class );
-       OptionSpec<String> loadMode = parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
-          .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
-       OptionSpec<String> germlineWhiteList = parser.accepts( "germlineWhiteList",
-               "list of genes whose non-missense germline mutations should be loaded into the dbms; optional" )
-          .withRequiredArg().describedAs( "filename" ).ofType( String.class );
-       OptionSet options = null;
-      try {
-         options = parser.parse( args );
-         //exitJVM = !options.has(returnFromMain);
-      } catch (OptionException e) {
-          quit( e.getMessage() );
-      }
-      
-      if( options.has( help ) ){
-          quit( "" );
-      }
-       
-       File dataFile = null;
-       if( options.has( data ) ){
-          dataFile = new File( options.valueOf( data ) );
-       }else{
-           quit( "'data' argument required.");
-       }
-
-       File descriptorFile = null;
-       if( options.has( meta ) ){
-          descriptorFile = new File( options.valueOf( meta ) );
-       }else{
-           quit( "'meta' argument required.");
-       }
-
-       int updateAction = ACTION_CLOBBER;
-       if( options.has( dbmsAction ) ){
-          String actionArg = options.valueOf( dbmsAction );
-          if (actionArg.equalsIgnoreCase("clobber")) {
-             updateAction = ACTION_CLOBBER;
-         } else {
-              quit( "Unknown dbmsAction action:  " + actionArg );
-         }
-          System.err.println(" --> updateAction:  " + actionArg);
-       }
-       
-       MySQLbulkLoader.bulkLoadOn();
-       if( options.has( loadMode ) ){
-          String actionArg = options.valueOf( loadMode );
-          if (actionArg.equalsIgnoreCase("directLoad")) {
-             MySQLbulkLoader.bulkLoadOff();
-          } else if (actionArg.equalsIgnoreCase( "bulkLoad" )) {
-             MySQLbulkLoader.bulkLoadOn();
-          } else {
-              quit( "Unknown loadMode action:  " + actionArg );
-          }
-       }
-
-		SpringUtil.initDataSource();
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
-        System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
-        GeneticProfile geneticProfile = null;
-         try {
-            geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
-         } catch (java.io.FileNotFoundException e) {
-             quit( "Descriptor file '" + descriptorFile + "' not found." );
-         }
-
-        int numLines = FileUtil.getNumLines(dataFile);
-        System.err.println(" --> profile id:  " + geneticProfile.getGeneticProfileId());
-        System.err.println(" --> profile name:  " + geneticProfile.getProfileName());
-        System.err.println(" --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
-        System.err.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        
-        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-   		   
-   	      String germlineWhitelistFilename = null;
-            if( options.has( germlineWhiteList ) ){
-               germlineWhitelistFilename = options.valueOf( germlineWhiteList );
-            }
-   
-            ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
-                  geneticProfile.getGeneticProfileId(), pMonitor, 
-                  germlineWhitelistFilename);
-            System.out.println( importer.toString() );
-            importer.importData();
-        }
-	    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
-	        ImportFusionData importer = new ImportFusionData(dataFile,
-				geneticProfile.getGeneticProfileId(),
-				pMonitor);
-	        importer.importData();
-        } else {
-            ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
-                    geneticProfile.getGeneticProfileId(), pMonitor);
-            importer.importData();
-        }
-      
-        ConsoleUtil.showWarnings(pMonitor);
-        System.err.println("Done.");
-        Date end = new Date();
-        long totalTime = end.getTime() - start.getTime();
-        System.out.println ("Total time:  " + totalTime + " ms");
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportProfileData(args);
+        runner.runInConsole();
     }
 }

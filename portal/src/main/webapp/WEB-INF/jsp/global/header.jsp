@@ -37,12 +37,12 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <!DOCTYPE HTML>
-<html ng-app="menu">
+<html ng-app="menu" lang="eng">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<%if(request.getAttribute("tumormap")!=null){%>
+<%if(request.getAttribute("standard-js-css")!=null){%>
 <jsp:include page="css_include_standard.jsp" flush="true" />
 <jsp:include page="js_include_standard.jsp" flush="true" />
 <%} else {%>
@@ -148,8 +148,8 @@
 
                                             <!-- Added call GlobalProperties to check whether to show the Visualize tab -->
                                             <% if (GlobalProperties.showVisualizeYourDataTab()) { %>
-                                            <li class="internal" style="float:right">
-					                            <a href="visualize_your_data.jsp" float="right"><b><i>VISUALIZE YOUR DATA</i></b></a>
+                                            <li class="internal" style="float:left">
+					                            <a href="visualize_your_data.jsp" float="left">VISUALIZE YOUR DATA</a>
 					                        </li>
                                             <% } %>
 

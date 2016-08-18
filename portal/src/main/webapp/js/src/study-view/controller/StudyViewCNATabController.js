@@ -43,6 +43,9 @@ var StudyViewCNATabController = (function() {
     return {
         init: function() {
             init();
+        },
+        getDataTable: function () {
+            return StudyViewInitCNATab.getDataTable();
         }
     };
 })();

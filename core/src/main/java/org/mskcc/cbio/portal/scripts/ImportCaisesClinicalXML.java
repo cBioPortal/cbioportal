@@ -62,6 +62,7 @@ public final class ImportCaisesClinicalXML {
         }
         
        OptionParser parser = new OptionParser();
+       parser.accepts("noprogress");
        OptionSpec<String> data = parser.accepts( "data",
                "caises data file" ).withRequiredArg().describedAs( "data_clinical_caises.xml" ).ofType( String.class );
        OptionSpec<String> meta = parser.accepts( "meta",
@@ -89,7 +90,7 @@ public final class ImportCaisesClinicalXML {
            throw new Exception( "'meta' argument required.");
        }
         
-        Properties properties = new Properties();
+        Properties properties = new TrimmedProperties();
         properties.load(new FileInputStream(descriptorFile));
 		SpringUtil.initDataSource();
       
@@ -195,9 +196,9 @@ public final class ImportCaisesClinicalXML {
                 new ClinicalAttribute("RACE", "Race", "Race", "STRING", true, "1"),
                 new ClinicalAttribute("AGE", "Age", "Age", "Number", true, "1"),
                 new ClinicalAttribute("PATIENT_CATEGORY", "Patient category", "Patient category", "STRING", true, "1"),
-                new ClinicalAttribute("CLIN_T_Stage", "Clinical T stage", "Clinical T stage", "STRING", true, "1"),
-                new ClinicalAttribute("CLIN_N_Stage", "Clinical N stage", "Clinical N stage", "STRING", true, "1"),
-                new ClinicalAttribute("CLIN_M_Stage", "Clinical M stage", "Clinical M stage", "STRING", true, "1"),
+                new ClinicalAttribute("CLIN_T_STAGE", "Clinical T stage", "Clinical T stage", "STRING", true, "1"),
+                new ClinicalAttribute("CLIN_N_STAGE", "Clinical N stage", "Clinical N stage", "STRING", true, "1"),
+                new ClinicalAttribute("CLIN_M_STAGE", "Clinical M stage", "Clinical M stage", "STRING", true, "1"),
                 new ClinicalAttribute("HISTOLOGY", "Histology", "Histology", "STRING", true, "1"),
                 new ClinicalAttribute("PATH_RESULT", "Pathology result", "Pathology result", "STRING", true, "1"),
                 new ClinicalAttribute("PATH_T_STAGE", "Pathology T stage", "Pathology T stage", "STRING", true, "1"),

@@ -31,16 +31,12 @@
 	var events = oncoprint_events;
 	var utils = oncoprint_utils;
 
-	var TOOLBAR_CONTAINER_CLASS = 'oncoprint-toolbar-ctr';
 	var LABEL_AREA_CONTAINER_CLASS = 'oncoprint-label-area-ctr';
 	var CELL_AREA_CONTAINER_CLASS = 'oncoprint-cell-area-ctr';
 	var CELL_AREA_CLASS = 'oncoprint-cell-area';
 	var COLUMN_HIGHLIGHT_CLASS = 'oncoprint-column-highlight'
 	
-	var CELL_HOVER_CLASS = 'oncoprint-cell-hover';
-	var LEGEND_HEADER_CLASS = 'oncoprint-legend-header';
 	var LABEL_DRAGGING_CLASS = 'oncoprint-label-dragging';
-	var LABEL_DRAGGABLE_CLASS = 'oncoprint-label-draggable';
 	var CELL_QTIP_CLASS = 'oncoprint-cell-qtip';
 
 	function OncoprintSVGRenderer(container_selector_string, oncoprint, config) {
@@ -294,7 +290,7 @@
 		if (rule_set && rule_set.alteredData) {
 			var data = this.oncoprint.getTrackData(track_id);
 			var num_altered = rule_set.alteredData(data).length;
-			var percent_altered = Math.floor(100 * num_altered / data.length);
+			var percent_altered = Math.round(100 * num_altered / data.length);
 			this.altered_data_percentage[track_id] = percent_altered;
 		}
 	};
@@ -707,9 +703,9 @@
 		var self = this;
 		var root = $(this.container.node()).offset();
 		var svg = d3.select(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
-		svg.attr('width', this.getLabelAreaWidth() + this.getCellAreaWidth() + 'px');
 		this.renderLegend(true);
 		this.renderTrackLabels(undefined, undefined, full_labels);
+		svg.attr('width', Math.max($(this.legend_table.node()).width(), this.getLabelAreaWidth() + this.getCellAreaWidth()) + 'px');
 		svg.attr('height', $(this.container.node()).height()+'px');
 		(function addLabels() {
 			self.label_div.selectAll('.oncoprint-track-label').each(function() {
@@ -720,8 +716,7 @@
 				var pos = $(text_elt.node()).offset();
 				var text = text_elt.text();
 				svg.append('text').style('font-family', font).style('font-weight', weight).style('font-size', size)
-						.attr('transform', utils.translate(pos.left - root.left,pos.top - root.top))
-						.style('alignment-baseline', 'hanging')
+						.attr('transform', utils.translate(pos.left - root.left,pos.top - root.top + parseInt(size)))
 						.text(text);	
 			});
 		})();
@@ -762,8 +757,7 @@
 							var pos = $(text_elt.node()).offset();
 							svg.append('text').style('font-family', font).style('font-weight', weight)
 								.style('font-size', size)
-								.attr('transform', utils.translate(pos.left - root.left, pos.top - root.top))
-								.style('alignment-baseline', 'hanging')
+								.attr('transform', utils.translate(pos.left - root.left, pos.top - root.top + parseInt(size)))
 								.text(text);
 						} else if (this.tagName.toLowerCase() === 'svg') {
 							var elt = d3.select(this);

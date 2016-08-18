@@ -53,6 +53,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 /**
  * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
@@ -80,7 +83,7 @@ public class PancancerMutationsJSON extends HttpServlet {
     /**
      * Initializes the AccessControl member.
      *
-     * TODO: may want to refactor this into a public method somewhere that other's can use.  I grabbed this from `TumorMapServlet`
+     * TODO: may want to refactor this into a public method somewhere that other's can use.  I grabbed this from `PatientViewServlet`
      */
     private static synchronized AccessControl getaccessControl() {
         if (accessControl==null) {
@@ -136,19 +139,31 @@ public class PancancerMutationsJSON extends HttpServlet {
 	{
 		List<String> posWithEntrez = new ArrayList<String>();
 
+                DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+                
+                // assuming that protein position start string is in a format <GENE>_<POSITION>
+                Pattern p = Pattern.compile("(.+)_([0-9]+)");
 		for (String proteinPos: proteinPosStarts)
 		{
+                        Matcher m = p.matcher(proteinPos);
+                        if (m.find()) {
+                            String symbol = m.group(1);
+                            String position = m.group(2);
+                            CanonicalGene gene = daoGeneOptimized.getGene(symbol);
+                            if (gene!=null) {
+                                long entrezId = gene.getEntrezGeneId();
+                                
+                                // create the query string: (<ENTREZ ID>,<POSITION>)
+                                posWithEntrez.add("(" + entrezId + "," + position + ")");
+                            }
+                        }
+                        
 			String[] parts = proteinPos.split("_");
-
-			// assuming that protein position start string is in a format <GENE>_<POSITION>
-			if (parts.length > 1)
-			{
-				// get entrez gene id corresponding to the gene symbol
-				long entrezId = DaoGeneOptimized.getInstance().getGene(parts[0]).getEntrezGeneId();
-				// create the query string: (<ENTREZ ID>,<POSITION>)
-				posWithEntrez.add("(" + entrezId + "," + parts[1] + ")");
-			}
 		}
+                
+                if (posWithEntrez.isEmpty()) {
+                    return Collections.emptySet();
+                }
 
 		return DaoMutation.countSamplesWithProteinPosStarts(posWithEntrez, internalGeneticProfileIds());
 	}

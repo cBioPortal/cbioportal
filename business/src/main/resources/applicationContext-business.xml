@@ -17,7 +17,8 @@
             <property name="ignoreResourceNotFound" value="true" />
             <property name="locations">
               <list>
-                <value>file:///${PORTAL_HOME}/src/main/resources/portal.properties</value>
+                <value>file:///${PORTAL_HOME}/portal.properties</value>
+                <value>classpath:/portal.properties</value>
               </list>
             </property>
           </bean>

@@ -1,0 +1,120 @@
+/* custom styles for the pancancer study summary ui (studies comprising more than 1 cancer type) */
+
+.cc-cancer-type-tip {
+    font-size: 13px;
+    text-align: center;
+}
+
+.cc-ui-tooltip {
+	max-width: 400px;
+}
+
+.close-customize {
+    float: right;
+    padding: 5px;
+}
+
+.customize-controls {
+    padding: 5px;
+    background-color: #eeeeee;
+    border: 1px solid #d3d3d3;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+table.customize-options {
+	width: 100%;
+}
+   
+table.customize-options td{
+	vertical-align: top;
+}
+
+.slider-label{
+	min-width: 200px;
+	max-width: 220px;
+    margin-right: -40px;
+	padding-left: 5px;
+}
+
+.show-hide-cancer-types{
+    color: #2153AA;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.show-hide-cancer-types:hover {
+    text-decoration: underline;
+}
+
+.specific-cancertypes-area {
+    clear: both;
+    padding: 10px;
+}
+
+.cc-hide {
+    display: none;
+}
+
+.cc-triangle {
+    float: left;
+}
+
+.cc-remove-single-study {
+    width: 350px;
+    float: left;
+    overflow-x: hidden;
+}
+
+.cc-remove-single-study label {
+    width: 350px;
+}
+
+.diagram-general-slider-max-label{
+    float: right;
+    width: 50%;
+    text-align: right;
+}
+/*.diagram-total-nr-altered-samples-max-label,*/
+/*.diagram-min-nr-altered-samples-max-label {*/
+	/*float: right;*/
+	/*width: 50%;*/
+	/*text-align: right;*/
+/*}*/
+
+
+
+.cc-alt-type {
+    font-weight: bold;
+}
+
+.cc-loss .cc-alt-type {
+    color: skyblue;
+}
+
+.cc-gain .cc-alt-type {
+    color: lightpink;
+}
+
+
+.cc-del .cc-alt-type {
+    color: blue;
+}
+
+.cc-amp .cc-alt-type {
+    color: red;
+}
+
+.cc-mutation .cc-alt-type {
+    color: green;
+}
+
+.cc-mtpl .cc-alt-type {
+    color: gray;
+}
+
+
+.gene-details-tabs-ref{
+    font-size:11px!important;
+}
+

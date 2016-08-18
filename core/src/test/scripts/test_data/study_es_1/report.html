@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  Copyright (c) 2016 The Hyve B.V.
+  This code is licensed under the GNU Affero General Public License as
+  published by the Free Software Foundation, version 3,
+  or (at your option) any later version.
+-->
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style type="text/css">
+    /* Space out content a bit */
+    body {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    /* Everything but the jumbotron gets side spacing for mobile first views */
+    .header,
+    .marketing,
+    .footer {
+      padding-right: 15px;
+      padding-left: 15px;
+    }
+
+    /* Custom page header */
+    .header {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e5e5;
+      color:#337ab7;
+      text-align: center;
+
+    }
+    /* Make the masthead heading the same height as the navigation */
+    .header h3 {
+      margin-top: 0;
+      margin-bottom: 0;
+      line-height: 40px;
+    }
+
+    /* Custom page footer */
+    .footer {
+      padding-top: 19px;
+      color: #777;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    /* Customize container */
+    @media (min-width: 768px) {
+      .container {
+      max-width: 1000px;
+      font-size:110%;
+      }
+    }
+
+    .container-narrow > hr {
+      margin: 30px 0;
+    }
+
+    /* Main marketing message and sign up button */
+    .jumbotron {
+      text-align: center;
+      border: 5px solid #eeeeee;
+      background-color: white !important;
+    }
+    .jumbotron .btn {
+      padding: 14px 24px;
+      font-size: 21px;
+    }
+
+    /* Supporting marketing content */
+    .marketing {
+      margin: 40px 0;
+    }
+    .marketing p + h4 {
+      margin-top: 28px;
+    }
+
+    /* Responsive: Portrait tablets and up */
+    @media screen and (min-width: 768px) {
+      /* Remove the padding we set earlier */
+      .header,
+      .marketing,
+      .footer {
+      padding-right: 0;
+      padding-left: 0;
+      }
+      /* Space out the masthead */
+      .header {
+      margin-bottom: 30px;
+      }
+    }
+
+    h4 {
+      background-color: #eeeeee;
+      padding-left: 5px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .buffer {
+      padding-left:20px;
+    }
+
+    .acol .ui-collapsible-heading-collapsed > .ui-collapsible-heading-toggle {
+      background: rgba(244,67,54,0.7) !important;
+      text-shadow: none;
+    }
+
+    .bcol .ui-collapsible-heading-collapsed > .ui-collapsible-heading-toggle {
+      background:rgba(139,195,74,0.7) !important;
+      text-shadow: none;
+    }
+
+    .ccol .ui-collapsible-heading-collapsed > .ui-collapsible-heading-toggle {
+      background:rgba(255,235,59,0.7) !important;
+      text-shadow: none;
+    }
+    .dcol .ui-collapsible-heading-collapsed > .ui-collapsible-heading-toggle {
+      background:rgba(158,158,158,0.7) !important;
+      text-shadow: none;
+    }
+
+    .redCount {
+      color:  rgba(244,67,54,1);
+      background-color: white;
+      text-shadow: none;
+    }
+    .greenCount {
+      color: rgba(139,195,74,1);
+      background-color: white;
+      text-shadow: none;
+    }
+
+    .yellowCount {
+      color: rgba(255,235,59,1);
+      background-color: white;
+      text-shadow: none;
+    }
+    .greyCount {
+      color: rgba(158,158,158,1);
+      background-color: white;
+      text-shadow: none;
+    }
+
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      text-align: center;
+      text-shadow: none;
+    }
+
+    tr th {
+      padding: 5px;
+      text-align: center;
+    }
+
+    tr.red td {
+      padding: 5px;
+      background-color: rgba(244,67,54,0.7);
+      color: black;
+    }
+    tr.green td {
+      padding: 10px;
+      background-color: rgba(139,195,74,0.7);
+      color: black;
+    }
+    tr.yellow td {
+      padding: 5px;
+      background-color: rgba(255,235,59,0.7);
+      color: black;
+    }
+    tr.blue td {
+      padding: 5px;
+      background-color: rgba(51,122,183,0.7);
+      color: black;
+    }
+    tr.grey td {
+      padding: 5px;
+      background-color: rgba(158,158,158,0.7);
+      color: black;
+    }
+
+    .bgmd-cyan {
+      background-color: #00BCD4!important;
+    }
+  </style>
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
+  <title>cBioPortal validation report: study in '../../../test/scripts/test_data/study_es_1/'</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>cBioPortal validation report</h1>
+      <h4>study in '../../../test/scripts/test_data/study_es_1/'</h4>
+    </div>
+
+    <div class="jumbotron">
+      <!--  alert alert-danger, alert-success or alert-warning -->
+      <div class="alert alert-danger">
+        Validation status:
+        <strong>
+          Failed
+        </strong>
+      </div>
+
+      <div>
+        <div data-role="collapsible" class="bcol">
+          <h4>General<span class="ui-li-count greenCount">7</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Requesting genes from portal at &#39;http://localhost:8080/cbioportal&#39;</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Requesting cancertypes from portal at &#39;http://localhost:8080/cbioportal&#39;</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Requesting clinicalattributes/patients from portal at &#39;http://localhost:8080/cbioportal&#39;</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Requesting clinicalattributes/samples from portal at &#39;http://localhost:8080/cbioportal&#39;</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validating case lists</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validation of case lists complete</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validation complete</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+
+
+        <div data-role="collapsible" class="acol">
+          <h4>cases_all.txt<span class="ui-li-count redCount">1</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="red">
+              <td></td>
+              <td></td>
+              <td>Sample id not defined in clinical file</td>
+              <td>INVALID-A2-A0T2-01</td>
+            </tr>
+          </table>
+        </div>
+
+        <div data-role="collapsible" class="bcol">
+          <h4>data_clinical2.txt<span class="ui-li-count greenCount">2</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Starting validation of file</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validation of file complete</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+
+        <div data-role="collapsible" class="acol">
+          <h4>data_expression_median.txt<span class="ui-li-count redCount">3</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Starting validation of file</td>
+              <td></td>
+            </tr>
+            <tr class="red">
+              <td>1</td>
+              <td>3</td>
+              <td>Sample ID not defined in clinical file</td>
+              <td>TEST2-A1-A0SD-01</td>
+            </tr>
+            <tr class="red">
+              <td></td>
+              <td></td>
+              <td>Invalid column header, file cannot be parsed</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

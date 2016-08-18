@@ -34,11 +34,11 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
 import java.util.*;
-import org.biojava.bio.structure.*;
-import org.biojava.bio.structure.align.util.AtomCache;
-import org.biojava.bio.structure.io.FileParsingParameters;
-import org.biojava3.core.sequence.compound.*;
-import org.biojava3.core.sequence.loader.UniprotProxySequenceReader;
+import org.biojava.nbio.structure.*;
+import org.biojava.nbio.structure.align.util.AtomCache;
+import org.biojava.nbio.structure.io.FileParsingParameters;
+import org.biojava.nbio.core.sequence.compound.*;
+import org.biojava.nbio.core.sequence.loader.UniprotProxySequenceReader;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
@@ -54,10 +54,9 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
      * 
      *
      * @param mappingFile pdb-uniprot-residue-mapping.txt.
-     * @param pMonitor Progress Monitor.
      */
     public static void importSiftsData(File mappingFile, Set<String> humanChains,
-            String pdbCacheDir, double identp_threhold, ProgressMonitor pMonitor)
+            String pdbCacheDir, double identp_threhold)
             throws DaoException, IOException {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(mappingFile);
@@ -75,8 +74,8 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
         buf.readLine(); // skip head
         
         for (; line != null; line = buf.readLine()) {
-            pMonitor.incrementCurValue();
-            ConsoleUtil.showProgress(pMonitor);
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             String[] parts = line.split("\t");
             String pdbId = parts[0];
@@ -238,7 +237,6 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
     private static AtomCache getAtomCache(String dirCache) {
         AtomCache atomCache = new AtomCache(dirCache, true);
         FileParsingParameters params = new FileParsingParameters();
-        params.setLoadChemCompInfo(false);
         params.setAlignSeqRes(true);
         params.setParseSecStruc(false);
         params.setUpdateRemediatedFiles(false);
@@ -291,8 +289,7 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
         
         String pdbCacheDir = args.length>2 ? args[2] : System.getProperty("java.io.tmpdir");
     
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
 		SpringUtil.initDataSource();
         
@@ -305,14 +302,14 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
             System.out.println("Reading PDB-UniProt residue mapping from:  " + file.getAbsolutePath());
             int numLines = FileUtil.getNumLines(file);
             System.out.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
-            importSiftsData(file, humanChains, pdbCacheDir, identpThrehold, pMonitor);
+            ProgressMonitor.setMaxValue(numLines);
+            importSiftsData(file, humanChains, pdbCacheDir, identpThrehold);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DaoException e) {
             e.printStackTrace();
         } finally {
-            ConsoleUtil.showWarnings(pMonitor);
+            ConsoleUtil.showWarnings();
             System.err.println("Done.");
         }
     }

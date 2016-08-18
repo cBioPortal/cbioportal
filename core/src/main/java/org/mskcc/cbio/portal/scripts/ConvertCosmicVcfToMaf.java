@@ -47,13 +47,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ConvertCosmicVcfToMaf {
-    private ProgressMonitor pMonitor;
     private File vcf, maf;
 
-    public ConvertCosmicVcfToMaf(File vcf, File maf, ProgressMonitor pMonitor) {
+    public ConvertCosmicVcfToMaf(File vcf, File maf) {
         this.vcf = vcf;
         this.maf = maf;
-        this.pMonitor = pMonitor;
     }
 
     public void convert() throws IOException {
@@ -67,10 +65,8 @@ public class ConvertCosmicVcfToMaf {
         BufferedReader buf = new BufferedReader(reader);
         String line;
         while ((line = buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t",-1);
                 if (parts.length<8) {
@@ -110,19 +106,19 @@ public class ConvertCosmicVcfToMaf {
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf> <CosmicCodingMuts.maf>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete 
             return;
         }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File vcf = new File(args[0]);
         System.out.println("Reading data from:  " + vcf.getAbsolutePath());
         int numLines = FileUtil.getNumLines(vcf);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ConvertCosmicVcfToMaf parser = new ConvertCosmicVcfToMaf(vcf, new File(args[1]), pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ConvertCosmicVcfToMaf parser = new ConvertCosmicVcfToMaf(vcf, new File(args[1]));
         parser.convert();
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

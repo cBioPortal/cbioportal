@@ -1,0 +1,149 @@
+      <!-- template for the tabs with space for the main content. listContent is transformed into the tabs -->
+      <script type="text/template" id="cancertypesummary_main_template">
+         <div class='gene-tabs-container'>
+            <ul>
+               {{listContent}}
+            </ul>
+            {{mainContent}}
+         </div>
+      </script>
+
+      <!-- template for the tabs -->
+      <script type="text/template" id="gene_tab_ear_template">
+         <li>
+            <a href="#gene_details_{{geneId}}" class="gene-details-tabs-ref" title="{{geneSymbol}} genes">
+               <span>{{geneSymbol}}</span>
+            </a>
+         </li>
+      </script>
+
+      <!-- template for the main content with space for the details -->
+      <script type="text/template" id="gene_details_main_content_template">
+         <div id='gene_details_{{geneId}}'>
+            <div id='button-container-{{geneId}}'></div>
+            <div id='customize-histogram-{{geneId}}' class="ui-widget cc-hide customize-controls"></div>
+            <div id='histogram-{{geneId}}'></div>
+         </div>
+      </script>
+
+      <!-- template for the buttons -->
+      <script type="text/template" id="buttons_template">
+         <button class='diagram-to-pdf'>PDF</button>
+         <button class='diagram-to-svg'>SVG</button>
+         <button class="histogram-customize">Customize histogram</button>
+      </script>
+
+      <!-- template for customize histogram -->
+      <!-- adapted the show-hide-cancertypes part from cross_cancer_results.jsp -->
+      <!-- still todo is the select-all / select-none etc. -->
+      <script type="text/template" id="customize_histogram_template">
+         <div class="close-customize">
+           <a href="#">&times;</a>
+         </div>
+		 <h3>Customize histogram</h3>
+         <table class='customize-options'>
+            <tr>
+               <td><div id='customize-cancertype-dropdown-{{geneId}}'></div></td>
+               <td><div id='customize-data-type-y-axis-{{geneId}}'></div></td>
+               <td><div id='customize-min-nr-altered-samples-slider-{{geneId}}'></div></td>
+               
+            </tr>
+            <tr>
+               <td><div id='customize-show-genomic-alteration-types-{{geneId}}'></div></td>
+               <td><div id='customize-sort-by-x-axis-{{geneId}}'></div></td>
+               <td><div id='customize-total-nr-altered-samples-slider-{{geneId}}'></div></td>
+               
+            </tr>
+            <tr>
+               <td colspan="3">
+                  <div id="show-hide-cancertypes-{{geneId}}" class="test">
+                     <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
+                     <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
+                     <b id="show-hide-cancertypes-toggle-{{geneId}}" class="show-hide-cancer-types">Show/Hide Specific Cancer Types</b>
+                     <br/>
+                  </div>
+                  <div id="specific-cancertypes-area-{{geneId}}" class="specific-cancertypes-area cc-hide">
+                     
+                  </div>
+               </td>
+            </tr>
+       	</table>
+      </script>
+      
+      <script type="text/template" id="specific_cancertypes_area_template">
+		(Select <a href="#" id="cc-select-all-{{geneId}}">all</a> / <a href="#" id="cc-select-none-{{geneId}}">none</a>)
+        <br> <br>
+	  </script>
+
+      <!-- template for general slider, adapted from the mutationmapper-->
+      <script type="text/template" id="general_slider_template">
+          <div class="diagram-general-slider-area">
+              <table class='customize-options'>
+                  <tr>
+                      <td width="30%" valign="top">
+                          <div class="slider-label">
+                              <span class="diagram-general-slider-text">{{text}}</span>
+                              
+                          </div>
+                      </td>
+                      <td width="30%" valign="top">
+                          <div style="width:90%">
+                              <div class="diagram-general-slider"></div>
+                              <span class="diagram-general-slider-min-label">{{min}}{{suffix}}</span>
+                              <span class="diagram-general-slider-max-label">{{max}}{{suffix}}</span>
+                          </div>
+                      </td>
+                      <td><input size="4" class="diagram-general-slider-value" value={{init}}></input></td>
+                  </tr>
+              </table>
+          </div>
+      </script>
+
+	<script type="text/template" id="cancer-type-tip-tmpl">
+   	 <div>
+        <div class="cc-cancer-type-tip">
+            <b class="cc-tip-header">Summary for {{name}}</b><br/><br/>
+            <p>
+                Gene altered in <b>{{allFrequency}}%</b> of {{caseSetLength}} cases.
+
+            </p>
+            <table class="cc-tip-table">
+                <thead>
+                <tr>
+                    <th class="cc-cancer-type-tip">Alteration</th>
+                    <th class="cc-cancer-type-tip">Frequency</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class='{{ mutationCount > 0 ? "cc-mutation" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Mutation</td>
+                    <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
+                </tr>
+                <tr class='{{ lossCount > 0 ? "cc-loss" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Heterozygous loss</td>
+                    <td>{{lossFrequency}}% ({{lossCount}} cases)</td>
+                </tr>
+                <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Deletion</td>
+                    <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
+                </tr>
+                <tr class='{{ gainCount > 0 ? "cc-gain" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Gain</td>
+                    <td>{{gainFrequency}}% ({{gainCount}} cases)</td>
+                </tr>
+                <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Amplification</td>
+                    <td>{{amplificationFrequency}}% ({{amplificationCount}} cases)</td>
+                </tr>
+                <tr class='{{ multipleCount > 0 ? "cc-mtpl" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Multiple alterations</td>
+                    <td>{{multipleFrequency}}% ({{multipleCount}} cases)</td>
+                </tr>
+                </tbody>
+            </table>
+
+          </div>
+      </div>
+	</script>
+
+

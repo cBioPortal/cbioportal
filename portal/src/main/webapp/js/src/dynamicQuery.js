@@ -51,7 +51,7 @@ var PROFILE_MUTATION_EXTENDED = "PROFILE_MUTATION_EXTENDED";
 var PROFILE_COPY_NUMBER_ALTERATION = "PROFILE_COPY_NUMBER_ALTERATION"
 var PROFILE_MRNA_EXPRESSION = "PROFILE_MRNA_EXPRESSION";
 var PROFILE_PROTEIN = "PROFILE_PROTEIN";
-var PROFILE_RPPA = "PROFILE_RPPA";
+var PROFILE_PROTEIN_EXPRESSION = "PROFILE_PROTEIN_EXPRESSION";
 var PROFILE_METHYLATION = "PROFILE_METHYLATION"
 
 var caseSetSelectionOverriddenByUser = false;
@@ -106,6 +106,10 @@ $(document).ready(function(){
     $("#download_tab").click(function(event) {
        event.preventDefault();
        userClickedMainTab("tab_download");
+    });
+    
+    $("#gene_list").on('input', function(event) {
+	$('.oql_error').remove();
     });
     
     // Set up custom case set related GUI & event handlers (step 3)
@@ -216,6 +220,7 @@ function userClickedMainTab(tabAction) {
     window.changingTabs = true;
     //  Change hidden field value
     $("#tab_index").val(tabAction);
+    $("#main_form").get(0).elements["Action"].setAttribute("value","");
 
     //  Then, submit the form
     $("#main_form").submit();
@@ -283,7 +288,7 @@ function reviewCurrentSelections(){
     toggleThresholdPanel($("." + PROFILE_MRNA_EXPRESSION+"[type=checkbox]"), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
 
     // similarly with RPPA
-    toggleThresholdPanel($("." + PROFILE_RPPA+"[type=checkbox]"), PROFILE_RPPA, "#rppa_score_threshold");
+    toggleThresholdPanel($("." + PROFILE_PROTEIN_EXPRESSION+"[type=checkbox]"), PROFILE_PROTEIN_EXPRESSION, "#rppa_score_threshold");
 
     // determine whether optional arguments section should be shown or hidden
  //   if ($("#optional_args > input").length >= 1){
@@ -301,36 +306,120 @@ function reviewCurrentSelections(){
    }
 }
 
+
+var submitHandler = (function() {
+	var sample_mapping_completed = false;
+	return function() {
+		if (sample_mapping_completed) {
+			$('#main_form').submit();
+			sample_mapping_completed = false;
+		} else {
+			getMapping().then(function() {
+				sample_mapping_completed = true;
+				submitHandler();
+			});
+		}
+	};
+})();
+// Get mapping if necessary
+function getMapping() {
+    function setPatientSampleIdMap(_sampleMap) {
+        var samples_string = "";
+        for (var i=0,_len=_sampleMap.length; i<_len; i++) 
+        {
+            var d = _sampleMap[i];
+            samples_string += d.id + "\n";
+        };
+        return samples_string;
+    }
+    
+    function getMap() {
+	var def = new $.Deferred();
+        // Get input selection
+        var caseIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
+        // Get study selection
+        var studyId = $("#select_single_study").val();
+        if (caseIds[0] !== "")
+        {
+            window.cbioportal_client.getSamplesByPatient({study_id: [studyId],patient_ids: caseIds}).then(function(sampleMap){
+                $("#custom_case_set_ids").val(setPatientSampleIdMap(sampleMap));
+		def.resolve();
+            });                
+        }
+        else {
+            def.resolve();
+        }
+        
+        return def;
+    }
+    if ($("#main_form").find("input[name=patient_case_select]:checked").val() === "patient") {
+	    return getMap();
+    } else {	
+	var def = new $.Deferred();
+	def.resolve();
+	return def.promise();
+    }
+}
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
 function chooseAction(evt) {
-    var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
-    $("#error_box").remove();
-
+    $(".error_box").remove();
+       var haveExpInQuery = false;
+       if (!window.changingTabs) {
+		// validate OQL
+		try {
+			var parsed_result = oql_parser.parse($('#gene_list').val());
+			for (var i = 0; i < parsed_result.length; i++) {
+			    for (var j = 0; j < parsed_result[i].alterations.length; j++) {
+				if (parsed_result[i].alterations[j].constr_val === "EXP") {
+				    haveExpInQuery = true;
+				    break;
+				}
+			    }
+			    if (haveExpInQuery) {
+				break;
+			    }
+			}
+		} catch (err) {
+			var offset = err.offset;
+			if (offset === $('#gene_list').val().length) {
+			    createAnError("OQL syntax error after selected character; please fix and submit again.", $('#gene_list'), "oql_error");
+			    $('#gene_list')[0].setSelectionRange(err.offset-1, err.offset);
+			} else if (offset === 0) {
+			    createAnError("OQL syntax error before selected character; please fix and submit again.", $('#gene_list'), "oql_error");
+			    $('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
+			} else {
+			    createAnError("OQL syntax error at selected character; please fix and submit again.", $('#gene_list'), "oql_error");
+			    $('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
+			}
+			return false;
+		}
+       }
     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-    while (selected_studies.length === 0 && !window.changingTabs) {
-	    // select all by default
-	    $("#jstree").jstree(true).select_node(window.jstree_root_id);
-	    selected_studies = $("#jstree").jstree(true).get_selected_leaves()
+    if (selected_studies.length === 0 && !window.changingTabs) {
+            // select all by default
+            $("#jstree").jstree(true).select_node(window.jstree_root_id);
+            selected_studies = $("#jstree").jstree(true).get_selected_leaves()
     }    
     if (selected_studies.length > 1) {
-	$("#main_form").find("#select_multiple_studies").val("");
+	if ( haveExpInQuery ) {
+            createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
+            return false;
+        }
+        $("#main_form").find("#select_multiple_studies").val("");
         if ($("#tab_index").val() == 'tab_download') {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
         else {
-		var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
-		var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
-		evt.preventDefault();
-		window.location = 'cross_cancer.do?' + newSearch;
+                var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
+                var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
+                evt.preventDefault();
+                window.location = 'cross_cancer.do?' + newSearch;
             //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
         }
-        if ( haveExpInQuery ) {
-            createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
-            evt.preventDefault();
-        }
+        
     } else if (selected_studies.length === 1) {
-	$("#main_form").find("#select_single_study").val(selected_studies[0]);
+        $("#main_form").find("#select_single_study").val(selected_studies[0]);
         $("#main_form").get(0).setAttribute('action','index.do');
 
         if ( haveExpInQuery ) {
@@ -347,10 +436,14 @@ function chooseAction(evt) {
             }
         }
     }
+
 }
 
-function createAnError(errorText, targetElt) {
-	var errorBox = $("<div id='error_box'>").addClass("ui-state-error ui-corner-all exp_error_box");
+function createAnError(errorText, targetElt, optClassStr) {
+	var errorBox = $("<div class='error_box'>").addClass("ui-state-error ui-corner-all exp_error_box");
+	if (optClassStr) {
+	    errorBox.addClass(optClassStr);
+	}
 	var errorButton = $("<span>").addClass("ui-icon ui-icon-alert exp_error_button");
 	var strongErrorText = $("<small>").html("Error: " + errorText + "<br>");
 	var errorTextBox = $("<span>").addClass("exp_error_text");
@@ -361,6 +454,8 @@ function createAnError(errorText, targetElt) {
 	
 	errorBox.insertBefore(targetElt);
 	errorBox.slideDown();
+	
+	return errorBox;
 }
 
 //  Triggered when a genomic profile radio button is selected
@@ -396,7 +491,7 @@ function updateDefaultCaseList() {
     var mutSelect = $("input.PROFILE_MUTATION_EXTENDED[type=checkbox]").prop('checked');
     var cnaSelect = $("input.PROFILE_COPY_NUMBER_ALTERATION[type=checkbox]").prop('checked');
     var expSelect = $("input.PROFILE_MRNA_EXPRESSION[type=checkbox]").prop('checked');
-    var rppaSelect = $("input.PROFILE_RPPA[type=checkbox]").prop('checked');
+    var rppaSelect = $("input.PROFILE_PROTEIN_EXPRESSION[type=checkbox]").prop('checked');
     var selectedCancerStudy = $('#select_single_study').val();
     var defaultCaseList = selectedCancerStudy+"_all";
     if (mutSelect && cnaSelect && !expSelect && !rppaSelect) {
@@ -494,21 +589,14 @@ function updateCaseListSmart() {
     $("#select_case_set").trigger("liszt:updated");
     $("#select_case_set_chzn .chzn-drop ul.chzn-results li")
         .each(function(i, e) {
-            $(e).qtip({
-                content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
-                style: {
-                    classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
-                },
-                position: {
-                    my: 'left middle',
-                    at: 'middle right',
-                    viewport: $(window)
-                },
-	            show: "mouseover",
-	            hide: "mouseout"
-            });
-        }
-    );
+        	//make qtip for an element on first mouseenter:
+        	cbio.util.addTargetedQTip($(e), {
+        		content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
+        		style: {
+        			classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
+                }
+        	}); 
+      });
 }
 
 // Called when and only when a cancer study is selected from the dropdown menu
@@ -549,7 +637,7 @@ function updateCancerStudyInformation() {
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION", PROFILE_METHYLATION, "DNA Methylation");
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION_BINARY", PROFILE_METHYLATION, "DNA Methylation");
     //addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN, "Protein Level");
-    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_ARRAY_PROTEIN_LEVEL", PROFILE_RPPA, "Protein/phosphoprotein level (by RPPA)");
+    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN_EXPRESSION, "Protein/phosphoprotein level");
 
 
     //  if no genomic profiles available, set message and disable submit button
@@ -574,8 +662,7 @@ function updateCancerStudyInformation() {
     //  Add the user-defined case list option
     $("#select_case_set").append("<option class='case_set_option' value='-1' "
         + "title='Specify you own case list'>User-defined Case List</option>");
-    updateCaseListSmart();
-
+    
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
     //  commented out for now, as this did not work in Chrome or Safari
     //  $(".case_set_option").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
@@ -599,8 +686,8 @@ function updateCancerStudyInformation() {
     });
 
     //  Set up an Event Handler for showing/hiding RPPA threshold input
-    $("." + PROFILE_RPPA).click(function(){
-       toggleThresholdPanel($(this), PROFILE_RPPA, "#rppa_score_threshold");
+    $("." + PROFILE_PROTEIN_EXPRESSION).click(function(){
+       toggleThresholdPanel($(this), PROFILE_PROTEIN_EXPRESSION, "#rppa_score_threshold");
     });
 
     // Set default selections and make sure all steps are visible
@@ -611,7 +698,7 @@ function updateCancerStudyInformation() {
     // check if cancer study has a clinical_free_form data to filter,
     // if there is data to filter, then enable "build custom case set" link,
     // otherwise disable the button
-    jQuery.getJSON("ClinicalFreeForm.json",
+    /*jQuery.getJSON("ClinicalFreeForm.json",
 		{studyId: $("#select_single_study").val()},
 		function(json){
 			var noDataToFilter = false;
@@ -641,9 +728,9 @@ function updateCancerStudyInformation() {
 			if (noDataToFilter)
 			{
 				// no clinical_free_form data to filter for the current
-				// cancer study, so disable the button
+	*/			// cancer study, so disable the button
 				$("#build_custom_case_set").hide();
-			}
+	/*		}
 			else
 			{
 				$("#build_custom_case_set").tipTip({defaultPosition: "right",
@@ -653,7 +740,7 @@ function updateCancerStudyInformation() {
 				
 				$("#build_custom_case_set").hide();//.show(); temporarily disabled build case list
 			}
-		});
+		});*/
 }
 //  Triggered when a cancer study has been selected, either by the user
 //  or programatically.
@@ -711,7 +798,6 @@ function geneSetSelected() {
 function addMetaDataToPage() {
     console.log("Adding Meta Data to Query Form");
     json = window.metaDataJson;
-
 
     // Construct oncotree
     var oncotree = {'tissue':{code:'tissue', studies:[], children:[], parent: false, desc_studies_count:0, tissue:''}};
@@ -833,10 +919,24 @@ function addMetaDataToPage() {
     if (dmp_studies.length > 0) {
 	jstree_data.push({'id':'mskimpact-study-group', 'parent':jstree_root_id, 'text':'MSKCC DMP', 'li_attr':{name:'MSKCC DMP'}});
 	var studyName;
+	var numSamplesInStudy;
+	var samplePlurality;
 	$.each(dmp_studies, function(ind, id) {
 		studyName = truncateStudyName(json.cancer_studies[id].name);
-		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName, 
+		numSamplesInStudy = json.cancer_studies[id].num_samples;
+		if (numSamplesInStudy == 1) {
+                	samplePlurality = 'sample';
+                }
+               	else if (numSamplesInStudy > 1) {
+               		samplePlurality = 'samples';
+               	}
+                else {
+                	samplePlurality = '';
+               		numSamplesInStudy = '';
+                }
+		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'), 
 			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description}});
+		
 		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':truncateStudyName(json.cancer_studies[id].name), 
 			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
 	});
@@ -850,13 +950,26 @@ function addMetaDataToPage() {
 			'text':name,
 			'li_attr':{name:name}
 		});
-		
+		var numSamplesInStudy;
+		var samplePlurality;
 		$.each(currNode.studies, function(ind, elt) {
 			    name = truncateStudyName(splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name));
+		            numSamplesInStudy = json.cancer_studies[elt.id].num_samples;
+			    if (numSamplesInStudy == 1) {
+			        samplePlurality = 'sample';
+			    }
+			    else if (numSamplesInStudy > 1) {
+				samplePlurality = 'samples';
+			    }
+			    else {
+				samplePlurality = '';
+				numSamplesInStudy = '';
+			    }
 			    jstree_data.push({'id':elt.id, 
 				    'parent':currNode.code, 
-				    'text':name,
+				    'text':name.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
 				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
+			    
 			    flat_jstree_data.push({'id':elt.id, 
 				    'parent':jstree_root_id,
 				    'text':name,
@@ -1135,7 +1248,7 @@ initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstre
 		return window.localStorage.getItem(selectedStudiesStorageKey);
 	}
 	var onJSTreeChange = function () {
-		$("#error_box").remove();
+		$(".error_box").remove();
 		var select_single_study = $("#main_form").find("#select_single_study");
 		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
@@ -1217,6 +1330,9 @@ initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstre
 		var minSearchableItems = 10;
 		$("#select_gene_set").chosen({ width: '620px', search_contains: true});
 		$("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
+		// add a title to the text input fields generated by Chosen for
+		// Section 508 accessibility compliance
+		$("div.chzn-search > input:first-child").attr("title", "Search");
 		$.each(selected_study_map, function(key, val) {
 			if (val) {
 				$("#jstree").jstree(true).select_node(key, true);
@@ -1300,9 +1416,11 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
         $('#main_submit').attr('disabled', false);
         //  If we have more than 1 profile, output group checkbox
         //  assign a class to associate the checkbox with any subgroups (radio buttons)
-        profileHtml += "<input type='checkbox' class='" + targetClass + "'>"
-         + targetTitle + " data."
-            + " Select one of the profiles below:";
+        profileHtml += "<div class='checkbox'><label>"
+            + "<input type='checkbox' class='" + targetClass + "'>"
+            + targetTitle + " data."
+            + " Select one of the profiles below:"
+            + "</label></div>";
         profileHtml += "<div class='genomic_profiles_subgroup'>";
     }
 
@@ -1335,18 +1453,20 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
 
     if(targetClass == PROFILE_MRNA_EXPRESSION && downloadTab == false){
         var inputName = 'Z_SCORE_THRESHOLD';
-        profileHtml += "<div id='z_score_threshold' class='score_threshold'>Enter a z-score threshold &#177: "
+        profileHtml += "<div id='z_score_threshold' class='score_threshold'>"
+        + "<label>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.zscore_threshold + "'>"
-        + "</div>";
+        + "</label></div>";
     }
 
-    if(targetClass == PROFILE_RPPA && downloadTab == false){
+    if(targetClass == PROFILE_PROTEIN_EXPRESSION && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
-        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA z-score threshold &#177: "
+        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>"
+        + "<label>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.rppa_score_threshold + "'>"
-        + "</div>";
+        + "</label></div>";
     }
     
     $("#genomic_profiles").append(profileHtml);
@@ -1368,13 +1488,16 @@ function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, n
         paramName = "genetic_profile_ids_" + targetClass;
     }
 
-    var html =  "<input type='" + optionType + "' "
-        + "id='" + id + "'"
+    var html =  "<div class='" + optionType + "'>"
+        + "<label>"
+        + "<input type='" + optionType + "'"
+        + " id='" + id + "'"
         + " name='" + paramName + "'"
         + " class='" + targetClass + "'"
-        + " value='" + id +"'>" + '&nbsp;&nbsp;' + name + "</input>"
-        + "  <img class='profile_help' src='images/help.png' title='"
-        + description + "'><br/>";
+        + " value='" + id + "' />"
+        + name
+        + "  <img class='profile_help' alt='help' src='images/help.png' title='"
+        + description + "'></label></div>";
     return html;
 }
 

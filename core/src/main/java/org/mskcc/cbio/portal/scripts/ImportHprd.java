@@ -44,18 +44,15 @@ import java.io.*;
  * @author Ethan Cerami.
  */
 public class ImportHprd {
-    private ProgressMonitor pMonitor;
     private File hprdFile;
 
     /**
      * Constructor.
      *
      * @param hprdFile SIF File.
-     * @param pMonitor Progress Monitor.
      */
-    public ImportHprd(File hprdFile, ProgressMonitor pMonitor) {
+    public ImportHprd(File hprdFile) {
         this.hprdFile = hprdFile;
-        this.pMonitor = pMonitor;
     }
 
     /**
@@ -74,10 +71,8 @@ public class ImportHprd {
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
 
@@ -88,15 +83,15 @@ public class ImportHprd {
                 String expTypes = parts[6];
                 String pmids = parts[7];
 
-                CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId);
-                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId);
+                CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId, null);
+                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId, null);
 
                 //  Log genes that we cannot identify.
                 if (geneA == null) {
-                    pMonitor.logWarning("Cannot identify gene:  " + geneAId);
+                    ProgressMonitor.logWarning("Cannot identify gene:  " + geneAId);
                 }
                 if (geneB == null) {
-                    pMonitor.logWarning("Cannot identify gene:  " + geneBId);
+                    ProgressMonitor.logWarning("Cannot identify gene:  " + geneBId);
                 }
 
                 if (geneA != null && geneB != null) {
@@ -114,8 +109,8 @@ public class ImportHprd {
         if (MySQLbulkLoader.isBulkLoad()) {
            MySQLbulkLoader.flushAll();
         }
-        pMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
-        pMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
+        ProgressMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
+        ProgressMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
                 "invalid gene IDs:  " + numInteractionsNotSaved);
     }
 
@@ -126,10 +121,10 @@ public class ImportHprd {
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("command line usage:  importHprd.pl <hprd.txt>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		SpringUtil.initDataSource();
 
         try {
@@ -137,15 +132,15 @@ public class ImportHprd {
             System.out.println("Reading interactions from:  " + geneFile.getAbsolutePath());
             int numLines = FileUtil.getNumLines(geneFile);
             System.out.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
-            ImportHprd parser = new ImportHprd(geneFile, pMonitor);
+            ProgressMonitor.setMaxValue(numLines);
+            ImportHprd parser = new ImportHprd(geneFile);
             parser.importData();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DaoException e) {
             e.printStackTrace();
         } finally {
-            ConsoleUtil.showWarnings(pMonitor);
+            ConsoleUtil.showWarnings();
             System.err.println("Done.");
         }
     }

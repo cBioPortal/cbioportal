@@ -131,7 +131,7 @@ var StudyViewInitScatterPlot = (function() {
             $('#study-view-scatter-plot-download-icon').qtip('destroy', true);
             $('#study-view-scatter-plot-download-icon').qtip({
                 id: "#study-view-scatter-plot-download-icon-qtip",
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow'  },
                 show: {event: "click"},
                 hide: {fixed:true, delay: 100, event: "mouseout"},
                 position: {my:'top center',at:'bottom center', viewport: $(window)},
@@ -226,6 +226,11 @@ var StudyViewInitScatterPlot = (function() {
         }else{
             $('#study-view-scatter-plot').css('display','none');
         }
+    }
+
+    // call the scatterPlot's clear function
+    function clearScatterPlot(){
+        scatterPlot.clearScatterPlot();
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr, _title, downloadOptions){
@@ -519,6 +524,7 @@ var StudyViewInitScatterPlot = (function() {
             initComponent();
             initStatus = true;
         },
+        clearScatterPlot:clearScatterPlot,
 
         getScatterPlot: function() {
             if(scatterPlot === undefined){

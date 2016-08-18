@@ -61,18 +61,18 @@ var CoExpView = (function() {
     var Tabs = (function() {
 
         function appendTabsContent() {
-            $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+            $.each(window.QuerySession.getQueryGenes(), function(index, value) {
                 $("#coexp-tabs-list").append("<li><a href='#" + Prefix.divPrefix + cbio.util.safeProperty(value) + 
                   "' class='coexp-tabs-ref'><span>" + value + "</span></a></li>");
             });
         }
 
         function appendLoadingImgs() {
-            $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+            $.each(window.QuerySession.getQueryGenes(), function(index, value) {
                 $("#coexp-tabs-content").append("<div id='" + Prefix.divPrefix + cbio.util.safeProperty(value) + "'>" +
                     "<div id='" + Prefix.loadingImgPrefix + cbio.util.safeProperty(value) + "'>" +
-                    "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
-                    "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
+                    "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></td>" +
+                    "<td>Calculating and rendering... (this may take up to 1 minute)</td></tr></table>" +
                     "</div></div>");
             });
         }
@@ -139,7 +139,7 @@ var CoExpView = (function() {
 
         function bindListener() {
             $("#coexp-profile-selector").change(function() {
-                var geneIds = window.PortalGlobals.getGeneList();
+                var geneIds = window.QuerySession.getQueryGenes();
                 $.each(geneIds, function(index, value) {
                     //Distroy all the subview instances
                     var element =  document.getElementById(Prefix.tableDivPrefix + cbio.util.safeProperty(value));
@@ -156,8 +156,8 @@ var CoExpView = (function() {
                     $("#" + Prefix.loadingImgPrefix + cbio.util.safeProperty(value)).empty();
                     //Add back loading imgs
                     $("#" + Prefix.loadingImgPrefix + cbio.util.safeProperty(value)).append(
-                        "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
-                        "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
+                        "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></td>" +
+                        "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" +
                         "</div>");
                 });
                 //Re-draw the currently selected sub-tab view
@@ -200,6 +200,7 @@ var CoExpView = (function() {
                     "<thead style='font-size:70%;' >" +
                     "<tr>" + 
                     "<th>Correlated Gene</th>" +
+                    "<th>Cytoband</th>" + 
                     "<th>Pearson's Correlation</th>" +
                     "<th>Spearman's Correlation</th>" +
                     "</tr>" +
@@ -223,17 +224,22 @@ var CoExpView = (function() {
                             "sWidth": "56%"
                         },
                         {
-                            "sType": 'coexp-absolute-value',
-                            //TODO: should be disabled; this is just a quick fix, otherwise the fnfilter would work on this column
-                            //"bSearchable": false, 
-                            "bSearchable": true, 
+                            "bSearchable": true,
                             "aTargets": [ 1 ],
                             "sWidth": "22%"
                         },
                         {
                             "sType": 'coexp-absolute-value',
-                            "bSearchable": false,
+                            //TODO: should be disabled; this is just a quick fix, otherwise the fnfilter would work on this column
+                            //"bSearchable": false, 
+                            "bSearchable": true, 
                             "aTargets": [ 2 ],
+                            "sWidth": "22%"
+                        },
+                        {
+                            "sType": 'coexp-absolute-value',
+                            "bSearchable": false,
+                            "aTargets": [ 3 ],
                             "sWidth": "22%"
                         }
                     ],
@@ -247,16 +253,16 @@ var CoExpView = (function() {
                     "iDisplayLength": 30,
                     "fnRowCallback": function(nRow, aData) {
                         $('td:eq(0)', nRow).css("font-weight", "bold");
-                        $('td:eq(1)', nRow).css("font-weight", "bold");
-                        if (aData[1] > 0) {
-                            $('td:eq(1)', nRow).css("color", "#3B7C3B");
-                        } else {
-                            $('td:eq(1)', nRow).css("color", "#B40404");
-                        }
+                        $('td:eq(2)', nRow).css("font-weight", "bold");
                         if (aData[2] > 0) {
                             $('td:eq(2)', nRow).css("color", "#3B7C3B");
                         } else {
                             $('td:eq(2)', nRow).css("color", "#B40404");
+                        }
+                        if (aData[3] > 0) {
+                            $('td:eq(3)', nRow).css("color", "#3B7C3B");
+                        } else {
+                            $('td:eq(3)', nRow).css("color", "#B40404");
                         }
                     },
                     "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
@@ -272,11 +278,11 @@ var CoExpView = (function() {
             function attachDownloadFullResultButton() {
                 //Append download full result button at the bottom of the table
                 var downloadFullResultForm = "<form style='float:right;' action='getCoExp.do' method='post'>" +
-                    "<input type='hidden' name='cancer_study_id' value='" + window.PortalGlobals.getCancerStudyId() + "'>" +
+                    "<input type='hidden' name='cancer_study_id' value='" + window.QuerySession.getCancerStudyIds()[0] + "'>" +
                     "<input type='hidden' name='gene' value='" + geneId + "'>" +
                     "<input type='hidden' name='profile_id' value='" + $("#coexp-profile-selector :selected").val() + "'>" + 
-                    "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
-                    "<input type='hidden' name='case_ids_key' value='" + window.PortalGlobals.getCaseIdsKey() + "'>" +
+                    "<input type='hidden' name='case_set_id' value='" + window.QuerySession.getCaseSetId() + "'>" +
+                    "<input type='hidden' name='case_ids_key' value='" + window.QuerySession.getCaseIdsKey() + "'>" +
                     "<input type='hidden' name='is_full_result' value='true'>" +
                     "<input type='submit' value='Download Full Results'></form>";
                 $("#" + Names.tableDivId).append(downloadFullResultForm);            
@@ -292,11 +298,11 @@ var CoExpView = (function() {
                     "</select>");
                 $("select#coexp-table-select-" + cbio.util.safeProperty(geneId)).change(function () {
                     if ($(this).val() === "negativePearson") {
-                        coExpTableInstance.fnFilter("-", 1, false);
+                        coExpTableInstance.fnFilter("-", 2, false);
                     } else if ($(this).val() === "positivePearson") {
-                        coExpTableInstance.fnFilter('^[0-9]*\.[0-9]*$', 1, true);
+                        coExpTableInstance.fnFilter('^[0-9]*\.[0-9]*$', 2, true);
                     } else if ($(this).val() === "all") {
-                        coExpTableInstance.fnFilter("", 1);
+                        coExpTableInstance.fnFilter("", 2);
                     }
                 });
             }
@@ -312,9 +318,9 @@ var CoExpView = (function() {
                     var aData = coExpTableInstance.fnGetData(this);
                     if (null !== aData) {
                         $("#" + Names.plotId).empty();
-                        $("#" + Names.plotId).append("<img style='padding:220px;' src='images/ajax-loader.gif'>");
+                        $("#" + Names.plotId).append("<img style='padding:220px;' src='images/ajax-loader.gif' alt='loading' />");
                         var coexpPlots = new CoexpPlots();
-                        coexpPlots.init(Names.plotId, geneId, aData[0], aData[1], aData[2], $("#coexp-profile-selector :selected").val());
+                        coexpPlots.init(Names.plotId, geneId, aData[0], aData[2], aData[3], $("#coexp-profile-selector :selected").val());
                     }
                 });
             }
@@ -345,6 +351,7 @@ var CoExpView = (function() {
                 $.each(_result, function(i, obj) {
                     var tmp_arr = [];
                     tmp_arr.push(obj.gene);
+                    tmp_arr.push(obj.cytoband);
                     tmp_arr.push(obj.pearson.toFixed(2));
                     tmp_arr.push(obj.spearman.toFixed(2));
                     coexpTableArr.push(tmp_arr);
@@ -374,11 +381,11 @@ var CoExpView = (function() {
                     //Getting co-exp data (for currently selected gene/profile) from servlet
                     $("#" + Names.plotId).empty();
                     var paramsGetCoExpData = {
-                         cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                         cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                          gene: _geneId,
                          profile_id: $("#coexp-profile-selector :selected").val(),
-                         case_set_id: window.PortalGlobals.getCaseSetId(),
-                         case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+                         case_set_id: window.QuerySession.getCaseSetId(),
+                         case_ids_key: window.QuerySession.getCaseIdsKey(),
                          is_full_result: "false"
                     };
                     $.post(
@@ -441,9 +448,13 @@ var CoExpView = (function() {
     };   //Closing coExpSubTabView
 
     function getGeneticProfileCallback(result) {
-        var _genes = window.PortalGlobals.getGeneList();
+        var _genes = window.QuerySession.getQueryGenes();
         //Init Profile selector
-        ProfileSelector.init(result[_genes[0]]); 
+        var _profile_list = {};
+        _.each(_genes, function(_gene) {
+            _profile_list = _.extend(_profile_list, result[_gene]);
+        });
+        ProfileSelector.init(_profile_list);
         if (profileList.length === 1) {
             $("#coexp-profile-selector-dropdown").hide();
         }
@@ -460,10 +471,10 @@ var CoExpView = (function() {
             Tabs.bindListenerToTabs();
             //Get all the genetic profiles with data available 
             var paramsGetProfiles = {
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                case_set_id: window.PortalGlobals.getCaseSetId(),
-                case_ids_key: window.PortalGlobals.getCaseIdsKey(),
-                gene_list: window.PortalGlobals.getGeneListString()
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+                case_set_id: window.QuerySession.getCaseSetId(),
+                case_ids_key: window.QuerySession.getCaseIdsKey(),
+                gene_list: window.QuerySession.getQueryGenes().join(" ")
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");
         },

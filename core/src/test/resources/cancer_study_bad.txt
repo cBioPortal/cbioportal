@@ -1,4 +1,5 @@
 cancer_study_identifier:   test_brca_2
 type_of_cancer: brcaXXX
 name: Breast Cancer study 1
+short_name: test_brca_2
 description: Breast cancer data. Description to be added.

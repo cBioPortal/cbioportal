@@ -38,7 +38,7 @@
 <%
     String siteTitle = GlobalProperties.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
-	ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
+    ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
 
     // Get priority settings
     Integer dataPriority;
@@ -49,29 +49,46 @@
         dataPriority = 0;
     }
 
-	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
-        //String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+    String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+    //String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
 
-	// we need the raw gene list
-	if (request instanceof XssRequestWrapper)
-	{
-		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
-                //cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
-	}
+    // we need the raw gene list
+    if (request instanceof XssRequestWrapper)
+    {
+        geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+        //cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
+    }
 
-	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
-	geneList = servletXssUtil.getCleanerInput(geneList);
+    geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
+    geneList = servletXssUtil.getCleanerInput(geneList);
+
+
+    String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
+    boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
+    String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
+    boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+    String userName = GlobalProperties.getAuthenticatedUserName();
 
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
+<%@ include file="oncokb/oncokb-card-template.html" %>
+<script type="text/javascript" src="js/src/oncokb/OncoKBCard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cross-cancer-plotly-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
+<link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="css/oncokb.css?<%=GlobalProperties.getAppVersion()%>" />
+
 
 <%
     // Means that user landed on this page with the old way.
@@ -106,20 +123,48 @@
                 </div>
             </div>
             <!-- end results container -->
+       
         </td>
     </tr>
 </table>
 
 <script>
+    var oncokbGeneStatus = <%=oncokbGeneStatus%>;
+    var showHotspot = <%=showHotspot%>;
+    var userName = '<%=userName%>';
+    var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
+
+   function waitForElementToDisplay(selector, time) {
+        if(document.querySelector(selector) !== null) {
+
+           var chosenElements = document.getElementsByClassName('jstree-clicked');
+            if(chosenElements.length > 0)
+            {
+                var treeDiv = document.getElementById('jstree');
+                var topPos = chosenElements[0].offsetTop;
+                var originalPos = treeDiv.offsetTop;
+                treeDiv.scrollTop = topPos - originalPos;
+            }
+
+            return;
+        }
+        else {
+            setTimeout(function() {
+                waitForElementToDisplay(selector, time);
+            }, time);
+        }
+    }
     $(document).ready(function() {
+        OncoKB.setUrl('<%=oncokbUrl%>');
         //Set Event listener for the modify query button (expand the hidden form)
         $("#modify_query_btn").click(function () {
             $("#query_form_on_results_page").toggle();
             if($("#modify_query_btn").hasClass("active")) {
                 $("#modify_query_btn").removeClass("active");
             } else {
-                $("#modify_query_btn").addClass("active");    
+                $("#modify_query_btn").addClass("active");
             }
+            waitForElementToDisplay('.jstree-clicked', '5');
         });
         $("#toggle_query_form").click(function(event) {
             event.preventDefault();
@@ -127,19 +172,20 @@
             //  Toggle the icons
             $(".query-toggle").toggle();
         });
-        
-         $("a.result-tab").click(function(){
+
+        $("a.result-tab").click(function(){
             if($(this).attr("href")=="#bookmark_email") {
                 $("#bookmark-link").attr("href",window.location.href);
             }
         });
 
+        $("#bookmark-link").attr("href", window.location.href);
         $("#bitly-generator").click(function() {
-             bitlyURL(window.location.href);
+            bitlyURL(window.location.href);
         });
 
     });
-   
+
 </script>
 
 <!-- Crosscancer templates -->
@@ -150,7 +196,10 @@
                 <a href="#cc-overview" id="cc-overview-link" title="Compact visualization of genomic alterations">Overview</a>
             </li>
             <li>
-                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type,amino acid change, validation status and predicted functional consequence">Mutations</a>
+                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type, predicted functional consequence">Mutations</a>
+            </li>
+            <li>
+                <a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data (TCGA provisional only)">Expression</a>
             </li>
             <li>
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
@@ -161,77 +210,84 @@
                 </a>
             </li>
         </ul>
-        <div class="section" id="cc-overview">
+        <div class="section" id="cc-overview" style="display:none">
+            <div id="headerBar" style="display:none">
+                <div id="cctitlecontainer" style="margin-left:200px;float:left"></div>
+                <div>
+                    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
+                    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
+                </div>
 
-            <div id="cctitlecontainer"></div>
+                <div style="margin-top:10px;margin-bottom:10px;">
+                    <div style="float:left;margin-right:20px;">
+                        Y-Axis value:
+                        <select id="yAxis" title="y-axis value"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
+                    </div>
+                    <!-- explicitly set anchors without href for the handles, as jQuery UI 1.10 otherwise adds href="#" which may confuse assistive technologies -->
+                    <div style="float:left;margin-right:20px;">
+                        <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"><a class="ui-slider-handle" tabindex="0"></a></div>
+                        <input style="float:left;" id="minY" size="3" type="text" aria-labelledby="sliderLabel">
+                        <span id="suffix">%</span>
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <span style="float:left;" class="diagram-general-slider-text" id="minTotalSamplesLabel">Min. # total samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"><a class="ui-slider-handle" tabindex="0"></a></div>
+                        <input style="float:left;" id="minTotal" size="3" type="text" aria-labelledby="minTotalSamplesLabel">
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <input type="checkbox" id="histogram-show-colors" title="Show alteration types" checked> Show alteration types
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <input type="checkbox" id="sortBy" title="Sort alphabetically"> Sort alphabetically
+                    </div>
+                </div>
 
-            <div id="customize-controls" class="ui-widget cc-hide">
+                <div style="display:none">
+                    <div id="show-hide-studies">
+                        <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
+                        <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
+                        <b id="show-hide-studies-toggle">Select studies</b>
+                        <br/>
+                    </div>
+                    <div id="cancerbycancer-controls" class="cc-hide">
+                        (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
+                        <br>
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <div id="customize-controls" class="ui-widget cc-hide" style="display:none">
                 <div class="close-customize">
                     <a href="#">&times;</a>
                 </div>
                 <h3>Customize histogram</h3>
-                <table>
-                    <tr>
-                        <td>
-                            <span id="no-alterations-control">
-                                <input type="checkbox" id="histogram-remove-notaltered">
-                                <label for="histogram-remove-notaltered">Hide studies with no alteration</label>
-                            </span>
-                        </td>
-                        <td>
-                            <span id="no-colors-control">
-                                <input type="checkbox" id="histogram-show-colors" checked>
-                                <label for="histogram-show-colors">Show alteration types</label>
-                            </span>
-                        </td>
-                        <td>
-                            <span id="sort-by-control">
-                                Sort by:
-                                <select id="histogram-sort-by">
-                                    <option value="alteration">Alteration frequency</option>
-                                    <option value="name">Cancer study name</option>
-                                </select>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-                            <div id="show-hide-studies">
-                                <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
-                                <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
-                                <b id="show-hide-studies-toggle">Select studies</b>
-                                <br/>
-                            </div>
-                            <div id="cancerbycancer-controls" class="cc-hide">
-                                (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
-                                <br>
-                                <br>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                
             </div>
 
-            <div id="cchistogram">
-                <img src="images/ajax-loader.gif"/>
+            <div id="cchistogram" style="width: 1100px; height: 700px;position:relative;margin-top:30px;">
+                <img src="images/ajax-loader.gif" alt='loading'/>
             </div>
 
             <div id="studies-with-no-data">
             </div>
+            <span style="color:grey;position:relative;top:-40px;left:10px;" id="note"></span>
         </div>
 
         <div class="section" id="cc-mutations">
             <div id="mutation_details" class="mutation-details-content">
-                <img src="images/ajax-loader.gif"/>
+                <img src="images/ajax-loader.gif" alt='loading'/>
             </div>
         </div>
-
+        <div class="section" id="cc-plots">
+            <jsp:include page="cross_cancer_plots_tab.jsp" />
+        </div>
         <div class="section" id="cc-download">
             <div class='copy_tables'>
                 <br>
                 <h4>Contents can be copied and pasted into Excel.</h4>
                 <p>Frequency of Alteration Across Studies:<p/>
-                <textarea rows="30" cols="40" id="cc-download-text">
+                <textarea rows="30" cols="40" id="cc-download-text" title="Frequency of Alteration Across Studies">
                 </textarea>
             </div>
         </div>
@@ -261,6 +317,7 @@
         </label>
     </div>
 </script>
+
 
 <script type="text/template" id="studies-with-no-data-item-tmpl">
     <li>{{name}}</li>
@@ -320,6 +377,18 @@
     </div>
 </script>
 
+<script type="text/template" id="mutation_table_annotation_template">
+    <span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
+        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif" alt='loading'/>
+    </span>
+    <span class='annotation-item mcg' alt='{{mcgAlt}}'>
+        <img width='14' height='14' src='images/mcg_logo.png'>
+    </span>
+    <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
+        <img width='14' height='14' src='images/oncokb-flame.svg'>
+    </span>
+</script>
+
 <script type="text/template" id="studies-with-no-data-tmpl">
     <div class="ui-state-highlight ui-corner-all">
         <p>
@@ -338,9 +407,6 @@
     <b class="cctitle">
         Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
-    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
-    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
-    <button id="histogram-customize">Customize histogram</button>
 </script>
 
 <!-- Mutation views -->
@@ -351,7 +417,45 @@
     <h1>Default cross-cancer view</h1>
 </script>
 
-
+<script>
+    $(document).ready(function() {
+        var _cc_plots_gene_list = "";
+        var tmp = setInterval(function () {timer();}, 1000);
+        function timer() {
+            if (window.ccQueriedGenes !== undefined) {
+                clearInterval(tmp);
+                var cc_plots_tab_init = false;
+                if ($("#cc-plots").is(":visible")) {
+                    _cc_plots_gene_list = _cc_plots_gene_list;
+                    _.each(window.ccQueriedGenes, function (_gene) {
+                        $("#cc_plots_gene_list").append(
+                            "<option value='" + _gene + "'>" + _gene + "</option>");
+                    });
+                    ccPlots.init();
+                    cc_plots_tab_init = true;
+                } else {
+                    $(window).trigger("resize");
+                }
+                $("#tabs").bind("tabsactivate", function(event, ui) {
+                    if (ui.newTab.text().trim().toLowerCase() === "expression") {
+                        if (cc_plots_tab_init === false) {
+                            _cc_plots_gene_list = _cc_plots_gene_list;
+                            _.each(window.ccQueriedGenes, function (_gene) {
+                                $("#cc_plots_gene_list").append(
+                                    "<option value='" + _gene + "'>" + _gene + "</option>");
+                            });
+                            ccPlots.init();
+                            cc_plots_tab_init = true;
+                            $(window).trigger("resize");
+                        } else {
+                            $(window).trigger("resize");
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
 
 </div>
 </td>

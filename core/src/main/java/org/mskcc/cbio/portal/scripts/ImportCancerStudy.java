@@ -40,25 +40,51 @@ import java.io.File;
 /**
  * Command Line Tool to Import a Single Cancer Study.
  */
-public class ImportCancerStudy {
-
-    public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            System.out.println("command line usage: importCancerStudy.pl <cancer_study.txt>");
-            return;
+public class ImportCancerStudy extends ConsoleRunnable {
+    
+    public void run() {
+        try {
+            if (args.length < 1) {
+                // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+                throw new UsageException(
+                        "importCancerStudy.pl",
+                        null,
+                        "<cancer_study.txt>");
+            }
+            
+            File file = new File(args[0]);
+            SpringUtil.initDataSource();
+            CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
+            ProgressMonitor.setCurrentMessage(
+                    "Loaded the following cancer study:" +
+                    "\n --> Study ID:  " + cancerStudy.getInternalId() +
+                    "\n --> Name:  " + cancerStudy.getName() +
+                    "\n --> Description:  " + cancerStudy.getDescription());
         }
+        catch (RuntimeException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportCancerStudy(String[] args) {
+        super(args);
+    }
 
-        File file = new File(args[0]);
-		SpringUtil.initDataSource();
-        CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
-        System.out.println ("Loaded the following cancer study:  ");
-        System.out.println ("ID:  " + cancerStudy.getInternalId());
-        System.out.println ("Name:  " + cancerStudy.getName());
-        System.out.println ("Description:  " + cancerStudy.getDescription());
-        ConsoleUtil.showWarnings(pMonitor);
-        System.err.println("Done.");
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportCancerStudy(args);
+        runner.runInConsole();
     }
 }

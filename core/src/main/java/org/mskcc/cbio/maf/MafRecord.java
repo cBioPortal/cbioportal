@@ -43,7 +43,8 @@ public class MafRecord
     private long startPosition;
     private long endPosition;
     private String hugoGeneSymbol;
-    private long entrezGeneId;
+    // store the literal value of the gene ID column for later parsing
+    private String givenEntrezGeneId;
     private String referenceAllele;
     private String variantClassification; // mutation type
     private String variantType;
@@ -130,7 +131,7 @@ public class MafRecord
 	private String oncotatorCodonChangeBestEffect;
 	private int oncotatorProteinPosStartBestEffect;
 	private int oncotatorProteinPosEndBestEffect;
-
+	
 	public String getChr() {
         return chr;
     }
@@ -171,12 +172,12 @@ public class MafRecord
         this.hugoGeneSymbol = hugoGeneSymbol;
     }
 
-    public long getEntrezGeneId() {
-        return entrezGeneId;
+    public String getGivenEntrezGeneId() {
+        return this.givenEntrezGeneId;
     }
 
-    public void setEntrezGeneId(long entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+    public void setGivenEntrezGeneId(String entrezGeneIdAsString) {
+        this.givenEntrezGeneId = entrezGeneIdAsString;
     }
 
     public String getReferenceAllele() {

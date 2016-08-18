@@ -51,34 +51,43 @@
             and <span id='num_of_co_oc' class='stat_num'></span> gene pair<span id='plu_s_co_oc'></span> with co-occurrent alterations<span id='stat_sig_co_oc'> (<span id='num_of_sig_co_oc' class='stat_num'></span> significant)</span>.
         </div>
         <div id='mutex-loading-image'>
-            <img style='padding:200px;' src='images/ajax-loader.gif'>
+            <img style='padding:200px;' src='images/ajax-loader.gif' alt='loading'>
         </div>
         <div id="mutex-table-div" style='margin-top:10px;'></div>
     </div>
 </div>
 
 <script>
-    PortalDataCollManager.subscribeOncoprint(function() {
-        MutexData.setOncoprintData(PortalDataColl.getOncoprintData()); 
-        $("#tabs").bind("tabsactivate", function(event, ui) {
-            if (!MutexView.isTableInstanceExisted()) {
-                MutexData.init();
-                if (ui.newTab.text().trim().toLowerCase() === "mutual exclusivity") {
-                    MutexView.resize();
-                }
-            } else {
-                MutexView.resize();
-            }
+    $(document).ready( function() {
+    	//whether this tab has already been initialized or not:
+    	var tab_init = false;
+    	//function that will listen to tab changes and init this one when applicable:
+    	function tabsUpdate() {
+    		if ($("#mutex").is(":visible")) {
+	    		if (tab_init === false) {
+	    			//calling asynch to ensure loading gif is shown:
+    				MutexData.setOncoprintData(PortalDataColl.getOncoprintData()); 
+	    		    window.setTimeout(MutexData.init, 1); 
+                    window.setTimeout(MutexView.resize, 1);
+		            tab_init = true;
+		        } else {
+	                MutexView.resize();
+	            }
+	    	}
+    	}
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL),
+        //and in this case we need to wait for oncoprint data first:
+        PortalDataCollManager.subscribeOncoprint(function() {
+    		tabsUpdate();
         });
-        if ($("#mutex").is(":visible")) {
-            if (!MutexView.isTableInstanceExisted()) {
-                MutexData.init();
-                MutexView.resize();
-            } else {
-                MutexView.resize();
-            }
-        }
-    });
+        //this is for the scenario where the user navigates to this tab:
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+        	//we assume we don't need the PortalDataCollManager.subscribeOncoprint as above, since this 
+        	//event only occurs when changing tabs, so oncoprint tab is already loaded by then:
+        	tabsUpdate();
+        });
+    });    
+    
 </script>
 
 <style type="text/css">

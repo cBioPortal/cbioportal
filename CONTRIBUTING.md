@@ -54,6 +54,38 @@ When you are ready to submit your pull-request:
 
 For instructions on submitting a pull-request, please see:  [Using Pull Requests ](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
 
+## Automated tests on Travis CI
+All Pull Requests are automatically tested on [Travis
+CI](https://travis-ci.org/cBioPortal/cbioportal/pull_requests). Currently there
+is a set of tests for the core module and a visual regression test that makes
+some screenshots and compares them to the ones stored in the repository.
+
+### What to do if the screenshot test fails
+When the screenshot test fails, it means that the screenshot taken from your
+instance of the portal differs from the screenshot stored in the repo.
+Copy+Paste the URL in the Travis CI log to view the image diff online. Further
+instructions are outlined on that page.
+
+If you prefer to compare the images locally, you need to first download the
+failing screenshot. The Travis CI log will show you where the image was
+uploaded on [clbin.com](https://clbin.com). First, download the image and
+replace the screenshot in the repo. For instance run in the root dir of
+cBioPortal:
+
+```bash
+curl 'https://clbin.com/[replace-with-clbin-image-from-log].png' > test/end-to-end/screenshots/[replace-with-image-from-repo].png
+``` 
+
+Then follow the steps outlined in [this blog post](http://www.akikoskinen.info/image-diffs-with-git/) to compare the 
+images locally. Run `git diff` from your repo to see the ImageMagick diff.
+
+Once you downloaded the images you do the following for each screenshot:
+
+- If the change in the screenshot is **undesired**, i.e. there is regression, you
+  should fix your PR.
+- If the change in the screenshot is **desired**, add the screenshot to the
+  repo, commit it and push it to your PR's branch.
+
 ## Additional Resources
 
 * [cBioPortal Issue Tracker](https://github.com/cBioPortal/cbioportal/issues)

@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * A Utility Class that speeds access to Gene Info.
@@ -57,6 +58,7 @@ public class DaoGeneOptimized {
     private static final String GENE_SYMBOL_DISAMBIGUATION_FILE = "/gene_symbol_disambiguation.txt";
         
     private static final DaoGeneOptimized daoGeneOptimized = new DaoGeneOptimized();
+    //nb: make sure any map is also cleared in clearCache() method below:
     private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
     private final HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
@@ -69,6 +71,10 @@ public class DaoGeneOptimized {
      * @throws DaoException Database Error.
      */
     private DaoGeneOptimized () {
+        fillCache();
+    }
+    
+    private synchronized void fillCache() {
         try {
             //  Automatically populate hashmap upon init
             ArrayList<CanonicalGene> globalGeneList = DaoGene.getAllGenes();
@@ -95,7 +101,8 @@ public class DaoGeneOptimized {
                     if (gene!=null) {
                         cbioCancerGenes.add(gene);
                     } else {
-                        System.err.println(line+" in the cbio cancer gene list is not a HUGO gene symbol.");
+                    	ProgressMonitor.logWarning(line+" in the cbio cancer gene list config file [resources" + CBIO_CANCER_GENES_FILE + 
+                        		"] is not a HUGO gene symbol. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
                     }
                 }
                 in.close();
@@ -111,7 +118,8 @@ public class DaoGeneOptimized {
                     String[] parts = line.trim().split("\t",-1);
                     CanonicalGene gene = getGene(Long.parseLong(parts[1]));
                     if (gene==null) {
-                        System.err.println(line+" in gene_symbol_disambiguation.txt is not valid.");
+                    	ProgressMonitor.logWarning(line+" in config file [resources" + GENE_SYMBOL_DISAMBIGUATION_FILE + 
+                        		"]is not valid. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
                     }
                     disambiguousGenes.put(parts[0], gene);
                 }
@@ -122,6 +130,26 @@ public class DaoGeneOptimized {
         }
     }
 
+    private void clearCache()
+    {
+        geneSymbolMap.clear();
+        entrezIdMap.clear();
+        geneAliasMap.clear();
+        cbioCancerGenes.clear();
+        disambiguousGenes.clear();
+    }
+
+    /**
+     * Clear and fill cache again. Useful for unit tests and 
+     * for the Import procedure to update the genes table, clearing the
+     * cache without the need to restart the webserver.
+     */
+    public synchronized void reCache()
+    {
+        clearCache();
+        fillCache();
+    }
+    
     /**
      * Adds a new Gene Record to the Database. If the Entrez Gene ID is negative,
      * a fake Entrez Gene ID will be assigned.
@@ -204,6 +232,31 @@ public class DaoGeneOptimized {
         return geneSymbolMap.get(hugoGeneSymbol.toUpperCase());
     }
 
+    /**
+     * Looks for a Gene where HUGO Gene Symbol or an alias matches the given symbol. 
+     * 
+     * @param geneSymbol: HUGO Gene Symbol or an alias
+     * @param searchInAliases: set to true if this method should search for a match in this.geneAliasMap 
+     * in case a matching hugo symbol cannot be found in this.geneSymbolMap
+     * 
+     * @return
+     */
+    public List<CanonicalGene> getGene(String geneSymbol, boolean searchInAliases) {
+    	CanonicalGene gene = getGene(geneSymbol);
+    	if (gene!=null) {
+            return Collections.singletonList(gene);
+        }
+        
+    	if (searchInAliases) {
+	        List<CanonicalGene> genes = geneAliasMap.get(geneSymbol.toUpperCase());
+	        if (genes!=null) {
+	        	return Collections.unmodifiableList(genes);
+	        }
+        }
+        
+        return Collections.emptyList();
+    }
+    
     /**
      * Gets Gene By Entrez Gene ID.
      *
@@ -360,8 +413,8 @@ public class DaoGeneOptimized {
             sb.append(",");
         }
         sb.deleteCharAt(sb.length()-1);
-        System.err.println(sb.toString());
         
+        ProgressMonitor.logWarning(sb.toString());
         return null;
         
     }

@@ -126,16 +126,16 @@ public class CrossCancerJSON extends HttpServlet {
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
                 //  Get all Patient Lists Associated with this Cancer Study ID.
-                ArrayList<PatientList> patientSetList = GetPatientLists.getPatientLists(cancerStudyId);
+                ArrayList<SampleList> sampleSetList = GetSampleLists.getSampleLists(cancerStudyId);
 
                 //  Get the default patient set
-                AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
-                PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
-                if (defaultPatientSet == null) {
+                AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
+                SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
+                if (defaultSampleSet == null) {
                     continue;
                 }
                 
-                List<String> sampleIds = defaultPatientSet.getPatientList();
+                List<String> sampleIds = defaultSampleSet.getSampleList();
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -166,16 +166,16 @@ public class CrossCancerJSON extends HttpServlet {
                 cancerMap.put("mutationProfile", mutationProfile);
                 cancerMap.put("cnaProfile", cnaProfile);
 
-                cancerMap.put("caseSetId", defaultPatientSet.getStableId());
+                cancerMap.put("caseSetId", defaultSampleSet.getStableId());
                 cancerMap.put("caseSetLength", sampleIds.size());
 
 
                 ProfileDataSummary genomicData = getGenomicData(
                         cancerStudyId,
                         defaultGeneticProfileSet,
-                        defaultPatientSet,
+                        defaultSampleSet,
                         geneList,
-                        patientSetList,
+                        sampleSetList,
                         request,
                         response
                 );
@@ -268,7 +268,7 @@ public class CrossCancerJSON extends HttpServlet {
      * Gets all Genomic Data.
      */
     private ProfileDataSummary getGenomicData(String cancerStudyId, HashMap<String, GeneticProfile> defaultGeneticProfileSet,
-                                              PatientList defaultPatientSet, String geneListStr, ArrayList<PatientList> patientList,
+                                              SampleList defaultSampleSet, String geneListStr, ArrayList<SampleList> sampleList,
                                               HttpServletRequest request,
                                               HttpServletResponse response) throws IOException,
             ServletException, DaoException {
@@ -289,20 +289,23 @@ public class CrossCancerJSON extends HttpServlet {
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
         Set<String> warningUnion = new HashSet<String>();
 
+
         for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
-            GetProfileData remoteCall =
-                new GetProfileData(profile, geneList,
-                                   StringUtils.join(defaultPatientSet.getPatientList(), " "));
-            ProfileData pData = remoteCall.getProfileData();
-            warningUnion.addAll(remoteCall.getWarnings());
-            profileDataList.add(pData);
+            try {
+                GetProfileData remoteCall =
+                    new GetProfileData(profile, geneList,
+                                   StringUtils.join(defaultSampleSet.getSampleList(), " "));
+                ProfileData pData = remoteCall.getProfileData();
+                warningUnion.addAll(remoteCall.getWarnings());
+                profileDataList.add(pData);
+            } catch (IllegalArgumentException e) {
+                e.getStackTrace();
+            }
         }
 
         ProfileMerger merger = new ProfileMerger(profileDataList);
         ProfileData mergedProfile = merger.getMergedProfile();
 
-        request.setAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
-        request.setAttribute(QueryBuilder.WARNING_UNION, warningUnion);
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScore, rppaScore);
         return dataSummary;

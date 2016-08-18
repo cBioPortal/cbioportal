@@ -77,7 +77,7 @@ cbio.util = (function() {
         }
         return aa;
     };
-        
+
     var uniqueElementsOfArray = function(arr) {
         var ret = [];
         var aa = {};
@@ -263,7 +263,7 @@ cbio.util = (function() {
 
 		return origin;
 	};
-        
+
         var sortByAttribute = function(objs, attrName) {
             function compare(a,b) {
                 if (a[attrName] < b[attrName])
@@ -275,7 +275,7 @@ cbio.util = (function() {
             objs.sort(compare);
             return objs;
         };
-        
+
 	/**
 	 * Replaces problematic characters with an underscore for the given string.
 	 * Those characters cause problems with the properties of an HTML object,
@@ -364,11 +364,223 @@ cbio.util = (function() {
     function getLinkToPatientView(cancerStudyId, patientId) {
         return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
     }
-    
+
     function getLinkToSampleView(cancerStudyId, sampleId) {
         return "case.do?cancer_study_id=" + cancerStudyId + "&sample_id=" + sampleId;
     }
 
+    /**
+     * Adds qTip to the provided target when first time mouse enter
+     *
+     * @param target qTip target, could be a class name, id or any jquery acceptable element
+     * @param qTipOpts qTip initialization options
+     */
+    function addTargetedQTip(target, qTipOpts) {
+        if(target) {
+	        // check if target[0] is SVG
+	        if (target[0] && target[0].ownerSVGElement)
+	        {
+		        target = target[0];
+	        }
+	        // check if target[0][0] is SVG
+	        else if (target[0] && target[0][0] && target[0][0].ownerSVGElement)
+	        {
+		        target = target[0][0];
+	        }
+
+            $(target).off('mouseenter', qTipMouseEnterHandler);
+            $(target).one('mouseenter', {qTipOpts: qTipOpts}, qTipMouseEnterHandler);
+        } else {
+            console.error('qTip target is not defined.');
+        }
+    }
+
+    function qTipMouseEnterHandler(event) {
+        var opts = {
+            show: {ready: true},
+            hide: {fixed: true, delay: 100},
+            style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
+            position: {my: 'top left', at: 'bottom right', viewport: $(window)}
+        };
+
+        var qTipOpts = event.data.qTipOpts;
+        jQuery.extend(true, opts, qTipOpts);
+
+        $(this).qtip(opts);
+    }
+
+    function baseMutationMapperOpts()
+    {
+        return {
+            proxy: {
+                // default pdb proxy are now configured for a separate pdb data source
+                // this is for backward compatibility
+                pdbProxy: {
+                    options: {
+                        servletName: "get3dPdb.json",
+                        listJoiner: " ",
+                        subService: false
+                    }
+                },
+                // TODO for now init variant annotation data proxy with full empty data
+                // (this will practically disable the genome-nexus connections until it is ready)
+                variantAnnotationProxy: {
+                    options: {
+                        initMode: "full",
+                        data: {}
+                    }
+                }
+            }
+        };
+    }
+    
+    /**
+     * Converts the given string to title case format. Also replaces each
+     * underdash with a space.
+     *
+     * TODO: Need to remove the same function under network-visualization.js
+     * @param source    source string to be converted to title case
+     */
+    function toTitleCase(source)
+    {
+        var str;
+
+        if (source == null)
+        {
+            return source;
+        }
+
+        // first, trim the string
+        str = source.replace(/\s+$/, "");
+
+        // replace each underdash with a space
+        str = replaceAll(str, "_", " ");
+
+        // change to lower case
+        str = str.toLowerCase();
+
+        // capitalize starting character of each word
+
+        var titleCase = new Array();
+
+        titleCase.push(str.charAt(0).toUpperCase());
+
+        for (var i = 1; i < str.length; i++)
+        {
+            if (str.charAt(i-1) == ' ')
+            {
+                titleCase.push(str.charAt(i).toUpperCase());
+            }
+            else
+            {
+                titleCase.push(str.charAt(i));
+            }
+        }
+
+        return titleCase.join("");
+    }
+
+    /**
+     * Replaces all occurrences of the given string in the source string.
+     *
+     * TODO: Need to remove the same function under network-visualization.js
+     * @param source        string to be modified
+     * @param toFind        string to match
+     * @param toReplace     string to be replaced with the matched string
+     * @return              modified version of the source string
+     */
+    function replaceAll(source, toFind, toReplace)
+    {
+        var target = source;
+        var index = target.indexOf(toFind);
+
+        while (index != -1)
+        {
+            target = target.replace(toFind, toReplace);
+            index = target.indexOf(toFind);
+        }
+
+        return target;
+    }
+    
+    //Get hotspot description. TODO: add type as parameter for different source of hotspot sources.
+    function getHotSpotDesc() {
+        //Single quote attribute is not supported in mutation view Backbone template.
+        //HTML entity is not supported in patient view.
+        //Another solution is to use unquoted attribute value which has been
+        //supported since HTML2.0
+        return "<b>Recurrent Hotspot</b><br/>" +
+            "This mutated amino acid was identified as a recurrent hotspot " +
+            "(statistically significant) in a population-scale cohort of " +
+            "tumor samples of various cancer types using methodology based in " +
+            "part on <a href=\"http://www.ncbi.nlm.nih.gov/pubmed/26619011\" target=\"_blank\">" +
+            "Chang et al., Nat Biotechnol, 2016</a>.<br/><br/>" +
+            "Explore all mutations at " +
+            "<a href=\"http://cancerhotspots.org/\" target=\"_blank\">http://cancerhotspots.org/</a>.";
+    }
+    
+    /**
+     * This function is used to handle outliers in the data, which will squeeze most of the data to only few bars in the bar chart.
+     * It calculates boundary values from the box plot of input array, and that would enable the data to be displayed evenly.
+     * @param data - The array of input data.
+     * @param inArrayFlag - The option to choose boundary values from the input array.
+     */
+    function findExtremes(data, inArrayFlag) {
+
+        // Copy the values, rather than operating on references to existing values
+        var values = [], smallDataFlag = false;
+        _.each(data, function(item){
+            if($.isNumeric(item))
+                values.push(Number(item));
+        });
+
+        // Then sort
+        values.sort(function (a, b) {
+            return a - b;
+        });
+
+        /* Then find a generous IQR. This is generous because if (values.length / 4) 
+         * is not an int, then really you should average the two elements on either 
+         * side to find q1.
+         */
+        var q1 = values[Math.floor((values.length / 4))];
+        // Likewise for q3. 
+        var q3 = values[(Math.ceil((values.length * (3 / 4))) > values.length - 1 ? values.length - 1 : Math.ceil((values.length * (3 / 4))))];
+        var iqr = q3 - q1;
+        if(values[Math.ceil((values.length * (1 / 2)))] < 0.001)
+            smallDataFlag = true;
+        // Then find min and max values
+        var maxValue, minValue;
+        if(q3 < 1){
+            maxValue = Number((q3 + iqr * 1.5).toFixed(2));
+            minValue = Number((q1 - iqr * 1.5).toFixed(2));
+        }else{
+            maxValue = Math.ceil(q3 + iqr * 1.5);
+            minValue = Math.floor(q1 - iqr * 1.5);
+        }
+        if(minValue < values[0])minValue = values[0];
+        if(maxValue > values[values.length - 1])maxValue = values[values.length - 1];
+        //provide the option to choose min and max values from the input array
+        if(inArrayFlag){
+            var i = 0;
+            if(values.indexOf(minValue) === -1){
+                while(minValue > values[i] && minValue > values[i+1]){
+                    i++;
+                }
+                minValue = values[i+1];
+            }
+            i = values.length - 1;
+            if(values.indexOf(maxValue) === -1){
+                while(maxValue < values[i] && maxValue < values[i-1]){
+                    i--;
+                }
+                maxValue = values[i-1];
+            }
+        }
+        
+        return [minValue, maxValue, smallDataFlag];
+    }
+    
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -387,7 +599,13 @@ cbio.util = (function() {
 	    getTargetWindow: getTargetWindow,
 	    getTargetDocument: getTargetDocument,
         getLinkToPatientView: getLinkToPatientView,
-        getLinkToSampleView: getLinkToSampleView
+        getLinkToSampleView: getLinkToSampleView,
+        addTargetedQTip: addTargetedQTip,
+        baseMutationMapperOpts: baseMutationMapperOpts,
+        toTitleCase: toTitleCase,
+        getHotSpotDesc: getHotSpotDesc,
+        replaceAll: replaceAll,
+        findExtremes: findExtremes
     };
 
 })();

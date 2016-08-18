@@ -67,53 +67,53 @@ public class DaoDrug {
     }
 
     public int addDrug(Drug drug) throws DaoException {
+        if (MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.getMySQLbulkLoader("drug").insertRecord(
+                    drug.getId(),
+                    drug.getResource(),
+                    drug.getName(),
+                    drug.getSynonyms(),
+                    drug.getDescription(),
+                    drug.getExternalReference(),
+                    drug.getATCCode(),
+                    drug.isApprovedFDA() ? "1" : "0",
+                    drug.isCancerDrug() ? "1" : "0",
+                    drug.isNutraceuitical() ? "1" : "0",
+                    drug.getNumberOfClinicalTrials().toString()
+                    );
+            return 1;
+        }
+            
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                MySQLbulkLoader.getMySQLbulkLoader("drug").insertRecord(
-                        drug.getId(),
-                        drug.getResource(),
-                        drug.getName(),
-                        drug.getSynonyms(),
-                        drug.getDescription(),
-                        drug.getExternalReference(),
-                        drug.getATCCode(),
-                        drug.isApprovedFDA() ? "1" : "0",
-                        drug.isCancerDrug() ? "1" : "0",
-                        drug.isNutraceuitical() ? "1" : "0",
-                        drug.getNumberOfClinicalTrials().toString()
+            Drug existingDrug = getDrug(drug.getId());
+            if (existingDrug == null) {
+                con = JdbcUtil.getDbConnection(DaoDrug.class);
+                pstmt = con.prepareStatement(
+                        "INSERT INTO drug "
+                                + "(`DRUG_ID`, `DRUG_RESOURCE`, `DRUG_NAME`, "
+                                    + "`DRUG_SYNONYMS`, `DRUG_DESCRIPTION`, `DRUG_XREF`, "
+                                    + "`DRUG_ATC_CODE`, `DRUG_APPROVED`, `DRUG_CANCERDRUG`, "
+                                    + "`DRUG_NUTRACEUTICAL`, `DRUG_NUMOFTRIALS`) "
+                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
                         );
-                return 1;
-            } else {
-                Drug existingDrug = getDrug(drug.getId());
-                if (existingDrug == null) {
-                    con = JdbcUtil.getDbConnection(DaoDrug.class);
-                    pstmt = con.prepareStatement(
-                            "INSERT INTO drug "
-                                    + "(`DRUG_ID`, `DRUG_RESOURCE`, `DRUG_NAME`, "
-                                        + "`DRUG_SYNONYMS`, `DRUG_DESCRIPTION`, `DRUG_XREF`, "
-                                        + "`DRUG_ATC_CODE`, `DRUG_APPROVED`, `DRUG_CANCERDRUG`, "
-                                        + "`DRUG_NUTRACEUTICAL`, `DRUG_NUMOFTRIALS`) "
-                                    + "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
-                            );
-                    pstmt.setString(1, drug.getId());
-                    pstmt.setString(2, drug.getResource());
-                    pstmt.setString(3, drug.getName());
-                    pstmt.setString(4, drug.getSynonyms());
-                    pstmt.setString(5, drug.getDescription());
-                    pstmt.setString(6, drug.getExternalReference());
-                    pstmt.setString(7, drug.getATCCode());
-                    pstmt.setInt(8, drug.isApprovedFDA() ? 1 : 0);
-                    pstmt.setInt(9, drug.isCancerDrug() ? 1 : 0);
-                    pstmt.setInt(10, drug.isNutraceuitical() ? 1 : 0);
-                    pstmt.setInt(11, drug.getNumberOfClinicalTrials());
+                pstmt.setString(1, drug.getId());
+                pstmt.setString(2, drug.getResource());
+                pstmt.setString(3, drug.getName());
+                pstmt.setString(4, drug.getSynonyms());
+                pstmt.setString(5, drug.getDescription());
+                pstmt.setString(6, drug.getExternalReference());
+                pstmt.setString(7, drug.getATCCode());
+                pstmt.setInt(8, drug.isApprovedFDA() ? 1 : 0);
+                pstmt.setInt(9, drug.isCancerDrug() ? 1 : 0);
+                pstmt.setInt(10, drug.isNutraceuitical() ? 1 : 0);
+                pstmt.setInt(11, drug.getNumberOfClinicalTrials());
 
-                    return pstmt.executeUpdate();
-                } else {
-                    return 0;
-                }
+                return pstmt.executeUpdate();
+            } else {
+                return 0;
             }
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -231,8 +231,10 @@ public class DaoDrug {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoDrug.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE drug");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

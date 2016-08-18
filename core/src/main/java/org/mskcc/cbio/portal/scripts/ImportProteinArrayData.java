@@ -37,7 +37,7 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
 import java.util.*;
@@ -48,17 +48,15 @@ import java.util.regex.*;
  * @author jj
  */
 public class ImportProteinArrayData {
-    private ProgressMonitor pMonitor;
     private int cancerStudyId;
     private String cancerStudyStableId;
     private File arrayData;
     
     public ImportProteinArrayData(File arrayData, int cancerStudyId, 
-            String cancerStudyStableId, ProgressMonitor pMonitor) {
+            String cancerStudyStableId) {
         this.arrayData = arrayData;
         this.cancerStudyId = cancerStudyId;
         this.cancerStudyStableId = cancerStudyStableId;
-        this.pMonitor = pMonitor;
     }
     
     /**
@@ -77,8 +75,9 @@ public class ImportProteinArrayData {
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         String[] sampleIds = line.split("\t");
-        ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
-        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
+//        sampleIds = Arrays.copyOfRange(sampleIds, 1, sampleIds.length);
+//        ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
+//        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
         Sample[] samples = new Sample[sampleIds.length-1];
         for (int i=1; i<sampleIds.length; i++) {
             samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
@@ -86,10 +85,8 @@ public class ImportProteinArrayData {
         
         ArrayList<Integer> internalSampleIds = new ArrayList<Integer>();
         while ((line=buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             String[] strs = line.split("\t");
             String arrayInfo = strs[0];
@@ -97,7 +94,7 @@ public class ImportProteinArrayData {
            
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
-                if (samples[i]==null) {
+                if (samples[i]==null || Double.isNaN(zscores[i])) {
                     continue;
                 }
                 int sampleId = samples[i].getInternalId();
@@ -114,18 +111,42 @@ public class ImportProteinArrayData {
 
     private double[] convertToZscores(String[] strs) {
         double[] data = new double[strs.length-1];
+        boolean nan = false;
         for (int i=1; i<strs.length; i++) { // ignore the first column
-            data[i-1] = Double.parseDouble(strs[i]);
+            try {
+                data[i-1] = Double.parseDouble(strs[i]);
+            } catch (Exception e) {
+                data[i-1] = Double.NaN;
+                nan = true;
+            }
         }
         
-        DescriptiveStatistics ds = new DescriptiveStatistics(data);
+        DescriptiveStatistics ds = new DescriptiveStatistics(nan?copyWithNoNaN(data):data);
         double mean = ds.getMean();
         double std = ds.getStandardDeviation();
         
         for (int i=0; i<data.length; i++) {
-            data[i] = (data[i]-mean)/std;
+            if (!Double.isNaN(data[i])) {
+                data[i] = (data[i]-mean)/std;
+            }
         }
         return data;
+    }
+    
+    private double[] copyWithNoNaN(double[] data) {
+        List<Double> list = new ArrayList<Double>();
+        for (double d : data) {
+            if (!Double.isNaN(d)) {
+                list.add(d);
+            }
+        }
+        
+        double[] ret = new double[list.size()];
+        for (int i=0; i<list.size(); i++) {
+            ret[i] = list.get(i);
+        }
+        
+        return ret;
     }
     
     private String importArrayInfo(String info) throws DaoException {
@@ -158,7 +179,7 @@ public class ImportProteinArrayData {
                             StringUtils.join(genes, "/"), residue, null);
             daoPAI.addProteinArrayInfo(pai);
             for (String symbol : genes) {
-                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
                 if (gene==null) {
                     System.err.println(symbol+" not exist");
                     continue;
@@ -244,23 +265,23 @@ public class ImportProteinArrayData {
 //        args = new String[] {"/Users/jgao/projects/cbio-portal-data/studies/cellline/douglevine_ccl/data_rppa.txt","cellline_douglevine_ccl"};
         if (args.length < 2) {
             System.out.println("command line usage:  importRPPAData.pl <RPPA_data.txt> <Cancer study identifier>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         
 		SpringUtil.initDataSource();
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File file = new File(args[0]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportProteinArrayData parser = new ImportProteinArrayData(file, cancerStudyId, args[1], pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ImportProteinArrayData parser = new ImportProteinArrayData(file, cancerStudyId, args[1]);
         parser.importData();
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
     
@@ -268,19 +289,20 @@ public class ImportProteinArrayData {
      * add extra antibodies of normalized phosphoprotein data
      * @param args
      * @throws Exception 
+     * TODO - apparently not used...REMOVE?? 
      */
     public static void main_normalize_phospho(String[] args) throws Exception {
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoPatientList daoPatientList = new DaoPatientList();
+        DaoSampleList daoSampleList = new DaoSampleList();
         ArrayList<CancerStudy> studies = DaoCancerStudy.getAllCancerStudies();
         for (CancerStudy study : studies) {
             int studyId = study.getInternalId();
-            PatientList patientlist = daoPatientList.getPatientListByStableId(study.getCancerStudyStableId()+"_RPPA");
-            if (patientlist==null) continue;
-            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(studyId, patientlist.getPatientList());
+            SampleList sampleList = daoSampleList.getSampleListByStableId(study.getCancerStudyStableId()+"_RPPA");
+            if (sampleList==null) continue;
+            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(studyId, sampleList.getSampleList());
             ArrayList<ProteinArrayInfo> phosphoArrays = daoPAI.getProteinArrayInfoForType(
                     studyId, Collections.singleton("phosphorylation"));
             ArrayList<ProteinArrayInfo> proteinArrays = daoPAI.getProteinArrayInfoForType(

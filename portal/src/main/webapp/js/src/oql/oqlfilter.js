@@ -37,7 +37,11 @@ window.OQL = (function () {
     
     var parsedOQLAlterationToSourceOQL = function(alteration) {
 	if (alteration.alteration_type === "cna") {
-	    return alteration.constr_val;
+	    if (alteration.constr_rel === "=") {
+		return alteration.constr_val;
+	    } else {
+		return ["CNA",alteration.constr_rel,alteration.constr_val].join("");
+	    }
 	} else if (alteration.alteration_type === "mut") {
 	    if (alteration.constr_rel) {
 		if (alteration.constr_type === "position") {
@@ -187,7 +191,23 @@ window.OQL = (function () {
 	    return 0;
 	} else {
 	    // Otherwise, return -1 if it doesnt match, 1 if it matches
-	    var match = +(d_cna === alt_cmd.constr_val.toLowerCase());
+	    var match;
+	    if (alt_cmd.constr_rel === "=") {
+		match = +(d_cna === alt_cmd.constr_val.toLowerCase());
+	    } else {
+		var integer_copy_number = {"amp":2, "gain":1, "hetloss":-1, "homdel":-2};
+		var d_int_cna = integer_copy_number[d_cna];
+		var alt_int_cna = integer_copy_number[alt_cmd.constr_val.toLowerCase()];
+		if (alt_cmd.constr_rel === ">") {
+		    match = +(d_int_cna > alt_int_cna);
+		} else if (alt_cmd.constr_rel === ">=") {
+		    match = +(d_int_cna >= alt_int_cna);
+		} else if (alt_cmd.constr_rel === "<") {
+		    match = +(d_int_cna < alt_int_cna);
+		} else if (alt_cmd.constr_rel === "<=") {
+		    match = +(d_int_cna <= alt_int_cna);
+		}
+	    }
 	    return 2 * match - 1; // map 0,1 to -1,1
 	}
     };

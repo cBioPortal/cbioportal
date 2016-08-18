@@ -26,7 +26,7 @@ The cBioPortal code has no means of storing user name and passwords and no means
 
 # Setting up an Identity Provider
 
-As noted above, we provide details on how to preform SAML authentication via a commercial company:  [OneLogin](https://www.onelogin.com/).  OneLogin provides a free tier for testing out SAML authentication, and is one of the easier options to get a complete SAML workflow set-up.  Once you have OneLogin working, you should then have enough information to transition to your final authentication service.
+As noted above, we provide details on how to preform SAML authentication via a commercial company:  [OneLogin](https://www.onelogin.com/).  OneLogin provides a free tier for testing out SAML authentication, and is one of the easier options to get a complete SAML workflow set-up.  Once you have OneLogin working, you should then have enough information to transition to your final authentication service.  As you follow the steps below, the following link may be helpful: [How to Use the OneLogin SAML Test Connector](https://support.onelogin.com/hc/en-us/articles/202673944-How-to-Use-the-OneLogin-SAML-Test-Connector).
 
 To get started:
 
@@ -43,11 +43,10 @@ To get started:
 
 * Under the Configuration Tab for OneLogin SAML Test (IdP), paste the following fields (this is assuming you are testing everything via localhost).
 
-    * SAML Consumer URL:  http://localhost:8080/cbioportal/
-    * SAML Audience:  cbioportal
-    * SAML Recipient:  http://localhost:8080/cbioportal/saml/SSO 
+    * ACS (Consumer) URL Validator*:  ^http:\/\/localhost\:8080\/cbioportal\/$
+    * ACS (Consumer) URL*:  http://localhost:8080/cbioportal/
 
-![](http://f.cl.ly/items/1p2o3i361A0l1r433X09/Image%202015-05-24%20at%2010.04.40%20PM.png)
+![](https://cloud.githubusercontent.com/assets/366003/17789818/ce5eb1c2-6561-11e6-9887-c373023e1acd.png)
 
 ## Downloading the SAML Test Connector Meta Data
 

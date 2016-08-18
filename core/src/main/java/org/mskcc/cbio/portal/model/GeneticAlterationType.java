@@ -126,7 +126,7 @@ public class GeneticAlterationType {
      */
     public static final GeneticAlterationType COPY_NUMBER_ALTERATION
             = new GeneticAlterationType("COPY_NUMBER_ALTERATION");
-    
+
     /**
      * microRNA expression alteration type.
      */

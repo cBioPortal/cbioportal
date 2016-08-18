@@ -84,8 +84,7 @@ public class ImportProfileData extends ConsoleRunnable {
 		        ImportFusionData importer = new ImportFusionData(dataFile,
 					geneticProfile.getGeneticProfileId());
 		        importer.importData();
-	        } 
-            else {
+	        } else {
 	            ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
 	                    geneticProfile.getGeneticProfileId());
 	            importer.importData(numLines);

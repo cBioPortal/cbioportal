@@ -43,10 +43,6 @@
     </profile>
     <profile>
       <id>heroku</id>
-      <properties>
-          <!--Our heroku instance uses jetty and therefore needs to include the tomcat lib-->
-          <tomcat.catalina.scope>runetime</tomcat.catalina.scope>
-      </properties>
 
       <build>
         <plugins>

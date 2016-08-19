@@ -76,10 +76,6 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         return Mockito.mock(MutationService.class);
     }
     @Bean
-    public GeneService geneService() {
-        return Mockito.mock(GeneService.class);
-    }
-    @Bean
     public MutationMapper mutationMapper() {
         return Mockito.mock(MutationMapper.class);
     }

@@ -1,23 +1,50 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
  */
-package org.cbioportal.service.impl;
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+package org.cbioportal.web.api;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
+import org.cbioportal.web.config.CustomObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -25,35 +52,24 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-/**
- *
- * @author jiaojiao
- */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-public class GeneServiceImplTest {
+@ContextConfiguration(classes = {GeneControllerConfig.class, CustomObjectMapper.class})
+public class GeneControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
-     
+    @Autowired
+    private GeneService geneServiceMock;
     private MockMvc mockMvc;
-    
-    @InjectMocks
-    private GeneServiceImpl geneServiceMock;
-    
+
     @Before
     public void setup() {
         Mockito.reset(geneServiceMock);
-        
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
-
-    public GeneServiceImplTest() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-    }
-    
     
     @Test
     public void genesByHugoSymbolsDataTest() throws Exception {
-        
         List<Gene> mockResponse = new ArrayList<>();
         Gene gene1 = new Gene(); 
         gene1.setEntrezGeneId(673);
@@ -71,12 +87,12 @@ public class GeneServiceImplTest {
         mockResponse.add(gene2);
         Mockito.when(geneServiceMock.getGeneListByHugoSymbols(org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
         this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/geneListByHugoSymbols")
+                MockMvcRequestBuilders.get("/genelistbyhugosymbols")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .param("hugoSymbols", "BRAF,EGFR"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
-                //.andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value("673"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugo_gene_symbol").value("BRAF"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].type").value("protein-coding"))
@@ -89,4 +105,5 @@ public class GeneServiceImplTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value("12961"))
                 ;
     }
+
 }

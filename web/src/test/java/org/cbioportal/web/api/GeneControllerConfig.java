@@ -29,28 +29,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.web;
+package org.cbioportal.web.api;
 
 import java.util.List;
-import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.cbioportal.web.config.CustomObjectMapper;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-/**
- *
- * @author jiaojiao
- */
-@RestController
-public class GeneController {
-    @Autowired
-    private GeneService geneService;
-
-    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/genelistbyhugosymbols")
-    public List<Gene> getGeneListByHugoSymbols(@RequestParam(required = true) List<String> hugoSymbols){
-        return geneService.getGeneListByHugoSymbols(hugoSymbols);
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = {"org.mskcc.cbio.portal.web.api", "org.mskcc.cbio.portal.persistence", "org.mskcc.cbio.portal.service"})
+public class GeneControllerConfig extends WebMvcConfigurerAdapter {
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
+        converters.add(mappingJackson2HttpMessageConverter);
+    }
+    @Bean
+    public GeneService geneService() {
+        return Mockito.mock(GeneService.class);
     }
 }

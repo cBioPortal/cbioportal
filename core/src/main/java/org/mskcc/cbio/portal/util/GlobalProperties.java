@@ -98,6 +98,17 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
     public static final String SKIN_AUTHORIZATION_MESSAGE = "skin.authorization_message";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only available to authorized users.";
+    public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
+    public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =
+            "tcga\n" +
+            "tcga -provisional\n" +
+            "tcga -moratorium\n" +
+            "tcga OR icgc\n" +
+            "-\"cell line\"\n" +
+            "prostate mskcc\n" +
+            "esophageal OR stomach\n" +
+            "serous\n" +
+            "breast";
     public static final String SKIN_DATASETS_HEADER = "skin.data_sets_header";
     public static final String DEFAULT_SKIN_DATASETS_HEADER = "The portal currently contains data from the following " +
             "cancer genomics studies.  The table below lists the number of available samples per data type and tumor.";
@@ -558,6 +569,12 @@ public class GlobalProperties {
         return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
     }
 
+    public static String getExampleStudyQueries() {
+        return properties.getProperty(
+                SKIN_EXAMPLE_STUDY_QUERIES,
+                DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES);
+    }
+
     // added usage of default data sets header
     public static String getDataSetsHeader()
     {
@@ -614,21 +631,14 @@ public class GlobalProperties {
         return url+caseId;
     }
 
-    public static String[] getTCGAPathReportUrl(String typeOfCancer)
+    public static String getTCGAPathReportUrl()
     {
         String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
         if (url == null) {
             return null;
-        }
+        }       
         
-        if (typeOfCancer.equalsIgnoreCase("coadread")) {
-            return new String[] {
-                url.replace("{cancer.type}", "coad"),
-                url.replace("{cancer.type}", "read")
-            };
-        }
-        
-        return new String[] {url.replace("{cancer.type}", typeOfCancer)};
+        return url;
     }
 
     // function for getting the custom tabs for the header

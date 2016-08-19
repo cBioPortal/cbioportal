@@ -1494,6 +1494,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var $header_btn = $('#switchPatientSample');
 	    
 	    $header_btn.click(function() {
+		var curr_selection = $(toolbar_selector).find('#oncoprint_diagram_view_menu')
+				   .find('input[type="radio"][name="datatype"]:checked').val();
+		$(toolbar_selector).find('#oncoprint_diagram_view_menu')
+				   .find('input[type="radio"][name="datatype"][value="' + (curr_selection === "sample" ? "patient" : "sample") + '"]').prop("checked", true);
 		$(toolbar_selector).find('#oncoprint_diagram_view_menu')
 				   .find('input[type="radio"][name="datatype"]').trigger('change');
 	    });

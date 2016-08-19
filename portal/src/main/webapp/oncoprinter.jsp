@@ -249,7 +249,7 @@
     <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
 
     <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
-    <img id="oncoprint_loader_img" src="images/ajax-loader.gif" style="display:none;">
+    <img id="oncoprint_loader_img" src="images/ajax-loader.gif" style="display:none;" alt="loading" />
     </div>
      <div id='oncoprint'>
          <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           

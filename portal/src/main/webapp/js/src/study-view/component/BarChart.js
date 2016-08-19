@@ -507,7 +507,7 @@ var BarChart = function(){
 //            _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
 //                "style='clear:right;float:right;font-size:10px' value='Survival' />";
             _plotDataDiv = "<img id='"+
-                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
+                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg' alt='survival' />";
         }else {
             _plotDataDiv = "";
         }
@@ -520,12 +520,12 @@ var BarChart = function(){
 //                "dc.redrawAll();'>"+
 //                "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
 //                "RESET</span></a>"+
-                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+    
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg' alt='reload' />"+
                 _logCheckBox +
                 _plotDataDiv +
-                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+ 
-                DIV.chartDiv+"-download-icon' style='float:left' src='images/in.svg'/></div>"+
-                "<img class='study-view-drag-icon' src='images/move.svg'/>"+
+                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+
+                DIV.chartDiv+"-download-icon' style='float:left' src='images/in.svg' alt='download' /></div>"+
+                "<img class='study-view-drag-icon' src='images/move.svg' alt='move' />"+
                 "<span chartID="+param.chartID+" class='study-view-dc-chart-delete'>x</span>"+
                 "</div></div><div id=\"" + DIV.chartDiv + 
                 "\" class='"+ param.className +"'  oValue='" + param.selectedAttr + "," + 
@@ -677,7 +677,7 @@ var BarChart = function(){
             //If the current tmpValue already bigger than maxmium number, the
             //function should decrease the number of bars and also reset the
             //Mappped empty value.
-            if(_tmpValue > param.distanceArray.max){
+            if(_tmpValue >= param.distanceArray.max){
                 //if i = 0 and tmpValue bigger than maximum number, that means
                 //all data fall into NA category.
                 if(i !== 0){
@@ -699,10 +699,12 @@ var BarChart = function(){
                 xDomain.push(_tmpValue);
             }
         }
-        if(param.distanceArray.absoluteMax > xDomain[xDomain.length - 1]){
-            xDomain.push(xDomain[xDomain.length - 1] + seperateDistance);
-            emptyValueMapping += seperateDistance;
-        }
+        //currently we always add ">max" and "NA" marker 
+        //add marker for greater than maximum
+        xDomain.push(Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+        //add marker for NA values
+        xDomain.push(Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+        
     }
     
     //Initialize BarChart in DC.js
@@ -711,23 +713,21 @@ var BarChart = function(){
             _barValue = [];
         
         barChart = dc.barChart("#" + DIV.chartDiv);
-        
        
         cluster = param.ndx.dimension(function (d) {
             var returnValue = d[param.selectedAttr];
+       
             if(returnValue === "NA" || returnValue === '' || returnValue === 'NaN'){
                 hasEmptyValue = true;
-                returnValue = emptyValueMapping;
+                returnValue = xDomain[xDomain.length - 1];
             }else{
-                if(d[param.selectedAttr] < xDomain[1]){
+                if(d[param.selectedAttr] <= xDomain[1]){
                     returnValue = xDomain[0];
-                }else if(d[param.selectedAttr] >= xDomain[xDomain.length - 2]){
-                    returnValue = xDomain[xDomain.length - 1];
+                }else if(d[param.selectedAttr] > xDomain[xDomain.length - 3]){
+                    returnValue = xDomain[xDomain.length - 2];
                 }else{
-                    returnValue =  parseInt(
-                            (d[param.selectedAttr]-startPoint) /
-                            seperateDistance) *
-                        seperateDistance + startPoint + seperateDistance / 2;
+                    //minus half of seperateDistance to make the margin values always map to the left side. Thus for any value x, it is in the range of (a, b] which means a < x <= b
+                    returnValue =  Math.ceil( (d[param.selectedAttr]-startPoint) / seperateDistance) * seperateDistance + startPoint - seperateDistance / 2;
                 }
             }
             
@@ -753,11 +753,6 @@ var BarChart = function(){
         }
         
         if(hasEmptyValue){
-            xDomain.push( Number(
-                    cbio.util.toPrecision(
-                        Number(emptyValueMapping), 3, 0.1 )
-                )
-            );
             barColor['NA'] = '#CCCCCC';
         }else {
             barColor[_barValue[_barLength-1]] = color[_barLength-1];
@@ -789,7 +784,7 @@ var BarChart = function(){
         barChart.yAxis().tickFormat(d3.format("d"));            
         barChart.xAxis().tickFormat(function(v) {
             if(v === xDomain[0]){
-                return '<' + xDomain[1];
+                return '<=' + xDomain[1];
             }
             else if(v === xDomain[xDomain.length - 2]){
                 return '>' + xDomain[xDomain.length - 3]; 

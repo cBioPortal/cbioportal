@@ -728,19 +728,42 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 1)
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("swissprot", record_list[0].getMessage().lower())
-        
-    
+
     def test_isValidAminoAcidChange(self):
-        """Tests if proper warning is given if aa change column is present, but contains wrong (blank) value"""
+        """Test if proper warnings are given for wrong/blank AA change vals."""
         # set level according to this test case:
         self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('mutations/data_mutations_empty_aa_change_column.maf',
+        record_list = self.validate('mutations/data_mutations_wrong_aa_change.maf',
                                     validateData.MutationsExtendedValidator)
-        # we expect 1 warning, something like
-        # WARNING: data_mutations_empty_aa_change_column.maf: line 2: Amino acid change cannot be parsed from Amino_Acid_Change column value. This mutation record will get a generic "MUTATED" flag; wrong value: 'empty value found'
-        self.assertEqual(len(record_list), 2)
-        # check if both messages come from printDataInvalidStatement:
-        self.assertIn("amino acid change cannot be parsed", record_list[0].getMessage().lower())
+        self.assertEqual(len(record_list), 5)
+        record_iterator = iter(record_list)
+        # empty field (and no HGVSp_Short column)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('Amino_Acid_Change', record.getMessage())
+        self.assertIn('HGVSp_Short', record.getMessage())
+        self.assertEqual(record.line_number, 2)
+        # multiple specifications
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('p.', record.getMessage())
+        self.assertEqual(record.cause, 'p.A195V p.I167I')
+        # comma in the string
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('comma', record.getMessage().lower())
+        self.assertEqual(record.cause, 'p.N851,Y1055delinsCC')
+        # haplotype specification of multiple mutations
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('allele', record.getMessage().lower())
+        self.assertEqual(record.cause, 'p.[N851N];[Y1055C]')
+        # NULL (and no HGVSp_Short column)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('Amino_Acid_Change', record.getMessage())
+        self.assertIn('HGVSp_Short', record.getMessage())
+        self.assertEqual(record.line_number, 8)
 
     def test_silent_mutation_skipped(self):
         """Test if silent mutations are skipped with a message.

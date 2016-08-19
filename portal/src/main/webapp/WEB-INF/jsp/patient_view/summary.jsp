@@ -267,7 +267,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <%if(showMutations){%>
 <tr valign="top">
 <td>
-<div id="mutation_summary_wait"><img src="images/ajax-loader.gif"/> Loading mutations ...</div>
+<div id="mutation_summary_wait"><img src="images/ajax-loader.gif" alt="loading" /> Loading mutations ...</div>
 <table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%" style="display:none;">
     <tr>
         <td>
@@ -283,7 +283,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <%}if(showCNA){%>
 <tr valign="top">
 <td>
-<div id="cna_summary_wait"><img src="images/ajax-loader.gif"/> Loading copy number alterations ...</div>
+<div id="cna_summary_wait"><img src="images/ajax-loader.gif" alt="loading" /> Loading copy number alterations ...</div>
 <table cellpadding="0" cellspacing="0" border="0" id="cna_summary_wrapper_table" width="100%">
     <tr>
         <td>

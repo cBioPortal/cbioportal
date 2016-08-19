@@ -45,7 +45,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, enrichmentsTableInstance, profile_type, profile_id, table_title, data_type;
     var selected_genes = [];
-    var assumeLogSpace=false;
 
     function configTable() {
 
@@ -276,13 +275,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     if (_q_val === "<0.001" || _q_val < enrichmentsTabSettings.settings.p_val_threshold) {
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     }
-
-                    // Check whether we encounter a negative value.
-                    // If we do, assume data is already in log-space. This is a workaround for the data not
-                    // having a descriptive data_type
-                    if(Number(aData[col_index.altered_mean])<=0 || Number(aData[col_index.unaltered_mean])<=0){
-                        assumeLogSpace=true;
-                    }
                 }
             },
             "fnDrawCallback": function() {
@@ -366,21 +358,11 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
     }
 
     /**
-     * check whether the datatype is LOG-VALUE, LOG2-VALUE or whether LOG space is assumed because
-     * a negative value was found to prevent logging it again
-     * assumeLogSpace is a backwards compatibility for MSK
+     * check whether the datatype is LOG-VALUE to prevent logging it again
      * @returns {boolean}
      */
     this.hasLogData = function(){
-        return data_type === "LOG-VALUE" || data_type==="LOG2-VALUE" || assumeLogSpace;
-    }
-
-    /**
-     * return whether log-space was assumed
-     * @returns {boolean}
-     */
-    this.assumedLogSpace = function(){
-        return assumeLogSpace && !(data_type === "LOG-VALUE" || data_type==="LOG2-VALUE");
+        return data_type === "LOG-VALUE";
     }
 
     /**
@@ -611,7 +593,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                 var _gene_name = aData[0];
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
-                enrichmentsTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif' alt='loading' /></div>", "rppa-details");
+                enrichmentsTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
                 enrichmentsTabPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[col_index.p_val]);
             }
         });
@@ -768,14 +750,14 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                 addHeaderQtips();
 
                 //initially hiding all the mrna data tables
-                if (_profile_type === enrichmentsTabSettings.profile_type.mrna ||
+								if (_profile_type === enrichmentsTabSettings.profile_type.mrna ||
 										_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
                     $("#" + _table_div).hide();
                 }
 
             } else {
 							if (_profile_type === enrichmentsTabSettings.profile_type.mrna ||
-									_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
+										_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
                     $("#" + _table_div).empty();
                     $("#" + _table_div).append("No data/result available");
                 } else {
@@ -808,7 +790,7 @@ var orSubTabView = function() {
     return {
         init: function(_div_id, _profile_list, _profile_type, _gene_set) {
 
-            //for prot, mrna sub tab, there is an EXTRA dropdown menu for selecting profiles
+            //for protein_exp and mrna sub tab, there is an EXTRA dropdown menu for selecting profiles
             //order profiles by priority list -- swap the ms and rna seq profile to the top
             $.each(_profile_list, function(i, obj) {
                 if (obj.STABLE_ID.indexOf("rna_seq") !== -1) {
@@ -852,7 +834,7 @@ var orSubTabView = function() {
                     });
                 });
                 //adding loading image for table
-                $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>")
+                $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>")
             }
 
 						//append profile selection dropdown menu for protein_exp sub-tab
@@ -902,7 +884,7 @@ var orSubTabView = function() {
                     var html = "<div id='"+_profile_obj.STABLE_ID.replace(/\./g, "_")+"_container' style='float: left; position: relative'>"+
                         "<div id='" + _plot_div + "' style='width: 30%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
                         "<div id='" + _table_div + "' style='width: 65%; display:table; margin-left: auto; margin-right: 0; '></div>"+
-                        "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif' alt='loading' /></div>"+
+                        "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif'/></div>"+
                         "</div>";
                     $("#" + _div_id).append(html);
                     //adding this to contain floated plot (see "float: left"  above):
@@ -927,7 +909,7 @@ var orSubTabView = function() {
                         or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile, _profile_obj.DATATYPE);
                     }
 
-                    //hide protein_exp and mrna tables initially
+                    //hide mrna tables initially
 										if (_profile_type === enrichmentsTabSettings.profile_type.mrna ||
 												_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
                         $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_div).hide();
@@ -954,21 +936,21 @@ var orSubTabView = function() {
                 }
             }
 
-						// New: should it be combined with above?
-						if (_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
-								var tmp = setInterval(function () { timer(); }, 1000);
-								function timer() {
-										var selectedVal = $("#" + _div_id + enrichmentsTabSettings.postfix.protein_exp_sub_tab_profile_selection_dropdown_menu).val().replace(/\./g, "_");
-										var _target_table_div = selectedVal + enrichmentsTabSettings.postfix.datatable_div;
-										if (!$( "#" + _target_table_div).is(":empty")) {
-												clearInterval(tmp);
-												$("#" + _div_id + "_table_loading_img").empty();
-												$("#" + _target_table_div).show();
-												// also show the corresponding volcanoplot
-												$("#"+selectedVal+enrichmentsTabSettings.postfix.plot_div).show();
-										}
-								}
-						}
+						//show protein_exp table that's being selected
+            if (_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
+                var tmp = setInterval(function () { timer(); }, 1000);
+                function timer() {
+                    var selectedVal = $("#" + _div_id + enrichmentsTabSettings.postfix.protein_exp_sub_tab_profile_selection_dropdown_menu).val().replace(/\./g, "_");
+                    var _target_table_div = selectedVal + enrichmentsTabSettings.postfix.datatable_div;
+                    if (!$( "#" + _target_table_div).is(":empty")) {
+                        clearInterval(tmp);
+                        $("#" + _div_id + "_table_loading_img").empty();
+                        $("#" + _target_table_div).show();
+                        // also show the corresponding volcanoplot
+                        $("#"+selectedVal+enrichmentsTabSettings.postfix.plot_div).show();
+                    }
+                }
+            }
 
         }
     };

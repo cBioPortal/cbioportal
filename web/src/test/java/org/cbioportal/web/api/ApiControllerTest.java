@@ -1,38 +1,6 @@
-/*
- * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
- * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
- * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
- * liable to any party for direct, indirect, special, incidental or
- * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
- * Center has been advised of the possibility of such damage.
- */
-
-/*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 package org.cbioportal.web.api;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang.SerializationUtils;
 import org.cbioportal.model.CancerStudy;
@@ -40,12 +8,12 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationEvent;
+import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleType;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.service.MutationService;
-import org.cbioportal.service.GeneService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Assert.*;
@@ -64,6 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -80,8 +49,6 @@ public class ApiControllerTest {
     private MutationService mutationServiceMock;
     @Autowired
     private WebApplicationContext webApplicationContext;
-    @Autowired
-    private GeneService geneServiceMock;
     private MockMvc mockMvc;
     private static List<Mutation> geneticprofiledataQuery1PersistenceFullMock; //full data from tables
     private static List<Mutation> geneticprofiledataQuery1ServiceMock;
@@ -92,7 +59,6 @@ public class ApiControllerTest {
         Mockito.reset(cancerTypeMapperMock);
         Mockito.reset(geneticProfileMapperMock);
         Mockito.reset(mutationServiceMock);
-        Mockito.reset(geneServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
@@ -534,44 +500,6 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].variant_allele").value("G"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutation_event_id").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutation_event_id").doesNotExist())
-                ;
-    }
-    
-    @Test
-    public void genesByHugoSymbolsDataTest() throws Exception {
-        List<Gene> mockResponse = new ArrayList<>();
-        Gene gene1 = new Gene(); 
-        gene1.setEntrezGeneId(673);
-        gene1.setHugoGeneSymbol("BRAF");
-        gene1.setType("protein-coding");
-        gene1.setCytoband("7q34");    
-        gene1.setLength(4564);
-        Gene gene2 = new Gene();
-        gene2.setEntrezGeneId(1956);
-        gene2.setHugoGeneSymbol("EGFR");
-        gene2.setType("protein-coding");
-        gene2.setCytoband("7p12");    
-        gene2.setLength(12961);
-      	mockResponse.add(gene1);
-        mockResponse.add(gene2);
-        Mockito.when(geneServiceMock.getGeneListByHugoSymbols(org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
-        this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/geneListByHugoSymbols")
-                .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-                .param("hugoSymbols", "BRAF,EGFR"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value("673"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugo_gene_symbol").value("BRAF"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].type").value("protein-coding"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value("7q34"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value("4564"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value("1956"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugo_gene_symbol").value("EGFR"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].type").value("protein-coding"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value("7p12"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value("12961"))
                 ;
     }
 

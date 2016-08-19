@@ -99,7 +99,7 @@ public class TestImportExtendedMutationData {
         //exception.expect(IllegalArgumentException.class);
         //exception.expectMessage(containsString("Gene list 'no_such_germline_whitelistfile' not found"));
 
-        new ImportExtendedMutationData(file, geneticProfileId);
+        new ImportExtendedMutationData(file, geneticProfileId, null);
 	}
 	
 	@Test
@@ -109,7 +109,7 @@ public class TestImportExtendedMutationData {
         
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/data_mutations_extended.txt");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
         parser.importData();
         MySQLbulkLoader.flushAll();
         ConsoleUtil.showMessages();
@@ -131,7 +131,7 @@ public class TestImportExtendedMutationData {
 	@Test
     public void testImportExtendedMutationDataOncotated() throws IOException, DaoException {
         File file = new File("target/test-classes/data_mutations_oncotated.txt");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
         parser.importData();
         MySQLbulkLoader.flushAll();
         
@@ -169,7 +169,7 @@ public class TestImportExtendedMutationData {
         assertEquals(1, mutationList.size());
         assertEquals(expectedAminoAcidChange, mutationList.get(0).getProteinChange());
     }
-
+    
     private void acceptValidSomaticMutations() throws DaoException {
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
 

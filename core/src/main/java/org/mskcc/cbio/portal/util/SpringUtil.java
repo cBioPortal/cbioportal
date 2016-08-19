@@ -32,11 +32,14 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.cbioportal.persistence.GenePanelRepository;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 public class SpringUtil
 {
@@ -44,7 +47,19 @@ public class SpringUtil
 
 	private static AccessControl accessControl;
 	private static ApplicationContext context;
+        private static GenericXmlApplicationContext applicationContext;
 
+    public static GenePanelRepository getGenePanelRepository() {
+        if (applicationContext == null) {
+            applicationContext = new GenericXmlApplicationContext();
+            applicationContext.getEnvironment().setActiveProfiles("dbcp");
+            applicationContext.load("classpath:applicationContext-business.xml");
+            applicationContext.refresh();
+        }
+        
+        return (GenePanelRepository)applicationContext.getBean("genePanelRepository");
+    }    
+    
     public static void setAccessControl(AccessControl accessControl) {
     	log.debug("Setting access control");
 		SpringUtil.accessControl = accessControl;

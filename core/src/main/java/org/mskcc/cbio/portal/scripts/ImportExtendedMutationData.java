@@ -65,14 +65,16 @@ public class ImportExtendedMutationData{
 	private int samplesSkipped = 0;
 	private Set<String> sampleSet = new HashSet<String>();
 	private Set<String> geneSet = new HashSet<String>();
+                     private String genePanel;
 
 	/**
 	 * construct an ImportExtendedMutationData.
 	 * Filter mutations according to the no argument MutationFilter().
 	 */
-	public ImportExtendedMutationData(File mutationFile, int geneticProfileId) {
+	public ImportExtendedMutationData(File mutationFile, int geneticProfileId, String genePanel) {
 		this.mutationFile = mutationFile;
 		this.geneticProfileId = geneticProfileId;
+                                          this.genePanel = genePanel;
 
 		// create default MutationFilter
 		myMutationFilter = new MutationFilter( );
@@ -156,6 +158,9 @@ public class ImportExtendedMutationData{
 		        
 				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
 					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
+                                                                                                            if (genePanel != null) {
+                                                                                                                GeneticProfileUtil.importGenePanelMatrix(sample.getInternalId(), genePanel, geneticProfileId);
+                                                                                                            }                                                  
 				}
 
 				String validationStatus = record.getValidationStatus();

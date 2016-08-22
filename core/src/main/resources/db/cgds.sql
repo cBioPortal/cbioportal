@@ -376,7 +376,7 @@ CREATE TABLE `mutation_count` (
   KEY (`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-)
+);
 
 -- --------------------------------------------------------
 --

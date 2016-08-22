@@ -10,6 +10,6 @@ import java.util.List;
 public interface SVRepository {
     
 
-    List<SV> getSVs(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds);
+    List<SV> getSV(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds);
     
 }

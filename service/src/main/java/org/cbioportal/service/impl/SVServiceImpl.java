@@ -20,7 +20,7 @@ public class SVServiceImpl implements SVService{
     SVRepository svRepository;
     
     @Override
-    public List<SV> getSVs(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds){
-        return svRepository.getSVs(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
+    public List<SV> getSV(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds){
+        return svRepository.getSV(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     }
 }

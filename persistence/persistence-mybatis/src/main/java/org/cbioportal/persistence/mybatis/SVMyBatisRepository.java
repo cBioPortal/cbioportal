@@ -18,7 +18,7 @@ public class SVMyBatisRepository implements SVRepository{
     SVMapper svMapper;
     
     @Override
-    public List<SV> getSVs(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds){
-        return svMapper.getSVs(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
+    public List<SV> getSV(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds){
+        return svMapper.getSV(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     }
 }

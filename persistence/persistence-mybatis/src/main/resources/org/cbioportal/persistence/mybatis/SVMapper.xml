@@ -19,7 +19,7 @@ and open the template in the editor.
                 #{geneticProfile},#{sample})
     </insert>
     
-    <select id="getSVs" resultType="org.cbioportal.model.SV">
+    <select id="getSV" resultType="org.cbioportal.model.SV">
         select
         
         sv.SAMPLE_ID as sampleId,

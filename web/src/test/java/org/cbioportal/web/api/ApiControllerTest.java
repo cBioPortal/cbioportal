@@ -1026,7 +1026,7 @@ public class ApiControllerTest {
     public void svDataTest1() throws Exception {
         List<SV> mockResponse = getSVdataQuerylPersistenceFullMock();
         Mockito.when(svServiceMock.getSV(
-                org.mockito.Matchers.anyListOf(Integer.class),
+                org.mockito.Matchers.anyListOf(String.class),
                 org.mockito.Matchers.anyListOf(String.class),
                 org.mockito.Matchers.anyListOf(String.class)
         )).thenReturn(mockResponse);
@@ -1133,7 +1133,7 @@ public class ApiControllerTest {
     public void svDataTest2() throws Exception{
         List <SV> mockResponse = getSVdataQuerylPersistenceFullMock();
         Mockito.when(svServiceMock.getSV(
-                org.mockito.Matchers.anyListOf(Integer.class),
+                org.mockito.Matchers.anyListOf(String.class),
                 org.mockito.Matchers.anyListOf(String.class),
                 org.mockito.Matchers.anyListOf(String.class)
         )).thenReturn(mockResponse);
@@ -1240,7 +1240,7 @@ public class ApiControllerTest {
     public void svDataTest3() throws Exception{
         List <SV> mockResponse = getSVdataQuerylPersistenceFullMock();
         Mockito.when(svServiceMock.getSV(
-                org.mockito.Matchers.anyListOf(Integer.class),
+                org.mockito.Matchers.anyListOf(String.class),
                 org.mockito.Matchers.anyListOf(String.class),
                 org.mockito.Matchers.anyListOf(String.class)
         )).thenReturn(mockResponse);
@@ -1319,7 +1319,7 @@ public class ApiControllerTest {
     public void svDataTest4() throws Exception{
         List <SV> mockResponse = getSVdataQuerylPersistenceFullMock();
         Mockito.when(svServiceMock.getSV(
-                org.mockito.Matchers.anyListOf(Integer.class),
+                org.mockito.Matchers.anyListOf(String.class),
                 org.mockito.Matchers.anyListOf(String.class),
                 org.mockito.Matchers.anyListOf(String.class)
         )).thenReturn(mockResponse);
@@ -1438,7 +1438,7 @@ public class ApiControllerTest {
         sv1.setConn_type("3to5");
         sv1.setConnection_type("3to5");
         sv1.setEvent_info("Transcript fusion (ERBB2-GRB7");
-        sv1.setMapq(0);
+        sv1.setMapq("0");
         sv1.setNormal_read_count(5082);
         sv1.setNormal_variant_count(0);
         sv1.setPaired_end_read_support(6);
@@ -1473,7 +1473,7 @@ public class ApiControllerTest {
         sv2.setConn_type("3to5");
         sv2.setConnection_type("3to5");
         sv2.setEvent_info("Protein fusion: mid-exon (ERBB2-GB7)");
-        sv2.setMapq(0);
+        sv2.setMapq("0");
         sv2.setNormal_read_count(9711);
         sv2.setNormal_variant_count(0);
         sv2.setPaired_end_read_support(63);
@@ -1508,7 +1508,7 @@ public class ApiControllerTest {
         sv3.setConn_type("3to5");
         sv3.setConnection_type("3to5");
         sv3.setEvent_info("Deletion of 1 exon: in frame");
-        sv3.setMapq(0);
+        sv3.setMapq("0");
         sv3.setNormal_read_count(2742);
         sv3.setNormal_variant_count(0);
         sv3.setPaired_end_read_support(10);

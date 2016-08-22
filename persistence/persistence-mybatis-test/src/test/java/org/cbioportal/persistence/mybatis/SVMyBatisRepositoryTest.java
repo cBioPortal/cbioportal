@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.cbioportal.persistence;
+package org.cbioportal.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.cbioportal.model.SV;
+import org.cbioportal.persistence.SVRepository;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Assert;
@@ -36,11 +37,11 @@ public class SVMyBatisRepositoryTest {
     
     @Test
     public void testGetAllSV(){
-        List<Integer> geneticProfileStableIds = new ArrayList<>();
+        List<String> geneticProfileStableIds = new ArrayList<>();
         List<String> sampleStableIds = new ArrayList<>();
         sampleStableIds.add("mskimpact_sv");
         List<String> hugoGeneSymbols = new ArrayList<>();
-        List<SV> result = svRepository.getSVs(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
+        List<SV> result = svRepository.getSV(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
         
         Assert.assertNotNull(result);
         Assert.assertEquals(4, result.size());
@@ -48,13 +49,13 @@ public class SVMyBatisRepositoryTest {
     
     @Test
     public void testGetSVForERBB2(){
-        List<Integer> geneticProfileStableIds = new ArrayList<>();
+        List<String> geneticProfileStableIds = new ArrayList<>();
         List<String> sampleStableIds = new ArrayList<>();
         String sampleStableId = "mskimpact_sv";
         sampleStableIds.add(sampleStableId);
         List<String> hugoGeneSymbols = new ArrayList<>();
         hugoGeneSymbols.add("ERBB2");
-        List<SV> result = svRepository.getSVs(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
+        List<SV> result = svRepository.getSV(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
         
         Assert.assertNotNull(result);
         Assert.assertEquals(4, result.size());
@@ -62,13 +63,13 @@ public class SVMyBatisRepositoryTest {
     
     @Test
     public void testGetSVForKRAS(){
-        List<Integer> geneticProfileStableIds = new ArrayList<>();
+        List<String> geneticProfileStableIds = new ArrayList<>();
         List<String> sampleStableIds = new ArrayList<>();
         String sampleStableId = "mskimpact_sv";
         sampleStableIds.add(sampleStableId);
         List<String> hugoGeneSymbols = new ArrayList<>();
         hugoGeneSymbols.add("KRAS");
-        List<SV> result = svRepository.getSVs(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
+        List<SV> result = svRepository.getSV(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
         
         Assert.assertNotNull(result);
         Assert.assertEquals(4, result.size());

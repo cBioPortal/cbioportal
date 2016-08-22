@@ -26,11 +26,11 @@ public class SVController {
     private SVService svService;
     
     @RequestMapping(method = RequestMethod.GET, value = "/sv")
-    public List<SV> getSV(@RequestParam List<Integer> geneticProfileStableIds,
+    public List<SV> getSV(@RequestParam List<String> geneticProfileStableIds,
                                       @RequestParam List<String> hugoGeneSymbols,
                                       @RequestParam(required = false) List<String> sampleStableIds){
         
-        return svService.getSVs(geneticProfileIds, hugoGeneSymbols, sampleStableIds);
+        return svService.getSV(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     
     }
     

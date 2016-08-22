@@ -44,9 +44,9 @@ public class SVServiceImplTest {
         SV expectedSV = new SV();
         expectedSVList.add(expectedSV);
         
-        Mockito.when(svRepository.getSVs(testGeneticProfileStableIds, testHugoGeneSymbols, testSampleStableIds)).thenReturn(expectedSVList);
+        Mockito.when(svRepository.getSV(testGeneticProfileStableIds, testHugoGeneSymbols, testSampleStableIds)).thenReturn(expectedSVList);
         
-        List<SV> resultSVList = svService.getSVs(testGeneticProfileStableIds, testHugoGeneSymbols, testSampleStableIds);
+        List<SV> resultSVList = svService.getSV(testGeneticProfileStableIds, testHugoGeneSymbols, testSampleStableIds);
         
         Assert.assertEquals(expectedSVList, resultSVList);
     }

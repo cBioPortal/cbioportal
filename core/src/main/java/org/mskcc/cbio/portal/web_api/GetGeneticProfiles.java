@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,13 +32,12 @@
 
 package org.mskcc.cbio.portal.web_api;
 
+import java.util.ArrayList;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-
-import java.util.ArrayList;
 
 /**
  * Web API for Getting Genetic Profiles.
@@ -88,7 +87,7 @@ public class GetGeneticProfiles {
                     buf.append(geneticProfile.getProfileName()).append("\t");
                     buf.append(geneticProfile.getProfileDescription()).append("\t");
                     buf.append(geneticProfile.getCancerStudyId()).append("\t");
-                    buf.append(geneticProfile.getGeneticAlterationType()).append("\t");
+                    buf.append(geneticProfile.getGeneticAlterationType().name()).append("\t");
                     buf.append(geneticProfile.showProfileInAnalysisTab()).append("\n");
                 }
             } else {

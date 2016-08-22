@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -213,7 +213,7 @@ public class CancerStudy {
     public GeneticProfile getMutationProfile(ArrayList<GeneticProfile> geneticProfiles,
             String caseId) throws DaoException {
         for(GeneticProfile geneticProfile: geneticProfiles) {
-            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED) &&
+            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED &&
                acceptableCaseId(caseId, geneticProfile)) {
                 return geneticProfile;
             }
@@ -274,7 +274,7 @@ public class CancerStudy {
     public GeneticProfile getCopyNumberAlterationProfile(String caseId, boolean showInAnalysisOnly)
             throws DaoException {
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.COPY_NUMBER_ALTERATION) &&
+            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION &&
                (!showInAnalysisOnly || geneticProfile.showProfileInAnalysisTab()) &&
                acceptableCaseId(caseId, geneticProfile)) {
                 return geneticProfile;
@@ -310,7 +310,7 @@ public class CancerStudy {
             throws DaoException {
         GeneticProfile ret = null;
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MRNA_EXPRESSION) &&
+            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION &&
                acceptableCaseId(caseId, geneticProfile)) {
                 String stableId = geneticProfile.getStableId().toLowerCase();
                 if (stableId.matches(".+rna_seq.*_zscores")) {

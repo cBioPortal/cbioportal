@@ -30,45 +30,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.cbioportal.web.legacy;
 
-import org.cbioportal.model.summary.MutationSummary;
+import java.util.List;
+import org.cbioportal.persistence.mybatis.StructuralVariantMapper;
+import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.web.config.CustomObjectMapper;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-public class Mutation extends MutationSummary {
-    private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
-    private Sample sample;
-    private Gene gene;
-
-    public MutationEvent getMutationEvent() {
-        return mutationEvent;
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = {"org.cbioportal.web"})
+public class StructuralVariantControllerTestConfig extends WebMvcConfigurerAdapter {
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
+        converters.add(mappingJackson2HttpMessageConverter);
     }
-
-    public void setMutationEvent(MutationEvent mutationEvent) {
-        this.mutationEvent = mutationEvent;
-    }
-
-    public GeneticProfile getGeneticProfile() {
-        return geneticProfile;
-    }
-
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
-        this.geneticProfile = geneticProfile;
-    }
-
-    public Sample getSample() {
-        return sample;
-    }
-
-    public void setSample(Sample sample) {
-        this.sample = sample;
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
+    @Bean
+    public StructuralVariantService svService(){
+        return Mockito.mock(StructuralVariantService.class);
     }
 }

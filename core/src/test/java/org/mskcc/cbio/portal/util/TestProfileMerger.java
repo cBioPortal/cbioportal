@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,16 +32,13 @@
 
 package org.mskcc.cbio.portal.util;
 
-
-import org.mskcc.cbio.portal.model.ProfileData;
-import org.mskcc.cbio.io.WebFileConnect;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
+import org.mskcc.cbio.io.WebFileConnect;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.ProfileData;
 import static org.junit.Assert.*;
 
 /**
@@ -76,10 +73,10 @@ public class TestProfileMerger {
         ProfileMerger merger = new ProfileMerger(profileList);
         ProfileData mergedProfile = merger.getMergedProfile();
         String value = mergedProfile.getValue("BRCA1", "TCGA-02-0004");
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION + ":1;", value);
+        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION.name() + ":1;", value);
         value = mergedProfile.getValue("BRCA2", "TCGA-06-0169");
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION + ":0;"
-                + GeneticAlterationType.MUTATION_EXTENDED + ":P920S;", value);
+        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION.name() + ":0;"
+                + GeneticAlterationType.MUTATION_EXTENDED.name() + ":P920S;", value);
         //value = mergedProfile.getValue("BRCA1", "TCGA-06-0169");
         //assertEquals("", value);
     }

@@ -30,45 +30,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.cbioportal.service.impl;
 
-import org.cbioportal.model.summary.MutationSummary;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.persistence.StructuralVariantRepository;
+import org.cbioportal.service.StructuralVariantService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public class Mutation extends MutationSummary {
-    private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
-    private Sample sample;
-    private Gene gene;
+import java.util.List;
 
-    public MutationEvent getMutationEvent() {
-        return mutationEvent;
-    }
-
-    public void setMutationEvent(MutationEvent mutationEvent) {
-        this.mutationEvent = mutationEvent;
-    }
-
-    public GeneticProfile getGeneticProfile() {
-        return geneticProfile;
-    }
-
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
-        this.geneticProfile = geneticProfile;
-    }
-
-    public Sample getSample() {
-        return sample;
-    }
-
-    public void setSample(Sample sample) {
-        this.sample = sample;
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
+@Service
+public class StructuralVariantServiceImpl implements StructuralVariantService {
+    
+    @Autowired
+    StructuralVariantRepository structuralVariantRepository;
+    
+    @Override
+    public List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds){
+        return structuralVariantRepository.getStructuralVariant(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     }
 }

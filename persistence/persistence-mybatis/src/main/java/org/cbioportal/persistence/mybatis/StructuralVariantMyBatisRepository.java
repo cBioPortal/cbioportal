@@ -30,45 +30,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.summary.MutationSummary;
+import java.util.ArrayList;
+import java.util.List;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.persistence.StructuralVariantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+/**
+ *
+ * @author jake
+ */
+@Repository
+public class StructuralVariantMyBatisRepository implements StructuralVariantRepository {
 
-public class Mutation extends MutationSummary {
-    private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
-    private Sample sample;
-    private Gene gene;
+    @Autowired
+    StructuralVariantMapper structuralVariantMapper;
 
-    public MutationEvent getMutationEvent() {
-        return mutationEvent;
-    }
-
-    public void setMutationEvent(MutationEvent mutationEvent) {
-        this.mutationEvent = mutationEvent;
-    }
-
-    public GeneticProfile getGeneticProfile() {
-        return geneticProfile;
-    }
-
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
-        this.geneticProfile = geneticProfile;
-    }
-
-    public Sample getSample() {
-        return sample;
-    }
-
-    public void setSample(Sample sample) {
-        this.sample = sample;
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
+    @Override
+    public List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds) {
+        if (geneticProfileStableIds == null || geneticProfileStableIds.size() == 0) {
+            return new ArrayList<StructuralVariant>(0);
+        }
+        return structuralVariantMapper.getStructuralVariant(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     }
 }

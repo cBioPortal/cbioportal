@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,18 +32,15 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.*;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
-
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Code to Import Copy Number Alteration, MRNA Expression Data, Methylation, or protein RPPA data
@@ -51,8 +48,13 @@ import java.util.regex.Pattern;
  * @author Ethan Cerami
  */
 public class ImportTabDelimData {
+    public static final String CNA_VALUE_AMPLIFICATION = "2";
+    public static final String CNA_VALUE_GAIN = "1";
+    public static final String CNA_VALUE_HEMIZYGOUS_DELETION = "-1";
+    public static final String CNA_VALUE_HOMOZYGOUS_DELETION = "-2";
+    public static final String CNA_VALUE_PARTIAL_DELETION = "-1.5";
+    public static final String CNA_VALUE_ZERO = "0";
     private HashSet<Long> importedGeneSet = new HashSet<Long>();
-
     private File mutationFile;
     private String targetLine;
     private int geneticProfileId;
@@ -107,7 +109,7 @@ public class ImportTabDelimData {
         String parts[] = headerLine.split("\t");
         
         //Whether data regards CNA or RPPA:
-        boolean discritizedCnaProfile = geneticProfile!=null
+        boolean discretizedCnaProfile = geneticProfile!=null
                                         && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
                                         && geneticProfile.showProfileInAnalysisTab();
         boolean rppaProfile = geneticProfile!=null
@@ -188,7 +190,7 @@ public class ImportTabDelimData {
 	        
 	        //cache for data found in  cna_event' table:
 	        Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents = null;	        
-	        if (discritizedCnaProfile) {
+	        if (discretizedCnaProfile) {
 	            existingCnaEvents = new HashMap<CnaEvent.Event, CnaEvent.Event>();
 	            for (CnaEvent.Event event : DaoCnaEvent.getAllCnaEvents()) {
 	                existingCnaEvents.put(event, event);
@@ -204,7 +206,7 @@ public class ImportTabDelimData {
 	            ConsoleUtil.showProgress();
 	        	if (parseLine(line, lenParts, sampleStartIndex, 
 	        			hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex,
-	        			rppaProfile, discritizedCnaProfile, 
+	        			rppaProfile, discretizedCnaProfile, 
 	        			daoGene, 
 	        			filteredSampleIndices, orderedSampleList, 
 	        			existingCnaEvents, daoGeneticAlteration)) {
@@ -238,7 +240,7 @@ public class ImportTabDelimData {
     
     private boolean parseLine(String line, int nrColumns, int sampleStartIndex, 
     		int hugoSymbolIndex, int entrezGeneIdIndex, int rppaGeneRefIndex,
-    		boolean rppaProfile, boolean discritizedCnaProfile,
+    		boolean rppaProfile, boolean discretizedCnaProfile,
     		DaoGeneOptimized daoGene,
     		List <Integer> filteredSampleIndices, List <Integer> orderedSampleList,
     		Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents, DaoGeneticAlteration daoGeneticAlteration
@@ -369,20 +371,19 @@ public class ImportTabDelimData {
                         } else if (genes.size()==1) {
                         	List<CnaEvent> cnaEventsToAdd = new ArrayList<CnaEvent>();
                         	
-                            if (discritizedCnaProfile) {
+                            if (discretizedCnaProfile) {
                                 long entrezGeneId = genes.get(0).getEntrezGeneId();
                                 for (int i = 0; i < values.length; i++) {
                                     
                                     // temporary solution -- change partial deletion back to full deletion.
-                                    if (values[i].equals(GeneticAlterationType.PARTIAL_DELETION)) {
-                                        values[i] = GeneticAlterationType.HOMOZYGOUS_DELETION;
+                                    if (values[i].equals(CNA_VALUE_PARTIAL_DELETION)) {
+                                        values[i] = CNA_VALUE_HOMOZYGOUS_DELETION;
                                     }
-                                    
-                                    if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
-                                           // || values[i].equals(GeneticAlterationType.GAIN)  >> skipping GAIN, ZERO, HEMIZYGOUS_DELETION to minimize size of dataset in DB
-                                           // || values[i].equals(GeneticAlterationType.ZERO)
-                                           // || values[i].equals(GeneticAlterationType.HEMIZYGOUS_DELETION)
-                                            || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
+                                    if (values[i].equals(CNA_VALUE_AMPLIFICATION) 
+                                           // || values[i].equals(CNA_VALUE_GAIN)  >> skipping GAIN, ZERO, HEMIZYGOUS_DELETION to minimize size of dataset in DB
+                                           // || values[i].equals(CNA_VALUE_ZERO)
+                                           // || values[i].equals(CNA_VALUE_HEMIZYGOUS_DELETION)
+                                            || values[i].equals(CNA_VALUE_HOMOZYGOUS_DELETION)) {
                                         CnaEvent cnaEvent = new CnaEvent(orderedSampleList.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
                                         //delayed add:
                                         cnaEventsToAdd.add(cnaEvent);

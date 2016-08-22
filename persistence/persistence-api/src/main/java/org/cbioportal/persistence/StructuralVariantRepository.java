@@ -30,45 +30,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.cbioportal.persistence;
 
-import org.cbioportal.model.summary.MutationSummary;
+import org.cbioportal.model.StructuralVariant;
 
-public class Mutation extends MutationSummary {
-    private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
-    private Sample sample;
-    private Gene gene;
-
-    public MutationEvent getMutationEvent() {
-        return mutationEvent;
-    }
-
-    public void setMutationEvent(MutationEvent mutationEvent) {
-        this.mutationEvent = mutationEvent;
-    }
-
-    public GeneticProfile getGeneticProfile() {
-        return geneticProfile;
-    }
-
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
-        this.geneticProfile = geneticProfile;
-    }
-
-    public Sample getSample() {
-        return sample;
-    }
-
-    public void setSample(Sample sample) {
-        this.sample = sample;
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
-    }
+import java.util.List;
+/**
+ *
+ * @author jake
+ */
+public interface StructuralVariantRepository {
+    List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds);
 }

@@ -30,45 +30,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.summary.MutationSummary;
+import org.apache.ibatis.annotations.Param;
+import org.cbioportal.model.StructuralVariant;
 
-public class Mutation extends MutationSummary {
-    private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
-    private Sample sample;
-    private Gene gene;
+import java.util.List;
+/**
+ *
+ * @author jake
+ */
+public interface StructuralVariantMapper {
 
-    public MutationEvent getMutationEvent() {
-        return mutationEvent;
-    }
+    List<StructuralVariant> getStructuralVariant(@Param("geneticProfileStableIds")List<String> geneticProfileStableIds,
+                                  @Param("hugoGeneSymbols")List<String> hugoGeneSymbols,
+                                  @Param("sampleStableIds")List<String> sampleStableIds);
 
-    public void setMutationEvent(MutationEvent mutationEvent) {
-        this.mutationEvent = mutationEvent;
-    }
-
-    public GeneticProfile getGeneticProfile() {
-        return geneticProfile;
-    }
-
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
-        this.geneticProfile = geneticProfile;
-    }
-
-    public Sample getSample() {
-        return sample;
-    }
-
-    public void setSample(Sample sample) {
-        this.sample = sample;
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
-    }
 }

@@ -44,7 +44,7 @@
         <%@ include file="controls-templates.jsp" %>
 
         <div id="oncoprint-statment" style="margin-left:3; margin-top: 10px">
-            <p><span id='oncoprint_sample_set_name'></span><span id='oncoprint_sample_set_description'></span></span><br><br>
+            <p><span id='oncoprint_sample_set_description'></span></span>
                 <span><button id="switchPatientSample" type="button" valuetype="patients" class="btn btn-primary btn-xs jstree-node" style="display: none; cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;color:white; background-color:#2986e2; font:small-caption;">Show samples in OncoPrint</button></span></p>
         </div>
         

@@ -48,33 +48,37 @@ var DataProxyFactory = (function()
 		{
 			// set servlet params by using global params
 			// note that gene list is not set as a servlet param, it is passed a constructor parameter
-			var servletParams = {};
+			var servletParamsPromise = (function() {
+			    var def = new $.Deferred();
+			    window.QuerySession.getMutationProfileIds().then(function(mutation_profile_ids) {
+				var servletParams = {};
+				servletParams.geneticProfiles = mutation_profile_ids[0];
+				// first, try to retrieve mutation data by using a predefined case set id
+				var caseSetId = window.QuerySession.getCaseSetId();
+				var caseIdsKey = window.QuerySession.getCaseIdsKey();
 
-			//servletParams.geneticProfiles = PortalGlobals.getGeneticProfiles();
-			servletParams.geneticProfiles = window.QuerySession.getMutationProfileId();
-
-			var caseSetId = window.QuerySession.getCaseSetId();
-			var caseIdsKey = window.QuerySession.getCaseIdsKey();
-
-			// first, try to retrieve mutation data by using a predefined case set id
-			if (caseSetId &&
-				caseSetId.length > 0 &&
-				caseSetId != "-1")
-			{
-				servletParams.caseSetId = caseSetId;
-			}
-			// second, try to use a custom case set defined by a hash key
-			else if (caseIdsKey &&
-			         caseIdsKey.length > 0)
-			{
-				servletParams.caseIdsKey = caseIdsKey;
-			}
-			// last resort: send the actual case list as a long string
-			else
-			{
-				servletParams.caseList = QuerySession.getSampleIds();
-			}
-
+				if (caseSetId &&
+					caseSetId.length > 0 &&
+					caseSetId != "-1")
+				{
+				    servletParams.caseSetId = caseSetId;
+				}
+				// second, try to use a custom case set defined by a hash key
+				else if (caseIdsKey &&
+					caseIdsKey.length > 0)
+				{
+				    servletParams.caseIdsKey = caseIdsKey;
+				}
+				// last resort: send the actual case list as a long string
+				else
+				{
+				    servletParams.caseList = QuerySession.getSampleIds();
+				}
+				def.resolve(servletParams);
+			    });
+			    return def.promise();
+			})();
+			
 			// default servlet name for mutation data
 			var servletName = "getMutationData.json";
 
@@ -82,7 +86,7 @@ var DataProxyFactory = (function()
 			var proxy = new MutationDataProxy({
 				servletName: servletName,
 				geneList: window.QuerySession.getQueryGenes().join(" "),
-				params: servletParams
+				paramsPromise: servletParamsPromise
 			});
 			proxy.init();
 

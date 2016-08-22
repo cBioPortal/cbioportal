@@ -257,12 +257,12 @@ public class ApiService {
     
 	@Transactional
 	public List<DBGene> getGenes() {
-		return geneMapper.getAllGenes();
+		return geneMapper.getAll();
 	}
 
 	@Transactional
 	public List<DBGene> getGenes(List<String> hugo_gene_symbols) {
-		return geneMapper.getGenesByHugo(hugo_gene_symbols);
+		return geneMapper.byHugoGeneSymbol(hugo_gene_symbols);
 	}
 
 	@Transactional
@@ -461,12 +461,12 @@ public class ApiService {
 
 	@Transactional
 	public List<DBStudy> getStudies() {
-		return studyMapper.getAllStudies();
+		return studyMapper.getAll();
 	}
 
 	@Transactional
 	public List<DBStudy> getStudies(List<String> study_ids) {
-		return studyMapper.getStudies(study_ids);
+		return studyMapper.byStableId(study_ids);
 	}
 
 }

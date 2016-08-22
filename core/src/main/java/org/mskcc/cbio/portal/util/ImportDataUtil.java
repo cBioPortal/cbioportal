@@ -34,7 +34,11 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.service.*;
 import org.mskcc.cbio.portal.scripts.ImportClinicalData;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 
 /**
@@ -44,6 +48,22 @@ import org.mskcc.cbio.portal.scripts.ImportClinicalData;
  */
 public class ImportDataUtil
 {
+    private static ApplicationContext context = initContext();
+    private static ApplicationContext initContext()
+    {
+        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+        ctx.getEnvironment().setActiveProfiles("dbcp");
+        ctx.load("classpath:applicationContext-business.xml");
+        ctx.refresh();
+        return ctx;
+    }
+
+    private static GenePanelService genePanelService = initGenePanelService();
+    private static GenePanelService initGenePanelService()
+    {
+        return (GenePanelService)context.getBean("genePanelService");
+    }
+
     /**
 	 * @deprecated : this data should be imported via {@link ImportClinicalData}
 	 */

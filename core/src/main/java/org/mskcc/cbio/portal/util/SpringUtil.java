@@ -37,6 +37,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.mskcc.cbio.portal.service.GenePanelService;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 public class SpringUtil
 {
@@ -44,6 +46,15 @@ public class SpringUtil
 
 	private static AccessControl accessControl;
 	private static ApplicationContext context;
+
+    public static GenePanelService getGenePanelService()
+    {
+        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+        ctx.getEnvironment().setActiveProfiles("dbcp");
+        ctx.load("classpath:applicationContext-business.xml");
+        ctx.refresh();
+        return (GenePanelService)ctx.getBean("genePanelService");
+    }
 
     public static void setAccessControl(AccessControl accessControl) {
     	log.debug("Setting access control");

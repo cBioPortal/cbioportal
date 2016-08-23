@@ -39,7 +39,7 @@ To get started:
 * Search for SAML.
 * Select the option labeled: OneLogin SAML Test (IdP).
 
-![](http://f.cl.ly/items/2u2I1D3J021U2u081K0X/Image%202015-05-24%20at%2010.00.11%20PM.png)
+![](images/previews/onelogin-config.png)
 
 * Under the Configuration Tab for OneLogin SAML Test (IdP), paste the following fields (this is assuming you are testing everything via localhost).
 

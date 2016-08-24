@@ -207,7 +207,7 @@
                                 if(mutations.colExists('oncokb')) {
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else if(OncoKB.getAccess()){
-                                    ret += "<img width='14' height='14' src='images/ajax-loader.gif'/>";
+                                    ret += "<img width='14' height='14' src='images/ajax-loader.gif' alt='loading' />";
                                 } else {
                                     ret = "<div class='"+table_id
                                             +"-tip' alt='"+tip+"'>"+ret+"</div>";
@@ -236,7 +236,7 @@
 
                                     ret += "<span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
                                 } else if (OncoKB.getAccess()) {
-                                    ret += '<span class="annotation-item"><img width="14" height="14" src="images/ajax-loader.gif"/></span>';
+                                    ret += '<span class="annotation-item"><img width="14" height="14" src="images/ajax-loader.gif" alt="loading" /></span>';
                                 }
 
                                 var mcg = mutations.getValue(source[0], 'mycancergenome');
@@ -290,8 +290,9 @@
                                 if (aa.length>2&&aa.substring(0,2)=='p.')
                                     aa = aa.substring(2);
                                 var ret = "<b><i>"+aa+"</i></b>";
-                                if (mutations.getValue(source[0],'status')==="Germline")
-                                    ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
+                                var status = mutations.getValue(source[0],'status');
+                                if (!cbio.util.checkNullOrUndefined(status) && status.toLowerCase()==="germline")
+                                    ret += "&nbsp;<span style='background-color:red;color:white;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
 
                                 var aaOriginal = mutations.getValue(source[0], 'aa-orig');
@@ -752,7 +753,7 @@
                                 var proteinPos = hugo+"_"+mutations.getValue(source[0], "protein-start");
 
                                 var ret = "<div class='pancan_mutations_histogram_thumbnail' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
-                                    ret += "<img width='14' height='14' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif'/>";
+                                    ret += "<img width='14' height='14' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif' alt='loading' />";
                                     ret += "<div class='pancan_mutations_histogram_count' style='float:right' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
 
                                 return ret;
@@ -1173,7 +1174,7 @@
                     <li>or recurrently mutated, namely\n\
                         <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                         <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
-                    <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
+                    <li>or with > 5 overlapping entries in COSMIC.</li></ul>' alt='help' />";
                     }
                     $('.mutation-summary-table-name').html(mutationSummary);
                     $('#mutations-summary-help').qtip({
@@ -1420,7 +1421,7 @@
 
 </script>
 
-<div id="mutation_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="mutation_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>
 <div id="mutation_id_filter_msg"><font color="red">The following table contains filtered mutations.</font>
 <button onclick="unfilterMutationsTableByIds(); return false;" style="font-size: 1em;">Show all mutations</button></div>
 <div  id="pancan_mutations_histogram_container"></div>

@@ -83,14 +83,14 @@ class DataFileTestCase(LogBufferTestCase):
     particular validator class and collect the log records emitted.
     """
 
-    def validate(self, data_filename, validator_class, extra_meta_fields=None):
+    def validate(self, data_filename, validator_class, extra_meta_fields=None, relaxed_mode=False):
         """Validate a file with a Validator and return the log records."""
         meta_dict = {'data_filename': data_filename}
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
         validator = validator_class('test_data', meta_dict,
                                     PORTAL_INSTANCE,
-                                    self.logger)
+                                    self.logger, relaxed_mode)
         validator.validate()
         return self.get_log_records()
 
@@ -728,19 +728,42 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 1)
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("swissprot", record_list[0].getMessage().lower())
-        
-    
+
     def test_isValidAminoAcidChange(self):
-        """Tests if proper warning is given if aa change column is present, but contains wrong (blank) value"""
+        """Test if proper warnings are given for wrong/blank AA change vals."""
         # set level according to this test case:
         self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('mutations/data_mutations_empty_aa_change_column.maf',
+        record_list = self.validate('mutations/data_mutations_wrong_aa_change.maf',
                                     validateData.MutationsExtendedValidator)
-        # we expect 1 warning, something like
-        # WARNING: data_mutations_empty_aa_change_column.maf: line 2: Amino acid change cannot be parsed from Amino_Acid_Change column value. This mutation record will get a generic "MUTATED" flag; wrong value: 'empty value found'
-        self.assertEqual(len(record_list), 2)
-        # check if both messages come from printDataInvalidStatement:
-        self.assertIn("amino acid change cannot be parsed", record_list[0].getMessage().lower())
+        self.assertEqual(len(record_list), 5)
+        record_iterator = iter(record_list)
+        # empty field (and no HGVSp_Short column)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('Amino_Acid_Change', record.getMessage())
+        self.assertIn('HGVSp_Short', record.getMessage())
+        self.assertEqual(record.line_number, 2)
+        # multiple specifications
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('p.', record.getMessage())
+        self.assertEqual(record.cause, 'p.A195V p.I167I')
+        # comma in the string
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('comma', record.getMessage().lower())
+        self.assertEqual(record.cause, 'p.N851,Y1055delinsCC')
+        # haplotype specification of multiple mutations
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('allele', record.getMessage().lower())
+        self.assertEqual(record.cause, 'p.[N851N];[Y1055C]')
+        # NULL (and no HGVSp_Short column)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('Amino_Acid_Change', record.getMessage())
+        self.assertIn('HGVSp_Short', record.getMessage())
+        self.assertEqual(record.line_number, 8)
 
     def test_silent_mutation_skipped(self):
         """Test if silent mutations are skipped with a message.
@@ -1039,7 +1062,7 @@ class StudyCompositionTestCase(LogBufferTestCase):
         validateData.validate_study(
             'test_data/study_cancertype_two_files',
             PORTAL_INSTANCE,
-            self.logger)
+            self.logger, False)
         record_list = self.get_log_records()
         # expecting two errors: one about the two cancer type files, and
         # about the cancer type of the study not having been defined
@@ -1084,7 +1107,7 @@ class StableIdValidationTestCase(LogBufferTestCase):
         validateData.process_metadata_files(
             'test_data/study_metastableid',
             PORTAL_INSTANCE,
-            self.logger)
+            self.logger, False)
         record_list = self.get_log_records()
         # expecting 1 warning, 1 error:
         self.assertEqual(len(record_list), 3)
@@ -1105,6 +1128,27 @@ class StableIdValidationTestCase(LogBufferTestCase):
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
 
+
+class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
+    
+    """Superclass for validating headerless clinical data."""
+    
+    def test_headerless_clinical_sample(self):
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clinical_sam_no_hdr.txt', 
+                                    validateData.SampleClinicalValidator, None, True)
+        # we expect 3 errors or warnings for 2 new sample-level attributes in data
+        # and 1 for not being able to parse the header in the clinical file
+        self.assertEqual(len(record_list), 3)
+    
+    def test_headerless_clinical_patient(self):
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clinical_pat_no_hdr.txt', 
+                                    validateData.PatientClinicalValidator, None, True)
+        # we expect 8 errors or warnings: 2 for new patient-level attributes, 2
+        # for missing survival status attributes, 4 for patients with no samples
+        # and 1 for not being able to parse the header in the clinical file
+        self.assertEqual(len(record_list), 9)               
 
 if __name__ == '__main__':
     unittest.main(buffer=True)

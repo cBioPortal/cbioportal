@@ -1,6 +1,6 @@
 # app name
 app.name=cbioportal
-app.version=1.0
+app.version=${timestamp}
 
 # database
 db.user=cbio_user
@@ -16,9 +16,8 @@ db.version=${db.version}
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
 skin.email_contact=cbioportal at googlegroups dot com
-skin.blurb=The cBioPortal for Cancer Genomics provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale cancer genomics data sets.  <p>Please adhere to <u><a href=\"http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines\"> the TCGA publication guidelines</a></u> when using TCGA data in your publications.</p> <p><b>Please cite</b> <a href=\"http://www.ncbi.nlm.nih.gov/pubmed/23550210\">Gao et al. <i>Sci. Signal.</i> 2013</a> &amp;  <a href=\"http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract\"> Cerami et al. <i>Cancer Discov.</i> 2012</a> when publishing results based on cBioPortal.</p>
 skin.authorization_message=Access to this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.  [<a href="http://bit.ly/ZevaHa">Request Access</a>].
-skin.right_nav.show_testimonials=true
+skin.example_study_queries=tcga\ntcga -provisional\ntcga -moratorium\ntcga OR icgc\n-"cell line"\nprostate mskcc\nesophageal OR stomach\nserous\nbreast
 skin.data_sets_header=The portal currently contains data from the following cancer genomics studies.  The table below lists the number of available samples per data type and tumor.
 skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Firehose (http://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the TCGA working groups directly.
 skin.examples_right_column=examples.html
@@ -116,13 +115,13 @@ patient_view_genomic_overview_cna_cutoff=0.2,1.5
 digitalslidearchive.iframe.url=http://cancer.digitalslidearchive.net/index_mskcc.php?slide_name=
 digitalslidearchive.meta.url=http://cancer.digitalslidearchive.net/local_php/get_slide_list_from_db_groupid_not_needed.php?slide_name_filter=
 tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
-tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
+tcga_path_report.url=https://github.com/cbioportal/datahub/raw/master/tcga/pathology_reports/pathology_reports.txt
 
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
 # Enable OncoKB annotation
-oncokb.url=
+oncokb.url=http://oncokb.org/legacy-api/
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true

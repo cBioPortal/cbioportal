@@ -37,6 +37,12 @@ Below you can find the complete list of all the available skin properties.
 			<td>comma separated text</td>
 		</tr>
 		<tr>
+			<td>skin.example_study_queries</td>
+			<td>\n-separated list of study query suggestions displayed when clicking the ‘select a cancer study' search box</td>
+			<td>tcga\ntcga -provisional\ntcga -moratorium\ntcga OR icgc\n-"cell line"\nprostate mskcc\nesophageal OR stomach\nserous\nbreast</td>
+			<td>text separated by the escape sequence \n</td>
+		</tr>
+		<tr>
 			<td>skin.data_sets_footer</td>
 			<td>sets the text that is shown below the number of samples, after clicking on the "DATA SETS" tab in the header.</td>
 			<td>The portal currently contains data from the following cancer genomics studies.  The table below lists the number of available samples per data type and tumor.</td>

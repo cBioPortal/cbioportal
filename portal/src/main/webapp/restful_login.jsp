@@ -49,7 +49,7 @@
             <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:95%;margin-top:10px;margin-bottom:20px">
             <p><strong>Connecting to the MSK cBioPortal...</strong></p>
              </div>
-             <div><img src="images/ajax-loader-no-text.gif"/></div>
+             <div><img src="images/ajax-loader-no-text.gif" alt="loading" /></div>
   </td>
   </tr>
   <tr>

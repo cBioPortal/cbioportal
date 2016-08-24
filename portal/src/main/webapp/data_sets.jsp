@@ -74,18 +74,18 @@
                  }
 				 out.println("<table style='display:none;' cellpadding='0' cellspacing='0' border='0' class='display' id='data-set-table'>");
 				 out.println("<thead><tr>");
-				 out.println("<th>CancerStudy</th>");
-				 out.println("<th>Reference</th>");
-				 out.println("<th>All</th>");
-				 out.println("<th>Sequenced</th>");
-				 out.println("<th>CNA</th>");
-				 out.println("<th>Tumor mRNA (RNA-Seq V2)</th>");
-				 out.println("<th>Tumor mRNA (microarray)</th>");
-				 //out.println("<th>Normal mRNA</th>");
-				 out.println("<th>Tumor miRNA</th>");
-				 out.println("<th>Methylation (HM27)</th>");
-				 out.println("<th>RPPA</th>");
-				 out.println("<th>Complete</th>");
+				 out.println("<th scope='col'>CancerStudy</th>");
+				 out.println("<th scope='col'>Reference</th>");
+				 out.println("<th scope='col'>All</th>");
+				 out.println("<th scope='col'>Sequenced</th>");
+				 out.println("<th scope='col'>CNA</th>");
+				 out.println("<th scope='col'>Tumor mRNA (RNA-Seq V2)</th>");
+				 out.println("<th scope='col'>Tumor mRNA (microarray)</th>");
+				 //out.println("<th scope='col'>Normal mRNA</th>");
+				 out.println("<th scope='col'>Tumor miRNA</th>");
+				 out.println("<th scope='col'>Methylation (HM27)</th>");
+				 out.println("<th scope='col'>RPPA</th>");
+				 out.println("<th scope='col'>Complete</th>");
 				 out.println("</tr></thead>");
 				 out.println("<tbody>");
 				 // iterate over all cancer study attributes

@@ -103,18 +103,18 @@ var Table = function() {
         var _div = "<div id='"+divs.mainId+"' class='study-view-dc-chart study-view-tables h1half w2'>"+
             "<div id='"+divs.headerId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div class='titleWrapper' id='"+divs.titleWrapperId+"'>"+
-                    "<img id='"+divs.reloadId+"' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+
+                    "<img id='"+divs.reloadId+"' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg' alt='reload' />"+
                         "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
-                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
+                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg' alt='download' />"+
                         "</div>"+
-                    "<img class='study-view-drag-icon' src='images/move.svg'/>"+
+                    "<img class='study-view-drag-icon' src='images/move.svg' alt='move' />"+
                     "<span id='"+divs.deleteIconId+"' class='study-view-tables-delete'>x</span>"+
                 "</div>"+
                 "<chartTitleH4 id='"+divs.titleId+"'>"+divs.title+"</chartTitleH4>" +
             "</div>"+
             "<div id='"+divs.tableId+"' class='" + divs.tableClassName + "'>"+
             "</div>"+
-            "<div id='"+divs.loaderId+"' class='study-view-loader' style='top:30%;left:30%'><img src='images/ajax-loader.gif'/></div>"+
+            "<div id='"+divs.loaderId+"' class='study-view-loader' style='top:30%;left:30%'><img src='images/ajax-loader.gif' alt='loading' /></div>"+
         "</div>";
         $('#' + divs.attachedId).append(_div);
         showHideDivision('#' + divs.mainId,['#' + divs.titleWrapperId],  0);

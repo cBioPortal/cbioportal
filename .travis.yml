@@ -56,24 +56,24 @@ script:
     - |
         if [[ "${TEST}" == python-validator ]]
         then
-            export PYTHONPATH=$PYTHONPATH:$PORTAL_HOME/core/src/main/scripts:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages
-            cd $PORTAL_HOME/core/src/test/scripts/
-            $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py
-            $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py
+            export PYTHONPATH=$PYTHONPATH:$PORTAL_HOME/core/src/main/scripts:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages && \
+            cd $PORTAL_HOME/core/src/test/scripts/ && \
+            $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py && \
+            $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py && \
             cd $PORTAL_HOME
         fi
     # use .travis/settings.xml for core tests
     - |
         if [[ "${TEST}" == core ]]
         then
-            mkdir -p ~/.m2
+            mkdir -p ~/.m2 && \
             cp .travis/settings.xml ~/.m2
         fi
     # use EXAMPLE properties files
     - |
         if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]
         then
-            cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
+            cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties && \
             cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
         fi
     # make sure mysql container is running
@@ -94,6 +94,7 @@ script:
                 -e \
                 -DPORTAL_HOME=$PORTAL_HOME \
                 -Ppublic \
+                -Dfinal.war.name=cbioportal \
                 -Ddb.user=cbio_user \
                 -Ddb.password=somepassword \
                 -Ddb.host=127.0.0.1 \
@@ -108,6 +109,7 @@ script:
             ~/maven/$MAVEN_VERSION/bin/mvn \
                 -e -DPORTAL_HOME=$PORTAL_HOME \
                 -Ppublic -DskipTests \
+                -Dfinal.war.name=cbioportal \
                 -Ddb.user=cbio_user \
                 -Ddb.password=cbio_pass \
                 -Ddb.portal_db_name=public_test \
@@ -119,10 +121,10 @@ script:
     - |
         if [[ "${TEST}" == end-to-end ]]
         then
-            cd test/end-to-end
-            docker-compose up -d
-            sleep 30s
-            cd ../..
+            cd test/end-to-end && \
+            docker-compose up -d && \
+            sleep 30s && \
+            cd ../.. && \
             # spot visual regression by comparing screenshots in the repo with
             # screenshots of this portal loaded with the data from the amazon db
             bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml

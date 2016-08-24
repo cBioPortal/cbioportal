@@ -828,9 +828,11 @@ function DataManagerPresenter(dmInitCallBack)
 				{
 					//track cancer type detailed per cancer type:
 					var cancerType = sampleIdAndCancerTypeIdx[sampleClinicalData[i].sample];
-					if (!cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val])
-						cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val] = {sampleIds: []};
-					cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val].sampleIds.push(sampleClinicalData[i].sample);
+                    if (!cbio.util.checkNullOrUndefined(cancerType) && "cancerTypeDetailed" in cancerType) {
+                        if (!cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val])
+                            cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val] = {sampleIds: []};
+                        cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val].sampleIds.push(sampleClinicalData[i].sample);
+                    }
 				}
 			}
 			console.log(new Date() + ": finished processing getSampleClinicalData()");

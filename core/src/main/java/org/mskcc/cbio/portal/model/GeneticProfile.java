@@ -149,6 +149,15 @@ public class GeneticProfile {
     }
 
     /**
+     * Returns all file-specific metadata fields as a Properties object.
+     *
+     * @return  a properties instance holding the keys and values or null
+     */
+    public Properties getAllOtherMetadataFields() {
+        return this.otherMetadataFields;
+    }
+
+    /**
      * Retrieves metadata fields specific to certain data file types.
      *
      * @param fieldname  the name of the field to retrieve

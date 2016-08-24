@@ -41,11 +41,43 @@
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-catalina</artifactId>
+      <version>7.0.68</version>
+      <scope>
+          <!--tomcat.catalina.scope is defined in master module-->
+          ${tomcat.catalina.scope}
+      </scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-taglibs</artifactId>
+      <version>${spring.security.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-ldap</artifactId>
+      <version>${spring.security.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-openid</artifactId>
+      <version>${spring.security.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security.extensions</groupId>
+      <artifactId>spring-security-saml2-core</artifactId>
+      <version>${spring.security.saml.version}</version>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <!-- final name of the app -->
-    <finalName>${final-war-name}</finalName>
     <plugins>
       <!-- war plugin config -->
       <plugin>
@@ -53,6 +85,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <version>2.2</version>
         <configuration>
+          <warName>${final.war.name}</warName>
           <webappDirectory>${project.build.directory}/portal</webappDirectory>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
           <webResources>

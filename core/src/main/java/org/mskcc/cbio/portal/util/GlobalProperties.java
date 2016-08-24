@@ -637,21 +637,14 @@ public class GlobalProperties {
         return url+caseId;
     }
 
-    public static String[] getTCGAPathReportUrl(String typeOfCancer)
+    public static String getTCGAPathReportUrl()
     {
         String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
         if (url == null) {
             return null;
-        }
+        }       
         
-        if (typeOfCancer.equalsIgnoreCase("coadread")) {
-            return new String[] {
-                url.replace("{cancer.type}", "coad"),
-                url.replace("{cancer.type}", "read")
-            };
-        }
-        
-        return new String[] {url.replace("{cancer.type}", typeOfCancer)};
+        return url;
     }
 
     // function for getting the custom tabs for the header

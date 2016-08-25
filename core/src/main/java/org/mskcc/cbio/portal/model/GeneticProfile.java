@@ -67,6 +67,26 @@ public class GeneticProfile {
       this.showProfileInAnalysisTab = showProfileInAnalysisTab;
    }
 
+
+   /**
+    * Constructs a new genetic profile object with the same attributes as the one given as an argument.
+    *
+    * @param template  the object to copy
+    */
+   public GeneticProfile(GeneticProfile template) {
+       this(
+               template.getStableId(),
+               template.getCancerStudyId(),
+               template.getGeneticAlterationType(),
+               template.getDatatype(),
+               template.getProfileName(),
+               template.getProfileDescription(),
+               template.showProfileInAnalysisTab());
+       this.setGeneticProfileId(template.geneticProfileId);
+       this.setTargetLine(template.getTargetLine());
+       this.setOtherMetadataFields(template.getAllOtherMetadataFields());
+   }
+
    public int getGeneticProfileId() {
         return geneticProfileId;
     }

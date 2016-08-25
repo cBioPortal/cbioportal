@@ -86,15 +86,7 @@ public class GeneticProfileReader {
              // If this constraint is hit (mistakenly importing the same maf twice) MySqlBulkLoader will throw an exception
 
              // make an object combining the pre-existing profile with the file-specific properties of the current file
-             GeneticProfile gp = new GeneticProfile(
-                     existingGeneticProfile.getStableId(),
-                     existingGeneticProfile.getCancerStudyId(),
-                     existingGeneticProfile.getGeneticAlterationType(),
-                     existingGeneticProfile.getDatatype(),
-                     existingGeneticProfile.getProfileName(),
-                     existingGeneticProfile.getProfileDescription(),
-                     existingGeneticProfile.showProfileInAnalysisTab());
-             gp.setGeneticProfileId(existingGeneticProfile.getGeneticProfileId());
+             GeneticProfile gp = new GeneticProfile(existingGeneticProfile);
              gp.setTargetLine(geneticProfile.getTargetLine());
              gp.setOtherMetadataFields(geneticProfile.getAllOtherMetadataFields());
              return gp;

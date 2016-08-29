@@ -47,6 +47,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.StringUtilsLevenshtein;
 
 /**
  * A Utility Class that speeds access to Gene Info.
@@ -67,7 +68,7 @@ public class DaoGeneOptimized {
     
     /**
      * Private Constructor, to enforce singleton pattern.
-     * 
+     *
      * @throws DaoException Database Error.
      */
     private DaoGeneOptimized () {
@@ -86,7 +87,7 @@ public class DaoGeneOptimized {
         }
         
         try {
-            if (geneSymbolMap.size()>10000) { 
+            if (geneSymbolMap.size()>10000) {
                 // only for deployed version; not for unit test and importing
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(getClass().getResourceAsStream(CBIO_CANCER_GENES_FILE)));
@@ -101,8 +102,8 @@ public class DaoGeneOptimized {
                     if (gene!=null) {
                         cbioCancerGenes.add(gene);
                     } else {
-                    	ProgressMonitor.logWarning(line+" in the cbio cancer gene list config file [resources" + CBIO_CANCER_GENES_FILE + 
-                        		"] is not a HUGO gene symbol. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
+                        ProgressMonitor.logWarning(line+" in the cbio cancer gene list config file [resources" + CBIO_CANCER_GENES_FILE +
+                                "] is not a HUGO gene symbol. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
                     }
                 }
                 in.close();
@@ -118,8 +119,8 @@ public class DaoGeneOptimized {
                     String[] parts = line.trim().split("\t",-1);
                     CanonicalGene gene = getGene(Long.parseLong(parts[1]));
                     if (gene==null) {
-                    	ProgressMonitor.logWarning(line+" in config file [resources" + GENE_SYMBOL_DISAMBIGUATION_FILE + 
-                        		"]is not valid. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
+                        ProgressMonitor.logWarning(line+" in config file [resources" + GENE_SYMBOL_DISAMBIGUATION_FILE +
+                                "]is not valid. You should either update this file or update the `gene` and `gene_alias` tables to fix this.");
                     }
                     disambiguousGenes.put(parts[0], gene);
                 }
@@ -140,7 +141,7 @@ public class DaoGeneOptimized {
     }
 
     /**
-     * Clear and fill cache again. Useful for unit tests and 
+     * Clear and fill cache again. Useful for unit tests and
      * for the Import procedure to update the genes table, clearing the
      * cache without the need to restart the webserver.
      */
@@ -171,7 +172,7 @@ public class DaoGeneOptimized {
     /**
      * Update database with gene length
      * @return number of records updated.
-     * @throws DaoException 
+     * @throws DaoException
      */
     public int flushUpdateToDatabase() throws DaoException {
         DaoGene.deleteAllRecords();
@@ -233,25 +234,25 @@ public class DaoGeneOptimized {
     }
 
     /**
-     * Looks for a Gene where HUGO Gene Symbol or an alias matches the given symbol. 
-     * 
+     * Looks for a Gene where HUGO Gene Symbol or an alias matches the given symbol.
+     *
      * @param geneSymbol: HUGO Gene Symbol or an alias
-     * @param searchInAliases: set to true if this method should search for a match in this.geneAliasMap 
+     * @param searchInAliases: set to true if this method should search for a match in this.geneAliasMap
      * in case a matching hugo symbol cannot be found in this.geneSymbolMap
-     * 
+     *
      * @return
      */
     public List<CanonicalGene> getGene(String geneSymbol, boolean searchInAliases) {
-    	CanonicalGene gene = getGene(geneSymbol);
-    	if (gene!=null) {
+        CanonicalGene gene = getGene(geneSymbol);
+        if (gene!=null) {
             return Collections.singletonList(gene);
         }
         
-    	if (searchInAliases) {
-	        List<CanonicalGene> genes = geneAliasMap.get(geneSymbol.toUpperCase());
-	        if (genes!=null) {
-	        	return Collections.unmodifiableList(genes);
-	        }
+        if (searchInAliases) {
+            List<CanonicalGene> genes = geneAliasMap.get(geneSymbol.toUpperCase());
+            if (genes!=null) {
+                return Collections.unmodifiableList(genes);
+            }
         }
         
         return Collections.emptyList();
@@ -271,7 +272,7 @@ public class DaoGeneOptimized {
      * Look for genes with a specific ID. First look for genes with the specific
      * Entrez Gene ID, if found return this gene; then for HUGO symbol, if found,
      * return this gene; and lastly for aliases, if found, return a list of
-     * matched genes (could be more than one). If nothing matches, return an 
+     * matched genes (could be more than one). If nothing matches, return an
      * empty list.
      * @param geneId an Entrez Gene ID or HUGO symbol or gene alias
      * @return A list of genes that match, an empty list if no match.
@@ -449,5 +450,31 @@ public class DaoGeneOptimized {
      */
     public void deleteAllRecords() throws DaoException {
         DaoGene.deleteAllRecords();
+    }
+    
+    /**
+     * Suggests gene symbols closest in Levenshtein distance to supplied gene symbol
+     * @param geneId an Entrez Gene ID or HUGO symbol or gene alias
+     * @return Array of suggested gene symbols
+     */
+    public Collection<String> getGeneSuggestions(String geneId) {
+        Set<String> results = new HashSet<String>();
+        if (geneId.length() < 3) //provide no suggestions for < 3-lettered symbols
+            return results;
+    
+        int min = 4; // minimum Levenshtein distance to be a reasonable suggestion
+        geneId = geneId.toUpperCase();
+        
+        for (String key : geneSymbolMap.keySet()) {
+            int score = StringUtilsLevenshtein.getLevenshteinDistance(key, geneId);
+            if (score < min) {
+                results.clear();
+                min = score;
+                results.add(key);
+            } else if (score == min) {
+                results.add(key);
+            }
+        }
+        return results;
     }
 }

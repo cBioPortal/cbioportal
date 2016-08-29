@@ -316,8 +316,8 @@ var GeneSymbolValidator = (function($) {
 						if (result.hasOwnProperty('symbols') && (result.symbols.length > 0) && (result.symbols[0].toUpperCase() === gene)) {
 							var spanContext = {
 								index: j,
-								symbol: gene
-								class: 'noreplace-span-valid',
+								symbol: gene,
+								class: 'noreplace-span-valid'
 							};
 							replaceSymbol(gene, spanTemplate(spanContext));
 						}

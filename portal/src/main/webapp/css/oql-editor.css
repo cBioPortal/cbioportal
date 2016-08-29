@@ -1,0 +1,163 @@
+/* #gene_list input div to query gene symbols */
+#gene_list {
+  background-color: #eeeeee;
+  width: 75%;
+  font-weight: bold;
+  font-size: 15px;
+  text-transform: uppercase;
+  font-family: verdana, arial, sans-serif;
+  height: 115px;
+  -webkit-box-shadow: inset 2px 2px 0px 0px rgba(134,133,132,1);
+  -moz-box-shadow: inset 2px 2px 0px 0px rgba(134,133,132,1);
+  box-shadow: inset 2px 2px 0px 0px rgba(134,133,132,1);
+  overflow: auto;
+  padding: 4px;
+  
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+#gene_list:empty:not(:focus):before{
+	color: #898989;
+	content:attr(placeholder);
+}
+
+
+/* OQL Menu */
+
+.hidden-menu {
+  display:none;
+  position:absolute;
+}
+
+.ui-menu {
+  box-shadow: 0 0 8px rgba(0,0,0,.25);
+  aopacity: 0.7;
+  z-index: 10;
+  padding: 0;
+}
+
+.ui-state-active {
+  
+}
+
+.hidden-menu:hover{
+    opacity: 1;
+}
+
+.hidden-menu li{
+	margin: 2px;
+	font-weight: bold;
+}
+
+.ui-widget-content, .ui-state-focus {
+	margin: 2px;
+	font-weight: bold !important;
+}
+
+.oql-menu-close {
+	font-size: 80%;
+	text-align: center;
+	color: gray;
+	border-top: 1px dashed gray;
+}
+
+
+desc {
+  font-size: 80%;
+  font-weight: normal;
+  display: block;
+  white-space: nowrap;
+}
+
+/* Replace popup div */
+.replace-div {
+	display: none;
+	position:absolute;
+	background-color: white;
+	text-align: left;
+	padding: 1rem 2rem;
+	margin: 0.3em;	
+	box-shadow: 0 0 8px rgba(0,0,0,.25);
+	border-radius: 4px;
+	border: 1px solid #aaaaaa;
+	font-size: 15px;
+    z-index: 10;
+}
+
+.replace-div div {
+	margin: 0.2rem;
+}
+
+.replace-div-top {
+	font-style: italic;
+	padding-bottom: 1rem;
+}
+
+.replace-div-bottom {
+	font-weight: bold;
+}
+
+.replace-div-symbol {
+	text-decoration: line-through;
+	text-decoration-color: red;
+}
+
+.replace-div-link {
+	cursor: pointer;
+	color: green;
+}
+
+.replace-div-link:hover{
+	background-color: rgba(0,255,0,0.2);
+}
+
+.replace-div-remove {
+	color: grey;
+	cursor:pointer;
+	font-style: italic;
+}
+
+.replace-div-remove:hover{
+	background-color: rgba(128,128,128,0.2);
+}
+
+/* Replace span */
+.replace-span-synonym {
+	acolor: rgb(255,165,0);
+	border-bottom: 3px double orange;
+}
+
+.replace-span-synonym:hover{
+	background-color: rgba(255,165,0, 0.2);
+}
+
+.replace-span-wrong {
+	acolor: red;
+	border-bottom: 3px double red;
+}
+
+.replace-span-wrong:hover {
+	background-color: rgba(255,0,0,0.2);
+}
+
+.noreplace-span-valid {
+	color: green;
+}
+
+.replace-span-duplicate {
+	text-decoration: line-through;
+	color: gray;
+}
+
+/* State */
+
+#state_placeholder {
+	display: inline-block;
+	margin: 0px !important;
+	cursor: default;
+}
+

@@ -142,6 +142,7 @@
         <%@ include file="step3_json.jsp" %>
         <%@ include file="step4_json.jsp" %>
         <%@ include file="step5_json.jsp" %>
+        <%@ include file="oql_editor_templates.jsp" %>
         <input type="hidden" id="clinical_param_selection" name="clinical_param_selection"
         	value='<%= request.getParameter("clinical_param_selection") %>'>
         <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"

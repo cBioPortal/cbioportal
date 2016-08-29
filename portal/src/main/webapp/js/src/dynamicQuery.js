@@ -33,7 +33,7 @@
 
 /******************************************************************************************
 * Dynamic Query Javascript, built with JQuery
-* @author Ethan Cerami, Caitlin Byrne. 
+* @author Ethan Cerami, Caitlin Byrne.
 *
 * This code performs the following functions:
 *
@@ -163,7 +163,7 @@ function loadGeneList(geneSetId) {
 
     $.getJSON("portal_meta_data.json?geneset_id="+geneSetId.replace(/\//g,""), function(json){
         window.metaDataJson.gene_sets[geneSetId].gene_list = json.list;
-        $("#gene_list").val(json.list);
+        $("#gene_list").html(json.list);
         $('.main_query_panel').stop().fadeTo("fast",1);
     });
 }
@@ -260,7 +260,7 @@ function makeDefaultSelections(){
 function reviewCurrentSelections(){
 
    //HACK TO DEAL WITH ASYNCHRONOUS STUFF SO WE DONT DO THIS UNTIL AFTER METADATA ADDED
-   if (window.metaDataAdded === true) {  
+   if (window.metaDataAdded === true) {
     // Unless the download tab has been chosen or 'All Cancer Studies' is
     // selected, iterate through checkboxes to see if any are selected; if not,
     // make default selections
@@ -279,7 +279,7 @@ function reviewCurrentSelections(){
              console.log("reviewCurrentSelections ( makeDefaultSelections() )");
              makeDefaultSelections();
          }
-    } 
+    }
 
     updateDefaultCaseList();
 
@@ -325,7 +325,7 @@ var submitHandler = (function() {
 function getMapping() {
     function setPatientSampleIdMap(_sampleMap) {
         var samples_string = "";
-        for (var i=0,_len=_sampleMap.length; i<_len; i++) 
+        for (var i=0,_len=_sampleMap.length; i<_len; i++)
         {
             var d = _sampleMap[i];
             samples_string += d.id + "\n";
@@ -344,7 +344,7 @@ function getMapping() {
             window.cbioportal_client.getSamplesByPatient({study_id: [studyId],patient_ids: caseIds}).then(function(sampleMap){
                 $("#custom_case_set_ids").val(setPatientSampleIdMap(sampleMap));
 		def.resolve();
-            });                
+            });
         }
         else {
             def.resolve();
@@ -354,7 +354,7 @@ function getMapping() {
     }
     if ($("#main_form").find("input[name=patient_case_select]:checked").val() === "patient") {
 	    return getMap();
-    } else {	
+    } else {
 	var def = new $.Deferred();
 	def.resolve();
 	return def.promise();
@@ -368,7 +368,7 @@ function chooseAction(evt) {
        if (!window.changingTabs) {
 		// validate OQL
 		try {
-			var parsed_result = oql_parser.parse($('#gene_list').val());
+			var parsed_result = oql_parser.parse($('#gene_list').text());
 			for (var i = 0; i < parsed_result.length; i++) {
 			    for (var j = 0; j < parsed_result[i].alterations.length; j++) {
 				if (parsed_result[i].alterations[j].constr_val === "EXP") {
@@ -382,7 +382,7 @@ function chooseAction(evt) {
 			}
 		} catch (err) {
 			var offset = err.offset;
-			if (offset === $('#gene_list').val().length) {
+			if (offset === $('#gene_list').text().length) {
 			    createAnError("OQL syntax error after selected character; please fix and submit again.", $('#gene_list'), "oql_error");
 			    $('#gene_list')[0].setSelectionRange(err.offset-1, err.offset);
 			} else if (offset === 0) {
@@ -400,7 +400,7 @@ function chooseAction(evt) {
             // select all by default
             $("#jstree").jstree(true).select_node(window.jstree_root_id);
             selected_studies = $("#jstree").jstree(true).get_selected_leaves()
-    }    
+    }
     if (selected_studies.length > 1) {
 	if ( haveExpInQuery ) {
             createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
@@ -412,7 +412,7 @@ function chooseAction(evt) {
         }
         else {
                 var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
-                var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
+                var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').text())+'/'+encodeURIComponent(selected_studies.join(","));
                 evt.preventDefault();
                 window.location = 'cross_cancer.do?' + newSearch;
             //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
@@ -526,7 +526,7 @@ function updateDefaultCaseList() {
         }
     }// HACKY CODE END
     
-    if (!$('#select_case_set').val()) {     
+    if (!$('#select_case_set').val()) {
         // in case no match
         $('#select_case_set').val(selectedCancerStudy+"_all");
     }
@@ -595,7 +595,7 @@ function updateCaseListSmart() {
         		style: {
         			classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
                 }
-        	}); 
+        	});
       });
 }
 
@@ -781,16 +781,17 @@ function caseSetSelected() {
 function geneSetSelected() {
     //  Get the selected ID from the pull-down menu
     var geneSetId = $("#select_gene_set").val();
-
-    if (window.metaDataJson.gene_sets[geneSetId].gene_list == "") {
+	console.log('geneSetSelected');
+	
+	//  Get the gene set meta data from global JSON variable
+	var gene_set = window.metaDataJson.gene_sets[geneSetId];
+    if (!gene_set.gene_list) {
         loadGeneList(geneSetId);
     } else {
-        //  Get the gene set meta data from global JSON variable
-        var gene_set = window.metaDataJson.gene_sets[geneSetId];
-
         //  Set the gene list text area
-        $("#gene_list").val(gene_set.gene_list);
+        $("#gene_list").html(gene_set.gene_list);
     }
+	$('#gene_list').keyup(); // trigger gene validation
 }
 
 //  Adds Meta Data to the Page.
@@ -907,7 +908,7 @@ function addMetaDataToPage() {
 		    }
 		    var ellipsis = '... ';
 		    return n.slice(0,maxLength-suffix.length-ellipsis.length)+ellipsis+suffix;
-	    }			    
+	    }
     };
     window.jstree_root_id = 'tissue';
     var jstree_data = [];
@@ -934,10 +935,10 @@ function addMetaDataToPage() {
                 	samplePlurality = '';
                		numSamplesInStudy = '';
                 }
-		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'), 
+		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
 			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description}});
 		
-		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':truncateStudyName(json.cancer_studies[id].name), 
+		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':truncateStudyName(json.cancer_studies[id].name),
 			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
 	});
     }
@@ -945,8 +946,8 @@ function addMetaDataToPage() {
 	    currNode = node_queue.shift();
 	    if (currNode.desc_studies_count > 0) {
 		var name = splitAndCapitalize(metaDataJson.type_of_cancers[currNode.code] || currNode.code);
-		jstree_data.push({'id':currNode.code, 
-			'parent':((currNode.parent && currNode.parent.code) || '#'), 
+		jstree_data.push({'id':currNode.code,
+			'parent':((currNode.parent && currNode.parent.code) || '#'),
 			'text':name,
 			'li_attr':{name:name}
 		});
@@ -965,12 +966,12 @@ function addMetaDataToPage() {
 				samplePlurality = '';
 				numSamplesInStudy = '';
 			    }
-			    jstree_data.push({'id':elt.id, 
-				    'parent':currNode.code, 
+			    jstree_data.push({'id':elt.id,
+				    'parent':currNode.code,
 				    'text':name.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
 				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
 			    
-			    flat_jstree_data.push({'id':elt.id, 
+			    flat_jstree_data.push({'id':elt.id,
 				    'parent':jstree_root_id,
 				    'text':name,
 				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
@@ -1045,12 +1046,12 @@ function addMetaDataToPage() {
 					}
 				}
 			}
-		}	
+		}
 		return clauses;
     };
     var matchPhrase = function(phrase, node) {
 	    phrase = phrase.toLowerCase();
-		return !!((node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1) 
+		return !!((node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1)
 			    || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1)
 			    || (node.li_attr && node.li_attr.search_terms && node.li_attr.search_terms.toLowerCase().indexOf(phrase) > -1));
 	};
@@ -1158,7 +1159,7 @@ function addMetaDataToPage() {
 		});
 		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
 		$('#jstree').jstree(true).hide_icons();
-	}	
+	}
 initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstree_data);
 	var jstree_is_flat = false;
 	var $jstree_flatten_btn = (function() {
@@ -1222,7 +1223,7 @@ initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstre
 			});
 		}, 400); // wait for a bit with no typing before searching
 	});
-        $('#step_header_first_line_empty_search').click(function() { 
+        $('#step_header_first_line_empty_search').click(function() {
             $("#jstree_search_input").val("");
             $("#step_header_first_line_empty_search").css("display", "none");
             $("#jstree").fadeTo(100, 0.5, function () {
@@ -1500,4 +1501,3 @@ function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, n
         + description + "'></label></div>";
     return html;
 }
-

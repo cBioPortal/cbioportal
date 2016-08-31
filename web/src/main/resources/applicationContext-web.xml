@@ -25,10 +25,10 @@
       <bean name="/applicationSwaggerConfig" class="org.mskcc.cbio.portal.swagger.ApiServiceSwaggerConfig">
       </bean>
 
-    <context:component-scan base-package="org.mskcc.cbio.portal.web"/>
-    <context:component-scan base-package="org.mskcc.cbio.portal.documentation"/>
-    <context:component-scan base-package="org.cbioportal.web"/>
-    <context:component-scan base-package="org.cbioportal.weblegacy"/>
+    <context:component-scan base-package="org.mskcc.cbio.portal.web" />
+    <context:component-scan base-package="org.mskcc.cbio.portal.documentation" />
+    <context:component-scan base-package="org.cbioportal.web" />
+    <context:component-scan base-package="org.cbioportal.weblegacy" />
 
     <mvc:resources mapping="/swagger-ui.html" location="classpath:/META-INF/resources/"/>
     <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>

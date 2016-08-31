@@ -29,7 +29,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.web.api;
+package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,16 +93,16 @@ public class GeneControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value("673"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugo_gene_symbol").value("BRAF"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(673))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value("BRAF"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].type").value("protein-coding"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value("7q34"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value("4564"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value("1956"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugo_gene_symbol").value("EGFR"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(4564))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(1956))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value("EGFR"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].type").value("protein-coding"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value("7p12"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value("12961"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value(12961))
                 ;
     }
 

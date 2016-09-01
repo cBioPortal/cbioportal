@@ -5,7 +5,7 @@ import org.cbioportal.model.ClinicalData;
 import java.io.Serializable;
 import java.util.List;
 
-public class PatientSummary implements Serializable {
+public abstract class PatientSummary implements Serializable {
 
     private Integer internalId;
     private String stableId;

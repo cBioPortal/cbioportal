@@ -2,7 +2,7 @@ package org.cbioportal.model.summary;
 
 import java.io.Serializable;
 
-public class GeneSummary implements Serializable {
+public abstract class GeneSummary implements Serializable {
 
     private Integer entrezGeneId;
     private String hugoGeneSymbol;

@@ -3,7 +3,7 @@ package org.cbioportal.model.summary;
 import java.io.Serializable;
 import java.util.Date;
 
-public class CancerStudySummary implements Serializable {
+public abstract class CancerStudySummary implements Serializable {
 
     private Integer cancerStudyId;
     private String cancerStudyIdentifier;

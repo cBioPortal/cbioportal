@@ -2,7 +2,7 @@ package org.cbioportal.model.summary;
 
 import java.io.Serializable;
 
-public class MutationSummary implements Serializable {
+public abstract class MutationSummary implements Serializable {
 
     private Integer mutationEventId;
     private Integer geneticProfileId;

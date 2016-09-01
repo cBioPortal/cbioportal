@@ -5,7 +5,7 @@ import org.cbioportal.model.ClinicalData;
 import java.io.Serializable;
 import java.util.List;
 
-public class SampleSummary implements Serializable {
+public abstract class SampleSummary implements Serializable {
 
     public enum SampleType {
 

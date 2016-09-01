@@ -15668,6 +15668,14 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 					"sButtonText": "Download",
 					"mColumns": getExportColumns(columnOpts, excludedCols),
 					"fnCellRender": function(sValue, iColumn, nTr, iDataIndex) {
+						// return actual data value for sample id column,
+						// since we show truncated data values when it is too long
+						if (iColumn === indexMap["caseId"])
+						{
+							var rowData = self.getDataTable().fnGetData()[iDataIndex];
+							return rowData[0].mutation.get("caseId");
+						}
+
 						var value = sValue;
 
 						// strip HTML content and use the main (visible) text only

@@ -124,7 +124,8 @@ META_FIELD_MAP = {
         'profile_name': True,
         'profile_description': True,
         'data_filename': True,
-        'normal_samples_list': False
+        'normal_samples_list': False,
+        'swissprot_identifier': False
     },
     MetaFileTypes.EXPRESSION: {
         'cancer_study_identifier': True,
@@ -639,6 +640,16 @@ def parse_metadata_file(filename,
                 genome_name,
                 extra={'filename_': filename,
                        'cause': metaDictionary['reference_genome_id']})
+            meta_file_type = None
+    if meta_file_type == MetaFileTypes.MUTATION:
+        if ('swissprot_identifier' in metaDictionary and
+                metaDictionary['swissprot_identifier'] not in ('name',
+                                                               'accession')):
+            logger.error(
+                "Invalid swissprot_identifier specification, must be either "
+                "'name' or 'accession'",
+                extra={'filename_': filename,
+                       'cause': metaDictionary['swissprot_identifier']})
             meta_file_type = None
 
     logger.info('Validation of meta file complete', extra={'filename_': filename})

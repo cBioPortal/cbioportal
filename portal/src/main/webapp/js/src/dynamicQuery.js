@@ -781,7 +781,6 @@ function caseSetSelected() {
 function geneSetSelected() {
     //  Get the selected ID from the pull-down menu
     var geneSetId = $("#select_gene_set").val();
-	console.log('geneSetSelected');
 	
 	//  Get the gene set meta data from global JSON variable
 	var gene_set = window.metaDataJson.gene_sets[geneSetId];

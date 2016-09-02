@@ -46,7 +46,7 @@
 
 <!-- OQL Menu base -->
 <script id="oql-placeholder-template" type="text/handlebars-template">
-    <ul class="hidden-menu" id="oql-menu">
+    <ul id="oql-menu">
         {{> oql-menu-template}}
         <li class="oql-menu-close">Press &lt;ESC&gt; to close</li>
     </ul>

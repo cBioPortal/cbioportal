@@ -76,13 +76,58 @@ The value in the AUTHORITY column is made of two parts:
 * The first part is the name of your portal instance.  This name should also match the `app.name` property found in the `portal.properties` file.  
 * Following a colon delimiter, the second part is the [cancer_study_identifier](File-Formats.md#cancer-study) of the cancer study this user has rights to access. 
 
-**If the user has rights to all available cancer studies, a single entry with the keyword `app.name` + "ALL" is sufficient (so e.g. "cbioportal:ALL").**
+**If the user has rights to all available cancer studies, a single entry with the keyword `app.name:` + "ALL" is sufficient (so e.g. "cbioportal:ALL").**
 
 You need to add users via MySQL directly.  For example:
 
 ```
-INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
+mysql> INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
     ('john.smith@gmail.com', 'cbioportal:CANCER_STUDY_1');
 ```
 **Important Note:**  The cancer study identifier is *not* CASE sEnsitive. So it can be UPPER CASE, or just how it is stored in the `cancer_study` table.
 Changes to these tables become effective the *next* time the user logs in. 
+
+## Using groups
+
+It is also possible to define groups and assign multiple studies and users to a group. You can add a group name to the `cancer_study` table `GROUPS` column. This same group name can be used in the `AUTHORITY` column of the `authorities` table mentioned above. 
+
+### Example: 
+
+We want to create the group "TEST_GROUP1" and assign two existing studies to it and give our user 'john.smith@gmail.com' access to this group of studies. Steps:
+
+1- Find your studies in table `cancer_study`
+```
+mysql> select CANCER_STUDY_ID, CANCER_STUDY_IDENTIFIER,GROUPS from cancer_study where CANCER_STUDY_ID in (93,94);
++-----------------+-------------------------+-------------+
+| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS      |
++-----------------+-------------------------+-------------+
+|              93 | acc_tcga                | GROUPB      |
+|              94 | brca_tcga               |             |
++-----------------+-------------------------+-------------+
+```
+2- Update the `GROUPS` field, adding your "TEST_GROUP1" to it. :warning: This is a `;` separated column, so if you want a study to be part of multiple groups, separate them with `;`.  
+```
+mysql> update cancer_study set GROUPS='TEST_GROUP1' where CANCER_STUDY_ID = 94;
+```
+
+If `GROUPS` already has a value (like for study 93 in example above) then add ";TEST_GROUP1" to ensure existing groups are not ovewritten.
+```
+mysql> update cancer_study set GROUPS=concat(GROUPS,';TEST_GROUP1') where CANCER_STUDY_ID = 93;
+```
+3- Check the result:
+```
+mysql> select CANCER_STUDY_ID, CANCER_STUDY_IDENTIFIER,GROUPS from cancer_study where CANCER_STUDY_ID in (93,94);
++-----------------+-------------------------+--------------------+
+| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS             |
++-----------------+-------------------------+--------------------+
+|              93 | acc_tcga                | GROUPB;TEST_GROUP1 |
+|              94 | brca_tcga               | TEST_GROUP1        |
++-----------------+-------------------------+--------------------+
+```
+4- Add the group to user 'john.smith@gmail.com', using `app.name:` + "TEST_GROUP1" like so:
+```
+mysql> INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
+    ('john.smith@gmail.com', 'cbioportal:TEST_GROUP1');
+```
+
+After **next login**, the user 'john.smith@gmail.com' will have access to these two studies. 

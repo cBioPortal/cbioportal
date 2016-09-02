@@ -257,7 +257,6 @@ var GeneSymbolValidator = (function($) {
 
 	//
 	var validateGenes = function() {
-		console.log('validateGene');
 		$('#main_submit').attr('disabled', 'disabled');
 
 		var rawtext = getRawText();
@@ -431,7 +430,6 @@ var GeneSymbolValidator = (function($) {
 				'json'
 			);
 		} catch (e) {
-			console.log(e);
 			$('#state_placeholder').html('');
 			$('<small>').appendTo($('#state_placeholder')).html('Cannot validate gene symbols because of invalid OQL. Please click "Submit" to see location of error.');
 			$('#main_submit').removeAttr('disabled');

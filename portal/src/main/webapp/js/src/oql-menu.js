@@ -48,8 +48,6 @@ var OqlMenu = (function($){
 		gene_list = document.getElementById('gene_list');
 		rangy.init();
 		
-		console.log('oql init');
-		rangy.init();
 		generateList();
 		$TA = $('#gene_list');
 		$ME = $('#oql-menu');
@@ -73,8 +71,6 @@ var OqlMenu = (function($){
 	};
 	
 	var insert = function(text) {
-		// var savedSel = rangy.getSelection().saveCharacterRanges(gene_list);
-		console.log('inserting:'+text);
 		var sel = rangy.getSelection();
 		var range = sel.rangeCount ? sel.getRangeAt(0) : null;
 		if (range) {
@@ -84,18 +80,6 @@ var OqlMenu = (function($){
 			range.setStartAfter(el);
 			rangy.getSelection().setSingleRange(range);
 		}
-		// var sel, range;
-		// if (window.getSelection) {
-		// 	sel = window.getSelection();
-		// 	if (sel.getRangeAt && sel.rangeCount) {
-		// 		range = sel.getRangeAt(0);
-		// 		range.deleteContents();
-		// 		range.insertNode(document.createTextNode(text));
-		// 		range.collapse(true);
-		// 	}
-		// } else if (document.selection && document.selection.createRange) {
-		// 	document.selection.createRange().text = text;
-		// }
 		inState = true;
 	};
 	
@@ -114,13 +98,6 @@ var OqlMenu = (function($){
 	};
 	
 	var showMenu = function() {
-		console.log('showing menu');
-		
-		// var rawtext = rangy.innerText(gene_list);
-		// var savedsel = rangy.getSelection().saveCharacterRanges(gene_list);
-		// var firsthalf = rawtext.slice(0, savedsel[0].characterRange.start);
-		// var second half = rawtext.slice(savedsel[0].characterRange.start);
-		
 		var offset = $TA.caret('offset');
 		delete offset.height;
 		offset.top += lineHeight;
@@ -129,11 +106,9 @@ var OqlMenu = (function($){
 	};
 	
 	var removeMenu = function() {
-		console.log('removing menu');
 		$ME.css('display', 'none');
 	};
 
-	
 	var bindEvents = function() {
 		
 		// jQuery-UI menu setup
@@ -161,10 +136,8 @@ var OqlMenu = (function($){
 			}
 			
 			if (event.which === CHAR.COLON){
-				console.log('colon press');
 				showMenu();
 			} else if (event.which === CHAR.SPACE && inState){
-				console.log('space press instate');
 				showMenu();
 			}
 		});

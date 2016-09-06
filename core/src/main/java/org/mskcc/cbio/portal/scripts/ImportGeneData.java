@@ -36,23 +36,45 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.util.*;
 
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+
 import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 /**
  * Command Line Tool to Import Background Gene Data.
  */
-public class ImportGeneData {
+public class ImportGeneData extends ConsoleRunnable {
 
+    /**
+     * 
+     * @param geneFile
+     * @throws IOException
+     * @throws DaoException
+     */
     public static void importData(File geneFile) throws IOException, DaoException {
         Map<String, Set<CanonicalGene>> genesWithSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         Map<String, Set<CanonicalGene>> genesWithoutSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         try (FileReader reader = new FileReader(geneFile)) {
             BufferedReader buf = new BufferedReader(reader);
             String line;
+            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+            ArrayList<CanonicalGene> allGenes = daoGene.getAllGenes();
+            for(CanonicalGene geneName : allGenes) { //Loop through all genes
+            	if (geneName != null) {
+                throw new DaoException("Error: the table Gene is not empty.");
+                }
             while ((line = buf.readLine()) != null) {
-                ProgressMonitor.incrementCurValue();
-                ConsoleUtil.showProgress();
+            	ProgressMonitor.incrementCurValue();
+            	ConsoleUtil.showProgress();
                 if (line.startsWith("#")) {
                     continue;
                 }
@@ -83,11 +105,12 @@ public class ImportGeneData {
                     
                     if (geneSymbol.startsWith("MIR") && type.equalsIgnoreCase("miscRNA")) {
                         line = buf.readLine();
-                        continue; // ignore miRNA; process seperately
+                        continue; // ignore miRNA; process separately
                     }
                     
                     CanonicalGene gene = null;
                     if (!mainSymbol.equals("-")) {
+                        //try the main symbol:
                         gene = new CanonicalGene(entrezGeneId, mainSymbol, aliases);
                         Set<CanonicalGene> genes = genesWithSymbolFromNomenClatureAuthority.get(mainSymbol);
                         if (genes==null) {
@@ -96,6 +119,7 @@ public class ImportGeneData {
                         }
                         genes.add(gene);
                     } else if (!geneSymbol.equals("-")) {
+                        //there is no main symbol, so import using the temporary/unnoficial(?) symbol:
                         gene = new CanonicalGene(entrezGeneId, geneSymbol, aliases);
                         Set<CanonicalGene> genes = genesWithoutSymbolFromNomenClatureAuthority.get(geneSymbol);
                         if (genes==null) {
@@ -114,17 +138,17 @@ public class ImportGeneData {
             }
         }
         
-        MySQLbulkLoader.bulkLoadOn();
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-
         // Add genes with symbol from nomenclature authority
         for (Map.Entry<String, Set<CanonicalGene>> entry : genesWithSymbolFromNomenClatureAuthority.entrySet()) {
             Set<CanonicalGene> genes = entry.getValue();
             if (genes.size()==1) {
-                daoGene.addGene(genes.iterator().next());
-            } else {
+                CanonicalGene gene = genes.iterator().next();
+                daoGene.addGene(gene);
+                ProgressMonitor.logWarning("New gene added");
+                }
+            else {
             	//TODO - is unexpected for official symbols...raise Exception instead?
-                logDuplicateGeneSymbolWarning(entry.getKey(), genes);
+                logDuplicateGeneSymbolWarning(entry.getKey(), genes, true);
             }
         }
 
@@ -138,7 +162,9 @@ public class ImportGeneData {
 	            if (genes.size()==1) {
 	                CanonicalGene gene = genes.iterator().next();
 	                if (!genesWithSymbolFromNomenClatureAuthority.containsKey(symbol)) {
+	                    CanonicalGene dbGene = daoGene.getGene(gene.getEntrezGeneId());
 	                    daoGene.addGene(gene);
+	                    ProgressMonitor.logWarning("New gene with no official symbol added");
 	                    nrImported++;
 	                } else {
 	                    // ignore entries with a symbol that have the same value as stardard one
@@ -147,24 +173,27 @@ public class ImportGeneData {
 	                    nrSkipped++;
 	                }
 	            } else {
-	                logDuplicateGeneSymbolWarning(symbol, genes);
+	                logDuplicateGeneSymbolWarning(symbol, genes, false);
 	                nrSkipped =+ genes.size();
 	            }
 	        }
 	        ProgressMonitor.logWarning("There were " +genesWithoutSymbolFromNomenClatureAuthority.keySet().size() + 
-	        		" genes names in this file without an official symbol from nomenclature authorty. Imported: " + nrImported + 
+	        		" genes names in this file without an official symbol from nomenclature authority. Imported: " + nrImported + 
 	        		", skipped (because of duplicate symbol entry or because symbol is an 'official symbol' of another gene): " + nrSkipped);
         }
-        
-        if (MySQLbulkLoader.isBulkLoad()) {
-           MySQLbulkLoader.flushAll();
-        }        
+       
+        }
+       
     }
-    
-    private static void logDuplicateGeneSymbolWarning(String symbol, Set<CanonicalGene> genes) {
+
+    private static void logDuplicateGeneSymbolWarning(String symbol, Set<CanonicalGene> genes, boolean isOfficialSymbol) {
         StringBuilder sb = new StringBuilder();
-        sb.append("More than 1 gene has the same symbol ")
-                .append(symbol)
+        if (isOfficialSymbol)
+            sb.append("More than 1 gene has the same (official) symbol ");
+        else
+            sb.append("More than 1 gene has the same (unofficial) symbol ");
+            
+        sb.append(symbol)
                 .append(":");
         for (CanonicalGene gene : genes) {
             sb.append(" ")
@@ -174,45 +203,73 @@ public class ImportGeneData {
         ProgressMonitor.logWarning(sb.toString());
     }
 
+    /**
+     * This method imports the gene lengths of the file stated. This file must be an "exon-loci" file (bed file).
+     * 
+     * @param geneFile
+     * @throws IOException
+     * @throws DaoException
+     */
     private static void importGeneLength(File geneFile) throws IOException, DaoException {
+    	//Set the variables needed for the method
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
         String line;
-        CanonicalGene currentGene = null;
-        List<long[]> loci = new ArrayList<long[]>();
+        String genesNotFound = "";
+        int genesNotFoundCount = 0;
+        HashMap<Long, List<long[]>> geneLociMap = new HashMap<Long, List<long[]>>();
+        ProgressMonitor.setCurrentMessage("\n\nUpdating gene lengths: \n\n"); //Display a message in the console
+        
+        //Iterate over the file and fill the hash map with the max and min values of each gene (start and end position)
         while ((line=buf.readLine()) != null) {
-            ProgressMonitor.incrementCurValue();
-            ConsoleUtil.showProgress();
-            if (!line.startsWith("#")) {
-                String parts[] = line.split("\t");
-                CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(parts[3], parts[0]);
-                if (gene==null) {
-                    System.err.println("Could not find non ambiguous gene: "+parts[3]);
-                    continue;
+        	String parts[] = line.split("\t");
+            CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(parts[3], parts[0]); //Identify unambiguously the gene (with the symbol and the chromosome)
+        	if (gene==null) { //Report the genes that have not been unambiguously identified
+        		genesNotFoundCount++;
+                if (genesNotFoundCount <= 3) { 
+                    genesNotFound += parts[3] + ", ";
                 }
-                
-                if (currentGene != gene) {
-                    if (currentGene!=null) {
-                        int length = calculateGeneLength(loci);
-                        if (currentGene.getLength()!=0) {
-                            System.err.println(currentGene.getHugoGeneSymbolAllCaps()+" has multiple length.");
-                        } else {
-                            currentGene.setLength(length);
-                        }
-                    }
-                    loci.clear();
-                    currentGene = gene;
+                else if (genesNotFoundCount == 4) {
+                    genesNotFound += "...";
                 }
-                
-                loci.add(new long[]{Long.parseLong(parts[1]), Long.parseLong(parts[2])});
+                continue;
             }
+        	else {
+        		Long geneId = gene.getEntrezGeneId(); //Retrieve the Entrez Gene ID from gene
+        		List<long[]> list = geneLociMap.get(geneId);
+        		if (list == null) {
+        			list = new ArrayList<long[]>(); //Create new array
+        			geneLociMap.put(geneId, list); //couple it to the geneId
+        		}
+        		list.add(new long[]{Long.parseLong(parts[1]), Long.parseLong(parts[2])}); //Add the new positions
+        	}
+        	//Report non ambiguous genes
+        	if (genesNotFound.length() > 0) {
+                ProgressMonitor.logWarning("Could not find non ambiguous gene(s): " + genesNotFound);
+        		}
         }
         
-        daoGeneOptimized.flushUpdateToDatabase();
-    }
+        //Calculate the length for each gene and update genes
+        for (Long key : geneLociMap.keySet()) { //Get the keys and iterate over them
+        	List<long[]> exons = geneLociMap.get(key); //Get the values
+        	int length = calculateGeneLength(exons);
+        	CanonicalGene gene = daoGeneOptimized.getGene(key);
+        	gene.setLength(length);
+            daoGeneOptimized.updateGene(gene); 
+            }
+      }
     
-    private static int calculateGeneLength(List<long[]> loci) {
+
+    /**
+     * This method uses a list of exon loci from the same gene and it adds the length of all of them to get the gene length. If some of the exons are
+     * overlapping, the overlapping part is only counted once in the calculation. For example, if an exon goes from position 3 to 10 and another one from 
+     * position 5 to 11, when calculating the length these exons would be considered as a single exon going from position 3 to 11.
+     * 
+     * @param loci
+     * @return
+     */
+    public static int calculateGeneLength(List<long[]> loci) {
         long min = Long.MAX_VALUE, max=-1;
         for (long[] l : loci) {
             if (l[0]<min) {
@@ -222,6 +279,8 @@ public class ImportGeneData {
                 max = l[1];
             }
         }
+        if (max < min)
+        	throw new IllegalArgumentException("Found error: max=" + max + ", min=" + min);
         BitSet bitSet = new BitSet((int)(max-min));
         for (long[] l : loci) {
             bitSet.set((int)(l[0]-min), ((int)(l[1]-min)));
@@ -257,50 +316,107 @@ public class ImportGeneData {
         reader.close(); 
     }
 
-    public static void main(String[] args) throws Exception {
-		SpringUtil.initDataSource();
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.deleteAllRecords();
-        if (args.length == 0) {
-            System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <supp-genes.txt> <microrna.txt> <all_exon_loci.bed>");
-            return;
-        }
-        ProgressMonitor.setConsoleMode(true);
-        
-        File geneFile = new File(args[0]);
-        System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
-        int numLines = FileUtil.getNumLines(geneFile);
-        System.out.println(" --> total number of lines:  " + numLines);
-        ProgressMonitor.setMaxValue(numLines);
-        ImportGeneData.importData(geneFile);
-        ConsoleUtil.showWarnings();
-        System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
-        
-        if (args.length>=2) {
-            File suppGeneFile = new File(args[1]);
-            System.out.println("Reading supp. gene data from:  " + suppGeneFile.getAbsolutePath());
-            numLines = FileUtil.getNumLines(suppGeneFile);
-            System.out.println(" --> total number of lines:  " + numLines);
-            ProgressMonitor.setMaxValue(numLines);
-            ImportGeneData.importSuppGeneData(suppGeneFile);
-        }
-        
-        if (args.length>=3) {
-            File miRNAFile = new File(args[2]);
-            System.out.println("Reading miRNA data from:  " + miRNAFile.getAbsolutePath());
-            numLines = FileUtil.getNumLines(miRNAFile);
-            System.out.println(" --> total number of lines:  " + numLines);
-            ProgressMonitor.setMaxValue(numLines);
-            ImportMicroRNAIDs.importData(miRNAFile);
+	@Override
+    public void run() {
+		try {
+			SpringUtil.initDataSource();
+	
+	        String description = "Update gene / gene alias tables ";
+	    	
+	        // using a real options parser, helps avoid bugs
+	 		OptionParser parser = new OptionParser();
+	 		OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
+	 		parser.accepts( "genes", "ncbi genes file" ).withRequiredArg().describedAs( "ncbi_genes.txt" ).ofType( String.class );
+	 		parser.accepts( "supp-genes", "alternative genes file" ).withRequiredArg().describedAs( "supp-genes.txt" ).ofType( String.class );
+	 		parser.accepts( "microrna", "microrna file" ).withRequiredArg().describedAs( "microrna.txt" ).ofType( String.class );
+	 		parser.accepts( "exon-loci", "exon loci file for calculating and storing gene lengths" ).withRequiredArg().describedAs( "all_exon_loci.bed" ).ofType( String.class );
+	
+	 		String progName = "importGenes";
+	 		OptionSet options = null;
+			try {
+				options = parser.parse( args );
+			} catch (OptionException e) {
+				throw new UsageException(progName, description, parser,
+				        e.getMessage());
+			}
+			  
+			if( options.has( help ) ){
+				throw new UsageException(progName, description, parser);
+			}
+			
+	        ProgressMonitor.setConsoleMode(true);
+	        
+	        File geneFile;
+			if(options.has("genes")) {
+				geneFile = new File((String) options.valueOf("genes"));
+			}
+			else {
+				throw new UsageException(progName, description, parser,
+				        "Error: 'genes' argument required.");
+			}
+	        System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
+	        int numLines = FileUtil.getNumLines(geneFile);
+	        System.out.println(" --> total number of lines:  " + numLines);
+	        ProgressMonitor.setMaxValue(numLines);
+	        MySQLbulkLoader.bulkLoadOn();
+	        ImportGeneData.importData(geneFile);
+	        MySQLbulkLoader.flushAll(); //Gene and gene_alias should be updated before calculating gene length (exon-loci)!
+	        
+	        if(options.has("supp-genes")) {
+	            File suppGeneFile = new File((String) options.valueOf("genes"));
+	            System.out.println("Reading supp. gene data from:  " + suppGeneFile.getAbsolutePath());
+	            numLines = FileUtil.getNumLines(suppGeneFile);
+	            System.out.println(" --> total number of lines:  " + numLines);
+	            ProgressMonitor.setMaxValue(numLines);
+	            ImportGeneData.importSuppGeneData(suppGeneFile);
+	        }
+	        
+	        if(options.has("microrna")) {
+	            File miRNAFile = new File((String) options.valueOf("microrna"));
+	            System.out.println("Reading miRNA data from:  " + miRNAFile.getAbsolutePath());
+	            numLines = FileUtil.getNumLines(miRNAFile);
+	            System.out.println(" --> total number of lines:  " + numLines);
+	            ProgressMonitor.setMaxValue(numLines);
+	            ImportMicroRNAIDs.importData(miRNAFile);
+	        }
+	        
+	        if(options.has("exon-loci")) {
+	            File lociFile = new File((String) options.valueOf("exon-loci"));
+	            System.out.println("Reading loci data from:  " + lociFile.getAbsolutePath());
+	            numLines = FileUtil.getNumLines(lociFile);
+	            System.out.println(" --> total number of lines:  " + numLines);
+	            ProgressMonitor.setMaxValue(numLines);
+	            ImportGeneData.importGeneLength(lociFile);
+	        }
+	        MySQLbulkLoader.flushAll();
+            System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
+
+		}
+		catch (RuntimeException e) {
+			throw e;
+		}
+		catch (Exception e) {
+		   throw new RuntimeException(e);
+		}
     }
-        
-        if (args.length>=4) {
-            File lociFile = new File(args[3]);
-            System.out.println("Reading loci data from:  " + lociFile.getAbsolutePath());
-            numLines = FileUtil.getNumLines(lociFile);
-            System.out.println(" --> total number of lines:  " + numLines);
-            ProgressMonitor.setMaxValue(numLines);
-            ImportGeneData.importGeneLength(lociFile);
-        }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportGeneData(String[] args) {
+        super(args);
     }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportGeneData(args);
+        runner.runInConsole();
+    }
+
 }

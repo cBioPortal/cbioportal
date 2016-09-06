@@ -5,7 +5,7 @@
     <cache/>
 
     <select id="getCNASegmentData" resultType="org.cbioportal.model.CNASegmentData">
-        select s.stable_id, cns.chr, cns.start, cns.end, cns.num_probes, cns.segment_mean from sample s, copy_number_seg cns, cancer_study cs 
+        select s.stable_id as sampleStableId, cns.chr as chromosome, cns.start as start, cns.end as end, cns.num_probes as numProbes, cns.segment_mean as segmentMean from sample s, copy_number_seg cns, cancer_study cs 
         where cs.cancer_study_identifier = #{cancerStudyId} 
         
         <if test="sampleIds != null and !sampleIds.isEmpty()">

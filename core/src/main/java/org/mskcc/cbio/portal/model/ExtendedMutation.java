@@ -255,6 +255,14 @@ public final class ExtendedMutation
             return oncotatorUniprotName;
         }
 
+        /**
+         * Set the UniprotKB name (formerly known as ID) of the protein record.
+         *
+         * @param oncotatorUniprotName the UniprotKB name
+         * @deprecated set the accession with
+         *             {@link #setOncotatorUniprotAccession(String)} instead
+         */
+        @Deprecated
         public void setOncotatorUniprotName(String oncotatorUniprotName) {
             this.oncotatorUniprotName = oncotatorUniprotName;
         }
@@ -835,6 +843,14 @@ public final class ExtendedMutation
         return event.getOncotatorUniprotName();
     }
 
+    /**
+     * Set the UniprotKB name (formerly known as ID) of the protein record.
+     *
+     * @param oncotatorUniprotName the UniprotKB name
+     * @deprecated set the accession with
+     *             {@link #setOncotatorUniprotAccession(String)} instead
+     */
+    @Deprecated
     public void setOncotatorUniprotName(String oncotatorUniprotName)
     {
         event.setOncotatorUniprotName(oncotatorUniprotName);

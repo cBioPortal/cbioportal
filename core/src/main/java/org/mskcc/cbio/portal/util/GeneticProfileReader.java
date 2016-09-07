@@ -84,7 +84,12 @@ public class GeneticProfileReader {
              // For mutation data only we can have multiple files with the same genetic_profile.
              // There is a constraint in the mutation database table to prevent duplicated data
              // If this constraint is hit (mistakenly importing the same maf twice) MySqlBulkLoader will throw an exception
-             return existingGeneticProfile;
+
+             // make an object combining the pre-existing profile with the file-specific properties of the current file
+             GeneticProfile gp = new GeneticProfile(existingGeneticProfile);
+             gp.setTargetLine(geneticProfile.getTargetLine());
+             gp.setOtherMetadataFields(geneticProfile.getAllOtherMetadataFields());
+             return gp;
          }
       }
       // add new profile
@@ -178,6 +183,7 @@ public class GeneticProfileReader {
 	  geneticProfile.setDatatype(datatype);
       geneticProfile.setShowProfileInAnalysisTab(showProfileInAnalysisTab);
       geneticProfile.setTargetLine(properties.getProperty("target_line"));
+      geneticProfile.setOtherMetadataFields(properties);
       return geneticProfile;
    }
 }

@@ -22,6 +22,11 @@
       <artifactId>persistence-mybatis</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>persistence-api</artifactId>
+        <version>${project.version}</version>
+    </dependency>
 
     <!-- antisamy -->
     <dependency>

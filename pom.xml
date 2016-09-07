@@ -132,7 +132,8 @@
     <final.war.name>cbioportal-${project.version}</final.war.name>
 
 	<db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
-	<db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test</db.test.url>
+    <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
+	<db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
     

@@ -387,6 +387,10 @@ public class DaoGeneOptimized {
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
     public CanonicalGene getNonAmbiguousGene(String geneId, String chr) {
+    	return getNonAmbiguousGene(geneId, chr, true);
+    }
+    
+    public CanonicalGene getNonAmbiguousGene(String geneId, String chr, boolean issueWarning) {
         List<CanonicalGene> genes = guessGene(geneId, chr);
         if (genes.isEmpty()) {
             return null;
@@ -399,17 +403,18 @@ public class DaoGeneOptimized {
         if (disambiguousGenes.containsKey(geneId)) {
             return disambiguousGenes.get(geneId);
         }
-        
-        StringBuilder sb = new StringBuilder("Ambiguous alias ");
-        sb.append(geneId);
-        sb.append(": corresponding entrez ids of ");
-        for (CanonicalGene gene : genes) {
-            sb.append(gene.getEntrezGeneId());
-            sb.append(",");
+        if (issueWarning) {
+	        StringBuilder sb = new StringBuilder("Ambiguous alias ");
+	        sb.append(geneId);
+	        sb.append(": corresponding entrez ids of ");
+	        for (CanonicalGene gene : genes) {
+	            sb.append(gene.getEntrezGeneId());
+	            sb.append(",");
+	        }
+	        sb.deleteCharAt(sb.length()-1);
+	        
+	        ProgressMonitor.logWarning(sb.toString());
         }
-        sb.deleteCharAt(sb.length()-1);
-        
-        ProgressMonitor.logWarning(sb.toString());
         return null;
         
     }

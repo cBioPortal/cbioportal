@@ -24,6 +24,6 @@ public class CNASegmentController {
     public List<CNASegmentData> getCNASegment(@RequestParam String cancerStudyId, 
                                       @RequestParam(required = false) List<String> hugoSymbols,
                                       @RequestParam(required = false) List<String> sampleIds) {
-        return cnaSegmentService.getCNASegmentData(cancerStudyId, hugoSymbols, sampleIds);
+        return cnaSegmentService.getCNASegmentData("coadread_tcga", hugoSymbols, sampleIds);
     }
 }

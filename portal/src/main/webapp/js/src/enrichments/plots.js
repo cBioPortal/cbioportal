@@ -49,97 +49,97 @@ var enrichmentsTabPlots = (function() {
     var dotsArr = [], xAxisTextSet = ["Altered", "Unaltered"];
 
     var elem = {
-            svg : "",
-            xScale : "",
-            yScale : "",
-            xAxis : "",
-            yAxis : "",
-            dotsGroup : ""   //Group of single Dots
-        }, settings = {
-            canvas_width: 720,
-            canvas_height: 600,
-            dots_fill_color: "#58ACFA",
-            dots_stroke_color: "#0174DF"
-        };
+        svg : "",
+        xScale : "",
+        yScale : "",
+        xAxis : "",
+        yAxis : "",
+        dotsGroup : ""   //Group of single Dots
+    }, settings = {
+        canvas_width: 350,
+        canvas_height: 350,
+        dots_fill_color: "#58ACFA",
+        dots_stroke_color: "#0174DF"
+    };
 
     function data_process(result) {
 
-	window.QuerySession.getGenomicEventData().then(function(data) {
-		var order = {};
-		var sample_ids = window.QuerySession.getSampleIds();
-		for (var i=0; i<sample_ids.length; i++) {
-			order[sample_ids[i]] = i;
-		}
-		var oncoprintData = _.sortBy(data, function(d) { return order[d.sample];});
-		dotsArr = [];
-		dotsArr.length = 0;
-		window.QuerySession.getAlteredSamples().then(function(altered_sample_ids) {
-			$.each(Object.keys(result[gene]), function(index, _sampleId) {
-			    var _obj = result[gene][_sampleId];
-			    var _datum = {};
-			    _datum.alteration = "";
-			    if (!isNaN(_obj[profile_id])) {
-				if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
-				    _datum.x_val = 0;
-				} else { //sample is unaltered
-				    _datum.x_val = 1;
-				}
+        window.QuerySession.getGenomicEventData().then(function(data) {
+            var order = {};
+            var sample_ids = window.QuerySession.getSampleIds();
+            for (var i=0; i<sample_ids.length; i++) {
+                order[sample_ids[i]] = i;
+            }
+            var oncoprintData = _.sortBy(data, function(d) { return order[d.sample];});
+            dotsArr = [];
+            dotsArr.length = 0;
+            window.QuerySession.getAlteredSamples().then(function(altered_sample_ids) {
+                $.each(Object.keys(result[gene]), function(index, _sampleId) {
+                    var _obj = result[gene][_sampleId];
+                    var _datum = {};
+                    _datum.alteration = "";
+                    if (!isNaN(_obj[profile_id])) {
+                        if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
+                            _datum.x_val = 0;
+                        } else { //sample is unaltered
+                            _datum.x_val = 1;
+                        }
 
-				//if rna seq data, apply log 10
-				if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
-				else _datum.y_val = parseFloat(_obj[profile_id]);
+                        //if rna seq data, apply log 10
+                        if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
+                        else _datum.y_val = parseFloat(_obj[profile_id]);
 
-				_datum.case_id = _sampleId;
-				if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
+                        _datum.case_id = _sampleId;
+                        if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
 
-					//iterate over items (alteration info for each gene in each sample):
-				    $.each(oncoprintData, function(inner_key, inner_obj) {
-				    	//if sample is the current sample, then analyze alterations:
-					    if (_sampleId === inner_obj.sample) {
-					    	var _str = "";
-							if (inner_obj.hasOwnProperty("mutation")) {
-							    _str += " MUT;";
-							}
-							if (inner_obj.hasOwnProperty("cna")) {
-							    if (inner_obj.cna === "AMPLIFIED") {
-								_str += " AMP;";
-							    } else if (inner_obj.cna === "GAINED") {
-								_str += " GAIN;";
-							    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
-								_str += " HETLOSS;";
-							    } else if (inner_obj.cna === "HOMODELETED") {
-								_str += " HOMDEL;";
-							    }
-							}
-							if (inner_obj.hasOwnProperty("mrna")) {
-							    if (inner_obj.mrna === "UPREGULATED") {
-								_str += " UP;";
-							    } else if (inner_obj.mrna === "DOWNREGULATED") {
-								_str += " DOWN;";
-							    }
-							}
-							if (inner_obj.hasOwnProperty("rppa")) {
-							    if (inner_obj.rppa === "UPREGULATED") {
-								_str += " RPPA-UP;";
-							    } else if (inner_obj.rppa === "DOWNREGULATED") {
-								_str += " RPPA-DOWN;";
-							    }
-							}
-							if (_str !== "") {
-							    _str = inner_obj.gene + ":" + _str;
-							    //record all alterations found for this sample:
-							    _datum.alteration += _str;
-							}
-					    }
-				    });
-				}
-				dotsArr.push(_datum);
-			    }
-			});
+                            //iterate over items (alteration info for each gene in each sample):
+                            $.each(oncoprintData, function(inner_key, inner_obj) {
+                                //if sample is the current sample, then analyze alterations:
+                                if (_sampleId === inner_obj.sample) {
+                                    var _str = "";
+                                    if (inner_obj.hasOwnProperty("mutation")) {
+                                        _str += " MUT;";
+                                    }
+                                    if (inner_obj.hasOwnProperty("cna")) {
+                                        if (inner_obj.cna === "AMPLIFIED") {
+                                            _str += " AMP;";
+                                        } else if (inner_obj.cna === "GAINED") {
+                                            _str += " GAIN;";
+                                        } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
+                                            _str += " HETLOSS;";
+                                        } else if (inner_obj.cna === "HOMODELETED") {
+                                            _str += " HOMDEL;";
+                                        }
+                                    }
+                                    if (inner_obj.hasOwnProperty("mrna")) {
+                                        if (inner_obj.mrna === "UPREGULATED") {
+                                            _str += " UP;";
+                                        } else if (inner_obj.mrna === "DOWNREGULATED") {
+                                            _str += " DOWN;";
+                                        }
+                                    }
+                                    if (inner_obj.hasOwnProperty("rppa")) {
+                                        if (inner_obj.rppa === "UPREGULATED") {
+                                            _str += " RPPA-UP;";
+                                        } else if (inner_obj.rppa === "DOWNREGULATED") {
+                                            _str += " RPPA-DOWN;";
+                                        }
+                                    }
+                                    if (_str !== "") {
+                                        _str = inner_obj.gene + ":" + _str;
+                                        //record all alterations found for this sample:
+                                        _datum.alteration += _str;
+                                    }
+                                }
+                            });
+                        }
+                        dotsArr.push(_datum);
+                    }
+                });
 
-			generate_plots();
-		});
-	});
+                generate_plots();
+            });
+        });
 
     };
 
@@ -191,7 +191,7 @@ var enrichmentsTabPlots = (function() {
         //init axis scales
         elem.xScale = d3.scale.linear() //x axis scale
             .domain([-0.7, 1.7])
-            .range([100, 600]);
+            .range([80, 280]);
         var _yValArr = []; //y axis scale
         $.each(dotsArr, function(index, val){
             _yValArr.push(val.y_val);
@@ -199,7 +199,7 @@ var enrichmentsTabPlots = (function() {
         var _results = enrichmentsTabUtil.analyse_data(_yValArr);
         elem.yScale = d3.scale.linear()
             .domain([_results.min, _results.max])
-            .range([520, 20]);
+            .range([220, 20]);
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom");
@@ -213,7 +213,7 @@ var enrichmentsTabPlots = (function() {
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(0, 520)")
+            .attr("transform", "translate(0, 220)")
             .attr("class", "rppa-plots-x-axis-class")
             .call(elem.xAxis.ticks(xAxisTextSet.length))
             .selectAll("text")
@@ -236,7 +236,7 @@ var enrichmentsTabPlots = (function() {
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(100, 0)")
+            .attr("transform", "translate(80, 0)")
             .attr("class", "rppa-plots-y-axis-class")
             .call(elem.yAxis)
             .selectAll("text")
@@ -250,23 +250,23 @@ var enrichmentsTabPlots = (function() {
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(600, 0)")
+            .attr("transform", "translate(280, 0)")
             .call(elem.yAxis.orient("left").ticks(0));
 
         //Append Axis Titles
         var axisTitleGroup = elem.svg.append("svg:g");
         axisTitleGroup.append("text")
             .attr("class", "rppa-plots-x-axis-title")
-            .attr("x", 350)
-            .attr("y", 580)
+            .attr("x", 180)
+            .attr("y", 270)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
             .text("Query: " + window.QuerySession.getQueryGenes().join(" ") + " (p-Value: " + p_value + ")");
         axisTitleGroup.append("text")
             .attr("class", "rppa-plots-y-axis-title")
             .attr("transform", "rotate(-90)")
-            .attr("x", -270)
-            .attr("y", 45)
+            .attr("x", -140)
+            .attr("y", 25)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
             .text(gene + ", " + profile_name);
@@ -300,8 +300,8 @@ var enrichmentsTabPlots = (function() {
             } else if (tmp_y_arr.length === 1) {
                 mean = elem.yScale(tmp_y_arr[0]);
                 boxPlotsElem.append("line")
-                    .attr("x1", midLine - 30)
-                    .attr("x2", midLine + 30)
+                    .attr("x1", midLine - 10)
+                    .attr("x2", midLine + 10)
                     .attr("y1", mean)
                     .attr("y2", mean)
                     .attr("stroke-width", 1)
@@ -347,30 +347,30 @@ var enrichmentsTabPlots = (function() {
                     bottom = scaled_y_arr[index_bottom];
                 }
                 boxPlotsElem.append("rect")
-                    .attr("x", midLine - 60)
+                    .attr("x", midLine - 30)
                     .attr("y", quan2)
-                    .attr("width", 120)
+                    .attr("width", 60)
                     .attr("height", IQR)
                     .attr("fill", "none")
                     .attr("stroke-width", 1)
                     .attr("stroke", "#BDBDBD");
                 boxPlotsElem.append("line")
-                    .attr("x1", midLine - 60)
-                    .attr("x2", midLine + 60)
+                    .attr("x1", midLine - 30)
+                    .attr("x2", midLine + 30)
                     .attr("y1", mean)
                     .attr("y2", mean)
                     .attr("stroke-width", 3)
                     .attr("stroke", "#BDBDBD");
                 boxPlotsElem.append("line")
-                    .attr("x1", midLine - 40)
-                    .attr("x2", midLine + 40)
+                    .attr("x1", midLine - 15)
+                    .attr("x2", midLine + 15)
                     .attr("y1", top)
                     .attr("y2", top)
                     .attr("stroke-width", 1)
                     .attr("stroke", "#BDBDBD");
                 boxPlotsElem.append("line")
-                    .attr("x1", midLine - 40)
-                    .attr("x2", midLine + 40)
+                    .attr("x1", midLine - 15)
+                    .attr("x2", midLine + 15)
                     .attr("y1", bottom)
                     .attr("y2", bottom)
                     .attr("stroke", "#BDBDBD")
@@ -395,14 +395,14 @@ var enrichmentsTabPlots = (function() {
         //draw dots
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path").remove();
-        var ramRatio = 80;  //Noise
+        var ramRatio = 40;  //Noise
         elem.dotsGroup.selectAll("path")
             .data(dotsArr)
             .enter()
             .append("svg:path")
             .attr("transform", function(d){
                 return "translate(" + (elem.xScale(d.x_val) + (Math.random() * ramRatio - ramRatio/2)) +
-                       ", " + elem.yScale(d.y_val) + ")";
+                    ", " + elem.yScale(d.y_val) + ")";
             })
             .attr("d", d3.svg.symbol()
                 .size(20)
@@ -429,11 +429,11 @@ var enrichmentsTabPlots = (function() {
                 }
                 content = content + "</font>";
                 //make qtip for an element on first mouseenter:
-            	cbio.util.addTargetedQTip($(this), { content: {text: content} });
+                cbio.util.addTargetedQTip($(this), { content: {text: content} });
             }
         );
 
-		//Add nice resize effect when item is hovered:
+        //Add nice resize effect when item is hovered:
         var mouseOn = function() {
             var dot = d3.select(this);
             dot.transition()
@@ -453,7 +453,7 @@ var enrichmentsTabPlots = (function() {
         };
         elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
         elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-        
+
     };
 
 

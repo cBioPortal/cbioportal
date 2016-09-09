@@ -130,7 +130,7 @@ function MiniOnco(plotDiv, miniOncoDiv, originalData){
     function buildMiniOnco(bardata){
         // if there is no mini-onco yet, append the div and create the histogram
         if (!stackedHistogram) {
-            $("#" + plotDiv).append("<div id='" + miniOncoDiv + "'/>");
+            $("#" + plotDiv).append("<div id='" + miniOncoDiv + "' style='margin-left: -20px;'/>");
             stackedHistogram = new stacked_histogram("#" + miniOncoDiv);
             stackedHistogram.createStackedHistogram(bardata);
             stackedHistogram.addTextToLane("None selected", "Select gene in table or volcano plot");

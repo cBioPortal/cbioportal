@@ -221,6 +221,11 @@ cbio.download = (function() {
 			svg = svg.replace(
 				"<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
 		}
+        
+        // TODO: work around for Adobe Illustration bug
+        if (svg.indexOf("sans-serif") !== -1) {
+            svg = svg.replace(/sans-serif/g, "verdana");
+        }
 
 		return svg;
 	}

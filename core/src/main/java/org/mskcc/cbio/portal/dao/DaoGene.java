@@ -104,9 +104,6 @@ final class DaoGene {
             if (rows != 1) {
                 ProgressMonitor.logWarning("No change for " + gene.getEntrezGeneId() + " " + gene.getHugoGeneSymbolAllCaps() + "? Code " + rows);
             }
-            else {
-                ProgressMonitor.logWarning("Updated gene"); //should be message, but warnings are nicely summarized. TODO - add message summary to ProgressMonitor
-            }
             //add the current set of aliases:
             rows += addGeneAliases(gene);
 

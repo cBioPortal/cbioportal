@@ -35,12 +35,13 @@
  * @param plot_div: optional parameter, i.e. the div where to add a volcano plot representation of the data.
                     If set, a volcano plot is rendered next to the data table.
  */
-var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
+var enrichmentsTabTable = function(plot_div, minionco_div, loading_div, profile_plot_div) {
 
 	var self = this;
 	self.plot_div = plot_div;
 	self.minionco_div = minionco_div;
     self.loading_div = loading_div;
+    self.profile_plot_div = profile_plot_div;
 
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, enrichmentsTableInstance, profile_type, profile_id, table_title, data_type;
@@ -186,14 +187,10 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     "mDataProp": function (data, type, val) {
                         // for display, add the tags; for other purposes (e.g. filtering), use the data
                         if ( type === 'display' ) {
-                            // if the table supports the mini-onco, add classes for selecting a gene and highlighting
-                            if(self.supportsMiniOnco()){
-                                return "<div class='geneCheckboxDiv'>" +
+                            return "<div class='geneCheckboxDiv'>" +
                                     "<input type='checkbox' class='" +table_id + enrichmentsTabSettings.postfix.datatable_gene_checkbox_class + "' value='"+ data[col_index.gene] + "'>" +
                                     "<span class='selectHighlight_"+table_id+" selectHighlight'>" + data[col_index.gene] + "</span>" +
                                     "</div>";
-                            }
-                            return "<input type='checkbox' class='" +table_id + enrichmentsTabSettings.postfix.datatable_gene_checkbox_class + "' value='"+ data[col_index.gene] + "'>" + data[col_index.gene];
                         }
                         return data[col_index.gene];
                     }
@@ -226,16 +223,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     "sType": 'enrichments-pct-unaltered',
                     "bSearchable": false,
                     "aTargets": [col_index.unaltered_pct]
-                },
-                {
-                    "bSearchable": false,
-                    "bSortable": false,
-                    "mRender": function () {
-                        return "<img class='" + table_id + "_enrichments_details_img' src='images/details_open.png'>";
-                    },
-                    "aTargets": [ col_index.plot ]
                 }
-
             ],
             "fnRowCallback": function(nRow, aData) {
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
@@ -253,7 +241,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     } else if (aData[col_index.log_ratio] < 0 || aData[col_index.log_ratio] === "<-10") {
                         $('td:eq(' + col_index.log_ratio + ')', nRow).css("color", "#B40404");
                     }
-                    //bold siginicant pvalue and qvalue
+                    //bold significant pvalue and qvalue
                     if (aData[col_index.p_val] === "<0.001" ||
                         aData[col_index.p_val] < enrichmentsTabSettings.settings.p_val_threshold) { //significate p value
                         $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
@@ -286,14 +274,9 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                 }
             },
             "fnDrawCallback": function() {
-                event_listener_details_btn();
                 activateUpdateQueryBtns(table_id + enrichmentsTabSettings.postfix.datatable_update_query_button);
                 activeDownloadBtn();
-
-                // If the table supports the mini-onco, add gene-click functionality
-                if(self.supportsMiniOnco()){
-                    addGeneClick();
-                }
+                addGeneClick();
             },
             "bDeferRender": true,
             "iDisplayLength": 14
@@ -307,7 +290,11 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
     function addGeneClick(){
         $('.selectHighlight_'+table_id).on('click', function() {
             var current_gene = $(this).text();
-            self.miniOnco.render(current_gene);
+            if (profile_type === enrichmentsTabSettings.profile_type.mrna || profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
+                enrichmentsTabPlots.init(self.profile_plot_div, current_gene, profile_type, profile_id, table_title, "");
+            } else {
+                self.miniOnco.render(current_gene);
+            }
         });
     }
 
@@ -394,6 +381,7 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
     function attachFilters() {
 
         if (profile_type === enrichmentsTabSettings.profile_type.copy_num || profile_type === enrichmentsTabSettings.profile_type.mutations) {
+            
             $("#" + div_id).find("." + table_id + "_filter").append(
                 "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'><span style='font-size:10px;'>Mutual exclusivity</span></option> &nbsp;&nbsp;" +
                 "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'><span style='font-size:10px;'>Co-occurrence</span></option> &nbsp;&nbsp;" +
@@ -465,7 +453,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                     }
                     self.volcanoPlot.selectItems(remainingGenes);
                 }
-
             });
         }
 
@@ -600,23 +587,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
         });
     }
 
-    function event_listener_details_btn() {
-        $("." + table_id + "_enrichments_details_img").click( function () {
-            var nTr = this.parentNode.parentNode;
-            if (this.src.indexOf('details_close') !== -1) {
-                this.src = "images/details_open.png";
-                enrichmentsTableInstance.fnClose(nTr);
-            } else {
-                var aData = enrichmentsTableInstance.fnGetData(nTr);
-                var _gene_name = aData[0];
-                var _plots_div_id = table_id + "_" + _gene_name + "_plots";
-                this.src = "images/details_close.png";
-                enrichmentsTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif' alt='loading' /></div>", "rppa-details");
-                enrichmentsTabPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[col_index.p_val]);
-            }
-        });
-    }
-
     function activeDownloadBtn() {
         $("#" + table_id + "_download_btn").click(function() {
             cbio.download.clientSideDownload([get_tab_delimited_data()], "enrichments-analysis-result.txt");
@@ -692,7 +662,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
             _title_str += "<th colspan='2'>Standard deviation of mRNA expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.stdev_alt + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val_t_test + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.q_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.plot + "'>Plot</th>";
             _title_str += "</tr><tr>";
             _title_str += "<th width='100'>in altered group</th>";
             _title_str += "<th width='100'>in unaltered group</th>";
@@ -705,7 +674,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
             _title_str += "<th colspan='2'>Standard deviation of protein expression &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.stdev_alt + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.p_val_t_test + "'></th>";
             _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + enrichmentsTabSettings.settings.help_icon_img_src + "' id='" + table_id + enrichmentsTabSettings._title_ids.q_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + enrichmentsTabSettings.col_width.plot + "'>Plot</th>";
             _title_str += "</tr><tr>";
             _title_str += "<th width='100'>in altered group</th>";
             _title_str += "<th width='100'>in unaltered group</th>";
@@ -767,11 +735,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
                 attachFilters();
                 addHeaderQtips();
 
-                //initially hiding all the mrna data tables
-                if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
-                    $("#" + _table_div).hide();
-                }
-
             } else {
                 if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
                     $("#" + _table_div).empty();
@@ -796,6 +759,8 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div) {
             	self.volcanoPlot = new VolcanoPlot();
                 self.volcanoPlot.render(self);
             }
+            
+            
 
         }
     };
@@ -838,37 +803,48 @@ var orSubTabView = function() {
                     $.each(_profile_list, function(_index, _profile_obj) {
                         var usableId = _profile_obj.STABLE_ID.replace(/\./g, "_");
                         if (_profile_obj.STABLE_ID !== selected_profile_id) {
-                            $("#" + usableId + enrichmentsTabSettings.postfix.datatable_div).hide();
-                            $("#" + usableId + enrichmentsTabSettings.postfix.plot_div).hide();
+                            $("#" + usableId + "_container_table").hide();
                         } else {
-                            $("#" + usableId + enrichmentsTabSettings.postfix.datatable_div).show();
-                            $("#" + usableId + enrichmentsTabSettings.postfix.plot_div).show();
+                            $("#" + usableId + "_container_table").show();
                         }
                     });
                 });
                 //adding loading image for table
-                $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>")
+                $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>");
             }
 
             $.each(_profile_list, function(_index, _profile_obj) {
-                var element = $("." + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_class); //avoid duplicated initiation
-                if (element.length === 0) {
+                
+                var element = $("." + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_class); 
+                if (element.length === 0) { //avoid duplicated initiation
                     var _table_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_id;
                     var _plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.plot_div;
+                    var _profile_plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.profile_plot_div;
                     var loading_div = _table_div + "_loading_img";
-                    //for the mini-onco diagram
-                    var minionco_div = "minionco" + _plot_div;
+                    var minionco_div = "minionco" + _plot_div; //for the mini-onco diagram
 
-                    var html = "<div id='"+_profile_obj.STABLE_ID.replace(/\./g, "_")+"_container' style='float: left; position: relative'>"+
-                        "<div id='" + _plot_div + "' style='width: 30%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
-                        "<div id='" + _table_div + "' style='width: 65%; display:table; margin-left: auto; margin-right: 0; '></div>"+
+                    var html = "<div id='" + _profile_obj.STABLE_ID.replace(/\./g, "_") + "_container' style='float: left; position: relative; width: 100%;'>"+
+                        "<table width='100%' id='" + _profile_obj.STABLE_ID.replace(/\./g, "_") + "_container_table'><tr>" +
+                        "<td width='40%'>" +
+                        "<div id='" + _plot_div + "' style='position: absolute; top: 5px; float: left;'></div>" +
+                        "<div id='" + _profile_plot_div + "' style='position: relative; top:200px; float: left;'></div>" +                        
+                        "</td>" +
+                        "<td width='60%'>" +
+                        "<div id='" + _table_div + "' style='float:right;'></div>" +
+                        "</td>" +
+                        "</tr></table>" +
                         "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif' alt='loading' /></div>"+
                         "</div>";
                     $("#" + _div_id).append(html);
                     //adding this to contain floated plot (see "float: left"  above):
                     $("#" + _div_id).css("overflow", "hidden");
 
+                    // default message for profile plots
+                    if (_profile_type === enrichmentsTabSettings.profile_type.mrna || _profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
+                        $("#" + _profile_plot_div).append("<span style='margin-left: 55px; color: darkgray;'><b>Click on a gene in table to render plots here. </b></span>");
+                    }
+                    
                     //if this is the last profile
                     var last_profile = false;
                     if (_index + 1 === _profile_list.length) { //if it's last table, the instance would also in charge of clear the loading img and put an error msg
@@ -881,18 +857,18 @@ var orSubTabView = function() {
                     var param = new orAjaxParam(enrichmentsTab.getAlteredCaseList(), enrichmentsTab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
                     var or_data = new enrichmentsTabData();
                     or_data.init(param, _table_id);
-                    var or_table = new enrichmentsTabTable(_plot_div, minionco_div, loading_div);
+                    var or_table = new enrichmentsTabTable(_plot_div, minionco_div, loading_div, _profile_plot_div);
                     if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
                         or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + enrichmentsTabSettings.postfix.title_log, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile,_profile_obj.DATATYPE);
                     } else {
                         or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile, _profile_obj.DATATYPE);
                     }
 
-                    //hide mrna tables initially
+                    $("#" + loading_div).empty();
+
+                    // hide mrna tables initially
                     if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
-                        $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_div).hide();
-                        // also hide the volcanoplot
-                        $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.plot_div).hide();
+                        $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + "_container_table").hide();
                     }
                 }
 
@@ -907,9 +883,7 @@ var orSubTabView = function() {
                     if (!$( "#" + _target_table_div).is(":empty")) {
                         clearInterval(tmp);
                         $("#" + _div_id + "_table_loading_img").empty();
-                        $("#" + _target_table_div).show();
-                        // also show the corresponding volcanoplot
-                        $("#"+selectedVal+enrichmentsTabSettings.postfix.plot_div).show();
+                        $("#" + selectedVal + "_container_table").show();
                     }
                 }
             }

@@ -57,6 +57,7 @@ var enrichmentsTabSettings = (function() {
         },
         postfix: {
         	plot_div: "_plot_div",
+            profile_plot_div: "_profile_plot_div",
             datatable_class: "_datatable_class",
             datatable_div: "_datatable_div",
             datatable_id: "_datatable_table",
@@ -74,7 +75,7 @@ var enrichmentsTabSettings = (function() {
         },
         col_width : {
             gene: 150, //150
-            cytoband: 100,
+            cytoband: 50,
             altered_pct: 80, //90
             unaltered_pct: 80, //90
             log_ratio: 60,
@@ -84,7 +85,7 @@ var enrichmentsTabSettings = (function() {
             unaltered_mean: 95,
             altered_stdev: 95,
             unaltered_stdev: 95,
-            direction: 250,
+            direction: 200,
             plot: 30
         },
         col_index: {

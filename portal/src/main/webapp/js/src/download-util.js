@@ -222,6 +222,7 @@ cbio.download = (function() {
 				"<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
 		}
 
+        // TODO: Workaround for Adobe Illustrator
         if (svg.indexOf("sans-serif") !== -1)
         {
             svg = svg.replace(/sans-serif/g, 'verdana');

@@ -664,13 +664,17 @@ var BarChart = function(){
             startPoint = -1;
         
         }
+        //this flag is used to mark if its big number or not. If it is, like year value, then we can't apply precision function. otherwise it will round down to the wrong year. eg. 2002 will be round to 2000
+        var bigNumberFlag = false;
+        if(Math.abs(param.distanceArray.min) > 1000){
+            bigNumberFlag = true;
+        }
         if(!_.isNaN(param.distanceArray.diff)){
             for( var i = 0; i <= numOfGroups; i++ ){
                 var _tmpValue = i * seperateDistance + startPoint;
-                if(startPoint < 1500){
+                if(!bigNumberFlag){
                     _tmpValue = Number(cbio.util.toPrecision(Number(_tmpValue),3,0.1));
                 }
-
                 //If the current tmpValue already bigger than maxmium number, the
                 //function should decrease the number of bars and also reset the
                 //Mappped empty value.
@@ -689,20 +693,12 @@ var BarChart = function(){
         }else if(xDomain.length === 1){
             xDomain.push(Number(xDomain[0] + seperateDistance));
         }else{
-            //currently we always add ">max" and "NA" marker 
-            if(Math.abs(param.distanceArray.min) > 1500){
-                //add marker for greater than maximum
-                xDomain.push(Number(xDomain[xDomain.length - 1] + seperateDistance));
-                //add marker for NA values
-                emptyValueMapping = xDomain[xDomain.length - 1] + seperateDistance;
-                xDomain.push(emptyValueMapping);
-            }else{
-                //add marker for greater than maximum
-                xDomain.push(Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
-                //add marker for NA values
-                emptyValueMapping = Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1));
-                xDomain.push(emptyValueMapping);
-            }
+            //currently we always add ">max" and "NA" marker  
+            //add marker for greater than maximum
+            xDomain.push(bigNumberFlag ? (xDomain[xDomain.length - 1] + seperateDistance) : Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+            //add marker for NA values
+            emptyValueMapping = (bigNumberFlag ? (xDomain[xDomain.length - 1] + seperateDistance) :Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+            xDomain.push(emptyValueMapping);
         }
         
         
@@ -799,8 +795,8 @@ var BarChart = function(){
                     return '>' + xDomain[xDomain.length - 3]; 
                 }else if(v === xDomain[xDomain.length - 1]){
                     return 'NA';
-                }else if(Math.abs(param.distanceArray.min) > 1500 && xDomain.length > 7){
-                    //this is the special case for printing out year
+                }else if(xDomain.length > 7 && Math.abs(xDomain[xDomain.length-3]) > 1000){
+                    //this is the special case for printing out year or other large number
                     var index = xDomain.indexOf(v);
                     if(index % 2 === 0)
                         return v;

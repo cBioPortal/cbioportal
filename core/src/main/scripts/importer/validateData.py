@@ -967,6 +967,12 @@ class MutationsExtendedValidator(Validator):
                 'that the Uniprot canonical isoform is used when drawing Pfam '
                 'domains in the mutations view',
                 extra={'line_number': self.line_number})
+        elif not 'swissprot_identifier' in self.meta_dict:
+            self.logger.warning(
+                "A SWISSPROT column was found in a file without an "
+                "associated 'swissprot_identifier' metadatum, assuming "
+                "'swissprot_identifier: name'.",
+                extra={'column_number': self.cols.index('SWISSPROT') + 1})
 
         # one of these columns should be present:
         if not ('HGVSp_Short' in self.cols or 'Amino_Acid_Change' in self.cols):
@@ -1189,18 +1195,38 @@ class MutationsExtendedValidator(Validator):
         if value is None or value.strip() == '':
             return False
         return True
-    
+
     def checkSwissProt(self, value):
-        """Test whether SWISSPROT string is blank and give warning if blank."""
+        """Validate the name or accession in the SWISSPROT column."""
         if value is None or value.strip() == '':
             self.logger.warning(
                 'Missing value in SWISSPROT column; this column is '
                 'recommended to make sure that the Uniprot canonical isoform '
                 'is used when drawing Pfam domains in the mutations view',
                 extra={'line_number': self.line_number,
-                       'cause':'blank value in SWISSPROT column'})
-            
-        # it is just a warning, so we can return True always:
+                       'cause':'<blank>'})
+            # no value to test, return without error
+            return True
+        if self.meta_dict.get('swissprot_identifier', 'name') == 'accession':
+            if not re.match(
+                    # regex from http://www.uniprot.org/help/accession_numbers
+                    r'^([OPQ][0-9][A-Z0-9]{3}[0-9]|'
+                    r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$',
+                     value):
+                # return this as an error
+                self.extra = 'SWISSPROT value is not a UniprotKB accession'
+                self.extra_exists = True
+                return False
+        else:
+            # format described on http://www.uniprot.org/help/entry_name
+            if not re.match(
+                        r'^[A-Z0-9]{2,5}_[A-Z0-9]{2,5}$',
+                        value):
+                # return this as an error
+                self.extra = 'SWISSPROT value is not a UniprotKB/Swiss-Prot name'
+                self.extra_exists = True
+                return False
+        # if no reasons to return with a message were found, return valid
         return True
 
 

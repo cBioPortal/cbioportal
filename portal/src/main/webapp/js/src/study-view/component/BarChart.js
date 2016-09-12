@@ -623,7 +623,7 @@ var BarChart = function(){
         xDomain.length = 0;
         numOfGroups = 10;
         divider = 1;
-        
+       
         //Set divider based on the number m in 10(m)
         for( var i = 0; i < _distanceLength - 2; i++ )
             divider *= 10;
@@ -646,64 +646,62 @@ var BarChart = function(){
             _tmpMaxDomain = (parseInt(param.distanceArray.max / divider) + 1) * divider;
             seperateDistance = 0.2;
             startPoint = (parseInt(param.distanceArray.min / 0.2)-1) * 0.2;
-            emptyValueMapping = _tmpMaxDomain +0.2;
         
         }else if( distanceMinMax <= 1 && param.distanceArray.min >=0 && param.distanceArray.max <= 1){
 
             seperateDistance = 0.1;
             startPoint = 0;
-            emptyValueMapping = 1.1;
 
         }else if( distanceMinMax >= 1 ){
             
             seperateDistance = (parseInt(distanceMinMax / (numOfGroups * divider)) + 1) * divider;
             _tmpMaxDomain = (parseInt(param.distanceArray.max / seperateDistance) + 1) * seperateDistance;
             startPoint = parseInt(param.distanceArray.min / seperateDistance) * seperateDistance;
-            emptyValueMapping = _tmpMaxDomain+seperateDistance;
             
         }else{
             
             seperateDistance = 0.1;
             startPoint = -1;
-            emptyValueMapping = _tmpMaxDomain + 0.1;
         
         }
-        
-        for( var i = 0; i <= numOfGroups; i++ ){
-            var _tmpValue = i * seperateDistance + startPoint;
-            
-            _tmpValue = Number(cbio.util.toPrecision(Number(_tmpValue),3,0.1));
-            
-            //If the current tmpValue already bigger than maxmium number, the
-            //function should decrease the number of bars and also reset the
-            //Mappped empty value.
-            if(_tmpValue >= param.distanceArray.max){
-                //if i = 0 and tmpValue bigger than maximum number, that means
-                //all data fall into NA category.
-                if(i !== 0){
+        //this flag is used to mark if its big number or not. If it is, like year value, then we can't apply precision function. otherwise it will round down to the wrong year. eg. 2002 will be round to 2000
+        var bigNumberFlag = false;
+        if(Math.abs(param.distanceArray.min) > 1000){
+            bigNumberFlag = true;
+        }
+        if(!_.isNaN(param.distanceArray.diff)){
+            for( var i = 0; i <= numOfGroups; i++ ){
+                var _tmpValue = i * seperateDistance + startPoint;
+                if(!bigNumberFlag){
+                    _tmpValue = Number(cbio.util.toPrecision(Number(_tmpValue),3,0.1));
+                }
+                //If the current tmpValue already bigger than maxmium number, the
+                //function should decrease the number of bars and also reset the
+                //Mappped empty value.
+                if(_tmpValue >= param.distanceArray.max){
+                    //if i = 0 and tmpValue bigger than maximum number, that means
+                    //all data fall into NA category.
+                    xDomain.push(_tmpValue);
+                    break;
+                }else{
                     xDomain.push(_tmpValue);
                 }
-                //Reset the empty mapping value 
-                if(distanceMinMax > 1000 || distanceMinMax < 1){
-                    emptyValueMapping = (i+1)*seperateDistance + startPoint;
-                }
-                
-                //If the distance of Max and Min value is smaller than 1, give
-                //a more precise value
-                if(distanceMinMax < 1){
-                    emptyValueMapping = Number(cbio.util.toPrecision(Number(emptyValueMapping),3,0.1));
-                }
-                
-                break;
-            }else{
-                xDomain.push(_tmpValue);
             }
         }
-        //currently we always add ">max" and "NA" marker 
-        //add marker for greater than maximum
-        xDomain.push(Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
-        //add marker for NA values
-        xDomain.push(Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+        if(xDomain.length === 0){
+            xDomain.push(Number(startPoint));
+        }else if(xDomain.length === 1){
+            xDomain.push(Number(xDomain[0] + seperateDistance));
+        }else{
+            //currently we always add ">max" and "NA" marker  
+            //add marker for greater than maximum
+            xDomain.push(bigNumberFlag ? (xDomain[xDomain.length - 1] + seperateDistance) : Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+            //add marker for NA values
+            emptyValueMapping = (bigNumberFlag ? (xDomain[xDomain.length - 1] + seperateDistance) :Number(cbio.util.toPrecision(Number(xDomain[xDomain.length - 1] + seperateDistance),3,0.1)));
+            xDomain.push(emptyValueMapping);
+        }
+        
+        
         
     }
     
@@ -783,16 +781,32 @@ var BarChart = function(){
         barChart.yAxis().ticks(6);
         barChart.yAxis().tickFormat(d3.format("d"));            
         barChart.xAxis().tickFormat(function(v) {
-            if(v === xDomain[0]){
-                return '<=' + xDomain[1];
-            }
-            else if(v === xDomain[xDomain.length - 2]){
-                return '>' + xDomain[xDomain.length - 3]; 
-            }else if(v === xDomain[xDomain.length - 1]){
+            if(xDomain.length === 1){
                 return 'NA';
+            }else if(xDomain.length === 2){
+                //when there is only one value and NA in the data
+                if(v === xDomain[0])return v;
+                else return 'NA';
             }else{
-                return v;
+                if(v === xDomain[0]){
+                return '<=' + xDomain[1];
+                }
+                else if(v === xDomain[xDomain.length - 2]){
+                    return '>' + xDomain[xDomain.length - 3]; 
+                }else if(v === xDomain[xDomain.length - 1]){
+                    return 'NA';
+                }else if(xDomain.length > 7 && Math.abs(xDomain[xDomain.length-3]) > 1000){
+                    //this is the special case for printing out year or other large number
+                    var index = xDomain.indexOf(v);
+                    if(index % 2 === 0)
+                        return v;
+                    else
+                        return '';
+                }else{
+                    return v;
+                }
             }
+            
         });
         
         barChart.xAxis().tickValues(xDomain);
@@ -825,10 +839,10 @@ var BarChart = function(){
 
             xDomain.push(_tmpValue);
             if(_tmpValue > param.distanceArray.max){
-
-                emptyValueMapping = Math.pow(10,i+0.5);
+                xDomain.push(Math.pow(10,i+0.5));
+                emptyValueMapping = Math.pow(10,i+1);
                 xDomain.push(emptyValueMapping);
-                _maxDomain = Math.pow(10,i+1);
+                _maxDomain = Math.pow(10,i+1.5);
                 break;
             }
         }

@@ -74,7 +74,9 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<%@ include file="oncokb/oncokb-card-template.html" %>
+<script type="text/javascript" src="js/src/oncokb/OncoKBCard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/cross-cancer-plotly-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
@@ -85,6 +87,7 @@
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="css/oncokb.css?<%=GlobalProperties.getAppVersion()%>" />
 
 
 <%
@@ -220,15 +223,16 @@
                         Y-Axis value:
                         <select id="yAxis" title="y-axis value"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
                     </div>
+                    <!-- explicitly set anchors without href for the handles, as jQuery UI 1.10 otherwise adds href="#" which may confuse assistive technologies -->
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
-                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"><a class="ui-slider-handle" tabindex="0"></a></div>
                         <input style="float:left;" id="minY" size="3" type="text" aria-labelledby="sliderLabel">
                         <span id="suffix">%</span>
                     </div>
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" id="minTotalSamplesLabel">Min. # total samples:</span>
-                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"></div>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"><a class="ui-slider-handle" tabindex="0"></a></div>
                         <input style="float:left;" id="minTotal" size="3" type="text" aria-labelledby="minTotalSamplesLabel">
                     </div>
                     <div style="float:left;margin-right:20px;">

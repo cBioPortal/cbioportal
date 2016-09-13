@@ -62,10 +62,10 @@ CNACommand
 	/ "HETLOSS" { return {"alteration_type":"cna", "constr_val": "HETLOSS"}; }
 
 MUTCommand
-	= "MUT" msp "=" msp mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "=", "constr_type":mutation.type, "constr_val":mutation.value}; }
-	/ "MUT" msp "!=" msp mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "!=", "constr_type":mutation.type, "constr_val":mutation.value}; }
+	= "MUT" msp "=" msp mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "=", "constr_type":mutation.type, "constr_val":mutation.value, "info":mutation.info}; }
+	/ "MUT" msp "!=" msp mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "!=", "constr_type":mutation.type, "constr_val":mutation.value, "info":mutation.info}; }
 	/ "MUT" { return {"alteration_type":"mut"}; }
-	/ mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "=", "constr_type":mutation.type, "constr_val":mutation.value}; }
+	/ mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "=", "constr_type":mutation.type, "constr_val":mutation.value, "info":mutation.info}; }
 
 EXPCommand
 	= "EXP" msp op:ComparisonOp msp constrval:Number { return {"alteration_type":"exp", "constr_rel":op, "constr_val":parseFloat(constrval)}; }
@@ -80,15 +80,15 @@ ComparisonOp
 	/ "<" { return "<"; }
 
 Mutation
-	= "MISSENSE"i { return {"type":"class", "value":"MISSENSE"}; }
-	/ "NONSENSE"i { return {"type":"class", "value":"NONSENSE"}; }
-	/ "NONSTART"i { return {"type":"class", "value":"NONSTART"}; }
-	/ "NONSTOP"i { return {"type":"class", "value":"NONSTOP"}; }
-	/ "FRAMESHIFT"i { return {"type":"class", "value":"FRAMESHIFT"}; }
-	/ "INFRAME"i { return {"type":"class", "value":"INFRAME"}; }
-	/ "SPLICE"i { return {"type":"class", "value":"SPLICE"}; }
-	/ "TRUNC"i { return {"type":"class", "value":"TRUNC"}; }
-        / "FUSION"i { return {"type":"class", "value":"FUSION"}; }
-        / letter:AminoAcid position:NaturalNumber string:String { return {"type":"name" , "value":(letter+position+string)};}
-        / letter:AminoAcid position:NaturalNumber { return {"type":"position", "value":parseInt(position)}; }
-	/ mutation_name:String { return {"type":"name", "value":mutation_name}; }
+	= "MISSENSE"i { return {"type":"class", "value":"MISSENSE", "info":{}}; }
+	/ "NONSENSE"i { return {"type":"class", "value":"NONSENSE", "info":{}}; }
+	/ "NONSTART"i { return {"type":"class", "value":"NONSTART", "info":{}}; }
+	/ "NONSTOP"i { return {"type":"class", "value":"NONSTOP", "info":{}}; }
+	/ "FRAMESHIFT"i { return {"type":"class", "value":"FRAMESHIFT", "info":{}}; }
+	/ "INFRAME"i { return {"type":"class", "value":"INFRAME", "info":{}}; }
+	/ "SPLICE"i { return {"type":"class", "value":"SPLICE", "info":{}}; }
+	/ "TRUNC"i { return {"type":"class", "value":"TRUNC", "info":{}}; }
+        / "FUSION"i { return {"type":"class", "value":"FUSION", "info":{}}; }
+        / letter:AminoAcid position:NaturalNumber string:String { return {"type":"name" , "value":(letter+position+string), "info":{}};}
+        / letter:AminoAcid position:NaturalNumber { return {"type":"position", "value":parseInt(position), "info":{"amino_acid":letter.toUpperCase()}}; }
+	/ mutation_name:String { return {"type":"name", "value":mutation_name, "info":{}}; }

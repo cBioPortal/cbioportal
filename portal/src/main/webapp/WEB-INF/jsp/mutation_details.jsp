@@ -57,9 +57,13 @@
     @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
     @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
     @import "css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>";
+    @import "css/oncokb.css?<%=GlobalProperties.getAppVersion()%>";
 </style>
-<script type="text/javascript"
-        src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<%@ include file="oncokb/oncokb-card-template.html" %>
+<script type="text/javascript" src="js/src/oncokb/OncoKBCard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <script type="text/javascript">
 
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
@@ -92,6 +96,10 @@
                 }
             },
             view: {
+                vis3d: {
+	                //for https, use a proxy since rcsb.org is not serving https and browsers will complain about the mixed https/http content
+                    pdbUri: (document.location.protocol != "https:"? "http://files.rcsb.org/view/" : "api/proxy/jsmol/")
+                },       
                 mutationTable: {
                     columnRender: {
                         annotation: function (datum) {

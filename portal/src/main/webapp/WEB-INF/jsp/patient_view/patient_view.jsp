@@ -306,10 +306,14 @@ if (patientViewError!=null) {
         @import "css/patient-view/clinical-attributes.css?<%=GlobalProperties.getAppVersion()%>";
 </style>
 
+<link rel="stylesheet" type="text/css" href="css/oncokb.css" />
+
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<%@ include file="../oncokb/oncokb-card-template.html" %>
+<script type="text/javascript" src="js/src/oncokb/OncoKBCard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/util/PatientViewUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/util/ClinicalAttributesUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
@@ -572,7 +576,7 @@ function addDrugsTooltip(elem, my, at) {
     $(elem).each(function(){
         $(this).qtip({
             content: {
-                text: '<img src="images/ajax-loader.gif"/>',
+                text: '<img src="images/ajax-loader.gif" alt="loading" />',
                 ajax: {
                     url: 'drugs.json',
                     type: 'POST',

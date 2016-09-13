@@ -2,7 +2,7 @@
 ## Introduction
 This page is the starting point for data loading. The [General Overview](#general-overview) section below contains all the required steps to get you started. 
 
-If you're interested in getting a quick overview of the changes you will need to make to your existing data files, please check the [Data Loading: What You Need To Change](Data-Loading-%3A-What-You-Need-To-Change.md) page.
+If you're interested in getting a quick overview of the changes you will need to make to your existing data files, please check the [Data Loading: What You Need To Change](Data-Loading-What-You-Need-To-Change.md) page.
 
 ## General Overview
 Getting your study data into cBioPortal requires four steps:

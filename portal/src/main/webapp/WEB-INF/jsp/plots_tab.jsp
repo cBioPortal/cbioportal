@@ -96,6 +96,40 @@
     #plots-sidebar select {
         max-width: 180px;
     }
+    /* define a non-responsive subset of Bootstrap's form-inline to style
+       radio and checkbox labels in this bar, it does not make sense for
+       certain form controls to split up vertically on small screens while
+       the sidebar itself stays the same width */
+    #plots-sidebar .form-inline .form-group,
+    #plots-sidebar .form-inline .form-control {
+        display: inline-block;
+        width: auto;
+        vertical-align: middle;
+    }
+    #plots-sidebar .form-inline .radio,
+    #plots-sidebar .form-inline .checkbox {
+        display: inline-block;
+        margin-top: 0;
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+    #plots-sidebar .form-inline .radio label,
+    #plots-sidebar .form-inline .checkbox label {
+        padding-left: 0;
+    }
+    #plots-sidebar .form-inline .radio input[type="radio"],
+    #plots-sidebar .form-inline .checkbox input[type="checkbox"] {
+        position: relative;
+        margin-left: 0;
+    }
+
+    #plots-sidebar .form-inline .form-group,
+    #plots-sidebar .form-inline h5 {
+        margin-bottom: 0;
+    }
+    #plots-sidebar .form-inline {
+        margin-bottom: 10px;
+    }
     #plots-box {
         width: 850px;
         height: 670px;

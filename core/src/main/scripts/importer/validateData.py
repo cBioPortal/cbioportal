@@ -314,7 +314,12 @@ class Validator(object):
 
         self.logger.debug('Starting validation of file')
 
-        with open(self.filename, 'rU') as data_file:
+        try:
+            opened_file = open(self.filename, 'rU')
+        except IOError:
+            self.logger.error('File could not be opened')
+            return
+        with opened_file as data_file:
 
             # parse any block of start-of-file comment lines and the tsv header
             top_comments = []

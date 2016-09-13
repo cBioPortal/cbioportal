@@ -1229,5 +1229,19 @@ class StableIdValidationTestCase(LogBufferTestCase):
         self.assertEqual(warning.cause, 'stable_id')
 
 
+class DataFileIOTestCase(PostClinicalDataFileTestCase):
+    """Test if the right behavior occurs if study files cannot be read."""
+
+    def test_missing_datafile(self):
+        """Test the error if files referenced from meta files do not exist."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('filename-that-does-not-exist.txt',
+                                    validateData.ContinuousValuesValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('file', record.getMessage().lower())
+
+
 if __name__ == '__main__':
     unittest.main(buffer=True)

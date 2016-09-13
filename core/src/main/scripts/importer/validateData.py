@@ -2443,19 +2443,19 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
     return stableid_files
 
 
-def validate_defined_caselists(cancer_study_id, case_list_fns, file_types, logger):
+def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logger):
 
     """Validate the set of case lists defined in a study.
 
     Args:
         cancer_study_id (str): the study ID to be expected in the stable IDs
-        case_list_fns (Iterable[str]): stable ids of defined case lists
+        case_list_ids (Iterable[str]): stable ids of defined case lists
         file_types (Dict[str, str]): listing of the MetaFileTypes with high-
             dimensional data in this study--these may imply certain case lists
         logger: logging.Logger instance to log output to
     """
 
-    if cancer_study_id + '_all' not in case_list_fns:
+    if cancer_study_id + '_all' not in case_list_ids:
         logger.error(
                 "No case list found for stable_id '%s', consider adding "
                     "'add_global_case_list: true' to the study metadata file",
@@ -2771,17 +2771,18 @@ def validate_study(study_dir, portal_instance, logger):
                 continue
             validator.validate()
 
-    # finally validate case lists if present
+    # finally validate the case list directory if present
     case_list_dirname = os.path.join(study_dir, 'case_lists')
     if not os.path.isdir(case_list_dirname):
         logger.info("No directory named 'case_lists' found, so assuming no custom case lists.")
     else:
+        # add case lists IDs defined in the directory to any previous ones
         defined_case_list_fns = processCaseListDirectory(
                 case_list_dirname, study_id, logger,
                 prev_stableid_files=defined_case_list_fns)
 
     validate_defined_caselists(
-        study_id, defined_case_list_fns,
+        study_id, defined_case_list_fns.keys(),
         file_types=validators_by_meta_type.keys(),
         logger=logger)
 

@@ -552,7 +552,7 @@ public final class DaoCancerStudy {
                 rs.getBoolean("PUBLIC"));
         cancerStudy.setPmid(rs.getString("PMID"));
         cancerStudy.setCitation(rs.getString("CITATION"));
-        cancerStudy.setGroups(rs.getString("GROUPS"));
+        cancerStudy.setGroupsInUpperCase(rs.getString("GROUPS"));
         cancerStudy.setShortName(rs.getString("SHORT_NAME"));
 
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));

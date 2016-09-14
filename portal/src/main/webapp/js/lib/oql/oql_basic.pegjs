@@ -55,11 +55,15 @@ Alteration
 // MUT has to go at the end because it matches an arbitrary string at the end as a type of mutation
 	/ cmd:MUTCommand { return cmd; }
 
+CNAType
+        = "AMP"i { return "AMP"; }
+        / "HOMDEL"i { return "HOMDEL"; }
+        / "GAIN"i { return "GAIN"; }
+        / "HETLOSS"i { return "HETLOSS"; }
+
 CNACommand
-	= "AMP" { return {"alteration_type":"cna", "constr_val": "AMP"}; }
-	/ "HOMDEL" { return {"alteration_type":"cna", "constr_val": "HOMDEL"}; }
-	/ "GAIN" { return {"alteration_type":"cna", "constr_val": "GAIN"}; }
-	/ "HETLOSS" { return {"alteration_type":"cna", "constr_val": "HETLOSS"}; }
+	= "CNA"i msp op:ComparisonOp msp constrval:CNAType { return {"alteration_type":"cna", "constr_rel":op, "constr_val":constrval}; }
+        / constrval:CNAType { return {"alteration_type":"cna", "constr_rel":"=", "constr_val":constrval}; }
 
 MUTCommand
 	= "MUT" msp "=" msp mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "=", "constr_type":mutation.type, "constr_val":mutation.value, "info":mutation.info}; }

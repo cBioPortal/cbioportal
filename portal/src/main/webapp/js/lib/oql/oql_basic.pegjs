@@ -52,6 +52,7 @@ Alteration
 	= cmd:CNACommand { return cmd; }
 	/ cmd:EXPCommand { return cmd; }
 	/ cmd:PROTCommand { return cmd; }
+        / cmd:FUSIONCommand { return cmd; }
 // MUT has to go at the end because it matches an arbitrary string at the end as a type of mutation
 	/ cmd:MUTCommand { return cmd; }
 
@@ -74,6 +75,9 @@ MUTCommand
 EXPCommand
 	= "EXP" msp op:ComparisonOp msp constrval:Number { return {"alteration_type":"exp", "constr_rel":op, "constr_val":parseFloat(constrval)}; }
 
+FUSIONCommand
+        = "FUSION" { return {"alteration_type":"fusion"}; }
+
 PROTCommand
 	= "PROT" msp op:ComparisonOp msp constrval:Number { return {"alteration_type":"prot", "constr_rel":op, "constr_val":parseFloat(constrval)}; }
 
@@ -92,7 +96,7 @@ Mutation
 	/ "INFRAME"i { return {"type":"class", "value":"INFRAME", "info":{}}; }
 	/ "SPLICE"i { return {"type":"class", "value":"SPLICE", "info":{}}; }
 	/ "TRUNC"i { return {"type":"class", "value":"TRUNC", "info":{}}; }
-        / "FUSION"i { return {"type":"class", "value":"FUSION", "info":{}}; }
+        / "PROMOTER"i { return {"type":"class", "value":"PROMOTER", "info":{}}; }
         / letter:AminoAcid position:NaturalNumber string:String { return {"type":"name" , "value":(letter+position+string), "info":{}};}
         / letter:AminoAcid position:NaturalNumber { return {"type":"position", "value":parseInt(position), "info":{"amino_acid":letter.toUpperCase()}}; }
 	/ mutation_name:String { return {"type":"name", "value":mutation_name, "info":{}}; }

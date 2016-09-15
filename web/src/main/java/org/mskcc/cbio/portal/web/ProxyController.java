@@ -84,6 +84,9 @@ public class ProxyController
         case "oncokbSummary":
             URL = oncokbURL + "summary.json";
             break;
+	case "cancerHotSpots":
+		URL = "http://cancerhotspots.org/api/hotspots/single/";
+		break;
       default:
         URL = "";
         break;
@@ -143,7 +146,6 @@ public class ProxyController
 
     return responseEntity.getBody();
   }
-
 
   private JSONObject requestParamsToJSON(HttpServletRequest req) {
     JSONObject jsonObj = new JSONObject();

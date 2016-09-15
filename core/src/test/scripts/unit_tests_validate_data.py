@@ -1181,6 +1181,21 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         self.assertTrue(record.cause.startswith('brca_tcga_pub_all'),
                         "Error is not about the id 'brca_tcga_pub_all'")
 
+    def test_missing_caselists(self):
+        """Test if errors are issued if certain case lists are not defined."""
+        self.logger.setLevel(logging.ERROR)
+        validateData.validate_study(
+                'test_data/study_missing_caselists',
+                PORTAL_INSTANCE,
+                self.logger)
+        record_list = self.get_log_records()
+        self.assertEqual(len(record_list), 1)
+        # <study ID>_all
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('spam_all', record.getMessage())
+        self.assertIn('add_global_case_list', record.getMessage())
+
 
 class StableIdValidationTestCase(LogBufferTestCase):
 
@@ -1212,6 +1227,20 @@ class StableIdValidationTestCase(LogBufferTestCase):
         # expecting one warning about stable_id not being recognized in _samples
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
+
+
+class DataFileIOTestCase(PostClinicalDataFileTestCase):
+    """Test if the right behavior occurs if study files cannot be read."""
+
+    def test_missing_datafile(self):
+        """Test the error if files referenced from meta files do not exist."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('filename-that-does-not-exist.txt',
+                                    validateData.ContinuousValuesValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('file', record.getMessage().lower())
 
 
 if __name__ == '__main__':

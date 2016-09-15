@@ -93,11 +93,11 @@ Finally, after you've imported all data, import your case lists:
 ### Deleting a study
 To remove a study run: 
 ```
-./cbioportalImporter.py -c remove-study -meta <path to study directory>/<name of meta file>
+./cbioportalImporter.py -c remove-study -meta <path to study directory>/<name of meta study file>
 ```
 The meta file should be the meta file used to create the study.
 
 #### Example:
 ```
-./cbioportalImporter.py -c remove-study -meta /data/brca_small/meta_cancer_type.txt
+./cbioportalImporter.py -c remove-study -meta /data/brca_small/meta_study.txt
 ```

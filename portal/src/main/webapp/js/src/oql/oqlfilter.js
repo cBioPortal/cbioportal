@@ -182,7 +182,7 @@ window.OQL = (function () {
 	} else if (alt_cmd.alteration_type === 'mut') {
 	    return isDatumWantedByOQLMUTCommand(alt_cmd, datum, accessors);
 	} else if (alt_cmd.alteration_type === 'exp' || alt_cmd.alteration_type === 'prot') {
-	    return isDatumWantedByOQLEXPOrPROTCommand(alt_cmd, datum, accessors);
+	    return isDatumWantedByOQLEXPOrPROTCommand(alt_cmd, datum, accessors, opt_mark_oql_regulation_direction);
 	} else if (alt_cmd.alteration_type === 'fusion') {
 	    return isDatumWantedByFUSIONCommand(alt_cmd, datum, accessors);
 	}

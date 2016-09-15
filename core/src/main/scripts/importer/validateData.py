@@ -2898,3 +2898,4 @@ if __name__ == '__main__':
                 1: 'failed',
                 2: 'not performed as problems occurred',
                 3: 'succeeded with warnings'}.get(exit_status, 'unknown')))
+    sys.exit(exit_status)

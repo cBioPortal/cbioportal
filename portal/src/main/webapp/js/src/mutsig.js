@@ -268,7 +268,7 @@ var updateGeneList = function() {
     "use strict";
 
     // push all the genes in the gene_list onto a list
-    var gene_list = $('#gene_list').val();
+    var gene_list = $('#gene_list').text();
 
     // if gene_list is currently empty put all the checked mutsig genes into it.
     if (gene_list === "") {
@@ -326,7 +326,7 @@ var updateGeneList = function() {
 // namely, a user's deletions or additions of genes
 // gene_list -> MutSig table
 var updateMutSigTable = function() {
-    var gene_list = $('#gene_list').val();
+    var gene_list = $('#gene_list').text();
 
     // don't want to even look at Onco Queries like these,
     gene_list = gene_list.replace(/DATATYPES.*(;|\n)\s?/g, "");

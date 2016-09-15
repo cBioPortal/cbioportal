@@ -65,6 +65,11 @@
 <script type="text/javascript" src="js/lib/plotly.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/genomespace.js"></script>
+<script type="text/javascript" src="js/lib/handlebars.min.js"></script>
+<script type="text/javascript" src="js/lib/rangy-core.min.js"></script>
+<script type="text/javascript" src="js/lib/rangy-textrange.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.caret.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js" type="text/javascript"></script>
 
 
@@ -95,6 +100,7 @@
 <script type="text/javascript" src="js/src/customCaseSet.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/global-tabs.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/gene-symbol-validator.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/oql-menu.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/DataProxyFactory.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/download-data-form-validation.js"></script>

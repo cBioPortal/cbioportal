@@ -1453,15 +1453,6 @@ cursor: default;
     font-weight: normal;
 }
 
-/* This is the gene_list input text area */
-#gene_list {
-  background-color:#eeeeee;
-  width:75%;
-  font-weight:bold;
-  font-size:15px;
-  font-family: verdana, arial, sans-serif;
-}
-
 /* This refers to a subgroup of profiles that all share the same alteration type,
    e.g. a group of expression profiles. */
 .genomic_profiles_subgroup{
@@ -1617,23 +1608,41 @@ cc-ie-message {
 }
 
 /* Gene validation */
-#genestatus ul.validation-list {margin: 0; padding: 0;}
-#genestatus * li.ui-state-default {
+#state_placeholder ul.validation-list {
+	margin: 0; 
+	padding: 0;	
+}
+
+#state_placeholder * li.ui-state-default {
     margin: 2px;
     position: relative;
-    padding: 4px 0;
-    cursor: pointer;
+    padding: 6px 6px 4px 4px;
+    cursor: default;
     float: left;
     list-style: none;
     height: 20px;
 }
-#genestatus * span.ui-icon {float: left; margin: 0 4px;}
-#genestatus * span.text {float: left; padding-right: 5px;}
-.geneset-button .ui-button-text { padding: 0.35em; }
-.ui-autocomplete-input { padding: 0.48em 0 0.47em 0.45em; }
-ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
-#genestatus { clear: both; }
-#example_gene_set { clear: both; }
+
+.geneset-button .ui-button-text {
+	padding: 0.35em;
+}
+
+.ui-autocomplete-input { 
+	padding: 0.48em 0 0.47em 0.45em; 
+}
+
+ul.ui-autocomplete li.ui-menu-item {
+	font-size: 0.6em; 
+	text-align: left; 
+}
+
+#state_placeholder { 
+	clear: both; 
+}
+
+#example_gene_set { 
+	clear: both; 
+}
 
 .chzn-container .chzn-results {
     max-height: 350px !important;

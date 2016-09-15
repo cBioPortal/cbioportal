@@ -59,27 +59,36 @@
         <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select From Recurrently Mutated Genes (MutSig)</button>
         <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Recurrent CNAs (Gistic)</button>
     </div>
+    
 
     <script type="text/javascript">
         $(document).ready(function() {
             GeneSymbolValidator.initialize();
+            OqlMenu.initialize();
         });
     </script>
+    
+    <div contenteditable="true" id="gene_list" placeholder="Enter HUGO Gene Symbols or Gene Aliases" title="Enter HUGO Gene Symbols or Gene Aliases" spellcheck="false"><%
+        if (localGeneList != null && localGeneList.length() > 0) {
+	        String geneListWithSemis =
+			        org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);
+	        // this is for xss security
+	        geneListWithSemis = StringEscapeUtils.escapeJavaScript(geneListWithSemis);
+	        // ...but we want to keep newlines, and slashes so unescape them
+	        geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n").replaceAll("\\\\/", "/");
+            out.print(geneListWithSemis);
+        }
+    %></div>
+    <input id="oql_menu_checkbox" checked="true" type="checkbox"></input>
+    <label for="oql_menu_checkbox">Enable OQL helper</label>
+    <input id="newline_checkbox" type="checkbox"></input>
+    <label for="newline_checkbox">Auto newline symbols</label>
 
-<textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
-name='<%= QueryBuilder.GENE_LIST %>' title='Enter HUGO Gene Symbols or Gene Aliases'><%
-    if (localGeneList != null && localGeneList.length() > 0) {
-	    String geneListWithSemis =
-			    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);
-	    // this is for xss security
-	    geneListWithSemis = StringEscapeUtils.escapeJavaScript(geneListWithSemis);
-	    // ...but we want to keep newlines, and slashes so unescape them
-	    geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n").replaceAll("\\\\/", "/");
-        out.print(geneListWithSemis);
-    }
-%></textarea>
-
-<p id="genestatus"></p>
+    <br>
+	<p id="state_placeholder"></p>
+	
+    <div id="oql-menu-placeholder"></div>
+    <div id="div_placeholder"></div>
 
 </div>
 <script type='text/javascript'>

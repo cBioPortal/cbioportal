@@ -1,0 +1,26 @@
+{
+  "name": "cbioportal",
+  "version": "1.2.4",
+  "description": "cBioPortal for Cancer Genomics",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shrumit/cbioportal-gsoc-final.git"
+  },
+  "author": "",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/shrumit/cbioportal-gsoc-final/issues"
+  },
+  "homepage": "https://github.com/shrumit/cbioportal-gsoc-final#readme",
+  "dependencies": {
+    "phantomjs-prebuilt": "^2.1.12"
+  }
+}

@@ -90,11 +90,11 @@ public class CheckGeneSymbolJSON extends HttpServlet {
 
         //  Use the OQL Parser to Extract the Gene Symbols
         String[] geneList;
-	if (genes.length() > 0) {
-		geneList = genes.split(",");
-	} else {
-		geneList = new String[0];
-	}
+				if (genes.length() > 0) {
+					geneList = genes.split(",");
+				} else {
+					geneList = new String[0];
+				}
 
         for(String symbol: geneList) {
             Map map = new HashMap();
@@ -102,8 +102,16 @@ public class CheckGeneSymbolJSON extends HttpServlet {
             for(CanonicalGene gene: daoGene.guessGene(symbol)) {
                 symbols.add(gene.getStandardSymbol());
             }
-            map.put("symbols", symbols);
+            
             map.put("name", symbol);
+            map.put("symbols", symbols);
+            
+            // If no valid match then get suggested symbols
+            if (symbols.isEmpty()) {
+            	JSONArray suggestions = new JSONArray();
+            	suggestions.addAll(daoGene.getGeneSuggestions(symbol));
+                map.put("suggestions", suggestions);
+            }
 
             geneArray.add(map);
         }

@@ -77,3 +77,4 @@ nbactions.xml
 */.project
 dependency-reduced-pom.xml
 /core/nbactions-private.xml
+node_modules/

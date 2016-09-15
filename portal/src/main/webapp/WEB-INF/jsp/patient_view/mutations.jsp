@@ -108,29 +108,12 @@
             });
         });
     };
+    var mutationOncokbInstance;
 
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
-        var oncokbInstance;
-        if(OncoKB.getAccess()) {
-            var oncokbInstanceManager = new OncoKB.addInstanceManager();
-            oncokbInstance = oncokbInstanceManager.addInstance('patient-mutation');
-            if(oncokbGeneStatus) {
-                oncokbInstance.setGeneStatus(oncokbGeneStatus);
-            }
-            oncokbInstance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
-        }
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
-            if(oncokbInstance) {
-                oncokbInstance.addVariant(_id, mutations.getValue(_id, "entrez"), mutations.getValue(_id, "gene"), 
-                    mutations.getValue(_id, "aa"), 
-                    (_.isObject(patientInfo) ? (patientInfo.CANCER_TYPE_DETAILED || patientInfo.CANCER_TYPE) : '') || cancerType, 
-                    mutations.getValue(_id, "type") ? mutations.getValue(_id, "type") : 'any', 
-                    findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), 
-                    mutations.getValue(_id, "is-hotspot"), mutations.getValue(_id, 'protein-start'), 
-                    mutations.getValue(_id, 'protein-end'));
-            }
             data.push([mutEventIds[i]]);
         }
 
@@ -257,7 +240,8 @@
                                 var datum = {
                                     mutation: {
                                         myCancerGenome: [],
-                                        isHotspot: false
+                                        isHotspot: false,
+                                        get: function(a) { return this[a];}
                                     },
                                     oncokb:{}
                                 };
@@ -928,10 +912,10 @@
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
                     //drawPanCanThumbnails(this);
-                    if(oncokbInstance){
-                        oncokbInstance.addEvents(this, 'gene');
-                        oncokbInstance.addEvents(this, 'alteration');
-                        oncokbInstance.addEvents(this, 'column');
+                    if(mutationOncokbInstance){
+                        mutationOncokbInstance.addEvents(this, 'gene');
+                        mutationOncokbInstance.addEvents(this, 'alteration');
+                        mutationOncokbInstance.addEvents(this, 'column');
                     }
                 },
                 "bPaginate": true,
@@ -946,25 +930,6 @@
                 "iDisplayLength": iDisplayLength,
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
-
-        if(oncokbInstance) {
-            oncokbInstance.getIndicator().then(function () {
-                var tableData = oTable.fnGetData();
-                var oncokbEvidence = [];
-                _.each(tableData, function(ele, i) {
-                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]));
-                });
-                mutations.addData('oncokb', oncokbEvidence)
-                if (tableData.length > 0)
-                {
-                    _.each(tableData, function(ele, i) {
-                        oTable.fnUpdate(null, i, mutTableIndices["annotation"], false, false);
-                    });
-
-                    oTable.fnUpdate(null, 0, mutTableIndices['annotation']);
-                }
-            });
-        }
 
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");
@@ -1254,7 +1219,37 @@
                                 _.extend(munge(byProteinPosResponse, "protein_start_with_hugo"), munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
                         genomicEventObs.fire("pancan-mutation-frequency-built");
                     });
+                    
+                    // Get OncoKB info
+                    mutationOncokbInstance = initOncoKB('patient-mutation', genomicEventObs.mutations.getEventIds(false), genomicEventObs.mutations, 'mutation', function() {
+                        var mutationSummaryTable = $('#mutation_summary_table').dataTable();
+                        var mutationTable = $('#mutation_table').dataTable();
 
+                        var mutationSummaryTableData = mutationSummaryTable.fnGetData();
+                        var mutationTableData = mutationTable.fnGetData();
+
+                        var oncokbEvidence = [];
+                        _.each(mutationTableData, function(ele, i) {
+                            oncokbEvidence.push(mutationOncokbInstance.getVariant(ele[0]));
+                        });
+                        genomicEventObs.mutations.addData('oncokb', oncokbEvidence);
+
+                        if (mutationTableData.length > 0){
+                            _.each(mutationTableData, function(ele, i) {
+                                mutationTable.fnUpdate(null, i, mutTableIndices["annotation"], false, false);
+                            });
+
+                            mutationTable.fnUpdate(null, 0, mutTableIndices['annotation']);
+                        }
+
+                        if (mutationSummaryTableData.length > 0){
+                            _.each(mutationSummaryTableData, function(ele, i) {
+                                mutationSummaryTable.fnUpdate(null, i, mutTableIndices["annotation"], false, false);
+                            });
+
+                            mutationSummaryTable.fnUpdate(null, 0, mutTableIndices['annotation']);
+                        }
+                    });
                 }
                 ,"json"
         );

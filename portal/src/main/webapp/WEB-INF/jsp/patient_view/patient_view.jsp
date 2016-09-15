@@ -481,6 +481,62 @@ function fixCytoscapeWebRedraw() {
     });
 }
 
+
+function initOncoKB(instanceId, ids, mapData, type, indicatorCallback) {
+    var instance;
+    
+    if(OncoKB.getAccess() && _.isArray(ids)) {
+        var eventIdsLength = ids.length;
+
+        var oncokbInstanceManager = new OncoKB.addInstanceManager();
+        instance = oncokbInstanceManager.addInstance(instanceId);
+        if(oncokbGeneStatus) {
+            instance.setGeneStatus(oncokbGeneStatus);
+        }
+        instance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
+
+
+        for (var i=0, nEvents= eventIdsLength; i<nEvents; i++) {
+            var _id = ids[i];
+            if(instance) {
+                if(type === 'mutation') {
+                    instance.addVariant(_id, mapData.getValue(_id, "entrez"), mapData.getValue(_id, "gene"),
+                        mapData.getValue(_id, "aa"),
+                        (_.isObject(patientInfo) ? (patientInfo.CANCER_TYPE_DETAILED || patientInfo.CANCER_TYPE) : '') || cancerType,
+                        mapData.getValue(_id, "type") ? mapData.getValue(_id, "type") : 'any',
+                        findCosmic(mapData.getValue(_id, "cosmic"), mapData.getValue(_id, "aa")),
+                        mapData.getValue(_id, "is-hotspot"), mapData.getValue(_id, 'protein-start'),
+                        mapData.getValue(_id, 'protein-end'));
+                }else if(type === 'cna') {
+                    var alter = '';
+                    switch(mapData.getValue(_id, "alter")) {
+                        case 2:
+                            alter = 'amplification';
+                            break;
+                        case -2:
+                            alter = 'deletion';
+                            break;
+                        default:
+                            alter = null;
+                    }
+                    instance.addVariant(_id, mapData.getValue(_id, "entrez"), mapData.getValue(_id, "gene"), alter,
+                        (_.isObject(patientInfo) ? (patientInfo.CANCER_TYPE_DETAILED || patientInfo.CANCER_TYPE) : '') || cancerType,
+                        alter);
+                }
+            }
+        }
+
+        if(instance) {
+            instance.getIndicator().then(function () {
+                if(_.isFunction(indicatorCallback)) {
+                    indicatorCallback(instance);
+                }
+            });
+        }
+    }
+    return instance;
+}
+
 function switchToTab(toTab) {
     $('.patient-section').hide();
     $('.patient-section#'+toTab).show();

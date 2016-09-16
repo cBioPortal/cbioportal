@@ -94,9 +94,9 @@ Pull Requests (PRs) are reviewed by the
 For each PR the submitter should propose what team(s) is/are appropriate to
 review it. This is the current merging policy:
 
-- A documentation change needs one **+1**
-- A simple bugfix to rc or hotfix requires one **+1**
-- A new feature requires two **+1**. One from someone at MSKCC and one from
+- A documentation change needs one **Approve**
+- A simple bugfix to rc or hotfix requires one **Approve**
+- A new feature requires two **Approve**. One from someone at MSKCC and one from
   another institution.
 
 If these requirements are met, any person with merge rights can merge to rc or

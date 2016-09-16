@@ -1,10 +1,3 @@
-languages:
-    JavaScript: true
-    Python: true
-
-exclude_paths:
-- "test/*"
-
 engines:
   rubocop:
     enabled: true
@@ -14,14 +7,23 @@ engines:
     enabled: true
   csslint:
     enabled: true
-
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
+  fixme:
+    enabled: true
 ratings:
    paths:
    - app/**
    - lib/**
    - "**.rb"
    - "**.go"
-
+   - "**.css"
+   - "**.js"
+   - "**.jsx"
+   - "**.py"
 exclude_paths:
 - spec/**/*
 - vendor/**/*
+- "test/*"

@@ -10,7 +10,7 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
-import org.cbioportal.model.summary.SampleSummary.SampleType;
+import org.cbioportal.model.Sample.SampleType;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.config.CustomObjectMapper;

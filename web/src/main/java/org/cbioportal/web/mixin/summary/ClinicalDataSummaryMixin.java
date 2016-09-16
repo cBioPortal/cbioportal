@@ -1,14 +1,12 @@
-package org.cbioportal.web.mixin;
+package org.cbioportal.web.mixin.summary;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.cbioportal.model.ClinicalAttribute;
 
-public class ClinicalDataMixin {
+public class ClinicalDataSummaryMixin {
 
     @JsonIgnore
     private Integer internalId;
-    @JsonIgnore
     private String attrId;
-    private ClinicalAttribute clinicalAttribute;
     private String attrValue;
 }

@@ -11,14 +11,15 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-public class ApiServiceSwaggerConfig {
+public class RestServiceSwaggerConfig {
 
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("org.mskcc.cbio.portal.web.api"))
+                .apis(RequestHandlerSelectors.basePackage("org.cbioportal.web"))
                 .build()
+                .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo());
     }
 

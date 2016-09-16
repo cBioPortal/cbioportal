@@ -146,8 +146,8 @@ function VolcanoPlot() {
         var xLabel = self.orTable.assumedLogSpace()?'mean alt. group - mean unalt. group':'log Ratio';
         
         var axisOptions = {
-            width: 360,
-            height: 400,
+            width: 330,
+            height: 330,
             xaxis:{
                 title: xLabel
             },

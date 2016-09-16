@@ -45,7 +45,15 @@ google_analytics_profile_id
 
 # Password Authentication
 
-The portal supports password authentication via Google+.  To active password authentication, then the following properties are required:
+The portal supports password authentication via Google+. Before you start you need to setup a google account that will own the authentication API. Follow https://developers.google.com/identity/sign-in/web/devconsole-project to get clientID and secret. Fill it in portal.properties:
+```
+googleplus.consumer.key=195047654890-499gl89hj65j8d2eorqe0jvjnfaxcln0.apps.googleusercontent.com 
+googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
+```
+(note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
+
+
+To active password authentication, then the following properties are required:
 ```
 app.name=
 authenticate=googleplus

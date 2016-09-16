@@ -87,3 +87,5 @@ nbactions.xml
 dependency-reduced-pom.xml
 /core/nbactions-private.xml
 scripts/target
+.profile.d/
+Procfile

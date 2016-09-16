@@ -182,6 +182,7 @@ public class GeneticProfileReader {
 	  geneticProfile.setDatatype(datatype);
       geneticProfile.setShowProfileInAnalysisTab(showProfileInAnalysisTab);
       geneticProfile.setTargetLine(properties.getProperty("target_line"));
+      geneticProfile.setOtherMetadataFields(properties);
       return geneticProfile;
    }
 }

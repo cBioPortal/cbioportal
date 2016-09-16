@@ -60,6 +60,7 @@ public class ImportExtendedMutationData{
 
 	private File mutationFile;
 	private int geneticProfileId;
+	private boolean swissprotIsAccession;
 	private MutationFilter myMutationFilter;
 	private int entriesSkipped = 0;
 	private int samplesSkipped = 0;
@@ -73,10 +74,22 @@ public class ImportExtendedMutationData{
 	public ImportExtendedMutationData(File mutationFile, int geneticProfileId) {
 		this.mutationFile = mutationFile;
 		this.geneticProfileId = geneticProfileId;
+		this.swissprotIsAccession = false;
 
 		// create default MutationFilter
 		myMutationFilter = new MutationFilter( );
 	}
+
+    /**
+     * Turns parsing the SWISSPROT column as an accession on or off again.
+     *
+     * If off, the column will be parsed as the name (formerly ID).
+     *
+     * @param swissprotIsAccession  whether to parse the column as an accession
+     */
+    public void setSwissprotIsAccession(boolean swissprotIsAccession) {
+        this.swissprotIsAccession = swissprotIsAccession;
+    }
 
 	public void importData() throws IOException, DaoException {
 		MySQLbulkLoader.bulkLoadOn();
@@ -212,7 +225,6 @@ public class ImportExtendedMutationData{
 					aaChange,
 					codonChange,
 					refseqMrnaId,
-					uniprotName,
 					uniprotAccession;
 
 				int proteinPosStart,
@@ -244,8 +256,12 @@ public class ImportExtendedMutationData{
 				aaChange = record.getAminoAcidChange();
 				codonChange = record.getCodons();
 				refseqMrnaId = record.getRefSeq();
-				uniprotName = record.getSwissprot();
-				uniprotAccession = DaoUniProtIdMapping.mapFromUniprotIdToAccession(record.getSwissprot());
+                if (this.swissprotIsAccession) {
+                    uniprotAccession = record.getSwissprot();
+                } else {
+                    String uniprotName = record.getSwissprot();
+                    uniprotAccession = DaoUniProtIdMapping.mapFromUniprotIdToAccession(uniprotName);
+                }
 				proteinPosStart = ExtendedMutationUtil.getProteinPosStart(
 						record.getProteinPosition(), proteinChange);
 				proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(
@@ -369,7 +385,6 @@ public class ImportExtendedMutationData{
 					// TODO rename the oncotator column names (remove "oncotator")
 					mutation.setOncotatorCodonChange(codonChange);
 					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
-					mutation.setOncotatorUniprotName(uniprotName);
 					mutation.setOncotatorUniprotAccession(uniprotAccession);
 					mutation.setOncotatorProteinPosStart(proteinPosStart);
 					mutation.setOncotatorProteinPosEnd(proteinPosEnd);

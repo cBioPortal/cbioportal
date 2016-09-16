@@ -239,7 +239,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         # should fail because of errors with quotes
         self.assertEquals(1, exit_status)
         self.assertFileGenerated(out_file_name,
-                                 'test_data/study_quotes/result_report.html')        
+                                 'test_data/study_quotes/result_report.html')
 
 
 if __name__ == '__main__':

@@ -20,8 +20,14 @@ If this is a new visual feature please add a before/after screenshot or gif
 here with e.g. [GifGrabber](http://www.gifgrabber.com/).
 
 # Notify reviewers
-If your pull request involves changes to an existing file, one or more of the
-people that edited before you might be good candidates to review it. Please use
-`git blame <filename>` to determine that and notify them here. Otherwise notify
-everybody in the core team:
-@cBioPortal/core-developers
+Read our [Pull request merging
+policy](../CONTRIBUTING.md#pull-request-merging-policy). If you are part of the
+cBioPortal organization, notify the approprate team (remove inappropriate):
+
+@cBioPortal/frontend
+@cBioPortal/backend
+@cBioPortal/devops
+
+If you are not part of the cBioPortal organization look at who worked on the
+file before you. Please use `git blame <filename>` to determine that
+and notify them here:

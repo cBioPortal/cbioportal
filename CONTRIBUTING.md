@@ -86,6 +86,67 @@ Once you downloaded the images you do the following for each screenshot:
 - If the change in the screenshot is **desired**, add the screenshot to the
   repo, commit it and push it to your PR's branch.
 
+## Pull Request Merging Policy
+Pull Requests (PRs) are reviewed by the
+[backend](https://github.com/orgs/cBioPortal/teams/backend),
+[frontend](https://github.com/orgs/cBioPortal/teams/frontend) and
+[devops](https://github.com/orgs/cBioPortal/teams/devops) teams of cBioPortal.
+For each PR the submitter should propose what team(s) is/are appropriate to
+review it. This is the current merging policy:
+
+- A documentation change needs one **Approve**
+- A simple bugfix to rc or hotfix requires one **Approve**
+- A new feature requires two **Approve**. One from someone at MSKCC and one from
+  another institution.
+
+If these requirements are met, any person with merge rights can merge to rc or
+hotfix.
+
+## Pull Request Reviewers Guide
+Here we describe the guidelines for the reviewer. Always follow the checks in
+general, then follow the other checks that apply:
+
+### General
+- Double check all the things in the **Checks** section of the Pull Request.
+  Remind the submitter if any of them are not fulfilled
+- Are the test cases spanning a decent amount of scenarios? It is the
+  submitters as well as the reviewers responsibility to not let any errors
+  sneak into the portal.
+
+Bug fixes:
+
+- Should the bug that causes the issue be added as a test case?
+
+New features:
+
+- If this is a new feature make sure the proposed changes are in line with the
+  current planning of cBioPortal e.g. is the right API used, is this in line
+  with current refactoring efforts.
+
+### Backend
+New features:
+
+- Is the new persistence stack used?
+
+### Frontend
+New features:
+
+- What APIs are used to get the data? Is the REST API used?
+- Should this be a separate library in a separate repo or should it be part of cBioPortal?
+- Are dependencies properly listed? Ideally in a package.json
+- How is the package included in cBioPortal?
+
+### Devops
+New features:
+
+- Does the configuration style follow the config guidelines? That is compile
+  (Maven) config goes in the appriopriate `pom.xml` (root, `scripts/`, `portal/`, `core/`).
+  Runtime (Spring) goes in `portal.properties`. Default values should be in `GlobalProperties.java`.
+- Non-stable configuration should be done through war overlays.
+- Is the configuration tested as part of Travis CI? It's not a necessity but be
+  aware that untested configuration will be tough to maintain.
+- Is there documentation on the proposed changes?
+
 ## Additional Resources
 
 * [cBioPortal Issue Tracker](https://github.com/cBioPortal/cbioportal/issues)

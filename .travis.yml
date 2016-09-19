@@ -1,6 +1,6 @@
 sudo: required
 language: java
-jdk: oraclejdk7
+jdk: oraclejdk8
 services:
     - docker
 
@@ -10,9 +10,9 @@ cache:
         - $HOME/maven
 
 env:
-    - MAVEN_VERSION=3.3.3 TEST=core
-    - MAVEN_VERSION=3.3.3 TEST=python-validator
-    - MAVEN_VERSION=3.3.3 TEST=end-to-end
+    - MAVEN_VERSION=3.3.9 TEST=core
+    - MAVEN_VERSION=3.3.9 TEST=python-validator
+    - MAVEN_VERSION=3.3.9 TEST=end-to-end
 
 install:
     # install maven

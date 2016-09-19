@@ -81,14 +81,19 @@ public class GeneticProfileReader {
                   + existingGeneticProfile.getStableId() + ". Remove the existing genetic_profile record first.");
          }
          else if (geneticProfile.getDatatype().equals("FUSION")){
-             // For mutation data only we can have multiple files with the same genetic_profile.
-             // There is a constraint in the mutation database table to prevent duplicated data
-             // If this constraint is hit (mistakenly importing the same maf twice) MySqlBulkLoader will throw an exception
              geneticProfile.setGeneticProfileId(existingGeneticProfile.getGeneticProfileId());
              return geneticProfile;
          }
          else {
-             return existingGeneticProfile;
+             // For mutation data only we can have multiple files with the same genetic_profile.
+             // There is a constraint in the mutation database table to prevent duplicated data
+             // If this constraint is hit (mistakenly importing the same maf twice) MySqlBulkLoader will throw an exception
+             
+             // make an object combining the pre-existing profile with the file-specific properties of the current file
+             GeneticProfile gp = new GeneticProfile(existingGeneticProfile);
+             gp.setTargetLine(geneticProfile.getTargetLine());
+             gp.setOtherMetadataFields(geneticProfile.getAllOtherMetadataFields());
+             return gp;
          }
       }
       // add new profile

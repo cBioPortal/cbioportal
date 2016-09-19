@@ -127,6 +127,8 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
     public static final String ONCOKB_URL = "oncokb.url";
 
+    public static final String SESSION_SERVICE_URL = "session.service.url";
+
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
     public static final String DEFAULT_SKIN_RIGHT_LOGO = "images/mskcc_logo_3d_grey.jpg";
@@ -656,7 +658,12 @@ public class GlobalProperties {
         }
         return null;
     }
-    
+   
+    public static String getSessionServiceUrl()
+    {
+        return properties.getProperty(SESSION_SERVICE_URL);
+    }
+ 
     public static String getOncoKBUrl()
     {
         String oncokbUrl = properties.getProperty(ONCOKB_URL);

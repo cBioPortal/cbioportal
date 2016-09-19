@@ -159,6 +159,9 @@ genomespace=true
 # set this to true if you update cancer studies in your production database without shutting the web server
 recache_study_after_update=false
 
+# session-service URL 
+session.service.url=http://localhost:8080/session_service/api/sessions/msk_portal/
+
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
 disabled_tabs=

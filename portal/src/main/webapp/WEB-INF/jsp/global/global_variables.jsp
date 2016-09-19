@@ -124,6 +124,9 @@
     boolean computeLogOddsRatio = true;
     Boolean mutationDetailLimitReached = (Boolean)request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
+    //are we using session service for bookmarking?
+    boolean useSessionServiceBookmark = !StringUtils.isBlank(GlobalProperties.getSessionServiceUrl());
+
     //General site info
     String siteTitle = GlobalProperties.getTitle();
 

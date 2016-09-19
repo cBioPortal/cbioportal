@@ -381,26 +381,29 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     
     var URL = (function() {
 	var changeURLParam = function (param, new_value, url) {
-	    var index = url.indexOf(param + '=');
-	    var before_url, after_url;
-	    if (index === -1) {
-		before_url = url;
-		if (before_url[before_url.length-1] !== "&") {
-		    before_url = before_url + "&";
+		var index = url.indexOf(param + '=');
+		var before_url, after_url;
+		if (index === -1) {
+			before_url = url;
+			var indexOfQuestionMark = url.indexOf('?');
+			if (indexOfQuestionMark === -1) {
+				before_url += "?";
+			} else if (before_url[before_url.length - 1] !== "&") {
+				before_url += "&";
+			}
+			after_url = "";
+			index = url.length;
+		} else {
+			before_url = url.substring(0, index);
+			var next_amp = url.indexOf("&", index);
+			if (next_amp === -1) {
+				next_amp = url.length;
+			}
+			after_url= url.substring(next_amp);
 		}
-		after_url = "";
-		index = url.length;
-	    } else {
-		before_url = url.substring(0, index);
-		var next_amp = url.indexOf("&", index);
-		if (next_amp === -1) {
-		    next_amp = url.length;
-		}
-		after_url = url.substring(next_amp + 1);
-	    }
-	    return before_url 
-		    + (new_value.length > 0 ? (param + '=' + new_value + "&") : "") 
-		    + after_url;
+		return before_url
+			+ (new_value.length > 0 ? (param + '=' + new_value) : "")
+			+ after_url;
 	};
 	var currURL = function() {
 	    return window.location.href;

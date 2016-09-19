@@ -44,37 +44,48 @@
     }
 </style>
 
+<!-- This loading is used to before all JS/CSS files loaded -->
+<div id="study-tabs-loading-wait">
+    <img src="images/ajax-loader.gif" alt="loading"/>
+</div>
+
 <div class="container-fluid" id="complete-screen">
-    <div id="main-header">
+    <div id="complete-screen-loader"
+         :class="{'show-loading': showScreenLoad}"
+         class="chart-loader" style="top: 30%; left: 30%; display: none;"><img
+        src="images/ajax-loader.gif" alt="loading"></div>
+    <div id="main-header" style="display: none" :class="{show:!isloading}">
         <div id="iviz-header-left">
-            <div style="float: left; margin-right: 10px;">
+            <div class="iviz-cohort-component" style="float: left; margin-right: 10px;">
                 <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
                                    :selected-patients-num="selectedPatientsNum"
                                    :selected-samples-num="selectedSamplesNum"
                                    :userid="userid" :stats="stats" :update-stats.sync="updateStats"></session-component>
             </div>
 
-            <span class="iviz-header-left-case-name" style="display: block;">Samples selected: </span>
-            <span id="iviz-header-left-sample-select" @click="openCases()"
-                  class="iviz-header-left-case-number iviz-header-button"
+            <div class="iviz-header-left-case">
+                <span class="name" style="display: block;">Selected:</span>
+                <span class="content">
+            <span id="iviz-header-left-sample-select" @click="openCases('sample')" class="number"
                   :class="{'iviz-button-hover':highlightAllButtons||highlightCaseButtons}"
-                  role="button" tabindex="0" style="display: block;">{{ selectedSamplesNum }}</span>
-            <span class="iviz-header-left-case-name" style="display: block;">Patients selected: </span>
-            <span id="iviz-header-left-patient-select" @click="openCases()"
-                  class="iviz-header-left-case-number iviz-header-button"
+                  role="button" tabindex="0" style="display: block;">{{ selectedSamplesNum }} samples</span>
+            <span>in</span>
+            <span id="iviz-header-left-patient-select" @click="openCases('patient')" class="number"
                   :class="{'iviz-button-hover':highlightAllButtons||highlightCaseButtons}"
-                  role="button" tabindex="0" style="display: block;">{{ selectedPatientsNum }}</span>
-
+                  role="button" tabindex="0" style="display: block;">{{ selectedPatientsNum }} patients</span>
+          </span>
+            </div>
             <span id="iviz-header-left-case-download" class="iviz-header-button" @click="downloadCaseData()"
                   @mouseenter="highlightCaseButtons=true" @mouseleave="highlightCaseButtons=false" role="button"
                   tabindex="0" data-hasqtip="9" aria-describedby="qtip-9"><i class="fa fa-download" alt="download"></i></span>
 
             <span id="query-by-gene-span">
-          <span id="queryByGeneTextSpan"></span>
           <textarea id="query-by-gene-textarea" class="expand expandFocusOut"
                     :class="{'iviz-button-hover':highlightAllButtons}" rows="1" cols="10"></textarea>
       </span>
-            <i id="arrow_studyview" class="fa fa-arrow-right fa-lg" aria-hidden="true"></i>
+            <span class="iviz-header-arrow">
+          <i class="fa fa-arrow-right fa-lg" aria-hidden="true"></i>
+        </span>
             <form id="iviz-form" v-on:submit.prevent="submitForm" method="post" target="_blank" style="float: left;">
                 <input type="submit" @mouseenter="highlightAllButtons=true" @mouseleave="highlightAllButtons=false"
                        id="iviz-header-left-1" value="Query" class="iviz-header-button" style="display: block;">
@@ -116,12 +127,15 @@
             </div>
         </div>
     </div>
-    <div class="grid" id="main-grid" :class="{loading:isloading}">
-        <main-template :groups.sync="groups" :redrawgroups.sync="redrawgroups"
-                       :selectedpatients.sync="selectedpatients"
-                       :selectedsamples.sync="selectedsamples"
-                       :hasfilters.sync="hasfilters" :customfilter.sync="customfilter"
-                       :clear-all="clearAll"></main-template>
+    <div :class="{'start-loading': showScreenLoad}">
+        <div class="grid" id="main-grid" :class="{loading:isloading}">
+            <main-template :groups.sync="groups" :redrawgroups.sync="redrawgroups"
+                           :selectedpatients.sync="selectedpatients"
+                           :selectedsamples.sync="selectedsamples"
+                           :hasfilters.sync="hasfilters"
+                           :customfilter.sync="customfilter"
+                           :clear-all="clearAll"></main-template>
+        </div>
     </div>
 
 </div>

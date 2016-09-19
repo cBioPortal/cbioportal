@@ -1,4 +1,3 @@
-
 'use strict';
 var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   var data_;
@@ -252,21 +251,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               ++selectedAttrMeta.numOfDatum;
             });
 
-            if (Object.keys(selectedAttrMeta.keys).length >
-              (selectedAttrMeta.numOfDatum / 2) &&
-              selectedAttrMeta.datatype === 'STRING' &&
-              Object.keys(selectedAttrMeta.keys).length > 10) {
-              var caseIds = isPatientAttributes ?
-                Object.keys(data_.groups.group_mapping.patient.sample) :
-                Object.keys(data_.groups.group_mapping.sample.patient);
-
-              selectedAttrMeta.view_type = 'table';
-              selectedAttrMeta.type = 'pieLabel';
-              selectedAttrMeta.options = {
-                allCases: caseIds,
-                sequencedCases: caseIds
-              };
-            }
+            // if (selectedAttrMeta.datatype === 'STRING' &&
+            //   Object.keys(selectedAttrMeta.keys).length > 20) {
+            //   var caseIds = isPatientAttributes ?
+            //     Object.keys(data_.groups.group_mapping.patient.sample) :
+            //     Object.keys(data_.groups.group_mapping.sample.patient);
+            //
+            //   selectedAttrMeta.view_type = 'table';
+            //   selectedAttrMeta.type = 'pieLabel';
+            //   selectedAttrMeta.options = {
+            //     allCases: caseIds,
+            //     sequencedCases: caseIds
+            //   };
+            // }
           });
           var type = isPatientAttributes ? 'patient' : 'sample';
           var caseIndices = self_.getCaseIndices(type);
@@ -402,26 +399,41 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
       return data_.groups.patient.data_indices.patient_id;
     },
-    openCases: function() {
+    openCases: function(type) {
+      if (type !== 'patient') {
+        type = 'sample';
+      }
+
       var studyId = '';
       var possible = true;
-      var selectedCases_ = vm_.selectedpatients;
-      var caseIndices_ = this.getCaseIndices('patient');
+      var selectedCases_ = [];
+      var caseIndices_ = {};
+      var dataRef = [];
+
+      if (type === 'patient') {
+        selectedCases_ = vm_.selectedpatients;
+        caseIndices_ = this.getCaseIndices('patient');
+        dataRef = patientData_;
+      } else {
+        selectedCases_ = vm_.selectedsamples;
+        caseIndices_ = this.getCaseIndices('sample');
+        dataRef = sampleData_;
+      }
 
       $.each(selectedCases_, function(key, caseId) {
         if (key === 0) {
-          studyId = patientData_[caseIndices_[caseId]].study_id;
-        } else if (studyId !== patientData_[caseIndices_[caseId]].study_id) {
+          studyId = dataRef[caseIndices_[caseId]].study_id;
+        } else if (studyId !== dataRef[caseIndices_[caseId]].study_id) {
           possible = false;
           return false;
         }
       });
       if (possible) {
-        var _selectedPatientIds = selectedCases_.sort();
+        var _selectedCaseIds = selectedCases_.sort();
         var _url = window.cbioURL + 'case.do?cancer_study_id=' +
-          studyId +
-          '&case_id=' + _selectedPatientIds[0] +
-          '#nav_case_ids=' + _selectedPatientIds.join(',');
+          studyId + '&' + (type === 'patient' ? 'case_id' : 'sample_id') +
+          '=' + _selectedCaseIds[0] +
+          '#nav_case_ids=' + _selectedCaseIds.join(',');
         window.open(_url);
       } else {
         new Notification().createNotification(
@@ -745,8 +757,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               });
               this.showDropDown = showDropDown;
             },
-            openCases: function() {
-              iViz.openCases();
+            openCases: function(type) {
+              iViz.openCases(type);
             },
             downloadCaseData: function() {
               iViz.downloadCaseData();
@@ -1669,6 +1681,17 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       return _str;
     };
 
+    content.getClinicalAttrTooltipContent = function(attribute) {
+      var string = [];
+      if (attribute.display_name) {
+        string.push('<b>' + attribute.display_name + '</b>');
+      }
+      if (attribute.description) {
+        string.push(attribute.description);
+      }
+      return string.join('<br/>');
+    }
+
     return content;
   })();
 })(window.iViz,
@@ -1680,8 +1703,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 'use strict';
 (function(Vue, dc, iViz, Packery, Draggabilly, _) {
   Vue.component('mainTemplate', {
-    template: '<chart-group :redrawgroups.sync="redrawgroups" :id="group.id" ' +
-    ':type="group.type" ' +
+    template: '<chart-group :redrawgroups.sync="redrawgroups" ' +
+    ':hasfilters="hasfilters" :id="group.id" :type="group.type" ' +
     ':mappedcases="group.type==\'patient\'?patientsync:samplesync" ' +
     ' :attributes.sync="group.attributes" :clear-group="clearAll"' +
     ' v-for="group in groups"></chart-group> ',
@@ -1847,15 +1870,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         self_.hasfilters = _hasFilters;
         if (updateType_ === 'patient') {
           self_.selectedPatientsByFilters = _selectedCasesByFilters.sort();
-          _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
-            self_.completePatientsList : _selectedCasesByFilters;
+         // _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
+         //   self_.completePatientsList : _selectedCasesByFilters;
           _counterSelectedCasesByFilters =
             this.selectedSamplesByFilters.length === 0 ?
               self_.completeSamplesList : this.selectedSamplesByFilters;
         } else {
           self_.selectedSamplesByFilters = _selectedCasesByFilters.sort();
-          _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
-            self_.completeSamplesList : _selectedCasesByFilters;
+         // _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
+         //   self_.completeSamplesList : _selectedCasesByFilters;
           _counterSelectedCasesByFilters =
             this.selectedPatientsByFilters.length === 0 ?
               self_.completePatientsList : this.selectedPatientsByFilters;
@@ -1878,13 +1901,23 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         if (updateType_ === 'patient') {
           self_.patientsync = _casesSync;
           self_.samplesync = _counterCasesSync;
-          self_.selectedsamples = _resultCounterSelectedCases;
-          self_.selectedpatients = _resultSelectedCases;
+          if (self_.hasfilters) {
+            self_.selectedsamples = _resultCounterSelectedCases;
+            self_.selectedpatients = _resultSelectedCases;
+          } else {
+            self_.selectedsamples = self_.completeSamplesList;
+            self_.selectedpatients = self_.completePatientsList;
+          }
         } else {
           self_.samplesync = _casesSync;
           self_.patientsync = _counterCasesSync;
-          self_.selectedsamples = _resultSelectedCases;
-          self_.selectedpatients = _resultCounterSelectedCases;
+          if (self_.hasfilters) {
+            self_.selectedsamples = _resultSelectedCases;
+            self_.selectedpatients = _resultCounterSelectedCases;
+          } else {
+            self_.selectedsamples = self_.completeSamplesList;
+            self_.selectedpatients = self_.completePatientsList;
+          }
         }
       },
       'update-custom-filters': function() {
@@ -1921,7 +1954,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     template: ' <div is="individual-chart" ' +
     ':clear-chart="clearGroup" :ndx="ndx"   :attributes.sync="attribute"   v-for="attribute in attributes"></div>',
     props: [
-      'attributes', 'type', 'id', 'redrawgroups', 'mappedcases', 'clearGroup'
+      'attributes', 'type', 'id', 'redrawgroups', 'mappedcases', 'clearGroup', 'hasfilters'
     ], created: function() {
       // TODO: update this.data
       var _self = this;
@@ -2044,7 +2077,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         });
         this.invisibleChartFilters = [];
         this.invisibleBridgeDimension.filterAll();
-        if (_selectedCases.length > 0) {
+        if (this.hasfilters) {
           this.invisibleChartFilters = _selectedCases;
           var filtersMap = {};
           _.each(_selectedCases, function(filter) {
@@ -2182,6 +2215,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '<span id="scale-span-{{chartId}}" ' +
     'style="float:left; font-size:10px; margin-right: 15px; color: grey">' +
     'Log Scale X</span></div>' +
+    '<i v-if="hasTitleTooltip()" ' +
+    'class="fa fa-info-circle icon hover" ' +
+    'id="{{chartId}}-description-icon"' +
+    'aria-hidden="true"></i>' +
     '<i v-if="showTableIcon" class="fa fa-table icon hover" ' +
     'aria-hidden="true" @click="changeView()"></i>' +
     '<i v-if="showPieIcon" class="fa fa-pie-chart icon hover" ' +
@@ -2200,7 +2237,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     props: [
       'showOperations', 'resetBtnId', 'chartCtrl', 'groupid',
       'hasChartTitle', 'showTable', 'displayName', 'chartId', 'showPieIcon',
-      'showTableIcon', 'showLogScale', 'showSurvivalIcon', 'filters'
+      'showTableIcon', 'showLogScale', 'showSurvivalIcon', 'filters',
+      'attributes'
     ],
     data: function() {
       return {
@@ -2209,7 +2247,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         chartTitle: 'chart-title',
         chartTitleActive: 'chart-title-active',
         logChecked: true,
-        hasFilters: false
+        hasFilters: false,
+        titleTooltip: {
+          content: _.isObject(this.attributes) ?
+            iViz.util.getClinicalAttrTooltipContent(this.attributes) : ''
+        }
       };
     },
     watch: {
@@ -2239,22 +2281,36 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         this.showTableIcon = !this.showTableIcon;
         this.showPieIcon = !this.showPieIcon;
         this.$dispatch('toTableView');
+      },
+      hasTitleTooltip: function() {
+        return _.isObject(this.attributes) ?
+          (['survival'].indexOf(this.attributes.view_type) === -1 &&
+          _.isObject(this.titleTooltip) && this.titleTooltip.content) : false;
       }
     },
     ready: function() {
       $('#' + this.chartId + '-download').qtip('destroy', true);
       $('#' + this.chartId + '-download-icon-wrapper').qtip('destroy', true);
+      $('#' + this.chartId + '-title').qtip('destroy', true);
       var chartId = this.chartId;
       var self = this;
 
-      $('#' + this.chartId + '-title').qtip({
-        id: '#' + this.chartId + '-title-qtip',
-        content: {text: this.displayName},
-        style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
-        show: {event: 'mouseover'},
-        hide: {fixed: true, delay: 100, event: 'mouseout'},
-        position: {my: 'right bottom', at: 'top left', viewport: $(window)}
-      });
+      if (this.hasTitleTooltip()) {
+        var target = ['#' + this.chartId + '-description-icon'];
+        if (this.hasChartTitle) {
+          target.push('#' + this.chartId + '-title');
+        }
+        $(target).qtip({
+          id: this.chartId + '-title-qtip',
+          content: {
+            text: this.titleTooltip.content
+          },
+          style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+          show: {event: 'mouseover'},
+          hide: {fixed: true, delay: 100, event: 'mouseout'},
+          position: {my: 'right bottom', at: 'top left', viewport: $(window)}
+        });
+      }
 
       $('#' + this.chartId + '-download-icon-wrapper').qtip({
         style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
@@ -2490,7 +2546,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         style: {
           classes: 'qtip-light qtip-rounded qtip-shadow forceZindex qtip-max-width iviz-pie-qtip iviz-pie-label-qtip'
         },
-        show: {event: 'mouseover', solo: true, delay: 0, ready: true},
+        show: {event: 'mouseover', delay: 0, ready: true},
         hide: {fixed: true, delay: 300, event: 'mouseleave'},
         // hide: false,
         position: {my: 'left center', at: 'center right', viewport: $(window)},
@@ -2942,8 +2998,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     data: function() {
       return {
         v: {},
-        chartDivId: 'chart-' + iViz.util.escape(this.attributes.attr_id) + '-div',
-        resetBtnId: 'chart-' + iViz.util.escape(this.attributes.attr_id) + '-reset',
+        chartDivId: 'chart-' +
+        iViz.util.escape(this.attributes.attr_id) + '-div',
+        resetBtnId: 'chart-' +
+        iViz.util.escape(this.attributes.attr_id) + '-reset',
         chartId: 'chart-' + iViz.util.escape(this.attributes.attr_id),
         chartTableId: 'table-' + iViz.util.escape(this.attributes.attr_id),
         displayName: this.attributes.display_name,
@@ -3203,7 +3261,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         return '>' + opts_.xDomain[opts_.xDomain.length - 3];
       } else if (v === opts_.xDomain[opts_.xDomain.length - 1]) {
         return 'NA';
-      } else if (Math.abs(data_.max - data_.min) > 1500 &&
+      } else if (data_.min > 1500 &&
         opts_.xDomain.length > 7) {
         // this is the special case for printing out year
         index = opts_.xDomain.indexOf(v);
@@ -3456,10 +3514,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ':show-operations="showOperations" :groupid="attributes.group_id" ' +
     ':reset-btn-id="resetBtnId" :chart-ctrl="barChart" ' +
     ':chart-id="chartId" :show-log-scale="showLogScale" ' +
+    ':attributes="attributes"' +
     ':filters.sync="attributes.filter"></chart-operations>' +
     '<div class="dc-chart dc-bar-chart" align="center" ' +
     'style="float:none !important;" id={{chartId}} ></div>' +
-    '<span class="text-center chart-title-span">{{displayName}}</span>' +
+    '<span class="text-center chart-title-span" ' +
+    'id="{{chartId}}-title">{{displayName}}</span>' +
     '</div>',
     props: [
       'ndx', 'attributes'
@@ -3548,7 +3608,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               self_.chartInst.select('.brush').on('mouseup', function() {
                 self_.filtersUpdated = true;
                 if (typeof _filter !== 'undefined' && _filter !== null &&
-                  _filter.length > 1) {
+                  _filter.length > 1 && self_.chartInst.hasFilter()) {
                   var tempFilters_ = [];
                   tempFilters_[0] = _filter[0].toFixed(2);
                   tempFilters_[1] = _filter[1].toFixed(2);
@@ -5272,8 +5332,9 @@ window.LogRankTest = (function(jStat) {
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-operations="showOperations" ' +
     ':display-name="displayName" :chart-ctrl="chartInst"' +
-    ':has-chart-title="true" :groupid="attributes.group_id" :reset-btn-id="resetBtnId" ' +
-    ':chart-id="chartId" :attributes="attributes" :filters.sync="attributes.filter"> ' +
+    ':has-chart-title="true" :groupid="attributes.group_id" ' +
+    ':reset-btn-id="resetBtnId" :chart-id="chartId" :attributes="attributes" ' +
+    ':filters.sync="attributes.filter"> ' +
     '</chart-operations><div class="dc-chart dc-table-plot" ' +
     ':class="{\'start-loading\': showLoad}" align="center" ' +
     'style="float:none !important;" id={{chartId}} ></div>' +

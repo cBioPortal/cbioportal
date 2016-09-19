@@ -134,10 +134,11 @@
                         if (specRefNum) {
                             if (specRefNum.length > 1) {
                                 console.warn("More than 1 specimen reference number found in tooltip table");
-                            }
-                            sortOrder = caseIds.indexOf(specRefNum[0][1]);
-                            if (sortOrder === -1) {
-                                sortOrder = Infinity;
+                            } else if (specRefNum.length === 1) {
+                                sortOrder = caseIds.indexOf(specRefNum[0][1]);
+                                if (sortOrder === -1) {
+                                    sortOrder = Infinity;
+                                }
                             }
                         }
                         return sortOrder;

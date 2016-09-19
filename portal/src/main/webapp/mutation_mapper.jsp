@@ -209,8 +209,8 @@ $(document).ready(function() {
 			view: {
 				mutationTable: tableOpts,
                 vis3d: {
-                	//for https, use a proxy since rcsb.org is not serving https and browsers will complain about the mixed https/http content
-                    pdbUri: (document.location.protocol != "https:"? "http://files.rcsb.org/view/" : "api/proxy/jsmol/")
+                	// // use https for all portal instances
+                    pdbUri: "https://files.rcsb.org/view/"
                 }
 			}
 		};

@@ -178,7 +178,7 @@ public class MySQLbulkLoader {
             tempFileWriter.write( "\t" );
             tempFileWriter.write( escapeValue(fieldValues[i]) );
          }
-         tempFileWriter.newLine();
+         tempFileWriter.write("\n");;
 
          if( rows++ < numDebuggingRowsToPrint ){
             StringBuffer sb = new StringBuffer( escapeValue(fieldValues[0]) );
@@ -231,7 +231,7 @@ public class MySQLbulkLoader {
          con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
          stmt = con.createStatement();
          
-         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + " INTO TABLE " + tableName;
+         String command = "LOAD DATA LOCAL INFILE '" + tempFileName.replace("\\", "\\\\") + "'" + " INTO TABLE " + tableName;
          stmt.execute( command );
          
          int updateCount = stmt.getUpdateCount();

@@ -35,39 +35,14 @@
 
 <script type="text/javascript">
     var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration", "annotation","cytoband","mrna","altrate","drug"]);
+    var cnaOncokbInstance;
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
-        var oncokbInstance;
-
-        if(OncoKB.getAccess()) {
-            var oncokbInstanceManager = new OncoKB.addInstanceManager();
-            oncokbInstance = oncokbInstanceManager.addInstance('patient-cna');
-            if(oncokbGeneStatus) {
-                oncokbInstance.setGeneStatus(oncokbGeneStatus);
-            }
-            oncokbInstance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
-        }
 
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
-            if(oncokbInstance) {
-                var _id = cnaEventIds[i];
-                var alter = '';
-                switch(cnas.getValue(_id, "alter")) {
-                    case 2:
-                        alter = 'amplification';
-                        break;
-                    case -2:
-                        alter = 'deletion';
-                        break;
-                    default:
-                        alter = null;
-                }
-                oncokbInstance.addVariant(_id, cnas.getValue(_id, "entrez"), cnas.getValue(_id, "gene"), alter,
-                    (_.isObject(patientInfo) ? (patientInfo.CANCER_TYPE_DETAILED || patientInfo.CANCER_TYPE) : '') || cancerType,
-                    alter);
-            }
             data.push([cnaEventIds[i]]);
         }
+        
         var oTable = $('#'+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
@@ -325,10 +300,10 @@
                     plotCnaAltRate("."+table_id+"-cna-cohort",cnas);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
-                    if(oncokbInstance){
-                        oncokbInstance.addEvents(this, 'gene');
-                        oncokbInstance.addEvents(this, 'alteration');
-                        oncokbInstance.addEvents(this, 'column');
+                    if(cnaOncokbInstance){
+                        cnaOncokbInstance.addEvents(this, 'gene');
+                        cnaOncokbInstance.addEvents(this, 'alteration');
+                        cnaOncokbInstance.addEvents(this, 'column');
                     }
                 },
                 "bPaginate": true,
@@ -343,25 +318,7 @@
                 "iDisplayLength": iDisplayLength,
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
-
-        if(oncokbInstance) {
-            oncokbInstance.getIndicator().then(function () {
-                var tableData = oTable.fnGetData();
-                var oncokbEvidence = [];
-                _.each(tableData, function(ele, i) {
-                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]));
-                });
-                cnas.addData('oncokb', oncokbEvidence)
-                if (tableData.length > 0)
-                {
-                    _.each(tableData, function(ele, i) {
-                        oTable.fnUpdate(null, i, cnaTableIndices["annotation"], false, false);
-                    });
-
-                    oTable.fnUpdate(null, 0, cnaTableIndices['annotation']);
-                }
-            });
-        }
+        
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.cna-header");
         return oTable;
@@ -519,6 +476,38 @@
                 $('.all-cna-table-name').addClass("datatable-name");
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
+                
+                // Get OncoKB info
+                cnaOncokbInstance = initOncoKB('patient-cna', genomicEventObs.cnas.getEventIds(false), genomicEventObs.cnas, 'cna', function(instance) {
+                    var cnaSummaryTable = $('#cna_summary_table').dataTable();
+                    var cnaTable = $('#cna_table').dataTable();
+
+                    var cnaSummaryTableData = cnaSummaryTable.fnGetData();
+                    var cnaTableData = cnaTable.fnGetData();
+                    
+                    var oncokbEvidence = [];
+                    _.each(cnaTableData, function(ele, i) {
+                        oncokbEvidence.push(cnaOncokbInstance.getVariant(ele[0]));
+                    });
+
+                    genomicEventObs.cnas.addData('oncokb', oncokbEvidence);
+                    
+                    if (cnaTableData.length > 0){
+                        _.each(cnaTableData, function(ele, i) {
+                            cnaTable.fnUpdate(null, i, cnaTableIndices["annotation"], false, false);
+                        });
+
+                        cnaTable.fnUpdate(null, 0, cnaTableIndices['annotation']);
+                    }
+
+                    if (cnaSummaryTableData.length > 0){
+                        _.each(cnaSummaryTableData, function(ele, i) {
+                            cnaSummaryTable.fnUpdate(null, i, cnaTableIndices["annotation"], false, false);
+                        });
+
+                        cnaSummaryTable.fnUpdate(null, 0, cnaTableIndices['annotation']);
+                    }
+                });
             }
             ,"json"
         );

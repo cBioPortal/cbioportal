@@ -48,7 +48,7 @@ import org.mskcc.cbio.portal.util.ProgressMonitor;
  */
 public class FetchPfamGraphicsData
 {
-	public static final String URL_PREFIX = "http://pfam.sanger.ac.uk/protein/";
+	public static final String URL_PREFIX = "http://pfam.xfam.org/protein/";
 	public static final String URL_SUFFIX = "/graphic";
 
 	/**

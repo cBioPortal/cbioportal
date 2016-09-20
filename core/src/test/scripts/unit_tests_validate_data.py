@@ -1187,7 +1187,8 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         validateData.validate_study(
                 'test_data/study_missing_caselists',
                 PORTAL_INSTANCE,
-                self.logger)
+                self.logger,
+                False)
         record_list = self.get_log_records()
         self.assertEqual(len(record_list), 1)
         # <study ID>_all

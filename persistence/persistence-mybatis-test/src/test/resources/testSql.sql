@@ -11,6 +11,9 @@ DROP TABLE IF EXISTS "genetic_profile_samples";
 DROP TABLE IF EXISTS "sample_profile";
 DROP TABLE IF EXISTS "sample_list_list";
 DROP TABLE IF EXISTS "sample_list";
+DROP TABLE IF EXISTS "gene_panel_profile_map";
+DROP TABLE IF EXISTS "gene_panel_list";
+DROP TABLE IF EXISTS "gene_panel";
 DROP TABLE IF EXISTS "sample";
 DROP TABLE IF EXISTS "patient";
 DROP TABLE IF EXISTS "genetic_profile";
@@ -35,6 +38,11 @@ CREATE TABLE "gene" (
   "CYTOBAND" VARCHAR(50),
   "LENGTH" INTEGER,
   PRIMARY KEY ("ENTREZ_GENE_ID")
+);
+
+CREATE TABLE "gene_alias" (
+  "ENTREZ_GENE_ID" INTEGER DEFAULT NULL,
+  "GENE_ALIAS" VARCHAR(255) DEFAULT NULL
 );
 
 CREATE INDEX "HUGO_GENE_SYMBOL" ON "gene"("HUGO_GENE_SYMBOL");
@@ -229,6 +237,32 @@ CREATE TABLE "sample_list_list" (
 
 CREATE INDEX "SAMPLE_LIST_LIST" ON "sample_list_list"("LIST_ID","SAMPLE_ID");
 
+CREATE TABLE "gene_panel" (
+    "INTERNAL_ID" int(11) NOT NULL,
+    "STABLE_ID" varchar(255) NOT NULL,
+    "DESCRIPTION" mediumtext,
+    PRIMARY KEY ("INTERNAL_ID"),
+    UNIQUE ("STABLE_ID")
+);
+
+CREATE TABLE "gene_panel_list" (
+    "INTERNAL_ID" int(11) NOT NULL,
+    "GENE_ID" INTEGER NOT NULL,
+    PRIMARY KEY ("INTERNAL_ID", "GENE_ID"),
+    FOREIGN KEY ("INTERNAL_ID") REFERENCES "gene_panel" ("INTERNAL_ID") ON DELETE CASCADE,
+    FOREIGN KEY ("GENE_ID") REFERENCES "gene" ("ENTREZ_GENE_ID") ON DELETE CASCADE
+);
+
+CREATE TABLE "gene_panel_profile_map" (
+    "SAMPLE_ID" int(11) NOT NULL,
+    "PROFILE_ID" int(11) NOT NULL,
+    "PANEL_ID" int(11) NOT NULL,
+    PRIMARY KEY ("SAMPLE_ID", "PROFILE_ID"),
+    FOREIGN KEY ("SAMPLE_ID") REFERENCES "sample" ("INTERNAL_ID") ON DELETE CASCADE,
+    FOREIGN KEY ("PROFILE_ID") REFERENCES "genetic_profile" ("GENETIC_PROFILE_ID") ON DELETE CASCADE,
+    FOREIGN KEY ("PANEL_ID") REFERENCES "gene_panel" ("INTERNAL_ID") ON DELETE CASCADE
+);
+
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT")
   VALUES ('brca','Breast Invasive Carcinoma','breast,breast invasive','HotPink','Breast','tissue');
 INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS")
@@ -258,6 +292,9 @@ INSERT INTO "cosmic_mutation" ("COSMIC_MUTATION_ID", "PROTEIN_CHANGE", "ENTREZ_G
 INSERT INTO "cosmic_mutation" ("COSMIC_MUTATION_ID", "PROTEIN_CHANGE", "ENTREZ_GENE_ID", "COUNT", "KEYWORD") VALUES (1290240, 'M1T', 26155, 1, 'NOC2L truncating');
 INSERT INTO "cosmic_mutation" ("COSMIC_MUTATION_ID", "PROTEIN_CHANGE", "ENTREZ_GENE_ID", "COUNT", "KEYWORD") VALUES (4010425, 'Q197*', 26155, 1, 'NOC2L truncating');
 
+
+INSERT INTO "gene_alias" ("ENTREZ_GENE_ID", "GENE_ALIAS") VALUES (207, 'AKT alias');
+INSERT INTO "gene_alias" ("ENTREZ_GENE_ID", "GENE_ALIAS") VALUES (675, 'BRCA1 alias');
 
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (2,'study_tcga_pub_gistic',1,'COPY_NUMBER_ALTERATION','DISCRETE','Putative copy-number alterations from GISTIC','Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.',1);
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (3,'study_tcga_pub_mrna',1,'MRNA_EXPRESSION','Z-SCORE','mRNA expression (microarray)','Expression levels (Agilent microarray).',0);
@@ -460,4 +497,20 @@ INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,8);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,9);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,10);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,12);
+
+INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(1, 'TESTPANEL1', 'A test panel consisting of a few genes');
+INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(2, 'TESTPANEL2', 'Another test panel consisting of a few genes');
+
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 207);
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 369);
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 672);
+
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 207);
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 208);
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 4893);
+
+INSERT INTO "gene_panel_profile_map" ("SAMPLE_ID", "PROFILE_ID", "PANEL_ID") VALUES (1, 2, 1);
+INSERT INTO "gene_panel_profile_map" ("SAMPLE_ID", "PROFILE_ID", "PANEL_ID") VALUES (1, 3, 1);
+INSERT INTO "gene_panel_profile_map" ("SAMPLE_ID", "PROFILE_ID", "PANEL_ID") VALUES (2, 4, 2);
+INSERT INTO "gene_panel_profile_map" ("SAMPLE_ID", "PROFILE_ID", "PANEL_ID") VALUES (2, 2, 2);
 

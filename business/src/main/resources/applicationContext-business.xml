@@ -9,7 +9,7 @@
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
-     <beans profile="jndi,dbcp">
+	<beans profile="jndi,dbcp">
 
          <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
             <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
@@ -44,6 +44,13 @@
         <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
             <property name="entityAttributeMapper" ref="entityAttributeMapper" />
         </bean>
+        <bean id="genePanelMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.cbioportal.persistence.mybatis.GenePanelMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+		<bean id="genePanelRepository" class="org.cbioportal.persistence.mybatis.GenePanelMyBatisRepository">
+			<property name="genePanelMapper" ref="genePanelMapper" />
+		</bean>
 
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
         <context:component-scan base-package="org.mskcc.cbio.portal.service" />

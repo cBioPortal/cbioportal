@@ -1293,7 +1293,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    } else {
 			this.value = oncoprint.getHorzZoom();
 		    }
-		},
+		}
 	    });
 	    
 	    $('#oncoprint_zoom_scale_input').on("keypress", function(e) {

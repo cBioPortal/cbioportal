@@ -63,7 +63,7 @@ var OncoprintLabelView = (function () {
 			    tooltip_html_lines.push("<b>hold to drag</b>");
 			}
 			var tooltip_html = tooltip_html_lines.join("<br>");
-			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.cell_tops[hovered_track] + offset.top, tooltip_html);
+			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.cell_tops[hovered_track] + offset.top - view.scroll_y, tooltip_html);
 		    } else {
 			view.$canvas.css('cursor', 'auto');
 			view.tooltip.hide();
@@ -86,6 +86,7 @@ var OncoprintLabelView = (function () {
 	return view.ctx.measureText(shortenLabelIfNecessary(view, label)).width/view.supersampling_ratio;
     };
     var updateFromModel = function(view, model) {
+	view.scroll_y = model.getVertScroll();
 	view.track_tops = model.getTrackTops();
 	view.cell_tops = model.getCellTops();
 	view.cell_tops_view_space = {};
@@ -141,7 +142,7 @@ var OncoprintLabelView = (function () {
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {
-	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[tracks[i]]), 0, view.cell_tops_view_space[tracks[i]] + view.cell_heights_view_space[tracks[i]]/2);
+	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[tracks[i]]), 0, view.cell_tops_view_space[tracks[i]] + view.cell_heights_view_space[tracks[i]]/2 - view.scroll_y*view.supersampling_ratio);
 	}
 	if (view.dragged_label_track_id !== null) {
 	    view.ctx.fillStyle = 'rgba(255,0,0,0.95)';
@@ -164,7 +165,7 @@ var OncoprintLabelView = (function () {
 		rect_y = view.cell_tops_view_space[group[group.length-1]] + view.cell_heights_view_space[group[group.length-1]];
 		rect_height = view.ctx.measureText("m").width;
 	    }
-	    view.ctx.fillRect(0, rect_y, view.getWidth()*view.supersampling_ratio, rect_height);
+	    view.ctx.fillRect(0, rect_y - view.scroll_y*view.supersampling_ratio, view.getWidth()*view.supersampling_ratio, rect_height);
 	}
     }
     
@@ -173,14 +174,14 @@ var OncoprintLabelView = (function () {
 	if (candidate_track === null) {
 	    return null;
 	}
-	if (mouse_y <= view.cell_tops[candidate_track] + view.cell_heights[candidate_track]) {
+	if (mouse_y <= view.cell_tops[candidate_track] - view.scroll_y + view.cell_heights[candidate_track]) {
 	    return candidate_track;
 	} else {
 	    return null;
 	}
     }
     var getLabelAboveMouseSpace = function(view, track_ids, y, track_to_exclude) {
-	if (y < view.cell_tops[track_ids[0]]) {
+	if (y < view.cell_tops[track_ids[0]] - view.scroll_y) {
 	    return null;
 	} else {
 	    var candidate_track = null;
@@ -188,7 +189,7 @@ var OncoprintLabelView = (function () {
 		if (track_to_exclude !== null && track_to_exclude === track_ids[i]) {
 		    continue;
 		}
-		if (view.cell_tops[track_ids[i]] > y) {
+		if (view.cell_tops[track_ids[i]] - view.scroll_y > y) {
 		    break;
 		} else {
 		    candidate_track = track_ids[i];
@@ -198,7 +199,7 @@ var OncoprintLabelView = (function () {
 	}
     }
     var getLabelBelowMouseSpace = function(view, track_ids, y, track_to_exclude) {
-	if (y > view.cell_tops[track_ids[track_ids.length-1]]) {
+	if (y > view.cell_tops[track_ids[track_ids.length-1]] - view.scroll_y) {
 	    return null;
 	} else {
 	    var candidate_track = null;
@@ -206,7 +207,7 @@ var OncoprintLabelView = (function () {
 		if (track_to_exclude !== null && track_to_exclude === track_ids[i]) {
 		    continue;
 		}
-		if (view.cell_tops[track_ids[i]] < y) {
+		if (view.cell_tops[track_ids[i]] - view.scroll_y < y) {
 		    break;
 		} else {
 		    candidate_track = track_ids[i];
@@ -254,6 +255,20 @@ var OncoprintLabelView = (function () {
 	resizeAndClear(this, model);
 	renderAllLabels(this, model);
     }
+    
+    OncoprintLabelView.prototype.setScroll = function(model) {
+	this.setVertScroll(model);
+    }
+    
+    OncoprintLabelView.prototype.setHorzScroll = function(model) {
+    }
+    
+    OncoprintLabelView.prototype.setVertScroll = function(model) {
+	updateFromModel(this, model);
+	resizeAndClear(this, model);
+	renderAllLabels(this, model);
+    }
+    
     OncoprintLabelView.prototype.setVertZoom = function(model) {
 	updateFromModel(this, model);
 	resizeAndClear(this, model);

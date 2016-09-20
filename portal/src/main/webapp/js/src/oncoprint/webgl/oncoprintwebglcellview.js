@@ -82,7 +82,7 @@ var createShader = function (view, source, type) {
 };
 
 var OncoprintWebGLCellView = (function () {
-    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div, model, tooltip, highlight_area_callback) {
+    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div_contents, model, tooltip, highlight_area_callback) {
 	this.$container = $container;
 	this.$canvas = $canvas;
 	this.$overlay_canvas = $overlay_canvas;
@@ -97,19 +97,13 @@ var OncoprintWebGLCellView = (function () {
 	this.visible_area_width = $canvas[0].width;
 	
 	var self = this;
-	this.$container.scroll(function() {
-	    var scroll_left = self.$container.scrollLeft();
-	    self.$canvas.css('left', scroll_left);
-	    self.$overlay_canvas.css('left', scroll_left);
-	    self.scroll(model, scroll_left);
-	});
 	
 	this.tooltip = tooltip;
 	this.tooltip.center = true;
 	
 	this.scroll_x = 0;
 	this.scroll_y = 0;
-	this.$dummy_scroll_div = $dummy_scroll_div;
+	this.$dummy_scroll_div_contents = $dummy_scroll_div_contents;
 
 	this.identified_shape_list_list = {};
 
@@ -165,18 +159,18 @@ var OncoprintWebGLCellView = (function () {
 		var mouseX = evt.pageX - offset.left;
 		var mouseY = evt.pageY - offset.top;
 		if (!dragging) {
-		    var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
+		    var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY + self.scroll_y);
 		    var overlapping_datum = (overlapping_cell === null ? null : model.getTrackDatum(overlapping_cell.track, overlapping_cell.id));
 		    if (overlapping_datum !== null) {
 			var left = model.getZoomedColumnLeft(overlapping_cell.id) - self.scroll_x;
-			overlayStrokeRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+			overlayStrokeRect(self, left, model.getCellTops(overlapping_cell.track) - self.scroll_y, model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
 			var tracks = model.getTracks();
 			for (var i=0; i<tracks.length; i++) {
 			    if (model.getTrackDatum(tracks[i], overlapping_cell.id) !== null) {
-				overlayStrokeRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
+				overlayStrokeRect(self, left, model.getCellTops(tracks[i]) - self.scroll_y, model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 			    }
 			}
-			tooltip.show(250, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth() / 2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track) + offset.top, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
+			tooltip.show(250, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth() / 2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track) + offset.top - self.scroll_y, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
 			prev_overlapping_cell = overlapping_cell;
 		    } else {
 			tooltip.hideIfNotAlreadyGoingTo(150);
@@ -263,7 +257,7 @@ var OncoprintWebGLCellView = (function () {
 		'	gl_Position = vec4(aVertexPosition, 1.0);',
 		'	gl_Position[1] += offsetY;',
 		'	gl_Position[0] *= zoomX;',
-		'	gl_Position -= vec4(scrollX, 0.0, 0.0, 0.0);',
+		'	gl_Position -= vec4(scrollX, scrollY, 0.0, 0.0);',
 		'	gl_Position[0] *= supersamplingRatio;',
 		'	gl_Position[1] *= supersamplingRatio;',
 		'	gl_Position = uPMatrix * uMVMatrix * gl_Position;',
@@ -287,6 +281,7 @@ var OncoprintWebGLCellView = (function () {
 	    shader_program.pMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uPMatrix');
 	    shader_program.mvMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uMVMatrix');
 	    shader_program.scrollXUniform = self.ctx.getUniformLocation(shader_program, 'scrollX');
+	    shader_program.scrollYUniform = self.ctx.getUniformLocation(shader_program, 'scrollY');
 	    shader_program.zoomXUniform = self.ctx.getUniformLocation(shader_program, 'zoomX');
 	    shader_program.offsetYUniform = self.ctx.getUniformLocation(shader_program, 'offsetY');
 	    shader_program.supersamplingRatioUniform = self.ctx.getUniformLocation(shader_program, 'supersamplingRatio');
@@ -299,7 +294,9 @@ var OncoprintWebGLCellView = (function () {
 	var height = model.getCellViewHeight();
 	var total_width = view.getTotalWidth(model);
 	var visible_area_width = view.visible_area_width;
-	view.$dummy_scroll_div.css('width', total_width);
+	var scrollbar_slack = 15;
+	view.$dummy_scroll_div_contents.css({'min-width':total_width, 'min-height':model.getOncoprintHeight()});
+	view.$dummy_scroll_div_contents.parent().css({'height': height + scrollbar_slack, 'width': visible_area_width + scrollbar_slack}); // add space for scrollbars
 	view.$canvas[0].height = view.supersampling_ratio*height;
 	view.$canvas[0].style.height = height + 'px';
 	view.$overlay_canvas[0].height = view.supersampling_ratio*height;
@@ -310,7 +307,7 @@ var OncoprintWebGLCellView = (function () {
 	view.$overlay_canvas[0].style.width = visible_area_width + 'px';
 	view.$container.css('height', height);
 	view.$container.css('width', visible_area_width);
-	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),total_width-view.visible_area_width))
+	//view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),total_width-view.visible_area_width))
 	getWebGLContextAndSetUpMatrices(view);
 	getOverlayContextAndClear(view);
     };
@@ -320,6 +317,7 @@ var OncoprintWebGLCellView = (function () {
 	}
 	
 	var scroll_x = view.scroll_x;
+	var scroll_y = view.scroll_y;
 	var zoom_x = model.getHorzZoom();
 	var horz_zone_id = Math.floor(scroll_x / view.visible_area_width);
 	
@@ -345,6 +343,7 @@ var OncoprintWebGLCellView = (function () {
 	    view.ctx.uniformMatrix4fv(view.shader_program.pMatrixUniform, false, view.pMatrix);
 	    view.ctx.uniformMatrix4fv(view.shader_program.mvMatrixUniform, false, view.mvMatrix);
 	    view.ctx.uniform1f(view.shader_program.scrollXUniform, scroll_x);
+	    view.ctx.uniform1f(view.shader_program.scrollYUniform, scroll_y);
 	    view.ctx.uniform1f(view.shader_program.zoomXUniform, zoom_x);
 	    view.ctx.uniform1f(view.shader_program.offsetYUniform, cell_top);
 	    view.ctx.uniform1f(view.shader_program.supersamplingRatioUniform, view.supersampling_ratio);
@@ -671,8 +670,17 @@ var OncoprintWebGLCellView = (function () {
 	this.sort(model);
     }
     
-    OncoprintWebGLCellView.prototype.scroll = function(model, offset) {
-	this.scroll_x = offset;
+    OncoprintWebGLCellView.prototype.setHorzScroll = function(model) {
+	this.setScroll(model);
+    }
+    
+    OncoprintWebGLCellView.prototype.setVertScroll = function(model) {
+	this.setScroll(model);
+    }
+    
+    OncoprintWebGLCellView.prototype.setScroll = function(model) {
+	this.scroll_x = model.getHorzScroll();
+	this.scroll_y = model.getVertScroll();
 	renderAllTracks(this, model);
     }
     

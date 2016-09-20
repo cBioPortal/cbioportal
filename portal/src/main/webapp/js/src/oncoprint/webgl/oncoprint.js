@@ -23,9 +23,14 @@ var Oncoprint = (function () {
 	var self = this;
 	this.ctr_selector = ctr_selector;
 	
-	var $oncoprint_ctr = $('<span></span>')
+	var $ctr = $('<span></span>').css({'position':'relative', 'display':'inline-block'}).appendTo(ctr_selector);
+	var $oncoprint_ctr = $('<div></div>')
 			    .css({'position':'relative', 'display':'inline-block'})
-			    .appendTo(ctr_selector);
+			    .appendTo($ctr);
+		    
+	var $tooltip_ctr = $('<span></span>').css({'position':'absolute'}).appendTo(ctr_selector);
+	var $legend_ctr = $('<div></div>').css({'position':'absolute', 'display':'inline-block', 'top':0, 'left':0, 'min-height':1})
+			    .appendTo($ctr);
 	
 	var $label_canvas = $('<canvas></canvas>')
 			    .css({'display':'inline-block', 
@@ -44,13 +49,12 @@ var Oncoprint = (function () {
 			
 	var $legend_div = $('<div></div>')
 			    .css({'position':'absolute', 
-				    'top':'250px'})
+				    'top':'250px',
+				    'min-height':1})
 			    .addClass("noselect");
 	
 	var $cell_div = $('<div>')
 			.css({'width':width,
-			    'overflow-x':'scroll', 
-			    'overflow-y':'hidden', 
 			    'display':'inline-block', 
 			    'position':'absolute', 
 			    'left':'200px', 
@@ -63,10 +67,15 @@ var Oncoprint = (function () {
 			    .addClass("noselect");
 		    
 	var $dummy_scroll_div = $('<div>')
-				.css({'position':'absolute', 
+				.css({'position':'absolute',
+				    'overflow-x':'scroll',
+				    'overflow-y':'scroll',
 				    'top':'0', 
 				    'left':'0px', 
-				    'height':'1px'});
+				    'height':'1px',
+				});
+	
+	var $dummy_scroll_div_contents = $('<div>').appendTo($dummy_scroll_div);
 				
 	var $cell_overlay_canvas = $('<canvas></canvas>')
 				    .attr('width', width)
@@ -82,26 +91,35 @@ var Oncoprint = (function () {
 	$cell_div.appendTo($oncoprint_ctr);
 	$track_options_div.appendTo($oncoprint_ctr);
 	$track_info_div.appendTo($oncoprint_ctr);
-	$legend_div.appendTo($oncoprint_ctr);
+	
+	$legend_div.appendTo($legend_ctr);
 
 	
 	$cell_canvas.appendTo($cell_div);
-	$dummy_scroll_div.appendTo($cell_div);
 	$cell_overlay_canvas.appendTo($cell_div);
+	$dummy_scroll_div.appendTo($cell_div);
+	$dummy_scroll_div.on("mousemove mousedown mouseup", function(evt) {
+	    $cell_overlay_canvas.trigger(evt);
+	});
 	
-	this.$container = $oncoprint_ctr;
+	this.$ctr = $ctr;
+	this.$oncoprint_ctr = $oncoprint_ctr;
 	this.$cell_div = $cell_div;
 	this.$legend_div = $legend_div;
 	this.$track_options_div = $track_options_div;
 	this.$track_info_div = $track_info_div;
+	this.$dummy_scroll_div = $dummy_scroll_div;
+	
+	this.$cell_canvas = $cell_canvas;
+	this.$cell_overlay_canvas = $cell_overlay_canvas;
 	
 	this.model = new OncoprintModel();
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model, new OncoprintToolTip($oncoprint_ctr), function(left, right) {
+	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div_contents, this.model, new OncoprintToolTip($tooltip_ctr), function(left, right) {
 	    var enclosed_ids = self.model.getIdsInLeftInterval(left, right);
 	    self.setHorzZoom(self.model.getHorzZoomToFit(self.cell_view.visible_area_width, enclosed_ids));
-	    self.$cell_div.scrollLeft(self.model.getZoomedColumnLeft(enclosed_ids[0]));
+	    self.$dummy_scroll_div.scrollLeft(self.model.getZoomedColumnLeft(enclosed_ids[0]));
 	    self.id_clipboard = enclosed_ids;
 	});
 	
@@ -132,7 +150,7 @@ var Oncoprint = (function () {
 								
 	//this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 
-	this.label_view = new OncoprintLabelView($label_canvas, this.model, new OncoprintToolTip($oncoprint_ctr, {noselect: true}));
+	this.label_view = new OncoprintLabelView($label_canvas, this.model, new OncoprintToolTip($tooltip_ctr, {noselect: true}));
 	this.label_view.setDragCallback(function(target_track, new_previous_track) {
 	    self.moveTrack(target_track, new_previous_track);
 	});
@@ -151,9 +169,16 @@ var Oncoprint = (function () {
 	//  canvas elements have terrible resolution.
 	var cell_view = this.cell_view;
 	var model = this.model;
-	$cell_div.scroll(function() {
- 	    self.keep_horz_zoomed_to_fit = false;
+	$dummy_scroll_div.scroll(function (e) {
+	    var scroll_left_prop = $dummy_scroll_div.scrollLeft() / ($dummy_scroll_div[0].scrollWidth - $dummy_scroll_div.outerWidth());
+	    var scroll_top_prop = $dummy_scroll_div.scrollTop() / ($dummy_scroll_div[0].scrollHeight - $dummy_scroll_div.outerHeight());
+	    var maximum_scroll_left = model.getOncoprintWidth() - cell_view.getWidth();
+	    var maximum_scroll_top = model.getOncoprintHeight() - model.getCellViewHeight();
+	    var scroll_left = maximum_scroll_left*scroll_left_prop;
+	    var scroll_top = maximum_scroll_top*scroll_top_prop;
+	    self.keep_horz_zoomed_to_fit = false;
 	    self.keep_horz_zoomed_to_fit_ids = [];
+	    self.setScroll(scroll_left, scroll_top);
 	});
 	
 	this.horz_zoom_callbacks = [];
@@ -170,17 +195,18 @@ var Oncoprint = (function () {
 
     var resizeLegendAfterTimeout = function(oncoprint) {
 	setTimeout(function() {
-	    oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
+	    oncoprint.$ctr.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
 	    oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
 	}, 0);
     };
     var resizeAndOrganize = function(oncoprint) {
 	var ctr_width = $(oncoprint.ctr_selector).width();
-	oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
+	oncoprint.$ctr.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.outerHeight() + 20,
+				'min-width': ctr_width});
 	oncoprint.$track_options_div.css({'left':oncoprint.label_view.getWidth()});
 	oncoprint.$track_info_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth()});
 	var cell_div_left = oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + oncoprint.track_info_view.getWidth();
-	oncoprint.$cell_div.css({'left':cell_div_left});
+	oncoprint.$cell_div.css('left', cell_div_left);
 	oncoprint.cell_view.setWidth(ctr_width - cell_div_left-20, oncoprint.model);
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
 	oncoprint.legend_view.setWidth(ctr_width, oncoprint.model);
@@ -200,7 +226,7 @@ var Oncoprint = (function () {
     
     
     Oncoprint.prototype.scrollTo = function(left) {
-	this.$cell_div.scrollLeft(left);
+	this.$dummy_scroll_div.scrollLeft(left);
     }
     Oncoprint.prototype.onHorzZoom = function(callback) {
 	this.horz_zoom_callbacks.push(callback);
@@ -323,9 +349,44 @@ var Oncoprint = (function () {
 	// Update views
 	this.cell_view.setVertZoom(this.model, z);
 	this.label_view.setVertZoom(this.model, z);
+	this.track_info_view.setVertZoom(this.model);
+	this.track_options_view.setVertZoom(this.model);
 	
 	resizeAndOrganizeAfterTimeout(this);
 	return this.model.getVertZoom();
+    }
+    
+    Oncoprint.prototype.setScroll = function(scroll_left, scroll_top) {
+	// Update model
+	this.model.setScroll(scroll_left, scroll_top);
+	// Update views
+	this.cell_view.setScroll(this.model);
+	this.label_view.setScroll(this.model);
+	this.track_info_view.setScroll(this.model);
+	this.track_options_view.setScroll(this.model);
+    }
+    
+    Oncoprint.prototype.setHorzScroll = function(s) {
+	// Update model
+	this.model.setHorzScroll(s);
+	// Update views
+	this.cell_view.setHorzScroll(this.model);
+	this.label_view.setHorzScroll(this.model);
+	this.track_info_view.setHorzScroll(this.model);
+	this.track_options_view.setHorzScroll(this.model);
+	
+	return this.model.getHorzScroll();
+    }
+    Oncoprint.prototype.setVertScroll = function(s) {
+	// Update model
+	this.model.setVertScroll(s);
+	// Update views
+	this.cell_view.setVertScroll(this.model);
+	this.label_view.setVertScroll(this.model);
+	this.track_info_view.setVertScroll(this.model);
+	this.track_options_view.setVertScroll(this.model);
+	
+	return this.model.getVertScroll();
     }
 
     Oncoprint.prototype.getTrackData = function (track_id) {
@@ -490,7 +551,7 @@ var Oncoprint = (function () {
     Oncoprint.prototype.toSVG = function(with_background) {
 	// Returns svg DOM element
 	var root = svgfactory.svg(10, 10);
-	this.$container.append(root);
+	this.$ctr.append(root);
 	var everything_group = svgfactory.group(0,0);
 	root.appendChild(everything_group);
 	

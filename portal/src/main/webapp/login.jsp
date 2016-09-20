@@ -87,7 +87,7 @@
           <% if (logout_success != null) { %>
           <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-            <strong>You are now signed out.</strong></p>
+            <strong>You are now signed out.   It is recommended that you close your browser to complete the termination of this session.</strong></p>
           </div>
           <% } %>
 
@@ -150,7 +150,7 @@
                 <% } else if (authenticationMethod.equals("saml")) { %>
                   <p>
                     <!-- removed the hard-coded saml registration html and calling GlobalProperties instead -->
-                    <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'login?idp=<%= GlobalProperties.getSamlIdpMetadataEntityid() %>'" >
+                    <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=<%= GlobalProperties.getSamlIdpMetadataEntityid() %>'" >
                     <%= GlobalProperties.getLoginSamlRegistrationHtml() %></button>
                   </p>
                 </fieldset>

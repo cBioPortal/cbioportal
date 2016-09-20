@@ -1,14 +1,10 @@
 package org.cbioportal.web.mixin;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.web.mixin.summary.PatientSummaryMixin;
 
-public class PatientMixin {
 
-    private Integer internalId;
-    private String stableId;
-    private Integer cancerStudyId;
+public class PatientMixin extends PatientSummaryMixin {
 
-    @JsonUnwrapped
     private CancerStudy cancerStudy;
 }

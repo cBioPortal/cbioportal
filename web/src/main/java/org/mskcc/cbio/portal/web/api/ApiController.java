@@ -315,7 +315,7 @@ public class ApiController {
             notes = "")
     @Transactional
     @RequestMapping(value = "/geneticprofiledata", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<Serializable> getGeneticProfileData(
+    public @ResponseBody List<DBProfileData> getGeneticProfileData(
             @ApiParam(required = true, value = "List of genetic_profile_ids such as those returned by /api/geneticprofiles. (example: brca_tcga_pub_mutations). Unrecognized genetic profile ids are silently ignored. Profile data is only returned for matching ids.")
             @RequestParam(required = true)
             List<String> genetic_profile_ids,
@@ -329,7 +329,13 @@ public class ApiController {
             @RequestParam(required = false)
             String sample_list_id) {
 
-        return service.getGeneticProfileData(genetic_profile_ids, genes, sample_ids, sample_list_id);
+        if (sample_ids == null && sample_list_id == null) {
+            return service.getGeneticProfileData(genetic_profile_ids, genes);
+        } else if (sample_ids != null) {
+            return service.getGeneticProfileDataBySample(genetic_profile_ids, genes, sample_ids);
+        } else {
+            return service.getGeneticProfileDataBySampleList(genetic_profile_ids, genes, sample_list_id);
+        }
     }
     
     @ApiOperation(value = "Get list of samples ids with meta data by study, filtered by sample ids or patient ids",

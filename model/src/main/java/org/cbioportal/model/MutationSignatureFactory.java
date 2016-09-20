@@ -64,7 +64,7 @@ public class MutationSignatureFactory {
 			// Not a SNP
 			return null;
 		}
-		String tum = mutation.getMutationEvent().getVariantAllele();
+		String tum = mutation.getMutationEvent().getTumorSeqAllele();
 		if (tum == null || tum.length() != 1) {
 			// Not a SNP
 			return null;

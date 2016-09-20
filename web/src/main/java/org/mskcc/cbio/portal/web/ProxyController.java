@@ -54,7 +54,7 @@ public class ProxyController
   public void setBitlyURL(String property) { this.bitlyURL = property; }
 
   private String sessionServiceURL;
-  @Value("${session.service.url}")
+  @Value("${session.service.url:''}") // default is empty string
   public void setSessionServiceURL(String property) { this.sessionServiceURL = property; }
 
   private String pdbDatabaseURL;

@@ -94,23 +94,13 @@ function objectValues(obj) {
     return Object.keys(obj).map(function(key) { return obj[key]; });
 }
 
-var NA_SHAPES = [
-    {
+var makeNAShapes = function(z) {
+    return [{
 	'type': 'rectangle',
 	'fill': 'rgba(224, 224, 224, 1)',
-	'z': 10000000,
-    },
-    /*{
-	'type': 'line',
-	'x1': '0%',
-	'y1': '0%',
-	'x2': '100%',
-	'y2': '100%',
-	'stroke': 'rgba(85, 85, 85, 0.7)',
-	'stroke-width': '1',
-	'z': '1',
-    },*/
-];
+	'z': z
+    }];
+};
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
 
@@ -372,7 +362,7 @@ var ConditionRuleSet = (function () {
 	this.addRule(function (d) {
 	    return d[NA_STRING] === true;
 	},
-		{shapes: NA_SHAPES,
+		{shapes: makeNAShapes(params.na_z || 1000),
 		    legend_label: NA_LABEL,
 		    exclude_from_legend: false,
 		    legend_config: {'type': 'rule', 'target': {'na': true}}
@@ -416,7 +406,7 @@ var CategoricalRuleSet = (function () {
 	LookupRuleSet.call(this, params);
 	
 	this.addRule(NA_STRING, true, {
-	    shapes: NA_SHAPES,
+	    shapes: makeNAShapes(params.na_z || 1000),
 	    legend_label: NA_LABEL,
 	    exclude_from_legend: false,
 	    legend_config: {'type': 'rule', 'target': {'na': true}}
@@ -788,7 +778,7 @@ var GeneticAlterationRuleSet = (function () {
 	    }
 	})(this);
 	this.addRule(NA_STRING, true, {
-	    shapes: NA_SHAPES,
+	    shapes: makeNAShapes(params.na_z || 1),
 	    legend_label: "N/S",
 	    exclude_from_legend: false,
 	    legend_config: {'type': 'rule', 'target': {'na': true}}

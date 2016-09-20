@@ -2,8 +2,8 @@ var svgfactory = require('./svgfactory.js');
 
 var nodeIsVisible = function(node) {
     var ret = true;
-    while (node.tagName.toLowerCase() !== "body") {
-	if (!$(node).is(":visible")) {
+    while (node.tagName.toLowerCase() !== "html") {
+	if ($(node).css('display') === 'none') {
 	    ret = false;
 	    break;
 	}
@@ -38,24 +38,6 @@ var OncoprintLegendView = (function() {
 	this.padding_between_rule_set_rows = 10;
     }
     
-    var getMaximumLabelWidth = function(view, model) {
-	var rule_sets = model.getRuleSets();
-	var maximum = 0;
-	for (var i=0; i<rule_sets.length; i++) {
-	    if (rule_sets[i].exclude_from_legend || typeof rule_sets[i].legend_label === 'undefined') {
-		continue;
-	    }
-	    
-	    var label = svgfactory.text(rule_sets[i].legend_label, 0, 0, 
-					view.rule_set_label_config.size, 
-					view.rule_set_label_config.font,
-					view.rule_set_label_config.weight);
-	    view.$svg[0].appendChild(label);
-	    maximum = Math.max(maximum, label.getBBox().width);
-	    label.parentNode.removeChild(label);
-	}
-	return maximum;
-    };
     var renderLegend = function(view, model, target_svg, show_all) {
 	if (view.rendering_suppressed) {
 	    return;

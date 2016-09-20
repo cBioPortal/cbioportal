@@ -180,7 +180,7 @@ window.cbioportal_client = (function() {
 
 		var flatten = function(list_of_lists){
 			//console.log("flatten: " + ret.length);
-			var chunk_size = 90000;
+			var chunk_size = 60000;
 			var n_chunks = Math.ceil(list_of_lists.length/chunk_size);
 			var flattened = [];
 			//first round of flattening, in chunks of chunkSize to avoid stack size problems in concat.apply:

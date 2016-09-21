@@ -101,7 +101,7 @@
                 g = $(circle[0]).parent();
                 g.prop("__data__", $(circle[0]).prop("__data__"));
                 fillColorAndLabelForCase(d3.select(g.get(0)), caseId);
-                clinicalTimeline.addDataPointTooltip(g);
+                window.pvTimeline.addDataPointTooltip(g);
             }
         }
     }
@@ -134,10 +134,11 @@
                         if (specRefNum) {
                             if (specRefNum.length > 1) {
                                 console.warn("More than 1 specimen reference number found in tooltip table");
-                            }
-                            sortOrder = caseIds.indexOf(specRefNum[0][1]);
-                            if (sortOrder === -1) {
-                                sortOrder = Infinity;
+                            } else if (specRefNum.length === 1) {
+                                sortOrder = caseIds.indexOf(specRefNum[0][1]);
+                                if (sortOrder === -1) {
+                                    sortOrder = Infinity;
+                                }
                             }
                         }
                         return sortOrder;
@@ -192,7 +193,7 @@
                 }
 
                 var width = $("#td-content").width() - 75;
-                var timeline = clinicalTimeline
+                window.pvTimeline = clinicalTimeline()
                         .width(width)
                         .data(timeData)
                         .divId("#timeline")
@@ -209,9 +210,9 @@
                         .collapseAll()
                         .toggleTrackCollapse("Specimen")
                         .enableTrackTooltips(false)
-                        .enableZoom(false)
+						.plugins([{obj: new trimClinicalTimeline("Trim Timeline"), enabled: true}])
                         .addPostTimelineHook(plotCaseLabelsInTimeline);
-                timeline();
+                window.pvTimeline();
                 $("#timeline-container").show();
             }
             ,"json"

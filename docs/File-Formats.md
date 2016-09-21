@@ -15,6 +15,7 @@
     * [Timeline Data](#timeline-data)
     * [Gistic Data](#gistic-data)
     * [Mutsig Data](#mutsig-data)
+    * [Gene Panel Data](#gene-panel-data)
 
 # Introduction
 
@@ -230,6 +231,7 @@ The meta file is comprised of the following fields:
 6. **profile_name**: A name for the discrete copy number data, e.g., "Putative copy-number alterations from GISTIC"
 7. **profile_description**: A description of the copy number data, e.g., "Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification."
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 ##### Example
 An example metadata file could be named meta_CNA.txt and its contents could be:
@@ -285,6 +287,7 @@ The continuous copy number metadata file should contain the following fields:
 6. **profile_name**: A name for the copy number data, e.g., "copy-number values".
 7. **profile_description**: A description of the copy number data, e.g., "copy-number values for each gene (from Affymetrix SNP6).".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 cBioPortal also supports log2 copy number data. If your data is in log2, change the following fields:
 
@@ -324,6 +327,7 @@ The segmented metadata file should contain the following fields:
 4. **reference_genome_id**: Reference genome version. Supported values: "hg19"
 5. **description**: A description of the segmented data, e.g., "Segment data for the XYZ cancer study.".
 6. **data_filename**: &lt;your datafile&gt;
+7. **gene_panel**: optional gene panel stable id
 
 #### Example:
 An example metadata file, e.g. meta_cna_seg.txt, would be:
@@ -371,6 +375,7 @@ The expression metadata file should contain the following fields:
 6. **profile_name**: A name for the expression data, e.g., "mRNA expression (microarray)".
 7. **profile_description**: A description of the expression data, e.g., "Expression levels (Agilent microarray).".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 #### Supported stable_id values for MRNA_EXPRESSION
 For historical reasons, cBioPortal expects the `stable_id` to be one of those listed in the following static set.
@@ -484,6 +489,7 @@ The mutation metadata file should contain the following fields:
 6. **profile_name**: A name for the mutation data, e.g., "Mutations".
 7. **profile_description**: A description of the mutation data, e.g., "Mutation data from whole exome sequencing.".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 An example metadata file would be:
 
@@ -578,6 +584,7 @@ The methylation metadata file should contain the following fields:
 6. **profile_name**: A name for the methylation data, e.g., "Methlytation (HM27)".
 7. **profile_description**: A description of the methlytation data, e.g., "Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 
 #### Example
@@ -615,6 +622,7 @@ The RPPA metadata file should contain the following fields:
 6. **profile_name**: A name for the RPPA data, e.g., "RPPA data".
 7. **profile_description**: A description of the RPPA data, e.g., "RPPA levels.".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 An example metadata file would be:
 ```
@@ -672,6 +680,7 @@ The fusion metadata file should contain the following fields:
 6. **profile_name**: A name for the fusion data, e.g., "Fusions.".
 7. **profile_description**: A description of the fusion data.
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 #### Example
 An example metadata file would be:
@@ -973,3 +982,52 @@ rank<TAB>gene<TAB>N<TAB>n<TAB>p<TAB>q
 2<TAB>PIK3CA<TAB>3200341<TAB>351<TAB><1.00e-15<TAB><2.36e-12
 ...
 ```
+
+## Gene Panel Data
+Gene panel information can assign a list of genes that a genetic profile should consist of for a specific sample.
+
+#### Gene Panel File
+The gene panel file follows the format of a meta file with the following fields:
+1. **stable_id**: The name of the gene panel. This should be unique across all studies, as gene panels can be globally applied to any sample and any genetic profile.
+2. **description**: A descripion of the gene panel.
+3. **gene_list**: Tab separated genes, represented either by all hugo symbols or all entrez_gene_ids.
+
+An example gene panel file would be:
+```
+stable_id: IMPACT410
+description: Targeted (410 cancer genes) sequencing of various tumor types via MSK-IMPACT on Illumina HiSeq sequencers.
+gene_list: ABL1    ACVR1   AKT1    AKT3 ...
+```
+
+#### Sample-Profile Matrix
+
+The second component to gene panel data is associating samples and profile to the panel which applies. The following column is required :
+
+- ***SAMPLE_ID***: Sample Id from the study 
+
+And:
+- An additional column for each profile in the dataset using the stable_id as the column header.
+
+For each sample-profile combination, a gene panel should be specified by using the stable_id from the gene panel file, or NA to reflect whole exome.
+
+#### Example
+An example sample-profile matrix file would look like:
+
+```
+SAMPLE_ID<TAB>cna<TAB>mutations<TAB>...
+SAMPLE_ID_1<TAB>IMPACT410<TAB>IMPACT410<TAB> ...
+SAMPLE_ID_2<TAB>NA<TAB>NA<TAB> ...
+...
+```
+
+#### Meta file
+The sample-profile matrix requires a meta file should contain the following fields:
+
+1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
+2. **data_filename**: &lt;your datafile&gt
+
+If all samples in a genetic profile will have the same gene panel associated with them, an optional field can be specified in the meta data file of that datatype called **gene_panel**. If this is present, the sample-profile matrix will automatically be generated and the gene panel applied if it exists in the database already.
+
+If all profiles for a sample will have the sample gene panel, in the clinical data a column can be added called **GENE_PANEL** which can specify the gene panel stable id.
+
+In both of these cases, the sample-profile matrix file does not need to be provided in order to associate gene panel information with a sample-profile.

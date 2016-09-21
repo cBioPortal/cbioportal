@@ -2,6 +2,9 @@
 -- Database: `cgds`
 --
 
+drop table IF EXISTS gene_panel_profile_map;
+drop table IF EXISTS gene_panel_list;
+drop table IF EXISTS gene_panel;
 drop table IF EXISTS clinical_event_data;
 drop table IF EXISTS clinical_event;
 drop table IF EXISTS pdb_uniprot_residue_mapping;
@@ -724,8 +727,34 @@ CREATE TABLE `clinical_event_data` (
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
 );
 
+CREATE TABLE `gene_panel` (
+    `INTERNAL_ID` int(11) NOT NULL auto_increment,
+    `STABLE_ID` varchar(255) NOT NULL,
+    `DESCRIPTION` mediumtext,
+    PRIMARY KEY (`INTERNAL_ID`),
+    UNIQUE (`STABLE_ID`)
+);
+
+CREATE TABLE `gene_panel_list` (
+    `INTERNAL_ID` int(11) NOT NULL,
+    `GENE_ID` int(255) NOT NULL,
+    PRIMARY KEY (`INTERNAL_ID`, `GENE_ID`),
+    FOREIGN KEY (`INTERNAL_ID`) REFERENCES `gene_panel` (`INTERNAL_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+CREATE TABLE `gene_panel_profile_map` (
+    `SAMPLE_ID` int(11) NOT NULL,
+    `PROFILE_ID` int(11) NOT NULL,
+    `PANEL_ID` int(11) NOT NULL,
+    PRIMARY KEY (`SAMPLE_ID`, `PROFILE_ID`),
+    FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`PANEL_ID`) REFERENCES `gene_panel` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
 CREATE TABLE `info` (
     `DB_SCHEMA_VERSION` varchar(8)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('1.2.1');
+INSERT INTO info VALUES ('1.2.2');

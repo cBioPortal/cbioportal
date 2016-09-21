@@ -3,7 +3,11 @@ window.DataManagerForIviz = (function($, _) {
   var content = {};
   // DESC
   var clinicalAttrsPriority = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED',
-    'GENDER', 'AGE', 'SEQUENCED', 'HAS_CNA_DATA', 'SAMPLE_COUNT_PATIENT'];
+    'GENDER', 'AGE', 'sequenced', 'has_cna_data', 'sample_count_patient'];
+
+  var studyClinicalAttrsPriority = {
+    mskimpact: ['DARWIN_PATIENT_AGE', 'OS_STATUS']
+  };
 
   // Clinical attributes will be transfered into table.
   var tableAttrs_ = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'];
@@ -13,7 +17,8 @@ window.DataManagerForIviz = (function($, _) {
   // TODO: how do work with merged studies(virtual studies)
   var hiddenAttrs_ = {
     OS_SURVIVAL: ['mskimpact'],
-    DFS_SURVIVAL: ['mskimpact']
+    DFS_SURVIVAL: ['mskimpact'],
+    AGE: ['mskimpact']
   };
 
   /**
@@ -35,7 +40,7 @@ window.DataManagerForIviz = (function($, _) {
    * @return {boolean} Whether input attribute passed the criteria.
    */
   content.util.isPreSelectedClinicalAttr = function(attr) {
-    return attr.toLowerCase().match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(darwin_vital_status)|(darwin_patient_age)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)|(sequenced)|(has_cna_data)|(sample_count_patient)/);
+    return attr.toLowerCase().match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
   };
 
   /**
@@ -48,14 +53,26 @@ window.DataManagerForIviz = (function($, _) {
    * @return {boolean} Whether input attribute is prioritized clinical attribute.
    */
   content.util.isPriorityClinicalAttr = function(attr, studyId) {
-    var studySpecific = {
-      mskimpact: []
-    };
-
     if (_.isString(attr)) {
-      if (_.isString(studyId) && studySpecific.hasOwnProperty(studyId) &&
-        studySpecific[studyId].indexOf(attr) !== -1) {
+      if (_.isString(studyId) &&
+        studyClinicalAttrsPriority.hasOwnProperty(studyId) &&
+        studyClinicalAttrsPriority[studyId].indexOf(attr) !== -1) {
         return true;
+      } else if (_.isArray(studyId)) {
+        var sameStudies = _.intersection(
+          Object.keys(studyClinicalAttrsPriority), studyId);
+        if (sameStudies.length > 0) {
+          var contain = false;
+          _.every(sameStudies, function(study) {
+            if (studyClinicalAttrsPriority[study].indexOf(attr) !== -1) {
+              contain = true;
+              return true;
+            }
+          });
+          if (contain) {
+            return true;
+          }
+        }
       }
       if (clinicalAttrsPriority.indexOf(attr) !== -1) {
         return true;
@@ -136,17 +153,14 @@ window.DataManagerForIviz = (function($, _) {
   content.util.sortClinicalAttrs = function(array) {
     array = array.sort(function(a, b) {
       var priority = 0;
-      if (content.util.isPriorityClinicalAttr(a.attr_id)) {
-        if (content.util.isPriorityClinicalAttr(b.attr_id)) {
+      if (content.util.isPriorityClinicalAttr(a.attr_id, a.study_ids)) {
+        if (content.util.isPriorityClinicalAttr(b.attr_id, b.study_ids)) {
           priority =
             content.util.compareClinicalAttrsPriority(a.attr_id, b.attr_id);
-          if (priority === 0) {
-            priority = content.util.compareClinicalAvailability(a, b);
-          }
         } else {
           priority = -1;
         }
-      } else if (content.util.isPriorityClinicalAttr(b.attr_id)) {
+      } else if (content.util.isPriorityClinicalAttr(b.attr_id, b.study_ids)) {
         priority = 1;
       } else {
         priority = 0;
@@ -159,8 +173,6 @@ window.DataManagerForIviz = (function($, _) {
       if (content.util.isPreSelectedClinicalAttr(a.attr_id)) {
         if (content.util.isPreSelectedClinicalAttr(b.attr_id)) {
           priority = content.util.compareClinicalAvailability(a, b);
-        } else {
-          priority = -1;
         }
       } else if (content.util.isPreSelectedClinicalAttr(b.attr_id)) {
         priority = 1;
@@ -537,10 +549,7 @@ window.DataManagerForIviz = (function($, _) {
                   _dfsSurvivalAttrMeta.show = true;
                   _dfsSurvivalAttrMeta.keys = {};
                   _dfsSurvivalAttrMeta.numOfDatum = 0;
-                  _dfsSurvivalAttrMeta.priority =
-                    _.intersection(hiddenAttrs_.DFS_SURVIVAL,
-                      Object.keys(_studyToSampleToPatientMap)).length === 0 ?
-                      1 : 1000;
+                  _dfsSurvivalAttrMeta.priority = 1;
                   _dfsSurvivalAttrMeta.attrList = ['DFS_STATUS', 'DFS_MONTHS'];
                   _patientAttributes[_dfsSurvivalAttrMeta.attr_id] = _dfsSurvivalAttrMeta;
                 }
@@ -556,10 +565,7 @@ window.DataManagerForIviz = (function($, _) {
                   _osSurvivalAttrMeta.show = true;
                   _osSurvivalAttrMeta.keys = {};
                   _osSurvivalAttrMeta.numOfDatum = 0;
-                  _osSurvivalAttrMeta.priority =
-                    _.intersection(hiddenAttrs_.OS_SURVIVAL,
-                      Object.keys(_studyToSampleToPatientMap)).length === 0 ?
-                      1 : 1000;
+                  _osSurvivalAttrMeta.priority = 1;
                   _osSurvivalAttrMeta.attrList = ['OS_STATUS', 'OS_MONTHS'];
                   _patientAttributes[_osSurvivalAttrMeta.attr_id] = _osSurvivalAttrMeta;
                 }
@@ -597,14 +603,22 @@ window.DataManagerForIviz = (function($, _) {
                     show: true
                   };
                 }
-                _.each(content.util.sortClinicalAttrs(_.values(_.extend({}, _patientAttributes, _sampleAttributes))), function(attr, index) {
+                _.each(content.util.sortClinicalAttrs(
+                  _.values(_.extend({}, _patientAttributes, _sampleAttributes))
+                ), function(attr, index) {
                   var attrId = attr.attr_id;
-                  if (attr.priority === -1) {
-                    if (_patientAttributes.hasOwnProperty(attrId)) {
-                      _patientAttributes[attrId].priority = 10 + index;
-                    } else {
-                      _sampleAttributes[attrId].priority = 10 + index;
-                    }
+                  var groupRef = _sampleAttributes;
+
+                  if (_patientAttributes.hasOwnProperty(attrId)) {
+                    groupRef = _patientAttributes;
+                  }
+
+                  if (hiddenAttrs_.hasOwnProperty(attrId) &&
+                    _.intersection(hiddenAttrs_[attrId],
+                      Object.keys(_studyToSampleToPatientMap)).length !== 0) {
+                    groupRef[attrId].priority = 1000;
+                  } else if (attr.priority === -1) {
+                    groupRef[attrId].priority = 10 + index;
                   }
                 });
 
@@ -613,9 +627,11 @@ window.DataManagerForIviz = (function($, _) {
                 _result.groups.sample = {};
                 _result.groups.group_mapping = {};
                 _result.groups.patient.attr_meta =
-                  content.util.sortByClinicalPriority(_.values(_patientAttributes));
+                  content.util
+                    .sortByClinicalPriority(_.values(_patientAttributes));
                 _result.groups.sample.attr_meta =
-                  content.util.sortByClinicalPriority(_.values(_sampleAttributes));
+                  content.util
+                    .sortByClinicalPriority(_.values(_sampleAttributes));
                 _result.groups.patient.data = _patientData;
                 _result.groups.patient.hasAttrData = _hasPatientAttrData;
                 _result.groups.sample.data = _sampleData;
@@ -630,7 +646,8 @@ window.DataManagerForIviz = (function($, _) {
                 _result.groups.group_mapping.patient = {};
                 _result.groups.group_mapping.sample.patient =
                   _samplesToPatientMap;
-                _result.groups.group_mapping.patient.sample = _patientToSampleMap;
+                _result.groups.group_mapping.patient.sample =
+                  _patientToSampleMap;
 
                 self.initialSetupResult = _result;
                 _def.resolve(_result);

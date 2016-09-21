@@ -579,15 +579,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
         // extract study information
         if ($.inArray(_studyId, _.pluck(_selectedCases, 'studyID')) === -1) {
+          _selectedCases.push({
+            studyID: _studyId,
+            samples: [_selectedSample]
+          });
+        } else {
           _.each(_selectedCases, function(_resultObj) {
             if (_resultObj.studyID === _studyId) {
               _resultObj.samples.push(_selectedSample);
             }
-          });
-        } else {
-          _selectedCases.push({
-            studyID: _studyId,
-            samples: [_selectedSample]
           });
         }
 

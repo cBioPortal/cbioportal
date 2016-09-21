@@ -132,7 +132,6 @@ public class TestImportClinicalData {
         ConsoleUtil.showWarnings();
 	}
 	
-	
     /**
      * Test importing of Patient Data File with duplication error.
      *
@@ -170,7 +169,6 @@ public class TestImportClinicalData {
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
 	}
-	
 	
     /**
      * Test importing of Clinical Data File, using the new data format, i.e. with data 
@@ -281,7 +279,6 @@ public class TestImportClinicalData {
 
         checkDataSlice(cancerStudy);
 	}
-	
 	
 	/**
      * Test importing of Clinical Data File, using old MIXED_ATTRIBUTES format.
@@ -431,7 +428,6 @@ public class TestImportClinicalData {
         exception.expectMessage("DB Error");
         importClinicalData.importData();
 	}
-	
 
 	/** 
 	 * Tests to try out the MissingAttributeValues enum and ensure it filters out the 

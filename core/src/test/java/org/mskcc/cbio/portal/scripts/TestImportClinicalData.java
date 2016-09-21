@@ -89,13 +89,14 @@ public class TestImportClinicalData {
 	}
 
     /**
-     * Test importing of Clinical Data File.
+     * Test importing of Clinical Data File with a duplicated record in "MIXED_ATTRIBUTES" 
+     * type of file. 
      *
      * @throws DaoException Database Access Error.
      * @throws IOException  IO Error.
      */
 	@Test
-    public void testImportClinicalDataNewStudy() throws Exception {
+    public void testImportClinicalData_WithDuplInMixedAttrFormat() throws Exception {
         File clinicalFile = new File("src/test/resources/clinical_data_small.txt");
         // initialize an ImportClinicalData instance without args to parse
         ImportClinicalData importClinicalData = new ImportClinicalData(null);
@@ -105,9 +106,32 @@ public class TestImportClinicalData {
         ConsoleUtil.showWarnings();
         
         ArrayList<String> warnings = ProgressMonitor.getWarnings();
-        //expect 2 warnings: about duplicated TCGA-BH-A18K-01 and about rows with wrong number of columns
-        assertEquals(2, warnings.size());
+        //expect 1 warnings: about duplicated TCGA-BH-A18K-01
+        assertEquals(1, warnings.size());
+        assertTrue(warnings.get(0).contains("Sample TCGA-BH-A18K-01 found to be duplicated"));
 	}
+
+    /**
+     * Test importing of Clinical Data File when there is data a line with 
+     * wrong number of columns. 
+     *
+     * @throws DaoException Database Access Error.
+     * @throws IOException  IO Error.
+     */
+	@Test
+    public void testImportClinicalDataNewStudy_WithWrongNrCols() throws Exception {
+        File clinicalFile = new File("src/test/resources/clinical_data_small_WRONG_NR_COLS.txt");
+        // initialize an ImportClinicalData instance without args to parse
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        // set the info usually parsed from args
+        importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
+        
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Number of columns in line is not as expected");
+        importClinicalData.importData();
+        ConsoleUtil.showWarnings();
+	}
+	
 	
     /**
      * Test importing of Patient Data File with duplication error.

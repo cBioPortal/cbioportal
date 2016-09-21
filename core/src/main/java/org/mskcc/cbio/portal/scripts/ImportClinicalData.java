@@ -274,14 +274,12 @@ public class ImportClinicalData extends ConsoleRunnable {
         String line;
         MultiKeyMap attributeMap = new MultiKeyMap();
         while ((line = buff.readLine()) != null) {
-            String untrimmedLine = line;
-            line = line.trim();
-            if (skipLine(line)) {
+            if (skipLine(line.trim())) {
                 continue;
             }
 
-            String[] fields = getFields(line, untrimmedLine, columnAttrs);
-            addDatum(fields, columnAttrs, attributeMap);
+            String[] fieldValues = getFieldValues(line, columnAttrs);
+            addDatum(fieldValues, columnAttrs, attributeMap);
         }
     }
 
@@ -290,20 +288,31 @@ public class ImportClinicalData extends ConsoleRunnable {
         return (line.isEmpty() || line.substring(0,1).equals(METADATA_PREFIX));
     }
 
-    private String[] getFields(String line, String untrimmedLine, List<ClinicalAttribute> columnAttrs)
+    /**
+     * Takes in the given line and returns the list of field values by 
+     * splitting the line on DELIMITER.
+     *  
+     * @param line
+     * @param columnAttrs
+     * @return the list of values, one for each column. Value will be "" for empty columns.
+     */
+    private String[] getFieldValues(String line, List<ClinicalAttribute> columnAttrs)
     {
-        String[] fields = line.split(DELIMITER, -1);
-        if (fields.length < columnAttrs.size()) {
-            int origFieldsLen = fields.length;
-            fields = Arrays.copyOf(fields, columnAttrs.size());
-            Arrays.fill(fields, origFieldsLen, columnAttrs.size(), "");
-        }
-        String [] untrimmedFields = untrimmedLine.split(DELIMITER, -1);
-        if (untrimmedFields.length < columnAttrs.size()) {
-            ProgressMonitor.logWarning("Data row found to have less columns than the header row. Missing end columns were given empty values");
+    	// split on delimiter:
+        String[] fieldValues = line.split(DELIMITER, -1);
+        
+        // validate: if number of fields is incorrect, give exception
+        if (fieldValues.length != columnAttrs.size()) {
+        	throw new IllegalArgumentException("Number of columns in line is not as expected. Expected: " + 
+        								columnAttrs.size() + " columns, found: " + fieldValues.length + ", for line: " + line);
         }
         
-        return fields; 
+        // now iterate over lines and trim each value:
+        for (int i = 0; i < fieldValues.length; i++)
+        {
+        	fieldValues[i] = fieldValues[i].trim();
+        }
+        return fieldValues;
     }
 
     private boolean addDatum(String[] fields, List<ClinicalAttribute> columnAttrs, MultiKeyMap attributeMap) throws Exception

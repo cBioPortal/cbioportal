@@ -37,7 +37,6 @@ import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
-import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapper;
@@ -48,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.cbioportal.service.CosmicCountService;
+import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 
 /**
  *
@@ -65,7 +65,7 @@ public class ApiService {
 	@Autowired
 	private ClinicalFieldMapper clinicalFieldMapper;
 	@Autowired
-	private GeneMapper geneMapper;
+	private GeneMapperLegacy geneMapperLegacy;
 	@Autowired
 	private GeneAliasMapper geneAliasMapper;
 	@Autowired
@@ -312,12 +312,12 @@ public class ApiService {
     
 	@Transactional
 	public List<DBGene> getGenes() {
-		return geneMapper.getAllGenes();
+		return geneMapperLegacy.getAllGenes();
 	}
 
 	@Transactional
 	public List<DBGene> getGenes(List<String> hugo_gene_symbols) {
-		return geneMapper.getGenesByHugo(hugo_gene_symbols);
+		return geneMapperLegacy.getGenesByHugo(hugo_gene_symbols);
 	}
 
 	@Transactional

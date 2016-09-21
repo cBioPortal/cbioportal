@@ -87,7 +87,7 @@ public class GeneControllerTest {
         mockResponse.add(gene2);
         Mockito.when(geneServiceMock.getGeneListByHugoSymbols(org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
         this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/genes/fetchByHugoGeneSymbol")
+                MockMvcRequestBuilders.get("/gene/fetch-by-hugo")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .param("hugo_gene_symbols", "BRAF,EGFR"))
                 .andExpect(MockMvcResultMatchers.status().isOk())

@@ -1,8 +1,8 @@
 package org.cbioportal.model;
 
-import org.cbioportal.model.summary.GeneticAlterationSummary;
+import org.cbioportal.model.summary.GeneticDataSummary;
 
-public class GeneticAlteration extends GeneticAlterationSummary {
+public class GeneticData extends GeneticDataSummary {
 
     private GeneticProfile geneticProfile;
     private Gene gene;

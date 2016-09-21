@@ -127,7 +127,7 @@ function ServicePresenter(baseURL, markdownDocumentation){
     function fetchExternalPage(sourceURL){
         $.ajax({
             type: "GET",
-            url: "api/getexternalpage.json",
+            url: "api-legacy/getexternalpage.json",
             data: {sourceURL: getFullURL(sourceURL)},
             dataType: "json"
         })

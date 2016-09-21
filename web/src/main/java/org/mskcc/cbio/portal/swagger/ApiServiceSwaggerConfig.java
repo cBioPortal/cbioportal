@@ -17,7 +17,7 @@ public class ApiServiceSwaggerConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("org.mskcc.cbio.portal.web.api"))
+                .apis(RequestHandlerSelectors.basePackage("org.cbioportal.weblegacy"))
                 .build()
                 .apiInfo(apiInfo());
     }

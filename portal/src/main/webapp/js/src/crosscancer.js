@@ -1243,7 +1243,7 @@
 		                        view: {
                                     vis3d: {
                                     	//for https, use a proxy since rcsb.org is not serving https and browsers will complain about the mixed https/http content
-                                        pdbUri: (document.location.protocol != "https:"? "http://files.rcsb.org/view/" : "api/proxy/jsmol/")
+                                        pdbUri: (document.location.protocol != "https:"? "http://files.rcsb.org/view/" : "api-legacy/proxy/jsmol/")
                                     },
                                     mutationDiagram: {
 				                        showStats: true

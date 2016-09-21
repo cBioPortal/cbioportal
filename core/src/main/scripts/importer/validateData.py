@@ -2463,7 +2463,7 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
 
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
-    service_url = server_url + '/api/' + api_name
+    service_url = server_url + '/api-legacy/' + api_name
     logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,

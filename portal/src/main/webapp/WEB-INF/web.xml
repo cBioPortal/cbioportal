@@ -154,7 +154,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>portal</servlet-name>
-        <url-pattern>/api/*</url-pattern>
+        <url-pattern>/api-legacy/*</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -168,7 +168,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>rest</servlet-name>
-        <url-pattern>/rest/*</url-pattern>
+        <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
 
     <servlet>

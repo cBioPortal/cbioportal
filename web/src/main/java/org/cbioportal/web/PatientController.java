@@ -34,7 +34,7 @@ public class PatientController {
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}", method = RequestMethod.GET)
     @ApiOperation("Get a patient in a study")
     public ResponseEntity<PatientSummary> getPatientInStudy(@PathVariable String studyId,
-                                     @PathVariable String patientId) {
+                                                            @PathVariable String patientId) {
 
         throw new UnsupportedOperationException();
     }
@@ -42,7 +42,7 @@ public class PatientController {
     @RequestMapping(value = "/patients/fetch", method = RequestMethod.POST)
     @ApiOperation("Fetch patients by ID")
     public ResponseEntity<List<? extends PatientSummary>> fetchPatients(@RequestParam(defaultValue = "SUMMARY") Projection projection,
-                                       @RequestBody List<PatientIdentifier> patientIdentifiers) {
+                                                                        @RequestBody List<PatientIdentifier> patientIdentifiers) {
 
         throw new UnsupportedOperationException();
     }
@@ -50,9 +50,9 @@ public class PatientController {
     @RequestMapping(value = "/patients/query", method = RequestMethod.POST)
     @ApiOperation("Query patients by example")
     public ResponseEntity<List<? extends PatientSummary>> queryPatientsByExample(@RequestParam(defaultValue = "SUMMARY") Projection projection,
-                                       @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-                                       @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-                                       @RequestBody Patient examplePatient) {
+                                                                                 @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+                                                                                 @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+                                                                                 @RequestBody Patient examplePatient) {
 
         throw new UnsupportedOperationException();
     }

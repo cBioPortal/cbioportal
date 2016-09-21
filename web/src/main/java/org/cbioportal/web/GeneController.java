@@ -39,7 +39,7 @@ public class GeneController {
     @RequestMapping(value = "/genes/fetch", method = RequestMethod.POST)
     @ApiOperation("Fetch genes by ID")
     public ResponseEntity<List<? extends GeneSummary>> fetchGenes(@RequestParam(defaultValue = "SUMMARY") Projection projection,
-                                 @RequestBody List<String> entrezGeneIds) {
+                                                                  @RequestBody List<String> entrezGeneIds) {
 
         throw new UnsupportedOperationException();
     }
@@ -47,9 +47,9 @@ public class GeneController {
     @RequestMapping(value = "/genes/query", method = RequestMethod.POST)
     @ApiOperation("Query genes by example")
     public ResponseEntity<List<? extends GeneSummary>> queryGenesByExample(@RequestParam(defaultValue = "SUMMARY") Projection projection,
-                                 @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-                                 @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-                                 @RequestBody Gene exampleGene) {
+                                                                           @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+                                                                           @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+                                                                           @RequestBody Gene exampleGene) {
 
         throw new UnsupportedOperationException();
     }

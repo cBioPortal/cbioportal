@@ -124,6 +124,12 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
     public static final String ONCOKB_URL = "oncokb.url";
+    public static final String PATIENT_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.meta.url";
+    public static final String PATIENT_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.patient.url";
+
+    public static final String STUDY_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.study.url";
+    public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
+
 
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
@@ -629,6 +635,32 @@ public class GlobalProperties {
     {
         String url = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_META_URL);
         return url+caseId;
+    }
+
+    public static String getStudyHeatmapMetaUrl()
+    {
+        String url = properties.getProperty(STUDY_VIEW_MDACC_HEATMAP_META_URL);
+        return url;
+    }
+
+    public static String getStudyHeatmapViewerUrl()
+    {
+        String url = properties.getProperty(STUDY_VIEW_MDACC_HEATMAP_URL);
+        return url;
+    }
+
+    public static String getPatientHeatmapMetaUrl(String caseId)
+    {
+        String url = properties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_META_URL);
+        if (url == null || url.length() == 0) return null;
+        return url + caseId;
+    }
+
+    public static String getPatientHeatmapViewerUrl(String caseId)
+    {
+        String url = properties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_URL);
+        if (url == null || url.length() == 0) return null;
+        return url + caseId;
     }
 
     public static String getTCGAPathReportUrl()

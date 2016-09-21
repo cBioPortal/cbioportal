@@ -60,8 +60,11 @@ public class ImportProfileData extends ConsoleRunnable {
 			SpringUtil.initDataSource();
 	        ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());
 	        GeneticProfile geneticProfile = null;
+                             String genePanel = null;
 	         try {
 	            geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
+                                 genePanel = GeneticProfileReader.loadGenePanelInformation( descriptorFile );
+                                  
 	         } catch (java.io.FileNotFoundException e) {
 	        	 throw new java.io.FileNotFoundException("Descriptor file '" + descriptorFile + "' not found.");
 	         }
@@ -77,7 +80,7 @@ public class ImportProfileData extends ConsoleRunnable {
 	
 	   
 	            ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
-	                  geneticProfile.getGeneticProfileId());
+	                  geneticProfile.getGeneticProfileId(), genePanel);
 	            String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
 	            if (swissprotIdType != null && swissprotIdType.equals("accession")) {
 	                importer.setSwissprotIsAccession(true);
@@ -92,11 +95,11 @@ public class ImportProfileData extends ConsoleRunnable {
 	        }
 		    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
 		        ImportFusionData importer = new ImportFusionData(dataFile,
-					geneticProfile.getGeneticProfileId());
+					geneticProfile.getGeneticProfileId(), genePanel);
 		        importer.importData();
 	        } else {
 	            ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
-	                    geneticProfile.getGeneticProfileId());
+	                    geneticProfile.getGeneticProfileId(), genePanel);
 	            importer.importData(numLines);
 	        }
        }

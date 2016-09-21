@@ -160,7 +160,27 @@ if (cancerStudyViewError!=null) {
 </center>
 </div>
 <span id="ruler"></span>
-<jsp:include page="../global/xdebug.jsp" flush="true" />    
+<jsp:include page="../global/xdebug.jsp" flush="true" />
+
+
+<script type="text/javascript">
+    var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
+    var cancerStudyName = '<%=StringEscapeUtils.escapeJavaScript(cancerStudy.getName())%>';
+    var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
+    var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
+    var hasCnaSegmentData = <%=hasCnaSegmentData%>;
+    var hasMutSig = <%=hasMutSig%>;
+    var caseSetId = '<%=caseSetId%>';
+    var caseIds = <%=jsonCaseIds%>;
+    var cancer_study_id = cancerStudyId; //Some components using this as global ID
+    var appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    var hasMutation = <%=hasMutation%>;
+    var hasCNA = <%=hasCNA%>;
+    
+    $("#study-tabs").tabs({disabled: true});
+    $("#study-tabs-loading-wait").css('display', 'inline-block');
+    
+</script>
 
 <style type="text/css">
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
@@ -194,57 +214,43 @@ if (cancerStudyViewError!=null) {
         }
 </style>
 
-<script src="js/src/dashboard/iviz-vendor.js"></script>
-<script src="js/src/dashboard/cbio-vendor.js"></script>
-<script src="js/src/dashboard/vc-session.js"></script>
-<script src="js/src/dashboard/model/dataProxy.js"></script>
-<script src="js/api/cbioportal-client.js"></script>
+<script src="js/src/dashboard/iviz-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/cbio-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/vc-session.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/model/dataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/api/cbioportal-client.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<script src="js/lib/jquery.tipTip.minified.js"></script>
-<script src="js/lib/mailme.js"></script>
-<script src="js/lib/jquery-ui.min.js"></script>
-<script src="js/lib/FileSaver.min.js"></script>
-<script src="js/lib/bootstrap-dropdown-checkbox.js"></script>
-<script src="js/lib/ZeroClipboard.js"></script>
-<script src="js/lib/EnhancedFixedDatatable.js"></script>
-<script src="js/lib/MutatedGeneCNATable.js"></script>
+<script src="js/lib/jquery.tipTip.minified.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/mailme.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/jquery-ui.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/FileSaver.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/bootstrap-dropdown-checkbox.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/ZeroClipboard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/EnhancedFixedDatatable.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/MutatedGeneCNATable.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<link rel="stylesheet" href="css/bootstrap-dropdown-checkbox.css"/>
-<link rel="stylesheet" href="css/fixed-data-table.min.css"/>
-<link rel="stylesheet" href="css/study-view.css"/>
-<link rel="stylesheet" href="css/vc-session.css"/>
-<link rel="stylesheet" href="css/dashboard/iviz-vendor.css"/>
-<link rel="stylesheet" href="css/dashboard/iviz.css"/>
+<link rel="stylesheet" href="css/bootstrap-dropdown-checkbox.css?<%=GlobalProperties.getAppVersion()%>"/>
+<link rel="stylesheet" href="css/fixed-data-table.min.css?<%=GlobalProperties.getAppVersion()%>"/>
+<link rel="stylesheet" href="css/study-view.css?<%=GlobalProperties.getAppVersion()%>"/>
+<link rel="stylesheet" href="css/vc-session.css?<%=GlobalProperties.getAppVersion()%>"/>
+<link rel="stylesheet" href="css/dashboard/iviz-vendor.css?<%=GlobalProperties.getAppVersion()%>"/>
+<link rel="stylesheet" href="css/dashboard/iviz.css?<%=GlobalProperties.getAppVersion()%>"/>
 
-<script src="js/src/dashboard/model/StudyViewProxy.js"></script>
-<script src="js/src/dashboard/controller/StudyViewParams.js"></script>
-<script src="js/src/dashboard/controller/StudyViewClinicalTabController.js"></script>
-<script src="js/src/dashboard/controller/StudyViewMutationsTabController.js"></script>
-<script src="js/src/dashboard/controller/StudyViewCNATabController.js"></script>
-<script src="js/src/dashboard/view/StudyViewInitClinicalTab.js"></script>
-<script src="js/src/dashboard/view/StudyViewInitMutationsTab.js"></script>
-<script src="js/src/dashboard/view/StudyViewInitCNATab.js"></script>
-<script src="js/src/dashboard/iviz.js"></script>
+<script src="js/src/dashboard/model/StudyViewProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/controller/StudyViewParams.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/controller/StudyViewClinicalTabController.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/controller/StudyViewMutationsTabController.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/controller/StudyViewCNATabController.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/view/StudyViewInitClinicalTab.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/view/StudyViewInitMutationsTab.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/view/StudyViewInitCNATab.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/iviz.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
-var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
-var cancerStudyName = '<%=StringEscapeUtils.escapeJavaScript(cancerStudy.getName())%>';
-var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
-var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
-var hasCnaSegmentData = <%=hasCnaSegmentData%>;
-var hasMutSig = <%=hasMutSig%>;
-var caseSetId = '<%=caseSetId%>';
-var caseIds = <%=jsonCaseIds%>;
-var cancer_study_id = cancerStudyId; //Some components using this as global ID
-var appVersion = '<%=GlobalProperties.getAppVersion()%>';
-var hasMutation = <%=hasMutation%>;
-var hasCNA = <%=hasCNA%>;
-
-
-$("#study-tabs").tabs({disabled: true});
 
 $('#study-tab-summary-a').click(function () {
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
+        $("#study-tabs-loading-wait").css('display', 'none');
         if(_.isUndefined(window.iviz.datamanager)) {
             window.iviz.datamanager = new DataManagerForIviz.init(window.cbioURL, studyCasesMap);
             $.when(window.iviz.datamanager.initialSetup()).then(function(_data){

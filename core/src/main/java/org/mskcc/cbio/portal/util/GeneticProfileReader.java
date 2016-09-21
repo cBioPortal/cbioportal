@@ -190,4 +190,11 @@ public class GeneticProfileReader {
       geneticProfile.setOtherMetadataFields(properties);
       return geneticProfile;
    }
+   
+    public static String loadGenePanelInformation(File file) throws Exception {
+        Properties properties = new TrimmedProperties();
+        properties.load(new FileInputStream(file));
+                
+        return properties.getProperty("gene_panel");
+    }
 }

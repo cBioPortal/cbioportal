@@ -34,10 +34,10 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.cbioportal.persistence.GenePanelRepository;
+import org.cbioportal.model.GenePanel;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Genetic Profile Util Class.
@@ -86,5 +86,15 @@ public class GeneticProfileUtil {
             }
         }
         return false;
+    }
+    
+    public static void importGenePanelMatrix(int sampleId, String panelId, int profileId) {
+        GenePanelRepository genePanelRepository = SpringUtil.getGenePanelRepository();  
+        GenePanel genePanel = genePanelRepository.getGenePanelByStableId(panelId).get(0);
+        Map<String, Object> map = new HashMap<>();
+        map.put("sampleId", sampleId);
+        map.put("profileId", profileId);
+        map.put("panelId", genePanel.getInternalId());
+        genePanelRepository.insertGenePanelSampleProfileMap(map);
     }
 }

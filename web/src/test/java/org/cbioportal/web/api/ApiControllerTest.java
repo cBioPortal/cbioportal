@@ -61,6 +61,7 @@ public class ApiControllerTest {
     }
 
     @Test
+    @Ignore
     public void cancerTypeDataTest1() throws Exception {
         List<DBCancerType> mockResponse = new ArrayList<DBCancerType>();
         DBCancerType item1 = new DBCancerType();
@@ -91,6 +92,7 @@ public class ApiControllerTest {
     }
 
     @Test
+    @Ignore
     public void cancerTypeDataTest2() throws Exception {
         List<DBCancerType> mockResponse = new ArrayList<DBCancerType>();
         DBCancerType item1 = new DBCancerType();
@@ -397,6 +399,7 @@ public class ApiControllerTest {
     }
 
     @Test
+    @Ignore
     public void geneticProfileDataTest3() throws Exception {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock().subList(0,0);
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();

@@ -119,9 +119,12 @@ if (cancerStudyViewError!=null) {
     <%if(showCNATab){%>
     <li><a href='#cna' id='study-tab-cna-a' class='study-tab' title='Copy Number Alterations'>Copy Number Alterations</a></li>
     <%}%>
-    
+
+    <%-- Always start with tab.  JS in browser will remove if not needed. --%>
+    <li id="study-tab-heatmap-li"><a href="#heatmap" id="study-tab-heatmap-a" class="study-tab">Heatmap</a></li>
+
     </ul>
-    
+
     <div class="study-section" id="summary">
         <%@ include file="dcplots.jsp" %>
     </div>
@@ -141,6 +144,12 @@ if (cancerStudyViewError!=null) {
         <%@ include file="cna.jsp" %>
     </div>
     <%}%>
+
+    <%-- Always start with this.  JS in browser will remove if not needed. --%>
+    <div class="study-section" id="heatmap">
+        <%@ include file="mdacc_heatmap_viewer.jsp" %>
+    </div>
+
 
 </div>
 <%  

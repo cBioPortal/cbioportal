@@ -44,11 +44,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class GeneMyBatisRepository implements GeneRepository{
     @Autowired
-    GeneHugoMapper geneHugoMapper;
+    GeneMapper geneMapper;
     
     @Override
     public List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol){
-        return geneHugoMapper.getGeneListByHugoSymbols(hugo_gene_symbol);
+        return geneMapper.getGeneListByHugoSymbols(hugo_gene_symbol);
     }
    
 }

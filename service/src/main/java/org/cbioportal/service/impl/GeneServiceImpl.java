@@ -50,8 +50,7 @@ public class GeneServiceImpl implements GeneService{
     
     @Override
     public List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol){
-        if(hugo_gene_symbol == null || hugo_gene_symbol.size() == 0)
-        {
+        if(hugo_gene_symbol == null || hugo_gene_symbol.isEmpty()){
             return (new ArrayList<Gene>());
         }else{
             return geneRepository.getGeneListByHugoSymbols(hugo_gene_symbol);

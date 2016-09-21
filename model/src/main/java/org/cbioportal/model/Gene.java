@@ -56,11 +56,9 @@ public class Gene implements Serializable {
         if (cytoband == null) {
             return null;
         }
-        
         if (cytoband.toUpperCase().startsWith("X")) {
             return "X";
         }
-        
         if (cytoband.toUpperCase().startsWith("Y")) {
             return "Y";
         }

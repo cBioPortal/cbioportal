@@ -49,8 +49,8 @@ public class GeneController {
     @Autowired
     private GeneService geneService;
 
-    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/genes/fetchByHugoGeneSymbol")
-    public List<Gene> getGeneListByHugoSymbols(@RequestParam(required = true) List<String> hugo_gene_symbols){
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/genes/fetchbyhugo")
+    public List<Gene> getGeneListByHugoSymbols(@RequestParam(required = true) List<String> hugo_gene_symbols) {
         return geneService.getGeneListByHugoSymbols(hugo_gene_symbols);
     }
 }

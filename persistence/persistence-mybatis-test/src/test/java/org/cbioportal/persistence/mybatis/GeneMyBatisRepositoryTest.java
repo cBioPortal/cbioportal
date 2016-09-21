@@ -57,27 +57,21 @@ public class GeneMyBatisRepositoryTest {
     @Test
     public void getEmptyGeneList() {
                 List hugo_gene_symbol = new ArrayList<>();
-
 		List<Gene> result = geneMyBatisRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
-
 		Assert.assertEquals(0, result.size());
     }
     
     @Test
     public void getSingleGene() {
                 List hugo_gene_symbol = new ArrayList<>(Arrays.asList("AKT1"));
-
 		List<Gene> result = geneMyBatisRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
-
 		Assert.assertEquals(1, result.size());
     }
     
     @Test
     public void getGeneList() {
                 List hugo_gene_symbol = new ArrayList<>(Arrays.asList("AKT1", "AKT2", "AKT3"));
-                
 		List<Gene> result = geneMyBatisRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
-
 		Assert.assertEquals(3, result.size());
     }
 }

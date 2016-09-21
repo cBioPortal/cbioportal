@@ -20,7 +20,8 @@ public class ClinicalAttributeController {
 
     @RequestMapping(value = "/clinical-attributes", method = RequestMethod.GET)
     @ApiOperation("Get all clinical attributes")
-    public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributes(@RequestParam(defaultValue = "SUMMARY") Projection projection,
+    public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributes(@RequestParam(required = false) String studyId,
+                                                                            @RequestParam(defaultValue = "SUMMARY") Projection projection,
                                                                             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
                                                                             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber) {
 
@@ -33,5 +34,4 @@ public class ClinicalAttributeController {
 
         throw new UnsupportedOperationException();
     }
-
 }

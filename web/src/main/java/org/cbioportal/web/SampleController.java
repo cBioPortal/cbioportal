@@ -34,7 +34,7 @@ public class SampleController {
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}", method = RequestMethod.GET)
     @ApiOperation("Get a sample in a study")
     public ResponseEntity<SampleSummary> getSampleInStudy(@PathVariable String studyId,
-                                   @PathVariable String sampleId) {
+                                                          @PathVariable String sampleId) {
 
         throw new UnsupportedOperationException();
     }
@@ -42,7 +42,7 @@ public class SampleController {
     @RequestMapping(value = "/samples/fetch", method = RequestMethod.POST)
     @ApiOperation("Fetch samples by ID")
     public ResponseEntity<List<? extends SampleSummary>> fetchSamples(@RequestParam(defaultValue = "SUMMARY") Projection projection,
-                                     @RequestBody List<SampleIdentifier> sampleIdentifiers) {
+                                                                      @RequestBody List<SampleIdentifier> sampleIdentifiers) {
 
         throw new UnsupportedOperationException();
     }
@@ -50,9 +50,9 @@ public class SampleController {
     @RequestMapping(value = "/samples/query", method = RequestMethod.POST)
     @ApiOperation("Query samples by example")
     public ResponseEntity<List<? extends SampleSummary>> querySamplesByExample(@RequestParam(defaultValue = "SUMMARY") Projection projection,
-                                     @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-                                     @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-                                     @RequestBody Sample exampleSample) {
+                                                                               @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+                                                                               @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+                                                                               @RequestBody Sample exampleSample) {
 
         throw new UnsupportedOperationException();
     }

@@ -95,6 +95,11 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     public boolean sampleProfileMappingExistsByProfile(Integer profileId) {
         return genePanelMapper.sampleProfileMappingExistsByProfile(profileId) != 0;
     }
+    
+    @Override
+    public boolean sampleProfileMappingExistsByPanel(Integer panelId) { 
+        return genePanelMapper.sampleProfileMappingExistsByPanel(panelId) != 0;
+    }
 
     @Override
     public void insertGenePanel(Map<String, Object> map) {

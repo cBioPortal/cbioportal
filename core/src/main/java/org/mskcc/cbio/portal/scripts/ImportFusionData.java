@@ -118,10 +118,12 @@ public class ImportFusionData
 		        }
 				if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId))
 				{
-					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
                                                                                                             if (genePanel != null) {
-                                                                                                                GeneticProfileUtil.importGenePanelMatrix(sample.getInternalId(), genePanel, geneticProfileId);
-                                                                                                            }          
+                                                                                                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
+                                                                                                            }      
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)

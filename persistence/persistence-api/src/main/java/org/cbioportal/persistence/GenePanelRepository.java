@@ -53,6 +53,7 @@ public interface GenePanelRepository {
         Gene getGeneByHugoSymbol(String symbol);
         Gene getGeneByAlias(String symbol);
         boolean sampleProfileMappingExistsByProfile(Integer profileId);
+        boolean sampleProfileMappingExistsByPanel(Integer panelId);
         void insertGenePanel(Map<String, Object> map);
         void deleteGenePanel(Integer internalId);        
         void deleteGenePanelList(Integer internalId);    

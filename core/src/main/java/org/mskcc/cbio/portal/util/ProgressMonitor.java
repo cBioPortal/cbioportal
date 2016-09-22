@@ -246,6 +246,14 @@ public class ProgressMonitor {
         return ret;
     }
     
+    /**
+     * Reset the warnings list.
+     */
+    public static void resetWarnings() {
+    	progressMonitor.warnings.clear();
+    	progressMonitor.warningCounts.clear();
+    }
+    
     public static ArrayList<String> getMessages() {
     	ArrayList<String> ret = getWarnings();
     	ret.addAll(progressMonitor.debugMessages);

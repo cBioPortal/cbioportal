@@ -29,31 +29,36 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.weblegacy;
 
-import java.util.ArrayList;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.util.List;
 import org.cbioportal.model.Gene;
-import org.cbioportal.persistence.GeneRepository;
+import org.cbioportal.service.GeneService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author jiaojiao
  */
-@Repository
-public class GeneMyBatisRepository implements GeneRepository{
+@RestController
+public class GeneController {
     @Autowired
-    GeneMapper geneMapper;
-    
-    @Override
-    public List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol){
-        if(hugo_gene_symbol == null || hugo_gene_symbol.isEmpty()){
-            return (new ArrayList<Gene>());
-        }else{
-            return geneMapper.getGeneListByHugoSymbols(hugo_gene_symbol);
-        }
+    private GeneService geneService;
+
+    @ApiOperation(value = "Get all information about genes from hugo symbols including entrezGeneId, hugoGeneSymbol, cytoband, length and chromosome",
+            nickname = "getGeneListByHugoSymbols",
+            notes = "")
+    @Transactional
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/gene/fetch-by-hugo")
+    public List<Gene> getGeneListByHugoSymbols(@ApiParam(value = "a list of gene hugo symbols that you want to query on")
+            @RequestParam(required = true) List<String> hugo_gene_symbols) {
+        return geneService.getGeneListByHugoSymbols(hugo_gene_symbols);
     }
-   
 }

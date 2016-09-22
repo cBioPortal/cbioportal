@@ -13,8 +13,6 @@ import java.util.Map;
 public class CustomObjectMapper extends ObjectMapper {
 
     public CustomObjectMapper() {
-
-        super.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
         super.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
@@ -28,6 +26,5 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(Sample.class, SampleMixin.class);
         mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
         super.setMixInAnnotations(mixinMap);
-        super.configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true);
     }
 }

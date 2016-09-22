@@ -29,28 +29,49 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.weblegacy;
+package org.cbioportal.persistence.mybatis;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import org.cbioportal.model.Gene;
-import org.cbioportal.service.GeneService;
+import java.util.Set;
+import org.cbioportal.model.CNSegmentData;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  *
  * @author jiaojiao
  */
-@RestController
-public class GeneController {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/testContextDatabase.xml")
+@Configurable
+public class CNSegmentMyBatisRepositoryTest {
     @Autowired
-    private GeneService geneService;
+    private CNSegmentMyBatisRepository cnSegmentMyBatisRepository;
 
-    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/gene/fetch-by-hugo")
-    public List<Gene> getGeneListByHugoSymbols(@RequestParam(required = true) List<String> hugo_gene_symbols) {
-        return geneService.getGeneListByHugoSymbols(hugo_gene_symbols);
+    @Test
+    public void getSegmentData() {
+        String cancerStudyId = "study_tcga_pub";
+        Set chromosomes = new HashSet<>();
+        chromosomes.add("1");
+        chromosomes.add("2");
+        chromosomes.add("3");
+        List sampleIds = new ArrayList<>(Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01"));
+        List<CNSegmentData> result = cnSegmentMyBatisRepository.getCNSegmentData(cancerStudyId, chromosomes, sampleIds);
+        Assert.assertEquals(3, result.size());
+    }
+    
+    @Test
+    public void getEmptySegmentData() {
+        String cancerStudyId = "acc_tcga";
+        List<CNSegmentData> result = cnSegmentMyBatisRepository.getCNSegmentData(cancerStudyId, null, null);
+        Assert.assertEquals(0, result.size());
     }
 }

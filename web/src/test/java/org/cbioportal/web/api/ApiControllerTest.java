@@ -8,7 +8,6 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationEvent;
-import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleType;
@@ -18,6 +17,7 @@ import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -32,11 +32,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {ApiControllerConfig.class, CustomObjectMapper.class})

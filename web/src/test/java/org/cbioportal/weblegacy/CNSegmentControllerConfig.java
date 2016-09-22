@@ -29,31 +29,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.weblegacy;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.cbioportal.model.Gene;
-import org.cbioportal.persistence.GeneRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.cbioportal.web.config.CustomObjectMapper;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.cbioportal.service.CNSegmentService;
 
-/**
- *
- * @author jiaojiao
- */
-@Repository
-public class GeneMyBatisRepository implements GeneRepository{
-    @Autowired
-    GeneMapper geneMapper;
-    
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = {"org.cbioportal.weblegacy"}, resourcePattern = "**/*CNSegmentController.class")
+public class CNSegmentControllerConfig extends WebMvcConfigurerAdapter {
     @Override
-    public List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol){
-        if(hugo_gene_symbol == null || hugo_gene_symbol.isEmpty()){
-            return (new ArrayList<Gene>());
-        }else{
-            return geneMapper.getGeneListByHugoSymbols(hugo_gene_symbol);
-        }
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
+        converters.add(mappingJackson2HttpMessageConverter);
     }
-   
+    @Bean
+    public CNSegmentService cNSegmentService() {
+        return Mockito.mock(CNSegmentService.class);
+    }
 }

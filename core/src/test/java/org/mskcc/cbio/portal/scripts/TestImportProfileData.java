@@ -24,6 +24,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,7 +78,7 @@ public class TestImportProfileData {
 	public ExpectedException exception = ExpectedException.none();
 
 	@Test
-	public void testImportMutationsFile() throws Exception {
+	public void testImportMutationFiles() throws Exception {
         String[] args = {
                 "--data","src/test/resources/data_mutations_extended.txt",
                 "--meta","src/test/resources/meta_mutations_extended.txt",
@@ -89,10 +90,25 @@ public class TestImportProfileData {
         //dataset study id (e.g. studyStableId + "_breast_mutations"):
         String studyStableId = "study_tcga_pub";
 		studyId = DaoCancerStudy.getCancerStudyByStableId(studyStableId).getInternalId();
+        // the sample is added on the fly when encountered in the mutation data file
 		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
 
         geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations").getGeneticProfileId();
-        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");  
+        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");
+
+        // data for this sample should not exist before loading the next data file
+        assertNull(DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3665-01"));
+        // load a second mutation data file
+        String[] secondArgs = {
+                "--data","src/test/resources/data_mutations_extended_continued.txt",
+                "--meta","src/test/resources/meta_mutations_extended.txt",
+                "--loadMode", "bulkLoad"
+        };
+        ImportProfileData secondRunner = new ImportProfileData(secondArgs);
+        secondRunner.run();
+        // again, the sample is added on the fly
+        int secondSampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3665-01").getInternalId();
+        validateMutationAminoAcid (geneticProfileId, secondSampleId, 2842, "L113P");
     }
 
 	@Test

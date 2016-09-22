@@ -126,24 +126,21 @@ var OncoprintWebGLCellView = (function () {
 
 	(function initializeOverlayEvents(self) {
 	    var dragging = false;
-	    var drag_time_minimum = 100;
 	    var drag_diff_minimum = 10;
-	    var drag_is_valid = false;
-	    var drag_is_valid_timeout = null;
 	    var drag_start_x;
 	    var drag_end_x;
 	    var prev_overlapping_cell = null;
 	    
+	    var dragIsValid = function(drag_start_x, drag_end_x) {
+		return Math.abs(drag_start_x - drag_end_x) >= drag_diff_minimum;
+	    };
 	    var executeDrag = function() {
 		if (!dragging) {
 		    return;
 		}
 		dragging = false;
-		clearTimeout(drag_is_valid_timeout);
-		if (!drag_is_valid) {
-		    return;
-		}
-		if (Math.abs(drag_start_x - drag_end_x) < drag_diff_minimum) {
+		
+		if (!dragIsValid(drag_start_x, drag_end_x)) {
 		    return;
 		}
 		var left = Math.min(drag_start_x, drag_end_x);
@@ -190,16 +187,13 @@ var OncoprintWebGLCellView = (function () {
 		    drag_end_x = mouseX;
 		    var left = Math.min(mouseX, drag_start_x);
 		    var right = Math.max(mouseX, drag_start_x);
-		    overlayFillRect(self, left, 0, right-left, model.getCellViewHeight(), 'rgba(0,0,0,0.3)');
+		    var drag_rect_fill = dragIsValid(drag_start_x, drag_end_x) ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.2)';
+		    overlayFillRect(self, left, 0, right-left, model.getCellViewHeight(), drag_rect_fill);
 		}
 	    });
 	    
 	    self.$overlay_canvas.on("mousedown", function(evt) {
 		dragging = true;
-		drag_is_valid = false;
-		drag_is_valid_timeout = setTimeout(function() {
-		    drag_is_valid = true;
-		}, drag_time_minimum);
 		drag_start_x = evt.pageX - self.$overlay_canvas.offset().left;
 		drag_end_x = drag_start_x;
 		

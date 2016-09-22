@@ -86,4 +86,6 @@ nbactions.xml
 .externalToolBuilders/
 dependency-reduced-pom.xml
 /core/nbactions-private.xml
+.profile.d/
+Procfile
 scripts/target

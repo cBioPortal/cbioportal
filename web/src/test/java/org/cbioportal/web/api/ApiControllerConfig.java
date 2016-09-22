@@ -13,7 +13,6 @@ import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.EntityAttributeMapper;
 import org.mskcc.cbio.portal.persistence.EntityMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
-import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapper;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
@@ -27,6 +26,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 
 @Configuration
 @EnableWebMvc
@@ -79,8 +79,8 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         return Mockito.mock(GeneAliasMapper.class);
     }
     @Bean
-    public GeneMapper geneMapper() {
-        return Mockito.mock(GeneMapper.class);
+    public GeneMapperLegacy geneMapperLegacy() {
+        return Mockito.mock(GeneMapperLegacy.class);
     }
     @Bean
     public GeneticProfileMapper geneticProfileMapper() {

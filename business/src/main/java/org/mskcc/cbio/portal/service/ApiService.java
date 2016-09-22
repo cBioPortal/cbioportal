@@ -13,16 +13,32 @@ import org.cbioportal.model.MutationSignatureFactory;
 import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.service.MutationService;
-import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.DBAltCountInput;
+import org.mskcc.cbio.portal.model.DBCancerType;
+import org.mskcc.cbio.portal.model.DBClinicalField;
+import org.mskcc.cbio.portal.model.DBClinicalPatientData;
+import org.mskcc.cbio.portal.model.DBClinicalSampleData;
+import org.mskcc.cbio.portal.model.DBGene;
+import org.mskcc.cbio.portal.model.DBGeneAlias;
+import org.mskcc.cbio.portal.model.DBGeneticAltRow;
+import org.mskcc.cbio.portal.model.DBGeneticProfile;
+import org.mskcc.cbio.portal.model.DBMutationData;
+import org.mskcc.cbio.portal.model.DBPatient;
+import org.mskcc.cbio.portal.model.DBProfileData;
+import org.mskcc.cbio.portal.model.DBProfileDataCaseList;
+import org.mskcc.cbio.portal.model.DBSample;
+import org.mskcc.cbio.portal.model.DBSampleList;
+import org.mskcc.cbio.portal.model.DBSimpleProfileData;
+import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
-import org.mskcc.cbio.portal.persistence.GeneMapper;
+import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
-import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapper;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
+import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.SampleMapper;
 import org.mskcc.cbio.portal.persistence.StudyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +62,7 @@ public class ApiService {
 	@Autowired
 	private ClinicalFieldMapper clinicalFieldMapper;
 	@Autowired
-	private GeneMapper geneMapper;
+	private GeneMapperLegacy geneMapperLegacy;
 	@Autowired
 	private GeneAliasMapper geneAliasMapper;
 	@Autowired
@@ -293,12 +309,12 @@ public class ApiService {
     
 	@Transactional
 	public List<DBGene> getGenes() {
-		return geneMapper.getAllGenes();
+		return geneMapperLegacy.getAllGenes();
 	}
 
 	@Transactional
 	public List<DBGene> getGenes(List<String> hugo_gene_symbols) {
-		return geneMapper.getGenesByHugo(hugo_gene_symbols);
+		return geneMapperLegacy.getGenesByHugo(hugo_gene_symbols);
 	}
 
 	@Transactional

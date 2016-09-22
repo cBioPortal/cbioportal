@@ -61,33 +61,27 @@ import org.springframework.transaction.annotation.Transactional;
 public class TestImportCaisesClinicalXML {
     
     @Before
-    public void setUp() {
-        try {
-            
-            TypeOfCancer typeOfCancer = new TypeOfCancer();
-            typeOfCancer.setTypeOfCancerId("prad");
-            typeOfCancer.setName("prad");
-            typeOfCancer.setShortName("prad");
-            DaoTypeOfCancer.addTypeOfCancer(typeOfCancer);
-            
-            CancerStudy cancerStudy = new CancerStudy("prad","prad","prad","prad",true);
-            DaoCancerStudy.addCancerStudy(cancerStudy);
-            
-            int studyId = DaoCancerStudy.getCancerStudyByStableId("prad").getInternalId();
+    public void setUp() throws Exception {
+        TypeOfCancer typeOfCancer = new TypeOfCancer();
+        typeOfCancer.setTypeOfCancerId("prad");
+        typeOfCancer.setName("prad");
+        typeOfCancer.setShortName("prad");
+        DaoTypeOfCancer.addTypeOfCancer(typeOfCancer);
 
-            DaoPatient.addPatient(new Patient(cancerStudy, "97115001"));
-            DaoPatient.addPatient(new Patient(cancerStudy, "97115002"));
-            DaoPatient.addPatient(new Patient(cancerStudy, "97115003"));
+        CancerStudy cancerStudy = new CancerStudy("prad","prad","prad","prad",true);
+        DaoCancerStudy.addCancerStudy(cancerStudy);
+        
+        int studyId = DaoCancerStudy.getCancerStudyByStableId("prad").getInternalId();
 
-            int patient1 = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "97115001").getInternalId();
-            int patient2 = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "97115002").getInternalId();
+        DaoPatient.addPatient(new Patient(cancerStudy, "97115001"));
+        DaoPatient.addPatient(new Patient(cancerStudy, "97115002"));
+        DaoPatient.addPatient(new Patient(cancerStudy, "97115003"));
 
-            DaoSample.addSample(new Sample("SC_9022-Tumor", patient1, "prad"));
-            DaoSample.addSample(new Sample("SC_9023-Tumor", patient2, "prad"));
-             
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        int patient1 = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "97115001").getInternalId();
+        int patient2 = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "97115002").getInternalId();
+
+        DaoSample.addSample(new Sample("SC_9022-Tumor", patient1, "prad"));
+        DaoSample.addSample(new Sample("SC_9023-Tumor", patient2, "prad"));
     }
     
     // TODO add test methods here.
@@ -96,7 +90,10 @@ public class TestImportCaisesClinicalXML {
      @Test
      public void test() throws Exception {
         File xmlFile = new File("target/test-classes/data_clinical_caises.xml");
-        ImportCaisesClinicalXML.importData(xmlFile, 1);
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("prad");
+        ImportCaisesClinicalXML importCaisesClinicalXML = new ImportCaisesClinicalXML(null);
+        importCaisesClinicalXML.setFile(xmlFile, cancerStudy);
+        importCaisesClinicalXML.importData();
      }
      
 //     @Test

@@ -260,7 +260,7 @@ public class NormalizeExpressionLevels{
                       // Double.NaN indicates an invalid expression value
                       if(zscores[k] != Double.NaN){
                          // limit precision
-                         outputLine.add( String.format( "%.4f", zscores[k] ) );
+                         outputLine.add( String.format( Locale.US, "%.4f", zscores[k] ) ); 
                       }else{
                          outputLine.add( NOT_AVAILABLE );
                       }

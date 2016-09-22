@@ -6,3 +6,4 @@ show_profile_in_analysis_tab: true
 profile_description: Mutation data from whole exome sequencing.
 profile_name: Mutations
 data_filename: brca_tcga_pub.maf
+swissprot_identifier: name

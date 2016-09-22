@@ -34,7 +34,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%
-    String faqHtml = GlobalProperties.getProperty("faq");
+    String faqHtml = GlobalProperties.getFaq();
     String siteTitle = GlobalProperties.getTitle();
 
     if (faqHtml == null) {

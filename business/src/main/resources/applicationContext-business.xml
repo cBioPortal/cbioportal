@@ -22,6 +22,9 @@
             </property>
         </bean>
 
+        <!-- bean definition for global properties -->
+        <eban id="globalPropertiesBean" class="org.mskcc.cbio.portal.util.GlobalPropertiesBean" scope="singleton"/>
+
         <!-- scan for mappers and let them be autowired -->
         <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
             <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />

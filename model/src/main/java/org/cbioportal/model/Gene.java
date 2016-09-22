@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Gene implements Serializable {
 
@@ -48,5 +50,25 @@ public class Gene implements Serializable {
 
     public void setLength(Integer length) {
         this.length = length;
+    }
+    
+    public String getChromosome() {
+        if (cytoband == null) {
+            return null;
+        }
+        if (cytoband.toUpperCase().startsWith("X")) {
+            return "X";
+        }
+        if (cytoband.toUpperCase().startsWith("Y")) {
+            return "Y";
+        }
+        
+        Pattern p = Pattern.compile("([0-9]+).*");
+        Matcher m = p.matcher(cytoband);
+        if (m.find()) {
+            return m.group(1);
+        }
+        
+        return null;
     }
 }

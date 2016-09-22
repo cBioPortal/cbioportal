@@ -45,7 +45,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"org.cbioportal.weblegacy"})
+@ComponentScan(basePackages = {"org.cbioportal.weblegacy"}, resourcePattern = "**/*GeneController.class")
 public class GeneControllerConfig extends WebMvcConfigurerAdapter {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {

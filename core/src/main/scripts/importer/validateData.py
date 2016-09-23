@@ -1226,13 +1226,13 @@ class MutationsExtendedValidator(Validator):
 
     def checkSwissProt(self, value):
         """Validate the name or accession in the SWISSPROT column."""
-        if value is None or value.strip() == '':
+        if value is None or value.strip() in ['', '[Not Available]']:
             self.logger.warning(
                 'Missing value in SWISSPROT column; this column is '
                 'recommended to make sure that the Uniprot canonical isoform '
                 'is used when drawing Pfam domains in the mutations view',
                 extra={'line_number': self.line_number,
-                       'cause':'<blank>'})
+                       'cause':value})
             # no value to test, return without error
             return True
         if self.meta_dict.get('swissprot_identifier', 'name') == 'accession':
@@ -1250,6 +1250,17 @@ class MutationsExtendedValidator(Validator):
             if not re.match(
                         r'^[A-Z0-9]{2,5}_[A-Z0-9]{2,5}$',
                         value):
+                value_list = value.split(',')
+                if len(value_list) > 1:
+                    if re.match(
+                                r'^[A-Z0-9]{2,5}_[A-Z0-9]{2,5}$',
+                                value_list[0]):
+                                self.logger.warning('This SWISSPROT value contains multiple names,'
+                                                    ' thereby unable to obtain UNIPROT accession.'
+                                                    ' Attempting to use HUGO symbol to obtain Pfam domains.',
+                                                    extra={'line_number': self.line_number,
+                                                    'cause': value})
+                                return True
                 # return this as an error
                 self.extra = 'SWISSPROT value is not a UniprotKB/Swiss-Prot name'
                 self.extra_exists = True

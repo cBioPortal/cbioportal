@@ -83,7 +83,7 @@ public class ImportProfileData extends ConsoleRunnable {
 	                importer.setSwissprotIsAccession(true);
 	            } else if (
 	                    swissprotIdType != null &&
-	                    swissprotIdType != "name") {
+	                    !swissprotIdType.equals("name")) {
 	                throw new RuntimeException(
 	                        "Unrecognized swissprot_identifier " +
 	                        "specification, must be 'name' or 'accession'.");

@@ -1,6 +1,6 @@
 #Patient Identifier	Subtype	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
 #Patient identifier	Subtype description	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
-#STRING	STRING	STRING	NUMBER	STRING	NUMBER
+#STRING	DOUBLE	STRING	BOOLEAN	STRING	TEXT
 #1	1	1	1	1	1
 PATIENT_ID	SUBTYPE	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
 TEST-A2-A04P	basal-like	DECEASED	17.97	Recurred/Progressed	NA

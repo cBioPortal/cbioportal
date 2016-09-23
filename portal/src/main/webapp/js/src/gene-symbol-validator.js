@@ -70,10 +70,8 @@ var GeneSymbolValidator = (function($) {
 
 	var initialize = function() {
 
-		// Initialize rangy (to maintain caret position during inserts)
 		gene_list = document.getElementById('gene_list');
-		rangy.init();
-
+		initPolyfill();
 		// Compile templates
 		replaceListTemplate = Handlebars.compile($('#hb_replace_list').html());
 		replaceDropdownTemplate = Handlebars.compile($('#hb_replace_dropdown').html());
@@ -116,10 +114,9 @@ var GeneSymbolValidator = (function($) {
 	};
 
 	var getRawText = function() {
-		return rangy.innerText(gene_list);
-		//return $('#gene_list').text(); // alternative
+		return gene_list.innerText;
 	};
-
+		
 	// Get absolute position of element
 	var cumulativeOffset = function(element) {
 		var top = 0,
@@ -140,32 +137,23 @@ var GeneSymbolValidator = (function($) {
 
 	// Replace gene symbol
 	var replaceSymbol = function(symbol, replacement) {
-		var savedSel = rangy.getSelection().saveCharacterRanges(gene_list);
+		var restore = saveCaretPosition(gene_list);
 		var innerHTML = $('#gene_list').html();
 		var re = new RegExp('(^|[^A-Za-z0-9>])(' + symbol + ')([^A-Za-z0-9<]|$)', 'm');
 		$('#gene_list').html(innerHTML.replace(re, '$1' + replacement + '$3'));
-		
-		// remove empty lines
-		// if (replacement === ''){
-		// 	validateGenes();
-		// 	innerHTML = $('#gene_list').html();
-		// 	var re_blankline = new RegExp('^\s*[\r\n]', 'mg');
-		// 	$('#gene_list').html(innerHTML.replace(re_blankline, ''));
-		// }
-		
-		rangy.getSelection().restoreCharacterRanges(gene_list, savedSel);
+		restore();
 	};
 
 	// Replace all text in #gene_list
 	var replaceAll = function(newText) {
-		var savedSel = rangy.getSelection().saveCharacterRanges(gene_list);
+		var restore = saveCaretPosition(gene_list);
 		$('#gene_list').html(newText);
-		rangy.getSelection().restoreCharacterRanges(gene_list, savedSel);
+		restore();
 	};
 
 	// Newlining of gene symbols
 	var newlineSymbols = function() {
-		var savedSel = rangy.getSelection().saveCharacterRanges(gene_list);
+		var restore = saveCaretPosition(gene_list);
 		var re = new RegExp('(.*[ \t])(<span.*)', 'gm');
 		var count = 0;
 		var innerHTML = $('#gene_list').html();
@@ -177,8 +165,7 @@ var GeneSymbolValidator = (function($) {
 		$('#gene_list').html(innerHTML);
 		// savedsel[0].characterRange.start += count;
 		// savedsel[0].characterRange.end += count;
-		rangy.getSelection().restoreCharacterRanges(gene_list, savedSel);
-		rangy.getSelection().move('character', count);
+		restore();
 	};
 	
 	// Event handlers
@@ -219,8 +206,11 @@ var GeneSymbolValidator = (function($) {
 			var index = $this.attr('data-index');
 			clearTimeout(timer);
 			var offset = cumulativeOffset($this[0]);
-			$('.replace-div' + '[data-index="' + index + '"]').css(offset);
-			$('.replace-div' + '[data-index="' + index + '"]').show();
+			
+			var $replaceDiv = $('.replace-div[data-index="' + index + '"]');
+			offset.left -= $replaceDiv.width()/2;
+			$replaceDiv.css(offset);
+			$replaceDiv.show();
 		}
 
 		function hideReplaceDiv() {
@@ -261,7 +251,6 @@ var GeneSymbolValidator = (function($) {
 
 		var rawtext = getRawText();
 		rawtext = rawtext.toUpperCase();
-
 
 		if (rawtext.length === 0) {
 			$('#state_placeholder').html('');
@@ -435,7 +424,90 @@ var GeneSymbolValidator = (function($) {
 			$('#main_submit').removeAttr('disabled');
 		}
 	};
+	
+	
+	var initPolyfill = function() {
+		/* Copyright (c) 2016 Marie Markwell <me@marie.so>
+		Permission is hereby granted, free of charge, to any person obtaining a copy
+		of this software and associated documentation files (the "Software"), to deal
+		in the Software without restriction, including without limitation the rights
+		to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		copies of the Software, and to permit persons to whom the Software is
+		furnished to do so, subject to the following conditions:
+		The above copyright notice and this permission notice shall be included in all
+		copies or substantial portions of the Software.
+		https://github.com/duckinator/innerText-polyfill
+		*/
+		if ( (!('innerText' in document.createElement('a'))) && ('getSelection' in window) ) {
+			HTMLElement.prototype.__defineGetter__("innerText", function() {
+				var selection = window.getSelection(),
+					ranges    = [],
+					str;
 
+				// Save existing selections.
+				for (var i = 0; i < selection.rangeCount; i++) {
+					ranges[i] = selection.getRangeAt(i);
+				}
+
+				// Deselect everything.
+				selection.removeAllRanges();
+
+				// Select `el` and all child nodes.
+				// 'this' is the element .innerText got called on
+				selection.selectAllChildren(this);
+
+				// Get the string representation of the selected nodes.
+				str = selection.toString();
+
+				// Deselect everything. Again.
+				selection.removeAllRanges();
+
+				// Restore all formerly existing selections.
+				for (var i = 0; i < ranges.length; i++) {
+					selection.addRange(ranges[i]);
+				}
+				return str;
+			});
+			
+			HTMLElement.prototype.__defineSetter__("innerText", function(str) {
+				this.innerHTML = str.replace(/\n/g, "<br />");
+			});
+		}
+	};
+	
+	// Save and restore caret position
+	var saveCaretPosition = function(context) {
+	    var selection = window.getSelection();
+	    var range = selection.getRangeAt(0);
+	    range.setStart(  context, 0 );
+	    var len = range.toString().length;
+
+	    return function restore(){
+	        var pos = getTextNodeAtPosition(context, len);
+	        selection.removeAllRanges();
+	        var range = new Range();
+	        range.setStart(pos.node ,pos.position);
+	        selection.addRange(range);
+	    };
+		function getTextNodeAtPosition(root, index){
+			var lastNode = null;
+
+			var treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT,function next(elem) {
+				if(index > elem.textContent.length){
+					index -= elem.textContent.length;
+					lastNode = elem;
+					return NodeFilter.FILTER_REJECT;
+				}
+				return NodeFilter.FILTER_ACCEPT;
+			});
+			var c = treeWalker.nextNode();
+			return {
+				node: c? c: root,
+				position: c? index:  0
+			};
+		}
+	};
+	
 	return {
 		initialize: initialize,
 		validateGenes: validateGenes

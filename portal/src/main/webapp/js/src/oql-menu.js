@@ -44,11 +44,9 @@ var OqlMenu = (function($){
 	var inState = false;	// whether menu should be relaunched on space
 	
 	// Generates OQL menu based on model and inserts into page
-	var initialize = function(){
+	var initialize = function() {
 		gene_list = document.getElementById('gene_list');
-		rangy.init();
-		
-		generateList();
+		generateMenu();
 		$TA = $('#gene_list');
 		$ME = $('#oql-menu');
 		var fontSize = $('#gene_list').css('font-size');
@@ -69,34 +67,26 @@ var OqlMenu = (function($){
 		TAB: 9,
 		UP: 38
 	};
-	
+		
 	var insert = function(text) {
-		var sel = rangy.getSelection();
-		var range = sel.rangeCount ? sel.getRangeAt(0) : null;
-		if (range) {
-			var el = document.createElement("x");
-			el.appendChild(document.createTextNode(text));
-			range.insertNode(el);
-			range.setStartAfter(el);
-			rangy.getSelection().setSingleRange(range);
-		}
-		inState = true;
+	    var sel, range;
+	    if (window.getSelection) {
+	        sel = window.getSelection();
+	        if (sel.getRangeAt && sel.rangeCount) {
+	            range = sel.getRangeAt(0);
+				range.deleteContents();
+				var newNode = document.createTextNode(text);
+	            range.insertNode(newNode);
+				range.setStartAfter(newNode);
+				range.setEndAfter(newNode);
+				sel.removeAllRanges();
+				sel.addRange(range);
+	        }
+	    } else if (document.selection && document.selection.createRange) {
+		 	document.selection.createRange().text = text;
+	    }
 	};
-	
-	var caretIndex = function(text) {
-		// var sel, range;
-		if (window.getSelection){
-			sel = window.getSelection();
-			if (sel.getRangeAt && sel.rangeCount){
-				return sel.getRangeAt(0).startOffset;
-			} else {
-				return 0;
-			}
-		} else {
-			return 0;
-		}
-	};
-	
+		
 	var showMenu = function() {
 		var offset = $TA.caret('offset');
 		delete offset.height;
@@ -118,10 +108,12 @@ var OqlMenu = (function($){
 			    select: function(event, ui) {
 					if (ui.item.hasClass('oql-menu-close')){
 						removeMenu();
+						inState = false;
 					}
 				    else if (ui.item.attr('data-val') !== '') {
 					    removeMenu();
 					    insert(' ' + ui.item.attr('data-val'));
+						inState = true;
 						GeneSymbolValidator.validateGenes();
 					    showMenu();
 				    }
@@ -211,7 +203,7 @@ var OqlMenu = (function($){
 	};
 	
 	// OQL Menu Model
-	var generateList = function() {
+	var generateMenu = function() {
 		// 1st level of menu
 		var items = [
 			{val:'', name: 'CNA', desc:'Copy Number Alterations'},

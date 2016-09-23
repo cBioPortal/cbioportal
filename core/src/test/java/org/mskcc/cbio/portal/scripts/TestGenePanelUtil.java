@@ -26,8 +26,8 @@ public  class TestGenePanelUtil {
         try {
             con = JdbcUtil.getDbConnection(TestGenePanelUtil.class);
             pstmt = con.prepareStatement(
-                    "SELECT count(*) FROM gene_panel_profile_map " +
-                    "WHERE gene_panel_profile_map.PROFILE_ID = ? AND gene_panel_profile_map.PANEL_ID  = ?");
+                    "SELECT count(*) FROM sample_profile" +
+                    "WHERE sample_profile.GENETIC_PROFILE_ID = ? AND sample_profile.PANEL_ID  = ?");
             pstmt.setInt(1, geneticProfileId);
             pstmt.setString(2, genePanel);
             rs = pstmt.executeQuery();

@@ -54,6 +54,7 @@ public interface GenePanelMapper {
     Gene getGeneByHugoSymbol(@Param("symbol") String symbol);
     Gene getGeneByAlias(@Param("symbol") String symbol);
     Integer sampleProfileMappingExistsByProfile(@Param("profileId") Integer profileId);
+    Integer sampleProfileMappingExistsByPanel(@Param("panelId") Integer panelId);    
     void insertGenePanel(Map<String, Object> map);
     void deleteGenePanel(@Param("internalId") Integer internalId);
     void deleteGenePanelList(@Param("internalId") Integer internalId);

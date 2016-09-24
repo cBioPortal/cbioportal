@@ -51,7 +51,7 @@ public class GenePanelController {
 
     @Autowired
     private GenePanelService genePanelService;
-    
+
     @ApiOperation(value = "Get gene panel information",
             nickname = "getGenePanel",
             notes = "")
@@ -60,14 +60,14 @@ public class GenePanelController {
     public List<GenePanel> getGenePanel(@ApiParam(required = false, value = "gene panel id. If provided, the list of /"
             + "genes associated with the gene panel will be presented. Otherwise, only the stable id and description will /"
             + "be shown for all gene panels in the database.")
-            @RequestParam(required = false) String panelId) {
-        if (panelId != null) {
-            return genePanelService.getGenePanelByStableId(panelId);
+            @RequestParam(required = false) String panel_id) {
+        if (panel_id != null) {
+            return genePanelService.getGenePanelByStableId(panel_id);
         }
         else {
             return genePanelService.getGenePanels();
         }
-    }        
+    }
 
     @ApiOperation(value = "Get gene panel information for a sample profile pair",
             nickname = "getGenePanelData",
@@ -75,9 +75,9 @@ public class GenePanelController {
     @Transactional
     @RequestMapping(method = RequestMethod.GET, value = "/genepanel/data",  produces="application/json")
     public String getGenePanelData(@ApiParam(required = true, value = "sample id, such as those returned by /api/samples")
-            @RequestParam(required = true) String sampleId,
+            @RequestParam(required = true) String sample_id,
             @ApiParam(required = true, value = "genetic profile id, such as those returned by /api/geneticprofiles")
-            @RequestParam(required = true) String profileId) {
-        return genePanelService.getGenePanelBySampleIdAndProfileId(sampleId, profileId);
+            @RequestParam(required = true) String profile_id) {
+        return genePanelService.getGenePanelBySampleIdAndProfileId(sample_id, profile_id);
     }
 }

@@ -68,8 +68,8 @@ public class GenePanelControllerTest {
     private GenePanelService genePanelServiceMock;
     private MockMvc mockMvc;
     private GenePanel genePanel1;
-        private GenePanel genePanel2;
-    
+    private GenePanel genePanel2;
+
     @Before
     public void setup() {
         Mockito.reset(genePanelServiceMock);
@@ -78,29 +78,29 @@ public class GenePanelControllerTest {
         genePanel1.setStableId("GENEPANEL2");
         genePanel1.setDescription("2 genes tested");
         genePanel1.setInternalId(1);
-        
+
         genePanel2 = new GenePanel();
         genePanel2.setStableId("GENEPANEL3");
         genePanel2.setDescription("3 genes tested");
         genePanel2.setInternalId(2);
-        
+
         List<Gene> genes = new ArrayList<>();
-        Gene gene1 = new Gene(); 
+        Gene gene1 = new Gene();
         gene1.setEntrezGeneId(673);
         gene1.setHugoGeneSymbol("BRAF");
         gene1.setType("protein-coding");
-        gene1.setCytoband("7q34");    
+        gene1.setCytoband("7q34");
         gene1.setLength(4564);
         Gene gene2 = new Gene();
         gene2.setEntrezGeneId(1956);
         gene2.setHugoGeneSymbol("EGFR");
         gene2.setType("protein-coding");
-        gene2.setCytoband("7p12");    
+        gene2.setCytoband("7p12");
         gene2.setLength(12961);
         genes.add(gene1);
         genes.add(gene2);
-        
-        genePanel1.setGenes(genes);        
+
+        genePanel1.setGenes(genes);
     }
 
     @Test
@@ -111,15 +111,15 @@ public class GenePanelControllerTest {
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-        .param("panelId", "GENEPANEL2"))
+        .param("panel_id", "GENEPANEL2"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stable_id").value("GENEPANEL2"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value("2 genes tested"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.hasSize(2)));
     }
-    
+
     @Test
     public void genePanelBySampleIdAndProfileIdTest() throws Exception {
         String mockResponse = "GENEPANEL2";
@@ -127,12 +127,12 @@ public class GenePanelControllerTest {
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-        .param("sampleId", "SAMPLE1").param("profileId", "PROFILE1"))
+        .param("sample_id", "SAMPLE1").param("profile_id", "PROFILE1"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
         .andExpect(MockMvcResultMatchers.jsonPath("$").value("GENEPANEL2"));
-    }    
-    
+    }
+
     @Test
     public void genePanel() throws Exception {
         List<GenePanel> mockResponse = new ArrayList<>();
@@ -145,9 +145,9 @@ public class GenePanelControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stable_id").value("GENEPANEL2"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value("2 genes tested"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value("GENEPANEL3"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value("3 genes tested"));         
-    }    
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].stable_id").value("GENEPANEL3"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value("3 genes tested"));
+    }
 }

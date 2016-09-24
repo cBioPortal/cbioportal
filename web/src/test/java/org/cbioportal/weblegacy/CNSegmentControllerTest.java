@@ -29,6 +29,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
@@ -67,28 +68,32 @@ public class CNSegmentControllerTest {
         Mockito.reset(cnSegmentServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
-    
+
     @Test
     public void getCNSegmentTest() throws Exception {
         List<CNSegmentData> mockResponse = new ArrayList<>();
-        CNSegmentData cnSegmentData1 = new CNSegmentData(); 
+        CNSegmentData cnSegmentData1 = new CNSegmentData();
         cnSegmentData1.setStart(148350479);
         cnSegmentData1.setEnd(158385118);
         cnSegmentData1.setChr("7");
         cnSegmentData1.setNumProbes(4901);
         cnSegmentData1.setValue((float) 0.1315);
         cnSegmentData1.setSample("TCGA-AG-3732-01");
-        CNSegmentData cnSegmentData2 = new CNSegmentData(); 
+        CNSegmentData cnSegmentData2 = new CNSegmentData();
         cnSegmentData2.setStart(148347132);
         cnSegmentData2.setEnd(148348416);
         cnSegmentData2.setChr("7");
         cnSegmentData2.setNumProbes(3);
         cnSegmentData2.setValue((float) -1.5009);
         cnSegmentData2.setSample("TCGA-AG-3732-01");
-       
-      	mockResponse.add(cnSegmentData1);
+        mockResponse.add(cnSegmentData1);
         mockResponse.add(cnSegmentData2);
-        Mockito.when(cnSegmentServiceMock.getCNSegmentData(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(
+                cnSegmentServiceMock.getCNSegmentData(org.mockito.Matchers.anyString(),
+                                                        org.mockito.Matchers.anyListOf(String.class),
+                                                        org.mockito.Matchers.anyListOf(String.class)))
+                .thenReturn(mockResponse)
+                ;
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/copynumbersegments")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -102,15 +107,14 @@ public class CNSegmentControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].chr").value("7"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].start").value(148350479))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].end").value(158385118))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].numProbes").value(4901))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].num_probes").value(4901))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(0.1315))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample").value("TCGA-AG-3732-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].chr").value("7"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].start").value(148347132))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].end").value(148348416))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].numProbes").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].num_probes").value(3))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(-1.5009))
                 ;
     }
 }
-

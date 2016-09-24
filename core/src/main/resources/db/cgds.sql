@@ -2,8 +2,6 @@
 -- Database: `cgds`
 --
 
-drop table IF EXISTS gene_panel_list;
-drop table IF EXISTS gene_panel;
 drop table IF EXISTS clinical_event_data;
 drop table IF EXISTS clinical_event;
 drop table IF EXISTS pdb_uniprot_residue_mapping;
@@ -35,6 +33,8 @@ drop table if EXISTS mutation_count;
 drop table IF EXISTS mutation;
 drop table IF EXISTS mutation_event;
 drop table IF EXISTS sample_profile;
+drop table IF EXISTS gene_panel_list;
+drop table IF EXISTS gene_panel;
 drop table IF EXISTS genetic_profile_samples;
 drop table IF EXISTS genetic_alteration;
 drop table IF EXISTS genetic_profile;

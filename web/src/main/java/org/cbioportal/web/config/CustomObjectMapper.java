@@ -1,20 +1,18 @@
 package org.cbioportal.web.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import org.cbioportal.model.*;
-import org.cbioportal.web.mixin.*;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.cbioportal.model.*;
+import org.cbioportal.web.mixin.*;
 
 public class CustomObjectMapper extends ObjectMapper {
 
     public CustomObjectMapper() {
+        super.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
         super.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
         Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
         mixinMap.put(CancerStudy.class, CancerStudyMixin.class);
         mixinMap.put(Gene.class, GeneMixin.class);

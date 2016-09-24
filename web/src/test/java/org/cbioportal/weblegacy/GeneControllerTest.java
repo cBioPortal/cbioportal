@@ -67,23 +67,23 @@ public class GeneControllerTest {
         Mockito.reset(geneServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
-    
+
     @Test
     public void genesByHugoSymbolsDataTest() throws Exception {
         List<Gene> mockResponse = new ArrayList<>();
-        Gene gene1 = new Gene(); 
+        Gene gene1 = new Gene();
         gene1.setEntrezGeneId(673);
         gene1.setHugoGeneSymbol("BRAF");
         gene1.setType("protein-coding");
-        gene1.setCytoband("7q34");    
+        gene1.setCytoband("7q34");
         gene1.setLength(4564);
         Gene gene2 = new Gene();
         gene2.setEntrezGeneId(1956);
         gene2.setHugoGeneSymbol("EGFR");
         gene2.setType("protein-coding");
-        gene2.setCytoband("7p12");    
+        gene2.setCytoband("7p12");
         gene2.setLength(12961);
-      	mockResponse.add(gene1);
+        mockResponse.add(gene1);
         mockResponse.add(gene2);
         Mockito.when(geneServiceMock.getGeneListByHugoSymbols(org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
         this.mockMvc.perform(
@@ -93,17 +93,16 @@ public class GeneControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(673))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value("BRAF"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrez_gene_id").value(673))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugo_gene_symbol").value("BRAF"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].type").value("protein-coding"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value("7q34"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(4564))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(1956))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value("EGFR"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrez_gene_id").value(1956))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugo_gene_symbol").value("EGFR"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].type").value("protein-coding"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value("7p12"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value(12961))
                 ;
     }
-
 }

@@ -17,7 +17,7 @@
     },
     "MAVEN_CUSTOM_OPTS": {
         "description":"set heroku profile for mvn",
-        "value":"-Pheroku,public -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com"
+        "value":"-Pheroku,public -DskipTests -Dfinal.war.name=cbioportal -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Dtomcat.catalina.scope=runtime -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com"
     }
   },
   "buildpacks": [

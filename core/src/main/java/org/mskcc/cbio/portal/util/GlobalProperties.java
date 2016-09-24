@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
+import com.mysql.jdbc.StringUtils;
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
@@ -44,6 +45,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.net.URL;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 /**
@@ -125,6 +127,8 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
     public static final String ONCOKB_URL = "oncokb.url";
 
+    public static final String SESSION_SERVICE_URL = "session.service.url";
+
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
     public static final String DEFAULT_SKIN_RIGHT_LOGO = "images/mskcc_logo_3d_grey.jpg";
@@ -203,6 +207,10 @@ public class GlobalProperties {
     
     public static final String DB_VERSION = "db.version";
     
+    public static final String DARWIN_AUTH_URL = "darwin.auth_url";
+    public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
+    public static final String DARWIN_AUTHORITY = "darwin.authority";
+    public static final String CIS_USER = "cis.user";
     public static final String DISABLED_TABS = "disabled_tabs";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
@@ -650,7 +658,12 @@ public class GlobalProperties {
         }
         return null;
     }
-    
+   
+    public static String getSessionServiceUrl()
+    {
+        return properties.getProperty(SESSION_SERVICE_URL);
+    }
+ 
     public static String getOncoKBUrl()
     {
         String oncokbUrl = properties.getProperty(ONCOKB_URL);
@@ -725,6 +738,46 @@ public class GlobalProperties {
             return "0";
         }
         return version;
+    }
+    
+    public static String getDarwinAuthCheckUrl() {
+        String darwinAuthUrl = "";
+        try{
+            darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL).trim();            
+        }
+        catch (NullPointerException e){}
+        
+        return darwinAuthUrl;
+    }
+    
+    public static String getDarwinResponseUrl() {
+        String darwinResponseUrl = "";
+        try{
+            darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        return darwinResponseUrl;
+    }
+    
+    public static String getDarwinAuthority() { 
+        String darwinAuthority = "";
+        try{
+            darwinAuthority = properties.getProperty(DARWIN_AUTHORITY).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        return darwinAuthority;
+    }
+    
+    public static String getCisUser() {
+        String cisUser = "";
+        try{
+            cisUser = properties.getProperty(CIS_USER).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        return cisUser;         
     }
     
     public static List<String> getDisabledTabs() {

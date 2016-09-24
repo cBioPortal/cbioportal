@@ -57,8 +57,10 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.cbioportal.persistence.MutationRepository;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
@@ -68,7 +70,9 @@ import org.apache.log4j.Logger;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import java.io.*;
 import java.net.URL;
@@ -116,6 +120,16 @@ public class PatientView extends HttpServlet {
     
     // class which process access control to cancer studies
     private AccessControl accessControl;
+
+    @Autowired
+    private MutationRepository mutationRepository;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+                config.getServletContext());
+    }
 
     /**
      * Initializes the servlet.
@@ -192,7 +206,7 @@ public class PatientView extends HttpServlet {
             return false;
         }
 
-        return DaoMutation.hasAlleleFrequencyData(mutationProfile.getGeneticProfileId(), sampleId);
+        return mutationRepository.hasAlleleFrequencyData(mutationProfile.getGeneticProfileId(), sampleId);
     }
 
     private boolean validate(HttpServletRequest request) throws DaoException {

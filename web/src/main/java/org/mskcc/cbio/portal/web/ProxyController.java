@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.web;
 
 import org.json.simple.*;
 import org.springframework.http.*;
+import org.springframework.http.converter.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.stereotype.Controller;
@@ -41,8 +42,8 @@ import org.springframework.beans.factory.annotation.*;
 
 import java.net.*;
 import javax.servlet.http.*;
-import java.util.Arrays;
 import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/proxy")
@@ -51,6 +52,10 @@ public class ProxyController
   private String bitlyURL;
   @Value("${bitly.url}")
   public void setBitlyURL(String property) { this.bitlyURL = property; }
+
+  private String sessionServiceURL;
+  @Value("${session.service.url:''}") // default is empty string
+  public void setSessionServiceURL(String property) { this.sessionServiceURL = property; }
 
   private String pdbDatabaseURL;
   @Value("${pdb.database.url}")
@@ -84,6 +89,9 @@ public class ProxyController
         case "oncokbSummary":
             URL = oncokbURL + "summary.json";
             break;
+	case "cancerHotSpots":
+		URL = "http://cancerhotspots.org/api/hotspots/single/";
+		break;
       default:
         URL = "";
         break;
@@ -144,7 +152,6 @@ public class ProxyController
     return responseEntity.getBody();
   }
 
-
   private JSONObject requestParamsToJSON(HttpServletRequest req) {
     JSONObject jsonObj = new JSONObject();
     Map<String, String[]> params = req.getParameterMap();
@@ -165,6 +172,22 @@ public class ProxyController
 
     ResponseEntity<String> responseEntity =
       restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);
+
+    return responseEntity.getBody();
+  }
+
+  @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
+  public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
+                                                HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
+  {
+    RestTemplate restTemplate = new RestTemplate();
+    URI uri = new URI(sessionServiceURL + type);
+
+    // returns {"id":"5799648eef86c0e807a2e965"}
+    // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
+    // was String when default converter StringHttpMessageConverter was used
+    ResponseEntity<HashMap> responseEntity =
+      restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
 
     return responseEntity.getBody();
   }

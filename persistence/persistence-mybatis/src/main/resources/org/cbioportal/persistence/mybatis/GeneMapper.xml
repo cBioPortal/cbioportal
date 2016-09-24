@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.GeneMapper">
+    <cache/>
+
+    <select id="getGeneListByHugoSymbols" resultType="org.cbioportal.model.Gene">
+        select ENTREZ_GENE_ID as entrezGeneId,
+        HUGO_GENE_SYMBOL as hugoGeneSymbol,
+        TYPE as type,
+        CYTOBAND as cytoband,
+        LENGTH as length 
+        from gene where HUGO_GENE_SYMBOL in
+                <foreach item="item" collection="hugo_gene_symbol" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+    </select>
+    
+</mapper>

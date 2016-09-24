@@ -49,6 +49,7 @@ import java.util.*;
  */
 public class MySQLbulkLoader {
    private static boolean bulkLoad = false;
+   private static boolean relaxedMode = false;
    
    private static final Map<String,MySQLbulkLoader> mySQLbulkLoaders = new HashMap<String,MySQLbulkLoader>();
    /**
@@ -177,7 +178,7 @@ public class MySQLbulkLoader {
             tempFileWriter.write( "\t" );
             tempFileWriter.write( escapeValue(fieldValues[i]) );
          }
-         tempFileWriter.newLine();
+         tempFileWriter.write("\n");;
 
          if( rows++ < numDebuggingRowsToPrint ){
             StringBuffer sb = new StringBuffer( escapeValue(fieldValues[0]) );
@@ -230,13 +231,13 @@ public class MySQLbulkLoader {
          con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
          stmt = con.createStatement();
          
-         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + " INTO TABLE " + tableName;
+         String command = "LOAD DATA LOCAL INFILE '" + tempFileName.replace("\\", "\\\\") + "'" + " INTO TABLE " + tableName;
          stmt.execute( command );
          
          int updateCount = stmt.getUpdateCount();
          ProgressMonitor.setCurrentMessage(" --> records inserted into `"+tableName + "` table: " + updateCount);
          int nLines = FileUtil.getNumLines(tempFileHandle);
-         if (nLines!=updateCount) {
+         if (nLines!=updateCount && !relaxedMode) {
              String otherDetails = "";
         	 if (stmt.getWarnings() != null) {
         		 otherDetails = "More error/warning details: " + stmt.getWarnings().getMessage();
@@ -277,6 +278,14 @@ public class MySQLbulkLoader {
    
    public static void bulkLoadOff() {
       MySQLbulkLoader.bulkLoad = false;
+   }
+   
+   public static void relaxedModeOn() {
+       MySQLbulkLoader.relaxedMode = true;
+   }
+   
+      public static void relaxedModeOff() {
+       MySQLbulkLoader.relaxedMode = false;
    }
 
 }

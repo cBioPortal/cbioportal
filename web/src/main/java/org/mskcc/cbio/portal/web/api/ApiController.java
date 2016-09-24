@@ -5,6 +5,7 @@
  */
 package org.mskcc.cbio.portal.web.api;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.mskcc.cbio.portal.service.ApiService;
@@ -16,7 +17,6 @@ import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
-import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.model.DBSample;
 import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBStudy;
@@ -26,16 +26,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.Example;
-import io.swagger.annotations.ExampleProperty;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.mskcc.cbio.portal.model.DBAltCountInput;
+import org.cbioportal.model.CosmicCount;
+import org.cbioportal.model.MutationSignature;
 
 /**
  *
@@ -63,6 +60,28 @@ public class ApiController {
         }
     }
     
+     @ApiOperation(value = "Get mutation signatures for given samples/patients and genetic profile id.",
+            nickname = "getMutationSignatures",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/mutationsignatures", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<MutationSignature> getMutationSignatures(@RequestParam(required = true) String genetic_profile_id, @RequestParam(required = true) int context_size, @RequestParam(required = false) List<String> sample_ids) {
+	    if (sample_ids != null) {
+		    return service.getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size);
+	    } else {
+		    return service.getAllSampleMutationSignatures(genetic_profile_id, context_size);
+	    }
+    }
+                
+    
+    @ApiOperation(value = "Get COSMIC counts for given keywords.", nickname = "getCOSMICCounts", notes="")
+    @Transactional
+    @RequestMapping(value = "/cosmic_count", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<CosmicCount> getCosmicCounts(@ApiParam(required = true, value = "COSMIC event keywords, the keyword in a mutation object")
+							  @RequestParam(required = true)
+							  List<String> keywords) {
+	    return service.getCOSMICCountsByKeywords(keywords);
+    }
     
     @ApiOperation(value = "Get mutation count for certain gene. If per_study is true will return count for each study, if false will return the total count. User can specify specifc study set to look for.",
             nickname = "getMutationCount",
@@ -299,7 +318,7 @@ public class ApiController {
             notes = "")
     @Transactional
     @RequestMapping(value = "/geneticprofiledata", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBProfileData> getGeneticProfileData(
+    public @ResponseBody List<Serializable> getGeneticProfileData(
             @ApiParam(required = true, value = "List of genetic_profile_ids such as those returned by /api/geneticprofiles. (example: brca_tcga_pub_mutations). Unrecognized genetic profile ids are silently ignored. Profile data is only returned for matching ids.")
             @RequestParam(required = true)
             List<String> genetic_profile_ids,
@@ -312,13 +331,8 @@ public class ApiController {
             @ApiParam(required = false, value = "A single sample list ids such as those returned by /api/samplelists. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all. If sample_ids argument was provided, this argument will be ignored.")
             @RequestParam(required = false)
             String sample_list_id) {
-        if (sample_ids == null && sample_list_id == null) {
-            return service.getGeneticProfileData(genetic_profile_ids, genes);
-            } else if (sample_ids != null) {
-                    return service.getGeneticProfileDataBySample(genetic_profile_ids, genes, sample_ids);
-            } else {
-                    return service.getGeneticProfileDataBySampleList(genetic_profile_ids, genes, sample_list_id);
-            }
+
+        return service.getGeneticProfileData(genetic_profile_ids, genes, sample_ids, sample_list_id);
     }
     
     @ApiOperation(value = "Get list of samples ids with meta data by study, filtered by sample ids or patient ids",

@@ -34,6 +34,19 @@
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 <%@ page import="java.util.Map" %>
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
+
+<%
+    // we have session service running AND this was a post, 
+    // then modify URL to include session service id so bookmarking will work
+    if (useSessionServiceBookmark && "POST".equals(request.getMethod())) {
+%>
+    <script>
+        changeURLToSessionServiceURL(window.location.href, 
+            window.location.pageTitle, 
+            <%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>);
+   </script>
+<% } // end if isPost and we have session service running %>
 
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
@@ -191,35 +204,39 @@
             if (includeNetworks) {
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
-                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
+            if (showIGVtab){
+                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>CN Segments</a></li>");
             }
             if (showDownloadTab) {
                 out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
             }       
             if (showBookmarkTab) {
-                out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
+                out.print ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'");
+                if (useSessionServiceBookmark) {
+                    out.print (" data-session='");
+	                out.print (new ObjectMapper().writeValueAsString(request.getParameterMap()));
+	                out.print ("'");
+                } 
+	            out.println (">Bookmark</a></li>");
             }            
             out.println ("</ul>");
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
-            // diable bookmark link if case set is user-defined
-            if (sampleSetId.equals("-1"))
+            if (!useSessionServiceBookmark && sampleSetId.equals("-1"))
             {
                 out.println("<br>");
                 out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
-            }
-            else
+            } 
+            else 
             {
-                out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a id='bookmark-link' href='#'>" + request.getAttribute
-                        (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
-                out.println("<br><br>");
-                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                out.println("<BR><button type='button' id='bitly-generator'>Shorten URL</button>");
+                out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
+                out.println("<br>");
+                out.println("<div id='session-id'></div>");
+                out.println("<br>");
+                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
                 out.println("<div id='bitly'></div>");
             }
-
             out.println("</div>");
     %>
 
@@ -235,7 +252,7 @@
 
         <%@ include file="plots_tab.jsp" %>
 
-        <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
+        <% if (showIGVtab) { %>
             <%@ include file="igv.jsp" %>
         <% } %>
 
@@ -340,16 +357,15 @@
 
                 }
               }, 50);
-            } else {
-                if($(this).attr("href")=="#bookmark_email") {
-                    $("#bookmark-link").attr("href",window.location.href);
-                }
             }
         });
 
-
-        $("#bitly-generator").click(function() {
-             bitlyURL(window.location.href);
+        $("#bookmark-result-tab").parent().click(function() {
+            <% if (useSessionServiceBookmark) { %>
+                addSessionServiceBookmark(window.location.href, $(this).children("#bookmark-result-tab").data('session'));
+            <% } else { %>
+                addURLBookmark();
+            <% } %>
         });
 
         //qtips

@@ -113,6 +113,7 @@ if __name__ == '__main__':
                 print >> sys.stderr, Color.BOLD + "Overriding Warnings. Importing study now" + Color.END
                 print >> sys.stderr, "#" * 71 + "\n"
                 cbioportalImporter.main(args)
+                exitcode = 0
             else:
                 print >> sys.stderr, Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END
                 print >> sys.stderr, "#" * 71
@@ -128,3 +129,4 @@ if __name__ == '__main__':
         print >> sys.stderr, "!" * 71
         print >> sys.stderr, Color.RED + "Error occurred during data loading step. Please fix the problem and run this again to make sure study is completely loaded." + Color.END
         raise
+    sys.exit(exitcode)

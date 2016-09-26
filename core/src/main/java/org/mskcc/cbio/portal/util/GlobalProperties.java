@@ -32,7 +32,6 @@
 
 package org.mskcc.cbio.portal.util;
 
-import com.mysql.jdbc.StringUtils;
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
@@ -42,10 +41,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.util.*;
 import java.net.URL;
-import org.springframework.security.core.userdetails.UserDetails;
 
 
 /**
@@ -212,6 +209,8 @@ public class GlobalProperties {
     public static final String DARWIN_AUTHORITY = "darwin.authority";
     public static final String CIS_USER = "cis.user";
     public static final String DISABLED_TABS = "disabled_tabs";
+    
+    public static final String PRIORITY_STUDIES = "priority_studies";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -768,6 +767,25 @@ public class GlobalProperties {
         catch (NullPointerException e) {}
         
         return darwinAuthority;
+    }
+    
+    public static Map<String, Set<String>> getPriorityStudies() {
+	    Map<String, Set<String>> priorityStudiesObject = new HashMap<>();
+	    try {
+		    String priorityStudies = properties.getProperty(PRIORITY_STUDIES).trim();
+		    for (String priorityStudyCategory: priorityStudies.split(";")) {
+			    String[] elements = priorityStudyCategory.split("[#,]");
+			    String category = elements[0];
+			    Set<String> studies = new HashSet<>();
+			    for (int i=1; i<elements.length; i++) {
+				    studies.add(elements[i]);
+			    }
+			    if (studies.size() > 0) {
+				priorityStudiesObject.put(category, studies);
+			    }
+		    }
+	    } catch (NullPointerException e) {}
+	    return priorityStudiesObject;
     }
     
     public static String getCisUser() {

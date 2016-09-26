@@ -14,14 +14,31 @@ public class Sample extends SampleSummary {
         BLOOD_NORMAL("Blood Derived Normal"),
         SOLID_NORMAL("Solid Tissues Normal");
 
-        private String name;
+        private String value;
 
-        SampleType(String name) {
-            this.name = name;
+        SampleType(String value) {
+            this.value = value;
         }
 
-        public String getName() {
-            return name;
+        public String getValue() {
+            return value;
+        }
+
+        public static SampleType fromString(String value) {
+
+            if (value != null) {
+                for (SampleType sampleType : SampleType.values()) {
+                    if (value.equalsIgnoreCase(sampleType.value)) {
+                        return sampleType;
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return value;
         }
     }
 

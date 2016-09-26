@@ -15,7 +15,7 @@ import org.mskcc.cbio.portal.model.DBClinicalSampleData;
  *
  * @author abeshoua
  */
-public interface ClinicalDataMapper {
+public interface ClinicalDataMapperLegacy {
 	List<DBClinicalSampleData> getSampleClinicalDataByStudy(@Param("study_id") String study_id);
 	List<DBClinicalPatientData> getPatientClinicalDataByStudy(@Param("study_id") String study_id);
 	

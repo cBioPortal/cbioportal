@@ -17,6 +17,8 @@
 	
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dbcpDataSource" />
+		<property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+		<property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
     </bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">

@@ -1,28 +1,3 @@
--- A manually extracted subset of data for a small number of genes and samples from the BRCA
--- data set. This is intended to be used during unit testing, to validate the portal APIs.
--- In theory, it should be enough to run up a portal.
---
--- Prepared by Stuart Watt -- 13th May 2015
-
-DROP TABLE IF EXISTS "cosmic_mutation";
-DROP TABLE IF EXISTS "copy_number_seg";
-DROP TABLE IF EXISTS "mutation_count";
-DROP TABLE IF EXISTS "mutation";
-DROP TABLE IF EXISTS "mutation_event";
-DROP TABLE IF EXISTS "sample_profile";
-DROP TABLE IF EXISTS "gene_panel_list";
-DROP TABLE IF EXISTS "gene_panel";
-DROP TABLE IF EXISTS "genetic_profile_samples";
-DROP TABLE IF EXISTS "genetic_profile";
-DROP TABLE IF EXISTS "gene_alias";
-DROP TABLE IF EXISTS "gene";
-DROP TABLE IF EXISTS "sample_list_list";
-DROP TABLE IF EXISTS "sample_list";
-DROP TABLE IF EXISTS "sample";
-DROP TABLE IF EXISTS "patient";
-DROP TABLE IF EXISTS "cancer_study";
-DROP TABLE IF EXISTS "type_of_cancer";
-
 CREATE TABLE "type_of_cancer" (
   "TYPE_OF_CANCER_ID" VARCHAR(63) NOT NULL,
   "NAME" VARCHAR(255) NOT NULL,
@@ -270,10 +245,44 @@ CREATE TABLE `copy_number_seg` (
   FOREIGN KEY ("CANCER_STUDY_ID") REFERENCES "cancer_study" ("CANCER_STUDY_ID") ON DELETE CASCADE
 );
 
+CREATE TABLE `clinical_patient` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `ATTR_ID` varchar(255) NOT NULL,
+  `ATTR_VALUE` varchar(255) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`, `ATTR_ID`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+CREATE TABLE `clinical_sample` (
+  `INTERNAL_ID` int(11) NOT NULL,
+  `ATTR_ID` varchar(255) NOT NULL,
+  `ATTR_VALUE` varchar(255) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`,`ATTR_ID`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+CREATE TABLE `clinical_attribute_meta` (
+  `ATTR_ID` varchar(255) NOT NULL,
+  `DISPLAY_NAME` varchar(255) NOT NULL,
+  `DESCRIPTION` varchar(2048) NOT NULL,
+  `DATATYPE` varchar(255) NOT NULL,
+  `PATIENT_ATTRIBUTE` BOOLEAN NOT NULL,
+  `PRIORITY` varchar(255) NOT NULL,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY (`ATTR_ID`,`CANCER_STUDY_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT")
   VALUES ('brca','Breast Invasive Carcinoma','breast,breast invasive','HotPink','Breast','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT")
+  VALUES ('acc','Adrenocortical Carcinoma','adrenocortical carcinoma','Purple','ACC','adrenal_gland');
+
+
 INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS")
   VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC');
+INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS")
+  VALUES (2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','ACC (TCGA)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC');
 
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (207,'AKT1','protein-coding','14q32.32',10838);
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (208,'AKT2','protein-coding','19q13.1-q13.2',15035);
@@ -330,6 +339,9 @@ INSERT INTO "patient" ("INTERNAL_ID", "STABLE_ID", "CANCER_STUDY_ID") VALUES (11
 INSERT INTO "patient" ("INTERNAL_ID", "STABLE_ID", "CANCER_STUDY_ID") VALUES (12,'TCGA-A1-A0SO',1);
 INSERT INTO "patient" ("INTERNAL_ID", "STABLE_ID", "CANCER_STUDY_ID") VALUES (13,'TCGA-A1-A0SP',1);
 INSERT INTO "patient" ("INTERNAL_ID", "STABLE_ID", "CANCER_STUDY_ID") VALUES (14,'TCGA-A1-A0SQ',1);
+INSERT INTO "patient" ("INTERNAL_ID", "STABLE_ID", "CANCER_STUDY_ID") VALUES (15,'TCGA-A1-B0SO',2);
+INSERT INTO "patient" ("INTERNAL_ID", "STABLE_ID", "CANCER_STUDY_ID") VALUES (16,'TCGA-A1-B0SP',2);
+INSERT INTO "patient" ("INTERNAL_ID", "STABLE_ID", "CANCER_STUDY_ID") VALUES (17,'TCGA-A1-B0SQ',2);
 
 -- sample
 INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (1,'TCGA-A1-A0SB-01','Primary Solid Tumor',1,'brca');
@@ -346,6 +358,9 @@ INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE
 INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (12,'TCGA-A1-A0SO-01','Primary Solid Tumor',12,'brca');
 INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (13,'TCGA-A1-A0SP-01','Primary Solid Tumor',13,'brca');
 INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (14,'TCGA-A1-A0SQ-01','Primary Solid Tumor',14,'brca');
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (15,'TCGA-A1-B0SO-01','Primary Solid Tumor',15,'acc');
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (16,'TCGA-A1-B0SP-01','Primary Solid Tumor',16,'acc');
+INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID","TYPE_OF_CANCER_ID") VALUES (17,'TCGA-A1-B0SQ-01','Primary Solid Tumor',17,'acc');
 
 -- mutation_event
 INSERT INTO "mutation_event" ("MUTATION_EVENT_ID","ENTREZ_GENE_ID","CHR","START_POSITION","END_POSITION","REFERENCE_ALLELE","TUMOR_SEQ_ALLELE","PROTEIN_CHANGE","MUTATION_TYPE","FUNCTIONAL_IMPACT_SCORE","FIS_VALUE","LINK_XVAR","LINK_PDB","LINK_MSA","NCBI_BUILD","STRAND","VARIANT_TYPE","DB_SNP_RS","DB_SNP_VAL_STATUS","ONCOTATOR_DBSNP_RS","ONCOTATOR_REFSEQ_MRNA_ID","ONCOTATOR_CODON_CHANGE","ONCOTATOR_UNIPROT_ENTRY_NAME","ONCOTATOR_UNIPROT_ACCESSION","ONCOTATOR_PROTEIN_POS_START","ONCOTATOR_PROTEIN_POS_END","CANONICAL_TRANSCRIPT","KEYWORD") VALUES (2038,672,'17',41244748,41244748,'G','A','Q934*','Nonsense_Mutation','NA',0,'getma.org/?cm=var&var=hg19,17,41244748,G,A&fts=all','NA','NA','37','+','SNP','rs80357223','unknown','rs80357223','NM_007294','c.(2800-2802)CAG>TAG','BRCA1_HUMAN','P38398',934,934,1,'BRCA1 truncating');
@@ -519,3 +534,50 @@ INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,12);
 INSERT INTO "copy_number_seg" ("SEG_ID","CANCER_STUDY_ID","SAMPLE_ID","CHR","START","END","NUM_PROBES","SEGMENT_MEAN") VALUES (50236594, 1, 1, '1', 224556, 180057677, 291, 0.0519);
 INSERT INTO "copy_number_seg" ("SEG_ID","CANCER_STUDY_ID","SAMPLE_ID","CHR","START","END","NUM_PROBES","SEGMENT_MEAN") VALUES (50236593, 1, 2,	'2', 1402650, 190262486, 207, 0.0265);
 INSERT INTO "copy_number_seg" ("SEG_ID","CANCER_STUDY_ID","SAMPLE_ID","CHR","START","END","NUM_PROBES","SEGMENT_MEAN") VALUES (50236592, 1, 3,	'3', 1449872, 194238390, 341, 0.0347);
+
+INSERT INTO "clinical_patient" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (1, 'RETROSPECTIVE_COLLECTION', 'NO');
+INSERT INTO "clinical_patient" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (1, 'FORM_COMPLETION_DATE', '2013-12-5');
+INSERT INTO "clinical_patient" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (1, 'OTHER_PATIENT_ID', '286CF147-B7F7-4A05-8E41-7FBD3717AD71');
+INSERT INTO "clinical_patient" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (2, 'PROSPECTIVE_COLLECTION', 'YES');
+INSERT INTO "clinical_patient" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (15, 'DFS_MONTHS', '5.72');
+INSERT INTO "clinical_patient" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (15, 'DFS_STATUS', 'Recurred/Progressed');
+INSERT INTO "clinical_patient" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (15, 'OS_MONTHS', 'Recurred/Progressed');
+INSERT INTO "clinical_patient" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (15, 'OS_STATUS', 'LIVING');
+
+INSERT INTO "clinical_sample" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (1, 'OTHER_SAMPLE_ID', '5C631CE8-F96A-4C35-A459-556FC4AB21E1');
+INSERT INTO "clinical_sample" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (1, 'DAYS_TO_COLLECTION', '276');
+INSERT INTO "clinical_sample" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (1, 'IS_FFPE', 'NO');
+INSERT INTO "clinical_sample" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (2, 'OCT_EMBEDDED', 'false');
+INSERT INTO "clinical_sample" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (2, 'PATHOLOGY_REPORT_FILE_NAME', 'TCGA-GC-A3BM.F3408556-9259-4700-B9A0-F41E516B420C.pdf');
+INSERT INTO "clinical_sample" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (2, 'SAMPLE_TYPE', 'Primary Tumor');
+INSERT INTO "clinical_sample" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (15, 'OTHER_SAMPLE_ID', '91E7F41C-17B3-4724-96EF-D3C207B964E1');
+INSERT INTO "clinical_sample" ("INTERNAL_ID", "ATTR_ID", "ATTR_VALUE") VALUES (15, 'DAYS_TO_COLLECTION', '111');
+
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('RETROSPECTIVE_COLLECTION', 'Tissue Retrospective Collection Indicator', 'Text indicator for the time frame of tissue procurement, indicating that the tissue was obtained and stored prior to the initiation of the project.', 'STRING', 1, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('PROSPECTIVE_COLLECTION', 'Tissue Prospective Collection Indicator', 'Text indicator for the time frame of tissue procurement, indicating that the tissue was procured in parallel to the project.', 'STRING', 1, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('FORM_COMPLETION_DATE', 'Form completion date', 'Form completion date', 'STRING', 1, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OTHER_PATIENT_ID', 'Other Patient ID', 'Legacy DMP patient identifier (DMPnnnn)', 'STRING', 1, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('DFS_MONTHS', 'Disease Free (Months)', 'Disease free (months) since initial treatment.', 'NUMBER', 1, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('DFS_STATUS', 'Disease Free Status', 'Disease free status since initial treatment.', 'STRING', 1, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OS_MONTHS', 'Overall Survival (Months)', 'Overall survival in months since initial diagonosis.', 'NUMBER', 1, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OS_STATUS', 'Overall Survival Status', 'Overall patient survival status.', 'STRING', 1, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OTHER_SAMPLE_ID', 'Other Sample ID', 'Legacy DMP sample identifier (DMPnnnn)', 'STRING', 0, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('DAYS_TO_COLLECTION', 'Days to Sample Collection.', 'Days to sample collection.', 'STRING', 0, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('IS_FFPE', 'Is FFPE', 'If the sample is from FFPE', 'STRING', 0, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OCT_EMBEDDED', 'Oct embedded', 'Oct embedded', 'STRING', 0, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('PATHOLOGY_REPORT_FILE_NAME', 'Pathology Report File Name', 'Pathology Report File Name', 'STRING', 0, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('SAMPLE_TYPE', 'Sample Type', 'The type of sample (i.e., normal, primary, met, recurrence).', 'STRING', 0, '1', 1);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('RETROSPECTIVE_COLLECTION', 'Tissue Retrospective Collection Indicator', 'Text indicator for the time frame of tissue procurement, indicating that the tissue was obtained and stored prior to the initiation of the project.', 'STRING', 1, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('PROSPECTIVE_COLLECTION', 'Tissue Prospective Collection Indicator', 'Text indicator for the time frame of tissue procurement, indicating that the tissue was procured in parallel to the project.', 'STRING', 1, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('FORM_COMPLETION_DATE', 'Form completion date', 'Form completion date', 'STRING', 1, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OTHER_PATIENT_ID', 'Other Patient ID', 'Legacy DMP patient identifier (DMPnnnn)', 'STRING', 1, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('DFS_MONTHS', 'Disease Free (Months)', 'Disease free (months) since initial treatment.', 'NUMBER', 1, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('DFS_STATUS', 'Disease Free Status', 'Disease free status since initial treatment.', 'STRING', 1, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OS_MONTHS', 'Overall Survival (Months)', 'Overall survival in months since initial diagonosis.', 'NUMBER', 1, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OS_STATUS', 'Overall Survival Status', 'Overall patient survival status.', 'STRING', 1, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OTHER_SAMPLE_ID', 'Other Sample ID', 'Legacy DMP sample identifier (DMPnnnn)', 'STRING', 0, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('DAYS_TO_COLLECTION', 'Days to Sample Collection.', 'Days to sample collection.', 'STRING', 0, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('IS_FFPE', 'Is FFPE', 'If the sample is from FFPE', 'STRING', 0, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OCT_EMBEDDED', 'Oct embedded', 'Oct embedded', 'STRING', 0, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('PATHOLOGY_REPORT_FILE_NAME', 'Pathology Report File Name', 'Pathology Report File Name', 'STRING', 0, '1', 2);
+INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('SAMPLE_TYPE', 'Sample Type', 'The type of sample (i.e., normal, primary, met, recurrence).', 'STRING', 0, '1', 2);

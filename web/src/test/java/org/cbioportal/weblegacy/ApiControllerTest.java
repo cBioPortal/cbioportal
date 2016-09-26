@@ -1,4 +1,4 @@
-package org.cbioportal.web.api;
+package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
-import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
+import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -41,7 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ContextConfiguration(classes = {ApiControllerConfig.class, CustomObjectMapper.class})
 public class ApiControllerTest {
     @Autowired
-    private CancerTypeMapper cancerTypeMapperMock;
+    private CancerTypeMapperLegacy cancerTypeMapperLegacyMock;
     @Autowired
     private GeneticProfileMapper geneticProfileMapperMock;
     @Autowired
@@ -55,7 +55,7 @@ public class ApiControllerTest {
 
     @Before
     public void setup() {
-        Mockito.reset(cancerTypeMapperMock);
+        Mockito.reset(cancerTypeMapperLegacyMock);
         Mockito.reset(geneticProfileMapperMock);
         Mockito.reset(mutationServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -75,7 +75,7 @@ public class ApiControllerTest {
         item2.color = "Red";
         mockResponse.add(item1);
         mockResponse.add(item2);
-        Mockito.when(cancerTypeMapperMock.getAllCancerTypes()).thenReturn(mockResponse);
+        Mockito.when(cancerTypeMapperLegacyMock.getAllCancerTypes()).thenReturn(mockResponse);
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/cancertypes")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -109,7 +109,7 @@ public class ApiControllerTest {
         List<String> args = new ArrayList<String>(2);
         args.add("nmzl");
         args.add("tcca");
-        Mockito.when(cancerTypeMapperMock.getCancerTypes(org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(cancerTypeMapperLegacyMock.getCancerTypes(org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/cancertypes")
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))

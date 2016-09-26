@@ -72,6 +72,7 @@
         <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
             <property name="dataSource" ref="businessDataSource" />
             <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+            <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
         </bean>
 
     </beans>

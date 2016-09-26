@@ -29,7 +29,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.web.api;
+package org.cbioportal.weblegacy;
 
 import java.util.List;
 import org.cbioportal.persistence.mybatis.CosmicCountMapper;
@@ -38,18 +38,18 @@ import org.cbioportal.service.CosmicCountService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.mockito.Mockito;
-import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
-import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
+import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
+import org.mskcc.cbio.portal.persistence.ClinicalDataMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.EntityAttributeMapper;
 import org.mskcc.cbio.portal.persistence.EntityMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
-import org.mskcc.cbio.portal.persistence.PatientMapper;
+import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
-import org.mskcc.cbio.portal.persistence.SampleMapper;
-import org.mskcc.cbio.portal.persistence.StudyMapper;
+import org.mskcc.cbio.portal.persistence.SampleMapperLegacy;
+import org.mskcc.cbio.portal.persistence.StudyMapperLegacy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -86,12 +86,12 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         return Mockito.mock(MutationMapper.class);
     }
     @Bean
-    public CancerTypeMapper cancerTypeMapper() {
-        return Mockito.mock(CancerTypeMapper.class);
+    public CancerTypeMapperLegacy cancerTypeMapper() {
+        return Mockito.mock(CancerTypeMapperLegacy.class);
     }
     @Bean
-    public ClinicalDataMapper clinicalDataMapper() {
-        return Mockito.mock(ClinicalDataMapper.class);
+    public ClinicalDataMapperLegacy clinicalDataMapper() {
+        return Mockito.mock(ClinicalDataMapperLegacy.class);
     }
     @Bean
     public ClinicalFieldMapper clinicalFieldMapper() {
@@ -118,8 +118,8 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         return Mockito.mock(GeneticProfileMapper.class);
     }
     @Bean
-    public PatientMapper patientMapper() {
-        return Mockito.mock(PatientMapper.class);
+    public PatientMapperLegacy patientMapper() {
+        return Mockito.mock(PatientMapperLegacy.class);
     }
     @Bean
     public ProfileDataMapper profileDataMapper() {
@@ -130,11 +130,11 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         return Mockito.mock(SampleListMapper.class);
     }
     @Bean
-    public SampleMapper sampleMapper() {
-        return Mockito.mock(SampleMapper.class);
+    public SampleMapperLegacy sampleMapper() {
+        return Mockito.mock(SampleMapperLegacy.class);
     }
     @Bean
-    public StudyMapper studyMapper() {
-        return Mockito.mock(StudyMapper.class);
+    public StudyMapperLegacy studyMapper() {
+        return Mockito.mock(StudyMapperLegacy.class);
     }
 }

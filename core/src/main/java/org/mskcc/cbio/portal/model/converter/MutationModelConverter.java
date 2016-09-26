@@ -45,8 +45,8 @@ public class MutationModelConverter {
         if (mutationEvent.getEndPosition() != null) {
             event.setEndPosition(mutationEvent.getEndPosition());
         }
-        if (mutationEvent.getAminoAcidChange() != null) {
-            event.setProteinChange(mutationEvent.getAminoAcidChange());
+        if (mutationEvent.getProteinChange() != null) {
+            event.setProteinChange(mutationEvent.getProteinChange());
         }
         if (mutationEvent.getMutationType() != null) {
             event.setMutationType(mutationEvent.getMutationType());
@@ -57,14 +57,14 @@ public class MutationModelConverter {
         if (mutationEvent.getFisValue() != null) {
             event.setFisValue(mutationEvent.getFisValue());
         }
-        if (mutationEvent.getXvarLink() != null) {
-            event.setLinkXVar(mutationEvent.getXvarLink());
+        if (mutationEvent.getLinkXvar() != null) {
+            event.setLinkXVar(mutationEvent.getLinkXvar());
         }
-        if (mutationEvent.getXvarLinkPdb() != null) {
-            event.setLinkPdb(mutationEvent.getXvarLinkPdb());
+        if (mutationEvent.getLinkPdb() != null) {
+            event.setLinkPdb(mutationEvent.getLinkPdb());
         }
-        if (mutationEvent.getXvarLinkMsa() != null) {
-            event.setLinkMsa(mutationEvent.getXvarLinkMsa());
+        if (mutationEvent.getLinkMsa() != null) {
+            event.setLinkMsa(mutationEvent.getLinkMsa());
         }
         if (mutationEvent.getNcbiBuild() != null) {
             event.setNcbiBuild(mutationEvent.getNcbiBuild());
@@ -99,36 +99,36 @@ public class MutationModelConverter {
         if (mutationEvent.getOncotatorUniprotAccession() != null) {
             event.setOncotatorUniprotAccession(mutationEvent.getOncotatorUniprotAccession());
         }
-        if (mutationEvent.getProteinStartPosition() != null) {
-            event.setOncotatorProteinPosStart(mutationEvent.getProteinStartPosition());
+        if (mutationEvent.getOncotatorProteinPosStart() != null) {
+            event.setOncotatorProteinPosStart(mutationEvent.getOncotatorProteinPosStart());
         }
-        if (mutationEvent.getProteinEndPosition() != null) {
-            event.setOncotatorProteinPosEnd(mutationEvent.getProteinEndPosition());
+        if (mutationEvent.getOncotatorProteinPosEnd() != null) {
+            event.setOncotatorProteinPosEnd(mutationEvent.getOncotatorProteinPosEnd());
         }
         if (mutationEvent.getCanonicalTranscript() != null) {
             event.setCanonicalTranscript(mutationEvent.getCanonicalTranscript());
         }
-        if (mutationEvent.getVariantAllele() != null) {
-            event.setTumorSeqAllele(mutationEvent.getVariantAllele());
+        if (mutationEvent.getTumorSeqAllele() != null) {
+            event.setTumorSeqAllele(mutationEvent.getTumorSeqAllele());
         }
         if (mutationEvent.getKeyword() != null) {
             event.setKeyword(mutationEvent.getKeyword());
         }
-        if (mutationEvent.getGene() != null) {
-            CanonicalGene canonicalGene = new CanonicalGene(mutationEvent.getGene().getEntrezGeneId(),
-                    mutationEvent.getGene().getHugoGeneSymbol());
+        if (mutation.getGene() != null) {
+            CanonicalGene canonicalGene = new CanonicalGene(mutation.getGene().getEntrezGeneId(),
+                    mutation.getGene().getHugoGeneSymbol());
             event.setGene(canonicalGene);
         }
 
         ExtendedMutation extendedMutation = new ExtendedMutation(event);
         if (mutation.getGeneticProfileId() != null) {
-            extendedMutation.setGeneticProfileId(Integer.parseInt(mutation.getGeneticProfileId()));
+            extendedMutation.setGeneticProfileId(Integer.parseInt(mutation.getGeneticProfileId().toString()));
         }
         if (mutation.getSampleId() != null) {
-            extendedMutation.setSampleId(Integer.parseInt(mutation.getSampleId()));
+            extendedMutation.setSampleId(Integer.parseInt(mutation.getSampleId().toString()));
         }
-        if (mutation.getSequencingCenter() != null) {
-            extendedMutation.setSequencingCenter(mutation.getSequencingCenter());
+        if (mutation.getCenter() != null) {
+            extendedMutation.setSequencingCenter(mutation.getCenter());
         }
         if (mutation.getSequencer() != null) {
             extendedMutation.setSequencer(mutation.getSequencer());
@@ -184,17 +184,17 @@ public class MutationModelConverter {
         if (mutation.getBamFile() != null) {
             extendedMutation.setBamFile(mutation.getBamFile());
         }
-        if (mutation.getVariantReadCountTumor() != null) {
-            extendedMutation.setTumorAltCount(mutation.getVariantReadCountTumor());
+        if (mutation.getTumorAltCount() != null) {
+            extendedMutation.setTumorAltCount(mutation.getTumorAltCount());
         }
-        if (mutation.getReferenceReadCountTumor() != null) {
-            extendedMutation.setTumorRefCount(mutation.getReferenceReadCountTumor());
+        if (mutation.getTumorRefCount() != null) {
+            extendedMutation.setTumorRefCount(mutation.getTumorRefCount());
         }
-        if (mutation.getVariantReadCountNormal() != null) {
-            extendedMutation.setNormalAltCount(mutation.getVariantReadCountNormal());
+        if (mutation.getNormalAltCount() != null) {
+            extendedMutation.setNormalAltCount(mutation.getNormalAltCount());
         }
-        if (mutation.getReferenceReadCountNormal() != null) {
-            extendedMutation.setNormalRefCount(mutation.getReferenceReadCountNormal());
+        if (mutation.getNormalRefCount() != null) {
+            extendedMutation.setNormalRefCount(mutation.getNormalRefCount());
         }
 
         return extendedMutation;
@@ -204,7 +204,7 @@ public class MutationModelConverter {
 
         Map<String, String> map = new HashMap<>();
         for(Mutation mutation : mutationList) {
-            map.put(mutation.getSampleId() + mutation.getEntrezGeneId(), "");
+            map.put(mutation.getSampleId().toString() + mutation.getEntrezGeneId(), "");
         }
 
         return map;

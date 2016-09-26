@@ -1,12 +1,11 @@
 package org.cbioportal.web.mixin;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.cbioportal.model.Gene;
-
-import java.math.BigInteger;
 
 public class MutationEventMixin {
 
+    @JsonIgnore
     private Integer mutationEventId;
     private Integer entrezGeneId;
     private String chr;
@@ -35,7 +34,5 @@ public class MutationEventMixin {
     private Integer proteinEndPosition;
     private Boolean canonicalTranscript;
     private String keyword;
-
-    @JsonUnwrapped
     private Gene gene;
 }

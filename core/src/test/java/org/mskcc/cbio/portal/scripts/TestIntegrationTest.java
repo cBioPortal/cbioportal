@@ -53,13 +53,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.DBCancerType;
-import org.mskcc.cbio.portal.model.DBClinicalField;
-import org.mskcc.cbio.portal.model.DBSampleList;
-import org.mskcc.cbio.portal.model.DBSimpleProfileData;
-import org.mskcc.cbio.portal.model.Gistic;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -149,7 +143,7 @@ public class TestIntegrationTest {
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_gistic");
             List<String> hugoGeneSymbols = new ArrayList<String>(Arrays.asList("ACAP3","AGRN","ATAD3A","ATAD3B","ATAD3C","AURKAIP1","ERCC5"));
-            List<Serializable> cnaProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
+            List<DBProfileData> cnaProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
             //there is data for 7 genes x 778 samples:
             assertEquals(7*778, cnaProfileData.size());
             //there are 63 CNA entries that have value == 2 or value == -2;
@@ -191,7 +185,7 @@ public class TestIntegrationTest {
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_mrna");
             hugoGeneSymbols = new ArrayList<String>(Arrays.asList("CREB3L1","RPS11","PNMA1","MMP2","ZHX3","ERCC5"));
-            List<Serializable> expressionData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
+            List<DBProfileData> expressionData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
             //there is data for 6 genes x 526 samples:
             assertEquals(6*526, expressionData.size());
             //there are 50 entries with value between 2.0 and 3.0
@@ -239,7 +233,7 @@ public class TestIntegrationTest {
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_methylation_hm27");
             hugoGeneSymbols = new ArrayList<String>(Arrays.asList("ATP2A1","SLMAP","HOXD3","PANX1","IMPA2","RHOC","TAF15","CCDC88B"));
-            List<Serializable> methylationProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
+            List<DBProfileData> methylationProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
             //there is data for 8 genes x 311 samples:
             assertEquals(8*311, methylationProfileData.size());
             //simple check: there are 199 entries that have value between 0.5 and 0.6;

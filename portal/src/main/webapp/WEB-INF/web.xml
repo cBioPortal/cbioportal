@@ -154,6 +154,20 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>portal</servlet-name>
+        <url-pattern>/api-legacy/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>rest</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:applicationContext-rest.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>rest</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
 

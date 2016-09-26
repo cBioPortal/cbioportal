@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.cbioportal.model.CNSegmentData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.persistence.GeneRepository;
@@ -30,9 +33,31 @@ public class CNSegmentServiceImpl implements CNSegmentService {
         Set<String> chromosomes = new HashSet<>();
         List<Gene> genes = geneRepository.getGeneListByHugoSymbols(hugoGeneSymbols);
         for(Gene gene : genes){
-            chromosomes.add(gene.getChromosome());
+            chromosomes.add(getChromosome(gene));
         }
         return cnSegmentRepository.getCNSegmentData(cancerStudyId, chromosomes, sampleIds);
+    }
+
+    private String getChromosome(Gene gene) {
+
+        String cytoband = gene.getCytoband();
+        if (cytoband == null) {
+            return null;
+        }
+        if (cytoband.toUpperCase().startsWith("X")) {
+            return "X";
+        }
+        if (cytoband.toUpperCase().startsWith("Y")) {
+            return "Y";
+        }
+
+        Pattern p = Pattern.compile("([0-9]+).*");
+        Matcher m = p.matcher(cytoband);
+        if (m.find()) {
+            return m.group(1);
+        }
+
+        return null;
     }
 
 }

@@ -65,10 +65,12 @@
     <foreach item="item" collection="mutation_profile_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
-    and gene.HUGO_GENE_SYMBOL in
-    <foreach item="item" collection="genes" open="(" separator="," close=")">
-        #{item}
-    </foreach>
+    <if test="genes != null and !genes.isEmpty()">
+        and gene.HUGO_GENE_SYMBOL in
+        <foreach item="item" collection="genes" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </if>
 </select>
 <select id="getMutationDataBySample" resultType="DBMutationData">
     select

@@ -1,22 +1,19 @@
 package org.mskcc.cbio.portal.service;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.cbioportal.model.CosmicCount;
+
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationSignature;
 import org.cbioportal.model.MutationSignatureFactory;
 import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.persistence.dto.AltCount;
-import org.cbioportal.persistence.mybatis.MutationMapper;
 import org.cbioportal.service.MutationService;
+import org.mskcc.cbio.portal.model.DBAltCountInput;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
@@ -25,29 +22,31 @@ import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
-import org.mskcc.cbio.portal.model.DBAltCountInput;
+import org.mskcc.cbio.portal.model.DBMutationData;
 import org.mskcc.cbio.portal.model.DBPatient;
-import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.model.DBProfileDataCaseList;
 import org.mskcc.cbio.portal.model.DBSample;
+import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBSimpleProfileData;
 import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
+import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
-import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapper;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
+import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.SampleMapper;
 import org.mskcc.cbio.portal.persistence.StudyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.cbioportal.service.CosmicCountService;
-import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
+import org.cbioportal.model.MutationSignature;
+import org.cbioportal.model.CosmicCount;
 
 /**
  *
@@ -58,8 +57,6 @@ public class ApiService {
 
 	@Autowired
 	private CancerTypeMapper cancerTypeMapper;
-        @Autowired
-        private MutationMapper mutationMapper;
 	@Autowired
 	private ClinicalDataMapper clinicalDataMapper;
 	@Autowired
@@ -80,7 +77,6 @@ public class ApiService {
 	private SampleMapper sampleMapper;
 	@Autowired
 	private StudyMapper studyMapper;
-
 	@Autowired
 	private MutationService mutationService;
 	@Autowired
@@ -95,7 +91,8 @@ public class ApiService {
 	public List<DBCancerType> getCancerTypes(List<String> cancer_type_ids) {
 		return cancerTypeMapper.getCancerTypes(cancer_type_ids);
 	}
-	
+
+
 	@Transactional
 	public List<MutationSignature> getAllSampleMutationSignatures(String genetic_profile_id, int context_size_on_each_side_of_snp) {
 		// Get sample ids from patient ids
@@ -111,21 +108,21 @@ public class ApiService {
 		for (DBSample sample: samples) {
 			sample_ids.add(sample.id);
 		}
-		
+
 		return getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size_on_each_side_of_snp);
 	}
 
 	public List<CosmicCount> getCOSMICCountsByKeywords(List<String> keywords) {
 		return cosmicCountService.getCOSMICCountsByKeywords(keywords);
 	}
-	
+
 	public List<MutationSignature> getSampleMutationSignatures(String genetic_profile_id, List<String> sample_ids, int context_size_on_each_side_of_snp) {
 		List<String> genetic_profile_ids = new LinkedList<>();
 		genetic_profile_ids.add(genetic_profile_id);
 		List<Mutation> mutations = mutationService.getMutationsDetailed(genetic_profile_ids, new LinkedList<String>(), sample_ids, null);
 		HashMap<String, List<Mutation>> mutationsBySample = new HashMap<>();
 		for (Mutation mutation:  mutations) {
-			String id = mutation.getSampleId();
+			String id = mutation.getSampleId().toString();
 			if (!mutationsBySample.containsKey(id)) {
 				mutationsBySample.put(id, new LinkedList<Mutation>());
 			}
@@ -140,7 +137,7 @@ public class ApiService {
 		// TODO: implement other contexts
 		return signatures;
 	}
-	
+
         @Transactional
 	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> studyIds, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
 
@@ -396,33 +393,107 @@ public class ApiService {
     public List<Integer> getSampleInternalIds(String study_id) {
         return sampleMapper.getSampleInternalIdsByStudy(study_id);
     }
-    
-    @Transactional
-	public List<Serializable> getGeneticProfileData(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols,
-													List<String> sampleStableIds, String sampleListStableId) {
 
-		List<DBGeneticProfile> profiles = getGeneticProfiles(geneticProfileStableIds);
-		List<String> mutationProfiles = new ArrayList<>();
-		List<String> nonMutationProfiles = new ArrayList<>();
-		for (DBGeneticProfile profile : profiles) {
-			if ("MUTATION_EXTENDED".equals(profile.genetic_alteration_type)) {
-				mutationProfiles.add(profile.id);
+	@Transactional
+	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes) {
+		return getGeneticProfileData(genetic_profile_ids, genes, null, null);
+	}
+
+	@Transactional
+	public List<DBProfileData> getGeneticProfileDataBySampleList(List<String> genetic_profile_ids, List<String> genes, String sample_list_id) {
+		return getGeneticProfileData(genetic_profile_ids, genes, null, sample_list_id);
+	}
+
+	@Transactional
+	public List<DBProfileData> getGeneticProfileDataBySample(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids) {
+		return getGeneticProfileData(genetic_profile_ids, genes, sample_ids, null);
+	}
+
+	@Transactional
+	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids, String sample_list_id) {
+		List<DBGeneticProfile> profiles = getGeneticProfiles(genetic_profile_ids);
+		List<String> mutation_profiles = new ArrayList<>();
+		List<String> non_mutation_profiles = new ArrayList<>();
+		for (DBGeneticProfile p : profiles) {
+			if (p.genetic_alteration_type.equals("MUTATION_EXTENDED")) {
+				mutation_profiles.add(p.id);
 			} else {
-				nonMutationProfiles.add(profile.id);
+				non_mutation_profiles.add(p.id);
 			}
 		}
-
-		List<Serializable> result = new ArrayList<>();
-
-		if (!mutationProfiles.isEmpty()) {
-			result.addAll(addSampleListIdToMutationList(mutationService.getMutationsDetailed(mutationProfiles, hugoGeneSymbols, sampleStableIds, sampleListStableId), sampleListStableId));
+		List<DBProfileData> ret = new ArrayList<>();
+		if (!mutation_profiles.isEmpty()) {
+			List<DBMutationData> to_add;
+			if (sample_ids == null && sample_list_id == null) {
+				to_add = profileDataMapper.getMutationData(mutation_profiles, genes);
+			} else if (sample_list_id == null) {
+				to_add = profileDataMapper.getMutationDataBySample(mutation_profiles, genes, sample_ids);
+			} else {
+				to_add = profileDataMapper.getMutationDataBySampleList(mutation_profiles, genes, sample_list_id);
+			}
+			ret.addAll(to_add);
 		}
-		if (!nonMutationProfiles.isEmpty()) {
-			result.addAll(getNonMutationGeneticProfileData(nonMutationProfiles, hugoGeneSymbols, sampleStableIds,
-					sampleListStableId));
-		}
+		if (!non_mutation_profiles.isEmpty()) {
+			List<DBGeneticAltRow> genetic_alt_rows = profileDataMapper.getGeneticAlterationRow(non_mutation_profiles, genes);
+			List<DBProfileDataCaseList> ordered_sample_lists = profileDataMapper.getProfileCaseLists(non_mutation_profiles);
 
-		return result;
+			Set<String> desired_samples = new HashSet<>();
+			String queried_sample_list_id = null;
+			if (sample_list_id != null) {
+				List<String> sample_list_ids = new LinkedList<>();
+				sample_list_ids.add(sample_list_id);
+				List<DBSampleList> sample_lists = getSampleLists(sample_list_ids);
+				for (DBSampleList list: sample_lists) {
+					desired_samples.addAll(list.sample_ids);
+				}
+				queried_sample_list_id = sample_list_id;
+			}
+			if (sample_ids != null) {
+				for (String sample: sample_ids) {
+					desired_samples.add(sample);
+				}
+			}
+			Map<String, String> sample_order_map = new HashMap<>();
+			Map<String, String> stable_sample_id_map = new HashMap<>();
+			for (DBProfileDataCaseList sample_list : ordered_sample_lists) {
+				String[] list = sample_list.ordered_sample_list.split(",");
+				String key_prefix = sample_list.genetic_profile_id + "~";
+				for (int i = 0; i < list.length; i++) {
+					if (!list[i].equals("")) {
+						sample_order_map.put(key_prefix + i, list[i]);
+					}
+				}
+			}
+			List<String> internal_sample_ids = new ArrayList<>();
+			internal_sample_ids.addAll(sample_order_map.values());
+			List<DBSample> samples = sampleMapper.getSamplesByInternalId(internal_sample_ids);
+			for (DBSample sample: samples) {
+				stable_sample_id_map.put(sample.internal_id, sample.id);
+			}
+			for (DBGeneticAltRow row : genetic_alt_rows) {
+				String[] values = row.values.split(",");
+				String key_prefix = row.genetic_profile_id + "~";
+				for (int i = 0; i < values.length; i++) {
+					if (!values[i].equals("")) {
+						String sample_id = stable_sample_id_map.get(sample_order_map.get(key_prefix + i));
+						if (desired_samples.contains(sample_id) || desired_samples.isEmpty()) {
+							DBSimpleProfileData datum = new DBSimpleProfileData();
+							datum.sample_id = sample_id;
+							datum.genetic_profile_id = row.genetic_profile_id;
+							datum.study_id = row.study_id;
+							datum.hugo_gene_symbol = row.hugo_gene_symbol;
+							datum.entrez_gene_id = row.entrez_gene_id;
+							datum.profile_data = values[i];
+							if (queried_sample_list_id != null) {
+								datum.sample_list_id = queried_sample_list_id;
+							}
+							ret.add(datum);
+						}
+					}
+				}
+			}
+		}
+		return ret;
 	}
 
 	private List<MutationWithSampleListId> addSampleListIdToMutationList(List<Mutation> mutations, String sampleListId) {

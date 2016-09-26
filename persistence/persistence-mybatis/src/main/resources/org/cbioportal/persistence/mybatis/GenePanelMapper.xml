@@ -106,10 +106,10 @@
     <select id="getGenePanelBySampleIdAndProfileId" resultType="String">
         select
             gene_panel.STABLE_ID as stableId
-        from gene_panel_profile_map
-            inner join gene_panel on gene_panel_profile_map.PANEL_ID = gene_panel.INTERNAL_ID
-            inner join sample on gene_panel_profile_map.SAMPLE_ID = sample.INTERNAL_ID
-            inner join genetic_profile on gene_panel_profile_map.PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        from sample_profile
+            inner join gene_panel on sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
+            inner join sample on sample_profile.SAMPLE_ID = sample.INTERNAL_ID
+            inner join genetic_profile on sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         <where>
             sample.STABLE_ID = #{sampleId}
             and genetic_profile.STABLE_ID = #{profileId}
@@ -255,10 +255,20 @@
     <select id="sampleProfileMappingExistsByProfile" resultType="int">
         select
             count(*)
-        from gene_panel_profile_map
+        from sample_profile
         where
-            gene_panel_profile_map.PROFILE_ID = #{profileId}
+            sample_profile.GENETIC_PROFILE_ID = #{profileId}
+            and
+            sample_profile.PANEL_ID IS NOT NULL
     </select>
+    
+    <select id="sampleProfileMappingExistsByPanel" resultType="int">
+        select
+            count(*)
+        from sample_profile
+        where
+            sample_profile.PANEL_ID = #{panelId}
+    </select>    
 
     <insert id="insertGenePanel" parameterType="map" useGeneratedKeys="true" keyProperty="internal_id" keyColumn="internal_id">
         insert into gene_panel (STABLE_ID, DESCRIPTION)
@@ -274,11 +284,11 @@
     </delete>
 
     <delete id="deleteSampleProfileMappingByProfile">
-        delete from gene_panel_profile_map  where PROFILE_ID = #{profileId}
+        delete from sample_profile  where GENETIC_PROFILE_ID = #{profileId} and PANEL_ID is not null
     </delete>
 
     <delete id="deleteSampleProfileMappingByPanel">
-        delete from gene_panel_profile_map  where PANEL_ID = #{panelId}
+        delete from sample_profile  where PANEL_ID = #{panelId} and PANEL_ID is not null
     </delete>
 
     <insert id="insertGenePanelList" parameterType="map" useGeneratedKeys="false">
@@ -296,7 +306,6 @@
     </insert>
 
     <insert id="insertGenePanelSampleProfileMap" parameterType="map" useGeneratedKeys="false">
-        insert into gene_panel_profile_map (SAMPLE_ID, PROFILE_ID, PANEL_ID)
-            values(#{sampleId}, #{profileId}, #{panelId})
+        update sample_profile set PANEL_ID = #{panelId} where SAMPLE_ID = #{sampleId} and GENETIC_PROFILE_ID = #{profileId}
     </insert>
 </mapper>

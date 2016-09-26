@@ -88,13 +88,9 @@ public class GeneticProfileUtil {
         return false;
     }
     
-    public static void importGenePanelMatrix(int sampleId, String panelId, int profileId) {
+    public static int getGenePanelId(String panelId) {
         GenePanelRepository genePanelRepository = SpringUtil.getGenePanelRepository();  
         GenePanel genePanel = genePanelRepository.getGenePanelByStableId(panelId).get(0);
-        Map<String, Object> map = new HashMap<>();
-        map.put("sampleId", sampleId);
-        map.put("profileId", profileId);
-        map.put("panelId", genePanel.getInternalId());
-        genePanelRepository.insertGenePanelSampleProfileMap(map);
+        return genePanel.getInternalId();
     }
 }

@@ -100,23 +100,31 @@ public class ImportGenePanel extends ConsoleRunnable {
         Set<Integer> genes = getGenes("gene_list", properties, genePanelRepository);        
         
         GenePanel genePanel = genePanelRepository.getGenePanelByStableId(stableId).get(0);
+        boolean panelUsed = false;
         if (genePanel != null) {
-            genePanelRepository.deleteSampleProfileMappingByPanel(genePanel.getInternalId());
-            genePanelRepository.deleteGenePanelList(genePanel.getInternalId());
-            genePanelRepository.deleteGenePanel(genePanel.getInternalId());
+            if (genePanelRepository.sampleProfileMappingExistsByPanel(genePanel.getInternalId())) {
+                ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in databasel and is being used! Cannot import the gene panel!");
+                panelUsed = true;
+            }
+            else {
+                ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in the database but is not being used. Overwriting old gene panel data.");
+            }
         }
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("stableId", stableId);
-        map.put("description", description);
-        genePanelRepository.insertGenePanel(map);
-        genePanel = genePanelRepository.getGenePanelByStableId(stableId).get(0);
         
-        if (genes.size() > 0) {
-            map = new HashMap<String, Object>();
-            map.put("panelId", genePanel.getInternalId());
-            map.put("genes", genes);
-            genePanelRepository.insertGenePanelList(map);
-        }    
+        if(!panelUsed) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("stableId", stableId);
+            map.put("description", description);
+            genePanelRepository.insertGenePanel(map);
+            genePanel = genePanelRepository.getGenePanelByStableId(stableId).get(0);
+
+            if (genes.size() > 0) {
+                map = new HashMap<String, Object>();
+                map.put("panelId", genePanel.getInternalId());
+                map.put("genes", genes);
+                genePanelRepository.insertGenePanelList(map);
+            }                
+        }
     }
     
     private static String getPropertyValue(String propertyName, Properties properties, boolean noSpaceAllowed) throws IllegalArgumentException {
@@ -163,7 +171,6 @@ public class ImportGenePanel extends ConsoleRunnable {
                     geneIds.add(gene.getEntrezGeneId());
                 }
             }
-            
         }
         
         return geneIds;

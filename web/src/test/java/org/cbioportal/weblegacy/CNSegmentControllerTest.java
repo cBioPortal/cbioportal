@@ -107,13 +107,13 @@ public class CNSegmentControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].chr").value("7"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].start").value(148350479))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].end").value(158385118))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].num_probes").value(4901))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].numProbes").value(4901))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(0.1315))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample").value("TCGA-AG-3732-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].chr").value("7"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].start").value(148347132))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].end").value(148348416))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].num_probes").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].numProbes").value(3))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(-1.5009))
                 ;
     }

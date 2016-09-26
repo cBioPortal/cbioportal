@@ -115,7 +115,7 @@ public class GenePanelControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stable_id").value("GENEPANEL2"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value("2 genes tested"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.hasSize(2)));
     }
@@ -145,9 +145,9 @@ public class GenePanelControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stable_id").value("GENEPANEL2"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value("2 genes tested"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].stable_id").value("GENEPANEL3"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value("GENEPANEL3"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value("3 genes tested"));
     }
 }

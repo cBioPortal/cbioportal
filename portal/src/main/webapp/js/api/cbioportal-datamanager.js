@@ -233,7 +233,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	var counts = {};
 	$.ajax({
 	    type: 'POST',
-	    url: 'api/cosmic_count',
+	    url: 'api-legacy/cosmic_count',
 	    data: 'keywords='+keywords.join(",")
 	}).then(function(cosmic_count_records) {
 	    for (var i=0; i<cosmic_count_records.length; i++) {
@@ -285,7 +285,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	$.ajax({
 	    type: "POST",
-	    url: "api/proxy/oncokb",
+	    url: "api-legacy/proxy/oncokb",
 	    contentType: "application/json",
 	    data: JSON.stringify(query)
 	}).then(function(response) {
@@ -404,7 +404,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	var attribute_name = 'cancer_hotspots_hotspot';
 	$.ajax({
 	    type: 'GET',
-	    url: 'api/proxy/cancerHotSpots',
+	    url: 'api-legacy/proxy/cancerHotSpots',
 	}).then(function(response) {
 	    response = JSON.parse(response);
 	    // Gather hotspot codons into sorted order for querying
@@ -769,7 +769,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			var _def = new $.Deferred();
 			$.ajax({
 			    type: 'POST',
-			    url: 'api/mutationsignatures',
+			    url: 'api-legacy/mutationsignatures',
 			    data: ['genetic_profile_id=', mutation_profile.id, '&', 'context_size=0', '&', 'sample_ids=', self.getSampleIds().join(",")].join(""),
 			    dataType: 'json'
 			}).then(function(response) {

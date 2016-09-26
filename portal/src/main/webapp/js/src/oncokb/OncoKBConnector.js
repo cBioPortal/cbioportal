@@ -579,7 +579,7 @@ var OncoKB = (function(_, $) {
         function access() {
             var deferred = $.Deferred();
             if (self.url) {
-                $.get('api/proxy/oncokbAccess', function() {
+                $.get('api-legacy/proxy/oncokbAccess', function() {
                     OncoKB.accessible = true;
                     deferred.resolve();
                 })
@@ -878,7 +878,7 @@ OncoKB.Instance.prototype = {
 
         $.ajax({
             type: 'POST',
-            url: 'api/proxy/oncokb',
+            url: 'api-legacy/proxy/oncokb',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(oncokbServiceData)
@@ -964,7 +964,7 @@ OncoKB.Instance.prototype = {
         } else {
             $.ajax({
                 type: 'POST',
-                url: 'api/proxy/oncokbEvidence',
+                url: 'api-legacy/proxy/oncokbEvidence',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify(oncokbServiceData)
@@ -1027,7 +1027,7 @@ OncoKB.Instance.prototype = {
         } else {
             $.ajax({
                 type: 'POST',
-                url: 'api/proxy/oncokbSummary',
+                url: 'api-legacy/proxy/oncokbSummary',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify(oncokbSummaryData)

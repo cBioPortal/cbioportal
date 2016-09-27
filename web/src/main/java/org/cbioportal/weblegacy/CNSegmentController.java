@@ -29,8 +29,8 @@ public class CNSegmentController {
     @Transactional
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/copynumbersegments")
     public List<CNSegmentData> getCNSegment(@ApiParam(value = "Return segment data related to the study with this cancer study id eg. acc_tcga") @RequestParam(required = true) String cancerStudyId, 
-        @ApiParam(value = "Return segment data in the chromosomes where the genes are located on. If ommitted, return segment data on all chromosomes")  @RequestParam(required = false) List<String> hugoSymbols,
+        @ApiParam(value = "Return segment data in these chromosomes. If ommitted, return segment data on all chromosomes")  @RequestParam(required = false) List<String> chromosomes,
         @ApiParam(value = "Return the segment data with this list of sampleIds. If omitted, return segment data on all samples")  @RequestParam(required = false) List<String> sampleIds) {
-        return cnSegmentService.getCNSegmentData(cancerStudyId, hugoSymbols, sampleIds);
+        return cnSegmentService.getCNSegmentData(cancerStudyId, chromosomes, sampleIds);
     }
 }

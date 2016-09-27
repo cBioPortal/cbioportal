@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.cbioportal.model.CNSegmentData;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,10 +58,7 @@ public class CNSegmentMyBatisRepositoryTest {
     @Test
     public void getSegmentData() {
         String cancerStudyId = "study_tcga_pub";
-        Set chromosomes = new HashSet<>();
-        chromosomes.add("1");
-        chromosomes.add("2");
-        chromosomes.add("3");
+        List chromosomes = new ArrayList<>(Arrays.asList("1", "2", "3"));
         List sampleIds = new ArrayList<>(Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01"));
         List<CNSegmentData> result = cnSegmentMyBatisRepository.getCNSegmentData(cancerStudyId, chromosomes, sampleIds);
         Assert.assertEquals(3, result.size());

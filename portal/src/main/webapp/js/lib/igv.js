@@ -22,6 +22,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * NOTICE OF MODIFICATION
+ * This copy of the igv.js code has been modified for use with the cbioportal project (http://cbioportal.org)
+ * Modified on: 2016-09-21
+ * For an unmodified version please see https://github.com/igvteam/igv.js
  */
 
 var igv = (function (igv) {
@@ -5105,7 +5109,7 @@ var igv = (function (igv) {
      * @param feature
      * @param callback - function to call
      */
-    igv.Browser.prototype.search = function (feature, callback, force) {
+    igv.Browser.prototype.search = function (feature, callback, force, config) {
         var type,
             chr,
             start,
@@ -5122,10 +5126,41 @@ var igv = (function (igv) {
             }
             return;
         }
+        var div = $("#igvDiv")[0],
+            options = {
+                showNavigation: true,
+                showRuler: true,
+                genome: "hg19",
+                locus: feature,
+                tracks: [
+                    {
+                        url: "api-legacy/copynumbersegments",
+                        indexed: false,
+                        name: "Segmented CN",
+                        type:"seg",
+                        json: true,
+                        method: "POST"
+                    },
+                    {
+                        name: "Genes",
+                        url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed",
+                        order: Number.MAX_VALUE,
+                        displayMode: "EXPANDED"
+
+                    }
+                ]
+            };
 
         if (isLocusFeature(feature, this.genome, force)) {
-
-            var success =  gotoLocusFeature(feature, this.genome, this);
+            var chr = feature.substring(3, feature.indexOf(":")).trim(), success = true;
+            if(config !== undefined && config.sortBy !== undefined && chr !== config.sortBy[0]){
+                options.tracks[0].sampleIds = config.tracks[0].sampleIds;
+                options.tracks[0].chromosome = chr;
+                options.tracks[0].cancerStudyId = config.tracks[0].cancerStudyId;
+                igv.createBrowser(div, options);
+            }else{
+                success =  gotoLocusFeature(feature, this.genome, this);
+            }
 
             if ((force || true === success) && callback) {
                 callback();
@@ -5153,7 +5188,6 @@ var igv = (function (igv) {
                 // loader.loadBinaryString(callback);
 
                 igvxhr.loadString(url).then(function (data) {
-
                     var results = ("plain" === searchConfig.type) ? parseSearchResults(data) : JSON.parse(data);
 
                     if (searchConfig.resultsField) {
@@ -5179,7 +5213,15 @@ var igv = (function (igv) {
                         start = r[searchConfig.startField] - searchConfig.coords;
                         end = r[searchConfig.endField];
                         type = r["featureType"] || r["type"];
-                        handleSearchResult(feature, chr, start, end, type);
+                        if(config !== undefined && config.sortBy !== undefined && chr !== config.sortBy[0]){
+                            options.tracks[0].sampleIds = config.tracks[0].sampleIds;
+                            options.tracks[0].chromosome = chr.substring(3);
+                            options.tracks[0].cancerStudyId = config.tracks[0].cancerStudyId;
+                            igv.createBrowser(div, options);
+                        }else{
+                            handleSearchResult(feature, chr, start, end, type);
+                        }
+
                     }
                     //else {
                     //    presentSearchResults(results, searchConfig, feature);
@@ -7581,7 +7623,7 @@ var igv = (function (igv) {
                     url : self.url,
                     data : {
                         cancerStudyId: options.cancerStudyId,
-                        hugoSymbols: options.hugoSymbol,
+                        chromosomes: options.chromosome,
                         sampleIds: options.sampleIds
                     }
                 })).then(
@@ -14616,7 +14658,7 @@ var igv = (function (igv) {
                         range = start - end;
                     var sortBy = [refFrame.chr, start, end, "DESC"];
                     if (config.tracks) {
-
+                        config.sortBy = sortBy;
                         browser.loadTracksWithConfigList(config.tracks, sortBy);
 
 
@@ -14671,13 +14713,13 @@ var igv = (function (igv) {
 
             browser.$searchInput.change(function () {
 
-                browser.search($(this).val());
+                browser.search($(this).val(), null, null, config);
             });
 
             $faZoom = $('<i class="igv-app-icon fa fa-search fa-18px shim-left-6">');
 
             $faZoom.click(function () {
-                browser.search(browser.$searchInput.val());
+                browser.search(browser.$searchInput.val(), null, null, config);
             });
 
             $searchContainer.append(browser.$searchInput[0]);

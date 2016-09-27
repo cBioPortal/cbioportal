@@ -32,36 +32,44 @@
 <div class="section" id="igv_tab">
 <script type="text/javascript">
     $(document).ready(function(){
-        function generateHTML(cancerStudyId, hugoSymbol, sampleIds){
-            var headerContent = '<head>    <link rel="stylesheet" type="text/css"  href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/>'
-                + '<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">'
-                + '<link rel="stylesheet" type="text/css" href="css/igv.css">'
-                + '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"><\/script>'
-                + '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"><\/script>'
-                + '<script type="text/javascript" src="js/lib/igv.js"><\/script></head>';
-            var bodyContent1 = '<body><div id="igvDiv" style="padding-top: 10px;padding-bottom: 10px; border:1px solid lightgray;width:100%"></div><script type="text/javascript">  $(document).ready(function () {    var div = $("#igvDiv")[0],   options = {'
-                + 'showNavigation: true, showRuler: true, genome: "hg19", locus: "' + hugoSymbol + '", tracks: [  { url: "api-legacy/copynumbersegments", indexed: false, name: "Segmented CN", type:"seg", json: true, method: "POST", ';
-            var bodyContent2 = 'cancerStudyId: "' + cancerStudyId + '", hugoSymbol: "' + hugoSymbol +'", sampleIds: "' + sampleIds + '"},{name: "Genes", url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed", order: Number.MAX_VALUE,  displayMode: "EXPANDED"}]};igv.createBrowser(div, options);});<\/script><\/body>';
-            var fullContent = headerContent + bodyContent1 + bodyContent2;
-            return fullContent;
+        function generateHTML(cancerStudyId, hugoSymbol, id){
+            $.when($.ajax({
+                    method : "POST",
+                    url : "api-legacy/gene/fetch-by-hugo",
+                    data : {
+                        hugo_gene_symbols: hugoSymbol
+                    }
+                })).then(
+                    function(response) {
+                        var sampleIds = window.QuerySession.getSampleIds().join(",");
+                        var height = 300 + 2*window.QuerySession.getSampleIds().length;
+                        height = Math.min(height, 800);
+                        var headerContent = '<head>    <link rel="stylesheet" type="text/css"  href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/>'
+                            + '<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">'
+                            + '<link rel="stylesheet" type="text/css" href="css/igv.css">'
+                            + '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"><\/script>'
+                            + '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"><\/script>'
+                            + '<script type="text/javascript" src="js/lib/igv.js"><\/script></head>';
+                        var bodyContent1 = '<body><div id="igvDiv" style="padding-top: 10px;padding-bottom: 10px; border:1px solid lightgray;width:100%"></div><script type="text/javascript">  $(document).ready(function () {    var div = $("#igvDiv")[0],   options = {'
+                            + 'showNavigation: true, showRuler: true, genome: "hg19", locus: "' + hugoSymbol + '", tracks: [  { url: "api-legacy/copynumbersegments", indexed: false, name: "Segmented CN", type:"seg", json: true, method: "POST", ';
+                        var bodyContent2 = 'cancerStudyId: "' + cancerStudyId + '", chromosome: "' + response[0].chromosome +'", sampleIds: "' + sampleIds + '"},{name: "Genes", url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed", order: Number.MAX_VALUE,  displayMode: "EXPANDED"}]};igv.createBrowser(div, options);});<\/script><\/body>';    
+                        var fullContent = headerContent + bodyContent1 + bodyContent2;
+                        var iframe = document.createElement('iframe');
+                        $("#"+id).html(iframe);
+                        iframe.style.cssText = 'width:100%;height:'+height+'px';
+                        iframe.contentWindow.document.open();
+                        iframe.contentWindow.document.write(fullContent);
+                        iframe.contentWindow.document.close();
+                    });
         }
 
         $("#igv-result-tab").click(function(){
             var genes = window.QuerySession.getQueryGenes();
             if(genes.length > 0){
-                var sampleIds = window.QuerySession.getSampleIds().join(",");
-                var height = 300 + 2*window.QuerySession.getSampleIds().length;
-                height = Math.min(height, 800);
                 $("#igvList").append('<li class="active"><a data-toggle="tab" href="#home">' + genes[0] + '</a></li>');
                 $("#igvContent").append('<div id="home" class="tab-pane fade in active"></div>');
                 if($("#home").html().length === 0){
-                    var html = generateHTML('<%= cancerStudyId %>', genes[0], sampleIds);
-                    var iframe = document.createElement('iframe');
-                    $("#home").html(iframe);
-                    iframe.style.cssText = 'width:100%;height:'+height+'px';
-                    iframe.contentWindow.document.open();
-                    iframe.contentWindow.document.write(html);
-                    iframe.contentWindow.document.close();
+                   generateHTML('<%= cancerStudyId %>', genes[0], "home");
                 }
                 for(var i = 1;i < genes.length;i++){
                     $("#igvList").append('<li class="geneList" value="' + i +  '"><a data-toggle="tab" href="#menu'+ i +'">' + genes[i] + '</a></li>');
@@ -70,13 +78,7 @@
                 $(".geneList").click(function(event){
                     var index = $(this).val();
                     if($("#menu"+index).html().length === 0){
-                        var html = generateHTML('<%= cancerStudyId %>', genes[index], sampleIds);
-                        var iframe = document.createElement('iframe');
-                        $("#menu"+index).html(iframe);
-                        iframe.style.cssText = 'width:100%;height:'+height+'px';
-                        iframe.contentWindow.document.open();
-                        iframe.contentWindow.document.write(html);
-                        iframe.contentWindow.document.close();
+                        generateHTML('<%= cancerStudyId %>', genes[index], "menu"+index);
                     }
                 });
             }

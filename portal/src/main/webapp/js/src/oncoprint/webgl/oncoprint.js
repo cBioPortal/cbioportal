@@ -157,9 +157,6 @@ var Oncoprint = (function () {
 	
 	this.legend_view = new OncoprintLegendView($legend_div, 10, 20);
 	
-	this.rendering_suppressed = false;
-	this.rendering_suppressed_depth = 0;
-	
 	this.keep_sorted = false;
 	
 	this.keep_horz_zoomed_to_fit = false;
@@ -273,7 +270,7 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
-	if (!this.rendering_suppressed) {
+	if (!this.model.rendering_suppressed) {
 	    resizeAndOrganizeAfterTimeout(this);
 	}
 	return track_ids;
@@ -501,8 +498,8 @@ var Oncoprint = (function () {
 	//this.legend_view.enableInteraction();
     }
     Oncoprint.prototype.suppressRendering = function() {
-	this.rendering_suppressed_depth += 1;
-	this.rendering_suppressed = true;
+	this.model.rendering_suppressed_depth += 1;
+	this.model.rendering_suppressed = true;
 	this.label_view.suppressRendering();
 	this.cell_view.suppressRendering();
 	this.track_options_view.suppressRendering();
@@ -511,10 +508,10 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.releaseRendering = function() {
-	this.rendering_suppressed_depth -= 1;
-	this.rendering_suppressed_depth = Math.max(0, this.rendering_suppressed_depth);
-	if (this.rendering_suppressed_depth === 0) {
-	    this.rendering_suppressed = false;
+	this.model.rendering_suppressed_depth -= 1;
+	this.model.rendering_suppressed_depth = Math.max(0, this.model.rendering_suppressed_depth);
+	if (this.model.rendering_suppressed_depth === 0) {
+	    this.model.rendering_suppressed = false;
 	    this.label_view.releaseRendering(this.model);
 	    this.cell_view.releaseRendering(this.model);
 	    this.track_options_view.releaseRendering(this.model);

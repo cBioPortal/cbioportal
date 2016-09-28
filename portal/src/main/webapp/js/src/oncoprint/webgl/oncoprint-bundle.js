@@ -219,9 +219,6 @@ var Oncoprint = (function () {
 	
 	this.legend_view = new OncoprintLegendView($legend_div, 10, 20);
 	
-	this.rendering_suppressed = false;
-	this.rendering_suppressed_depth = 0;
-	
 	this.keep_sorted = false;
 	
 	this.keep_horz_zoomed_to_fit = false;
@@ -335,7 +332,7 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
-	if (!this.rendering_suppressed) {
+	if (!this.model.rendering_suppressed) {
 	    resizeAndOrganizeAfterTimeout(this);
 	}
 	return track_ids;
@@ -563,8 +560,8 @@ var Oncoprint = (function () {
 	//this.legend_view.enableInteraction();
     }
     Oncoprint.prototype.suppressRendering = function() {
-	this.rendering_suppressed_depth += 1;
-	this.rendering_suppressed = true;
+	this.model.rendering_suppressed_depth += 1;
+	this.model.rendering_suppressed = true;
 	this.label_view.suppressRendering();
 	this.cell_view.suppressRendering();
 	this.track_options_view.suppressRendering();
@@ -573,10 +570,10 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.releaseRendering = function() {
-	this.rendering_suppressed_depth -= 1;
-	this.rendering_suppressed_depth = Math.max(0, this.rendering_suppressed_depth);
-	if (this.rendering_suppressed_depth === 0) {
-	    this.rendering_suppressed = false;
+	this.model.rendering_suppressed_depth -= 1;
+	this.model.rendering_suppressed_depth = Math.max(0, this.model.rendering_suppressed_depth);
+	if (this.model.rendering_suppressed_depth === 0) {
+	    this.model.rendering_suppressed = false;
 	    this.label_view.releaseRendering(this.model);
 	    this.cell_view.releaseRendering(this.model);
 	    this.track_options_view.releaseRendering(this.model);
@@ -1326,6 +1323,8 @@ var OncoprintModel = (function () {
 	
 	// Global properties
 	this.sort_config = {};
+	this.rendering_suppressed = false;
+	this.rendering_suppressed_depth = 0;
 	
 	// Rendering Properties
 	this.max_height = 500;
@@ -1592,11 +1591,11 @@ var OncoprintModel = (function () {
 	}
     }
 
-    OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_width, sort_by_z) {
+    OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_size, sort_by_z) {
 	var active_rules = {};
 	var data = this.getTrackData(track_id);
 	var id_key = this.getTrackDataIdKey(track_id);
-	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(use_base_width), this.getCellHeight(track_id), active_rules);
+	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(use_base_size), this.getCellHeight(track_id, use_base_size), active_rules);
 	this.track_active_rules[track_id] = active_rules;
 	
 	var z_comparator = function(shapeA, shapeB) {
@@ -1651,8 +1650,8 @@ var OncoprintModel = (function () {
 	return this.cell_width * (base ? 1 : this.horz_zoom);
     }
 
-    OncoprintModel.prototype.getCellHeight = function (track_id) {
-	return this.cell_height[track_id] * this.vert_zoom;
+    OncoprintModel.prototype.getCellHeight = function (track_id, base) {
+	return this.cell_height[track_id] * (base ? 1 : this.vert_zoom);
     }
     
     OncoprintModel.prototype.getTrackInfo = function(track_id) {
@@ -3778,6 +3777,26 @@ var svgfactory = require('./svgfactory.js');
 
 // TODO: antialiasing
 
+var sgndiff = function(a,b) {
+    if (a < b) {
+	return -1;
+    } else if (a > b) {
+	return 1;
+    } else {
+	return 0;
+    }
+};
+
+var arrayFindIndex = function(arr, callback, start_index) {
+    start_index = start_index || 0;
+    for (var i=start_index; i<arr.length; i++) {
+	if (callback(arr[i])) {
+	    return i;
+	}
+    }
+    return -1;
+};
+
 var getNewCanvas = function(view) {
     var old_canvas = view.$canvas[0];
     var new_canvas = old_canvas.cloneNode();
@@ -3882,17 +3901,20 @@ var OncoprintWebGLCellView = (function () {
 
 	this.identified_shape_list_list = {};
 
-	this.vertex_position_buffer_by_zone = {}; // track_id -> zone_id -> gl.createBuffer()
-	this.vertex_color_buffer_by_zone = {}; // track_id -> zone_id -> gl.createBuffer()
-
-	this.vertex_position_array = {}; // track_id -> zone_id -> vertex list
-	this.vertex_color_array = {}; // track_id -> zone_id -> vertex list
+	this.vertex_position_array = {}; // track_id -> vertex list (float list, item size 3)
+	this.vertex_color_array = {}; // track_id -> color list (float list, item size 4)
+	this.vertex_x_offset_array = {}; // track_id -> vertex list (float list, item size 1)
+	
+	this.vertex_position_buffer = {}; // track_id -> gl.createBuffer()
+	this.vertex_color_buffer = {}; // track_id -> gl.createBuffer()
+	this.vertex_x_offset_buffer = {}; // track_id -> gl.createBuffer()
+	
+	this.id_to_first_vertex_index = {}; // track_id -> id -> vertex index of first vertex corresponding to this id
 
 	this.rendering_suppressed = false;
 	
 	this.highlight_area_callback = (typeof highlight_area_callback === 'undefined' ? function() {} : highlight_area_callback); // function(left, right) { ... }
 	
-
 	(function initializeOverlayEvents(self) {
 	    var dragging = false;
 	    var drag_diff_minimum = 10;
@@ -3976,6 +3998,10 @@ var OncoprintWebGLCellView = (function () {
 	    });
 	    
 	})(this);
+	
+	$dummy_scroll_div_contents.parent().scroll(function() {
+	    clearOverlay(self);
+	});
     }
     
     var overlayStrokeRect = function(view, x, y, width, height, color) {
@@ -4018,7 +4044,8 @@ var OncoprintWebGLCellView = (function () {
 	(function initializeShaders(self) {// Initialize shaders
 	    var vertex_shader_source = ['attribute vec3 aVertexPosition;',
 		'attribute vec4 aVertexColor;',
-		'',
+		'attribute float aVertexXOffset;',
+		
 		'uniform float scrollX;',
 		'uniform float zoomX;',
 		'uniform float scrollY;',
@@ -4030,8 +4057,9 @@ var OncoprintWebGLCellView = (function () {
 		'varying vec4 vColor;',
 		'void main(void) {',
 		'	gl_Position = vec4(aVertexPosition, 1.0);',
-		'	gl_Position[1] += offsetY;',
-		'	gl_Position[0] *= zoomX;',
+		'	gl_Position[0] += aVertexXOffset;',
+		'	gl_Position *= vec4(zoomX, zoomY, 1.0, 1.0);',
+		'	gl_Position[1] += offsetY;', // offset is given zoomed
 		'	gl_Position -= vec4(scrollX, scrollY, 0.0, 0.0);',
 		'	gl_Position[0] *= supersamplingRatio;',
 		'	gl_Position[1] *= supersamplingRatio;',
@@ -4052,12 +4080,15 @@ var OncoprintWebGLCellView = (function () {
 	    self.ctx.enableVertexAttribArray(shader_program.vertexPositionAttribute);
 	    shader_program.vertexColorAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexColor');
 	    self.ctx.enableVertexAttribArray(shader_program.vertexColorAttribute);
+	    shader_program.vertexXOffsetAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexXOffset');
+	    self.ctx.enableVertexAttribArray(shader_program.vertexXOffsetAttribute);
 
 	    shader_program.pMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uPMatrix');
 	    shader_program.mvMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uMVMatrix');
 	    shader_program.scrollXUniform = self.ctx.getUniformLocation(shader_program, 'scrollX');
 	    shader_program.scrollYUniform = self.ctx.getUniformLocation(shader_program, 'scrollY');
 	    shader_program.zoomXUniform = self.ctx.getUniformLocation(shader_program, 'zoomX');
+	    shader_program.zoomYUniform = self.ctx.getUniformLocation(shader_program, 'zoomY');
 	    shader_program.offsetYUniform = self.ctx.getUniformLocation(shader_program, 'offsetY');
 	    shader_program.supersamplingRatioUniform = self.ctx.getUniformLocation(shader_program, 'supersamplingRatio');
 
@@ -4086,7 +4117,7 @@ var OncoprintWebGLCellView = (function () {
 	getWebGLContextAndSetUpMatrices(view);
 	getOverlayContextAndClear(view);
     };
-    var renderAllTracks = function (view, model) {
+    var renderAllTracks = function (view, model, dont_resize) {
 	if (view.rendering_suppressed) {
 	    return;
 	}
@@ -4094,9 +4125,22 @@ var OncoprintWebGLCellView = (function () {
 	var scroll_x = view.scroll_x;
 	var scroll_y = view.scroll_y;
 	var zoom_x = model.getHorzZoom();
-	var horz_zone_id = Math.floor(scroll_x / view.visible_area_width);
+	var zoom_y = model.getVertZoom();
 	
-	resizeAndClear(view, model);
+	var window_left = scroll_x / zoom_x;
+	var window_right = (scroll_x + view.visible_area_width) / zoom_x;
+	var window_top = scroll_y / zoom_y;
+	var window_bottom = (scroll_y + model.getCellViewHeight()) / zoom_y;
+	var id_to_left = model.getColumnLeft();
+	var id_order = model.getIdOrder();
+	var horz_first_id_in_window_index = arrayFindIndex(id_order, function(id) { return id_to_left[id] >= window_left; });
+	var horz_first_id_after_window_index = arrayFindIndex(id_order, function(id) { return id_to_left[id] > window_right; }, horz_first_id_in_window_index+1);
+	var horz_first_id_in_window = (horz_first_id_in_window_index < 1 ? id_order[0] : id_order[horz_first_id_in_window_index - 1]);
+	var horz_first_id_after_window = (horz_first_id_after_window_index === -1 ? null : id_order[horz_first_id_after_window_index]);
+	
+	if (!dont_resize) {
+	    resizeAndClear(view, model);
+	}
 	view.ctx.clearColor(1.0,1.0,1.0,1.0);
 	view.ctx.clear(view.ctx.COLOR_BUFFER_BIT | view.ctx.DEPTH_BUFFER_BIT);
 	
@@ -4104,25 +4148,38 @@ var OncoprintWebGLCellView = (function () {
 	for (var i = 0; i < tracks.length; i++) {
 	    var track_id = tracks[i];
 	    var cell_top = model.getCellTops(track_id);
-	    var buffers = getZoneBuffers(view, track_id, horz_zone_id);
+	    var cell_height = model.getCellHeight(track_id);
+	    if ((cell_top / zoom_y) >= window_bottom || ((cell_top + cell_height)/zoom_y) < window_top) {
+		// vertical clipping
+		continue;
+	    }
+	    var buffers = getTrackBuffers(view, track_id);
 	    if (buffers.position.numItems === 0) {
 		continue;
 	    }
+	    var first_index = view.id_to_first_vertex_index[track_id][horz_first_id_in_window];
+	    var first_index_out = horz_first_id_after_window === null ? buffers.position.numItems : view.id_to_first_vertex_index[track_id][horz_first_id_after_window];
+	    
 	    view.ctx.useProgram(view.shader_program);
 	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, buffers.position);
 	    view.ctx.vertexAttribPointer(view.shader_program.vertexPositionAttribute, buffers.position.itemSize, view.ctx.FLOAT, false, 0, 0);
 
 	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, buffers.color);
 	    view.ctx.vertexAttribPointer(view.shader_program.vertexColorAttribute, buffers.color.itemSize, view.ctx.FLOAT, false, 0, 0);
+	    
+	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, buffers.x_offset);
+	    view.ctx.vertexAttribPointer(view.shader_program.vertexXOffsetAttribute, buffers.x_offset.itemSize, view.ctx.FLOAT, false, 0, 0);
 
 	    view.ctx.uniformMatrix4fv(view.shader_program.pMatrixUniform, false, view.pMatrix);
 	    view.ctx.uniformMatrix4fv(view.shader_program.mvMatrixUniform, false, view.mvMatrix);
 	    view.ctx.uniform1f(view.shader_program.scrollXUniform, scroll_x);
 	    view.ctx.uniform1f(view.shader_program.scrollYUniform, scroll_y);
 	    view.ctx.uniform1f(view.shader_program.zoomXUniform, zoom_x);
+	    view.ctx.uniform1f(view.shader_program.zoomYUniform, zoom_y);
 	    view.ctx.uniform1f(view.shader_program.offsetYUniform, cell_top);
 	    view.ctx.uniform1f(view.shader_program.supersamplingRatioUniform, view.supersampling_ratio);
-	    view.ctx.drawArrays(view.ctx.TRIANGLES, 0, buffers.position.numItems);
+	    
+	    view.ctx.drawArrays(view.ctx.TRIANGLES, first_index, first_index_out - first_index);
 	}
     };
     var addVertexColor = function (vertex_color_array, rgba_str, n_times) {
@@ -4132,7 +4189,7 @@ var OncoprintWebGLCellView = (function () {
 	}
     };
     
-    var clearZoneBuffers = function(view, model, track_id) {
+    var clearTrackPositionAndColorBuffers = function(view, model, track_id) {
 	var tracks_to_clear;
 	if (typeof track_id === 'undefined') {
 	    tracks_to_clear = model.getTracks();
@@ -4140,24 +4197,37 @@ var OncoprintWebGLCellView = (function () {
 	    tracks_to_clear = [track_id];
 	}
 	for (var i=0; i<tracks_to_clear.length; i++) {
-	    delete view.vertex_position_buffer_by_zone[tracks_to_clear[i]];
-	    delete view.vertex_color_buffer_by_zone[tracks_to_clear[i]];
+	    if (view.vertex_position_buffer[tracks_to_clear[i]]) {
+		delete view.vertex_position_buffer[tracks_to_clear[i]];
+	    }
+	    if (view.vertex_color_buffer[tracks_to_clear[i]]) {
+		delete view.vertex_color_buffer[tracks_to_clear[i]];
+	    }
 	}
     };
-    var getZoneBuffers = function(view, track_id, zone_id) {
-	view.vertex_position_buffer_by_zone[track_id] = view.vertex_position_buffer_by_zone[track_id] || {};
-	view.vertex_color_buffer_by_zone[track_id] = view.vertex_color_buffer_by_zone[track_id] || {};
-	if (typeof view.vertex_position_buffer_by_zone[track_id][zone_id] === 'undefined') {
+    
+     var clearTrackXOffsetBuffers = function(view, model, track_id) {
+	var tracks_to_clear;
+	if (typeof track_id === 'undefined') {
+	    tracks_to_clear = model.getTracks();
+	} else {
+	    tracks_to_clear = [track_id];
+	}
+	for (var i=0; i<tracks_to_clear.length; i++) {
+	    if (view.vertex_x_offset_buffer[tracks_to_clear[i]]) {
+		delete view.vertex_x_offset_buffer[tracks_to_clear[i]];
+	    }
+	}
+    };
+    
+    
+    var getTrackBuffers = function(view, track_id) {
+	if (typeof view.vertex_position_buffer[track_id] === 'undefined') {
 	    var vertex_position_buffer = view.ctx.createBuffer();
 	    var vertex_color_buffer = view.ctx.createBuffer();
-	    var vertex_position_array = [];
-	    var vertex_color_array = [];
-	    for (var z = 0; z < 2; z++) {
-		if (view.vertex_position_array[track_id].hasOwnProperty(zone_id + z) && view.vertex_color_array[track_id].hasOwnProperty(zone_id + z)) {
-		    vertex_position_array = vertex_position_array.concat(view.vertex_position_array[track_id][zone_id + z]);
-		    vertex_color_array = vertex_color_array.concat(view.vertex_color_array[track_id][zone_id + z]);
-		}
-	    }
+	    var vertex_position_array = view.vertex_position_array[track_id];
+	    var vertex_color_array = view.vertex_color_array[track_id];
+	    
 	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_position_buffer);
 	    view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(vertex_position_array), view.ctx.STATIC_DRAW);
 	    vertex_position_buffer.itemSize = 3;
@@ -4167,44 +4237,73 @@ var OncoprintWebGLCellView = (function () {
 	    view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(vertex_color_array), view.ctx.STATIC_DRAW);
 	    vertex_color_buffer.itemSize = 4;
 	    vertex_color_buffer.numItems = vertex_color_array.length / vertex_color_buffer.itemSize;
-
-	    view.vertex_position_buffer_by_zone[track_id][zone_id] = vertex_position_buffer;
-	    view.vertex_color_buffer_by_zone[track_id][zone_id] = vertex_color_buffer;
+	    
+	    view.vertex_position_buffer[track_id] = vertex_position_buffer;
+	    view.vertex_color_buffer[track_id] = vertex_color_buffer;
 	}
-	return {'position':view.vertex_position_buffer_by_zone[track_id][zone_id],
-		'color': view.vertex_color_buffer_by_zone[track_id][zone_id]};
+	
+	if (typeof view.vertex_x_offset_buffer[track_id] === 'undefined') {
+	    var vertex_x_offset_buffer = view.ctx.createBuffer();
+	    var vertex_x_offset_array = view.vertex_x_offset_array[track_id];
+	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_x_offset_buffer);
+	    view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(vertex_x_offset_array), view.ctx.STATIC_DRAW);
+	    vertex_x_offset_buffer.itemSize = 1;
+	    vertex_x_offset_buffer.numItems = vertex_x_offset_array.length / vertex_x_offset_buffer.itemSize;
+	    
+	    view.vertex_x_offset_buffer[track_id] = vertex_x_offset_buffer;
+	}
+	return {'position':view.vertex_position_buffer[track_id],
+		'color': view.vertex_color_buffer[track_id],
+		'x_offset': view.vertex_x_offset_buffer[track_id]};
     };
+    
+    var computeVertexXOffsets = function(view, model, track_id) {
+	if (view.rendering_suppressed) {
+	    return;
+	}
+	var num_items = view.vertex_position_array[track_id].length / 3;
+	var id_to_first_vertex_index = view.id_to_first_vertex_index[track_id];
+	var id_to_left = model.getColumnLeft();
+	var id_and_first_vertex = Object.keys(id_to_first_vertex_index).map(function(id) { return [id, id_to_first_vertex_index[id]]; })
+				.sort(function(a,b) { return sgndiff(a[1], b[1]); });
+	var vertex_x_offset_array = [];
+	for (var i=0; i<id_and_first_vertex.length; i++) {
+	    var num_to_add = (i === id_and_first_vertex.length - 1 ? num_items : id_and_first_vertex[i+1][1]) - id_and_first_vertex[i][1];
+	    var offset_to_add = id_to_left[id_and_first_vertex[i][0]];
+	    for (var j=0; j<num_to_add; j++) {
+		vertex_x_offset_array.push(offset_to_add);
+	    }
+	}
+	view.vertex_x_offset_array[track_id] = vertex_x_offset_array;
+	clearTrackXOffsetBuffers(view, model, track_id);
+    };
+    
     var computeVertexPositionsAndVertexColors = function (view, model, track_id) {
 	if (view.rendering_suppressed) {
 	    return;
 	}
-	var zone_to_vertex_color_array = {};
-	var zone_to_vertex_position_array = {};
-	
 	var identified_shape_list_list = view.identified_shape_list_list[track_id];
-	var id_to_left = model.getColumnLeft();
+	var id_to_index = model.getIdToIndexMap();
+	identified_shape_list_list.sort(function(a, b) {
+	    return sgndiff(id_to_index[a.id], id_to_index[b.id]);
+	});
 	var halfsqrt2 = Math.sqrt(2) / 2;
 	// Compute vertex and color arrays
-	var vertex_position_array;
-	var vertex_color_array;
+	var vertex_position_array = [];
+	var vertex_color_array = [];
+	var id_to_first_vertex_index = {};
+	
 	for (var i = 0; i < identified_shape_list_list.length; i++) {
 	    var shape_list = identified_shape_list_list[i].shape_list;
 	    var id = identified_shape_list_list[i].id;
-	    if (typeof id_to_left[id] === 'undefined') {
-		continue;
-	    }
-	    var offset_x = id_to_left[id];
-	    var horz_zone_id = Math.floor(offset_x*model.getHorzZoom() / view.visible_area_width);
+
+	    id_to_first_vertex_index[id] = vertex_position_array.length / 3;
 	    
-	    zone_to_vertex_position_array[horz_zone_id] = zone_to_vertex_position_array[horz_zone_id] || [];
-	    vertex_position_array = zone_to_vertex_position_array[horz_zone_id];
-	    zone_to_vertex_color_array[horz_zone_id] = zone_to_vertex_color_array[horz_zone_id] || [];
-	    vertex_color_array = zone_to_vertex_color_array[horz_zone_id];
 	    for (var j = 0; j < shape_list.length; j++) {
 		var shape = shape_list[j];
 		if (shape.type === "rectangle") {
 		    // Stroke
-		    var x = parseFloat(shape.x) + offset_x, y = parseFloat(shape.y),  height = parseFloat(shape.height), width = parseFloat(shape.width);
+		    var x = parseFloat(shape.x), y = parseFloat(shape.y),  height = parseFloat(shape.height), width = parseFloat(shape.width);
 		    var stroke_width = parseFloat(shape['stroke-width']);
 		     		    
 		    vertex_position_array.push(x, y, j);
@@ -4258,13 +4357,13 @@ var OncoprintWebGLCellView = (function () {
 		    }
 
 		} else if (shape.type === "triangle") {
-		    vertex_position_array.push(offset_x + parseFloat(shape.x1), parseFloat(shape.y1), j);
-		    vertex_position_array.push(offset_x + parseFloat(shape.x2), parseFloat(shape.y2), j);
-		    vertex_position_array.push(offset_x + parseFloat(shape.x3), parseFloat(shape.y3), j);
+		    vertex_position_array.push(parseFloat(shape.x1), parseFloat(shape.y1), j);
+		    vertex_position_array.push(parseFloat(shape.x2), parseFloat(shape.y2), j);
+		    vertex_position_array.push(parseFloat(shape.x3), parseFloat(shape.y3), j);
 
 		    addVertexColor(vertex_color_array, shape.fill, 3);
 		} else if (shape.type === "ellipse") {
-		    var center = {x: offset_x + parseFloat(shape.x) + parseFloat(shape.width) / 2, y: parseFloat(shape.y) + parseFloat(shape.height) / 2};
+		    var center = {x: parseFloat(shape.x) + parseFloat(shape.width) / 2, y: parseFloat(shape.y) + parseFloat(shape.height) / 2};
 		    var horzrad = parseFloat(shape.width) / 2;
 		    var vertrad = parseFloat(shape.height) / 2;
 
@@ -4303,8 +4402,8 @@ var OncoprintWebGLCellView = (function () {
 		    addVertexColor(vertex_color_array, shape.fill, 3 * 8);
 		} else if (shape.type === "line") {
 		    // For simplicity of dealing with webGL we'll implement lines as thin triangle pairs
-		    var x1 = parseFloat(shape.x1) + offset_x;
-		    var x2 = parseFloat(shape.x2) + offset_x;
+		    var x1 = parseFloat(shape.x1);
+		    var x2 = parseFloat(shape.x2);
 		    var y1 = parseFloat(shape.y1);
 		    var y2 = parseFloat(shape.y2);
 		    
@@ -4344,9 +4443,13 @@ var OncoprintWebGLCellView = (function () {
 		}
 	    }
 	}
-	view.vertex_position_array[track_id] = zone_to_vertex_position_array;
-	view.vertex_color_array[track_id] = zone_to_vertex_color_array;
+	view.vertex_position_array[track_id] = vertex_position_array;//track to vertex_position_array;
+	view.vertex_color_array[track_id] = vertex_color_array;//track to vertex_color_array;
+	view.id_to_first_vertex_index[track_id] = id_to_first_vertex_index;
+	
+	clearTrackPositionAndColorBuffers(view, model, track_id);
     };
+    
     var getShapes = function(view, model, track_id) {
 	if (view.rendering_suppressed) {
 	    return;
@@ -4354,52 +4457,72 @@ var OncoprintWebGLCellView = (function () {
 	view.identified_shape_list_list[track_id] = model.getIdentifiedShapeListList(track_id, true, true);
     };
     
-        
-    var refreshCanvas = function(view) {
+    var refreshCanvas = function(view, model) {
+	clearTrackPositionAndColorBuffers(view, model); // whenever you get a new context, you have to get new buffers
+	clearTrackXOffsetBuffers(view, model);
 	getNewCanvas(view);
-	getWebGLContextAndSetUpMatricesAndShaders(view);
+	getWebGLContextAndSetUpMatricesAndShaders(view, model);
     };
     
     OncoprintWebGLCellView.prototype.isUsable = function () {
 	return this.ctx !== null;
     }
     OncoprintWebGLCellView.prototype.removeTrack = function (model, track_id) {
-	clearZoneBuffers(this, model);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	delete this.identified_shape_list_list[track_id];
 	delete this.vertex_position_array[track_id];
 	delete this.vertex_color_array[track_id];
+	delete this.vertex_x_offset_array[track_id];
+	delete this.id_to_first_vertex_index[track_id];
+	delete this.vertex_position_buffer[track_id];
+	delete this.vertex_color_buffer[track_id];
+	delete this.vertex_x_offset_buffer[track_id];
 	
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.moveTrack = function (model) {
-	clearZoneBuffers(this, model);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.addTracks = function (model, track_ids) {
-	clearZoneBuffers(this, model);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	for (var i=0; i<track_ids.length; i++) {
 	    getShapes(this, model, track_ids[i]);
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	    computeVertexXOffsets(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.setIdOrder = function(model, ids) {
-	clearZoneBuffers(this, model);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
-	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	    computeVertexXOffsets(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.setTrackGroupSortPriority = function(model) {
-	clearZoneBuffers(this, model);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.sort = function(model) {
-	clearZoneBuffers(this, model);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
-	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]); // need to recompute because the vertexes are in sorted order for clipping
+	    computeVertexXOffsets(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
     }
@@ -4412,82 +4535,107 @@ var OncoprintWebGLCellView = (function () {
 	for (var i=0; i<track_ids.length; i++) {
 	    getShapes(this, model, track_ids[i]);
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	    computeVertexXOffsets(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.hideIds = function(model) {
-	clearZoneBuffers(this, model);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	    computeVertexXOffsets(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.setTrackData = function(model, track_id) {
-	clearZoneBuffers(this, model, track_id);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	getShapes(this, model, track_id);
 	computeVertexPositionsAndVertexColors(this, model, track_id);
+	computeVertexXOffsets(this, model, track_id);
 	renderAllTracks(this, model);
     }
      OncoprintWebGLCellView.prototype.setRuleSet = function(model, target_track_id) {
-	clearZoneBuffers(this, model, target_track_id);
+	 if (this.rendering_suppressed) {
+	    return;
+	};
 	getShapes(this, model, target_track_id);
 	computeVertexPositionsAndVertexColors(this, model, target_track_id);
+	computeVertexXOffsets(this, model, target_track_id);
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.shareRuleSet = function(model, target_track_id) {
-	clearZoneBuffers(this, model, target_track_id);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	getShapes(this, model, target_track_id);
 	computeVertexPositionsAndVertexColors(this, model, target_track_id);
+	computeVertexXOffsets(this, model, target_track_id);
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.setSortConfig = function(model) {
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	this.sort(model);
     }
     
     OncoprintWebGLCellView.prototype.setHorzScroll = function(model) {
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	this.setScroll(model);
     }
     
     OncoprintWebGLCellView.prototype.setVertScroll = function(model) {
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	this.setScroll(model);
     }
     
     OncoprintWebGLCellView.prototype.setScroll = function(model) {
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	this.scroll_x = model.getHorzScroll();
 	this.scroll_y = model.getVertScroll();
-	renderAllTracks(this, model);
+	renderAllTracks(this, model, true);
     }
     
     OncoprintWebGLCellView.prototype.setHorzZoom = function(model) {
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	var cell_width = model.getCellWidth();
 	if (cell_width < this.antialias_on_cell_width_thresh) {
 	    if (!this.antialias) {
 		this.antialias = true;
-		refreshCanvas(this);
+		refreshCanvas(this, model);
 	    }
 	} else {
 	    if (this.antialias) {
 		this.antialias = false;
-		refreshCanvas(this);
+		refreshCanvas(this, model);
 	    }
 	}
-	clearZoneBuffers(this, model);
+	// Track padding may have changed
 	var track_ids = model.getTracks();
-	for (var i=0; i<track_ids.length; i++) {
-	    // need to recompute this only because of rezoning for scrolls
-	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	for (var i = 0; i < track_ids.length; i++) {
+	    computeVertexXOffsets(this, model, track_ids[i]);
 	}
+	
 	renderAllTracks(this, model);
     }
     
     OncoprintWebGLCellView.prototype.setVertZoom = function(model) {
-	clearZoneBuffers(this, model);
-	var track_ids = model.getTracks();
-	for (var i=0; i<track_ids.length; i++) {
-	    getShapes(this, model, track_ids[i]);
-	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
-	}
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	renderAllTracks(this, model);
     }
     
@@ -4501,22 +4649,19 @@ var OncoprintWebGLCellView = (function () {
     
     OncoprintWebGLCellView.prototype.setWidth = function(w, model) {
 	this.visible_area_width = w;
-	
-	// need to rezone for new visible area width
-	clearZoneBuffers(this, model);
-	var track_ids = model.getTracks();
-	for (var i=0; i<track_ids.length; i++) {
-	    // need to recompute this only because of rezoning for scrolls
-	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
-	}
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	renderAllTracks(this, model); // in the process it will call resizeAndClear
     }
     
     OncoprintWebGLCellView.prototype.setCellPaddingOn = function(model) {
-	clearZoneBuffers(this, model);
+	if (this.rendering_suppressed) {
+	    return;
+	};
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
-	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	    computeVertexXOffsets(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
     }

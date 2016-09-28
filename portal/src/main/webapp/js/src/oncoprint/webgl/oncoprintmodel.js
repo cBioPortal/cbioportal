@@ -102,6 +102,8 @@ var OncoprintModel = (function () {
 	
 	// Global properties
 	this.sort_config = {};
+	this.rendering_suppressed = false;
+	this.rendering_suppressed_depth = 0;
 	
 	// Rendering Properties
 	this.max_height = 500;
@@ -368,11 +370,11 @@ var OncoprintModel = (function () {
 	}
     }
 
-    OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_width, sort_by_z) {
+    OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_size, sort_by_z) {
 	var active_rules = {};
 	var data = this.getTrackData(track_id);
 	var id_key = this.getTrackDataIdKey(track_id);
-	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(use_base_width), this.getCellHeight(track_id), active_rules);
+	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(use_base_size), this.getCellHeight(track_id, use_base_size), active_rules);
 	this.track_active_rules[track_id] = active_rules;
 	
 	var z_comparator = function(shapeA, shapeB) {
@@ -427,8 +429,8 @@ var OncoprintModel = (function () {
 	return this.cell_width * (base ? 1 : this.horz_zoom);
     }
 
-    OncoprintModel.prototype.getCellHeight = function (track_id) {
-	return this.cell_height[track_id] * this.vert_zoom;
+    OncoprintModel.prototype.getCellHeight = function (track_id, base) {
+	return this.cell_height[track_id] * (base ? 1 : this.vert_zoom);
     }
     
     OncoprintModel.prototype.getTrackInfo = function(track_id) {

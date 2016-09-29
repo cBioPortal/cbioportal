@@ -69,7 +69,7 @@
 		<td></td><td></td>
         <td align="right" style="font-size:10px;background-color:white">
         <% if (authenticationMethod.equals("saml")) { %>
-        You are logged in as <sec:authentication property='<%=principal%>' />. <a href="<c:url value="/saml/logout"/>">Sign out</a>.
+        You are logged in as <sec:authentication property='<%=principal%>' />. <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>.
         <%} else { %>
         You are logged in as <sec:authentication property='<%=principal%>' />. <a href="j_spring_security_logout">Sign out</a>.
         <% } %>

@@ -59,11 +59,11 @@ var utils = {
 var tooltip_utils = {
     'sampleViewAnchorTag': function (sample_id) {
 	var href = cbio.util.getLinkToSampleView(QuerySession.getCancerStudyIds()[0], sample_id);
-	return '<a href="' + href + '">' + sample_id + '</a>';
+	return '<a href="' + href + '" target="_blank">' + sample_id + '</a>';
     },
     'patientViewAnchorTag': function(patient_id) {
 	var href = cbio.util.getLinkToPatientView(QuerySession.getCancerStudyIds()[0], patient_id);
-	return '<a href="' + href + '">' + patient_id + '</a>';
+	return '<a href="' + href + '" target="_blank">' + patient_id + '</a>';
     },
     'makeGeneticTrackTooltip':function(data_type, link_id) {
 	return function (d) {

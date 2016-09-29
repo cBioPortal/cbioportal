@@ -1453,9 +1453,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getMutationProfileIds': makeCachedPromiseFunction(
 		function(self, fetch_promise) {
 		    self.getGeneticProfiles().then(function (profiles) {
-			fetch_promise.resolve(profiles.map(function (p) {
-			    return p.id;
-			}));
+			fetch_promise.resolve(
+                            profiles
+                            .filter(function (p) {return p.genetic_alteration_type === "MUTATION_EXTENDED";})
+                            .map(function (p) {return p.id;})
+                        );
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });

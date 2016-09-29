@@ -84,7 +84,7 @@ if (cancerStudyViewError!=null) {
 
 <jsp:include page="../global/header.jsp" flush="true" />
 
-<table width="100%">
+<table width="100%" style="margin: 8px 2px 5px 2px">
     <tr>
         <td>
             <form method="post" action="index.do">

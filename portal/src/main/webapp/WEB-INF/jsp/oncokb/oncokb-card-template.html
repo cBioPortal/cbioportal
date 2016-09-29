@@ -1,7 +1,7 @@
 <script type="text/template" id="oncokb-card">
     <div class="oncokb-card">
         <div class="z-depth-2">
-            <div class="item">
+            <div class="item tabs-wrapper">
                 <div class="col s12 tip-header">{{title}}</div>
                 <div class="col s12">
                     <ul class="tabs" tabs="">
@@ -21,8 +21,8 @@
                     </ul>
                 </div>
                 <div class="tab-content">
-                    <div role="tabpanel" class="col s12 tab-pane oncogenicity" style="margin: 10px 10px 0 10px;">
-                        <p class="summary">{{clinicalSummary}}</p>
+                    <div role="tabpanel" class="col s12 tab-pane oncogenicity">
+                        <div class="summary">{{clinicalSummary}}</div>
                         <div>
                             <table class="bordered table">
                                 <thead>
@@ -40,9 +40,8 @@
                             </table>
                         </div>
                     </div>
-                    <div role="tabpanel" class="col s12 tab-pane mutation-effect"
-                         style="margin: 10px 10px 0 10px;">
-                        <p>{{biologicalSummary}}</p>
+                    <div role="tabpanel" class="col s12 tab-pane mutation-effect">
+                        <div>{{biologicalSummary}}</div>
                         <div class="refs">
                             <img src="images/loader.gif" alt="Loading...">
                         </div>
@@ -50,17 +49,20 @@
                 </div>
             </div>
 
+            <div class="additional-info">{{additionalInfo}}</div>
+
             <div class="item disclaimer">
         <span>
           The information above is intended for research purposes only and should not be used as a
           substitute for professional
           diagnosis and treatment.</span>
             </div>
-            <div class="item-list">
+
+            <div class="item-list levels-wrapper">
                 <ul class="collapsible" data-toggle="collapse" data-target=".oncokb-card-levels-collapse">
                     <li class="">
                         <div class="collapsible-header">Levels
-              <span class="secondary-content">
+                            <span class="secondary-content">
                 <i class="glyphicon glyphicon-chevron-down"></i>
                 <i class="glyphicon glyphicon-chevron-up" style="display: none"></i>
               </span>
@@ -77,8 +79,8 @@
                 <a href="http://oncokb.org/#/gene/{{gene}}" target="_blank">
                     <img src="images/oncokb.png" class="oncokb-logo" alt="OncoKB">
                 </a>
-        <span class="pull-right feedback"><button
-            class="btn btn-default btn-xs oncokb-card-feedback-btn"><i>Feedback</i></button></span></div>
+                <span class="pull-right feedback"><button
+                    class="btn btn-default btn-xs oncokb-card-feedback-btn"><i>Feedback</i></button></span></div>
         </div>
     </div>
 </script>

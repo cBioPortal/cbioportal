@@ -80,11 +80,15 @@ public class GeneticProfileReader {
              throw new RuntimeException("Error: genetic_profile record found with same Stable ID as the one used in your data:  "
                   + existingGeneticProfile.getStableId() + ". Remove the existing genetic_profile record first.");
          }
+         else if (geneticProfile.getDatatype().equals("FUSION")){
+             geneticProfile.setGeneticProfileId(existingGeneticProfile.getGeneticProfileId());
+             return geneticProfile;
+         }
          else {
              // For mutation data only we can have multiple files with the same genetic_profile.
              // There is a constraint in the mutation database table to prevent duplicated data
              // If this constraint is hit (mistakenly importing the same maf twice) MySqlBulkLoader will throw an exception
-
+             
              // make an object combining the pre-existing profile with the file-specific properties of the current file
              GeneticProfile gp = new GeneticProfile(existingGeneticProfile);
              gp.setTargetLine(geneticProfile.getTargetLine());
@@ -186,4 +190,11 @@ public class GeneticProfileReader {
       geneticProfile.setOtherMetadataFields(properties);
       return geneticProfile;
    }
+   
+    public static String loadGenePanelInformation(File file) throws Exception {
+        Properties properties = new TrimmedProperties();
+        properties.load(new FileInputStream(file));
+                
+        return properties.getProperty("gene_panel");
+    }
 }

@@ -137,21 +137,27 @@ For example:
 +        String name = credential.getNameID().getValue();
 ```
 
-## Modify the Login.jsp Page
+## Configuring the Login.jsp Page
 
-The current [Login.jsp](https://github.com/cBioPortal/cbioportal/blob/master/portal/src/main/webapp/login.jsp) page is hard-coded for Sloan Kettering Cancer Center.  We hope to fix this soon, and make the page configurable via `portal.properties`.  Until then, you will need to modify `Login.jsp` to match your specific set-up.  For example:
-
-```
--            If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.
-+           Please request access XXXXXXX.
-```
-
-and
+The login page is configurable via the `portal.properties` properties `skin.authorization_message` and `skin.login.saml.registration_htm`. 
+For example in `skin.authorization_message` you can be set to something like this:
 
 ```
--                            Sign in with MSK</button>
-+                            Sign in via XXXX</button>
+skin.authorization_message= Welcome to this portal. Access to this portal is available to authorized test users at YOUR ORG.  [<a href="http://thehyve.nl/">Request Access</a>].
 ```
+
+and `skin.login.saml.registration_htm` can be set to:
+
+```
+skin.login.saml.registration_htm=Sign in via XXXX
+```
+
+You can also set a standard text in `skin.login.contact_html` that will appear in case of problems: 
+
+```
+skin.login.contact_html=If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@your.org">cbioportal-access@your.org</a>
+```
+
 
 ## Doing a Test Run
 
@@ -171,9 +177,9 @@ If all goes well, the following should happen:
 * You will be redirected to the OneLogin Login Page.
 * After authenticating, you will be redirected back to your local instance of cBioPortal.
 
-If this does not happen, see the Debugging Tips below.
+If this does not happen, see the Troubleshooting Tips  below.
 
-## Tips
+## Troubleshooting Tips 
 
 ### Logging
 

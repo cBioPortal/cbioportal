@@ -48,6 +48,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -70,6 +71,10 @@ public class TestImportTabDelimData {
 	
 	@Before
 	public void setUp() throws DaoException {
+		DaoCancerStudy.reCacheAll();
+		DaoGeneOptimized.getInstance().reCache();
+		ProgressMonitor.resetWarnings();
+		
 		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
 		
 		GeneticProfile newGeneticProfile = new GeneticProfile();
@@ -82,9 +87,6 @@ public class TestImportTabDelimData {
 		
 		geneticProfileId =  DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_test").getGeneticProfileId();
 		
-		DaoPatient.reCache();
-		
-        DaoSample.reCache();
 		sample1 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId();
 		sample2 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SD-01").getInternalId();
 		sample3 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SE-01").getInternalId();
@@ -131,7 +133,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/cna_test.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, "Barry", geneticProfileId);
+        ImportTabDelimData parser = new ImportTabDelimData(file, "Barry", geneticProfileId, null);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
 
@@ -196,7 +198,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/cna_test2.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, geneticProfileId);
+        ImportTabDelimData parser = new ImportTabDelimData(file, geneticProfileId, null);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
 
@@ -280,7 +282,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/mrna_test.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
         ConsoleUtil.showMessages();
@@ -308,12 +310,16 @@ public class TestImportTabDelimData {
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
 
         //Gene with alias:
-        daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
+        daoGene.addGene(makeGeneWithAlias(999997504, "TESTXK", "NA"));
         //Other genes:
-        daoGene.addGene(new CanonicalGene(7124, "TNF"));
-        daoGene.addGene(new CanonicalGene(1111, "CHEK1"));
-        daoGene.addGene(new CanonicalGene(19, "ABCA1"));
-        
+        daoGene.addGene(new CanonicalGene(999999999, "TESTNAT1"));
+
+        daoGene.addGene(new CanonicalGene(999997124, "TESTTNF"));
+        daoGene.addGene(new CanonicalGene(999991111, "TESTCHEK1"));
+        daoGene.addGene(new CanonicalGene(999999919, "TESTABCA1"));
+        // will get generated negative id:
+        daoGene.addGene(new CanonicalGene(-1, "TESTphosphoprotein"));
+        		
         GeneticProfile geneticProfile = new GeneticProfile();
 
         geneticProfile.setCancerStudyId(studyId);
@@ -329,23 +335,51 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/tabDelimitedData/data_expression2.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
-        ConsoleUtil.showMessages();
+        
+        // check if expected warnings are given:
+        ArrayList<String> warnings = ProgressMonitor.getWarnings();
+        int countDuplicatedRowWarnings = 0;
+        int countInvalidEntrez = 0;
+        int countSkippedWarnings = 0;
+        for (String warning: warnings) {
+            if (warning.contains("Duplicated row")) {
+                countDuplicatedRowWarnings++;
+            }
+            if (warning.contains("invalid Entrez_Id")) {
+                //invalid Entrez
+                countInvalidEntrez++;
+            }
+            if (warning.contains("Record will be skipped")) {
+                //Entrez is a valid number, but not found
+                countSkippedWarnings++;
+            }
+        }
+        //check that we have 11 warning messages:
+        assertEquals(2, countDuplicatedRowWarnings);
+        assertEquals(3, countInvalidEntrez);
+        assertEquals(6, countSkippedWarnings);
+        
+        Set<Long> entrezGeneIds = DaoGeneticAlteration.getGenesIdInProfile(newGeneticProfileId);
+        // data will be loaded for 5 of the genes
+        assertEquals(5, entrezGeneIds.size());
+        HashMap<Long, HashMap<Integer, String>> dataMap = dao.getGeneticAlterationMap(newGeneticProfileId, entrezGeneIds);
+        assertEquals(5, dataMap.entrySet().size());
         
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE1").getInternalId();
-        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7124);
-        assertEquals ("0", value );
+        String value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999997124);
+        assertEquals ("770", value );
         
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE3").getInternalId();
-        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7124);
-        assertEquals ("2", value );
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999997124);
+        assertEquals ("220", value );
 
         //gene should also be loaded via its alias "NA" as defined above:
         sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "SAMPLE3").getInternalId();
-        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 7504);
-        assertEquals ("9", value );
+        value = dao.getGeneticAlteration(newGeneticProfileId, sampleId, 999997504);
+        assertEquals ("9940", value );
     }
     
     
@@ -366,7 +400,7 @@ public class TestImportTabDelimData {
         daoGene.addGene(makeGeneWithAlias(999999597,"TESTSANDER", "TESTACC1"));
         daoGene.addGene(makeGeneWithAlias(999997158,"TESTTP53BP1", "TEST53BP1"));
         // test for NA being a special case in RPPA, and not the usual alias
-        daoGene.addGene(makeGeneWithAlias(7504, "XK", "NA"));
+        daoGene.addGene(makeGeneWithAlias(999997504, "XK", "NA"));
         //Other genes:
         daoGene.addGene(new CanonicalGene(999999932,"TESTACACB"));
         daoGene.addGene(new CanonicalGene(999999208,"TESTAKT2"));
@@ -393,7 +427,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/tabDelimitedData/data_rppa.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId);
+        ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
         ConsoleUtil.showMessages();

@@ -33,6 +33,8 @@ drop table if EXISTS mutation_count;
 drop table IF EXISTS mutation;
 drop table IF EXISTS mutation_event;
 drop table IF EXISTS sample_profile;
+drop table IF EXISTS gene_panel_list;
+drop table IF EXISTS gene_panel;
 drop table IF EXISTS genetic_profile_samples;
 drop table IF EXISTS genetic_alteration;
 drop table IF EXISTS genetic_profile;
@@ -276,15 +278,31 @@ CREATE TABLE `genetic_profile_samples` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
 );
 
+CREATE TABLE `gene_panel` (
+    `INTERNAL_ID` int(11) NOT NULL auto_increment,
+    `STABLE_ID` varchar(255) NOT NULL,
+    `DESCRIPTION` mediumtext,
+    PRIMARY KEY (`INTERNAL_ID`),
+    UNIQUE (`STABLE_ID`)
+);
+CREATE TABLE `gene_panel_list` (
+    `INTERNAL_ID` int(11) NOT NULL,
+    `GENE_ID` int(255) NOT NULL,
+    PRIMARY KEY (`INTERNAL_ID`, `GENE_ID`),
+    FOREIGN KEY (`INTERNAL_ID`) REFERENCES `gene_panel` (`INTERNAL_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
 --
 -- Table structure for table `sample_profile`
 --
 CREATE TABLE `sample_profile` (
   `SAMPLE_ID` int(11) NOT NULL,
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  UNIQUE KEY `UQ_SAMPLE_ID_GENETIC_PROFILE_ID` (`SAMPLE_ID`,`GENETIC_PROFILE_ID`) COMMENT 'Constraint to allow each sample only once in each profile.',
+  `PANEL_ID` int(11) DEFAULT NULL,
+  UNIQUE KEY `UQ_SAMPLE_ID_GENETIC_PROFILE_ID` (`SAMPLE_ID`,`GENETIC_PROFILE_ID`), -- Constraint to allow each sample only once in each profile
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`PANEL_ID`) REFERENCES `gene_panel` (`INTERNAL_ID`) ON DELETE RESTRICT
 );
 
 -- --------------------------------------------------------
@@ -356,7 +374,7 @@ CREATE TABLE `mutation` (
   `NORMAL_ALT_COUNT` int(11),
   `NORMAL_REF_COUNT` int(11),
   `AMINO_ACID_CHANGE` varchar(255),
-  UNIQUE KEY `UQ_MUTATION_EVENT_ID_GENETIC_PROFILE_ID_SAMPLE_ID` (`MUTATION_EVENT_ID`,`GENETIC_PROFILE_ID`,`SAMPLE_ID`) COMMENT 'Constraint to block duplicated mutation entries.',
+  UNIQUE KEY `UQ_MUTATION_EVENT_ID_GENETIC_PROFILE_ID_SAMPLE_ID` (`MUTATION_EVENT_ID`,`GENETIC_PROFILE_ID`,`SAMPLE_ID`), -- Constraint to block duplicated mutation entries
   KEY (`GENETIC_PROFILE_ID`,`ENTREZ_GENE_ID`),
   KEY (`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
   KEY (`GENETIC_PROFILE_ID`),
@@ -728,4 +746,4 @@ CREATE TABLE `info` (
     `DB_SCHEMA_VERSION` varchar(8)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('1.2.1');
+INSERT INTO info VALUES ('1.2.2');

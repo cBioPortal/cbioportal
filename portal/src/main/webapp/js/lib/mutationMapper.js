@@ -1630,9 +1630,10 @@ var PileupUtil = (function()
 	 * Converts the provided mutation data into a list of Pileup instances.
 	 *
 	 * @param mutationColl  collection of Mutation models (MutationCollection)
+	 * @param converter     [optional] custom pileup converter function
 	 * @return {Array}      a list of pileup mutations
 	 */
-	function convertToPileups(mutationColl)
+	function convertToPileups(mutationColl, converter)
 	{
 		// remove redundant mutations by sid
 		mutationColl = removeRedundantMutations(mutationColl);
@@ -1665,19 +1666,12 @@ var PileupUtil = (function()
 		_.each(_.keys(mutations), function(key) {
 			var pileup = {};
 
-			pileup.pileupId = PileupUtil.nextId();
-			pileup.mutations = mutations[key];
-			pileup.count = mutations[key].length;
-			pileup.location = parseInt(key);
-			pileup.label = generateLabel(mutations[key]);
-	        // The following calculates dist of mutations by cancer type
-	        pileup.stats = _.chain(mutations[key])
-	            .groupBy(function(mut) { return mut.get("cancerType"); })
-	            .sortBy(function(stat) { return -stat.length; })
-	            .reduce(function(seed, o) {
-	                seed.push({ cancerType: o[0].get("cancerType"), count: o.length });
-	                return seed;
-	            }, []).value();
+			if (_.isFunction(converter)) {
+				pileup = converter(mutations, key);
+			}
+			else {
+				pileup = initPileup(mutations, key);
+			}
 
 			pileupList.push(new Pileup(pileup));
 		});
@@ -1696,6 +1690,29 @@ var PileupUtil = (function()
 		});
 
 		return pileupList;
+	}
+
+	function initPileup(mutations, location)
+	{
+		var pileup = {};
+
+		pileup.pileupId = PileupUtil.nextId();
+		pileup.mutations = mutations[location];
+		pileup.count = mutations[location].length;
+		pileup.location = parseInt(location);
+		pileup.label = generateLabel(mutations[location]);
+
+		// TODO can we separate this in the cbioportal codebase as a custom converter?
+		// The following calculates dist of mutations by cancer type
+		pileup.stats = _.chain(mutations[location])
+			.groupBy(function(mut) { return mut.get("cancerType"); })
+			.sortBy(function(stat) { return -stat.length; })
+			.reduce(function(seed, o) {
+				seed.push({ cancerType: o[0].get("cancerType"), count: o.length });
+				return seed;
+			}, []).value();
+
+		return pileup;
 	}
 
 	// TODO first remove by mutationSid, and then remove by patientId
@@ -1810,6 +1827,7 @@ var PileupUtil = (function()
 		nextId: nextId,
 		mapToMutations: mapToMutations,
 		convertToPileups: convertToPileups,
+		initPileup: initPileup,
 		countMutations: countMutations,
 		getPileupMutations: getPileupMutations,
 		getMutationTypeMap: generateTypeMap,
@@ -7197,7 +7215,7 @@ var MainMutationView = Backbone.View.extend({
 		self.$el.find(".mutation-table-container").hide();
 		self.$el.find(".mutation-diagram-view").hide();
 	},
-	initPdbPanelView: function(pdbColl)
+	initPdbPanelView: function(renderOpts, panelOpts, tableOpts, pdbColl)
 	{
 		var self = this;
 		var diagram = null;
@@ -7208,18 +7226,23 @@ var MainMutationView = Backbone.View.extend({
 			diagram = self.diagramView.mutationDiagram;
 		}
 
+		// TODO we should not be overwriting the render options...
+		renderOpts.loaderImage = self.options.config.loaderImage;
+
 		// allow initializing the pdb panel even if there is no diagram
-		var panelOpts = {
+		var viewOpts = {
 			//el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
 			el: self.$el.find(".mutation-pdb-panel-view"),
-			config: {loaderImage: self.options.config.loaderImage},
+			config: renderOpts,
 			model: {geneSymbol: self.model.geneSymbol,
 				pdbColl: pdbColl,
-				pdbProxy: self.model.dataProxies.pdbProxy},
+				pdbProxy: self.model.dataProxies.pdbProxy,
+				pdbPanelOpts: panelOpts,
+				pdbTableOpts: tableOpts},
 			diagram: diagram
 		};
 
-		var pdbPanelView = new PdbPanelView(panelOpts);
+		var pdbPanelView = new PdbPanelView(viewOpts);
 		pdbPanelView.render();
 
 		self._pdbPanelView = pdbPanelView;
@@ -7757,7 +7780,11 @@ var Mutation3dVisView = Backbone.View.extend({
 		var defaultOpts = {
 			config: {
 				loaderImage: "images/ajax-loader.gif",
-				helpImage: "images/help.png"
+				helpImage: "images/help.png",
+				border: {
+					top: 0,
+					left: 0
+				}
 			}
 		};
 
@@ -7862,15 +7889,15 @@ var Mutation3dVisView = Backbone.View.extend({
 
 				// if the panel goes beyond the visible area, get it back!
 
-				if (top < 0)
+				if (top < parseInt(self.options.config.border.top))
 				{
-					container3d.css("top", 0);
+					container3d.css("top", self.options.config.border.top);
 				}
 
 				//if (left < -width)
-				if (left < 0)
+				if (left < parseInt(self.options.config.border.left))
 				{
-					container3d.css("left", 0);
+					container3d.css("left", self.options.config.border.left);
 				}
 
 				// TODO user can still take the panel out by dragging it to the bottom or right
@@ -8479,7 +8506,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var container3d = self.$el;
 
-		container3d.css({"left": "", position: "", "top": 0});
+		container3d.css({"left": "", position: "", "top": self.options.config.border.top});
 	},
 	/**
 	 * Hides the 3D visualizer panel.
@@ -9453,7 +9480,7 @@ var MutationDiagramView = Backbone.View.extend({
 
 		// create a data object
 		var diagramData = {
-			pileups: PileupUtil.convertToPileups(mutationColl),
+			mutations: mutationColl,
 			sequence: sequenceData
 		};
 
@@ -10230,13 +10257,13 @@ var PdbChainTipView = Backbone.View.extend({
 
 		// TODO this can be implemented in a better way
 
-		if (pdbInfo != null ||
+		if (pdbInfo != null &&
 		    pdbInfo.length > 0)
 		{
 			variables.pdbInfo = ": " + pdbInfo;
 		}
 
-		if (molInfo != null ||
+		if (molInfo != null &&
 		    molInfo.length > 0)
 		{
 			variables.molInfo = ": " + molInfo;
@@ -10285,7 +10312,9 @@ var PdbChainTipView = Backbone.View.extend({
  * options: {el: [target container],
  *           model: {geneSymbol: hugo gene symbol,
  *                   pdbColl: collection of PdbModel instances,
- *                   pdbProxy: pdb data proxy},
+ *                   pdbProxy: pdb data proxy,
+ *                   pdbPanelOpts: MutationPdbPanel options,
+ *                   pdbTableOpts: MutationPdbTable options},
  *           diagram: [optional] reference to the MutationDiagram instance
  *          }
  *
@@ -10295,7 +10324,8 @@ var PdbPanelView = Backbone.View.extend({
 	initialize : function (options) {
 		var defaultOpts = {
 			config: {
-				loaderImage: "images/ajax-loader.gif"
+				loaderImage: "images/ajax-loader.gif",
+				autoExpand: true
 			}
 		};
 
@@ -10359,13 +10389,16 @@ var PdbPanelView = Backbone.View.extend({
 			pdbTableInit.click();
 		});
 
-		self.$el.find(".mutation-pdb-main-container").mouseenter(function(evt) {
-			self.autoExpand();
-		});
+		if (self.options.config.autoExpand)
+		{
+			self.$el.find(".mutation-pdb-main-container").mouseenter(function(evt) {
+				self.autoExpand();
+			});
 
-		self.$el.find(".mutation-pdb-main-container").mouseleave(function(evt) {
-			self.autoCollapse();
-		});
+			self.$el.find(".mutation-pdb-main-container").mouseleave(function(evt) {
+				self.autoCollapse();
+			});
+		}
 	},
 	hideView: function()
 	{
@@ -10389,6 +10422,7 @@ var PdbPanelView = Backbone.View.extend({
 				pdbProxy: self.model.pdbProxy}
 		};
 
+		tableOpts = jQuery.extend(true, {}, self.model.pdbTableOpts, tableOpts);
 		var pdbTableView = new PdbTableView(tableOpts);
 		self.pdbTableView = pdbTableView;
 
@@ -10397,7 +10431,7 @@ var PdbPanelView = Backbone.View.extend({
 		return pdbTableView;
 	},
 	/**
-	 * Adds a callback function for the PDB panel init button.
+	 * Adds a callback function for the PDB table init button.
 	 *
 	 * @param callback  function to be invoked on click
 	 */
@@ -10620,6 +10654,7 @@ var PdbPanelView = Backbone.View.extend({
 		}
 
 		// init panel
+		options = jQuery.extend(true, {}, self.model.pdbPanelOpts, options);
 		var panel = new MutationPdbPanel(options, pdbColl, pdbProxy, xScale);
 		panel.init();
 
@@ -11179,7 +11214,7 @@ function ClinicalDataProxy(options)
 
 	// default options
 	var _defaultOpts = {
-		servletName: "api/clinicaldata",
+		servletName: "api-legacy/clinicaldata",
 		subService: {
 			patients: "patients"
 		}
@@ -11753,12 +11788,13 @@ function MutationDataProxy(options)
 				mutationData = mutationData.concat(mutations.models);
 				callback(mutationData);
 			};
-
-			// some (or all) data is missing,
-			// send ajax request for missing genes
-			if (genesToQuery.length > 0)
-			{
-				var servletParams = _options.params;
+			
+			var paramsPromise = _options.paramsPromise || (new $.Deferred()).resolve(_options.params);
+			paramsPromise.then(function (servletParams) {
+			    // some (or all) data is missing,
+			    // send ajax request for missing genes
+			    if (genesToQuery.length > 0)
+			    {
 
 				// add genesToQuery to the servlet params
 				servletParams.geneList = genesToQuery.join(" ");
@@ -11766,26 +11802,27 @@ function MutationDataProxy(options)
 				// retrieve data from the server
 				//$.post(_options.servletName, servletParams, process, "json");
 				var ajaxOpts = {
-					type: "POST",
-					url: _options.servletName,
-					data: servletParams,
-					success: process,
-					error: function() {
-						console.log("[MutationDataProxy.getMutationData] " +
-							"error retrieving mutation data for genetic profiles: " + servletParams.geneticProfiles);
-						process([]);
-					},
-					dataType: "json"
+				    type: "POST",
+				    url: _options.servletName,
+				    data: servletParams,
+				    success: process,
+				    error: function () {
+					console.log("[MutationDataProxy.getMutationData] " +
+						"error retrieving mutation data for genetic profiles: " + servletParams.geneticProfiles);
+					process([]);
+				    },
+				    dataType: "json"
 				};
 
 				self.requestData(ajaxOpts);
-			}
-			// data for all requested genes already cached
-			else
-			{
+			    }
+			    // data for all requested genes already cached
+			    else
+			    {
 				// just forward the data to the callback function
 				callback(mutationData);
-			}
+			    }
+			});
 		}
 	}
 
@@ -15562,7 +15599,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 			"sScrollY": "600px",
 			"bScrollCollapse": true,
 			"oLanguage": {
-				"sInfo": "Showing _TOTAL_ mutation(s)",
+				"sInfo": "Showing _TOTAL_ mutation(s) in <span class='mutation-table-samples-info'></span> sample(s)",
 				"sInfoFiltered": "(out of _MAX_ total mutations)",
 				"sInfoEmpty": "No mutations to show"
 			}
@@ -15633,6 +15670,14 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 					"sButtonText": "Download",
 					"mColumns": getExportColumns(columnOpts, excludedCols),
 					"fnCellRender": function(sValue, iColumn, nTr, iDataIndex) {
+						// return actual data value for sample id column,
+						// since we show truncated data values when it is too long
+						if (iColumn === indexMap["caseId"])
+						{
+							var rowData = self.getDataTable().fnGetData()[iDataIndex];
+							return rowData[0].mutation.get("caseId");
+						}
+
 						var value = sValue;
 
 						// strip HTML content and use the main (visible) text only
@@ -15695,6 +15740,11 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				_dispatcher.trigger(
 					MutationDetailsEvents.MUTATION_TABLE_REDRAWN,
 					tableSelector);
+
+				// get the unique number of samples for the current visible data
+				var rowData = $(tableSelector).DataTable().rows({filter: "applied"}).data();
+				$(oSettings.nTableWrapper).find('.mutation-table-samples-info').text(
+					_.size(uniqueSamples(rowData)));
 
 				// TODO this may not be safe: prevent rendering of invalid links in the corresponding render function
 				// remove invalid links
@@ -16021,6 +16071,24 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 		}
 	}
 
+	function uniqueSamples(rowData)
+	{
+		var samples = {};
+
+		_.each(rowData, function(data, index) {
+			// assuming only the first element contains the datum
+			var mutation = data[0].mutation;
+
+			if (mutation &&
+			    !_.isEmpty(mutation.get('caseId')))
+			{
+				samples[mutation.get('caseId').toLowerCase()] = true;
+			}
+		});
+
+		return samples;
+	}
+
 	function getMutations()
 	{
 		var mutations = null;
@@ -16110,7 +16178,7 @@ MutationDetailsTable.prototype.constructor = MutationDetailsTable;
  *
  * @param geneSymbol    hugo gene symbol
  * @param options       visual options object
- * @param data          object: {pileups: collection of Pileup instances,
+ * @param data          object: {mutations: a MutationCollection instance,
  *                               sequence: sequence data as a JSON object}
  * @param dataProxies   all available data proxies
  * @constructor
@@ -16134,8 +16202,9 @@ function MutationDiagram(geneSymbol, options, data, dataProxies)
 	self.dataProxies = dataProxies;
 	self.geneSymbol = geneSymbol; // hugo gene symbol
 	self.data = data; // processed initial (unfiltered) data
-	self.pileups = (data == null) ? null : data.pileups; // current pileups (updated after each filtering)
-
+	self.pileups = (data == null) ? null : // current pileups (updated after each filtering)
+		PileupUtil.convertToPileups(data.mutations, options.pileupConverter);
+	self.initialPileups = self.pileups;
 	self.highlighted = {}; // map of highlighted data points (initially empty)
 	self.multiSelect = false; // indicates if multiple lollipop selection is active
 
@@ -16256,6 +16325,7 @@ MutationDiagram.prototype.defaultOpts = {
 	yAxisAutoAdjust: true,      // indicates whether to adjust max y-axis value after plot update
 	animationDuration: 1000,    // transition duration (in ms) used for highlight animations
 	fadeDuration: 1500,         // transition duration (in ms) used for fade animations
+	pileupConverter: false,
 	/**
 	 * Default lollipop tooltip function.
 	 *
@@ -16377,7 +16447,7 @@ MutationDiagram.prototype.updateGlobals = function(options)
 	var self = this;
 	options = options || self.options;
 
-	var pileups = self.data.pileups; // initial pileup data
+	var pileups = self.initialPileups; // initial pileup data
 
 	// in case auto adjust is enabled,
 	// use current pileup data instead of the initial pileup data
@@ -16424,7 +16494,7 @@ MutationDiagram.prototype.initDiagram = function()
 	// calculate bounds & save a reference for future access
 	var bounds = self.bounds = self.calcBounds(self.options);
 
-	self.mutationPileupMap = PileupUtil.mapToMutations(self.data.pileups);
+	self.mutationPileupMap = PileupUtil.mapToMutations(self.initialPileups);
 
 	// init svg container
 	var svg = self.createSvg(container,
@@ -16479,13 +16549,13 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 {
 	var self = this;
 	var sequenceLength = parseInt(data.sequence["length"]);
+	var pileups = self.initialPileups || PileupUtil.convertToPileups(data.mutations, options.pileupConverter);
 
-	var maxCount = self.maxCount = self.calcMaxCount(data.pileups);
+	var maxCount = self.maxCount = self.calcMaxCount(pileups);
 	var xMax = self.xMax = self.calcXMax(options, data);
 	var yMax = self.yMax = self.calcYMax(options, maxCount);
 
 	var regions = data.sequence.regions;
-	var pileups = data.pileups;
 	var seqTooltip = self.generateSequenceTooltip(data);
 
 	var xScale = self.xScale = self.xScaleFn(bounds, xMax);
@@ -17487,19 +17557,21 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
  * the provided data set is a subset of the original data. If the number of
  * mutations is the same, then returns false.
  *
- * @param pileupData  an array of piled up mutations
+ * @param mutationColl  a MutationCollection instance
  * @return {boolean}  true if the diagram is filtered, false otherwise
  */
-MutationDiagram.prototype.updatePlot = function(pileupData)
+MutationDiagram.prototype.updatePlot = function(mutationColl)
 {
 	var self = this;
 	var pileups = self.pileups;
 
 	// TODO for a safer update, verify the provided data
+	var pileupData = [];
 
 	// update current data & pileups
-	if (pileupData)
+	if (mutationColl)
 	{
+		pileupData = PileupUtil.convertToPileups(mutationColl, self.options.pileupConverter);
 		self.pileups = pileups = pileupData;
 		self.mutationPileupMap = PileupUtil.mapToMutations(pileups);
 	}
@@ -17610,7 +17682,7 @@ MutationDiagram.prototype.resetPlot = function()
 {
 	var self = this;
 
-	self.updatePlot(self.data.pileups);
+	self.updatePlot(self.data.mutations);
 
 	// trigger corresponding event
 	self.dispatcher.trigger(
@@ -17743,16 +17815,29 @@ MutationDiagram.prototype.addDefaultListeners = function()
 		}
 	});
 
-	// lollipop circle mouse over
+	// lollipop circle mouse out
 	self.addListener(".mut-dia-data-point", "mouseout", function(datum, index) {
+		// if not highlighted, make the lollipop smaller
+		if (!self.isHighlighted(this))
+		{
+			self.resizeLollipop(d3.select(this), self.options.lollipopSize);
+		}
+
 		// trigger corresponding event
 		self.dispatcher.trigger(
 			MutationDetailsEvents.LOLLIPOP_MOUSEOUT,
 			datum, index);
 	});
 
-	// lollipop circle mouse out
+	// lollipop circle mouse over
 	self.addListener(".mut-dia-data-point", "mouseover", function(datum, index) {
+		// if not highlighted, make the lollipop bigger
+		// (if highlighted, it should be already bigger by default)
+		if (!self.isHighlighted(this))
+		{
+			self.resizeLollipop(d3.select(this), self.options.lollipopHighlightSize);
+		}
+
 		// trigger corresponding event
 		self.dispatcher.trigger(
 			MutationDetailsEvents.LOLLIPOP_MOUSEOVER,
@@ -17830,13 +17915,7 @@ MutationDiagram.prototype.clearHighlights = function()
 	var self = this;
 	var dataPoints = self.gData.selectAll(".mut-dia-data-point");
 
-	// TODO see if it is possible to update ONLY size, not the whole 'd' attr
-	dataPoints.transition()
-		.ease("elastic")
-		.duration(self.options.animationDuration)
-		.attr("d", d3.svg.symbol()
-			.size(self.options.lollipopSize)
-			.type(self.getLollipopShapeFn()));
+	self.resizeLollipop(dataPoints, self.options.lollipopSize);
 	self.highlighted = {};
 };
 
@@ -17870,13 +17949,8 @@ MutationDiagram.prototype.highlight = function(selector)
 	var self = this;
 	var element = d3.select(selector);
 
-	element.transition()
-		.ease("elastic")
-		.duration(self.options.animationDuration)
-		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
-		.attr("d", d3.svg.symbol()
-			.size(self.options.lollipopHighlightSize)
-			.type(self.getLollipopShapeFn()));
+	// resize lollipop to the highlight size
+	self.resizeLollipop(element, self.options.lollipopHighlightSize);
 
 	// add data point to the map
 	var location = element.datum().location;
@@ -17895,17 +17969,25 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 	var self = this;
 	var element = d3.select(selector);
 
-	element.transition()
-		.ease("elastic")
-		.duration(self.options.animationDuration)
-		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
-		.attr("d", d3.svg.symbol()
-			.size(self.options.lollipopSize)
-			.type(self.getLollipopShapeFn()));
+	// resize lollipop to the regular size
+	self.resizeLollipop(element, self.options.lollipopSize);
 
 	// remove data point from the map
 	var location = element.datum().location;
 	delete self.highlighted[location];
+};
+
+MutationDiagram.prototype.resizeLollipop = function(lollipop, size)
+{
+	var self = this;
+
+	lollipop.transition()
+		.ease("elastic")
+		.duration(self.options.animationDuration)
+		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
+		.attr("d", d3.svg.symbol()
+			.size(size)
+			.type(self.getLollipopShapeFn()));
 };
 
 MutationDiagram.prototype.fadeIn = function(element, callback)
@@ -17962,7 +18044,7 @@ MutationDiagram.prototype.isFiltered = function()
 	var filtered = false;
 
 	if (PileupUtil.countMutations(self.pileups) <
-	    PileupUtil.countMutations(self.data.pileups))
+	    PileupUtil.countMutations(self.initialPileups))
 	{
 		filtered = true;
 	}
@@ -17986,7 +18068,7 @@ MutationDiagram.prototype.getInitialMaxY = function()
 
 	if (!self.initialYMax)
 	{
-		var maxCount = self.calcMaxCount(self.data.pileups);
+		var maxCount = self.calcMaxCount(self.initialPileups);
 		self.initialYMax = self.calcYMax(self.options, maxCount);
 	}
 
@@ -20395,6 +20477,8 @@ function MainMutationController(mainMutationView)
  *
  * @param mutationDetailsView   a MutationDetailsView instance
  * @param mainMutationView      a MainMutationView instance
+ * @param viewOptions           view component options
+ * @param renderOptions         view class options
  * @param mut3dVisView          a Mutation3dVisView instance
  * @param mut3dView             a Mutation3dView instance
  * @param pdbProxy              proxy for pdb data
@@ -20403,7 +20487,7 @@ function MainMutationController(mainMutationView)
  *
  * @author Selcuk Onur Sumer
  */
-function Mutation3dController(mutationDetailsView, mainMutationView,
+function Mutation3dController(mutationDetailsView, mainMutationView, viewOptions, renderOptions,
 	mut3dVisView, mut3dView, pdbProxy, mutationUtil, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
@@ -20670,7 +20754,8 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		// init pdb panel view if not initialized yet
 		if (_pdbPanelView == null)
 		{
-			_pdbPanelView = mainMutationView.initPdbPanelView(pdbColl);
+			_pdbPanelView = mainMutationView.initPdbPanelView(renderOptions.pdbPanel,
+				viewOptions.pdbPanel, viewOptions.pdbTable, pdbColl);
 
 			if (_pdbPanelView.pdbPanel)
 			{
@@ -20689,9 +20774,15 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 			}
 
 			// add listeners for the mutation 3d view
-			_pdbPanelView.addInitCallback(function(event) {
-				initPdbTable(pdbColl);
-			});
+			if (viewOptions.pdbTable) {
+				_pdbPanelView.addInitCallback(function(event) {
+					initPdbTable(pdbColl);
+				});
+			}
+			else {
+				// TODO not an ideal way of disabling a view component...
+				_pdbPanelView.$el.find(".pdb-table-controls").remove();
+			}
 		}
 	}
 
@@ -21003,6 +21094,9 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 	}
 
 	init();
+
+	this.reset3dView = reset3dView;
+	this.highlightSelected = highlightSelected;
 }
 
 /*
@@ -21054,6 +21148,8 @@ function MutationDetailsController(
 
 	// a single 3D view instance shared by all MainMutationView instances
 	var _mut3dVisView = null;
+
+	var _3dController = null;
 
 	function init()
 	{
@@ -21159,12 +21255,19 @@ function MutationDetailsController(
 //				new MutationCollection(mutationData));
 			var mutationUtil = mutationProxy.getMutationUtil();
 
+			var uniprotId = "";
+
+			// TODO get uniprot id(s) from elsewhere
+			if (sequenceData) {
+				uniprotId = sequenceData.metadata.identifier;
+			}
+
 			// prepare data for mutation view
 			var model = {geneSymbol: gene,
 				mutationData: mutationData,
 				dataProxies: dataProxies,
 				dataManager: dataManager,
-				uniprotId: sequenceData.metadata.identifier, // TODO get uniprot id(s) from elsewhere
+				uniprotId: uniprotId,
 				sampleArray: cases};
 
 			// init the main view
@@ -21229,14 +21332,15 @@ function MutationDetailsController(
 			// TODO table can be initialized without the PFAM data...
 			pfamProxy.getPfamData(servletParams, function(sequenceData) {
 				// sequenceData may be null for unknown genes...
-				if (sequenceData == null)
-				{
-					console.log("[warning] no pfam data found: %o", servletParams);
-					return;
-				}
+				var sequence = null;
 
-				// get the first sequence from the response
-				var sequence = sequenceData[0];
+				if (sequenceData == null) {
+					console.log("[warning] no pfam data found: %o", servletParams);
+				}
+				else {
+					// get the first sequence from the response
+					sequence = sequenceData[0];
+				}
 
 				// get annotation data in any case
 				dataManager.getData("variantAnnotation",
@@ -21278,7 +21382,7 @@ function MutationDetailsController(
 
 		function initDiagram()
 		{
-			if (diagramOpts)
+			if (diagramOpts && sequenceData)
 			{
 				diagramView = mainView.initMutationDiagramView(diagramOpts, sequenceData);
 
@@ -21328,8 +21432,14 @@ function MutationDetailsController(
 			// just init the 3D button
 			var view3d = mainView.init3dView(null);
 
-			new Mutation3dController(mutationDetailsView, mainView,
+			_3dController = new Mutation3dController(mutationDetailsView, mainView, viewOptions, renderOptions,
 				_mut3dVisView, view3d, pdbProxy, mutationUtil, gene);
+
+			if (renderOptions.mutationDetails.activate3dOnInit)
+			{
+				_3dController.reset3dView(renderOptions.mutationDetails.activate3dOnInit.pdbId,
+				                          renderOptions.mutationDetails.activate3dOnInit.chain);
+			}
 		}
 	}
 
@@ -21341,6 +21451,7 @@ function MutationDetailsController(
 		return _geneTabView[key];
 	};
 
+	this.get3dController = function() {return _3dController;};
 	this.get3dVisView = function() {return _mut3dVisView;};
 	this.getMainViews = function() {return _geneTabView;};
 	this.getDataManager = function() {return dataManager};
@@ -21808,7 +21919,7 @@ function MutationDiagramController(mutationDiagram, mutationTable, infoPanelView
 		if (mutationDiagram !== null)
 		{
 			var mutationData = new MutationCollection(currentMutations);
-			mutationDiagram.updatePlot(PileupUtil.convertToPileups(mutationData));
+			mutationDiagram.updatePlot(mutationData);
 		}
 	}
 
@@ -21821,16 +21932,14 @@ function MutationDiagramController(mutationDiagram, mutationTable, infoPanelView
 
 			if (_.size(mutations) > 0)
 			{
-				mutationDiagram.updatePlot(PileupUtil.convertToPileups(
-					new MutationCollection(mutations)));
+				mutationDiagram.updatePlot(new MutationCollection(mutations));
 			}
 			// if all the mutations of this type are already filtered out,
 			// then show all mutations of this type
 			else
 			{
 				mutations = infoPanelView.initialMapByType[mutationType];
-				mutationDiagram.updatePlot(PileupUtil.convertToPileups(
-					new MutationCollection(mutations)));
+				mutationDiagram.updatePlot(new MutationCollection(mutations));
 			}
 		}
 	}
@@ -22062,9 +22171,11 @@ function MutationMapper(options)
 			// MutationDetailsView options
 			mutationDetails: {
 				init: null, // function for custom init
-				format: null // function for custom format
+				format: null, // function for custom format
+				activate3dOnInit: false
 			},
 			mainMutation: {},
+			pdbPanel: {},
 			mutation3dVis: {}
 		},
 		// data proxy configuration

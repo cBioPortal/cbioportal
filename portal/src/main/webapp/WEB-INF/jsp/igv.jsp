@@ -1,5 +1,5 @@
 <%--
- - Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ - Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  -
  - This library is distributed in the hope that it will be useful, but WITHOUT
  - ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -40,12 +40,12 @@
                 + '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"><\/script>'
                 + '<script type="text/javascript" src="js/lib/igv.js"><\/script></head>';
             var bodyContent1 = '<body><div id="igvDiv" style="padding-top: 10px;padding-bottom: 10px; border:1px solid lightgray;width:100%"></div><script type="text/javascript">  $(document).ready(function () {    var div = $("#igvDiv")[0],   options = {'
-                + 'showNavigation: true, showRuler: true, genome: "hg19", locus: "' + hugoSymbol + '", tracks: [  { url: "api/copynumbersegments", indexed: false, name: "Segmented CN", type:"seg", json: true, method: "POST", ';
-            var bodyContent2 = 'cancerStudyId: "' + cancerStudyId + '", hugoSymbol: "' + hugoSymbol +'", sampleIds: "' + sampleIds + '"},{name: "Genes", url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed", order: Number.MAX_VALUE,  displayMode: "EXPANDED"}]};igv.createBrowser(div, options);});<\/script><\/body>';    
+                + 'showNavigation: true, showRuler: true, genome: "hg19", locus: "' + hugoSymbol + '", tracks: [  { url: "api-legacy/copynumbersegments", indexed: false, name: "Segmented CN", type:"seg", json: true, method: "POST", ';
+            var bodyContent2 = 'cancerStudyId: "' + cancerStudyId + '", hugoSymbol: "' + hugoSymbol +'", sampleIds: "' + sampleIds + '"},{name: "Genes", url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed", order: Number.MAX_VALUE,  displayMode: "EXPANDED"}]};igv.createBrowser(div, options);});<\/script><\/body>';
             var fullContent = headerContent + bodyContent1 + bodyContent2;
             return fullContent;
         }
-        
+
         $("#igv-result-tab").click(function(){
             var genes = window.QuerySession.getQueryGenes();
             if(genes.length > 0){
@@ -80,10 +80,7 @@
                     }
                 });
             }
- 
-            
         });
-
     });
 </script>
 
@@ -91,6 +88,5 @@
     <ul class="nav nav-tabs" id="igvList"></ul>
     <div class="tab-content" id="igvContent"></div>
 </div>
-
 
 </div>

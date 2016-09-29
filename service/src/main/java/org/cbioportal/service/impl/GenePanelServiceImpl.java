@@ -11,9 +11,12 @@ package org.cbioportal.service.impl;
  */
 
 import org.cbioportal.model.GenePanel;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GenePanelWithSamples;
 import org.cbioportal.persistence.GenePanelRepository;
 import org.cbioportal.service.GenePanelService;
 import java.util.List;
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +27,19 @@ public class GenePanelServiceImpl implements GenePanelService {
     private GenePanelRepository genePanelRepository;
 
     @Override
-    public String getGenePanelBySampleIdAndProfileId(String sampleId, String profileId) {
-        return genePanelRepository.getGenePanelBySampleIdAndProfileId(sampleId, profileId);
+    public List<GenePanelWithSamples> getGenePanelDataByProfileAndGenes(String profileId, List<String> submittedGenes) {
+        List<GenePanelWithSamples> genePanels =  genePanelRepository.getGenePanelsByProfile(profileId);
+        for (GenePanelWithSamples genePanel : genePanels) {
+            List<Gene> genes = genePanel.getGenes();
+            List<Gene> genesToSet = new ArrayList<>();
+            for (Gene gene : genes) {
+                if (submittedGenes.contains(gene.getHugoGeneSymbol())) {
+                    genesToSet.add(gene);
+                }                
+            }
+            genePanel.setGenes(genesToSet);
+        }
+        return genePanels;
     }
     
     @Override

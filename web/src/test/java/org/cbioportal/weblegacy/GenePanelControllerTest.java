@@ -33,8 +33,7 @@ package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cbioportal.model.GenePanel;
-import org.cbioportal.model.Gene;
+import org.cbioportal.model.*;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
@@ -69,7 +68,9 @@ public class GenePanelControllerTest {
     private MockMvc mockMvc;
     private GenePanel genePanel1;
     private GenePanel genePanel2;
-
+    private Gene egfr;
+    private Gene braf;
+    
     @Before
     public void setup() {
         Mockito.reset(genePanelServiceMock);
@@ -85,20 +86,20 @@ public class GenePanelControllerTest {
         genePanel2.setInternalId(2);
 
         List<Gene> genes = new ArrayList<>();
-        Gene gene1 = new Gene();
-        gene1.setEntrezGeneId(673);
-        gene1.setHugoGeneSymbol("BRAF");
-        gene1.setType("protein-coding");
-        gene1.setCytoband("7q34");
-        gene1.setLength(4564);
-        Gene gene2 = new Gene();
-        gene2.setEntrezGeneId(1956);
-        gene2.setHugoGeneSymbol("EGFR");
-        gene2.setType("protein-coding");
-        gene2.setCytoband("7p12");
-        gene2.setLength(12961);
-        genes.add(gene1);
-        genes.add(gene2);
+        braf  = new Gene();
+        braf.setEntrezGeneId(673);
+        braf.setHugoGeneSymbol("BRAF");
+        braf.setType("protein-coding");
+        braf.setCytoband("7q34");
+        braf.setLength(4564);
+        egfr = new Gene();
+        egfr.setEntrezGeneId(1956);
+        egfr.setHugoGeneSymbol("EGFR");
+        egfr.setType("protein-coding");
+        egfr.setCytoband("7p12");
+        egfr.setLength(12961);
+        genes.add(braf);
+        genes.add(egfr);
 
         genePanel1.setGenes(genes);
     }
@@ -121,17 +122,89 @@ public class GenePanelControllerTest {
     }
 
     @Test
-    public void genePanelBySampleIdAndProfileIdTest() throws Exception {
-        String mockResponse = "GENEPANEL2";
-        Mockito.when(genePanelServiceMock.getGenePanelBySampleIdAndProfileId(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyString())).thenReturn(mockResponse);
+    public void genePanelsByProfilesNoIntersection() throws Exception {
+        List<GenePanelWithSamples> mockResponse = new ArrayList<>();
+        GenePanelWithSamples gpq1 = new GenePanelWithSamples();
+        List<String> samples = new ArrayList<>(); 
+        samples.add("SAMPLEID1");
+        samples.add("SAMPLEID2");
+        gpq1.setSamples(samples);
+        gpq1.setStableId("GENEPANEL2");
+        String[] genesquery = {"OFFPANEL1", "OFFPANEL2"};
+        mockResponse.add(gpq1);
+
+        Mockito.when(genePanelServiceMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-        .param("sample_id", "SAMPLE1").param("profile_id", "PROFILE1"))
+        .param("profile_id", "PROFILE1").param("genes", genesquery))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$").value("GENEPANEL2"));
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.nullValue()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(2)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
     }
+    
+    @Test
+    public void genePanelsByProfilesPartialIntersection() throws Exception {
+        List<GenePanelWithSamples> mockResponse = new ArrayList<>();
+        GenePanelWithSamples gpq1 = new GenePanelWithSamples();
+        List<Gene> panelGenes = new ArrayList<>();
+        panelGenes.add(braf);
+        List<String> samples = new ArrayList<>(); 
+        samples.add("SAMPLEID1");
+        gpq1.setSamples(samples);
+        gpq1.setStableId("GENEPANEL2");
+        gpq1.setGenes(panelGenes);
+        String[] genesquery = {"OFFPANEL1", "BRAF"};
+        mockResponse.add(gpq1);
+
+        Mockito.when(genePanelServiceMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        this.mockMvc.perform(
+        MockMvcRequestBuilders.get("/genepanel/data")
+        .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
+        .param("profile_id", "PROFILE1").param("genes", genesquery))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes[0].hugoGeneSymbol").value("BRAF"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
+    }
+    
+    @Test
+    public void genePanelsByProfilesFullIntersection() throws Exception {
+        List<GenePanelWithSamples> mockResponse = new ArrayList<>();
+        GenePanelWithSamples gpq1 = new GenePanelWithSamples();
+        List<Gene> panelGenes = new ArrayList<>();
+        panelGenes.add(braf);
+        panelGenes.add(egfr);
+        List<String> samples = new ArrayList<>(); 
+        samples.add("SAMPLEID1");
+        gpq1.setSamples(samples);
+        gpq1.setStableId("GENEPANEL2");
+        gpq1.setGenes(panelGenes);
+        String[] genesquery = {"EGFR", "BRAF"};
+        mockResponse.add(gpq1);
+
+        Mockito.when(genePanelServiceMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        this.mockMvc.perform(
+        MockMvcRequestBuilders.get("/genepanel/data")
+        .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
+        .param("profile_id", "PROFILE1").param("genes", genesquery))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.hasSize(2)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes[0].hugoGeneSymbol").value("BRAF"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
+    }    
 
     @Test
     public void genePanel() throws Exception {

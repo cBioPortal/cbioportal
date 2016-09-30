@@ -866,13 +866,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     var ignoreMutations = function(ws_data, known_mutation_settings) {
 	return ws_data.filter(function(d) {
 	    if (d.genetic_alteration_type !== "MUTATION_EXTENDED"
+		|| d.simplified_mutation_type !== "missense"
 		|| known_mutation_settings.ignore_unknown === false) {
 		return true;
 	    } else {
 		return (known_mutation_settings.recognize_hotspot && d.cancer_hotspots_hotspot)
-			|| (known_mutation_settings.recognize_oncokb_oncogenic && (["likely oncogenic", "oncogenic"].indexOf(d.oncokb_oncogenic.toLowerCase()) > -1))
-			|| (known_mutation_settings.recognize_cbioportal_count && d.cbioportal_mutation_count >= known_mutation_settings.cbioportal_count_thresh)
-			|| (known_mutation_settings.recognize_cosmic_count && d.cosmic_count >= known_mutation_settings.cosmic_count_thresh);
+			|| (known_mutation_settings.recognize_oncokb_oncogenic && (typeof d.oncokb_oncogenic !== "undefined") && (["likely oncogenic", "oncogenic"].indexOf(d.oncokb_oncogenic.toLowerCase()) > -1))
+			|| (known_mutation_settings.recognize_cbioportal_count && (typeof d.cbioportal_mutation_count !== "undefined") && d.cbioportal_mutation_count >= known_mutation_settings.cbioportal_count_thresh)
+			|| (known_mutation_settings.recognize_cosmic_count && (typeof d.cosmic_count !== "undefined") && d.cosmic_count >= known_mutation_settings.cosmic_count_thresh);
 	    }
 	});
     };

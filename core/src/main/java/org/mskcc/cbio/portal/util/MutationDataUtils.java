@@ -192,7 +192,7 @@ public class MutationDataUtils {
 			String attrId) throws DaoException
 	{
 		Map<Integer, ClinicalData> map = new HashMap<Integer, ClinicalData>();
-		ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+		ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum(attrId, cancerStudy.getInternalId());
 
 		// check if attrId is in the DB
 		if (attr != null)

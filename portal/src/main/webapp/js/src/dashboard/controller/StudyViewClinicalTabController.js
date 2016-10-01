@@ -42,13 +42,12 @@
 var StudyViewClinicalTabController = (function() {
     function init(callback) {
         $.when(
-            window.iviz.datamanager.getPatientClinicalAttributes(),
+            window.iviz.datamanager.getClinicalAttributesByStudy(),
             window.iviz.datamanager.getPatientClinicalData(),
-            window.iviz.datamanager.getSampleClinicalAttributes(),
             window.iviz.datamanager.getSampleClinicalData(),
             window.iviz.datamanager.getStudyToSampleToPatientdMap())
-            .then(function(pa, pd, sa, sd, map) {
-                var attr = _.extend(pa, sa);
+            .then(function(ca, pd, sd, map) {
+                var attr = _.extend(ca);
                 var arr = _.extend(pd, sd);
                 var data = [];
                 var mapping =

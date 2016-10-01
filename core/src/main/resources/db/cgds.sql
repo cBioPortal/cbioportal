@@ -26,7 +26,7 @@ drop table IF EXISTS protein_array_target;
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS mut_sig;
 drop table IF EXISTS interaction;
-drop table IF EXISTS clinical_attribute;
+drop table IF EXISTS clinical_attribute_meta;
 drop table IF EXISTS entity_attribute;
 drop table IF EXISTS attribute_metadata;
 drop table if EXISTS mutation_count;
@@ -445,16 +445,18 @@ CREATE TABLE `clinical_sample` (
 );
 
 --
--- Table structure for table `clinical_attribute`
+-- Table structure for table `clinical_attribute_meta`
 --
-CREATE TABLE `clinical_attribute` (
+CREATE TABLE `clinical_attribute_meta` (
   `ATTR_ID` varchar(255) NOT NULL,
   `DISPLAY_NAME` varchar(255) NOT NULL,
   `DESCRIPTION` varchar(2048) NOT NULL,
   `DATATYPE` varchar(255) NOT NULL,
   `PATIENT_ATTRIBUTE` BOOLEAN NOT NULL,
   `PRIORITY` varchar(255) NOT NULL,
-  PRIMARY KEY (`ATTR_ID`)
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY (`ATTR_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------

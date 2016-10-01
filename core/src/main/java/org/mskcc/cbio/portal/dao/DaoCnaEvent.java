@@ -80,7 +80,7 @@ public final class DaoCnaEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO cna_event (" +
                             "`ENTREZ_GENE_ID`," +
@@ -96,7 +96,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
 	}
     

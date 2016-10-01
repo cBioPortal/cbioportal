@@ -64,25 +64,28 @@ public class ClinicalAttribute  {
     private String datatype;
     private boolean patientAttribute;
     private String priority;
+    private Integer cancerStudyId;
 
     public ClinicalAttribute(String attributeId, String displayName, String description,
-                             String datatype, boolean patientAttribute, String priority) {
+                             String datatype, boolean patientAttribute, String priority, Integer cancerStudyId) {
         this.attributeId = attributeId;
 		this.displayName = displayName;
 		this.description = description;
         this.datatype = datatype;
         this.patientAttribute = patientAttribute;
         this.priority = priority;
+        this.cancerStudyId = cancerStudyId;
     }
 
     @Override
     public String toString() {
         return "ClinicalAttribute[" +
-			attributeId + "," +
-			displayName + "," +
-			description + "," +
+            attributeId + "," +
+            displayName + "," +
+            description + "," +
             priority + "," +
-			datatype + "]";
+            datatype + "," +
+            String.valueOf(cancerStudyId) + "]";
     }
 
     public String getAttrId() {
@@ -131,5 +134,11 @@ public class ClinicalAttribute  {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+    public Integer getCancerStudyId() {
+        return cancerStudyId;
+    }
+    public void setCancerStudyId(Integer cancerStudyId) {
+        this.cancerStudyId = cancerStudyId;
     }
 }

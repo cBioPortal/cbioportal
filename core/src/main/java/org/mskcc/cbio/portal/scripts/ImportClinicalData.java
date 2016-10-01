@@ -241,24 +241,21 @@ public class ImportClinicalData extends ConsoleRunnable {
                 new ClinicalAttribute(colnames[i].trim().toUpperCase(), displayNames[i],
                                       descriptions[i], datatypes[i],
                                       attributeTypes[i].equals(ClinicalAttribute.PATIENT_ATTRIBUTE),
-                                      priorities[i]);
+                                      priorities[i],
+                                      cancerStudy.getInternalId());
             attrs.add(attr);
             //skip PATIENT_ID / SAMPLE_ID columns, i.e. these are not clinical attributes but relational columns:
             if (attr.getAttrId().equals(PATIENT_ID_COLUMN_NAME) ||
             	attr.getAttrId().equals(SAMPLE_ID_COLUMN_NAME)) {
 	            continue;
             }
-        	ClinicalAttribute attrInDb = DaoClinicalAttribute.getDatum(attr.getAttrId());
-            if (null==attrInDb) {
-                DaoClinicalAttribute.addDatum(attr);
+            ClinicalAttribute attrInDb = DaoClinicalAttributeMeta.getDatum(attr.getAttrId(), cancerStudy.getInternalId());
+            if (attrInDb != null) {
+                ProgressMonitor.logWarning("Attribute " + attrInDb.getAttrId() + " found twice in your study!");
+                continue;
             }
-            else if (attrInDb.isPatientAttribute() != attr.isPatientAttribute()) {
-            	throw new DaoException("Illegal change in attribute type[SAMPLE/PATIENT] for attribute " + attr.getAttrId() + 
-            			". An attribute cannot change from SAMPLE type to PATIENT type (or vice-versa) during import. This should " + 
-            			"be changed manually first in DB.");
-            }
+            DaoClinicalAttributeMeta.addDatum(attr);
         }
-
         return attrs;
     }
    

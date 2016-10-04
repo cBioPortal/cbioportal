@@ -49,9 +49,9 @@
                             + '<link rel="stylesheet" type="text/css" href="css/igv.css">'
                             + '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"><\/script>'
                             + '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"><\/script>'
-                            + '<script type="text/javascript" src="js/lib/igv.js"><\/script></head>';
-                        var bodyContent1 = '<body><div id="igvDiv" style="padding-top: 10px;padding-bottom: 10px; border:1px solid lightgray;width:100%"></div><script type="text/javascript">  $(document).ready(function () {    var div = $("#igvDiv")[0],   options = {'
-                            + 'showNavigation: true, showRuler: true, genome: "hg19", locus: "' + hugoSymbol + '", tracks: [  { url: "api-legacy/copynumbersegments", indexed: false, name: "Segmented CN", type:"seg", json: true, method: "POST", ';
+                            + '<script type="text/javascript" src="js/lib/igv.min.js"><\/script></head>';
+                        var bodyContent1 = '<body><div id="igvDiv" style="padding-top: 10px;padding-bottom: 10px; border:1px solid lightgray;width:100%"></div><script type="text/javascript">  $(document).ready(function () {    var div = $("#igvDiv"),   options = {'
+                            + 'divId: "igvDiv", showNavigation: true, showRuler: true, genome: "hg19", divId: "igvDiv", locus: "' + hugoSymbol + '", tracks: [  { url: "api-legacy/copynumbersegments", indexed: false, name: "Alt click to sort", type:"seg", json: true, method: "POST", ';
                         var bodyContent2 = 'cancerStudyId: "' + cancerStudyId + '", chromosome: "' + response[0].chromosome +'", sampleIds: "' + sampleIds + '"},{name: "Genes", url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed", order: Number.MAX_VALUE,  displayMode: "EXPANDED"}]};igv.createBrowser(div, options);});<\/script><\/body>';    
                         var fullContent = headerContent + bodyContent1 + bodyContent2;
                         var iframe = document.createElement('iframe');

@@ -618,11 +618,11 @@ div.ui-dialog fieldset {
     box-sizing: content-box;
 
     border-style: solid;
+    border-radius: 3px;
     border-width: thin;
-    border-radius: 4px;
-    border-color: #dfdfdf;
 
-    background-color: #f3f3f3;
+    border-color: #7f7f7f;
+    background-color: #bfbfbf;
 }
 
 .igv-logo-nonav {
@@ -637,7 +637,7 @@ div.ui-dialog fieldset {
     width: 34px;
     height: 16px;
 
-    /*background: url(img/igv_logo_letters_paths.svg);*/
+    background: url(img/igv_logo_letters_paths.svg);
     background-size: 34px 16px;
     background-repeat:no-repeat;
     background-position: 0 0;
@@ -658,7 +658,7 @@ div.ui-dialog fieldset {
     width: 34px;
     height: 16px;
 
-    /*background: url(img/igv_logo_letters_paths.svg);*/
+    background: url(img/igv_logo_letters_paths.svg);
     background-size: 34px 16px;
     background-repeat:no-repeat;
     background-position: 0 0;
@@ -666,17 +666,11 @@ div.ui-dialog fieldset {
 }
 
 .igvNavigationSearch {
-
-    float: left;
-
     position: relative;
     top: 0;
-
-    /*margin-left: auto;*/
-    /*margin-right: auto;*/
-
     width: 260px;
 
+    float: left;
 }
 
 .igvNavigationSearchInput {
@@ -692,12 +686,12 @@ div.ui-dialog fieldset {
     border-style: solid;
     border-radius: 3px;
     border-width: thin;
-    border-color: rgb(223, 223, 223);
+    border-color: #7f7f7f;
 
     font-family: 'Open Sans', sans-serif;
     font-size: small;
     font-weight: 400;
-    color: #444;
+    color: #7f7f7f;
 
 }
 
@@ -741,6 +735,17 @@ div.ui-dialog fieldset {
     color: #141414;
 }
 
+.igv-fa-search {
+    cursor: pointer;
+    color: #7f7f7f;
+}
+
+.igv-fa-search:hover,
+.igv-fa-search:focus,
+.igv-fa-search:active  {
+    color: #434343;
+}
+
 .shim-left-6 {
     padding-left: 6px;
 }
@@ -752,43 +757,77 @@ div.ui-dialog fieldset {
     margin-left: 40px;
 }
 
-.igv-toggle-track-labels {
+.igv-nav-bar-toggle-button {
 
     position: relative;
+    height: 24px;
+    width: 140px;
+
     float: right;
 
     margin-right: 5px;
 
     padding-left: 8px;
     padding-right: 8px;
-    padding-top: 1px;
+    padding-top: 3px;
     padding-bottom: 2px;
-
-    border-style: solid;
-    border-radius: 3px;
-    border-width: thin;
-    border-color: rgb(223, 223, 223);
 
     font-family: 'Open Sans', sans-serif;
     font-size: small;
     font-weight: 200;
 
-    color: #444;
-    background-color: white;
+    text-align: center;
+    vertical-align: middle;
+
+    border-style: solid;
+    border-radius: 3px;
+    border-width: thin;
 }
 
-.igv-toggle-track-labels:hover,
-.igv-toggle-track-labels:focus,
-.igv-toggle-track-labels:active  {
+/* version 2 */
+.igv-nav-bar-toggle-button-off {
+    color: white;
+    border-color: #7f7f7f;
+    background-color: #7f7f7f;
 
-    cursor: pointer;
+    border-radius: 12px;
 
-    border-color: #afafaf;
-    /*border-width: 2px;*/
+}
 
+.igv-nav-bar-toggle-button-on {
+    color: white;
+    border-color: white;
+    background-color: #bfbfbf;
+
+    border-radius: 12px;
+
+}
+
+/* version 1 */
+/*.igv-nav-bar-toggle-button-off {*/
     /*color: white;*/
-    /*background-color: #c4c4c4;*/
-}
+    /*border-color: #7f7f7f;*/
+    /*background-color: #7f7f7f;*/
+/*}*/
+
+/*.igv-nav-bar-toggle-button-on {*/
+    /*color: white;*/
+    /*border-color: white;*/
+    /*background-color: #bfbfbf;*/
+/*}*/
+
+/* version 0 */
+/*.igv-nav-bar-toggle-button-on {*/
+    /*border-color: rgb(223, 223, 223);*/
+    /*color: #444;*/
+    /*background-color: white;*/
+/*}*/
+
+/*.igv-nav-bar-toggle-button-off {*/
+    /*border-color: rgb(223, 223, 223);*/
+    /*background-color: #444;*/
+    /*color: white;*/
+/*}*/
 
 .igvNavigationMarginLeft12 {
 
@@ -1140,22 +1179,19 @@ div.ui-dialog fieldset {
 .igv-windowsizepanel-content-div {
 
     position: relative;
-    top: 7px;
-
     height: 100%;
 
     float: left;
 
+    padding-top: 6px;
     text-align: center;
     vertical-align: middle;
     line-height: 100%;
 
     font-family: 'Open Sans', sans-serif;
-    font-size: small;
+    font-size: 14px;
     font-weight: 400;
-    color: #444;
-
-    /*display: none;*/
+    color: #7f7f7f;
 }
 
 .igv-track-container-div {

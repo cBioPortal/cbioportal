@@ -65,16 +65,15 @@
 
         $("#igv-result-tab").click(function(){
             var genes = window.QuerySession.getQueryGenes();
-            if(genes.length > 0){
-                $("#igvList").append('<li class="active"><a data-toggle="tab" href="#home">' + genes[0] + '</a></li>');
+            if(genes.length > 0 && $("#igvList").html().length === 0){
+                $("#igvList").append('<li><a style="font-size:11px"  href="#home">' + genes[0] + '</a></li>');
                 $("#igvContent").append('<div id="home" class="tab-pane fade in active"></div>');
-                if($("#home").html().length === 0){
-                   generateHTML('<%= cancerStudyId %>', genes[0], "home");
-                }
+                generateHTML('<%= cancerStudyId %>', genes[0], "home");
                 for(var i = 1;i < genes.length;i++){
-                    $("#igvList").append('<li class="geneList" value="' + i +  '"><a data-toggle="tab" href="#menu'+ i +'">' + genes[i] + '</a></li>');
-                    $("#igvContent").append('<div id="menu' + i + '" class="tab-pane fade"></div>');
+                    $("#igvList").append('<li class="geneList" value="' + i +  '"><a style="font-size:11px" href="#menu'+ i +'">' + genes[i] + '</a></li>');
+                    $("#igvContent").append('<div id="menu' + i + '"></div>');
                 }
+                $("#segment_tabs").tabs();
                 $(".geneList").click(function(event){
                     var index = $(this).val();
                     if($("#menu"+index).html().length === 0){
@@ -86,9 +85,9 @@
     });
 </script>
 
-<div class="container">
-    <ul class="nav nav-tabs" id="igvList"></ul>
-    <div class="tab-content" id="igvContent"></div>
+<div id="segment_tabs">
+  <ul id="igvList"></ul>
+  <div id="igvContent"></div>
 </div>
 
 </div>

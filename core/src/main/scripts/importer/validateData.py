@@ -2811,7 +2811,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
     if defined_sample_ids is None:
         logger.error("Sample file could not be parsed. Please fix "
                          "the problems found there first before continuing.")
-        if not self.relaxed_mode:                         
+        if not relaxed_mode:                         
             return
     DEFINED_SAMPLE_IDS = defined_sample_ids
     DEFINED_SAMPLE_ATTRIBUTES = sample_validator.newly_defined_attributes
@@ -2873,7 +2873,7 @@ def main_validate(args):
 
     html_output_filename = args.html_table
     relaxed_mode = False
-    if args.relaxed_clinical_definitions:
+    if hasattr(args, 'relaxed_clinical_definitions') and args.relaxed_clinical_definitions:
         relaxed_mode = True
 
     # determine the log level for terminal and html output

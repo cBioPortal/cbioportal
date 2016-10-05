@@ -39,6 +39,7 @@ import javax.servlet.http.*;
 import javax.servlet.ServletException;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.simple.JSONObject;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoCosmicData;
 import org.mskcc.cbio.portal.dao.DaoDrugInteraction;
@@ -57,9 +58,11 @@ import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.MutSig;
 import org.mskcc.cbio.portal.model.Sample;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.InternalIdUtil;
 import org.mskcc.cbio.portal.util.MyCancerGenomeLinkUtil;
 import org.mskcc.cbio.portal.util.OncokbHotspotUtil;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  *
@@ -78,6 +81,17 @@ public class MutationsJSON extends HttpServlet {
     public static final String KEYWORD_CONTEXT = "keyword_context";
     public static final String MUTATION_CONTEXT = "mutation_context";
     
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -87,25 +101,42 @@ public class MutationsJSON extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String cmd = request.getParameter(CMD);
-        if (cmd!=null) {
-            if (cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
-                processGetMutationContextRequest(request, response);
-                return;
-            }
-            
-            if (cmd.equalsIgnoreCase(COUNT_MUTATIONS_CMD)) {
-                processCountMutationsRequest(request, response);
-                return;
-            }
-            
-            if (cmd.equalsIgnoreCase(GET_SMG_CMD)) {
-                processGetSmgRequest(request, response);
-                return;
-            }
-        }
-            
-        processGetMutationsRequest(request, response);
+    	String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
+        
+    	if (mutationProfileId != null) {
+			// Get the Genetic Profile
+			GeneticProfile mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+			if (mutationProfile != null) {
+				CancerStudy cancerStudy;
+				try {
+					cancerStudy = DaoCancerStudy
+							.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
+					if (cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+						String cmd = request.getParameter(CMD);
+				        if (cmd!=null) {
+				            if (cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
+				                processGetMutationContextRequest(request, response);
+				                return;
+				            }
+				            
+				            if (cmd.equalsIgnoreCase(COUNT_MUTATIONS_CMD)) {
+				                processCountMutationsRequest(request, response);
+				                return;
+				            }
+				            
+				            if (cmd.equalsIgnoreCase(GET_SMG_CMD)) {
+				                processGetSmgRequest(request, response);
+				                return;
+				            }
+				        }
+				        processGetMutationsRequest(request, response);
+					}
+				} catch (DaoException e) {
+					System.out.println(e.getMessage());
+					return;
+				}
+			}
+    	}
     }
     
     private static int DEFAULT_THERSHOLD_NUM_SMGS = 500; // no limit if 0 or below

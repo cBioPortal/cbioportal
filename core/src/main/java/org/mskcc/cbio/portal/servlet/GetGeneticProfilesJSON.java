@@ -35,9 +35,6 @@ package org.mskcc.cbio.portal.servlet;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
-
-import org.mskcc.cbio.portal.util.XssRequestWrapper;
-
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 
@@ -61,6 +58,17 @@ import java.util.*;
  */
 public class GetGeneticProfilesJSON extends HttpServlet  {
 
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /**
      * Handles HTTP GET Request.
      *
@@ -93,11 +101,20 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
 
 		CancerStudy cancerStudy = null;
 		try {
-        	cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-		}
-		catch (DaoException e) {
+			if (cancerStudyIdentifier != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
+		} catch (DaoException e) {
 			System.out.println("DaoException Caught:" + e.getMessage());
+			return;
 		}
+		
         if (cancerStudy != null) {
 
             int cancerStudyId = cancerStudy.getInternalId();

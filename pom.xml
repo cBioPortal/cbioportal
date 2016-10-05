@@ -213,7 +213,7 @@
     <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>1.2.1</db.version>
+    <db.version>1.2.2</db.version>
 
   </properties>
 

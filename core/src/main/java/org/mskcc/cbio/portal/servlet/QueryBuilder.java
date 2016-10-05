@@ -240,7 +240,7 @@ public class QueryBuilder extends HttpServlet {
             	//extra message for the cases where property is missing (will happen often in transition period to this new versioning model):
             	if (dbPortalVersion.equals("0"))
             		extraMessage = "The db.version property also not found in your portal.properties file. This new property needs to be added by the administrator.";
-                httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
+                throw new DbVersionException("Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
             }
 
             // Get the example study queries configured as a skin property
@@ -273,7 +273,13 @@ public class QueryBuilder extends HttpServlet {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);
-        } catch (ProtocolException e) {
+        } catch (DbVersionException e) {
+            String errorMessage = "Mismatch between DB version and portal version. " + e.getMessage();
+            xdebug.logMsg(this, errorMessage);
+            forwardToErrorPage(httpServletRequest, httpServletResponse,
+                               errorMessage, xdebug);
+        }
+        catch (ProtocolException e) {
             xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);

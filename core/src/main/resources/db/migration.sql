@@ -22,3 +22,11 @@ PREPARE stmt FROM @s;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 UPDATE info SET DB_SCHEMA_VERSION="1.2.1";
+
+##version: 1.2.2
+-- Constraint to ensure we have unique hugo symbols. If this fails, you need to find the duplicated gene symbols and fix your DB. 
+-- This is the query to find duplicated gene symbols: Select HUGO_GENE_SYMBOL, count(*) FROM gene group by HUGO_GENE_SYMBOL having count(*) > 1;
+-- One way to fix your DB (if needed) is to load a new seed DB (see https://github.com/cBioPortal/cbioportal/blob/master/docs/Import-the-Seed-Database.md)
+-- and then load all your studies again using the new study import script.
+ALTER TABLE gene ADD UNIQUE KEY `UQ_HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`);
+UPDATE info SET DB_SCHEMA_VERSION="1.2.2";

@@ -54,6 +54,7 @@ public class DaoInfo {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 version = rs.getString("DB_SCHEMA_VERSION");
+                System.out.println("Found DB schema version: " + version);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -68,6 +69,7 @@ public class DaoInfo {
 
     public static boolean checkVersion() {
         setVersion();
+        System.out.println("Expected DB schema version: " + GlobalProperties.getDbVersion());
         if (GlobalProperties.getDbVersion().equals(getVersion())) {
             return true;
         }

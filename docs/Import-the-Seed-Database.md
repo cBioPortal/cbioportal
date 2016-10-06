@@ -18,8 +18,8 @@ Then import the seed database via the `mysql` command:
 
     > mysql --user=cbio_user --password=somepassword cbioportal  < cbioportal-seed.sql
 
-## Drug-target and Clinical Trial Data
+## Drug-target Data
 
-Due to data provider specific restrictions on data re-distribution, the database setup, as outlined above, will lack some of the drug-gene relationships from specific data-resources and also all clinical trial information. If you would like to obtain the complete the data sets from these resources, we encourage you to take advantage of [PiHelper](http://bitbucket.org/armish/pihelper) for aggregating drug-target associations and [NCI's Data Dissemination Program](http://www.cancer.gov/publications/pdq), PDQ, for clinical trials data; and use the corresponding data importers, `importPiHelperData.sh` and `importClinicalTrialData.pl`, that are distributed as part of cBioPortal.
+Due to data provider specific restrictions on data re-distribution, the database setup, as outlined above, will lack some of the drug-gene relationships from specific data-resources. If you would like to obtain the complete the data sets from these resources, we encourage you to take advantage of [PiHelper](http://bitbucket.org/armish/pihelper) for aggregating drug-target associations and use the corresponding data importer `importPiHelperData.sh` which is distributed as part of cBioPortal.
 
 [Next Step: Loading a Sample Study](Load-Sample-Cancer-Study.md)

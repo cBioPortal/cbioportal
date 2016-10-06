@@ -37,7 +37,10 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.WebserviceParserUtils;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
@@ -55,6 +58,9 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 public class ClinicalAttributesServlet extends HttpServlet {
     private static Log log = LogFactory.getLog(ClinicalAttributesServlet.class);
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
 
     /**
      * Initializes the servlet.
@@ -63,6 +69,7 @@ public class ClinicalAttributesServlet extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**
@@ -78,13 +85,22 @@ public class ClinicalAttributesServlet extends HttpServlet {
         try {
             JSONArray toWrite = new JSONArray();
             response.setContentType("text/json");
+            
+            String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
+            
+            if(cancerStudyId != null) {
+            	CancerStudy cancerStudy = DaoCancerStudy
+                        .getCancerStudyByStableId(cancerStudyId);
+            	if(cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+                    List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataByStudy(cancerStudy.getInternalId());
 
-            int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils.getCancerStudyId(request)).getInternalId();
-            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataByStudy(cancerStudyId);
-
-            for (ClinicalAttribute attr : clinicalAttributes) {
-                toWrite.add(ClinicalJSON.reflectToMap(attr));
+                    for (ClinicalAttribute attr : clinicalAttributes) {
+                        toWrite.add(ClinicalJSON.reflectToMap(attr));
+                    }
+            	}
             }
+
+            
             PrintWriter out = response.getWriter();
             JSONArray.writeJSONString(toWrite, out);
         } catch (DaoException e) {

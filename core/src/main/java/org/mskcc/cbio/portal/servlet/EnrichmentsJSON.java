@@ -30,9 +30,10 @@ import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.EnrichmentsAnalysisUtil;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
-import org.mskcc.cbio.portal.util.XssRequestWrapper;
 
 /**
  * Calculate over representation scores
@@ -44,6 +45,17 @@ public class EnrichmentsJSON extends HttpServlet  {
     private final int bin = 3000; //size of genes for each thread
     private final JsonNodeFactory factory = JsonNodeFactory.instance;
     private final ArrayNode result = new ArrayNode(factory);
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
 
     /**
      * Handles HTTP GET Request.
@@ -68,8 +80,18 @@ public class EnrichmentsJSON extends HttpServlet  {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         try {
+        	CancerStudy cancerStudy = null;
             //Extract parameters
             String cancerStudyId = httpServletRequest.getParameter("cancer_study_id");
+			if (cancerStudyId != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
             String _alteredCaseList = httpServletRequest.getParameter("altered_case_id_list");
             String[] alteredCaseList = _alteredCaseList.split("\\s+");
             String _unalteredCaseList = httpServletRequest.getParameter("unaltered_case_id_list");
@@ -93,8 +115,6 @@ public class EnrichmentsJSON extends HttpServlet  {
             String gpStableId = gp.getStableId();
             String profileType = gp.getGeneticAlterationType().toString();
             
-            //Get cancer study internal id (int)
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             int cancerStudyInternalId = cancerStudy.getInternalId();
 
             //Get Internal Sample Ids (int)
@@ -245,7 +265,7 @@ public class EnrichmentsJSON extends HttpServlet  {
             for (ObjectNode _result_node : _result) {
                 result.add(_result_node);
             }
-
+            
             //return/write back result
             ObjectMapper mapper = new ObjectMapper();
             httpServletResponse.setContentType("application/json");

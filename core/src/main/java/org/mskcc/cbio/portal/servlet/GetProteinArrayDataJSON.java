@@ -50,7 +50,15 @@ import java.util.ArrayList;
  * Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).
  */
 public class GetProteinArrayDataJSON extends HttpServlet {
-
+	
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        accessControl = SpringUtil.getAccessControl();
+    }
     /**
      * Handles HTTP GET Request.
      *
@@ -77,11 +85,17 @@ public class GetProteinArrayDataJSON extends HttpServlet {
         String sampleSetId = httpServletRequest.getParameter("case_set_id");
         String sampleIdsKey = httpServletRequest.getParameter("case_ids_key");
         String proteinArrayId = httpServletRequest.getParameter("protein_array_id");
-
+        CancerStudy cancerStudy = null;
         try {
-
-            //Get Cancer Study ID (int)
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+        	if (cancerStudyIdentifier != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
             int cancerStudyId = cancerStudy.getInternalId();
 
             //Get patient ID list

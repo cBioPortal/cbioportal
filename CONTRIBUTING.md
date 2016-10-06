@@ -54,6 +54,99 @@ When you are ready to submit your pull-request:
 
 For instructions on submitting a pull-request, please see:  [Using Pull Requests ](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
 
+## Automated tests on Travis CI
+All Pull Requests are automatically tested on [Travis
+CI](https://travis-ci.org/cBioPortal/cbioportal/pull_requests). Currently there
+is a set of tests for the core module and a visual regression test that makes
+some screenshots and compares them to the ones stored in the repository.
+
+### What to do if the screenshot test fails
+When the screenshot test fails, it means that the screenshot taken from your
+instance of the portal differs from the screenshot stored in the repo.
+Copy+Paste the URL in the Travis CI log to view the image diff online. Further
+instructions are outlined on that page.
+
+If you prefer to compare the images locally, you need to first download the
+failing screenshot. The Travis CI log will show you where the image was
+uploaded on [clbin.com](https://clbin.com). First, download the image and
+replace the screenshot in the repo. For instance run in the root dir of
+cBioPortal:
+
+```bash
+curl 'https://clbin.com/[replace-with-clbin-image-from-log].png' > test/end-to-end/screenshots/[replace-with-image-from-repo].png
+``` 
+
+Then follow the steps outlined in [this blog post](http://www.akikoskinen.info/image-diffs-with-git/) to compare the 
+images locally. Run `git diff` from your repo to see the ImageMagick diff.
+
+Once you downloaded the images you do the following for each screenshot:
+
+- If the change in the screenshot is **undesired**, i.e. there is regression, you
+  should fix your PR.
+- If the change in the screenshot is **desired**, add the screenshot to the
+  repo, commit it and push it to your PR's branch.
+
+## Pull Request Merging Policy
+Pull Requests (PRs) are reviewed by the
+[backend](https://github.com/orgs/cBioPortal/teams/backend),
+[frontend](https://github.com/orgs/cBioPortal/teams/frontend) and
+[devops](https://github.com/orgs/cBioPortal/teams/devops) teams of cBioPortal.
+For each PR the submitter should propose what team(s) is/are appropriate to
+review it. This is the current merging policy:
+
+- A documentation change needs one **Approve**
+- A simple bugfix to rc or hotfix requires one **Approve**
+- A new feature requires two **Approve**. One from someone at MSKCC and one from
+  another institution.
+
+If these requirements are met, any person with merge rights can merge to rc or
+hotfix.
+
+## Pull Request Reviewers Guide
+Here we describe the guidelines for the reviewer. Always follow the checks in
+general, then follow the other checks that apply:
+
+### General
+- Double check all the things in the **Checks** section of the Pull Request.
+  Remind the submitter if any of them are not fulfilled
+- Are the test cases spanning a decent amount of scenarios? It is the
+  submitters as well as the reviewers responsibility to not let any errors
+  sneak into the portal.
+
+Bug fixes:
+
+- Should the bug that causes the issue be added as a test case?
+
+New features:
+
+- If this is a new feature make sure the proposed changes are in line with the
+  current planning of cBioPortal e.g. is the right API used, is this in line
+  with current refactoring efforts.
+
+### Backend
+New features:
+
+- Is the new persistence stack used?
+
+### Frontend
+New features:
+
+- What APIs are used to get the data? Is the REST API used?
+- Should this be a separate library in a separate repo or should it be part of cBioPortal?
+- Are dependencies properly listed? Ideally in a package.json
+- How is the package included in cBioPortal?
+
+### Devops
+New features:
+
+- Does the configuration style follow the config guidelines? That is compile
+  (Maven) config goes in the appriopriate `pom.xml` (root, `scripts/`, `portal/`, `core/`).
+  Runtime (Spring) goes in `portal.properties`. Default values should be in `GlobalProperties.java`.
+- Non-stable configuration should be done through war overlays.
+- Is the configuration tested as part of Travis CI? It's not a necessity but be
+  aware that untested configuration will be tough to maintain.
+- Is there documentation on the proposed changes?
+
 ## Additional Resources
 
 * [cBioPortal Issue Tracker](https://github.com/cBioPortal/cbioportal/issues)

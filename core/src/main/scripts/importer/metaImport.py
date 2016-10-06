@@ -52,6 +52,11 @@ def interface():
                                    help='Path to a directory of cBioPortal '
                                         'info files to be used instead of '
                                         'contacting the web API')
+    #  temporary workaround to simplify import process when no web-server is running. TODO: replace by solution for #1466
+    portal_mode_group.add_argument('-n', '--no_portal_checks', default=False,
+                                       action='store_true',
+                                       help='Skip tests requiring information '
+                                            'from the cBioPortal installation')
     parser.add_argument('-jar', '--jar_path', type=str, required=False,
                         help='Path to core JAR file')
     parser.add_argument('-html', '--html_table', type=str,
@@ -74,7 +79,6 @@ if __name__ == '__main__':
     args = interface()
     # supply parameters that the validation script expects to have parsed
     args.error_file = False
-    args.no_portal_checks = False
 
     study_dir = args.study_directory
 
@@ -82,6 +86,14 @@ if __name__ == '__main__':
     print >> sys.stderr, "Starting validation...\n"
     try:
         exitcode = validateData.main_validate(args)
+    except KeyboardInterrupt:
+        print >> sys.stderr, Color.BOLD + "\nProcess interrupted. " + Color.END
+        print >> sys.stderr, "#" * 71 + "\n"
+        raise
+    except:
+        print >> sys.stderr, "!" * 71
+        print >> sys.stderr, Color.RED + "Error occurred during validation step:" + Color.END
+        raise
     finally:
         # make sure all log messages are flushed
         validator_logger = logging.getLogger(validateData.__name__)
@@ -90,19 +102,29 @@ if __name__ == '__main__':
         validator_logger.handlers = []
 
     # Depending on validation results, load the study or notify the user
-    print >> sys.stderr, "#" * 71
-    if exitcode == 1:
-        print >> sys.stderr, Color.BOLD + "Errors. Please fix your files before importing" + Color.END
-        print >> sys.stderr, "#" * 71 + "\n\n"
-    elif exitcode == 3:
-        if args.override_warning:
-            print >> sys.stderr, Color.BOLD + "Overriding Warnings. Importing study now" + Color.END
-            print >> sys.stderr, "#" * 71 + "\n\n"
+    try:
+        print "\n"
+        print >> sys.stderr, "#" * 71
+        if exitcode == 1:
+            print >> sys.stderr, Color.RED + "One or more errors reported above. Please fix your files accordingly" + Color.END
+            print >> sys.stderr, "!" * 71
+        elif exitcode == 3:
+            if args.override_warning:
+                print >> sys.stderr, Color.BOLD + "Overriding Warnings. Importing study now" + Color.END
+                print >> sys.stderr, "#" * 71 + "\n"
+                cbioportalImporter.main(args)
+            else:
+                print >> sys.stderr, Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END
+                print >> sys.stderr, "#" * 71
+        elif exitcode == 0:
+            print >> sys.stderr, Color.BOLD + "Everything looks good. Importing study now" + Color.END
+            print >> sys.stderr, "#" * 71 + "\n"
             cbioportalImporter.main(args)
-        else:
-            print >> sys.stderr, Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END
-            print >> sys.stderr, "#" * 71 + "\n\n"
-    elif exitcode == 0:
-        print >> sys.stderr, Color.BOLD + "Everything looks good. Importing study now" + Color.END
-        print >> sys.stderr, "#" * 71 + "\n\n"
-        cbioportalImporter.main(args)
+    except KeyboardInterrupt:
+        print >> sys.stderr, Color.BOLD + "\nProcess interrupted. You will have to run this again to make sure study is completely loaded." + Color.END
+        print >> sys.stderr, "#" * 71
+        raise
+    except:
+        print >> sys.stderr, "!" * 71
+        print >> sys.stderr, Color.RED + "Error occurred during data loading step. Please fix the problem and run this again to make sure study is completely loaded." + Color.END
+        raise

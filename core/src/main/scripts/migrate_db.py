@@ -3,8 +3,9 @@
 # imports
 import os
 import sys
-import getopt
 import MySQLdb
+import argparse
+from collections import OrderedDict
 
 # Globals
 
@@ -22,7 +23,18 @@ class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
 
     def __init__(self, database_host, database_name, database_user, database_pw):
-        self.database_host = database_host
+        # default port:
+        self.database_port = 3306
+        # if there is a port added to the host name, split and use this one:
+        if ':' in database_host:
+            host_and_port = database_host.split(':')
+            self.database_host = host_and_port[0]
+            if self.database_host.strip() == 'localhost':
+                print >> ERROR_FILE, "Invalid host config '" + database_host + "' in properties file. If you want to specify a port on local host use '127.0.0.1' instead of 'localhost'"
+                sys.exit(1)
+            self.database_port = int(host_and_port[1])
+        else:
+            self.database_host = database_host
         self.database_name = database_name
         self.database_user = database_user
         self.database_pw = database_pw
@@ -31,13 +43,19 @@ def get_db_cursor(portal_properties):
     """ Establishes a MySQL connection """
 
     try:
+        
         connection = MySQLdb.connect(host=portal_properties.database_host, 
-            port = 3306, 
+            port = portal_properties.database_port, 
             user = portal_properties.database_user,
             passwd = portal_properties.database_pw,
             db = portal_properties.database_name)
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
+        port_info = ''
+        if portal_properties.database_host.strip() != 'localhost':
+            # only add port info if host is != localhost (since with localhost apparently sockets are used and not the given port) TODO - perhaps this applies for all names vs ips?
+            port_info = " on port " + str(portal_properties.database_port)
+        print >> ERROR_FILE, "--> Error connecting to server " + portal_properties.database_host + port_info
         return None
 
     if connection is not None:
@@ -136,7 +154,7 @@ def run_migration(db_version, sql_filename, connection, cursor):
     sql_file = open(sql_filename, 'r')
     sql_version = (0,0,0)
     run_line = False
-    statements = {}
+    statements = OrderedDict()
     statement = ''
     for line in sql_file:
         if line.startswith('##'):
@@ -182,14 +200,13 @@ def run_statements(statements, connection, cursor):
 
 def warn_user():
     """
-
     warn the user before the script runs, give them a chance to
     back up their database if desired
     """
     response = raw_input('WARNING: This script will alter your database! Be sure to back up your data before running.\nContinue running DB migration? (y/n) ').strip()
-    while response is not 'y' and response is not 'n':
+    while response.lower() != 'y' and response.lower() != 'n':
         response = raw_input('Did not recognize response.\nContinue running DB migration? (y/n) ').strip()
-    if response is 'n':
+    if response.lower() == 'n':
         sys.exit()
 
 def usage():
@@ -198,34 +215,28 @@ def usage():
 def main():
     """ main function to run mysql migration """
     
-    warn_user()
+    parser = argparse.ArgumentParser(description='cBioPortal DB migration script')
+    parser.add_argument('-p', '--properties-file', type=str, required=True,
+                        help='Path to portal.properties file')
+    parser.add_argument('-s', '--sql',type=str, required=True,
+                        help='Path to official migration.sql script.')
+    parser = parser.parse_args()
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['properties-file=', 'sql='])
-    except getopt.error, msg:
-            print >> ERROR_FILE, msg
-            usage()
-            sys.exit(2)
-
-    properties_filename = ''
-    sql_filename = ''
-
-    for o, a in opts:
-        if o == '--properties-file':
-            properties_filename = a
-        if o == '--sql':
-            sql_filename = a
+    properties_filename = parser.properties_file
+    sql_filename = parser.sql
 
     # check existence of properties file
     if not os.path.exists(properties_filename):
-        print >> ERROR_FILE, 'properties file cannot be found'
+        print >> ERROR_FILE, 'properties file ' + properties_filename + ' cannot be found'
         usage()
         sys.exit(2)
     if not os.path.exists(sql_filename):
-        print >> ERROR_FILE, 'sql file cannot be found'
+        print >> ERROR_FILE, 'sql file ' + sql_filename + ' cannot be found'
         usage()
         sys.exit(2)
 
+    warn_user()
+    
     # set up - get properties and db cursor
     portal_properties = get_portal_properties(properties_filename)
     connection, cursor = get_db_cursor(portal_properties)

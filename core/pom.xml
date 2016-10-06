@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.2.6-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
@@ -194,6 +194,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-codec</artifactId>
+      <version>1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>fop</artifactId>
       <version>1.0</version>
     </dependency>
@@ -318,7 +323,6 @@
         <configuration>
           <forkMode>always</forkMode>
           <filtering>true</filtering>
-          <testFailureIgnore>true</testFailureIgnore>
           <systemProperties>
             <property>
               <name>log4j.configuration</name>
@@ -352,7 +356,7 @@
             <!-- username & password gets put in .m2/settings.xml -->
               <settingsKey>settingsKey</settingsKey>
               <driver>com.mysql.jdbc.Driver</driver>
-              <url>jdbc:mysql://localhost:3306/cgds_test</url>
+              <url>jdbc:mysql://127.0.0.1:3306/cgds_test</url>
               <sqlCommand>SET storage_engine=INNODB</sqlCommand>
               <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
               <srcFiles>
@@ -398,6 +402,22 @@
           </execution>
         </executions>
       </plugin>
+        <!-- JaCoCo Test coverage plugin -->
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
+            <executions>
+                <execution>
+                    <goals><goal>prepare-agent</goal></goals>
+                </execution>
+                <execution>
+                    <id>report</id>
+                    <phase>prepare-package</phase>
+                    <goals><goal>report</goal></goals>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
 
     <!-- prevent some resources from getting into jar -->

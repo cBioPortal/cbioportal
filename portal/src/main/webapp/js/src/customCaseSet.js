@@ -105,7 +105,7 @@ function promptCustomCaseSetBuilder()
     
     // clear content and show loader image
     $("#case_set_dialog_content").empty();
-	$("#case_set_dialog_content").append('<tr><td><img src="images/ajax-loader.gif"/></td></tr>');
+	$("#case_set_dialog_content").append('<tr><td><img src="images/ajax-loader.gif" alt="loading" /></td></tr>');
 	
 	// populate contents of the dialog box
     jQuery.getJSON("ClinicalFreeForm.json", data, function(json){
@@ -695,5 +695,5 @@ function openStudyView(){
 	var cancerStudyId = $("#main_form").find("#select_single_study").val();
 
 	// go to the study view
-	window.open("study.do?cancer_study_id="+cancerStudyId, "_self");
+	window.open("study?id="+cancerStudyId, "_self");
 }

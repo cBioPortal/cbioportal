@@ -57,28 +57,27 @@ public class ValidateGistic {
         ArrayList<CanonicalGene> genes_in_ROI = gistic.getGenes_in_ROI();
 
         if (chromosome < 1 || chromosome > 22) {
-            throw new validationException(chromosome);
+            throw new validationException("Invalid chromosome: " + chromosome);
         }
 
         if (peakStart <= 0) {
-            throw new validationException(peakStart);
+            throw new validationException("Invalid peak start: " + peakStart);
         }
 
         if (peakEnd <= 0) {
-            throw new validationException(peakEnd);
+            throw new validationException("Invalid peak end: " + peakEnd);
         }
 
         if (peakEnd <= peakStart) {
-            throw new validationException("" +  " " + peakEnd +  " " + peakStart);
-//            System.out.println("peaksize=" + gistic.peakSize());
+            throw new validationException("Peak end is <= peak start: (start=" + peakStart + ", end=" + peakEnd + ")");
         }
 
         if (qValue < 0 || qValue > 1) {
-            throw new validationException("qValue=" + qValue);
+            throw new validationException("Invalid qValue=" + qValue);
         }
 
         if (genes_in_ROI.isEmpty()){
-            throw new validationException(genes_in_ROI);
+            throw new validationException("No genes in ROI");
         }
 
         // todo: how do you validate ampdel?

@@ -222,6 +222,11 @@ cbio.download = (function() {
 				"<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
 		}
 
+        // work around for Adobe Illustrator bug
+        if(svg.indexOf("sans-serif") !== -1) {
+            svg = svg.replace(/sans-serif/g, "verdana");    
+        }
+        
 		return svg;
 	}
 
@@ -253,7 +258,14 @@ cbio.download = (function() {
 				filetype: "pdf_data",
 				svgelement: content
 			};
+		} else if (options.contentType.toLowerCase().indexOf("png") != -1)
+		{
+		    options.servletParams = options.servletParams || {
+			filetype: "png_data",
+			svgelement: content
+		    };
 		}
+		
 
 		// check if a servlet name provided
 		if (options.servletName != null)

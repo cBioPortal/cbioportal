@@ -3,8 +3,8 @@
 #STRING	STRING	NUMBER	STRING	NUMBER
 #1	1	1	1	1
 PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
-TCGA-A2-A04P	DECEASED	17.97	Recurred/Progressed	[Not Available]
-TCGA-A1-A0SK	DECEASED	31.77	[Not Available]	[Not Available]
+TCGA-A2-A04P	DECEASED		Recurred/Progressed	[Not Available]
+TCGA-A1-A0SK	DECEASED	31.77		[Not Available]
 TCGA-A2-A0CM	DECEASED	24.77	Recurred/Progressed	[Not Available]
 TCGA-AR-A1AR	DECEASED	17.18	[Not Available]	[Not Available]
 TCGA-B6-A0WX	DECEASED	21.45	Recurred/Progressed	[Not Available]
@@ -606,9 +606,9 @@ TCGA-A7-A26J	LIVING	2.2	Recurred/Progressed	[Not Available]
 TCGA-A8-A08S	LIVING	19.05	DiseaseFree	19.05
 TCGA-A8-A09E	LIVING	30.95	DiseaseFree	30.95
 TCGA-A8-A09K	LIVING	29.93	DiseaseFree	29.93
-TCGA-AC-A23C	LIVING	0.95	DiseaseFree	0.95
-TCGA-AC-A23E	LIVING	2.37	DiseaseFree	2.37
-TCGA-AC-A23H	LIVING	2.66	DiseaseFree	2.66
+TEST-A23C	LIVING	0.95	DiseaseFree	0.95
+TEST-A23E	LIVING	2.37	DiseaseFree	2.37
+TEST-A23H	LIVING	2.66	DiseaseFree	2.66
 TCGA-AO-A1KR	LIVING	70.31	DiseaseFree	70.31
 TCGA-AQ-A1H2	LIVING	6.47	DiseaseFree	6.47
 TCGA-AQ-A1H3	LIVING	4.53	DiseaseFree	4.53
@@ -821,10 +821,10 @@ TCGA-GM-A2DM	LIVING	76.58	DiseaseFree	76.58
 TCGA-GM-A2DN	LIVING	77.27	DiseaseFree	77.27
 TCGA-GM-A2DO	LIVING	53.29	DiseaseFree	53.29
 TCGA-AR-A24W	[Not Available]	[Not Available]	[Not Available]	[Not Available]
-TCGA-AC-A2B8	[Not Available]	[Not Available]	[Not Available]	[Not Available]
-TCGA-AC-A2FF	[Not Available]	[Not Available]	[Not Available]	[Not Available]
-TCGA-AC-A2FB	[Not Available]	[Not Available]	[Not Available]	[Not Available]
-TCGA-AC-A2FG	[Not Available]	[Not Available]	[Not Available]	[Not Available]
+TEST-A2B8	[Not Available]	[Not Available]	[Not Available]	[Not Available]
+TEST-A2FF	[Not Available]	[Not Available]	[Not Available]	[Not Available]
+TEST-A2FB	[Not Available]	[Not Available]	[Not Available]	[Not Available]
+TEST-A2FG	[Not Available]	[Not Available]	[Not Available]	[Not Available]
 TCGA-GI-A2C8	[Not Available]	[Not Available]	[Not Available]	[Not Available]
 TCGA-E9-A295	[Not Available]	[Not Available]	[Not Available]	[Not Available]
 TCGA-A2-A0T2	[Not Available]	[Not Available]	[Not Available]	[Not Available]

@@ -48,6 +48,7 @@ import java.text.*;
  *
  * @author Ethan Cerami
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
+ * @author Ersin Ciftci
  */
 public final class DaoCancerStudy {
 
@@ -68,7 +69,7 @@ public final class DaoCancerStudy {
         reCacheAll();
     }
 
-    private static synchronized void reCacheAll() {
+    public static synchronized void reCacheAll() {
         
         System.out.println("Recaching... ");
         DaoCancerStudy.reCache();
@@ -108,6 +109,19 @@ public final class DaoCancerStudy {
 		cacheDateByInternalId.put(study.getInternalId(), importDate);
         byStableId.put(study.getCancerStudyStableId(), study);
         byInternalId.put(study.getInternalId(), study);
+    }
+
+    /**
+     * Removes the cancer study from cache
+     * @param internalCancerStudyId Internal cancer study ID
+     */
+    private static void removeCancerStudyFromCache(int internalCancerStudyId) {
+
+        String stableId = byInternalId.get(internalCancerStudyId).getCancerStudyStableId();
+        cacheDateByStableId.remove(stableId);
+        cacheDateByInternalId.remove(internalCancerStudyId);
+        byStableId.remove(stableId);
+        byInternalId.remove(internalCancerStudyId);
     }
     
 	public static void setStatus(Status status, String stableCancerStudyId, Integer ... internalId) throws DaoException
@@ -169,9 +183,6 @@ public final class DaoCancerStudy {
                 return Status.AVAILABLE;
             }
         } catch (SQLException e) {
-			if (e.getMessage().toLowerCase().contains("unknown column")) {
-				return Status.AVAILABLE;
-			}
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
@@ -314,7 +325,7 @@ public final class DaoCancerStudy {
             pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                     "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                     + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME` ) VALUES (?,?,?,?,?,?,?,?,?)",
+                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME`, `STATUS` ) VALUES (?,?,?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, stableId);
             pstmt.setString(2, cancerStudy.getName());
@@ -330,13 +341,18 @@ public final class DaoCancerStudy {
                 pstmt.setString(8, StringUtils.join(groups, ";"));
             }
             pstmt.setString(9, cancerStudy.getShortName());
-
+          	//status is UNAVAILABLE until other data is loaded for this study. Once all is loaded, the 
+            //data loading process can set this to AVAILABLE:
+            //TODO - use this field in parts of the system that build up the list of studies to display in home page:
+            pstmt.setInt(10, Status.UNAVAILABLE.ordinal());
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
                 int autoId = rs.getInt(1);
                 cancerStudy.setInternalId(autoId);
             }
+            
+            cacheCancerStudy(cancerStudy, new java.util.Date());
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -409,6 +425,8 @@ public final class DaoCancerStudy {
     /**
      * Deletes all Cancer Studies.
      * @throws DaoException Database Error.
+     * 
+     * @deprecated this should not be used. Use deleteCancerStudy(cancerStudyStableId) instead
      */
     public static void deleteAllRecords() throws DaoException {
         cacheDateByStableId.clear();
@@ -420,8 +438,10 @@ public final class DaoCancerStudy {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE cancer_study");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -510,6 +530,8 @@ public final class DaoCancerStudy {
                 }
                 pstmt.executeUpdate();
             }
+            
+            removeCancerStudyFromCache(internalCancerStudyId);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

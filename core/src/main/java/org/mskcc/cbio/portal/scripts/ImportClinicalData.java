@@ -40,8 +40,9 @@ import java.io.*;
 import joptsimple.*;
 import java.util.*;
 import java.util.regex.*;
+import org.apache.commons.collections.map.MultiKeyMap;
 
-public class ImportClinicalData {
+public class ImportClinicalData extends ConsoleRunnable {
 
     public static final String DELIMITER = "\t";
     public static final String METADATA_PREFIX = "#";
@@ -51,14 +52,14 @@ public class ImportClinicalData {
     private int numSampleSpecificClinicalAttributesAdded = 0;
     private int numPatientSpecificClinicalAttributesAdded = 0;
     private int numEmptyClinicalAttributesSkipped = 0;
+    private int numSamplesProcessed = 0;
     
-    private static OptionParser parser;
-    private static String usageLine;
     private static Properties properties;
 
     private File clinicalDataFile;
     private CancerStudy cancerStudy;
     private AttributeTypes attributesType;
+    private boolean relaxed;
     private Set<String> patientIds = new HashSet<String>();
 
     public static enum MissingAttributeValues
@@ -69,7 +70,8 @@ public class ImportClinicalData {
         DISCREPANCY("Discrepancy"),
         COMPLETED("Completed"),
         NULL("null"),
-        MISSING("");
+        MISSING(""),
+        NA("NA");
 
         private String propertyName;
         
@@ -107,25 +109,13 @@ public class ImportClinicalData {
         
         public String toString() {return attributeType;}
     }
-    
-    private static void quit(String msg)
-    {
-        if( null != msg ){
-            System.err.println( msg );
-        }
-        System.err.println( usageLine );
-        try {
-            parser.printHelpOn(System.err);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-	
-    public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype)
+
+    public void setFile(CancerStudy cancerStudy, File clinicalDataFile, String attributesDatatype, boolean relaxed)
     {
         this.cancerStudy = cancerStudy;
         this.clinicalDataFile = clinicalDataFile;
         this.attributesType = AttributeTypes.valueOf(attributesDatatype);
+        this.relaxed = relaxed;
     }
 
     public void importData() throws Exception
@@ -143,13 +133,18 @@ public class ImportClinicalData {
         int patientIdIndex = findPatientIdColumn(columnAttrs);
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
 
-        if (patientIdIndex < 0 || (attributesType.toString().equals("SAMPLE") && sampleIdIndex < 0)) {
-            System.out.println("Aborting!  Could not find:  " + PATIENT_ID_COLUMN_NAME
-                    + " or " + SAMPLE_ID_COLUMN_NAME + " in your file.");
-            System.out.println("Please check your file format and try again.");
+        //validate required columns:
+        if (patientIdIndex < 0) { //TODO - for backwards compatibility maybe add and !attributesType.toString().equals("MIXED")? See next TODO in addDatum()
+        	//PATIENT_ID is required in both file types:
+        	throw new RuntimeException("Aborting owing to failure to find " +
+                    PATIENT_ID_COLUMN_NAME + 
+                    " in file. Please check your file format and try again.");
+        }
+        if (attributesType.toString().equals("SAMPLE") && sampleIdIndex < 0) {
+        	//SAMPLE_ID is required in SAMPLE file type:
             throw new RuntimeException("Aborting owing to failure to find " +
-                    PATIENT_ID_COLUMN_NAME + " or " + SAMPLE_ID_COLUMN_NAME +
-                    " in file.");
+                    SAMPLE_ID_COLUMN_NAME +
+                    " in file. Please check your file format and try again.");
         }
         importData(buff, columnAttrs);
         
@@ -178,6 +173,13 @@ public class ImportClinicalData {
                     break;
                 case MIXED_ATTRIBUTES:
                     attributeTypes = splitFields(buff.readLine());
+                    //quick validation: attributeTypes values should be either PATIENT or SAMPLE
+                    for (String attributeTypeVal : attributeTypes) {
+                    	if (!attributeTypeVal.equalsIgnoreCase(AttributeTypes.PATIENT_ATTRIBUTES.toString()) && 
+                    			!attributeTypeVal.equalsIgnoreCase(AttributeTypes.SAMPLE_ATTRIBUTES.toString())) {
+                    		throw new RuntimeException("Invalid value for attributeType: " + attributeTypeVal + ". Check the header rows of your data file."); 
+                    	}	
+                    }
                     break;
             }
                      
@@ -242,6 +244,7 @@ public class ImportClinicalData {
     private void importData(BufferedReader buff, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         String line;
+        MultiKeyMap attributeMap = new MultiKeyMap();
         while ((line = buff.readLine()) != null) {
 
             line = line.trim();
@@ -250,7 +253,7 @@ public class ImportClinicalData {
             }
 
             String[] fields = getFields(line, columnAttrs);
-            addDatum(fields, columnAttrs);
+            addDatum(fields, columnAttrs, attributeMap);
         }
     }
 
@@ -270,20 +273,68 @@ public class ImportClinicalData {
         return fields; 
     }
 
-    private void addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    private boolean addDatum(String[] fields, List<ClinicalAttribute> columnAttrs, MultiKeyMap attributeMap) throws Exception
     {
-        // attempt to add both a patient and sample to database
-        int patientIdIndex = findPatientIdColumn(columnAttrs);
-        int internalPatientId = (patientIdIndex >= 0) ?
-            addPatientToDatabase(fields[patientIdIndex]) : -1; 
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
         String stableSampleId = (sampleIdIndex >= 0) ? fields[sampleIdIndex] : "";
-        int internalSampleId = (stableSampleId.length() > 0) ?
-            addSampleToDatabase(stableSampleId, fields, columnAttrs) : -1;
+        stableSampleId = StableIdUtil.getSampleId(stableSampleId);
+        int patientIdIndex = findPatientIdColumn(columnAttrs);
+        String stablePatientId = (patientIdIndex >= 0) ? fields[patientIdIndex] : "";
+        stablePatientId = StableIdUtil.getPatientId(stablePatientId);
+        int internalSampleId = -1;
+        int internalPatientId = -1;
+        
+        //check if sample is not already added:
+        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableSampleId, false);
+        if (sample != null) {
+        	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
+        	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
+        	if (stableSampleId.startsWith("TCGA-")) {
+        		ProgressMonitor.logWarning("Sample " + stableSampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
+        		return false;
+        	}
+        	//give error or warning if sample is already in DB and this is NOT expected (i.e. not supplemental data):
+        	if (!this.isSupplementalData()) {
+	        	throw new RuntimeException("Error: Sample " + stableSampleId + " found to be duplicated in your file.");
+        	}
+        	else {
+        		internalSampleId = sample.getInternalId();
+        	}
+        }
+        else {
+        	Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);
+        	if (patient != null) {
+        		//patient exists, get internal id:
+        		internalPatientId = patient.getInternalId();
+        	}
+        	else {
+        		//add patient:
+	            internalPatientId = (patientIdIndex >= 0) ?
+	                addPatientToDatabase(fields[patientIdIndex]) : -1;
+        	}
+        	// sample is new, so attempt to add to DB
+	        internalSampleId = (stableSampleId.length() > 0) ?
+	            addSampleToDatabase(stableSampleId, fields, columnAttrs) : -1;
+	        
+        }    
+		
+    	//validate and count:
+        if (internalSampleId != -1) {
+        	//some minimal validation/fail safe for now: only continue if patientId is same as patient id in 
+            //existing sample (can occur in case of this.isSupplementalData or in case of parsing bug in addSampleToDatabase):
+    		internalPatientId = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId).getInternalId();
+    		if (internalPatientId != DaoSample.getSampleById(internalSampleId).getInternalPatientId()) {
+    			throw new RuntimeException("Error: Sample " + stableSampleId + " was previously linked to another patient, and not to " + stablePatientId);
+    		}
+        	numSamplesProcessed++;
+        }
 
         // this will happen when clinical file contains sample id, but not patient id
+        //TODO - this part, and the dummy patient added in addSampleToDatabase, can be removed as the field PATIENT_ID is now
+        //always required (as validated at start of importData() ). Probably kept here for "old" studies, but Ben's tests did not find anything...
+        // --> alternative would be to be less strict in validation at importData() and allow for missing PATIENT_ID when type is MIXED... 
         if (internalPatientId == -1 && internalSampleId != -1) {
-            Sample sample = DaoSample.getSampleById(internalSampleId);
+            sample = DaoSample.getSampleById(internalSampleId);
             internalPatientId = sample.getInternalPatientId();
         }
 
@@ -299,17 +350,46 @@ public class ImportClinicalData {
             }
             boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
             if (isPatientAttribute && internalPatientId != -1) {
-                addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                         ClinicalAttribute.PATIENT_ATTRIBUTE);
+                // The attributeMap keeps track what  patient/attribute to value pairs are being added to the DB. If there are duplicates,
+                // (which can happen in a MIXED_ATTRIBUTES type clinical file), we need to make sure that the value for the same
+                // attributes are consistent. This prevents duplicate entries in the temp file that the MySqlBulkLoader uses.
+                if(!attributeMap.containsKey(internalPatientId, columnAttrs.get(lc).getAttrId())) {
+                    addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                        ClinicalAttribute.PATIENT_ATTRIBUTE);
+                    attributeMap.put(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc]);
+                }
+                else if (!relaxed) {
+                    throw new RuntimeException("Error: Duplicated patient in file");
+                }
+                else if (!attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
+                    ProgressMonitor.logWarning("Error: Duplicated patient " + stablePatientId + " with different values for patient attribute " + columnAttrs.get(lc).getAttrId() + 
+                        "\n\tValues: " + attributeMap.get(internalPatientId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                }
             }
             else if (internalSampleId != -1) {
-                addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
-                         ClinicalAttribute.SAMPLE_ATTRIBUTE);
+                if(!attributeMap.containsKey(internalSampleId, columnAttrs.get(lc).getAttrId())) {
+                    addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                        ClinicalAttribute.SAMPLE_ATTRIBUTE);
+                    attributeMap.put(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc]);
+                }
+                else if (!relaxed) {
+                    throw new RuntimeException("Error: Duplicated sample in file");
+                }
+                else if (!attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()).equals(fields[lc])) {
+                    ProgressMonitor.logWarning("Error: Duplicated sample " + stableSampleId + " with different values for sample attribute " + columnAttrs.get(lc).getAttrId() + 
+                        "\n\tValues: " + attributeMap.get(internalSampleId, columnAttrs.get(lc).getAttrId()) + " " + fields[lc]);
+                }
             }
         }
+        return true;
     }
 
-    private int findPatientIdColumn(List<ClinicalAttribute> attrs)
+    private boolean isSupplementalData() {
+    	//TODO : for now this is only true in MIXED_ATTRIBUTES type. We could add an extra flag "SUPPLEMENTAL_DATA" to make this more explicit:
+    	return this.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES;
+	}
+
+	private int findPatientIdColumn(List<ClinicalAttribute> attrs)
     {
         return findAttributeColumnIndex(PATIENT_ID_COLUMN_NAME, attrs);
     }
@@ -378,25 +458,9 @@ public class ImportClinicalData {
                     patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);
                 }
                 sampleId = StableIdUtil.getSampleId(sampleId);
-                if (patient != null) {
-                    Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId, false);
-                    if (sample != null) {
-                    	//this should be a WARNING in case of TCGA studies (see https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415)
-                    	//and an ERROR in other studies. I.e. a sample should occur only once in clinical file!
-                    	if (sampleId.startsWith("TCGA-")) {
-                    		ProgressMonitor.logWarning("Sample " + sampleId + " found to be duplicated in your file. Only data of the first sample will be processed.");
-                    		internalSampleId = sample.getInternalId();
-                    	}
-                    	else {
-                    		throw new RuntimeException("Error: Sample " + sampleId + " found to be duplicated in your file.");
-                    	}
-                    }
-                    else {
-                        internalSampleId = DaoSample.addSample(new Sample(sampleId,
+               	internalSampleId = DaoSample.addSample(new Sample(sampleId,
                                                                patient.getInternalId(),
                                                                cancerStudy.getTypeOfCancerId()));
-                    }
-                }
             }
         }
 
@@ -458,6 +522,10 @@ public class ImportClinicalData {
     	return numEmptyClinicalAttributesSkipped;
     }
     
+    public int getNumSamplesProcessed() {
+    	return numSamplesProcessed;
+    }
+    
     /**
      * The type of attributes found in the file. Basically the 
      * type of import running for this instance. Can be one of 
@@ -470,98 +538,144 @@ public class ImportClinicalData {
     }
 
     /**
-     *
      * Imports clinical data and clinical attributes (from the worksheet)
-     *
-     * @param args
-     * @throws Exception
      */
-    public static void main(String[] args) throws Exception {
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-
-         usageLine = "Import clinical files.\n" +
-                   "command line usage for importClinicalData:";
-         /*
-          * usage:
-          * --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
-          */
-
-        parser = new OptionParser();
-        OptionSpec<String> data = parser.accepts( "data",
-               "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
-        OptionSpec<String> meta = parser.accepts( "meta",
-               "meta (description) file" ).withOptionalArg().describedAs( "meta_file.txt" ).ofType( String.class );
-        OptionSpec<String> study = parser.accepts("study",
-                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
-        OptionSpec<String> loadMode = parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
-          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
-        parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
-        
-        OptionSet options = null;
+    public void run() {
         try {
-            options = parser.parse( args );
-        } catch (OptionException e) {
-            quit( e.getMessage() );
-        }
-        File clinical_f = null;
-        if( options.has( data ) ){
-            clinical_f = new File( options.valueOf( data ) );
-        }else{
-            quit( "'data argument required.");
-        }
-        String attributesDatatype = null;
-        String cancerStudyStableId = null;
-        if( options.has ( study ) )
-        {
-            cancerStudyStableId = options.valueOf(study);
-        }
-        if( options.has ( meta ) )
-        {
-            properties = new Properties();
-            properties.load(new FileInputStream(options.valueOf(meta)));
-            attributesDatatype = properties.getProperty("datatype");
-            cancerStudyStableId = properties.getProperty("cancer_study_identifier");
-        }
+            String progName = "importClinicalData";
+            String description = "Import clinical files.";
+            // usage: --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
+	
+	        OptionParser parser = new OptionParser();
+	        OptionSpec<String> data = parser.accepts( "data",
+	               "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
+	        OptionSpec<String> meta = parser.accepts( "meta",
+	               "meta (description) file" ).withOptionalArg().describedAs( "meta_file.txt" ).ofType( String.class );
+	        OptionSpec<String> study = parser.accepts("study",
+	                "cancer study id").withOptionalArg().describedAs("study").ofType(String.class);
+	        OptionSpec<String> attributeFlag = parser.accepts("a",
+	                "Flag for using MIXED_ATTRIBUTES (deprecated)").withOptionalArg().describedAs("a").ofType(String.class);
+                	        OptionSpec<String> relaxedFlag = parser.accepts("r",
+	                "Flag for relaxed mode").withOptionalArg().describedAs("r").ofType(String.class);
+	        parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
+	          .withOptionalArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
+	        parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
+	        
+	        OptionSet options = null;
+	        try {
+	            options = parser.parse( args );
+	        } catch (OptionException e) {
+                throw new UsageException(
+                        progName, description, parser,
+                        e.getMessage());
+	        }
+	        File clinical_f = null;
+	        if( options.has( data ) ){
+	            clinical_f = new File( options.valueOf( data ) );
+            } else {
+                throw new UsageException(
+                        progName, description, parser,
+                        "'data' argument required.");
+            }
+	        String attributesDatatype = null;
+                boolean relaxed = false;
+	        String cancerStudyStableId = null;
+	        if( options.has ( study ) )
+	        {
+	            cancerStudyStableId = options.valueOf(study);
+	        }
+	        if( options.has ( meta ) )
+	        {
+	            properties = new TrimmedProperties();
+	            properties.load(new FileInputStream(options.valueOf(meta)));
+	            attributesDatatype = properties.getProperty("datatype");
+	            cancerStudyStableId = properties.getProperty("cancer_study_identifier");
+	        }
+                if( options.has ( attributeFlag ) )
+                {
+                    attributesDatatype = "MIXED_ATTRIBUTES";
+                }
+                if( options.has ( relaxedFlag ) )
+                {
+                    relaxed = true;
 
-
-        try {
+                }
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
             if (cancerStudy == null) {
-                System.err.println("Unknown cancer study: " + cancerStudyStableId);
+                throw new IllegalArgumentException("Unknown cancer study: " + cancerStudyStableId);
             }
-            else {
-                System.out.println("Reading data from:  " + clinical_f.getAbsolutePath());
-                int numLines = FileUtil.getNumLines(clinical_f);
-                System.out.println(" --> total number of lines:  " + numLines);
-                ProgressMonitor.setMaxValue(numLines);
+            ProgressMonitor.setCurrentMessage("Reading data from:  " + clinical_f.getAbsolutePath());
+            int numLines = FileUtil.getNumLines(clinical_f);
+            ProgressMonitor.setCurrentMessage(" --> total number of lines:  " + numLines);
+            ProgressMonitor.setMaxValue(numLines);
 
-                ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinical_f, attributesDatatype);
-                importClinicalData.importData();
+            setFile(cancerStudy, clinical_f, attributesDatatype, relaxed);
+            importData();
 
-                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||
-                		importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) 
-                	System.out.println("Total number of patient specific clinical attributes added:  "
-                        + importClinicalData.getNumPatientSpecificClinicalAttributesAdded());
-                if (importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES ||
-                		importClinicalData.getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) 
-                    System.out.println("Total number of sample specific clinical attributes added:  "
-                        + importClinicalData.getNumSampleSpecificClinicalAttributesAdded());
-                
-                System.out.println("Total number of attribute values skipped because of empty value:  "
-                        + importClinicalData.getNumEmptyClinicalAttributesSkipped());
-                if (importClinicalData.getNumSampleSpecificClinicalAttributesAdded()
-                        + importClinicalData.getNumPatientSpecificClinicalAttributesAdded() == 0) {
-                    System.out.println("Error!  No data was addeded.  " +
-                            "Please check your file format and try again.");
-                } else {
-                    System.out.println("Success!");
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES ||
+                    getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) { 
+                ProgressMonitor.setCurrentMessage("Total number of patient specific clinical attributes added:  "
+                    + getNumPatientSpecificClinicalAttributesAdded());
+            }
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES ||
+                    getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) { 
+                ProgressMonitor.setCurrentMessage("Total number of sample specific clinical attributes added:  "
+                    + getNumSampleSpecificClinicalAttributesAdded());
+                ProgressMonitor.setCurrentMessage("Total number of samples processed:  "
+                    + getNumSamplesProcessed());
+            }
+            ProgressMonitor.setCurrentMessage("Total number of attribute values skipped because of empty value:  "
+                    + getNumEmptyClinicalAttributesSkipped());
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES &&
+                (getNumSampleSpecificClinicalAttributesAdded() + getNumSamplesProcessed()) == 0) {
+                //should not occur: 
+                throw new RuntimeException("No data was added.  " +
+                        "Please check your file format and try again.");
+            }
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
+                getNumPatientSpecificClinicalAttributesAdded() == 0) {
+                //could occur if patient clinical file is given with only PATIENT_ID column:
+                throw new RuntimeException("No data was added.  " +
+                        "Please check your file format and try again. If you only have sample clinical data, then a patients file with only PATIENT_ID column is not required.");
+            }
+            //backward compatible check (TODO - remove this later):
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES &&
+                (getNumPatientSpecificClinicalAttributesAdded() + getNumSampleSpecificClinicalAttributesAdded()) == 0) {
+                    //should not occur: 
+                    throw new RuntimeException("No data was added.  " +
+                            "Please check your data and try again.");
                 }
+
+            if (getAttributesType() == ImportClinicalData.AttributeTypes.PATIENT_ATTRIBUTES &&
+                getNumPatientSpecificClinicalAttributesAdded() == 0) {
+                //could occur if patient clinical file is given with only PATIENT_ID column:
+                throw new RuntimeException("No data was added.  " +
+                        "Please check your file format and try again. If you only have sample clinical data, then a patients file with only PATIENT_ID column is not required.");
             }
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            System.err.println ("Aborted.  " + e.getMessage());
-        } finally {
-            ConsoleUtil.showWarnings();
+            throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportClinicalData(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportClinicalData(args);
+        runner.runInConsole();
     }
 }

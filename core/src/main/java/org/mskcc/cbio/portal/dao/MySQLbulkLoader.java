@@ -73,27 +73,26 @@ public class MySQLbulkLoader {
     * @throws DaoException
     */
    public static int flushAll() throws DaoException {
-        try {
+	   int checks = 0;
+       PreparedStatement stmt = null;
+       boolean executedSetFKChecks = false;
+       try {
             Connection con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
-            PreparedStatement stmt = con.prepareStatement("SELECT @@foreign_key_checks;");
+            stmt = con.prepareStatement("SELECT @@foreign_key_checks;");
             ResultSet result = stmt.executeQuery();
             
             result.first();
-            int checks = result.getInt(1);
+            checks = result.getInt(1);
 
             stmt = con.prepareStatement("SET foreign_key_checks = ?;");
             stmt.setLong(1, 0);
             stmt.execute();
+            executedSetFKChecks = true;
             
             int n = 0;
             for (MySQLbulkLoader mySQLbulkLoader : mySQLbulkLoaders.values()) {
                 n += mySQLbulkLoader.loadDataFromTempFileIntoDBMS();
             }
-            
-            mySQLbulkLoaders.clear();
-            
-            stmt.setLong(1, checks);
-            stmt.execute();
             
             return n;
         } catch (IOException e) {
@@ -102,6 +101,18 @@ public class MySQLbulkLoader {
             return -1;
         } catch (SQLException e) {
         	throw new DaoException(e);
+        }
+        finally {
+        	mySQLbulkLoaders.clear();
+            if (executedSetFKChecks && stmt != null) {
+            	try {
+					stmt.setLong(1, checks);
+					stmt.execute();
+				} catch (SQLException e) {
+					throw new DaoException(e);
+				}
+            	
+            }
         }
     }
 
@@ -166,7 +177,7 @@ public class MySQLbulkLoader {
             tempFileWriter.write( "\t" );
             tempFileWriter.write( escapeValue(fieldValues[i]) );
          }
-         tempFileWriter.newLine();
+         tempFileWriter.write("\n");;
 
          if( rows++ < numDebuggingRowsToPrint ){
             StringBuffer sb = new StringBuffer( escapeValue(fieldValues[0]) );
@@ -219,18 +230,19 @@ public class MySQLbulkLoader {
          con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
          stmt = con.createStatement();
          
-         // will throw error if attempts to overwrite primary keys in table (except for clinical data)
-         String replace = (processingClinicalData()) ? " REPLACE" : "";
-         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + replace + " INTO TABLE " + tableName;
+         String command = "LOAD DATA LOCAL INFILE '" + tempFileName.replace("\\", "\\\\") + "'" + " INTO TABLE " + tableName;
          stmt.execute( command );
          
          int updateCount = stmt.getUpdateCount();
          ProgressMonitor.setCurrentMessage(" --> records inserted into `"+tableName + "` table: " + updateCount);
          int nLines = FileUtil.getNumLines(tempFileHandle);
-         if (nLines!=updateCount && !processingClinicalData()) {
-             System.err.println("Error: only "+updateCount+" of the "+nLines+" records were inserted in " + tableName);
-             if (stmt.getWarnings() != null)
-            	 System.err.println(stmt.getWarnings().getMessage());
+         if (nLines!=updateCount) {
+             String otherDetails = "";
+        	 if (stmt.getWarnings() != null) {
+        		 otherDetails = "More error/warning details: " + stmt.getWarnings().getMessage();
+             }
+             throw new DaoException("DB Error: only "+updateCount+" of the "+nLines+" records were inserted in `" + tableName + "`. " + otherDetails);
+             
          } else {
              tempFileHandle.delete();
          }
@@ -267,9 +279,4 @@ public class MySQLbulkLoader {
       MySQLbulkLoader.bulkLoad = false;
    }
 
-   private boolean processingClinicalData()
-   {
-      return (tempFileName.contains(DaoClinicalData.SAMPLE_TABLE) ||
-              tempFileName.contains(DaoClinicalData.PATIENT_TABLE));
-   }
 }

@@ -41,6 +41,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 /**
  * Prepare a GeneticProfile for having its data loaded.
@@ -72,10 +73,24 @@ public class GeneticProfileReader {
                .getStableId());
 
       if (existingGeneticProfile != null) {
-         // the dbms already contains a GeneticProfile with the file's stable_id. This scenario is not supported
-    	 // anymore, so throw error telling user to remove existing profile first:
-         throw new RuntimeException("Error: genetic_profile record found with same Stable ID as the one used in your data:  "
+         if (!existingGeneticProfile.getDatatype().equals("MAF"))
+         {
+             // the dbms already contains a GeneticProfile with the file's stable_id. This scenario is not supported
+             // anymore, so throw error telling user to remove existing profile first:
+             throw new RuntimeException("Error: genetic_profile record found with same Stable ID as the one used in your data:  "
                   + existingGeneticProfile.getStableId() + ". Remove the existing genetic_profile record first.");
+         }
+         else {
+             // For mutation data only we can have multiple files with the same genetic_profile.
+             // There is a constraint in the mutation database table to prevent duplicated data
+             // If this constraint is hit (mistakenly importing the same maf twice) MySqlBulkLoader will throw an exception
+
+             // make an object combining the pre-existing profile with the file-specific properties of the current file
+             GeneticProfile gp = new GeneticProfile(existingGeneticProfile);
+             gp.setTargetLine(geneticProfile.getTargetLine());
+             gp.setOtherMetadataFields(geneticProfile.getAllOtherMetadataFields());
+             return gp;
+         }
       }
       // add new profile
       DaoGeneticProfile.addGeneticProfile(geneticProfile);
@@ -101,7 +116,7 @@ public class GeneticProfileReader {
     * @throws DaoException
     */
    public static GeneticProfile loadGeneticProfileFromMeta(File file) throws IOException, DaoException {
-      Properties properties = new Properties();
+      Properties properties = new TrimmedProperties();
       properties.load(new FileInputStream(file));
       
       // when loading cancer studies and their profiles from separate files, 
@@ -124,17 +139,14 @@ public class GeneticProfileReader {
       if (stableId == null) {
          throw new IllegalArgumentException("stable_id is not specified.");
       }
-      //according to new definitions, cancer_study_identifier does not need to be part of stable_id anymore, 
-      //because bellow this check we will add it automatically:
-      if (stableId.startsWith(cancerStudyIdentifier)) {
-    	  throw new IllegalArgumentException("'cancer_study_identifier' should not be given as part of 'stable_id' anymore. "
-    	  			+ "Found: " + stableId);  
-      }
+      
       //automatically add the cancerStudyIdentifier in front of stableId (since the rest of the 
       //code still relies on this - TODO: this can be removed once the rest of the backend and frontend code 
-      //stop assuming cancerStudyIdentifier to be part of stableId):      
-      stableId = cancerStudyIdentifier + "_" + stableId;
-
+      //stop assuming cancerStudyIdentifier to be part of stableId):
+      if(!stableId.startsWith(cancerStudyIdentifier + "_")) {
+          stableId = cancerStudyIdentifier + "_" + stableId;
+      }
+      
       String profileName = properties.getProperty("profile_name");
       String profileDescription = properties.getProperty("profile_description");
       String geneticAlterationTypeString = properties.getProperty("genetic_alteration_type");
@@ -171,6 +183,7 @@ public class GeneticProfileReader {
 	  geneticProfile.setDatatype(datatype);
       geneticProfile.setShowProfileInAnalysisTab(showProfileInAnalysisTab);
       geneticProfile.setTargetLine(properties.getProperty("target_line"));
+      geneticProfile.setOtherMetadataFields(properties);
       return geneticProfile;
    }
 }

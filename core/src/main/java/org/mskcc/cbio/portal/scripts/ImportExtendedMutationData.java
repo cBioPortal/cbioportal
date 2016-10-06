@@ -60,6 +60,7 @@ public class ImportExtendedMutationData{
 
 	private File mutationFile;
 	private int geneticProfileId;
+	private boolean swissprotIsAccession;
 	private MutationFilter myMutationFilter;
 	private int entriesSkipped = 0;
 	private int samplesSkipped = 0;
@@ -73,10 +74,22 @@ public class ImportExtendedMutationData{
 	public ImportExtendedMutationData(File mutationFile, int geneticProfileId) {
 		this.mutationFile = mutationFile;
 		this.geneticProfileId = geneticProfileId;
+		this.swissprotIsAccession = false;
 
 		// create default MutationFilter
 		myMutationFilter = new MutationFilter( );
 	}
+
+    /**
+     * Turns parsing the SWISSPROT column as an accession on or off again.
+     *
+     * If off, the column will be parsed as the name (formerly ID).
+     *
+     * @param swissprotIsAccession  whether to parse the column as an accession
+     */
+    public void setSwissprotIsAccession(boolean swissprotIsAccession) {
+        this.swissprotIsAccession = swissprotIsAccession;
+    }
 
 	public void importData() throws IOException, DaoException {
 		MySQLbulkLoader.bulkLoadOn();
@@ -134,11 +147,19 @@ public class ImportExtendedMutationData{
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
-                ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
-		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+				// backwards compatible part (i.e. in the new process, the sample should already be there. TODO - replace this workaround later with an exception:
+				Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                        StableIdUtil.getSampleId(barCode));
+				if (sample == null ) {
+					ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
+	                // add the sample (except if it is a 'normal' sample):
+					ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
+				}
+		        // check again (repeated because of workaround above):
+				sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                             StableIdUtil.getSampleId(barCode));
-		        if (sample == null) {
+		        // can be null in case of 'normal' sample:
+				if (sample == null) {
 		        	assert StableIdUtil.isNormal(barCode);
 		        	//if new sample:
 		        	if (sampleSet.add(barCode))
@@ -204,7 +225,6 @@ public class ImportExtendedMutationData{
 					aaChange,
 					codonChange,
 					refseqMrnaId,
-					uniprotName,
 					uniprotAccession;
 
 				int proteinPosStart,
@@ -236,45 +256,87 @@ public class ImportExtendedMutationData{
 				aaChange = record.getAminoAcidChange();
 				codonChange = record.getCodons();
 				refseqMrnaId = record.getRefSeq();
-				uniprotName = record.getSwissprot();
-				uniprotAccession = DaoUniProtIdMapping.mapFromUniprotIdToAccession(record.getSwissprot());
+                if (this.swissprotIsAccession) {
+                    uniprotAccession = record.getSwissprot();
+                } else {
+                    String uniprotName = record.getSwissprot();
+                    uniprotAccession = DaoUniProtIdMapping.mapFromUniprotIdToAccession(uniprotName);
+                }
 				proteinPosStart = ExtendedMutationUtil.getProteinPosStart(
 						record.getProteinPosition(), proteinChange);
 				proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(
 						record.getProteinPosition(), proteinChange);
 
-				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
-				String geneSymbol = record.getHugoGeneSymbol();
-				long entrezGeneId = record.getEntrezGeneId();
-                                
-				CanonicalGene gene = null;
-				if (record.getGivenEntrezGeneId().trim().length() > 0) {
-					if (!record.getGivenEntrezGeneId().matches("[0-9]+")) {
-		            	ProgressMonitor.logWarning("Ignoring line with invalid Entrez_Id " + record.getGivenEntrezGeneId());
-		            	entriesSkipped++;
-				    	continue;
-					}	
-					if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
-					    gene = daoGene.getGene(entrezGeneId);
-					    if (gene == null) {
-					    	//skip
-					    	ProgressMonitor.logWarning("Entrez_Id " + entrezGeneId + " not found. Record will be skipped for this gene.");
-					    	entriesSkipped++;
-					    	continue;
-					    }				    	
-					}
-				}
+                //  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
+                String geneSymbol = record.getHugoGeneSymbol();
+                String entrezIdString = record.getGivenEntrezGeneId();
 
-				if(gene == null) {
-					// If Entrez Gene ID Fails, try Symbol.
-					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
-				}
-                                
-				if(gene == null) {
-					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["+ record.getGivenEntrezGeneId() + "] or ambiguous alias. Ignoring it "
-					                    + "and all mutation data associated with it!");
-					entriesSkipped++;
-					continue;
+                CanonicalGene gene = null;
+                // try to parse entrez if it is not empty nor 0:
+                if (!(entrezIdString.isEmpty() ||
+                      entrezIdString.equals("0"))) {
+                    Long entrezGeneId;
+                    try {
+                        entrezGeneId = Long.parseLong(entrezIdString);
+                    } catch (NumberFormatException e) {
+                        entrezGeneId = null;
+                    }
+                    //non numeric values or negative values should not be allowed:
+                    if (entrezGeneId == null || entrezGeneId < 0) {
+                        ProgressMonitor.logWarning(
+                                "Ignoring line with invalid Entrez_Id " +
+                                entrezIdString);
+                        entriesSkipped++;
+                        continue;
+                    } else {
+                        gene = daoGene.getGene(entrezGeneId);
+                        if (gene == null) {
+                            //skip if not in DB:
+                            ProgressMonitor.logWarning(
+                                    "Entrez gene ID " + entrezGeneId +
+                                    " not found. Record will be skipped.");
+                            entriesSkipped++;
+                            continue;
+                        }
+                    }
+                }
+
+                // If Entrez Gene ID Fails, try Symbol.
+                if (gene == null &&
+                        !(geneSymbol.equals("") ||
+                          geneSymbol.equals("Unknown"))) {
+                    gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
+                }
+
+                // assume symbol=Unknown and entrez=0 (or missing Entrez column) to imply an 
+                // intergenic, irrespective of what the column Variant_Classification says
+                if (geneSymbol.equals("Unknown") &&
+                        (entrezIdString.equals("0") || mafUtil.getEntrezGeneIdIndex() == -1)) { 
+                	// give extra warning if mutationType is something different from IGR:
+                	if (mutationType != null &&
+                			!mutationType.equalsIgnoreCase("IGR")) { 
+                		ProgressMonitor.logWarning(
+                            "Treating mutation with gene symbol 'Unknown' " +
+                            (mafUtil.getEntrezGeneIdIndex() == -1 ? "" : "and Entrez gene ID 0") + " as intergenic ('IGR') " +
+                            "instead of '" + mutationType + "'. Entry filtered/skipped.");
+                	}
+                	// treat as IGR:
+                	myMutationFilter.decisions++;
+                    myMutationFilter.igrRejects++;
+                    // skip entry:
+                    entriesSkipped++;
+                    continue;
+                }
+
+                // skip the record if a gene was expected but not identified
+                if (gene == null) {
+                    ProgressMonitor.logWarning(
+                            "Ambiguous or missing gene: " + geneSymbol +
+                            " ["+ record.getGivenEntrezGeneId() +
+                            "] or ambiguous alias. Ignoring it " +
+                            "and all mutation data associated with it!");
+                    entriesSkipped++;
+                    continue;
 				} else {
 					ExtendedMutation mutation = new ExtendedMutation();
 
@@ -323,7 +385,6 @@ public class ImportExtendedMutationData{
 					// TODO rename the oncotator column names (remove "oncotator")
 					mutation.setOncotatorCodonChange(codonChange);
 					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
-					mutation.setOncotatorUniprotName(uniprotName);
 					mutation.setOncotatorUniprotAccession(uniprotAccession);
 					mutation.setOncotatorProteinPosStart(proteinPosStart);
 					mutation.setOncotatorProteinPosEnd(proteinPosEnd);
@@ -367,7 +428,7 @@ public class ImportExtendedMutationData{
                     try {
                         DaoMutation.addMutationEvent(event);
                     } catch (DaoException ex) {
-                        ex.printStackTrace();
+                        throw ex;
                     }
                 }
                 
@@ -375,7 +436,7 @@ public class ImportExtendedMutationData{
                     try {
                         DaoMutation.addMutation(mutation,false);
                     } catch (DaoException ex) {
-                        ex.printStackTrace();
+                        throw ex;
                     }
                 }
                 

@@ -74,7 +74,9 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<%@ include file="oncokb/oncokb-card-template.html" %>
+<script type="text/javascript" src="js/src/oncokb/OncoKBCard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/cross-cancer-plotly-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
@@ -85,6 +87,7 @@
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="css/oncokb.css?<%=GlobalProperties.getAppVersion()%>" />
 
 
 <%
@@ -218,24 +221,25 @@
                 <div style="margin-top:10px;margin-bottom:10px;">
                     <div style="float:left;margin-right:20px;">
                         Y-Axis value:
-                        <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
+                        <select id="yAxis" title="y-axis value"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
                     </div>
+                    <!-- explicitly set anchors without href for the handles, as jQuery UI 1.10 otherwise adds href="#" which may confuse assistive technologies -->
                     <div style="float:left;margin-right:20px;">
                         <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
-                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"></div>
-                        <input style="float:left;" id="minY" size="3" type="text">
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"><a class="ui-slider-handle" tabindex="0"></a></div>
+                        <input style="float:left;" id="minY" size="3" type="text" aria-labelledby="sliderLabel">
                         <span id="suffix">%</span>
                     </div>
                     <div style="float:left;margin-right:20px;">
-                        <span style="float:left;" class="diagram-general-slider-text" >Min. # total samples:</span>
-                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"></div>
-                        <input style="float:left;" id="minTotal" size="3" type="text">
+                        <span style="float:left;" class="diagram-general-slider-text" id="minTotalSamplesLabel">Min. # total samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"><a class="ui-slider-handle" tabindex="0"></a></div>
+                        <input style="float:left;" id="minTotal" size="3" type="text" aria-labelledby="minTotalSamplesLabel">
                     </div>
                     <div style="float:left;margin-right:20px;">
-                        <input type="checkbox" id="histogram-show-colors" checked> Show alteration types
+                        <input type="checkbox" id="histogram-show-colors" title="Show alteration types" checked> Show alteration types
                     </div>
                     <div style="float:left;margin-right:20px;">
-                        <input type="checkbox" id="sortBy"> Sort alphabetically
+                        <input type="checkbox" id="sortBy" title="Sort alphabetically"> Sort alphabetically
                     </div>
                 </div>
 
@@ -262,7 +266,7 @@
             </div>
 
             <div id="cchistogram" style="width: 1100px; height: 700px;position:relative;margin-top:30px;">
-                <img src="images/ajax-loader.gif"/>
+                <img src="images/ajax-loader.gif" alt='loading'/>
             </div>
 
             <div id="studies-with-no-data">
@@ -272,7 +276,7 @@
 
         <div class="section" id="cc-mutations">
             <div id="mutation_details" class="mutation-details-content">
-                <img src="images/ajax-loader.gif"/>
+                <img src="images/ajax-loader.gif" alt='loading'/>
             </div>
         </div>
         <div class="section" id="cc-plots">
@@ -283,7 +287,7 @@
                 <br>
                 <h4>Contents can be copied and pasted into Excel.</h4>
                 <p>Frequency of Alteration Across Studies:<p/>
-                <textarea rows="30" cols="40" id="cc-download-text">
+                <textarea rows="30" cols="40" id="cc-download-text" title="Frequency of Alteration Across Studies">
                 </textarea>
             </div>
         </div>
@@ -375,7 +379,7 @@
 
 <script type="text/template" id="mutation_table_annotation_template">
     <span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
-        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif"/>
+        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif" alt='loading'/>
     </span>
     <span class='annotation-item mcg' alt='{{mcgAlt}}'>
         <img width='14' height='14' src='images/mcg_logo.png'>

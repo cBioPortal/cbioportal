@@ -36,7 +36,7 @@
 <%
 	String principal = "";
     String authenticationMethod = GlobalProperties.authenticationMethod();
-	if (authenticationMethod.equals("openid")) {
+	if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
 		principal = "principal.name";
 	}
 	else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("saml") || authenticationMethod.equals("ad")) {
@@ -59,9 +59,8 @@
 		<td valign="middle" align="center" width="50%">
 			<img src="<c:url value="${tagLineImage}"/>" alt="Tag Line" style="max-height: 50px;">
 		</td>
-        <!-- replaced hard-coded text with parameter  -->
         <td valign="middle" align="right" width="25%">
-            <img src="<c:url value="${rightLogo}"/>" alt="Right Logo" style="max-height: 50px;">
+            <img src="<c:url value="${rightLogo}"/>" alt="Institute Logo" style="max-height: 50px;">
         </td>
 	</tr>
     <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
@@ -70,7 +69,7 @@
 		<td></td><td></td>
         <td align="right" style="font-size:10px;background-color:white">
         <% if (authenticationMethod.equals("saml")) { %>
-        You are logged in as <sec:authentication property='<%=principal%>' />. <a href="<c:url value="/saml/logout"/>">Sign out</a>.
+        You are logged in as <sec:authentication property='<%=principal%>' />. <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>.
         <%} else { %>
         You are logged in as <sec:authentication property='<%=principal%>' />. <a href="j_spring_security_logout">Sign out</a>.
         <% } %>

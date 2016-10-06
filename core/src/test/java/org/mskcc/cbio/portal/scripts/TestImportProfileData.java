@@ -24,6 +24,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,11 +48,9 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.SpringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -68,53 +67,68 @@ public class TestImportProfileData {
 
 	int studyId;
 	int geneticProfileId;
-	@Autowired
-	ApplicationContext applicationContext;
 	
-	@Before
-	public void setUp() throws DaoException {
-
-		//set it, to avoid this being set to the runtime application context (instead of the test application context):
-		SpringUtil.setApplicationContext(applicationContext);
-		ProgressMonitor.setConsoleMode(false);
-
+    @Before
+    public void setUp() throws DaoException {
+        ProgressMonitor.setConsoleMode(false);
         loadGenes();
-	}
+    }
 	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
-	
 	@Test
-	public void testImportMutationsFile() throws Exception {
+	public void testImportMutationFiles() throws Exception {
         String[] args = {
-        		"--data","target/test-classes/data_mutations_extended.txt",
-        		"--meta","target/test-classes/meta_mutations_extended.txt"        		
-        		};
-        
-        ImportProfileData.main(args);
+                "--data","src/test/resources/data_mutations_extended.txt",
+                "--meta","src/test/resources/meta_mutations_extended.txt",
+                "--loadMode", "bulkLoad"
+        };
+        ImportProfileData runner = new ImportProfileData(args);
+        runner.run();
         //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the 
         //dataset study id (e.g. studyStableId + "_breast_mutations"):
         String studyStableId = "study_tcga_pub";
 		studyId = DaoCancerStudy.getCancerStudyByStableId(studyStableId).getInternalId();
+        // the sample is added on the fly when encountered in the mutation data file
 		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
 
         geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations").getGeneticProfileId();
-        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");  
-        
-	}
-	
-	
+        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");
+
+        // data for this sample should not exist before loading the next data file
+        assertNull(DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3665-01"));
+        // load a second mutation data file
+        String[] secondArgs = {
+                "--data","src/test/resources/data_mutations_extended_continued.txt",
+                "--meta","src/test/resources/meta_mutations_extended.txt",
+                "--loadMode", "bulkLoad"
+        };
+        ImportProfileData secondRunner = new ImportProfileData(secondArgs);
+        secondRunner.run();
+        // again, the sample is added on the fly
+        int secondSampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3665-01").getInternalId();
+        validateMutationAminoAcid (geneticProfileId, secondSampleId, 2842, "L113P");
+    }
+
 	@Test
 	public void testImportCNAFile() throws Exception {
+		
+		//genes in this test:
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+	    daoGene.addGene(new CanonicalGene(999999672, "TESTBRCA1"));
+	    daoGene.addGene(new CanonicalGene(999999675, "TESTBRCA2"));
+	    MySQLbulkLoader.flushAll();
+		
         String[] args = {
-        		"--data","target/test-classes/data_CNA_sample.txt",
-        		"--meta","target/test-classes/meta_CNA.txt" ,
-        		"--noprogress"
-        		};
-        
+                "--data","src/test/resources/data_CNA_sample.txt",
+                "--meta","src/test/resources/meta_CNA.txt" ,
+                "--noprogress",
+                "--loadMode", "bulkLoad"
+        };
+
         String[] sampleIds = {"TCGA-02-0001-01","TCGA-02-0003-01","TCGA-02-0004-01","TCGA-02-0006-01"};
-        
+
         //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the 
         //dataset study id (e.g. studyStableId + "_breast_mutations"):
         String studyStableId = "study_tcga_pub";
@@ -125,9 +139,17 @@ public class TestImportProfileData {
         ImportDataUtil.addPatients(sampleIds, study);
         ImportDataUtil.addSamples(sampleIds, study);
         
-        ImportProfileData.main(args);
+        try {
+        	ImportProfileData runner = new ImportProfileData(args);
+        	runner.run();
+        }
+        catch (Throwable e) {
+    		//useful info for when this fails:
+    		ConsoleUtil.showMessages();
+    		throw e;
+    	}
 		
-		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_gistic").getGeneticProfileId();
+		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_cna").getGeneticProfileId();
 		
 		List<Integer> sampleInternalIds = new ArrayList<Integer>();
 		DaoSample.reCache();
@@ -138,38 +160,21 @@ public class TestImportProfileData {
 		List<CnaEvent> cnaEvents = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels);
 		assertEquals(2, cnaEvents.size());
 		//validate specific records. Data looks like:
-		//672	BRCA1	-2	0	1	0
-		//675	BRCA2	0	2	0	-1
+		//999999672	TESTBRCA1	-2	0	1	0
+		//999999675	TESTBRCA2	0	2	0	-1
 		//Check if the first two samples are loaded correctly:
 		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-02-0001-01").getInternalId();
 		sampleInternalIds = Arrays.asList((int)sampleId);
 		CnaEvent cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
 		assertEquals(-2, cnaEvent.getAlteration().getCode());
-		assertEquals("BRCA1", cnaEvent.getGeneSymbol());
+		assertEquals("TESTBRCA1", cnaEvent.getGeneSymbol());
 		sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-02-0003-01").getInternalId();
 		sampleInternalIds = Arrays.asList((int)sampleId);
 		cnaEvent = DaoCnaEvent.getCnaEvents(sampleInternalIds, null, geneticProfileId, cnaLevels).get(0);
 		assertEquals(2, cnaEvent.getAlteration().getCode());
-		assertEquals("BRCA2", cnaEvent.getGeneSymbol());
-        
+		assertEquals("TESTBRCA2", cnaEvent.getGeneSymbol());
 	}
-	
-	
-	@Test
-	public void testException() throws Exception {
 
-        String[] args = {
-        		"--data","target/test-classes/data_mutations_extended.txt",
-        		"--meta","target/test-classes/meta_mutations_extended_wrong_stable_id.txt"        		
-        		};
-        
-        exception.expect(IllegalArgumentException.class);
-        ImportProfileData.main(args);
-        
-        
-	}
-	
-	
     private void validateMutationAminoAcid (int geneticProfileId, Integer sampleId, long entrezGeneId,
             String expectedAminoAcidChange) throws DaoException {
         ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations
@@ -180,7 +185,7 @@ public class TestImportProfileData {
 
 
 
-    private void loadGenes() throws DaoException {
+    private static void loadGenes() throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
 	    // genes for "data_mutations_extended.txt"
@@ -222,7 +227,7 @@ public class TestImportProfileData {
 	    daoGene.addGene(new CanonicalGene(1952L, "CELSR2"));
 	    daoGene.addGene(new CanonicalGene(2322L, "FLT3"));
 	    daoGene.addGene(new CanonicalGene(867L, "CBL"));
-            
-            MySQLbulkLoader.flushAll();
+
+        MySQLbulkLoader.flushAll();
     }
 }

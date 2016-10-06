@@ -148,7 +148,7 @@ function PancancerStudySummaryHistogram()
 	 */
     var drawHistogram = function(histData, model, histogramEl) {
 		// Add loading image to histogramEl
-		$(histogramEl).html("<div style='width:"+width+"px; height:"+height+"px'><img src='images/ajax-loader.gif'</div>");
+		$(histogramEl).html("<div style='width:"+width+"px; height:"+height+"px'><img src='images/ajax-loader.gif' alt='loading' /></div>");
 		// call continueDraHistogram with a 1 ms delay to ensure the image is shown
 		window.setTimeout(continueDrawHistogram, 1, histData, model, histogramEl);
 	}

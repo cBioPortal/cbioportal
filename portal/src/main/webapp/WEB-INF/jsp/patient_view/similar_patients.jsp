@@ -91,7 +91,7 @@ A genomic overview with events aligned across patients goes here...
                                 source[1]=value;
                             } else if (type==='display') {
                                 var study = source[ 1 ];
-                                return "<a href='study.do?cancer_study_id="+study[0]
+                                return "<a href='study?id="+study[0]
                                     + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'><b>"+study[1]+"</b></a>";
                             } else if (type==='sort') {
                                 return source[1][1];
@@ -168,7 +168,7 @@ A genomic overview with events aligned across patients goes here...
     );
 </script>
 
-<div id="similar_patients_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="similar_patients_wait"><img src="images/ajax-loader.gif" alt="loading" /></div>
 
 <table cellpadding="0" cellspacing="0" border="0" id="similar_patients_wrapper_table" width="100%">
     <tr>

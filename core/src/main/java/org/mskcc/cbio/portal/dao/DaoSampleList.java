@@ -291,8 +291,6 @@ public class DaoSampleList {
 				patientIds.add(sample.getStableId());
 			}
             return patientIds;
-        } catch (NullPointerException e) {
-            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

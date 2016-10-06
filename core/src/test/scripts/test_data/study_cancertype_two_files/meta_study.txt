@@ -3,3 +3,4 @@ type_of_cancer: luad
 name: Spam (spam)
 description: Baked beans
 short_name: Spam
+add_global_case_list: true

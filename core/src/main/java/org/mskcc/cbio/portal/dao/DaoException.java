@@ -71,7 +71,7 @@ public class DaoException extends Exception {
         String dbVersion = DaoInfo.getVersion();
         String portalDbVersion = GlobalProperties.getDbVersion();
         //TODO - this dbVersion message should not be concatenated here, but should be given to constructor in the relevant scenario. 
-        if (!dbVersion.equals(portalDbVersion))
+        if (dbVersion != null && !dbVersion.equals(portalDbVersion))
         	return "Database Version: " + dbVersion + " Portal DB Version Expected: " + portalDbVersion + ". " + msg;
         return msg;
     }

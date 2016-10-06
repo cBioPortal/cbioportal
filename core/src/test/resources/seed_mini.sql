@@ -30,7 +30,7 @@ DELETE FROM protein_array_target;
 DELETE FROM protein_array_info;
 DELETE FROM mut_sig;
 DELETE FROM interaction;
-DELETE FROM clinical_attribute;
+DELETE FROM clinical_attribute_meta;
 DELETE FROM entity_attribute;
 DELETE FROM attribute_metadata;
 DELETE FROM mutation_count;

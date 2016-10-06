@@ -43,3 +43,35 @@ CREATE TABLE gene_panel_list (
 ALTER TABLE sample_profile ADD COLUMN PANEL_ID int(11) DEFAULT NULL, ADD FOREIGN KEY (PANEL_ID) REFERENCES gene_panel (PANEL_ID) ON DELETE RESTRICT;
 
 UPDATE info SET DB_SCHEMA_VERSION="1.2.2";
+
+##version: 1.2.3
+CREATE TABLE `clinical_attribute_meta` (
+  `ATTR_ID` varchar(255) NOT NULL,
+  `DISPLAY_NAME` varchar(255) NOT NULL,
+  `DESCRIPTION` varchar(2048) NOT NULL,
+  `DATATYPE` varchar(255) NOT NULL,
+  `PATIENT_ATTRIBUTE` BOOLEAN NOT NULL,
+  `PRIORITY` varchar(255) NOT NULL,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY (`ATTR_ID`, `CANCER_STUDY_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
+INSERT INTO clinical_attribute_meta 
+    SELECT DISTINCT clinical_sample.attr_id, clinical_attribute.display_name, clinical_attribute.description, clinical_attribute.datatype, clinical_attribute.patient_attribute, clinical_attribute.priority, cancer_study.cancer_study_id 
+    FROM clinical_attribute 
+    INNER JOIN clinical_sample ON clinical_attribute.ATTR_ID = clinical_sample.ATTR_ID 
+    INNER JOIN sample ON clinical_sample.internal_id = sample.internal_id 
+    INNER JOIN patient ON sample.patient_id = patient.internal_id 
+    INNER  JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id;
+
+INSERT INTO clinical_attribute_meta 
+    SELECT DISTINCT clinical_patient.attr_id, clinical_attribute.display_name, clinical_attribute.description, clinical_attribute.datatype, clinical_attribute.patient_attribute, clinical_attribute.priority, cancer_study.cancer_study_id 
+    FROM clinical_attribute 
+    INNER JOIN clinical_patient ON clinical_attribute.ATTR_ID = clinical_patient.ATTR_ID 
+    INNER JOIN patient ON clinical_patient.internal_id = patient.internal_id 
+    INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id;
+
+DROP TABLE clinical_attribute;
+
+UPDATE info SET DB_SCHEMA_VERSION="1.2.3";

@@ -159,10 +159,16 @@ public class ApiController {
     @Transactional
     @RequestMapping(value = "/clinicalattributes", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<DBClinicalField> getClinicalAttributes(
-		@ApiParam(value = "List of attribute ids. If provided, returned clinical attributes will be the ones with matching attribute ids. Empty string returns all clinical attributes.")
+		@ApiParam(value = "List of attribute ids. If provided, returned clinical attributes will be the ones with matching attribute ids. Empty string returns all clinical attributes if study_id is not present.")
 		@RequestParam(required = false) 
-		List<String> attr_ids) {
-	    if (attr_ids == null) {
+		List<String> attr_ids, 
+       @ApiParam(value = "Study id. If provided, return clinical attributes will be the ones that this study contains.")
+       @RequestParam(required = false)
+       String study_id) {
+       if (study_id != null) {
+           return service.getClinicalAttributes(study_id);
+       }
+       else if (attr_ids == null) {
 		    return service.getClinicalAttributes();
 	    } else {
 		    return service.getClinicalAttributes(attr_ids);

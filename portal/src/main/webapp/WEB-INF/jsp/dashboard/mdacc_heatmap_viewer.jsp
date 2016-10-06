@@ -46,17 +46,13 @@
             heatmapDiv = $('div#heatmap'),
             enabled = false;
 
+        // start with tab hidden.  Div is already display:none
         tabLI.attr('style', 'display:none');
-        //heatmapDiv.attr('style', 'display:none');     // display is already none
 
         var metaUrl = '<%=GlobalProperties.getStudyHeatmapMetaUrl()%>';
         if (metaUrl === 'null') return;                 // not configured in properties
 
-        var studyId = cancerStudyId;        // set in dashboard.jsp
-        // ### Next line for testing ###  To be removed...
-        if (studyId === 'study_es_0') studyId = 'brca_tcga_pub';
-
-        metaUrl += studyId;
+        metaUrl += cancerStudyId;        // cancerStudyId set in dashboard.jsp
 
         /*
          * <li><a href="#heatmap" id="study-tab-heatmap-a" class="study-tab">Heatmap</a></li>
@@ -72,8 +68,6 @@
             // Check if there were any heatmaps for this study
             if (data.jobStatus === "completed" && data.fileContent != undefined) {
                 enabled = !( data.fileContent.startsWith('[]') );   // array not empty
-                // ### Just for testing
-                //enabled = true;
             }
 
             if (enabled) {  // Only enable tab if there are heatmaps to show

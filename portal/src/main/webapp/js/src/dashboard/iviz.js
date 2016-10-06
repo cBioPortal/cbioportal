@@ -532,7 +532,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         $('#iviz-form input[name="case_set_id"]').remove();
         $('<input>').attr({
           type: 'hidden',
-          value: window.case_set_id,
+          value: -1,
           name: 'case_set_id'
         }).appendTo('#iviz-form');
 

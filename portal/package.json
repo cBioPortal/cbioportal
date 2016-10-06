@@ -1,0 +1,6 @@
+{
+  "description": "Simple package.json to get frontend code from frontend repo",
+  "dependencies": {
+    "cbioportal-frontend-test": "git://github.com/inodb/cbioportal-frontend-test#d963802b93f8cf0b8cd9e49d3846d8e6a87f6a8a"
+  }
+}

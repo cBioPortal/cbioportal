@@ -528,7 +528,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 			    var default_profile_id = QuerySession.getDefaultGeneticProfileId();
 			    if (default_profile_id) {
-				QuerySession.getHeatmapData(default_profile_id, QuerySession.getQueryGenes(), 'sample')
+				return QuerySession.getHeatmapData(default_profile_id, QuerySession.getQueryGenes(), 'sample')
 				.then(function (heatmap_data_by_line) {
 				    return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
 					var hm_id = State.heatmap_tracks[hm_line];
@@ -597,7 +597,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 			    var default_profile_id = QuerySession.getDefaultGeneticProfileId();
 			    if (default_profile_id) {
-				QuerySession.getHeatmapData(default_profile_id, QuerySession.getQueryGenes(), 'patient')
+				return QuerySession.getHeatmapData(default_profile_id, QuerySession.getQueryGenes(), 'patient')
 				.then(function (heatmap_data_by_line) {
 				    return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
 					var hm_id = State.heatmap_tracks[hm_line];
@@ -867,6 +867,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    var new_hm_id = oncoprint.addTracks([track_params])[0];
 		    hm_ids.push(new_hm_id);
 		    State.heatmap_tracks[i] = new_hm_id;
+		    // ???: wouldn't this always be State.heatmap_track[0]? <fedde-s 2016-10-06>
 		    if (State.first_heatmap_track === null) {
 			State.first_heatmap_track = new_hm_id;
 		    } else {

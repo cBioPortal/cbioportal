@@ -131,3 +131,29 @@ mysql> INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
 ```
 
 After **next login**, the user 'john.smith@gmail.com' will have access to these two studies. 
+
+
+## Configuring PUBLIC studies
+
+To enable a set of Public studies that should be visible to all users, without the need to configure this for each user in the `authorities` and `users` tables, you can set the property `always_show_study_group` in **portal.properties** file. For example, you can set:
+
+```
+always_show_study_group=PUBLIC
+```
+
+This will enable the word "PUBLIC" to be used in the column `GROUPS` of the table `cancer_study` to indicate which studies should be always shown to *any authenticated user*, regardless of authorization configurations.
+
+### Example:
+
+To reuse the example table above, let's assume the property `always_show_study_group` is set as indicated above and the `cancer_study` table contents are set to the following: 
+
+```
++-----------------+-------------------------+--------------------+
+| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS             |
++-----------------+-------------------------+--------------------+
+|              93 | acc_tcga                | GROUPB;TEST_GROUP1 |
+|              94 | brca_tcga               | TEST_GROUP1;PUBLIC |
++-----------------+-------------------------+--------------------+
+```
+
+In this case, the study `brca_tcga` will be visible to *any authenticated user* while the study `acc_tcga` only to users configured to be part of `GROUPB` or `TEST_GROUP1`

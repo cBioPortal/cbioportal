@@ -130,14 +130,18 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             
             data.remove((int)sampleIdIndex);
             for (int i = 0; i < data.size(); i++) {
-                GenePanel genePanel = genePanelRepository.getGenePanelByStableId(data.get(i)).get(0);
-                if (genePanel != null) {                    
+                List<GenePanel> genePanelList = genePanelRepository.getGenePanelByStableId(data.get(i));              
+                if (genePanelList != null && genePanelList.size() > 0) {       
+                    GenePanel genePanel = genePanelList.get(0);
                     Map<String, Object> map = new HashMap<>();
                     map.put("sampleId", sample.getInternalId());
                     map.put("profileId", profileIds.get(i));
                     map.put("panelId", genePanel.getInternalId());
                     genePanelRepository.insertGenePanelSampleProfileMap(map);
-                }              
+                }
+                else {
+                    ProgressMonitor.logWarning("No gene panel exists: " + data.get(i));
+                }
             }            
         }                                  
     }

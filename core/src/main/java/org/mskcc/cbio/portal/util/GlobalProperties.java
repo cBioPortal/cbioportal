@@ -163,7 +163,6 @@ public class GlobalProperties {
             "cbioportal-access@cbio.mskcc.org</a>";
 
     // properties for hiding/showing tabs in the patient view
-    public static final String SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB="skin.patient_view.show_clinical_trials_tab";
     public static final String SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB="skin.patient_view.show_drugs_tab";
 
     // property for setting the saml registration html
@@ -536,12 +535,6 @@ public class GlobalProperties {
     {
         String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
-    }
-    // show the clinical trials tab in the patient view
-    public static boolean showClinicalTrialsTab()
-    {
-        String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
-        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // show the drugs tab in the patient view
     public static boolean showDrugsTab()

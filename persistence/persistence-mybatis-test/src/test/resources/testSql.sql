@@ -4,20 +4,22 @@
 --
 -- Prepared by Stuart Watt -- 13th May 2015
 
+DROP TABLE IF EXISTS "cosmic_mutation";
+DROP TABLE IF EXISTS "copy_number_seg";
 DROP TABLE IF EXISTS "mutation_count";
 DROP TABLE IF EXISTS "mutation";
 DROP TABLE IF EXISTS "mutation_event";
-DROP TABLE IF EXISTS "genetic_profile_samples";
 DROP TABLE IF EXISTS "sample_profile";
-DROP TABLE IF EXISTS "sample_list_list";
-DROP TABLE IF EXISTS "sample_list";
 DROP TABLE IF EXISTS "gene_panel_list";
 DROP TABLE IF EXISTS "gene_panel";
-DROP TABLE IF EXISTS "copy_number_seg";
+DROP TABLE IF EXISTS "genetic_profile_samples";
+DROP TABLE IF EXISTS "genetic_profile";
+DROP TABLE IF EXISTS "gene_alias";
+DROP TABLE IF EXISTS "gene";
+DROP TABLE IF EXISTS "sample_list_list";
+DROP TABLE IF EXISTS "sample_list";
 DROP TABLE IF EXISTS "sample";
 DROP TABLE IF EXISTS "patient";
-DROP TABLE IF EXISTS "genetic_profile";
-DROP TABLE IF EXISTS "gene";
 DROP TABLE IF EXISTS "cancer_study";
 DROP TABLE IF EXISTS "type_of_cancer";
 

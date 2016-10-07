@@ -1,11 +1,9 @@
 # October 7, 2016
 *   **New features**:
-    * Copy number segments visualization in *CN Segments* tab
-    ![cn-segments tab](https://cloud.githubusercontent.com/assets/840895/19198235/091bb912-8c8c-11e6-8dc9-f7e07a5702f0.png)
-    * Annotated putitive driver missense mutations in OncoPrint based on [OncoKB](http://oncokb.org), mutation hotspots, and cBioPortal and COSMIC recurrence.
+    * Annotated putitive driver missense mutations in OncoPrint based on [OncoKB](http://oncokb.org), mutation hotspots, and cBioPortal and COSMIC recurrence
     ![OncoPrint-OncoKB](https://cloud.githubusercontent.com/assets/840895/19198956/a7299432-8c8f-11e6-9a16-050cb934070f.png)
-*   **Improvements**:
-    * 
+    * Visualization of mutation nucleotide change spectrum per sample in OncoPrint
+    * Copy number segments visualization in *CN Segments* tab
 
 # July 24, 2016
 *   **Added data** of 4,375 samples from 21 published studies:

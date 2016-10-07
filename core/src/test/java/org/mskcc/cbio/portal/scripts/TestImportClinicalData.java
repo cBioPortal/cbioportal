@@ -366,41 +366,7 @@ public class TestImportClinicalData {
         exception.expectMessage("failure to find PATIENT_ID");
         importClinicalData.importData();
         ConsoleUtil.showWarnings();
-	}	
-	
-    /**
-     * Test constraint on attribute type (sample attribute may not become a patient attribute
-     * in a next batch, and vice-versa).
-     *
-     * @throws DaoException Database Access Error.
-     * @throws IOException  IO Error.
-     */
-	@Test
-    public void testImportClinicalData_AttributeTypeError1() throws Exception {
-		checkAttributeChangeValidation("SAMPLE", "PATIENT");
-	}	
-	@Test
-    public void testImportClinicalData_AttributeTypeError2() throws Exception {
-		checkAttributeChangeValidation("PATIENT", "SAMPLE");
-	}	
-	private void checkAttributeChangeValidation(String typeFirst, String typeLast) throws Exception {
-        File clinicalFile = new File("src/test/resources/clinical_data_small_" + typeFirst + ".txt");
-        // initialize an ImportClinicalData instance without args to parse
-        ImportClinicalData importClinicalData = new ImportClinicalData(null);
-        // set the info usually parsed from args
-        importClinicalData.setFile(cancerStudy, clinicalFile, typeFirst + "_ATTRIBUTES", false);
-        importClinicalData.importData();
-        
-        clinicalFile = new File("src/test/resources/clinical_data_small_" + typeLast + ".txt");
-        // initialize an ImportClinicalData instance without args to parse
-        importClinicalData = new ImportClinicalData(null);
-        // set the info usually parsed from args
-        importClinicalData.setFile(cancerStudy, clinicalFile, typeLast + "_ATTRIBUTES", false);
-        // expect error regarding attribute type change:
-        exception.expect(DaoException.class);
-        exception.expectMessage("Illegal change in attribute type[SAMPLE/PATIENT] for attribute SUBTYPE");
-        importClinicalData.importData();
-	}
+	}		
 	
 	/** 
 	 * Test loading a correct file twice. Should give duplication error.

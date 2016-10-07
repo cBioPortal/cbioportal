@@ -833,13 +833,19 @@ function addMetaDataToPage() {
         }
     }
     // Add studies to tree, and climb up adding one to each level's descendant studies
-    // DMP hack
-    var dmp_studies = [];
+    // Insert priority studies
+    // 
+    var priority_study_ids = {};
+    for (var i=0; i<window.priority_studies.length; i++) {
+	for (var j=0; j<window.priority_studies[i].studies.length; j++) {
+	    priority_study_ids[window.priority_studies[i].studies[j]] = true;
+	}
+    }
+    // 
     for (var study in json.cancer_studies) {
-	if (study.indexOf("mskimpact") !== -1) {
-		// DMP hack
-		dmp_studies.push(study);
-	} else if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'
+	if (priority_study_ids.hasOwnProperty(study)) {
+	    continue;
+	} else if (study !== 'all') { // don't re-add 'all'
             try {
                 var code = json.cancer_studies[study].type_of_cancer.toLowerCase();
 		var lineage = [];
@@ -860,23 +866,6 @@ function addMetaDataToPage() {
             }
         }
     }
-    // Sort dmp by number if there is one in the name
-    dmp_studies.sort(function(a,b) {
-	var matchA = a.match(/\d+/);
-	var matchB = b.match(/\d+/);
-	var numberA = (matchA === null ? NaN : parseInt(a.match(/\d+/)[0], 10));
-	var numberB = (matchB === null ? NaN : parseInt(b.match(/\d+/)[0], 10));
-	if (isNaN(numberA) && isNaN(numberB)) {
-		return a.localeCompare(b);
-	} else if (isNaN(numberA)) {
-		return -1;
-	} else if (isNaN(numberB)) {
-		return 1;
-	} else {
-		return numberA-numberB;
-	}
-    });
-    dmp_studies.reverse();
     // Sort all the children alphabetically
     for (var node in oncotree) {
         if (oncotree.hasOwnProperty(node)) {
@@ -912,35 +901,39 @@ function addMetaDataToPage() {
     window.jstree_root_id = 'tissue';
     var jstree_data = [];
     var flat_jstree_data = [];
-    jstree_data.push({'id':jstree_root_id, parent:'#', text:'All', state:{opened:true}, li_attr:{name:'All'}});
-    flat_jstree_data.push({'id':jstree_root_id, parent:'#', text:'All', state:{opened:true}, li_attr:{name:'All'}});
+    jstree_data.push({'id': jstree_root_id, parent: '#', text: 'All', state: {opened: true}, li_attr: {name: 'All'}});
+    flat_jstree_data.push({'id': jstree_root_id, parent: '#', text: 'All', state: {opened: true}, li_attr: {name: 'All'}});
     var node_queue = [].concat(oncotree['tissue'].children);
     var currNode;
-    if (dmp_studies.length > 0) {
-	jstree_data.push({'id':'mskimpact-study-group', 'parent':jstree_root_id, 'text':'MSKCC DMP', 'li_attr':{name:'MSKCC DMP'}});
-	var studyName;
-	var numSamplesInStudy;
-	var samplePlurality;
-	$.each(dmp_studies, function(ind, id) {
-		studyName = truncateStudyName(json.cancer_studies[id].name);
-		numSamplesInStudy = json.cancer_studies[id].num_samples;
-		if (numSamplesInStudy == 1) {
-                	samplePlurality = 'sample';
-                }
-               	else if (numSamplesInStudy > 1) {
-               		samplePlurality = 'samples';
-               	}
-                else {
-                	samplePlurality = '';
-               		numSamplesInStudy = '';
-                }
-		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'), 
-			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description}});
-		
-		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':truncateStudyName(json.cancer_studies[id].name), 
-			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
-	});
+    if (window.priority_studies.length > 0) {
+	for (var i = 0; i < window.priority_studies.length; i++) {
+	    var priority_study_obj = window.priority_studies[i];
+	    if (priority_study_obj.studies.filter(function(s) { return json.cancer_studies.hasOwnProperty(s); }).length > 0) {
+		var category_id = 'priority-group-' + i;
+		jstree_data.push({'id': category_id, 'parent': jstree_root_id, 'text': priority_study_obj.category, 'li_attr': {name: priority_study_obj.category}});
+		$.each(priority_study_obj.studies, function (ind, id) {
+		    if (json.cancer_studies.hasOwnProperty(id)) {
+			studyName = truncateStudyName(json.cancer_studies[id].name);
+			numSamplesInStudy = json.cancer_studies[id].num_samples;
+			if (numSamplesInStudy == 1) {
+			    samplePlurality = 'sample';
+			} else if (numSamplesInStudy > 1) {
+			    samplePlurality = 'samples';
+			} else {
+			    samplePlurality = '';
+			    numSamplesInStudy = '';
+			}
+			jstree_data.push({'id': id, 'parent': category_id, 'text': studyName.concat('<span style="font-weight:normal;font-style:italic;"> ' + numSamplesInStudy + ' ' + samplePlurality + '</span>'),
+			    'li_attr': {name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: priority_study_obj.category}});
+
+			flat_jstree_data.push({'id': id, 'parent': jstree_root_id, 'text': truncateStudyName(json.cancer_studies[id].name),
+			    'li_attr': {name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: priority_study_obj.category}});
+		    }
+		});
+	    }
+	}
     }
+    
     while (node_queue.length > 0) {
 	    currNode = node_queue.shift();
 	    if (currNode.desc_studies_count > 0) {

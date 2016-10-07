@@ -35,7 +35,7 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
-import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
+import org.mskcc.cbio.portal.dao.DaoClinicalAttributeMeta;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.util.WebserviceParserUtils;
@@ -80,7 +80,7 @@ public class ClinicalAttributesServlet extends HttpServlet {
             response.setContentType("text/json");
 
             int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils.getCancerStudyId(request)).getInternalId();
-            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataByStudy(cancerStudyId);
+            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttributeMeta.getDataByStudy(cancerStudyId);
 
             for (ClinicalAttribute attr : clinicalAttributes) {
                 toWrite.add(ClinicalJSON.reflectToMap(attr));

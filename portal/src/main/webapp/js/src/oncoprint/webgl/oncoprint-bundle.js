@@ -3514,7 +3514,7 @@ var OncoprintTrackOptionsView = (function() {
 	var $div,$img,$dropdown;
 	//if (model.isTrackRemovable(track_id) || model.isTrackSortDirectionChangeable(track_id)) {
 	    $div = $('<div>').appendTo(view.$div).css({'position': 'absolute', 'left': '0px', 'top': model.getTrackTops(track_id) + 'px'});
-	    $img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
+	    $img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size, 'alt': 'Track options'}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
 	    $dropdown = $('<ul>').appendTo($div).css({'width': 120, 'display': 'none', 'list-style-type': 'none', 'padding-left': '6', 'padding-right': '6', 'float': 'right', 'background-color': 'rgb(255,255,255)'});
 	    view.track_options_$elts[track_id] = {'$div': $div, '$img': $img, '$dropdown': $dropdown};
 	    

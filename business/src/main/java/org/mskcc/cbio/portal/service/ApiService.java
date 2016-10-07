@@ -1,6 +1,7 @@
 package org.mskcc.cbio.portal.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -259,6 +260,12 @@ public class ApiService {
 	public List<DBClinicalField> getClinicalAttributes() {
 		return clinicalFieldMapper.getAllClinicalFields();
 	}
+        
+	@Transactional
+	public List<DBClinicalField> getClinicalAttributes(String study_id) {
+       Integer internal_study_id = studyMapper.getStudies(Arrays.asList(study_id)).get(0).internal_id;
+		return clinicalFieldMapper.getAllClinicalFieldsByStudy(internal_study_id);
+	}        
 	@Transactional
 	public List<DBClinicalField> getClinicalAttributes(List<String> attr_ids) {
 		return clinicalFieldMapper.getClinicalFieldsById(attr_ids);

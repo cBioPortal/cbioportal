@@ -466,7 +466,10 @@ window.cbioportal_client = (function() {
 		getPatientClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getPatientClinicalAttributes(args);
 		}, [["study_id"], ["study_id", "patient_ids"]]),
-		getClinicalAttributes: enforceRequiredArguments(makeOneIndexService('attr_ids', function(d) { return d.attr_id; }, 'getClinicalAttributes'), [[], ["attr_ids"]]),
+		getClinicalAttributesByStudy: enforceRequiredArguments(function(args) {
+			return raw_service.getClinicalAttributes(args);
+		}, [["study_id"]]),                
+		getClinicalAttributes: enforceRequiredArguments(makeOneIndexService('attr_ids', function(d) { return d.attr_id; }, 'getClinicalAttributes'), [[], ["attr_ids"], ["study_id"]]),
 		getMutationCounts: raw_service.getMutationCounts
 	};
 	return cached_service;

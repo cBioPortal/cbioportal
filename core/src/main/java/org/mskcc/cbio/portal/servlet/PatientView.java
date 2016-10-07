@@ -360,7 +360,7 @@ public class PatientView extends HttpServlet {
                 }
             }
 
-            ClinicalAttribute attr = DaoClinicalAttribute.getDatum("SAMPLE_TYPE");
+            ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum("SAMPLE_TYPE", cancerStudyId);
             if (attr!=null) {
                 
                 List<ClinicalData> data = DaoClinicalData.getSampleData(cancerStudyId, sampleIds, attr);
@@ -449,7 +449,7 @@ public class PatientView extends HttpServlet {
         request.setAttribute(CLINICAL_DATA, clinicalData);
 	
 	// Add attribute name to display name mapping
-	List<ClinicalAttribute> cas = DaoClinicalAttribute.getDataByStudy(cancerStudyId);
+	List<ClinicalAttribute> cas = DaoClinicalAttributeMeta.getDataByStudy(cancerStudyId);
         
         String sampleId = samples.get(0);
 	Map<String,Map<String,String>> clinicalAttributes = new LinkedHashMap<String,Map<String,String>>();

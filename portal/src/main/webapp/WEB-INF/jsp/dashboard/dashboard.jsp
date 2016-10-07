@@ -84,14 +84,20 @@ if (cancerStudyViewError!=null) {
 
 <jsp:include page="../global/header.jsp" flush="true" />
 
-<table width="100%">
+<table width="100%" style="margin: 8px 2px 5px 2px">
     <tr>
-        <td>
+        <td class="study-view-header-first-row-td">
+            <b><u><%=cancerStudy.getName()%>
+            </u></b>
             <form method="post" action="index.do">
-                <b><u><%=cancerStudy.getName()%></u></b>
                 <input type="hidden" name="cancer_study_id" value="<%=cancerStudy.getCancerStudyStableId()%>">
-                <input type="hidden" name="<%=QueryBuilder.CANCER_STUDY_LIST%>" value="<%=cancerStudy.getCancerStudyStableId()%>">
+                <input type="hidden" name="<%=QueryBuilder.CANCER_STUDY_LIST%>"
+                       value="<%=cancerStudy.getCancerStudyStableId()%>">
                 <input type="submit" value="Query this study" class="btn btn-primary btn-xs">
+            </form>
+            <form id="study-view-header-download-all-data" method="get" action="">
+                <input type="hidden" name="raw" value="ture">
+                <button class="btn btn-default btn-xs">Download data</button>
             </form>
         </td>
     </tr>
@@ -212,6 +218,13 @@ if (cancerStudyViewError!=null) {
                 font-size: 120%;
                 vertical-align: middle;
         }
+    .study-view-header-first-row-td>* {
+        float: left;
+        margin-right: 5px;
+    }
+    #study-view-header-download-all-data {
+        display: none;
+    }
 </style>
 
 <script src="js/src/dashboard/iviz-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -245,6 +258,7 @@ if (cancerStudyViewError!=null) {
 <script src="js/src/dashboard/view/StudyViewInitMutationsTab.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/dashboard/view/StudyViewInitCNATab.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/dashboard/iviz.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cbio-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
 
@@ -391,6 +405,27 @@ $(document).ready(function () {
     } else {
         $('#study-tab-summary-a').click();
     }
+    
+    window.cbio.util.getDatahubStudiesList()
+        .then(function(data) {
+            if(_.isObject(data) && data.hasOwnProperty(cancerStudyId)) {
+                $('#study-view-header-download-all-data').attr('action', data[cancerStudyId].htmlURL);
+                $('#study-view-header-download-all-data').css('display', 'block');
+                $('#study-view-header-download-all-data>button').qtip({
+                    content: {text: 'Download all genomic and clinical data files of this study.'},
+                    style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+                    show: {event: 'mouseover'},
+                    hide: {fixed: true, delay: 100, event: 'mouseout'},
+                    position: {
+                        my: 'bottom center',
+                        at: 'top center',
+                        viewport: $(window)
+                    }
+                });
+            }
+        }).fail(function(error) {
+            console.log(error);
+        });
 });
 </script>
 

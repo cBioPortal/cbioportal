@@ -1042,7 +1042,7 @@ function GeneValidator(geneAreaId, geneModel){
         var genes = [];
         var allValid = true;
 
-        $.post('http://www.cbioportal.org/CheckGeneSymbol.json', { 'genes': genesStr })
+        $.post(window.cbioURL + 'CheckGeneSymbol.json', { 'genes': genesStr })
             .done(function(symbolResults) {
                 // If the number of genes is more than 100, show an error
                 if(symbolResults.length > 100) {
@@ -2896,7 +2896,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
           React.createElement("div", {className: "EFDT-finish-selection-button"},
 
             (['mutatedGene', 'cna'].indexOf(this.props.tableType) !== -1 && this.state.selectedRows.length > 0 && this.state.confirmedRows.length !== this.state.selectedRows.length ) ?
-              React.createElement("button", {className: "btn btn-default btn-xs", onClick: this.state.selectButtonClickCallback}, "Select") : ''
+              React.createElement("button", {className: "btn btn-default btn-xs", onClick: this.state.selectButtonClickCallback}, "Select Samples") : ''
 
           )
         )

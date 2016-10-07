@@ -51,10 +51,10 @@ public class TestDaoClinicalAttribute {
 	@Test
     public void testDaoClinicalAttribute() throws DaoException {
 
-        int added = DaoClinicalAttribute.addDatum(new ClinicalAttribute("attrId", "some attribute", "test attribute", "nonsense", true, "1"));
+        int added = DaoClinicalAttributeMeta.addDatum(new ClinicalAttribute("attrId", "some attribute", "test attribute", "nonsense", true, "1", 1));
         assertTrue(added == 1);
 
-        ClinicalAttribute clinicalAttribute = DaoClinicalAttribute.getDatum("attrId");
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum("attrId", 1);
         assertNotNull(clinicalAttribute);
     }
 }

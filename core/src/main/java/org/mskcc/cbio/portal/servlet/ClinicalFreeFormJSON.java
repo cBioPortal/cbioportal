@@ -50,7 +50,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoClinicalData;
-import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
+import org.mskcc.cbio.portal.dao.DaoClinicalAttributeMeta;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalData;
@@ -158,7 +158,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
                  jsonObject.put("freeFormData", freeFormArray);
                  
                  // add the map for human readable category names
-                 jsonObject.put("categoryLabelMap", DaoClinicalAttribute.getAllMap());
+                 jsonObject.put("categoryLabelMap", DaoClinicalAttributeMeta.getAllMap());
         	 }
             
              httpServletResponse.setContentType("application/json");

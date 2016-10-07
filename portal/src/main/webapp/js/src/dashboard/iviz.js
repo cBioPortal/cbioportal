@@ -1275,7 +1275,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           pieChartCanvasDownload(content, {
             filename: content.fileName + '.pdf',
             contentType: 'application/pdf',
-            servletName: 'http://localhost:8080/cbioportal/svgtopdf.do'
+            servletName: window.cbioURL + 'svgtopdf.do'
           });
           break;
         default:
@@ -1573,7 +1573,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           survivalChartCanvasDownload(content, {
             filename: content.fileName + '.pdf',
             contentType: 'application/pdf',
-            servletName: 'http://localhost:8080/cbioportal/svgtopdf.do'
+            servletName: window.cbioURL + 'svgtopdf.do'
           });
           break;
         default:
@@ -1641,7 +1641,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           barChartCanvasDownload(content, {
             filename: content.fileName + '.pdf',
             contentType: 'application/pdf',
-            servletName: 'http://localhost:8080/cbioportal/svgtopdf.do'
+            servletName: window.cbioURL + 'svgtopdf.do'
           });
           break;
         default:

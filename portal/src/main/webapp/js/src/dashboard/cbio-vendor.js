@@ -1042,7 +1042,7 @@ function GeneValidator(geneAreaId, geneModel){
         var genes = [];
         var allValid = true;
 
-        $.post('http://www.cbioportal.org/CheckGeneSymbol.json', { 'genes': genesStr })
+        $.post(window.cbioURL + 'CheckGeneSymbol.json', { 'genes': genesStr })
             .done(function(symbolResults) {
                 // If the number of genes is more than 100, show an error
                 if(symbolResults.length > 100) {

@@ -99,14 +99,17 @@ public class ImportGenePanel extends ConsoleRunnable {
         String description = getPropertyValue("description", properties, false);
         Set<Integer> genes = getGenes("gene_list", properties, genePanelRepository);        
         
-        GenePanel genePanel = genePanelRepository.getGenePanelByStableId(stableId).get(0);
+		GenePanel genePanel = new GenePanel();
+        List<GenePanel> genePanelResult = genePanelRepository.getGenePanelByStableId(stableId);
         boolean panelUsed = false;
-        if (genePanel != null) {
+        if (genePanelResult != null && genePanelResult.size() > 0) {
+			genePanel = genePanelResult.get(0);
             if (genePanelRepository.sampleProfileMappingExistsByPanel(genePanel.getInternalId())) {
                 ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in databasel and is being used! Cannot import the gene panel!");
                 panelUsed = true;
             }
             else {
+                genePanelRepository.deleteGenePanel(genePanel.getInternalId());
                 ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in the database but is not being used. Overwriting old gene panel data.");
             }
         }

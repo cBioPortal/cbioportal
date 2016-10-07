@@ -30,7 +30,12 @@ public class GenePanelServiceImpl implements GenePanelService {
     
     @Override
     public List<GenePanel> getGenePanelByStableId(String panelId) {
-        return genePanelRepository.getGenePanelByStableId(panelId);
+        // TODO: create proper mixin to not expose the internal id to external user.
+        List<GenePanel> genePanels = genePanelRepository.getGenePanelByStableId(panelId);
+        for (GenePanel genePanel : genePanels) {
+            genePanel.setInternalId(null);
+        }
+        return genePanels;
     }
     
     @Override

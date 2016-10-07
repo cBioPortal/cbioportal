@@ -10,8 +10,6 @@ DELETE FROM clinical_event_data;
 DELETE FROM clinical_event;
 DELETE FROM pdb_uniprot_residue_mapping;
 DELETE FROM pdb_uniprot_alignment;
-DELETE FROM clinical_trial_keywords;
-DELETE FROM clinical_trials;
 DELETE FROM cosmic_mutation;
 DELETE FROM copy_number_seg_file;
 DELETE FROM copy_number_seg;

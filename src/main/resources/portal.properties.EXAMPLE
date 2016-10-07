@@ -60,7 +60,6 @@ skin.login.contact_html=If you think you have received this message in error, pl
 skin.login.saml.registration_html=Sign in with MSK
 
 # setting controlling which tabs to hide/show in the patient view
-skin.patient_view.show_clinical_trials_tab=false
 skin.patient_view.show_drugs_tab=false
 
 # settings controlling what to show in the right navigation bar

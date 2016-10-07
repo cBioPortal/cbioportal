@@ -255,14 +255,13 @@ window.DataManagerForIviz = (function($, _) {
                 _.each(_sequencedCases, function(_sampleId) {
                   _sequencedCasesMap[_sampleId] = _sampleId;
                 });
-                
+
                 _.each(_clinicalAttributes, function(attr) {
-                    if(attr.is_patient_attribute === "0") {
-                        _sampleAttributes[attr.attr_id] = attr;                  
-                    }                    
-                    else {
-                        _patientAttributes[attr.attr_id] = attr;
-                    }
+                  if (attr.is_patient_attribute === '0') {
+                    _sampleAttributes[attr.attr_id] = attr;
+                  } else {
+                    _patientAttributes[attr.attr_id] = attr;
+                  }
                 });
 
                 var addAttr = function(data, group) {
@@ -860,7 +859,8 @@ window.DataManagerForIviz = (function($, _) {
           $.when.apply($, requests).then(function() {
             var _completeSampleLists = {};
             _completeSampleLists.allSampleIds = _allSampleIds.sort();
-            _completeSampleLists.sequencedSampleIds = _sequencedSampleIds.sort();
+            _completeSampleLists.sequencedSampleIds =
+              _sequencedSampleIds.sort();
             _completeSampleLists.cnaSampleIds = _cnaSampleIds.sort();
             fetch_promise.resolve(_completeSampleLists);
           }).fail(function() {
@@ -869,13 +869,12 @@ window.DataManagerForIviz = (function($, _) {
         }),
       getClinicalAttributesByStudy: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
-          var _studyCasesMap = self.getStudyCasesMap();
           var clinical_attributes_set = {};
           var requests = self.getCancerStudyIds().map(
             function(cancer_study_id) {
               var def = new $.Deferred();
               window.cbioportal_client.getClinicalAttributesByStudy({
-                study_id: [cancer_study_id],
+                study_id: [cancer_study_id]
               }).then(function(attrs) {
                 for (var i = 0; i < attrs.length; i++) {
                   // TODO : Need to update logic incase if multiple studies
@@ -884,7 +883,9 @@ window.DataManagerForIviz = (function($, _) {
                     attrs[i].study_ids = [cancer_study_id];
                     clinical_attributes_set[attrs[i].attr_id] = attrs[i];
                   } else {
-                    attrs[i].study_ids = clinical_attributes_set[attrs[i].attr_id].study_ids.concat(cancer_study_id);
+                    attrs[i].study_ids =
+                      clinical_attributes_set[attrs[i].attr_id]
+                        .study_ids.concat(cancer_study_id);
                     clinical_attributes_set[attrs[i].attr_id] = attrs[i];
                   }
                 }

@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationSignatureFactory;
 import org.cbioportal.model.MutationWithSampleListId;
 import org.cbioportal.persistence.dto.AltCount;
 import org.cbioportal.service.MutationService;
@@ -46,7 +45,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.cbioportal.service.CosmicCountService;
-import org.cbioportal.model.MutationSignature;
 import org.cbioportal.model.CosmicCount;
 
 /**
@@ -93,50 +91,8 @@ public class ApiService {
 		return cancerTypeMapperLegacy.getCancerTypes(cancer_type_ids);
 	}
 
-
-	@Transactional
-	public List<MutationSignature> getAllSampleMutationSignatures(String genetic_profile_id, int context_size_on_each_side_of_snp) {
-		// Get sample ids from patient ids
-		List<String> sample_ids = new LinkedList<>();
-		List<String> genetic_profile_ids = new LinkedList<>();
-		genetic_profile_ids.add(genetic_profile_id);
-		List<DBGeneticProfile> profiles = getGeneticProfiles(genetic_profile_ids);
-		List<String> study_ids = new LinkedList<>();
-		study_ids.add(profiles.get(0).study_id);
-		List<DBStudy> studies = getStudies(study_ids);
-		String study_id = studies.get(0).id;
-		List<DBSample> samples = getSamples(study_id);
-		for (DBSample sample: samples) {
-			sample_ids.add(sample.id);
-		}
-
-		return getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size_on_each_side_of_snp);
-	}
-
 	public List<CosmicCount> getCOSMICCountsByKeywords(List<String> keywords) {
 		return cosmicCountService.getCOSMICCountsByKeywords(keywords);
-	}
-
-	public List<MutationSignature> getSampleMutationSignatures(String genetic_profile_id, List<String> sample_ids, int context_size_on_each_side_of_snp) {
-		List<String> genetic_profile_ids = new LinkedList<>();
-		genetic_profile_ids.add(genetic_profile_id);
-		List<Mutation> mutations = mutationService.getMutationsDetailed(genetic_profile_ids, new LinkedList<String>(), sample_ids, null);
-		HashMap<String, LinkedList<Mutation>> mutationsBySample = new HashMap<>();
-		for (Mutation mutation:  mutations) {
-			String id = mutation.getSampleId().toString();
-			if (!mutationsBySample.containsKey(id)) {
-				mutationsBySample.put(id, new LinkedList<Mutation>());
-			}
-			mutationsBySample.get(id).add(mutation);
-		}
-		List<MutationSignature> signatures = new LinkedList<>();
-		if (context_size_on_each_side_of_snp == 0) {
-			for (Map.Entry<String, LinkedList<Mutation>> kv: mutationsBySample.entrySet()) {
-                                signatures.add(MutationSignatureFactory.NoContextMutationSignature((String)kv.getKey(), kv.getValue()));
-			}
-		}
-		// TODO: implement other contexts
-		return signatures;
 	}
 
         @Transactional

@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.cbioportal.model.CosmicCount;
-import org.cbioportal.model.MutationSignature;
+import org.cbioportal.model.MutationalSignature;
 
 /**
  *
@@ -59,21 +59,7 @@ public class ApiController {
         } else {
             return service.getCancerTypes(cancer_type_ids);
         }
-    }
-    
-     @ApiOperation(value = "Get mutation signatures for given samples/patients and genetic profile id.",
-            nickname = "getMutationSignatures",
-            notes = "")
-    @Transactional
-    @RequestMapping(value = "/mutationsignatures", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<MutationSignature> getMutationSignatures(@RequestParam(required = true) String genetic_profile_id, @RequestParam(required = true) int context_size, @RequestParam(required = false) List<String> sample_ids) {
-	    if (sample_ids != null) {
-		    return service.getSampleMutationSignatures(genetic_profile_id, sample_ids, context_size);
-	    } else {
-		    return service.getAllSampleMutationSignatures(genetic_profile_id, context_size);
-	    }
-    }
-                
+    }    
     
     @ApiOperation(value = "Get COSMIC counts for given keywords.", nickname = "getCOSMICCounts", notes="")
     @Transactional

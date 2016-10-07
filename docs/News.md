@@ -8,6 +8,9 @@
     * Copy number segments visualization in *CN Segments* tab
     
     ![image](https://cloud.githubusercontent.com/assets/840895/19198235/091bb912-8c8c-11e6-8dc9-f7e07a5702f0.png)
+    
+*   **Improvements**:
+    * Improved cancer study view page (bug fixes and performance improvement)
 
 # July 24, 2016
 *   **Added data** of 4,375 samples from 21 published studies:

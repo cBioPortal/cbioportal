@@ -909,7 +909,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                   (radioVal === 'patient' ? 'patient' : 'sample') +
                   ' ID' + (unmappedCaseIds.length === 1 ? ' was' : 's were') +
                   ' not found in this study: ' +
-                  unmappedCaseIds.join(', '), {message_type: 'warning'});
+                  unmappedCaseIds.join(', '), {
+                    message_type: 'danger'
+                  });
               } else {
                 new Notification().createNotification(selectedCaseIds.length +
                   ' case(s) selected.', {message_type: 'info'});
@@ -1707,7 +1709,18 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         string.push(attribute.description);
       }
       return string.join('<br/>');
-    }
+    };
+
+    content.pxStringToNumber = function(_str) {
+      var result;
+      if (_.isString(_str)) {
+        var tmp = _str.split('px');
+        if (tmp.length > 0) {
+          result = Number(tmp[0]);
+        }
+      }
+      return result;
+    };
 
     return content;
   })();
@@ -1788,8 +1801,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         if (this.grid_ === '') {
           self_.grid_ = new Packery(document.querySelector('.grid'), {
             itemSelector: '.grid-item',
-            columnWidth: 190,
-            rowHeight: 170,
+            columnWidth: window.style.vars.width.one + 5,
+            rowHeight: window.style.vars.height.one + 5,
             gutter: 5,
             initLayout: false
           });
@@ -2493,13 +2506,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     v.data = $.extend(true, v.data, attributes);
     v.data.ndx = ndx;
 
-    var labels = [];
+    var labels = {};
     var reactTableData = {};
     reactTableData.attributes = [{
       attr_id: 'name',
       display_name: v.data.display_name,
       datatype: 'STRING',
-      column_width: 213
+      column_width: 247
     }, {
       attr_id: 'color',
       display_name: 'Color',
@@ -2696,7 +2709,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     function initTsvDownloadData() {
       var data = v.data.display_name + '\tCount';
 
-      var meta = labels || [];
+      var meta = labels || {};
 
       for (var i = 0; i < meta.length; i++) {
         data += '\r\n';
@@ -2727,12 +2740,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     }
 
     function animateTable(target, view, callback) {
-      var width = window.style['grid-w-1'] || '180px';
-      var height = window.style['grid-h-1'] || '165px';
+      var width = window.style.vars.width.one;
+      var height = window.style.vars.height.one;
 
       if (view === 'table') {
-        width = window.style['grid-w-2'] || '375px';
-        height = window.style['grid-h-2'] || '340px';
+        width = window.style.vars.width.two;
+        height = window.style.vars.height.two;
+        if (Object.keys(labels).length <= 3) {
+          height = window.style.vars.height.one;
+        }
       }
 
       $(target).animate({
@@ -2764,7 +2780,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
     function updateReactTable() {
       var data = $.extend(true, {}, reactTableData);
-      initReactTable(v.opts.chartTableId, data);
+      initReactTable(v.opts.chartTableId, data, {
+        tableWidth: window.style.vars.specialTables.width
+      });
     }
 
     function updateQtipReactTable() {
@@ -3118,8 +3136,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         groupid: _self.attributes.group_id,
         chartTableId: _self.chartTableId,
         transitionDuration: iViz.opts.dc.transitionDuration,
-        width: window.style['piechart-svg-width'] | 130,
-        height: window.style['piechart-svg-height'] | 130
+        width: window.style.vars.piechart.width,
+        height: window.style.vars.piechart.height
       };
       _self.piechart = new iViz.view.component.PieChart(
         _self.ndx, _self.attributes, opts, _cluster);
@@ -3656,8 +3674,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ready: function() {
       this.barChart = new iViz.view.component.BarChart();
       this.barChart.setDownloadDataTypes(['tsv', 'pdf', 'svg']);
-      this.settings.width = window.style.vars.barchartWidth || 150;
-      this.settings.height = window.style.vars.barchartHeight || 150;
+      this.settings.width = window.style.vars.barchart.width;
+      this.settings.height = window.style.vars.barchart.height;
 
       this.opts = _.extend(this.opts, {
         groupType: this.attributes.group_type,
@@ -3725,7 +3743,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     content.init = function(_data, opts) {
       opts_ = $.extend(true, {}, opts);
       chartId_ = opts_.chartId;
-      data_ = _data;
+      data_ = _.filter(_data, function(datum) {
+        return !isNaN(datum.cna_fraction) && !isNaN(datum.mutation_count);
+      });
       var _xArr = _.pluck(data_, 'cna_fraction');
       var _yArr = _.pluck(data_, 'mutation_count');
       var _qtips = [];
@@ -3755,7 +3775,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           title: 'Fraction of copy number altered genome',
           range: [d3.min(_xArr) - _marginX, d3.max(_xArr) + _marginX],
           zeroline: false,
-          showline: true
+          showline: true,
+          tickangle: -45
         },
         yaxis: {
           title: '# of mutations',
@@ -3766,8 +3787,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         hovermode: 'closest',
         dragmode: 'select',
         showlegend: false,
-        width: 370,
-        height: 320,
+        width: opts_.width || 370,
+        height: opts_.height || 320,
         margin: {
           l: 60,
           r: 10,
@@ -4035,7 +4056,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var _opts = {
         chartId: this.chartId,
         chartDivId: this.chartDivId,
-        title: this.attributes.display_name
+        title: this.attributes.display_name,
+        width: window.style.vars.scatter.width,
+        height: window.style.vars.scatter.height
       };
       var attrId =
         this.attributes.group_type === 'patient' ? 'patient_id' : 'sample_id';
@@ -4247,8 +4270,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         return d[attrId];
       });
       var _opts = {
-        width: window.style.vars.survivalWidth,
-        height: window.style.vars.survivalHeight,
+        width: window.style.vars.survival.width,
+        height: window.style.vars.survival.height,
         chartId: this.chartId,
         attrId: this.attributes.attr_id,
         title: this.attributes.display_name,
@@ -4436,7 +4459,9 @@ window.LogRankTest = (function(jStat) {
 
     // init axis
     _self.elem_.xScale = d3.scale.linear()
-      .domain([0, d3.max(_.pluck(_self.data_, 'time'))])
+      .domain([0,
+        d3.max(_.pluck(_self.data_, 'time')) +
+        d3.max(_.pluck(_self.data_, 'time')) / 15])
       .range([leftMargin_, _opts.width - rightMargin_]);
     _self.elem_.yScale = d3.scale.linear()
       .domain([-0.03, 1.05]) // fixed to be 0-1
@@ -4816,6 +4841,7 @@ window.LogRankTest = (function(jStat) {
     var dimension = {};
     var group = {};
     var labelInitData = {};
+    var opts = {};
 
     // Category based color assignment. Avoid color changing
     var assignedColors = {
@@ -4836,8 +4862,8 @@ window.LogRankTest = (function(jStat) {
     };
 
     content.init =
-      function(_attributes, _selectedSamples, _selectedGenes,
-               _data, _chartId, _callbacks, _geneData, _dimension) {
+      function(_attributes, _opts, _selectedSamples, _selectedGenes,
+               _data, _callbacks, _geneData, _dimension) {
         initialized = false;
         allSamplesIds = _selectedSamples;
         selectedSamples = _selectedSamples;
@@ -4845,7 +4871,8 @@ window.LogRankTest = (function(jStat) {
         sequencedSampleIds = _attributes.options.sequencedCases;
         sequencedSampleIds.sort();
         selectedGenes = _selectedGenes;
-        chartId_ = _chartId;
+        chartId_ = _opts.chartId;
+        opts = _opts;
         caseIndices = iViz.getCaseIndices(_attributes.group_type);
         data_ = _data;
         geneData_ = _geneData;
@@ -4955,8 +4982,8 @@ window.LogRankTest = (function(jStat) {
         fixedChoose: false,
         uniqueId: 'uniqueId',
         rowHeight: 25,
-        tableWidth: 373,
-        maxHeight: 290,
+        tableWidth: opts.width,
+        maxHeight: opts.height,
         headerHeight: 26,
         groupHeaderHeight: 40,
         autoColumnWidth: false,
@@ -5222,18 +5249,18 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'gene',
               display_name: 'Gene',
               datatype: 'STRING',
-              column_width: 100
+              column_width: 110
             }, {
               attr_id: 'numOfMutations',
               display_name: '# Mut',
               datatype: 'NUMBER',
-              column_width: 90
+              column_width: 95
             },
             {
               attr_id: 'cases',
               display_name: '#',
               datatype: 'NUMBER',
-              column_width: 90
+              column_width: 95
             },
             {
               attr_id: 'sampleRate',
@@ -5267,13 +5294,13 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'gene',
               display_name: 'Gene',
               datatype: 'STRING',
-              column_width: 80
+              column_width: 85
             },
             {
               attr_id: 'cytoband',
               display_name: 'Cytoband',
               datatype: 'STRING',
-              column_width: 90
+              column_width: 100
             },
             {
               attr_id: 'altType',
@@ -5285,7 +5312,7 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'cases',
               display_name: '#',
               datatype: 'NUMBER',
-              column_width: 70
+              column_width: 75
             },
             {
               attr_id: 'altrateInSample',
@@ -5319,7 +5346,7 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'name',
               display_name: 'Unknown',
               datatype: 'STRING',
-              column_width: 213
+              column_width: 230
             }, {
               attr_id: 'color',
               display_name: 'Color',
@@ -5329,7 +5356,7 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'cases',
               display_name: '#',
               datatype: 'NUMBER',
-              column_width: 70
+              column_width: 75
             }, {
               attr_id: 'caseRate',
               display_name: 'Freq',
@@ -5515,8 +5542,13 @@ window.LogRankTest = (function(jStat) {
       },
       processTableData: function(_data) {
         var data = iViz.getGroupNdx(this.attributes.group_id);
-        this.chartInst.init(this.attributes, this.$root.selectedsamples,
-          this.$root.selectedgenes, data, this.chartId, {
+        var opts = {
+          width: window.style.vars.specialTables.width,
+          height: window.style.vars.specialTables.height,
+          chartId: this.chartId
+        };
+        this.chartInst.init(this.attributes, opts, this.$root.selectedsamples,
+          this.$root.selectedgenes, data, {
             addGeneClick: this.addGeneClick,
             submitClick: this.submitClick
           }, this.isMutatedGeneCna ? _data.geneMeta : null, this.invisibleDimension);

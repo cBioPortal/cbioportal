@@ -225,6 +225,9 @@ if (cancerStudyViewError!=null) {
     #study-view-header-download-all-data {
         display: none;
     }
+    #study-tabs>ul{
+        margin-right: 7px;
+    }
 </style>
 
 <script src="js/src/dashboard/iviz-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -346,14 +349,75 @@ $(document).ready(function () {
     // This is used to indicate how to disable two buttons. By default, they are set to true.
     iViz.vue.manage.getInstance().showManageButton = false;
     iViz.vue.manage.getInstance().showSaveButton = false;
-    
+
     $.getJSON('js/src/dashboard/resources/vars.json')
-        .then(function (data) {
-            window.style.vars = data;
-            window.style.vars.survivalWidth = 320;
-            window.style.vars.survivalHeight = 320;
-            window.style.vars.barchartWidth = 350;
-            window.style.vars.barchartHeight = 120;
+        .then(function(data) {
+            window.style.vars.width = {
+                one: iViz.util.pxStringToNumber(data['grid-w-1']) || 195,
+                two: iViz.util.pxStringToNumber(data['grid-w-2']) || 400
+            };
+            window.style.vars.height = {
+                one: iViz.util.pxStringToNumber(data['grid-h-1']) || 170,
+                two: iViz.util.pxStringToNumber(data['grid-h-2']) || 350
+            };
+            window.style.vars.chartHeader = 17;
+            window.style.vars.borderWidth = 2;
+            window.style.vars.scatter = {
+                width: (window.style.vars.width.two - window.style.vars.borderWidth) || 400,
+                height: (window.style.vars.height.two - window.style.vars.chartHeader
+                - window.style.vars.borderWidth) || 350
+            };
+            window.style.vars.survival = {
+                width: window.style.vars.scatter.width,
+                height: window.style.vars.scatter.height
+            };
+            window.style.vars.specialTables = {
+                width: window.style.vars.scatter.width,
+                height: window.style.vars.scatter.height - 25
+            };
+            window.style.vars.piechart = {
+                width: 140,
+                height: 140
+            };
+            window.style.vars.barchart = {
+                width: (window.style.vars.width.two - window.style.vars.borderWidth) || 400,
+                height: (window.style.vars.height.one - window.style.vars.chartHeader * 2
+                - window.style.vars.borderWidth) || 130
+            };
+        })
+        .fail(function() {
+            window.style.vars = {
+                width: {
+                    one: 195,
+                    two: 400
+                },
+                height: {
+                    one: 170,
+                    two: 350
+                },
+                chartHeader: 15,
+                borderWidth: 2,
+                scatter: {
+                    width: 400,
+                    height: 350
+                },
+                survival: {
+                    width: 400,
+                    height: 350
+                },
+                specialTables: {
+                    width: 400,
+                    height:350
+                },
+                piechart: {
+                    width: 180,
+                    height: 140
+                },
+                barchart: {
+                    width: 400,
+                    height: 30
+                }
+            }
         });
     //this is for testing, once done this should be commented/deleted
     window.cbioURL = '';

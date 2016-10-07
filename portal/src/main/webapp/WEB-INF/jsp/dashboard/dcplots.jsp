@@ -40,7 +40,7 @@
     /* This style needs to be moved to some scss/css files */
     #summary.study-section {
         padding-left: 5px;
-        padding-right: 5px;
+        padding-right: 0;
     }
 </style>
 

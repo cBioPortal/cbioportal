@@ -167,3 +167,7 @@ session.service.url=
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
 disabled_tabs=
+
+# study ids and categories to force to top of study selector
+# format is category1#study1a,study1b,study1c;category2#study2
+priority_studies=

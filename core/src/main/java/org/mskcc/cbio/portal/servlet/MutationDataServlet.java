@@ -61,6 +61,10 @@ public class MutationDataServlet extends HttpServlet
 
 	@Autowired
     private MutationDataUtils mutationDataUtils;
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
 
     public MutationDataUtils getMutationDataUtils() {
         return mutationDataUtils;
@@ -75,6 +79,7 @@ public class MutationDataServlet extends HttpServlet
 		super.init(config);
 		SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
 				config.getServletContext());
+        accessControl = SpringUtil.getAccessControl();
 	}
 
     protected void doGet(HttpServletRequest request,
@@ -106,10 +111,15 @@ public class MutationDataServlet extends HttpServlet
 
 			for (String profileId : geneticProfileList)
 			{
-				// add mutation data for each genetic profile
-				data.addAll(mutationDataUtils.getMutationData(profileId,
-					targetGeneList,
-					targetSampleList));
+				// Get the Genetic Profile
+				GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
+				CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId());
+				if (accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+					// add mutation data for each genetic profile
+					data.addAll(mutationDataUtils.getMutationData(profileId,
+						targetGeneList,
+						targetSampleList));
+				}
 			}
 		}
 		catch (DaoException e)

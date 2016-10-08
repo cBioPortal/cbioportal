@@ -34,12 +34,16 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.*;
+
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import org.apache.log4j.Logger;
 import org.json.simple.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  *
@@ -50,6 +54,15 @@ public class SimilarPatientsJSON extends HttpServlet {
     
     public static final String MUTATION = "mutation";
     public static final String CNA = "cna";
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        accessControl = SpringUtil.getAccessControl();
+    }
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -68,28 +81,31 @@ public class SimilarPatientsJSON extends HttpServlet {
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         try {
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
-            if (cancerStudy!=null) {
-                Sample _sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sample);
-                if (_sample!=null) {
-                    Map<Sample, Set<Long>> similarMutations;
-                    if (strMutations==null||strMutations.isEmpty()) {
-                        similarMutations = Collections.emptyMap();
-                    } else {
-                        similarMutations = DaoMutation.getSimilarSamplesWithMutationsByKeywords(strMutations);
-                        similarMutations.remove(_sample);
-                    }
-                    Map<Sample, Set<Long>> similarCnas;
-                    if (strCna==null||strCna.isEmpty()) {
-                        similarCnas = Collections.emptyMap();
-                    } else {
-                        similarCnas = DaoCnaEvent.getSamplesWithAlterations(strCna);
-                        similarCnas.remove(_sample);
-                    }
+			if (cancerStudyId != null) {
+				CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+				if (cancerStudy != null
+						&& accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+	                Sample _sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sample);
+	                if (_sample!=null) {
+	                    Map<Sample, Set<Long>> similarMutations;
+	                    if (strMutations==null||strMutations.isEmpty()) {
+	                        similarMutations = Collections.emptyMap();
+	                    } else {
+	                        similarMutations = DaoMutation.getSimilarSamplesWithMutationsByKeywords(strMutations);
+	                        similarMutations.remove(_sample);
+	                    }
+	                    Map<Sample, Set<Long>> similarCnas;
+	                    if (strCna==null||strCna.isEmpty()) {
+	                        similarCnas = Collections.emptyMap();
+	                    } else {
+	                        similarCnas = DaoCnaEvent.getSamplesWithAlterations(strCna);
+	                        similarCnas.remove(_sample);
+	                    }
 
-                    export(table, similarMutations, similarCnas);
-                }
-            }
+	                    export(table, similarMutations, similarCnas);
+	                }
+				}
+			}
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }

@@ -1,5 +1,6 @@
 # October 7, 2016
 *   **New features**:
+    * All data sets can now be downloaded as flat files from the new [Data Hub](https://github.com/cBioPortal/datahub)
     * Annotation of putative driver missense mutations in OncoPrints, based on [OncoKB](http://oncokb.org), mutation hotspots, and recurrence in cBioPortal and COSMIC
     
     ![OncoPrint-OncoKB](https://cloud.githubusercontent.com/assets/840895/19208804/094dd320-8ccd-11e6-8012-f30104b62ff4.png)

@@ -13,7 +13,7 @@ window.DataManagerForIviz = (function($, _) {
   var tableAttrs_ = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'];
   content.util = {};
 
-  // clinical attr id as key, designed for specific studies.
+  // clinical attr id as key, designed for specific sdtudies.
   // TODO: how do work with merged studies(virtual studies)
   var hiddenAttrs_ = {
     OS_SURVIVAL: ['mskimpact'],
@@ -28,7 +28,7 @@ window.DataManagerForIviz = (function($, _) {
    * Survival Plots: 1; Scatter Plot: 2;
    * Mutated Genes table: 3; CNA table: 4;
    * Mutated Count bar chart: 5; CNA bar chart:6
-   * Cancer Type/Cancer Type details: 4.1 but MSKIMPACT: 0.9
+   * Cancer Type/Cancer Type details: 4.1 but mskimpact/genie: 0.9
    */
 
   /**
@@ -328,7 +328,14 @@ window.DataManagerForIviz = (function($, _) {
                   }
                   if (['CANCER_TYPE', 'CANCER_TYPE_DETAILED']
                       .indexOf(_metaObj.attr_id) !== -1) {
-                    _metaObj.priority = 0.9;
+                    if (_.intersection(['mskimpact', 'genie'],
+                        Object.keys(_studyToSampleToPatientMap)).length === 0) {
+                      _metaObj.priority = _metaObj.attr_id === 'CANCER_TYPE' ?
+                        4.1 : 4.2;
+                    } else {
+                      _metaObj.priority = _metaObj.attr_id === 'CANCER_TYPE' ?
+                        0.8 : 0.9;
+                    }
                   }
                 });
                 _.each(_patientAttributes, function(_metaObj) {

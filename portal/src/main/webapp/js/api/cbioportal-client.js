@@ -16,21 +16,21 @@ window.cbioportal_client = (function() {
 			});
 		};
 		var functionNameToEndpointProperties = {
-			'CancerTypes':{ endpoint: 'api/cancertypes' },
-			'SampleClinicalData': { endpoint: 'api/clinicaldata/samples' },
-			'PatientClinicalData': { endpoint: 'api/clinicaldata/patients' },
-			'SampleClinicalAttributes': { endpoint: 'api/clinicalattributes/samples' },
-			'PatientClinicalAttributes': { endpoint: 'api/clinicalattributes/patients' },
-			'ClinicalAttributes': {endpoint: 'api/clinicalattributes'},
-			'Genes': { endpoint: 'api/genes' },
-			'GeneticProfiles': { endpoint: 'api/geneticprofiles' },
-			'SampleLists': { endpoint: 'api/samplelists' },
-			'SampleListsMeta': { endpoint: 'api/samplelists', args: {metadata: true } },
-			'Patients': { endpoint: 'api/patients' },
-			'GeneticProfileData': { endpoint: 'api/geneticprofiledata' },
-			'Samples': { endpoint: 'api/samples' },
-			'Studies': { endpoint: 'api/studies' },
-			'MutationCounts': { endpoint: 'api/mutation_count' }
+			'CancerTypes':{ endpoint: 'api-legacy/cancertypes' },
+			'SampleClinicalData': { endpoint: 'api-legacy/clinicaldata/samples' },
+			'PatientClinicalData': { endpoint: 'api-legacy/clinicaldata/patients' },
+			'SampleClinicalAttributes': { endpoint: 'api-legacy/clinicalattributes/samples' },
+			'PatientClinicalAttributes': { endpoint: 'api-legacy/clinicalattributes/patients' },
+			'ClinicalAttributes': {endpoint: 'api-legacy/clinicalattributes'},
+			'Genes': { endpoint: 'api-legacy/genes' },
+			'GeneticProfiles': { endpoint: 'api-legacy/geneticprofiles' },
+			'SampleLists': { endpoint: 'api-legacy/samplelists' },
+			'SampleListsMeta': { endpoint: 'api-legacy/samplelists', args: {metadata: true } },
+			'Patients': { endpoint: 'api-legacy/patients' },
+			'GeneticProfileData': { endpoint: 'api-legacy/geneticprofiledata' },
+			'Samples': { endpoint: 'api-legacy/samples' },
+			'Studies': { endpoint: 'api-legacy/studies' },
+			'MutationCounts': { endpoint: 'api-legacy/mutation_count' }
 		};
 		var ret = {};
 		for (var fn_name in functionNameToEndpointProperties) {
@@ -466,7 +466,10 @@ window.cbioportal_client = (function() {
 		getPatientClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getPatientClinicalAttributes(args);
 		}, [["study_id"], ["study_id", "patient_ids"]]),
-		getClinicalAttributes: enforceRequiredArguments(makeOneIndexService('attr_ids', function(d) { return d.attr_id; }, 'getClinicalAttributes'), [[], ["attr_ids"]]),
+		getClinicalAttributesByStudy: enforceRequiredArguments(function(args) {
+			return raw_service.getClinicalAttributes(args);
+		}, [["study_id"]]),                
+		getClinicalAttributes: enforceRequiredArguments(makeOneIndexService('attr_ids', function(d) { return d.attr_id; }, 'getClinicalAttributes'), [[], ["attr_ids"], ["study_id"]]),
 		getMutationCounts: raw_service.getMutationCounts
 	};
 	return cached_service;

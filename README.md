@@ -14,3 +14,5 @@ If you are interested in coordinating the development of new features, please co
 [![ZenHub] (https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)] (https://zenhub.io)
 
 [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal)
+
+[![codebeat badge](https://codebeat.co/badges/0738d3c9-5ffe-4b61-80c4-abb5698d8d44)](https://codebeat.co/projects/github-com-cbioportal-cbioportal)

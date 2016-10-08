@@ -272,7 +272,7 @@ class Validator(object):
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
 
-    def __init__(self, study_dir, meta_dict, portal_instance, logger):
+    def __init__(self, study_dir, meta_dict, portal_instance, logger, relaxed_mode):
         """Initialize a validator for a particular data file.
 
         :param study_dir: the path at which the study files can be found
@@ -280,6 +280,8 @@ class Validator(object):
                          (such as stable id and data file name)
         :param portal_instance: a PortalInstance object for which to validate
         :param logger: logger instance for writing the log messages
+        :param relaxed_mode: relaxes validation of headerless clinical data to 
+                            prevent fast-failing
         """
         self.filename = os.path.join(study_dir, meta_dict['data_filename'])
         self.filenameShort = os.path.basename(self.filename)
@@ -297,6 +299,8 @@ class Validator(object):
             extra={'filename_': self.filename})
         self.line_count_handler = None
         self.meta_dict = meta_dict
+        self.relaxed_mode = relaxed_mode
+        self.fill_in_attr_defs = False
 
     def validate(self):
         """Validate the data file."""
@@ -340,10 +344,15 @@ class Validator(object):
                 return
 
             # parse start-of-file comment lines, if any
-            if not self.processTopLines(top_comments):
+            if not self.processTopLines(top_comments):                
                 self.logger.error(
                     'Invalid header comments, file cannot be parsed')
-                return
+                if not self.relaxed_mode:
+                    return
+                else:   
+                    self.logger.info('Ignoring missing or invalid header comments. '
+                        'Continuing with validation...')                    
+                    self.fill_in_attr_defs = True
 
             # read five data lines to detect quotes in the tsv file
             first_data_lines = []
@@ -372,12 +381,16 @@ class Validator(object):
                                      [header_line],
                                      delimiter='\t',
                                      quoting=csv.QUOTE_NONE,
-                                     strict=True).next()
+                                     strict=True).next()                                             
             if self.checkHeader(header_cols) > 0:
-                self.logger.error(
-                    'Invalid column header, file cannot be parsed')
-                return
-
+                if not self.relaxed_mode:
+                    self.logger.error(
+                        'Invalid column header, file cannot be parsed')                    
+                    return            
+                else:
+                    self.logger.warning('Ignoring invalid column header. '
+                        'Continuing with validation...')
+            
             # read through the data lines of the file
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
@@ -1290,10 +1303,16 @@ class ClinicalValidator(Validator):
                       'priority')
 
         if not line_list:
-            self.logger.error(
-                'No data type definition headers found in clinical data file',
-                extra={'line_number': self.line_number})
+            if not self.relaxed_mode:
+                self.logger.warning(
+                    'No data type definition headers found in clinical data file',
+                    extra={'line_number': self.line_number})      
+            else:
+                self.logger.info('Ignoring missing or invalid data type definition '
+                    ' headers. Continuing with validation...')                
             return False
+                    
+                 
         if len(line_list) != len(LINE_NAMES):
             self.logger.error(
                 '%d comment lines at start of clinical data file, expected %d',
@@ -1318,11 +1337,12 @@ class ClinicalValidator(Validator):
                 num_attrs = len(row)
                 attr_defs = [OrderedDict() for i in range(num_attrs)]
             elif len(row) != num_attrs:
-                self.logger.error(
-                    'Varying numbers of columns in clinical header (%d, %d)',
-                    num_attrs,
-                    len(row),
-                    extra={'line_number': line_index + 1})
+                if not self.relaxed_mode:
+                    self.logger.error(
+                        'Varying numbers of columns in clinical header (%d, %d)',
+                        num_attrs,
+                        len(row),
+                        extra={'line_number': line_index + 1})
                 return False
 
             for col_index, value in enumerate(row):
@@ -1362,7 +1382,8 @@ class ClinicalValidator(Validator):
                                    'cause': value})
                         invalid_values = True
                 else:
-                    raise RuntimeError('Unknown clinical header line name')
+                    if not self.relaxed_mode:
+                        raise RuntimeError('Unknown clinical header line name')
 
                 attr_defs[col_index][LINE_NAMES[line_index]] = value
 
@@ -1376,12 +1397,24 @@ class ClinicalValidator(Validator):
         num_errors = super(ClinicalValidator, self).checkHeader(cols)
 
         if self.numCols != len(self.attr_defs):
-            self.logger.error(
-                'Varying numbers of columns in clinical header (%d, %d)',
-                len(self.attr_defs),
-                len(self.cols),
-                extra={'line_number': self.line_number})
-            num_errors += 1
+             if not self.relaxed_mode:
+                self.logger.error(
+                    'Varying numbers of columns in clinical header (%d, %d)',
+                    len(self.attr_defs),
+                    len(self.cols),
+                    extra={'line_number': self.line_number})
+                num_errors += 1
+            
+        # fill in missing attr_defs data if in relaxed mode and clinical data is headerless
+        if self.fill_in_attr_defs:
+            self.logger.info('Filling in missing attribute properties for clinical data.')
+            missing_attr_defs = {}
+            for col_index, col_name in enumerate(cols):                    
+                missing_attr_defs[col_index] = {'display_name': col_name,
+                                         'description': col_name,
+                                         'datatype': 'STRING',
+                                         'priority': '1'}
+            self.attr_defs = missing_attr_defs            
         
         for col_index, col_name in enumerate(self.cols):
             self.attr_defs_overridden.append({})
@@ -1434,15 +1467,16 @@ class ClinicalValidator(Validator):
                     # store original property as found in file
                     if value != srv_attr_properties[attr_property]:
                         self.attr_defs_overridden[col_index][attr_property] = value
-                        self.logger.warning(
-                            "%s definition for attribute '%s' does not match "
-                            "the portal, and will be loaded as '%s'",
-                            attr_property,
-                            col_name,
-                            srv_attr_properties[attr_property],
-                            extra={'line_number': self.attr_defs[col_index].keys().index(attr_property) + 1,
-                                   'column_number': col_index + 1,
-                                   'cause': value})
+                        if not self.fill_in_attr_defs:                            
+                            self.logger.warning(
+                                "%s definition for attribute '%s' does not match "
+                                "the portal, and will be loaded as '%s'",
+                                attr_property,
+                                col_name,
+                                srv_attr_properties[attr_property],
+                                extra={'line_number': self.attr_defs[col_index].keys().index(attr_property) + 1,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
                         # continue validation assuming the value in the portal
                         self.attr_defs[col_index][attr_property] = \
                             srv_attr_properties[attr_property]
@@ -2300,7 +2334,7 @@ class GisticGenesValidator(Validator):
 
 # FIXME: returning simple valid (meta_fn, data_fn) pairs would be cleaner,
 # Validator objects can be instantiated with a portal instance elsewhere
-def process_metadata_files(directory, portal_instance, logger):
+def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
 
     """Parse the meta files in a directory and create data file validators.
 
@@ -2375,7 +2409,7 @@ def process_metadata_files(directory, portal_instance, logger):
         if 'data_filename' in meta and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
             validator = validator_class(directory, meta,
-                                        portal_instance, logger)
+                                        portal_instance, logger, relaxed_mode)
             validators_by_type[meta_file_type].append(validator)
         else:
             validators_by_type[meta_file_type].append(None)
@@ -2492,7 +2526,7 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
 
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
-    service_url = server_url + '/api/' + api_name
+    service_url = server_url + '/api-legacy/' + api_name
     logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
@@ -2679,14 +2713,19 @@ def interface(args=None):
     parser.add_argument('-v', '--verbose', required=False, action='store_true',
                         help='report status info messages in addition '
                              'to errors and warnings')
+    parser.add_argument('-r', '--relaxed_clinical_definitions', required=False, 
+                        action='store_true', 
+                        help='Option to enable relaxed mode for validator when '
+                        'validating clinical data without header definitions')                             
 
     parser = parser.parse_args(args)
     return parser
 
 
-def validate_study(study_dir, portal_instance, logger):
+def validate_study(study_dir, portal_instance, logger, relaxed_mode):
 
-    """Validate the study in `study_dir`, logging messages to `logger`.
+    """Validate the study in `study_dir`, logging messages to `logger`, and relaxing
+        clinical data validation if `relaxed_mode` is true.
 
     This will verify that the study is compatible with the portal configuration
     represented by the PortalInstance object `portal_instance`, if its
@@ -2713,7 +2752,7 @@ def validate_study(study_dir, portal_instance, logger):
     (validators_by_meta_type,
      defined_case_list_fns,
      study_cancer_type,
-     study_id) = process_metadata_files(study_dir, portal_instance, logger)
+     study_id) = process_metadata_files(study_dir, portal_instance, logger, relaxed_mode)
 
     # first parse and validate cancer type files
     studydefined_cancer_types = []
@@ -2771,8 +2810,9 @@ def validate_study(study_dir, portal_instance, logger):
     # this will be set if a file was successfully parsed
     if defined_sample_ids is None:
         logger.error("Sample file could not be parsed. Please fix "
-                     "the problems found there first before continuing.")
-        return
+                         "the problems found there first before continuing.")
+        if not relaxed_mode:                         
+            return
     DEFINED_SAMPLE_IDS = defined_sample_ids
     DEFINED_SAMPLE_ATTRIBUTES = sample_validator.newly_defined_attributes
     PATIENTS_WITH_SAMPLES = sample_validator.patient_ids
@@ -2832,6 +2872,9 @@ def main_validate(args):
     server_url = args.url_server
 
     html_output_filename = args.html_table
+    relaxed_mode = False
+    if hasattr(args, 'relaxed_clinical_definitions') and args.relaxed_clinical_definitions:
+        relaxed_mode = True
 
     # determine the log level for terminal and html output
     output_loglevel = logging.INFO
@@ -2899,7 +2942,7 @@ def main_validate(args):
     else:
         portal_instance = load_portal_info(server_url, logger)
 
-    validate_study(study_dir, portal_instance, logger)
+    validate_study(study_dir, portal_instance, logger, relaxed_mode)
 
     if html_handler is not None:
         collapsing_html_handler.flush()
@@ -2925,3 +2968,4 @@ if __name__ == '__main__':
                 1: 'failed',
                 2: 'not performed as problems occurred',
                 3: 'succeeded with warnings'}.get(exit_status, 'unknown')))
+    sys.exit(exit_status)

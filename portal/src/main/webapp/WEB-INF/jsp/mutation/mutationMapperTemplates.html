@@ -351,69 +351,65 @@
 </script>
 
 <script type="text/template" id="mutation_table_mutation_type_template">
-	<span class='{{mutationTypeClass}}'>
-		<label>{{mutationTypeText}}</label>
-	</span>
+	<span class='{{mutationTypeClass}}'>{{mutationTypeText}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_cna_template">
-	<label alt='{{cnaTip}}' class='simple-tip {{cnaClass}}'>{{cna}}</label>
+	<span alt='{{cnaTip}}' class='simple-tip {{cnaClass}}'>{{cna}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_cosmic_template">
-	<label class='{{cosmicClass}}'>{{cosmicCount}}</label>
+	<span class='{{cosmicClass}}'>{{cosmicCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_mutation_status_template">
 	<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
-		<label>{{mutationStatusText}}</label>
+		{{mutationStatusText}}
 	</span>
 </script>
 
 <script type="text/template" id="mutation_table_validation_status_template">
 	<span alt='{{validationStatusTip}}' class="simple-tip {{validationStatusClass}}">
-		<label>{{validationStatusText}}</label>
+		{{validationStatusText}}
 	</span>
 </script>
 
 <script type="text/template" id="mutation_table_mutation_assessor_template">
-	<span class='{{omaClass}} {{fisClass}}'>
-		<label>{{fisText}}</label>
-	</span>
+	<span class='{{omaClass}} {{fisClass}}'>{{fisText}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_start_pos_template">
-	<label class='{{startPosClass}}'>{{startPos}}</label>
+	<span class='{{startPosClass}}'>{{startPos}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_end_pos_template">
-	<label class='{{endPosClass}}'>{{endPos}}</label>
+	<span class='{{endPosClass}}'>{{endPos}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_tumor_freq_template">
-	<label alt='<b>{{tumorAltCount}}</b> variant reads out of <b>{{tumorTotalCount}}</b> total'
-	       class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</label>
+	<span alt='<b>{{tumorAltCount}}</b> variant reads out of <b>{{tumorTotalCount}}</b> total'
+	      class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_normal_freq_template">
-	<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
-	       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
+	<span alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
+	      class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_tumor_ref_count_template">
-	<label class='{{tumorRefCountClass}}'>{{tumorRefCount}}</label>
+	<span class='{{tumorRefCountClass}}'>{{tumorRefCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_tumor_alt_count_template">
-	<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
+	<span class='{{tumorAltCountClass}}'>{{tumorAltCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_normal_ref_count_template">
-	<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
+	<span class='{{normalRefCountClass}}'>{{normalRefCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_normal_alt_count_template">
-	<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
+	<span class='{{normalAltCountClass}}'>{{normalAltCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_igv_link_template">
@@ -428,11 +424,11 @@
 </script>
 
 <script type="text/template" id="mutation_table_mutation_count_template">
-	<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
+	<span class='{{mutationCountClass}}'>{{mutationCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_cbio_portal_template">
-    <label class='{{portalClass}}'>{{portalFrequency}}</label>
+    <span class='{{portalClass}}'>{{portalFrequency}}</span>
 </script>
 
 <!-- end Mutation Table components -->

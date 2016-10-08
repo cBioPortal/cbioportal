@@ -50,22 +50,28 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoClinicalData;
-import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
+import org.mskcc.cbio.portal.dao.DaoClinicalAttributeMeta;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalData;
 import org.mskcc.cbio.portal.model.ClinicalParameterMap;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.CategoryLabelReader;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 public class ClinicalFreeFormJSON extends HttpServlet
 {
 	public static final String STUDY_ID = "studyId";
+	
+	 // class which process access control to cancer studies
+    private AccessControl accessControl;
 
     /**
      * Initializes the servlet.
      */
     public void init() throws ServletException {
         super.init();
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**
@@ -85,7 +91,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
         	 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(studyId);
         	 
         	 // check if cancerStudy exists
-        	 if (cancerStudy == null)
+        	 if (cancerStudy == null || accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() != 1)
         	 {
         		 // just create empty collections if cancers study cannot be found
         		 jsonObject.put("clinicalCaseSet", new JSONArray());
@@ -158,7 +164,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
                  jsonObject.put("freeFormData", freeFormArray);
                  
                  // add the map for human readable category names
-                 jsonObject.put("categoryLabelMap", DaoClinicalAttribute.getAllMap());
+                 jsonObject.put("categoryLabelMap", DaoClinicalAttributeMeta.getAllMap());
         	 }
             
              httpServletResponse.setContentType("application/json");

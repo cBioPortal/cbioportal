@@ -102,7 +102,7 @@ public class CancerStudyReader {
                                                   typeOfCancer, publicStudy(properties));
         cancerStudy.setPmid(properties.getProperty("pmid"));
         cancerStudy.setCitation(properties.getProperty("citation"));
-        cancerStudy.setGroups(properties.getProperty("groups"));
+        cancerStudy.setGroupsInUpperCase(properties.getProperty("groups"));
         cancerStudy.setShortName(shortName);
 
         return cancerStudy;

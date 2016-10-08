@@ -134,13 +134,15 @@ public class CnaJSON extends HttpServlet {
         	            }
         	            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds,
         	                    (filterByCbioGene?daoGeneOptimized.getEntrezGeneIds(daoGeneOptimized.getCbioCancerGenes()):null), cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
-        	            String concatEventIds = getConcatEventIds(cnaEvents);
-        	            int profileId = cnaProfile.getGeneticProfileId();
-        	            drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
-        	            contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
-        	            if (mrnaProfileId!=null && sampleIds.length==1) {
-        	                mrnaContext = getMrnaContext(internalSampleIds.get(0), cnaEvents, mrnaProfileId);
-        	            }
+        	            if (!cnaEvents.isEmpty()) {
+                            String concatEventIds = getConcatEventIds(cnaEvents);
+                            int profileId = cnaProfile.getGeneticProfileId();
+//                            drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
+                            contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
+                            if (mrnaProfileId!=null && sampleIds.length==1) {
+                                mrnaContext = getMrnaContext(internalSampleIds.get(0), cnaEvents, mrnaProfileId);
+                            }
+                        }
         	        }
         		}
         	}

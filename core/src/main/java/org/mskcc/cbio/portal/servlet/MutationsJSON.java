@@ -297,21 +297,22 @@ public class MutationsJSON extends HttpServlet {
                 mutations = mutationModelConverter.convert(mutationRepository.getMutations(
                         InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(samples)),
                         mutationProfile.getGeneticProfileId()));
-
-                cosmic = DaoCosmicData.getCosmicForMutationEvents(mutations);
-                String concatEventIds = getConcatEventIds(mutations);
-                int profileId = mutationProfile.getGeneticProfileId();
-                daoGeneOptimized = DaoGeneOptimized.getInstance();
-                drugs = getDrugs(concatEventIds, profileId, fdaOnly, cancerDrug);
-                geneContextMap = getGeneContextMap(concatEventIds, profileId, daoGeneOptimized);
-                keywordContextMap = getKeywordContextMap(concatEventIds, profileId);
-                Sample sample = (samples.length == 1) ?
-                    DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), samples[0]) : null;
-                if (mrnaProfileId != null && sample != null) { // only if there is only one tumor
-                    mrnaContext = getMrnaContext(sample, mutations, mrnaProfileId);
-                }
-                if (cnaProfileId!=null && samples.length==1) { // only if there is only one tumor
-                    cnaContext = getCnaContext(sample, mutations, cnaProfileId);
+                if (!mutations.isEmpty()) {
+                    cosmic = DaoCosmicData.getCosmicForMutationEvents(mutations);
+                    String concatEventIds = getConcatEventIds(mutations);
+                    int profileId = mutationProfile.getGeneticProfileId();
+                    daoGeneOptimized = DaoGeneOptimized.getInstance();
+    //                drugs = getDrugs(concatEventIds, profileId, fdaOnly, cancerDrug);
+                    geneContextMap = getGeneContextMap(concatEventIds, profileId, daoGeneOptimized);
+                    keywordContextMap = getKeywordContextMap(concatEventIds, profileId);
+                    Sample sample = (samples.length == 1) ?
+                        DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), samples[0]) : null;
+                    if (mrnaProfileId != null && sample != null) { // only if there is only one tumor
+                        mrnaContext = getMrnaContext(sample, mutations, mrnaProfileId);
+                    }
+                    if (cnaProfileId!=null && samples.length==1) { // only if there is only one tumor
+                        cnaContext = getCnaContext(sample, mutations, cnaProfileId);
+                    }
                 }
             }
         } catch (DaoException ex) {

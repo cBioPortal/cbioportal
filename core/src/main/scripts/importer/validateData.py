@@ -147,8 +147,9 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         self.output_filename = output_filename
         self.max_level = logging.NOTSET
         self.closed = False
-        # get the directory name of the currently running script
-        self.template_dir = os.path.dirname(__file__)
+        # get the directory name of the currently running script,
+        # resolving any symlinks
+        self.template_dir = os.path.dirname(os.path.realpath(__file__))
         super(Jinja2HtmlHandler, self).__init__(*args, **kwargs)
 
     def emit(self, record):
@@ -1284,6 +1285,130 @@ class ClinicalValidator(Validator):
     PROP_IS_PATIENT_ATTRIBUTE = None
     NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
     ALLOW_BLANKS = True
+    # attributes required to have certain properties because of hard-coded use
+    # TODO add unit tests for this functionality
+    PREDEFINED_ATTRIBUTES = {
+        'AGE': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'CANCER_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'CANCER_TYPE_DETAILED': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'DETAILED_CANCER_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'DFS_STATUS': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'DFS_MONTHS': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'DRIVER_MUTATIONS': {
+            'is_patient_attribute': '0'
+        },
+        'ERG_FUSION_ACGH': {
+            'is_patient_attribute': '0'
+        },
+        'ETS_RAF_SPINK1_STATUS': {
+            'is_patient_attribute': '0'
+        },
+        'GENDER': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'GLEASON_SCORE': {
+            'is_patient_attribute': '0'
+        },
+        'GLEASON_SCORE_1': {
+            'is_patient_attribute': '0'
+        },
+        'GLEASON_SCORE_2': {
+            'is_patient_attribute': '0'
+        },
+        'HISTOLOGY': {
+            'is_patient_attribute': '0'
+        },
+        'KNOWN_MOLECULAR_CLASSIFIER': {
+            'is_patient_attribute': '0'
+        },
+        'METASTATIC_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'OS_STATUS': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'OS_MONTHS': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'OTHER_SAMPLE_ID': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'PATIENT_DISPLAY_NAME': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'PRIMARY_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_CLASS': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_DISPLAY_NAME': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SERUM_PSA': {
+            'is_patient_attribute': '0'
+        },
+        'SEX': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'TMPRSS2_ERG_FUSION_STATUS': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_GRADE': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TUMOR_STAGE_2009': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_TISSUE_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TUMOR_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TYPE_OF_CANCER': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+    }
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
@@ -1431,6 +1556,30 @@ class ClinicalValidator(Validator):
                                              'datatype': 'STRING',
                                              'priority': '0'}
                 continue
+            # check predefined (hard-coded) attribute definitions
+            if col_name in self.PREDEFINED_ATTRIBUTES:
+                for attr_property in self.PREDEFINED_ATTRIBUTES[col_name]:
+                    if attr_property == 'is_patient_attribute':
+                        expected_level = \
+                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                        if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
+                            self.logger.error(
+                                'Attribute must be a %s-level attribute',
+                                {'0': 'sample', '1': 'patient'}[expected_level],
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': col_name})
+                    else:
+                        value = self.attr_defs[col_index][attr_property]
+                        expected_value = \
+                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                        if (value != expected_value and
+                                not self.fill_in_attr_defs):
+                            self.logger.error(
+                                "%s definition for attribute '%s' must be %s",
+                                attr_property,
+                                col_name,
+                                expected_value)
             # skip all further checks for this column if portal info is absent
             if self.portal.clinical_attribute_dict is None:
                 continue
@@ -1448,8 +1597,7 @@ class ClinicalValidator(Validator):
                 self.newly_defined_attributes.add(col_name)
             # disallow homonymous patient-level and sample-level attributes,
             # except for the patient ID by which samples reference a patient
-            elif col_name != 'PATIENT_ID' and (
-                    srv_attr_properties['is_patient_attribute'] !=
+            elif (srv_attr_properties['is_patient_attribute'] !=
                     self.PROP_IS_PATIENT_ATTRIBUTE):
                 self.logger.error(
                     'Attribute is defined in the portal installation as a '
@@ -1467,7 +1615,7 @@ class ClinicalValidator(Validator):
                     # store original property as found in file
                     if value != srv_attr_properties[attr_property]:
                         self.attr_defs_overridden[col_index][attr_property] = value
-                        if not self.fill_in_attr_defs:                            
+                        if not self.fill_in_attr_defs:
                             self.logger.warning(
                                 "%s definition for attribute '%s' does not match "
                                 "the portal, and will be loaded as '%s'",
@@ -1644,6 +1792,8 @@ class PatientClinicalValidator(ClinicalValidator):
     def checkLine(self, data):
         """Check the values in a line of data."""
         super(PatientClinicalValidator, self).checkLine(data)
+        osstatus_is_deceased = False
+        osmonths_value = None
         for col_index, col_name in enumerate(self.cols):
             # treat cells beyond the end of the line as blanks,
             # super().checkLine() has already logged an error
@@ -1675,7 +1825,41 @@ class PatientClinicalValidator(ClinicalValidator):
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
-            # TODO: check the values for other documented columns
+            elif col_name == 'OS_STATUS':
+                if value == 'DECEASED':
+                    osstatus_is_deceased = True
+                elif (value.lower() not in self.NULL_VALUES and
+                        value not in ('LIVING', 'DECEASED')):
+                    self.logger.error(
+                            'Value in OS_STATUS column is not LIVING or '
+                            'DECEASED',
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+            elif col_name == 'DFS_STATUS':
+                if (value.lower() not in self.NULL_VALUES and
+                        value not in ('DiseaseFree',
+                                      'Recurred/Progressed',
+                                      'Recurred',
+                                      'Progressed')):
+                    self.logger.error(
+                            'Value in DFS_STATUS column is not DiseaseFree, '
+                            'Recurred/Progressed, Recurred or Progressed',
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+            elif col_name == 'OS_MONTHS':
+                osmonths_value = value
+
+        if osstatus_is_deceased and (
+                    osmonths_value is None or
+                    osmonths_value.lower() in self.NULL_VALUES):
+            if osmonths_value is None or osmonths_value == '':
+                osmonths_value = '<none>'
+            self.logger.error(
+                "OS_STATUS is 'DECEASED', but OS_MONTHS is not specified",
+                extra={'line_number': self.line_number,
+                       'cause': osmonths_value})
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""
@@ -1962,6 +2146,8 @@ class CancerTypeValidator(Validator):
 
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
+    # check this in the subclass to avoid emitting an error twice
+    ALLOW_BLANKS = True
 
     COLS = (
         'type_of_cancer',
@@ -2000,10 +2186,67 @@ class CancerTypeValidator(Validator):
             line_cancer_type = data[self.cols.index('type_of_cancer')].lower().strip()
             # check each column
             for col_index, field_name in enumerate(self.cols):
-                # TODO validate whether the color field is one of the
-                # keywords on https://www.w3.org/TR/css3-color/#svg-color
-                if field_name == 'parent_type_of_cancer':
-                    parent_cancer_type = data[col_index].lower().strip()
+                value = data[col_index].strip()
+                if value == '':
+                    self.logger.error(
+                            "Blank value in '%s' column",
+                            field_name,
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+                elif field_name == 'color':
+                    # validate whether the color field is one of the
+                    # keywords on https://www.w3.org/TR/css3-color/#svg-color
+                    if value.lower() not in [
+                            'aliceblue', 'antiquewhite', 'aqua', 'aquamarine',
+                            'azure', 'beige', 'bisque', 'black',
+                            'blanchedalmond', 'blue', 'blueviolet', 'brown',
+                            'burlywood', 'cadetblue', 'chartreuse', 'chocolate',
+                            'coral', 'cornflowerblue', 'cornsilk', 'crimson',
+                            'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod',
+                            'darkgray', 'darkgreen', 'darkgrey', 'darkkhaki',
+                            'darkmagenta', 'darkolivegreen', 'darkorange',
+                            'darkorchid', 'darkred', 'darksalmon',
+                            'darkseagreen', 'darkslateblue', 'darkslategray',
+                            'darkslategrey', 'darkturquoise', 'darkviolet',
+                            'deeppink', 'deepskyblue', 'dimgray', 'dimgrey',
+                            'dodgerblue', 'firebrick', 'floralwhite',
+                            'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite',
+                            'gold', 'goldenrod', 'gray', 'green', 'greenyellow',
+                            'grey', 'honeydew', 'hotpink', 'indianred',
+                            'indigo', 'ivory', 'khaki', 'lavender',
+                            'lavenderblush', 'lawngreen', 'lemonchiffon',
+                            'lightblue', 'lightcoral', 'lightcyan',
+                            'lightgoldenrodyellow', 'lightgray', 'lightgreen',
+                            'lightgrey', 'lightpink', 'lightsalmon',
+                            'lightseagreen', 'lightskyblue', 'lightslategray',
+                            'lightslategrey', 'lightsteelblue', 'lightyellow',
+                            'lime', 'limegreen', 'linen', 'magenta', 'maroon',
+                            'mediumaquamarine', 'mediumblue', 'mediumorchid',
+                            'mediumpurple', 'mediumseagreen', 'mediumslateblue',
+                            'mediumspringgreen', 'mediumturquoise',
+                            'mediumvioletred', 'midnightblue', 'mintcream',
+                            'mistyrose', 'moccasin', 'navajowhite', 'navy',
+                            'oldlace', 'olive', 'olivedrab', 'orange',
+                            'orangered', 'orchid', 'palegoldenrod', 'palegreen',
+                            'paleturquoise', 'palevioletred', 'papayawhip',
+                            'peachpuff', 'peru', 'pink', 'plum', 'powderblue',
+                            'purple', 'red', 'rosybrown', 'royalblue',
+                            'saddlebrown', 'salmon', 'sandybrown', 'seagreen',
+                            'seashell', 'sienna', 'silver', 'skyblue',
+                            'slateblue', 'slategray', 'slategrey', 'snow',
+                            'springgreen', 'steelblue', 'tan', 'teal',
+                            'thistle', 'tomato', 'turquoise', 'violet', 'wheat',
+                            'white', 'whitesmoke', 'yellow', 'yellowgreen',
+                            'rebeccapurple']:
+                        self.logger.error(
+                                'Color field is not a CSS3 color keyword, '
+                                'see the table on https://en.wikipedia.org/wiki/Web_colors#X11_color_names',
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
+                elif field_name == 'parent_type_of_cancer':
+                    parent_cancer_type = value.lower()
                     # if parent_cancer_type is not 'tissue' (which is a special case when building the oncotree), 
                     # then give error if the given parent is not found in the DB or in the given cancer types of the
                     # current study:
@@ -2016,7 +2259,7 @@ class CancerTypeValidator(Validator):
                             line_cancer_type,
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
-                                   'cause': data[col_index]})
+                                   'cause': value})
             # check for duplicated (possibly inconsistent) cancer types
             if line_cancer_type in self.defined_cancer_types:
                 self.logger.error(

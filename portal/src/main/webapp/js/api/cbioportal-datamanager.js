@@ -1338,7 +1338,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    display_name: "Total mutations",
 				    is_patient_attribute: "0"
 				};
-				sample_clinical_attributes_set['NO_CONTEXT_MUTATION_SIGNATURE'] = {
+				/*sample_clinical_attributes_set['NO_CONTEXT_MUTATION_SIGNATURE'] = {
 				    attr_id: "NO_CONTEXT_MUTATION_SIGNATURE",
 				    datatype: "COUNTS_MAP",
 				    description: "Number of point mutations in the sample counted by different types of nucleotide changes.",
@@ -1346,7 +1346,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    is_patient_attribute: "0",
 				    categories: ["C>A", "C>G", "C>T", "T>A", "T>C", "T>G"],
 				    fills: ['#3D6EB1', '#8EBFDC', '#DFF1F8', '#FCE08E', '#F78F5E', '#D62B23']
-				};
+				};*/
 			    }
 			    if (self.getCancerStudyIds().length > 0) {
 				sample_clinical_attributes_set["FRACTION_GENOME_ALTERED"] = {attr_id: "FRACTION_GENOME_ALTERED",

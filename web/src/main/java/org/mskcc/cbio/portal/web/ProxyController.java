@@ -39,6 +39,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.*;
 
+import java.io.IOException;
 import java.net.*;
 import javax.servlet.http.*;
 import java.util.Arrays;
@@ -57,7 +58,7 @@ public class ProxyController
   public void setPDBDatabaseURL(String property) { this.pdbDatabaseURL = property; }
 
   private String oncokbURL;
-  @Value("${oncokb.url}")
+  @Value("${oncokb.url:http://oncokb.org/legacy-api/}")
   public void setOncoKBURL(String property) { this.oncokbURL = property; }
 
   // This is a general proxy for future use.
@@ -67,119 +68,69 @@ public class ProxyController
   @RequestMapping(value="/{path}")
   public @ResponseBody String getProxyURL(@PathVariable String path,
                                           @RequestBody String body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
-  {
-
-    RestTemplate restTemplate = new RestTemplate();
-    String URL = null;
-
-    //Switch could be replaced by a filter function
-    switch (path){
-      case "bitly":
-        URL = bitlyURL;
-        break;
-      case "oncokbAccess":
-        URL = oncokbURL + "access";
-        break;
-        case "oncokbSummary":
-            URL = oncokbURL + "summary.json";
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+      String URL = null;
+    
+        //Switch could be replaced by a filter function
+        switch (path){
+          case "bitly":
+            URL = bitlyURL;
             break;
-      default:
-        URL = "";
-        break;
-    }
-
-    //If request method is GET, include query string
-    if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
-      URL += "?" + request.getQueryString();
-    }
-
-    URI uri = new URI(URL);
-
-    ResponseEntity<String> responseEntity =
-            restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);
-
-    return responseEntity.getBody();
+          case "oncokbAccess":
+            URL = oncokbURL + "access";
+            break;
+            case "oncokbSummary":
+                URL = oncokbURL + "summary.json";
+                break;
+          default:
+            URL = "";
+            break;
+        }
+    
+        //If request method is GET, include query string
+        if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
+          URL += "?" + request.getQueryString();
+        }
+    return respProxy(URL, method, body, response);
   }
 
     @RequestMapping(value="/oncokbSummary", method = RequestMethod.POST)
-    public @ResponseBody String getOncoKBSummary(@RequestBody JSONObject body, HttpMethod method,
-                                                  HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
-    {
-
-        RestTemplate restTemplate = new RestTemplate();
-        URI uri = new URI(oncokbURL + "summary.json");
-
-        ResponseEntity<String> responseEntity =
-            restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<JSONObject>(body), String.class);
-
-        return responseEntity.getBody();
+    public @ResponseBody String getOncoKBSummary(@RequestBody String body, HttpMethod method,
+                                                  HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        return respProxy(oncokbURL + "summary.json", method, body, response);
     }
 
     @RequestMapping(value="/oncokbEvidence", method = RequestMethod.POST)
     public @ResponseBody String getOncoKBEvidence(@RequestBody JSONObject body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
-    {
-
-        RestTemplate restTemplate = new RestTemplate();
-        URI uri = new URI(oncokbURL + "evidence.json");
-
-        ResponseEntity<String> responseEntity =
-            restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<JSONObject>(body), String.class);
-
-        return responseEntity.getBody();
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        return respProxy(oncokbURL + "evidence.json", method, body, response);
     }
 
   @RequestMapping(value="/oncokb", method = RequestMethod.POST)
   public @ResponseBody String getOncoKB(@RequestBody JSONObject body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
-  {
-
-    RestTemplate restTemplate = new RestTemplate();
-    URI uri = new URI(oncokbURL + "indicator.json");
-
-    ResponseEntity<String> responseEntity =
-            restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<JSONObject>(body), String.class);
-
-    return responseEntity.getBody();
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+    return respProxy(oncokbURL + "indicator.json", method, body, response);
   }
+  
+    private String respProxy(String url, HttpMethod method, Object body, HttpServletResponse response) throws IOException {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            URI uri = new URI(url);
 
+            ResponseEntity<String> responseEntity =
+                restTemplate.exchange(uri, method, new HttpEntity<>(body), String.class);
 
-  private JSONObject requestParamsToJSON(HttpServletRequest req) {
-    JSONObject jsonObj = new JSONObject();
-    Map<String, String[]> params = req.getParameterMap();
-    for (Map.Entry<String, String[]> entry : params.entrySet()) {
-      String v[] = entry.getValue();
-      Object o = (v.length == 1) ? v[0] : v;
-      jsonObj.put(entry.getKey(), o);
+            return responseEntity.getBody();
+        }catch (Exception exception) {
+            String errorMessage = "Unexpected error: " + exception.getLocalizedMessage();
+            response.sendError(503, errorMessage);
+            return errorMessage;
+        }
     }
-    return jsonObj;
-  }
 
   @RequestMapping(value="/bitly")
   public @ResponseBody String getBitlyURL(@RequestBody String body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
-  {
-    RestTemplate restTemplate = new RestTemplate();
-    URI uri = new URI(bitlyURL + request.getQueryString());
-
-    ResponseEntity<String> responseEntity =
-      restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);
-
-    return responseEntity.getBody();
-  }
-
-  @RequestMapping(value="/jsmol/{pdbFile}")
-  public @ResponseBody String getJSMolURL(@PathVariable String pdbFile,
-                                          @RequestBody String body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
-  {
-    RestTemplate restTemplate = new RestTemplate();
-    URI uri = new URI(pdbDatabaseURL + pdbFile + ".pdb");
-
-    ResponseEntity<String> responseEntity =
-      restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);
-
-    return responseEntity.getBody();
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+      return respProxy(bitlyURL + request.getQueryString(), method, body, response);
   }
 }

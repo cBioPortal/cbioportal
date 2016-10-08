@@ -650,13 +650,20 @@ public class GlobalProperties {
         }
         return null;
     }
-    
+
     public static String getOncoKBUrl()
     {
         String oncokbUrl = properties.getProperty(ONCOKB_URL);
 
+        // This only applies if there is no oncokb.url property in the portal.properties file.
+        // Empty string should be used if you want to disable the OncoKB annotation.
+        if(oncokbUrl == null) {
+            oncokbUrl = "http://oncokb.org/legacy-api/";
+        }
+
         //Test connection of OncoKB website.
-        if(oncokbUrl != null && !oncokbUrl.isEmpty()) {
+        if(!oncokbUrl.isEmpty()) {
+
             try {
                 URL url = new URL(oncokbUrl+"access");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();

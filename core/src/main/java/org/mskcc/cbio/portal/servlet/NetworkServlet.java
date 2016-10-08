@@ -47,6 +47,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
@@ -72,13 +73,18 @@ public class NetworkServlet extends HttpServlet {
     @Autowired
     private MutationModelConverter mutationModelConverter;
 
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        accessControl = SpringUtil.getAccessControl();
         SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
                 config.getServletContext());
     }
-
+    
     @Override
     public void doGet(HttpServletRequest req,
                       HttpServletResponse res)
@@ -118,7 +124,21 @@ public class NetworkServlet extends HttpServlet {
     public void processGetNetworkRequest(HttpServletRequest req,
                       HttpServletResponse res)
             throws ServletException, IOException {
+    	// get cancer study id
+        // if cancer study id is null, return the current network
+        String cancerStudyId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        CancerStudy cancerStudy = null;
         try {
+        	if (cancerStudyId != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
+        	
             StringBuilder messages = new StringBuilder();
 
             XDebug xdebug = new XDebug( req );
@@ -166,11 +186,6 @@ public class NetworkServlet extends HttpServlet {
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                     + ": took "+xdebug.getTimeElapsed()+"ms");
-
-            // get cancer study id
-            // if cancer study id is null, return the current network
-            String cancerStudyId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
 
             if (network.countNodes()!=0 && cancerStudyId!=null) {
 

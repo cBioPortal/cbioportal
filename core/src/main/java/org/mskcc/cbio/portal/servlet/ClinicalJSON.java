@@ -36,9 +36,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoClinicalData;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.ClinicalData;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.SpringUtil;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.model.ClinicalData;
 import org.owasp.validator.html.PolicyException;
@@ -57,6 +61,9 @@ public class ClinicalJSON extends HttpServlet {
 
     // our logger
     private static Log LOG = LogFactory.getLog(ClinicalJSON.class);
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
 
     public static final String SAMPLES_DELIMITER = " ";
     public static final String ALL = "all";
@@ -68,6 +75,7 @@ public class ClinicalJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**
@@ -125,20 +133,25 @@ public class ClinicalJSON extends HttpServlet {
         JSONArray maps = null;
 
         try {
-            if (samples == null || samples.equals(ALL) ) {
-                clinicals = DaoClinicalData.getData(cancerStudyId);
-                maps = clinicals2JSONArray(clinicals);
-            } else {
-                clinicals = DaoClinicalData.getData(cancerStudyId,
-                        Arrays.asList(samples.trim().split(SAMPLES_DELIMITER)));
-                maps = clinicals2JSONArray(clinicals);
-            }
+        	if(cancerStudyId != null) {
+        		CancerStudy cancerStudy = DaoCancerStudy
+                        .getCancerStudyByStableId(cancerStudyId);
+        		if (cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+        			if (samples == null || samples.equals(ALL) ) {
+                        clinicals = DaoClinicalData.getData(cancerStudyId);
+                        maps = clinicals2JSONArray(clinicals);
+                    } else {
+                        clinicals = DaoClinicalData.getData(cancerStudyId,
+                                Arrays.asList(samples.trim().split(SAMPLES_DELIMITER)));
+                        maps = clinicals2JSONArray(clinicals);
+                    }
+        			for (ClinicalData c : clinicals) {
+                        maps.add(reflectToMap(c));
+                    }
+            	}
+        	}
         } catch (DaoException e) {
             throw new ServletException(e);
-        }
-
-        for (ClinicalData c : clinicals) {
-            maps.add(reflectToMap(c));
         }
 
         response.setContentType("application/json");

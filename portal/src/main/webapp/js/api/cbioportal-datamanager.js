@@ -1319,7 +1319,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    var requests = self.getCancerStudyIds().map(
 			    function(cancer_study_id) { 
 				var def = new $.Deferred();
-				window.cbioportal_client.getSampleClinicalAttributes({study_id:[cancer_study_id], sample_ids: study_sample_map[cancer_study_id]}).then(function(attrs) {
+				window.cbioportal_client.getSampleClinicalAttributes({study_id:[cancer_study_id]}).then(function(attrs) {
 				    for (var i=0; i<attrs.length; i++) {
 					sample_clinical_attributes_set[attrs[i].attr_id] = attrs[i];
 				    }
@@ -1369,7 +1369,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			var requests = self.getCancerStudyIds().map(
 				function (cancer_study_id) {
 				    var def = new $.Deferred();
-				    window.cbioportal_client.getPatientClinicalAttributes({study_id: [cancer_study_id], patient_ids: study_patient_map[cancer_study_id]}).then(function (attrs) {
+				    window.cbioportal_client.getPatientClinicalAttributes({study_id: [cancer_study_id]}).then(function (attrs) {
 					for (var i = 0; i < attrs.length; i++) {
 					    patient_clinical_attributes_set[attrs[i].attr_id] = attrs[i];
 					}

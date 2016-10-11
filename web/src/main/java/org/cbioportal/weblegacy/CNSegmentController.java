@@ -33,4 +33,14 @@ public class CNSegmentController {
         @ApiParam(value = "Return the segment data with this list of sampleIds. If omitted, return segment data on all samples")  @RequestParam(required = false) List<String> sampleIds) {
         return cnSegmentService.getCNSegmentData(cancerStudyId, chromosomes, sampleIds);
     }
+    
+    @ApiOperation(value = "Get copy number segment file",
+            nickname = "getSegmentFile",
+            notes = "")
+    @Transactional
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/segmentfile")
+    public String getCNSegmentFile(@ApiParam(value = "Return segment data related to the study with this cancer study id eg. acc_tcga") @RequestParam(required = true) String cancerStudyId,
+        @ApiParam(value = "Return the segment data with this list of sampleIds. If omitted, return segment data on all samples")  @RequestParam(required = false) List<String> sampleIds) {
+        return cnSegmentService.getCNSegmentFile(cancerStudyId, sampleIds);
+    }
 }

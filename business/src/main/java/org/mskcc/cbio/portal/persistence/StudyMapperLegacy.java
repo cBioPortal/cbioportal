@@ -4,16 +4,14 @@
  * and open the template in the editor.
  */
 package org.mskcc.cbio.portal.persistence;
-
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.mskcc.cbio.portal.model.DBCancerType;
-
+import org.mskcc.cbio.portal.model.DBStudy;
 /**
  *
  * @author abeshoua
  */
-public interface CancerTypeMapper {
-	List<DBCancerType> getAllCancerTypes();
-	List<DBCancerType> getCancerTypes(@Param("cancer_type_ids") List<String> cancer_type_ids);
+public interface StudyMapperLegacy {
+	List<DBStudy> getStudies(@Param("study_ids") List<String> study_ids);
+	List<DBStudy> getAllStudies();
 }

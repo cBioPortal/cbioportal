@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.StudyMapper">
+    <cache/>
+
+    <sql id="select">
+        cancer_study.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            cancer_study.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId",
+            cancer_study.NAME AS "${prefix}name",
+            cancer_study.SHORT_NAME AS "${prefix}shortName",
+            cancer_study.DESCRIPTION AS "${prefix}description",
+            cancer_study.PUBLIC AS "${prefix}publicStudy",
+            cancer_study.PMID AS "${prefix}pmid",
+            cancer_study.CITATION AS "${prefix}citation",
+            cancer_study.GROUPS AS "${prefix}groups",
+            cancer_study.STATUS AS "${prefix}status",
+            cancer_study.IMPORT_DATE AS "${prefix}importDate"
+        </if>
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
+                <property name="prefix" value="${prefix}typeOfCancer."/>
+            </include>
+        </if>
+    </sql>
+</mapper>

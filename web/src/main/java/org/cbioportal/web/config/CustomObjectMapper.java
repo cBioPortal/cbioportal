@@ -2,6 +2,7 @@ package org.cbioportal.web.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.cbioportal.model.*;
 import org.cbioportal.model.GeneticData;
 import org.cbioportal.model.summary.CancerStudySummary;
@@ -43,6 +44,7 @@ public class CustomObjectMapper extends ObjectMapper {
     public CustomObjectMapper() {
 
         super.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        super.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
 
         Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
         mixinMap.put(CancerStudySummary.class, CancerStudySummaryMixin.class);

@@ -191,10 +191,13 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].column_number, 6)
 
     def test_hardcoded_attributes(self):
+
         """Test if some attrs have requirements on the data type or level."""
+
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',
                                     validateData.PatientClinicalValidator)
+
         self.assertEqual(len(record_list), 2)
         osmonths_records = []
         other_sid_records = []
@@ -205,8 +208,16 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
                 osmonths_records.append(record)
             if hasattr(record, 'cause') and record.cause == 'OTHER_SAMPLE_ID':
                 other_sid_records.append(record)
+
         self.assertEqual(len(osmonths_records), 1)
+        record = osmonths_records.pop()
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.column_number, 2)
+
         self.assertEqual(len(other_sid_records), 1)
+        record = other_sid_records.pop()
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 6)
 
 
 class ClinicalValuesTestCase(DataFileTestCase):

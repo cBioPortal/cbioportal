@@ -1,3 +1,5 @@
+>data_patients.txt | ERROR: datatype definition for attribute 'DFS_MONTHS' must be NUMBER
+3
 >data_patients.txt | ERROR: Value of attribute to be loaded as NUMBER is not a real number
 536,540
 >brca_tcga_pub.maf | WARNING: Entrez gene id not known to the cBioPortal instance. This gene will not be loaded

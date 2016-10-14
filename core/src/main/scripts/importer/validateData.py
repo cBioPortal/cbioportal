@@ -1285,6 +1285,11 @@ class ClinicalValidator(Validator):
     PROP_IS_PATIENT_ATTRIBUTE = None
     NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
     ALLOW_BLANKS = True
+    METADATA_LINES = ('display_name',
+                      'description',
+                      'datatype',
+                      'priority')
+
     # attributes required to have certain properties because of hard-coded use
     # TODO add unit tests for this functionality
     PREDEFINED_ATTRIBUTES = {
@@ -1420,11 +1425,6 @@ class ClinicalValidator(Validator):
 
         """Parse the the attribute definitions above the column header."""
 
-        LINE_NAMES = ('display_name',
-                      'description',
-                      'datatype',
-                      'priority')
-
         if not line_list:
             if not self.relaxed_mode:
                 self.logger.warning(
@@ -1434,13 +1434,12 @@ class ClinicalValidator(Validator):
                 self.logger.info('Ignoring missing or invalid data type definition '
                     ' headers. Continuing with validation...')                
             return False
-                    
-                 
-        if len(line_list) != len(LINE_NAMES):
+
+        if len(line_list) != len(self.METADATA_LINES):
             self.logger.error(
                 '%d comment lines at start of clinical data file, expected %d',
                 len(line_list),
-                len(LINE_NAMES))
+                len(self.METADATA_LINES))
             return False
 
         # remove the # signs
@@ -1474,14 +1473,15 @@ class ClinicalValidator(Validator):
                 if value.strip().lower() in self.NULL_VALUES:
                     self.logger.error(
                         'Empty %s field in clinical attribute definition',
-                        LINE_NAMES[line_index],
+                        self.METADATA_LINES[line_index],
                         extra={'line_number': line_index + 1,
                                'column_number': col_index + 1,
                                'cause': value})
                     invalid_values = True
-                if LINE_NAMES[line_index] in ('display_name', 'description'):
+                if self.METADATA_LINES[line_index] in ('display_name',
+                                                       'description'):
                     pass
-                elif LINE_NAMES[line_index] == 'datatype':
+                elif self.METADATA_LINES[line_index] == 'datatype':
                     VALID_DATATYPES = ('STRING', 'NUMBER', 'BOOLEAN')
                     if value not in VALID_DATATYPES:
                         self.logger.error(
@@ -1493,7 +1493,7 @@ class ClinicalValidator(Validator):
                                    'cause': value})
                         invalid_values = True
                         invalid_values = True
-                elif LINE_NAMES[line_index] == 'priority':
+                elif self.METADATA_LINES[line_index] == 'priority':
                     try:
                         if int(value) < 1:
                             raise ValueError()
@@ -1508,7 +1508,7 @@ class ClinicalValidator(Validator):
                     if not self.relaxed_mode:
                         raise RuntimeError('Unknown clinical header line name')
 
-                attr_defs[col_index][LINE_NAMES[line_index]] = value
+                attr_defs[col_index][self.METADATA_LINES[line_index]] = value
 
         self.attr_defs = attr_defs
         return not invalid_values
@@ -1566,7 +1566,7 @@ class ClinicalValidator(Validator):
                                 extra={'line_number': self.line_number,
                                        'column_number': col_index + 1,
                                        'cause': col_name})
-                    else:
+                    elif not self.relaxed_mode:
                         value = self.attr_defs[col_index][attr_property]
                         expected_value = \
                             self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
@@ -1576,7 +1576,13 @@ class ClinicalValidator(Validator):
                                 "%s definition for attribute '%s' must be %s",
                                 attr_property,
                                 col_name,
-                                expected_value)
+                                expected_value,
+                                extra={'line_number':
+                                                self.METADATA_LINES.index(
+                                                    attr_property) + 1,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
+
             self.defined_attributes.add(col_name)
         return num_errors
 

@@ -97,7 +97,7 @@ class DataFileTestCase(LogBufferTestCase):
 
 class PostClinicalDataFileTestCase(DataFileTestCase):
 
-    """Superclass for validating data files to be read after clinical files.
+    """Superclass for validating data files to be read after sample attr files.
 
     I.e. DEFINED_SAMPLE_IDS will be initialised with a list of sample
     identifiers defined in the study.
@@ -170,7 +170,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
     """Tests for validations of the column definitions in a clinical file."""
 
     def test_correct_definitions(self):
-        """Test when all record definitions match with portal."""
+        """Test when all record definitions match with expectations."""
         record_list = self.validate('data_clin_coldefs_correct.txt',
                                     validateData.PatientClinicalValidator)
         # expecting only status messages about the file being validated
@@ -178,34 +178,8 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
-    def test_wrong_definitions(self):
-        """Test when record definitions do not match with portal."""
-        # TODO make a test file with a wrong data type,
-        # to make sure values are checked accordingly
-        self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_clin_coldefs_wrong_display_name.txt',
-                                    validateData.PatientClinicalValidator)
-        # expecting a warning
-        self.assertEqual(len(record_list), 1)
-        record = record_list.pop()
-        # warning about the display name of OS_MONTHS
-        self.assertEqual(record.levelno, logging.WARNING)
-        self.assertEqual(record.column_number, 2)
-        self.assertIn('display_name', record.getMessage().lower())
-        self.assertIn('portal', record.getMessage().lower())
-
-    def test_unknown_attribute(self):
-        """Test when a new attribute is defined in the data file."""
-        record_list = self.validate('data_clin_coldefs_unknown_attribute.txt',
-                                    validateData.PatientClinicalValidator)
-        # expecting 'validating file' messages with one warning in between
-        self.assertEqual(len(record_list), 4)
-        self.assertEqual(record_list[1].levelno, logging.WARNING)
-        self.assertEqual(record_list[1].column_number, 6)
-        self.assertIn('will be added', record_list[1].getMessage().lower())
-
     def test_invalid_definitions(self):
-        """Test when new attributes are defined with invalid properties."""
+        """Test when attributes are defined with unparseable properties."""
         record_list = self.validate('data_clin_coldefs_invalid_priority.txt',
                                     validateData.PatientClinicalValidator)
         # expecting an info message followed by the error, and another error as
@@ -217,7 +191,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].column_number, 6)
 
     def test_hardcoded_attributes(self):
-        """Test if some attrs have requirements irrespective of the portal."""
+        """Test if some attrs have requirements on the data type or level."""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',
                                     validateData.PatientClinicalValidator)
@@ -1298,26 +1272,27 @@ class StableIdValidationTestCase(LogBufferTestCase):
 
 
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
-    
+
     """Superclass for validating headerless clinical data."""
-    
+
     def test_headerless_clinical_sample(self):
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clinical_sam_no_hdr.txt', 
                                     validateData.SampleClinicalValidator, None, True)
-        # we expect 3 errors or warnings for 2 new sample-level attributes in data
-        # and 1 for not being able to parse the header in the clinical file
-        self.assertEqual(len(record_list), 3)
-    
+        # we expect 1 error for not being able to parse the header
+        self.assertEqual(len(record_list), 1)
+
     def test_headerless_clinical_patient(self):
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clinical_pat_no_hdr.txt', 
                                     validateData.PatientClinicalValidator, None, True)
-        # we expect 8 errors or warnings: 2 for new patient-level attributes,
-        # 1 for the sample attribute CANCER_TYPE in a patient-level file, 2
-        # for missing survival status attributes, 4 for patients with no samples
-        # and 1 for not being able to parse the header in the clinical file
-        self.assertEqual(len(record_list), 10)
+        # we expect 9 errors or warnings:
+        # 1 for not being able to parse the header in the clinical file,
+        # 1 for the sample attribute CANCER_TYPE in a patient-level file,
+        # 1 for CANCER_TYPE being in DEFINED_SAMPLE_ATTRIBUTES
+        # 2 for missing survival status attributes and
+        # 4 for patients with no samples
+        self.assertEqual(len(record_list), 9)
 
 
 class DataFileIOTestCase(PostClinicalDataFileTestCase):

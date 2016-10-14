@@ -236,11 +236,9 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, cancer_type_dict, clinical_attribute_dict,
-                 hugo_entrez_map, alias_entrez_map):
+    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map):
         """Represent a portal instance with the given dictionaries."""
         self.cancer_type_dict = cancer_type_dict
-        self.clinical_attribute_dict = clinical_attribute_dict
         self.hugo_entrez_map = hugo_entrez_map
         self.alias_entrez_map = alias_entrez_map
         self.entrez_set = set()
@@ -2806,30 +2804,6 @@ def transform_symbol_entrez_map(json_data,
     return result_dict
 
 
-def merge_clinical_attributes(patient_attr_dict, sample_attr_dict):
-    """Merge two dicts, raising an exception if the keys overlap.
-
-    >>> merge_clinical_attributes({"SEX":
-    ...                                {"is_patient_attribute": 1},
-    ...                            "AGE":
-    ...                                {"is_patient_attribute": 1}},
-    ...                           {"GLEASON_SCORE":
-    ...                                {"is_patient_attribute": 0}})
-    {'AGE': {'is_patient_attribute': 1}, 'GLEASON_SCORE': {'is_patient_attribute': 0}, 'SEX': {'is_patient_attribute': 1}}
-    """
-    # if this happens, the database structure has changed and this script
-    # needs to be updated
-    id_overlap = patient_attr_dict.viewkeys() & sample_attr_dict.viewkeys()
-    if id_overlap:
-        raise ValueError(
-            'Portal data listed these clinical attributes '
-            'both for samples and for patients: {}'.format(
-                ', '.join(id_overlap)))
-    # merge the sample attributes into the first dict
-    patient_attr_dict.update(sample_attr_dict)
-    return patient_attr_dict
-
-
 def load_portal_info(path, logger, offline=False):
     """Create a PortalInstance object based on a server API or offline dir.
 
@@ -2841,10 +2815,6 @@ def load_portal_info(path, logger, offline=False):
     for api_name, transform_function in (
             ('cancertypes',
                 lambda json_data: index_api_data(json_data, 'id')),
-            ('clinicalattributes/patients',
-                lambda json_data: index_api_data(json_data, 'attr_id')),
-            ('clinicalattributes/samples',
-                lambda json_data: index_api_data(json_data, 'attr_id')),
             ('genes',
                 lambda json_data: transform_symbol_entrez_map(
                                         json_data, 'hugo_gene_symbol')),
@@ -2861,15 +2831,7 @@ def load_portal_info(path, logger, offline=False):
     if all(d is None for d in portal_dict.values()):
         raise IOError('No portal information found at {}'.format(
                           path))
-    # merge clinical attributes into a single dictionary
-    clinical_attr_dict = None
-    if (portal_dict['clinicalattributes/patients'] is not None and
-            portal_dict['clinicalattributes/samples'] is not None):
-        clinical_attr_dict = merge_clinical_attributes(
-            portal_dict['clinicalattributes/patients'],
-            portal_dict['clinicalattributes/samples'])
     return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
-                          clinical_attribute_dict=clinical_attr_dict,
                           hugo_entrez_map=portal_dict['genes'],
                           alias_entrez_map=portal_dict['genesaliases'])
 
@@ -2929,9 +2891,6 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
 
     if portal_instance.cancer_type_dict is None:
         logger.warning('Skipping validations relating to cancer types '
-                       'defined in the portal')
-    if portal_instance.clinical_attribute_dict is None:
-        logger.warning('Skipping validations relating to clinical attributes '
                        'defined in the portal')
     if (portal_instance.hugo_entrez_map is None or
             portal_instance.alias_entrez_map is None):
@@ -3123,7 +3082,6 @@ def main_validate(args):
     # load portal-specific information
     if args.no_portal_checks:
         portal_instance = PortalInstance(cancer_type_dict=None,
-                                         clinical_attribute_dict=None,
                                          hugo_entrez_map=None,
                                          alias_entrez_map=None)
     elif args.portal_info_dir:

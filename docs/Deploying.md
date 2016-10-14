@@ -54,7 +54,8 @@ or, if you are following the [recommended Ubuntu instructions](https://www.digit
 
 After the tomcat server has been started, to deploy the WAR file, run the following command:
 
-    cp portal/target/cbioportal.war $CATALINA_HOME/webapps/
+    sudo cp portal/target/cbioportal-*-SNAPSHOT.war $CATALINA_HOME/webapps/cbioportal.war
+    
 
 After doing this, you can look in the tomcat log file (`$CATALINA_HOME/logs/catalina.out`) to see if the portal has been proper deployed.  You should see something like:
 

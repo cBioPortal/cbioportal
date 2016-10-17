@@ -6,15 +6,12 @@
 
     <sql id="selectSample">
         clinical_sample.INTERNAL_ID AS "${prefix}internalId",
+        sample.STABLE_ID AS "${prefix}stableId",
         clinical_sample.ATTR_ID AS "${prefix}attrId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , clinical_sample.ATTR_VALUE AS "${prefix}attrValue"
         </if>
         <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.persistence.mybatis.SampleMapper.select">
-                <property name="prefix" value="${prefix}sample."/>
-            </include>
             ,
             <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
                 <property name="prefix" value="${prefix}clinicalAttribute."/>
@@ -24,15 +21,12 @@
 
     <sql id="selectPatient">
         clinical_patient.INTERNAL_ID AS "${prefix}internalId",
+        patient.STABLE_ID AS "${prefix}stableId",
         clinical_patient.ATTR_ID AS "${prefix}attrId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , clinical_patient.ATTR_VALUE AS "${prefix}attrValue"
         </if>
         <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.persistence.mybatis.PatientMapper.select">
-                <property name="prefix" value="${prefix}patient."/>
-            </include>
             ,
             <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
                 <property name="prefix" value="${prefix}clinicalAttribute."/>

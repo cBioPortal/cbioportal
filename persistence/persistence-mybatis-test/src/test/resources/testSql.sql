@@ -350,10 +350,10 @@ INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORD
   VALUES ('acc','Adrenocortical Carcinoma','adrenocortical carcinoma','Purple','ACC','adrenal_gland');
 
 
-INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS")
-  VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC');
-INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS")
-  VALUES (2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','ACC (TCGA)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC');
+INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS", "STATUS", "IMPORT_DATE")
+  VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC', 0, '2011-12-18 13:17:17+00:00');
+INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS", "STATUS", "IMPORT_DATE")
+  VALUES (2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','ACC (TCGA)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC', 0, '2013-10-12 11:11:15+00:00');
 
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (207,'AKT1','protein-coding','14q32.32',10838);
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (208,'AKT2','protein-coding','19q13.1-q13.2',15035);

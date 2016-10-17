@@ -22,6 +22,18 @@ public class ClinicalDataMyBatisRepositoryTest {
     private ClinicalDataMyBatisRepository clinicalDataMyBatisRepository;
 
     @Test
+    public void getAllClinicalDataOfSampleInStudyEmptyResult() throws Exception {
+
+        List<String> studyIds = new ArrayList<>();
+        studyIds.add("invalid_study");
+        List<SampleClinicalData> result =
+                clinicalDataMyBatisRepository.getAllClinicalDataOfSampleInStudy(studyIds, null, null, "ID", null, null,
+                        null, null);
+
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
     public void getAllClinicalDataOfSampleInStudySingleStudyNullSampleNullAttributeIdProjection() throws Exception {
 
         List<String> studyIds = new ArrayList<>();
@@ -37,18 +49,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertNull(data.getClinicalAttribute());
         Assert.assertNull(data.getSample());
         Assert.assertNull(data.getAttrValue());
-    }
-
-    @Test
-    public void getAllClinicalDataOfSampleInStudyEmptyResult() throws Exception {
-
-        List<String> studyIds = new ArrayList<>();
-        studyIds.add("invalid_study");
-        List<SampleClinicalData> result =
-                clinicalDataMyBatisRepository.getAllClinicalDataOfSampleInStudy(studyIds, null, null, "ID", null, null,
-                        null, null);
-
-        Assert.assertEquals(0, result.size());
     }
 
     @Test
@@ -85,34 +85,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals("OTHER_SAMPLE_ID", data.getAttrId());
         Assert.assertEquals("5C631CE8-F96A-4C35-A459-556FC4AB21E1", data.getAttrValue());
         Assert.assertEquals((Integer) 1, data.getInternalId());
-        Sample sample = data.getSample();
-        Assert.assertEquals((Integer) 1, sample.getInternalId());
-        Assert.assertEquals((Integer) 1, sample.getPatientId());
-        Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample.getSampleType());
-        Assert.assertEquals("TCGA-A1-A0SB-01", sample.getStableId());
-        Assert.assertEquals("brca", sample.getTypeOfCancerId());
-        Patient patient = sample.getPatient();
-        Assert.assertEquals((Integer) 1, patient.getInternalId());
-        Assert.assertEquals("TCGA-A1-A0SB", patient.getStableId());
-        Assert.assertEquals((Integer) 1, patient.getCancerStudyId());
-        CancerStudy cancerStudy = patient.getCancerStudy();
-        Assert.assertEquals((Integer) 1, cancerStudy.getCancerStudyId());
-        Assert.assertEquals("study_tcga_pub", cancerStudy.getCancerStudyIdentifier());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
-        Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast " +
-                "Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci.nih." +
-                "gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
-        Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
-        Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        TypeOfCancer typeOfCancer = cancerStudy.getTypeOfCancer();
-        Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
-        Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
-        Assert.assertEquals("breast,breast invasive", typeOfCancer.getClinicalTrialKeywords());
-        Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
-        Assert.assertEquals("Breast", typeOfCancer.getShortName());
-        Assert.assertEquals("tissue", typeOfCancer.getParent());
         ClinicalAttribute clinicalAttribute = data.getClinicalAttribute();
         Assert.assertEquals("OTHER_SAMPLE_ID", clinicalAttribute.getAttrId());
         Assert.assertEquals("Legacy DMP sample identifier (DMPnnnn)", clinicalAttribute.getDescription());
@@ -120,25 +92,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals("Other Sample ID", clinicalAttribute.getDisplayName());
         Assert.assertEquals(false, clinicalAttribute.getPatientAttribute());
         Assert.assertEquals("1", clinicalAttribute.getPriority());
-        cancerStudy = clinicalAttribute.getCancerStudy();
-        Assert.assertEquals((Integer) 1, cancerStudy.getCancerStudyId());
-        Assert.assertEquals("study_tcga_pub", cancerStudy.getCancerStudyIdentifier());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
-        Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast " +
-                "Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci.nih." +
-                "gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
-        Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
-        Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        typeOfCancer = cancerStudy.getTypeOfCancer();
-        Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
-        Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
-        Assert.assertEquals("breast,breast invasive", typeOfCancer.getClinicalTrialKeywords());
-        Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
-        Assert.assertEquals("Breast", typeOfCancer.getShortName());
-        Assert.assertEquals("tissue", typeOfCancer.getParent());
-
     }
 
     @Test
@@ -250,6 +203,14 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals("OTHER_SAMPLE_ID", result.get(2).getAttrId());
     }
 
+    @Test
+    public void getMetaSampleClinicalDataZeroCount() throws Exception {
+
+        List<String> studyIds = new ArrayList<>();
+        studyIds.add("invalid_study");
+        BaseMeta result = clinicalDataMyBatisRepository.getMetaSampleClinicalData(studyIds, null, null);
+        Assert.assertEquals((Integer) 0, result.getTotalCount());
+    }
 
     @Test
     public void getMetaSampleClinicalDataSingleStudyNullSampleNullAttribute() throws Exception {
@@ -258,15 +219,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         studyIds.add("study_tcga_pub");
         BaseMeta result = clinicalDataMyBatisRepository.getMetaSampleClinicalData(studyIds, null, null);
         Assert.assertEquals((Integer) 6, result.getTotalCount());
-    }
-
-    @Test
-    public void getMetaSampleClinicalDataZeroCount() throws Exception {
-
-        List<String> studyIds = new ArrayList<>();
-        studyIds.add("invalid_study");
-        BaseMeta result = clinicalDataMyBatisRepository.getMetaSampleClinicalData(studyIds, null, null);
-        Assert.assertEquals((Integer) 0, result.getTotalCount());
     }
 
     @Test
@@ -308,6 +260,18 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
 
     @Test
+    public void getAllClinicalDataOfPatientInStudyEmptyResult() throws Exception {
+
+        List<String> studyIds = new ArrayList<>();
+        studyIds.add("invalid_study");
+        List<PatientClinicalData> result =
+                clinicalDataMyBatisRepository.getAllClinicalDataOfPatientInStudy(studyIds, null, null, "ID", null, null,
+                        null, null);
+
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
     public void getAllClinicalDataOfPatientInStudySingleStudyNullPatientNullAttributeIdProjection() throws Exception {
 
         List<String> studyIds = new ArrayList<>();
@@ -323,18 +287,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertNull(data.getClinicalAttribute());
         Assert.assertNull(data.getPatient());
         Assert.assertNull(data.getAttrValue());
-    }
-
-    @Test
-    public void getAllClinicalDataOfPatientInStudyEmptyResult() throws Exception {
-
-        List<String> studyIds = new ArrayList<>();
-        studyIds.add("invalid_study");
-        List<PatientClinicalData> result =
-                clinicalDataMyBatisRepository.getAllClinicalDataOfPatientInStudy(studyIds, null, null, "ID", null, null,
-                        null, null);
-
-        Assert.assertEquals(0, result.size());
     }
 
     @Test
@@ -371,28 +323,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals("RETROSPECTIVE_COLLECTION", data.getAttrId());
         Assert.assertEquals("NO", data.getAttrValue());
         Assert.assertEquals((Integer) 1, data.getInternalId());
-        Patient patient = data.getPatient();
-        Assert.assertEquals((Integer) 1, patient.getInternalId());
-        Assert.assertEquals("TCGA-A1-A0SB", patient.getStableId());
-        Assert.assertEquals((Integer) 1, patient.getCancerStudyId());
-        CancerStudy cancerStudy = patient.getCancerStudy();
-        Assert.assertEquals((Integer) 1, cancerStudy.getCancerStudyId());
-        Assert.assertEquals("study_tcga_pub", cancerStudy.getCancerStudyIdentifier());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
-        Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast " +
-                "Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci.nih." +
-                "gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
-        Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
-        Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        TypeOfCancer typeOfCancer = cancerStudy.getTypeOfCancer();
-        Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
-        Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
-        Assert.assertEquals("breast,breast invasive", typeOfCancer.getClinicalTrialKeywords());
-        Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
-        Assert.assertEquals("Breast", typeOfCancer.getShortName());
-        Assert.assertEquals("tissue", typeOfCancer.getParent());
         ClinicalAttribute clinicalAttribute = data.getClinicalAttribute();
         Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttribute.getAttrId());
         Assert.assertEquals("Text indicator for the time frame of tissue procurement, indicating that the tissue was " +
@@ -401,25 +331,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals("Tissue Retrospective Collection Indicator", clinicalAttribute.getDisplayName());
         Assert.assertEquals(true, clinicalAttribute.getPatientAttribute());
         Assert.assertEquals("1", clinicalAttribute.getPriority());
-        cancerStudy = clinicalAttribute.getCancerStudy();
-        Assert.assertEquals((Integer) 1, cancerStudy.getCancerStudyId());
-        Assert.assertEquals("study_tcga_pub", cancerStudy.getCancerStudyIdentifier());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
-        Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast " +
-                "Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci.nih." +
-                "gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
-        Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
-        Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        typeOfCancer = cancerStudy.getTypeOfCancer();
-        Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
-        Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
-        Assert.assertEquals("breast,breast invasive", typeOfCancer.getClinicalTrialKeywords());
-        Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
-        Assert.assertEquals("Breast", typeOfCancer.getShortName());
-        Assert.assertEquals("tissue", typeOfCancer.getParent());
-
     }
 
     @Test
@@ -532,15 +443,6 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
 
     @Test
-    public void getMetaPatientClinicalDataSingleStudyNullPatientNullAttribute() throws Exception {
-
-        List<String> studyIds = new ArrayList<>();
-        studyIds.add("study_tcga_pub");
-        BaseMeta result = clinicalDataMyBatisRepository.getMetaPatientClinicalData(studyIds, null, null);
-        Assert.assertEquals((Integer) 4, result.getTotalCount());
-    }
-
-    @Test
     public void getMetaPatientClinicalDataZeroCount() throws Exception {
 
         List<String> studyIds = new ArrayList<>();
@@ -550,7 +452,16 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
 
     @Test
-    public void getMetaPatientClinicalDataSingleStudySingleStudyeNullAttribute() throws Exception {
+    public void getMetaPatientClinicalDataSingleStudyNullPatientNullAttribute() throws Exception {
+
+        List<String> studyIds = new ArrayList<>();
+        studyIds.add("study_tcga_pub");
+        BaseMeta result = clinicalDataMyBatisRepository.getMetaPatientClinicalData(studyIds, null, null);
+        Assert.assertEquals((Integer) 4, result.getTotalCount());
+    }
+
+    @Test
+    public void getMetaPatientClinicalDataSingleStudySinglePatientNullAttribute() throws Exception {
 
         List<String> studyIds = new ArrayList<>();
         studyIds.add("study_tcga_pub");

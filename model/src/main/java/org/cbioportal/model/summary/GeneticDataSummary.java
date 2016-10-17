@@ -5,8 +5,10 @@ import java.io.Serializable;
 public abstract class GeneticDataSummary implements Serializable {
 
     private Integer geneticProfileId;
+    private String geneticProfileStableId;
     private Integer entrezGeneId;
     private Integer sampleId;
+    private String sampleStableId;
     private String value;
 
     public Integer getGeneticProfileId() {
@@ -15,6 +17,14 @@ public abstract class GeneticDataSummary implements Serializable {
 
     public void setGeneticProfileId(Integer geneticProfileId) {
         this.geneticProfileId = geneticProfileId;
+    }
+
+    public String getGeneticProfileStableId() {
+        return geneticProfileStableId;
+    }
+
+    public void setGeneticProfileStableId(String geneticProfileStableId) {
+        this.geneticProfileStableId = geneticProfileStableId;
     }
 
     public Integer getEntrezGeneId() {
@@ -31,6 +41,14 @@ public abstract class GeneticDataSummary implements Serializable {
 
     public void setSampleId(Integer sampleId) {
         this.sampleId = sampleId;
+    }
+
+    public String getSampleStableId() {
+        return sampleStableId;
+    }
+
+    public void setSampleStableId(String sampleStableId) {
+        this.sampleStableId = sampleStableId;
     }
 
     public String getValue() {

@@ -231,7 +231,6 @@ if (cancerStudyViewError!=null) {
 </style>
 
 <script src="js/src/dashboard/iviz-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script src="js/src/dashboard/cbio-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/dashboard/vc-session.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/dashboard/model/dataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/api/cbioportal-client.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -261,7 +260,8 @@ if (cancerStudyViewError!=null) {
 <script src="js/src/dashboard/view/StudyViewInitMutationsTab.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/dashboard/view/StudyViewInitCNATab.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/dashboard/iviz.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/cbio-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/cbio-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/download-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
 
@@ -270,11 +270,26 @@ $('#study-tab-summary-a').click(function () {
         $("#study-tabs-loading-wait").css('display', 'none');
         if(_.isUndefined(window.iviz.datamanager)) {
             window.iviz.datamanager = new DataManagerForIviz.init(window.cbioURL, studyCasesMap);
-            $.when(window.iviz.datamanager.initialSetup()).then(function(_data){
-                initdcplots(_data);
+            $.when(
+                window.iviz.datamanager.initialSetup(),
+                window.iviz.datamanager.getStyleVars()
+            ).then(function(_data, styles) {
+                var opts = {};
+
+                if(_.isObject(styles)) {
+                    opts.styles = styles;
+                }
+                initdcplots(_data, opts);
             });
         }else {
-            initdcplots(window.iviz.datamanager.initialSetupResult);
+            $.when(window.iviz.datamanager.getStyleVars()).then(function(styles){
+                var opts = {};
+
+                if(_.isObject(styles)) {
+                    opts.styles = styles;
+                }
+                initdcplots(window.iviz.datamanager.initialSetupResult, opts);
+            });
         }
         $('#study-tab-summary-a').addClass("tab-clicked");
     }
@@ -338,89 +353,16 @@ $(document).ready(function () {
         hasMutSig: hasMutSig
     };
     StudyViewProxy.ivizLoad();
-
-    //Include style variables
-    window.style = {
-        vars: {}
-    };
     
     iViz.vue.manage.init();
 
     // This is used to indicate how to disable two buttons. By default, they are set to true.
     iViz.vue.manage.getInstance().showManageButton = false;
     iViz.vue.manage.getInstance().showSaveButton = false;
-
-    $.getJSON('js/src/dashboard/resources/vars.json')
-        .then(function(data) {
-            window.style.vars.width = {
-                one: iViz.util.pxStringToNumber(data['grid-w-1']) || 195,
-                two: iViz.util.pxStringToNumber(data['grid-w-2']) || 400
-            };
-            window.style.vars.height = {
-                one: iViz.util.pxStringToNumber(data['grid-h-1']) || 170,
-                two: iViz.util.pxStringToNumber(data['grid-h-2']) || 350
-            };
-            window.style.vars.chartHeader = 17;
-            window.style.vars.borderWidth = 2;
-            window.style.vars.scatter = {
-                width: (window.style.vars.width.two - window.style.vars.borderWidth) || 400,
-                height: (window.style.vars.height.two - window.style.vars.chartHeader
-                - window.style.vars.borderWidth) || 350
-            };
-            window.style.vars.survival = {
-                width: window.style.vars.scatter.width,
-                height: window.style.vars.scatter.height
-            };
-            window.style.vars.specialTables = {
-                width: window.style.vars.scatter.width,
-                height: window.style.vars.scatter.height - 25
-            };
-            window.style.vars.piechart = {
-                width: 140,
-                height: 140
-            };
-            window.style.vars.barchart = {
-                width: (window.style.vars.width.two - window.style.vars.borderWidth) || 400,
-                height: (window.style.vars.height.one - window.style.vars.chartHeader * 2
-                - window.style.vars.borderWidth) || 130
-            };
-        })
-        .fail(function() {
-            window.style.vars = {
-                width: {
-                    one: 195,
-                    two: 400
-                },
-                height: {
-                    one: 170,
-                    two: 350
-                },
-                chartHeader: 15,
-                borderWidth: 2,
-                scatter: {
-                    width: 400,
-                    height: 350
-                },
-                survival: {
-                    width: 400,
-                    height: 350
-                },
-                specialTables: {
-                    width: 400,
-                    height:350
-                },
-                piechart: {
-                    width: 180,
-                    height: 140
-                },
-                barchart: {
-                    width: 400,
-                    height: 30
-                }
-            }
-        });
+    
     //this is for testing, once done this should be commented/deleted
     window.cbioURL = '';
+    window.cbioResourceURL = 'js/src/dashboard/resources/';
     //commented for thesing
     //window.cbioURL = window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2));
     window.mutationProfileId = window.mutationProfileId;

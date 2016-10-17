@@ -68,8 +68,6 @@ DROP TABLE IF EXISTS `interaction`;
 DROP TABLE IF EXISTS `clinical_attribute_meta`;
 DROP TABLE IF EXISTS `clinical_sample`;
 DROP TABLE IF EXISTS `clinical_patient`;
-DROP TABLE IF EXISTS `entity_attribute`;
-DROP TABLE IF EXISTS `attribute_metadata`;
 DROP TABLE IF EXISTS `mutation_count`;
 DROP TABLE IF EXISTS `mutation`;
 DROP TABLE IF EXISTS `mutation_event`;
@@ -89,8 +87,6 @@ DROP TABLE IF EXISTS `sample`;
 DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `authorities`;
 DROP TABLE IF EXISTS `users`;
-DROP TABLE IF EXISTS `entity_link`;
-DROP TABLE IF EXISTS `entity`;
 DROP TABLE IF EXISTS `cancer_study`;
 DROP TABLE IF EXISTS `type_of_cancer`;
 
@@ -122,24 +118,6 @@ CREATE TABLE `cancer_study` (
   PRIMARY KEY (`CANCER_STUDY_ID`),
   UNIQUE (`CANCER_STUDY_IDENTIFIER`),
   FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `entity` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
-  `STABLE_ID` varchar(50) NOT NULL,
-  `ENTITY_TYPE` varchar(50) NOT NULL COMMENT 'STUDY, PATIENT, or SAMPLE',
-  PRIMARY KEY (`INTERNAL_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `entity_link` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
-  `PARENT_ID` int(11) NOT NULL,
-  `CHILD_ID` int(11) NOT NULL,
-  PRIMARY KEY (`INTERNAL_ID`),
-  FOREIGN KEY (`PARENT_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`CHILD_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
@@ -416,26 +394,6 @@ CREATE TABLE `mutation_count` (
   KEY (`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `attribute_metadata` (
-  `ATTR_ID` varchar(255) NOT NULL,
-  `DISPLAY_NAME` varchar(255) NOT NULL,
-  `DESCRIPTION` varchar(2048) NOT NULL,
-  `DATATYPE` varchar(255) NOT NULL COMMENT 'NUMBER, BOOLEAN, or STRING',
-  `TYPE` varchar(255) NOT NULL,
-  PRIMARY KEY (`ATTR_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `entity_attribute` (
-  `ENTITY_ID` int(11) NOT NULL,
-  `ATTR_ID` varchar(255) NOT NULL,
-  `ATTR_VALUE` varchar(255) NOT NULL,
-  PRIMARY KEY (`ENTITY_ID`, `ATTR_ID`),
-  FOREIGN KEY (`ENTITY_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`ATTR_ID`) REFERENCES `attribute_metadata` (`ATTR_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------

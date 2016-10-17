@@ -59,8 +59,6 @@ DELETE FROM protein_array_info;
 DELETE FROM mut_sig;
 DELETE FROM interaction;
 DELETE FROM clinical_attribute_meta;
-DELETE FROM entity_attribute;
-DELETE FROM attribute_metadata;
 DELETE FROM mutation_count;
 DELETE FROM mutation;
 DELETE FROM mutation_event;
@@ -81,8 +79,6 @@ DELETE FROM clinical_patient;
 DELETE FROM patient;
 DELETE FROM authorities;
 DELETE FROM users;
-DELETE FROM entity_link;
-DELETE FROM entity;
 DELETE FROM cancer_study;
 DELETE FROM type_of_cancer;
 

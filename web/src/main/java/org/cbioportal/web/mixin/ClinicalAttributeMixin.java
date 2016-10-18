@@ -1,11 +1,9 @@
 package org.cbioportal.web.mixin;
 
-public class ClinicalAttributeMixin {
+import org.cbioportal.model.CancerStudy;
+import org.cbioportal.web.mixin.summary.ClinicalAttributeSummaryMixin;
 
-    private String attrId;
-    private String displayName;
-    private String description;
-    private String datatype;
-    private Boolean patientAttribute;
-    private String priority;
+public class ClinicalAttributeMixin extends ClinicalAttributeSummaryMixin {
+
+    private CancerStudy cancerStudy;
 }

@@ -12,7 +12,7 @@ import org.mskcc.cbio.portal.model.DBGeneticProfile;
  *
  * @author abeshoua
  */
-public interface GeneticProfileMapper {
+public interface GeneticProfileMapperLegacy {
     List<DBGeneticProfile> getGeneticProfiles(@Param("genetic_profile_ids") List<String> genetic_profile_ids);
     List<DBGeneticProfile> getGeneticProfilesByStudy(@Param("study_id") String study_id);
     List<DBGeneticProfile> getAllGeneticProfiles();

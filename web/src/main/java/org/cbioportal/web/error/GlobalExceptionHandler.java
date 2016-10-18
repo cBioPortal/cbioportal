@@ -1,8 +1,6 @@
 package org.cbioportal.web.error;
 
-import org.cbioportal.service.exception.PatientNotFoundException;
-import org.cbioportal.service.exception.SampleNotFoundException;
-import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.exception.*;
 import org.cbioportal.web.exception.*;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.springframework.beans.TypeMismatchException;
@@ -34,6 +32,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handlePatientNotFound(PatientNotFoundException ex) {
 
         return new ResponseEntity<>(new ErrorResponse("Patient not found: " + ex.getPatientId()),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CancerTypeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCancerTypeNotFound(CancerTypeNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Cancer type not found: " + ex.getCancerTypeId()),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GeneticProfileNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGeneticProfileNotFound(GeneticProfileNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Genetic profile not found: " + ex.getGeneticProfileId()),
                 HttpStatus.NOT_FOUND);
     }
 

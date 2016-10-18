@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface StudyService {
 
-    List<CancerStudy> getAllStudies(String projection, Integer pageSize, Integer pageNumber,
-                                    String sortBy, String direction);
+    List<CancerStudy> getAllStudies(String projection, Integer pageSize, Integer pageNumber, String sortBy,
+                                    String direction);
 
     BaseMeta getMetaStudies();
 

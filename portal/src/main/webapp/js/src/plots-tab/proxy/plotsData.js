@@ -95,7 +95,7 @@ var plotsData = (function() {
                     });
                     // calculate zscores
                     var _zscores = cbio.stat.zscore(_diploidSampleMrna, _inputMrnaArr);
-                    console.log(_.map(_.sortBy(_zscores, function(num) { return -num; }), function(_val) { return _val.toFixed(4); }));
+                    //console.log(_.map(_.sortBy(_zscores, function(num) { return -num; }), function(_val) { return _val.toFixed(4); }));
                 }); 
                 
             } else if ($("#" + ids.sidebar[axis].profile_name).val() === _zscoreMrnaProfileName) {
@@ -112,7 +112,7 @@ var plotsData = (function() {
                         var _obj = _result[$("#" + ids.sidebar[axis].gene).val()][key];
                         _tmp[key] = _obj[$("#" + ids.sidebar[axis].profile_name).val()];
                     }
-                    console.log(_.sortBy(_.filter(_.values(_tmp), function(_val) { return !isNaN(_val); }), function(num) { return -num; })); 
+                    //console.log(_.sortBy(_.filter(_.values(_tmp), function(_val) { return !isNaN(_val); }), function(num) { return -num; })); 
                 }, "json");
             }
             /////// CLOSE TEST for dynamic zscore calculation

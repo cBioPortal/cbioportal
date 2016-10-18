@@ -30,54 +30,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 package org.cbioportal.model;
+import java.util.List;
 
 /**
  *
  * @author heinsz
  */
+public class GenePanelWithSamples extends GenePanel {
+    private List<String> samples;
 
-import java.io.Serializable;
-import java.util.List;
-
-public class GenePanel  implements Serializable{
-    
-    private Integer internalId;
-    private String stableId;
-    private String description;
-    private List<Gene> genes;
-    
-    public GenePanel() {}
-    
-    public Integer getInternalId() {
-        return internalId;
+    public List<String> getSamples() {
+        return samples;
     }
-    
-    public void setInternalId(Integer internalId) {
-        this.internalId = internalId;
+    public void setSamples(List<String> samples) {
+        this.samples = samples;
     }
-    
-    public String getStableId() {
-        return stableId;
-    }
-    
-    public void setStableId(String stableId) {
-        this.stableId = stableId;
-    }
-    
-    public String getDescription() {
-        return description;
-    }
-    
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    public List<Gene> getGenes() {
-        return genes;
-    }
-    
-    public void setGenes(List<Gene> genes) {
-        this.genes = genes;
-    }
-    
 }

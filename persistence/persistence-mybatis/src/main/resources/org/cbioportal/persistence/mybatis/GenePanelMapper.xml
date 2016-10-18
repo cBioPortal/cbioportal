@@ -22,6 +22,16 @@
         <result property="description" column="description"/>
     </resultMap>
     
+    <resultMap id="genePanelSampleResultMap" type="org.cbioportal.model.GenePanelWithSamples">
+        <result property="stableId" column="stableId" />
+        <result property="description" column="description"/>
+        <collection property = "genes" ofType="org.cbioportal.model.Gene">
+            <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
+        </collection>
+        <collection property="samples" ofType="String">
+            <result property="stableId" column="sampleId"/>
+        </collection>
+    </resultMap>
 
    <resultMap id="sampleResultMap" type="org.cbioportal.model.Sample">
         <result property="internalId" column="INTERNAL_ID"/>
@@ -96,17 +106,21 @@
         </association>
     </resultMap>
 
-    <select id="getGenePanelBySampleIdAndProfileId" resultType="String">
+    <select id="getGenePanelsByProfile" resultMap="genePanelSampleResultMap">
         select
-            gene_panel.STABLE_ID as stableId
-        from sample_profile
+            gene_panel.STABLE_ID as stableId,
+            gene_panel.DESCRIPTION as description,
+            gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,
+            sample.STABLE_ID as sampleId
+        from genetic_profile
+            inner join sample_profile on genetic_profile.GENETIC_PROFILE_ID = sample_profile.GENETIC_PROFILE_ID
             inner join gene_panel on sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
             inner join sample on sample_profile.SAMPLE_ID = sample.INTERNAL_ID
-            inner join genetic_profile on sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            left join gene_panel_list on gene_panel.INTERNAL_ID = gene_panel_list.INTERNAL_ID
+            left join gene on gene_panel_list.GENE_ID = gene.ENTREZ_GENE_ID
         <where>
-            sample.STABLE_ID = #{sampleId}
-            and genetic_profile.STABLE_ID = #{profileId}
-        </where>
+            genetic_profile.STABLE_ID = #{profileId}
+        </where>        
     </select>
 
     <select id="getGenePanelByStableId" resultMap="genePanelResultMap">
@@ -132,7 +146,7 @@
             gene_panel.STABLE_ID as stableId,
             gene_panel.DESCRIPTION as description
         from gene_panel
-    </select>    
+    </select>
 
     <select id="getSampleByStableIdAndStudyId" resultMap="sampleResultMap">
         select

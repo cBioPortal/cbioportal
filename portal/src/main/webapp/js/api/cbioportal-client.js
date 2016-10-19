@@ -1,6 +1,6 @@
 window.cbioportal_client = (function() {
 	var raw_service = (function() {
-		var getApiCallPromise = function(endpt, args) {
+		var getApiCallPromise = function(endpt, args, type) {
 			var arg_strings = [];
 			for (var k in args) {
 				if (args.hasOwnProperty(k)) {
@@ -9,7 +9,7 @@ window.cbioportal_client = (function() {
 			}
 			var arg_string = arg_strings.join("&") || "?";
 			return $.ajax({
-				type: "POST",
+				type: type || "POST",
 				url: endpt,
 				data: arg_string,
 				dataType: "json"
@@ -30,14 +30,15 @@ window.cbioportal_client = (function() {
 			'GeneticProfileData': { endpoint: 'api-legacy/geneticprofiledata' },
 			'Samples': { endpoint: 'api-legacy/samples' },
 			'Studies': { endpoint: 'api-legacy/studies' },
-			'MutationCounts': { endpoint: 'api-legacy/mutation_count' }
+			'MutationCounts': { endpoint: 'api-legacy/mutation_count'},
+			'GenePanels': {endpoint: 'api-legacy/genepanel', type: 'GET'}
 		};
 		var ret = {};
 		for (var fn_name in functionNameToEndpointProperties) {
 			if (functionNameToEndpointProperties.hasOwnProperty(fn_name)) {
 				ret['get'+fn_name] = (function(props) {
 					return function(args) {
-						return getApiCallPromise(props.endpoint, $.extend(true, {}, args, props.args));
+						return getApiCallPromise(props.endpoint, $.extend(true, {}, args, props.args), props.type);
 					};
 				})(functionNameToEndpointProperties[fn_name]);
 			}
@@ -451,6 +452,7 @@ window.cbioportal_client = (function() {
 		getCancerTypes: enforceRequiredArguments(makeOneIndexService('cancer_type_ids', function(d) { return d.id;}, 'getCancerTypes'), [[], ["cancer_type_ids"]]),
 		getGenes: enforceRequiredArguments(makeOneIndexService('hugo_gene_symbols', function(d) { return d.hugo_gene_symbol;}, 'getGenes'), [[],["hugo_gene_symbols"]]),
 		getStudies: enforceRequiredArguments(makeOneIndexService('study_ids', function(d) { return d.id;}, 'getStudies'), [[], ["study_ids"]]),
+		getGenePanelsByPanelId: enforceRequiredArguments(makeOneIndexService('panel_id', function(d) { return d.stableId;}, 'getGenePanels'), [["panel_id"]]),
 		getGeneticProfiles: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'genetic_profile_ids', function(d) {return d.id; }, true, 'getGeneticProfiles'), [["study_id"],["genetic_profile_ids"]]),
 		getSampleLists: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'sample_list_ids', function(d) {return d.id; }, true, 'getSampleLists'), [["study_id"], ["sample_list_ids"]]),
 		getSampleClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","sample_ids"]]),
@@ -470,7 +472,7 @@ window.cbioportal_client = (function() {
 			return raw_service.getClinicalAttributes(args);
 		}, [["study_id"]]),                
 		getClinicalAttributes: enforceRequiredArguments(makeOneIndexService('attr_ids', function(d) { return d.attr_id; }, 'getClinicalAttributes'), [[], ["attr_ids"], ["study_id"]]),
-		getMutationCounts: raw_service.getMutationCounts
+		getMutationCounts: raw_service.getMutationCounts,
 	};
 	return cached_service;
 })();

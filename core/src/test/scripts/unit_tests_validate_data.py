@@ -192,6 +192,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.column_number, 2)
         self.assertIn('display_name', record.getMessage().lower())
+        self.assertIn('portal', record.getMessage().lower())
 
     def test_unknown_attribute(self):
         """Test when a new attribute is defined in the data file."""
@@ -215,6 +216,24 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].line_number, 4)
         self.assertEqual(record_list[1].column_number, 6)
 
+    def test_hardcoded_attributes(self):
+        """Test if some attrs have requirements irrespective of the portal."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 2)
+        osmonths_records = []
+        other_sid_records = []
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertNotIn('portal', record.getMessage().lower())
+            if 'OS_MONTHS' in record.getMessage():
+                osmonths_records.append(record)
+            if hasattr(record, 'cause') and record.cause == 'OTHER_SAMPLE_ID':
+                other_sid_records.append(record)
+        self.assertEqual(len(osmonths_records), 1)
+        self.assertEqual(len(other_sid_records), 1)
+
 
 class ClinicalValuesTestCase(DataFileTestCase):
 
@@ -232,7 +251,7 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.assertEqual(record.column_number, 2)
 
     def test_tcga_sample_twice_in_one_file(self):
-        """Test when a sample is defined twice in the same file."""
+        """Test when a TCGA sample is defined twice in the same file."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_repeated_tcga_sample.txt',
                                     validateData.SampleClinicalValidator)
@@ -271,6 +290,43 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
                          'logrecord is about a specific line')
         self.assertEqual(record.cause, 'TEST-PAT4')
         self.assertIn('missing', record.getMessage().lower())
+
+    def test_hardcoded_attr_values(self):
+        """Test if attributes with set meanings have recognized values."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_hardcoded_attr_vals.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 5)
+        record_iterator = iter(record_list)
+        # OS_STATUS not in controlled vocabulary
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, 'ALIVE')
+        # DFS_STATUS having an OS_STATUS value
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 7)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, 'LIVING')
+        # wrong casing for OS_STATUS
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, 'living')
+        # DFS_STATUS not in controlled vocabulary (wrong casing)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 11)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, 'recurred/progressed')
+        # unspecified OS_MONTHS while OS_STATUS is DECEASED
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 13)
+        self.assertIn('DECEASED', record.getMessage())
 
 
 # TODO: make tests in this testcase check the number of properly defined types
@@ -312,6 +368,7 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.column_number, 4)
+        self.assertIn('blank', record.getMessage().lower())
 
     def test_cancer_type_undefined_parent(self):
         """Test when a new cancer type's parent cancer type is not known."""
@@ -322,6 +379,16 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.column_number, 5)
+
+    def test_cancer_type_invalid_color(self):
+        """Test error if a cancer type's color is not a web color name."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cancertype_invalid_color.txt',
+                                    validateData.CancerTypeValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.column_number, 4)
 
     def test_cancer_type_matching_portal(self):
         """Test when an existing cancer type is defined exactly as known."""
@@ -1246,10 +1313,11 @@ class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clinical_pat_no_hdr.txt', 
                                     validateData.PatientClinicalValidator, None, True)
-        # we expect 8 errors or warnings: 2 for new patient-level attributes, 2
+        # we expect 8 errors or warnings: 2 for new patient-level attributes,
+        # 1 for the sample attribute CANCER_TYPE in a patient-level file, 2
         # for missing survival status attributes, 4 for patients with no samples
         # and 1 for not being able to parse the header in the clinical file
-        self.assertEqual(len(record_list), 9)               
+        self.assertEqual(len(record_list), 10)
 
 
 class DataFileIOTestCase(PostClinicalDataFileTestCase):

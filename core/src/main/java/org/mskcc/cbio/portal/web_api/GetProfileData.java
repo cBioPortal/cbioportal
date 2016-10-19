@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,16 +32,14 @@
 
 package org.mskcc.cbio.portal.web_api;
 
+import java.io.IOException;
+import java.util.*;
+import org.json.simple.JSONArray;
+import org.mskcc.cbio.io.WebFileConnect;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.servlet.WebService;
-import org.mskcc.cbio.io.WebFileConnect;
-
-import org.json.simple.JSONArray;
-
-import java.util.*;
-import java.io.IOException;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Web Service to Get Profile Data.
@@ -195,7 +193,7 @@ public class GetProfileData {
             //  Output DATA_TYPE and COLOR_GRADIENT_SETTINGS (Used by Mondrian Cytoscape PlugIn)
             if (!suppressMondrianHeader) {
                 buf.append("# DATA_TYPE\t ").append(geneticProfile.getProfileName()).append ("\n");
-                buf.append("# COLOR_GRADIENT_SETTINGS\t ").append(geneticProfile.getGeneticAlterationType())
+                buf.append("# COLOR_GRADIENT_SETTINGS\t ").append(geneticProfile.getGeneticAlterationType().name())
                         .append ("\n");
             }
 
@@ -242,7 +240,7 @@ public class GetProfileData {
                 
                 if (geneList.size() > 0) {
                     Gene gene = geneList.get(0);
-                    buf.append(gp1.getStableId()).append(WebApiUtil.TAB).append(gp1.getGeneticAlterationType())
+                    buf.append(gp1.getStableId()).append(WebApiUtil.TAB).append(gp1.getGeneticAlterationType().name())
                             .append (WebApiUtil.TAB);   
                     dataRow1 = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
                             internalSampleIds, gp1);
@@ -255,7 +253,7 @@ public class GetProfileData {
                 
                 if (geneList.size() > 0) {
                     Gene gene = geneList.get(0);
-                    buf.append(gp2.getStableId()).append(WebApiUtil.TAB).append(gp2.getGeneticAlterationType())
+                    buf.append(gp2.getStableId()).append(WebApiUtil.TAB).append(gp2.getGeneticAlterationType().name())
                             .append (WebApiUtil.TAB);   
                     List<String> dataRow = GeneticAlterationUtil.getBestCorrelatedProteinArrayDataRow(
                             gp2.getCancerStudyId(),(CanonicalGene)gene, internalSampleIds, dataRow1);
@@ -271,7 +269,7 @@ public class GetProfileData {
                     if (geneList.size() > 0) {
                         Gene gene = geneList.get(0);
                         buf.append(geneticProfile.getStableId()).append(WebApiUtil.TAB)
-                                .append(geneticProfile.getGeneticAlterationType()).append (WebApiUtil.TAB);   
+                                .append(geneticProfile.getGeneticAlterationType().name()).append(WebApiUtil.TAB);   
                         List<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
                                 internalSampleIds, geneticProfile);
                         outputGeneRow(dataRow, gene, buf);

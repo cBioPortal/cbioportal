@@ -30,45 +30,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.cbioportal.web.legacy;
 
-import org.cbioportal.model.summary.MutationSummary;
+import java.util.List;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.service.StructuralVariantService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-public class Mutation extends MutationSummary {
-    private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
-    private Sample sample;
-    private Gene gene;
+@RestController
+public class StructuralVariantController {
+    @Autowired
+    private StructuralVariantService structuralVariantService;
 
-    public MutationEvent getMutationEvent() {
-        return mutationEvent;
-    }
-
-    public void setMutationEvent(MutationEvent mutationEvent) {
-        this.mutationEvent = mutationEvent;
-    }
-
-    public GeneticProfile getGeneticProfile() {
-        return geneticProfile;
-    }
-
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
-        this.geneticProfile = geneticProfile;
-    }
-
-    public Sample getSample() {
-        return sample;
-    }
-
-    public void setSample(Sample sample) {
-        this.sample = sample;
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
+    @RequestMapping(method = RequestMethod.GET, value = "/structuralvariant")
+    public List<StructuralVariant> getStructuralVariant(@RequestParam List<String> geneticProfileStableIds,
+                                         @RequestParam List<String> hugoGeneSymbols,
+                                         @RequestParam(required = false) List<String> sampleStableIds) {
+        return structuralVariantService.getStructuralVariant(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     }
 }

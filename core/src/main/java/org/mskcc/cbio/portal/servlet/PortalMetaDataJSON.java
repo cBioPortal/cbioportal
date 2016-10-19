@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,17 +32,15 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.*;
+import java.util.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.*;
+import org.json.simple.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;
-
-import org.json.simple.*;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
 
 /**
  * This Servlet Returns a JSON Representation of all Cancer Studies and all Gene
@@ -108,7 +106,7 @@ public class PortalMetaDataJSON extends HttpServlet {
             for (GeneticProfile geneticProfile : geneticProfiles) {
                 Map map = new LinkedHashMap();
                 map.put("id", geneticProfile.getStableId());
-                map.put("alteration_type", geneticProfile.getGeneticAlterationType().toString());
+                map.put("alteration_type", geneticProfile.getGeneticAlterationType().name());
                 map.put("show_in_analysis_tab", geneticProfile.showProfileInAnalysisTab());
                 map.put("name", geneticProfile.getProfileName());
                 map.put("description", geneticProfile.getProfileDescription());

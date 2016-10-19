@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,18 +32,16 @@
 
 package org.mskcc.cbio.portal.web_api;
 
+import java.util.*;
+import org.apache.commons.httpclient.URI;
 import org.cbioportal.persistence.MutationRepository;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
-import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.servlet.WebService;
-
-import org.apache.commons.httpclient.URI;
+import org.mskcc.cbio.portal.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
 
 /**
  * Class to get mutation data

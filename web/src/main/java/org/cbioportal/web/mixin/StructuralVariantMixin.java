@@ -30,45 +30,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.cbioportal.web.mixin;
 
-import org.cbioportal.model.summary.MutationSummary;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.Sample;
 
-public class Mutation extends MutationSummary {
-    private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
+public class StructuralVariantMixin {
+    @JsonIgnore
+    private Integer sampleId;
+    private String annotation;
+    private String breakpointType;
+    private String comments;
+    private String confidenceClass;
+    private String connectionType;
+    private String eventInfo;
+    private Integer mapq;
+    private Integer normalReadCount;
+    private Integer normalVariantCount;
+    private Integer pairedEndReadSupport;
+    private String site1Chrom;
+    private String site1Desc;
+    private String site1Gene;
+    private Integer site1Pos;
+    private String site2Chrom;
+    private String site2Desc;
+    private String site2Gene;
+    private Integer site2Pos;
+    private Integer splitReadSupport;
+    private String svClassName;
+    private String svDesc;
+    private Integer svLength;
+    private Integer tumorReadCount;
+    private Integer tumorVariantCount;
+    private String variantStatusName;
+    private String geneticProfileId;
+    private Gene gene1;
+    private Gene gene2;
+    @JsonUnwrapped
     private Sample sample;
-    private Gene gene;
-
-    public MutationEvent getMutationEvent() {
-        return mutationEvent;
-    }
-
-    public void setMutationEvent(MutationEvent mutationEvent) {
-        this.mutationEvent = mutationEvent;
-    }
-
-    public GeneticProfile getGeneticProfile() {
-        return geneticProfile;
-    }
-
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
-        this.geneticProfile = geneticProfile;
-    }
-
-    public Sample getSample() {
-        return sample;
-    }
-
-    public void setSample(Sample sample) {
-        this.sample = sample;
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
-    }
+    @JsonUnwrapped
+    private GeneticProfile geneticProfile;
 }

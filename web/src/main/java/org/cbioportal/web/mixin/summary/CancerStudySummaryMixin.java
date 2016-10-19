@@ -1,5 +1,6 @@
 package org.cbioportal.web.mixin.summary;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
@@ -18,5 +19,6 @@ public class CancerStudySummaryMixin {
     private String citation;
     private String groups;
     private Integer status;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date importDate;
 }

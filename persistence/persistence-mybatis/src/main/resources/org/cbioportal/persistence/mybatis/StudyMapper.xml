@@ -27,4 +27,40 @@
             </include>
         </if>
     </sql>
+
+    <select id="getAllStudies" resultType="org.cbioportal.model.CancerStudy">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM cancer_study
+        <if test="projection == 'DETAILED'">
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+        </if>
+        <if test="sortBy != null">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaStudies" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM cancer_study
+    </select>
+
+    <select id="getStudy" resultType="org.cbioportal.model.CancerStudy">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM cancer_study
+        <if test="projection == 'DETAILED'">
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+        </if>
+        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+    </select>
+
 </mapper>

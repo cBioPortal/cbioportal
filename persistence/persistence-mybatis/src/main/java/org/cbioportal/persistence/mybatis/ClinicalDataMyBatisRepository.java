@@ -5,6 +5,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleClinicalData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.mybatis.tool.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +17,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
     @Autowired
     private ClinicalDataMapper clinicalDataMapper;
+    @Autowired
+    private OffsetCalculator offsetCalculator;
 
     @Override
     public List<SampleClinicalData> getAllClinicalDataOfSampleInStudy(List<String> studyIds, List<String> sampleIds,
@@ -24,7 +27,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                                       String sortBy, String direction) {
 
         return clinicalDataMapper.getSampleClinicalData(studyIds, sampleIds, attributeId, projection, pageSize,
-                pageSize == null || pageNumber == null ? null : pageSize * pageNumber, sortBy, direction);
+                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -39,7 +42,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
                                                                         String sortBy, String direction) {
 
         return clinicalDataMapper.getPatientClinicalData(studyIds, patientIds, attributeId, projection, pageSize,
-                pageSize == null || pageNumber == null ? null : pageSize * pageNumber, sortBy, direction);
+                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface ClinicalDataMapper {
 
-    List<SampleClinicalData> getSampleClinicalData(@Param("studyIds") List<String> studyId,
-                                                   @Param("sampleIds") List<String> sampleId,
+    List<SampleClinicalData> getSampleClinicalData(@Param("studyIds") List<String> studyIds,
+                                                   @Param("sampleIds") List<String> sampleIds,
                                                    @Param("attributeId") String attributeId,
                                                    @Param("projection") String projection,
                                                    @Param("limit") Integer limit,

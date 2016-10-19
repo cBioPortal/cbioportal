@@ -7,6 +7,7 @@ public abstract class PatientSummary implements Serializable {
     private Integer internalId;
     private String stableId;
     private Integer cancerStudyId;
+    private String cancerStudyIdentifier;
 
     public Integer getInternalId() {
         return internalId;
@@ -30,5 +31,13 @@ public abstract class PatientSummary implements Serializable {
 
     public void setCancerStudyId(Integer cancerStudyId) {
         this.cancerStudyId = cancerStudyId;
+    }
+
+    public String getCancerStudyIdentifier() {
+        return cancerStudyIdentifier;
+    }
+
+    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+        this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
 }

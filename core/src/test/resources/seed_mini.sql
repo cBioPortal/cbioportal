@@ -26,7 +26,7 @@
 --
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
--------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------
 -- A manually extracted subset of data for a small number of genes and samples from the BRCA
 -- data set. This is intended to be used during unit testing, to validate the portal APIs.
 -- In theory, it should be enough to run up a portal.

@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.cbioportal.service.CosmicCountService;
 import org.cbioportal.model.MutationSignature;
 import org.cbioportal.model.CosmicCount;
+import org.cbioportal.persistence.dto.PositionMutationCount;
 
 /**
  *
@@ -137,6 +138,11 @@ public class ApiService {
 		}
 		// TODO: implement other contexts
 		return signatures;
+	}
+
+	@Transactional
+	public List<PositionMutationCount> getPositionMutationCounts(Map<String, List<Integer>> hugoGeneSymbolToPositions) {
+		return mutationService.getPositionMutationCounts(hugoGeneSymbolToPositions);
 	}
 
         @Transactional

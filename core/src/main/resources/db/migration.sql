@@ -25,7 +25,7 @@
 --
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
--------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------
 ##version: 1.0.0
 CREATE TABLE info (DB_SCHEMA_VERSION VARCHAR(8));
 INSERT INTO info VALUES ("1.0.0");

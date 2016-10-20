@@ -192,7 +192,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
 
     def test_hardcoded_attributes(self):
 
-        """Test if some attrs have requirements on the data type or level."""
+        """Test requirements on the data type or level of some attributes."""
 
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',

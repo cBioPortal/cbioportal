@@ -1564,7 +1564,11 @@ class ClinicalValidator(Validator):
                                 extra={'line_number': self.line_number,
                                        'column_number': col_index + 1,
                                        'cause': col_name})
-                    elif not self.relaxed_mode:
+                    # check pre-header metadata if applicable -- if these were
+                    # found missing or unparseable, `relaxed mode' has made
+                    # validation continue assuming all attributes to be
+                    # unformatted strings
+                    elif not self.fill_in_attr_defs:
                         value = self.attr_defs[col_index][attr_property]
                         expected_value = \
                             self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
@@ -1601,18 +1605,16 @@ class ClinicalValidator(Validator):
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
                     self.logger.error(
-                        'Value of attribute to be loaded as NUMBER is not a real number',
+                        'Value of numeric attribute is not a real number',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,
                                'cause': value})
             elif data_type == 'BOOLEAN':
-                # TODO: check whether these are the values understood by portal
                 VALID_BOOLEANS = ('TRUE', 'FALSE')
                 if not value in VALID_BOOLEANS:
                     self.logger.error(
-                        'Invalid value of attribute to be loaded as BOOLEAN, must be one '
-                        'of [%s]',
+                        'Value of boolean attribute must be one of [%s]',
                         ', '.join(VALID_BOOLEANS),
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
@@ -1715,13 +1717,13 @@ class PatientClinicalValidator(ClinicalValidator):
                        'column_number': self.cols.index('SAMPLE_ID'),
                        'cause': 'SAMPLE_ID'})
         # refuse to define attributes also defined in the sample-level file
-        for new_attribute in self.defined_attributes:
-            if new_attribute in DEFINED_SAMPLE_ATTRIBUTES:
+        for attribute_id in self.defined_attributes:
+            if attribute_id in DEFINED_SAMPLE_ATTRIBUTES:
                 # log this as a file-aspecific error, using the base logger
                 self.logger.logger.error(
                     'Clinical attribute is defined both as sample-level and '
                     'as patient-level',
-                    extra={'cause': new_attribute})
+                    extra={'cause': attribute_id})
         # warnings about missing optional columns
         if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
             self.logger.warning(

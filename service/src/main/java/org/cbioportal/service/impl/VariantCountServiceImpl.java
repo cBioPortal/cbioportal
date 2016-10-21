@@ -9,6 +9,7 @@ import org.cbioportal.service.MutationService;
 import org.cbioportal.service.VariantCountService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class VariantCountServiceImpl implements VariantCountService {
     private GeneticProfileService geneticProfileService;
     
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<VariantCount> fetchVariantCounts(String geneticProfileId, List<Integer> entrezGeneIds, 
                                                  List<String> keywords) throws GeneticProfileNotFoundException {
 

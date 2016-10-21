@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,37 +30,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.authentication.googleplus;
+package org.cbioportal.security.spring.authentication.saml;
 
-import org.springframework.social.connect.UserProfile;
-import org.springframework.social.connect.support.OAuth2ConnectionFactory;
-import org.springframework.social.google.api.Google;
-import org.springframework.social.google.connect.GoogleAdapter;
-import org.springframework.social.google.connect.GoogleServiceProvider;
-import org.springframework.social.oauth2.AccessGrant;
-/**
- * @author criscuof
- *
- */
-public class GoogleplusConnectionFactory extends OAuth2ConnectionFactory<Google> {
+import java.io.IOException;
+
+import javax.servlet.http.*;
+import javax.servlet.ServletException;
+
+import org.springframework.security.web.*; 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+ 
+public class MSKCCRestfulAuthenticationSuccessHandler implements AuthenticationSuccessHandler
+{
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 	
-
-
-	public GoogleplusConnectionFactory(String clientId, String clientSecret) {
-		super("google", new GoogleServiceProvider(clientId, clientSecret),
-				new GoogleAdapter());
-	}
-
-	/*
-	 * modification of original factory class to support using the user's email address as his/her id
-	 * original method utilized the google id, a numeric string
-	 */
 	@Override
-	protected String extractProviderUserId(AccessGrant accessGrant) {
-		Google api = ((GoogleServiceProvider)getServiceProvider()).getApi(accessGrant.getAccessToken());
-	    UserProfile userProfile = getApiAdapter().fetchUserProfile(api);
-	    return userProfile.getEmail();
+	public void onAuthenticationSuccess(HttpServletRequest request, 
+			HttpServletResponse response, Authentication authentication) throws IOException, ServletException
+    {
+		HttpSession session = request.getSession();
+        session.setAttribute("user_id", request.getParameter("user_id"));
+        redirectStrategy.sendRedirect(request, response, "/restful_login.jsp");
 	}
-
-
+ 
+	public RedirectStrategy getRedirectStrategy() {
+		return redirectStrategy;
+	}
+ 
+	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		this.redirectStrategy = redirectStrategy;
+	}
 }

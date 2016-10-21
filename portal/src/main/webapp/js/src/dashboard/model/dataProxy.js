@@ -1,24 +1,25 @@
 'use strict';
 window.DataManagerForIviz = (function($, _) {
   var content = {};
-  // DESC
-  var clinicalAttrsPriority = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED',
-    'GENDER', 'AGE', 'sequenced', 'has_cna_data', 'sample_count_patient'];
-
-  var studyClinicalAttrsPriority = {
-    mskimpact: ['DARWIN_PATIENT_AGE', 'OS_STATUS']
-  };
 
   // Clinical attributes will be transfered into table.
   var tableAttrs_ = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'];
   content.util = {};
 
-  // clinical attr id as key, designed for specific sdtudies.
-  // TODO: how do work with merged studies(virtual studies)
-  var hiddenAttrs_ = {
-    OS_SURVIVAL: ['mskimpact'],
-    DFS_SURVIVAL: ['mskimpact'],
-    AGE: ['mskimpact']
+  var clinAttrs_ = {
+    general: {
+      priority: [
+        'CANCER_TYPE',
+        'CANCER_TYPE_DETAILED',
+        'GENDER',
+        'SEX',
+        'AGE',
+        'sequenced',
+        'has_cna_data',
+        'sample_count_patient'
+      ],
+      hidden: []
+    }
   };
 
   /**
@@ -55,16 +56,18 @@ window.DataManagerForIviz = (function($, _) {
   content.util.isPriorityClinicalAttr = function(attr, studyId) {
     if (_.isString(attr)) {
       if (_.isString(studyId) &&
-        studyClinicalAttrsPriority.hasOwnProperty(studyId) &&
-        studyClinicalAttrsPriority[studyId].indexOf(attr) !== -1) {
+        clinAttrs_.studies.hasOwnProperty(studyId) &&
+        _.isArray(clinAttrs_.studies[studyId].priority) &&
+        clinAttrs_.studies[studyId].priority.indexOf(attr) !== -1) {
         return true;
       } else if (_.isArray(studyId)) {
         var sameStudies = _.intersection(
-          Object.keys(studyClinicalAttrsPriority), studyId);
+          Object.keys(clinAttrs_.studies), studyId);
         if (sameStudies.length > 0) {
           var contain = false;
           _.every(sameStudies, function(study) {
-            if (studyClinicalAttrsPriority[study].indexOf(attr) !== -1) {
+            if (_.isArray(clinAttrs_.studies[study].priority) &&
+              clinAttrs_.studies[study].priority.indexOf(attr) !== -1) {
               contain = true;
               return true;
             }
@@ -74,7 +77,7 @@ window.DataManagerForIviz = (function($, _) {
           }
         }
       }
-      if (clinicalAttrsPriority.indexOf(attr) !== -1) {
+      if (clinAttrs_.general.priority.indexOf(attr) !== -1) {
         return true;
       }
     }
@@ -133,14 +136,14 @@ window.DataManagerForIviz = (function($, _) {
     if (!_.isString(b)) {
       return -1;
     }
-    var aI = clinicalAttrsPriority.indexOf(a);
-    var bI = clinicalAttrsPriority.indexOf(b);
+    var aI = clinAttrs_.general.priority.indexOf(a);
+    var bI = clinAttrs_.general.priority.indexOf(b);
     return aI - bI;
   };
 
   /**
    * There are few steps to detemine the priority.
-   * Step 1: whether it is in clinicalAttrsPriority list
+   * Step 1: whether it is in clinAttrs_.general.priority list
    * Step 2: whether it will pass preSelectedAttr Regex check
    * Step 3: Sort the rest based on data availability. Notice that: at this
    * Step, attribute with only one category will be moved to end. Number of
@@ -213,11 +216,45 @@ window.DataManagerForIviz = (function($, _) {
     return array;
   };
 
+  content.util.pxStringToNumber = function(_str) {
+    var result;
+    if (_.isString(_str)) {
+      var tmp = _str.split('px');
+      if (tmp.length > 0) {
+        result = Number(tmp[0]);
+      }
+    }
+    return result;
+  };
+
+  content.util.getHiddenAttrs = function() {
+    var hiddenAttrs = {};
+    if (_.isArray(clinAttrs_.general.hidden)) {
+      _.each(clinAttrs_.general.hidden, function(attr) {
+        if (!hiddenAttrs.hasOwnProperty(attr)) {
+          hiddenAttrs[attr] = [];
+        }
+        hiddenAttrs[attr].push('general');
+      });
+    }
+    _.each(clinAttrs_.studies, function(item, studyId) {
+      if (_.isArray(item.hidden)) {
+        _.each(item.hidden, function(attr) {
+          if (!hiddenAttrs.hasOwnProperty(attr)) {
+            hiddenAttrs[attr] = [];
+          }
+          hiddenAttrs[attr].push(studyId);
+        });
+      }
+    });
+    return hiddenAttrs;
+  };
+
   content.init = function(_portalUrl, _study_cases_map) {
     var initialSetup = function() {
       var _def = new $.Deferred();
       var self = this;
-      $.when(self.getStudyToSampleToPatientdMap()).then(function(_studyToSampleToPatientMap) {
+      $.when(self.getStudyToSampleToPatientdMap(), self.getAttrs()).then(function(_studyToSampleToPatientMap) {
         $.when(self.getGeneticProfiles(), self.getCaseLists(),
           self.getClinicalAttributesByStudy(),
           self.getCnaFractionData())
@@ -619,6 +656,8 @@ window.DataManagerForIviz = (function($, _) {
                     show: true
                   };
                 }
+
+                var hiddenAttrs = content.util.getHiddenAttrs();
                 _.each(content.util.sortClinicalAttrs(
                   _.values(_.extend({}, _patientAttributes, _sampleAttributes))
                 ), function(attr, index) {
@@ -629,9 +668,10 @@ window.DataManagerForIviz = (function($, _) {
                     groupRef = _patientAttributes;
                   }
 
-                  if (hiddenAttrs_.hasOwnProperty(attrId) &&
-                    _.intersection(hiddenAttrs_[attrId],
-                      Object.keys(_studyToSampleToPatientMap)).length !== 0) {
+                  if (hiddenAttrs.hasOwnProperty(attrId) &&
+                    (hiddenAttrs[attrId].indexOf('general') !== -1 ||
+                    _.intersection(hiddenAttrs[attrId],
+                      Object.keys(_studyToSampleToPatientMap)).length !== 0)) {
                     groupRef[attrId].priority = 1000;
                   } else if (attr.priority === -1) {
                     groupRef[attrId].priority = 10 + index;
@@ -673,6 +713,23 @@ window.DataManagerForIviz = (function($, _) {
       return _def.promise();
     };
 
+    // Borrowed from cbioportal-client.js
+    var getApiCallPromise = function(endpt, args) {
+      var arg_strings = [];
+      for (var k in args) {
+        if (args.hasOwnProperty(k)) {
+          arg_strings.push(k + '=' + [].concat(args[k]).join(','));
+        }
+      }
+      var arg_string = arg_strings.join('&') || '?';
+      return $.ajax({
+        type: 'POST',
+        url: window.cbioURL + endpt,
+        data: arg_string,
+        dataType: 'json'
+      });
+    };
+
     var getPatientClinicalData = function(self, attr_ids) {
       var def = new $.Deferred();
       var fetch_promises = [];
@@ -702,19 +759,22 @@ window.DataManagerForIviz = (function($, _) {
 
           fetch_promises = fetch_promises.concat(Object.keys(studyAttributesMap).map(function(_studyId) {
             var _def = new $.Deferred();
-            window.cbioportal_client.getPatientClinicalData({
+            // Bypass cBioPortal client for clinical data call.
+            // Checking whether sample clinical data is available takes too much
+            // time. This is temporary solution, should be replaced with
+            // better solution.
+            getApiCallPromise('api-legacy/clinicaldata/patients', {
               study_id: [_studyId],
               attribute_ids: studyAttributesMap[_studyId],
               patient_ids: studyCasesMap[_studyId].patients
-            })
-              .then(function(data) {
-                for (var i = 0; i < data.length; i++) {
-                  var attr_id = data[i].attr_id;
-                  clinical_data[attr_id] = clinical_data[attr_id] || [];
-                  clinical_data[attr_id].push(data[i]);
-                }
-                _def.resolve();
-              }).fail(
+            }).then(function(data) {
+              for (var i = 0; i < data.length; i++) {
+                var attr_id = data[i].attr_id;
+                clinical_data[attr_id] = clinical_data[attr_id] || [];
+                clinical_data[attr_id].push(data[i]);
+              }
+              _def.resolve();
+            }).fail(
               function() {
                 def.reject();
               });
@@ -758,19 +818,22 @@ window.DataManagerForIviz = (function($, _) {
           fetch_promises = fetch_promises.concat(Object.keys(studyAttributesMap)
             .map(function(_studyId) {
               var _def = new $.Deferred();
-              window.cbioportal_client.getSampleClinicalData({
+              // Bypass cBioPortal client for clinical data call.
+              // Checking whether sample clinical data is available takes too much
+              // time. This is temporary solution, should be replaced with
+              // better solution.
+              getApiCallPromise('api-legacy/clinicaldata/samples', {
                 study_id: [_studyId],
                 attribute_ids: studyAttributesMap[_studyId],
                 sample_ids: studyCasesMap[_studyId].samples
-              })
-                .then(function(data) {
-                  for (var i = 0; i < data.length; i++) {
-                    var attr_id = data[i].attr_id;
-                    clinical_data[attr_id] = clinical_data[attr_id] || [];
-                    clinical_data[attr_id].push(data[i]);
-                  }
-                  _def.resolve();
-                }).fail(
+              }).then(function(data) {
+                for (var i = 0; i < data.length; i++) {
+                  var attr_id = data[i].attr_id;
+                  clinical_data[attr_id] = clinical_data[attr_id] || [];
+                  clinical_data[attr_id].push(data[i]);
+                }
+                _def.resolve();
+              }).fail(
                 function() {
                   def.reject();
                 });
@@ -806,6 +869,81 @@ window.DataManagerForIviz = (function($, _) {
       getStudyCasesMap: function() {
         return window.cbio.util.deepCopyObject(this.studyCasesMap);
       },
+
+      // The reason to separate style variable into individual json is
+      // that the scss file can also rely on this file.
+      getStyleVars: window.cbio.util.makeCachedPromiseFunction(
+        function(self, fetch_promise) {
+          $.getJSON(window.cbioResourceURL + 'vars.json')
+            .then(function(data) {
+              var styles = {
+                vars: {}
+              };
+              styles.vars.width = {
+                one: content.util.pxStringToNumber(data['grid-w-1']) || 195,
+                two: content.util.pxStringToNumber(data['grid-w-2']) || 400
+              };
+              styles.vars.height = {
+                one: content.util.pxStringToNumber(data['grid-h-1']) || 170,
+                two: content.util.pxStringToNumber(data['grid-h-2']) || 350
+              };
+              styles.vars.chartHeader = 17;
+              styles.vars.borderWidth = 2;
+              styles.vars.scatter = {
+                width: (
+                styles.vars.width.two -
+                styles.vars.borderWidth) || 400,
+                height: (
+                styles.vars.height.two -
+                styles.vars.chartHeader -
+                styles.vars.borderWidth) || 350
+              };
+              styles.vars.survival = {
+                width: styles.vars.scatter.width,
+                height: styles.vars.scatter.height
+              };
+              styles.vars.specialTables = {
+                width: styles.vars.scatter.width,
+                height: styles.vars.scatter.height - 25
+              };
+              styles.vars.piechart = {
+                width: 140,
+                height: 140
+              };
+              styles.vars.barchart = {
+                width: (
+                styles.vars.width.two -
+                styles.vars.borderWidth) || 400,
+                height: (
+                styles.vars.height.one -
+                styles.vars.chartHeader * 2 -
+                styles.vars.borderWidth) || 130
+              };
+              fetch_promise.resolve(styles);
+            })
+            .fail(function() {
+              fetch_promise.resolve();
+            });
+        }),
+      getAttrs: window.cbio.util.makeCachedPromiseFunction(
+        function(self, fetch_promise) {
+          $.getJSON(window.cbioResourceURL + 'attributes.json')
+            .then(function(data) {
+              if (_.isObject(data)) {
+                if (_.isObject(data.clinicalAttrs)) {
+                  clinAttrs_ = data.clinicalAttrs;
+                }
+                if (_.isObject(data.tableAttrs)) {
+                  tableAttrs_ = data.tableAttrs;
+                }
+              }
+              fetch_promise.resolve();
+            })
+            .fail(function() {
+              // TODO: maybe move the predefined attributes to here
+              fetch_promise.resolve();
+            });
+        }),
       getGeneticProfiles: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
           var _profiles = [];
@@ -911,30 +1049,68 @@ window.DataManagerForIviz = (function($, _) {
       getStudyToSampleToPatientdMap: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
           var study_to_sample_to_patient = {};
-          var _studyCasesMap = self.getStudyCasesMap();
+          var getSamplesCall = function(cancerStudyId) {
+            var def = new $.Deferred();
+            window.cbioportal_client.getSamples({
+              study_id: [cancerStudyId],
+              sample_ids: self.studyCasesMap[cancerStudyId].samples
+            }).then(function(data) {
+              var sample_to_patient = {};
+              var patientList = [];
+              for (var i = 0; i < data.length; i++) {
+                sample_to_patient[data[i].id] = data[i].patient_id;
+                patientList.push(data[i].patient_id);
+              }
+              // set patient list in studyCasesMap if sample list is
+              // passed in the input
+              if (_.isArray(self.studyCasesMap[cancerStudyId].samples) &&
+                self.studyCasesMap[cancerStudyId].samples.length > 0) {
+                self.studyCasesMap[cancerStudyId].patients = _.unique(patientList);
+              }
+              study_to_sample_to_patient[cancerStudyId] = sample_to_patient;
+              def.resolve();
+            }).fail(function() {
+              def.reject();
+            });
+            return def.promise();
+          };
+
           var requests = self.getCancerStudyIds().map(
             function(cancer_study_id) {
               var def = new $.Deferred();
-              window.cbioportal_client.getSamples({
-                study_id: [cancer_study_id],
-                sample_ids: _studyCasesMap[cancer_study_id].samples
-              }).then(function(data) {
-                var sample_to_patient = {};
-                var patientList = [];
-                for (var i = 0; i < data.length; i++) {
-                  sample_to_patient[data[i].id] = data[i].patient_id;
-                  patientList.push(data[i].patient_id);
-                }
-                // set patient list in studyCasesMap if sample list is
-                // passed in the input
-                if (_.isArray(_studyCasesMap[cancer_study_id].samples) && _studyCasesMap[cancer_study_id].samples.length > 0) {
-                  self.studyCasesMap[cancer_study_id].patients = _.unique(patientList);
-                }
-                study_to_sample_to_patient[cancer_study_id] = sample_to_patient;
-                def.resolve();
-              }).fail(function() {
-                fetch_promise.reject();
-              });
+              if (!self.studyCasesMap.hasOwnProperty(cancer_study_id)) {
+                self.studyCasesMap[cancer_study_id] = {};
+              }
+              if (_.isArray(self.studyCasesMap[cancer_study_id].samples)) {
+                getSamplesCall(cancer_study_id)
+                  .then(function() {
+                    def.resolve();
+                  })
+                  .fail(function() {
+                    fetch_promise.reject();
+                  });
+              } else {
+                window.cbioportal_client
+                  .getSampleLists({study_id: [cancer_study_id]})
+                  .then(function(_sampleLists) {
+                    _.each(_sampleLists, function(_sampleList) {
+                      if (_sampleList.id === cancer_study_id + '_all') {
+                        self.studyCasesMap[cancer_study_id].samples =
+                          _sampleList.sample_ids;
+                      }
+                    });
+                    getSamplesCall(cancer_study_id)
+                      .then(function() {
+                        def.resolve();
+                      })
+                      .fail(function() {
+                        fetch_promise.reject();
+                      });
+                  })
+                  .fail(function() {
+                    fetch_promise.reject();
+                  });
+              }
               return def.promise();
             });
           $.when.apply($, requests).then(function() {

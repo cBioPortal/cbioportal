@@ -468,13 +468,12 @@ cbio.util = (function() {
     function baseMutationMapperOpts() {
         return {
             proxy: {
-                // default pdb proxy are now configured for a separate pdb data source
-                // this is for backward compatibility
+                // configure for the separate pdb-annotation API
+                // (we are not getting the data from the portal back-end anymore)
                 pdbProxy: {
                     options: {
-                        servletName: "get3dPdb.json",
-                        listJoiner: " ",
-                        subService: false
+                        // we need to use an https server to be compatible with https instances
+                        servletName: "https://cbioportal.mskcc.org/pdb-annotation/pdb_annotation"
                     }
                 },
                 // TODO for now init variant annotation data proxy with full empty data

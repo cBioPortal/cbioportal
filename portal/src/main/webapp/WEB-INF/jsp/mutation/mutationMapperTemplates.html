@@ -5,9 +5,6 @@
 </script>
 
 <script type="text/template" id="mutation_3d_vis_info_template">
-	<div class='mutation-3d-info-title'>
-		3D Structure
-	</div>
 	<div class='mutation-3d-info-main'>
 		PDB
 		<span class='mutation-3d-pdb-id'>
@@ -27,183 +24,191 @@
 	<div class='mutation-3d-vis-header'>
 		<span class='mutation-3d-close ui-icon ui-icon-circle-close' title='close'></span>
 		<span class='mutation-3d-minimize ui-icon ui-icon-circle-minus' title='minimize'></span>
-		<div class='mutation-3d-info'></div>
+		<div class='mutation-3d-info-title'>
+			3D Structure
+		</div>
 	</div>
-	<div class='mutation-3d-residue-warning'>
-		<span class="mutation-3d-unmapped-info">Selected mutation</span>
-		cannot be mapped onto this structure.
-	</div>
-	<div class='mutation-3d-nomap-warning'>
-		None of the mutations can be mapped onto this structure.
-	</div>
-	<div class='mutation-3d-vis-loader'>
+	<div class='mutation-3d-vis-main-loader'>
 		<img src='{{loaderImage}}' alt='Loading 3d visualization' />
 	</div>
-	<div class='mutation-3d-vis-container'></div>
-	<div class='mutation-3d-vis-toolbar'>
-		<div class='mutation-3d-vis-help-init'>
+	<div class='mutation-3d-vis-body'>
+		<div class='mutation-3d-info'></div>
+		<div class='mutation-3d-residue-warning'>
+			<span class="mutation-3d-unmapped-info">Selected mutation</span>
+			cannot be mapped onto this structure.
+		</div>
+		<div class='mutation-3d-nomap-warning'>
+			None of the mutations can be mapped onto this structure.
+		</div>
+		<div class='mutation-3d-vis-loader'>
+			<img src='{{loaderImage}}' alt='Loading 3d visualization' />
+		</div>
+		<div class='mutation-3d-vis-container'></div>
+		<div class='mutation-3d-vis-toolbar'>
+			<div class='mutation-3d-vis-help-init'>
+				<table>
+					<tr>
+						<td align="left">
+							<button class='mutation-3d-pymol-dload'>PyMOL</button>
+						</td>
+						<td align="right">
+							<a class='mutation-3d-vis-help-open' href="#">how to pan/zoom/rotate?</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class='mutation-3d-vis-help-content'></div>
 			<table>
 				<tr>
-					<td align="left">
-						<button class='mutation-3d-pymol-dload'>PyMOL</button>
+					<!--td>
+						<input class='mutation-3d-spin' type='checkbox'>
+						<label>Spin</label>
 					</td>
-					<td align="right">
-						<a class='mutation-3d-vis-help-open' href="#">how to pan/zoom/rotate?</a>
+					<td class='mutation-3d-buttons'>
+						<button class='mutation-3d-button mutation-3d-center-selected'
+								alt='Center the view on the highlighted residue'></button>
+						<button class='mutation-3d-button mutation-3d-center-default'
+								alt='Restore the view to its default center'></button>
+					</td>
+					<td class='mutation-3d-zoom-label'>
+						<label>Zoom</label>
+					</td>
+					<td>
+						<div class='mutation-3d-zoom-slider'></div>
+					</td-->
+				</tr>
+			</table>
+			<table class="mutation-3d-controls-menu" cellpadding="0">
+				<tr>
+					<td class='mutation-3d-protein-style-menu' valign='top'>
+						<div class='mutation-3d-style-header'>
+							<label>Protein Style</label>
+						</div>
+						<table cellpadding='0'>
+							<tr>
+								<td>
+									<label>
+										<input class='mutation-3d-display-non-protein'
+											   type='checkbox'
+											   checked='checked'>
+										Display bound molecules
+									</label>
+									<img class='display-non-protein-help' src='{{helpImage}}'
+										alt='Help (non-protein display)' />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Scheme:</label>
+									<select class='mutation-3d-protein-style-select'
+											title='Select 3d protein style'>
+										<option value='cartoon'
+												title='Switch to the Cartoon Scheme'>cartoon</option>
+										<option value='spaceFilling'
+												title='Switch to the Space-filling Scheme'>space-filling</option>
+										<option value='trace'
+												title='Switch to the Trace Scheme'>trace</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Color:</label>
+									<select class='mutation-3d-protein-color-select'
+											title='Select 3d protein coloring'>
+										<option value='uniform'
+												title='Uniform Color'>uniform</option>
+										<option value='bySecondaryStructure'
+												title='Color by Secondary Structure'>secondary structure</option>
+										<option value='byChain'
+												title='Color by Rainbow Gradient'>N-C rainbow</option>
+										<option value='byAtomType'
+												title='Color by Atom Type'
+												disabled='disabled'>atom type</option>
+									</select>
+									<img class='protein-struct-color-help' src='{{helpImage}}'
+										alt='Help (protein coloring)' />
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td class='mutation-3d-mutation-style-menu' valign='top'>
+						<div class='mutation-3d-style-header'>
+							<label>Mutation Style</label>
+						</div>
+						<table cellpadding="0">
+							<tr>
+								<td>
+									<!--label>
+										<input class='mutation-3d-side-chain'
+											   type='checkbox'
+											   checked='checked'>
+										Display side chain
+									</label-->
+									<label>Side chain:</label>
+									<select class='mutation-3d-side-chain-select'
+											title='Select 3d protein side-chain display'>
+										<option value='all'
+												title='Display side chain for all mapped residues'>all</option>
+										<option value='highlighted'
+												selected='selected'
+												title='Display side chain for highlighted residues only'>selected</option>
+										<option value='none'
+												title='Do not display side chains'>none</option>
+									</select>
+									<img class='display-side-chain-help' src='{{helpImage}}'
+										alt='Help (side chain display)' />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<!--table cellpadding="0">
+										<tr>
+											<td>
+												<label>Color:</label>
+											</td>
+											<td>
+												<label>
+													<input class='mutation-3d-mutation-color-by-type'
+														   type='checkbox'
+														   checked='checked'>
+													mutation type
+												</label>
+												<img class='mutation-type-color-help' src='{{helpImage}}'
+													alt='Help (mutation type coloring)' />
+											</td>
+										</tr>
+										<tr>
+											<td></td>
+											<td>
+												<label>
+													<input class='mutation-3d-mutation-color-by-atom'
+														   type='checkbox'>
+													atom type
+												</label>
+											</td>
+										</tr>
+									</table-->
+									<label>Color:</label>
+									<select class='mutation-3d-mutation-color-select'
+											title='Select 3d protein mutation color'>
+										<option value='uniform'
+												title='Uniform color'>uniform</option>
+										<option value='byMutationType'
+												selected='selected'
+												title='Color by mutation type'>mutation type</option>
+										<option value='none'
+												title='Do not color'>none</option>
+									</select>
+									<img class='mutation-type-color-help' src='{{helpImage}}'
+										alt='Help (mutation type coloring)' />
+								</td>
+							</tr>
+						</table>
 					</td>
 				</tr>
 			</table>
 		</div>
-		<div class='mutation-3d-vis-help-content'></div>
-		<table>
-			<tr>
-				<!--td>
-					<input class='mutation-3d-spin' type='checkbox'>
-					<label>Spin</label>
-				</td>
-				<td class='mutation-3d-buttons'>
-					<button class='mutation-3d-button mutation-3d-center-selected'
-							alt='Center the view on the highlighted residue'></button>
-					<button class='mutation-3d-button mutation-3d-center-default'
-							alt='Restore the view to its default center'></button>
-				</td>
-				<td class='mutation-3d-zoom-label'>
-					<label>Zoom</label>
-				</td>
-				<td>
-					<div class='mutation-3d-zoom-slider'></div>
-				</td-->
-			</tr>
-		</table>
-		<table class="mutation-3d-controls-menu" cellpadding="0">
-			<tr>
-				<td class='mutation-3d-protein-style-menu' valign='top'>
-					<div class='mutation-3d-style-header'>
-						<label>Protein Style</label>
-					</div>
-					<table cellpadding='0'>
-						<tr>
-							<td>
-								<label>
-									<input class='mutation-3d-display-non-protein'
-									       type='checkbox'
-									       checked='checked'>
-									Display bound molecules
-								</label>
-								<img class='display-non-protein-help' src='{{helpImage}}'
-									alt='Help (non-protein display)' />
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label>Scheme:</label>
-								<select class='mutation-3d-protein-style-select'
-										title='Select 3d protein style'>
-									<option value='cartoon'
-									        title='Switch to the Cartoon Scheme'>cartoon</option>
-									<option value='spaceFilling'
-									        title='Switch to the Space-filling Scheme'>space-filling</option>
-									<option value='trace'
-									        title='Switch to the Trace Scheme'>trace</option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label>Color:</label>
-								<select class='mutation-3d-protein-color-select'
-										title='Select 3d protein coloring'>
-									<option value='uniform'
-									        title='Uniform Color'>uniform</option>
-									<option value='bySecondaryStructure'
-									        title='Color by Secondary Structure'>secondary structure</option>
-									<option value='byChain'
-									        title='Color by Rainbow Gradient'>N-C rainbow</option>
-									<option value='byAtomType'
-									        title='Color by Atom Type'
-									        disabled='disabled'>atom type</option>
-								</select>
-								<img class='protein-struct-color-help' src='{{helpImage}}'
-									alt='Help (protein coloring)' />
-							</td>
-						</tr>
-					</table>
-				</td>
-				<td class='mutation-3d-mutation-style-menu' valign='top'>
-					<div class='mutation-3d-style-header'>
-						<label>Mutation Style</label>
-					</div>
-					<table cellpadding="0">
-						<tr>
-							<td>
-								<!--label>
-									<input class='mutation-3d-side-chain'
-									       type='checkbox'
-									       checked='checked'>
-									Display side chain
-								</label-->
-								<label>Side chain:</label>
-								<select class='mutation-3d-side-chain-select'
-										title='Select 3d protein side-chain display'>
-									<option value='all'
-									        title='Display side chain for all mapped residues'>all</option>
-									<option value='highlighted'
-									        selected='selected'
-									        title='Display side chain for highlighted residues only'>selected</option>
-									<option value='none'
-									        title='Do not display side chains'>none</option>
-								</select>
-								<img class='display-side-chain-help' src='{{helpImage}}'
-									alt='Help (side chain display)' />
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<!--table cellpadding="0">
-									<tr>
-										<td>
-											<label>Color:</label>
-										</td>
-										<td>
-											<label>
-												<input class='mutation-3d-mutation-color-by-type'
-												       type='checkbox'
-												       checked='checked'>
-												mutation type
-											</label>
-											<img class='mutation-type-color-help' src='{{helpImage}}'
-												alt='Help (mutation type coloring)' />
-										</td>
-									</tr>
-									<tr>
-										<td></td>
-										<td>
-											<label>
-												<input class='mutation-3d-mutation-color-by-atom'
-												       type='checkbox'>
-												atom type
-											</label>
-										</td>
-									</tr>
-								</table-->
-								<label>Color:</label>
-								<select class='mutation-3d-mutation-color-select'
-										title='Select 3d protein mutation color'>
-									<option value='uniform'
-									        title='Uniform color'>uniform</option>
-									<option value='byMutationType'
-									        selected='selected'
-									        title='Color by mutation type'>mutation type</option>
-									<option value='none'
-									        title='Do not color'>none</option>
-								</select>
-								<img class='mutation-type-color-help' src='{{helpImage}}'
-									alt='Help (mutation type coloring)' />
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
 	</div>
 </script>
 

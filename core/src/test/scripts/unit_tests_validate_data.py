@@ -1284,26 +1284,60 @@ class StableIdValidationTestCase(LogBufferTestCase):
 
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
 
-    """Superclass for validating headerless clinical data."""
+    """Tests for validation of clinical data files without metadata headers.
+
+    When the script is run in relaxed mode, files with incorrect
+    attribute metadata headers should be validated until the end
+    rather than considered unparseable from the header on.
+    """
 
     def test_headerless_clinical_sample(self):
-        self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_clinical_sam_no_hdr.txt', 
+        """Test relaxed validation of sample attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_sam_no_hdr.txt',
                                     validateData.SampleClinicalValidator, None, True)
-        # we expect 1 error for not being able to parse the header
-        self.assertEqual(len(record_list), 1)
+        # we expect a list of records ending in an info message about all lines
+        # being parsed -- if the file had been declared unparseable before the
+        # header it would have issued an error instead.
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.INFO)
+        self.assertTrue(final_record.getMessage().lower().startswith(
+            'read 13 lines'))
+
+    def test_nonrelaxed_headerless_clinical_sample(self):
+        """Test regular validation of sample attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_sam_no_hdr.txt',
+                                    validateData.SampleClinicalValidator, None, False)
+        # test if the list of records logged ends in an error about the file
+        # being unparseable, rather than an info about it being read to the end
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.ERROR)
+        self.assertIn('cannot be parsed', final_record.getMessage().lower())
 
     def test_headerless_clinical_patient(self):
-        self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_clinical_pat_no_hdr.txt', 
+        """Test relaxed validation of patient attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_pat_no_hdr.txt',
                                     validateData.PatientClinicalValidator, None, True)
-        # we expect 9 errors or warnings:
-        # 1 for not being able to parse the header in the clinical file,
-        # 1 for the sample attribute CANCER_TYPE in a patient-level file,
-        # 1 for CANCER_TYPE being in DEFINED_SAMPLE_ATTRIBUTES
-        # 2 for missing survival status attributes and
-        # 4 for patients with no samples
-        self.assertEqual(len(record_list), 9)
+        # we expect a list of records ending in an info message about all lines
+        # being parsed -- if the file had been declared unparseable before the
+        # header it would have issued an error instead.
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.INFO)
+        self.assertTrue(final_record.getMessage().lower().startswith(
+            'read 13 lines'))
+
+    def test_nonrelaxed_headerless_clinical_patient(self):
+        """Test regular validation of patient attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_pat_no_hdr.txt',
+                                    validateData.PatientClinicalValidator, None, False)
+        # test if the list of records logged ends in an error about the file
+        # being unparseable, rather than an info about it being read to the end
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.ERROR)
+        self.assertIn('cannot be parsed', final_record.getMessage().lower())
 
 
 class DataFileIOTestCase(PostClinicalDataFileTestCase):

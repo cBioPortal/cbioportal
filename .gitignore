@@ -89,3 +89,4 @@ dependency-reduced-pom.xml
 .profile.d/
 Procfile
 scripts/target
+node_modules/

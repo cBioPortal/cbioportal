@@ -277,8 +277,14 @@ public class ApiService {
 
 	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id) {
-		List<Integer> internal_sample_ids = sampleMapper.getSampleInternalIdsByStudy(study_id);
-		return getSampleClinicalAttributesByInternalIds(internal_sample_ids);
+		List<String> study_ids = new LinkedList<>();
+		study_ids.add(study_id);
+		List<DBStudy> studies = studyMapper.getStudies(study_ids);
+		if (studies.size() > 0) {
+			return clinicalFieldMapper.getSampleClinicalFieldsByStudy(studies.get(0).internal_id);
+		} else {
+			return new LinkedList<>();
+		}
 	}
 
 	@Transactional
@@ -299,8 +305,14 @@ public class ApiService {
 
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id) {
-		List<Integer> internal_patient_ids = patientMapper.getPatientInternalIdsByStudy(study_id);
-		return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(internal_patient_ids);
+		List<String> study_ids = new LinkedList<>();
+		study_ids.add(study_id);
+		List<DBStudy> studies = studyMapper.getStudies(study_ids);
+		if (studies.size() > 0) {
+			return clinicalFieldMapper.getPatientClinicalFieldsByStudy(studies.get(0).internal_id);
+		} else {
+			return new LinkedList<>();
+		}
 	}
 
 	@Transactional

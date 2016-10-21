@@ -25,7 +25,7 @@
 --
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
--------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------
 ##version: 1.0.0
 CREATE TABLE info (DB_SCHEMA_VERSION VARCHAR(8));
 INSERT INTO info VALUES ("1.0.0");
@@ -56,7 +56,6 @@ DROP TABLE IF EXISTS `clinical_trial_keywords`;
 DROP TABLE IF EXISTS `clinical_trials`;
 ALTER TABLE `users` CONVERT TO CHARACTER SET utf8;
 ALTER TABLE `info` CONVERT TO CHARACTER SET utf8;
-ALTER TABLE `sample_profile` ADD COLUMN PANEL_ID int(11) DEFAULT NULL, ADD FOREIGN KEY (PANEL_ID) REFERENCES `gene_panel` (PANEL_ID) ON DELETE RESTRICT;
 ALTER TABLE `gene` MODIFY COLUMN `ENTREZ_GENE_ID` int(11) NOT NULL;
 ALTER TABLE `gene_alias` MODIFY COLUMN `ENTREZ_GENE_ID` int(11) NOT NULL;
 ALTER TABLE `uniprot_id_mapping` MODIFY COLUMN `ENTREZ_GENE_ID` int(11) NOT NULL;
@@ -85,6 +84,7 @@ CREATE TABLE gene_panel_list (
   FOREIGN KEY (INTERNAL_ID) REFERENCES gene_panel (INTERNAL_ID) ON DELETE CASCADE,
   FOREIGN KEY (GENE_ID) REFERENCES gene (ENTREZ_GENE_ID) ON DELETE CASCADE
 );
+ALTER TABLE `sample_profile` ADD COLUMN PANEL_ID int(11) DEFAULT NULL, ADD FOREIGN KEY (PANEL_ID) REFERENCES `gene_panel` (PANEL_ID) ON DELETE RESTRICT;
 CREATE TABLE `clinical_attribute_meta` (
   `ATTR_ID` varchar(255) NOT NULL,
   `DISPLAY_NAME` varchar(255) NOT NULL,

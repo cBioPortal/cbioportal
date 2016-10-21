@@ -236,11 +236,9 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, cancer_type_dict, clinical_attribute_dict,
-                 hugo_entrez_map, alias_entrez_map):
+    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map):
         """Represent a portal instance with the given dictionaries."""
         self.cancer_type_dict = cancer_type_dict
-        self.clinical_attribute_dict = clinical_attribute_dict
         self.hugo_entrez_map = hugo_entrez_map
         self.alias_entrez_map = alias_entrez_map
         self.entrez_set = set()
@@ -1285,6 +1283,11 @@ class ClinicalValidator(Validator):
     PROP_IS_PATIENT_ATTRIBUTE = None
     NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
     ALLOW_BLANKS = True
+    METADATA_LINES = ('display_name',
+                      'description',
+                      'datatype',
+                      'priority')
+
     # attributes required to have certain properties because of hard-coded use
     # TODO add unit tests for this functionality
     PREDEFINED_ATTRIBUTES = {
@@ -1411,21 +1414,14 @@ class ClinicalValidator(Validator):
     }
 
     def __init__(self, *args, **kwargs):
+        """Initialize the instance attributes of the data file validator."""
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.attr_defs = []
-        # keep track of original attribute definitions that are overriden by portal (i.e. have a 
-        # mismatch between file and portal). Here we keep track of definitions as found in file
-        self.attr_defs_overridden = []
-        self.newly_defined_attributes = set()
+        self.defined_attributes = set()
 
     def processTopLines(self, line_list):
 
         """Parse the the attribute definitions above the column header."""
-
-        LINE_NAMES = ('display_name',
-                      'description',
-                      'datatype',
-                      'priority')
 
         if not line_list:
             if not self.relaxed_mode:
@@ -1436,13 +1432,12 @@ class ClinicalValidator(Validator):
                 self.logger.info('Ignoring missing or invalid data type definition '
                     ' headers. Continuing with validation...')                
             return False
-                    
-                 
-        if len(line_list) != len(LINE_NAMES):
+
+        if len(line_list) != len(self.METADATA_LINES):
             self.logger.error(
                 '%d comment lines at start of clinical data file, expected %d',
                 len(line_list),
-                len(LINE_NAMES))
+                len(self.METADATA_LINES))
             return False
 
         # remove the # signs
@@ -1476,14 +1471,15 @@ class ClinicalValidator(Validator):
                 if value.strip().lower() in self.NULL_VALUES:
                     self.logger.error(
                         'Empty %s field in clinical attribute definition',
-                        LINE_NAMES[line_index],
+                        self.METADATA_LINES[line_index],
                         extra={'line_number': line_index + 1,
                                'column_number': col_index + 1,
                                'cause': value})
                     invalid_values = True
-                if LINE_NAMES[line_index] in ('display_name', 'description'):
+                if self.METADATA_LINES[line_index] in ('display_name',
+                                                       'description'):
                     pass
-                elif LINE_NAMES[line_index] == 'datatype':
+                elif self.METADATA_LINES[line_index] == 'datatype':
                     VALID_DATATYPES = ('STRING', 'NUMBER', 'BOOLEAN')
                     if value not in VALID_DATATYPES:
                         self.logger.error(
@@ -1495,7 +1491,7 @@ class ClinicalValidator(Validator):
                                    'cause': value})
                         invalid_values = True
                         invalid_values = True
-                elif LINE_NAMES[line_index] == 'priority':
+                elif self.METADATA_LINES[line_index] == 'priority':
                     try:
                         if int(value) < 1:
                             raise ValueError()
@@ -1510,7 +1506,7 @@ class ClinicalValidator(Validator):
                     if not self.relaxed_mode:
                         raise RuntimeError('Unknown clinical header line name')
 
-                attr_defs[col_index][LINE_NAMES[line_index]] = value
+                attr_defs[col_index][self.METADATA_LINES[line_index]] = value
 
         self.attr_defs = attr_defs
         return not invalid_values
@@ -1542,13 +1538,12 @@ class ClinicalValidator(Validator):
             self.attr_defs = missing_attr_defs            
         
         for col_index, col_name in enumerate(self.cols):
-            self.attr_defs_overridden.append({})
             if not col_name.isupper():
                 self.logger.warning(
                     "Clinical attribute name not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
-            # do not check the special ID columns as attributes against the db,
+            # do not check the special ID columns as attributes,
             # just parse them with the correct data type
             if col_name in ('PATIENT_ID', 'SAMPLE_ID'):
                 self.attr_defs[col_index] = {'display_name': '',
@@ -1569,7 +1564,11 @@ class ClinicalValidator(Validator):
                                 extra={'line_number': self.line_number,
                                        'column_number': col_index + 1,
                                        'cause': col_name})
-                    else:
+                    # check pre-header metadata if applicable -- if these were
+                    # found missing or unparseable, `relaxed mode' has made
+                    # validation continue assuming all attributes to be
+                    # unformatted strings
+                    elif not self.fill_in_attr_defs:
                         value = self.attr_defs[col_index][attr_property]
                         expected_value = \
                             self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
@@ -1579,56 +1578,14 @@ class ClinicalValidator(Validator):
                                 "%s definition for attribute '%s' must be %s",
                                 attr_property,
                                 col_name,
-                                expected_value)
-            # skip all further checks for this column if portal info is absent
-            if self.portal.clinical_attribute_dict is None:
-                continue
-            # look up how the attribute is defined in the portal
-            srv_attr_properties = self.portal.clinical_attribute_dict.get(
-                                      col_name)
-            if srv_attr_properties is None:
-                self.logger.warning(
-                    'New %s-level attribute will be added to the portal',
-                    {'0': 'sample', '1': 'patient'}[
-                            self.PROP_IS_PATIENT_ATTRIBUTE],
-                    extra={'line_number': self.line_number,
-                           'column_number': col_index + 1,
-                           'cause': col_name})
-                self.newly_defined_attributes.add(col_name)
-            # disallow homonymous patient-level and sample-level attributes,
-            # except for the patient ID by which samples reference a patient
-            elif (srv_attr_properties['is_patient_attribute'] !=
-                    self.PROP_IS_PATIENT_ATTRIBUTE):
-                self.logger.error(
-                    'Attribute is defined in the portal installation as a '
-                    '%s-level attribute',
-                    {'0': 'sample', '1': 'patient'}[
-                            srv_attr_properties['is_patient_attribute']],
-                    extra={'line_number': self.line_number,
-                           'column_number': col_index + 1,
-                           'cause': col_name, 
-                           'show_all_values': True})
-            else:
-                # compare values defined in the file with the existing ones
-                for attr_property in self.attr_defs[col_index]:
-                    value = self.attr_defs[col_index][attr_property]
-                    # store original property as found in file
-                    if value != srv_attr_properties[attr_property]:
-                        self.attr_defs_overridden[col_index][attr_property] = value
-                        if not self.fill_in_attr_defs:
-                            self.logger.warning(
-                                "%s definition for attribute '%s' does not match "
-                                "the portal, and will be loaded as '%s'",
-                                attr_property,
-                                col_name,
-                                srv_attr_properties[attr_property],
-                                extra={'line_number': self.attr_defs[col_index].keys().index(attr_property) + 1,
+                                expected_value,
+                                extra={'line_number':
+                                                self.METADATA_LINES.index(
+                                                    attr_property) + 1,
                                        'column_number': col_index + 1,
                                        'cause': value})
-                        # continue validation assuming the value in the portal
-                        self.attr_defs[col_index][attr_property] = \
-                            srv_attr_properties[attr_property]
 
+            self.defined_attributes.add(col_name)
         return num_errors
 
     def checkLine(self, data):
@@ -1640,35 +1597,25 @@ class ClinicalValidator(Validator):
             value = ''
             if col_index < len(data):
                 value = data[col_index].strip()
-            
-            according_to_portal = ''
             data_type = self.attr_defs[col_index]['datatype']
-            if 'datatype' in self.attr_defs_overridden[col_index]:
-                # Extra info for existing fields to make it clear that the 
-                # check is being done based on the definition found in the portal:
-                according_to_portal = (" (nb: even though 'datatype' definition in file is %s, attribute is "
-                    "being validated as %s according to the portal's definition - see also previous "  
-                    "warning for this attribute)")%(self.attr_defs_overridden[col_index]['datatype'], data_type)
-            
+
             # if not blank, check if values match the datatype
             if value.strip().lower() in self.NULL_VALUES:
                 pass
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
                     self.logger.error(
-                        'Value of attribute to be loaded as NUMBER is not a real number' + according_to_portal,
+                        'Value of numeric attribute is not a real number',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,
                                'cause': value})
             elif data_type == 'BOOLEAN':
-                # TODO: check whether these are the values understood by portal
                 VALID_BOOLEANS = ('TRUE', 'FALSE')
                 if not value in VALID_BOOLEANS:
                     self.logger.error(
-                        'Invalid value of attribute to be loaded as BOOLEAN, must be one '
-                        'of [%s]',
-                        ', '.join(VALID_BOOLEANS) + according_to_portal,
+                        'Value of boolean attribute must be one of [%s]',
+                        ', '.join(VALID_BOOLEANS),
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,
@@ -1770,13 +1717,13 @@ class PatientClinicalValidator(ClinicalValidator):
                        'column_number': self.cols.index('SAMPLE_ID'),
                        'cause': 'SAMPLE_ID'})
         # refuse to define attributes also defined in the sample-level file
-        for new_attribute in self.newly_defined_attributes:
-            if new_attribute in DEFINED_SAMPLE_ATTRIBUTES:
+        for attribute_id in self.defined_attributes:
+            if attribute_id in DEFINED_SAMPLE_ATTRIBUTES:
                 # log this as a file-aspecific error, using the base logger
                 self.logger.logger.error(
-                    'New clinical attribute defined both as sample-level and '
+                    'Clinical attribute is defined both as sample-level and '
                     'as patient-level',
-                    extra={'cause': new_attribute})
+                    extra={'cause': attribute_id})
         # warnings about missing optional columns
         if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
             self.logger.warning(
@@ -2859,30 +2806,6 @@ def transform_symbol_entrez_map(json_data,
     return result_dict
 
 
-def merge_clinical_attributes(patient_attr_dict, sample_attr_dict):
-    """Merge two dicts, raising an exception if the keys overlap.
-
-    >>> merge_clinical_attributes({"SEX":
-    ...                                {"is_patient_attribute": 1},
-    ...                            "AGE":
-    ...                                {"is_patient_attribute": 1}},
-    ...                           {"GLEASON_SCORE":
-    ...                                {"is_patient_attribute": 0}})
-    {'AGE': {'is_patient_attribute': 1}, 'GLEASON_SCORE': {'is_patient_attribute': 0}, 'SEX': {'is_patient_attribute': 1}}
-    """
-    # if this happens, the database structure has changed and this script
-    # needs to be updated
-    id_overlap = patient_attr_dict.viewkeys() & sample_attr_dict.viewkeys()
-    if id_overlap:
-        raise ValueError(
-            'Portal data listed these clinical attributes '
-            'both for samples and for patients: {}'.format(
-                ', '.join(id_overlap)))
-    # merge the sample attributes into the first dict
-    patient_attr_dict.update(sample_attr_dict)
-    return patient_attr_dict
-
-
 def load_portal_info(path, logger, offline=False):
     """Create a PortalInstance object based on a server API or offline dir.
 
@@ -2894,10 +2817,6 @@ def load_portal_info(path, logger, offline=False):
     for api_name, transform_function in (
             ('cancertypes',
                 lambda json_data: index_api_data(json_data, 'id')),
-            ('clinicalattributes/patients',
-                lambda json_data: index_api_data(json_data, 'attr_id')),
-            ('clinicalattributes/samples',
-                lambda json_data: index_api_data(json_data, 'attr_id')),
             ('genes',
                 lambda json_data: transform_symbol_entrez_map(
                                         json_data, 'hugo_gene_symbol')),
@@ -2914,15 +2833,7 @@ def load_portal_info(path, logger, offline=False):
     if all(d is None for d in portal_dict.values()):
         raise IOError('No portal information found at {}'.format(
                           path))
-    # merge clinical attributes into a single dictionary
-    clinical_attr_dict = None
-    if (portal_dict['clinicalattributes/patients'] is not None and
-            portal_dict['clinicalattributes/samples'] is not None):
-        clinical_attr_dict = merge_clinical_attributes(
-            portal_dict['clinicalattributes/patients'],
-            portal_dict['clinicalattributes/samples'])
     return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
-                          clinical_attribute_dict=clinical_attr_dict,
                           hugo_entrez_map=portal_dict['genes'],
                           alias_entrez_map=portal_dict['genesaliases'])
 
@@ -2982,9 +2893,6 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
 
     if portal_instance.cancer_type_dict is None:
         logger.warning('Skipping validations relating to cancer types '
-                       'defined in the portal')
-    if portal_instance.clinical_attribute_dict is None:
-        logger.warning('Skipping validations relating to clinical attributes '
                        'defined in the portal')
     if (portal_instance.hugo_entrez_map is None or
             portal_instance.alias_entrez_map is None):
@@ -3057,7 +2965,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
         if not relaxed_mode:                         
             return
     DEFINED_SAMPLE_IDS = defined_sample_ids
-    DEFINED_SAMPLE_ATTRIBUTES = sample_validator.newly_defined_attributes
+    DEFINED_SAMPLE_ATTRIBUTES = sample_validator.defined_attributes
     PATIENTS_WITH_SAMPLES = sample_validator.patient_ids
 
     if len(validators_by_meta_type.get(
@@ -3176,7 +3084,6 @@ def main_validate(args):
     # load portal-specific information
     if args.no_portal_checks:
         portal_instance = PortalInstance(cancer_type_dict=None,
-                                         clinical_attribute_dict=None,
                                          hugo_entrez_map=None,
                                          alias_entrez_map=None)
     elif args.portal_info_dir:

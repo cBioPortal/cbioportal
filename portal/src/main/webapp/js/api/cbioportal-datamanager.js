@@ -960,37 +960,63 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		return stringListUnique(flatten(objectValues(this.study_sample_map)));
 	    }
 	},
-	'getCaseUIDMap': function () {
-	    var def = new $.Deferred();
-	    var self = this;
-	    this.getStudyPatientMap().then(function (study_patient_map) {
+	'computeUIDMaps': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    self.getStudyPatientMap().then(function (study_patient_map) {
 		var study_sample_map = self.getStudySampleMap();
 		var counter = 0;
-		var ret = {};
+
+		var case_to_uid = {};
+		var uid_to_case = {};
+		var ret = {
+		    'case_to_uid': case_to_uid,
+		    'uid_to_case': uid_to_case
+		};
 		for (var study in study_sample_map) {
 		    if (typeof study_sample_map[study] !== "undefined") {
-			ret[study] = ret[study] || {};
-			var study_ids = ret[study];
+			case_to_uid[study] = case_to_uid[study] || {};
+			var study_ids = case_to_uid[study];
 			var samples = study_sample_map[study];
 			for (var i = 0; i < samples.length; i++) {
-			    study_ids[samples[i]] = counter + "";
+			    var new_uid = counter + "";
+			    study_ids[samples[i]] = new_uid;
+			    uid_to_case[new_uid] = samples[i];
 			    counter += 1;
 			}
 		    }
 		}
 		for (var study in study_patient_map) {
 		    if (typeof study_patient_map[study] !== "undefined") {
-			ret[study] = ret[study] || {};
-			var study_ids = ret[study];
+			case_to_uid[study] = case_to_uid[study] || {};
+			var study_ids = case_to_uid[study];
 			var patients = study_patient_map[study];
 			for (var i = 0; i < patients.length; i++) {
-			    study_ids[patients[i]] = counter + "";
+			    var new_uid = counter + "";
+			    study_ids[patients[i]] = new_uid;
+			    uid_to_case[new_uid] = patients[i];
 			    counter += 1;
 			}
 		    }
 		}
-		def.resolve(ret);
+		fetch_promise.resolve(ret);
 	    }).fail(function () {
+		fetch_promise.reject();
+	    });
+		}),
+	'getCaseUIDMap': function () {
+	    var def = new $.Deferred();
+	    this.computeUIDMaps().then(function(uid_maps) {
+		def.resolve(uid_maps.case_to_uid);
+	    }).fail(function() {
+		def.reject();
+	    });
+	    return def.promise();
+	},
+	'getUIDToCaseMap': function() {
+	    var def = new $.Deferred();
+	    this.computeUIDMaps().then(function(uid_maps) {
+		def.resolve(uid_maps.uid_to_case);
+	    }).fail(function() {
 		def.reject();
 	    });
 	    return def.promise();

@@ -1633,7 +1633,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    };
 	    
 	    var updateDownloadIdOrderText = function() {
-		$('oncoprint-sample-download').text((State.using_sample_data ? "Sample" : "Patient") + " order");
+		$('.oncoprint-sample-download').text((State.using_sample_data ? "Sample" : "Patient") + " order");
 	    };
 	    
 	    updateHeaderBtnText();
@@ -1692,16 +1692,20 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 
 	    $('body').on('click', '.oncoprint-sample-download', function () {
-		var idTypeStr = (State.using_sample_data ? "Sample" : "Patient");
-		var content = idTypeStr + " order in the Oncoprint is: \n";
-		content += oncoprint.getIdOrder().join('\n');
-		var downloadOpts = {
-		    filename: 'OncoPrint' + idTypeStr + 's.txt',
-		    contentType: "text/plain;charset=utf-8",
-		    preProcess: false};
+		window.QuerySession.getUIDToCaseMap().then(function (uid_to_case) {
+		    var idTypeStr = (State.using_sample_data ? "Sample" : "Patient");
+		    var content = idTypeStr + " order in the Oncoprint is: \n";
+		    content += oncoprint.getIdOrder().map(function (uid) {
+			return uid_to_case[uid];
+		    }).join('\n');
+		    var downloadOpts = {
+			filename: 'OncoPrint' + idTypeStr + 's.txt',
+			contentType: "text/plain;charset=utf-8",
+			preProcess: false};
 
-		// send download request with filename & file content info
-		cbio.download.initDownload(content, downloadOpts);
+		    // send download request with filename & file content info
+		    cbio.download.initDownload(content, downloadOpts);
+		});
 	    });
 	})();
     })();

@@ -110,7 +110,7 @@ INSERT INTO clinical_attribute_meta
   INNER JOIN clinical_patient ON clinical_attribute.ATTR_ID = clinical_patient.ATTR_ID 
   INNER JOIN patient ON clinical_patient.internal_id = patient.internal_id 
   INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id;
-DROP TABLE clinical_attribute;
+DROP TABLE IF EXISTS clinical_attribute;
 CREATE TABLE `structural_variant` (
   `SAMPLE_ID` int(11) NOT NULL,
   `INTERNAL_ID` int(11) NOT NULL auto_increment,
@@ -147,3 +147,10 @@ CREATE TABLE `structural_variant` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
 );
 UPDATE info SET DB_SCHEMA_VERSION="1.3.0";
+
+##version: 1.3.1
+DROP TABLE IF EXISTS entity_attribute;
+DROP TABLE IF EXISTS attribute_metadata;
+DROP TABLE IF EXISTS entity_link;
+DROP TABLE IF EXISTS entity;
+UPDATE info SET DB_SCHEMA_VERSION="1.3.1";

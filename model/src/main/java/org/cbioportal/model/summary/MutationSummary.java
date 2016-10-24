@@ -6,7 +6,9 @@ public abstract class MutationSummary implements Serializable {
 
     private Integer mutationEventId;
     private Integer geneticProfileId;
+    private String geneticProfileStableId;
     private Integer sampleId;
+    private String sampleStableId;
     private Integer entrezGeneId;
     private String center;
     private String sequencer;
@@ -49,12 +51,28 @@ public abstract class MutationSummary implements Serializable {
         this.geneticProfileId = geneticProfileId;
     }
 
+    public String getGeneticProfileStableId() {
+        return geneticProfileStableId;
+    }
+
+    public void setGeneticProfileStableId(String geneticProfileStableId) {
+        this.geneticProfileStableId = geneticProfileStableId;
+    }
+
     public Integer getSampleId() {
         return sampleId;
     }
 
     public void setSampleId(Integer sampleId) {
         this.sampleId = sampleId;
+    }
+
+    public String getSampleStableId() {
+        return sampleStableId;
+    }
+
+    public void setSampleStableId(String sampleStableId) {
+        this.sampleStableId = sampleStableId;
     }
 
     public Integer getEntrezGeneId() {

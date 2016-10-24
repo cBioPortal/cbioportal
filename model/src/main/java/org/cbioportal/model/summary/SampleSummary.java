@@ -10,6 +10,7 @@ public abstract class SampleSummary implements Serializable {
     private String stableId;
     private SampleType sampleType;
     private Integer patientId;
+    private String patientStableId;
     private String typeOfCancerId;
 
     public Integer getInternalId() {
@@ -42,6 +43,14 @@ public abstract class SampleSummary implements Serializable {
 
     public void setPatientId(Integer patientId) {
         this.patientId = patientId;
+    }
+
+    public String getPatientStableId() {
+        return patientStableId;
+    }
+
+    public void setPatientStableId(String patientStableId) {
+        this.patientStableId = patientStableId;
     }
 
     public String getTypeOfCancerId() {

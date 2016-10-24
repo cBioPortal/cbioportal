@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,17 +32,17 @@
 
 package org.mskcc.cbio.portal.web_api;
 
-import org.mskcc.cbio.portal.model.Gene;
-import org.mskcc.cbio.portal.model.MicroRna;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.servlet.ServletXssUtil;
-import org.mskcc.cbio.portal.util.GeneComparator;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.Gene;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.MicroRna;
+import org.mskcc.cbio.portal.servlet.ServletXssUtil;
+import org.mskcc.cbio.portal.util.GeneComparator;
 
 /**
  * Utility class for web api
@@ -77,7 +77,7 @@ public class WebApiUtil {
                 if (geneId.startsWith("hsa")) {
                     if (microRnaIdSet.contains(geneId)) {
                         //  Conditionally Expand Micro RNAs
-                        if (alterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                        if (alterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
                             //  Option 1:  Client has specified a variant ID and really wants CNA
                             //  data for this variant
                             if (variantMicroRnaIdSet.contains(geneId)) {

@@ -39,11 +39,11 @@ public class ClinicalDataController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data of a sample in a study")
     public ResponseEntity<List<? extends ClinicalDataSummary>> getAllClinicalDataOfSampleInStudy(
-            @ApiParam(required = true, value = "Study ID")
+            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
-            @ApiParam(required = true, value = "Sample ID")
+            @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
             @PathVariable String sampleId,
-            @ApiParam("Attribute ID")
+            @ApiParam("Attribute ID e.g. CANCER_TYPE")
             @RequestParam(required = false) String attributeId,
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
@@ -73,11 +73,11 @@ public class ClinicalDataController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data of a patient in a study")
     public ResponseEntity<List<? extends ClinicalDataSummary>> getAllClinicalDataOfPatientInStudy(
-            @ApiParam(required = true, value = "Study ID")
+            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
-            @ApiParam(required = true, value = "Patient ID")
+            @ApiParam(required = true, value = "Patient ID e.g. TCGA-OR-A5J2")
             @PathVariable String patientId,
-            @ApiParam("Attribute ID")
+            @ApiParam("Attribute ID e.g. AGE")
             @RequestParam(required = false) String attributeId,
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
@@ -107,9 +107,9 @@ public class ClinicalDataController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data in a study")
     public ResponseEntity<List<? extends ClinicalDataSummary>> getAllClinicalDataInStudy(
-            @ApiParam(required = true, value = "Study ID")
+            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
-            @ApiParam("Attribute ID")
+            @ApiParam("Attribute ID e.g. CANCER_TYPE")
             @RequestParam(required = false) String attributeId,
             @ApiParam("Type of the clinical data")
             @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
@@ -141,7 +141,7 @@ public class ClinicalDataController {
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data by patient IDs or sample IDs")
     public ResponseEntity<List<? extends ClinicalDataSummary>> fetchClinicalData(
-            @ApiParam("Attribute ID")
+            @ApiParam("Attribute ID e.g. CANCER_TYPE")
             @RequestParam(required = false) String attributeId,
             @ApiParam("Type of the clinical data")
             @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,

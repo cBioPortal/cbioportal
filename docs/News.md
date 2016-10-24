@@ -5,7 +5,7 @@
     
     ![OncoPrint-OncoKB](https://cloud.githubusercontent.com/assets/840895/19208804/094dd320-8ccd-11e6-8012-f30104b62ff4.png)
     
-    * Copy number segments visualization directly in the browser in a new *CN Segments* tab
+    * Copy number segments visualization directly in the browser in a new *CN Segments* tab via [IGV.js](http://igv.org/)
     
     ![image](https://cloud.githubusercontent.com/assets/840895/19200747/ad03c824-8c98-11e6-8051-91fc40e1dc56.png)
     

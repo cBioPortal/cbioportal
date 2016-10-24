@@ -15,11 +15,5 @@
             clinical_attribute_meta.PRIORITY AS "${prefix}priority",
             clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId"
         </if>
-        <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.persistence.mybatis.StudyMapper.select">
-                <property name="prefix" value="${prefix}cancerStudy."/>
-            </include>
-        </if>
     </sql>
 </mapper>

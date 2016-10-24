@@ -1,6 +1,7 @@
 package org.cbioportal.web.mixin.summary;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MutationSummaryMixin {
 
@@ -8,8 +9,12 @@ public class MutationSummaryMixin {
     private Integer mutationEventId;
     @JsonIgnore
     private Integer geneticProfileId;
+    @JsonProperty("geneticProfileId")
+    private String geneticProfileStableId;
     @JsonIgnore
     private Integer sampleId;
+    @JsonProperty("sampleId")
+    private String sampleStableId;
     private Integer entrezGeneId;
     private String center;
     private String sequencer;

@@ -1,6 +1,7 @@
 package org.cbioportal.web.mixin.summary;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.cbioportal.model.Sample.SampleType;
 
 public class SampleSummaryMixin {
@@ -11,5 +12,7 @@ public class SampleSummaryMixin {
     private SampleType sampleType;
     @JsonIgnore
     private Integer patientId;
+    @JsonProperty("patientId")
+    private String patientStableId;
     private String typeOfCancerId;
 }

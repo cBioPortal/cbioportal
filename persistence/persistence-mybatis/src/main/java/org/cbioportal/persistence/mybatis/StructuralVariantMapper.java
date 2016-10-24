@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,16 +30,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.model;
+package org.cbioportal.persistence.mybatis;
 
-public enum EntityType
-{
-    STUDY("STUDY"),
-    PATIENT("PATIENT"),
-    SAMPLE("SAMPLE");
+import org.apache.ibatis.annotations.Param;
+import org.cbioportal.model.StructuralVariant;
 
-    private String propertyName;
-        
-    EntityType(String propertyName) { this.propertyName = propertyName; }
-    public String toString() { return propertyName; }
+import java.util.List;
+/**
+ *
+ * @author jake
+ */
+public interface StructuralVariantMapper {
+
+    List<StructuralVariant> getStructuralVariant(@Param("geneticProfileStableIds")List<String> geneticProfileStableIds,
+                                  @Param("hugoGeneSymbols")List<String> hugoGeneSymbols,
+                                  @Param("sampleStableIds")List<String> sampleStableIds);
+
 }

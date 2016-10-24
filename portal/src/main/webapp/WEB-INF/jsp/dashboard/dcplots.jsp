@@ -142,8 +142,8 @@
 </div>
 
 <script>
-    function initdcplots(data) {
-        iViz.init(data);
+    function initdcplots(data, opts) {
+        iViz.init(data, opts);
 
         QueryByGeneTextArea.init('#query-by-gene-textarea', function(genes) {
             iViz.vue.manage.getInstance().$broadcast('gene-list-updated', genes);

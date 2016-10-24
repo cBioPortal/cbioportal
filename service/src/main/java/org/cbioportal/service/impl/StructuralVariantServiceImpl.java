@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,18 +30,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.model;
+package org.cbioportal.service.impl;
 
-import java.io.Serializable;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.persistence.StructuralVariantRepository;
+import org.cbioportal.service.StructuralVariantService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-/**
- * Represents an EntityLink (Study->Patient, Patient->Sample).
- *
- * @author Benjamin Gross
- */
-public class EntityLink implements Serializable
-{
-    public int linkId;
-    public int parentId;
-    public int childId;
+import java.util.List;
+
+@Service
+public class StructuralVariantServiceImpl implements StructuralVariantService {
+    
+    @Autowired
+    StructuralVariantRepository structuralVariantRepository;
+    
+    @Override
+    public List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds){
+        return structuralVariantRepository.getStructuralVariant(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
+    }
 }

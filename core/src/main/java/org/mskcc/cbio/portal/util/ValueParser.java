@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -64,6 +64,8 @@ import org.mskcc.cbio.portal.model.GeneticAlterationType;
  * @author Arthur Goldberg
  */
 public class ValueParser {
+   public static final String MUTATION_VALUE_ZERO = "0";
+   public static final String MUTATION_VALUE_NAN = "NaN";
    private String                   originalValue;
    private HashMap<String, String>  datatypeToValueMap;
    private OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec;
@@ -124,7 +126,7 @@ public class ValueParser {
    public ValueParser(String str, OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec) {
       this.theOncoPrintGeneDisplaySpec = theOncoPrintGeneDisplaySpec;
       parseValue(str);
-      // System.err.println( this.toString() );
+      // System.err.println(this.toString());
    }
 
    /**
@@ -139,9 +141,9 @@ public class ValueParser {
     * @param zScoreThreshold
     * @param theOncoPrintSpecification
     * @return null if the gene cannot be found in theOncoPrintSpecification,
-    *         otherwise a new ValueParser, as constructed by ValueParser( String
+    *         otherwise a new ValueParser, as constructed by ValueParser(String
     *         value, double zScoreThreshold, OncoPrintGeneDisplaySpec
-    *         theOncoPrintGeneDisplaySpec ) for theOncoPrintGeneDisplaySpec for
+    *         theOncoPrintGeneDisplaySpec) for theOncoPrintGeneDisplaySpec for
     *         the gene in theOncoPrintSpecification.
     */
    static public ValueParser generateValueParser(String gene, String value, double zScoreThreshold,
@@ -150,7 +152,7 @@ public class ValueParser {
       // check that gene can be found
       GeneWithSpec theGeneWithSpec = theOncoPrintSpecification.getGeneWithSpec(gene);
       if (null == theGeneWithSpec) {
-         // System.err.println( "Cannot find " + gene + " in theOncoPrintSpecification.");
+         // System.err.println("Cannot find " + gene + " in theOncoPrintSpecification.");
          return null;
       }
       return new ValueParser(value, zScoreThreshold, rppaScoreThreshold,
@@ -207,10 +209,10 @@ public class ValueParser {
    private void parseValue(String str) {
       this.originalValue = str;
       datatypeToValueMap = new HashMap<String, String>();
-      String fields[] = str.split( ProfileMerger.VALUE_SEPARATOR );
+      String fields[] = str.split(ProfileMerger.VALUE_SEPARATOR);
       for (String field : fields) {
          // just split on the 1st colon, so that colon(s) within the value remain intact
-         String parts[] = field.split( ProfileMerger.TYPE_VALUE_SEPARATOR, 2 );
+         String parts[] = field.split(ProfileMerger.TYPE_VALUE_SEPARATOR, 2);
          // TODO: throw exception if this conditional isn't true
          if (parts != null && parts.length == 2) {
             String name = parts[0];
@@ -333,10 +335,8 @@ public class ValueParser {
     */
    public GeneticTypeLevel getCNAlevel() {
       for (GeneticTypeLevel theGeneticTypeLevel : GeneticTypeLevel.values()) {
-         if (theGeneticTypeLevel.getTheGeneticDataType().equals
-                 (GeneticDataTypes.CopyNumberAlteration)) {
-            if (isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
-                    theGeneticTypeLevel)) {
+         if (theGeneticTypeLevel.getTheGeneticDataType().equals(GeneticDataTypes.CopyNumberAlteration)) {
+            if (isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, theGeneticTypeLevel)) {
                return theGeneticTypeLevel;
             }
          }
@@ -347,28 +347,23 @@ public class ValueParser {
    // I'd prefer to just export getCNAlevel(), etc., but I guess
    // these are helpful for some callers
    public boolean isCnaAmplified() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
-              GeneticTypeLevel.Amplified);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified);
    }
 
    public boolean isCnaGained() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
-              GeneticTypeLevel.Gained);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained);
    }
 
    public boolean isCnaDiploid() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
-              GeneticTypeLevel.Diploid);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Diploid);
    }
 
    public boolean isCnaHemizygouslyDeleted() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
-              GeneticTypeLevel.HemizygouslyDeleted);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted);
    }
 
    public boolean isCnaHomozygouslyDeleted() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
-              GeneticTypeLevel.HomozygouslyDeleted);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted);
    }
 
    // general case for continuous types
@@ -387,19 +382,19 @@ public class ValueParser {
       }
 
       String value = getValue(convertGeneticType(theContinuousGeneticDataType));
-      // out.println( value );
+      // out.println(value);
       if (null == value) {
-         // out.println( "no value" );
+         // out.println("no value");
          return false;
       }
       float measuredValue;
       try {
          measuredValue = Float.parseFloat(value);
       } catch (NumberFormatException e) {
-         // out.println( value + " not float" );
+         // out.println(value + " not float");
          return false;
       }
-      // out.println( measuredValue );
+      // out.println(measuredValue);
 
       return this.theOncoPrintGeneDisplaySpec.satisfy(theContinuousGeneticDataType,
               measuredValue, theDirection);
@@ -430,14 +425,13 @@ public class ValueParser {
     */
    public boolean isMutated() {
       // don't use isDiscreteTypeThisLevel because of mutation's complex values
-      String mutationValue = datatypeToValueMap.get
-              (GeneticAlterationType.MUTATION_EXTENDED.toString());
+      String mutationValue = datatypeToValueMap.get(GeneticAlterationType.MUTATION_EXTENDED.name());
       if (mutationValue != null) {
          // TODO: fix: this is a little dangerous, because it means that ANY
          // value for mutation other than these will be reported as a mutation;
          // I would prefer a positive test
-         if (mutationValue.equalsIgnoreCase(GeneticAlterationType.NAN)
-                  || mutationValue.equals(GeneticAlterationType.ZERO)) {
+         if (mutationValue.equalsIgnoreCase(MUTATION_VALUE_NAN)
+                  || mutationValue.equals(MUTATION_VALUE_ZERO)) {
             return false;
          } else {
             return theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Mutation,
@@ -450,16 +444,15 @@ public class ValueParser {
       return false;
    }
 
-	/**
-	 * Routine used to get amino acid encoding of mutation.  Motivation was
-	 * to provide amino acid change to MakeOncoPrint via GeneticEvent instead of 
-	 * ExtendedMutationMap.
-	 */
-	public String getMutationType() {
-		String toReturn = 
-			datatypeToValueMap.get(GeneticAlterationType.MUTATION_EXTENDED.toString());
-		return (toReturn == null) ? "Mutation cannot be determined" : toReturn;
-	}
+   /**
+    * Routine used to get amino acid encoding of mutation.  Motivation was
+    * to provide amino acid change to MakeOncoPrint via GeneticEvent instead of 
+    * ExtendedMutationMap.
+    */
+   public String getMutationType() {
+      String toReturn = datatypeToValueMap.get(GeneticAlterationType.MUTATION_EXTENDED.name());
+      return (toReturn == null) ? "Mutation cannot be determined" : toReturn;
+   }
 
    /**
     * report on whether the gene was sequenced, as based on the mutation data,
@@ -471,17 +464,8 @@ public class ValueParser {
       if (isMutated()) {
          return true;
       } else {
-         String mutationValue = datatypeToValueMap.get
-                 (GeneticAlterationType.MUTATION_EXTENDED.toString());
-         if (mutationValue != null) {
-            if (mutationValue.equalsIgnoreCase(GeneticAlterationType.NAN)) {
-               return false;
-            } else {
-               return true;
-            }
-         } else {
-            return false;
-         }
+         String mutationValue = datatypeToValueMap.get(GeneticAlterationType.MUTATION_EXTENDED.name());
+         return mutationValue != null && !(mutationValue.equalsIgnoreCase(MUTATION_VALUE_NAN));
       }
    }
 
@@ -492,14 +476,13 @@ public class ValueParser {
     * @return
     */
    public boolean isGeneAltered() {
-      return isMutated() || this.isDiscreteTypeAltered( GeneticDataTypes.CopyNumberAlteration ) ||
+      return isMutated() || this.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration) ||
       isMRNAWayUp() || isMRNAWayDown() || isRPPAWayUp() || isRPPAWayDown();
    }
 
    // TODO: combine the union of all genetic types into one, include all, like
    // GeneticAlterationType.METHYLATION_BINARY
-   private static GeneticAlterationType convertGeneticType(GeneticDataTypes
-           theDiscreteGeneticDataType) {
+   private static GeneticAlterationType convertGeneticType(GeneticDataTypes theDiscreteGeneticDataType) {
       switch (theDiscreteGeneticDataType) {
          case CopyNumberAlteration:
             return GeneticAlterationType.COPY_NUMBER_ALTERATION;
@@ -517,28 +500,28 @@ public class ValueParser {
       return null;
    }
 
-   private String getValue(GeneticAlterationType theGeneticAlterationType) {
-      return datatypeToValueMap.get(theGeneticAlterationType.toString());
+   private String getValue(GeneticAlterationType geneticAlterationType) {
+      return datatypeToValueMap.get(geneticAlterationType.name());
    }
 
    public String getCnaValue() {
-      return datatypeToValueMap.get(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString());
+      return datatypeToValueMap.get(GeneticAlterationType.COPY_NUMBER_ALTERATION.name());
    }
 
    public String getUnparsedMRNAValue() {
-      return datatypeToValueMap.get(GeneticAlterationType.MRNA_EXPRESSION.toString());
+      return datatypeToValueMap.get(GeneticAlterationType.MRNA_EXPRESSION.name());
    }
 
    public String getUnparsedMethylationValue() {
-      return datatypeToValueMap.get(GeneticAlterationType.METHYLATION.toString());
+      return datatypeToValueMap.get(GeneticAlterationType.METHYLATION.name());
    }
 
    public String getUnparsedProteinLevelValue() {
-      return datatypeToValueMap.get(GeneticAlterationType.PROTEIN_LEVEL.toString());
+      return datatypeToValueMap.get(GeneticAlterationType.PROTEIN_LEVEL.name());
    }
 
    public String getUnparsedPhosphorylationValue() {
-      return datatypeToValueMap.get(GeneticAlterationType.PHOSPHORYLATION.toString());
+      return datatypeToValueMap.get(GeneticAlterationType.PHOSPHORYLATION.name());
    }
 
    @Override

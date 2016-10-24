@@ -97,7 +97,7 @@ class DataFileTestCase(LogBufferTestCase):
 
 class PostClinicalDataFileTestCase(DataFileTestCase):
 
-    """Superclass for validating data files to be read after clinical files.
+    """Superclass for validating data files to be read after sample attr files.
 
     I.e. DEFINED_SAMPLE_IDS will be initialised with a list of sample
     identifiers defined in the study.
@@ -170,7 +170,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
     """Tests for validations of the column definitions in a clinical file."""
 
     def test_correct_definitions(self):
-        """Test when all record definitions match with portal."""
+        """Test when all record definitions match with expectations."""
         record_list = self.validate('data_clin_coldefs_correct.txt',
                                     validateData.PatientClinicalValidator)
         # expecting only status messages about the file being validated
@@ -178,34 +178,8 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
-    def test_wrong_definitions(self):
-        """Test when record definitions do not match with portal."""
-        # TODO make a test file with a wrong data type,
-        # to make sure values are checked accordingly
-        self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_clin_coldefs_wrong_display_name.txt',
-                                    validateData.PatientClinicalValidator)
-        # expecting a warning
-        self.assertEqual(len(record_list), 1)
-        record = record_list.pop()
-        # warning about the display name of OS_MONTHS
-        self.assertEqual(record.levelno, logging.WARNING)
-        self.assertEqual(record.column_number, 2)
-        self.assertIn('display_name', record.getMessage().lower())
-        self.assertIn('portal', record.getMessage().lower())
-
-    def test_unknown_attribute(self):
-        """Test when a new attribute is defined in the data file."""
-        record_list = self.validate('data_clin_coldefs_unknown_attribute.txt',
-                                    validateData.PatientClinicalValidator)
-        # expecting 'validating file' messages with one warning in between
-        self.assertEqual(len(record_list), 4)
-        self.assertEqual(record_list[1].levelno, logging.WARNING)
-        self.assertEqual(record_list[1].column_number, 6)
-        self.assertIn('will be added', record_list[1].getMessage().lower())
-
     def test_invalid_definitions(self):
-        """Test when new attributes are defined with invalid properties."""
+        """Test when attributes are defined with unparseable properties."""
         record_list = self.validate('data_clin_coldefs_invalid_priority.txt',
                                     validateData.PatientClinicalValidator)
         # expecting an info message followed by the error, and another error as
@@ -217,10 +191,13 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].column_number, 6)
 
     def test_hardcoded_attributes(self):
-        """Test if some attrs have requirements irrespective of the portal."""
+
+        """Test requirements on the data type or level of some attributes."""
+
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',
                                     validateData.PatientClinicalValidator)
+
         self.assertEqual(len(record_list), 2)
         osmonths_records = []
         other_sid_records = []
@@ -231,8 +208,16 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
                 osmonths_records.append(record)
             if hasattr(record, 'cause') and record.cause == 'OTHER_SAMPLE_ID':
                 other_sid_records.append(record)
+
         self.assertEqual(len(osmonths_records), 1)
+        record = osmonths_records.pop()
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.column_number, 2)
+
         self.assertEqual(len(other_sid_records), 1)
+        record = other_sid_records.pop()
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 6)
 
 
 class ClinicalValuesTestCase(DataFileTestCase):
@@ -1298,26 +1283,61 @@ class StableIdValidationTestCase(LogBufferTestCase):
 
 
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
-    
-    """Superclass for validating headerless clinical data."""
-    
+
+    """Tests for validation of clinical data files without metadata headers.
+
+    When the script is run in relaxed mode, files with incorrect
+    attribute metadata headers should be validated until the end
+    rather than considered unparseable from the header on.
+    """
+
     def test_headerless_clinical_sample(self):
-        self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_clinical_sam_no_hdr.txt', 
+        """Test relaxed validation of sample attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_sam_no_hdr.txt',
                                     validateData.SampleClinicalValidator, None, True)
-        # we expect 3 errors or warnings for 2 new sample-level attributes in data
-        # and 1 for not being able to parse the header in the clinical file
-        self.assertEqual(len(record_list), 3)
-    
+        # we expect a list of records ending in an info message about all lines
+        # being parsed -- if the file had been declared unparseable before the
+        # header it would have issued an error instead.
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.INFO)
+        self.assertTrue(final_record.getMessage().lower().startswith(
+            'read 13 lines'))
+
+    def test_nonrelaxed_headerless_clinical_sample(self):
+        """Test regular validation of sample attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_sam_no_hdr.txt',
+                                    validateData.SampleClinicalValidator, None, False)
+        # test if the list of records logged ends in an error about the file
+        # being unparseable, rather than an info about it being read to the end
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.ERROR)
+        self.assertIn('cannot be parsed', final_record.getMessage().lower())
+
     def test_headerless_clinical_patient(self):
-        self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_clinical_pat_no_hdr.txt', 
+        """Test relaxed validation of patient attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_pat_no_hdr.txt',
                                     validateData.PatientClinicalValidator, None, True)
-        # we expect 8 errors or warnings: 2 for new patient-level attributes,
-        # 1 for the sample attribute CANCER_TYPE in a patient-level file, 2
-        # for missing survival status attributes, 4 for patients with no samples
-        # and 1 for not being able to parse the header in the clinical file
-        self.assertEqual(len(record_list), 10)
+        # we expect a list of records ending in an info message about all lines
+        # being parsed -- if the file had been declared unparseable before the
+        # header it would have issued an error instead.
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.INFO)
+        self.assertTrue(final_record.getMessage().lower().startswith(
+            'read 13 lines'))
+
+    def test_nonrelaxed_headerless_clinical_patient(self):
+        """Test regular validation of patient attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_pat_no_hdr.txt',
+                                    validateData.PatientClinicalValidator, None, False)
+        # test if the list of records logged ends in an error about the file
+        # being unparseable, rather than an info about it being read to the end
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.ERROR)
+        self.assertIn('cannot be parsed', final_record.getMessage().lower())
 
 
 class DataFileIOTestCase(PostClinicalDataFileTestCase):

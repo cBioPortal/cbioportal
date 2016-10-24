@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,26 +30,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.persistence;
+package org.cbioportal.persistence.mybatis;
 
-import org.mskcc.cbio.portal.model.*;
-
-import org.apache.ibatis.annotations.Param;
-
+import java.util.ArrayList;
 import java.util.List;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.persistence.StructuralVariantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+/**
+ *
+ * @author jake
+ */
+@Repository
+public class StructuralVariantMyBatisRepository implements StructuralVariantRepository {
 
-public interface EntityAttributeMapper
-{
-	void insertEntityAttribute(EntityAttribute attribute);
-	void updateEntityAttribute(EntityAttribute attribute);
-	void insertAttributeMetadata(AttributeMetadata attributeMetadata);
+    @Autowired
+    StructuralVariantMapper structuralVariantMapper;
 
-	EntityAttribute getEntityAttributeById(@Param("entityId") int entityId,
-	                                       @Param("attributeId") String attributeId);
-
-	List<AttributeMetadata> getAllAttributeMetadata();
-	AttributeMetadata getAttributeMetadataById(String attributeId);
-
-	void deleteEntityAttributes(@Param("entityId") int entityId);
-	void deleteAllEntityAttributes();
+    @Override
+    public List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds) {
+        if (geneticProfileStableIds == null || geneticProfileStableIds.size() == 0) {
+            return new ArrayList<StructuralVariant>(0);
+        }
+        return structuralVariantMapper.getStructuralVariant(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
+    }
 }

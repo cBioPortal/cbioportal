@@ -5,6 +5,7 @@ import java.io.Serializable;
 public abstract class ClinicalDataSummary implements Serializable {
 
     private Integer internalId;
+    private String stableId;
     private String attrId;
     private String attrValue;
 
@@ -14,6 +15,14 @@ public abstract class ClinicalDataSummary implements Serializable {
 
     public void setInternalId(Integer internalId) {
         this.internalId = internalId;
+    }
+
+    public String getStableId() {
+        return stableId;
+    }
+
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
     }
 
     public String getAttrId() {

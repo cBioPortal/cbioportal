@@ -42,8 +42,6 @@ public class DumpPortalInfo extends ConsoleRunnable {
     // these names are defined in annotations to the methods of ApiController,
     // in org.mskcc.cbio.portal.web
     private static final String API_CANCER_TYPES = "/cancertypes";
-    private static final String API_SAMPLE_ATTRS = "/clinicalattributes/samples";
-    private static final String API_PATIENT_ATTRS = "/clinicalattributes/patients";
     private static final String API_GENES = "/genes";
     private static final String API_GENE_ALIASES = "/genesaliases";
 
@@ -115,12 +113,6 @@ public class DumpPortalInfo extends ConsoleRunnable {
                 writeJsonFile(
                         apiService.getCancerTypes(),
                         nameJsonFile(outputDir, API_CANCER_TYPES));
-                writeJsonFile(
-                        apiService.getSampleClinicalAttributes(),
-                        nameJsonFile(outputDir, API_SAMPLE_ATTRS));
-                writeJsonFile(
-                        apiService.getPatientClinicalAttributes(),
-                        nameJsonFile(outputDir, API_PATIENT_ATTRS));
                 writeJsonFile(
                         apiService.getGenes(),
                         nameJsonFile(outputDir, API_GENES));

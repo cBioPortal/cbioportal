@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,26 +30,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.model;
+package org.cbioportal.web.legacy;
 
-import java.io.Serializable;
+import java.util.List;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.service.StructuralVariantService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-public class AttributeMetadata implements Serializable
-{
-    public AttributeDatatype datatype;
-    public String attributeId;
-    public String displayName;
-    public String description;
-    public String type;
+@RestController
+public class StructuralVariantController {
+    @Autowired
+    private StructuralVariantService structuralVariantService;
 
-    @Override
-    public String toString()
-    {
-        return "AttributeMetadata [" +
-			attributeId + "," +
-			displayName + "," +
-			description + "," +
-			datatype.toString() +
-            type +  "]";
+    @RequestMapping(method = RequestMethod.GET, value = "/structuralvariant")
+    public List<StructuralVariant> getStructuralVariant(@RequestParam List<String> geneticProfileStableIds,
+                                         @RequestParam List<String> hugoGeneSymbols,
+                                         @RequestParam(required = false) List<String> sampleStableIds) {
+        return structuralVariantService.getStructuralVariant(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     }
 }

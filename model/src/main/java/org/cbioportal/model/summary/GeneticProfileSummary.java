@@ -7,6 +7,7 @@ public abstract class GeneticProfileSummary implements Serializable {
     private Integer geneticProfileId;
     private String stableId;
     private Integer cancerStudyId;
+    private String cancerStudyIdentifier;
     private String geneticAlterationType;
     private String datatype;
     private String name;
@@ -35,6 +36,14 @@ public abstract class GeneticProfileSummary implements Serializable {
 
     public void setCancerStudyId(Integer cancerStudyId) {
         this.cancerStudyId = cancerStudyId;
+    }
+
+    public String getCancerStudyIdentifier() {
+        return cancerStudyIdentifier;
+    }
+
+    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+        this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
 
     public String getGeneticAlterationType() {

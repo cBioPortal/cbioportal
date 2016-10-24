@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,35 +30,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.web;
+package org.cbioportal.persistence;
 
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.service.EntityAttributeService;
-
-import org.springframework.web.bind.annotation.*;
-import org.springframework.stereotype.Controller;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cbioportal.model.StructuralVariant;
 
 import java.util.List;
-
-@Controller
-@RequestMapping("/attributes")
-public class AttributesController
-{
-	@Autowired
-	private EntityAttributeService entityAttributeService;
-
-  @RequestMapping(value="/clinical")
-  public @ResponseBody List<AttributeMetadata> getClinicalAttributes()
-  {
-    return entityAttributeService.getAllAttributeMetadata();
-  }
-
-  @RequestMapping(value="/clinical/{study}")
-  public @ResponseBody List<AttributeMetadata> getClinicalAttribute(@PathVariable String study,
-                                                                    @RequestParam(value="patient", required=false) String patient,
-                                                                    @RequestParam(value="sample", required=false) String sample)
-  {
-    return new java.util.ArrayList<AttributeMetadata>();
-  }
+/**
+ *
+ * @author jake
+ */
+public interface StructuralVariantRepository {
+    List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds);
 }

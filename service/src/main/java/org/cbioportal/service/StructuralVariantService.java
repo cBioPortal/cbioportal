@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,16 +30,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.model;
+package org.cbioportal.service;
 
-public enum AttributeDatatype
-{
-    NUMBER("NUMBER"),
-    BOOLEAN("BOOLEAN"),
-    STRING("STRING");
+import java.util.List;
+import org.cbioportal.model.StructuralVariant;
 
-    private String propertyName;
-      
-    AttributeDatatype(String propertyName) { this.propertyName = propertyName; }
-    public String toString() { return propertyName; }
+public interface StructuralVariantService {
+    List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds);
 }

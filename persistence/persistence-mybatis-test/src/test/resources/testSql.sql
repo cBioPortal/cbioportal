@@ -1,3 +1,38 @@
+--
+-- Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+--
+-- This library is distributed in the hope that it will be useful, but WITHOUT
+-- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+-- FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+-- is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+-- obligations to provide maintenance, support, updates, enhancements or
+-- modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+-- liable to any party for direct, indirect, special, incidental or
+-- consequential damages, including lost profits, arising out of the use of this
+-- software and its documentation, even if Memorial Sloan-Kettering Cancer
+-- Center has been advised of the possibility of such damage.
+--
+-- This file is part of cBioPortal.
+--
+-- cBioPortal is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU Affero General Public License as
+-- published by the Free Software Foundation, either version 3 of the
+-- License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU Affero General Public License for more details.
+--
+-- You should have received a copy of the GNU Affero General Public License
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-- ----------------------------------------------------------------------------
+-- A manually extracted subset of data for a small number of genes and samples from the BRCA
+-- data set. This is intended to be used during unit testing, to validate the portal APIs.
+-- In theory, it should be enough to run up a portal.
+--
+-- Prepared by Stuart Watt -- 13th May 2015
+
 CREATE TABLE "type_of_cancer" (
   "TYPE_OF_CANCER_ID" VARCHAR(63) NOT NULL,
   "NAME" VARCHAR(255) NOT NULL,
@@ -273,16 +308,52 @@ CREATE TABLE `clinical_attribute_meta` (
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
+CREATE TABLE "structural_variant" (
+  "SAMPLE_ID" INTEGER(11) NOT NULL,
+  "INTERNAL_ID" INTEGER(11) NOT NULL auto_increment,
+  "BREAKPOINT_TYPE" VARCHAR(25),
+  "ANNOTATION" VARCHAR(255),
+  "COMMENTS" VARCHAR(2048),
+  "CONFIDENCE_CLASS" VARCHAR(25),
+  "CONNECTION_TYPE" VARCHAR(25),
+  "EVENT_INFO" VARCHAR(255),
+  "MAPQ" INTEGER(11),
+  "NORMAL_READ_COUNT" INTEGER(11),
+  "NORMAL_VARIANT_COUNT" INTEGER(11),
+  "PAIRED_END_READ_SUPPORT" VARCHAR(255),
+  "SITE1_CHROM" VARCHAR(25),
+  "SITE1_DESC" VARCHAR(255),
+  "SITE1_GENE" VARCHAR(255),
+  "SITE1_POS" INTEGER(11),
+  "SITE2_CHROM" VARCHAR(25),
+  "SITE2_DESC" VARCHAR(255),
+  "SITE2_GENE" VARCHAR(255),
+  "SITE2_POS" INTEGER(11),
+  "SPLIT_READ_SUPPORT" VARCHAR(255),
+  "SV_CLASS_NAME" VARCHAR(25),
+  "SV_DESC" VARCHAR(255),
+  "SV_LENGTH" INTEGER(11),
+  "TUMOR_READ_COUNT" INTEGER(11),
+  "TUMOR_VARIANT_COUNT" INTEGER(11),
+  "VARIANT_STATUS_NAME" VARCHAR(255),
+  "GENETIC_PROFILE_ID" INTEGER(11) NOT NULL,
+  PRIMARY KEY ("INTERNAL_ID"),
+  FOREIGN KEY ("SAMPLE_ID") REFERENCES "sample" ("INTERNAL_ID") ON DELETE CASCADE,
+  FOREIGN KEY ("SITE1_GENE") REFERENCES "gene" ("HUGO_GENE_SYMBOL") ON DELETE CASCADE,
+  FOREIGN KEY ("SITE2_GENE") REFERENCES "gene" ("HUGO_GENE_SYMBOL") ON DELETE CASCADE,
+  FOREIGN KEY ("GENETIC_PROFILE_ID") REFERENCES "genetic_profile" ("GENETIC_PROFILE_ID") ON DELETE CASCADE
+);
+
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT")
   VALUES ('brca','Breast Invasive Carcinoma','breast,breast invasive','HotPink','Breast','tissue');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT")
   VALUES ('acc','Adrenocortical Carcinoma','adrenocortical carcinoma','Purple','ACC','adrenal_gland');
 
 
-INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS")
-  VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC');
-INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS")
-  VALUES (2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','ACC (TCGA)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC');
+INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS", "STATUS", "IMPORT_DATE")
+  VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC', 0, '2011-12-18 13:17:17+00:00');
+INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS", "STATUS", "IMPORT_DATE")
+  VALUES (2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','ACC (TCGA)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC', 0, '2013-10-12 11:11:15+00:00');
 
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (207,'AKT1','protein-coding','14q32.32',10838);
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (208,'AKT2','protein-coding','19q13.1-q13.2',15035);
@@ -298,6 +369,8 @@ INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGT
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (79501,'OR4F5','protein-coding','1p36.33',918);
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (148398,'SAMD11','protein-coding','1p36.33',3205);
 INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (26155,'NOC2L','protein-coding','1p36.33',5539);
+INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (2064,'ERBB2','protein-coding','17q12',10321);
+INSERT INTO "gene" ("ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (2886,'GRB7','protein-coding','17q12',3597);
 
 
 -- cosmic_mutation
@@ -317,6 +390,7 @@ INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG-VALUE','Log2 copy-number values','Log2 copy-number values for each gene (from Affymetrix SNP6).',0);
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (5,'study_tcga_pub_methylation_hm27',1,'METHYLATION','CONTINUOUS','Methylation (HM27)','Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.',0);
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (6,'study_tcga_pub_mutations',1,'MUTATION_EXTENDED','MAF','Mutations','Mutation data from whole exome sequencing.',1);
+INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (7,'study_tcga_pub_sv',1,'STRUCTURAL_VARIANT','SV','Structural Variants','Structural Variants detected by Illumina HiSeq sequencing.',1);
 
 -- genetic_profile_samples
 INSERT INTO "genetic_profile_samples" ("GENETIC_PROFILE_ID", "ORDERED_SAMPLE_LIST") VALUES (2,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
@@ -581,3 +655,9 @@ INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION",
 INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('OCT_EMBEDDED', 'Oct embedded', 'Oct embedded', 'STRING', 0, '1', 2);
 INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('PATHOLOGY_REPORT_FILE_NAME', 'Pathology Report File Name', 'Pathology Report File Name', 'STRING', 0, '1', 2);
 INSERT INTO "clinical_attribute_meta" ("ATTR_ID", "DISPLAY_NAME", "DESCRIPTION", "DATATYPE", "PATIENT_ATTRIBUTE", "PRIORITY", "CANCER_STUDY_ID") VALUES ('SAMPLE_TYPE', 'Sample Type', 'The type of sample (i.e., normal, primary, met, recurrence).', 'STRING', 0, '1', 2);
+
+-- structural_variant
+INSERT INTO "structural_variant" ("SAMPLE_ID","BREAKPOINT_TYPE","ANNOTATION","COMMENTS","CONFIDENCE_CLASS","CONNECTION_TYPE","EVENT_INFO","MAPQ","NORMAL_READ_COUNT","NORMAL_VARIANT_COUNT","PAIRED_END_READ_SUPPORT","SITE1_CHROM","SITE1_DESC","SITE1_GENE","SITE1_POS","SITE2_CHROM","SITE2_DESC","SITE2_GENE","SITE2_POS","SPLIT_READ_SUPPORT","SV_CLASS_NAME","SV_DESC","SV_LENGTH","TUMOR_READ_COUNT","TUMOR_VARIANT_COUNT","VARIANT_STATUS_NAME","GENETIC_PROFILE_ID") VALUES (1,'PRECISE','n/a','n/a','AUTO_OK','3to5','Transcript fusion (ERBB2-GRB7)',0,7181,0,11,'17','Intron of ERBB2(+): 51bp after exon 26','ERBB2',37883851,'17','5-UTR of GRB7(+): 1Kb before coding start','GRB7',37897379,31,'DELETION','n/a',13528,4389,6,'NEW_VARIANT',7);
+INSERT INTO "structural_variant" ("SAMPLE_ID","BREAKPOINT_TYPE","ANNOTATION","COMMENTS","CONFIDENCE_CLASS","CONNECTION_TYPE","EVENT_INFO","MAPQ","NORMAL_READ_COUNT","NORMAL_VARIANT_COUNT","PAIRED_END_READ_SUPPORT","SITE1_CHROM","SITE1_DESC","SITE1_GENE","SITE1_POS","SITE2_CHROM","SITE2_DESC","SITE2_GENE","SITE2_POS","SPLIT_READ_SUPPORT","SV_CLASS_NAME","SV_DESC","SV_LENGTH","TUMOR_READ_COUNT","TUMOR_VARIANT_COUNT","VARIANT_STATUS_NAME","GENETIC_PROFILE_ID") VALUES (2,'PRECISE','n/a','n/a','AUTO_OK','3to5','Protein fusion: mid-exon (ERBB2-GRB7)',0,7062,0,97,'17','Exon 25 of ERBB2(+)','ERBB2',37883138,'17','Intron of GRB7(+): 56bp before exon 10','GRB7',37901416,71,'DELETION','n/a',18278,9849,60,'NEW_VARIANT',7);
+INSERT INTO "structural_variant" ("SAMPLE_ID","BREAKPOINT_TYPE","ANNOTATION","COMMENTS","CONFIDENCE_CLASS","CONNECTION_TYPE","EVENT_INFO","MAPQ","NORMAL_READ_COUNT","NORMAL_VARIANT_COUNT","PAIRED_END_READ_SUPPORT","SITE1_CHROM","SITE1_DESC","SITE1_GENE","SITE1_POS","SITE2_CHROM","SITE2_DESC","SITE2_GENE","SITE2_POS","SPLIT_READ_SUPPORT","SV_CLASS_NAME","SV_DESC","SV_LENGTH","TUMOR_READ_COUNT","TUMOR_VARIANT_COUNT","VARIANT_STATUS_NAME","GENETIC_PROFILE_ID") VALUES (3,'PRECISE','n/a','ERBB2 (NM_004448) rearrangement','MANUAL_OK','3to5','Deletion of 1 exon: in frame',0,7212,0,31,'17','Intron of ERBB2(+): 46bp after exon 15','ERBB2',37873779,'17','Intron of ERBB2(+): 501bp before exon 17','ERBB2',37879041,10,'DELETION','n/a',5262,3101,7,'NEW_VARIANT',7);
+INSERT INTO "structural_variant" ("SAMPLE_ID","BREAKPOINT_TYPE","ANNOTATION","COMMENTS","CONFIDENCE_CLASS","CONNECTION_TYPE","EVENT_INFO","MAPQ","NORMAL_READ_COUNT","NORMAL_VARIANT_COUNT","PAIRED_END_READ_SUPPORT","SITE1_CHROM","SITE1_DESC","SITE1_GENE","SITE1_POS","SITE2_CHROM","SITE2_DESC","SITE2_GENE","SITE2_POS","SPLIT_READ_SUPPORT","SV_CLASS_NAME","SV_DESC","SV_LENGTH","TUMOR_READ_COUNT","TUMOR_VARIANT_COUNT","VARIANT_STATUS_NAME","GENETIC_PROFILE_ID") VALUES (4,'PRECISE','n/a','n/a','MANUAL_OK','3to5','Deletion of 1 exon',0,5328,0,52,'17','Intron of ERBB2(+): 196bp after exon 15','ERBB2',37873929,'17','Intron of ERBB2(+): 442bp after exon 16','ERBB2',37876529,33,'DELETION','n/a',2600,19320,13,'NEW_VARIANT',7);

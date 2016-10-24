@@ -41,9 +41,8 @@ import org.mockito.Mockito;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
-import org.mskcc.cbio.portal.persistence.EntityAttributeMapper;
-import org.mskcc.cbio.portal.persistence.EntityMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
+import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
@@ -57,7 +56,6 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 
 @Configuration
 @EnableWebMvc
@@ -96,14 +94,6 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
     @Bean
     public ClinicalFieldMapper clinicalFieldMapper() {
         return Mockito.mock(ClinicalFieldMapper.class);
-    }
-    @Bean
-    public EntityAttributeMapper entityAttributeMapper() {
-        return Mockito.mock(EntityAttributeMapper.class);
-    }
-    @Bean
-    public EntityMapper entityMapper() {
-        return Mockito.mock(EntityMapper.class);
     }
     @Bean
     public GeneAliasMapper geneAliasMapper() {

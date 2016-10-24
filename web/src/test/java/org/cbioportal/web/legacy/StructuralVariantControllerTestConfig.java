@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,28 +30,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.persistence;
-
-import org.mskcc.cbio.portal.model.*;
-
-import org.apache.ibatis.annotations.Param;
+package org.cbioportal.web.legacy;
 
 import java.util.List;
+import org.cbioportal.persistence.mybatis.StructuralVariantMapper;
+import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.web.config.CustomObjectMapper;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-public interface EntityMapper
-{
-	void insertEntity(Entity entity);
-	void insertEntityLink(EntityLink entityLink);
-
-	Entity getByInternalId(int internalId);
-	List<Entity> getByStableId(String stableId);
-	List<Entity> getByType(EntityType type);
-
-	List<Entity> getParents(@Param("childId") int childId, @Param("type") EntityType type);
-	List<Entity> getChildren(@Param("parentId") int parentId, @Param("type") EntityType type);
-
-	void deleteEntity(@Param("internalId") int internalId);
-	void deleteEntityLinks(@Param("parentId") int parentId);
-	void deleteAllEntity();
-	void deleteAllEntityLinks();
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = {"org.cbioportal.web"})
+public class StructuralVariantControllerTestConfig extends WebMvcConfigurerAdapter {
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
+        converters.add(mappingJackson2HttpMessageConverter);
+    }
+    @Bean
+    public StructuralVariantService svService(){
+        return Mockito.mock(StructuralVariantService.class);
+    }
 }

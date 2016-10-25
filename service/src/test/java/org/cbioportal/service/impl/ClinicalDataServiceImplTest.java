@@ -17,21 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 @RunWith(MockitoJUnitRunner.class)
-public class ClinicalDataServiceImplTest {
-
-    public static final String STUDY_ID = "study_id";
-    public static final String SAMPLE_ID = "sample_id";
-    public static final String PATIENT_ID = "patient_id";
-    public static final String ATTRIBUTE_ID = "attributeId";
-    public static final String PROJECTION = "projection";
-    public static final Integer PAGE_SIZE = 1000;
-    public static final Integer PAGE_NUMBER = 0;
-    public static final String SORT = "sort";
-    public static final String DIRECTION = "direction";
-    public static final String PATIENT_CLINICAL_DATA_TYPE = "PATIENT";
+public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
     private ClinicalDataServiceImpl clinicalDataService;

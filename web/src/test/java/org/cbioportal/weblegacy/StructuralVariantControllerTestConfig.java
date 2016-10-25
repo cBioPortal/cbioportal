@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.web.legacy;
+package org.cbioportal.weblegacy;
 
 import java.util.List;
 import org.cbioportal.persistence.mybatis.StructuralVariantMapper;
@@ -47,7 +47,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"org.cbioportal.web"})
+@ComponentScan(basePackages = {"org.cbioportal.weblegacy"})
 public class StructuralVariantControllerTestConfig extends WebMvcConfigurerAdapter {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {

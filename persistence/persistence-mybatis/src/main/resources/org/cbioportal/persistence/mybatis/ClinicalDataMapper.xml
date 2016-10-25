@@ -91,7 +91,7 @@
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>
         <include refid="whereSample"/>
-        <if test="sortBy != null">
+        <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
         <if test="limit != null and limit != 0">
@@ -118,7 +118,7 @@
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>
         <include refid="wherePatient"/>
-        <if test="sortBy != null">
+        <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
         <if test="limit != null and limit != 0">

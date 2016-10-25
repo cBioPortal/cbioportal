@@ -55,7 +55,7 @@ import org.mockito.Mockito;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
-import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
+import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -75,7 +75,7 @@ public class ApiControllerTest {
     @Autowired
     private CancerTypeMapperLegacy cancerTypeMapperLegacyMock;
     @Autowired
-    private GeneticProfileMapper geneticProfileMapperMock;
+    private GeneticProfileMapperLegacy geneticProfileMapperLegacyMock;
     @Autowired
     private MutationService mutationServiceMock;
     @Autowired
@@ -88,7 +88,7 @@ public class ApiControllerTest {
     @Before
     public void setup() {
         Mockito.reset(cancerTypeMapperLegacyMock);
-        Mockito.reset(geneticProfileMapperMock);
+        Mockito.reset(geneticProfileMapperLegacyMock);
         Mockito.reset(mutationServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
@@ -164,7 +164,7 @@ public class ApiControllerTest {
     public void geneticProfileDataTest1() throws Exception {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock();
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();
-        Mockito.when(geneticProfileMapperMock.getGeneticProfiles(
+        Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
         Mockito.when(mutationServiceMock.getMutationsDetailed(
@@ -354,7 +354,7 @@ public class ApiControllerTest {
     public void geneticProfileDataTest2() throws Exception {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock().subList(0,2);
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();
-        Mockito.when(geneticProfileMapperMock.getGeneticProfiles(
+        Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
         Mockito.when(mutationServiceMock.getMutationsDetailed(
@@ -436,7 +436,7 @@ public class ApiControllerTest {
     public void geneticProfileDataTest3() throws Exception {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock().subList(0,0);
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();
-        Mockito.when(geneticProfileMapperMock.getGeneticProfiles(
+        Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
         Mockito.when(mutationServiceMock.getMutationsDetailed(
@@ -464,7 +464,7 @@ public class ApiControllerTest {
     public void geneticProfileDataTest4() throws Exception {
         List<Mutation> mockResponse = getGeneticprofiledataQuery1ServiceMock().subList(0,2);
         List<DBGeneticProfile> ctMockResponse = getGeneticProfileQuery1ServiceMock();
-        Mockito.when(geneticProfileMapperMock.getGeneticProfiles(
+        Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
         Mockito.when(mutationServiceMock.getMutationsDetailed(

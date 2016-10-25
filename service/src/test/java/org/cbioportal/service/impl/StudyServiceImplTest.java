@@ -15,17 +15,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 @RunWith(MockitoJUnitRunner.class)
-public class StudyServiceImplTest {
-
-    public static final String STUDY_ID = "study_id";
-    public static final String PROJECTION = "projection";
-    public static final Integer PAGE_SIZE = 1000;
-    public static final Integer PAGE_NUMBER = 0;
-    public static final String SORT = "sort";
-    public static final String DIRECTION = "direction";
+public class StudyServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
     private StudyServiceImpl studyService;

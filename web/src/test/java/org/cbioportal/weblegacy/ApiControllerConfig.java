@@ -43,7 +43,7 @@ import org.mskcc.cbio.portal.persistence.ClinicalDataMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
-import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
+import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
 import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
@@ -104,8 +104,8 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         return Mockito.mock(GeneMapperLegacy.class);
     }
     @Bean
-    public GeneticProfileMapper geneticProfileMapper() {
-        return Mockito.mock(GeneticProfileMapper.class);
+    public GeneticProfileMapperLegacy geneticProfileMapper() {
+        return Mockito.mock(GeneticProfileMapperLegacy.class);
     }
     @Bean
     public PatientMapperLegacy patientMapper() {

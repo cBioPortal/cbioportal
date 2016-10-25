@@ -293,6 +293,8 @@ if (patientViewError!=null) {
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/patient-view/main.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/patient-view/clinical-attributes.css?<%=GlobalProperties.getAppVersion()%>";
+		/* Add stlye file for cbioportal-frontend */
+		@import "reactapp/css/styles.css";
 </style>
 
 <link rel="stylesheet" type="text/css" href="css/oncokb.css" />
@@ -1154,6 +1156,34 @@ var CaseNavigation = (function(currCaseId){
 window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
         = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;
 
+</script>
+<!-- Add script and style files for cbioportal-frontend -->
+<script>
+// Set frontend route to /patient
+window.defaultRoute = "/patient";
+// get root URL
+<%
+String url = request.getRequestURL().toString();
+String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
+baseURL = baseURL.replaceFirst("http.*://", "");
+%>
+__API_ROOT__ = "<%= baseURL %>/api-legacy";
+
+if (localStorage.getItem('localdev') === "true") {
+    // Use cbioportal-frontend localhost:3000 for dev
+    document.write('<script src="http://localhost:3000/reactapp/js/main.app.js"></scr'+'ipt>');
+    // Show alert
+    document.write('<div style="position: fixed; top: 0; left: 0; width: 100%;">'+
+                       '<div class="alert alert-warning">' +
+                            '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                            'cbioportal-frontend dev mode' +
+                       '</div>' +
+                   '</div>');
+} else {
+    // Use deployed sources
+    document.write('<script src="/reactapp/js/main.app.js"></scr'+'ipt>');
+    document.write('<link rel="stylesheet" type="text/css" href="/reactapp/css/styles.css" />');
+}
 </script>
 </body>
 </html>

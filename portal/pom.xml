@@ -113,6 +113,13 @@
               <targetPath>WEB-INF</targetPath>
               <filtering>true</filtering>
             </resource>
+            <resource>
+              <directory>node_modules/cbioportal-frontend/dist</directory>
+              <targetPath>.</targetPath>
+              <excludes>
+                <exclude>*index*</exclude>
+              </excludes>
+            </resource>
           </webResources>
         </configuration>
       </plugin>
@@ -180,6 +187,33 @@
           </execution>
         </executions>
       </plugin>
+      <!-- Download frontend repo using npm install -->
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>${node.version}</nodeVersion>
+              <npmVersion>${npm.version}</npmVersion>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>install</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
 
     <filters>
@@ -227,6 +261,8 @@
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
+    <node.version>v5.3.0</node.version>
+    <npm.version>3.10.2</npm.version>
   </properties>
 
   <!-- remove portal temp build files when building heroku -->

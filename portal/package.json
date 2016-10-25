@@ -1,0 +1,6 @@
+{
+  "description": "Simple package.json to cbioportal-frontend npm module",
+  "dependencies": {
+    "cbioportal-frontend": "git://github.com/cbioportal/cbioportal-frontend#486304f47f56e9f8f4752a80863014dba9770720"
+  }
+}

@@ -3,7 +3,7 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneticProfileRepository;
-import org.cbioportal.persistence.mybatis.tool.Constants;
+import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.tool.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -34,7 +34,7 @@ public class GeneticProfileMyBatisRepository implements GeneticProfileRepository
 
     @Override
     public GeneticProfile getGeneticProfile(String geneticProfileId) {
-        return geneticProfileMapper.getGeneticProfile(geneticProfileId, Constants.DETAILED_PROJECTION);
+        return geneticProfileMapper.getGeneticProfile(geneticProfileId, PersistenceConstants.DETAILED_PROJECTION);
     }
 
     @Override

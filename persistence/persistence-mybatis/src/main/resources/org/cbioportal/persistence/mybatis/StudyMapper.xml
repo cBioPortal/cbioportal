@@ -50,6 +50,9 @@
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
+        <if test="projection == 'ID'">
+            ORDER BY cancer_study.CANCER_STUDY_IDENTIFIER ASC
+        </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>

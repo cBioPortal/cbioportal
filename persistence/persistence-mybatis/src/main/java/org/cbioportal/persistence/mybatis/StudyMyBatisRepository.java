@@ -3,7 +3,7 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
-import org.cbioportal.persistence.mybatis.tool.Constants;
+import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.tool.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -40,6 +40,6 @@ public class StudyMyBatisRepository implements StudyRepository {
 
     @Override
     public CancerStudy getStudy(String studyId) {
-        return studyMapper.getStudy(studyId, Constants.DETAILED_PROJECTION);
+        return studyMapper.getStudy(studyId, PersistenceConstants.DETAILED_PROJECTION);
     }
 }

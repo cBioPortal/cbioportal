@@ -35,35 +35,36 @@ import java.util.TimeZone;
 @Configuration
 public class StudyControllerTest {
 
-    public static final int TEST_CANCER_STUDY_ID_1 = 1;
-    public static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
-    public static final String TEST_TYPE_OF_CANCER_ID_1 = "test_type_of_cancer_id_1";
-    public static final String TEST_NAME_1 = "test_name_1";
-    public static final String TEST_SHORT_NAME_1 = "test_short_name_1";
-    public static final String TEST_DESCRIPTION_1 = "test_description_1";
-    public static final boolean TEST_PUBLIC_STUDY_1 = true;
-    public static final String TEST_PMID_1 = "test_pmid_1";
-    public static final String TEST_CITATION_1 = "test_citation_1";
-    public static final String TEST_GROUPS_1 = "test_groups_1";
-    public static final int TEST_STATUS_1 = 0;
-    public static final String TEST_DATE_1 = "2011-12-18 13:17:17";
-    public static final int TEST_CANCER_STUDY_ID_2 = 2;
-    public static final String TEST_CANCER_STUDY_IDENTIFIER_2 = "test_study_2";
-    public static final String TEST_TYPE_OF_CANCER_ID_2 = "test_type_of_cancer_id_2";
-    public static final String TEST_NAME_2 = "test_name_2";
-    public static final String TEST_SHORT_NAME_2 = "test_short_name_2";
-    public static final String TEST_DESCRIPTION_2 = "test_description_2";
-    public static final boolean TEST_PUBLIC_STUDY_2 = true;
-    public static final String TEST_PMID_2 = "test_pmid_2";
-    public static final String TEST_CITATION_2 = "test_citation_2";
-    public static final String TEST_GROUPS_2 = "test_groups_2";
-    public static final int TEST_STATUS_2 = 0;
-    public static final String TEST_DATE_2 = "2013-10-12 11:11:15";
-    public static final String TEST_TYPE_OF_CANCER_NAME = "test_type_of_cancer_name";
-    public static final String TEST_CLINICAL_TRIAL_KEYWORDS = "test_clinical_trial_keywords";
-    public static final String TEST_DEDICATED_COLOR = "test_dedicated_color";
-    public static final String TEST_TYPE_OF_CANCER_SHORT_NAME = "test_type_of_cancer_short_name";
-    public static final String TEST_PARENT = "test_parent";
+    private static final int TEST_CANCER_STUDY_ID_1 = 1;
+    private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
+    private static final String TEST_TYPE_OF_CANCER_ID_1 = "test_type_of_cancer_id_1";
+    private static final String TEST_NAME_1 = "test_name_1";
+    private static final String TEST_SHORT_NAME_1 = "test_short_name_1";
+    private static final String TEST_DESCRIPTION_1 = "test_description_1";
+    private static final boolean TEST_PUBLIC_STUDY_1 = true;
+    private static final String TEST_PMID_1 = "test_pmid_1";
+    private static final String TEST_CITATION_1 = "test_citation_1";
+    private static final String TEST_GROUPS_1 = "test_groups_1";
+    private static final int TEST_STATUS_1 = 0;
+    private static final String TEST_DATE_1 = "2011-12-18 13:17:17";
+    private static final int TEST_CANCER_STUDY_ID_2 = 2;
+    private static final String TEST_CANCER_STUDY_IDENTIFIER_2 = "test_study_2";
+    private static final String TEST_TYPE_OF_CANCER_ID_2 = "test_type_of_cancer_id_2";
+    private static final String TEST_NAME_2 = "test_name_2";
+    private static final String TEST_SHORT_NAME_2 = "test_short_name_2";
+    private static final String TEST_DESCRIPTION_2 = "test_description_2";
+    private static final boolean TEST_PUBLIC_STUDY_2 = true;
+    private static final String TEST_PMID_2 = "test_pmid_2";
+    private static final String TEST_CITATION_2 = "test_citation_2";
+    private static final String TEST_GROUPS_2 = "test_groups_2";
+    private static final int TEST_STATUS_2 = 0;
+    private static final String TEST_DATE_2 = "2013-10-12 11:11:15";
+    private static final String TEST_TYPE_OF_CANCER_NAME = "test_type_of_cancer_name";
+    private static final String TEST_CLINICAL_TRIAL_KEYWORDS = "test_clinical_trial_keywords";
+    private static final String TEST_DEDICATED_COLOR = "test_dedicated_color";
+    private static final String TEST_TYPE_OF_CANCER_SHORT_NAME = "test_type_of_cancer_short_name";
+    private static final String TEST_PARENT = "test_parent";
+
     @Autowired
     private WebApplicationContext wac;
 
@@ -214,6 +215,7 @@ public class StudyControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyIdentifier")
                         .value(TEST_CANCER_STUDY_IDENTIFIER_1))

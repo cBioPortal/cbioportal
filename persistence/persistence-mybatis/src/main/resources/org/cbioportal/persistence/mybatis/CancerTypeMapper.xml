@@ -16,4 +16,33 @@
         </if>
     </sql>
 
+    <select id="getAllCancerTypes" resultType="org.cbioportal.model.TypeOfCancer">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM type_of_cancer
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaCancerTypes" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM type_of_cancer
+    </select>
+
+    <select id="getCancerType" resultType="org.cbioportal.model.TypeOfCancer">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM type_of_cancer
+        WHERE type_of_cancer.TYPE_OF_CANCER_ID = #{cancerTypeId}
+    </select>
+
 </mapper>

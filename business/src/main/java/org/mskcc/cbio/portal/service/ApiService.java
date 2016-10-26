@@ -36,7 +36,7 @@ import org.mskcc.cbio.portal.persistence.ClinicalDataMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
-import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
+import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
 import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapper;
@@ -67,7 +67,7 @@ public class ApiService {
 	@Autowired
 	private GeneAliasMapper geneAliasMapper;
 	@Autowired
-	private GeneticProfileMapper geneticProfileMapper;
+	private GeneticProfileMapperLegacy geneticProfileMapperLegacy;
 	@Autowired
 	private SampleListMapper sampleListMapper;
 	@Autowired
@@ -348,17 +348,17 @@ public class ApiService {
 	
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles() {
-		return geneticProfileMapper.getAllGeneticProfiles();
+		return geneticProfileMapperLegacy.getAllGeneticProfiles();
 	}
 
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles(String study_id) {
-		return geneticProfileMapper.getGeneticProfilesByStudy(study_id);
+		return geneticProfileMapperLegacy.getGeneticProfilesByStudy(study_id);
 	}
 
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles(List<String> genetic_profile_ids) {
-		return geneticProfileMapper.getGeneticProfiles(genetic_profile_ids);
+		return geneticProfileMapperLegacy.getGeneticProfiles(genetic_profile_ids);
 	}
 
 	@Transactional

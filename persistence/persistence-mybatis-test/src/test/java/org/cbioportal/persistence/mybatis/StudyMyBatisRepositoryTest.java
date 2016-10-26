@@ -60,7 +60,7 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("23000897", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
         Assert.assertNull(cancerStudy.getTypeOfCancer());
     }
@@ -87,7 +87,7 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("23000897", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
         TypeOfCancer typeOfCancer = cancerStudy.getTypeOfCancer();
         Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
@@ -122,7 +122,7 @@ public class StudyMyBatisRepositoryTest {
 
         BaseMeta result = studyMyBatisRepository.getMetaStudies();
 
-        Assert.assertEquals((Integer)2, result.getTotalCount());
+        Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("23000897", result.getPmid());
         Assert.assertEquals("TCGA, Nature 2012", result.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", result.getGroups());
-        Assert.assertEquals((Integer)0 , result.getStatus());
+        Assert.assertEquals((Integer) 0 , result.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), result.getImportDate());
         TypeOfCancer typeOfCancer = result.getTypeOfCancer();
         Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());

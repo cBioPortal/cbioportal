@@ -20,11 +20,14 @@
             cancer_study.STATUS AS "${prefix}status",
             cancer_study.IMPORT_DATE AS "${prefix}importDate"
         </if>
+    </sql>
+
+    <sql id="from">
+        FROM cancer_study
         <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
-                <property name="prefix" value="${prefix}typeOfCancer."/>
-            </include>
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+            INNER JOIN patient ON cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
         </if>
     </sql>
 
@@ -33,11 +36,18 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM cancer_study
         <if test="projection == 'DETAILED'">
-            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+            ,
+            COUNT(*) AS "sampleCount",
+            <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
+                <property name="prefix" value="typeOfCancer."/>
+            </include>
         </if>
-        <if test="sortBy != null">
+        <include refid="from"/>
+        <if test="projection == 'DETAILED'">
+            GROUP BY cancer_study.CANCER_STUDY_ID
+        </if>
+        <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
         <if test="limit != null and limit != 0">
@@ -56,11 +66,18 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM cancer_study
         <if test="projection == 'DETAILED'">
-            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+            ,
+            COUNT(*) AS "sampleCount",
+            <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
+                <property name="prefix" value="typeOfCancer."/>
+            </include>
         </if>
+        <include refid="from"/>
         WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="projection == 'DETAILED'">
+            GROUP BY cancer_study.CANCER_STUDY_ID
+        </if>
     </select>
 
 </mapper>

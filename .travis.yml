@@ -69,13 +69,6 @@ script:
             mkdir -p ~/.m2 && \
             cp .travis/settings.xml ~/.m2
         fi
-    # use EXAMPLE properties files
-    - |
-        if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]
-        then
-            cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties && \
-            cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
-        fi
     # make sure mysql container is running
     - |
         if [[ "${TEST}" == core ]]

@@ -49,11 +49,11 @@
         structural_variant.PAIRED_END_READ_SUPPORT as pairedEndReadSupport,
         structural_variant.SITE1_CHROM as site1Chrom,
         structural_variant.SITE1_DESC as site1Desc,
-        structural_variant.SITE1_GENE as site1Gene,
+        gene1.HUGO_GENE_SYMBOL as site1Gene,
         structural_variant.SITE1_POS as site1Pos,
         structural_variant.SITE2_CHROM as site2Chrom,
         structural_variant.SITE2_DESC as site2Desc,
-        structural_variant.SITE2_GENE as site2Gene,
+        gene2.HUGO_GENE_SYMBOL as site2Gene,
         structural_variant.SITE2_POS as site2Pos,
         structural_variant.SPLIT_READ_SUPPORT as splitReadSupport,
         structural_variant.SV_CLASS_NAME as svClassName,
@@ -70,8 +70,8 @@
 
         from structural_variant
         inner join sample on structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-        join gene gene1 on gene1.HUGO_GENE_SYMBOL = structural_variant.SITE1_GENE
-        join gene gene2 on gene2.HUGO_GENE_SYMBOL = structural_variant.SITE2_GENE
+        join gene gene1 on gene1.ENTREZ_GENE_ID = structural_variant.SITE1_ENTREZ_GENE_ID
+        join gene gene2 on gene2.ENTREZ_GENE_ID = structural_variant.SITE2_ENTREZ_GENE_ID
         join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = structural_variant.GENETIC_PROFILE_ID
 
         <where>

@@ -2,6 +2,10 @@
  *  cbio statistics library
  */
 
+if (cbio === undefined) {
+    var cbio = {};
+}
+
 cbio.stat = (function() {
     
     // mean (µ)

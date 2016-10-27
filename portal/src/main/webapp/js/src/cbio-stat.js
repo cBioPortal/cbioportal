@@ -1,14 +1,12 @@
-if (cbio === undefined) {
-    var cbio = {};
-}
+/*
+ *  cbio statistics library
+ */
 
 cbio.stat = (function() {
+    
     // mean (µ)
     var mean = function(_inputArr) {
-        var _sum = 0;
-        _.each(_inputArr, function(_inputElem) {
-            _sum += _inputElem;
-        });
+        var _sum = _.reduce(_inputArr, function(memo, num){ return memo + num; }, 0);
         return _sum / _inputArr.length;
     }
 

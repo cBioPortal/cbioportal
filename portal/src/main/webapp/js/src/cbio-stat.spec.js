@@ -1,5 +1,6 @@
-var assert = require('chai').assert;
 global._ = require('underscore')._;
+global.cbio = {};
+var assert = require('chai').assert;
 var cbioStat = require('./cbio-stat.js');
 
 describe('cBio Stat Library', function() {

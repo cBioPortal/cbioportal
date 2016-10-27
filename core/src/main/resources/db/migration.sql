@@ -153,4 +153,41 @@ DROP TABLE IF EXISTS entity_attribute;
 DROP TABLE IF EXISTS attribute_metadata;
 DROP TABLE IF EXISTS entity_link;
 DROP TABLE IF EXISTS entity;
+-- cannot drop / adjust foreign keys without knowing unspecified constraint identifier : drop and recreate table instead
+DROP TABLE IF EXISTS structural_variant;
+CREATE TABLE `structural_variant` (
+  `SAMPLE_ID` int(11) NOT NULL,
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `BREAKPOINT_TYPE` varchar(25),
+  `ANNOTATION` varchar(255),
+  `COMMENTS` varchar(2048),
+  `CONFIDENCE_CLASS` varchar(25),
+  `CONNECTION_TYPE` varchar(25),
+  `EVENT_INFO` varchar(255),
+  `MAPQ` int(11),
+  `NORMAL_READ_COUNT` int(11),
+  `NORMAL_VARIANT_COUNT` int(11),
+  `PAIRED_END_READ_SUPPORT` varchar(255),
+  `SITE1_CHROM` varchar(25),
+  `SITE1_DESC` varchar(255),
+  `SITE1_ENTREZ_GENE_ID` int(11),
+  `SITE1_POS` int(11),
+  `SITE2_CHROM` varchar(25),
+  `SITE2_DESC` varchar(255),
+  `SITE2_ENTREZ_GENE_ID` int(11),
+  `SITE2_POS` int(11),
+  `SPLIT_READ_SUPPORT` varchar(255),
+  `SV_CLASS_NAME` varchar(25),
+  `SV_DESC` varchar(255),
+  `SV_LENGTH` int(11),
+  `TUMOR_READ_COUNT` int(11),
+  `TUMOR_VARIANT_COUNT` int(11),
+  `VARIANT_STATUS_NAME` varchar(255),
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`),
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SITE1_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SITE2_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
+);
 UPDATE info SET DB_SCHEMA_VERSION="1.3.1";

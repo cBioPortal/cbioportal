@@ -1798,15 +1798,6 @@ class PatientClinicalValidator(ClinicalValidator):
             elif col_name == 'OS_MONTHS':
                 osmonths_value = value
 
-        if osstatus_is_deceased and (
-                    osmonths_value is None or
-                    osmonths_value.lower() in self.NULL_VALUES):
-            if osmonths_value is None or osmonths_value == '':
-                osmonths_value = '<none>'
-            self.logger.error(
-                "OS_STATUS is 'DECEASED', but OS_MONTHS is not specified",
-                extra={'line_number': self.line_number,
-                       'cause': osmonths_value})
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""

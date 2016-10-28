@@ -161,7 +161,7 @@ function bitlyURL(fullURL){
     };
 
     //build call to web API
-    var qurl = "api/proxy/bitly?"
+    var qurl = "api-legacy/proxy/bitly?"
     +"version="+defaults.version
     +"&longUrl="+defaults.longURL
     +"&history="+defaults.history
@@ -205,7 +205,7 @@ function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
         var bookmark = null;
         $.ajax({
             type: 'POST',
-            url: 'api/proxy/session-service/main_session',
+            url: 'api-legacy/proxy/session-service/main_session',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(sessionJSON)

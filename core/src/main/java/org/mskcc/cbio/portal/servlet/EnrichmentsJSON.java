@@ -1,18 +1,33 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/*
+ * Copyright (c) 2012 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center
- * has no obligations to provide maintenance, support,
- * updates, enhancements or modifications.  In no event shall
- * Memorial Sloan-Kettering Cancer Center
- * be liable to any party for direct, indirect, special,
- * incidental or consequential damages, including lost profits, arising
- * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center
- * has been advised of the possibility of such damage.
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package org.mskcc.cbio.portal.servlet;
@@ -34,9 +49,10 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
-import org.mskcc.cbio.portal.util.EnrichmentsAnalysisUtil;
 import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
-import org.mskcc.cbio.portal.util.XssRequestWrapper;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.EnrichmentsAnalysisUtil;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -50,6 +66,17 @@ public class EnrichmentsJSON extends HttpServlet  {
     private final int bin = 3000; //size of genes for each thread
     private final JsonNodeFactory factory = JsonNodeFactory.instance;
     private final ArrayNode result = new ArrayNode(factory);
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
 
     @Autowired
     private MutationRepository mutationRepository;
@@ -62,6 +89,7 @@ public class EnrichmentsJSON extends HttpServlet  {
         super.init(config);
         SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
                 config.getServletContext());
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**
@@ -87,8 +115,18 @@ public class EnrichmentsJSON extends HttpServlet  {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         try {
+        	CancerStudy cancerStudy = null;
             //Extract parameters
             String cancerStudyId = httpServletRequest.getParameter("cancer_study_id");
+			if (cancerStudyId != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
             String _alteredCaseList = httpServletRequest.getParameter("altered_case_id_list");
             String[] alteredCaseList = _alteredCaseList.split("\\s+");
             String _unalteredCaseList = httpServletRequest.getParameter("unaltered_case_id_list");
@@ -110,10 +148,8 @@ public class EnrichmentsJSON extends HttpServlet  {
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             final int gpId = gp.getGeneticProfileId();
             String gpStableId = gp.getStableId();
-            String profileType = gp.getGeneticAlterationType().toString();
+            GeneticAlterationType profileType = gp.getGeneticAlterationType();
             
-            //Get cancer study internal id (int)
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             int cancerStudyInternalId = cancerStudy.getInternalId();
 
             //Get Internal Sample Ids (int)
@@ -134,13 +170,13 @@ public class EnrichmentsJSON extends HttpServlet  {
             Set<Long> entrezGeneIds = new HashSet<>();
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
             Set<Long> profileGeneIds = new HashSet<>();
-            if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) { //get only genes that has mutations -- performance concern
+            if (profileType == GeneticAlterationType.MUTATION_EXTENDED) { //get only genes that has mutations -- performance concern
                 Set<CanonicalGene> profileGeneSet = DaoMutation.getGenesInProfile(gpId);
                 for (CanonicalGene profileGene : profileGeneSet) {
                     profileGeneIds.add(profileGene.getEntrezGeneId());
                 }
             }
-            if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+            if (profileType == GeneticAlterationType.MUTATION_EXTENDED) {
                 entrezGeneIds.addAll(profileGeneIds);
             } else {
                 ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
@@ -161,7 +197,7 @@ public class EnrichmentsJSON extends HttpServlet  {
                             unalteredSampleIds,
                             queriedGenes
                     );
-            if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+            if (profileType == GeneticAlterationType.MUTATION_EXTENDED) {
                 final List<Integer> sampleIds = new ArrayList<>(alteredSampleIds);
                 sampleIds.addAll(unalteredSampleIds);
                 List<Integer> intEntrezGeneIds = new ArrayList<>(entrezGeneIds.size());
@@ -270,7 +306,7 @@ public class EnrichmentsJSON extends HttpServlet  {
             for (ObjectNode _result_node : _result) {
                 result.add(_result_node);
             }
-
+            
             //return/write back result
             ObjectMapper mapper = new ObjectMapper();
             httpServletResponse.setContentType("application/json");

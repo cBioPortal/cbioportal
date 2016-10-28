@@ -7,37 +7,37 @@
     <select id="getMutationsDetailed" resultType="org.cbioportal.model.Mutation">
         select
 
-        mutation.CENTER as sequencingCenter,
+        mutation.CENTER as center,
         mutation.MUTATION_STATUS as mutationStatus,
-        mutation.TUMOR_REF_COUNT as referenceReadCountTumor,
-        mutation.NORMAL_REF_COUNT as referenceReadCountNormal,
-        mutation.TUMOR_ALT_COUNT as variantReadCountTumor,
-        mutation.NORMAL_ALT_COUNT as variantReadCountNormal,
+        mutation.TUMOR_REF_COUNT as tumorRefCount,
+        mutation.NORMAL_REF_COUNT as normalRefCount,
+        mutation.TUMOR_ALT_COUNT as tumorAltCount,
+        mutation.NORMAL_ALT_COUNT as normalAltCount,
         mutation.VALIDATION_STATUS as validationStatus,
 
         mutation_event.MUTATION_TYPE as "mutationEvent.mutationType",
-        mutation_event.PROTEIN_CHANGE as "mutationEvent.aminoAcidChange",
+        mutation_event.PROTEIN_CHANGE as "mutationEvent.proteinChange",
         mutation_event.FUNCTIONAL_IMPACT_SCORE as "mutationEvent.functionalImpactScore",
-        mutation_event.LINK_XVAR as "mutationEvent.xvarLink",
-        mutation_event.LINK_PDB as "mutationEvent.xvarLinkPdb",
-        mutation_event.LINK_MSA as "mutationEvent.xvarLinkMsa",
+        mutation_event.LINK_XVAR as "mutationEvent.linkXvar",
+        mutation_event.LINK_PDB as "mutationEvent.linkPdb",
+        mutation_event.LINK_MSA as "mutationEvent.linkMsa",
         mutation_event.CHR as "mutationEvent.chr",
         mutation_event.START_POSITION as "mutationEvent.startPosition",
         mutation_event.END_POSITION as "mutationEvent.endPosition",
-        mutation_event.ONCOTATOR_PROTEIN_POS_START as "mutationEvent.proteinStartPosition",
-        mutation_event.ONCOTATOR_PROTEIN_POS_END as "mutationEvent.proteinEndPosition",
+        mutation_event.ONCOTATOR_PROTEIN_POS_START as "mutationEvent.oncotatorProteinPosStart",
+        mutation_event.ONCOTATOR_PROTEIN_POS_END as "mutationEvent.oncotatorProteinPosEnd",
         mutation_event.REFERENCE_ALLELE as "mutationEvent.referenceAllele",
-        mutation_event.TUMOR_SEQ_ALLELE as "mutationEvent.variantAllele",
+        mutation_event.TUMOR_SEQ_ALLELE as "mutationEvent.tumorSeqAllele",
         mutation_event.KEYWORD as "mutationEvent.keyword",
 
         gene.HUGO_GENE_SYMBOL as "gene.hugoGeneSymbol",
         gene.ENTREZ_GENE_ID as "gene.entrezGeneId",
 
-        sample.STABLE_ID as sampleId,
+        sample.INTERNAL_ID as sampleId,
 
-        cancer_study.CANCER_STUDY_IDENTIFIER as "geneticProfile.studyId",
+        cancer_study.CANCER_STUDY_ID as "geneticProfile.cancerStudyId",
 
-        genetic_profile.STABLE_ID as geneticProfileId
+        genetic_profile.GENETIC_PROFILE_ID as geneticProfileId
 
         from mutation
         inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
@@ -83,7 +83,7 @@
         <if test="!simplified">
             , mutation.MUTATION_EVENT_ID as mutationEventId,
             mutation.GENETIC_PROFILE_ID as geneticProfileId,
-            mutation.CENTER as sequencingCenter,
+            mutation.CENTER as center,
             mutation.SEQUENCER as sequencer,
             mutation.MUTATION_STATUS as mutationStatus,
             mutation.VALIDATION_STATUS as validationStatus,
@@ -102,10 +102,10 @@
             mutation.VALIDATION_METHOD as validationMethod,
             mutation.SCORE as score,
             mutation.BAM_FILE as bamFile,
-            mutation.TUMOR_ALT_COUNT as variantReadCountTumor,
-            mutation.TUMOR_REF_COUNT as referenceReadCountTumor,
-            mutation.NORMAL_ALT_COUNT as variantReadCountNormal,
-            mutation.NORMAL_REF_COUNT as referenceReadCountNormal,
+            mutation.TUMOR_ALT_COUNT as tumorAltCount,
+            mutation.TUMOR_REF_COUNT as tumorRefCount,
+            mutation.NORMAL_ALT_COUNT as normalAltCount,
+            mutation.NORMAL_REF_COUNT as normalRefCount,
             mutation.AMINO_ACID_CHANGE as aminoAcidChange,
 
             mutation_event.MUTATION_EVENT_ID as "mutationEvent.mutationEventId",
@@ -114,14 +114,14 @@
             mutation_event.START_POSITION as "mutationEvent.startPosition",
             mutation_event.END_POSITION as "mutationEvent.endPosition",
             mutation_event.REFERENCE_ALLELE as "mutationEvent.referenceAllele",
-            mutation_event.TUMOR_SEQ_ALLELE as "mutationEvent.variantAllele",
-            mutation_event.PROTEIN_CHANGE as "mutationEvent.aminoAcidChange",
+            mutation_event.TUMOR_SEQ_ALLELE as "mutationEvent.tumorSeqAllele",
+            mutation_event.PROTEIN_CHANGE as "mutationEvent.proteinChange",
             mutation_event.MUTATION_TYPE as "mutationEvent.mutationType",
             mutation_event.FUNCTIONAL_IMPACT_SCORE as "mutationEvent.functionalImpactScore",
             mutation_event.FIS_VALUE as "mutationEvent.fisValue",
-            mutation_event.LINK_XVAR as "mutationEvent.xvarLink",
-            mutation_event.LINK_PDB as "mutationEvent.xvarLinkPdb",
-            mutation_event.LINK_MSA as "mutationEvent.xvarLinkMsa",
+            mutation_event.LINK_XVAR as "mutationEvent.linkXvar",
+            mutation_event.LINK_PDB as "mutationEvent.linkPdb",
+            mutation_event.LINK_MSA as "mutationEvent.linkMsa",
             mutation_event.NCBI_BUILD as "mutationEvent.ncbiBuild",
             mutation_event.STRAND as "mutationEvent.strand",
             mutation_event.VARIANT_TYPE as "mutationEvent.variantType",
@@ -132,13 +132,13 @@
             mutation_event.ONCOTATOR_CODON_CHANGE as "mutationEvent.oncotatorCodonChange",
             mutation_event.ONCOTATOR_UNIPROT_ENTRY_NAME as "mutationEvent.oncotatorUniprotEntryName",
             mutation_event.ONCOTATOR_UNIPROT_ACCESSION as "mutationEvent.oncotatorUniprotAccession",
-            mutation_event.ONCOTATOR_PROTEIN_POS_START as "mutationEvent.proteinStartPosition",
-            mutation_event.ONCOTATOR_PROTEIN_POS_END as "mutationEvent.proteinEndPosition",
+            mutation_event.ONCOTATOR_PROTEIN_POS_START as "mutationEvent.oncotatorProteinPosStart",
+            mutation_event.ONCOTATOR_PROTEIN_POS_END as "mutationEvent.oncotatorProteinPosEnd",
             mutation_event.CANONICAL_TRANSCRIPT as "mutationEvent.canonicalTranscript",
             mutation_event.KEYWORD as "mutationEvent.keyword",
 
-            gene.HUGO_GENE_SYMBOL as "mutationEvent.gene.hugoGeneSymbol",
-            gene.ENTREZ_GENE_ID as "mutationEvent.gene.entrezGeneId"
+            gene.HUGO_GENE_SYMBOL as "gene.hugoGeneSymbol",
+            gene.ENTREZ_GENE_ID as "gene.entrezGeneId"
         </if>
         from mutation
         <if test="!simplified">

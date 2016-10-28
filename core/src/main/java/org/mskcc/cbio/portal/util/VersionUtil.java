@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,13 +32,15 @@
 
 package org.mskcc.cbio.portal.util;
 
+import java.lang.StringBuilder;
 import org.mskcc.cbio.portal.dao.DaoInfo;
 
-public class VersionUtil
-{
-    public static void main(String[] args)
-    {
-       int versionCheck = DaoInfo.checkVersion() ? 0 : 1;
-       System.exit(versionCheck);
+public class VersionUtil {
+    public static void main(String[] args) {
+        StringBuilder logMessageBuilder = new StringBuilder(117);
+        int versionCheck = DaoInfo.checkVersion(logMessageBuilder) ? 0 : 1;
+        System.out.println(logMessageBuilder.toString());
+        System.out.flush();
+        System.exit(versionCheck);
     }
 }

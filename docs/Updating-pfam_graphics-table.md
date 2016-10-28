@@ -7,7 +7,7 @@ Updating the pfam_graphics table is easy using the scripts provided in cBioPorta
 TRUNCATE TABLE pfam_graphics;
 ```
 
-2- Run the script `FetchPfamGraphics.java` with the file path of the output file and its name as an argument. This function first searches for all the proteins from mouse that have been reviewed in UniProtKB, then tries to retrieve their Pfam domains, and finally saves the information in a file. This script can also be run in the command line by going into  `<your_cbioportal_folder>/core/src/main/scripts/` and typing:
+2- Run the script `FetchPfamGraphics.java` with the file path of the output file and its name as an argument. This function first searches for all the proteins from human that have been reviewed in UniProtKB, then tries to retrieve their Pfam domains, and finally saves the information in a file. This script can also be run in the command line by going into  `<your_cbioportal_folder>/core/src/main/scripts/` and typing:
 ```
 fetchPfamGraphicsData.sh <output_pfam_mapping_file>
 ```

@@ -42,6 +42,7 @@ import org.mskcc.cbio.portal.util.*;
 
 import org.json.simple.*;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -58,6 +59,15 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class GetSurvivalDataJSON extends HttpServlet {
 
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /**
      * Handles HTTP GET Request.
      *
@@ -85,11 +95,17 @@ public class GetSurvivalDataJSON extends HttpServlet {
         String sampleIdsKey = httpServletRequest.getParameter("case_ids_key");
         //So far only accept single data type
         String dataType = httpServletRequest.getParameter("data_type");
-
+        CancerStudy cancerStudy = null;
         try {
-
-            //Get Cancer Study ID (int)
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+			if (cancerStudyIdentifier != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
             int cancerStudyId = cancerStudy.getInternalId();
 
             //Get patient ID list

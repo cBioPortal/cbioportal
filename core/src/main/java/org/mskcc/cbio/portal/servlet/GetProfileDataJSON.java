@@ -63,6 +63,17 @@ import javax.servlet.http.*;
  */
 public class GetProfileDataJSON extends HttpServlet  {
 
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /**
      * Handles HTTP GET Request.
      *
@@ -106,14 +117,22 @@ public class GetProfileDataJSON extends HttpServlet  {
         //Final result JSON
         ObjectMapper mapper = new ObjectMapper();
         JsonNode result = mapper.createObjectNode();
-
+        CancerStudy cancerStudy = null;
         try {
-
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-            if (cancerStudy == null) {
-                throw new DaoException("Unknown cancer study id: " + cancerStudyIdentifier);
-            }
-
+        	if (cancerStudyIdentifier != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
+        } catch (DaoException e) {
+            System.out.println("Caught DaoException: " + e.getMessage());
+            return;
+        }
+        try {
             //Get patient ID list
             DaoSampleList daoSampleList = new DaoSampleList();
             SampleList sampleList = null;

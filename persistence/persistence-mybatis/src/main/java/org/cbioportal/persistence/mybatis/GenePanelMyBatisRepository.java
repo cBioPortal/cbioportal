@@ -50,8 +50,8 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     GenePanelMapper genePanelMapper;
 
     @Override
-    public String getGenePanelBySampleIdAndProfileId(String sampleId, String profileId) {
-        return genePanelMapper.getGenePanelBySampleIdAndProfileId(sampleId, profileId);
+    public List<GenePanelWithSamples> getGenePanelsByProfile(String profileId) {       
+        return genePanelMapper.getGenePanelsByProfile(profileId);
     }
 
     // TODO: All of the below methods are for importing purposes only. They should be
@@ -94,6 +94,11 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     @Override
     public boolean sampleProfileMappingExistsByProfile(Integer profileId) {
         return genePanelMapper.sampleProfileMappingExistsByProfile(profileId) != 0;
+    }
+    
+    @Override
+    public boolean sampleProfileMappingExistsByPanel(Integer panelId) { 
+        return genePanelMapper.sampleProfileMappingExistsByPanel(panelId) != 0;
     }
 
     @Override

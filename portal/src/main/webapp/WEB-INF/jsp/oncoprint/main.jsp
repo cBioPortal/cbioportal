@@ -74,7 +74,7 @@
                        <div class="radio"><label><input type="radio" name="sortby" value="data" /> Sort by data</label></div>
                        <div style="margin-left: 10px;">
                           <div class="checkbox"><label><input type="checkbox" name="type" value="type" /> Mutation Type</label></div>
-                          <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence" /> Mutation Recurrence</label></div>
+                          <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence" /> Driver/Passenger</label></div>
                        </div>
                        <div class="radio"><label><input type="radio" name="sortby" value="id" /> Sort by case id (alphabetical)</label></div>
                        <div class="radio"><label><input type="radio" name="sortby" value="custom" /> Sort by user-defined order / default</label></div>
@@ -88,13 +88,13 @@
                <div class="dropdown-menu" style="padding: 10px 5px; width: 250px;min-width: 250px;">
                    <form action="" style="margin-bottom: 0;">
                        <div class="checkbox"><label><input type="checkbox" name="type" value="type"/> Type</label></div>
-                       <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence"> Recurrence/Prior Knowledge</label></div>
+                       <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence"> Putative drivers based on:</label><i class="fa fa-md fa-info-circle" style="cursor:pointer; padding-top:0.2em;" id="putative_driver_info_icon"></i></div>
                        <div style="margin-left: 20px;">
-                           <div class="checkbox"><label><input type="checkbox" name="hotspots" value="hotspots"> HotSpots <img id="colorby_hotspot_info" src="images/oncokb-flame.svg" style="height:15px; width:15px; cursor:pointer;"/></label></div>
+                           <div class="checkbox"><label><input type="checkbox" name="hotspots" value="hotspots"> Hotspots <img id="colorby_hotspot_info" src="images/oncokb-flame.svg" style="height:15px; width:15px; cursor:pointer;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cbioportal" value="cbioportal"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cosmic" value="cosmic"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/></label></div>
-                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/></label></div>
-                           <div class="checkbox"><label><input type="checkbox" name="hide_unknown" value="hide_unknown"> Hide non-recurrent / unknown mutations (as defined above)</label></div>
+                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/> driver annotation</label></div>
+                           <div class="checkbox"><label><input type="checkbox" name="hide_unknown" value="hide_unknown"> Hide putative passenger mutations</label></div>
                        </div>
                    </form>
                </div>

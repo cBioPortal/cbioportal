@@ -1,48 +1,48 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
+import org.cbioportal.model.summary.SampleSummary;
 
-public class Sample implements Serializable {
+public class Sample extends SampleSummary {
 
-    private Integer internalId;
-    private String stableId;
-    private SampleType sampleType;
-    private Integer patientId;
+    public enum SampleType {
+
+        PRIMARY_SOLID_TUMOR("Primary Solid Tumor"),
+        RECURRENT_SOLID_TUMOR("Recurrent Solid Tumor"),
+        PRIMARY_BLOOD_TUMOR("Primary Blood Tumor"),
+        RECURRENT_BLOOD_TUMOR("Recurrent Blood Tumor"),
+        METASTATIC("Metastatic"),
+        BLOOD_NORMAL("Blood Derived Normal"),
+        SOLID_NORMAL("Solid Tissues Normal");
+
+        private String value;
+
+        SampleType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public static SampleType fromString(String value) {
+
+            if (value != null) {
+                for (SampleType sampleType : SampleType.values()) {
+                    if (value.equalsIgnoreCase(sampleType.value)) {
+                        return sampleType;
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
     private Patient patient;
-    private String typeOfCancerId;
-    private TypeOfCancer typeOfCancer;
-
-    public Integer getInternalId() {
-        return internalId;
-    }
-
-    public void setInternalId(Integer internalId) {
-        this.internalId = internalId;
-    }
-
-    public String getStableId() {
-        return stableId;
-    }
-
-    public void setStableId(String stableId) {
-        this.stableId = stableId;
-    }
-
-    public SampleType getSampleType() {
-        return sampleType;
-    }
-
-    public void setSampleType(SampleType sampleType) {
-        this.sampleType = sampleType;
-    }
-
-    public Integer getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(Integer patientId) {
-        this.patientId = patientId;
-    }
 
     public Patient getPatient() {
         return patient;
@@ -50,21 +50,5 @@ public class Sample implements Serializable {
 
     public void setPatient(Patient patient) {
         this.patient = patient;
-    }
-
-    public String getTypeOfCancerId() {
-        return typeOfCancerId;
-    }
-
-    public void setTypeOfCancerId(String typeOfCancerId) {
-        this.typeOfCancerId = typeOfCancerId;
-    }
-
-    public TypeOfCancer getTypeOfCancer() {
-        return typeOfCancer;
-    }
-
-    public void setTypeOfCancer(TypeOfCancer typeOfCancer) {
-        this.typeOfCancer = typeOfCancer;
     }
 }

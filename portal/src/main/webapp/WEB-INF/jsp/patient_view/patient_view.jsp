@@ -120,7 +120,6 @@ boolean showSimilarPatient = false;//showPlaceHoder & (showMutations | showCNA);
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA));
 boolean hasAlleleFrequencyData = ((Boolean)request.getAttribute(PatientView.HAS_ALLELE_FREQUENCY_DATA));
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
-boolean showClinicalTrials = GlobalProperties.showClinicalTrialsTab();
 boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
 String userName = GlobalProperties.getAuthenticatedUserName();
@@ -196,10 +195,6 @@ if (patientViewError!=null) {
     <li><a id="link-drugs" href='#tab_drugs' class='patient-tab'>Drugs</a></li>
     <%}%>
 
-    <%if(showClinicalTrials){%>
-    <li><a id="link-clinical-trials" href='#tab_clinical-trials' class='patient-tab'>Clinical Trials</a></li>
-    <%}%>
-
     <%if(showTissueImages){%>
     <li><a id="link-tissue-images" href='#tab_images' class='patient-tab'>Tissue Images</a></li>
     <%}%>
@@ -266,12 +261,6 @@ if (patientViewError!=null) {
     <div class="patient-section" id="tab_drugs">
         <%@ include file="drugs.jsp" %>
     </div>
-    <%}%>
-
-    <%if(showClinicalTrials){%>
-        <div class="patient-section" id="tab_clinical-trials">
-            <%@ include file="clinical_trials.jsp" %>
-        </div>
     <%}%>
 
     <%if(showSamplesTable){%>

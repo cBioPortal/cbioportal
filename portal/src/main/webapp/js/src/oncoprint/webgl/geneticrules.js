@@ -2,9 +2,9 @@
 
 // Mutation colors
 var MUT_COLOR_MISSENSE = '#008000';
-var MUT_COLOR_MISSENSE_NONREC = '#53D400';
+var MUT_COLOR_MISSENSE_PASSENGER = '#53D400';
 var MUT_COLOR_INFRAME = '#708090';
-var MUT_COLOR_INFRAME_NONREC = '#A9A9A9';
+var MUT_COLOR_INFRAME_PASSENGER = '#A9A9A9';
 var MUT_COLOR_TRUNC = '#000000';
 var MUT_COLOR_FUSION = '#8B00C9';
 var MUT_COLOR_PROMOTER = '#FFA942';
@@ -184,8 +184,8 @@ window.geneticrules.genetic_rule_set_same_color_for_all_recurrence = {
     'legend_label': 'Genetic Alteration',
     'rule_params': $.extend({}, non_mutation_rule_params, {
 	'disp_mut': {
-	    // only need to show recurrence for missense and inframe
-	    'missense_rec,inframe_rec': {
+	    // only need to show recurrence for missense
+	    'missense_rec': {
 		shapes: [{
 			'type': 'rectangle',
 			'fill': MUT_COLOR_MISSENSE,
@@ -195,19 +195,19 @@ window.geneticrules.genetic_rule_set_same_color_for_all_recurrence = {
 			'height': '33.33%',
 			'z': 6
 		}],
-		legend_label: 'Mutation (recurrent/prior knowledge)'
+		legend_label: 'Mutation (putative driver)'
 	    },
-	    'missense,inframe,trunc,trunc_rec,promoter,promoter_rec': { 
+	    'missense,inframe,inframe_rec,trunc,trunc_rec,promoter,promoter_rec': { 
 		shapes: [{
 			'type': 'rectangle',
-			'fill': MUT_COLOR_MISSENSE_NONREC,
+			'fill': MUT_COLOR_MISSENSE_PASSENGER,
 			'x': '0%',
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
 			'z': 6
 		}],
-		legend_label: 'Mutation (non-recurrent/no prior knowledge)'
+		legend_label: 'Mutation (putative passenger)'
 	    },
 	},
     })
@@ -297,7 +297,7 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 		    }],
 		legend_label: 'Truncating Mutation',
 	    },
-	    'inframe_rec': {
+	    'inframe,inframe_rec': {
 		shapes: [{
 			'type': 'rectangle',
 			'fill': MUT_COLOR_INFRAME,
@@ -307,19 +307,7 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 			'height': '33.33%',
 			'z': 6,
 		    }],
-		legend_label: 'Inframe Mutation (recurrent/prior knowledge)',
-	    },
-	    'inframe': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': MUT_COLOR_INFRAME_NONREC,
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z': 6,
-		    }],
-		legend_label: 'Inframe Mutation (non-recurrent/no prior knowledge)',
+		legend_label: 'Inframe Mutation',
 	    },
 	    'missense_rec': {
 		shapes: [{
@@ -331,19 +319,19 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 			'height': '33.33%',
 			'z': 6,
 		    }],
-		legend_label: 'Missense Mutation (recurrent/prior knowledge)',
+		legend_label: 'Missense Mutation (putative driver)',
 	    },
 	    'missense': {
 		shapes: [{
 			'type': 'rectangle',
-			'fill': MUT_COLOR_MISSENSE_NONREC,
+			'fill': MUT_COLOR_MISSENSE_PASSENGER,
 			'x': '0%',
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
 			'z': 6,
 		    }],
-		legend_label: 'Missense Mutation (non-recurrent/no prior knowledge)',
+		legend_label: 'Missense Mutation (putative passenger)',
 	    },
 	}
     })

@@ -31,6 +31,7 @@
 */
 package org.cbioportal.persistence.mybatis;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.Gene;
 import org.cbioportal.persistence.GeneRepository;
@@ -48,7 +49,11 @@ public class GeneMyBatisRepository implements GeneRepository{
     
     @Override
     public List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol){
-        return geneMapper.getGeneListByHugoSymbols(hugo_gene_symbol);
+        if(hugo_gene_symbol == null || hugo_gene_symbol.isEmpty()){
+            return (new ArrayList<Gene>());
+        }else{
+            return geneMapper.getGeneListByHugoSymbols(hugo_gene_symbol);
+        }
     }
    
 }

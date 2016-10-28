@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.SampleMapper">
+    <cache/>
+
+    <sql id="select">
+        sample.INTERNAL_ID AS "${prefix}internalId",
+        sample.STABLE_ID AS "${prefix}stableId"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            sample.SAMPLE_TYPE AS "${prefix}sampleType",
+            sample.PATIENT_ID AS "${prefix}patientId",
+            sample.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
+        </if>
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.PatientMapper.select">
+                <property name="prefix" value="${prefix}patient."/>
+            </include>
+        </if>
+    </sql>
+</mapper>

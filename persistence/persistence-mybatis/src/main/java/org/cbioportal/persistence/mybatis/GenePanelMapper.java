@@ -43,7 +43,7 @@ import org.cbioportal.model.*;
 
 public interface GenePanelMapper {
 
-    String getGenePanelBySampleIdAndProfileId(@Param("sampleId") String sampleId, @Param("profileId") String profileId);
+    List<GenePanelWithSamples> getGenePanelsByProfile(@Param("profileId") String profileId);
     // TODO: All of the below methods are for importing purposes only. They should be
     // removed once a proper import solution is put in place.
     List<GenePanel> getGenePanelByStableId(@Param("stableId") String stableId);
@@ -54,6 +54,7 @@ public interface GenePanelMapper {
     Gene getGeneByHugoSymbol(@Param("symbol") String symbol);
     Gene getGeneByAlias(@Param("symbol") String symbol);
     Integer sampleProfileMappingExistsByProfile(@Param("profileId") Integer profileId);
+    Integer sampleProfileMappingExistsByPanel(@Param("panelId") Integer panelId);    
     void insertGenePanel(Map<String, Object> map);
     void deleteGenePanel(@Param("internalId") Integer internalId);
     void deleteGenePanelList(@Param("internalId") Integer internalId);

@@ -1,10 +1,6 @@
 {
-  "grid-w-1":  "180px",
-  "grid-w-2":  "375px",
-  "grid-h-1":  "165px",
-  "grid-h-2":  "340px",
-  "piechart-svg-width": "130px",
-  "piechart-svg-height": "130px",
-  "barchart-svg-width": "350px",
-  "barchart-svg-height": "130px"
+  "grid-w-1":  "195px",
+  "grid-w-2":  "400px",
+  "grid-h-1":  "170px",
+  "grid-h-2":  "350px"
 }

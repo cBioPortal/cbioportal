@@ -1,3 +1,495 @@
+// http://bootstrap-notify.remabledesigns.com/
+function Notification() {
+
+    // default settings
+    var settings = {
+        message_type: "success", //success, warning, danger, info
+        allow_dismiss: false,
+        newest_on_top: false,
+        placement_from: "top",
+        placement_align: "right",
+        spacing: 10,
+        delay: 5000,
+        timer: 1000,
+        custom_class:"geneAddedNotification"
+    };
+
+    // create a notification
+    this.createNotification = function(notificationMessage, options) {
+        //if the options isn’t null extend defaults with user options.
+        if (options) $.extend(settings, options);
+
+        // create the notification
+        $.notify({
+            message: notificationMessage,
+        }, {
+            // settings
+            element: 'body',
+            type: settings.message_type,
+            allow_dismiss: settings.allow_dismiss,
+            newest_on_top: settings.newest_on_top,
+            showProgressbar: false,
+            placement: {
+                from: settings.placement_from,
+                align: settings.placement_align
+            },
+            spacing: settings.spacing,
+            z_index: 1031,
+            delay: settings.delay,
+            timer: settings.timer,
+            animate: {
+                enter: 'animated fadeInDown',
+                exit: 'animated fadeOutUp'
+            },
+            template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0} '+settings.custom_class+'" role="alert">' +
+            '<button type="button" style="display: none" aria-hidden="true" class="close" data-notify="dismiss" >×</button>' +
+            '<span data-notify="icon"></span> ' +
+            '<span data-notify="title">{1}</span> ' +
+            '<span data-notify="message">{2}</span>' +
+            '<div class="progress" data-notify="progressbar">' +
+            '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
+            '</div>' +
+            '<a href="{3}" target="{4}" data-notify="url"></a>' +
+            '</div>'
+        });
+
+
+    }
+}
+
+// based on gene-symbol-validator.js
+//function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
+function GeneValidator(geneAreaId, geneModel){
+    var self = this;
+    var nrOfNotifications=0;
+
+    var showNotification=true;
+
+    this.init = function(){
+        console.log(new Date() + " init called for "+geneAreaId);
+        // create a debounced validator
+        var debouncedValidation = _.debounce(this.validateGenes, 1000);
+        $(geneAreaId).bind('input propertychange', debouncedValidation);
+    }
+
+    this.validateGenes = function(callback, show){
+        console.log(new Date() + " validating genes in "+geneAreaId);
+
+        // store whether to show notifications
+        showNotification=(show===undefined)?true:show;
+
+        // clear all existing notifications
+        if(showNotification) clearAllNotifications();
+
+        // clean the textArea string, removing doubles and non-word characters (except -)
+        var genesStr = geneModel.getCleanGeneString(",");
+
+        var genes = [];
+        var allValid = true;
+
+        $.post(window.cbioURL + 'CheckGeneSymbol.json', { 'genes': genesStr })
+            .done(function(symbolResults) {
+                // If the number of genes is more than 100, show an error
+                if(symbolResults.length > 100) {
+                    addNotification("<b>You have entered more than 100 genes.</b><br>Please enter fewer genes for better performance", "danger");
+                    allValid=false;
+                }
+
+                // handle each symbol found
+                for(var j=0; j < symbolResults.length; j++) {
+                    var valid = handleSymbol(symbolResults[j])
+                    if(!valid) {
+                        allValid = false;
+                    }
+                }
+            })
+            .fail(function(xhr,  textStatus, errorThrown){
+                addNotification("There was a problem: "+errorThrown, "danger");
+                allValid=false;
+            })
+            .always(function(){
+                // if not all valid, focus on the gene array for focusin trigger
+                if(!allValid) $(geneAreaId).focus();
+                // in case a submit was pressed, use the callback
+                if($.isFunction(callback)) callback(allValid);
+            });
+    }
+
+    // return whether there are any active notifications
+    this.noActiveNotifications = function(){
+        return nrOfNotifications===0;
+    }
+
+    this.replaceAreaValue = function(geneName, newValue){
+        var regexp = new RegExp("\\b"+geneName+"\\b","g");
+        var genesStr = geneModel.getCleanGeneString();
+        geneModel.set("geneString", genesStr.replace(regexp, newValue).trim());
+    }
+
+    // create a notification of a certain type
+    function addNotification(message, message_type){
+        notificationSettings.message_type = message_type;
+        new Notification().createNotification(message, notificationSettings);
+        nrOfNotifications = $(".alert").length;
+    }
+
+    function clearAllNotifications(){
+        // select the notifications of interest
+        // kill their animations to prevent them from blocking space, destroy any qtips remaining and call click to
+        // make the notifications disappear
+        $(".geneValidationNotification").css("animation-iteration-count", "0");
+        $(".geneValidationNotification").qtip("destroy");
+        $(".geneValidationNotification").find("button").click();
+        nrOfNotifications=0;
+    }
+
+    // handle one symbol
+    function handleSymbol(aResult){
+        var valid = false;
+
+        // 1 symbol
+        if(aResult.symbols.length == 1) {
+            if(aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase() && showNotification)
+                handleSynonyms(aResult);
+            else
+                valid=true;
+        }
+        else if(aResult.symbols.length > 1 && showNotification)
+            handleMultiple(aResult)
+        else if(showNotification)
+            handleSymbolNotFound(aResult);
+
+        return valid;
+    }
+
+    // case where we're dealing with an ambiguous gene symbol
+    function handleMultiple(aResult){
+        var gene = aResult.name;
+        var symbols = aResult.symbols;
+
+        var tipText = "Ambiguous gene symbol. Click on one of the alternatives to replace it.";
+        var notificationHTML="<span>Ambiguous gene symbol - "+gene+" ";
+
+        // create the dropdown
+        var nameSelect = $("<select id="+gene+">").addClass("geneSelectBox").attr("name", gene);
+        $("<option>").attr("value", "").html("select a symbol").appendTo(nameSelect);
+        for(var k=0; k < symbols.length; k++) {
+            var aSymbol = symbols[k];
+            // add class and data-notify to allow us to dismiss the notification
+            var anOption = $("<option class='close' data-notify='dismiss'>").attr("value", aSymbol).html(aSymbol);
+            anOption.appendTo(nameSelect);
+        }
+
+        notificationHTML+=nameSelect.prop('outerHTML')+"</span>";
+        addNotification(notificationHTML, "warning");
+
+        // when the dropdown is changed
+        $("#"+gene).change(function() {
+            nrOfNotifications--;
+            // replace the value in the text area
+            self.replaceAreaValue($(this).attr("name"), $(this).attr("value"));
+
+            // destroy the qtip if it's still there
+            $(this).qtip("destroy");
+
+            // emulate a click on the selected child to dismiss the notification
+            this.children[this.selectedIndex].click();
+        });
+
+        addQtip(gene, tipText);
+    }
+
+
+    // case when the symbol has synonyms
+    function handleSynonyms(aResult){
+        var gene = aResult.name;
+        var trueSymbol = aResult.symbols[0];
+        var tipText = "'" + gene + "' is a synonym for '" + trueSymbol + "'. "
+            + "Click here to replace it with the official symbol.";
+
+        var notificationHTML=$("<span>Symbol synonym found - "+gene + ":" + trueSymbol+"</span>");
+        notificationHTML.attr({
+                'id': gene,
+                'symbol': trueSymbol,
+                'class':'close',
+                'data-notify':'dismiss'
+            });
+
+        addNotification(notificationHTML.prop('outerHTML'), "warning");
+
+        // add click event to our span
+        // due to the class and data-notify, the click also removes the notification
+        $("#"+gene).click(function(){
+            nrOfNotifications--;
+            // replace the value in the text area
+            self.replaceAreaValue($(this).attr("id"), $(this).attr("symbol"));
+
+            // destroy the qtip if it's still here
+            $(this).qtip("destroy");
+        });
+
+        addQtip(gene, tipText);
+    }
+
+    // case when the symbol was not found
+    function handleSymbolNotFound(aResult){
+        var gene = aResult.name;
+        var tipText = "Could not find gene symbol "+gene+". Click to remove it from the gene list.";
+
+        var notificationHTML=$("<span>Symbol not found - "+gene+"</span>");
+        notificationHTML.attr({
+            'id': gene,
+            'class':'close',
+            'data-notify':'dismiss'
+        });
+
+        addNotification(notificationHTML.prop('outerHTML'), "warning");
+
+        // add click event to our span
+        // due to the class and data-notify, the click also removes the notification
+        $("#"+gene).click(function(){
+            nrOfNotifications--;
+            // replace the value in the text area
+            self.replaceAreaValue($(this).attr("id"), "");
+
+            // destroy the qtip if it's still here
+            $(this).qtip("destroy");
+        });
+
+        addQtip(gene, tipText);
+    }
+
+    // add a qtip to some identifier
+    function addQtip(id, tipText){
+        $("#"+id).qtip({
+            content: {text: tipText},
+            position: {my: 'top center', at: 'bottom center', viewport: $(window)},
+            style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+        });
+    }
+
+
+    // notification settings
+    var notificationSettings = {
+        message_type: "warning",
+        custom_class: "geneValidationNotification",
+        allow_dismiss: true,
+        spacing: 10,
+        delay: 0,
+        timer: 0
+    };
+
+    // when new object is created, called init();
+    this.init();
+}
+function QueryByGeneUtil() {
+
+    // add the field
+    function addFormField(formId, itemName, itemValue) {
+        $('<input>').attr({
+            type: 'hidden',
+            value: itemValue,
+            name: itemName
+        }).appendTo(formId)
+    }
+
+    // fields required for the study-view and their defaults to be able to query
+    this.addStudyViewFields = function (cancerStudyId, mutationProfileId, cnaProfileId) {
+        var formId = "#iviz-form";
+        addFormField(formId, "gene_set_choice", "user-defined-list");
+        addFormField(formId, "gene_list", QueryByGeneTextArea.getGenes());
+
+        addFormField(formId, "cancer_study_list", cancerStudyId);
+        addFormField(formId, "Z_SCORE_THRESHOLD", 2.0);
+        addFormField(formId, "genetic_profile_ids_PROFILE_MUTATION_EXTENDED", mutationProfileId);
+        addFormField(formId, "genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION", cnaProfileId);
+        addFormField(formId, "clinical_param_selection", null);
+        addFormField(formId, "data_priority", 0);
+        addFormField(formId, "tab_index", "tab_visualize");
+        addFormField(formId, "Action", "Submit");
+    }
+}
+
+
+var GenelistModel = Backbone.Model.extend({
+    defaults: {
+        geneString: ""
+    },
+
+    isEmptyModel: function(){
+       return this.get("geneString").length==0;
+    },
+
+    getCleanGeneString: function(delim){
+        delim = delim || " ";
+        return this.getCleanGeneArray().join(delim);
+    },
+
+    getCleanGeneArray: function(){
+        return $.unique(this.removeEmptyElements(this.get("geneString").toUpperCase().split(/[^a-zA-Z0-9-]/))).reverse();
+    },
+
+    removeEmptyElements: function (array){
+        return array.filter(function(el){ return el !== "" });
+    }
+});
+
+var QueryByGeneTextArea  = (function() {
+    var geneModel = new GenelistModel();
+    var areaId;
+    var updateGeneCallBack;
+    var geneValidator;
+    var emptyAreaText = "query genes - click to expand";
+
+    // when the textarea does not have focus, the text shown in the (smaller) textarea
+    // is gene1, gene2 and x more
+    function createFocusOutText(){
+        var geneList = geneModel.getCleanGeneArray();
+        var focusOutText = geneList[0];
+        var stringLength = focusOutText.length;
+
+        // build the string to be shown
+        for(var i=1; i<geneList.length; i++){
+            stringLength+=geneList[i].length+2;
+            // if the string length is bigger than 15 characters add the "and x more"
+            if(stringLength>15) {
+                focusOutText+= " and "+(geneList.length-i)+" more";
+                break;
+            }
+            focusOutText+=", "+geneList[i];
+        }
+        return focusOutText;
+    }
+
+    // set the textarea text when focus is lost (and no notifications are open)
+    function setFocusOutText(){
+        var focusOutText=emptyAreaText;
+        // if there are genes build the focusText
+        if(!geneModel.isEmptyModel()) focusOutText = createFocusOutText();
+        setFocusoutColour();
+        $(areaId).val(focusOutText);
+    }
+
+    // if the geneList is empty, we use a gray colour, otherwise black
+    function setFocusoutColour(){
+        if(!geneModel.isEmptyModel()) $(areaId).css("color", "black");
+        else $(areaId).css("color", "darkgrey");
+    }
+
+    // when the textarea has focus, the contents is the geneList's contents separated by spaces
+    function setFocusInText(){
+        $(areaId).css("color", "black");
+        $(areaId).val(geneModel.getCleanGeneString());
+    }
+
+    function isEmpty(){
+        return geneModel.isEmptyModel();
+    }
+
+    function getGenes(){
+        return geneModel.getCleanGeneString();
+    }
+
+    // addRemoveGene is used when someone clicks on a gene in a table (StudyViewInitTables)
+    function addRemoveGene (gene){
+        var geneList = geneModel.getCleanGeneArray();
+
+        // if the gene is not yet in the list, add it and create a notification
+        if(geneList.indexOf(gene)==-1) {
+            geneList.push(gene);
+            geneModel.set("geneString", geneModel.getCleanGeneString()+" "+gene);
+            new Notification().createNotification(gene+" added to your query");
+        }
+        // if the gene is in the list, remove it and create a notification
+        else{
+            var index = geneList.indexOf(gene);
+            geneList.splice(index, 1);
+            geneModel.set("geneString", geneList.join(" "));
+            new Notification().createNotification(gene+" removed from your query");
+        }
+        // if there are active notifications, the textarea is still expanded and the contents
+        // should reflect this
+        if(geneValidator.noActiveNotifications()) setFocusOutText();
+        else setFocusInText();
+
+        // update the highlighting in the tables
+        //if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
+    }
+
+    // used by the focusOut event and by the updateTextArea
+    function setFocusOut(){
+        // if there are no active notifications and the textarea does not have focus
+        if(geneValidator.noActiveNotifications() && !$(areaId).is(":focus")){
+            // switch from focusIn to focusOut and set the focus out text
+            $(areaId).switchClass("expandFocusIn", "expandFocusOut", 500);
+            setFocusOutText();
+        }
+
+        // update the gene tables for highlighting
+        if(updateGeneCallBack != undefined) updateGeneCallBack(geneModel.getCleanGeneArray());
+    }
+
+    function validateGenes(callback){
+        geneValidator.validateGenes(callback, false);
+    }
+
+    function updateTextArea(){
+        // set display text - this will not fire the input propertychange
+        $(areaId).val(geneModel.get("geneString"));
+        setFocusOut();
+    }
+
+    function updateModel(){
+        // check whether the model actually has to be updated
+        if(geneModel.get("geneString")!=$(areaId).val()) {
+            geneModel.set("geneString", $(areaId).val());
+        }
+    }
+
+    // initialise events
+    function initEvents(){
+        // when user types in the textarea, update the model
+        $(areaId).bind('input propertychange', updateModel);
+
+        // when the model is changed, update the textarea
+        geneModel.on("change", updateTextArea);
+
+        // add the focusin event
+        $(areaId).focusin(function () {
+            $(this).switchClass("expandFocusOut", "expandFocusIn", 500);
+            setFocusInText();
+        });
+
+        // add the focusout event
+        $(areaId).focusout(function () {
+            setFocusOut();
+        });
+
+        // create the gene validator
+        geneValidator = new GeneValidator(areaId, geneModel);
+    }
+
+
+    function init(areaIdP, updateGeneCallBackP){
+        areaId = areaIdP;
+        updateGeneCallBack = updateGeneCallBackP;
+        setFocusOutText();
+        initEvents();
+    }
+
+    return{
+        init: init,
+        addRemoveGene: addRemoveGene,
+        getGenes: getGenes,
+        isEmpty: isEmpty,
+        validateGenes: validateGenes
+    }
+
+})();
+
+
 'use strict';
 var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   var data_;
@@ -10,6 +502,40 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   var patientData_;
   var sampleData_;
   var charts = {};
+  var styles_ = {
+    vars: {
+      width: {
+        one: 195,
+        two: 400
+      },
+      height: {
+        one: 170,
+        two: 350
+      },
+      chartHeader: 17,
+      borderWidth: 2,
+      scatter: {
+        width: 398,
+        height: 331
+      },
+      survival: {
+        width: 398,
+        height: 331
+      },
+      specialTables: {
+        width: 398,
+        height: 306
+      },
+      piechart: {
+        width: 140,
+        height: 140
+      },
+      barchart: {
+        width: 398,
+        height: 134
+      }
+    }
+  };
 
   function getAttrVal(attrs, arr) {
     var str = [];
@@ -29,10 +555,16 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
   return {
 
-    init: function(_rawDataJSON) {
+    init: function(_rawDataJSON, opts) {
       vm_ = iViz.vue.manage.getInstance();
 
       data_ = _rawDataJSON;
+
+      if (_.isObject(opts)) {
+        if (_.isObject(opts.styles)) {
+          styles_ = _.extend(styles_, opts.styles);
+        }
+      }
 
       hasPatientAttrDataMap_ = data_.groups.patient.hasAttrData;
       hasSampleAttrDataMap_ = data_.groups.sample.hasAttrData;
@@ -509,6 +1041,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var selectedCases_ = vm_.selectedsamples;
       var studyId_ = '';
       var possibleTOQuery = true;
+
+      // Remove all hidden inputs
+      $('#iviz-form input:not(:first)').remove();
+
       _.each(selectedCases_, function(_caseId, key) {
         var index_ = data_.groups.sample.data_indices.sample_id[_caseId];
         if (key === 0) {
@@ -521,6 +1057,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       if (possibleTOQuery) {
         $('#iviz-form').get(0).setAttribute(
           'action', window.cbioURL + 'index.do');
+
         $('<input>').attr({
           type: 'hidden',
           value: studyId_,
@@ -529,7 +1066,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
         $('<input>').attr({
           type: 'hidden',
-          value: window.case_set_id,
+          value: -1,
           name: 'case_set_id'
         }).appendTo('#iviz-form');
 
@@ -641,6 +1178,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     },
     data: {},
+    styles: styles_,
     applyVC: function(_vc) {
       var _selectedSamples = [];
       var _selectedPatients = [];
@@ -695,8 +1233,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             userid: 'DEFAULT',
             stats: '',
             updateStats: false,
-            highlightAllButtons: false,
-            highlightCaseButtons: false,
             clearAll: false,
             showScreenLoad: false,
             showDropDown: false
@@ -709,7 +1245,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               // TODO: need to update setting timeout
               var interval = setTimeout(function() {
                 clearInterval(interval);
-                self_.$broadcast('update-special-charts');
+                var _attrs = [];
+                _.each(self_.groups, function(group) {
+                  _attrs = _attrs.concat(group.attributes);
+                });
+                self_.$broadcast('update-special-charts', self_.hasfilters);
               }, 500);
             },
             updateStats: function() {
@@ -769,7 +1309,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             clearAllCharts: function(includeNextTickFlag) {
               var self_ = this;
               self_.clearAll = true;
-              this.hasfilters = false;
+              self_.hasfilters = false;
               if (self_.customfilter.patientIds.length > 0 ||
                 self_.customfilter.sampleIds.length > 0) {
                 self_.customfilter.sampleIds = [];
@@ -779,7 +1319,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 self_.$nextTick(function() {
                   self_.selectedsamples = _.keys(iViz.getCasesMap('sample'));
                   self_.selectedpatients = _.keys(iViz.getCasesMap('patient'));
-                  self_.$broadcast('update-special-charts');
+                  self_.$broadcast('update-special-charts', self_.hasfilters);
                   self_.clearAll = false;
                   _.each(this.groups, function(group) {
                     dc.redrawAll(group.id);
@@ -903,7 +1443,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                   (radioVal === 'patient' ? 'patient' : 'sample') +
                   ' ID' + (unmappedCaseIds.length === 1 ? ' was' : 's were') +
                   ' not found in this study: ' +
-                  unmappedCaseIds.join(', '), {message_type: 'warning'});
+                  unmappedCaseIds.join(', '), {
+                    message_type: 'danger'
+                  });
               } else {
                 new Notification().createNotification(selectedCaseIds.length +
                   ' case(s) selected.', {message_type: 'info'});
@@ -938,8 +1480,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 this.virtualCohorts = iViz.session.utils.getVirtualCohorts();
               }
             });
-            $('.iviz-header-left-5').qtip({
-              content: {text: 'Click to view the selected cases'},
+            $('#iviz-header-left-patient-select').qtip({
+              content: {text: 'View the selected patients.'},
               style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
               show: {event: 'mouseover'},
               hide: {fixed: true, delay: 100, event: 'mouseout'},
@@ -949,8 +1491,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 viewport: $(window)
               }
             });
-            $('#iviz-header-left-6').qtip({
-              content: {text: 'Click to download the selected cases'},
+            $('#iviz-header-left-case-download').qtip({
+              content: {text: 'Download clinical data for the selected cases.'},
+              style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+              show: {event: 'mouseover'},
+              hide: {fixed: true, delay: 100, event: 'mouseout'},
+              position: {
+                my: 'bottom center',
+                at: 'top center',
+                viewport: $(window)
+              }
+            });
+            $('#iviz-form').qtip({
+              content: {text: 'Query the selected samples.'},
               style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
               show: {event: 'mouseover'},
               hide: {fixed: true, delay: 100, event: 'mouseout'},
@@ -1258,7 +1811,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           pieChartCanvasDownload(content, {
             filename: content.fileName + '.pdf',
             contentType: 'application/pdf',
-            servletName: 'http://localhost:8080/cbioportal/svgtopdf.do'
+            servletName: window.cbioURL + 'svgtopdf.do'
           });
           break;
         default:
@@ -1556,7 +2109,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           survivalChartCanvasDownload(content, {
             filename: content.fileName + '.pdf',
             contentType: 'application/pdf',
-            servletName: 'http://localhost:8080/cbioportal/svgtopdf.do'
+            servletName: window.cbioURL + 'svgtopdf.do'
           });
           break;
         default:
@@ -1624,7 +2177,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           barChartCanvasDownload(content, {
             filename: content.fileName + '.pdf',
             contentType: 'application/pdf',
-            servletName: 'http://localhost:8080/cbioportal/svgtopdf.do'
+            servletName: window.cbioURL + 'svgtopdf.do'
           });
           break;
         default:
@@ -1690,7 +2243,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         string.push(attribute.description);
       }
       return string.join('<br/>');
-    }
+    };
 
     return content;
   })();
@@ -1771,8 +2324,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         if (this.grid_ === '') {
           self_.grid_ = new Packery(document.querySelector('.grid'), {
             itemSelector: '.grid-item',
-            columnWidth: 190,
-            rowHeight: 170,
+            columnWidth: window.iViz.styles.vars.width.one + 5,
+            rowHeight: window.iViz.styles.vars.height.one + 5,
             gutter: 5,
             initLayout: false
           });
@@ -1864,21 +2417,24 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                   iViz.util.intersection(_selectedCasesByFilters,
                     _groupFilteredCases);
               }
+            } else {
+              _selectedCasesByFilters = (updateType_ === 'patient') ?
+                self_.completePatientsList : self_.completeSamplesList;
             }
           }
         });
         self_.hasfilters = _hasFilters;
         if (updateType_ === 'patient') {
           self_.selectedPatientsByFilters = _selectedCasesByFilters.sort();
-         // _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
-         //   self_.completePatientsList : _selectedCasesByFilters;
+          // _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
+          //   self_.completePatientsList : _selectedCasesByFilters;
           _counterSelectedCasesByFilters =
             this.selectedSamplesByFilters.length === 0 ?
               self_.completeSamplesList : this.selectedSamplesByFilters;
         } else {
           self_.selectedSamplesByFilters = _selectedCasesByFilters.sort();
-         // _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
-         //   self_.completeSamplesList : _selectedCasesByFilters;
+          // _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
+          //   self_.completeSamplesList : _selectedCasesByFilters;
           _counterSelectedCasesByFilters =
             this.selectedPatientsByFilters.length === 0 ?
               self_.completePatientsList : this.selectedPatientsByFilters;
@@ -2042,10 +2598,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             this.type + '_id').sort();
           // Hacked way to check if filter selected filter cases is same
           // as original case list
-          if (filteredCases.length === this.ndx.size()) {
-            iViz.deleteGroupFilteredCases(this.id);
-          } else {
+
+          var _hasFilter = false;
+          _.every(this.attributes, function(attribute) {
+            if (attribute.filter.length > 0) {
+              _hasFilter = true;
+              return false;
+            }
+            return true;
+          });
+          if (_hasFilter) {
             iViz.setGroupFilteredCases(this.id, this.type, filteredCases);
+          } else {
+            iViz.deleteGroupFilteredCases(this.id);
           }
 
           if (this.invisibleChartFilters.length > 0) {
@@ -2464,13 +3029,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     v.data = $.extend(true, v.data, attributes);
     v.data.ndx = ndx;
 
-    var labels = [];
+    var labels = {};
     var reactTableData = {};
     reactTableData.attributes = [{
       attr_id: 'name',
       display_name: v.data.display_name,
       datatype: 'STRING',
-      column_width: 213
+      column_width: 235
     }, {
       attr_id: 'color',
       display_name: 'Color',
@@ -2526,7 +3091,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       chartDivDom.qtip('destroy', true);
 
       if (currentView === 'table') {
-        updateReactTable();
+        if (qtipRendered) {
+          updateReactTable();
+        } else {
+          updatePieLabels();
+        }
         animateTable('#' + v.opts.chartDivId, 'table', function() {
           vm.$dispatch('update-grid');
           $('#' + v.opts.chartDivId).css('z-index', '');
@@ -2546,7 +3115,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         style: {
           classes: 'qtip-light qtip-rounded qtip-shadow forceZindex qtip-max-width iviz-pie-qtip iviz-pie-label-qtip'
         },
-        show: {event: 'mouseover', delay: 0, ready: true},
+        show: {event: 'mouseover', delay: 300, ready: true},
         hide: {fixed: true, delay: 300, event: 'mouseleave'},
         // hide: false,
         position: {my: 'left center', at: 'center right', viewport: $(window)},
@@ -2667,7 +3236,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     function initTsvDownloadData() {
       var data = v.data.display_name + '\tCount';
 
-      var meta = labels || [];
+      var meta = labels || {};
 
       for (var i = 0; i < meta.length; i++) {
         data += '\r\n';
@@ -2698,12 +3267,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     }
 
     function animateTable(target, view, callback) {
-      var width = window.style['grid-w-1'] || '180px';
-      var height = window.style['grid-h-1'] || '165px';
+      var width = window.iViz.styles.vars.width.one;
+      var height = window.iViz.styles.vars.height.one;
 
       if (view === 'table') {
-        width = window.style['grid-w-2'] || '375px';
-        height = window.style['grid-h-2'] || '340px';
+        width = window.iViz.styles.vars.width.two;
+        height = window.iViz.styles.vars.height.two;
+        if (Object.keys(labels).length <= 3) {
+          height = window.iViz.styles.vars.height.one;
+        }
       }
 
       $(target).animate({
@@ -2735,7 +3307,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
     function updateReactTable() {
       var data = $.extend(true, {}, reactTableData);
-      initReactTable(v.opts.chartTableId, data);
+      initReactTable(v.opts.chartTableId, data, {
+        tableWidth: window.iViz.styles.vars.specialTables.width
+      });
     }
 
     function updateQtipReactTable() {
@@ -3089,8 +3663,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         groupid: _self.attributes.group_id,
         chartTableId: _self.chartTableId,
         transitionDuration: iViz.opts.dc.transitionDuration,
-        width: window.style['piechart-svg-width'] | 130,
-        height: window.style['piechart-svg-height'] | 130
+        width: window.iViz.styles.vars.piechart.width,
+        height: window.iViz.styles.vars.piechart.height
       };
       _self.piechart = new iViz.view.component.PieChart(
         _self.ndx, _self.attributes, opts, _cluster);
@@ -3627,8 +4201,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ready: function() {
       this.barChart = new iViz.view.component.BarChart();
       this.barChart.setDownloadDataTypes(['tsv', 'pdf', 'svg']);
-      this.settings.width = window.style.vars.barchartWidth || 150;
-      this.settings.height = window.style.vars.barchartHeight || 150;
+      this.settings.width = window.iViz.styles.vars.barchart.width;
+      this.settings.height = window.iViz.styles.vars.barchart.height;
 
       this.opts = _.extend(this.opts, {
         groupType: this.attributes.group_type,
@@ -3680,6 +4254,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     var chartId_;
     var data_;
     var opts_;
+    var layout_;
     var getQtipString = function(_data) {
       var toReturn = 'Cancer Study:' + _data.study_id + '<br>Sample Id: ' +
         _data.sample_id + '<br>CNA fraction: ';
@@ -3695,7 +4270,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     content.init = function(_data, opts) {
       opts_ = $.extend(true, {}, opts);
       chartId_ = opts_.chartId;
-      data_ = _data;
+      data_ = _.filter(_data, function(datum) {
+        return !isNaN(datum.cna_fraction) && !isNaN(datum.mutation_count);
+      });
       var _xArr = _.pluck(data_, 'cna_fraction');
       var _yArr = _.pluck(data_, 'mutation_count');
       var _qtips = [];
@@ -3720,13 +4297,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var data = [trace];
       var _marginX = (d3.max(_xArr) - d3.min(_xArr)) * 0.05;
       var _marginY = (d3.max(_yArr) - d3.min(_yArr)) * 0.05;
-      var layout = {
+      layout_ = {
         xaxis: {
           title: 'Fraction of copy number altered genome',
           range: [d3.min(_xArr) - _marginX, d3.max(_xArr) + _marginX],
-          fixedrange: true,
           zeroline: false,
-          showline: true
+          showline: true,
+          tickangle: -45
         },
         yaxis: {
           title: '# of mutations',
@@ -3735,9 +4312,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           showline: true
         },
         hovermode: 'closest',
+        dragmode: 'select',
         showlegend: false,
-        width: 370,
-        height: 320,
+        width: opts_.width || 370,
+        height: opts_.height || 320,
         margin: {
           l: 60,
           r: 10,
@@ -3746,11 +4324,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           pad: 0
         }
       };
-      Plotly.plot(document.getElementById(chartId_), data, layout, {
+      Plotly.plot(document.getElementById(chartId_), data, layout_, {
         displaylogo: false,
         modeBarButtonsToRemove: ['sendDataToCloud', 'pan2d',
           'zoomIn2d', 'zoomOut2d', 'resetScale2d',
-          'hoverClosestCartesian', 'hoverCompareCartesian']
+          'hoverClosestCartesian', 'hoverCompareCartesian', 'toImage']
       });
 
       // link to sample view
@@ -3824,7 +4402,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           line: {color: 'white'}
         }
       };
-      Plotly.redraw(document.getElementById(chartId_));
+
+      Plotly.newPlot(document.getElementById(chartId_), document.getElementById(chartId_).data, layout_);
+
     };
 
     content.updateDataForDownload = function(fileType) {
@@ -3913,19 +4493,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       'show-loader': function() {
         this.showLoad = true;
       },
-      'update-special-charts': function() {
+      'update-special-charts': function(hasFilters) {
         var attrId =
           this.attributes.group_type === 'patient' ? 'patient_id' : 'sample_id';
         var _selectedCases =
           _.pluck(this.invisibleDimension.top(Infinity), attrId);
-        var data = iViz.getGroupNdx(this.attributes.group_id);
-        if (_selectedCases.length === data.length) {
-          this.selectedSamples = _selectedCases;
-          this.chartInst.update([]);
-        } else {
-          this.selectedSamples = _selectedCases;
+
+        this.selectedSamples = _selectedCases;
+        if (hasFilters) {
           this.chartInst.update(_selectedCases);
+        } else {
+          this.chartInst.update([]);
         }
+        this.attachPlotlySelectedEvent();
         this.showLoad = false;
       },
       'closeChart': function() {
@@ -3957,6 +4537,44 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         this.showOperations = true;
       }, mouseLeave: function() {
         this.showOperations = false;
+      },
+      attachPlotlySelectedEvent: function() {
+        var _self = this;
+        var data = iViz.getGroupNdx(_self.attributes.group_id);
+
+        document.getElementById(this.chartId).on('plotly_selected',
+          function(_eventData) {
+            if (typeof _eventData !== 'undefined') {
+              var _selectedData = [];
+              // create hash map for (overall) data with cna_fraction + mutation
+              // count as key, dataObj as value (performance concern)
+              var _CnaFracMutCntMap = {};
+              _.each(data, function(_dataObj) {
+                var _key = _dataObj.cna_fraction + '||' + _dataObj.mutation_count;
+                _CnaFracMutCntMap[_key] = _dataObj;
+              });
+              _.each(_eventData.points, function(_pointObj) {
+                if (_pointObj.x) {
+                  _selectedData.push(
+                    _CnaFracMutCntMap[_pointObj.x + '||' + _pointObj.y]);
+                }
+              });
+              var _selectedCases = _.pluck(_selectedData, 'sample_id').sort();
+              _self.selectedSamples = _selectedCases;
+              _self.attributes.filter = _selectedCases;
+
+              var filtersMap = {};
+              _.each(_selectedCases, function(filter) {
+                if (filtersMap[filter] === undefined) {
+                  filtersMap[filter] = true;
+                }
+              });
+              _self.invisibleDimension.filterFunction(function(d) {
+                return (filtersMap[d] !== undefined);
+              });
+              dc.redrawAll(_self.attributes.group_id);
+            }
+          });
       }
     },
     ready: function() {
@@ -3965,7 +4583,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var _opts = {
         chartId: this.chartId,
         chartDivId: this.chartDivId,
-        title: this.attributes.display_name
+        title: this.attributes.display_name,
+        width: window.iViz.styles.vars.scatter.width,
+        height: window.iViz.styles.vars.scatter.height
       };
       var attrId =
         this.attributes.group_type === 'patient' ? 'patient_id' : 'sample_id';
@@ -3978,39 +4598,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       _self.chartInst.init(data, _opts);
       _self.chartInst.setDownloadDataTypes(['pdf', 'svg']);
 
-      document.getElementById(this.chartId).on('plotly_selected',
-        function(_eventData) {
-          if (typeof _eventData !== 'undefined') {
-            var _selectedData = [];
-            // create hash map for (overall) data with cna_fraction + mutation
-            // count as key, dataObj as value (performance concern)
-            var _CnaFracMutCntMap = {};
-            _.each(data, function(_dataObj) {
-              var _key = _dataObj.cna_fraction + '||' + _dataObj.mutation_count;
-              _CnaFracMutCntMap[_key] = _dataObj;
-            });
-            _.each(_eventData.points, function(_pointObj) {
-              if (_pointObj.x) {
-                _selectedData.push(
-                  _CnaFracMutCntMap[_pointObj.x + '||' + _pointObj.y]);
-              }
-            });
-            var _selectedCases = _.pluck(_selectedData, 'sample_id').sort();
-            _self.selectedSamples = _selectedCases;
-            _self.attributes.filter = _selectedCases;
-
-            var filtersMap = {};
-            _.each(_selectedCases, function(filter) {
-              if (filtersMap[filter] === undefined) {
-                filtersMap[filter] = true;
-              }
-            });
-            _self.invisibleDimension.filterFunction(function(d) {
-              return (filtersMap[d] !== undefined);
-            });
-            dc.redrawAll(_self.attributes.group_id);
-          }
-        });
+      _self.attachPlotlySelectedEvent();
       _self.showLoad = false;
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
@@ -4072,8 +4660,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         new iViz.data.SurvivalChartProxy(_unselectedData, _attrId);
 
       // add curves
-      if (_unselectedDataProxy.get().length === 0) {
-        this.chartInst_.addCurve(_selectedDataProxy.get(), 0, '#2986e2');
+      if (_selectedDataProxy.get().length === 0) {
+        this.chartInst_.addCurve(_unselectedDataProxy.get(), 0, '#2986e2');
         this.chartInst_.removePval();
       } else {
         this.chartInst_.addCurve(_selectedDataProxy.get(), 0, 'red');
@@ -4157,11 +4745,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       'show-loader': function() {
         this.showLoad = true;
       },
-      'update-special-charts': function() {
+      'update-special-charts': function(hasFilters) {
         var attrId =
           this.attributes.group_type === 'patient' ? 'patient_id' : 'sample_id';
-        var _selectedCases =
-          _.pluck(this.invisibleDimension.top(Infinity), attrId);
+        var _selectedCases = [];
+        if (hasFilters) {
+          _selectedCases =
+            _.pluck(this.invisibleDimension.top(Infinity), attrId);
+        }
         this.chartInst.update(
           _selectedCases, this.chartId, this.attributes.attr_id);
         this.showLoad = false;
@@ -4206,8 +4797,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         return d[attrId];
       });
       var _opts = {
-        width: window.style.vars.survivalWidth,
-        height: window.style.vars.survivalHeight,
+        width: window.iViz.styles.vars.survival.width,
+        height: window.iViz.styles.vars.survival.height,
         chartId: this.chartId,
         attrId: this.attributes.attr_id,
         title: this.attributes.display_name,
@@ -4395,7 +4986,9 @@ window.LogRankTest = (function(jStat) {
 
     // init axis
     _self.elem_.xScale = d3.scale.linear()
-      .domain([0, d3.max(_.pluck(_self.data_, 'time'))])
+      .domain([0,
+        d3.max(_.pluck(_self.data_, 'time')) +
+        d3.max(_.pluck(_self.data_, 'time')) / 15])
       .range([leftMargin_, _opts.width - rightMargin_]);
     _self.elem_.yScale = d3.scale.linear()
       .domain([-0.03, 1.05]) // fixed to be 0-1
@@ -4775,6 +5368,7 @@ window.LogRankTest = (function(jStat) {
     var dimension = {};
     var group = {};
     var labelInitData = {};
+    var opts = {};
 
     // Category based color assignment. Avoid color changing
     var assignedColors = {
@@ -4795,8 +5389,8 @@ window.LogRankTest = (function(jStat) {
     };
 
     content.init =
-      function(_attributes, _selectedSamples, _selectedGenes,
-               _data, _chartId, _callbacks, _geneData, _dimension) {
+      function(_attributes, _opts, _selectedSamples, _selectedGenes,
+               _data, _callbacks, _geneData, _dimension) {
         initialized = false;
         allSamplesIds = _selectedSamples;
         selectedSamples = _selectedSamples;
@@ -4804,7 +5398,8 @@ window.LogRankTest = (function(jStat) {
         sequencedSampleIds = _attributes.options.sequencedCases;
         sequencedSampleIds.sort();
         selectedGenes = _selectedGenes;
-        chartId_ = _chartId;
+        chartId_ = _opts.chartId;
+        opts = _opts;
         caseIndices = iViz.getCaseIndices(_attributes.group_type);
         data_ = _data;
         geneData_ = _geneData;
@@ -4914,8 +5509,8 @@ window.LogRankTest = (function(jStat) {
         fixedChoose: false,
         uniqueId: 'uniqueId',
         rowHeight: 25,
-        tableWidth: 373,
-        maxHeight: 290,
+        tableWidth: opts.width,
+        maxHeight: opts.height,
         headerHeight: 26,
         groupHeaderHeight: 40,
         autoColumnWidth: false,
@@ -5181,18 +5776,18 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'gene',
               display_name: 'Gene',
               datatype: 'STRING',
-              column_width: 100
+              column_width: 110
             }, {
               attr_id: 'numOfMutations',
               display_name: '# Mut',
               datatype: 'NUMBER',
-              column_width: 90
+              column_width: 95
             },
             {
               attr_id: 'cases',
               display_name: '#',
               datatype: 'NUMBER',
-              column_width: 90
+              column_width: 95
             },
             {
               attr_id: 'sampleRate',
@@ -5226,13 +5821,13 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'gene',
               display_name: 'Gene',
               datatype: 'STRING',
-              column_width: 80
+              column_width: 85
             },
             {
               attr_id: 'cytoband',
               display_name: 'Cytoband',
               datatype: 'STRING',
-              column_width: 90
+              column_width: 100
             },
             {
               attr_id: 'altType',
@@ -5244,7 +5839,7 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'cases',
               display_name: '#',
               datatype: 'NUMBER',
-              column_width: 70
+              column_width: 75
             },
             {
               attr_id: 'altrateInSample',
@@ -5278,7 +5873,7 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'name',
               display_name: 'Unknown',
               datatype: 'STRING',
-              column_width: 213
+              column_width: 230
             }, {
               attr_id: 'color',
               display_name: 'Color',
@@ -5288,7 +5883,7 @@ window.LogRankTest = (function(jStat) {
               attr_id: 'cases',
               display_name: '#',
               datatype: 'NUMBER',
-              column_width: 70
+              column_width: 75
             }, {
               attr_id: 'caseRate',
               display_name: 'Freq',
@@ -5474,8 +6069,13 @@ window.LogRankTest = (function(jStat) {
       },
       processTableData: function(_data) {
         var data = iViz.getGroupNdx(this.attributes.group_id);
-        this.chartInst.init(this.attributes, this.$root.selectedsamples,
-          this.$root.selectedgenes, data, this.chartId, {
+        var opts = {
+          width: window.iViz.styles.vars.specialTables.width,
+          height: window.iViz.styles.vars.specialTables.height,
+          chartId: this.chartId
+        };
+        this.chartInst.init(this.attributes, opts, this.$root.selectedsamples,
+          this.$root.selectedgenes, data, {
             addGeneClick: this.addGeneClick,
             submitClick: this.submitClick
           }, this.isMutatedGeneCna ? _data.geneMeta : null, this.invisibleDimension);
@@ -5580,7 +6180,7 @@ window.LogRankTest = (function(jStat) {
     methods: {
       SetCasesSelection: function() {
         var caseIds = this.casesIdsList.trim().split(/\s+/);
-        this.$dispatch('set-selected-cases', this.caseSelection, caseIds);
+        this.$dispatch('set-selected-cases', this.caseSelection, _.uniq(caseIds));
       }
     },
     ready: function() {

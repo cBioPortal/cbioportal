@@ -35,8 +35,10 @@ package org.cbioportal.weblegacy;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.GenePanel;
+import org.cbioportal.model.GenePanelWithSamples;
 import org.cbioportal.service.GenePanelService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +53,7 @@ public class GenePanelController {
 
     @Autowired
     private GenePanelService genePanelService;
-    
+
     @ApiOperation(value = "Get gene panel information",
             nickname = "getGenePanel",
             notes = "")
@@ -60,24 +62,24 @@ public class GenePanelController {
     public List<GenePanel> getGenePanel(@ApiParam(required = false, value = "gene panel id. If provided, the list of /"
             + "genes associated with the gene panel will be presented. Otherwise, only the stable id and description will /"
             + "be shown for all gene panels in the database.")
-            @RequestParam(required = false) String panelId) {
-        if (panelId != null) {
-            return genePanelService.getGenePanelByStableId(panelId);
+            @RequestParam(required = false) String panel_id) {
+        if (panel_id != null) {
+            return genePanelService.getGenePanelByStableId(panel_id);
         }
         else {
             return genePanelService.getGenePanels();
         }
-    }        
+    }
 
-    @ApiOperation(value = "Get gene panel information for a sample profile pair",
+    @ApiOperation(value = "Get gene panel information for a profile and set of genes. Will return a mapping of samples and genes from the query that are in profile",
             nickname = "getGenePanelData",
             notes = "")
     @Transactional
     @RequestMapping(method = RequestMethod.GET, value = "/genepanel/data",  produces="application/json")
-    public String getGenePanelData(@ApiParam(required = true, value = "sample id, such as those returned by /api/samples")
-            @RequestParam(required = true) String sampleId,
-            @ApiParam(required = true, value = "genetic profile id, such as those returned by /api/geneticprofiles")
-            @RequestParam(required = true) String profileId) {
-        return genePanelService.getGenePanelBySampleIdAndProfileId(sampleId, profileId);
+    public List<GenePanelWithSamples> getGenePanelData(@ApiParam(required = true, value = "genetic profile id, such as those returned by /api/geneticprofiles")
+            @RequestParam(required = true) String profile_id,
+            @ApiParam(required = true, value = "List of gene hugo symbols")
+            @RequestParam(required = true) List<String> genes) {
+        return genePanelService.getGenePanelDataByProfileAndGenes(profile_id, genes);
     }
 }

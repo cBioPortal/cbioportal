@@ -145,7 +145,6 @@ public class MutationMyBatisRepositoryTest {
 
 		List<Mutation> result = mutationMyBatisRepository.getMutations(sampleIds, entrezGeneIds, 6);
 		Assert.assertEquals(1, result.size());
-		Assert.assertNotNull(result.get(0).getMutationEvent().getGene());
 	}
 
 	@Test

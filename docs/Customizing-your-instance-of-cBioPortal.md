@@ -115,12 +115,6 @@ Below you can find the complete list of all the available skin properties.
 			<td>Any HTML text</td>
 		</tr>
 		<tr>
-			<td>skin.patient_view.show_clinical_trials_tab</td>
-			<td>show the "Clinical Trials" tab in the patient view</td>
-			<td>true</td>
-			<td>true / false</td>
-		</tr>
-		<tr>
 			<td>skin.patient_view.show_drugs_tab</td>
 			<td>show the "Drugs" tab in the patient view</td>
 			<td>true</td>

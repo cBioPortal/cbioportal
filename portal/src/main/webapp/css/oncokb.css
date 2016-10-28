@@ -2,7 +2,7 @@
     width: 24px;
     height: 24px;
     line-height: 24px;
-    background-image: url("../images/oncogenic.png");
+    background-image: url("../images/oncogenic_v2_09302016.png");
     -webkit-background-size: 200px;
     background-size: 200px;
     display: block !important;
@@ -12,16 +12,24 @@
     background-position: -13px -12px;
 }
 
-.oncokb .oncogenic-icon-image.level2.oncogenic {
+.oncokb .oncogenic-icon-image.level2A.oncogenic {
     background-position: -38px -12px;
 }
 
-.oncokb .oncogenic-icon-image.level3.oncogenic {
+.oncokb .oncogenic-icon-image.level2B.oncogenic {
     background-position: -63px -12px;
 }
 
-.oncokb .oncogenic-icon-image.level4.oncogenic {
+.oncokb .oncogenic-icon-image.level3A.oncogenic {
     background-position: -88px -12px;
+}
+
+.oncokb .oncogenic-icon-image.level3B.oncogenic {
+    background-position: -113px -12px;
+}
+
+.oncokb .oncogenic-icon-image.level4.oncogenic {
+    background-position: -138px -12px;
 }
 
 .oncokb .oncogenic-icon-image.levelR1.oncogenic {
@@ -40,32 +48,48 @@
     background-position: -13px -74px;
 }
 
-.oncokb .oncogenic-icon-image.level2R.oncogenic {
+.oncokb .oncogenic-icon-image.level2AR.oncogenic {
     background-position: -38px -74px;
 }
 
-.oncokb .oncogenic-icon-image.level3R.oncogenic {
+.oncokb .oncogenic-icon-image.level2BR.oncogenic {
     background-position: -63px -74px;
 }
 
-.oncokb .oncogenic-icon-image.level4R.oncogenic {
+.oncokb .oncogenic-icon-image.level3AR.oncogenic {
     background-position: -88px -74px;
+}
+
+.oncokb .oncogenic-icon-image.level3BR.oncogenic {
+    background-position: -113px -74px;
+}
+
+.oncokb .oncogenic-icon-image.level4R.oncogenic {
+    background-position: -138px -74px;
 }
 
 .oncokb .oncogenic-icon-image.level1.likely-neutral {
     background-position: -13px -104px;
 }
 
-.oncokb .oncogenic-icon-image.level2.likely-neutral {
+.oncokb .oncogenic-icon-image.level2A.likely-neutral {
     background-position: -38px -104px;
 }
 
-.oncokb .oncogenic-icon-image.level3.likely-neutral {
+.oncokb .oncogenic-icon-image.level2B.likely-neutral {
     background-position: -63px -104px;
 }
 
-.oncokb .oncogenic-icon-image.level4.likely-neutral {
+.oncokb .oncogenic-icon-image.level3A.likely-neutral {
     background-position: -88px -104px;
+}
+
+.oncokb .oncogenic-icon-image.level3B.likely-neutral {
+    background-position: -113px -104px;
+}
+
+.oncokb .oncogenic-icon-image.level4.likely-neutral {
+    background-position: -138px -104px;
 }
 
 .oncokb .oncogenic-icon-image.levelR1.likely-neutral {
@@ -84,104 +108,144 @@
     background-position: -13px -164px;
 }
 
-.oncokb .oncogenic-icon-image.level2R.likely-neutral {
+.oncokb .oncogenic-icon-image.level2AR.likely-neutral {
     background-position: -38px -164px;
 }
 
-.oncokb .oncogenic-icon-image.level3R.likely-neutral {
+.oncokb .oncogenic-icon-image.level2BR.likely-neutral {
     background-position: -63px -164px;
 }
 
-.oncokb .oncogenic-icon-image.level4R.likely-neutral {
+.oncokb .oncogenic-icon-image.level3AR.likely-neutral {
     background-position: -88px -164px;
 }
 
-.oncokb .oncogenic-icon-image.level1.vus {
-    background-position: -13px -194px;
+.oncokb .oncogenic-icon-image.level3BR.likely-neutral {
+    background-position: -113px -164px;
 }
 
-.oncokb .oncogenic-icon-image.level2.vus {
-    background-position: -38px -194px;
-}
-
-.oncokb .oncogenic-icon-image.level3.vus {
-    background-position: -63px -194px;
-}
-
-.oncokb .oncogenic-icon-image.level4.vus {
-    background-position: -88px -194px;
-}
-
-.oncokb .oncogenic-icon-image.levelR1.vus {
-    background-position: -13px -224px;
-}
-
-.oncokb .oncogenic-icon-image.levelR2.vus {
-    background-position: -38px -224px;
-}
-
-.oncokb .oncogenic-icon-image.levelR3.vus {
-    background-position: -63px -224px;
-}
-
-.oncokb .oncogenic-icon-image.level1R.vus {
-    background-position: -13px -254px;
-}
-
-.oncokb .oncogenic-icon-image.level2R.vus {
-    background-position: -38px -254px;
-}
-
-.oncokb .oncogenic-icon-image.level3R.vus {
-    background-position: -63px -254px;
-}
-
-.oncokb .oncogenic-icon-image.level4R.vus {
-    background-position: -88px -254px;
+.oncokb .oncogenic-icon-image.level4R.likely-neutral {
+    background-position: -138px -164px;
 }
 
 .oncokb .oncogenic-icon-image.level1.unknown-oncogenic {
-    background-position: -13px -284px;
+    background-position: -13px -194px;
 }
 
-.oncokb .oncogenic-icon-image.level2.unknown-oncogenic {
-    background-position: -38px -284px;
+.oncokb .oncogenic-icon-image.level2A.unknown-oncogenic {
+    background-position: -38px -194px;
 }
 
-.oncokb .oncogenic-icon-image.level3.unknown-oncogenic {
-    background-position: -63px -284px;
+.oncokb .oncogenic-icon-image.level2B.unknown-oncogenic {
+    background-position: -63px -194px;
+}
+
+.oncokb .oncogenic-icon-image.level3A.unknown-oncogenic {
+    background-position: -88px -194px;
+}
+
+.oncokb .oncogenic-icon-image.level3B.unknown-oncogenic {
+    background-position: -113px -194px;
 }
 
 .oncokb .oncogenic-icon-image.level4.unknown-oncogenic {
-    background-position: -88px -284px;
+    background-position: -138px -194px;
 }
 
 .oncokb .oncogenic-icon-image.levelR1.unknown-oncogenic {
-    background-position: -13px -314px;
+    background-position: -13px -224px;
 }
 
 .oncokb .oncogenic-icon-image.levelR2.unknown-oncogenic {
-    background-position: -38px -314px;
+    background-position: -38px -224px;
 }
 
 .oncokb .oncogenic-icon-image.levelR3.unknown-oncogenic {
-    background-position: -63px -314px;
+    background-position: -63px -224px;
 }
 
 .oncokb .oncogenic-icon-image.level1R.unknown-oncogenic {
-    background-position: -13px -344px;
+    background-position: -13px -254px;
 }
 
-.oncokb .oncogenic-icon-image.level2R.unknown-oncogenic {
-    background-position: -38px -344px;
+.oncokb .oncogenic-icon-image.level2AR.unknown-oncogenic {
+    background-position: -38px -254px;
 }
 
-.oncokb .oncogenic-icon-image.level3R.unknown-oncogenic {
-    background-position: -63px -344px;
+.oncokb .oncogenic-icon-image.level2BR.unknown-oncogenic {
+    background-position: -63px -254px;
+}
+
+.oncokb .oncogenic-icon-image.level3AR.unknown-oncogenic {
+    background-position: -88px -254px;
+}
+
+.oncokb .oncogenic-icon-image.level3BR.unknown-oncogenic {
+    background-position: -113px -254px;
 }
 
 .oncokb .oncogenic-icon-image.level4R.unknown-oncogenic {
-    background-position: -88px -374px;
+    background-position: -138px -254px;
+}
+
+.oncokb .oncogenic-icon-image.level1.no-info-oncogenic {
+    background-position: -13px -284px;
+}
+
+.oncokb .oncogenic-icon-image.level2A.no-info-oncogenic {
+    background-position: -38px -284px;
+}
+
+.oncokb .oncogenic-icon-image.level2B.no-info-oncogenic {
+    background-position: -63px -284px;
+}
+
+.oncokb .oncogenic-icon-image.level3A.no-info-oncogenic {
+    background-position: -88px -284px;
+}
+
+.oncokb .oncogenic-icon-image.level3B.no-info-oncogenic {
+    background-position: -113px -284px;
+}
+
+.oncokb .oncogenic-icon-image.level4.no-info-oncogenic {
+    background-position: -138px -284px;
+}
+
+.oncokb .oncogenic-icon-image.levelR1.no-info-oncogenic {
+    background-position: -13px -314px;
+}
+
+.oncokb .oncogenic-icon-image.levelR2.no-info-oncogenic {
+    background-position: -38px -314px;
+}
+
+.oncokb .oncogenic-icon-image.levelR3.no-info-oncogenic {
+    background-position: -63px -314px;
+}
+
+.oncokb .oncogenic-icon-image.level1R.no-info-oncogenic {
+    background-position: -13px -344px;
+}
+
+.oncokb .oncogenic-icon-image.level2AR.no-info-oncogenic {
+    background-position: -38px -344px;
+}
+
+.oncokb .oncogenic-icon-image.level2BR.no-info-oncogenic {
+    background-position: -63px -344px;
+}
+
+.oncokb .oncogenic-icon-image.level3AR.no-info-oncogenic {
+    background-position: -88px -344px;
+}
+
+.oncokb .oncogenic-icon-image.level3BR.no-info-oncogenic {
+    background-position: -113px -344px;
+}
+
+.oncokb .oncogenic-icon-image.level4R.no-info-oncogenic {
+    background-position: -138px -374px;
 }
 
 .oncokb .oncogenic-icon-image.oncogenic {
@@ -192,12 +256,16 @@
     background-position: -38px -374px;
 }
 
-.oncokb .oncogenic-icon-image.vus {
+.oncokb .oncogenic-icon-image.unknown-oncogenic {
     background-position: -63px -374px;
 }
 
-.oncokb .oncogenic-icon-image.unknown-oncogenic {
+.oncokb .oncogenic-icon-image.vus {
     background-position: -88px -374px;
+}
+
+.oncokb .oncogenic-icon-image.no-info-oncogenic {
+    background-position: -113px -374px;
 }
 
 /* 
@@ -240,7 +308,7 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     width: 16px;
     height: 16px;
     line-height: 16px;
-    background-image: url("../images/levels_colors.png");
+    background-image: url("../images/levels_colors_v2_09302016.png");
     background-size: 200px;
     display: inline-block !important;
     margin-top: 3px; }
@@ -379,8 +447,6 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     height: 2px;
     background-color: #ffa500;
     will-change: left, right; }
-.oncokb-card .item:not(:last-child) {
-    margin-bottom: 10px; }
 .oncokb-card .refs img {
     margin: auto;
     display: block;
@@ -410,7 +476,6 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     font-size: 14px;
     width: 100%;
     float: left;
-    line-height: 25px;
     color: white; }
 .oncokb-card .oncogenicity .title-content {
     width: 100%;
@@ -418,6 +483,7 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     line-height: 25px;
     color: orange;
     font-size: 13px;
+    margin: -3px 0;
     text-transform: none; }
 .oncokb-card .oncogenicity .title-content .fa.fa-book {
     color: #fff; }
@@ -436,12 +502,12 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     line-height: 25px;
     font-size: 14px;
     width: 100%;
-    float: left;
-    line-height: 25px; }
+    float: left; }
 .oncokb-card .mutation-effect .title-content {
     width: 100%;
     float: left;
     line-height: 25px;
+    margin: -3px 0;
     color: orange;
     font-size: 13px;
     text-transform: none; }
@@ -450,15 +516,15 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
 .oncokb-card .disclaimer {
     color: grey;
     font-style: italic;
-    padding: 0 10px; }
+    padding: 5px 10px; }
 .oncokb-card .item-list i.glyphicon-chevron-down, .oncokb-card .item-list i.glyphicon-chevron-up {
     color: #ffa500;
     margin-right: 0; }
 .oncokb-card .footer {
     width: 100%;
     padding-top: 0;
-    line-height: 40px;
-    height: 40px; }
+    line-height: 30px;
+    height: 32px; }
 .oncokb-card .footer .oncokb-logo {
     height: 19px;
     margin-left: 10px;
@@ -467,10 +533,12 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     margin-right: 10px;
     font-size: 12px; }
 .oncokb-card .tabs {
-    height: 53px; }
+    height: 50px; }
 .oncokb-card .tabs .tab {
-    line-height: 53px;
-    height: 53px; }
+    line-height: 50px;
+    height: 50px; }
+.oncokb-card .tab-content > .tab-pane {
+    padding: 5px 10px; }
 .oncokb-card .enable-hover > a:hover {
     opacity: 0.7;
     cursor: pointer; }
@@ -483,7 +551,8 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
 .oncokb-card .collapsible {
     border-left: 0;
     border-right: 0;
-    box-shadow: none; }
+    box-shadow: none;
+    margin: 0; }
 .oncokb-card td, .oncokb-card th {
     padding: 3px 5px;
     text-align: center;
@@ -491,8 +560,10 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
 .oncokb-card table thead th {
     border-bottom: 2px solid #1c75cd; }
 .oncokb-card .levels {
-    padding: 0 10px;
+    padding: 5px 10px;
     font-size: 12px; }
+.oncokb-card .levels ul {
+    line-height: 8px; }
 .oncokb-card .levels li {
     line-height: 16px;
     margin: 3px 0;
@@ -509,9 +580,13 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     background-color: #1c75cd;
     color: #fff;
     text-align: center;
-    padding: 10px; }
+    padding: 7px 10px; }
 .oncokb-card .grey-out {
     opacity: 0.4 !important; }
+.oncokb-card .additional-info {
+    padding: 5px 10px;
+    line-height: 20px;
+    border-bottom: 1px solid lightgrey; }
 
 .qtip.qtip-oncokb-card-refs {
     color: black;
@@ -542,8 +617,6 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
 .qtip.oncokb-card-qtip {
     border: 0;
     max-width: 500px; }
-.qtip.oncokb-card-qtip .qtip-tip {
-    background-color: white;  }
 .qtip.oncokb-card-qtip .qtip-content {
     padding: 0; }
 .qtip.oncokb-card-qtip .oncogenic-loading {

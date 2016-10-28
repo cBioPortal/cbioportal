@@ -49,7 +49,6 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutSig;
-import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.dao.DaoSangerCensus;
 import org.mskcc.cbio.portal.model.CancerStudy;
@@ -60,9 +59,11 @@ import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.MutSig;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.InternalIdUtil;
 import org.mskcc.cbio.portal.util.MyCancerGenomeLinkUtil;
 import org.mskcc.cbio.portal.util.OncokbHotspotUtil;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -96,6 +97,17 @@ public class MutationsJSON extends HttpServlet {
                 config.getServletContext());
     }
     
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -105,25 +117,42 @@ public class MutationsJSON extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String cmd = request.getParameter(CMD);
-        if (cmd!=null) {
-            if (cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
-                processGetMutationContextRequest(request, response);
-                return;
-            }
-            
-            if (cmd.equalsIgnoreCase(COUNT_MUTATIONS_CMD)) {
-                processCountMutationsRequest(request, response);
-                return;
-            }
-            
-            if (cmd.equalsIgnoreCase(GET_SMG_CMD)) {
-                processGetSmgRequest(request, response);
-                return;
-            }
-        }
-            
-        processGetMutationsRequest(request, response);
+    	String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
+        
+    	if (mutationProfileId != null) {
+			// Get the Genetic Profile
+			GeneticProfile mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+			if (mutationProfile != null) {
+				CancerStudy cancerStudy;
+				try {
+					cancerStudy = DaoCancerStudy
+							.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
+					if (cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+						String cmd = request.getParameter(CMD);
+				        if (cmd!=null) {
+				            if (cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
+				                processGetMutationContextRequest(request, response);
+				                return;
+				            }
+				            
+				            if (cmd.equalsIgnoreCase(COUNT_MUTATIONS_CMD)) {
+				                processCountMutationsRequest(request, response);
+				                return;
+				            }
+				            
+				            if (cmd.equalsIgnoreCase(GET_SMG_CMD)) {
+				                processGetSmgRequest(request, response);
+				                return;
+				            }
+				        }
+				        processGetMutationsRequest(request, response);
+					}
+				} catch (DaoException e) {
+					System.out.println(e.getMessage());
+					return;
+				}
+			}
+    	}
     }
     
     private static int DEFAULT_THERSHOLD_NUM_SMGS = 500; // no limit if 0 or below
@@ -268,21 +297,22 @@ public class MutationsJSON extends HttpServlet {
                 mutations = mutationModelConverter.convert(mutationRepository.getMutations(
                         InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(samples)),
                         mutationProfile.getGeneticProfileId()));
-
-                cosmic = DaoCosmicData.getCosmicForMutationEvents(mutations);
-                String concatEventIds = getConcatEventIds(mutations);
-                int profileId = mutationProfile.getGeneticProfileId();
-                daoGeneOptimized = DaoGeneOptimized.getInstance();
-                drugs = getDrugs(concatEventIds, profileId, fdaOnly, cancerDrug);
-                geneContextMap = getGeneContextMap(concatEventIds, profileId, daoGeneOptimized);
-                keywordContextMap = getKeywordContextMap(concatEventIds, profileId);
-                Sample sample = (samples.length == 1) ?
-                    DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), samples[0]) : null;
-                if (mrnaProfileId != null && sample != null) { // only if there is only one tumor
-                    mrnaContext = getMrnaContext(sample, mutations, mrnaProfileId);
-                }
-                if (cnaProfileId!=null && samples.length==1) { // only if there is only one tumor
-                    cnaContext = getCnaContext(sample, mutations, cnaProfileId);
+                if (!mutations.isEmpty()) {
+                    cosmic = DaoCosmicData.getCosmicForMutationEvents(mutations);
+                    String concatEventIds = getConcatEventIds(mutations);
+                    int profileId = mutationProfile.getGeneticProfileId();
+                    daoGeneOptimized = DaoGeneOptimized.getInstance();
+    //                drugs = getDrugs(concatEventIds, profileId, fdaOnly, cancerDrug);
+                    geneContextMap = getGeneContextMap(concatEventIds, profileId, daoGeneOptimized);
+                    keywordContextMap = getKeywordContextMap(concatEventIds, profileId);
+                    Sample sample = (samples.length == 1) ?
+                        DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), samples[0]) : null;
+                    if (mrnaProfileId != null && sample != null) { // only if there is only one tumor
+                        mrnaContext = getMrnaContext(sample, mutations, mrnaProfileId);
+                    }
+                    if (cnaProfileId!=null && samples.length==1) { // only if there is only one tumor
+                        cnaContext = getCnaContext(sample, mutations, cnaProfileId);
+                    }
                 }
             }
         } catch (DaoException ex) {

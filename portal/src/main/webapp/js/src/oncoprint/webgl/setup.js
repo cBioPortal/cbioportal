@@ -68,11 +68,11 @@ var utils = {
 var tooltip_utils = {
     'sampleViewAnchorTag': function (study_id, sample_id) {
 	var href = cbio.util.getLinkToSampleView(study_id, sample_id);
-	return '<a href="' + href + '">' + sample_id + '</a>';
+	return '<a href="' + href + '" target="_blank">' + sample_id + '</a>';
     },
     'patientViewAnchorTag': function(study_id, patient_id) {
 	var href = cbio.util.getLinkToPatientView(study_id, patient_id);
-	return '<a href="' + href + '">' + patient_id + '</a>';
+	return '<a href="' + href + '" target="_blank">' + patient_id + '</a>';
     },
     'makeGeneticTrackTooltip':function(data_type, link_id) {
 	var listOfTooltipDataToHTML = function(tooltip_data) {
@@ -484,7 +484,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var clinical_attrs = utils.objectValues(State.clinical_tracks);
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
-	    $.when(QuerySession.getOncoprintSampleGenomicEventData(),
+	    $.when(QuerySession.getOncoprintSampleGenomicEventData(true),
 		    ClinicalData.getSampleData(clinical_attrs))
 		    .then(function (oncoprint_data_by_line,
 				    clinical_data) {
@@ -536,7 +536,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var clinical_attrs = utils.objectValues(State.clinical_tracks);
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
-	    $.when(QuerySession.getOncoprintPatientGenomicEventData(),
+	    $.when(QuerySession.getOncoprintPatientGenomicEventData(true),
 		    ClinicalData.getPatientData(clinical_attrs),
 		    QuerySession.getPatientIds())
 		    .then(function (oncoprint_data_by_line, 
@@ -630,14 +630,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 	
 	var annotateOncoprintDataWithRecurrence = function(state, list_of_oncoprint_data) {
-	    var isRecurrent = function(webservice_datum) {
-		return (state.incorp_hotspots && webservice_datum.cancer_hotspots_hotspot)
-		    || (state.incorp_cbioportal_count && (typeof webservice_datum.cbioportal_mutation_count !== "undefined")
-						    && webservice_datum.cbioportal_mutation_count >= state.cbioportal_count_threshold)
-		    || (state.incorp_cosmic && (typeof webservice_datum.cosmic_count !== "undefined")
-						    && parseInt(webservice_datum.cosmic_count, 10) >= state.cosmic_threshold)
-		    || (state.incorp_oncokb && (typeof webservice_datum.oncokb_oncogenic !== "undefined")
-					    && ["Likely Oncogenic", "Oncogenic"].indexOf(webservice_datum.oncokb_oncogenic) > -1);
+	    var known_mutation_settings = window.QuerySession.getKnownMutationSettings();
+	    var isRecurrent = function(d) {
+		return (known_mutation_settings.recognize_hotspot && d.cancer_hotspots_hotspot)
+			|| (known_mutation_settings.recognize_oncokb_oncogenic && (typeof d.oncokb_oncogenic !== "undefined") && (["likely oncogenic", "oncogenic"].indexOf(d.oncokb_oncogenic.toLowerCase()) > -1))
+			|| (known_mutation_settings.recognize_cbioportal_count && (typeof d.cbioportal_mutation_count !== "undefined") && d.cbioportal_mutation_count >= known_mutation_settings.cbioportal_count_thresh)
+			|| (known_mutation_settings.recognize_cosmic_count && (typeof d.cosmic_count !== "undefined") && d.cosmic_count >= known_mutation_settings.cosmic_count_thresh);
 	    };
 	    for (var i=0; i<list_of_oncoprint_data.length; i++) {
 		var oncoprint_datum = list_of_oncoprint_data[i];
@@ -662,10 +660,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 		if (has_known_disp_mut) {
 		    oncoprint_datum.disp_mut += "_rec";
-		} else {
-		    if (state.hide_unknown_mutations) {
-			oncoprint_datum.disp_mut = undefined;
-		    }
 		}
 	    }
 	    return list_of_oncoprint_data;
@@ -694,17 +688,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    
 	    'sortby': 'data',
 	    'sortby_type': true,
-	    'sortby_recurrence': false,
+	    'sortby_recurrence': true,
 	    
 	    'colorby_type': true,
 	    'colorby_knowledge': true,
-	    'incorp_hotspots': true,
-	    'incorp_cbioportal_count': true,
-	    'cbioportal_count_threshold': 10,
-	    'incorp_cosmic': true,
-	    'cosmic_threshold': 10,
-	    'incorp_oncokb': true,
-	    'hide_unknown_mutations': false,
 	    
 	    
 	    'sorting_by_given_order': false,
@@ -1405,17 +1392,22 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		var cosmic_threshold_input = $('#oncoprint_diagram_mutation_color').find('#cosmic_threshold');
 		var cbioportal_threshold_input = $('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold');
 		
-		var to_disable = [colorby_hotspots_checkbox, colorby_cbioportal_checkbox, colorby_cosmic_checkbox, 
-				colorby_oncokb_checkbox, hide_unknown_checkbox, cosmic_threshold_input, cbioportal_threshold_input];
-		if (colorby_knowledge_checkbox.is(":checked")) {
-		    for (var i=0; i<to_disable.length; i++) {
-			to_disable[i].removeAttr("disabled");
-		    }
+		var known_mutation_settings = window.QuerySession.getKnownMutationSettings();
+		colorby_knowledge_checkbox.prop('checked', State.colorby_knowledge);
+		colorby_hotspots_checkbox.prop('checked', known_mutation_settings.recognize_hotspot);
+		colorby_cbioportal_checkbox.prop('checked', known_mutation_settings.recognize_cbioportal_count);
+		colorby_cosmic_checkbox.prop('checked', known_mutation_settings.recognize_cosmic_count);
+		colorby_oncokb_checkbox.prop('checked', known_mutation_settings.recognize_oncokb_oncogenic);
+		hide_unknown_checkbox.prop('checked', known_mutation_settings.ignore_unknown);
+		
+		if (!State.colorby_knowledge) {
+		    hide_unknown_checkbox.attr('disabled', 'disabled');
 		} else {
-		    for (var i=0; i<to_disable.length; i++) {
-			to_disable[i].attr("disabled", "disabled");
-		    }
+		    hide_unknown_checkbox.removeAttr('disabled');
 		}
+		
+		cbioportal_threshold_input.val(known_mutation_settings.cbioportal_count_thresh);
+		cosmic_threshold_input.val(known_mutation_settings.cosmic_count_thresh);
 	    };
 	    
 	    var updateRuleSets = function() {
@@ -1477,14 +1469,48 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		State.sortby_recurrence = $('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="recurrence"]').is(":checked");
 		updateSortComparators();
 	    });
-	    $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"]').change(function() {
+	    $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"]').change(function(e) {
+		if (e.originalEvent === undefined) {
+		    return true;
+		}
 		State.colorby_type = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="type"]').is(":checked");
+		var old_colorby_knowledge = State.colorby_knowledge;
 		State.colorby_knowledge = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]').is(":checked");
-		State.incorp_hotspots = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hotspots"]').is(":checked");
-		State.incorp_cbioportal_count = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cbioportal"]').is(":checked");
-		State.incorp_cosmic = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]').is(":checked");
-		State.incorp_oncokb = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]').is(":checked");
-		State.hide_unknown_mutations = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hide_unknown"]').is(":checked");
+		
+		var new_known_mutation_settings = {
+		    recognize_hotspot: $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hotspots"]').is(":checked"),
+		    recognize_cbioportal_count: $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cbioportal"]').is(":checked"),
+		    recognize_cosmic_count: $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]').is(":checked"),
+		    recognize_oncokb_oncogenic: $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]').is(":checked"),
+		    ignore_unknown: $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hide_unknown"]').is(":checked")
+		};
+		
+		if (!old_colorby_knowledge && State.colorby_knowledge) {
+		    // If driver/passenger has just been selected, set defaults
+		    new_known_mutation_settings.recognize_hotspot = true;
+		    new_known_mutation_settings.recognize_cbioportal_count = true;
+		    new_known_mutation_settings.recognize_cosmic_count = true;
+		    new_known_mutation_settings.recognize_oncokb_oncogenic = true;
+		} else if (old_colorby_knowledge && !State.colorby_knowledge) {
+		    // If driver/passenger has just been deselected, set all to false
+		    new_known_mutation_settings.recognize_hotspot = false;
+		    new_known_mutation_settings.recognize_cbioportal_count = false;
+		    new_known_mutation_settings.recognize_cosmic_count = false;
+		    new_known_mutation_settings.recognize_oncokb_oncogenic = false;
+		}
+		
+		if (new_known_mutation_settings.recognize_hotspot || new_known_mutation_settings.recognize_cbioportal_count
+		|| new_known_mutation_settings.recognize_cosmic_count || new_known_mutation_settings.recognize_oncokb_oncogenic) {
+		    // If at least one data source selected, update State
+		    State.colorby_knowledge= true;
+		} else {
+		    // If no data sources selected, turn off driver/passenger labeling..
+		    State.colorby_knowledge = false;
+		    // .. and filtering
+		    new_known_mutation_settings.ignore_unknown = false;
+		}
+		
+		window.QuerySession.setKnownMutationSettings(new_known_mutation_settings);
 		
 		updateMutationColorForm();
 		updateSortByForm();
@@ -1492,28 +1518,33 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		State.refreshData();
 	    });
 	    $('#oncoprint_diagram_mutation_color').find('#cosmic_threshold').change(function() {
-		State.cosmic_threshold = parseInt($('#oncoprint_diagram_mutation_color').find('#cosmic_threshold').val(), 10) || 0;
+		window.QuerySession.setKnownMutationSettings({
+		    cosmic_count_thresh: parseInt($('#oncoprint_diagram_mutation_color').find('#cosmic_threshold').val(), 10) || 0
+		});
 		State.refreshData();
 	    });
 	    $('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold').change(function() {
-		State.cbioportal_count_threshold = parseInt($('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold').val(), 10) || 0;
+		window.QuerySession.setKnownMutationSettings({
+		    cbioportal_count_thresh: parseInt($('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold').val(), 10) || 0
+		});
 		State.refreshData();
 	    });
 	    (function initFormsFromState() {
+		var known_mutation_settings = window.QuerySession.getKnownMutationSettings();
 		$('#oncoprint_diagram_sortby_group').find('input[name="sortby"][value="'+State.sortby+'"]').prop("checked", true);
 		$('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="type"]').prop("checked", State.sortby_type);
 		$('#oncoprint_diagram_sortby_group').find('input[type="checkbox"][name="recurrence"]').prop("checked", State.sortby_recurrence);
 		
 		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="type"]').prop("checked", State.colorby_type);
 		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="recurrence"]').prop("checked", State.colorby_knowledge);
-		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hotspots"]').prop("checked", State.incorp_hotspots);
-		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cbioportal"]').prop("checked", State.incorp_cbioportal_count);
-		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]').prop("checked", State.incorp_cosmic);
-		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]').prop("checked", State.incorp_oncokb);
-		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hide_unknown"]').prop("checked", State.hide_unknown_mutations);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hotspots"]').prop("checked", !!known_mutation_settings.recognize_hotspot);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cbioportal"]').prop("checked", !!known_mutation_settings.recognize_cbioportal_count);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]').prop("checked", !!known_mutation_settings.recognize_cosmic_count);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]').prop("checked", !!known_mutation_settings.recognize_oncokb_oncogenic);
+		$('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="hide_unknown"]').prop("checked", !!known_mutation_settings.ignore_unknown);
 		
-		$('#oncoprint_diagram_mutation_color').find('#cosmic_threshold').val(State.cosmic_threshold);
-		$('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold').val(State.cbioportal_count_threshold);
+		$('#oncoprint_diagram_mutation_color').find('#cosmic_threshold').val(known_mutation_settings.cosmic_count_thresh);
+		$('#oncoprint_diagram_mutation_color').find('#cbioportal_threshold').val(known_mutation_settings.cbioportal_count_thresh);
 		
 		updateMutationColorForm();
 		updateSortByForm();
@@ -1525,8 +1556,19 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		$('#oncoprint_diagram_mutation_color').find('#colorby_oncokb_info').click(function() {
 		    window.open("http://www.oncokb.org");
 		});
+		addQTipTo($('#oncoprint_diagram_mutation_color').find('#putative_driver_info_icon'), {
+		    content: {text: "For missense mutations."},
+		    position: {my: 'bottom middle', at:'top middle', viewport: $(window)},
+		    style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
+		    show: {event: "mouseover"},
+		    hide: {fixed: true, delay: 100, event: "mouseout"}
+		});
 		addQTipTo($('#oncoprint_diagram_mutation_color').find('#colorby_hotspot_info'), {
-		    content: {text: "HotSpots from cancerhotspots.org"},
+		    content: {text: function() { return $("<p>Identified as a recurrent hotspot (statistically significant) in a " +
+				 "population-scale cohort of tumor samples of various cancer types using " +
+				 "methodology based in part on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang et al., Nat Biotechnol, 2016.</a>" +
+				 "\n"+
+				 "Explore all mutations at <a href='http://cancerhotspots.org' target='_blank'>http://cancerhotspots.org</a></p>"); }},
 		    position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
 		    style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
 		    show: {event: "mouseover"},
@@ -1591,7 +1633,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    };
 	    
 	    var updateDownloadIdOrderText = function() {
-		$('oncoprint-sample-download').text((State.using_sample_data ? "Sample" : "Patient") + " order");
+		$('.oncoprint-sample-download').text((State.using_sample_data ? "Sample" : "Patient") + " order");
 	    };
 	    
 	    updateHeaderBtnText();
@@ -1650,16 +1692,20 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 
 	    $('body').on('click', '.oncoprint-sample-download', function () {
-		var idTypeStr = (State.using_sample_data ? "Sample" : "Patient");
-		var content = idTypeStr + " order in the Oncoprint is: \n";
-		content += oncoprint.getIdOrder().join('\n');
-		var downloadOpts = {
-		    filename: 'OncoPrint' + idTypeStr + 's.txt',
-		    contentType: "text/plain;charset=utf-8",
-		    preProcess: false};
+		window.QuerySession.getUIDToCaseMap().then(function (uid_to_case) {
+		    var idTypeStr = (State.using_sample_data ? "Sample" : "Patient");
+		    var content = idTypeStr + " order in the Oncoprint is: \n";
+		    content += oncoprint.getIdOrder().map(function (uid) {
+			return uid_to_case[uid];
+		    }).join('\n');
+		    var downloadOpts = {
+			filename: 'OncoPrint' + idTypeStr + 's.txt',
+			contentType: "text/plain;charset=utf-8",
+			preProcess: false};
 
-		// send download request with filename & file content info
-		cbio.download.initDownload(content, downloadOpts);
+		    // send download request with filename & file content info
+		    cbio.download.initDownload(content, downloadOpts);
+		});
 	    });
 	})();
     })();

@@ -74,7 +74,7 @@ The file is comprised of the following columns in the order specified:
 
 1. **type_of_cancer**: The cancer type abbreviation, e.g., "brca".
 2. **name**: The name of the cancer type, e.g., "Breast Invasive Carcinoma".
-3. **clinical_trial_keywords**: A comma separated list of keywords used to help associated clinical trial data with this cancer study, e.g., "breast,breast invasive".
+3. **clinical_trial_keywords**: A comma separated list of keywords used to identify this study, e.g., "breast,breast invasive".
 4. **dedicated_color**: CSS color name of the color associated with this cancer study, e.g., "HotPink". See [this list](https://www.w3.org/TR/css3-color/#svg-color) for supported names, and follow the [awareness ribbons](http://en.wikipedia.org/wiki/List_of_awareness_ribbons) color schema. This color is associated with the cancer study on various web pages within the cBioPortal.
 5. **parent_type_of_cancer**:  The `type_of_cancer` field of the cancer type of which this is a subtype, e.g., "Breast". :information_source: : you can set parent to `tissue`, which is the reserved word to place the given cancer type at "root" level in the "studies oncotree" that will be generated in the homepage (aka query page) of the portal. 
 
@@ -156,6 +156,11 @@ The following columns are used by the study view as well as the patient view. In
     - In the patient view, DiseaseFree creates a green label, Recurred/Progressed a red label.
 - **DFS_MONTHS**: Disease free (months) since initial treatment
 
+These columns, when provided, add additional information to the patient description in the header:
+- **PATIENT_DISPLAY_NAME**: Patient display name (string)
+- **GENDER** or **SEX**: Gender or sex of the patient (string)
+- **AGE**: Age at which the condition or disease was first diagnosed, in years (number)
+
 Optional attributes:
 - **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
 
@@ -182,25 +187,30 @@ The following columns are required if you want the [pan-cancer summary statistic
 - **CANCER_TYPE**: Cancer Type
 - **CANCER_TYPE_DETAILED**: Cancer Type Detailed, a sub-type of the specified CANCER_TYPE
 
-The following columns affect the header of the patient view by adding text to the samples:
+The following columns affect the header of the patient view by adding text to the samples in the header:
+- **SAMPLE_DISPLAY_NAME**: displayed in addition to the ID
+- **TYPE_OF_CANCER**: Overrides CANCER_TYPE in the header
+- **DETAILED_CANCER_TYPE**: Overrides CANCER_TYPE_DETAILED in the header
 - **KNOWN_MOLECULAR_CLASSIFIER**
-- **GLEASON_SCORE**
-- **GLEASON_SCORE_1** and **GLEASON_SCORE_2**: if both are defined, overwrites GLEASON_SCORE
+- **TUMOR_SITE**
+- **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE depending on sample type
+- **SAMPLE_CLASS**
+- **GLEASON_SCORE**: Radical prostatectomy Gleason score for prostate cancer
 - **HISTOLOGY**
 - **TUMOR_STAGE_2009**
 - **TUMOR_GRADE**
-- **ETS/RAF/SPINK1_STATUS**
-- **TMPRSS2-ERG_FUSION_STATUS**
-- **ERG-FUSION_ACGH**
+- **ETS_RAF_SPINK1_STATUS**
+- **TMPRSS2_ERG_FUSION_STATUS**
+- **ERG_FUSION_ACGH**
 - **SERUM_PSA**
 - **DRIVER_MUTATIONS**
 
-The following columns affect the [Timeline data](#timeline-data) visualization:
+The following columns additionally affect the [Timeline data](#timeline-data) visualization:
 - **OTHER_SAMPLE_ID**: sometimes the timeline data (see the [timeline data section](#timeline-data)) will not have the SAMPLE_ID but instead an alias to the sample (in the field `SPECIMEN_REFERENCE_NUMBER`). To ensure that the timeline data field `SPECIMEN_REFERENCE_NUMBER` is correctly linked to this sample, be sure to add this column `OTHER_SAMPLE_ID` as an attribute to your sample attributes file.  
-- **SAMPLE_TYPE**: gives sample icon in the timeline a color. 
-    - If set to `recurrence`, `progressed`, `progression` or `recurred`: orange
+- **SAMPLE_TYPE**, **TUMOR_TISSUE_SITE** or **TUMOR_TYPE**: gives sample icon in the timeline a color.
+    - If set to `recurrence`, `recurred`, `progression` or `progressed`: orange
     - If set to `metastatic` or `metastasis`: red
-    - Otherwise: black
+    - If set to `primary` or otherwise: black
 
 Optional attributes
 - **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute you have tracked and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.

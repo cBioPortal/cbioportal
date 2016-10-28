@@ -32,14 +32,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.*;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.CnaEvent;
+import org.mskcc.cbio.portal.model.Sample;
+
+import java.sql.*;
+import java.util.*;
 
 /**
  *
@@ -80,7 +78,7 @@ public final class DaoCnaEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO cna_event (" +
                             "`ENTREZ_GENE_ID`," +
@@ -96,7 +94,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
 	}
     
@@ -180,7 +178,7 @@ public final class DaoCnaEvent {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
-    
+
     public static List<CnaEvent.Event> getAllCnaEvents() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

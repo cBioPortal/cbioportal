@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.StudyMapper">
+    <cache/>
+
+    <sql id="select">
+        cancer_study.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            cancer_study.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId",
+            cancer_study.NAME AS "${prefix}name",
+            cancer_study.SHORT_NAME AS "${prefix}shortName",
+            cancer_study.DESCRIPTION AS "${prefix}description",
+            cancer_study.PUBLIC AS "${prefix}publicStudy",
+            cancer_study.PMID AS "${prefix}pmid",
+            cancer_study.CITATION AS "${prefix}citation",
+            cancer_study.GROUPS AS "${prefix}groups",
+            cancer_study.STATUS AS "${prefix}status",
+            cancer_study.IMPORT_DATE AS "${prefix}importDate"
+        </if>
+    </sql>
+
+    <sql id="from">
+        FROM cancer_study
+        <if test="projection == 'DETAILED'">
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+            INNER JOIN patient ON cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        </if>
+    </sql>
+
+    <select id="getAllStudies" resultType="org.cbioportal.model.CancerStudy">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <if test="projection == 'DETAILED'">
+            ,
+            COUNT(*) AS "sampleCount",
+            <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
+                <property name="prefix" value="typeOfCancer."/>
+            </include>
+        </if>
+        <include refid="from"/>
+        <if test="projection == 'DETAILED'">
+            GROUP BY cancer_study.CANCER_STUDY_ID
+        </if>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaStudies" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM cancer_study
+    </select>
+
+    <select id="getStudy" resultType="org.cbioportal.model.CancerStudy">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <if test="projection == 'DETAILED'">
+            ,
+            COUNT(*) AS "sampleCount",
+            <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
+                <property name="prefix" value="typeOfCancer."/>
+            </include>
+        </if>
+        <include refid="from"/>
+        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="projection == 'DETAILED'">
+            GROUP BY cancer_study.CANCER_STUDY_ID
+        </if>
+    </select>
+
+</mapper>

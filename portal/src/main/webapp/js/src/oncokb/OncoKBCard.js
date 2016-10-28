@@ -116,6 +116,7 @@ var OncoKBCard = (function(_, $) {
         var cardMainTemplateMeta = {
             title: data.title,
             gene: data.gene,
+            additionalInfo: data.additionalInfo || '',
             oncogenicity: data.oncogenicity || 'Unknown',
             oncogenicityCitations: data.oncogenicityCitations,
             mutationEffect: data.mutationEffect || '',
@@ -140,6 +141,13 @@ var OncoKBCard = (function(_, $) {
         getTemplateFn('oncokb-card-refs-item');
 
         $(target).html(cardMainTemplate);
+
+        // Remove tabs, level, disclaimer if gene is not available.
+        if (!_.isString(data.gene) || !data.gene) {
+            $(target + ' .tabs-wrapper').remove();
+            $(target + ' .levels-wrapper').remove();
+            $(target + ' .disclaimer').remove();
+        }
 
         // Remove table element if there is no treatment available
         if (!_.isArray(data.treatments) || data.treatments.length === 0) {
@@ -173,6 +181,11 @@ var OncoKBCard = (function(_, $) {
             $(this).find('i.glyphicon-chevron-down').toggle();
             $(this).find('i.glyphicon-chevron-up').toggle();
         });
+
+        // Remove additional info section if no data presents
+        if (!data.additionalInfo) {
+            $(target + ' .additional-info').remove();
+        }
 
         // Initialize alll qtips on element which has non-empty qtip-content attribute
         $(target + ' .oncokb-card [qtip-content]').each(function() {

@@ -30,12 +30,12 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
-<%@ page import="org.mskcc.cbio.portal.util.DataSetsUtil" %> 
-<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudyStats" %>
-<%@ page import="java.util.List" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %> 
+<%@ page import="org.mskcc.cbio.portal.util.DataSetsUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 
 <%
    String dataSetsHtml = GlobalProperties.getProperty("data_sets");
@@ -96,15 +96,20 @@
 					 // cancer study name
 					 String stableID = stats.getStableID();
 					 String studyName = stats.getStudyName();
-                                         String htmlStudyName = "<a href='"
-                                                + GlobalProperties.getLinkToCancerStudyView(stableID)
-                                                + "'>" + studyName + "</a>";
-                                         String reference = stats.getReference();
-					 out.println("<td style=\"text-align: left;\"><b>" + htmlStudyName + "</b></td>");
-					 out.println("<td style=\"text-align: left;\"><b>" + reference + "</b></td>");
-					 // all
-					 out.println("<td style=\"text-align: center;\"><b>" + stats.getAll() + "</b></td>");
-					 // sequenced
+                     String htmlStudyName = "<a href='"
+                         + GlobalProperties.getLinkToCancerStudyView(stableID)
+                         + "'>" + studyName + "</a>";
+                     String studyDataDownloadForm = "<form class='datasets-page-study-download' studyid='" + stableID
+                         + "' method='get' action=''>"
+                         + "<input type='hidden' name='raw' value='true'>"
+                         + "<button class='btn btn-default btn-xs'><i class='fa fa-download'></i></button></form>";
+                     String reference = stats.getReference();
+                     out.println("<td style=\"text-align: left;\"><b>"
+                         + htmlStudyName + "</b>" + studyDataDownloadForm + "</td>");
+                     out.println("<td style=\"text-align: left;\"><b>" + reference + "</b></td>");
+                     // all
+                     out.println("<td style=\"text-align: center;\"><b>" + stats.getAll() + "</b></td>");
+                     // sequenced
 					 String sequenced = (stats.getSequenced() != 0) ? stats.getSequenced().toString() : "";
 					 out.println("<td style=\"text-align: center;\">" + sequenced + "</td>");
 					 // cna
@@ -192,21 +197,69 @@
             font-weight: bold;
             color: #555555;
         }
+
+        .datasets-page-study-download {
+            float: right;
+            display: none;
+        }
+
+        .datasets-page-study-download button {
+            padding: 0;
+            background: transparent;
+            border: 0;
+            font-size: 11px;
+            line-height: 12px;
+            margin: 0 4px;
+        }
+
+        .datasets-page-study-download button:hover {
+            background: transparent;
+            background-color: transparent;
+            border: 0;
+        }
 </style>
 
 <script type="text/javascript">
-    $('#data-set-table').dataTable({
-                    "sDom": '<"H"fr>t<"F"<"datatable-paging"pil>>', // selectable columns
-                    "bJQueryUI": true,
-                    "bDestroy": true,
-                    "oLanguage": {
-                        "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
-                        "sInfoFiltered": "",
-                        "sLengthMenu": "Show _MENU_ per page"
-                    },
-                    "iDisplayLength": -1,
-                    "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
-                }).show();
+    $(document).ready(function() {
+        $('#data-set-table').dataTable({
+            "sDom": '<"H"fr>t<"F"<"datatable-paging"pil>>', // selectable columns
+            "bJQueryUI": true,
+            "bDestroy": true,
+            "oLanguage": {
+                "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                "sInfoFiltered": "",
+                "sLengthMenu": "Show _MENU_ per page"
+            },
+            "iDisplayLength": -1,
+            "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
+        }).show();
+        window.cbio.util.getDatahubStudiesList()
+            .then(function(data) {
+                if(_.isObject(data)) {
+                    $('.datasets-page-study-download').each(function(index, element) {
+                        var jEle = $(element);
+                        var studyId = jEle.attr('studyid');
+                        if (data.hasOwnProperty(studyId)) {
+                            jEle.attr('action', data[studyId].htmlURL);
+                            jEle.css('display', 'block');
+                            jEle.qtip({
+                                content: {text: 'Download all genomic and clinical data files of this study.'},
+                                style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+                                show: {event: 'mouseover'},
+                                hide: {fixed: true, delay: 100, event: 'mouseout'},
+                                position: {
+                                    my: 'bottom center',
+                                    at: 'top center',
+                                    viewport: $(window)
+                                }
+                            });
+                        }
+                    });
+                }
+            }).fail(function(error) {
+            console.log(error);
+        });
+    })
 </script>
 
 </body>

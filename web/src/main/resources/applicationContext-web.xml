@@ -1,34 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xmlns:mvc="http://www.springframework.org/schema/mvc"
-     xmlns:context="http://www.springframework.org/schema/context"
-     xsi:schemaLocation="
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
      http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
-        <property name="searchSystemEnvironment" value="true"/>
-        <property name="ignoreResourceNotFound" value="true"/>
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
-        <property name="locations">
-          <list>
-            <value>file:///${PORTAL_HOME}/portal.properties</value>
-            <value>classpath:/portal.properties</value>
-            <value>classpath:springfox.properties</value>
-          </list>
-        </property>
-      </bean>
-      <bean name="/applicationSwaggerConfig" class="org.mskcc.cbio.portal.swagger.ApiServiceSwaggerConfig">
-      </bean>
+    <bean name="/applicationSwaggerConfig" class="org.mskcc.cbio.portal.swagger.RestServiceSwaggerConfig">
+    </bean>
 
-    <context:component-scan base-package="org.mskcc.cbio.portal.web"/>
-    <context:component-scan base-package="org.mskcc.cbio.portal.documentation"/>
-    <context:component-scan base-package="org.cbioportal.web"/>
-    <context:component-scan base-package="org.cbioportal.weblegacy"/>
+    <context:component-scan base-package="org.cbioportal.web" />
 
     <mvc:resources mapping="/swagger-ui.html" location="classpath:/META-INF/resources/"/>
     <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
@@ -40,7 +24,7 @@
     <mvc:resources mapping="/swf/**" location="/swf/"/>
     <mvc:view-controller path="/api" view-name="redirect:/api/swagger-ui.html"/>
 
-    <mvc:annotation-driven enable-matrix-variables="true">
+    <mvc:annotation-driven>
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                 <property name="objectMapper">
@@ -49,5 +33,17 @@
             </bean>
         </mvc:message-converters>
     </mvc:annotation-driven>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/*"/>
+            <mvc:exclude-mapping path="/swagger-ui.html"/>
+            <mvc:exclude-mapping path="/swagger-resources/**"/>
+            <mvc:exclude-mapping path="/v2/api-docs"/>
+            <mvc:exclude-mapping path="/webjars/**"/>
+            <bean class="org.cbioportal.web.interceptor.PagingValidationInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
 
 </beans>

@@ -11214,7 +11214,7 @@ function ClinicalDataProxy(options)
 
 	// default options
 	var _defaultOpts = {
-		servletName: "api/clinicaldata",
+		servletName: "api-legacy/clinicaldata",
 		subService: {
 			patients: "patients"
 		}

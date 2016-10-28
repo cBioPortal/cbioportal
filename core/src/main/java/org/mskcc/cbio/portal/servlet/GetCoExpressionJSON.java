@@ -53,7 +53,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.CoExpUtil;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
 
 /**
@@ -68,6 +70,17 @@ public class GetCoExpressionJSON extends HttpServlet {
 
     private double coExpScoreThreshold = 0.3;
     //private int resultLength = 250;
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
 
     /**
      * Handles HTTP GET Request.
@@ -92,6 +105,27 @@ public class GetCoExpressionJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
+        CancerStudy cancerStudy = null;
+        ArrayList<JsonNode> fullResultJson = new ArrayList<JsonNode>();
+        ObjectMapper mapper = new ObjectMapper();
+        httpServletResponse.setContentType("application/json");
+        PrintWriter out = httpServletResponse.getWriter();
+        try{
+        	if(cancerStudyIdentifier != null) {
+        		cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+                if (cancerStudy == null || accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+                	 mapper.writeValue(out, fullResultJson);
+                	 return;
+                }
+        	} else {
+        		mapper.writeValue(out, fullResultJson);
+           	 return;
+        	}
+        } catch (DaoException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+        
         String geneSymbol = httpServletRequest.getParameter("gene");
         if (httpServletRequest instanceof XssRequestWrapper) {
             geneSymbol = ((XssRequestWrapper) httpServletRequest).getRawParameter("gene");
@@ -109,8 +143,6 @@ public class GetCoExpressionJSON extends HttpServlet {
         Long queryGeneId = geneObj.getEntrezGeneId();
 
         if (!isFullResult) {
-            ArrayList<JsonNode> fullResultJson = new ArrayList<JsonNode>();
-            ObjectMapper mapper = new ObjectMapper();
             GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             if (final_gp != null) {
                 try {
@@ -163,17 +195,13 @@ public class GetCoExpressionJSON extends HttpServlet {
                             }
                         }
                     }
-                    httpServletResponse.setContentType("application/json");
-                    PrintWriter out = httpServletResponse.getWriter();
                     mapper.writeValue(out, fullResultJson);
                 } catch (DaoException e) {
                     System.out.println(e.getMessage());
+                    mapper.writeValue(out, new JSONObject());
                 }
             } else {
-                JSONObject emptyResult = new JSONObject();
-                httpServletResponse.setContentType("application/json");
-                PrintWriter out = httpServletResponse.getWriter();
-                mapper.writeValue(out, emptyResult);
+            	 mapper.writeValue(out, new JSONObject());
             }
         } else {
             StringBuilder fullResutlStr = new StringBuilder();
@@ -230,16 +258,14 @@ public class GetCoExpressionJSON extends HttpServlet {
                     httpServletResponse.setContentType("text/html");
                     httpServletResponse.setContentType("application/force-download");
                     httpServletResponse.setHeader("content-disposition", "inline; filename='" + fileName + "'");
-                    PrintWriter out = httpServletResponse.getWriter();
+                    out = httpServletResponse.getWriter();
                     JSONValue.writeJSONString(fullResutlStr, out);
                 } catch (DaoException e) {
                     System.out.println(e.getMessage());
+                    JSONValue.writeJSONString(new JSONObject(), out);
                 }
             } else {
-                JSONObject emptyResult = new JSONObject();
-                httpServletResponse.setContentType("application/json");
-                PrintWriter out = httpServletResponse.getWriter();
-                JSONValue.writeJSONString(emptyResult, out);
+                JSONValue.writeJSONString(new JSONObject(), out);
             }
         }
 

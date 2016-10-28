@@ -78,23 +78,6 @@
         <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />
     </bean>
     
-    <!-- these are required to get properly autowired mappers into our service classes -->
-    <!-- when creating services via manually loading this context file -->
-    <bean id="entityMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
-    <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
-    <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
-        <property name="entityMapper" ref="entityMapper" />
-    </bean>
-    <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
-        <property name="entityAttributeMapper" ref="entityAttributeMapper" />
-    </bean>
-    
     <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
     <context:component-scan base-package="org.mskcc.cbio.portal.service" />
      <context:component-scan base-package="org.cbioportal.persistence" />

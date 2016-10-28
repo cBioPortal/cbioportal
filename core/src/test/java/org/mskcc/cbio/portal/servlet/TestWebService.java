@@ -89,6 +89,8 @@ public class TestWebService {
       expect(control.getUserDetails()).andStubReturn(mockUserDetails);
       replay(control);
       SpringUtil.setAccessControl(control);
+      
+      DaoCancerStudy.reCacheAll();
    }
    
    @After

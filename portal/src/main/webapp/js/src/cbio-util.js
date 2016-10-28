@@ -635,6 +635,35 @@ cbio.util = (function() {
         return [minValue, maxValue, smallDataFlag];
     }
 
+    function getDatahubStudiesList() {
+        var DATAHUB_GIT_URL =
+            'https://api.github.com/repos/cBioPortal/datahub/contents/public';
+        var def = new $.Deferred();
+
+        $.getJSON(DATAHUB_GIT_URL, function(data) {
+            var studies = {};
+            if (_.isArray(data)) {
+                _.each(data, function(fileInfo) {
+                    if (_.isObject(fileInfo) &&
+                        fileInfo.type === 'file' &&
+                        _.isString(fileInfo.name)) {
+                        var fileName = fileInfo.name.split('.tar.gz');
+                        if (fileName.length > 0) {
+                            studies[fileName[0]] = {
+                                name: fileName[0],
+                                htmlURL: fileInfo.html_url
+                            };
+                        }
+                    }
+                })
+            }
+            def.resolve(studies);
+        }).fail(function(error) {
+            def.reject(error);
+        });
+        return def.promise();
+    }
+    
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -661,7 +690,8 @@ cbio.util = (function() {
         replaceAll: replaceAll,
         findExtremes: findExtremes,
         deepCopyObject: deepCopyObject,
-        makeCachedPromiseFunction: makeCachedPromiseFunction
+        makeCachedPromiseFunction: makeCachedPromiseFunction,
+        getDatahubStudiesList: getDatahubStudiesList
     };
 
 })();

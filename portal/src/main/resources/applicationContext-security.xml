@@ -238,7 +238,7 @@
 
    <!-- Handler for successful logout -->
     <b:bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
-        <b:property name="defaultTargetUrl" value="/logout.jsp?logout_success=true"/>
+        <b:property name="defaultTargetUrl" value="/login.jsp?logout_success=true"/>
     </b:bean>
 
     <authentication-manager alias="authenticationManager">

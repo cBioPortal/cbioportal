@@ -40,7 +40,7 @@
     /* This style needs to be moved to some scss/css files */
     #summary.study-section {
         padding-left: 5px;
-        padding-right: 5px;
+        padding-right: 0;
     }
 </style>
 
@@ -60,35 +60,34 @@
                 <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
                                    :selected-patients-num="selectedPatientsNum"
                                    :selected-samples-num="selectedSamplesNum"
-                                   :userid="userid" :stats="stats" :update-stats.sync="updateStats"></session-component>
+                                   :userid="userid" :stats="stats"
+                                   :update-stats.sync="updateStats"></session-component>
             </div>
 
             <div class="iviz-header-left-case">
                 <span class="name" style="display: block;">Selected:</span>
                 <span class="content">
-            <span id="iviz-header-left-sample-select" @click="openCases('sample')" class="number"
-                  :class="{'iviz-button-hover':highlightAllButtons||highlightCaseButtons}"
-                  role="button" tabindex="0" style="display: block;">{{ selectedSamplesNum }} samples</span>
-            <span>in</span>
-            <span id="iviz-header-left-patient-select" @click="openCases('patient')" class="number"
-                  :class="{'iviz-button-hover':highlightAllButtons||highlightCaseButtons}"
-                  role="button" tabindex="0" style="display: block;">{{ selectedPatientsNum }} patients</span>
+            <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
           </span>
             </div>
+            <span id="iviz-header-left-patient-select" class="iviz-header-button"
+                  @click="openCases('patient')" class="number"
+                  role="button" tabindex="0" style="display: block;"><i class="fa fa-user"
+                                                                        aria-hidden="true"></i></span>
             <span id="iviz-header-left-case-download" class="iviz-header-button" @click="downloadCaseData()"
-                  @mouseenter="highlightCaseButtons=true" @mouseleave="highlightCaseButtons=false" role="button"
-                  tabindex="0" data-hasqtip="9" aria-describedby="qtip-9"><i class="fa fa-download" alt="download"></i></span>
+                  role="button"
+                  tabindex="0"><i class="fa fa-download" alt="download"></i></span>
 
             <span id="query-by-gene-span">
-          <textarea id="query-by-gene-textarea" class="expand expandFocusOut"
-                    :class="{'iviz-button-hover':highlightAllButtons}" rows="1" cols="10"></textarea>
+          <textarea id="query-by-gene-textarea" class="expand expandFocusOut" rows="1" cols="10"></textarea>
       </span>
             <span class="iviz-header-arrow">
           <i class="fa fa-arrow-right fa-lg" aria-hidden="true"></i>
         </span>
-            <form id="iviz-form" v-on:submit.prevent="submitForm" method="post" target="_blank" style="float: left;">
-                <input type="submit" @mouseenter="highlightAllButtons=true" @mouseleave="highlightAllButtons=false"
-                       id="iviz-header-left-1" value="Query" class="iviz-header-button" style="display: block;">
+            <form id="iviz-form" v-on:submit.prevent="submitForm" method="post" target="_blank"
+                  style="float: left;">
+                <input type="submit" id="iviz-header-left-1" value="Query" class="iviz-header-button"
+                       style="display: block;">
             </form>
 
         </div>
@@ -99,8 +98,8 @@
             <select id="iviz-add-chart" class="chosen-select"
                     v-select :charts="charts" v-if="showDropDown">
                 <option id='' value="">Add Chart</option>
-                <option id="{{data.attr_id}}" v-if="!data.show" value="{{data.attr_id}}" v-for="(index,data) in charts">
-                    {{data.display_name}}
+                <option id="{{data.attr_id}}" v-if="!data.show" value="{{data.attr_id}}"
+                        v-for="(index,data) in charts">{{data.display_name}}
                 </option>
             </select>
         </div>
@@ -110,7 +109,8 @@
                 <span class="breadcrumb_container">Your selections: </span>
             </div>
 
-            <span class="breadcrumb_container" v-if="customfilter.patientIds.length>0||customfilter.sampleIds.length>0">
+            <span class="breadcrumb_container"
+                  v-if="customfilter.patientIds.length>0||customfilter.sampleIds.length>0">
           <span>{{customfilter.display_name}}</span>
           <i class="fa fa-times breadcrumb_remove"
              @click="clearAllCharts(true)"></i>
@@ -128,7 +128,8 @@
         </div>
     </div>
     <div :class="{'start-loading': showScreenLoad}">
-        <div class="grid" id="main-grid" :class="{loading:isloading}">
+        <div class="grid" id="main-grid"
+             :class="{loading:isloading}">
             <main-template :groups.sync="groups" :redrawgroups.sync="redrawgroups"
                            :selectedpatients.sync="selectedpatients"
                            :selectedsamples.sync="selectedsamples"
@@ -141,8 +142,8 @@
 </div>
 
 <script>
-    function initdcplots(data) {
-        iViz.init(data);
+    function initdcplots(data, opts) {
+        iViz.init(data, opts);
 
         QueryByGeneTextArea.init('#query-by-gene-textarea', function(genes) {
             iViz.vue.manage.getInstance().$broadcast('gene-list-updated', genes);

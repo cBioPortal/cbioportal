@@ -103,6 +103,7 @@ public class MutationDataUtils {
 	public static final String CNA_CONTEXT = "cna";
     public static final String MY_CANCER_GENOME = "myCancerGenome";
     public static final String IS_HOTSPOT = "isHotspot";
+    public static final String OMA_LINK_NOT_AVAILABLE_VALUE = "NA";
 
     @Autowired
     private MutationRepository mutationRepository;
@@ -191,7 +192,7 @@ public class MutationDataUtils {
 			String attrId) throws DaoException
 	{
 		Map<Integer, ClinicalData> map = new HashMap<Integer, ClinicalData>();
-		ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+		ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum(attrId, cancerStudy.getInternalId());
 
 		// check if attrId is in the DB
 		if (attr != null)
@@ -350,40 +351,23 @@ public class MutationDataUtils {
 
         return counts;
     }
-
+ 
     /**
      * Returns the MSA (alignment) link for the given mutation.
      *
      * @param mutation  mutation instance
      * @return          corresponding MSA link
      */
-    protected String getMsaLink(ExtendedMutation mutation)
-    {
-        String urlMsa = "";
-
-        if (linkIsValid(mutation.getLinkMsa()))
-        {
-            try
-            {
-                if(mutation.getLinkMsa().length() == 0 ||
-                        mutation.getLinkMsa().equals("NA"))
-                {
-                    urlMsa = "NA";
-                }
-                else
-                {
-                    urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
-                }
-            }
-            catch (MalformedURLException e)
-            {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
+    protected String getMsaLink(ExtendedMutation mutation) {
+        if (mutation != null && OmaLinkUtil.omaLinkIsValid(mutation.getLinkMsa())) {
+            try {
+                return OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL " + mutation.getLinkMsa() + " : " + e.getMessage());
             }
         }
-
-        return urlMsa;
+        return OMA_LINK_NOT_AVAILABLE_VALUE;
     }
-
 
     /**
      * Returns the PDB (structure) link for the given mutation.
@@ -391,31 +375,15 @@ public class MutationDataUtils {
      * @param mutation  mutation instance
      * @return          corresponding PDB link
      */
-    protected String getPdbLink(ExtendedMutation mutation)
-    {
-        String urlPdb = "";
-
-        if (linkIsValid(mutation.getLinkPdb()))
-        {
-            try
-            {
-                if(mutation.getLinkPdb().length() == 0 ||
-                        mutation.getLinkPdb().equals("NA"))
-                {
-                    urlPdb = "NA";
-                }
-                else
-                {
-                    urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
-                }
-            }
-            catch (MalformedURLException e)
-            {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
+    protected String getPdbLink(ExtendedMutation mutation) {
+        if (mutation != null && OmaLinkUtil.omaLinkIsValid(mutation.getLinkPdb())) {
+            try {
+                return OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL " + mutation.getLinkPdb() + " : " + e.getMessage());
             }
         }
-
-        return urlPdb;
+        return OMA_LINK_NOT_AVAILABLE_VALUE;
     }
 
     /**
@@ -424,36 +392,17 @@ public class MutationDataUtils {
      * @param mutation  mutation instance
      * @return          corresponding xVar link
      */
-    protected String getXVarLink(ExtendedMutation mutation)
-    {
-        String xVarLink = "";
 
-        if (linkIsValid(mutation.getLinkXVar()))
-        {
-            try
-            {
-                xVarLink = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
-            }
-            catch (MalformedURLException e)
-            {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
+    protected String getXVarLink(ExtendedMutation mutation) {
+        if (mutation != null && OmaLinkUtil.omaLinkIsValid(mutation.getLinkXVar())) {
+            try {
+                return OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL " + mutation.getLinkXVar() + " : " + e.getMessage());
+                //return HtmlUtil.createEmptySpacer();
             }
         }
-
-        return xVarLink;
-    }
-
-    /**
-     * Checks the validity of the given link.
-     *
-     * @param link  string representation of a URL
-     * @return      true if valid, false otherwise
-     */
-    protected boolean linkIsValid(String link)
-    {
-        return link != null &&
-                link.length() > 0 &&
-                !link.equalsIgnoreCase("NA");
+        return OMA_LINK_NOT_AVAILABLE_VALUE;
     }
 
     protected String getSequencingCenter(ExtendedMutation mutation)

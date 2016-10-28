@@ -1,3 +1,17 @@
+# October 7, 2016
+*   **New features**:
+    * All data sets can now be downloaded as flat files from the new [Data Hub](https://github.com/cBioPortal/datahub)
+    * Annotation of putative driver missense mutations in OncoPrints, based on [OncoKB](http://oncokb.org), mutation hotspots, and recurrence in cBioPortal and COSMIC
+    
+    ![OncoPrint-OncoKB](https://cloud.githubusercontent.com/assets/840895/19208804/094dd320-8ccd-11e6-8012-f30104b62ff4.png)
+    
+    * Copy number segments visualization directly in the browser in a new *CN Segments* tab via [IGV.js](http://igv.org/)
+    
+    ![image](https://cloud.githubusercontent.com/assets/840895/19200747/ad03c824-8c98-11e6-8051-91fc40e1dc56.png)
+    
+*   **Improvements**:
+    * Improved cancer study view page (bug fixes and increased performance)
+
 # July 24, 2016
 *   **Added data** of 4,375 samples from 21 published studies:
     *   [Adenoid Cystic Carcinoma (MDA, Clin Cancer Res 2015)](http://www.cbioportal.org/beta/study?id=acyc_mda_2015) *102 samples*

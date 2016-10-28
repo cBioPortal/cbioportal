@@ -32,14 +32,17 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.portal.util.OmaLinkUtil;
-
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.mskcc.cbio.portal.util.OmaLinkUtil;
 
 /**
  * Redirects Client to the Online Mutation Assessor (OMA).
@@ -48,13 +51,20 @@ import java.io.PrintWriter;
  */
 public class OmaRedirectServlet extends HttpServlet {
 
+    private static Logger logger = Logger.getLogger(OmaRedirectServlet.class);
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html");
         String omaQueryString = request.getQueryString();
-        String omaUrl = OmaLinkUtil.createOmaLink(omaQueryString);
         PrintWriter writer = response.getWriter();
-        sendHtmlRedirect(writer, omaUrl);
+        try {
+            String omaUrl = OmaLinkUtil.createOmaLink(omaQueryString);
+            sendHtmlRedirect(writer, omaUrl);
+        } catch (MalformedURLException e) {
+            logError(omaQueryString, e);
+            sendErrorPage(writer, e);
+        }
         writer.close();
     }
 
@@ -68,6 +78,24 @@ public class OmaRedirectServlet extends HttpServlet {
         writer.write("<head>");
         writer.write("<meta http-equiv=\"refresh\" content=\"0;url=" + omaUrl + "\"/>");
         writer.write("</head>");
+        writer.write("</html>");
+    }
+
+    private void logError(String urlString, MalformedURLException e) {
+        logger.warn("a request to OmaRedirectServlet contained a malformed URL:" + urlString);
+        logger.warn("   exception message: " +  e.getMessage());
+    }
+
+    private void sendErrorPage(PrintWriter writer, MalformedURLException e) {
+        writer.write("<html>");
+        writer.write("<head>");
+        writer.write("<title>Error during redirect</title>");
+        writer.write("</head>");
+        writer.write("<body>");
+        writer.write("<p>An error occurred during the navigation to the requested link.");
+        writer.write("&nbsp;<br>&nbsp;");
+        writer.write("<p>This error has been recorded in the webserver logs. We appologize for this problem, and we will try to correct it.");
+        writer.write("</body>");
         writer.write("</html>");
     }
 }

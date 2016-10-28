@@ -169,11 +169,13 @@ public class ImportExtendedMutationData{
 		        	continue;
 		        }
 		        
-				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
-					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
+				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {					
                                                                                                             if (genePanel != null) {
-                                                                                                                GeneticProfileUtil.importGenePanelMatrix(sample.getInternalId(), genePanel, geneticProfileId);
-                                                                                                            }                                                  
+                                                                                                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
+                                                                                                            }
 				}
 
 				String validationStatus = record.getValidationStatus();

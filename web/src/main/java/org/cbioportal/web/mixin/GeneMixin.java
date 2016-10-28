@@ -1,10 +1,10 @@
 package org.cbioportal.web.mixin;
 
-public class GeneMixin {
+import org.cbioportal.web.mixin.summary.GeneSummaryMixin;
 
-    private Integer entrezGeneId;
-    private String hugoGeneSymbol;
-    private String type;
-    private String cytoband;
-    private Integer length;
+import java.util.List;
+
+public class GeneMixin extends GeneSummaryMixin {
+
+    private List<String> aliases;
 }

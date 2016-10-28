@@ -80,7 +80,7 @@ public class TestDaoSampleProfile {
         Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(study.getInternalId(), "TCGA-12345");
         Sample sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-12345-01");
 
-        int num = DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
+        int num = DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
         assertEquals(1, num);
 
         boolean exists = DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId);
@@ -89,7 +89,7 @@ public class TestDaoSampleProfile {
         assertEquals(geneticProfileId, DaoSampleProfile.getProfileIdForSample(sample.getInternalId()));
 
         sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-123456-01");
-        num = DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
+        num = DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
         assertEquals(1, num);
 
         ArrayList<Integer> sampleIds = DaoSampleProfile.getAllSampleIdsInProfile(geneticProfileId);

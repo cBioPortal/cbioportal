@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,21 +32,15 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.model.*;
-
-import org.mskcc.cbio.portal.util.XssRequestWrapper;
-
-import org.json.simple.JSONValue;
-import org.json.simple.JSONObject;
-
-import javax.servlet.http.*;
-import javax.servlet.http.*;
-import javax.servlet.ServletException;
-
 import java.io.*;
 import java.util.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.*;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Get the genetic profiles for a cancer study
@@ -61,6 +55,17 @@ import java.util.*;
  */
 public class GetGeneticProfilesJSON extends HttpServlet  {
 
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /**
      * Handles HTTP GET Request.
      *
@@ -93,11 +98,20 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
 
 		CancerStudy cancerStudy = null;
 		try {
-        	cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-		}
-		catch (DaoException e) {
+			if (cancerStudyIdentifier != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
+		} catch (DaoException e) {
 			System.out.println("DaoException Caught:" + e.getMessage());
+			return;
 		}
+		
         if (cancerStudy != null) {
 
             int cancerStudyId = cancerStudy.getInternalId();
@@ -114,7 +128,7 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                         tmpProfileObj.put("STABLE_ID", geneticProfile.getStableId());
                         tmpProfileObj.put("NAME", geneticProfile.getProfileName());
                         tmpProfileObj.put("DESCRIPTION", geneticProfile.getProfileDescription());
-                        tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().toString());
+                        tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().name());
                         tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
                         tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
                         // added datatype to be able to make distinction between log data and non-log data
@@ -160,7 +174,7 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                                     tmpProfileObj.put("STABLE_ID", geneticProfile.getStableId());
                                     tmpProfileObj.put("NAME", geneticProfile.getProfileName());
                                     tmpProfileObj.put("DESCRIPTION", geneticProfile.getProfileDescription());
-                                    tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().toString());
+                                    tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().name());
                                     tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
                                     tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
                                     // added datatype to be able to make distinction between log data and non-log data

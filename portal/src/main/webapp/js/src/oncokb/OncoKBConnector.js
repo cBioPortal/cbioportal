@@ -66,7 +66,7 @@ var OncoKB = (function(_, $) {
     };
     self.instanceManagers = {};
 
-    self.oncogenic = ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic'];
+    self.oncogenic = ['Unknown', 'Inconclusive', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic'];
 
     _.templateSettings = {
         interpolate: /\{\{(.+?)\}\}/g
@@ -160,7 +160,7 @@ var OncoKB = (function(_, $) {
         this.source = 'cbioportal';
         this.geneStatus = 'Complete';
         this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE,INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY';
-        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_3A', 'LEVEL_R1'];
+        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_2B', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_R1'];
         this.variants = {};
         this.evidence = {};
         this.id = id || 'OncoKB-Instance-' + new Date().getTime();
@@ -343,19 +343,27 @@ var OncoKB = (function(_, $) {
             }
 
             if (category === 'oncogenic') {
-                if (!x.oncokb || !(x.oncokb.hasVariant || x.oncokb.hasAllele)) {
-                    if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele)) {
+                if (!x.oncokb || !(x.oncokb.hasVariant || x.oncokb.hasAllele || x.isVUS)) {
+                    if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele || y.isVUS)) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele)) {
+                if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele || y.isVUS)) {
                     return xWeight;
                 }
 
                 if (!x.oncokb.hasOwnProperty('evidence') || !x.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(x.oncokb.evidence.oncogenic) === -1) {
                     if (!y.oncokb.hasOwnProperty('evidence') || !y.oncokb.evidence.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.evidence.oncogenic) === -1) {
-                        return 0;
+                        if (!x.oncokb.isVUS) {
+                            if (!y.oncokb.isVUS) {
+                                return 0;
+                            }
+                            return yWeight;
+                        }
+                        if (!y.oncokb.isVUS) {
+                            return xWeight;
+                        }
                     }
                     return yWeight;
                 }
@@ -579,7 +587,7 @@ var OncoKB = (function(_, $) {
         function access() {
             var deferred = $.Deferred();
             if (self.url) {
-                $.get('api/proxy/oncokbAccess', function() {
+                $.get('api-legacy/proxy/oncokbAccess', function() {
                     OncoKB.accessible = true;
                     deferred.resolve();
                 })
@@ -664,58 +672,20 @@ var OncoKB = (function(_, $) {
         function createOncogenicImage(target, oncogenic, isVUS, highestSensitiveLevel, highestResistanceLevel) {
             var iconType = ["", "unknown-oncogenic"];
 
-            var sl = OncoKB.utils.getNumberLevel(highestSensitiveLevel);
-            var rl = OncoKB.utils.getNumberLevel(highestResistanceLevel);
+            var sl = OncoKB.utils.getLevel(highestSensitiveLevel);
+            var rl = OncoKB.utils.getLevel(highestResistanceLevel);
 
             if (!rl) {
-                switch (sl) {
-                    case '1':
-                        iconType[0] = 'level1';
-                        break;
-                    case '2':
-                        iconType[0] = 'level2';
-                        break;
-                    case '3':
-                        iconType[0] = 'level3';
-                        break;
-                    case '4':
-                        iconType[0] = 'level4';
-                        break;
-                    default:
-                        break;
+                if(sl) {
+                    iconType[0] = 'level' + sl;
                 }
             } else {
                 if (!sl) {
-                    switch (rl) {
-                        case '1':
-                            iconType[0] = 'levelR1';
-                            break;
-                        case '2':
-                            iconType[0] = 'levelR2';
-                            break;
-                        case '3':
-                            iconType[0] = 'levelR3';
-                            break;
-                        default:
-                            break;
+                    if(rl) {
+                        iconType[0] = 'level' + rl;
                     }
                 } else {
-                    switch (sl) {
-                        case '1':
-                            iconType[0] = 'level1R';
-                            break;
-                        case '2':
-                            iconType[0] = 'level2R';
-                            break;
-                        case '3':
-                            iconType[0] = 'level3R';
-                            break;
-                        case '4':
-                            iconType[0] = 'level4R';
-                            break;
-                        default:
-                            break;
-                    }
+                    iconType[0] = 'level' + sl + 'R';
                 }
             }
 
@@ -724,7 +694,10 @@ var OncoKB = (function(_, $) {
                     iconType[1] = 'likely-neutral';
                     break;
                 case 'Unknown':
-                    iconType[1] = 'vus';
+                    iconType[1] = 'unknown-oncogenic';
+                    break;
+                case 'Inconclusive':
+                    iconType[1] = 'unknown-oncogenic';
                     break;
                 case 'Likely Oncogenic':
                     iconType[1] = 'oncogenic';
@@ -733,11 +706,12 @@ var OncoKB = (function(_, $) {
                     iconType[1] = 'oncogenic';
                     break;
                 default:
-                    iconType[1] = 'unknown-oncogenic';
+                    iconType[1] = 'no-info-oncogenic';
                     break;
             }
             
-            if(_.isBoolean(isVUS) && isVUS) {
+            if(iconType[1] === 'no-info-oncogenic' &&
+                _.isBoolean(isVUS) && isVUS) {
                 iconType[1] = 'vus';
             }
             
@@ -878,7 +852,7 @@ OncoKB.Instance.prototype = {
 
         $.ajax({
             type: 'POST',
-            url: 'api/proxy/oncokb',
+            url: 'api-legacy/proxy/oncokb',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(oncokbServiceData)
@@ -898,10 +872,13 @@ OncoKB.Instance.prototype = {
                             self.variants[_id].hasGene = record.geneExist;
                             self.variants[_id].highestResistanceLevel = record.highestResistanceLevel;
                             self.variants[_id].highestSensitiveLevel = record.highestSensitiveLevel;
-                            self.variants[_id].isVUS = record.isVUS;
+                            self.variants[_id].isVUS = record.vus || false;
                             self.variants[_id].hasVariant = record.variantExist;
                             self.variants[_id].hasAllele = record.alleleExist;
                             self.variants[_id].evidence = $.extend(self.variants[_id].evidence, datum);
+                            self.variants[_id].evidence.geneSummary = record.geneSummary || '';
+                            self.variants[_id].evidence.variantSummary = record.variantSummary || '';
+                            self.variants[_id].evidence.tumorTypeSummary = record.tumorTypeSummary || '';
                         }
                     })
                 });
@@ -964,7 +941,7 @@ OncoKB.Instance.prototype = {
         } else {
             $.ajax({
                 type: 'POST',
-                url: 'api/proxy/oncokbEvidence',
+                url: 'api-legacy/proxy/oncokbEvidence',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify(oncokbServiceData)
@@ -1027,7 +1004,7 @@ OncoKB.Instance.prototype = {
         } else {
             $.ajax({
                 type: 'POST',
-                url: 'api/proxy/oncokbSummary',
+                url: 'api-legacy/proxy/oncokbSummary',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify(oncokbSummaryData)
@@ -1173,14 +1150,15 @@ OncoKB.Instance.prototype = {
                                     },
                                     events: {
                                         render: function(event, api) {
-                                            $.when(self.getEvidence(oncokbId), self.getSummary(oncokbId))
+                                            $.when(self.getEvidence(oncokbId))
                                                 .done(function() {
                                                     var tooltip = '';
                                                     var variant = self.variants[oncokbId];
                                                     var treatments = [];
                                                     var meta = {
                                                         title: variant.gene + ' ' + variant.alteration + ' in ' + variant.tumorType,
-                                                        gene: variant.gene,
+                                                        gene: variant.hasGene ? variant.gene : '',
+                                                        additionalInfo: variant.hasGene ? '' : 'This gene is not available in OncoKB.',
                                                         oncogenicity: variant.evidence.oncogenic,
                                                         oncogenicityCitations: _.isArray(variant.evidence.oncogenicRefs) ?
                                                             variant.evidence.oncogenicRefs.map(function(article) {
@@ -1191,7 +1169,10 @@ OncoKB.Instance.prototype = {
                                                             variant.evidence.mutationEffectRefs.map(function(article) {
                                                                 return Number(article.pmid);
                                                             }).sort().join(', ') : '',
-                                                        clinicalSummary: variant.evidence.summary,
+                                                        clinicalSummary: '<div>' + variant.evidence.geneSummary +
+                                                        '</div><div style="margin-top: 6px">' + variant.evidence.variantSummary +
+                                                        // '</div><div style="margin-top: 6px">' + variant.evidence.tumorTypeSummary +
+                                                        '</div>',
                                                         biologicalSummary: variant.evidence.mutationEffect.description,
                                                         treatments: []
                                                     };

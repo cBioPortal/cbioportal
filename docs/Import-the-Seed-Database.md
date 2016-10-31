@@ -4,7 +4,7 @@ The next step is to populate your cBioPortal instance with all the required back
 
 ## Download the cBioPortal Database
 
-A cBioPortal seed database can be found on the [Downloads](Downloads.md#seed-database) page.
+A cBioPortal seed database can be found on [the datahub page](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md).
 
 After download, the files can be unzipped by entering the following command:
 

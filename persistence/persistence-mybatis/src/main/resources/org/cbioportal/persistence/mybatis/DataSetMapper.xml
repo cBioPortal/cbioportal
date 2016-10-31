@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.DataSetMapper">
+    <cache/>
+
+    <select id="getDataSets" resultType="org.cbioportal.model.DataSet">
+        <bind name="pattern" value="'%PUBLIC%'" />
+        select cs.`NAME` as name, cs.`CITATION` as citation, cs.`CANCER_STUDY_IDENTIFIER` as cancer_study_identifier, cs.`PMID` as PMID, sl.`STABLE_ID` as stable_id, count(sll.`SAMPLE_ID`) as count
+        from cancer_study cs, sample_list sl, sample_list_list sll 
+        where cs.`GROUPS` like #{pattern} and  cs.`CANCER_STUDY_ID` = sl.`CANCER_STUDY_ID` and sl.`LIST_ID` = sll.`LIST_ID` group by sll.`LIST_ID`;
+    </select>
+
+</mapper>

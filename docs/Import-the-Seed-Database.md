@@ -26,6 +26,8 @@ and (this command takes a bit longer to import PDB data that will enable the vis
 
     > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_only-pdb.sql
 
+:information_source: please be aware of the version of the seed DB. If it is different from what the cBioPortal system is expecting, the system will at some point ask you to run a migration step. The system will automatically give you a clear message about this (with instructions) if a migration is needed. 
+
 ## Drug-target and Clinical Trial Data
 
 Due to data provider specific restrictions on data re-distribution, the database setup, as outlined above, will lack some of the drug-gene relationships from specific data-resources and also all clinical trial information. If you would like to obtain the complete the data sets from these resources, we encourage you to take advantage of [PiHelper](http://bitbucket.org/armish/pihelper) for aggregating drug-target associations and [NCI's Data Dissemination Program](http://www.cancer.gov/publications/pdq), PDQ, for clinical trials data; and use the corresponding data importers, `importPiHelperData.sh` and `importClinicalTrialData.pl`, that are distributed as part of cBioPortal.

@@ -278,10 +278,10 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
 
     def test_hardcoded_attr_values(self):
         """Test if attributes with set meanings have recognized values."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_hardcoded_attr_vals.txt',
                                     validateData.PatientClinicalValidator)
-        self.assertEqual(len(record_list), 4)
+        self.assertEqual(len(record_list), 5)
         record_iterator = iter(record_list)
         # OS_STATUS not in controlled vocabulary
         record = record_iterator.next()
@@ -307,6 +307,14 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.line_number, 11)
         self.assertEqual(record.column_number, 5)
         self.assertEqual(record.cause, 'recurred/progressed')
+        # unspecified OS_MONTHS while OS_STATUS is DECEASED
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 13)
+        self.assertIn('OS_MONTHS is not specified for deceased patient. Patient '
+                      'will be excluded from survival curve and month of death '
+                      'will not be shown on patient view timeline.',
+                      record.getMessage())
 
 
 # TODO: make tests in this testcase check the number of properly defined types

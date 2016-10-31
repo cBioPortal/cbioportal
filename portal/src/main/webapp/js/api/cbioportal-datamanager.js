@@ -953,16 +953,24 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getGeneticProfileIds': function () {
 	    return this.genetic_profile_ids;
 	},
-	'getDefaultGeneticProfileId': function () {
+	/**
+	 * Selects the genetic profile most suitable for heatmap rendering.
+	 *
+	 * @returns {?string} the stable ID of the profile, or null
+	 * if no applicable profiles are in use.
+	 */
+	'getDefaultHeatmapProfile': function () {
 	    var gp_ids = this.getGeneticProfileIds();
 	    var chosen_ids = [];
 	    for (var i = 0; i < gp_ids.length; i++) {
-		if (~gp_ids[i].indexOf('Zscores') && ~gp_ids[i].indexOf('mrna')) {
+		if (gp_ids[i].indexOf('Zscores') !== -1 &&
+			gp_ids[i].indexOf('mrna') !== -1) {
 		    chosen_ids.push(gp_ids[i]);
 		}
 	    }
 	    for (var i = 0; i < gp_ids.length; i++) {
-		if (~gp_ids[i].indexOf('Zscores') && ~gp_ids[i].indexOf('rppa')) {
+		if (gp_ids[i].indexOf('Zscores') !== -1 &&
+			gp_ids[i].indexOf('rppa') !== -1) {
 		    chosen_ids.push(gp_ids[i]);
 		}
 	    }

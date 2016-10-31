@@ -16,11 +16,15 @@ After download, the files can be unzipped by entering the following command:
 
 Then import the seed database via the `mysql` commands:
 
-    > mysql --user=cbio_user --password=somepassword cbioportal  < cbioportal-seed_no-pdb_hg19.sql
+    > mysql --user=cbio_user --password=somepassword cbioportal  < cgds.sql
+
+and:
+
+    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_no-pdb_hg19.sql
     
 and (this command takes a bit longer to import PDB data that will enable the visualization of PDB structures in the mutation tab): 
 
-    > mysql --user=cbio_user --password=somepassword cbioportal  < cbioportal-seed_only-pdb.sql
+    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_only-pdb.sql
 
 ## Drug-target and Clinical Trial Data
 

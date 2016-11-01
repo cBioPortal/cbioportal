@@ -83,21 +83,21 @@ class DataFileTestCase(LogBufferTestCase):
     particular validator class and collect the log records emitted.
     """
 
-    def validate(self, data_filename, validator_class, extra_meta_fields=None):
+    def validate(self, data_filename, validator_class, extra_meta_fields=None, relaxed_mode=False):
         """Validate a file with a Validator and return the log records."""
         meta_dict = {'data_filename': data_filename}
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
         validator = validator_class('test_data', meta_dict,
                                     PORTAL_INSTANCE,
-                                    self.logger)
+                                    self.logger, relaxed_mode)
         validator.validate()
         return self.get_log_records()
 
 
 class PostClinicalDataFileTestCase(DataFileTestCase):
 
-    """Superclass for validating data files to be read after clinical files.
+    """Superclass for validating data files to be read after sample attr files.
 
     I.e. DEFINED_SAMPLE_IDS will be initialised with a list of sample
     identifiers defined in the study.
@@ -170,7 +170,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
     """Tests for validations of the column definitions in a clinical file."""
 
     def test_correct_definitions(self):
-        """Test when all record definitions match with portal."""
+        """Test when all record definitions match with expectations."""
         record_list = self.validate('data_clin_coldefs_correct.txt',
                                     validateData.PatientClinicalValidator)
         # expecting only status messages about the file being validated
@@ -178,33 +178,8 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
-    def test_wrong_definitions(self):
-        """Test when record definitions do not match with portal."""
-        # TODO make a test file with a wrong data type,
-        # to make sure values are checked accordingly
-        self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_clin_coldefs_wrong_display_name.txt',
-                                    validateData.PatientClinicalValidator)
-        # expecting a warning
-        self.assertEqual(len(record_list), 1)
-        record = record_list.pop()
-        # warning about the display name of OS_MONTHS
-        self.assertEqual(record.levelno, logging.WARNING)
-        self.assertEqual(record.column_number, 2)
-        self.assertIn('display_name', record.getMessage().lower())
-
-    def test_unknown_attribute(self):
-        """Test when a new attribute is defined in the data file."""
-        record_list = self.validate('data_clin_coldefs_unknown_attribute.txt',
-                                    validateData.PatientClinicalValidator)
-        # expecting 'validating file' messages with one warning in between
-        self.assertEqual(len(record_list), 4)
-        self.assertEqual(record_list[1].levelno, logging.WARNING)
-        self.assertEqual(record_list[1].column_number, 6)
-        self.assertIn('will be added', record_list[1].getMessage().lower())
-
     def test_invalid_definitions(self):
-        """Test when new attributes are defined with invalid properties."""
+        """Test when attributes are defined with unparseable properties."""
         record_list = self.validate('data_clin_coldefs_invalid_priority.txt',
                                     validateData.PatientClinicalValidator)
         # expecting an info message followed by the error, and another error as
@@ -214,6 +189,35 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].levelno, logging.ERROR)
         self.assertEqual(record_list[1].line_number, 4)
         self.assertEqual(record_list[1].column_number, 6)
+
+    def test_hardcoded_attributes(self):
+
+        """Test requirements on the data type or level of some attributes."""
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',
+                                    validateData.PatientClinicalValidator)
+
+        self.assertEqual(len(record_list), 2)
+        osmonths_records = []
+        other_sid_records = []
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertNotIn('portal', record.getMessage().lower())
+            if 'OS_MONTHS' in record.getMessage():
+                osmonths_records.append(record)
+            if hasattr(record, 'cause') and record.cause == 'OTHER_SAMPLE_ID':
+                other_sid_records.append(record)
+
+        self.assertEqual(len(osmonths_records), 1)
+        record = osmonths_records.pop()
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.column_number, 2)
+
+        self.assertEqual(len(other_sid_records), 1)
+        record = other_sid_records.pop()
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 6)
 
 
 class ClinicalValuesTestCase(DataFileTestCase):
@@ -232,7 +236,7 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.assertEqual(record.column_number, 2)
 
     def test_tcga_sample_twice_in_one_file(self):
-        """Test when a sample is defined twice in the same file."""
+        """Test when a TCGA sample is defined twice in the same file."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_repeated_tcga_sample.txt',
                                     validateData.SampleClinicalValidator)
@@ -271,6 +275,43 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
                          'logrecord is about a specific line')
         self.assertEqual(record.cause, 'TEST-PAT4')
         self.assertIn('missing', record.getMessage().lower())
+
+    def test_hardcoded_attr_values(self):
+        """Test if attributes with set meanings have recognized values."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_hardcoded_attr_vals.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 5)
+        record_iterator = iter(record_list)
+        # OS_STATUS not in controlled vocabulary
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, 'ALIVE')
+        # DFS_STATUS having an OS_STATUS value
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 7)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, 'LIVING')
+        # wrong casing for OS_STATUS
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, 'living')
+        # DFS_STATUS not in controlled vocabulary (wrong casing)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 11)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, 'recurred/progressed')
+        # unspecified OS_MONTHS while OS_STATUS is DECEASED
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 13)
+        self.assertIn('DECEASED', record.getMessage())
 
 
 # TODO: make tests in this testcase check the number of properly defined types
@@ -312,6 +353,7 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.column_number, 4)
+        self.assertIn('blank', record.getMessage().lower())
 
     def test_cancer_type_undefined_parent(self):
         """Test when a new cancer type's parent cancer type is not known."""
@@ -322,6 +364,16 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.column_number, 5)
+
+    def test_cancer_type_invalid_color(self):
+        """Test error if a cancer type's color is not a web color name."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cancertype_invalid_color.txt',
+                                    validateData.CancerTypeValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.column_number, 4)
 
     def test_cancer_type_matching_portal(self):
         """Test when an existing cancer type is defined exactly as known."""
@@ -1147,7 +1199,7 @@ class StudyCompositionTestCase(LogBufferTestCase):
         validateData.validate_study(
             'test_data/study_cancertype_two_files',
             PORTAL_INSTANCE,
-            self.logger)
+            self.logger, False)
         record_list = self.get_log_records()
         # expecting two errors: one about the two cancer type files, and
         # about the cancer type of the study not having been defined
@@ -1187,7 +1239,8 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         validateData.validate_study(
                 'test_data/study_missing_caselists',
                 PORTAL_INSTANCE,
-                self.logger)
+                self.logger,
+                False)
         record_list = self.get_log_records()
         self.assertEqual(len(record_list), 1)
         # <study ID>_all
@@ -1207,7 +1260,7 @@ class StableIdValidationTestCase(LogBufferTestCase):
         validateData.process_metadata_files(
             'test_data/study_metastableid',
             PORTAL_INSTANCE,
-            self.logger)
+            self.logger, False)
         record_list = self.get_log_records()
         # expecting 1 warning, 1 error:
         self.assertEqual(len(record_list), 3)
@@ -1227,6 +1280,64 @@ class StableIdValidationTestCase(LogBufferTestCase):
         # expecting one warning about stable_id not being recognized in _samples
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
+
+
+class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
+
+    """Tests for validation of clinical data files without metadata headers.
+
+    When the script is run in relaxed mode, files with incorrect
+    attribute metadata headers should be validated until the end
+    rather than considered unparseable from the header on.
+    """
+
+    def test_headerless_clinical_sample(self):
+        """Test relaxed validation of sample attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_sam_no_hdr.txt',
+                                    validateData.SampleClinicalValidator, None, True)
+        # we expect a list of records ending in an info message about all lines
+        # being parsed -- if the file had been declared unparseable before the
+        # header it would have issued an error instead.
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.INFO)
+        self.assertTrue(final_record.getMessage().lower().startswith(
+            'read 13 lines'))
+
+    def test_nonrelaxed_headerless_clinical_sample(self):
+        """Test regular validation of sample attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_sam_no_hdr.txt',
+                                    validateData.SampleClinicalValidator, None, False)
+        # test if the list of records logged ends in an error about the file
+        # being unparseable, rather than an info about it being read to the end
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.ERROR)
+        self.assertIn('cannot be parsed', final_record.getMessage().lower())
+
+    def test_headerless_clinical_patient(self):
+        """Test relaxed validation of patient attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_pat_no_hdr.txt',
+                                    validateData.PatientClinicalValidator, None, True)
+        # we expect a list of records ending in an info message about all lines
+        # being parsed -- if the file had been declared unparseable before the
+        # header it would have issued an error instead.
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.INFO)
+        self.assertTrue(final_record.getMessage().lower().startswith(
+            'read 13 lines'))
+
+    def test_nonrelaxed_headerless_clinical_patient(self):
+        """Test regular validation of patient attr files without metadata."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('data_clinical_pat_no_hdr.txt',
+                                    validateData.PatientClinicalValidator, None, False)
+        # test if the list of records logged ends in an error about the file
+        # being unparseable, rather than an info about it being read to the end
+        final_record = record_list[-1]
+        self.assertEqual(final_record.levelno, logging.ERROR)
+        self.assertIn('cannot be parsed', final_record.getMessage().lower())
 
 
 class DataFileIOTestCase(PostClinicalDataFileTestCase):

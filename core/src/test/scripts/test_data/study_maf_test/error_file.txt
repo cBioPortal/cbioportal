@@ -1,8 +1,0 @@
->data_patients.txt | WARNING: datatype definition for attribute 'DFS_MONTHS' does not match the portal, and will be loaded as 'NUMBER'
-3
->data_patients.txt | ERROR: Value of attribute to be loaded as NUMBER is not a real number (nb: even though 'datatype' definition in file is STRING, attribute is being validated as NUMBER according to the portal's definition - see also previous warning for this attribute)
-8,10
->data_patients.txt | ERROR: Value of attribute to be loaded as NUMBER is not a real number
-536,540
->brca_tcga_pub.maf | ERROR: Normal sample id not in list of sample ids configured in corresponding metafile. Please check your metafile field 'normal_samples_list'.
-8,9,11,12

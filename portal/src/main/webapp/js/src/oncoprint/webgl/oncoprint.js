@@ -281,6 +281,9 @@ var Oncoprint = (function () {
 	this.keep_horz_zoomed_to_fit_ids = ids;
 	updateHorzZoomToFit(this);
     }
+    Oncoprint.prototype.updateHorzZoomToFitIds = function(ids) {
+	this.keep_horz_zoomed_to_fit_ids = ids;
+    }
     var updateHorzZoomToFit = function(oncoprint) {
 	oncoprint.setHorzZoom(getHorzZoomToFit(oncoprint, oncoprint.keep_horz_zoomed_to_fit_ids));
     };
@@ -325,6 +328,14 @@ var Oncoprint = (function () {
 	return this.model.getVertZoom();
     }
 
+    Oncoprint.prototype.getTrackData = function (track_id) {
+	return this.model.getTrackData(track_id);
+    }
+    
+    Oncoprint.prototype.getTrackDataIdKey = function(track_id) {
+	return this.model.getTrackDataIdKey(track_id);
+    }
+    
     Oncoprint.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.model.setTrackData(track_id, data, data_id_key);
 	this.cell_view.setTrackData(this.model, track_id);

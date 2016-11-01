@@ -91,7 +91,10 @@ public class TransactionalScriptRunner extends ConsoleRunnable {
 			}
 		}
 		
-		throw new RuntimeException(result);
+		// If something went wrong, notify
+		if (result != null) {
+			throw new RuntimeException(result);
+		}
 	}
 	
 	public void runInTransaction(final TransactionalScripts scripts) {

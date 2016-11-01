@@ -358,21 +358,21 @@ public class CancerStudy {
         return groups;
     }
 
-    public void setGroups(Set<String> groups) {
-        this.groups = groups;
-    }
-
     /**
+     * Determines the set of groups by splitting the given groups string
+     * on ';' and transforming all group names to their UPPER CASE 
+     * representation (this last one is in compliance to what is expected 
+     * in CancerStudyPermissionEvaluator.hasPermission() ).
      * 
-     * @param groups comma delimited groups
+     * @param groups semi-colon (;) delimited groups
      */
-    public void setGroups(String groups) {
+    public void setGroupsInUpperCase(String groups) {
         if (groups==null) {
             this.groups = null;
             return;
         }
         
-        this.groups = new HashSet<String>(Arrays.asList(groups.split(";")));
+        this.groups = new HashSet<String>(Arrays.asList(groups.toUpperCase().split(";")));
     }
 
     /**

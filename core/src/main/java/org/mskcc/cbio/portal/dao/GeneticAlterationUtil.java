@@ -32,11 +32,15 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.cbioportal.persistence.MutationRepository;
 import org.mskcc.cbio.portal.model.*;
 
 import java.util.*;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Utility Class for Retrieving Genetic Alteration Data.
@@ -47,8 +51,18 @@ import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
  *
  * @author Ethan Cerami.
  */
+@Component
 public class GeneticAlterationUtil {
     private static final String NAN = "NaN";
+
+    private static MutationRepository mutationRepository;
+    private static MutationModelConverter mutationModelConverter;
+
+    @Autowired
+    public GeneticAlterationUtil(MutationRepository mutationRepository, MutationModelConverter mutationModelConverter) {
+        GeneticAlterationUtil.mutationRepository = mutationRepository;
+        GeneticAlterationUtil.mutationModelConverter = mutationModelConverter;
+    }
 
     /**
      * Gets a Row of data corresponding to:  target gene, within the target genetic profile
@@ -137,8 +151,8 @@ public class GeneticAlterationUtil {
                                                              int geneticProfileId, long entrezGeneId) throws DaoException
     {
         HashMap <Integer, String> mutationMap = new HashMap <Integer, String>();
-        ArrayList <ExtendedMutation> mutationList =
-                    DaoMutation.getMutations(geneticProfileId, targetSampleList, entrezGeneId);
+        List <ExtendedMutation> mutationList = mutationModelConverter.convert(
+                mutationRepository.getMutations(targetSampleList, (int) entrezGeneId, geneticProfileId));
         
         for (ExtendedMutation mutation : mutationList) {
             Integer sampleId = mutation.getSampleId();

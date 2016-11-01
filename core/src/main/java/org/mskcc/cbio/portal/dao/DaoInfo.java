@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,16 +32,16 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.util.GlobalProperties;
-
+import java.lang.StringBuilder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 
 public class DaoInfo {
     private static String version;
-    
+
     public static synchronized void setVersion() {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -61,18 +61,16 @@ public class DaoInfo {
             JdbcUtil.closeAll(DaoInfo.class, con, pstmt, rs);
         }
     }
-    
+
     public static String getVersion() {
         return version;
     }
 
-    public static boolean checkVersion() {
+    public static boolean checkVersion(StringBuilder logMessageBuilder) {
         setVersion();
-        if (GlobalProperties.getDbVersion().equals(getVersion())) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        String expectedVersion = GlobalProperties.getDbVersion();
+        String foundVersion = getVersion();
+        logMessageBuilder.append("Checked DB schema version: (expected: " + expectedVersion + ") (found: " + foundVersion +")");
+        return foundVersion.equals(expectedVersion);
     }
 }

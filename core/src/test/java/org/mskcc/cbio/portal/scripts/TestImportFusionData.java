@@ -83,7 +83,7 @@ public class TestImportFusionData
 
             // TODO change this to use getResourceAsStream()
             File file = new File("target/test-classes/data_fusions.txt");
-            ImportFusionData parser = new ImportFusionData(file, geneticProfileId);
+            ImportFusionData parser = new ImportFusionData(file, geneticProfileId, null);
 
 			loadGenes();
 			parser.importData();
@@ -99,7 +99,7 @@ public class TestImportFusionData
 		{
 			e.printStackTrace();
 		}
-	}
+	}       
 
 	private void checkImportedData() throws DaoException
 	{

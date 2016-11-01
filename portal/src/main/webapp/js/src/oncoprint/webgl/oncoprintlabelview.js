@@ -54,7 +54,7 @@ var OncoprintLabelView = (function () {
 			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])) {
 			    tooltip_html_lines.push('<b>'+view.labels[hovered_track]+'</b>');
 			}
-			var track_description = view.track_descriptions[hovered_track];
+			var track_description = view.track_descriptions[hovered_track].replace("<", "&lt;").replace(">", "&gt;");
 			if (track_description.length > 0) {
 			    tooltip_html_lines.push(track_description);
 			}

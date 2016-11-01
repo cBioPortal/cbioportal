@@ -1352,32 +1352,32 @@ var SBGNContainer = Backbone.View.extend({
           randomize: true
         });
 
-        cy.noderesize({
-          handleColor: '#000000', // the colour of the handle and the line drawn from it
-          hoverDelay: 1, // time spend over a target node before it is considered a target selection
-          enabled: true, // whether to start the plugin in the enabled state
-          minNodeWidth: 30,
-          minNodeHeight: 30,
-          triangleSize: 10,
-          lines: 3,
-          padding: 5,
-          start: function (sourceNode) {
-            // fired when noderesize interaction starts (drag on handle)
-            var param = {
-              node: sourceNode,
-              firstTime: true
-            };
-            editorActionsManager._do(new ResizeNodeCommand(param));
-            refreshUndoRedoButtonsStatus();
-          },
-          complete: function (sourceNode, targetNodes, addedEntities) {
-            // fired when noderesize is done and entities are added
-          },
-          stop: function (sourceNode) {
-            sourceNode._private.data.sbgnbbox.w = sourceNode.width();
-            sourceNode._private.data.sbgnbbox.h = sourceNode.height();
-          }
-        });
+        // cy.noderesize({
+        //   handleColor: '#000000', // the colour of the handle and the line drawn from it
+        //   hoverDelay: 1, // time spend over a target node before it is considered a target selection
+        //   enabled: true, // whether to start the plugin in the enabled state
+        //   minNodeWidth: 30,
+        //   minNodeHeight: 30,
+        //   triangleSize: 10,
+        //   lines: 3,
+        //   padding: 5,
+        //   start: function (sourceNode) {
+        //     // fired when noderesize interaction starts (drag on handle)
+        //     var param = {
+        //       node: sourceNode,
+        //       firstTime: true
+        //     };
+        //     editorActionsManager._do(new ResizeNodeCommand(param));
+        //     refreshUndoRedoButtonsStatus();
+        //   },
+        //   complete: function (sourceNode, targetNodes, addedEntities) {
+        //     // fired when noderesize is done and entities are added
+        //   },
+        //   stop: function (sourceNode) {
+        //     sourceNode._private.data.sbgnbbox.w = sourceNode.width();
+        //     sourceNode._private.data.sbgnbbox.h = sourceNode.height();
+        //   }
+        // });
 
         //For adding edges interactively
         cy.edgehandles({
@@ -1961,7 +1961,7 @@ var SBGNLayout = Backbone.View.extend({
     var options = _.clone(this.currentLayoutProperties);
     options.randomize = false;
     options.animate = false;
-    options.fit = false;
+    options.fit = true;
     cy.elements().filter(':visible').layout(options);
   },
   render: function () {

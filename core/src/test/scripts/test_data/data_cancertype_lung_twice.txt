@@ -1,2 +1,2 @@
 luad	Lung Adenocarcinoma	lung,pulmonary,adenocarcinoma of the lung	Gainsboro	Lung
-luad	Lung Adenocarcinoma	lung,pulmonary,adenocarcinoma of the lung	Pearl	Lung
+luad	Lung Adenocarcinoma	lung,pulmonary,adenocarcinoma of the lung	AntiqueWhite	Lung

@@ -54,7 +54,8 @@
         mutation.TUMOR_REF_COUNT as reference_read_count_tumor,
         mutation.NORMAL_REF_COUNT as reference_read_count_normal,
         mutation.TUMOR_ALT_COUNT as variant_read_count_tumor,
-        mutation.NORMAL_ALT_COUNT as variant_read_count_normal
+        mutation.NORMAL_ALT_COUNT as variant_read_count_normal,
+        mutation_event.KEYWORD as keyword
     from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
                             inner join sample on mutation.SAMPLE_ID=sample.INTERNAL_ID
                             inner join gene on mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID
@@ -64,10 +65,12 @@
     <foreach item="item" collection="mutation_profile_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
-    and gene.HUGO_GENE_SYMBOL in
-    <foreach item="item" collection="genes" open="(" separator="," close=")">
-        #{item}
-    </foreach>
+    <if test="genes != null and !genes.isEmpty()">
+        and gene.HUGO_GENE_SYMBOL in
+        <foreach item="item" collection="genes" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </if>
 </select>
 <select id="getMutationDataBySample" resultType="DBMutationData">
     select
@@ -95,7 +98,8 @@
         mutation.TUMOR_REF_COUNT as reference_read_count_tumor,
         mutation.NORMAL_REF_COUNT as reference_read_count_normal,
         mutation.TUMOR_ALT_COUNT as variant_read_count_tumor,
-        mutation.NORMAL_ALT_COUNT as variant_read_count_normal
+        mutation.NORMAL_ALT_COUNT as variant_read_count_normal,
+        mutation_event.KEYWORD as keyword
     from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
                             inner join sample on mutation.SAMPLE_ID=sample.INTERNAL_ID
                             inner join gene on mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID
@@ -142,7 +146,8 @@
         mutation.NORMAL_REF_COUNT as reference_read_count_normal,
         mutation.TUMOR_ALT_COUNT as variant_read_count_tumor,
         mutation.NORMAL_ALT_COUNT as variant_read_count_normal,
-        sample_list.STABLE_ID as sample_list_id
+        sample_list.STABLE_ID as sample_list_id,
+        mutation_event.KEYWORD as keyword
     from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
                             inner join sample on mutation.SAMPLE_ID=sample.INTERNAL_ID
                             inner join gene on mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID

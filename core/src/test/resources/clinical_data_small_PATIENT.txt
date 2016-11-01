@@ -9,4 +9,3 @@ TEST-A2-A0CM	basal-like	DECEASED	24.77	Recurred/Progressed	NA
 TEST-AR-A1AR	basal-like	DECEASED	17.18	NA	NA
 TEST-B6-A0WX	basal-like	DECEASED	21.45	Recurred/Progressed	NA
 TEST-BH-A1F0	basal-like	DECEASED	25.79	Recurred/Progressed	NA
-TEST-BH-A1F0	basal-like	DECEASED	25.79	Recurred/Progressed	NA

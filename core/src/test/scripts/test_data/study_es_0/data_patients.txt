@@ -3,7 +3,7 @@
 #STRING	STRING	NUMBER	STRING	NUMBER
 #1	1	1	1	1
 PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
-TCGA-A2-A04P	DECEASED		Recurred/Progressed	[Not Available]
+TCGA-A2-A04P			Recurred/Progressed	[Not Available]
 TCGA-A1-A0SK	DECEASED	31.77		[Not Available]
 TCGA-A2-A0CM	DECEASED	24.77	Recurred/Progressed	[Not Available]
 TCGA-AR-A1AR	DECEASED	17.18	[Not Available]	[Not Available]

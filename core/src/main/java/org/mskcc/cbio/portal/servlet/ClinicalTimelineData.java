@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -44,14 +45,28 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoClinicalEvent;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoPatient;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalEvent;
 import org.mskcc.cbio.portal.model.Patient;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  *
  * @author jgao
  */
 public class ClinicalTimelineData extends HttpServlet {
+	
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -62,15 +77,21 @@ public class ClinicalTimelineData extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
-        Collection<ClinicalEvent> clinicalEvents;
+        Collection<ClinicalEvent> clinicalEvents = new ArrayList<ClinicalEvent>();
         
         try {
 			//Set<String> types = new HashSet<String>(Arrays.asList(request.getParameter("type").split("[ ,]+")));
-			int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
-			String patientId = request.getParameter("patient_id");
+        	String cancerStudyId = request.getParameter("cancer_study_id");
+        	if(cancerStudyId != null) {
+        		CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+                if (cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+        			String patientId = request.getParameter("patient_id");
+        			
+        			Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
+                    clinicalEvents = DaoClinicalEvent.getClinicalEvent(patient.getInternalId());
+                }
+        	}
 			
-			Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
-            clinicalEvents = DaoClinicalEvent.getClinicalEvent(patient.getInternalId());
         }
 		catch (DaoException ex) {
             throw new ServletException(ex);

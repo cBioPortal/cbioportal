@@ -408,7 +408,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 						nodes[i].unselect();
 						nodes[i]._private.selectable = false;
 					}
-					netVis.updateDetailsTab();
+					netVis.updateDetailsTab(event);
 				}
 				cy.layout({
 					name: 'preset',
@@ -435,13 +435,12 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 				tmpNode.unselect();
 				tmpNode._private.selectable = false;
 			}
-			netVis.updateDetailsTab();
-
+			netVis.updateDetailsTab(event);
 		});
 
 		cy.on('unselect', 'edge', function(event)
 		{
-			netVis.updateDetailsTab();
+			netVis.updateDetailsTab(event);
 		});
 
 		cy.on('tap', 'node', function(evt){

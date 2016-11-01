@@ -33,6 +33,37 @@ function makeIdCounter() {
     };
 }
 
+function makeUniqueColorGetter(init_used_colors) {
+    init_used_colors = init_used_colors || [];
+    var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
+	"#990099", "#0099c6", "#dd4477", "#66aa00",
+	"#b82e2e", "#316395", "#994499", "#22aa99",
+	"#aaaa11", "#6633cc", "#e67300", "#8b0707",
+	"#651067", "#329262", "#5574a6", "#3b3eac",
+	"#b77322", "#16d620", "#b91383", "#f4359e",
+	"#9c5935", "#a9c413", "#2a778d", "#668d1c",
+	"#bea413", "#0c5922", "#743411"]; // Source: D3
+    var index = 0;
+    var used_colors = {};
+    for (var i=0; i<init_used_colors.length; i++) {
+	used_colors[init_used_colors[i]] = true;
+    }
+    return function() {
+	var next_color = colors[index % colors.length];
+	while (used_colors[next_color]) {
+	    var darker_next_color = darkenHexColor(next_color);
+	    if (darker_next_color === next_color) {
+		break;
+	    }
+	    next_color = darker_next_color;
+	}
+	used_colors[next_color] = true;
+	index += 1;
+	
+	return next_color;
+    };
+};
+
 function shallowExtend(target, source) {
     var ret = {};
     for (var key in target) {
@@ -48,6 +79,9 @@ function shallowExtend(target, source) {
     return ret;
 }
 
+function objectValues(obj) {
+    return Object.keys(obj).map(function(key) { return obj[key]; });
+}
 
 var NA_SHAPES = [
     {
@@ -396,19 +430,9 @@ var CategoricalRuleSet = (function () {
 	 */
 	LookupRuleSet.call(this, params);
 	
-	this.colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
-	"#990099", "#0099c6", "#dd4477", "#66aa00",
-	"#b82e2e", "#316395", "#994499", "#22aa99",
-	"#aaaa11", "#6633cc", "#e67300", "#8b0707",
-	"#651067", "#329262", "#5574a6", "#3b3eac",
-	"#b77322", "#16d620", "#b91383", "#f4359e",
-	"#9c5935", "#a9c413", "#2a778d", "#668d1c",
-	"#bea413", "#0c5922", "#743411"]; // Source: D3
-	this.colors_index = 0;
-	this.used_colors = {};
-	
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
+	this.getUnusedColor = makeUniqueColorGetter(objectValues(this.category_to_color).map(colorToHex));
 	for (var category in this.category_to_color) {
 	    if (this.category_to_color.hasOwnProperty(category)) {
 		var color = this.category_to_color[category];
@@ -434,20 +458,6 @@ var CategoricalRuleSet = (function () {
 	ruleset.addRule(ruleset.category_key, category, rule_params);
     };
 
-    var getUnusedColor = function(rule_set) {
-	var next_color = rule_set.colors[rule_set.colors_index % rule_set.colors.length];
-	while (rule_set.used_colors[next_color]) {
-	    var darker_next_color = darkenHexColor(next_color);
-	    if (darker_next_color === next_color) {
-		break;
-	    }
-	    next_color = darker_next_color;
-	}
-	rule_set.used_colors[next_color] = true;
-	rule_set.colors_index += 1;
-	
-	return next_color;
-    };
     CategoricalRuleSet.prototype.apply = function (data, cell_width, cell_height, out_active_rules) {
 	// First ensure there is a color for all categories
 	for (var i = 0, data_len = data.length; i < data_len; i++) {
@@ -456,7 +466,7 @@ var CategoricalRuleSet = (function () {
 	    }
 	    var category = data[i][this.category_key];
 	    if (!this.category_to_color.hasOwnProperty(category)) {
-		var color = getUnusedColor(this);
+		var color = this.getUnusedColor(this);
 		
 		this.category_to_color[category] = color;
 		addCategoryRule(this, category, color);
@@ -490,12 +500,14 @@ var LinearInterpRuleSet = (function () {
 		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
 		var log_range_lower = Math.log(range[0] + shift_to_make_pos);
 		return function(val) {
+		    val = parseFloat(val);
 		    return (Math.log(val + shift_to_make_pos) - log_range_lower)/log_range;
 		};
 	    } else {
 		var range_spread = range[1] - range[0];
 		var range_lower = range[0];
 		return function (val) {
+		    val = parseFloat(val);
 		    return (val - range_lower) / range_spread;
 		};
 	    }
@@ -654,6 +666,69 @@ var BarRuleSet = (function () {
     return BarRuleSet;
 })();
 
+var StackedBarRuleSet = (function() {
+    function StackedBarRuleSet(params) {
+	/* params
+	 * - categories
+	 * - value_key
+	 * - fills
+	 */
+	ConditionRuleSet.call(this, params);
+	var value_key = params.value_key;
+	var fills = params.fills || [];
+	var categories = params.categories || [];
+	var getUnusedColor = makeUniqueColorGetter(fills);
+	
+	// Initialize with default values
+	while (fills.length < categories.length) {
+	    fills.push(getUnusedColor());
+	}
+	
+	var self = this;
+	for (var i=0; i < categories.length; i++) {
+	    (function(I) {
+		var legend_target = {};
+		legend_target[value_key] = {};
+		for (var j=0; j<categories.length; j++) {
+		    legend_target[value_key][categories[j]] = 0;
+		}
+		legend_target[value_key][categories[I]] = 1;
+		self.addRule(function(d) {
+		    return d[NA_STRING] !== true;
+		},
+		{shapes: [{
+		    type: 'rectangle',
+		    fill: fills[I],
+		    width: '100%',
+		    height: function(d) {
+			var total = 0;
+			for (var j=0; j<categories.length; j++) {
+			    total += parseFloat(d[value_key][categories[j]]);
+			}
+			return parseFloat(d[value_key][categories[I]])*100/total + '%';
+		    },
+		    y: function(d) {
+			var total = 0;
+			var prev_vals_sum = 0;
+			for (var j=0; j<categories.length; j++) {
+			    var new_val = parseFloat(d[value_key][categories[j]]);
+			    if (j < I) {
+				prev_vals_sum += new_val;
+			    }
+			    total += new_val;
+			}
+			return prev_vals_sum*100/total + '%';
+		    }
+		}],
+	    exclude_from_legend: false,
+	    legend_config: {'type': 'rule', 'target': legend_target},
+	    legend_label: categories[I]});
+	    })(i);
+	}
+    }
+    StackedBarRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
+    return StackedBarRuleSet;
+})();
 var GeneticAlterationRuleSet = (function () {
     function GeneticAlterationRuleSet(params) {
 	/* params:
@@ -702,7 +777,7 @@ var Rule = (function () {
 		return new Shape.Line(shape);
 	    }
 	});
-	this.legend_label = params.legend_label || "";
+	this.legend_label = typeof params.legend_label === "undefined" ? "" : params.legend_label;
 	this.exclude_from_legend = params.exclude_from_legend;
 	this.legend_config = params.legend_config;// {'type':'rule', 'target': {'mut_type':'MISSENSE'}} or {'type':'number', 'color':'rgba(1,2,3,1), 'range':[lower, upper]} or {'type':'gradient', 'color_range':['rgba(...)' or '#...', 'rgba(...)' or '#...'], 'number_range':[lower, upper]}
     }
@@ -733,6 +808,8 @@ module.exports = function (params) {
 	return new GradientRuleSet(params);
     } else if (params.type === 'bar') {
 	return new BarRuleSet(params);
+    } else if (params.type === 'stacked_bar') {
+	return new StackedBarRuleSet(params);
     } else if (params.type === 'gene') {
 	return new GeneticAlterationRuleSet(params);
     }

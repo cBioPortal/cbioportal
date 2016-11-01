@@ -60,7 +60,6 @@ skin.login.contact_html=If you think you have received this message in error, pl
 skin.login.saml.registration_html=Sign in with MSK
 
 # setting controlling which tabs to hide/show in the patient view
-skin.patient_view.show_clinical_trials_tab=false
 skin.patient_view.show_drugs_tab=false
 
 # settings controlling what to show in the right navigation bar
@@ -74,6 +73,8 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # authentication
 ## is authorization enabled at all? (true, false)
 authorization=false
+## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
+# always_show_study_group=
 ## which method of authentication to use (false, googleplus, saml, openid, ad, ldap)
 authenticate=false
 ## Should the permissions for groups and users be filtered by this instance's app.name?
@@ -120,7 +121,7 @@ tcga_path_report.url=https://github.com/cbioportal/datahub/raw/master/tcga/patho
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
-# Enable OncoKB annotation
+# Enable OncoKB annotation. Please set it to empty if you want to disable the OncoKB annotation.
 oncokb.url=http://oncokb.org/legacy-api/
 
 # Enable Chang's hotspot list (true, false)
@@ -159,6 +160,16 @@ genomespace=true
 # set this to true if you update cancer studies in your production database without shutting the web server
 recache_study_after_update=false
 
+# session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/ 
+# example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
+# see: https://github.com/cBioPortal/session-service
+# excluding this value or setting it to an empty string will revert to the previous bookmarking method
+session.service.url=
+
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
 disabled_tabs=
+
+# study ids and categories to force to top of study selector
+# format is category1#study1a,study1b,study1c;category2#study2
+priority_studies=

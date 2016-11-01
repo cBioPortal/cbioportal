@@ -1126,12 +1126,6 @@ span.geneSelected{
     font-weight: bold;
 }
 
-div.geneValidationNotification,
-div.geneAddedNotification{
-    width:400px;
-    height: 15px;
-    font-size: 0.8em;
-}
 input.disabled{
     color: darkgrey;
     background-color: lightgrey;

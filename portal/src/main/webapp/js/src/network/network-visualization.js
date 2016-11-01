@@ -747,6 +747,9 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
 
     var data = (evt.cyTarget._private.data);
 
+    if(evt.cyTarget._private.group == "nodes")
+        return;
+
     // clean inspector view here !
     $(selector + " .edge-inspector-content").empty();
     var edgeType = data.type;
@@ -1267,6 +1270,7 @@ NetworkVis.prototype.filterSelectedGenes = function()
     // refresh genes tab
     this._refreshGenesTab();
 
+    this._vis.edges(':selected').unselect();
 
     // visualization changed, perform layout if necessary
     this._visChanged();
@@ -1888,21 +1892,24 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
     {
       for (var i = 0; i < nodes.length; i++)
       {
-        var highlightedElements = nodes[i].neighborhood();
+        var highlightedNodes = nodes[i].neighborhood().nodes(':visible');
+        var highlightedEdges = nodes[i].neighborhood().edges(':visible');
+        var highlightedElements = highlightedNodes.union(highlightedEdges);
+
         highlightedElements = highlightedElements.add(nodes[i]);
         highlightedElements.data('highlighted', 'true');
       }
     }
 
-    this._vis.nodes(":visible").css("show-details", "false");
     this._vis.nodes(":visible").nodes("[highlighted!='true']").css(this.notHighlightNodeCSS);
     this._vis.edges(":visible").edges("[highlighted!='true']").css(this.notHighlightEdgeCSS);
     this._vis.nodes(":visible").nodes("[highlighted='true']").removeCss();
     this._vis.edges(":visible").edges("[highlighted='true']").removeCss();
+    this._vis.nodes(":visible").css("show-details", "false");
 
     this._vis.layout({
       'name': 'preset',
-      'fit':  'false'
+      'fit':  false
     });
 
 };
@@ -1913,15 +1920,22 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
   */
 NetworkVis.prototype._removeHighlights = function()
 {
-  this._vis.nodes(":visible").css("show-details", "false");
+  // this._vis.nodes(":visible").nodes("[highlighted!='true']").removeCss();
+  // this._vis.edges(":visible").edges("[highlighted!='true']").removeCss();
+  // this._vis.nodes(":visible").nodes().removeData("highlighted");
+  // this._vis.edges(":visible").edges().removeData("highlighted");
+  // this._vis.nodes(":visible").css("show-details", "false");
+
   this._vis.nodes(":visible").nodes("[highlighted!='true']").removeCss();
   this._vis.edges(":visible").edges("[highlighted!='true']").removeCss();
-  this._vis.nodes(":visible").nodes().removeData("highlighted");
-  this._vis.edges(":visible").edges().removeData("highlighted");
+  this._vis.nodes().removeData("highlighted");
+  this._vis.edges().removeData("highlighted");
+  this._vis.nodes().css("show-details", "false");
+
 
   this._vis.layout({
     'name': 'preset',
-    'fit':  'false'
+    'fit':  false
   });
 };
 
@@ -3729,7 +3743,7 @@ NetworkVis.prototype._performLayout = function()
       //TODO layout options will be changed
 
     //Perform layout only on visible elements !
-    this._vis./*filter(':visible').*/layout(this._graphLayout);
+    this._vis.filter(':visible').layout(this._graphLayout);
 };
 
 /**
@@ -3874,6 +3888,7 @@ NetworkVis.prototype._toggleMerge = function()
       name:'preset',
       fit: false
     })
+    // this._visChanged();
 };
 
 /**
@@ -3952,7 +3967,7 @@ NetworkVis.prototype._toggleProfileData = function()
     }
     this._vis.layout({
       'name': 'preset',
-      'fit':  'false'
+      'fit':  false
     });
 };
 

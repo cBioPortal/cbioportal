@@ -51,7 +51,7 @@ module.exports = {
 	    'font-weight':(weight || 'normal'),
 	    'text-anchor':'start',
 	});
-	elt.textContent = content;
+	elt.textContent = content + '';
 	return elt;
     },
     group: function(x,y) {

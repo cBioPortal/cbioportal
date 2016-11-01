@@ -35,13 +35,13 @@ package org.mskcc.cbio.portal.servlet;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
-
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
 import java.util.*;
 import javax.servlet.http.*;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 /**
@@ -57,6 +57,15 @@ public class CnaJSON extends HttpServlet {
     public static final String GET_CNA_FRACTION_CMD = "get_cna_fraction";
     public static final String CNA_EVENT_ID = "cna_id";
     public static final String CBIO_GENES_FILTER = "cbio_genes_filter";//Only get cna events from Cbio Cancer genes
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        accessControl = SpringUtil.getAccessControl();
+    }
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -109,23 +118,35 @@ public class CnaJSON extends HttpServlet {
         Map<Long, Map<String,Object>> mrnaContext = Collections.emptyMap();
 
         try {
-            cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
-            cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cnaProfile.getCancerStudyId());
-            List<Integer> internalSampleIds = new ArrayList<>();
-            if(sampleIds == null){
-                internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId());
-            }else{
-                internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds));
-            }
-            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds,
-                    (filterByCbioGene?daoGeneOptimized.getEntrezGeneIds(daoGeneOptimized.getCbioCancerGenes()):null), cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
-            String concatEventIds = getConcatEventIds(cnaEvents);
-            int profileId = cnaProfile.getGeneticProfileId();
-            drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
-            contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
-            if (mrnaProfileId!=null && sampleIds.length==1) {
-                mrnaContext = getMrnaContext(internalSampleIds.get(0), cnaEvents, mrnaProfileId);
-            }
+        	if(cnaProfileId != null) {
+        		//  Get the Genetic Profile
+        		cnaProfile =
+    	                DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
+        		if(cnaProfile != null) {
+        			cancerStudy = DaoCancerStudy
+        	                .getCancerStudyByInternalId(cnaProfile.getCancerStudyId());
+        	        if (accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+        	        	List<Integer> internalSampleIds = new ArrayList<>();
+        	            if(sampleIds == null){
+        	                internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId());
+        	            }else{
+        	                internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds));
+        	            }
+        	            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds,
+        	                    (filterByCbioGene?daoGeneOptimized.getEntrezGeneIds(daoGeneOptimized.getCbioCancerGenes()):null), cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
+        	            if (!cnaEvents.isEmpty()) {
+                            String concatEventIds = getConcatEventIds(cnaEvents);
+                            int profileId = cnaProfile.getGeneticProfileId();
+//                            drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
+                            contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
+                            if (mrnaProfileId!=null && sampleIds.length==1) {
+                                mrnaContext = getMrnaContext(internalSampleIds.get(0), cnaEvents, mrnaProfileId);
+                            }
+                        }
+        	        }
+        		}
+        	}
+            
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -167,9 +188,14 @@ public class CnaJSON extends HttpServlet {
         List<Integer> internalSampleIds = null;
         
         try {
-            int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            internalSampleIds = InternalIdUtil.getInternalSampleIds(studyId, Arrays.asList(sampleIds));
-            segs = DaoCopyNumberSegment.getSegmentForSamples(internalSampleIds, studyId);
+        	if(cancerStudyId != null) {
+        		 CancerStudy cancerStudy = DaoCancerStudy
+        	                .getCancerStudyByStableId(cancerStudyId);
+        		if(cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+        			internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds));
+                    segs = DaoCopyNumberSegment.getSegmentForSamples(internalSampleIds, cancerStudy.getInternalId());
+        		}
+        	}
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -206,16 +232,21 @@ public class CnaJSON extends HttpServlet {
         Map<Integer, Double> fraction = Collections.emptyMap();
         
         try {
-            int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            if (strSampleIds!=null) {
-                List<String> stableSampleIds = Arrays.asList(strSampleIds.split("[ ,]+"));
-                sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(studyId, stableSampleIds);
-            } else {
-                sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(studyId);
-            }
-            fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(sampleIds,
-                                                                         studyId,
-                                                                        GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
+			if (cancerStudyId != null) {
+				CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+				if (cancerStudy != null
+						&& accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+					if (strSampleIds != null) {
+						List<String> stableSampleIds = Arrays.asList(strSampleIds.split("[ ,]+"));
+						sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId(),
+								stableSampleIds);
+					} else {
+						sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId());
+					}
+					fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(sampleIds, cancerStudy.getInternalId(),
+							GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
+				}
+			}
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }

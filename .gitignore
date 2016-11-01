@@ -44,6 +44,7 @@ portal/src/main/resources/build.properties
 portal/src/main/resources/importer.properties
 portal/src/main/resources/log4j.properties
 portal/src/main/resources/logging.properties
+portal/src/main/webapp/js/bower_components/*
 src/main/resources/importer.properties.*
 src/main/resources/portal.properties.*
 !src/main/resource/*.EXAMPLE
@@ -64,6 +65,11 @@ core/target/*
 annotator/target/*
 importer/target/*
 business/target/*
+model/target/*
+persistence/persistence-api/target/*
+persistence/persistence-mybatis/target/*
+persistence/persistence-mybatis-test/target/*
+service/target/*
 web/target/*
 mutation-assessor/target/*
 cbioportal-client/target/*
@@ -72,10 +78,14 @@ nbactions.xml
 */*.iml
 *.iml
 *.class
-*/.settings/*
-*/.classpath
-*/.project
+.settings/
+.classpath
+.project
+.pydevproject
+*/**/.gitignore
+.externalToolBuilders/
 dependency-reduced-pom.xml
 /core/nbactions-private.xml
 .profile.d/
 Procfile
+scripts/target

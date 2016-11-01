@@ -66,9 +66,8 @@
     		if ($("#mutex").is(":visible")) {
 	    		if (tab_init === false) {
 	    			//calling asynch to ensure loading gif is shown:
-    				MutexData.setOncoprintData(PortalDataColl.getOncoprintData()); 
-	    		    window.setTimeout(MutexData.init, 1); 
-                    window.setTimeout(MutexView.resize, 1);
+	    		    window.setTimeout(MutexData.init, 0); 
+                            window.setTimeout(MutexView.resize, 0);
 		            tab_init = true;
 		        } else {
 	                MutexView.resize();
@@ -76,14 +75,10 @@
 	    	}
     	}
         //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL),
-        //and in this case we need to wait for oncoprint data first:
-        PortalDataCollManager.subscribeOncoprint(function() {
-    		tabsUpdate();
-        });
+        tabsUpdate();
+        
         //this is for the scenario where the user navigates to this tab:
         $("#tabs").bind("tabsactivate", function(event, ui) {
-        	//we assume we don't need the PortalDataCollManager.subscribeOncoprint as above, since this 
-        	//event only occurs when changing tabs, so oncoprint tab is already loaded by then:
         	tabsUpdate();
         });
     });    

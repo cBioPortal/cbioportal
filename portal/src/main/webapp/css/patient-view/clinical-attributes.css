@@ -1,0 +1,143 @@
+/* Do not display clinical attributes on default */
+.clinical-attribute {
+    display: none;
+    order: 999;
+}
+/* Show only following attributes */
+.clinical-attribute[attr-id="SEX"],
+.clinical-attribute[attr-id="GENDER"],
+.clinical-attribute[attr-id="AGE"],
+.clinical-attribute[attr-id="OS_STATUS"],
+.clinical-attribute[attr-id="OS_MONTHS"],
+.clinical-attribute[attr-id="DFS_STATUS"],
+.clinical-attribute[attr-id="DFS_MONTHS"],
+.clinical-attribute[attr-id="CANCER_TYPE"],
+#more-patient-info .clinical-attribute[attr-id="CANCER_TYPE_DETAILED"],
+.clinical-attribute[attr-id="KNOWN_MOLECULAR_CLASSIFIER"],
+.clinical-attribute[attr-id="GLEASON_SCORE"],
+.clinical-attribute[attr-id="HISTOLOGY"],
+.clinical-attribute[attr-id="TUMOR_STAGE_2009"],
+.clinical-attribute[attr-id="TUMOR_GRADE"],
+.clinical-attribute[attr-id="ETS_RAF_SPINK1_STATUS"],
+.clinical-attribute[attr-id="TMPRSS2_ERG_FUSION_STATUS"],
+.clinical-attribute[attr-id="ERG_FUSION_ACGH"],
+.clinical-attribute[attr-id="SERUM_PSA"],
+.clinical-attribute[attr-id="DRIVER_MUTATIONS"],
+.clinical-attribute[attr-id="SAMPLE_CLASS"],
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"],
+.clinical-attribute[attr-id="DERIVED_SAMPLE_LOCATION"] {
+    display: inline;
+    order: 6;
+}
+/* Hide following attributes for samples */
+/* Show comma before clinical attributes, except first one */
+.clinical-attribute:not(.first-order):before {
+    content: ", ";
+    color: #428bca;
+}
+/* Order clinical attributes */
+/* Order sample+patient clinical attributes */
+.clinical-attribute[attr-id="PATIENT_DISPLAY_NAME"],
+.clinical-attribute[attr-id="SAMPLE_DISPLAY_NAME"] {
+    order: 0;
+}
+/* Order patient clinical attributes */
+#more-patient-info .clinical-attribute[attr-id="SEX"],
+#more-patient-info .clinical-attribute[attr-id="GENDER"] {
+    order: 1;
+}
+#more-patient-info .clinical-attribute[attr-id="AGE"] {
+    order: 2;
+}
+#more-patient-info .clinical-attribute[attr-id="CANCER_TYPE"] {
+    order: 3;
+}
+#more-patient-info .clinical-attribute[attr-id="CANCER_TYPE_DETAILED"] {
+    order: 4;
+}
+#more-patient-info .clinical-attribute[attr-id="KNOWN_MOLECULAR_CLASSIFIER"] {
+    order: 5;
+}
+#more-patient-info .clinical-attribute[attr-id="HISTOLOGY"] {
+    order: 6;
+}
+#more-patient-info .clinical-attribute[attr-id="OS_STATUS"] {
+    order: 7;
+}
+#more-patient-info .clinical-attribute[attr-id="OS_MONTHS"] {
+    order: 8;
+}
+#more-patient-info .clinical-attribute[attr-id="DFS_STATUS"] {
+    order: 9;
+}
+#more-patient-info .clinical-attribute[attr-id="DFS_MONTHS"] {
+    order: 10;
+}
+/* Order sample clinical attributes */
+.more-sample-info .clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"] {
+    order: 1;
+    text-transform: capitalize;
+}
+.more-sample-info .clinical-attribute[attr-id="DERIVED_SAMPLE_LOCATION"] {
+    order: 2;
+}
+/* attributes with opening parenthesis */
+.clinical-attribute[attr-id="OS_MONTHS"]:before,
+.clinical-attribute[attr-id="DFS_MONTHS"]:before,
+.clinical-attribute[attr-id="CANCER_TYPE_DETAILED"]:before,
+.clinical-attribute[attr-id="PATIENT_DISPLAY_NAME"]:before,
+.clinical-attribute[attr-id="DERIVED_SAMPLE_LOCATION"]:before,
+.clinical-attribute[attr-id="SAMPLE_DISPLAY_NAME"]:before {
+    content: "\00a0(";
+    color: #428bca;
+}
+/* attributes with a closing parenthesis */
+.clinical-attribute[attr-id="CANCER_TYPE_DETAILED"]:after,
+.clinical-attribute[attr-id="PATIENT_DISPLAY_NAME"]:after,
+.clinical-attribute[attr-id="DERIVED_SAMPLE_LOCATION"]:after,
+.clinical-attribute[attr-id="SAMPLE_DISPLAY_NAME"]:after {
+    content: ")";
+}
+/* text before an attribute */
+.clinical-attribute[attr-id="SERUM_PSA"]:before {
+    content: ", Serum PSA: ";
+}
+.clinical-attribute[attr-id="ERG_FUSION_ACGH"]:before {
+    content: ", ERG-fusion aCGH: ";
+}
+.clinical-attribute[attr-id="TMPRSS2_ERG_FUSION_STATUS"]:before {
+    content: ", TMPRSS2-ERG Fusion: ";
+}
+.clinical-attribute[attr-id="GLEASON"]:before {
+    content: ", Gleason: ";
+}
+/* text after an attribute */
+.clinical-attribute[attr-id="OS_MONTHS"]:after,
+.clinical-attribute[attr-id="DFS_MONTHS"]:after {
+    content: " months)";
+}
+.clinical-attribute[attr-id="AGE"]:after {
+    content: " years old";
+}
+/* attributes with special colors */
+.clinical-attribute[attr-id="OS_STATUS"][attr-value="DECEASED"],
+.clinical-attribute[attr-id="OS_STATUS"][attr-value="DEAD"],
+.clinical-attribute[attr-id="DFS_STATUS"] {
+    color: #f00;
+}
+.clinical-attribute[attr-id="OS_STATUS"][attr-value="LIVING"],
+.clinical-attribute[attr-id="OS_STATUS"][attr-value="ALIVE"],
+.clinical-attribute[attr-id="DFS_STATUS"][attr-value="DiseaseFree"],
+.clinical-attribute[attr-id="DFS_STATUS"][attr-value="Yes"] {
+    color: rgb(0, 128, 0);
+}
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value='primary'] {
+  color: black;
+}
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="progressed"],
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="recurrence"] {
+  color: orange;
+}
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="metastasis"] {
+  color: red;
+}

@@ -46,7 +46,7 @@ public class ValidationUtils {
      * @throws IllegalArgumentException when chromosome is invalid, or even NumberFormatException 
      * when not a number and other than X or Y.
      */
-	public static void validateChromosome(String chrom) {
+	public static int validateChromosome(String chrom) {
         if (chrom.equalsIgnoreCase("X"))
         	chrom = "23";
         if (chrom.equalsIgnoreCase("Y"))
@@ -55,6 +55,7 @@ public class ValidationUtils {
         if (chromNr > 24) {
         	throw new IllegalArgumentException("Error: Invalid chromosome [" + chrom + "]");
         }
+        return chromNr;
 	}
 
     /**

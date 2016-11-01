@@ -87,7 +87,7 @@ public class TestImportExtendedMutationData {
         
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/data_mutations_extended.txt");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
         parser.importData();
         MySQLbulkLoader.flushAll();
         ConsoleUtil.showMessages();
@@ -113,7 +113,7 @@ public class TestImportExtendedMutationData {
         MySQLbulkLoader.bulkLoadOn();
 
         File file = new File("src/test/resources/data_mutations_swissprotname.maf");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
         parser.importData();
         MySQLbulkLoader.flushAll();
 
@@ -137,7 +137,7 @@ public class TestImportExtendedMutationData {
         MySQLbulkLoader.bulkLoadOn();
 
         File file = new File("src/test/resources/data_mutations_swissprotaccession.maf");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
         parser.setSwissprotIsAccession(true);
         parser.importData();
         MySQLbulkLoader.flushAll();
@@ -183,7 +183,7 @@ public class TestImportExtendedMutationData {
 	@Test
     public void testImportExtendedMutationDataOncotated() throws IOException, DaoException {
         File file = new File("src/test/resources/data_mutations_oncotated.txt");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
         parser.importData();
         MySQLbulkLoader.flushAll();
         
@@ -213,7 +213,7 @@ public class TestImportExtendedMutationData {
         assertEquals(1, mutationList.size());
         assertEquals(expectedAminoAcidChange, mutationList.get(0).getProteinChange());
     }
-
+    
     private void acceptValidSomaticMutations() throws DaoException {
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
 

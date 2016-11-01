@@ -36,7 +36,7 @@ import java.util.*;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
+import org.mskcc.cbio.portal.dao.DaoClinicalAttributeMeta;
 import org.mskcc.cbio.portal.dao.DaoClinicalData;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
@@ -111,7 +111,7 @@ public class GetClinicalData {
      * @param attrId
      */
     public static JSONObject getJsonDatum(int cancerStudyId, String sampleId, String attrId) throws DaoException {
-        ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+        ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum(attrId, cancerStudyId);
         List<ClinicalData> data = DaoClinicalData.getSampleAndPatientData(cancerStudyId, Collections.singletonList(sampleId), attr);
         if (data.isEmpty()) {
             return new JSONObject();
@@ -120,7 +120,7 @@ public class GetClinicalData {
     }
 
     public static String getTxtDatum(int cancerStudyId, String sampleId, String attrId) throws DaoException {
-        ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+        ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum(attrId, cancerStudyId);
         List<ClinicalData> data = DaoClinicalData.getSampleAndPatientData(cancerStudyId, Collections.singletonList(sampleId), attr);
         if (data.isEmpty()) {
             return "";
@@ -150,7 +150,7 @@ public class GetClinicalData {
 //            }
         }
         
-        for (ClinicalAttribute attr : DaoClinicalAttribute.getDatum(attrIds)) {
+        for (ClinicalAttribute attr : DaoClinicalAttributeMeta.getDatum(attrIds)) {
             attrs.add(reflectToMap(attr));
         }
 
@@ -181,7 +181,7 @@ public class GetClinicalData {
 
     public static JSONObject getJSON(int cancerStudyId, List<String> sampleIds, String attrId) throws DaoException {
 
-        ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+        ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum(attrId, cancerStudyId);
         List<ClinicalData> clinicals = DaoClinicalData.getSampleAndPatientData(cancerStudyId, sampleIds, attr);
 
         return generateJson(clinicals);

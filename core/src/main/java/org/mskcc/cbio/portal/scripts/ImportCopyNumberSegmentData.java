@@ -70,13 +70,16 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
 		        //procedure. In this new procedure, Patients and Samples should only be added 
 		        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
 		        //sample per patient, which is not always the case.
-	            ImportDataUtil.addPatients(new String[] { strs[0] }, cancerStudy);
-		        int nrUnknownSamplesAdded = ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
-		        if (nrUnknownSamplesAdded > 0) {
-		        	ProgressMonitor.logWarning("WARNING: Number of samples added on the fly because they were missing in clinical data:  " + nrUnknownSamplesAdded);
-		        }
+	            String barCode = strs[0];
+	            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId,
+                        StableIdUtil.getSampleId(barCode));
+                if (sample == null ) {
+    	            ImportDataUtil.addPatients(new String[] { barCode }, cancerStudy);
+    		        ImportDataUtil.addSamples(new String[] { barCode }, cancerStudy);
+    		        ProgressMonitor.logWarning("WARNING: Sample added on the fly because it was missing in clinical data");
+    		    }
 	
-	            String sampleId = StableIdUtil.getSampleId(strs[0]);
+	            String sampleId = StableIdUtil.getSampleId(barCode);
 	            String chrom = strs[1].trim(); 
 	            //validate in same way as GistitReader:
 	            ValidationUtils.validateChromosome(chrom);

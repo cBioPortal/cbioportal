@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<!-- 
+		The principle here is a simple one: it's initialized with a list of lists of strings. Each starts with
+	    a class name and set of string arguments, which are then mapped to a call to a run() method in the class (given 
+        in the first string argument) which is initialized with the arguments built up by the subsequent arguments in the 
+        next <value> tags. The class org.mskcc.cbio.portal.util.TransactionalScripts will run then all within a single VM 
+        and a single DB transaction. 
+
+	    A script can generate a file like this, and pass it with a DAO context file to the 
+	    TransactionalScriptRunner class to run all the steps in one go. 
+	-->
+	<bean class="org.mskcc.cbio.portal.util.TransactionalScripts">
+		<constructor-arg>
+			<list>
+            <!-- ###############################################################################################
+                   NB the order up to step #5 is important. And the last step should be "Update study status" 
+                 ############################################################################################### -->
+
+                <!-- #1 First, import cancer types -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportTypesOfCancers</value>
+                    <value>src/test/scripts/test_data/study_es_0/cancer_type.txt</value>
+                    <value>false</value>
+                    <value>--noprogress</value>
+                </list>
+             
+                <!-- #2 Remove study if exists -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.RemoveCancerStudy</value>
+                    <value>study_es_0</value>
+                </list>
+             
+                <!-- #3 Import study if exists -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportCancerStudy</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_study.txt</value>
+                </list>
+
+                <!-- #4 Samples -->            
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportClinicalData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_samples.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_samples.txt</value>
+                </list>
+                
+                <!-- #5 patients -->           
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportClinicalData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_patients.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_patients.txt</value>
+                </list>
+
+                <!-- ###################  Rest of the steps ################## -->
+                            
+                <!-- brca_tcga_data_cna_hg19 Copy Number Segment Data -->            
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/brca_tcga_data_cna_hg19.seg</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/brca_tcga_meta_cna_hg19_seg.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+        
+                <!-- maf file with mutations -->            
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_mutations_extended.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+                
+                <!-- data_CNA -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_CNA.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_CNA.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+            
+                <!-- data_expression_median -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_expression_median.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_expression_median.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+                            
+                <!-- data_fusions -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_fusions.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_fusion.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+                            
+                <!-- data_gistic_genes_amp -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportGisticData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_gistic_genes_amp.txt</value>
+                    <value>--study</value>
+                    <value>study_es_0</value>
+                    <value>--noprogress</value>
+                </list>
+            
+                <!-- data_log2CNA -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_log2CNA.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_log2CNA.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+                
+                <!-- data_methylation_hm27 -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_methylation_hm27.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_methylation_hm27.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+                            
+                <!-- case lists -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportSampleList</value>
+                    <value>src/test/scripts/test_data/study_es_0/case_lists/cases_custom.txt</value>
+                </list>
+ 
+                <!-- add_global_case_list -->
+                 <list>
+                    <value>org.mskcc.cbio.portal.scripts.AddCaseList</value>
+                    <value>study_es_0</value>
+                    <value>all</value>
+                </list>
+            
+                <!-- ###################  Final step should always be this one ################## -->
+            
+                <!--  Update study status -->            
+                 <list>
+                    <value>org.mskcc.cbio.portal.scripts.UpdateCancerStudy</value>
+                    <value>study_es_0</value>
+                    <value>AVAILABLE</value>
+                </list>
+
+<!--  missing:     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
+    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
+    TODO
+ -->
+
+			</list>
+		</constructor-arg>
+	</bean>
+
+</beans>

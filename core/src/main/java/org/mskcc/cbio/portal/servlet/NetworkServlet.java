@@ -32,17 +32,23 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import org.cbioportal.persistence.MutationRepository;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.network.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
+
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
@@ -61,6 +67,24 @@ public class NetworkServlet extends HttpServlet {
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_UP = "PERCENT_MRNA_WAY_UP";
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_DOWN = "PERCENT_MRNA_WAY_DOWN";
 
+    @Autowired
+    private MutationRepository mutationRepository;
+
+    @Autowired
+    private MutationModelConverter mutationModelConverter;
+
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        accessControl = SpringUtil.getAccessControl();
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+                config.getServletContext());
+    }
+    
     @Override
     public void doGet(HttpServletRequest req,
                       HttpServletResponse res)
@@ -100,7 +124,21 @@ public class NetworkServlet extends HttpServlet {
     public void processGetNetworkRequest(HttpServletRequest req,
                       HttpServletResponse res)
             throws ServletException, IOException {
+    	// get cancer study id
+        // if cancer study id is null, return the current network
+        String cancerStudyId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        CancerStudy cancerStudy = null;
         try {
+        	if (cancerStudyId != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
+        	
             StringBuilder messages = new StringBuilder();
 
             XDebug xdebug = new XDebug( req );
@@ -148,11 +186,6 @@ public class NetworkServlet extends HttpServlet {
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                     + ": took "+xdebug.getTimeElapsed()+"ms");
-
-            // get cancer study id
-            // if cancer study id is null, return the current network
-            String cancerStudyId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
 
             if (network.countNodes()!=0 && cancerStudyId!=null) {
 
@@ -638,8 +671,8 @@ public class NetworkServlet extends HttpServlet {
     private Set<String> getMutatedSamples(int geneticProfileId, List<Integer> internalSampleIds,
             long entrezGeneId) throws DaoException {
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
-        ArrayList <ExtendedMutation> mutationList =
-                    DaoMutation.getMutations(geneticProfileId, internalSampleIds, entrezGeneId);
+        List <ExtendedMutation> mutationList = mutationModelConverter.convert(
+                    mutationRepository.getMutations(internalSampleIds, (int) entrezGeneId, geneticProfileId));
         Set<String> samples = new HashSet<String>();
         for (ExtendedMutation mutation : mutationList) {
             Sample sample = DaoSample.getSampleById(mutation.getSampleId());

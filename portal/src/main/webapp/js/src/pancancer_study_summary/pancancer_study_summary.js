@@ -844,23 +844,23 @@ function DataManagerPresenter(dmInitCallBack)
 			alert(" error found");
 		});	
     
-	console.log(new Date() + ": CALL to getGenomicEventData()");
+	console.log(new Date() + ": CALL to getOncoprintSampleGenomicEventData()");
 	//keep track of samples and their respective alteration events 
-	self.sampleList = []; //each entry contains alterationEvents[] 
-	window.QuerySession.getGenomicEventData()
+	self.sampleList = {}; //each entry contains alterationEvents[] 
+	window.QuerySession.getGeneAggregatedOncoprintSampleGenomicEventData()
 	.then(
 		function (genomicEventData){
 			
-			console.log(new Date() + ": started processing getGenomicEventData() data");
+			console.log(new Date() + ": started processing getOncoprintSampleGenomicEventData() data");
 			
-			for (var i = 0; i < genomicEventData.length; i++) {
+			    for (var i = 0; i < genomicEventData.length; i++) {
 				//init alteration events, if not yet done
 				if (!self.sampleList[genomicEventData[i].sample])
-					self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
+				    self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
 				self.sampleList[genomicEventData[i].sample].alterationEvents.push(genomicEventData[i]);
-				
-			}
-			console.log(new Date() + ": finished processing getGenomicEventData() data");
+
+			    }
+			console.log(new Date() + ": finished processing getOncoprintSampleGenomicEventData() data");
 			
 			//signal "done":
 			callbackA_done.resolve();
@@ -872,7 +872,7 @@ function DataManagerPresenter(dmInitCallBack)
 	
 	//when both calls above are done processing, then we want to continue with dmInitCallBack:
 	$.when(callbackA_done, callbackB_done).then(function () {
-		console.log(new Date() + ": getGenomicEventData() and getSampleClinicalData() DONE, continuing with dmInitCallBack...");
+		console.log(new Date() + ": getOncoprintSampleGenomicEventData() and getSampleClinicalData() DONE, continuing with dmInitCallBack...");
 		dmInitCallBack(self);
 	});
 
@@ -895,7 +895,7 @@ function DataManagerPresenter(dmInitCallBack)
 	this.getAlterationEvents = function(cancerType, cancerTypeDetailed, geneId) {
 		//get the sample list based on cancerType, cancerTypeDetailed
 		var sampleIds;
-		if (cancerTypeDetailed == null)
+		if (cancerTypeDetailed === null)
 			sampleIds = self.cancerTypeList[cancerType].sampleIds;
 		else
 			sampleIds = self.cancerTypeList[cancerType].cancerTypeDetailed[cancerTypeDetailed].sampleIds;
@@ -926,26 +926,26 @@ function DataManagerPresenter(dmInitCallBack)
 			for (var j = 0; j < alterationEvents.length; j++) {
 				var alterations = alterationEvents[j];
 				//only count for given gene: 
-				if (alterations.gene == geneId) {
+				if (alterations.gene.toUpperCase() === geneId.toUpperCase()) {
 					//validation (not expected): 
 					if (alterationEventFound)
 						throw "prog error: only one alterations group item expected for a given sample/gene combination"; 
 					alterationEventFound = true;
 					//if both:
-					if (alterations.cna && alterations.mutation) {
+					if (typeof alterations.disp_cna !== "undefined" && typeof alterations.disp_mut !== "undefined") {
 						multiple++;
 					}
 					//cna counts:
-					else if (alterations.cna) {
-						cnaUp += (alterations.cna == "AMPLIFIED" ? 1 : 0);
-						cnaDown += (alterations.cna == "HOMODELETED" ? 1 : 0);
-						cnaLoss += (alterations.cna == "HEMIZYGOUSLYDELETED" ? 1 : 0);
-						cnaGain += (alterations.cna == "GAINED" ? 1 : 0);
+					else if (typeof alterations.disp_cna !== "undefined") {
+						cnaUp += (alterations.disp_cna === "amp" ? 1 : 0);
+						cnaDown += (alterations.disp_cna === "homdel" ? 1 : 0);
+						cnaLoss += (alterations.disp_cna === "hetloss" ? 1 : 0);
+						cnaGain += (alterations.disp_cna === "gain" ? 1 : 0);
 						//From cbioportal-datamanager.js:
 						//{"-2":"HOMODELETED","-1":"HEMIZYGOUSLYDELETED","0":undefined,"1":"GAINED","2":"AMPLIFIED"};
 					}
 					//mutation counts:
-					else if (alterations.mutation) {
+					else if (typeof alterations.disp_mut !== "undefined") {
 						mutation++;
 					}
 				}

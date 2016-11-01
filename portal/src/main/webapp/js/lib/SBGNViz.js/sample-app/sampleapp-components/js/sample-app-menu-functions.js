@@ -76,7 +76,7 @@ $(document).ready(function ()
       {
           //Remove loading spinner !
           container.empty();
-          setFileContent(nodeA + "_" + nodeB + "PBTWN.sbgnml");
+          setFileContent(nodeA + "_" + nodeB + "_PBTWN.sbgnml");
 
           //Convert incoming SBGNML string to json
           var graphData = sbgnmlToJson.convert(data);

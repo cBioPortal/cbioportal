@@ -244,7 +244,7 @@ def process_directory(jvm_args, study_directory):
 
 def usage():
     # TODO : replace this by usage string from interface()
-    print >> OUTPUT_FILE, ('cbioportalImporter.py --jar-path (path to core jar file) ' +
+    print >> OUTPUT_FILE, ('cbioportalImporter.py --jar-path (path to scripts jar file) ' +
                            '--command [%s] --study_directory <path to directory> '
                            '--meta_filename <path to metafile>'
                            '--data_filename <path to datafile>'
@@ -279,7 +279,7 @@ def interface():
     parser.add_argument('-s', '--study_directory',type=str, required=False,
                         help='Path to Study Directory')
     parser.add_argument('-jar', '--jar_path',type=str, required=False,
-                        help='Path to core JAR file')
+                        help='Path to scripts JAR file')
     parser.add_argument('-meta', '--meta_filename',type=str, required=False,
                         help='Path to meta file')
     parser.add_argument('-data', '--data_filename', type=str, required=False,
@@ -314,9 +314,9 @@ def main(args):
         else: 
             #find jar files in lib folder and add them to classpath:
             import glob
-            jars = glob.glob(portal_home + "/portal/target/portal/WEB-INF/lib/core-*.jar")
+            jars = glob.glob(portal_home + "/scripts/target/scripts-*.jar")
             if len(jars) != 1:
-                print 'Expected to find 1 core-*.jar, but found: ' + str(len(jars))
+                print 'Expected to find 1 scripts-*.jar, but found: ' + str(len(jars))
                 sys.exit(2)
             args.jar_path = jars[0]
             print 'Data loading step using: {}\n'.format(args.jar_path)

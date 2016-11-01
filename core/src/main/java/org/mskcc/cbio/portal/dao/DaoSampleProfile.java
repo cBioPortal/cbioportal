@@ -47,7 +47,7 @@ public final class DaoSampleProfile {
    
     private static final int NO_SUCH_PROFILE_ID = -1;
 
-    public static int addSampleProfile(int sampleId, int geneticProfileId) throws DaoException {
+    public static int addSampleProfile(int sampleId, int geneticProfileId, Integer panelId) throws DaoException {
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -57,10 +57,16 @@ public final class DaoSampleProfile {
             if (!sampleExistsInGeneticProfile(sampleId, geneticProfileId)) {
                 con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
                 pstmt = con.prepareStatement
-                        ("INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`) "
-                                + "VALUES (?,?)");
+                        ("INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`, `PANEL_ID`) "
+                                + "VALUES (?,?,?)");
                 pstmt.setInt(1, sampleId);
                 pstmt.setInt(2, geneticProfileId);
+                if (panelId != null) {
+                    pstmt.setInt(3, panelId);
+                }
+                else {
+                    pstmt.setNull(3, java.sql.Types.INTEGER);                    
+                }
                 return pstmt.executeUpdate();
             } else {
                 return 0;

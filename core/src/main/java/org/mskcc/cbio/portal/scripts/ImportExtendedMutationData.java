@@ -66,15 +66,17 @@ public class ImportExtendedMutationData{
 	private int samplesSkipped = 0;
 	private Set<String> sampleSet = new HashSet<String>();
 	private Set<String> geneSet = new HashSet<String>();
+                     private String genePanel;
 
 	/**
 	 * construct an ImportExtendedMutationData.
 	 * Filter mutations according to the no argument MutationFilter().
 	 */
-	public ImportExtendedMutationData(File mutationFile, int geneticProfileId) {
+	public ImportExtendedMutationData(File mutationFile, int geneticProfileId, String genePanel) {
 		this.mutationFile = mutationFile;
 		this.geneticProfileId = geneticProfileId;
 		this.swissprotIsAccession = false;
+		this.genePanel = genePanel;
 
 		// create default MutationFilter
 		myMutationFilter = new MutationFilter( );
@@ -167,8 +169,13 @@ public class ImportExtendedMutationData{
 		        	continue;
 		        }
 		        
-				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
-					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
+				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {					
+                                                                                                            if (genePanel != null) {
+                                                                                                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
+                                                                                                            }
 				}
 
 				String validationStatus = record.getValidationStatus();

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <!-- meta data -->
+  <parent>
+        <artifactId>master</artifactId>
+        <groupId>org.mskcc.cbio</groupId>
+        <version>1.3.2-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>scripts</artifactId>
+  <name>Portal Scripts</name>
+  <description>Scripts Package for Portal</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- this plugin lets us grab shared resources from our parent -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-parent-resources</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/classes</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${PORTAL_HOME}/src/main/resources</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                    <include>**/*.properties</include>
+                  </includes>
+                  <excludes>
+                    <exclude>**/portal.properties.*</exclude>
+                    <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/*.EXAMPLE</exclude>
+                  </excludes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <excludes>
+                  <exclude>org.bouncycastle:bcprov-jdk15</exclude>
+                </excludes>
+              </artifactSet>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>META-INF/spring.handlers</resource>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>META-INF/spring.schemas</resource>
+                </transformer>
+              </transformers>
+              <filters>
+				<filter>
+				  <artifact>*:*</artifact>
+                  <excludes>
+					<exclude>META-INF/*.SF</exclude>
+					<exclude>META-INF/*.DSA</exclude>
+					<exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+    </plugins>
+
+  </build>
+</project>

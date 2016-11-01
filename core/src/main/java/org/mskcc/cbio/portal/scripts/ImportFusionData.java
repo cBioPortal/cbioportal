@@ -53,12 +53,14 @@ public class ImportFusionData
 
 	private File fusionFile;
 	private int geneticProfileId;
+                     private String genePanel;
 
 	public ImportFusionData(File fusionFile,
-			int geneticProfileId)
+			int geneticProfileId, String genePanel)
 	{
 		this.fusionFile = fusionFile;
 		this.geneticProfileId = geneticProfileId;
+                                           this.genePanel = genePanel;
 	}
 
 	public void importData() throws IOException, DaoException
@@ -116,7 +118,12 @@ public class ImportFusionData
 		        }
 				if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId))
 				{
-					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
+                                                                                                            if (genePanel != null) {
+                                                                                                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
+                                                                                                            }      
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
@@ -170,7 +177,7 @@ public class ImportFusionData
 					}
 
 					// add fusion (as a mutation)
-					DaoMutation.addMutation(mutation, addEvent);
+					DaoMutation.addMutation(mutation, addEvent);                                                                                      
 				}
 			}
 		}

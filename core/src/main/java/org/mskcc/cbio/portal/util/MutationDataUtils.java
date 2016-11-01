@@ -33,19 +33,22 @@
 package org.mskcc.cbio.portal.util;
 
 import org.apache.log4j.Logger;
+import org.cbioportal.persistence.MutationRepository;
 import org.json.simple.JSONArray;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.web_api.GetMutationData;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.*;
 
+@Component
 public class MutationDataUtils {
     private static final Logger logger = Logger.getLogger(MutationDataUtils.class);
 
@@ -97,11 +100,16 @@ public class MutationDataUtils {
 	public static final String PROTEIN_POS_START = "proteinPosStart";
 	public static final String PROTEIN_POS_END = "proteinPosEnd";
 	public static final String MUTATION_COUNT = "mutationCount";
-	public static final String SPECIAL_GENE_DATA = "specialGeneData";
 	public static final String CNA_CONTEXT = "cna";
     public static final String MY_CANCER_GENOME = "myCancerGenome";
     public static final String IS_HOTSPOT = "isHotspot";
     public static final String OMA_LINK_NOT_AVAILABLE_VALUE = "NA";
+
+    @Autowired
+    private MutationRepository mutationRepository;
+
+    @Autowired
+    private MutationModelConverter mutationModelConverter;
 
     /**
      * Generates an array (JSON array) of mutations for the given sample
@@ -132,7 +140,7 @@ public class MutationDataUtils {
         {
             internalSampleIds = InternalIdUtil.getInternalSampleIds(
                 geneticProfile.getCancerStudyId(), targetSampleList);
-            GetMutationData remoteCallMutation = new GetMutationData();
+            GetMutationData remoteCallMutation = new GetMutationData(mutationRepository, mutationModelConverter);
 
             mutationList = remoteCallMutation.getMutationData(geneticProfile,
                     targetGeneList,
@@ -184,7 +192,7 @@ public class MutationDataUtils {
 			String attrId) throws DaoException
 	{
 		Map<Integer, ClinicalData> map = new HashMap<Integer, ClinicalData>();
-		ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+		ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum(attrId, cancerStudy.getInternalId());
 
 		// check if attrId is in the DB
 		if (attr != null)
@@ -277,7 +285,6 @@ public class MutationDataUtils {
         mutationData.put(PROTEIN_POS_START, mutation.getOncotatorProteinPosStart());
         mutationData.put(PROTEIN_POS_END, mutation.getOncotatorProteinPosEnd());
         mutationData.put(MUTATION_COUNT, countMap.get(mutation.getSampleId()));
-        mutationData.put(SPECIAL_GENE_DATA, this.getSpecialGeneData(mutation));
         mutationData.put(CNA_CONTEXT, getCnaData(cnaDataMap, mutation));
         mutationData.put(MY_CANCER_GENOME, mcgLinks);
         mutationData.put(IS_HOTSPOT, isHotspot);
@@ -312,42 +319,6 @@ public class MutationDataUtils {
     }
 
     /**
-     * Returns special gene data (if exists) for the given mutation. Returns null
-     * if no special gene exists for the given mutation.
-     *
-     * @param mutation  mutation instance
-     * @return          Map of (field header, field value) pairs.
-     */
-    protected HashMap<String, String> getSpecialGeneData(ExtendedMutation mutation)
-    {
-        HashMap<String, String> specialGeneData = null;
-
-        SpecialGene specialGene = SpecialGeneFactory.getInstance(mutation.getGeneSymbol());
-
-        //  fields & values for "Special" genes
-        if (specialGene != null)
-        {
-            specialGeneData = new HashMap<String, String>();
-
-            ArrayList<String> specialHeaders = specialGene.getDataFieldHeaders();
-            ArrayList<String> specialData = specialGene.getDataFields(mutation);
-
-            if (specialHeaders.size() == specialData.size())
-            {
-                for (int i=0; i < specialData.size(); i++)
-                {
-                    String header = specialHeaders.get(i);
-                    String data = specialData.get(i);
-
-                    specialGeneData.put(header, data);
-                }
-            }
-        }
-
-        return specialGeneData;
-    }
-
-    /**
      * Creates a map of mutation counts for the given list of mutations.
      *
      * @param mutations     list of mutations
@@ -375,14 +346,8 @@ public class MutationDataUtils {
         Map<Integer, Integer> counts;
 
         // retrieve count map
-        try
-        {
-            counts = DaoMutation.countMutationEvents(geneticProfileId, sampleIds);
-        }
-        catch (DaoException e)
-        {
-            counts = null;
-        }
+        counts = mutationModelConverter.convertMutationCountToMap(
+                mutationRepository.countMutationEvents(geneticProfileId, sampleIds));
 
         return counts;
     }
@@ -427,6 +392,7 @@ public class MutationDataUtils {
      * @param mutation  mutation instance
      * @return          corresponding xVar link
      */
+
     protected String getXVarLink(ExtendedMutation mutation) {
         if (mutation != null && OmaLinkUtil.omaLinkIsValid(mutation.getLinkXVar())) {
             try {

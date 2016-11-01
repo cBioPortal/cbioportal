@@ -87,10 +87,10 @@
 
     //Info about queried cancer study
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
-    String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+    String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     CancerStudy cancerStudy = cancerStudies.get(0);
     for (CancerStudy cs : cancerStudies){
-        if (cancerTypeId.equals(cs.getCancerStudyStableId())){
+        if (cancerStudyId.equals(cs.getCancerStudyStableId())){
             cancerStudy = cs;
             break;
         }
@@ -101,6 +101,7 @@
 
     //Info about Patient Set(s)/Patients
     ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
+    String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String sampleSetName = "";
     String sampleSetDescription = "";
@@ -123,6 +124,9 @@
     boolean computeLogOddsRatio = true;
     Boolean mutationDetailLimitReached = (Boolean)request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
+    //are we using session service for bookmarking?
+    boolean useSessionServiceBookmark = !StringUtils.isBlank(GlobalProperties.getSessionServiceUrl());
+
     //General site info
     String siteTitle = GlobalProperties.getTitle();
 
@@ -136,7 +140,7 @@
 
     //check if show co-expression tab
     boolean showCoexpTab = false;
-    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerTypeId);
+    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyId);
     if (final_gp != null) {
         showCoexpTab = true;
     } 
@@ -152,67 +156,7 @@
 </script>
 <script type="text/javascript" src="js/lib/oql/oql-parser.js"></script>
 <script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
-<script type="text/javascript">
-    var PortalDataColl = (function() {
-        var oncoprintData = null,
-            oncoprintStat = null;
-        return {
-            setOncoprintData : function(obj) { 
-                if (oncoprintData === null) {
-                    oncoprintData = obj;    
-                    PortalDataCollManager.fire("oncoprint-data-fetched");
-                }
-            },
-            setOncoprintStat : function(obj) {
-                if (oncoprintStat === null) {
-                    oncoprintStat = obj;
-                    PortalDataCollManager.fire("oncoprint-stat-fetched");
-                }
-            },
-            getOncoprintData : function() { 
-                //TODO: sort the data by sample Id
-                return oncoprintData; 
-            },
-            getOncoprintStat : function() { return oncoprintStat; }
-        };
-    }());
-
-    var PortalDataCollManager = (function() {
-        var fns_oncoprint = [],
-            fns_oncoprint_stat = [];
-        
-        var subscribeOncoprint = function(fn){
-            fns_oncoprint.push(fn);
-        };
-
-        var subscribeOncoprintStat = function(fn) {
-            fns_oncoprint_stat.push(fn);
-        };
-
-        return {
-            //to subscribe the functions that would re-use oncoprint data -- by subscribing, once the oncoprint
-            //data is fetched, the functions would be called/executed. 
-            subscribeOncoprint: subscribeOncoprint, 
-            subscribeOncoprintStat: subscribeOncoprintStat,
-            fire: function(o) {
-                if (o === "oncoprint-data-fetched") {
-                    fns_oncoprint.forEach(
-                        function(el) {
-                            el.call();
-                        }
-                    );
-                } else if(o === "oncoprint-stat-fetched") {
-                    fns_oncoprint_stat.forEach(
-                        function(el) {
-                            el.call();
-                        }
-                    );
-                }
-            }
-        };
-
-    }());
-</script>
+<script type="text/javascript" src="js/src/oql/oqlfilter.js"></script>
 
 <!-- Global variables : basic information about the main query -->
 <script type="text/javascript">
@@ -232,8 +176,8 @@
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
-                                                            ['<%=cancerTypeId%>'.trim()],
-                                                            '<%=samples%>'.trim().split(/\s+/),
+                                                            ['<%=cancerStudyId%>'.trim()],
+                                                            JSON.parse('<%=studySampleMapJson%>'),
                                                             parseFloat('<%=zScoreThreshold%>'),
                                                             parseFloat('<%=rppaScoreThreshold%>'),
                                                             {
@@ -241,10 +185,6 @@
                                                                 case_ids_key: '<%=sampleIdsKey%>',
                                                                 case_set_name: '<%=sampleSetName%>',
                                                                 case_set_description: '<%=sampleSetDescription%>'
-                                                            },
-                                                            ['<%=cancerStudyName%>'],
-                                                            {
-                                                                mutation_profile_id: <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>
                                                             });
     })();
 </script>
@@ -277,24 +217,10 @@
     }
     
 $(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), window.QuerySession.getPatientSampleIdMap()).then(function(altered_samples, unaltered_samples, sample_patient_map) {
-        PortalDataCollManager.subscribeOncoprint(function() {
-
-            //calculate total alteration
-            var _dataArr = PortalDataColl.getOncoprintData();
-            num_total_cases = _dataArr.length;
-            $.each(_dataArr, function(outerIndex, outerObj) {
-                $.each(outerObj.values, function(innerIndex, innerObj) {
-                    if(Object.keys(innerObj).length > 2) { // has more than 2 fields -- indicates existence of alteration
-                        num_altered_cases += 1;
-                        return false;
-                    }
-                });
-            });     
-
-            var _sampleIds = window.QuerySession.getSampleIds();
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getPatientIds(), window.QuerySession.getCancerStudyNames()).then(function(altered_samples, patient_ids, cancer_study_names) {
+            var sample_ids = window.QuerySession.getSampleIds();
             
-            var altered_samples_percentage = (100 * altered_samples.length / _sampleIds.length).toFixed(1);
+            var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
 
             //Configure the summary line of alteration statstics
             var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
@@ -303,8 +229,8 @@ $(document).ready(function() {
             //Configure the summary line of query
             var _query_smry = "<h3 style='font-size:110%;'><a href='study?id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
-                window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
-                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
+                cancer_study_names[0] + "</a><br>" + " " +  
+                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " + 
                 "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
             $("#main_smry_query_div").append(_query_smry);
 
@@ -328,28 +254,12 @@ $(document).ready(function() {
                 //  Toggle the icons
                 $(".query-toggle").toggle();
             });
-
-            var uniqStrings = function(arr_of_strings) {
-                var uniq = [];
-                var seen = {};
-                for (var i=0; i<arr_of_strings.length; i++) {
-                    var str = arr_of_strings[i];
-                    if (!seen[str]) {
-                        uniq.push(str);
-                        seen[str] = true;
-                    }
-                }
-                return uniq;
-            };
-            var patientIdArray = uniqStrings(_sampleIds.map(function(s) { return sample_patient_map[s]; }));
-
             //Oncoprint summary lines
             $("#oncoprint_sample_set_description").append("Case Set: " + window.QuerySession.getSampleSetName()
-                                                        + " "
-                                                        + "("+patientIdArray.length + " patients / " + _sampleIds.length + " samples)");
-            $("#oncoprint_num_of_altered_cases").append(altered_samples.length);
-            $("#oncoprint_percentage_of_altered_cases").append(altered_samples_percentage);
-            if (patientIdArray.length !== _sampleIds.length) {
+							+ " "
+							+ "("+patient_ids.length + " patients / " + sample_ids.length + " samples)");
+            $("#oncoprint_sample_set_name").append("Case Set: "+window.QuerySession.getSampleSetName());
+            if (patient_ids.length !== sample_ids.length) {
                 $("#switchPatientSample").css("display", "inline-block");
             }
             
@@ -362,9 +272,7 @@ $(document).ready(function() {
             //  Toggle the icons
             $(".query-toggle").toggle();
         });
-
-        });
-    });
+});
 
 
 </script>

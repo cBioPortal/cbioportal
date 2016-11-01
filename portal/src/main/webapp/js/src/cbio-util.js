@@ -1,41 +1,110 @@
-/*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
- * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
- * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
- * liable to any party for direct, indirect, special, incidental or
- * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
- * Center has been advised of the possibility of such damage.
- */
-
-/*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-if (cbio === undefined)
-{
-	var cbio = {};
+if (cbio === undefined) {
+    var cbio = {};
 }
 
 cbio.util = (function() {
+    var deepCopyObject = function(obj) {
+        return $.extend(true, ($.isArray(obj) ? [] : {}), obj);
+    };
+    var objectValues = function(obj) {
+        return Object.keys(obj).map(function(key) {
+            return obj[key];
+        });
+    };
+    var objectKeyDifference = function(from, by) {
+        var ret = {};
+        var from_keys = Object.keys(from);
+        for (var i = 0; i < from_keys.length; i++) {
+            if (!by[from_keys[i]]) {
+                ret[from_keys[i]] = true;
+            }
+        }
+        return ret;
+    };
+    var objectKeyValuePairs = function(obj) {
+        return Object.keys(obj).map(function(key) {
+            return [key, obj[key]];
+        });
+    };
+    var objectKeyUnion = function(list_of_objs) {
+        var union = {};
+        for (var i = 0; i < list_of_objs.length; i++) {
+            var keys = Object.keys(list_of_objs[i]);
+            for (var j = 0; j < keys.length; j++) {
+                union[keys[j]] = true;
+            }
+        }
+        return union;
+    };
+    var objectKeyIntersection = function(list_of_objs) {
+        var intersection = {};
+        for (var i = 0; i < list_of_objs.length; i++) {
+            if (i === 0) {
+                var keys = Object.keys(list_of_objs[0]);
+                for (var j = 0; j < keys.length; j++) {
+                    intersection[keys[j]] = true;
+                }
+            } else {
+                var obj = list_of_objs[i];
+                var keys = Object.keys(intersection);
+                for (var j = 0; j < keys.length; j++) {
+                    if (!obj[keys[j]]) {
+                        delete intersection[keys[j]];
+                    }
+                }
+            }
+        }
+        return intersection;
+    };
+    var stringListToObject = function(list) {
+        var ret = {};
+        for (var i = 0; i < list.length; i++) {
+            ret[list[i]] = true;
+        }
+        return ret;
+    };
+    var stringListDifference = function(from, by) {
+        return Object.keys(
+            objectKeyDifference(
+                stringListToObject(from),
+                stringListToObject(by)));
+    };
+    var stringListUnion = function(list_of_string_lists) {
+        return Object.keys(
+            objectKeyUnion(
+                list_of_string_lists.map(function(string_list) {
+                    return stringListToObject(string_list);
+                })
+            ));
+    };
+    var stringListUnique = function(list) {
+        return Object.keys(stringListToObject(list));
+    };
+    var flatten = function(list_of_lists) {
+        return list_of_lists.reduce(function(a, b) {
+            return a.concat(b);
+        }, []);
+    };
+
+    var makeCachedPromiseFunction = function(fetcher) {
+        // In: fetcher, a function that takes a promise as an argument, and resolves it with the desired data
+        // Out: a function which returns a promise that resolves with the desired data, deep copied
+        //  The idea is that the fetcher is only ever called once, even if the output function
+        //  of this method is called again while it's still waiting.
+        var fetch_promise = new $.Deferred();
+        var fetch_initiated = false;
+        return function() {
+            var def = new $.Deferred();
+            if (!fetch_initiated) {
+                fetch_initiated = true;
+                fetcher(this, fetch_promise);
+            }
+            fetch_promise.then(function(data) {
+                def.resolve(deepCopyObject(data));
+            });
+            return def.promise();
+        };
+    };
 
     var toPrecision = function(number, precision, threshold) {
         // round to precision significant figures
@@ -57,7 +126,7 @@ cbio.util = (function() {
         var length = 0;
 
         for (var i in object) {
-            if (Object.prototype.hasOwnProperty.call(object, i)){
+            if (Object.prototype.hasOwnProperty.call(object, i)) {
                 length++;
             }
         }
@@ -70,10 +139,12 @@ cbio.util = (function() {
 
     // convert from array to associative array of element to index
     var arrayToAssociatedArrayIndices = function(arr, offset) {
-        if (checkNullOrUndefined(offset)) offset=0;
+        if (checkNullOrUndefined(offset)) {
+            offset = 0;
+        }
         var aa = {};
-        for (var i=0, n=arr.length; i<n; i++) {
-            aa[arr[i]] = i+offset;
+        for (var i = 0, n = arr.length; i < n; i++) {
+            aa[arr[i]] = i + offset;
         }
         return aa;
     };
@@ -81,7 +152,7 @@ cbio.util = (function() {
     var uniqueElementsOfArray = function(arr) {
         var ret = [];
         var aa = {};
-        for (var i=0, n=arr.length; i<n; i++) {
+        for (var i = 0, n = arr.length; i < n; i++) {
             if (!(arr[i] in aa)) {
                 ret.push(arr[i]);
                 aa[arr[i]] = 1;
@@ -106,8 +177,7 @@ cbio.util = (function() {
         // @param rollback: the switch to control moving up/down the axes' text (true -> move up; false -> move down)
         //
 
-        if (rollback)
-        {
+        if (rollback) {
             shiftValueOnX = -1 * shiftValueOnX;
             shiftValueOnY = -1 * shiftValueOnY;
         }
@@ -138,18 +208,14 @@ cbio.util = (function() {
      * @param str2  second string
      * @return {String} longest common starting substring
      */
-    var lcss = function (str1, str2)
-    {
+    var lcss = function(str1, str2) {
         var i = 0;
 
-        while (i < str1.length && i < str2.length)
-        {
-            if (str1[i] === str2[i])
-            {
+        while (i < str1.length && i < str2.length) {
+            if (str1[i] === str2[i]) {
                 i++;
             }
-            else
-            {
+            else {
                 break;
             }
         }
@@ -157,167 +223,163 @@ cbio.util = (function() {
         return str1.substring(0, i);
     };
 
-	/**
-	 * Converts base 64 encoded string into an array of byte arrays.
-	 *
-	 * @param b64Data   base 64 encoded string
-	 * @param sliceSize size of each byte array (default: 512)
-	 * @returns {Array} an array of byte arrays
-	 */
-	function b64ToByteArrays(b64Data, sliceSize) {
-		sliceSize = sliceSize || 512;
+    /**
+     * Converts base 64 encoded string into an array of byte arrays.
+     *
+     * @param b64Data   base 64 encoded string
+     * @param sliceSize size of each byte array (default: 512)
+     * @returns {Array} an array of byte arrays
+     */
+    function b64ToByteArrays(b64Data, sliceSize) {
+        sliceSize = sliceSize || 512;
 
-		var byteCharacters = atob(b64Data);
-		var byteArrays = [];
+        var byteCharacters = atob(b64Data);
+        var byteArrays = [];
 
-		for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-			var slice = byteCharacters.slice(offset, offset + sliceSize);
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
 
-			var byteNumbers = new Array(slice.length);
-			for (var i = 0; i < slice.length; i++) {
-				byteNumbers[i] = slice.charCodeAt(i);
-			}
-
-			var byteArray = new Uint8Array(byteNumbers);
-
-			byteArrays.push(byteArray);
-		}
-
-		return byteArrays;
-	}
-
-	/**
-	 * Detects browser and its version.
-	 * This function is implemented as an alternative to the deprecated jQuery.browser object.
-	 *
-	 * @return {object} browser information as an object
-	 */
-	var detectBrowser = function ()
-	{
-		var browser = {};
-		var uagent = navigator.userAgent.toLowerCase();
-
-		browser.firefox = /mozilla/.test(uagent) &&
-		                  /firefox/.test(uagent);
-
-		browser.mozilla = browser.firefox; // this is just an alias
-
-		browser.chrome = /webkit/.test(uagent) &&
-		                 /chrome/.test(uagent);
-
-		browser.safari = /applewebkit/.test(uagent) &&
-		                 /safari/.test(uagent) &&
-		                 !/chrome/.test(uagent);
-
-		browser.opera = /opera/.test(uagent);
-
-		browser.msie = /msie/.test(uagent);
-
-		browser.version = "";
-
-		// check for IE 11
-		if (!(browser.msie ||
-		      browser.firefox ||
-		      browser.chrome ||
-		      browser.safari ||
-		      browser.opera))
-		{
-			// TODO probably we need to update this for future IE versions
-			if (/trident/.test(uagent))
-			{
-				browser.msie = true;
-				browser.version = 11;
-			}
-		}
-
-		if (browser.version === "")
-		{
-			for (var x in browser)
-			{
-				if (browser[x])
-				{
-					browser.version = uagent.match(new RegExp("(" + x + ")( |/)([0-9]+)"))[3];
-					break;
-				}
-			}
-		}
-
-		return browser;
-	};
-
-	/**
-	 * Retrieves the page origin from the global window object. This function is
-	 * introduced to eliminate cross-browser issues (window.location.origin is
-	 * undefined for IE)
-	 */
-	var getOrigin = function()
-	{
-		var origin = window.location.origin;
-
-		if (!origin)
-		{
-			origin = window.location.protocol + "//" +
-			         window.location.hostname +
-			         (window.location.port ? ':' + window.location.port: '');
-		}
-
-		return origin;
-	};
-
-        var sortByAttribute = function(objs, attrName) {
-            function compare(a,b) {
-                if (a[attrName] < b[attrName])
-                    return -1;
-                if (a[attrName] > b[attrName])
-                    return 1;
-                return 0;
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
             }
-            objs.sort(compare);
-            return objs;
-        };
 
-	/**
-	 * Replaces problematic characters with an underscore for the given string.
-	 * Those characters cause problems with the properties of an HTML object,
-	 * especially for the id and class properties.
-	 *
-	 * @param property  string to be modified
-	 * @return {string} safe version of the given string
-	 */
-	var safeProperty = function(property)
-	{
-		return property.replace(/[^a-zA-Z0-9-]/g,'_');
-	};
+            var byteArray = new Uint8Array(byteNumbers);
 
-	/**
-	 * Hides the child html element on mouse leave, and shows on
-	 * mouse enter. This function is designed to hide a child
-	 * element within a parent element.
-	 *
-	 * @param parentElement target of mouse events
-	 * @param childElement  element to show/hide
-	 */
-	function autoHideOnMouseLeave(parentElement, childElement)
-	{
-		$(parentElement).mouseenter(function(evt) {
-			childElement.fadeIn({complete: function() {
-				$(this).css({"visibility":"visible"});
-				$(this).css({"display":"inline"});
-			}});
-		});
+            byteArrays.push(byteArray);
+        }
 
-		$(parentElement).mouseleave(function(evt) {
-			// fade out without setting display to none
-			childElement.fadeOut({complete: function() {
-				// fade out uses hide() function, but it may change
-				// the size of the parent element
-				// so this is a workaround to prevent resize
-				// due to display: "none"
-				$(this).css({"visibility":"hidden"});
-				$(this).css({"display":"inline"});
-			}});
-		});
-	}
+        return byteArrays;
+    }
+
+    /**
+     * Detects browser and its version.
+     * This function is implemented as an alternative to the deprecated jQuery.browser object.
+     *
+     * @return {object} browser information as an object
+     */
+    var detectBrowser = function() {
+        var browser = {};
+        var uagent = navigator.userAgent.toLowerCase();
+
+        browser.firefox = /mozilla/.test(uagent) &&
+            /firefox/.test(uagent);
+
+        browser.mozilla = browser.firefox; // this is just an alias
+
+        browser.chrome = /webkit/.test(uagent) &&
+            /chrome/.test(uagent);
+
+        browser.safari = /applewebkit/.test(uagent) &&
+            /safari/.test(uagent) && !/chrome/.test(uagent);
+
+        browser.opera = /opera/.test(uagent);
+
+        browser.msie = /msie/.test(uagent);
+
+        browser.version = "";
+
+        // check for IE 11
+        if (!(browser.msie ||
+            browser.firefox ||
+            browser.chrome ||
+            browser.safari ||
+            browser.opera)) {
+            // TODO probably we need to update this for future IE versions
+            if (/trident/.test(uagent)) {
+                browser.msie = true;
+                browser.version = 11;
+            }
+        }
+
+        if (browser.version === "") {
+            for (var x in browser) {
+                if (browser[x]) {
+                    browser.version = uagent.match(new RegExp("(" + x + ")( |/)([0-9]+)"))[3];
+                    break;
+                }
+            }
+        }
+
+        return browser;
+    };
+
+    /**
+     * Retrieves the page origin from the global window object. This function is
+     * introduced to eliminate cross-browser issues (window.location.origin is
+     * undefined for IE)
+     */
+    var getOrigin = function() {
+        var origin = window.location.origin;
+
+        if (!origin) {
+            origin = window.location.protocol + "//" +
+                window.location.hostname +
+                (window.location.port ? ':' + window.location.port : '');
+        }
+
+        return origin;
+    };
+
+    var sortByAttribute = function(objs, attrName) {
+        function compare(a, b) {
+            if (a[attrName] < b[attrName]) {
+                return -1;
+            }
+            if (a[attrName] > b[attrName]) {
+                return 1;
+            }
+            return 0;
+        }
+
+        objs.sort(compare);
+        return objs;
+    };
+
+    /**
+     * Replaces problematic characters with an underscore for the given string.
+     * Those characters cause problems with the properties of an HTML object,
+     * especially for the id and class properties.
+     *
+     * @param property  string to be modified
+     * @return {string} safe version of the given string
+     */
+    var safeProperty = function(property) {
+        return property.replace(/[^a-zA-Z0-9-]/g, '_');
+    };
+
+    /**
+     * Hides the child html element on mouse leave, and shows on
+     * mouse enter. This function is designed to hide a child
+     * element within a parent element.
+     *
+     * @param parentElement target of mouse events
+     * @param childElement  element to show/hide
+     */
+    function autoHideOnMouseLeave(parentElement, childElement) {
+        $(parentElement).mouseenter(function(evt) {
+            childElement.fadeIn({
+                complete: function() {
+                    $(this).css({"visibility": "visible"});
+                    $(this).css({"display": "inline"});
+                }
+            });
+        });
+
+        $(parentElement).mouseleave(function(evt) {
+            // fade out without setting display to none
+            childElement.fadeOut({
+                complete: function() {
+                    // fade out uses hide() function, but it may change
+                    // the size of the parent element
+                    // so this is a workaround to prevent resize
+                    // due to display: "none"
+                    $(this).css({"visibility": "hidden"});
+                    $(this).css({"display": "inline"});
+                }
+            });
+        });
+    }
 
     function swapElement(array, indexA, indexB) {
         var tmp = array[indexA];
@@ -325,41 +387,37 @@ cbio.util = (function() {
         array[indexB] = tmp;
     }
 
-	/**
-	 * Returns the content window for the given target frame.
-	 *
-	 * @param id    id of the target frame
-	 */
-	function getTargetWindow(id)
-	{
-		var frame = document.getElementById(id);
-		var targetWindow = frame;
+    /**
+     * Returns the content window for the given target frame.
+     *
+     * @param id    id of the target frame
+     */
+    function getTargetWindow(id) {
+        var frame = document.getElementById(id);
+        var targetWindow = frame;
 
-		if (frame.contentWindow)
-		{
-			targetWindow = frame.contentWindow;
-		}
+        if (frame.contentWindow) {
+            targetWindow = frame.contentWindow;
+        }
 
-		return targetWindow;
-	}
+        return targetWindow;
+    }
 
-	/**
-	 * Returns the content document for the given target frame.
-	 *
-	 * @param id    id of the target frame
-	 */
-	function getTargetDocument(id)
-	{
-		var frame = document.getElementById(id);
-		var targetDocument = frame.contentDocument;
+    /**
+     * Returns the content document for the given target frame.
+     *
+     * @param id    id of the target frame
+     */
+    function getTargetDocument(id) {
+        var frame = document.getElementById(id);
+        var targetDocument = frame.contentDocument;
 
-		if (!targetDocument && frame.contentWindow)
-		{
-			targetDocument = frame.contentWindow.document;
-		}
+        if (!targetDocument && frame.contentWindow) {
+            targetDocument = frame.contentWindow.document;
+        }
 
-		return targetDocument;
-	}
+        return targetDocument;
+    }
 
     function getLinkToPatientView(cancerStudyId, patientId) {
         return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
@@ -376,17 +434,15 @@ cbio.util = (function() {
      * @param qTipOpts qTip initialization options
      */
     function addTargetedQTip(target, qTipOpts) {
-        if(target) {
-	        // check if target[0] is SVG
-	        if (target[0] && target[0].ownerSVGElement)
-	        {
-		        target = target[0];
-	        }
-	        // check if target[0][0] is SVG
-	        else if (target[0] && target[0][0] && target[0][0].ownerSVGElement)
-	        {
-		        target = target[0][0];
-	        }
+        if (target) {
+            // check if target[0] is SVG
+            if (target[0] && target[0].ownerSVGElement) {
+                target = target[0];
+            }
+            // check if target[0][0] is SVG
+            else if (target[0] && target[0][0] && target[0][0].ownerSVGElement) {
+                target = target[0][0];
+            }
 
             $(target).off('mouseenter', qTipMouseEnterHandler);
             $(target).one('mouseenter', {qTipOpts: qTipOpts}, qTipMouseEnterHandler);
@@ -409,8 +465,7 @@ cbio.util = (function() {
         $(this).qtip(opts);
     }
 
-    function baseMutationMapperOpts()
-    {
+    function baseMutationMapperOpts() {
         return {
             proxy: {
                 // default pdb proxy are now configured for a separate pdb data source
@@ -433,7 +488,7 @@ cbio.util = (function() {
             }
         };
     }
-    
+
     /**
      * Converts the given string to title case format. Also replaces each
      * underdash with a space.
@@ -441,12 +496,10 @@ cbio.util = (function() {
      * TODO: Need to remove the same function under network-visualization.js
      * @param source    source string to be converted to title case
      */
-    function toTitleCase(source)
-    {
+    function toTitleCase(source) {
         var str;
 
-        if (source == null)
-        {
+        if (source == null) {
             return source;
         }
 
@@ -465,14 +518,11 @@ cbio.util = (function() {
 
         titleCase.push(str.charAt(0).toUpperCase());
 
-        for (var i = 1; i < str.length; i++)
-        {
-            if (str.charAt(i-1) == ' ')
-            {
+        for (var i = 1; i < str.length; i++) {
+            if (str.charAt(i - 1) == ' ') {
                 titleCase.push(str.charAt(i).toUpperCase());
             }
-            else
-            {
+            else {
                 titleCase.push(str.charAt(i));
             }
         }
@@ -489,20 +539,18 @@ cbio.util = (function() {
      * @param toReplace     string to be replaced with the matched string
      * @return              modified version of the source string
      */
-    function replaceAll(source, toFind, toReplace)
-    {
+    function replaceAll(source, toFind, toReplace) {
         var target = source;
         var index = target.indexOf(toFind);
 
-        while (index != -1)
-        {
+        while (index != -1) {
             target = target.replace(toFind, toReplace);
             index = target.indexOf(toFind);
         }
 
         return target;
     }
-    
+
     //Get hotspot description. TODO: add type as parameter for different source of hotspot sources.
     function getHotSpotDesc() {
         //Single quote attribute is not supported in mutation view Backbone template.
@@ -518,7 +566,7 @@ cbio.util = (function() {
             "Explore all mutations at " +
             "<a href=\"http://cancerhotspots.org/\" target=\"_blank\">http://cancerhotspots.org/</a>.";
     }
-    
+
     /**
      * This function is used to handle outliers in the data, which will squeeze most of the data to only few bars in the bar chart.
      * It calculates boundary values from the box plot of input array, and that would enable the data to be displayed evenly.
@@ -529,13 +577,14 @@ cbio.util = (function() {
 
         // Copy the values, rather than operating on references to existing values
         var values = [], smallDataFlag = false;
-        _.each(data, function(item){
-            if($.isNumeric(item))
+        _.each(data, function(item) {
+            if ($.isNumeric(item)) {
                 values.push(Number(item));
+            }
         });
 
         // Then sort
-        values.sort(function (a, b) {
+        values.sort(function(a, b) {
             return a - b;
         });
 
@@ -547,38 +596,72 @@ cbio.util = (function() {
         // Likewise for q3. 
         var q3 = values[(Math.ceil((values.length * (3 / 4))) > values.length - 1 ? values.length - 1 : Math.ceil((values.length * (3 / 4))))];
         var iqr = q3 - q1;
-        if(values[Math.ceil((values.length * (1 / 2)))] < 0.001)
+        if (values[Math.ceil((values.length * (1 / 2)))] < 0.001) {
             smallDataFlag = true;
+        }
         // Then find min and max values
         var maxValue, minValue;
-        if(q3 < 1){
+        if (q3 < 1) {
             maxValue = Number((q3 + iqr * 1.5).toFixed(2));
             minValue = Number((q1 - iqr * 1.5).toFixed(2));
-        }else{
+        } else {
             maxValue = Math.ceil(q3 + iqr * 1.5);
             minValue = Math.floor(q1 - iqr * 1.5);
         }
-        if(minValue < values[0])minValue = values[0];
-        if(maxValue > values[values.length - 1])maxValue = values[values.length - 1];
+        if (minValue < values[0]) {
+            minValue = values[0];
+        }
+        if (maxValue > values[values.length - 1]) {
+            maxValue = values[values.length - 1];
+        }
         //provide the option to choose min and max values from the input array
-        if(inArrayFlag){
+        if (inArrayFlag) {
             var i = 0;
-            if(values.indexOf(minValue) === -1){
-                while(minValue > values[i] && minValue > values[i+1]){
+            if (values.indexOf(minValue) === -1) {
+                while (minValue > values[i] && minValue > values[i + 1]) {
                     i++;
                 }
-                minValue = values[i+1];
+                minValue = values[i + 1];
             }
             i = values.length - 1;
-            if(values.indexOf(maxValue) === -1){
-                while(maxValue < values[i] && maxValue < values[i-1]){
+            if (values.indexOf(maxValue) === -1) {
+                while (maxValue < values[i] && maxValue < values[i - 1]) {
                     i--;
                 }
-                maxValue = values[i-1];
+                maxValue = values[i - 1];
             }
         }
-        
+
         return [minValue, maxValue, smallDataFlag];
+    }
+
+    function getDatahubStudiesList() {
+        var DATAHUB_GIT_URL =
+            'https://api.github.com/repos/cBioPortal/datahub/contents/public';
+        var def = new $.Deferred();
+
+        $.getJSON(DATAHUB_GIT_URL, function(data) {
+            var studies = {};
+            if (_.isArray(data)) {
+                _.each(data, function(fileInfo) {
+                    if (_.isObject(fileInfo) &&
+                        fileInfo.type === 'file' &&
+                        _.isString(fileInfo.name)) {
+                        var fileName = fileInfo.name.split('.tar.gz');
+                        if (fileName.length > 0) {
+                            studies[fileName[0]] = {
+                                name: fileName[0],
+                                htmlURL: fileInfo.html_url
+                            };
+                        }
+                    }
+                })
+            }
+            def.resolve(studies);
+        }).fail(function(error) {
+            def.reject(error);
+        });
+        return def.promise();
     }
     
     return {
@@ -589,15 +672,15 @@ cbio.util = (function() {
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
-	    b64ToByteArrays: b64ToByteArrays,
+        b64ToByteArrays: b64ToByteArrays,
         browser: detectBrowser(), // returning the browser object, not the function itself
         getWindowOrigin: getOrigin,
         sortByAttribute: sortByAttribute,
         safeProperty: safeProperty,
         autoHideOnMouseLeave: autoHideOnMouseLeave,
         swapElement: swapElement,
-	    getTargetWindow: getTargetWindow,
-	    getTargetDocument: getTargetDocument,
+        getTargetWindow: getTargetWindow,
+        getTargetDocument: getTargetDocument,
         getLinkToPatientView: getLinkToPatientView,
         getLinkToSampleView: getLinkToSampleView,
         addTargetedQTip: addTargetedQTip,
@@ -605,7 +688,10 @@ cbio.util = (function() {
         toTitleCase: toTitleCase,
         getHotSpotDesc: getHotSpotDesc,
         replaceAll: replaceAll,
-        findExtremes: findExtremes
+        findExtremes: findExtremes,
+        deepCopyObject: deepCopyObject,
+        makeCachedPromiseFunction: makeCachedPromiseFunction,
+        getDatahubStudiesList: getDatahubStudiesList
     };
 
 })();

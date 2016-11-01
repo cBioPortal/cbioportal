@@ -20,19 +20,26 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.cbioportal.persistence.MutationRepository;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.EnrichmentsAnalysisUtil;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
-import org.mskcc.cbio.portal.util.XssRequestWrapper;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.EnrichmentsAnalysisUtil;
+import org.mskcc.cbio.portal.util.SpringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Calculate over representation scores
@@ -44,6 +51,31 @@ public class EnrichmentsJSON extends HttpServlet  {
     private final int bin = 3000; //size of genes for each thread
     private final JsonNodeFactory factory = JsonNodeFactory.instance;
     private final ArrayNode result = new ArrayNode(factory);
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    /**
+     * Initializes the servlet.
+     */
+    public void init() throws ServletException {
+        super.init();
+        accessControl = SpringUtil.getAccessControl();
+    }
+
+    @Autowired
+    private MutationRepository mutationRepository;
+
+    @Autowired
+    private MutationModelConverter mutationModelConverter;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+                config.getServletContext());
+        accessControl = SpringUtil.getAccessControl();
+    }
 
     /**
      * Handles HTTP GET Request.
@@ -68,8 +100,18 @@ public class EnrichmentsJSON extends HttpServlet  {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         try {
+        	CancerStudy cancerStudy = null;
             //Extract parameters
             String cancerStudyId = httpServletRequest.getParameter("cancer_study_id");
+			if (cancerStudyId != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
             String _alteredCaseList = httpServletRequest.getParameter("altered_case_id_list");
             String[] alteredCaseList = _alteredCaseList.split("\\s+");
             String _unalteredCaseList = httpServletRequest.getParameter("unaltered_case_id_list");
@@ -93,8 +135,6 @@ public class EnrichmentsJSON extends HttpServlet  {
             String gpStableId = gp.getStableId();
             String profileType = gp.getGeneticAlterationType().toString();
             
-            //Get cancer study internal id (int)
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             int cancerStudyInternalId = cancerStudy.getInternalId();
 
             //Get Internal Sample Ids (int)
@@ -145,7 +185,13 @@ public class EnrichmentsJSON extends HttpServlet  {
             if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                 final List<Integer> sampleIds = new ArrayList<>(alteredSampleIds);
                 sampleIds.addAll(unalteredSampleIds);
-                final HashMap mutHm = DaoMutation.getSimplifiedMutations(gpId, sampleIds, entrezGeneIds);
+                List<Integer> intEntrezGeneIds = new ArrayList<>(entrezGeneIds.size());
+                for (Long entrezGeneId : entrezGeneIds) {
+                    intEntrezGeneIds.add(entrezGeneId.intValue());
+                }
+                final Map mutHm = mutationModelConverter.convertSampleIdAndEntrezGeneIdToMap(
+                        mutationRepository.getSimplifiedMutations(sampleIds, intEntrezGeneIds, gpId));
+
 
                 //multi-threading settings
                 int nThread = (int)Math.floor(entrezGeneIds.size() / bin) + 1;
@@ -245,7 +291,7 @@ public class EnrichmentsJSON extends HttpServlet  {
             for (ObjectNode _result_node : _result) {
                 result.add(_result_node);
             }
-
+            
             //return/write back result
             ObjectMapper mapper = new ObjectMapper();
             httpServletResponse.setContentType("application/json");

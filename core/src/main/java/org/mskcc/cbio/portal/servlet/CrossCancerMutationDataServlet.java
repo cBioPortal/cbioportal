@@ -37,13 +37,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;
 import org.owasp.validator.html.PolicyException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -66,7 +67,8 @@ public class CrossCancerMutationDataServlet extends HttpServlet
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
-    private MutationDataUtils mutationDataUtils = new MutationDataUtils();
+    @Autowired
+    private MutationDataUtils mutationDataUtils;
 
     public MutationDataUtils getMutationDataUtils() {
         return mutationDataUtils;
@@ -85,6 +87,13 @@ public class CrossCancerMutationDataServlet extends HttpServlet
     public void init() throws ServletException {
         super.init();
         accessControl = SpringUtil.getAccessControl();
+    }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+                config.getServletContext());
     }
 
 	protected void doGet(HttpServletRequest request,

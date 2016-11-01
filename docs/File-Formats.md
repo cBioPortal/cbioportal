@@ -15,6 +15,7 @@
     * [Timeline Data](#timeline-data)
     * [Gistic Data](#gistic-data)
     * [Mutsig Data](#mutsig-data)
+    * [Gene Panel Data](#gene-panel-data)
 
 # Introduction
 
@@ -73,7 +74,7 @@ The file is comprised of the following columns in the order specified:
 
 1. **type_of_cancer**: The cancer type abbreviation, e.g., "brca".
 2. **name**: The name of the cancer type, e.g., "Breast Invasive Carcinoma".
-3. **clinical_trial_keywords**: A comma separated list of keywords used to help associated clinical trial data with this cancer study, e.g., "breast,breast invasive".
+3. **clinical_trial_keywords**: A comma separated list of keywords used to identify this study, e.g., "breast,breast invasive".
 4. **dedicated_color**: CSS color name of the color associated with this cancer study, e.g., "HotPink". See [this list](https://www.w3.org/TR/css3-color/#svg-color) for supported names, and follow the [awareness ribbons](http://en.wikipedia.org/wiki/List_of_awareness_ribbons) color schema. This color is associated with the cancer study on various web pages within the cBioPortal.
 5. **parent_type_of_cancer**:  The `type_of_cancer` field of the cancer type of which this is a subtype, e.g., "Breast". :information_source: : you can set parent to `tissue`, which is the reserved word to place the given cancer type at "root" level in the "studies oncotree" that will be generated in the homepage (aka query page) of the portal. 
 
@@ -155,6 +156,11 @@ The following columns are used by the study view as well as the patient view. In
     - In the patient view, DiseaseFree creates a green label, Recurred/Progressed a red label.
 - **DFS_MONTHS**: Disease free (months) since initial treatment
 
+These columns, when provided, add additional information to the patient description in the header:
+- **PATIENT_DISPLAY_NAME**: Patient display name (string)
+- **GENDER** or **SEX**: Gender or sex of the patient (string)
+- **AGE**: Age at which the condition or disease was first diagnosed, in years (number)
+
 Optional attributes:
 - **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
 
@@ -181,25 +187,30 @@ The following columns are required if you want the [pan-cancer summary statistic
 - **CANCER_TYPE**: Cancer Type
 - **CANCER_TYPE_DETAILED**: Cancer Type Detailed, a sub-type of the specified CANCER_TYPE
 
-The following columns affect the header of the patient view by adding text to the samples:
+The following columns affect the header of the patient view by adding text to the samples in the header:
+- **SAMPLE_DISPLAY_NAME**: displayed in addition to the ID
+- **TYPE_OF_CANCER**: Overrides CANCER_TYPE in the header
+- **DETAILED_CANCER_TYPE**: Overrides CANCER_TYPE_DETAILED in the header
 - **KNOWN_MOLECULAR_CLASSIFIER**
-- **GLEASON_SCORE**
-- **GLEASON_SCORE_1** and **GLEASON_SCORE_2**: if both are defined, overwrites GLEASON_SCORE
+- **TUMOR_SITE**
+- **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE depending on sample type
+- **SAMPLE_CLASS**
+- **GLEASON_SCORE**: Radical prostatectomy Gleason score for prostate cancer
 - **HISTOLOGY**
 - **TUMOR_STAGE_2009**
 - **TUMOR_GRADE**
-- **ETS/RAF/SPINK1_STATUS**
-- **TMPRSS2-ERG_FUSION_STATUS**
-- **ERG-FUSION_ACGH**
+- **ETS_RAF_SPINK1_STATUS**
+- **TMPRSS2_ERG_FUSION_STATUS**
+- **ERG_FUSION_ACGH**
 - **SERUM_PSA**
 - **DRIVER_MUTATIONS**
 
-The following columns affect the [Timeline data](#timeline-data) visualization:
+The following columns additionally affect the [Timeline data](#timeline-data) visualization:
 - **OTHER_SAMPLE_ID**: sometimes the timeline data (see the [timeline data section](#timeline-data)) will not have the SAMPLE_ID but instead an alias to the sample (in the field `SPECIMEN_REFERENCE_NUMBER`). To ensure that the timeline data field `SPECIMEN_REFERENCE_NUMBER` is correctly linked to this sample, be sure to add this column `OTHER_SAMPLE_ID` as an attribute to your sample attributes file.  
-- **SAMPLE_TYPE**: gives sample icon in the timeline a color. 
-    - If set to `recurrence`, `progressed`, `progression` or `recurred`: orange
+- **SAMPLE_TYPE**, **TUMOR_TISSUE_SITE** or **TUMOR_TYPE**: gives sample icon in the timeline a color.
+    - If set to `recurrence`, `recurred`, `progression` or `progressed`: orange
     - If set to `metastatic` or `metastasis`: red
-    - Otherwise: black
+    - If set to `primary` or otherwise: black
 
 Optional attributes
 - **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute you have tracked and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
@@ -231,6 +242,7 @@ The meta file is comprised of the following fields:
 6. **profile_name**: A name for the discrete copy number data, e.g., "Putative copy-number alterations from GISTIC"
 7. **profile_description**: A description of the copy number data, e.g., "Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification."
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 ##### Example
 An example metadata file could be named meta_CNA.txt and its contents could be:
@@ -286,6 +298,7 @@ The continuous copy number metadata file should contain the following fields:
 6. **profile_name**: A name for the copy number data, e.g., "copy-number values".
 7. **profile_description**: A description of the copy number data, e.g., "copy-number values for each gene (from Affymetrix SNP6).".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 cBioPortal also supports log2 copy number data. If your data is in log2, change the following fields:
 
@@ -325,6 +338,7 @@ The segmented metadata file should contain the following fields:
 4. **reference_genome_id**: Reference genome version. Supported values: "hg19"
 5. **description**: A description of the segmented data, e.g., "Segment data for the XYZ cancer study.".
 6. **data_filename**: &lt;your datafile&gt;
+7. **gene_panel**: optional gene panel stable id
 
 #### Example:
 An example metadata file, e.g. meta_cna_seg.txt, would be:
@@ -372,6 +386,7 @@ The expression metadata file should contain the following fields:
 6. **profile_name**: A name for the expression data, e.g., "mRNA expression (microarray)".
 7. **profile_description**: A description of the expression data, e.g., "Expression levels (Agilent microarray).".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 #### Supported stable_id values for MRNA_EXPRESSION
 For historical reasons, cBioPortal expects the `stable_id` to be one of those listed in the following static set.
@@ -485,7 +500,8 @@ The mutation metadata file should contain the following fields:
 6. **profile_name**: A name for the mutation data, e.g., "Mutations".
 7. **profile_description**: A description of the mutation data, e.g., "Mutation data from whole exome sequencing.".
 8. **data_filename**: &lt;your data file&gt;
-9. **swissprot_identifier (optional)**: either `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
+9. **gene_panel**: optional gene panel stable id
+10. **swissprot_identifier (optional)**: either `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
 
 An example metadata file would be:
 
@@ -580,6 +596,7 @@ The methylation metadata file should contain the following fields:
 6. **profile_name**: A name for the methylation data, e.g., "Methlytation (HM27)".
 7. **profile_description**: A description of the methlytation data, e.g., "Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 
 #### Example
@@ -617,6 +634,7 @@ The RPPA metadata file should contain the following fields:
 6. **profile_name**: A name for the RPPA data, e.g., "RPPA data".
 7. **profile_description**: A description of the RPPA data, e.g., "RPPA levels.".
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 An example metadata file would be:
 ```
@@ -674,6 +692,7 @@ The fusion metadata file should contain the following fields:
 6. **profile_name**: A name for the fusion data, e.g., "Fusions.".
 7. **profile_description**: A description of the fusion data.
 8. **data_filename**: &lt;your datafile&gt;
+9. **gene_panel**: optional gene panel stable id
 
 #### Example
 An example metadata file would be:
@@ -975,3 +994,52 @@ rank<TAB>gene<TAB>N<TAB>n<TAB>p<TAB>q
 2<TAB>PIK3CA<TAB>3200341<TAB>351<TAB><1.00e-15<TAB><2.36e-12
 ...
 ```
+
+## Gene Panel Data
+Gene panel information can assign a list of genes that a genetic profile should consist of for a specific sample.
+
+#### Gene Panel File
+The gene panel file follows the format of a meta file with the following fields:
+1. **stable_id**: The name of the gene panel. This should be unique across all studies, as gene panels can be globally applied to any sample and any genetic profile.
+2. **description**: A descripion of the gene panel.
+3. **gene_list**: Tab separated genes, represented either by all hugo symbols or all entrez_gene_ids.
+
+An example gene panel file would be:
+```
+stable_id: IMPACT410
+description: Targeted (410 cancer genes) sequencing of various tumor types via MSK-IMPACT on Illumina HiSeq sequencers.
+gene_list: ABL1    ACVR1   AKT1    AKT3 ...
+```
+
+#### Sample-Profile Matrix
+
+The second component to gene panel data is associating samples and profile to the panel which applies. The following column is required :
+
+- ***SAMPLE_ID***: Sample Id from the study 
+
+And:
+- An additional column for each profile in the dataset using the stable_id as the column header.
+
+For each sample-profile combination, a gene panel should be specified by using the stable_id from the gene panel file, or NA to reflect whole exome.
+
+#### Example
+An example sample-profile matrix file would look like:
+
+```
+SAMPLE_ID<TAB>cna<TAB>mutations<TAB>...
+SAMPLE_ID_1<TAB>IMPACT410<TAB>IMPACT410<TAB> ...
+SAMPLE_ID_2<TAB>NA<TAB>NA<TAB> ...
+...
+```
+
+#### Meta file
+The sample-profile matrix requires a meta file should contain the following fields:
+
+1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
+2. **data_filename**: &lt;your datafile&gt
+
+If all samples in a genetic profile will have the same gene panel associated with them, an optional field can be specified in the meta data file of that datatype called **gene_panel**. If this is present, the sample-profile matrix will automatically be generated and the gene panel applied if it exists in the database already.
+
+If all profiles for a sample will have the sample gene panel, in the clinical data a column can be added called **GENE_PANEL** which can specify the gene panel stable id.
+
+In both of these cases, the sample-profile matrix file does not need to be provided in order to associate gene panel information with a sample-profile.

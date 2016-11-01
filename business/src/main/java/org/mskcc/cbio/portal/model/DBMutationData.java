@@ -5,12 +5,14 @@
  */
 package org.mskcc.cbio.portal.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 
 /**
  *
  * @author abeshoua
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DBMutationData extends DBProfileData implements Serializable {
     public String sequencing_center;
     public String mutation_status;
@@ -32,4 +34,6 @@ public class DBMutationData extends DBProfileData implements Serializable {
     public String variant_read_count_tumor;
     public String reference_read_count_normal;
     public String variant_read_count_normal;
+    public String cosmic_count;
+    public String keyword;
 }

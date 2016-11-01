@@ -66,13 +66,41 @@
 	   </property>
 	</bean>
 
-	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
-	    <property name="arguments">
-	        <list>
-	            <ref bean="businessDataSource"/>
-	        </list>
-	   </property>
-	</bean>
+    
+    <!-- define the SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="businessDataSource" />
+        <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+    </bean>
+    
+    <!-- scan for mappers and let them be autowired -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />
+    </bean>
+    
+    <!-- these are required to get properly autowired mappers into our service classes -->
+    <!-- when creating services via manually loading this context file -->
+    <bean id="entityMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
+        <property name="entityMapper" ref="entityMapper" />
+    </bean>
+    <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
+        <property name="entityAttributeMapper" ref="entityAttributeMapper" />
+    </bean>
+    
+    <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
+    <context:component-scan base-package="org.mskcc.cbio.portal.service" />
+     <context:component-scan base-package="org.cbioportal.persistence" />
+     <context:component-scan base-package="org.cbioportal.service" />
+    
+    <!-- enable autowire -->
+    <context:annotation-config />
 	
 </beans>

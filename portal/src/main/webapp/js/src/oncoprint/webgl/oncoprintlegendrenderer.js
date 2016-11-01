@@ -81,7 +81,7 @@ var OncoprintLegendView = (function() {
 	    var rule_set_group = svgfactory.group(0,y);
 	    everything_group.appendChild(rule_set_group);
 	    (function addLabel() {
-		if (rule_sets[i].legend_label && rule_sets[i].legend_label.length > 0) {
+		if ((typeof rule_sets[i].legend_label !== 'undefined') && rule_sets[i].legend_label.length > 0) {
 		    var label = svgfactory.text(rule_sets[i].legend_label, 0, 0, 12, 'Arial', 'bold');
 		    rule_set_group.appendChild(label);
 		    svgfactory.wrapText(label, rule_start_x);

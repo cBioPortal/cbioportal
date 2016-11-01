@@ -60,6 +60,7 @@ public class ImportTabDelimData {
     private int entriesSkipped = 0;
     private int nrExtraRecords = 0;
     private Set<String> arrayIdSet = new HashSet<String>();
+    private String genePanel;
 
     /**
      * Constructor.
@@ -71,10 +72,11 @@ public class ImportTabDelimData {
      * 
      * @deprecated : TODO shall we deprecate this feature (i.e. the targetLine)? 
      */
-    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId) {
+    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanel) {
         this.mutationFile = dataFile;
         this.targetLine = targetLine;
         this.geneticProfileId = geneticProfileId;
+        this.genePanel = genePanel;
     }
 
     /**
@@ -83,9 +85,10 @@ public class ImportTabDelimData {
      * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param geneticProfileId GeneticProfile ID.
      */
-    public ImportTabDelimData(File dataFile, int geneticProfileId) {
+    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanel) {
         this.mutationFile = dataFile;
         this.geneticProfileId = geneticProfileId;
+        this.genePanel = genePanel;
     }
 
     /**
@@ -158,7 +161,12 @@ public class ImportTabDelimData {
 	                continue;
 	           }
 	           if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
-	               DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
+                                    if (genePanel != null) {
+                                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
+                                    }
+                                    else {
+                                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
+                                    }
 	           }
 	           orderedSampleList.add(sample.getInternalId());
 	        }
@@ -186,7 +194,7 @@ public class ImportTabDelimData {
 	                existingCnaEvents.put(event, event);
 	            }
 	            MySQLbulkLoader.bulkLoadOn();
-	        }
+	        }                
 	        
 	        int lenParts = parts.length;
 	        
@@ -225,8 +233,7 @@ public class ImportTabDelimData {
         }
         finally {
 	        buf.close();
-        }
-        
+        }                
     }
     
     private boolean parseLine(String line, int nrColumns, int sampleStartIndex, 

@@ -41,6 +41,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.servlet.http.*;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import java.io.*;
@@ -59,6 +60,15 @@ import java.lang.Float;
 
 public class GetAlterationDataJSON extends HttpServlet {
 
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /**
      * Handles HTTP GET Request.
      *
@@ -94,11 +104,22 @@ public class GetAlterationDataJSON extends HttpServlet {
         
         String[] geneIdList = rawGeneIdList.split("\\s+");
         String profileId = httpServletRequest.getParameter("profile_id");
-
+        CancerStudy cancerStudy = null;
 
         try {
-
+        	if (cancerStudyIdentifier != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
             GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
+            if(final_gp.getCancerStudyId() != cancerStudy.getInternalId()) {
+            	return;
+            }
             List<String> stableSampleIds = CoExpUtil.getSampleIds(sampleSetId, patientIdsKey);
             List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(final_gp.getCancerStudyId(), stableSampleIds);
 

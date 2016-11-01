@@ -6,10 +6,11 @@
 
 
 	<!-- 
-		The principle here is a simple one: it's initialized with a list of lists of strings. Each starts with
-	    a class name and set of string arguments, which are then mapped to a call to a static main(String[] args)
-	    method in that class. However, we run then all within a single VM and with a transactional system set up
-	    for data access. 
+        The principle here is a simple one: it's initialized with a list of lists of strings. Each starts with
+        a class name and set of string arguments, which are then mapped to a call to a run() method in the class (given 
+        in the first string argument) which is initialized with the arguments built up by the subsequent arguments in the 
+        next <value> tags. The class org.mskcc.cbio.portal.util.TransactionalScripts will run then all within a single VM 
+        and a single DB transaction. 
 	    
 	    We also have used Maven variables here for testing, but in reality, these will need to be real file 
 	    names. 

@@ -38,7 +38,10 @@ import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +59,12 @@ public class MutationDataServlet extends HttpServlet
 {
 	private static final Logger logger = Logger.getLogger(MutationDataServlet.class);
 
-    private MutationDataUtils mutationDataUtils = new MutationDataUtils();
+	@Autowired
+    private MutationDataUtils mutationDataUtils;
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+    
 
     public MutationDataUtils getMutationDataUtils() {
         return mutationDataUtils;
@@ -65,6 +73,14 @@ public class MutationDataServlet extends HttpServlet
     public void setMutationDataUtils(MutationDataUtils mutationDataUtils) {
         this.mutationDataUtils = mutationDataUtils;
     }
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+				config.getServletContext());
+        accessControl = SpringUtil.getAccessControl();
+	}
 
     protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
@@ -95,10 +111,15 @@ public class MutationDataServlet extends HttpServlet
 
 			for (String profileId : geneticProfileList)
 			{
-				// add mutation data for each genetic profile
-				data.addAll(mutationDataUtils.getMutationData(profileId,
-					targetGeneList,
-					targetSampleList));
+				// Get the Genetic Profile
+				GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
+				CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId());
+				if (accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+					// add mutation data for each genetic profile
+					data.addAll(mutationDataUtils.getMutationData(profileId,
+						targetGeneList,
+						targetSampleList));
+				}
 			}
 		}
 		catch (DaoException e)

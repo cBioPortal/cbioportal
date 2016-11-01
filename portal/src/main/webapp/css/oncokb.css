@@ -2,7 +2,7 @@
     width: 24px;
     height: 24px;
     line-height: 24px;
-    background-image: url("../images/oncogenic.png");
+    background-image: url("../images/oncogenic_v2_09302016.png");
     -webkit-background-size: 200px;
     background-size: 200px;
     display: block !important;
@@ -308,7 +308,7 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     width: 16px;
     height: 16px;
     line-height: 16px;
-    background-image: url("../images/levels_colors.png");
+    background-image: url("../images/levels_colors_v2_09302016.png");
     background-size: 200px;
     display: inline-block !important;
     margin-top: 3px; }

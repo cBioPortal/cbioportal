@@ -147,8 +147,9 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         self.output_filename = output_filename
         self.max_level = logging.NOTSET
         self.closed = False
-        # get the directory name of the currently running script
-        self.template_dir = os.path.dirname(__file__)
+        # get the directory name of the currently running script,
+        # resolving any symlinks
+        self.template_dir = os.path.dirname(os.path.realpath(__file__))
         super(Jinja2HtmlHandler, self).__init__(*args, **kwargs)
 
     def emit(self, record):
@@ -235,11 +236,9 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, cancer_type_dict, clinical_attribute_dict,
-                 hugo_entrez_map, alias_entrez_map):
+    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map):
         """Represent a portal instance with the given dictionaries."""
         self.cancer_type_dict = cancer_type_dict
-        self.clinical_attribute_dict = clinical_attribute_dict
         self.hugo_entrez_map = hugo_entrez_map
         self.alias_entrez_map = alias_entrez_map
         self.entrez_set = set()
@@ -272,7 +271,7 @@ class Validator(object):
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
 
-    def __init__(self, study_dir, meta_dict, portal_instance, logger):
+    def __init__(self, study_dir, meta_dict, portal_instance, logger, relaxed_mode):
         """Initialize a validator for a particular data file.
 
         :param study_dir: the path at which the study files can be found
@@ -280,6 +279,8 @@ class Validator(object):
                          (such as stable id and data file name)
         :param portal_instance: a PortalInstance object for which to validate
         :param logger: logger instance for writing the log messages
+        :param relaxed_mode: relaxes validation of headerless clinical data to 
+                            prevent fast-failing
         """
         self.filename = os.path.join(study_dir, meta_dict['data_filename'])
         self.filenameShort = os.path.basename(self.filename)
@@ -297,6 +298,8 @@ class Validator(object):
             extra={'filename_': self.filename})
         self.line_count_handler = None
         self.meta_dict = meta_dict
+        self.relaxed_mode = relaxed_mode
+        self.fill_in_attr_defs = False
 
     def validate(self):
         """Validate the data file."""
@@ -340,10 +343,15 @@ class Validator(object):
                 return
 
             # parse start-of-file comment lines, if any
-            if not self.processTopLines(top_comments):
+            if not self.processTopLines(top_comments):                
                 self.logger.error(
                     'Invalid header comments, file cannot be parsed')
-                return
+                if not self.relaxed_mode:
+                    return
+                else:   
+                    self.logger.info('Ignoring missing or invalid header comments. '
+                        'Continuing with validation...')                    
+                    self.fill_in_attr_defs = True
 
             # read five data lines to detect quotes in the tsv file
             first_data_lines = []
@@ -372,12 +380,16 @@ class Validator(object):
                                      [header_line],
                                      delimiter='\t',
                                      quoting=csv.QUOTE_NONE,
-                                     strict=True).next()
+                                     strict=True).next()                                             
             if self.checkHeader(header_cols) > 0:
-                self.logger.error(
-                    'Invalid column header, file cannot be parsed')
-                return
-
+                if not self.relaxed_mode:
+                    self.logger.error(
+                        'Invalid column header, file cannot be parsed')                    
+                    return            
+                else:
+                    self.logger.warning('Ignoring invalid column header. '
+                        'Continuing with validation...')
+            
             # read through the data lines of the file
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
@@ -1272,34 +1284,161 @@ class ClinicalValidator(Validator):
     PROP_IS_PATIENT_ATTRIBUTE = None
     NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
     ALLOW_BLANKS = True
+    METADATA_LINES = ('display_name',
+                      'description',
+                      'datatype',
+                      'priority')
+
+    # attributes required to have certain properties because of hard-coded use
+    # TODO add unit tests for this functionality
+    PREDEFINED_ATTRIBUTES = {
+        'AGE': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'CANCER_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'CANCER_TYPE_DETAILED': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'DETAILED_CANCER_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'DFS_STATUS': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'DFS_MONTHS': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'DRIVER_MUTATIONS': {
+            'is_patient_attribute': '0'
+        },
+        'ERG_FUSION_ACGH': {
+            'is_patient_attribute': '0'
+        },
+        'ETS_RAF_SPINK1_STATUS': {
+            'is_patient_attribute': '0'
+        },
+        'GENDER': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'GLEASON_SCORE': {
+            'is_patient_attribute': '0'
+        },
+        'GLEASON_SCORE_1': {
+            'is_patient_attribute': '0'
+        },
+        'GLEASON_SCORE_2': {
+            'is_patient_attribute': '0'
+        },
+        'HISTOLOGY': {
+            'is_patient_attribute': '0'
+        },
+        'KNOWN_MOLECULAR_CLASSIFIER': {
+            'is_patient_attribute': '0'
+        },
+        'METASTATIC_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'OS_STATUS': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'OS_MONTHS': {
+            'is_patient_attribute': '1',
+            'datatype': 'NUMBER'
+        },
+        'OTHER_SAMPLE_ID': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'PATIENT_DISPLAY_NAME': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'PRIMARY_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_CLASS': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_DISPLAY_NAME': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SAMPLE_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'SERUM_PSA': {
+            'is_patient_attribute': '0'
+        },
+        'SEX': {
+            'is_patient_attribute': '1',
+            'datatype': 'STRING'
+        },
+        'TMPRSS2_ERG_FUSION_STATUS': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_GRADE': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TUMOR_STAGE_2009': {
+            'is_patient_attribute': '0'
+        },
+        'TUMOR_TISSUE_SITE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TUMOR_TYPE': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+        'TYPE_OF_CANCER': {
+            'is_patient_attribute': '0',
+            'datatype': 'STRING'
+        },
+    }
 
     def __init__(self, *args, **kwargs):
+        """Initialize the instance attributes of the data file validator."""
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.attr_defs = []
-        # keep track of original attribute definitions that are overriden by portal (i.e. have a 
-        # mismatch between file and portal). Here we keep track of definitions as found in file
-        self.attr_defs_overridden = []
-        self.newly_defined_attributes = set()
+        self.defined_attributes = set()
 
     def processTopLines(self, line_list):
 
         """Parse the the attribute definitions above the column header."""
 
-        LINE_NAMES = ('display_name',
-                      'description',
-                      'datatype',
-                      'priority')
-
         if not line_list:
-            self.logger.error(
-                'No data type definition headers found in clinical data file',
-                extra={'line_number': self.line_number})
+            if not self.relaxed_mode:
+                self.logger.warning(
+                    'No data type definition headers found in clinical data file',
+                    extra={'line_number': self.line_number})      
+            else:
+                self.logger.info('Ignoring missing or invalid data type definition '
+                    ' headers. Continuing with validation...')                
             return False
-        if len(line_list) != len(LINE_NAMES):
+
+        if len(line_list) != len(self.METADATA_LINES):
             self.logger.error(
                 '%d comment lines at start of clinical data file, expected %d',
                 len(line_list),
-                len(LINE_NAMES))
+                len(self.METADATA_LINES))
             return False
 
         # remove the # signs
@@ -1319,11 +1458,12 @@ class ClinicalValidator(Validator):
                 num_attrs = len(row)
                 attr_defs = [OrderedDict() for i in range(num_attrs)]
             elif len(row) != num_attrs:
-                self.logger.error(
-                    'Varying numbers of columns in clinical header (%d, %d)',
-                    num_attrs,
-                    len(row),
-                    extra={'line_number': line_index + 1})
+                if not self.relaxed_mode:
+                    self.logger.error(
+                        'Varying numbers of columns in clinical header (%d, %d)',
+                        num_attrs,
+                        len(row),
+                        extra={'line_number': line_index + 1})
                 return False
 
             for col_index, value in enumerate(row):
@@ -1332,14 +1472,15 @@ class ClinicalValidator(Validator):
                 if value.strip().lower() in self.NULL_VALUES:
                     self.logger.error(
                         'Empty %s field in clinical attribute definition',
-                        LINE_NAMES[line_index],
+                        self.METADATA_LINES[line_index],
                         extra={'line_number': line_index + 1,
                                'column_number': col_index + 1,
                                'cause': value})
                     invalid_values = True
-                if LINE_NAMES[line_index] in ('display_name', 'description'):
+                if self.METADATA_LINES[line_index] in ('display_name',
+                                                       'description'):
                     pass
-                elif LINE_NAMES[line_index] == 'datatype':
+                elif self.METADATA_LINES[line_index] == 'datatype':
                     VALID_DATATYPES = ('STRING', 'NUMBER', 'BOOLEAN')
                     if value not in VALID_DATATYPES:
                         self.logger.error(
@@ -1351,7 +1492,7 @@ class ClinicalValidator(Validator):
                                    'cause': value})
                         invalid_values = True
                         invalid_values = True
-                elif LINE_NAMES[line_index] == 'priority':
+                elif self.METADATA_LINES[line_index] == 'priority':
                     try:
                         if int(value) < 1:
                             raise ValueError()
@@ -1363,9 +1504,10 @@ class ClinicalValidator(Validator):
                                    'cause': value})
                         invalid_values = True
                 else:
-                    raise RuntimeError('Unknown clinical header line name')
+                    if not self.relaxed_mode:
+                        raise RuntimeError('Unknown clinical header line name')
 
-                attr_defs[col_index][LINE_NAMES[line_index]] = value
+                attr_defs[col_index][self.METADATA_LINES[line_index]] = value
 
         self.attr_defs = attr_defs
         return not invalid_values
@@ -1377,21 +1519,32 @@ class ClinicalValidator(Validator):
         num_errors = super(ClinicalValidator, self).checkHeader(cols)
 
         if self.numCols != len(self.attr_defs):
-            self.logger.error(
-                'Varying numbers of columns in clinical header (%d, %d)',
-                len(self.attr_defs),
-                len(self.cols),
-                extra={'line_number': self.line_number})
-            num_errors += 1
+             if not self.relaxed_mode:
+                self.logger.error(
+                    'Varying numbers of columns in clinical header (%d, %d)',
+                    len(self.attr_defs),
+                    len(self.cols),
+                    extra={'line_number': self.line_number})
+                num_errors += 1
+            
+        # fill in missing attr_defs data if in relaxed mode and clinical data is headerless
+        if self.fill_in_attr_defs:
+            self.logger.info('Filling in missing attribute properties for clinical data.')
+            missing_attr_defs = {}
+            for col_index, col_name in enumerate(cols):                    
+                missing_attr_defs[col_index] = {'display_name': col_name,
+                                         'description': col_name,
+                                         'datatype': 'STRING',
+                                         'priority': '1'}
+            self.attr_defs = missing_attr_defs            
         
         for col_index, col_name in enumerate(self.cols):
-            self.attr_defs_overridden.append({})
             if not col_name.isupper():
                 self.logger.warning(
                     "Clinical attribute name not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
-            # do not check the special ID columns as attributes against the db,
+            # do not check the special ID columns as attributes,
             # just parse them with the correct data type
             if col_name in ('PATIENT_ID', 'SAMPLE_ID'):
                 self.attr_defs[col_index] = {'display_name': '',
@@ -1399,55 +1552,41 @@ class ClinicalValidator(Validator):
                                              'datatype': 'STRING',
                                              'priority': '0'}
                 continue
-            # skip all further checks for this column if portal info is absent
-            if self.portal.clinical_attribute_dict is None:
-                continue
-            # look up how the attribute is defined in the portal
-            srv_attr_properties = self.portal.clinical_attribute_dict.get(
-                                      col_name)
-            if srv_attr_properties is None:
-                self.logger.warning(
-                    'New %s-level attribute will be added to the portal',
-                    {'0': 'sample', '1': 'patient'}[
-                            self.PROP_IS_PATIENT_ATTRIBUTE],
-                    extra={'line_number': self.line_number,
-                           'column_number': col_index + 1,
-                           'cause': col_name})
-                self.newly_defined_attributes.add(col_name)
-            # disallow homonymous patient-level and sample-level attributes,
-            # except for the patient ID by which samples reference a patient
-            elif col_name != 'PATIENT_ID' and (
-                    srv_attr_properties['is_patient_attribute'] !=
-                    self.PROP_IS_PATIENT_ATTRIBUTE):
-                self.logger.error(
-                    'Attribute is defined in the portal installation as a '
-                    '%s-level attribute',
-                    {'0': 'sample', '1': 'patient'}[
-                            srv_attr_properties['is_patient_attribute']],
-                    extra={'line_number': self.line_number,
-                           'column_number': col_index + 1,
-                           'cause': col_name, 
-                           'show_all_values': True})
-            else:
-                # compare values defined in the file with the existing ones
-                for attr_property in self.attr_defs[col_index]:
-                    value = self.attr_defs[col_index][attr_property]
-                    # store original property as found in file
-                    if value != srv_attr_properties[attr_property]:
-                        self.attr_defs_overridden[col_index][attr_property] = value
-                        self.logger.warning(
-                            "%s definition for attribute '%s' does not match "
-                            "the portal, and will be loaded as '%s'",
-                            attr_property,
-                            col_name,
-                            srv_attr_properties[attr_property],
-                            extra={'line_number': self.attr_defs[col_index].keys().index(attr_property) + 1,
-                                   'column_number': col_index + 1,
-                                   'cause': value})
-                        # continue validation assuming the value in the portal
-                        self.attr_defs[col_index][attr_property] = \
-                            srv_attr_properties[attr_property]
+            # check predefined (hard-coded) attribute definitions
+            if col_name in self.PREDEFINED_ATTRIBUTES:
+                for attr_property in self.PREDEFINED_ATTRIBUTES[col_name]:
+                    if attr_property == 'is_patient_attribute':
+                        expected_level = \
+                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                        if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
+                            self.logger.error(
+                                'Attribute must be a %s-level attribute',
+                                {'0': 'sample', '1': 'patient'}[expected_level],
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': col_name})
+                    # check pre-header metadata if applicable -- if these were
+                    # found missing or unparseable, `relaxed mode' has made
+                    # validation continue assuming all attributes to be
+                    # unformatted strings
+                    elif not self.fill_in_attr_defs:
+                        value = self.attr_defs[col_index][attr_property]
+                        expected_value = \
+                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                        if (value != expected_value and
+                                not self.fill_in_attr_defs):
+                            self.logger.error(
+                                "%s definition for attribute '%s' must be %s",
+                                attr_property,
+                                col_name,
+                                expected_value,
+                                extra={'line_number':
+                                                self.METADATA_LINES.index(
+                                                    attr_property) + 1,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
 
+            self.defined_attributes.add(col_name)
         return num_errors
 
     def checkLine(self, data):
@@ -1459,35 +1598,25 @@ class ClinicalValidator(Validator):
             value = ''
             if col_index < len(data):
                 value = data[col_index].strip()
-            
-            according_to_portal = ''
             data_type = self.attr_defs[col_index]['datatype']
-            if 'datatype' in self.attr_defs_overridden[col_index]:
-                # Extra info for existing fields to make it clear that the 
-                # check is being done based on the definition found in the portal:
-                according_to_portal = (" (nb: even though 'datatype' definition in file is %s, attribute is "
-                    "being validated as %s according to the portal's definition - see also previous "  
-                    "warning for this attribute)")%(self.attr_defs_overridden[col_index]['datatype'], data_type)
-            
+
             # if not blank, check if values match the datatype
             if value.strip().lower() in self.NULL_VALUES:
                 pass
             elif data_type == 'NUMBER':
                 if not self.checkFloat(value):
                     self.logger.error(
-                        'Value of attribute to be loaded as NUMBER is not a real number' + according_to_portal,
+                        'Value of numeric attribute is not a real number',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,
                                'cause': value})
             elif data_type == 'BOOLEAN':
-                # TODO: check whether these are the values understood by portal
                 VALID_BOOLEANS = ('TRUE', 'FALSE')
                 if not value in VALID_BOOLEANS:
                     self.logger.error(
-                        'Invalid value of attribute to be loaded as BOOLEAN, must be one '
-                        'of [%s]',
-                        ', '.join(VALID_BOOLEANS) + according_to_portal,
+                        'Value of boolean attribute must be one of [%s]',
+                        ', '.join(VALID_BOOLEANS),
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'column_name': col_name,
@@ -1589,13 +1718,13 @@ class PatientClinicalValidator(ClinicalValidator):
                        'column_number': self.cols.index('SAMPLE_ID'),
                        'cause': 'SAMPLE_ID'})
         # refuse to define attributes also defined in the sample-level file
-        for new_attribute in self.newly_defined_attributes:
-            if new_attribute in DEFINED_SAMPLE_ATTRIBUTES:
+        for attribute_id in self.defined_attributes:
+            if attribute_id in DEFINED_SAMPLE_ATTRIBUTES:
                 # log this as a file-aspecific error, using the base logger
                 self.logger.logger.error(
-                    'New clinical attribute defined both as sample-level and '
+                    'Clinical attribute is defined both as sample-level and '
                     'as patient-level',
-                    extra={'cause': new_attribute})
+                    extra={'cause': attribute_id})
         # warnings about missing optional columns
         if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
             self.logger.warning(
@@ -1611,6 +1740,8 @@ class PatientClinicalValidator(ClinicalValidator):
     def checkLine(self, data):
         """Check the values in a line of data."""
         super(PatientClinicalValidator, self).checkLine(data)
+        osstatus_is_deceased = False
+        osmonths_value = None
         for col_index, col_name in enumerate(self.cols):
             # treat cells beyond the end of the line as blanks,
             # super().checkLine() has already logged an error
@@ -1642,7 +1773,41 @@ class PatientClinicalValidator(ClinicalValidator):
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
-            # TODO: check the values for other documented columns
+            elif col_name == 'OS_STATUS':
+                if value == 'DECEASED':
+                    osstatus_is_deceased = True
+                elif (value.lower() not in self.NULL_VALUES and
+                        value not in ('LIVING', 'DECEASED')):
+                    self.logger.error(
+                            'Value in OS_STATUS column is not LIVING or '
+                            'DECEASED',
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+            elif col_name == 'DFS_STATUS':
+                if (value.lower() not in self.NULL_VALUES and
+                        value not in ('DiseaseFree',
+                                      'Recurred/Progressed',
+                                      'Recurred',
+                                      'Progressed')):
+                    self.logger.error(
+                            'Value in DFS_STATUS column is not DiseaseFree, '
+                            'Recurred/Progressed, Recurred or Progressed',
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+            elif col_name == 'OS_MONTHS':
+                osmonths_value = value
+
+        if osstatus_is_deceased and (
+                    osmonths_value is None or
+                    osmonths_value.lower() in self.NULL_VALUES):
+            if osmonths_value is None or osmonths_value == '':
+                osmonths_value = '<none>'
+            self.logger.error(
+                "OS_STATUS is 'DECEASED', but OS_MONTHS is not specified",
+                extra={'line_number': self.line_number,
+                       'cause': osmonths_value})
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""
@@ -1929,6 +2094,8 @@ class CancerTypeValidator(Validator):
 
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
+    # check this in the subclass to avoid emitting an error twice
+    ALLOW_BLANKS = True
 
     COLS = (
         'type_of_cancer',
@@ -1967,10 +2134,67 @@ class CancerTypeValidator(Validator):
             line_cancer_type = data[self.cols.index('type_of_cancer')].lower().strip()
             # check each column
             for col_index, field_name in enumerate(self.cols):
-                # TODO validate whether the color field is one of the
-                # keywords on https://www.w3.org/TR/css3-color/#svg-color
-                if field_name == 'parent_type_of_cancer':
-                    parent_cancer_type = data[col_index].lower().strip()
+                value = data[col_index].strip()
+                if value == '':
+                    self.logger.error(
+                            "Blank value in '%s' column",
+                            field_name,
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+                elif field_name == 'color':
+                    # validate whether the color field is one of the
+                    # keywords on https://www.w3.org/TR/css3-color/#svg-color
+                    if value.lower() not in [
+                            'aliceblue', 'antiquewhite', 'aqua', 'aquamarine',
+                            'azure', 'beige', 'bisque', 'black',
+                            'blanchedalmond', 'blue', 'blueviolet', 'brown',
+                            'burlywood', 'cadetblue', 'chartreuse', 'chocolate',
+                            'coral', 'cornflowerblue', 'cornsilk', 'crimson',
+                            'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod',
+                            'darkgray', 'darkgreen', 'darkgrey', 'darkkhaki',
+                            'darkmagenta', 'darkolivegreen', 'darkorange',
+                            'darkorchid', 'darkred', 'darksalmon',
+                            'darkseagreen', 'darkslateblue', 'darkslategray',
+                            'darkslategrey', 'darkturquoise', 'darkviolet',
+                            'deeppink', 'deepskyblue', 'dimgray', 'dimgrey',
+                            'dodgerblue', 'firebrick', 'floralwhite',
+                            'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite',
+                            'gold', 'goldenrod', 'gray', 'green', 'greenyellow',
+                            'grey', 'honeydew', 'hotpink', 'indianred',
+                            'indigo', 'ivory', 'khaki', 'lavender',
+                            'lavenderblush', 'lawngreen', 'lemonchiffon',
+                            'lightblue', 'lightcoral', 'lightcyan',
+                            'lightgoldenrodyellow', 'lightgray', 'lightgreen',
+                            'lightgrey', 'lightpink', 'lightsalmon',
+                            'lightseagreen', 'lightskyblue', 'lightslategray',
+                            'lightslategrey', 'lightsteelblue', 'lightyellow',
+                            'lime', 'limegreen', 'linen', 'magenta', 'maroon',
+                            'mediumaquamarine', 'mediumblue', 'mediumorchid',
+                            'mediumpurple', 'mediumseagreen', 'mediumslateblue',
+                            'mediumspringgreen', 'mediumturquoise',
+                            'mediumvioletred', 'midnightblue', 'mintcream',
+                            'mistyrose', 'moccasin', 'navajowhite', 'navy',
+                            'oldlace', 'olive', 'olivedrab', 'orange',
+                            'orangered', 'orchid', 'palegoldenrod', 'palegreen',
+                            'paleturquoise', 'palevioletred', 'papayawhip',
+                            'peachpuff', 'peru', 'pink', 'plum', 'powderblue',
+                            'purple', 'red', 'rosybrown', 'royalblue',
+                            'saddlebrown', 'salmon', 'sandybrown', 'seagreen',
+                            'seashell', 'sienna', 'silver', 'skyblue',
+                            'slateblue', 'slategray', 'slategrey', 'snow',
+                            'springgreen', 'steelblue', 'tan', 'teal',
+                            'thistle', 'tomato', 'turquoise', 'violet', 'wheat',
+                            'white', 'whitesmoke', 'yellow', 'yellowgreen',
+                            'rebeccapurple']:
+                        self.logger.error(
+                                'Color field is not a CSS3 color keyword, '
+                                'see the table on https://en.wikipedia.org/wiki/Web_colors#X11_color_names',
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
+                elif field_name == 'parent_type_of_cancer':
+                    parent_cancer_type = value.lower()
                     # if parent_cancer_type is not 'tissue' (which is a special case when building the oncotree), 
                     # then give error if the given parent is not found in the DB or in the given cancer types of the
                     # current study:
@@ -1983,7 +2207,7 @@ class CancerTypeValidator(Validator):
                             line_cancer_type,
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
-                                   'cause': data[col_index]})
+                                   'cause': value})
             # check for duplicated (possibly inconsistent) cancer types
             if line_cancer_type in self.defined_cancer_types:
                 self.logger.error(
@@ -2301,7 +2525,7 @@ class GisticGenesValidator(Validator):
 
 # FIXME: returning simple valid (meta_fn, data_fn) pairs would be cleaner,
 # Validator objects can be instantiated with a portal instance elsewhere
-def process_metadata_files(directory, portal_instance, logger):
+def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
 
     """Parse the meta files in a directory and create data file validators.
 
@@ -2376,7 +2600,7 @@ def process_metadata_files(directory, portal_instance, logger):
         if 'data_filename' in meta and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
             validator = validator_class(directory, meta,
-                                        portal_instance, logger)
+                                        portal_instance, logger, relaxed_mode)
             validators_by_type[meta_file_type].append(validator)
         else:
             validators_by_type[meta_file_type].append(None)
@@ -2493,7 +2717,7 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
 
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
-    service_url = server_url + '/api/' + api_name
+    service_url = server_url + '/api-legacy/' + api_name
     logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
@@ -2583,30 +2807,6 @@ def transform_symbol_entrez_map(json_data,
     return result_dict
 
 
-def merge_clinical_attributes(patient_attr_dict, sample_attr_dict):
-    """Merge two dicts, raising an exception if the keys overlap.
-
-    >>> merge_clinical_attributes({"SEX":
-    ...                                {"is_patient_attribute": 1},
-    ...                            "AGE":
-    ...                                {"is_patient_attribute": 1}},
-    ...                           {"GLEASON_SCORE":
-    ...                                {"is_patient_attribute": 0}})
-    {'AGE': {'is_patient_attribute': 1}, 'GLEASON_SCORE': {'is_patient_attribute': 0}, 'SEX': {'is_patient_attribute': 1}}
-    """
-    # if this happens, the database structure has changed and this script
-    # needs to be updated
-    id_overlap = patient_attr_dict.viewkeys() & sample_attr_dict.viewkeys()
-    if id_overlap:
-        raise ValueError(
-            'Portal data listed these clinical attributes '
-            'both for samples and for patients: {}'.format(
-                ', '.join(id_overlap)))
-    # merge the sample attributes into the first dict
-    patient_attr_dict.update(sample_attr_dict)
-    return patient_attr_dict
-
-
 def load_portal_info(path, logger, offline=False):
     """Create a PortalInstance object based on a server API or offline dir.
 
@@ -2618,10 +2818,6 @@ def load_portal_info(path, logger, offline=False):
     for api_name, transform_function in (
             ('cancertypes',
                 lambda json_data: index_api_data(json_data, 'id')),
-            ('clinicalattributes/patients',
-                lambda json_data: index_api_data(json_data, 'attr_id')),
-            ('clinicalattributes/samples',
-                lambda json_data: index_api_data(json_data, 'attr_id')),
             ('genes',
                 lambda json_data: transform_symbol_entrez_map(
                                         json_data, 'hugo_gene_symbol')),
@@ -2638,15 +2834,7 @@ def load_portal_info(path, logger, offline=False):
     if all(d is None for d in portal_dict.values()):
         raise IOError('No portal information found at {}'.format(
                           path))
-    # merge clinical attributes into a single dictionary
-    clinical_attr_dict = None
-    if (portal_dict['clinicalattributes/patients'] is not None and
-            portal_dict['clinicalattributes/samples'] is not None):
-        clinical_attr_dict = merge_clinical_attributes(
-            portal_dict['clinicalattributes/patients'],
-            portal_dict['clinicalattributes/samples'])
     return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
-                          clinical_attribute_dict=clinical_attr_dict,
                           hugo_entrez_map=portal_dict['genes'],
                           alias_entrez_map=portal_dict['genesaliases'])
 
@@ -2680,14 +2868,19 @@ def interface(args=None):
     parser.add_argument('-v', '--verbose', required=False, action='store_true',
                         help='report status info messages in addition '
                              'to errors and warnings')
+    parser.add_argument('-r', '--relaxed_clinical_definitions', required=False, 
+                        action='store_true', 
+                        help='Option to enable relaxed mode for validator when '
+                        'validating clinical data without header definitions')                             
 
     parser = parser.parse_args(args)
     return parser
 
 
-def validate_study(study_dir, portal_instance, logger):
+def validate_study(study_dir, portal_instance, logger, relaxed_mode):
 
-    """Validate the study in `study_dir`, logging messages to `logger`.
+    """Validate the study in `study_dir`, logging messages to `logger`, and relaxing
+        clinical data validation if `relaxed_mode` is true.
 
     This will verify that the study is compatible with the portal configuration
     represented by the PortalInstance object `portal_instance`, if its
@@ -2702,9 +2895,6 @@ def validate_study(study_dir, portal_instance, logger):
     if portal_instance.cancer_type_dict is None:
         logger.warning('Skipping validations relating to cancer types '
                        'defined in the portal')
-    if portal_instance.clinical_attribute_dict is None:
-        logger.warning('Skipping validations relating to clinical attributes '
-                       'defined in the portal')
     if (portal_instance.hugo_entrez_map is None or
             portal_instance.alias_entrez_map is None):
         logger.warning('Skipping validations relating to gene identifiers and '
@@ -2714,7 +2904,7 @@ def validate_study(study_dir, portal_instance, logger):
     (validators_by_meta_type,
      defined_case_list_fns,
      study_cancer_type,
-     study_id) = process_metadata_files(study_dir, portal_instance, logger)
+     study_id) = process_metadata_files(study_dir, portal_instance, logger, relaxed_mode)
 
     # first parse and validate cancer type files
     studydefined_cancer_types = []
@@ -2772,10 +2962,11 @@ def validate_study(study_dir, portal_instance, logger):
     # this will be set if a file was successfully parsed
     if defined_sample_ids is None:
         logger.error("Sample file could not be parsed. Please fix "
-                     "the problems found there first before continuing.")
-        return
+                         "the problems found there first before continuing.")
+        if not relaxed_mode:                         
+            return
     DEFINED_SAMPLE_IDS = defined_sample_ids
-    DEFINED_SAMPLE_ATTRIBUTES = sample_validator.newly_defined_attributes
+    DEFINED_SAMPLE_ATTRIBUTES = sample_validator.defined_attributes
     PATIENTS_WITH_SAMPLES = sample_validator.patient_ids
 
     if len(validators_by_meta_type.get(
@@ -2833,6 +3024,9 @@ def main_validate(args):
     server_url = args.url_server
 
     html_output_filename = args.html_table
+    relaxed_mode = False
+    if hasattr(args, 'relaxed_clinical_definitions') and args.relaxed_clinical_definitions:
+        relaxed_mode = True
 
     # determine the log level for terminal and html output
     output_loglevel = logging.INFO
@@ -2891,7 +3085,6 @@ def main_validate(args):
     # load portal-specific information
     if args.no_portal_checks:
         portal_instance = PortalInstance(cancer_type_dict=None,
-                                         clinical_attribute_dict=None,
                                          hugo_entrez_map=None,
                                          alias_entrez_map=None)
     elif args.portal_info_dir:
@@ -2900,7 +3093,7 @@ def main_validate(args):
     else:
         portal_instance = load_portal_info(server_url, logger)
 
-    validate_study(study_dir, portal_instance, logger)
+    validate_study(study_dir, portal_instance, logger, relaxed_mode)
 
     if html_handler is not None:
         collapsing_html_handler.flush()
@@ -2926,3 +3119,4 @@ if __name__ == '__main__':
                 1: 'failed',
                 2: 'not performed as problems occurred',
                 3: 'succeeded with warnings'}.get(exit_status, 'unknown')))
+    sys.exit(exit_status)

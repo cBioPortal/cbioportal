@@ -30,6 +30,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+var proportionToPercentString = function(p) {
+    var percent = 100 * p;
+    if (p < 0.03) {
+	// if less than 3%, use one decimal figure
+	percent = Math.round(10 * percent) / 10;
+    } else {
+	percent = Math.round(percent);
+    }
+    return percent + '%';
+};
 var DataDownloadTab = (function() {
 
     var _rawDataObj = [],
@@ -37,7 +47,8 @@ var DataDownloadTab = (function() {
 
     var data = [],
         stat = {},
-        profiles = {};
+        profiles = {},
+	altered_samples = [];
         
     var _isRendered = false;
 
@@ -50,97 +61,76 @@ var DataDownloadTab = (function() {
 
     var calc_alt_freq = function() {
             strs.alt_freq = "GENE_SYMBOL" + "\t" + "NUM_CASES_ALTERED" + "\t" + "PERCENT_CASES_ALTERED" + "\n";
-            $.each(stat, function(key, value) {
-                strs.alt_freq += key + "\t" + value.total_alter_num + "\t" + value.percent + "%" + "\n";
-            });        
+	    var num_samples = window.QuerySession.getSampleIds().length;
+	    for (var i=0; i<data.length; i++) {
+		var oql = data[i].oql_line;
+		var num_altered = data[i].altered_samples.length;
+		var percent_altered = proportionToPercentString(num_altered/num_samples);
+		strs.alt_freq += oql + "\t" + num_altered + "\t" + percent_altered + "\n";
+	    }
         },
         calc_alt_type = function() {
-            var _genes = Object.keys(stat);
-            strs.alt_type = "Case ID" + "\t";
-            $.each(_genes, function(index, val) {
-                strs.alt_type += val + "\t";    
-            });
-            strs.alt_type += "\n";
-            $.each(data, function(outer_index, outer_obj) {
-                strs.alt_type += outer_obj.key + "\t";
-                $.each(_genes, function(_gene_index, _gene) {
-                    $.each(outer_obj.values, function(inner_index, inner_obj) {
-                        if (_gene === inner_obj.gene) {
-                            if (Object.keys(inner_obj).length === 2) {
-                                strs.alt_type += "  " + "\t";
-                            } else {
-                                if (inner_obj.hasOwnProperty("mutation")) {
-                                    strs.alt_type += "MUT: " + inner_obj.mutation;
-                                }
-                                if (inner_obj.hasOwnProperty("cna")) {
-                                    if (inner_obj.cna === "AMPLIFIED") {
-                                        strs.alt_type += "AMP;";
-                                    } else if (inner_obj.cna === "GAINED") {
-                                        strs.alt_type += "GAIN;";
-                                    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
-                                        strs.alt_type += "HETLOSS;";
-                                    } else if (inner_obj.cna === "HOMODELETED") {
-                                        strs.alt_type += "HOMDEL;";
-                                    }
-                                }
-                                if (inner_obj.hasOwnProperty("mrna")) {
-                                    if (inner_obj.mrna === "UPREGULATED") {
-                                        strs.alt_type += "UP;";
-                                    } else if (inner_obj.mrna === "DOWNREGULATED") {
-                                        strs.alt_type += "DOWN;";
-                                    }
-                                }
-                                if (inner_obj.hasOwnProperty("rppa")) {
-                                    if (inner_obj.rppa === "UPREGULATED") {
-                                        strs.alt_type += "RPPA-UP;";
-                                    } else if (inner_obj.rppa === "DOWNREGULATED") {
-                                        strs.alt_type += "RPPA-DOWN;";
-                                    }
-                                }
-                                strs.alt_type += "\t";
-                            }
-                        }
-                    });
-                });
-                strs.alt_type += "\n";
-            });
+	    var sample_to_line_to_alt_type = {};
+	    for (var i=0; i<data.length; i++) {
+		var oncoprint_data = data[i].oncoprint_data;
+		for (var j=0; j<oncoprint_data.length; j++) {
+		    var datum = oncoprint_data[j];
+		    var sample = datum.sample;
+		    var alt_type = "";
+		    sample_to_line_to_alt_type[sample] = sample_to_line_to_alt_type[sample] || [];
+		    if (typeof datum.disp_mut !== "undefined") {
+			alt_type += "MUT: ";
+			var mutations = [];
+			for (var k=0; k<datum.data.length; k++) {
+			    if (datum.data[k].genetic_alteration_type === "MUTATION_EXTENDED") {
+				mutations.push(datum.data[k].amino_acid_change);
+			    }
+			}
+			alt_type += mutations.join(",");
+			alt_type += ";";
+		    }
+		    if (typeof datum.disp_cna !== "undefined") {
+			alt_type += datum.disp_cna.toUpperCase() + ";";
+		    }
+		    if (typeof datum.disp_mrna !== "undefined") {
+			alt_type += datum.disp_mrna.toUpperCase() + ";";
+		    }
+		    if (typeof datum.disp_prot !== "undefined") {
+			alt_type += "RPPA-"+datum.disp_prot.toUpperCase() + ";";
+		    }
+		    sample_to_line_to_alt_type[sample].push(alt_type);
+		}
+	    }
+	    strs.alt_type += ["Case ID"].concat(data.map(function(line) { return line.oql_line; })).join("\t") + "\n";
+	    var sample_ids = window.QuerySession.getSampleIds();
+	    sample_ids = sample_ids.sort(function(a,b) {
+		return a.localeCompare(b);
+	    });
+	    for (var i=0; i<sample_ids.length; i++) {
+		strs.alt_type += sample_ids[i] + "\t";
+		var alt_types = sample_to_line_to_alt_type[sample_ids[i]];
+		alt_types && (strs.alt_type += alt_types.join("\t"));
+		strs.alt_type += "\n";
+	    }
         },
         calc_case_affected = function() {
-            $.each(data, function(outer_index, outer_obj) {
-                $.each(outer_obj.values, function(inner_index, inner_obj) {
-                    if (Object.keys(inner_obj).length !== 2) {
-                        strs.case_affected += outer_obj.key + "\n";
-                        return false;
-                    }
-                });
-            });
+	    strs.case_affected = altered_samples.sort(function(a,b) { return a.localeCompare(b); }).join("\n");
         },
         calc_case_matrix = function() {
-            $.each(data, function(outer_index, outer_obj) {
-                var _affected = false;
-                $.each(outer_obj.values, function(inner_index, inner_obj) {
-                    if (Object.keys(inner_obj).length !== 2) {
-                        _affected = true;
-                        return false;
-                    } 
-
-                });
-                if (_affected) strs.case_matrix += outer_obj.key + "\t" + "1" + "\n";
-                else strs.case_matrix += outer_obj.key + "\t" + "0" + "\n";
-            });
+	    var altered_samples_set = {};
+	    for (var i=0; i<altered_samples.length; i++) {
+		altered_samples_set[altered_samples[i]] = true;
+	    }
+	    var sample_ids = window.QuerySession.getSampleIds();
+	    sample_ids = sample_ids.sort(function(a,b) {
+		return a.localeCompare(b);
+	    });
+	    for (var i=0; i<sample_ids.length; i++ ) {
+		strs.case_matrix += sample_ids[i] + "\t" + (altered_samples_set[sample_ids[i]] ? "1" : "0") + "\n";
+	    }
         };
 
     function processData() {
-        //sort the data arra by original sample order
-        $.each(window.QuerySession.getSampleIds(), function(index, sampleId) {
-            $.grep(_rawDataObj, function( n, i ) {
-                if (n.key === sampleId) {
-                    data.push(n);
-                }
-            });
-        });
-        //set status object
-        stat = _rawStatObj;
 
         //Calculation and configuration of the textarea strings
         calc_alt_freq();
@@ -208,6 +198,12 @@ var DataDownloadTab = (function() {
     }
 
     return {
+	setOncoprintData: function(_data) {
+	    data = _data;
+	},
+	setAlteredSamples: function(_samples_list) {
+	    altered_samples = _samples_list;
+	},
         setInput: function(_inputData) {
             _rawDataObj = _inputData;
         },
@@ -233,11 +229,9 @@ var DataDownloadTab = (function() {
 $(document).ready( function() {
 
     //Sign up getting oncoprint data
-    PortalDataCollManager.subscribeOncoprint(function() {
-        DataDownloadTab.setInput(PortalDataColl.getOncoprintData());
-    });
-    PortalDataCollManager.subscribeOncoprintStat(function() {
-        DataDownloadTab.setStat(PortalDataColl.getOncoprintStat()); 
+    $.when(window.QuerySession.getOncoprintSampleGenomicEventData(), window.QuerySession.getAlteredSamples()).then(function(oncoprint_data, altered_samples) {
+	DataDownloadTab.setOncoprintData(oncoprint_data);
+	DataDownloadTab.setAlteredSamples(altered_samples);
         //AJAX call to grab relevant data
         var _paramsGetProfiles = {
             cancer_study_id: window.QuerySession.getCancerStudyIds()[0]

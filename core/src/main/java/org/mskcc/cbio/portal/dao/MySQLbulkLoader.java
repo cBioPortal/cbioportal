@@ -77,8 +77,9 @@ public class MySQLbulkLoader {
 	   int checks = 0;
        PreparedStatement stmt = null;
        boolean executedSetFKChecks = false;
+       Connection con = null;
        try {
-            Connection con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
+            con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
             stmt = con.prepareStatement("SELECT @@foreign_key_checks;");
             ResultSet result = stmt.executeQuery();
             
@@ -104,16 +105,17 @@ public class MySQLbulkLoader {
         	throw new DaoException(e);
         }
         finally {
-        	mySQLbulkLoaders.clear();
+            mySQLbulkLoaders.clear();
             if (executedSetFKChecks && stmt != null) {
-            	try {
-					stmt.setLong(1, checks);
-					stmt.execute();
-				} catch (SQLException e) {
-					throw new DaoException(e);
-				}
-            	
+                try {
+                    stmt.setLong(1, checks);
+                    stmt.execute();
+                }
+                catch (SQLException e) {
+                    throw new DaoException(e);
+                }            	
             }
+            JdbcUtil.closeAll(MySQLbulkLoader.class, con, stmt, null);
         }
     }
 

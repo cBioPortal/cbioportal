@@ -4141,8 +4141,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       },
       changeLogScale: function(logScaleChecked) {
         $('#' + this.chartId).find('svg').remove();
+        this.chartInst.filterAll();
+        this.$dispatch('update-filters', true);
         dc.deregisterChart(this.chartInst, this.attributes.group_id);
         this.initChart(logScaleChecked);
+        this.chartInst.render();
       },
       addingChart: function(groupId, val) {
         if (this.attributes.group_id === groupId) {

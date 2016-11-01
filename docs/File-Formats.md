@@ -150,7 +150,7 @@ The following columns are used by the study view as well as the patient view. In
     - Possible values: DECEASED, LIVING
     - In the patient view, LIVING creates a green label, DECEASED a red label.
     - In visualisation of [Timeline data](#timeline-data), DECEASED will result in a new event of type STATUS
-- **OS_MONTHS (required if OS_STATUS is DECEASED)**:  Overall survival in months since initial diagnosis
+- **OS_MONTHS**:  Overall survival in months since initial diagnosis
 - **DFS_STATUS**: Disease free status since initial treatment
     - Possible values: DiseaseFree, Recurred/Progressed
     - In the patient view, DiseaseFree creates a green label, Recurred/Progressed a red label.

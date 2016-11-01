@@ -1262,10 +1262,14 @@ class MutationsExtendedValidator(Validator):
             if not re.match(
                         r'^[A-Z0-9]{1,5}_[A-Z0-9]{1,5}$',
                         value):
+                cause = value
+                # if there is a ',' then give a more detailed message:
+                if ',' in value:
+                    cause = 'Expecting a single value, but found multiple separated by a `,`:' + value
                 # return this as an warning
-                self.logger.warning('SWISSPROT value is not a UniProtKB/Swiss-Prot name. '
+                self.logger.warning('SWISSPROT value is not a (single) UniProtKB/Swiss-Prot name. '
                                     'Loader will try to find UniProt accesion using Entrez/HUGO',
-                                    extra={'line_number': self.line_number, 'cause': value})
+                                    extra={'line_number': self.line_number, 'cause': cause})
                 return True
         # if no reasons to return with a message were found, return valid
         return True

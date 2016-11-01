@@ -525,8 +525,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(track_data.filter(oncoprintDatumIsAltered).length/window.QuerySession.getSampleIds().length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
 			    LoadingBar.update(i / total_tracks_to_add);
-			}).then(function () {
-			    var heatmap_profile_id = QuerySession.getDefaultHeatmapProfile();
+			}).then(QuerySession.getDefaultHeatmapProfile.bind(QuerySession))
+			.then(function (heatmap_profile_id) {
 			    if (heatmap_profile_id !== null) {
 				return QuerySession.getHeatmapData(heatmap_profile_id, QuerySession.getQueryGenes(), 'sample')
 				.then(function (heatmap_data_by_line) {
@@ -594,8 +594,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(track_data.filter(oncoprintDatumIsAltered).length/patient_ids.length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
 			    LoadingBar.update(i / total_tracks_to_add);
-			}).then(function () {
-			    var heatmap_profile_id = QuerySession.getDefaultHeatmapProfile();
+			}).then(QuerySession.getDefaultHeatmapProfile.bind(QuerySession))
+			.then(function (heatmap_profile_id) {
 			    if (heatmap_profile_id !== null) {
 				return QuerySession.getHeatmapData(heatmap_profile_id, QuerySession.getQueryGenes(), 'patient')
 				.then(function (heatmap_data_by_line) {
@@ -1253,10 +1253,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
 	var def = new $.Deferred();
 	oncoprint.setCellPaddingOn(State.cell_padding_on);
-	$.when(QuerySession.getOncoprintSampleGenomicEventData()
-	).then(function (oncoprint_data) {
+	$.when(QuerySession.getOncoprintSampleGenomicEventData(),
+               QuerySession.getDefaultHeatmapProfile()
+	).then(function (oncoprint_data, heatmap_profile_id) {
 	    State.addGeneticTracks(oncoprint_data);
-	    var heatmap_profile_id = QuerySession.getDefaultHeatmapProfile();
 	    if (heatmap_profile_id !== null) {
 		QuerySession.getHeatmapData(heatmap_profile_id, QuerySession.getQueryGenes(), "sample")
 		.then(function (heatmap_data) {

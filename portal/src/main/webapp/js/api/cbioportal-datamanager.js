@@ -956,29 +956,27 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	/**
 	 * Selects the genetic profile most suitable for heatmap rendering.
 	 *
-	 * @returns {?string} the stable ID of the profile, or null
-	 * if no applicable profiles are in use.
+	 * @returns {Promise<?string>} promise resolving with the
+	 * stable ID of the profile, or with null if no applicable
+	 * profiles are in use.
 	 */
 	'getDefaultHeatmapProfile': function () {
-	    var gp_ids = this.getGeneticProfileIds();
-	    var chosen_ids = [];
-	    for (var i = 0; i < gp_ids.length; i++) {
-		if (gp_ids[i].indexOf('Zscores') !== -1 &&
-			gp_ids[i].indexOf('mrna') !== -1) {
-		    chosen_ids.push(gp_ids[i]);
+	    return this.getGeneticProfiles()
+	    .then(function (gp_metadata_list) {
+		for (var i = 0; i < gp_metadata_list.length; i++) {
+		    if (gp_metadata_list[i].genetic_alteration_type === "MRNA_EXPRESSION" &&
+			    gp_metadata_list[i].datatype === "Z-SCORE") {
+			return gp_metadata_list[i].id;
+		    }
 		}
-	    }
-	    for (var i = 0; i < gp_ids.length; i++) {
-		if (gp_ids[i].indexOf('Zscores') !== -1 &&
-			gp_ids[i].indexOf('rppa') !== -1) {
-		    chosen_ids.push(gp_ids[i]);
+		for (var i = 0; i < gp_metadata_list.length; i++) {
+		    if (gp_metadata_list[i].genetic_alteration_type === "PROTEIN_LEVEL" &&
+			    gp_metadata_list[i].datatype === "Z-SCORE") {
+			return gp_metadata_list[i].id;
+		    }
 		}
-	    }
-	    if (chosen_ids.length > 0) {
-		return chosen_ids[0];
-	    } else {
 		return null;
-	    }
+	    }).promise();
 	},
 	'getSampleIds': function (opt_study_id) {
 	    if (typeof opt_study_id !== "undefined") {

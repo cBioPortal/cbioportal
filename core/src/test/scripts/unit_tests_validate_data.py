@@ -838,13 +838,13 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record_iterator = iter(record_list)
         # used an accession instead of a name
         record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 3)
         self.assertEqual(record.cause, 'Q9NQ94')
         self.assertNotIn('portal', record.getMessage().lower())
         # neither a name nor an accession
         record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.cause, 'A1CF_HUMAN,HBB_YEAST')
         self.assertNotIn('portal', record.getMessage().lower())

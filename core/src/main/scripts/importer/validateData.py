@@ -1004,7 +1004,7 @@ class MutationsExtendedValidator(Validator):
         if not 'SWISSPROT' in self.cols:
             self.logger.warning(
                 'Including the SWISSPROT column is recommended to make sure '
-                'that the Uniprot canonical isoform is used when drawing Pfam '
+                'that the UniProt canonical isoform is used when drawing Pfam '
                 'domains in the mutations view',
                 extra={'line_number': self.line_number})
         elif not 'swissprot_identifier' in self.meta_dict:
@@ -1238,13 +1238,13 @@ class MutationsExtendedValidator(Validator):
 
     def checkSwissProt(self, value):
         """Validate the name or accession in the SWISSPROT column."""
-        if value is None or value.strip() == '':
+        if value is None or value.strip() in ['', 'NA', '[Not Available]']:
             self.logger.warning(
                 'Missing value in SWISSPROT column; this column is '
-                'recommended to make sure that the Uniprot canonical isoform '
+                'recommended to make sure that the UniProt canonical isoform '
                 'is used when drawing Pfam domains in the mutations view',
                 extra={'line_number': self.line_number,
-                       'cause':'<blank>'})
+                       'cause':value})
             # no value to test, return without error
             return True
         if self.meta_dict.get('swissprot_identifier', 'name') == 'accession':
@@ -1254,18 +1254,23 @@ class MutationsExtendedValidator(Validator):
                     r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$',
                      value):
                 # return this as an error
-                self.extra = 'SWISSPROT value is not a UniprotKB accession'
+                self.extra = 'SWISSPROT value is not a UniProtKB accession'
                 self.extra_exists = True
                 return False
         else:
             # format described on http://www.uniprot.org/help/entry_name
             if not re.match(
-                        r'^[A-Z0-9]{2,5}_[A-Z0-9]{2,5}$',
+                        r'^[A-Z0-9]{1,5}_[A-Z0-9]{1,5}$',
                         value):
-                # return this as an error
-                self.extra = 'SWISSPROT value is not a UniprotKB/Swiss-Prot name'
-                self.extra_exists = True
-                return False
+                cause = value
+                # if there is a ',' then give a more detailed message:
+                if ',' in value:
+                    cause = 'Expecting a single value, but found multiple separated by a `,`:' + value
+                # return this as an warning
+                self.logger.warning('SWISSPROT value is not a (single) UniProtKB/Swiss-Prot name. '
+                                    'Loader will try to find UniProt accesion using Entrez/HUGO',
+                                    extra={'line_number': self.line_number, 'cause': cause})
+                return True
         # if no reasons to return with a message were found, return valid
         return True
 

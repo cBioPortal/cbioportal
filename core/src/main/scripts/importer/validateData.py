@@ -1804,8 +1804,10 @@ class PatientClinicalValidator(ClinicalValidator):
                     osmonths_value.lower() in self.NULL_VALUES):
             if osmonths_value is None or osmonths_value == '':
                 osmonths_value = '<none>'
-            self.logger.error(
-                "OS_STATUS is 'DECEASED', but OS_MONTHS is not specified",
+            self.logger.warning(
+                'OS_MONTHS is not specified for deceased patient. Patient '
+                'will be excluded from survival curve and month of death '
+                'will not be shown on patient view timeline.',
                 extra={'line_number': self.line_number,
                        'cause': osmonths_value})
 

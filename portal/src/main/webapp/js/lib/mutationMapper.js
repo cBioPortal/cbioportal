@@ -7818,9 +7818,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		// initially hide the 3d visualizer container
 		var container3d = self.$el;
-		//container3d.hide();
 
 		// initially hide the residue warning message
 		self.hideResidueWarning();
@@ -7855,14 +7853,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		});
 
 		// format toolbar elements
-
-//		var spinChecker = self.$el.find(".mutation-3d-spin");
-//		spinChecker.change(function(){
-//			if (mut3dVis != null)
-//			{
-//				mut3dVis.toggleSpin();
-//			}
-//		});
 
 		// mutation style controls
 		self._initMutationControls();
@@ -7954,34 +7944,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-//		var centerSelected = self.$el.find(".mutation-3d-center-selected");
-//
-//		centerSelected.button(
-//			{icons: {primary: "ui-icon-arrow-4"},
-//			text: false});
-//
-//		centerSelected.click(function() {
-//			// center on the selected mutation
-//			mut3dVis.center();
-//		});
-//
-//		var centerDefault = self.$el.find(".mutation-3d-center-default");
-//
-//		centerDefault.button(
-//			{icons: {primary: "ui-icon-arrowreturn-1-w"},
-//			text: false});
-//
-//		centerDefault.click(function() {
-//			// restore to the default center
-//			mut3dVis.resetCenter();
-//		});
-//
-//		var qtipOpts = self._generateTooltipOpts("NA");
-//		qtipOpts.content = {attr: 'alt'};
-//
-//		centerSelected.qtip(qtipOpts);
-//		centerDefault.qtip(qtipOpts);
-
 		// init help text controls
 
 		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
@@ -8060,26 +8022,6 @@ var Mutation3dVisView = Backbone.View.extend({
 				mut3dVis.reapplyStyle();
 			}
 		});
-
-//		var colorByType = self.$el.find(".mutation-3d-mutation-color-by-type");
-//		// handler for color type checkbox
-//		colorByType.change(function() {
-//			var color = colorByType.is(":checked");
-//			var type = "byMutationType";
-//
-//			// if not coloring by mutation type, then use default atom colors
-//			if (!color)
-//			{
-//				type = "byAtomType";
-//			}
-//
-//			if (mut3dVis)
-//			{
-//				// update and reapply visual style
-//				mut3dVis.updateOptions({colorMutations: type});
-//				mut3dVis.reapplyStyle();
-//			}
-//		});
 
 		// add info tooltip for the color and side chain checkboxes
 		self._initMutationColorInfo();
@@ -8214,45 +8156,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		});
 	},
 	/**
-	 * Initializes the zoom slider with default values.
-	 */
-	_initZoomSlider: function()
-	{
-		var self = this;
-		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
-		var mut3dVis = self.options.mut3dVis;
-
-		// helper function to transform slider value into an actual zoom value
-		var transformValue = function (value)
-		{
-			if (value < 0)
-			{
-				return 100 + value;
-			}
-			else
-			{
-				return 100 + (value * 5);
-			}
-		};
-
-		// handler function for zoom slider events
-		var zoomHandler = function(event, ui)
-		{
-			if (mut3dVis)
-			{
-				mut3dVis.zoomTo(transformValue(ui.value));
-			}
-		};
-
-		// init y-axis slider controls
-		zoomSlider.slider({value: 0,
-			min: -80,
-			max: 80,
-			stop: zoomHandler,
-			slide: zoomHandler
-		});
-	},
-	/**
 	 * Updates the 3D visualizer content for the given gene,
 	 * pdb id, and chain.
 	 *
@@ -8372,10 +8275,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		// reload the new pdb structure
 		else
 		{
-			// reset zoom slider
-			//var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
-			//zoomSlider.slider("value", 0);
-
 			// show loader image
 			self.showLoader();
 
@@ -13591,9 +13490,6 @@ function Mutation3dVis(name, options)
 	// spin indicator (initially off)
 	var _spin = "OFF";
 
-	// used for show/hide option (workaround)
-	var _prevTop = null;
-
 	// used for glow effect on highlighted mutations
 	var _glowInterval = null;
 
@@ -13739,24 +13635,6 @@ function Mutation3dVis(name, options)
 		{
 			_container.show();
 		}
-
-		//	// this is a workaround. see the hide() function below for details
-		//
-		//	var currentTop = parseInt(_container.css('top'));
-		//
-		//	// update the top position only if it is negative
-		//	if (currentTop < 0)
-		//	{
-		//		if (_prevTop != null && _prevTop > 0)
-		//		{
-		//			_container.css('top', _prevTop);
-		//		}
-		//		else
-		//		{
-		//			_container.css('top', 0);
-		//		}
-		//	}
-		//}
 	}
 
 	/**
@@ -13768,23 +13646,6 @@ function Mutation3dVis(name, options)
 		{
 			_container.hide();
 		}
-
-		// jQuery.hide function is problematic after Jmol init
-		// Reloading the PDB data throws an error message (Error: Bad NPObject as private data!)
-		// see https://code.google.com/p/gdata-issues/issues/detail?id=4820
-		// So, the current workaround is to reposition instead of hiding
-		//if (_container != null)
-		//{
-		//	//_container.hide();
-		//	var currentTop = parseInt(_container.css('top'));
-		//
-		//	if (currentTop > 0)
-		//	{
-		//		_prevTop = currentTop;
-		//	}
-		//
-		//	_container.css('top', -9999);
-		//}
 	}
 
 	/**

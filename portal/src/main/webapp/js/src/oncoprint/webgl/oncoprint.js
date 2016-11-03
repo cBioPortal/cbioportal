@@ -336,6 +336,14 @@ var Oncoprint = (function () {
 	return this.model.getTrackDataIdKey(track_id);
     }
     
+    /**
+     * Sets the data for an Oncoprint track.
+     *
+     * @param track_id - the ID that identifies the track
+     * @param {Object[]} data - the list of data for the cells
+     * @param {string} data_id_key - name of the property of the
+     * data objects to use as the (column) key
+     */
     Oncoprint.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.model.setTrackData(track_id, data, data_id_key);
 	this.cell_view.setTrackData(this.model, track_id);

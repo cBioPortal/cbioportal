@@ -35,12 +35,12 @@ import java.util.List;
 @Configuration
 public class ClinicalDataControllerTest {
 
-    public static final String TEST_ATTR_ID_1 = "test_attr_id_1";
-    public static final String TEST_ATTR_VALUE_1 = "test_attr_value_1";
-    public static final int TEST_INTERNAL_ID_1 = 1;
-    public static final String TEST_ATTR_ID_2 = "test_attr_id_2";
-    public static final String TEST_ATTR_VALUE_2 = "test_attr_value_2";
-    public static final int TEST_INTERNAL_ID_2 = 2;
+    private static final String TEST_ATTR_ID_1 = "test_attr_id_1";
+    private static final String TEST_ATTR_VALUE_1 = "test_attr_value_1";
+    private static final int TEST_INTERNAL_ID_1 = 1;
+    private static final String TEST_ATTR_ID_2 = "test_attr_id_2";
+    private static final String TEST_ATTR_VALUE_2 = "test_attr_value_2";
+    private static final int TEST_INTERNAL_ID_2 = 2;
 
     @Autowired
     private WebApplicationContext wac;

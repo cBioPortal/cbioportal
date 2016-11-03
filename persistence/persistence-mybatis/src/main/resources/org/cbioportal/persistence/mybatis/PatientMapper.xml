@@ -9,7 +9,8 @@
         patient.STABLE_ID AS "${prefix}stableId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            patient.CANCER_STUDY_ID AS "${prefix}cancerStudyId"
+            patient.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
         </if>
         <if test="projection == 'DETAILED'">
             ,

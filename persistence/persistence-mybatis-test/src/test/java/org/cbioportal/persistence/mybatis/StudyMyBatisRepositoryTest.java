@@ -33,8 +33,8 @@ public class StudyMyBatisRepositoryTest {
 
         Assert.assertEquals(2, result.size());
         CancerStudy cancerStudy = result.get(0);
-        Assert.assertEquals((Integer) 1, cancerStudy.getCancerStudyId());
-        Assert.assertEquals("study_tcga_pub", cancerStudy.getCancerStudyIdentifier());
+        Assert.assertEquals((Integer) 2, cancerStudy.getCancerStudyId());
+        Assert.assertEquals("acc_tcga", cancerStudy.getCancerStudyIdentifier());
         Assert.assertNull(cancerStudy.getTypeOfCancer());
     }
 

@@ -11,7 +11,6 @@ public interface GeneticProfileService {
     List<GeneticProfile> getAllGeneticProfiles(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                                String direction);
 
-
     BaseMeta getMetaGeneticProfiles();
 
     GeneticProfile getGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException;

@@ -25,6 +25,9 @@
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
+        <if test="projection == 'ID'">
+            ORDER BY type_of_cancer.TYPE_OF_CANCER_ID ASC
+        </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>

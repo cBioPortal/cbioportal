@@ -1,7 +1,15 @@
 package org.cbioportal.web.error;
 
-import org.cbioportal.service.exception.*;
-import org.cbioportal.web.exception.*;
+import org.cbioportal.service.exception.CancerTypeNotFoundException;
+import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.SampleNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.exception.PageNumberInvalidFormatException;
+import org.cbioportal.web.exception.PageNumberTooSmallException;
+import org.cbioportal.web.exception.PageSizeInvalidFormatException;
+import org.cbioportal.web.exception.PageSizeTooBigException;
+import org.cbioportal.web.exception.PageSizeTooSmallException;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
@@ -52,12 +60,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SampleNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSampleNotFound(SampleNotFoundException ex) {
 
-        return new ResponseEntity<>(new ErrorResponse("Sample not found: " + ex.getSampleId()),
-                HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse("Sample not found in study " + ex.getStudyId() + ": " +
+                ex.getSampleId()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(MissingServletRequestParameterException ex) {
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex) {
 
         return new ResponseEntity<>(new ErrorResponse("Request parameter is missing: " + ex.getParameterName()),
                 HttpStatus.BAD_REQUEST);

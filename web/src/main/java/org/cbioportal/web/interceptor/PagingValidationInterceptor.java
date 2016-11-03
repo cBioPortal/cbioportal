@@ -10,7 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 public class PagingValidationInterceptor extends HandlerInterceptorAdapter {
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
 
         String pageSize = request.getParameter("pageSize");
         String pageNumber = request.getParameter("pageNumber");

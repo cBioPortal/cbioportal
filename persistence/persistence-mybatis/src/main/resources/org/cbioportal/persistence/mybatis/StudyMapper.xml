@@ -26,8 +26,8 @@
         FROM cancer_study
         <if test="projection == 'DETAILED'">
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
-            INNER JOIN patient ON cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
-            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+            INNER JOIN sample_list ON cancer_study.CANCER_STUDY_ID = sample_list.CANCER_STUDY_ID
+            INNER JOIN sample_list_list ON sample_list.LIST_ID = sample_list_list.LIST_ID
         </if>
     </sql>
 
@@ -38,6 +38,7 @@
         </include>
         <if test="projection == 'DETAILED'">
             ,
+            sample_list.STABLE_ID AS "stableID",
             COUNT(*) AS "sampleCount",
             <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
                 <property name="prefix" value="typeOfCancer."/>
@@ -45,7 +46,7 @@
         </if>
         <include refid="from"/>
         <if test="projection == 'DETAILED'">
-            GROUP BY cancer_study.CANCER_STUDY_ID
+            GROUP BY sample_list.LIST_ID
         </if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}

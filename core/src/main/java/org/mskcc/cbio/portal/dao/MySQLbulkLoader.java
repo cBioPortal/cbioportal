@@ -51,7 +51,7 @@ public class MySQLbulkLoader {
    private static boolean bulkLoad = false;
    private static boolean relaxedMode = false;
    
-   private static final Map<String,MySQLbulkLoader> mySQLbulkLoaders = new HashMap<String,MySQLbulkLoader>();
+   private static final Map<String,MySQLbulkLoader> mySQLbulkLoaders = new LinkedHashMap<String,MySQLbulkLoader>();
    /**
     * Get a MySQLbulkLoader
     * @param dbName database name

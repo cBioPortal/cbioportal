@@ -1,13 +1,14 @@
-package org.cbioportal.model.summary;
+package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public abstract class ClinicalDataSummary implements Serializable {
+public class ClinicalData implements Serializable {
 
     private Integer internalId;
     private String stableId;
     private String attrId;
     private String attrValue;
+    private ClinicalAttribute clinicalAttribute;
 
     public Integer getInternalId() {
         return internalId;
@@ -39,5 +40,13 @@ public abstract class ClinicalDataSummary implements Serializable {
 
     public void setAttrValue(String attrValue) {
         this.attrValue = attrValue;
+    }
+
+    public ClinicalAttribute getClinicalAttribute() {
+        return clinicalAttribute;
+    }
+
+    public void setClinicalAttribute(ClinicalAttribute clinicalAttribute) {
+        this.clinicalAttribute = clinicalAttribute;
     }
 }

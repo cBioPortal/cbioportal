@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.summary.CancerStudySummary;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.parameter.Direction;
@@ -34,7 +33,7 @@ public class StudyController {
 
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all studies")
-    public ResponseEntity<List<? extends CancerStudySummary>> getAllStudies(
+    public ResponseEntity<List<CancerStudy>> getAllStudies(
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam("Page size of the result list")
@@ -52,7 +51,7 @@ public class StudyController {
                     .toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends CancerStudySummary>>(
+            return new ResponseEntity<>(
                     studyService.getAllStudies(projection.name(), pageSize, pageNumber,
                             sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
         }

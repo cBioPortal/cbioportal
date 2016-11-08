@@ -1,10 +1,8 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.cbioportal.model.PatientClinicalData;
-import org.cbioportal.model.SampleClinicalData;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.model.summary.ClinicalDataSummary;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -66,13 +64,13 @@ public class ClinicalDataControllerTest {
     @Test
     public void getAllClinicalDataOfSampleInStudyDefaultProjection() throws Exception {
 
-        List<SampleClinicalData> sampleClinicalDataList = new ArrayList<>();
-        SampleClinicalData sampleClinicalData1 = new SampleClinicalData();
+        List<ClinicalData> sampleClinicalDataList = new ArrayList<>();
+        ClinicalData sampleClinicalData1 = new ClinicalData();
         sampleClinicalData1.setAttrId(TEST_ATTR_ID_1);
         sampleClinicalData1.setAttrValue(TEST_ATTR_VALUE_1);
         sampleClinicalData1.setInternalId(TEST_INTERNAL_ID_1);
         sampleClinicalDataList.add(sampleClinicalData1);
-        SampleClinicalData sampleClinicalData2 = new SampleClinicalData();
+        ClinicalData sampleClinicalData2 = new ClinicalData();
         sampleClinicalData2.setAttrId(TEST_ATTR_ID_2);
         sampleClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
         sampleClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
@@ -116,13 +114,13 @@ public class ClinicalDataControllerTest {
     @Test
     public void getAllClinicalDataOfPatientInStudyDefaultProjection() throws Exception {
 
-        List<PatientClinicalData> patientClinicalDataList = new ArrayList<>();
-        PatientClinicalData patientClinicalData1 = new PatientClinicalData();
+        List<ClinicalData> patientClinicalDataList = new ArrayList<>();
+        ClinicalData patientClinicalData1 = new ClinicalData();
         patientClinicalData1.setAttrId(TEST_ATTR_ID_1);
         patientClinicalData1.setAttrValue(TEST_ATTR_VALUE_1);
         patientClinicalData1.setInternalId(TEST_INTERNAL_ID_1);
         patientClinicalDataList.add(patientClinicalData1);
-        PatientClinicalData patientClinicalData2 = new PatientClinicalData();
+        ClinicalData patientClinicalData2 = new ClinicalData();
         patientClinicalData2.setAttrId(TEST_ATTR_ID_2);
         patientClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
@@ -166,18 +164,18 @@ public class ClinicalDataControllerTest {
     @Test
     public void getAllClinicalDataInStudyDefaultProjection() throws Exception {
 
-        List<PatientClinicalData> patientClinicalDataList = new ArrayList<>();
-        PatientClinicalData patientClinicalData1 = new PatientClinicalData();
+        List<ClinicalData> patientClinicalDataList = new ArrayList<>();
+        ClinicalData patientClinicalData1 = new ClinicalData();
         patientClinicalData1.setAttrId(TEST_ATTR_ID_1);
         patientClinicalData1.setAttrValue(TEST_ATTR_VALUE_1);
         patientClinicalData1.setInternalId(TEST_INTERNAL_ID_1);
         patientClinicalDataList.add(patientClinicalData1);
-        PatientClinicalData patientClinicalData2 = new PatientClinicalData();
+        ClinicalData patientClinicalData2 = new ClinicalData();
         patientClinicalData2.setAttrId(TEST_ATTR_ID_2);
         patientClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
-        Mockito.<List<? extends ClinicalDataSummary>>when(clinicalDataService.getAllClinicalDataInStudy(
+        Mockito.when(clinicalDataService.getAllClinicalDataInStudy(
                 Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
                 Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(patientClinicalDataList);
 
@@ -218,18 +216,18 @@ public class ClinicalDataControllerTest {
     @Test
     public void fetchClinicalDataDefaultProjection() throws Exception {
 
-        List<PatientClinicalData> patientClinicalDataList = new ArrayList<>();
-        PatientClinicalData patientClinicalData1 = new PatientClinicalData();
+        List<ClinicalData> patientClinicalDataList = new ArrayList<>();
+        ClinicalData patientClinicalData1 = new ClinicalData();
         patientClinicalData1.setAttrId(TEST_ATTR_ID_1);
         patientClinicalData1.setAttrValue(TEST_ATTR_VALUE_1);
         patientClinicalData1.setInternalId(TEST_INTERNAL_ID_1);
         patientClinicalDataList.add(patientClinicalData1);
-        PatientClinicalData patientClinicalData2 = new PatientClinicalData();
+        ClinicalData patientClinicalData2 = new ClinicalData();
         patientClinicalData2.setAttrId(TEST_ATTR_ID_2);
         patientClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
-        Mockito.<List<? extends ClinicalDataSummary>>when(clinicalDataService.fetchClinicalData(
+        Mockito.when(clinicalDataService.fetchClinicalData(
                 Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString(),
                 Mockito.anyString(), Mockito.anyString())).thenReturn(patientClinicalDataList);
 

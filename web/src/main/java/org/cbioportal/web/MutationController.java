@@ -36,7 +36,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.summary.MutationSummary;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +52,7 @@ public class MutationController {
 
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/mutations", method = RequestMethod.GET)
     @ApiOperation("Get all mutations in a sample in a study")
-    public ResponseEntity<List<? extends MutationSummary>> getAllMutationsInSampleInStudy(@PathVariable String studyId,
+    public ResponseEntity<List<Mutation>> getAllMutationsInSampleInStudy(@PathVariable String studyId,
                                                                                           @PathVariable String sampleId,
                                                                                           @RequestParam(defaultValue = "SUMMARY") Projection projection,
                                                                                           @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
@@ -63,7 +62,7 @@ public class MutationController {
 
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/mutations", method = RequestMethod.GET)
     @ApiOperation("Get all mutations in a patient in a study")
-    public ResponseEntity<List<? extends MutationSummary>> getAllMutationsInPatientInStudy(@PathVariable String studyId,
+    public ResponseEntity<List<Mutation>> getAllMutationsInPatientInStudy(@PathVariable String studyId,
                                                                                            @PathVariable String patientId,
                                                                                            @RequestParam(defaultValue = "SUMMARY") Projection projection,
                                                                                            @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
@@ -73,7 +72,7 @@ public class MutationController {
 
     @RequestMapping(value = "/studies/{studyId}/mutations", method = RequestMethod.GET)
     @ApiOperation("Get all mutations in a study")
-    public ResponseEntity<List<? extends MutationSummary>> getAllMutationsInStudy(@PathVariable String studyId,
+    public ResponseEntity<List<Mutation>> getAllMutationsInStudy(@PathVariable String studyId,
                                                                                   @RequestParam(defaultValue = "SUMMARY") Projection projection,
                                                                                   @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
                                                                                   @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber) {
@@ -82,7 +81,7 @@ public class MutationController {
 
     @RequestMapping(value = "/mutations/query", method = RequestMethod.POST)
     @ApiOperation("Query mutations by example")
-    public ResponseEntity<List<? extends MutationSummary>> queryMutationsByExample(@RequestParam(defaultValue = "SUMMARY") Projection projection,
+    public ResponseEntity<List<Mutation>> queryMutationsByExample(@RequestParam(defaultValue = "SUMMARY") Projection projection,
                                                                                    @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
                                                                                    @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
                                                                                    @RequestBody Mutation exampleMutation) {

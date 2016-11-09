@@ -2936,7 +2936,7 @@
 				});
 				$linkOutIcon.click(function(e) {
 					e.preventDefault();
-					window.open('study?id='+node.id);
+					window.open('study?cohorts='+node.id);
 				});
 			} else {
 				if (this.node_has_descendant_branches(node.id)) {
@@ -3188,6 +3188,15 @@
 			if(!supress_event) {
 				this.trigger('changed', { 'action' : 'deselect_all', 'selected' : this._data.core.selected, 'old_selection' : tmp });
 			}
+		},
+		/**
+         * Jump to study page with selected nodes
+         */
+		dashboard: function() {
+			var selected = $("#select_multiple_studies").val().split(',').map(function(i) {
+				return i.trim();
+			});
+			window.open('study.do?cohorts='+selected.join(','));
 		},
 		/**
 		 * checks if a node is selected

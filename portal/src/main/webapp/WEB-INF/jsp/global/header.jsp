@@ -53,7 +53,21 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
+        	window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
             $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+            vcSessionsManagement = new Vue({
+                el: '#cohort-component',
+                data: {
+                  selectedPatientsNum: 0,
+                  selectedSamplesNum: 0,
+                  userid: 'DEFAULT',
+                  showSaveButton: false,
+                  showManageButton: true,
+                  cohortData: {},
+                  stats: {},
+                  updateStats: false
+                }
+            });
         });
     
         // Set API root variable for cbioportal-frontend repo
@@ -67,7 +81,18 @@
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 </head>
-
+<style type="text/css">
+.cohort-manage-button {
+	font-size: inherit;
+	font-weight: inherit;
+	float: left;
+	text-transform: uppercase;
+	text-decoration: none;
+	background-color: inherit;
+	color: #ffffff;
+	border: none;
+}
+</style>
 <center>
     <div id="page_wrapper">
         <table id="page_wrapper_table" width=100% cellpadding="0px" cellspacing="5px" border="0px">
@@ -161,8 +186,17 @@
 					                            <a href="visualize_your_data.jsp" float="left">VISUALIZE YOUR DATA</a>
 					                        </li>
                                             <% } %>
+											<li class="internal" style="float: left"><a float="left"
+												id="cohort-component" class="session-management"> <session-component
+														:show-save-button="showSaveButton"
+														:show-manage-button="showManageButton"
+														:selected-patients-num="selectedPatientsNum"
+														:selected-samples-num="selectedSamplesNum"
+														:userid="userid" :stats="stats"
+														:update-stats.sync="updateStats"></session-component>
+											</a></li>
 
-                                            <!--li class="internal" style="float:right">
+										<!--li class="internal" style="float:right">
 					    <a href="jobs.jsp" float="right"><b><i>JOBS</i></b></a>
 					    </li-->
                                         </ul>

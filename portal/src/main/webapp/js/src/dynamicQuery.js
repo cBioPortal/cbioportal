@@ -56,6 +56,7 @@ var PROFILE_METHYLATION = "PROFILE_METHYLATION"
 
 var caseSetSelectionOverriddenByUser = false;
 var selectedStudiesStorageKey = "cbioportal_selected_studies";
+var virtualStudies = "";
 
 //  Create Log Function, if FireBug is not Installed.
 if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
@@ -193,8 +194,24 @@ function loadMetaData() {
                 // this code should be about the same as in loadStudyMetaData
                 window.metaDataJson.cancer_studies[window.cancer_study_id_selected] = json;
                 //  Add Meta Data to current page
-                addMetaDataToPage();
-                showNewContent();
+                var username = $('#header_bar_table span').text() || '';
+                vcSession.URL = window.session_service_url+'virtual_cohort/';
+
+                
+                if(username.length>0){
+                    $.when(vcSession.model.loadUserVirtualCohorts(username)).then(function(resp){
+                        virtualStudies = resp;
+                        addMetaDataToPage(virtualStudies);
+                        showNewContent();
+                    }).fail(function () {
+                        addMetaDataToPage([]);
+                        showNewContent();
+                    });
+                }else{
+                        virtualStudies = vcSession.utils.getVirtualCohorts();
+                        addMetaDataToPage(virtualStudies);
+                        showNewContent();
+                }
             });
         });
     }
@@ -395,12 +412,28 @@ function chooseAction(evt) {
 			return false;
 		}
        }
+       // TODO : remve the virtual studies filtering logic when the index.do query
+       // supports querying them
+       var virtualStudiesIdsList = [], selectedVirtualStudyList = [];
+       if(_.isArray(virtualStudies)){
+    	   virtualStudiesIdsList = _.pluck(virtualStudies,'virtualCohortID');
+       }
+       
     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
     if (selected_studies.length === 0 && !window.changingTabs) {
             // select all by default
             $("#jstree").jstree(true).select_node(window.jstree_root_id);
             selected_studies = $("#jstree").jstree(true).get_selected_leaves()
-    }    
+    }
+    if(virtualStudiesIdsList.length>0){
+    	selectedVirtualStudyList = _.filter(selected_studies,function(_id){
+        	return _.indexOf(virtualStudiesIdsList,_id) !== -1;
+        })
+    }
+    if(selectedVirtualStudyList.length>0) {
+        createAnError("Cannot query virtual study(s) for now", $('#select_cancer_type_section'), "");
+        return false;
+    }
     if (selected_studies.length > 1) {
 	if ( haveExpInQuery ) {
             createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
@@ -750,12 +783,14 @@ function cancerStudySelected() {
     $("#main_submit").attr("disabled",false);
 
     var cancerStudyId = $("#select_single_study").val() || "all";
-
-    if (window.metaDataJson.cancer_studies[cancerStudyId].partial==="true") {
+    
+    if(_.isObject(window.metaDataJson.cancer_studies[cancerStudyId])) {
+    	if (window.metaDataJson.cancer_studies[cancerStudyId].partial==="true") {
             console.log("cancerStudySelected( loadStudyMetaData )");
-	    loadStudyMetaData(cancerStudyId);
-    } else {
-	    updateCancerStudyInformation();
+            loadStudyMetaData(cancerStudyId);
+    	} else {
+    		updateCancerStudyInformation();
+    	}
     }
 }
 
@@ -795,7 +830,7 @@ function geneSetSelected() {
 
 //  Adds Meta Data to the Page.
 //  Tiggered at the end of successful AJAX/JSON request.
-function addMetaDataToPage() {
+function addMetaDataToPage(virtualStudies) {
     console.log("Adding Meta Data to Query Form");
     json = window.metaDataJson;
 
@@ -933,7 +968,31 @@ function addMetaDataToPage() {
 	    }
 	}
     }
-    
+    if(_.isArray(virtualStudies) && virtualStudies.length > 0){
+        jstree_data.push({'id':'virtual-study-group', 'parent':jstree_root_id, 'text':'Virtual Studies', 'li_attr':{name:'VIRTUAL STUDY'}});
+        var studyName;
+        var numSamplesInStudy;
+        var samplePlurality;
+        $.each(virtualStudies, function(ind, val) {
+            studyName = truncateStudyName(val.studyName);
+            numSamplesInStudy = val.samplesLength;
+            if (numSamplesInStudy == 1) {
+                        samplePlurality = 'sample';
+                    }
+                    else if (numSamplesInStudy > 1) {
+                        samplePlurality = 'samples';
+                    }
+                    else {
+                        samplePlurality = '';
+                        numSamplesInStudy = '';
+                    }
+            jstree_data.push({'id':val.virtualCohortID, 'parent':'virtual-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'), 
+                'li_attr':{name: studyName, description: val.description}});
+            
+            flat_jstree_data.push({'id':val.virtualCohortID, 'parent':jstree_root_id, 'text':truncateStudyName(val.studyName), 
+                'li_attr':{name: studyName, description: val.description, search_terms: 'VIRTUAL STUDY'}});
+        });
+    }
     while (node_queue.length > 0) {
 	    currNode = node_queue.shift();
 	    if (currNode.desc_studies_count > 0) {

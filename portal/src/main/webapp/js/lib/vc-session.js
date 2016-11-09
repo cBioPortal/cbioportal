@@ -1,5 +1,4 @@
 'use strict';
-
 window.vcSession = window.vcSession ? window.vcSession : {};
 
 (function(vcSession, _) {
@@ -60,15 +59,11 @@ window.vcSession = window.vcSession ? window.vcSession : {};
 })(window.vcSession,
   window._);
 
-
-/**
- * Created by Karthik Kalletla on 3/21/16.
- */
 'use strict';
 window.vcSession = window.vcSession ? window.vcSession : {};
 
 (function(vcSession, _, $) {
-  if(!_.isObject(vcSession)) {
+  if (!_.isObject(vcSession)) {
     vcSession = {};
   }
   vcSession.utils = (function() {
@@ -155,15 +150,11 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   window._,
   window.$ || window.jQuery);
 
-/**
- * Created by Karthik Kalletla on 3/21/16.
- */
-
 'use strict';
 window.vcSession = window.vcSession ? window.vcSession : {};
 
 (function(vcSession, _, $) {
-  if(!_.isObject(vcSession)) {
+  if (!_.isObject(vcSession)) {
     vcSession = {};
   }
   vcSession.model = (function() {
@@ -196,13 +187,13 @@ window.vcSession = window.vcSession ? window.vcSession : {};
         };
         $.ajax({
           type: 'POST',
-          url:  vcSession.URL,
+          url: vcSession.URL,
           contentType: 'application/json;charset=UTF-8',
           data: JSON.stringify(data)
         }).done(function(response) {
-          if(virtualCohort.userID === 'DEFAULT')
-          localStorageAdd_(response.id,
-            virtualCohort);
+          if (virtualCohort.userID === 'DEFAULT')
+            localStorageAdd_(response.id,
+              virtualCohort);
         }).fail(function() {
           localStorageAdd_(vcSession.utils.generateUUID(),
             virtualCohort);
@@ -211,11 +202,11 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       removeSession: function(_virtualCohort) {
         $.ajax({
           type: 'DELETE',
-          url:  vcSession.URL + _virtualCohort.virtualCohortID,
+          url: vcSession.URL + _virtualCohort.virtualCohortID,
           contentType: 'application/json;charset=UTF-8'
         }).done(function() {
-          if(_virtualCohort.userID === 'DEFAULT')
-          localStorageDelete_(_virtualCohort);
+          if (_virtualCohort.userID === 'DEFAULT')
+            localStorageDelete_(_virtualCohort);
         }).fail(function() {
           localStorageDelete_(_virtualCohort);
         });
@@ -226,12 +217,12 @@ window.vcSession = window.vcSession ? window.vcSession : {};
         };
         $.ajax({
           type: 'PUT',
-          url:  vcSession.URL + _virtualCohort.virtualCohortID,
+          url: vcSession.URL + _virtualCohort.virtualCohortID,
           contentType: 'application/json;charset=UTF-8',
           data: JSON.stringify(data)
         }).done(function(response) {
-          if(_virtualCohort.userID === 'DEFAULT')
-          localStorageEdit_(data.virtualCohort);
+          if (_virtualCohort.userID === 'DEFAULT')
+            localStorageEdit_(data.virtualCohort);
         }).fail(function(jqXHR) {
           if (jqXHR.status === 404) {
             localStorageDelete_(_virtualCohort);
@@ -245,10 +236,12 @@ window.vcSession = window.vcSession ? window.vcSession : {};
         var def = new $.Deferred();
         $.ajax({
           type: 'GET',
-          url:  vcSession.URL + 'query/',
+          url: vcSession.URL + 'query/',
           contentType: 'application/json;charset=UTF-8',
-          data: { field : 'data.virtualCohort.userID',
-            value : userID}
+          data: {
+            field: 'data.virtualCohort.userID',
+            value: userID
+          }
         }).done(function(response) {
           var _virtualCohorts = [];
           $.each(response, function(key, val) {
@@ -263,25 +256,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
           def.reject();
         });
         return def.promise();
-      },
-
-      getVirtualCohortDetails: function(virtualCohortID) {
-       /* $.getJSON( vcSession.URL + virtualCohortID, function(response) {
-          iViz.applyVC(_.omit(response.data.virtualCohort,
-            ['created', 'userID', 'virtualCohortID']));
-          jQuery.notify('Imported Virtual Cohort', 'success');
-        }).fail(function() {
-          var virtualCohort_ = _.findWhere(vcSession.utils.getVirtualCohorts(), {
-            virtualCohortID: virtualCohortID
-          });
-          if (virtualCohort_ !== undefined) {
-            iViz.applyVC(_.omit(virtualCohort_,
-              ['created', 'userID', 'virtualCohortID']));
-            jQuery.notify('Imported Virtual Cohort', 'success');
-          } else {
-            jQuery.notify('Error While importing Virtual Cohort', 'error');
-          }
-        });*/
       }
     };
   })();
@@ -289,31 +263,21 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   window._,
   window.$ || window.jQuery);
 
-
-/**
- * Created by Karthik Kalletla on 3/16/16.
- */
-
 'use strict';
 (function(Vue) {
   Vue.component('editableField', {
     // template: '#editable-field',
     props: ['name', 'edit', 'type'],
     template: '<div v-if="edit"><div v-if="type==\'text\'"><input' +
-    ' type="text" v-model="name" placeholder="My Virtual Study"/></div><div' +
-    ' v-if="type==\'textarea\'"><textarea rows="4" cols="50"' +
-    ' v-model="name"></textarea></div></div><div v-else="edit"><span>{{ name' +
-    ' }}</span></div>'
+    ' type="text" v-model="name" placeholder="My Virtual' +
+    ' Study"/></div><div v-if="type==\'textarea\'"><textarea rows="4"' +
+    ' cols="50" v-model="name"></textarea></div></div><div' +
+    ' v-else="edit"><span>{{ name }}</span></div>'
   });
 })(window.Vue);
 
-
-/**
- * Created by Karthik Kalletla on 3/16/16.
- */
-
 'use strict';
-(function(Vue, vcSession, $, Clipboard) {
+(function(Vue, vcSession, $, Clipboard, _) {
   var clipboard = null;
   $(document).on('mouseleave', '.btn-share', function(e) {
     $(e.currentTarget).removeClass('tooltipped tooltipped-s');
@@ -327,16 +291,17 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     ' ><span>{{data.patientsLength}}</span></td><td class="text center"' +
     ' ><span>{{data.samplesLength}}</span></td><td><div class="buttons"' +
     ' :class="{view: !edit}"><button class="btn btn-info"' +
-    ' @click="clickSave(data)"><em class="fa fa-save"></em></button><button' +
-    ' class="btn btn-default" @click="clickCancel()"><em class="fa' +
+    ' @click="clickSave(data)"><em class="fa' +
+    ' fa-save"></em></button><button class="btn btn-default"' +
+    ' @click="clickCancel()"><em class="fa' +
     ' fa-times"></em></button></div><div class="buttons" :class="{view:' +
-    ' !share}"><div class="input-group"> ' +
-    '<input type="text" id="link-to-share" class="form-control"' +
-    'v-model="shortenedLink" disabled><span class="input-group-btn">' +
-    '<button class="btn btn-default btn-share" ' +
-    ' data-clipboard-action="copy" data-clipboard-text={{shortenedLink}}><em' +
-    ' class="fa fa-clipboard" alt="Copy to clipboard"></em></button><button' +
-    ' class="btn btn-default" @click="clickCancel()"><em class="fa' +
+    ' !share}"><div class="input-group"> <input type="text"' +
+    ' id="link-to-share" class="form-control"v-model="shortenedLink"' +
+    ' disabled><span class="input-group-btn"><button class="btn' +
+    ' btn-default btn-share custom-btn"  data-clipboard-action="copy"' +
+    ' data-clipboard-text={{shortenedLink}}><em class="fa fa-clipboard"' +
+    ' alt="Copy to clipboard"></em></button><button class="btn' +
+    ' btn-default custom-btn" @click="clickCancel()"><em class="fa' +
     ' fa-times"></em></button></span></div></div><div class="buttons"' +
     ' :class="{view: edit||share}"><button class="btn btn-info"' +
     ' @click="clickEdit(data)"><em class="fa' +
@@ -349,10 +314,10 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     props: [
       'data', 'showmodal'
     ], created: function() {
-      this.edit = false,
-        this.share = false,
-        this.shortenedLink = '---'
-  },
+      this.edit = false;
+      this.share = false;
+      this.shortenedLink = '---';
+    },
     data: function() {
       return {
         edit: false,
@@ -377,7 +342,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       },
       clickDelete: function(_virtualStudy) {
         if (_.isObject(vcSession)) {
-          this.$dispatch('remove-cohort',_virtualStudy);
+          this.$dispatch('remove-cohort', _virtualStudy);
           vcSession.events.removeVirtualCohort(_virtualStudy);
         }
       },
@@ -392,14 +357,12 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       },
       clickImport: function(_virtualStudy) {
         this.showmodal = false;
-        //TODO: need to update functionality
-        //iViz.applyVC(_virtualStudy);
+        window.open(window.cbioURL + 'study?cohorts=' + _virtualStudy.virtualCohortID);
       },
       clickShare: function(_virtualStudy) {
         // TODO: Create Bitly URL
-        var completeURL = window.location.host + '/?vc_id=' +
+        this.shortenedLink = window.cbioURL + 'study?cohorts=' +
           _virtualStudy.virtualCohortID;
-        this.shortenedLink = completeURL;
         this.share = true;
         // Check if ClipBoard instance is present, If yes re-initialize the
         // instance.
@@ -423,7 +386,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   /**
    * Initialize Clipboard instance
    */
-  function initializeClipBoard(){
+  function initializeClipBoard() {
     var classname = document.getElementsByClassName('btn-share');
     clipboard = new Clipboard(classname);
     clipboard.on('success', function(e) {
@@ -434,11 +397,8 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     });
   }
 })(window.Vue, window.vcSession,
-  window.$ || window.jQuery, window.Clipboard);
+  window.$ || window.jQuery, window.Clipboard, window._);
 
-/**
- * Created by Karthik Kalletla on 3/21/16.
- */
 'use strict';
 (function(Vue) {
   Vue.component('modaltemplate', {
@@ -469,15 +429,9 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   });
 })(window.Vue);
 
-
-/**
- * Created by Karthik Kalletla on 3/21/16.
- */
-
 'use strict';
-(function(Vue, vcSession) {
+(function(Vue, vcSession, _) {
   Vue.component('addVc', {
-
     template: '<modaltemplate :show.sync="addNewVc" size="modal-lg"><div' +
     ' slot="header"><h3 class="modal-title">Save Virtual' +
     ' Cohorts</h3></div><div slot="body"><div' +
@@ -485,24 +439,26 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     ' :&nbsp;</label><span>{{selectedSamplesNum}}</span></div><br><div' +
     ' class="form-group"><label>Number of Patients' +
     ' :&nbsp;</label><span>{{selectedPatientsNum}}</span></div><br><div' +
-    ' class="form-group"><label for="name">Name:</label><input type="text"' +
-    ' class="form-control" v-model="name"  placeholder="My Virtual Cohort"' +
-    ' value="My Virtual Cohort"></div><br><div class="form-group"><label' +
-    ' for="description">Decription:</label><textarea class="form-control"' +
-    ' rows="4" cols="50" v-model="description"></textarea></div></div><div' +
+    ' class="form-group"><label for="name">Name:</label><input' +
+    ' type="text" class="form-control" v-model="name"  placeholder="My' +
+    ' Virtual Cohort" value="My Virtual Cohort"></div><br><div' +
+    ' class="form-group"><label' +
+    ' for="description">Decription:</label><textarea class="form-control popup-textarea"' +
+    ' rows="4" cols="50"' +
+    ' v-model="description"></textarea></div></div><div' +
     ' slot="footer"><button type="button" class="btn btn-default"' +
     ' @click="addNewVc = false">Cancel</button><button type="button"' +
     ' class="btn' +
     ' btn-default"@click="saveCohort()">Save</button></div></modaltemplate>',
-    props: [ 'selectedSamplesNum',
+    props: ['selectedSamplesNum',
       'selectedPatientsNum',
       'userid',
-      'stats','addNewVc','updateStats'],
+      'stats', 'addNewVc', 'updateStats'],
     data: function() {
-      return{
-        name:'My Virtual Cohort',
-        description:''
-      }
+      return {
+        name: 'My Virtual Cohort',
+        description: ''
+      };
     },
     watch: {
       addNewVc: function() {
@@ -515,57 +471,66 @@ window.vcSession = window.vcSession ? window.vcSession : {};
         if (_.isObject(vcSession)) {
           var self_ = this;
           self_.updateStats = true;
-          self_.$nextTick(function(){
+          self_.$nextTick(function() {
             vcSession.events.saveCohort(self_.stats,
               self_.selectedPatientsNum, self_.selectedSamplesNum, self_.userid, self_.name,
               self_.description || '');
             self_.addNewVc = false;
             jQuery.notify('Added to new Virtual Study', 'success');
-          })
+          });
         }
       }
     }
   });
-})(window.Vue, window.vcSession);
+})(window.Vue, window.vcSession, window._);
 
-/**
- * Created by kalletlak on 7/19/16.
- */
 'use strict';
-(function (Vue, $, vcSession) {
+(function(Vue, $, vcSession) {
   Vue.component('sessionComponent', {
-    template: '<div id="cohort-component"><button v-if="showSaveButton" type="button" class="btn btn-default" ' +
-    '@click="addNewVC = true" id="save_cohort_btn">Save Cohort </button> <button v-if="showManageButton" type="button" ' +
-    'class="btn btn-default" @click="manageCohorts()"> <i class="fa fa-bars"></i> </button> ' +
-    '<add-vc :add-new-vc.sync="addNewVC" :selected-samples-num="selectedSamplesNum" ' +
-    ':selected-patients-num="selectedPatientsNum" :userid="userid" :stats="stats" :update-stats.sync="updateStats"></add-vc> ' +
-    '<modaltemplate :show.sync="showVCList" size="modal-xlg"> <div slot="header"> ' +
-    '<h4 class="modal-title">Virtual Cohorts</h4> </div> <div slot="body"> ' +
-    '<table class="table table-bordered table-hover table-condensed"> ' +
-    '<thead> <tr style="font-weight: bold"> <td style="width:20%">Name</td>' +
-    ' <td style="width:40%">Description</td> <td style="width:10%">Patients</td> ' +
-    '<td style="width:10%">Samples</td> <td style="width:20%">Operations</td> </tr> ' +
-    '</thead> <tr is="editable-row" :data="virtualCohort" :showmodal.sync="showVCList" ' +
-    'v-for="virtualCohort in virtualCohorts"> </tr> </table> </div> <div slot="footer"> ' +
-    '</div> </modaltemplate> </div> </nav> </div>',
+    template: '<div id="cohort-component"><button  class="cohort-save-button"' +
+      ' v-if="showSaveButton" type="button" class="btn btn-default"' +
+      ' @click="addNewVC = true" id="save_cohort_btn">Save Cohort </button>' +
+      ' <button class="cohort-manage-button"' +
+      ' v-if="showManageButton" type="button" class="btn btn-default"' +
+      ' @click="manageCohorts()"> Manage Cohorts</i> </button>' +
+      ' <add-vc :add-new-vc.sync="addNewVC"' +
+      ' :selected-samples-num="selectedSamplesNum"' +
+      ' :selected-patients-num="selectedPatientsNum" :userid="userid"' +
+      ' :stats="stats" :update-stats.sync="updateStats"></add-vc>' +
+      ' <modaltemplate :show.sync="showVCList" size="modal-xlg"> <div' +
+      ' slot="header"> <h4 class="modal-title">Virtual Cohorts</h4> </div>' +
+      ' <div slot="body"> <table class="table table-bordered table-hover' +
+      ' table-condensed"> <thead> <tr style="font-weight: bold"> <td' +
+      ' style="width:20%">Name</td> <td style="width:40%">Description</td>' +
+      ' <td style="width:10%">Patients</td> <td' +
+      ' style="width:10%">Samples</td> <td' +
+      ' style="width:20%">Operations</td> </tr> </thead> <tr' +
+      ' is="editable-row" :data="virtualCohort"' +
+      ' :showmodal.sync="showVCList" v-for="virtualCohort in' +
+      ' virtualCohorts"> </tr> </table> </div> <div slot="footer"> </div>' +
+      ' </modaltemplate> </div> </nav> </div>',
     props: [
       'selectedPatientsNum', 'selectedSamplesNum', 'userid', 'showSaveButton', 'showManageButton', 'stats', 'updateStats'
     ],
-    data: function () {
+    data: function() {
       return {
         showVCList: false,
         addNewVC: false,
         virtualCohorts: []
-      }
+      };
     }, events: {
-      'remove-cohort': function (cohort) {
+      'remove-cohort': function(cohort) {
         this.virtualCohorts.$remove(cohort);
       }
     }, methods: {
-      manageCohorts: function () {
-        this.showVCList = true;
-        if (this.userid !== undefined && this.userid !== 'DEFAULT') {
-          this.virtualCohorts = vcSession.model.loadUserVirtualCohorts();
+      manageCohorts: function() {
+        var self = this;
+        self.showVCList = true;
+        if (self.userid !== undefined && self.userid !== '' &&
+          self.userid.length > 0 && self.userid !== 'DEFAULT') {
+          $.when(vcSession.model.loadUserVirtualCohorts(self.userid)).then(function(_virtualCohorts) {
+            self.virtualCohorts = _virtualCohorts;
+          });
         } else {
           this.virtualCohorts = vcSession.utils.getVirtualCohorts();
         }

@@ -655,7 +655,7 @@ var StudyViewProxy = (function() {
         if(obtainDataObject.hasOwnProperty('gistic') && obtainDataObject.gistic){
             deferred.resolve(obtainDataObject.gistic);
         }else{
-            if(hasMutation){
+            if(hasCnaSegmentData){
                 $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData})
                     .then(function(data){
                         obtainDataObject.gistic = data;

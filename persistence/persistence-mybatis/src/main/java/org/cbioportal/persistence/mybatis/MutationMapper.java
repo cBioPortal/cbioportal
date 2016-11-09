@@ -30,7 +30,7 @@ public interface MutationMapper {
     Boolean hasAlleleFrequencyData(@Param("geneticProfileId") Integer geneticProfileId,
                                    @Param("sampleId") Integer sampleId);
 
-    void groupConcatMaxLenSet();
+    Integer groupConcatMaxLenSet();
 
     List<SignificantlyMutatedGene> getSignificantlyMutatedGenes(@Param("geneticProfileId") Integer geneticProfileId,
                                                                 @Param("entrezGeneIds") List<Integer> entrezGeneIds,

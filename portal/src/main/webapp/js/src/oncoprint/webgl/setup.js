@@ -1268,63 +1268,75 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     };
 
     (/**
-      * Initializes the OncoPrint tracks.
+      * Initializes the OncoPrint tracks, populates them and scrolls back.
       *
       * @returns {Promise} - promise that gets fulfilled when the
-      * initialization process is complete, or rejected if data could not be retrieved.
+      * initialization process is complete, or rejected if data
+      * could not be retrieved.
       */
      function initOncoprint() {
 	LoadingBar.show();
 	LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
-	var def = new $.Deferred();
 	oncoprint.setCellPaddingOn(State.cell_padding_on);
-	QuerySession.getOncoprintSampleGenomicEventData()
+	console.log("in initOncoprint, fetching genomic event data");
+	return QuerySession.getOncoprintSampleGenomicEventData()
 	.then(function (oncoprint_data) {
+	    console.log("in initOncoprint, adding genomic event tracks");
 	    State.addGeneticTracks(oncoprint_data);
 	    // return the promise needed for the next step
 	    return QuerySession.getDefaultHeatmapProfile();
 	}).then(function (heatmap_profile_id) {
 	    if (heatmap_profile_id !== null) {
+		console.log("in initOncoprint, fetching heatmap data");
 		return QuerySession.getHeatmapData(heatmap_profile_id, QuerySession.getQueryGenes(), "sample")
 		.then(function (heatmap_data) {
+		    console.log("in initOncoprint, heatmap data fetched, adding tracks");
 		    State.addHeatmapTracks(heatmap_data);
 		});
 	    } else {
 		// heatmap not applicable, return a resolved Promise
 		return $.when();
 	    }
-	}).fail(function () {
-	    def.reject();
+	}).then(function fetchClinicalAttributes() {
+	    console.log("in initOncoprint, fetching clinical attributes");
+	    return QuerySession.getClinicalAttributes()
+	    .then(function (attrs) {
+		console.log("in initOncoprint, clinical attributes fetched");
+		State.unused_clinical_attributes = attrs;
+		return State.clinical_attributes_fetched.resolve().promise();
+	    }).fail(function () {
+		return State.clinical_attributes_fetched.reject().promise();
+	    });
 	}).then(function () {
-	    (function fetchClinicalAttributes() {
-		QuerySession.getClinicalAttributes().then(function (attrs) {
-		    State.unused_clinical_attributes = attrs;
-		    State.clinical_attributes_fetched.resolve();
-		    def.resolve();
-		}).fail(function () {
-		    def.reject();
-		    State.clinical_attributes_fetched.reject();
-		});
-	    })();
+	    // specify sample or patient and populate data as appropriate
+	    console.log("in initOncoprint, setting the data type to " + (State.using_sample_data ? 'sample' : 'patient'));
+	    var dataPopulatedPromise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
+
+	    // zoom out if many columns are selected
+	    console.log("in initOncoprint, fetching altered cases while waiting for data to be populated");
+	    return $.when(QuerySession.getPatientIds(),
+		    QuerySession.getAlteredSamples(),
+		    QuerySession.getAlteredPatients(),
+		    QuerySession.getCaseUIDMap(),
+		    dataPopulatedPromise)
+	    .then(function (patient_ids,
+		    altered_samples,
+		    altered_patients,
+		    case_uid_map) {
+		console.log("in initOncoprint, altered cases fetched, setting zoom level");
+		if ((State.using_sample_data ? QuerySession.getSampleIds() : patient_ids).length > 200) {
+		    // TODO: assume multiple studies
+		    var study_id = QuerySession.getCancerStudyIds()[0];
+		    var getUID = function(id) {
+			return case_uid_map[study_id][id];
+		    };
+		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples.map(getUID) : altered_patients.map(getUID));
+		}
+		oncoprint.scrollTo(0);
+		return $.when();
+	    });
 	})
-	return def.promise();
-    })().then(function () {
-        var populate_data_promise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
-	    
-        $.when(QuerySession.getPatientIds(), QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), QuerySession.getCaseUIDMap(), populate_data_promise).then(function(patient_ids, altered_samples, altered_patients, case_uid_map) {
-	    if ((State.using_sample_data ? window.QuerySession.getSampleIds() : patient_ids).length > 200) {
-		// TODO: assume multiple studies
-		var study_id = QuerySession.getCancerStudyIds()[0];
-		var getUID = function(id) {
-		    return case_uid_map[study_id][id];
-		};
-		oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples.map(getUID) : altered_patients.map(getUID));
-	    }
-	    oncoprint.scrollTo(0);
-	});
-	
-	return populate_data_promise;
-    });
+    })();
     window.oncoprint = oncoprint;
 
     (function setUpToolbar() {

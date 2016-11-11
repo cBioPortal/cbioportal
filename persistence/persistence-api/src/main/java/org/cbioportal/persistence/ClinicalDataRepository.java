@@ -1,23 +1,34 @@
 package org.cbioportal.persistence;
 
-import org.cbioportal.model.PatientClinicalData;
-import org.cbioportal.model.SampleClinicalData;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
 
 public interface ClinicalDataRepository {
 
-    List<SampleClinicalData> getAllClinicalDataOfSampleInStudy(List<String> studyIds, List<String> sampleIds,
-                                                               String attributeId, String projection, Integer pageSize,
-                                                               Integer pageNumber, String sortBy, String direction);
+    List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId,
+                                                               String projection, Integer pageSize, Integer pageNumber,
+                                                               String sortBy, String direction);
 
-    BaseMeta getMetaSampleClinicalData(List<String> studyIds, List<String> sampleIds, String attributeId);
+    BaseMeta getMetaSampleClinicalData(String studyId, String sampleId, String attributeId);
 
-    List<PatientClinicalData> getAllClinicalDataOfPatientInStudy(List<String> studyIds, List<String> patientIds,
-                                                                 String attributeId, String projection,
-                                                                 Integer pageSize, Integer pageNumber, String sortBy,
-                                                                 String direction);
+    List<ClinicalData> getAllClinicalDataOfPatientInStudy(String studyId, String patientId, String attributeId,
+                                                                 String projection, Integer pageSize,
+                                                                 Integer pageNumber, String sortBy, String direction);
 
-    BaseMeta getMetaPatientClinicalData(List<String> studyIds, List<String> patientIds, String attributeId);
+    BaseMeta getMetaPatientClinicalData(String studyId, String patientId, String attributeId);
+
+    List<ClinicalData> getAllClinicalDataInStudy(String studyId, String attributeId,
+                                                                  String clinicalDataType, String projection,
+                                                                  Integer pageSize, Integer pageNumber, String sortBy,
+                                                                  String direction);
+
+    BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType);
+
+    List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, String attributeId,
+                                         String clinicalDataType, String projection);
+
+    BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, String attributeId,
+                                   String clinicalDataType);
 }

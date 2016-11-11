@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.summary.GeneticProfileSummary;
 import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.web.parameter.Direction;
@@ -35,7 +34,7 @@ public class GeneticProfileController {
     @RequestMapping(value = "/genetic-profiles", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all genetic profiles")
-    public ResponseEntity<List<? extends GeneticProfileSummary>> getAllGeneticProfiles(
+    public ResponseEntity<List<GeneticProfile>> getAllGeneticProfiles(
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam("Page size of the result list")
@@ -53,7 +52,7 @@ public class GeneticProfileController {
                     .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends GeneticProfileSummary>>(
+            return new ResponseEntity<>(
                     geneticProfileService.getAllGeneticProfiles(projection.name(), pageSize, pageNumber,
                             sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
         }
@@ -72,7 +71,7 @@ public class GeneticProfileController {
     @RequestMapping(value = "/studies/{studyId}/genetic-profiles", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all genetic profiles in a study")
-    public ResponseEntity<List<? extends GeneticProfileSummary>> getAllGeneticProfilesInStudy(
+    public ResponseEntity<List<GeneticProfile>> getAllGeneticProfilesInStudy(
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam("Level of detail of the response")
@@ -92,7 +91,7 @@ public class GeneticProfileController {
                     .getMetaGeneticProfilesInStudy(studyId).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends GeneticProfileSummary>>(
+            return new ResponseEntity<>(
                     geneticProfileService.getAllGeneticProfilesInStudy(studyId, projection.name(), pageSize, pageNumber,
                             sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
         }

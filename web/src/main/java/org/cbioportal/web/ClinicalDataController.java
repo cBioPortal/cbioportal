@@ -3,9 +3,9 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.web.exception.PageSizeTooBigException;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
-import org.cbioportal.model.summary.ClinicalDataSummary;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.Direction;
@@ -38,7 +38,7 @@ public class ClinicalDataController {
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/clinical-data", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data of a sample in a study")
-    public ResponseEntity<List<? extends ClinicalDataSummary>> getAllClinicalDataOfSampleInStudy(
+    public ResponseEntity<List<ClinicalData>> getAllClinicalDataOfSampleInStudy(
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
@@ -62,7 +62,7 @@ public class ClinicalDataController {
                     studyId, sampleId, attributeId).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends ClinicalDataSummary>>(
+            return new ResponseEntity<>(
                     clinicalDataService.getAllClinicalDataOfSampleInStudy(
                             studyId, sampleId, attributeId, projection.name(), pageSize, pageNumber,
                             sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
@@ -72,7 +72,7 @@ public class ClinicalDataController {
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/clinical-data", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data of a patient in a study")
-    public ResponseEntity<List<? extends ClinicalDataSummary>> getAllClinicalDataOfPatientInStudy(
+    public ResponseEntity<List<ClinicalData>> getAllClinicalDataOfPatientInStudy(
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam(required = true, value = "Patient ID e.g. TCGA-OR-A5J2")
@@ -96,7 +96,7 @@ public class ClinicalDataController {
                     studyId, patientId, attributeId).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends ClinicalDataSummary>>(
+            return new ResponseEntity<>(
                     clinicalDataService.getAllClinicalDataOfPatientInStudy(
                             studyId, patientId, attributeId, projection.name(), pageSize, pageNumber,
                             sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
@@ -106,7 +106,7 @@ public class ClinicalDataController {
     @RequestMapping(value = "/studies/{studyId}/clinical-data", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data in a study")
-    public ResponseEntity<List<? extends ClinicalDataSummary>> getAllClinicalDataInStudy(
+    public ResponseEntity<List<ClinicalData>> getAllClinicalDataInStudy(
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam("Attribute ID e.g. CANCER_TYPE")
@@ -130,7 +130,7 @@ public class ClinicalDataController {
                     attributeId, clinicalDataType == null ? null : clinicalDataType.name()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends ClinicalDataSummary>>(
+            return new ResponseEntity<>(
                     clinicalDataService.getAllClinicalDataInStudy(studyId, attributeId,
                             clinicalDataType == null ? null : clinicalDataType.name(), projection.name(), pageSize,
                             pageNumber, sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
@@ -140,7 +140,7 @@ public class ClinicalDataController {
     @RequestMapping(value = "/clinical-data/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data by patient IDs or sample IDs")
-    public ResponseEntity<List<? extends ClinicalDataSummary>> fetchClinicalData(
+    public ResponseEntity<List<ClinicalData>> fetchClinicalData(
             @ApiParam("Attribute ID e.g. CANCER_TYPE")
             @RequestParam(required = false) String attributeId,
             @ApiParam("Type of the clinical data")
@@ -168,7 +168,7 @@ public class ClinicalDataController {
                     attributeId, clinicalDataType == null ? null : clinicalDataType.name()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends ClinicalDataSummary>>(
+            return new ResponseEntity<>(
                     clinicalDataService.fetchClinicalData(studyIds, ids, attributeId,
                             clinicalDataType == null ? null : clinicalDataType.name(), projection.name()),
                     HttpStatus.OK);

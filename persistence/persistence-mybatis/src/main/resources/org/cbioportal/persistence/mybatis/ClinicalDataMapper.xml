@@ -79,7 +79,7 @@
         </where>
     </sql>
 
-    <select id="getSampleClinicalData" resultType="org.cbioportal.model.SampleClinicalData">
+    <select id="getSampleClinicalData" resultType="org.cbioportal.model.ClinicalData">
         SELECT
         <include refid="selectSample">
             <property name="prefix" value=""/>
@@ -109,7 +109,7 @@
         <include refid="whereSample"/>
     </select>
 
-    <select id="getPatientClinicalData" resultType="org.cbioportal.model.PatientClinicalData">
+    <select id="getPatientClinicalData" resultType="org.cbioportal.model.ClinicalData">
         SELECT
         <include refid="selectPatient">
             <property name="prefix" value=""/>

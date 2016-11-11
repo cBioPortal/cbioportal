@@ -32,6 +32,9 @@
 package org.cbioportal.service.impl;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.cbioportal.model.Gene;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.GeneService;
@@ -49,6 +52,33 @@ public class GeneServiceImpl implements GeneService{
     
     @Override
     public List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol){
-        return geneRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
+
+        List<Gene> genes = geneRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
+        for (Gene gene : genes) {
+            gene.setChromosome(getChromosome(gene));
+        }
+
+        return genes;
+    }
+
+    private String getChromosome(Gene gene) {
+
+        if (gene.getCytoband() == null) {
+            return null;
+        }
+        if (gene.getCytoband().toUpperCase().startsWith("X")) {
+            return "X";
+        }
+        if (gene.getCytoband().toUpperCase().startsWith("Y")) {
+            return "Y";
+        }
+
+        Pattern p = Pattern.compile("([0-9]+).*");
+        Matcher m = p.matcher(gene.getCytoband());
+        if (m.find()) {
+            return m.group(1);
+        }
+
+        return null;
     }
 }

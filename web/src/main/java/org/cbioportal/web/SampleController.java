@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Sample;
-import org.cbioportal.model.summary.SampleSummary;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.web.exception.PageSizeTooBigException;
@@ -35,7 +34,7 @@ public class SampleController {
     @RequestMapping(value = "/studies/{studyId}/samples", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples in a study")
-    public ResponseEntity<List<? extends SampleSummary>> getAllSamplesInStudy(
+    public ResponseEntity<List<Sample>> getAllSamplesInStudy(
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam("Level of detail of the response")
@@ -55,7 +54,7 @@ public class SampleController {
                     .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends SampleSummary>>(
+            return new ResponseEntity<>(
                     sampleService.getAllSamplesInStudy(studyId, projection.name(), pageSize, pageNumber,
                             sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
         }
@@ -76,7 +75,7 @@ public class SampleController {
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/samples", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples of a patient in a study")
-    public ResponseEntity<List<? extends SampleSummary>> getAllSamplesOfPatientInStudy(
+    public ResponseEntity<List<Sample>> getAllSamplesOfPatientInStudy(
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam(required = true, value = "Patient ID e.g. TCGA-OR-A5J2")
@@ -98,7 +97,7 @@ public class SampleController {
                     sampleService.getMetaSamplesOfPatientInStudy(studyId, patientId).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends SampleSummary>>(
+            return new ResponseEntity<>(
                     sampleService.getAllSamplesOfPatientInStudy(studyId, patientId, projection.name(), pageSize,
                             pageNumber, sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
         }
@@ -107,7 +106,7 @@ public class SampleController {
     @RequestMapping(value = "/samples/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch samples by ID")
-    public ResponseEntity<List<? extends SampleSummary>> fetchSamples(
+    public ResponseEntity<List<Sample>> fetchSamples(
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam(required = true, value = "List of sample identifiers")
@@ -131,7 +130,7 @@ public class SampleController {
                     .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<? extends SampleSummary>>(
+            return new ResponseEntity<>(
                     sampleService.fetchSamples(studyIds, sampleIds, projection.name()), HttpStatus.OK);
         }
     }

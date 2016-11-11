@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(TypeMismatchException ex) {
 
-        return new ResponseEntity<>(new ErrorResponse("Request parameter type mismatch: " + ex.getMessage()),
+        return new ResponseEntity<>(new ErrorResponse("Request parameter type mismatch: " + ex.getMostSpecificCause()),
                 HttpStatus.BAD_REQUEST);
     }
 

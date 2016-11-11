@@ -83,6 +83,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return a.concat(b);
 	}, []);
     };
+    var maxInAbsVal = function(a, b) {
+	return ([a,b])[+(Math.abs(a) < Math.abs(b))];
+    };
     var getSimplifiedMutationType = function (type) {
 	var ret = null;
 	type = type.toLowerCase();
@@ -1130,8 +1133,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var def = new $.Deferred();
 	    var self = this;
 	    var sample_ids = self.getSampleIds();
-	    var genes = genes || [];
-	    var sample_or_patient = sample_or_patient || "sample";
+	    genes = genes || [];
+	    sample_or_patient = sample_or_patient || "sample";
 	    $.when(window.cbioportal_client.getGeneticProfileDataBySample({
 		'genetic_profile_ids': [genetic_profile_id],
 		'genes': genes.map(function(x) { return x.toUpperCase(); }),
@@ -1147,7 +1150,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			interim_data[gene][id] = {};
 			interim_data[gene][id]["hugo_gene_symbol"] = gene;
 			interim_data[gene][id][sample_or_patient] = (sample_or_patient === "patient" ? sample_to_patient_map[id] : id);
-			interim_data[gene][id]["profile_data"] = null;
+			interim_data[gene][id]["profile_data"] = [];
 		    }
 		}
 		for (var i = 0; i < client_sample_data.length; i++) {
@@ -1156,7 +1159,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    var id = receive_datum.sample_id;
 		    var interim_datum = interim_data[gene][id];
 		    if (interim_datum) {
-			interim_data[gene][id]["profile_data"] = parseFloat(receive_datum.profile_data);
+			interim_datum.profile_data.push(receive_datum);
 		    }
 		}
 		var send_data = [];
@@ -1168,7 +1171,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    var oncoprint_data = [];
 		    for (var j = 0; j < sample_ids.length; j++) {
 			var id = sample_ids[j];
-			oncoprint_data.push(interim_data[gene][id]);
+			var datum = interim_data[gene][id];
+			// Aggregate data into single value
+			datum.profile_data = (datum.profile_data.length === 0 ? null : datum.profile_data.reduce(function(acc, next) {
+			    return maxInAbsVal(acc, parseFloat(next.profile_data));
+			}, 0));
+			oncoprint_data.push(datum);
 		    }
 		    track_data["oncoprint_data"] = oncoprint_data;
 		    send_data.push(track_data);

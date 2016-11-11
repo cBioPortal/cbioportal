@@ -584,6 +584,11 @@ var OncoprintWebGLCellView = (function () {
 	clearZoneBuffers(this, model);
 	renderAllTracks(this, model);
     }
+    OncoprintWebGLCellView.prototype.setTrackGroupOrder = function(model) {
+	clearZoneBuffers(this, model);
+	renderAllTracks(this, model);
+    }
+    
     OncoprintWebGLCellView.prototype.addTracks = function (model, track_ids) {
 	clearZoneBuffers(this, model);
 	for (var i=0; i<track_ids.length; i++) {

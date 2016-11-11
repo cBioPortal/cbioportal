@@ -218,6 +218,19 @@ var Oncoprint = (function () {
 	
 	resizeAndOrganizeAfterTimeout(this);
     }
+    Oncoprint.prototype.setTrackGroupOrder = function(index, track_order) {
+	this.model.setTrackGroupOrder(index, track_order);
+	this.cell_view.setTrackGroupOrder(this.model);
+	this.label_view.setTrackGroupOrder(this.model);
+	this.track_options_view.setTrackGroupOrder(this.model);
+	this.track_info_view.setTrackGroupOrder(this.model);
+	
+	if (this.keep_sorted) {
+	    this.sort();
+	}
+	
+	resizeAndOrganizeAfterTimeout(this);
+    }
     
     Oncoprint.prototype.keepSorted = function(keep_sorted) {
 	this.keep_sorted = (typeof keep_sorted === 'undefined' ? true : keep_sorted);

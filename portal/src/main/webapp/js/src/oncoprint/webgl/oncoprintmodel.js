@@ -510,6 +510,12 @@ var OncoprintModel = (function () {
 	this.column_left.update();
     }
 
+    OncoprintModel.prototype.setTrackGroupOrder = function(index, track_order) {
+	this.track_groups[index] = track_order;
+	
+	this.track_tops.update();
+    }
+    
     OncoprintModel.prototype.moveTrackGroup = function (from_index, to_index) {
 	var new_groups = [];
 	var group_to_move = this.track_groups[from_index];

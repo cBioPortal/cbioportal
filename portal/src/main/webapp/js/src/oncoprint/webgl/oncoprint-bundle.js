@@ -823,6 +823,19 @@ var Oncoprint = (function () {
 	
 	resizeAndOrganizeAfterTimeout(this);
     }
+    Oncoprint.prototype.setTrackGroupOrder = function(index, track_order) {
+	this.model.setTrackGroupOrder(index, track_order);
+	this.cell_view.setTrackGroupOrder(this.model);
+	this.label_view.setTrackGroupOrder(this.model);
+	this.track_options_view.setTrackGroupOrder(this.model);
+	this.track_info_view.setTrackGroupOrder(this.model);
+	
+	if (this.keep_sorted) {
+	    this.sort();
+	}
+	
+	resizeAndOrganizeAfterTimeout(this);
+    }
     
     Oncoprint.prototype.keepSorted = function(keep_sorted) {
 	this.keep_sorted = (typeof keep_sorted === 'undefined' ? true : keep_sorted);
@@ -1438,6 +1451,11 @@ var OncoprintLabelView = (function () {
 	renderAllLabels(this, model);
     }
     OncoprintLabelView.prototype.moveTrack = function (model) {
+	updateFromModel(this, model);
+	resizeAndClear(this, model);
+	renderAllLabels(this, model);
+    }
+    OncoprintLabelView.prototype.setTrackGroupOrder = function (model) {
 	updateFromModel(this, model);
 	resizeAndClear(this, model);
 	renderAllLabels(this, model);
@@ -2223,6 +2241,12 @@ var OncoprintModel = (function () {
 	this.column_left.update();
     }
 
+    OncoprintModel.prototype.setTrackGroupOrder = function(index, track_order) {
+	this.track_groups[index] = track_order;
+	
+	this.track_tops.update();
+    }
+    
     OncoprintModel.prototype.moveTrackGroup = function (from_index, to_index) {
 	var new_groups = [];
 	var group_to_move = this.track_groups[from_index];
@@ -3985,6 +4009,10 @@ var OncoprintTrackInfoView = (function() {
 	renderAllInfo(this, model);
 	resize(this, model);
     }
+    OncoprintTrackInfoView.prototype.setTrackGroupOrder = function(model) {
+	renderAllInfo(this, model);
+	resize(this, model);
+    }
     OncoprintTrackInfoView.prototype.removeTrack = function(model) {
 	renderAllInfo(this, model);
 	resize(this, model);
@@ -4210,6 +4238,9 @@ var OncoprintTrackOptionsView = (function() {
 	renderAllOptions(this, model);
     }
     OncoprintTrackOptionsView.prototype.moveTrack = function(model) {
+	renderAllOptions(this, model);
+    }
+    OncoprintTrackOptionsView.prototype.setTrackGroupOrder = function(model) {
 	renderAllOptions(this, model);
     }
     OncoprintTrackOptionsView.prototype.removeTrack = function(model, track_id) {
@@ -4807,6 +4838,11 @@ var OncoprintWebGLCellView = (function () {
 	clearZoneBuffers(this, model);
 	renderAllTracks(this, model);
     }
+    OncoprintWebGLCellView.prototype.setTrackGroupOrder = function(model) {
+	clearZoneBuffers(this, model);
+	renderAllTracks(this, model);
+    }
+    
     OncoprintWebGLCellView.prototype.addTracks = function (model, track_ids) {
 	clearZoneBuffers(this, model);
 	for (var i=0; i<track_ids.length; i++) {

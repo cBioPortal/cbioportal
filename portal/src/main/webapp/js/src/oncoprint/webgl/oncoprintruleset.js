@@ -611,7 +611,6 @@ var GradientRuleSet = (function () {
 
     GradientRuleSet.prototype.makeColormapFn = function (scaleArr) {
       var N = scaleArr.length - 2;
-      var intervalWidth = 1 / N;
       var intervals = [];
       for (var i = 0; i <= N; i++) {
         intervals[i] = this.interpScaleColors(scaleArr[i], scaleArr[i + 1]);
@@ -622,8 +621,10 @@ var GradientRuleSet = (function () {
         } else if (t > 1) {
           return scaleArr[N];
         } else {
-          var i = Math.floor(t * N);
-          return intervals[i](t)
+	  var tN = t*N;
+          var i = Math.floor(tN);
+	  var T = tN - i;
+          return intervals[i](T);
         }
       };
     };
@@ -633,35 +634,42 @@ var GradientRuleSet = (function () {
 	    this.removeRule(this.gradient_rule);
 	}
 	var interpFn = this.makeInterpFn();
-  var colormapFn = this.makeColormapFn(heatmapColors[this.colormap]);
+	var colormapFn = this.makeColormapFn(heatmapColors[this.colormap]);
 	var value_key = this.value_key;
 	var color_range = this.color_range;
-  var null_color = this.null_color;
+	var null_color = this.null_color;
+	
+	var colorFn;
+	if (color_range) {
+	    colorFn = function (t) {
+		return "rgba(" + color_range.map(
+			function (arr) {
+			    return (1 - t) * arr[0]
+				    + t * arr[1];
+			}).join(",") + ")";
+	    };
+	} else if (colormapFn) {
+	    colorFn = function (t) {
+		var interp_array = colormapFn(t);
+		return "rgba(" + interp_array.join(",") + ")";
+	    };
+	}
 	this.gradient_rule = this.addRule(function (d) {
 	    return d[NA_STRING] !== true;
 	},
 		{shapes: [{
 			    type: 'rectangle',
-			    fill: function (d) {
-          if (d[value_key]) {
-				var t = interpFn(d[value_key]);
-            if (color_range) {
-				return "rgba(" + color_range.map(
-					function (arr) {
-					    return (1 - t) * arr[0]
-						    + t * arr[1];
-					}).join(",") + ")";
-          } else {
-              var interp_array = colormapFn(t);
-              return "rgba(" + interp_array.join(",") + ")";
-            }
-          } else {
-            return null_color;
-          }
+			    fill: function(d) {
+				if (d[value_key]) {
+				    var t = interpFn(d[value_key]);
+				    return colorFn(t);
+				} else {
+				    return null_color;
+				}
 			    }
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'gradient', 'range': this.getEffectiveValueRange()}
+		    legend_config: {'type': 'gradient', 'range': this.getEffectiveValueRange(), 'colorFn':colorFn}
 		});
     };
 

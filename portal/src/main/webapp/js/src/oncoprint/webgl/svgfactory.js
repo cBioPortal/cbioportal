@@ -11,10 +11,20 @@ var extractColor = function(str) {
     }
     var rgba_arr = extractRGBA(str);
     return {
-	'rgb': 'rgb('+rgba_arr[0]*255+','+rgba_arr[1]*255+','+rgba_arr[2]*255+')',
+	'rgb': 'rgb('+Math.round(rgba_arr[0]*255)+','+Math.round(rgba_arr[1]*255)+','+Math.round(rgba_arr[2]*255)+')',
 	'opacity': rgba_arr[3]
     };
 };
+
+function makeIdCounter() {
+    var id = 0;
+    return function () {
+	id += 1;
+	return id;
+    };
+}
+
+var gradientId = makeIdCounter();
 
 module.exports = {
     text: function(content,x,y,size,family,weight,alignment_baseline) {
@@ -101,6 +111,27 @@ module.exports = {
 	    'fill': fill.rgb,
 	    'fill-opacity': fill.opacity
 	});
+    },
+    defs: function() {
+	return makeSVGElement('defs');
+    },
+    gradient: function(colorFn) {
+	var gradient = makeSVGElement('linearGradient', {
+	    'id': 'gradient'+gradientId(),
+	    'x1':0,
+	    'y1':0,
+	    'x2':1,
+	    'y2':0
+	});
+	for (var i=0; i<=100; i++) {
+	    var color = extractColor(colorFn(i/100));
+	    gradient.appendChild(makeSVGElement('stop', {
+		'offset': i + '%',
+		'stop-color':color.rgb,
+		'stop-opacity': color.opacity
+	    }));
+	}
+	return gradient;
     }
 };
 

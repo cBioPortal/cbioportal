@@ -121,7 +121,7 @@ public class ApiService {
 		List<String> genetic_profile_ids = new LinkedList<>();
 		genetic_profile_ids.add(genetic_profile_id);
 		List<Mutation> mutations = mutationService.getMutationsDetailed(genetic_profile_ids, new LinkedList<String>(), sample_ids, null);
-		HashMap<String, List<Mutation>> mutationsBySample = new HashMap<>();
+		HashMap<String, LinkedList<Mutation>> mutationsBySample = new HashMap<>();
 		for (Mutation mutation:  mutations) {
 			String id = mutation.getSampleId().toString();
 			if (!mutationsBySample.containsKey(id)) {
@@ -131,8 +131,8 @@ public class ApiService {
 		}
 		List<MutationSignature> signatures = new LinkedList<>();
 		if (context_size_on_each_side_of_snp == 0) {
-			for (Map.Entry kv: mutationsBySample.entrySet()) {
-				signatures.add(MutationSignatureFactory.NoContextMutationSignature((String)kv.getKey(), (List<Mutation>)kv.getValue()));
+			for (Map.Entry<String, LinkedList<Mutation>> kv: mutationsBySample.entrySet()) {
+                                signatures.add(MutationSignatureFactory.NoContextMutationSignature((String)kv.getKey(), kv.getValue()));
 			}
 		}
 		// TODO: implement other contexts

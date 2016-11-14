@@ -375,7 +375,9 @@
          	if(vcSession.URL !== undefined) {
          		iViz.vue.manage.getInstance().showSaveButton=true;
              	iViz.vue.manage.getInstance().showManageButton=false;
-             	iViz.vue.manage.getInstance().userid = username;
+             	if(username !== '') {
+             		iViz.vue.manage.getInstance().loadUserSpecificCohorts = true;
+             	}
          	}
          	
 

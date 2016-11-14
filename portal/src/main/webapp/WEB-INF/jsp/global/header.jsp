@@ -65,9 +65,7 @@ String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "
                 vcSessionsManagement = new Vue({
                     el: '#cohort-component',
                     data: {
-                      selectedPatientsNum: 0,
-                      selectedSamplesNum: 0,
-                      userid: username,
+                      loadUserSpecificCohorts: (username !== '') ? true : false,
                       showSaveButton: false,
                       showManageButton: true,
                       cohortData: {},
@@ -201,9 +199,8 @@ String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "
 												id="cohort-component" class="session-management"> <session-component
 														:show-save-button="showSaveButton"
 														:show-manage-button="showManageButton"
-														:selected-patients-num="selectedPatientsNum"
-														:selected-samples-num="selectedSamplesNum"
-														:userid="userid" :stats="stats"
+														:load-user-specific-cohorts="loadUserSpecificCohorts"
+														:stats="stats"
 														:update-stats.sync="updateStats"
 														:show-share-button="showShareButton"></session-component>
 											</a></li>

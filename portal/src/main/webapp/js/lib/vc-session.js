@@ -1,4 +1,6 @@
 'use strict';
+// Move vcSession initialization to here since the sessionEvent.js
+// is the first one to be called in the dependency list.
 window.vcSession = window.vcSession ? window.vcSession : {};
 
 (function(vcSession, _) {
@@ -7,11 +9,8 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   }
   vcSession.events = (function() {
     return {
-      saveCohort: function(stats, selectedPatientsNum, selectedSamplesNum,
-                           userID, name, description) {
-        var _virtualCohort = vcSession.utils.buildVCObject(stats.filters,
-          selectedPatientsNum, selectedSamplesNum, stats.selected_cases,
-          userID,
+      saveCohort: function(stats, name, description) {
+        var _virtualCohort = vcSession.utils.buildVCObject(stats.filters, stats.selectedCases,
           name, description);
         vcSession.model.saveSession(_virtualCohort);
       },
@@ -41,13 +40,14 @@ window.vcSession = window.vcSession ? window.vcSession : {};
             var _selectedCases = vcSession.utils.buildCaseListObject(
               _studyMatch.selectedCases, cancerStudyID, sampleID);
             _studyMatch.selectedCases = _selectedCases;
-            _studyMatch.samplesLength += 1;
+            // TODO: this is the question I have for a while, should we have
+            // individual length property? I understand it's convenient
+            // but also easy to get out of sync with the samples array.
             _returnString = 'success';
           } else if (_.contains(_match.samples, sampleID)) {
             _returnString = 'warn';
           } else {
             _match.samples.push(sampleID);
-            _studyMatch.samplesLength += 1;
             _returnString = 'success';
           }
           this.editVirtualCohort(_studyMatch);
@@ -60,7 +60,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   window._);
 
 'use strict';
-window.vcSession = window.vcSession ? window.vcSession : {};
 
 (function(vcSession, _, $) {
   if (!_.isObject(vcSession)) {
@@ -68,13 +67,11 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   }
   vcSession.utils = (function() {
     var virtualCohort_ = {
-      studyName: 'My virtual study',
-      description: 'My virtual study - Description',
+      studyName: '',
+      description: '',
       userID: 'DEFAULT',
       created: '',
       filters: '',
-      samplesLength: '',
-      patientsLength: '',
       selectedCases: ''
     };
 
@@ -108,23 +105,17 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       localStorage.setItem('virtual-cohorts', JSON.stringify(virtualCohorts));
     };
 
-    var buildVCObject_ = function(filters, patientsLength,
-                                  samplesLength, cases, userID, name,
+    var buildVCObject_ = function(filters, cases, name,
                                   description) {
       var _virtualCohort = $.extend(true, {}, virtualCohort_);
       _virtualCohort.filters = filters;
       _virtualCohort.selectedCases = cases;
-      _virtualCohort.samplesLength = samplesLength;
-      _virtualCohort.patientsLength = patientsLength;
       _virtualCohort.created = new Date().getTime();
       if (name) {
         _virtualCohort.studyName = name;
       }
       if (description) {
         _virtualCohort.description = description;
-      }
-      if (userID) {
-        _virtualCohort.userID = userID;
       }
       return _virtualCohort;
     };
@@ -151,7 +142,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   window.$ || window.jQuery);
 
 'use strict';
-window.vcSession = window.vcSession ? window.vcSession : {};
 
 (function(vcSession, _, $) {
   if (!_.isObject(vcSession)) {
@@ -220,6 +210,8 @@ window.vcSession = window.vcSession ? window.vcSession : {};
             localStorageEdit_(_virtualCohort);
           }
         }).fail(function(jqXHR) {
+          // TODO: should we delete the virtual cohort if no record found
+          // in the database? Should we add it into database?
           if (jqXHR.status === 404) {
             localStorageDelete_(_virtualCohort);
             vcSession.model.saveSession(_virtualCohort);
@@ -228,15 +220,16 @@ window.vcSession = window.vcSession ? window.vcSession : {};
           }
         });
       },
-      loadUserVirtualCohorts: function(userID) {
+      /*
+      This method would be used in cbio to get user specific cohorts
+       // TODO: should we send request without validating userID?
+       */
+      loadUserVirtualCohorts: function() {
         var def = new $.Deferred();
         $.ajax({
           type: 'GET',
           url: vcSession.URL + '/get-user-cohorts',
-          contentType: 'application/json;charset=UTF-8',
-          data: {
-            email: userID
-          }
+          contentType: 'application/json;charset=UTF-8'
         }).done(function(response) {
           var _virtualCohorts = [];
           $.each(response, function(key, val) {
@@ -281,8 +274,8 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     ' :name.sync="data.studyName" :edit="edit" type="text"/></td><td' +
     ' class="text center" ><editable-field :name.sync="data.description"' +
     ' :edit="edit" type="textarea"/></td><td class="text center"' +
-    ' ><span>{{data.patientsLength}}</span></td><td class="text center"' +
-    ' ><span>{{data.samplesLength}}</span></td><td><div class="buttons"' +
+    ' ><span>{{selectedSamplesNum}}</span></td><td class="text center"' +
+    ' ><span>{{selectedPatientsNum}}</span></td><td><div class="buttons"' +
     ' :class="{view: !edit}"><button class="btn btn-info"' +
     ' @click="clickSave(data)"><em class="fa' +
     ' fa-save"></em></button><button class="btn btn-default"' +
@@ -307,6 +300,17 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     props: [
       'data', 'showmodal', 'showShareButton'
     ], created: function() {
+      var _selectedSamplesNum = 0;
+      var _selectedPatientsNum = 0;
+      console.log(this.data);
+      if (_.isObject(this.data.selectedCases)) {
+        _.each(this.data.selectedCases, function(studyCasesMap) {
+          _selectedSamplesNum += studyCasesMap.samples.length;
+          _selectedPatientsNum += studyCasesMap.patients.length;
+        });
+        this.selectedSamplesNum = _selectedSamplesNum;
+        this.selectedPatientsNum = _selectedPatientsNum;
+      }
       this.edit = false;
       this.share = false;
       this.shortenedLink = '---';
@@ -315,7 +319,9 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       return {
         edit: false,
         share: false,
-        shortenedLink: '---'
+        shortenedLink: '---',
+        selectedSamplesNum: 0,
+        selectedPatientsNum: 0
       };
     },
     methods: {
@@ -350,6 +356,13 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       },
       clickImport: function(_virtualStudy) {
         this.showmodal = false;
+        // TODO: from my test cases, I have some visual cohorts stored in my
+        // localstorage without virtualCohortID. Should we hide Visualize AND share
+        // buttons if the id is not available or virtual study will always have
+        // a virtualCohortID? What if the session service is not available?
+        // This back to my previous question, if the virtual cohort is not
+        // available in database and API returnS 404, should we insert to
+        // databAse, or delete from localstorage?
         window.open(window.cbioURL + 'study?cohorts=' + _virtualStudy.virtualCohortID);
       },
       clickShare: function(_virtualStudy) {
@@ -434,43 +447,51 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     ' :&nbsp;</label><span>{{selectedPatientsNum}}</span></div><br><div' +
     ' class="form-group"><label for="name">Name:</label><input' +
     ' type="text" class="form-control" v-model="name"  placeholder="My' +
-    ' Virtual Cohort" value="My Virtual Cohort"></div><br><div' +
+    ' Virtual Cohort"></div><br><div' +
     ' class="form-group"><label' +
-    ' for="description">Decription:</label><textarea class="form-control popup-textarea"' +
+    ' for="description">Decription:</label><textarea placeholder="Virtual Cohort Description" class="form-control popup-textarea"' +
     ' rows="4" cols="50"' +
     ' v-model="description"></textarea></div></div><div' +
     ' slot="footer"><button type="button" class="btn btn-default"' +
     ' @click="addNewVc = false">Cancel</button><button type="button"' +
-    ' class="btn' +
-    ' btn-default"@click="saveCohort()">Save</button></div></modaltemplate>',
-    props: ['selectedSamplesNum',
-      'selectedPatientsNum',
-      'userid',
-      'stats', 'addNewVc', 'updateStats'],
+    ' class="btn btn-default" v-if="selectedSamplesNum>0 || selectedPatientsNum>0" @click="saveCohort()">Save</button></div></modaltemplate>',
+    props: ['stats', 'addNewVc'],
     data: function() {
       return {
-        name: 'My Virtual Cohort',
-        description: ''
+        name: ' ',
+        description: '',
+        selectedSamplesNum: 0,
+        selectedPatientsNum: 0
       };
     },
     watch: {
       addNewVc: function() {
-        this.name = 'My Virtual Cohort';
+        this.name = '';
         this.description = '';
+        var _selectedSamplesNum = 0;
+        var _selectedPatientsNum = 0;
+        if (_.isObject(this.stats.selectedCases)) {
+          _.each(this.stats.selectedCases, function(studyCasesMap) {
+            _selectedSamplesNum += studyCasesMap.samples.length;
+            _selectedPatientsNum += studyCasesMap.patients.length;
+          });
+          this.selectedSamplesNum = _selectedSamplesNum;
+          this.selectedPatientsNum = _selectedPatientsNum;
+        }
       }
     },
     methods: {
       saveCohort: function() {
         if (_.isObject(vcSession)) {
           var self_ = this;
-          self_.updateStats = true;
-          self_.$nextTick(function() {
-            vcSession.events.saveCohort(self_.stats,
-              self_.selectedPatientsNum, self_.selectedSamplesNum, self_.userid, self_.name,
-              self_.description || '');
-            self_.addNewVc = false;
-            jQuery.notify('Added to new Virtual Study', 'success');
-          });
+          vcSession.events.saveCohort(self_.stats, self_.name || 'My Virtual Cohort',
+            self_.description || '');
+          self_.addNewVc = false;
+          jQuery.notify('Added to new Virtual Study', 'success');
+        } else {
+          // TODO: if we need to consider whether vcSession is available,
+          // should we have similar notify as well like
+          // jQuery.notify('Session service is not available', 'Warning');
         }
       }
     }
@@ -482,14 +503,12 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   Vue.component('sessionComponent', {
     template: '<div id="cohort-component"><button  class="cohort-save-button"' +
       ' v-if="showSaveButton" type="button" class="btn btn-default"' +
-      ' @click="addNewVC = true" id="save_cohort_btn">Save Cohort </button>' +
+      ' @click="saveCohort()" id="save_cohort_btn">Save Cohort </button>' +
       ' <button class="cohort-manage-button"' +
       ' v-if="showManageButton" type="button" class="btn btn-default"' +
       ' @click="manageCohorts()"> Manage Cohorts</i> </button>' +
       ' <add-vc :add-new-vc.sync="addNewVC"' +
-      ' :selected-samples-num="selectedSamplesNum"' +
-      ' :selected-patients-num="selectedPatientsNum" :userid="userid"' +
-      ' :stats="stats" :update-stats.sync="updateStats"></add-vc>' +
+      ' :stats="stats"></add-vc>' +
       ' <modaltemplate :show.sync="showVCList" size="modal-xlg"> <div' +
       ' slot="header"> <h4 class="modal-title">Virtual Cohorts</h4> </div>' +
       ' <div slot="body"> <table class="table table-bordered table-hover' +
@@ -503,7 +522,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       ' virtualCohorts"> </tr> </table> </div> <div slot="footer"> </div>' +
       ' </modaltemplate> </div> </nav> </div>',
     props: [
-      'selectedPatientsNum', 'selectedSamplesNum', 'userid', 'showSaveButton', 'showManageButton', 'stats', 'updateStats', 'showShareButton'
+      'loadUserSpecificCohorts', 'showSaveButton', 'showManageButton', 'stats', 'updateStats', 'showShareButton'
     ],
     data: function() {
       return {
@@ -519,14 +538,20 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       manageCohorts: function() {
         var self = this;
         self.showVCList = true;
-        if (self.userid !== undefined && self.userid !== '' &&
-          self.userid.length > 0 && self.userid !== 'DEFAULT') {
-          $.when(vcSession.model.loadUserVirtualCohorts(self.userid)).then(function(_virtualCohorts) {
+        if (self.loadUserSpecificCohorts) {
+          $.when(vcSession.model.loadUserVirtualCohorts()).then(function(_virtualCohorts) {
             self.virtualCohorts = _virtualCohorts;
           });
         } else {
           this.virtualCohorts = vcSession.utils.getVirtualCohorts();
         }
+      },
+      saveCohort: function() {
+        var _self = this;
+        _self.updateStats = true;
+        _self.$nextTick(function() {
+          _self.addNewVC = true;
+        });
       }
     }
   });

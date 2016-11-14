@@ -44,6 +44,9 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.*;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -212,7 +215,12 @@ public class ProxyController
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.setErrorHandler(new CustomResponseErrorHandler());
 		URI uri = new URI(sessionServiceURL + "virtual_cohort");
-
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null) {
+			body.put("userID", ((User) authentication.getPrincipal()).getUsername());
+		} else {
+			body.put("userID", "DEFAULT");
+		}
 		return restTemplate.exchange(uri, HttpMethod.POST,
 				new HttpEntity<JSONObject>(body), JSONObject.class);
 	}
@@ -243,18 +251,19 @@ public class ProxyController
 	}
 	
 	@RequestMapping(value = "/virtual-cohort/get-user-cohorts", method = RequestMethod.GET)
-	public @ResponseBody JSONArray getUserVirtualCohorts(@RequestParam String email) throws URISyntaxException {
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.setErrorHandler(new CustomResponseErrorHandler());
-		String urlString = sessionServiceURL + "virtual_cohort";
+	public @ResponseBody JSONArray getUserVirtualCohorts() throws URISyntaxException {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		JSONArray responseObject = new JSONArray();
-		if(email != null) {
-			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(urlString+"/query")
-			        .queryParam("field","data.userID")
-			        .queryParam("value", email);
+		if (authentication != null) {
+			User user = (User) authentication.getPrincipal();
+			RestTemplate restTemplate = new RestTemplate();
+			restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+			String urlString = sessionServiceURL + "virtual_cohort";
+			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(urlString + "/query")
+					.queryParam("field", "data.userID").queryParam("value", user.getUsername());
 			ResponseEntity<JSONArray> responseEntity = restTemplate.exchange(builder.build().toUri(), HttpMethod.GET,
 					new HttpEntity<JSONObject>(new JSONObject()), JSONArray.class);
-			responseObject =  responseEntity.getBody();
+			responseObject = responseEntity.getBody();
 		}
 		return responseObject;
 	}

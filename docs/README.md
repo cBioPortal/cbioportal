@@ -30,8 +30,10 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [More portal.properties Settings](portal.properties-Reference.md)
 
 ### 2.4 Docker
-* [Introduction to Docker](Docker-Introduction.md)
-* [Deploying cBioPortal in Docker](Build-from-Docker.md)
+* [Docker Prerequisites](Docker-Prerequisites.md)
+* [Deploy using Docker](Deploy-Using-Docker.md)
+* [Uninstall Docker cBioPortal](Uninstall-Docker-cBioPortal.md)
+* [Import a Study Using Docker](Import-Study-Using-Docker.md)
 
 ## 3. cBioPortal Maintenance
 * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)

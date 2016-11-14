@@ -523,14 +523,20 @@ INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUE
 INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (14,4,NULL);
 
 -- sample_list
-INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (1,'study_tcga_pub_all','other',1,'All Tumors','All tumor samples (14 samples)');
-INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (2,'study_tcga_pub_acgh','other',1,'Tumors aCGH','All tumors with aCGH data (778 samples)');
-INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (3,'study_tcga_pub_cnaseq','other',1,'Tumors with sequencing and aCGH data','All tumor samples that have CNA and sequencing data (482 samples)');
-INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (4,'study_tcga_pub_complete','other',1,'Complete samples (mutations, copy-number, expression)','Samples with complete data (463 samples)');
-INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (5,'study_tcga_pub_log2CNA','other',1,'Tumors log2 copy-number','All tumors with log2 copy-number data (778 samples)');
-INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (6,'study_tcga_pub_methylation_hm27','all_cases_with_mutation_data',1,'Tumors with methylation data','All samples with methylation (HM27) data (311 samples)');
-INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (7,'study_tcga_pub_mrna','other',1,'Tumors with mRNA data (Agilent microarray)','All samples with mRNA expression data (526 samples)');
-INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (8,'study_tcga_pub_sequenced','other',1,'Sequenced Tumors','All sequenced samples (507 samples)');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (1,'study_tcga_pub_all','other',1,'All Tumors','All tumor samples');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (2,'study_tcga_pub_acgh','other',1,'Tumors aCGH','All tumors with aCGH data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (3,'study_tcga_pub_cnaseq','other',1,'Tumors with sequencing and aCGH data','All tumor samples that have CNA and sequencing data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (4,'study_tcga_pub_complete','other',1,'Complete samples (mutations, copy-number, expression)','Samples with complete data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (5,'study_tcga_pub_log2CNA','other',1,'Tumors log2 copy-number','All tumors with log2 copy-number data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (6,'study_tcga_pub_methylation_hm27','all_cases_with_mutation_data',1,'Tumors with methylation data','All samples with methylation (HM27) data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (7,'study_tcga_pub_mrna','other',1,'Tumors with mRNA data (Agilent microarray)','All samples with mRNA expression data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (8,'study_tcga_pub_sequenced','other',1,'Sequenced Tumors','All sequenced samples');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (9,'study_tcga_pub_cna','other',1,'Tumor Samples with CNA data','All tumors with CNA data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (10,'study_tcga_pub_rna_seq_v2_mrna','other',1,'Tumor Samples with mRNA data (RNA Seq V2)','All samples with mRNA expression data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (11,'study_tcga_pub_microrna','other',1,'Tumors with microRNA data (microRNA-Seq)','All samples with microRNA data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (12,'study_tcga_pub_rppa','other',1,'Tumor Samples with RPPA data','Tumors with reverse phase protein array (RPPA) data for about 200 antibodies');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (13,'study_tcga_pub_3way_complete','other',1,'All Complete Tumors','All tumor samples that have mRNA, CNA and sequencing data');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (14,'acc_tcga_all','other',2,'All Tumors','All tumor samples');
 
 -- sample_list_list
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,1);
@@ -605,6 +611,28 @@ INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,8);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,9);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,10);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (9,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (9,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (9,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (9,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (9,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (9,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (9,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (10,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (10,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (10,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (10,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (10,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (10,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (10,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (13,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (13,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (13,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (13,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (13,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (13,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (13,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (14,15);
 
 INSERT INTO "copy_number_seg" ("SEG_ID","CANCER_STUDY_ID","SAMPLE_ID","CHR","START","END","NUM_PROBES","SEGMENT_MEAN") VALUES (50236594, 1, 1, '1', 224556, 180057677, 291, 0.0519);
 INSERT INTO "copy_number_seg" ("SEG_ID","CANCER_STUDY_ID","SAMPLE_ID","CHR","START","END","NUM_PROBES","SEGMENT_MEAN") VALUES (50236593, 1, 2,	'2', 1402650, 190262486, 207, 0.0265);

@@ -22,12 +22,27 @@
         </if>
     </sql>
 
+    <sql id="selectDetailed">
+        ,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_sequenced') THEN 1 ELSE NULL END) AS sequencedSampleCount,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_cna') THEN 1 ELSE NULL END) AS cnaSampleCount,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rna_seq_v2_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqV2SampleCount,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_microrna') THEN 1 ELSE NULL END) AS mrnaMicroarraySampleCount,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_mrna') THEN 1 ELSE NULL END) AS miRnaSampleCount,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_methylation_hm27') THEN 1 ELSE NULL END) AS methylationHm27SampleCount,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
+        <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
+            <property name="prefix" value="typeOfCancer."/>
+        </include>
+    </sql>
+
     <sql id="from">
         FROM cancer_study
+        INNER JOIN sample_list ON cancer_study.CANCER_STUDY_ID = sample_list.CANCER_STUDY_ID
+        INNER JOIN sample_list_list ON sample_list.LIST_ID = sample_list_list.LIST_ID
         <if test="projection == 'DETAILED'">
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
-            INNER JOIN patient ON cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
-            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
         </if>
     </sql>
 
@@ -36,17 +51,13 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
+        ,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         <if test="projection == 'DETAILED'">
-            ,
-            COUNT(*) AS "sampleCount",
-            <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
-                <property name="prefix" value="typeOfCancer."/>
-            </include>
+            <include refid="selectDetailed"/>
         </if>
         <include refid="from"/>
-        <if test="projection == 'DETAILED'">
-            GROUP BY cancer_study.CANCER_STUDY_ID
-        </if>
+        GROUP BY cancer_study.CANCER_STUDY_ID
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
@@ -69,18 +80,14 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
+        ,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         <if test="projection == 'DETAILED'">
-            ,
-            COUNT(*) AS "sampleCount",
-            <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
-                <property name="prefix" value="typeOfCancer."/>
-            </include>
+            <include refid="selectDetailed"/>
         </if>
         <include refid="from"/>
         WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
-        <if test="projection == 'DETAILED'">
-            GROUP BY cancer_study.CANCER_STUDY_ID
-        </if>
+        GROUP BY cancer_study.CANCER_STUDY_ID
     </select>
 
 </mapper>

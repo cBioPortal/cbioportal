@@ -62,6 +62,7 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
+        Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
         Assert.assertNull(cancerStudy.getTypeOfCancer());
     }
 
@@ -89,6 +90,15 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
+        Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
+        Assert.assertEquals((Integer) 7, cancerStudy.getCnaSampleCount());
+        Assert.assertEquals((Integer) 7, cancerStudy.getCompleteSampleCount());
+        Assert.assertEquals((Integer) 1, cancerStudy.getMethylationHm27SampleCount());
+        Assert.assertEquals((Integer) 8, cancerStudy.getMiRnaSampleCount());
+        Assert.assertEquals((Integer) 0, cancerStudy.getMrnaMicroarraySampleCount());
+        Assert.assertEquals((Integer) 7, cancerStudy.getMrnaRnaSeqV2SampleCount());
+        Assert.assertEquals((Integer) 0, cancerStudy.getRppaSampleCount());
+        Assert.assertEquals((Integer) 7, cancerStudy.getSequencedSampleCount());
         TypeOfCancer typeOfCancer = cancerStudy.getTypeOfCancer();
         Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
@@ -155,6 +165,15 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", result.getGroups());
         Assert.assertEquals((Integer) 0 , result.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), result.getImportDate());
+        Assert.assertEquals((Integer) 14, result.getAllSampleCount());
+        Assert.assertEquals((Integer) 7, result.getCnaSampleCount());
+        Assert.assertEquals((Integer) 7, result.getCompleteSampleCount());
+        Assert.assertEquals((Integer) 1, result.getMethylationHm27SampleCount());
+        Assert.assertEquals((Integer) 8, result.getMiRnaSampleCount());
+        Assert.assertEquals((Integer) 0, result.getMrnaMicroarraySampleCount());
+        Assert.assertEquals((Integer) 7, result.getMrnaRnaSeqV2SampleCount());
+        Assert.assertEquals((Integer) 0, result.getRppaSampleCount());
+        Assert.assertEquals((Integer) 7, result.getSequencedSampleCount());
         TypeOfCancer typeOfCancer = result.getTypeOfCancer();
         Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());

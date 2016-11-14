@@ -231,7 +231,7 @@
                                     ret += "<span class='annotation-item'></span>";
                                 }
                                 if (showHotspot && mutations.getValue(source[0], 'is-hotspot')) {
-                                    ret += "<span class='annotation-item " + table_id + "-hotspot' alteration='" + aa + "' oncokbId='" + source[0] + "'><img width='14' height='14' src='images/oncokb-flame.svg'></span>";
+                                    ret += "<span class='annotation-item " + table_id + "-hotspot' alteration='" + aa + "' oncokbId='" + source[0] + "'><img width='14' height='14' src='images/cancer-hotspots.svg'></span>";
                                 }else {
                                     ret += "<span class='annotation-item'></span>";
                                 }

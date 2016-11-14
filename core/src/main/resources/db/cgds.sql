@@ -335,8 +335,8 @@ CREATE TABLE `mutation_event` (
   `CHR` varchar(5),
   `START_POSITION` bigint(20),
   `END_POSITION` bigint(20),
-  `REFERENCE_ALLELE` varchar(255),
-  `TUMOR_SEQ_ALLELE` varchar(255),
+  `REFERENCE_ALLELE` varchar(400),
+  `TUMOR_SEQ_ALLELE` varchar(400),
   `PROTEIN_CHANGE` varchar(255),
   `MUTATION_TYPE` varchar(255) COMMENT 'e.g. Missense, Nonsence, etc.',
   `FUNCTIONAL_IMPACT_SCORE` varchar(50) COMMENT 'Result from OMA/XVAR.',
@@ -736,4 +736,4 @@ CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(8)
 ) DEFAULT CHARSET=utf8;
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('1.3.0');
+INSERT INTO info VALUES ('1.3.2');

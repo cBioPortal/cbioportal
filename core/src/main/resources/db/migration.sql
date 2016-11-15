@@ -191,3 +191,8 @@ CREATE TABLE `structural_variant` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
 );
 UPDATE info SET DB_SCHEMA_VERSION="1.3.1";
+
+##version: 1.4.0
+-- alter version number to distinguish from cbioportal web application version numbering
+ALTER TABLE info MODIFY COLUMN DB_SCHEMA_VERSION VARCHAR(24);
+UPDATE info SET DB_SCHEMA_VERSION="1.4.0";

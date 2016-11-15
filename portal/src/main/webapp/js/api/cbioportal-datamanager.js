@@ -1135,12 +1135,17 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var sample_ids = self.getSampleIds();
 	    genes = genes || [];
 	    sample_or_patient = sample_or_patient || "sample";
+	    // TODO: handle  more than one study
 	    $.when(window.cbioportal_client.getGeneticProfileDataBySample({
-		'genetic_profile_ids': [genetic_profile_id],
-		'genes': genes.map(function(x) { return x.toUpperCase(); }),
-		'sample_ids': sample_ids
-	    }), self.getPatientSampleIdMap()
-	    ).then(function (client_sample_data, sample_to_patient_map) {
+		    'genetic_profile_ids': [genetic_profile_id],
+		    'genes': genes.map(function(x) { return x.toUpperCase(); }),
+		    'sample_ids': sample_ids
+		}),
+		self.getPatientSampleIdMap(),
+		self.getCaseUIDMap()
+	    ).then(function (client_sample_data,
+		    sample_to_patient_map,
+		    case_uid_map) {
 		var interim_data = {};
 		for (var i = 0; i < genes.length; i++) {
 		    var gene = genes[i].toUpperCase();
@@ -1148,9 +1153,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    for (var j = 0; j < sample_ids.length; j++) {
 			var id = sample_ids[j];
 			interim_data[gene][id] = {};
-			interim_data[gene][id]["hugo_gene_symbol"] = gene;
-			interim_data[gene][id][sample_or_patient] = (sample_or_patient === "patient" ? sample_to_patient_map[id] : id);
-			interim_data[gene][id]["profile_data"] = [];
+			interim_data[gene][id].hugo_gene_symbol = gene;
+			// index the UID map by sample or patient as appropriate
+			var case_id = (sample_or_patient === "patient" ? sample_to_patient_map[id] : id);
+			interim_data[gene][id].uid = case_uid_map[self.getCancerStudyIds()[0]][case_id];
+			interim_data[gene][id].profile_data = [];
 		    }
 		}
 		for (var i = 0; i < client_sample_data.length; i++) {
@@ -1166,8 +1173,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		for (var i = 0; i < genes.length; i++) {
 		    var gene = genes[i].toUpperCase();
 		    var track_data = {};
-		    track_data["hugo_gene_symbol"] = gene;
-		    track_data["genetic_profile_id"] = genetic_profile_id;
+		    track_data.hugo_gene_symbol = gene;
+		    track_data.genetic_profile_id = genetic_profile_id;
 		    var oncoprint_data = [];
 		    for (var j = 0; j < sample_ids.length; j++) {
 			var id = sample_ids[j];
@@ -1178,7 +1185,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			}, 0));
 			oncoprint_data.push(datum);
 		    }
-		    track_data["oncoprint_data"] = oncoprint_data;
+		    track_data.oncoprint_data = oncoprint_data;
 		    send_data.push(track_data);
 		}
 		def.resolve(send_data);

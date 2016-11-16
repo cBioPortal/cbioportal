@@ -69,7 +69,9 @@
 			</plugin>
       
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
 				<executions>
 					<execution>
 						<id>default-jar</id>
@@ -83,7 +85,9 @@
 			</plugin>
 			
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
+				<version>2.5.2</version>
 				<executions>
 					<execution>
 						<id>default-install</id>

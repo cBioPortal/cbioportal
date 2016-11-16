@@ -1,7 +1,6 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class Gene implements Serializable {
 
@@ -10,7 +9,6 @@ public class Gene implements Serializable {
     private String type;
     private String cytoband;
     private Integer length;
-    private List<String> aliases;
     private String chromosome;
 
     public Integer getEntrezGeneId() {
@@ -51,14 +49,6 @@ public class Gene implements Serializable {
 
     public void setLength(Integer length) {
         this.length = length;
-    }
-
-    public List<String> getAliases() {
-        return aliases;
-    }
-
-    public void setAliases(List<String> aliases) {
-        this.aliases = aliases;
     }
 
     public String getChromosome() {

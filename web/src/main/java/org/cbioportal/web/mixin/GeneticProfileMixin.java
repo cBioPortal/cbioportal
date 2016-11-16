@@ -3,6 +3,7 @@ package org.cbioportal.web.mixin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.GeneticProfile;
 
 public class GeneticProfileMixin {
 
@@ -13,7 +14,7 @@ public class GeneticProfileMixin {
     private Integer cancerStudyId;
     @JsonProperty("cancerStudyId")
     private String cancerStudyIdentifier;
-    private String geneticAlterationType;
+    private GeneticProfile.GeneticAlterationType geneticAlterationType;
     private String datatype;
     private String name;
     private String description;

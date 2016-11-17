@@ -22,7 +22,7 @@ var processData = function (str) {
 	}
 	var gene = sline[1].trim();
 	var alteration = sline[2].trim();
-	var type = sline[3].trim();
+	var type = sline[3].trim().toLowerCase();
 
 	gene_to_sample_to_datum[gene] = gene_to_sample_to_datum[gene] || {};
 	gene_to_sample_to_datum[gene][sample] = gene_to_sample_to_datum[gene][sample] || {'gene': gene, 'sample': sample, 'data':[]};
@@ -46,11 +46,17 @@ var processData = function (str) {
 		oql_regulation_direction: prot_int[alteration]
 	    });
 	} else {
-	    gene_to_sample_to_datum[gene][sample].data.push({
+		var ws_datum = {
 		genetic_alteration_type: 'MUTATION_EXTENDED',
 		amino_acid_change: alteration,
-	    });
-	    gene_to_sample_to_datum[gene][sample].disp_mut = type.toLowerCase();
+	    };
+	    if (type === "fusion") {
+	    	ws_datum.oncoprint_mutation_type = "fusion";
+	    	gene_to_sample_to_datum[gene][sample].disp_fusion = true;
+	    } else {
+	    	gene_to_sample_to_datum[gene][sample].disp_mut = type;
+	    }
+	    gene_to_sample_to_datum[gene][sample].data.push(ws_datum);
 	}
     }
     var data_by_gene = {};

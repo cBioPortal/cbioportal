@@ -37,7 +37,6 @@
     <mvc:interceptors>
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
-            <mvc:exclude-mapping path="/*"/>
             <mvc:exclude-mapping path="/swagger-ui.html"/>
             <mvc:exclude-mapping path="/swagger-resources/**"/>
             <mvc:exclude-mapping path="/v2/api-docs"/>

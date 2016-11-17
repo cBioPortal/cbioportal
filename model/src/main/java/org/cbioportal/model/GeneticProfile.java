@@ -4,11 +4,30 @@ import java.io.Serializable;
 
 public class GeneticProfile implements Serializable {
 
+    // Copied from org.mskcc.cbio.portal.model.GeneticAlterationType, if you alter this,
+    // don't forget to change the original one too
+    public enum GeneticAlterationType {
+        MUTATION_EXTENDED,
+        FUSION,
+        STRUCTURAL_VARIANT,
+        COPY_NUMBER_ALTERATION,
+        MICRO_RNA_EXPRESSION,
+        MRNA_EXPRESSION,
+        MRNA_EXPRESSION_NORMALS,
+        RNA_EXPRESSION,
+        METHYLATION,
+        METHYLATION_BINARY,
+        PHOSPHORYLATION,
+        PROTEIN_LEVEL,
+        PROTEIN_ARRAY_PROTEIN_LEVEL,
+        PROTEIN_ARRAY_PHOSPHORYLATION;
+    }
+
     private Integer geneticProfileId;
     private String stableId;
     private Integer cancerStudyId;
     private String cancerStudyIdentifier;
-    private String geneticAlterationType;
+    private GeneticAlterationType geneticAlterationType;
     private String datatype;
     private String name;
     private String description;
@@ -47,11 +66,11 @@ public class GeneticProfile implements Serializable {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
 
-    public String getGeneticAlterationType() {
+    public GeneticAlterationType getGeneticAlterationType() {
         return geneticAlterationType;
     }
 
-    public void setGeneticAlterationType(String geneticAlterationType) {
+    public void setGeneticAlterationType(GeneticAlterationType geneticAlterationType) {
         this.geneticAlterationType = geneticAlterationType;
     }
 

@@ -31,29 +31,84 @@
 */
 package org.cbioportal.persistence.mybatis;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
+import org.cbioportal.persistence.PersistenceConstants;
+import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-/**
- *
- * @author jiaojiao
- */
+import java.util.List;
+
 @Repository
-public class GeneMyBatisRepository implements GeneRepository{
+public class GeneMyBatisRepository implements GeneRepository {
+
     @Autowired
     GeneMapper geneMapper;
-    
+    @Autowired
+    private OffsetCalculator offsetCalculator;
+
     @Override
-    public List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol){
-        if(hugo_gene_symbol == null || hugo_gene_symbol.isEmpty()){
-            return (new ArrayList<Gene>());
-        }else{
-            return geneMapper.getGeneListByHugoSymbols(hugo_gene_symbol);
-        }
+    public List<Gene> getAllGenes(String projection, Integer pageSize, Integer pageNumber, String sortBy,
+                                  String direction) {
+
+        return geneMapper.getGenes(projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy,
+                direction);
     }
-   
+
+    @Override
+    public BaseMeta getMetaGenes() {
+
+        return geneMapper.getMetaGenes();
+    }
+
+    @Override
+    public Gene getGeneByEntrezGeneId(Integer entrezGeneId) {
+
+        return geneMapper.getGeneByEntrezGeneId(entrezGeneId, PersistenceConstants.DETAILED_PROJECTION);
+    }
+
+    @Override
+    public Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol) {
+
+        return geneMapper.getGeneByHugoGeneSymbol(hugoGeneSymbol, PersistenceConstants.DETAILED_PROJECTION);
+    }
+
+    @Override
+    public List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId) {
+
+        return geneMapper.getAliasesOfGeneByEntrezGeneId(entrezGeneId);
+    }
+
+    @Override
+    public List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol) {
+
+        return geneMapper.getAliasesOfGeneByHugoGeneSymbol(hugoGeneSymbol);
+    }
+
+
+    @Override
+    public List<Gene> fetchGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection) {
+
+        return geneMapper.getGenesByEntrezGeneIds(entrezGeneIds, projection);
+    }
+
+    @Override
+    public List<Gene> fetchGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection) {
+
+        return geneMapper.getGenesByHugoGeneSymbols(hugoGeneSymbols, projection);
+    }
+
+    @Override
+    public BaseMeta fetchMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds) {
+
+        return geneMapper.getMetaGenesByEntrezGeneIds(entrezGeneIds);
+    }
+
+    @Override
+    public BaseMeta fetchMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols) {
+
+        return geneMapper.getMetaGenesByHugoGeneSymbols(hugoGeneSymbols);
+    }
 }

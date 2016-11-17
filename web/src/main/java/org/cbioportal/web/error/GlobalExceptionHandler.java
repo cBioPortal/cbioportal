@@ -1,6 +1,7 @@
 package org.cbioportal.web.error;
 
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
+import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
@@ -62,6 +63,13 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(new ErrorResponse("Sample not found in study " + ex.getStudyId() + ": " +
                 ex.getSampleId()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GeneNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGeneNotFound(GeneNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Gene not found: " + ex.getGeneId()),
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

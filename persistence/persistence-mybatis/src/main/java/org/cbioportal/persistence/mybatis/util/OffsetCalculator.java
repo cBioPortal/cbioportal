@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.mybatis.tool;
+package org.cbioportal.persistence.mybatis.util;
 
 import org.springframework.stereotype.Component;
 

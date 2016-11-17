@@ -383,6 +383,7 @@ INSERT INTO "cosmic_mutation" ("COSMIC_MUTATION_ID", "PROTEIN_CHANGE", "ENTREZ_G
 
 
 INSERT INTO "gene_alias" ("ENTREZ_GENE_ID", "GENE_ALIAS") VALUES (207, 'AKT alias');
+INSERT INTO "gene_alias" ("ENTREZ_GENE_ID", "GENE_ALIAS") VALUES (207, 'AKT alias2');
 INSERT INTO "gene_alias" ("ENTREZ_GENE_ID", "GENE_ALIAS") VALUES (675, 'BRCA1 alias');
 
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (2,'study_tcga_pub_gistic',1,'COPY_NUMBER_ALTERATION','DISCRETE','Putative copy-number alterations from GISTIC','Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.',1);

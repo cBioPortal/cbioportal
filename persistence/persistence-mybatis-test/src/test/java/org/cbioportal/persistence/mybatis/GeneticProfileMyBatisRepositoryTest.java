@@ -48,7 +48,8 @@ public class GeneticProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub_gistic", geneticProfile.getStableId());
         Assert.assertEquals((Integer) 1, geneticProfile.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", geneticProfile.getCancerStudyIdentifier());
-        Assert.assertEquals("COPY_NUMBER_ALTERATION", geneticProfile.getGeneticAlterationType());
+        Assert.assertEquals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION,
+                geneticProfile.getGeneticAlterationType());
         Assert.assertEquals("DISCRETE", geneticProfile.getDatatype());
         Assert.assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getName());
         Assert.assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous " +
@@ -70,7 +71,8 @@ public class GeneticProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub_gistic", geneticProfile.getStableId());
         Assert.assertEquals((Integer) 1, geneticProfile.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", geneticProfile.getCancerStudyIdentifier());
-        Assert.assertEquals("COPY_NUMBER_ALTERATION", geneticProfile.getGeneticAlterationType());
+        Assert.assertEquals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION,
+                geneticProfile.getGeneticAlterationType());
         Assert.assertEquals("DISCRETE", geneticProfile.getDatatype());
         Assert.assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getName());
         Assert.assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous " +
@@ -141,7 +143,8 @@ public class GeneticProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub_gistic", geneticProfile.getStableId());
         Assert.assertEquals((Integer) 1, geneticProfile.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", geneticProfile.getCancerStudyIdentifier());
-        Assert.assertEquals("COPY_NUMBER_ALTERATION", geneticProfile.getGeneticAlterationType());
+        Assert.assertEquals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION,
+                geneticProfile.getGeneticAlterationType());
         Assert.assertEquals("DISCRETE", geneticProfile.getDatatype());
         Assert.assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getName());
         Assert.assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous " +
@@ -176,7 +179,8 @@ public class GeneticProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub_gistic", geneticProfile.getStableId());
         Assert.assertEquals((Integer) 1, geneticProfile.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", geneticProfile.getCancerStudyIdentifier());
-        Assert.assertEquals("COPY_NUMBER_ALTERATION", geneticProfile.getGeneticAlterationType());
+        Assert.assertEquals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION,
+                geneticProfile.getGeneticAlterationType());
         Assert.assertEquals("DISCRETE", geneticProfile.getDatatype());
         Assert.assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getName());
         Assert.assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous " +

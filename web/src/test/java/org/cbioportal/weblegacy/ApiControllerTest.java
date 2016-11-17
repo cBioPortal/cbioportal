@@ -582,7 +582,7 @@ public class ApiControllerTest {
         geneticProfile_brca_tcga_mutations.setStableId("brca_tcga_mutations");
         geneticProfile_brca_tcga_mutations.setCancerStudyId(188);
         geneticProfile_brca_tcga_mutations.setCancerStudy(cancerStudy_brca_tcga);
-        geneticProfile_brca_tcga_mutations.setGeneticAlterationType("MUTATION_EXTENDED");
+        geneticProfile_brca_tcga_mutations.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED);
         geneticProfile_brca_tcga_mutations.setDatatype("MAF");
         geneticProfile_brca_tcga_mutations.setName("Mutations");
         geneticProfile_brca_tcga_mutations.setDescription("Mutation data from whole exome sequencing.");

@@ -32,6 +32,8 @@
 
 package org.mskcc.cbio.portal.model;
 
+// Copied to org.cbioportal.model.GeneticProfile.GeneticAlterationType, if you alter this,
+// don't forget to change the other one too
 public enum GeneticAlterationType {
     MUTATION_EXTENDED,
     FUSION,

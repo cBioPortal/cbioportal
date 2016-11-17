@@ -679,7 +679,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'cell_padding_on': true,
 	    'using_sample_data': (URL.getInitDataType() === 'sample'),
 	    'unaltered_cases_hidden': false,
-	    'clinical_track_legends_shown': false,
+	    'clinical_track_legends_shown': true,
 	    'mutations_colored_by_type': true,
 	    'sorted_by_mutation_type': true,
 	    

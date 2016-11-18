@@ -264,7 +264,6 @@ var plotsData = (function() {
                 });
             }
         }
-
         if (genetic_vs_genetic()) {
             //get cna data
             var cna_annotation_profile_name = "";
@@ -298,6 +297,10 @@ var plotsData = (function() {
                     };
                     $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
 
+                } else {
+                    analyseData();
+                    stat.retrieved = true;
+                    readyCallBackFunction();                    
                 }
             } else {
                 analyseData();

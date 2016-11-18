@@ -67,7 +67,7 @@ var profileSpec = (function() {
     }
 
     function appendProfileNameList(axis) {
-        $("#" + ids.sidebar[axis].spec_div).append("<label for='" + ids.sidebar[axis].profile_name + "'><h5>Profile Name</h5></label>");
+        $("#" + ids.sidebar[axis].spec_div).append("<br><label for='" + ids.sidebar[axis].profile_name + "'><h5>Profile Name</h5></label>");
         $("#" + ids.sidebar[axis].spec_div).append("<select id='" + ids.sidebar[axis].profile_name + "'></select>");
         append();
 

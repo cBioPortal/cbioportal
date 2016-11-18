@@ -14,8 +14,10 @@ var sidebar = (function() {
                 profileSpec.init("y");
                 optSpec.init();
                 //reset the default value of x: default is always x copy num, y mrna
-                document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
-                profileSpec.updateProfileNameList("x");
+                if (document.getElementById(ids.sidebar.x.profile_type).length > 1) {
+                    document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
+                    profileSpec.updateProfileNameList("x");                    
+                }
             }
         //only have clincal data
         } else if ((metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 0 || 

@@ -76,6 +76,7 @@ var tooltip_utils = {
     },
     'makeHeatmapTrackTooltip': function(genetic_profile_id, data_type, link_id) {
 	return function (d) {
+	    // TODO: identify data types by profile metadata instead of name
 	    if (~genetic_profile_id.indexOf('mrna')) {
 		var data_header = 'MRNA: ';
 	    } else if (~genetic_profile_id.indexOf('rppa')) {
@@ -89,7 +90,7 @@ var tooltip_utils = {
 		var profile_data = 'NaN';
 	    }
 	    var ret = data_header + '<b>' + profile_data + '</b><br>';
-	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.patient) : d.patient));
+	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.study, d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.study, d.patient) : d.patient));
 	    return ret;
 	}
     },

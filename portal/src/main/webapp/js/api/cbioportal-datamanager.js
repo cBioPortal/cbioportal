@@ -1129,11 +1129,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getHeatmapData': function (genetic_profile_id, genes, sample_or_patient) {
 	    var def = new $.Deferred();
 	    var self = this;
+	    // TODO: handle  more than one study
+	    var study_id = self.getCancerStudyIds()[0];
 	    var sample_ids = self.getSampleIds();
 	    var deferred_case_ids = sample_or_patient === "sample" ? sample_ids : self.getPatientIds();
 	    genes = genes || [];
 	    sample_or_patient = sample_or_patient || "sample";
-	    // TODO: handle  more than one study
 	    $.when(window.cbioportal_client.getGeneticProfileDataBySample({
 		    'genetic_profile_ids': [genetic_profile_id],
 		    'genes': genes.map(function(x) { return x.toUpperCase(); }),
@@ -1155,8 +1156,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			var case_id = case_ids[j];
 			interim_data[gene][case_id] = {};
 			interim_data[gene][case_id].hugo_gene_symbol = gene;
+			interim_data[gene][case_id].study = study_id;
+			interim_data[gene][case_id][sample_or_patient] = case_id;
 			// index the UID map by sample or patient as appropriate
-			interim_data[gene][case_id].uid = case_uid_map[self.getCancerStudyIds()[0]][case_id];
+			interim_data[gene][case_id].uid = case_uid_map[study_id][case_id];
 			interim_data[gene][case_id].profile_data = null;
 		    }
 		}

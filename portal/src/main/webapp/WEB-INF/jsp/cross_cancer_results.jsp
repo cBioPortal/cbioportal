@@ -395,7 +395,7 @@ if (sessionError != null) {  %>
         <img width='14' height='14' src='images/mcg_logo.png'>
     </span>
     <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
-        <img width='14' height='14' src='images/oncokb-flame.svg'>
+        <img width='14' height='14' src='images/cancer-hotspots.svg'>
     </span>
 </script>
 

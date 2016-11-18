@@ -32,6 +32,7 @@
 <div class="section" id="igv_tab">
 <script type="text/javascript">
     $(document).ready(function(){
+        var sampleIds = window.QuerySession.getSampleIds().join(",");
         function generateHTML(cancerStudyId, hugoSymbol, id){
             $.when($.ajax({
                     method : "POST",
@@ -41,7 +42,7 @@
                     }
                 })).then(
                     function(response) {
-                        var sampleIds = window.QuerySession.getSampleIds().join(",");
+                        
                         var height = 300 + 2*window.QuerySession.getSampleIds().length;
                         height = Math.min(height, 800);
                         var headerContent = '<head>    <link rel="stylesheet" type="text/css"  href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/>'
@@ -81,7 +82,33 @@
                     }
                 });
             }
+
+            $("#downloadSegment").click(function(){
+                var xhr = new XMLHttpRequest(),
+                sendData = "cancerStudyId=<%= cancerStudyId %>&sampleIds=" + sampleIds;
+                xhr.onreadystatechange = function() {
+                    var a;
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        // Making a downloadable link
+                        a = document.createElement('a');
+                        a.href = window.URL.createObjectURL(xhr.response);
+                        a.download = '<%= cancerStudyId %>' + '_segments.seg';
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        //triger download
+                        a.click();
+                    }
+                };
+                // Post data to URL which handles post request
+                xhr.open("POST", "api-legacy/segmentfile");
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.responseType = 'blob';
+                xhr.send(sendData);
+            });
+ 
+                    
         });
+        
     });
 </script>
 
@@ -89,5 +116,6 @@
   <ul id="igvList"></ul>
   <div id="igvContent"></div>
 </div>
-
+<br/>
+Download a copy number segment file for the selected samples<button id="downloadSegment" class="btn btn-default btn-sm">Download</button>
 </div>

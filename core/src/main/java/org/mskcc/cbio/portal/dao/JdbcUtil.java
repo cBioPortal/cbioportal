@@ -171,7 +171,7 @@ public class JdbcUtil {
      * @param rs  ResultSet Object.
      */
     public static void closeAll(ResultSet rs) {
-                JdbcUtil.closeAll((String)null, null, rs);
+                JdbcUtil.closeAll((String)null, null, null, rs);
         }
 
     /**
@@ -183,7 +183,7 @@ public class JdbcUtil {
      */
     public static void closeAll(Class clazz, Connection con, PreparedStatement ps,
             ResultSet rs) {
-        closeAll(clazz.getName(), con, rs);
+        closeAll(clazz.getName(), con, ps, rs);
     }
 
     /**
@@ -192,9 +192,8 @@ public class JdbcUtil {
      * @param con Connection Object.
      * @param rs  ResultSet Object.
      */
-    private static void closeAll(String requester, Connection con,
+    private static void closeAll(String requester, Connection con, PreparedStatement ps,
                                  ResultSet rs) {
-        closeConnection(requester, con);
         if (rs != null) {
             try {
                 rs.close();
@@ -202,6 +201,14 @@ public class JdbcUtil {
                 e.printStackTrace();
             }
         }
+        if (ps != null) {
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        closeConnection(requester, con);        
     }
 
     /**

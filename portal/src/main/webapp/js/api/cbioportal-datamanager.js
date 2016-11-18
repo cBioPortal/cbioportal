@@ -83,9 +83,6 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return a.concat(b);
 	}, []);
     };
-    var maxInAbsVal = function(a, b) {
-	return ([a,b])[+(Math.abs(a) < Math.abs(b))];
-    };
     var getSimplifiedMutationType = function (type) {
 	var ret = null;
 	type = type.toLowerCase();
@@ -1133,6 +1130,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    var def = new $.Deferred();
 	    var self = this;
 	    var sample_ids = self.getSampleIds();
+	    var deferred_case_ids = sample_or_patient === "sample" ? sample_ids : self.getPatientIds();
 	    genes = genes || [];
 	    sample_or_patient = sample_or_patient || "sample";
 	    // TODO: handle  more than one study
@@ -1142,33 +1140,48 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    'sample_ids': sample_ids
 		}),
 		self.getPatientSampleIdMap(),
+		deferred_case_ids,
 		self.getCaseUIDMap()
 	    ).then(function (client_sample_data,
 		    sample_to_patient_map,
+		    case_ids,
 		    case_uid_map) {
+		// create an object for each sample or patient in each gene
 		var interim_data = {};
 		for (var i = 0; i < genes.length; i++) {
 		    var gene = genes[i].toUpperCase();
 		    interim_data[gene] = {};
-		    for (var j = 0; j < sample_ids.length; j++) {
-			var id = sample_ids[j];
-			interim_data[gene][id] = {};
-			interim_data[gene][id].hugo_gene_symbol = gene;
+		    for (var j = 0; j < case_ids.length; j++) {
+			var case_id = case_ids[j];
+			interim_data[gene][case_id] = {};
+			interim_data[gene][case_id].hugo_gene_symbol = gene;
 			// index the UID map by sample or patient as appropriate
-			var case_id = (sample_or_patient === "patient" ? sample_to_patient_map[id] : id);
-			interim_data[gene][id].uid = case_uid_map[self.getCancerStudyIds()[0]][case_id];
-			interim_data[gene][id].profile_data = [];
+			interim_data[gene][case_id].uid = case_uid_map[self.getCancerStudyIds()[0]][case_id];
+			interim_data[gene][case_id].profile_data = null;
 		    }
 		}
+		// fill profile_data properties with scores
 		for (var i = 0; i < client_sample_data.length; i++) {
 		    var receive_datum = client_sample_data[i];
 		    var gene = receive_datum.hugo_gene_symbol.toUpperCase();
-		    var id = receive_datum.sample_id;
-		    var interim_datum = interim_data[gene][id];
-		    if (interim_datum) {
-			interim_datum.profile_data.push(receive_datum);
+		    var sample_id = receive_datum.sample_id;
+		    var case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[sample_id]);
+		    var interim_datum = interim_data[gene][case_id];
+		    if (interim_datum.profile_data === null) {
+			// set the initial value for this sample or patient
+			interim_datum.profile_data = parseFloat(receive_datum.profile_data);
+		    } else if (sample_or_patient === "sample") {
+			// this would be a programming error (unexpected output from getGeneticProfileDataBySample)
+			throw Error("Unexpectedly received multiple heatmap profile data for one sample");
+		    } else {
+			// aggregate samples for this patient by selecting the highest absolute (Z-)score
+			if (Math.abs(parseFloat(receive_datum.profile_data)) >
+				Math.abs(interim_datum.profile_data)) {
+                            interim_datum.profile_data = parseFloat(receive_datum.profile_data);
+			}
 		    }
 		}
+		// construct the list to be returned
 		var send_data = [];
 		for (var i = 0; i < genes.length; i++) {
 		    var gene = genes[i].toUpperCase();
@@ -1176,13 +1189,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    track_data.hugo_gene_symbol = gene;
 		    track_data.genetic_profile_id = genetic_profile_id;
 		    var oncoprint_data = [];
-		    for (var j = 0; j < sample_ids.length; j++) {
-			var id = sample_ids[j];
-			var datum = interim_data[gene][id];
-			// Aggregate data into single value
-			datum.profile_data = (datum.profile_data.length === 0 ? null : datum.profile_data.reduce(function(acc, next) {
-			    return maxInAbsVal(acc, parseFloat(next.profile_data));
-			}, 0));
+		    for (var j = 0; j < case_ids.length; j++) {
+			var case_id = case_ids[j];
+			var datum = interim_data[gene][case_id];
 			oncoprint_data.push(datum);
 		    }
 		    track_data.oncoprint_data = oncoprint_data;

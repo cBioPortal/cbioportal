@@ -1124,8 +1124,33 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    return def.promise();
 	},
-	// make new functions for heatmap to bypass OQL filters and handle continuous data
-	//
+	/**
+	 * One cell of heatmap data for the Oncoprint
+	 *
+	 * @typedef {Object} OncoprintHeatmapDatum
+	 * @property {string} hugo_gene_symbol - gene symbol for this track
+	 * @property {string} study - identifier of the study to which this sample or patient belongs
+	 * @property {string|undefined} sample - identifier of the sample, in case of sample-level data
+	 * @property {string|undefined} patient - identifier of the patient, in case of patient-level data
+	 * @property {number} uid - cross-study identifier of this sample or patient in the current Oncoprint
+	 * @property {number} profile_data - score of the sample or patient for the gene
+	 */
+	/**
+	 * One track of heatmap data for the Oncoprint
+	 *
+	 * @typedef {Object} OncoprintHeatmapDataTrack
+	 * @property {string} hugo_gene_symbol - gene symbol for this track
+	 * @property {string} genetic_profile_id - identifier of the genetic profile used for this track
+	 * @property {OncoprintHeatmapDatum[]} - oncoprint_data - list of objects for individual samples or patients
+	 */
+	/**
+	 * Fetches Oncoprint heatmap data per gene track for the given profile per sample or patient.
+	 *
+	 * @param {string} genetic_profile_id - identifier of the genetic profile to query
+	 * @param {string[]} genes - list of gene symbols for which to return data
+	 * @param {string} sample_or_patient - whether to return data per sample or aggregate to patient level
+	 * @returns {Promise<OncoprintHeatmapTrackData[]>}
+	 */
 	'getHeatmapData': function (genetic_profile_id, genes, sample_or_patient) {
 	    var def = new $.Deferred();
 	    var self = this;

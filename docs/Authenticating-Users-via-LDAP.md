@@ -33,8 +33,8 @@ Within portal.properties, modify the section labeled `authentication`.  For exam
     ## configuration for the LDAP access
     ldap.user_search_base=DC=example,DC=com
     ldap.url=ldap://ldap.example.com:389
-    ldap.manager.dn=CN=manager-user,DC=example,DC=com
-    ldap.manager.password=PASSWORD
+    ldap.manager.dn=
+    ldap.manager.password=
     ## The following attributes for are good for ActiveDirectory, for OpenLDAP use "uid" for username
     ldap.attributes.username=sAMAccountName
     #ldap.attributes.username=uid
@@ -42,7 +42,7 @@ Within portal.properties, modify the section labeled `authentication`.  For exam
     ldap.attributes.given_name=givenName
     ldap.attributes.email=mail    
 
-Please note that you will have to modify all the above to match your own settings.
+Please note that you will have to modify all the above to match your own settings. Also note, in most cases ldap.manager.dn and ldap.manager.password should be left empty, although the properties should remain in portal.properties. 
 
 ## Authorizing Users
 

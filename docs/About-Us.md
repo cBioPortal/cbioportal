@@ -54,6 +54,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Anders Jacobsen
 * Erik Larsson
 * Dong Li
+* James Xu
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided in part from:
 

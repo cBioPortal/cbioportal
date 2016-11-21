@@ -1053,10 +1053,10 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
     font: 16px verdana, arial, helvetica, sans-serif;
     margin:0px;
     padding:0px;
-    background:#5b5151;
+    background:#1974b8;
     color:#ffffff;
     width:100%;
-    border: 1px solid #5b5151;
+    border: 1px solid #1974b8;
 }
 
 #header td.navigation ul {
@@ -1088,7 +1088,7 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 #header td.navigation li.selected, #header td.navigation li a:hover {
     float:left;
     height:auto;
-    background:#0b7983;
+    background:#8cbadc;
     color:#ffffff;
     text-decoration:none;
     filter: none;
@@ -1170,33 +1170,30 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 
 #footer {
   height: 50px;
-  background-color: #123e57;
+  background-color: #1974b8;
   clear: both;
   text-align: center;
   padding-top:12px;
-  color: #c2cfd5;
+  color: #FFFFFF;
   font-family: verdana, arial, sans-serif;
   font-size: 13px;
   line-height: 18px;
-  border-top: 5px solid #7b7474;
-  border-right: 0px;
-  border-left: 0px;
-  border-bottom: 0px;
-  background: #123e57;
+  border: 0px;
+  background: #1974b8;
   filter: none;
 }
 
 #footer A:link {
-    COLOR: #c2cfd5; text-decoration: underline;
+	COLOR: #FFFFFF; text-decoration: underline;
 }
 #footer A:visited {
-    COLOR: #c2cfd5; text-decoration: underline;
+	COLOR: #FFFFFF; text-decoration: underline;
 }
 #footer A:active {
-    COLOR: #c2cfd5; text-decoration: underline;
+	COLOR: #FFFFFF; text-decoration: underline;
 }
 #footer A:hover {
-    COLOR: #c2cfd5; text-decoration: underline;
+	COLOR: #FFFFFF; text-decoration: underline;
 }
 
 #right_side h3 {
@@ -1207,10 +1204,10 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
   font-weight: bold;
   text-align: center;
   line-height: 14px;
-  color: #FFFFFF; 
+  color: #FFFFFF;
   border:0px;
-  background-color: #123e57;
-  background: #123e57;
+  background-color: #1974b8;
+  background: #1974b8;
   filter: none;
 }
 

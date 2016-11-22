@@ -78,15 +78,8 @@ final class DaoGene {
      * @throws DaoException Database Error.
      */
     public static int addGene(CanonicalGene gene) throws DaoException {
-        if (MySQLbulkLoader.isBulkLoad()) {
-            //  write to the temp file maintained by the MySQLbulkLoader
-            MySQLbulkLoader.getMySQLbulkLoader("gene").insertRecord(Long.toString(gene.getEntrezGeneId()),
-                    gene.getHugoGeneSymbolAllCaps(),gene.getType(),gene.getCytoband(),gene.getLength()==0?null:Integer.toString(gene.getLength()));
-            addGeneAliases(gene);
-            // return 1 because normal insert will return 1 if no error occurs
-            return 1;
-        }
-        
+    	//because many tables depend on gene, we want to add gene directly to DB, and
+    	//never through MySQLbulkLoader to avoid any Foreign key constraint violations:
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

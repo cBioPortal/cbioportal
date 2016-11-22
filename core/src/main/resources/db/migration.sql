@@ -148,6 +148,7 @@ CREATE TABLE `structural_variant` (
 );
 UPDATE info SET DB_SCHEMA_VERSION="1.3.0";
 
+<<<<<<< HEAD
 ##version: 1.3.1
 DROP TABLE IF EXISTS entity_attribute;
 DROP TABLE IF EXISTS attribute_metadata;
@@ -193,6 +194,9 @@ CREATE TABLE `structural_variant` (
 UPDATE info SET DB_SCHEMA_VERSION="1.3.1";
 
 ##version: 1.4.0
+-- increase varchar size to accomodate reference or tumor seq alleles larger than 255 chars
+ALTER TABLE `mutation_event` MODIFY COLUMN `REFERENCE_ALLELE` varchar(400);
+ALTER TABLE `mutation_event` MODIFY COLUMN `TUMOR_SEQ_ALLELE` varchar(400);
 -- alter version number to distinguish from cbioportal web application version numbering
 ALTER TABLE info MODIFY COLUMN DB_SCHEMA_VERSION VARCHAR(24);
 UPDATE info SET DB_SCHEMA_VERSION="1.4.0";

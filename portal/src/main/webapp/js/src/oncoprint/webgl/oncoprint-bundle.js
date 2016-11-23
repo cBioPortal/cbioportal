@@ -1866,6 +1866,7 @@ var OncoprintModel = (function () {
 	this.track_rule_set_id = {}; // track id -> rule set id
 	this.track_active_rules = {}; // from track id to active rule map (map with rule ids as keys)
 	this.track_info = {};
+	this.track_has_column_spacing = {}; // track id -> boolean
 	
 	// Rule Set Properties
 	this.rule_sets = {}; // map from rule set id to rule set
@@ -2098,7 +2099,9 @@ var OncoprintModel = (function () {
 	var active_rules = {};
 	var data = this.getTrackData(track_id);
 	var id_key = this.getTrackDataIdKey(track_id);
-	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(use_base_width), this.getCellHeight(track_id), active_rules);
+	var spacing = this.getTrackHasColumnSpacing(track_id);
+	var width = this.getCellWidth(use_base_width) + (!spacing ? this.getCellPadding(use_base_width) : 0);
+	var shapes = this.getRuleSet(track_id).apply(data, width, this.getCellHeight(track_id), active_rules);
 	this.track_active_rules[track_id] = active_rules;
 	
 	var z_comparator = function(shapeA, shapeB) {
@@ -2149,6 +2152,10 @@ var OncoprintModel = (function () {
 	});
     }
 
+    OncoprintModel.prototype.getTrackHasColumnSpacing = function(track_id) {
+	return !!(this.track_has_column_spacing[track_id]);
+    }
+    
     OncoprintModel.prototype.getCellWidth = function (base) {
 	return this.cell_width * (base ? 1 : this.horz_zoom);
     }
@@ -2267,7 +2274,7 @@ var OncoprintModel = (function () {
 	for (var i = 0; i < params_list.length; i++) {
 	    var params = params_list[i];
 	    addTrack(this, params.track_id, params.target_group,
-		    params.cell_height, params.track_padding,
+		    params.cell_height, params.track_padding, params.has_column_spacing,
 		    params.data_id_key, params.tooltipFn,
 		    params.removable, params.removeCallback, params.label, params.description, params.track_info,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
@@ -2277,7 +2284,7 @@ var OncoprintModel = (function () {
     }
   
     var addTrack = function (model, track_id, target_group,
-	    cell_height, track_padding,
+	    cell_height, track_padding, has_column_spacing,
 	    data_id_key, tooltipFn,
 	    removable, removeCallback, label, description, track_info,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
@@ -2286,6 +2293,7 @@ var OncoprintModel = (function () {
 	model.track_description[track_id] = ifndef(description, "");
 	model.cell_height[track_id] = ifndef(cell_height, 23);
 	model.track_padding[track_id] = ifndef(track_padding, 5);
+	model.track_has_column_spacing[track_id] = ifndef(has_column_spacing, true);
 
 	model.track_tooltip_fn[track_id] = ifndef(tooltipFn, function (d) {
 	    return d + '';
@@ -2370,6 +2378,7 @@ var OncoprintModel = (function () {
 	delete this.track_sort_direction_changeable[track_id];
 	delete this.track_sort_direction[track_id];
 	delete this.track_info[track_id];
+	delete this.track_has_column_spacing[track_id];
 
 	var containing_track_group = _getContainingTrackGroup(this, track_id, true);
 	if (containing_track_group !== null) {
@@ -4404,13 +4413,15 @@ var OncoprintWebGLCellView = (function () {
 		if (!dragging) {
 		    var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
 		    var overlapping_datum = (overlapping_cell === null ? null : model.getTrackDatum(overlapping_cell.track, overlapping_cell.id));
+		    var cell_width = model.getCellWidth();
+		    var cell_padding = model.getCellPadding();
 		    if (overlapping_datum !== null) {
 			var left = model.getZoomedColumnLeft(overlapping_cell.id) - self.scroll_x;
-			overlayStrokeRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+			overlayStrokeRect(self, left, model.getCellTops(overlapping_cell.track), cell_width + (model.getTrackHasColumnSpacing(overlapping_cell.track) ? 0 : cell_padding), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
 			var tracks = model.getTracks();
 			for (var i=0; i<tracks.length; i++) {
 			    if (model.getTrackDatum(tracks[i], overlapping_cell.id) !== null) {
-				overlayStrokeRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
+				overlayStrokeRect(self, left, model.getCellTops(tracks[i]), cell_width + (model.getTrackHasColumnSpacing(tracks[i]) ? 0 : cell_padding), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 			    }
 			}
 			tooltip.show(250, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth() / 2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track) + offset.top, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
@@ -4975,6 +4986,11 @@ var OncoprintWebGLCellView = (function () {
 	clearZoneBuffers(this, model);
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
+	    if (!model.getTrackHasColumnSpacing(track_ids[i])) {
+		// We need to recompute shapes for tracks that don't have column spacing,
+		// because for those we're redefining the base width for shape generation.
+		getShapes(this, model, track_ids[i]);
+	    }
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);

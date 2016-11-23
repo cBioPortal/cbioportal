@@ -886,7 +886,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    //'color_range': ['rgba(0,0,255,1)', 'rgba(255,0,0,1)'],
 			    'null_color': 'rgba(211,211,211,1)'
 			},
-			//'track_padding': 0,
+			'has_column_spacing': false,
+			'track_padding': 0,
 			'label': heatmap_data_by_line[i].hugo_gene_symbol,
 			'target_group': 2,
 			//'sortCmpFn': function(d1, d2) {return 0;},

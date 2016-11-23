@@ -42,18 +42,19 @@ GET /api/cancertypes
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|cancer_type_ids|List of cancer type identifiers (example: cll,brca,coad). Unrecognized ids are silently ignored. Empty string returns all.|false|multi string array||
-
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>cancer_type_ids</td><td>List of cancer type identifiers (example: cll,brca,coad). Unrecognized ids are silently ignored. Empty string returns all.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBCancerType](#DBCancerType) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBCancerType">DBCancerType</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -74,19 +75,21 @@ POST /api/cancertypes
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|cancer_type_ids|List of cancer type identifiers (example: cll,brca,coad). Unrecognized ids are silently ignored. Empty string returns all.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>cancer_type_ids</td><td>List of cancer type identifiers (example: cll,brca,coad). Unrecognized ids are silently ignored. Empty string returns all.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBCancerType](#DBCancerType) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBCancerType">DBCancerType</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -107,19 +110,21 @@ GET /api/clinicalattributes/patients
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga). Empty string returns clinical attributes across all studies.|false|string||
-|QueryParameter|patient_ids|List of patient_ids. If provided, returned clinical attributes will be those which appear in any listed patient. Empty string returns clinical attributes across all patients.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga). Empty string returns clinical attributes across all studies.</td><td>false</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>patient_ids</td><td>List of patient_ids. If provided, returned clinical attributes will be those which appear in any listed patient. Empty string returns clinical attributes across all patients.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBClinicalField](#DBClinicalField) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBClinicalField">DBClinicalField</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -140,20 +145,22 @@ POST /api/clinicalattributes/patients
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga). Empty string returns clinical attributes across all studies.|false|string||
-|QueryParameter|patient_ids|List of patient_ids. If provided, returned clinical attributes will be those which appear in any listed patient. Empty string returns clinical attributes across all patients.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga). Empty string returns clinical attributes across all studies.</td><td>false</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>patient_ids</td><td>List of patient_ids. If provided, returned clinical attributes will be those which appear in any listed patient. Empty string returns clinical attributes across all patients.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBClinicalField](#DBClinicalField) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBClinicalField">DBClinicalField</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -174,19 +181,21 @@ GET /api/clinicalattributes/samples
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga). Empty string returns clinical attributes across all studies.|false|string||
-|QueryParameter|sample_ids|List of sample_ids. If provided, returned clinical attributes will be those which appear in any listed sample. Empty string returns clinical attributes across all samples.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga). Empty string returns clinical attributes across all studies.</td><td>false</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample_ids. If provided, returned clinical attributes will be those which appear in any listed sample. Empty string returns clinical attributes across all samples.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBClinicalField](#DBClinicalField) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBClinicalField">DBClinicalField</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -207,20 +216,22 @@ POST /api/clinicalattributes/samples
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga). Empty string returns clinical attributes across all studies.|false|string||
-|QueryParameter|sample_ids|List of sample_ids. If provided, returned clinical attributes will be those which appear in any listed sample. Empty string returns clinical attributes across all samples.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga). Empty string returns clinical attributes across all studies.</td><td>false</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample_ids. If provided, returned clinical attributes will be those which appear in any listed sample. Empty string returns clinical attributes across all samples.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBClinicalField](#DBClinicalField) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBClinicalField">DBClinicalField</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -241,20 +252,22 @@ GET /api/clinicaldata/patients
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga)|true|string||
-|QueryParameter|attribute_ids|List of attribute ids, such as those returned by /api/clinicalattributes/patients. (example: PATIENT_ID,DFS_STATUS)|true|multi string array||
-|QueryParameter|patient_ids|List of patient identifiers such as those returned by /api/patients. Unrecognized ids are silently ignored. Empty string returns all.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga)</td><td>true</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>attribute_ids</td><td>List of attribute ids, such as those returned by /api/clinicalattributes/patients. (example: PATIENT_ID,DFS_STATUS)</td><td>true</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>patient_ids</td><td>List of patient identifiers such as those returned by /api/patients. Unrecognized ids are silently ignored. Empty string returns all.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBClinicalPatientData](#DBClinicalPatientData) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBClinicalPatientData">DBClinicalPatientData</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -275,21 +288,23 @@ POST /api/clinicaldata/patients
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga)|true|string||
-|QueryParameter|attribute_ids|List of attribute ids, such as those returned by /api/clinicalattributes/patients. (example: PATIENT_ID,DFS_STATUS)|true|multi string array||
-|QueryParameter|patient_ids|List of patient identifiers such as those returned by /api/patients. Unrecognized ids are silently ignored. Empty string returns all.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga)</td><td>true</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>attribute_ids</td><td>List of attribute ids, such as those returned by /api/clinicalattributes/patients. (example: PATIENT_ID,DFS_STATUS)</td><td>true</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>patient_ids</td><td>List of patient identifiers such as those returned by /api/patients. Unrecognized ids are silently ignored. Empty string returns all.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBClinicalPatientData](#DBClinicalPatientData) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBClinicalPatientData">DBClinicalPatientData</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -310,20 +325,22 @@ GET /api/clinicaldata/samples
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga)|true|string||
-|QueryParameter|attribute_ids|List of attribute ids, such as those returned by /api/clinicalattributes/samples. (example: SAMPLE_TYPE,IS_FFPE)|true|multi string array||
-|QueryParameter|sample_ids|List of sample identifiers. Unrecognized ids are silently ignored. Empty string returns all.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga)</td><td>true</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>attribute_ids</td><td>List of attribute ids, such as those returned by /api/clinicalattributes/samples. (example: SAMPLE_TYPE,IS_FFPE)</td><td>true</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample identifiers. Unrecognized ids are silently ignored. Empty string returns all.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBClinicalSampleData](#DBClinicalSampleData) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBClinicalSampleData">DBClinicalSampleData</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -344,21 +361,23 @@ POST /api/clinicaldata/samples
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga)|true|string||
-|QueryParameter|attribute_ids|List of attribute ids, such as those returned by /api/clinicalattributes/samples. (example: SAMPLE_TYPE,IS_FFPE)|true|multi string array||
-|QueryParameter|sample_ids|List of sample identifiers. Unrecognized ids are silently ignored. Empty string returns all.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga)</td><td>true</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>attribute_ids</td><td>List of attribute ids, such as those returned by /api/clinicalattributes/samples. (example: SAMPLE_TYPE,IS_FFPE)</td><td>true</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample identifiers. Unrecognized ids are silently ignored. Empty string returns all.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBClinicalSampleData](#DBClinicalSampleData) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBClinicalSampleData">DBClinicalSampleData</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -379,18 +398,19 @@ GET /api/genes
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|hugo_gene_symbols|List of hugo gene symbols. Unrecognized genes are silently ignored. Empty string returns all genes.|false|multi string array||
-
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>hugo_gene_symbols</td><td>List of hugo gene symbols. Unrecognized genes are silently ignored. Empty string returns all genes.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBGene](#DBGene) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBGene">DBGene</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -411,19 +431,21 @@ POST /api/genes
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|hugo_gene_symbols|List of hugo gene symbols. Unrecognized genes are silently ignored. Empty string returns all genes.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>hugo_gene_symbols</td><td>List of hugo gene symbols. Unrecognized genes are silently ignored. Empty string returns all genes.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBGene](#DBGene) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBGene">DBGene</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -444,21 +466,23 @@ GET /api/geneticprofiledata
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|genetic_profile_ids|List of genetic_profile_ids such as those returned by /api/geneticprofiles. (example: brca_tcga_pub_mutations). Unrecognized genetic profile ids are silently ignored. Profile data is only returned for matching ids.|true|multi string array||
-|QueryParameter|genes|List of hugo gene symbols. (example: AKT1,CASP8,TGFBR1) Unrecognized gene ids are silently ignored. Profile data is only returned for matching genes.|true|multi string array||
-|QueryParameter|sample_ids|List of sample identifiers such as those returned by /api/samples. Empty string returns all. Must be empty to query by sample list ids.|false|multi string array||
-|QueryParameter|sample_list_id|A single sample list ids such as those returned by /api/samplelists. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all. If sample_ids argument was provided, this argument will be ignored.|false|string||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>genetic_profile_ids</td><td>List of genetic_profile_ids such as those returned by /api/geneticprofiles. (example: brca_tcga_pub_mutations). Unrecognized genetic profile ids are silently ignored. Profile data is only returned for matching ids.</td><td>true</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>genes</td><td>List of hugo gene symbols. (example: AKT1,CASP8,TGFBR1) Unrecognized gene ids are silently ignored. Profile data is only returned for matching genes.</td><td>true</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample identifiers such as those returned by /api/samples. Empty string returns all. Must be empty to query by sample list ids.</td><td>false</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>sample_list_id</td><td>A single sample list ids such as those returned by /api/samplelists. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all. If sample_ids argument was provided, this argument will be ignored.</td><td>false</td><td>string</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBProfileData](#DBProfileData) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBProfileData">DBProfileData</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -479,22 +503,24 @@ POST /api/geneticprofiledata
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|genetic_profile_ids|List of genetic_profile_ids such as those returned by /api/geneticprofiles. (example: brca_tcga_pub_mutations). Unrecognized genetic profile ids are silently ignored. Profile data is only returned for matching ids.|true|multi string array||
-|QueryParameter|genes|List of hugo gene symbols. (example: AKT1,CASP8,TGFBR1) Unrecognized gene ids are silently ignored. Profile data is only returned for matching genes.|true|multi string array||
-|QueryParameter|sample_ids|List of sample identifiers such as those returned by /api/samples. Empty string returns all. Must be empty to query by sample list ids.|false|multi string array||
-|QueryParameter|sample_list_id|A single sample list ids such as those returned by /api/samplelists. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all. If sample_ids argument was provided, this argument will be ignored.|false|string||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>genetic_profile_ids</td><td>List of genetic_profile_ids such as those returned by /api/geneticprofiles. (example: brca_tcga_pub_mutations). Unrecognized genetic profile ids are silently ignored. Profile data is only returned for matching ids.</td><td>true</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>genes</td><td>List of hugo gene symbols. (example: AKT1,CASP8,TGFBR1) Unrecognized gene ids are silently ignored. Profile data is only returned for matching genes.</td><td>true</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample identifiers such as those returned by /api/samples. Empty string returns all. Must be empty to query by sample list ids.</td><td>false</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>sample_list_id</td><td>A single sample list ids such as those returned by /api/samplelists. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all. If sample_ids argument was provided, this argument will be ignored.</td><td>false</td><td>string</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBProfileData](#DBProfileData) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBProfileData">DBProfileData</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -515,19 +541,21 @@ GET /api/geneticprofiles
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga). Must be empty to query by genetic profile ids (across all studies).|false|string||
-|QueryParameter|genetic_profile_ids|List of genetic_profile_ids. (example: brca_tcga_pub_mutations). Empty string returns all genetic profiles. If study_id argument was provided, this argument will be ignored.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga). Must be empty to query by genetic profile ids (across all studies).</td><td>false</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>genetic_profile_ids</td><td>List of genetic_profile_ids. (example: brca_tcga_pub_mutations). Empty string returns all genetic profiles. If study_id argument was provided, this argument will be ignored.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBGeneticProfile](#DBGeneticProfile) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBGeneticProfile">DBGeneticProfile</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -548,20 +576,22 @@ POST /api/geneticprofiles
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga). Must be empty to query by genetic profile ids (across all studies).|false|string||
-|QueryParameter|genetic_profile_ids|List of genetic_profile_ids. (example: brca_tcga_pub_mutations). Empty string returns all genetic profiles. If study_id argument was provided, this argument will be ignored.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga). Must be empty to query by genetic profile ids (across all studies).</td><td>false</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>genetic_profile_ids</td><td>List of genetic_profile_ids. (example: brca_tcga_pub_mutations). Empty string returns all genetic profiles. If study_id argument was provided, this argument will be ignored.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBGeneticProfile](#DBGeneticProfile) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBGeneticProfile">DBGeneticProfile</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -582,20 +612,22 @@ GET /api/patients
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga)|true|string||
-|QueryParameter|patient_ids|List of patient ids such as those returned by /api/patients. Empty string returns all. Must be empty to query by sample ids.|false|multi string array||
-|QueryParameter|sample_ids|List of sample identifiers. Empty string returns all. If patient_ids argument was provided, this argument will be ignored.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga)</td><td>true</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>patient_ids</td><td>List of patient ids such as those returned by /api/patients. Empty string returns all. Must be empty to query by sample ids.</td><td>false</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample identifiers. Empty string returns all. If patient_ids argument was provided, this argument will be ignored.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBPatient](#DBPatient) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBPatient">DBPatient</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -616,21 +648,23 @@ POST /api/patients
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga)|true|string||
-|QueryParameter|patient_ids|List of patient ids such as those returned by /api/patients. Empty string returns all. Must be empty to query by sample ids.|false|multi string array||
-|QueryParameter|sample_ids|List of sample identifiers. Empty string returns all. If patient_ids argument was provided, this argument will be ignored.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga)</td><td>true</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>patient_ids</td><td>List of patient ids such as those returned by /api/patients. Empty string returns all. Must be empty to query by sample ids.</td><td>false</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample identifiers. Empty string returns all. If patient_ids argument was provided, this argument will be ignored.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBPatient](#DBPatient) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBPatient">DBPatient</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -651,19 +685,21 @@ GET /api/samplelists
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga). Must be empty to query by sample list ids (across all studies).|false|string||
-|QueryParameter|sample_list_ids|List of sample list ids. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all genetic profiles. If study_id argument was provided, this argument will be ignored.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga). Must be empty to query by sample list ids (across all studies).</td><td>false</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>sample_list_ids</td><td>List of sample list ids. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all genetic profiles. If study_id argument was provided, this argument will be ignored.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBSampleList](#DBSampleList) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBSampleList">DBSampleList</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -684,20 +720,22 @@ POST /api/samplelists
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga). Must be empty to query by sample list ids (across all studies).|false|string||
-|QueryParameter|sample_list_ids|List of sample list ids. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all genetic profiles. If study_id argument was provided, this argument will be ignored.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga). Must be empty to query by sample list ids (across all studies).</td><td>false</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>sample_list_ids</td><td>List of sample list ids. (example: brca_tcga_idc,brca_tcga_lobular). Empty string returns all genetic profiles. If study_id argument was provided, this argument will be ignored.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBSampleList](#DBSampleList) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBSampleList">DBSampleList</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -718,20 +756,22 @@ GET /api/samples
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga)|true|string||
-|QueryParameter|sample_ids|List of sample identifiers. Unrecognized ids are silently ignored. Empty string returns all. Must be empty to query by patient_ids.|false|multi string array||
-|QueryParameter|patient_ids|List of patient identifiers such as those returned by /api/patients. Unrecognized ids are silently ignored. Empty string returns all. If sample_ids argument was provided, this arument will be ignored.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga)</td><td>true</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample identifiers. Unrecognized ids are silently ignored. Empty string returns all. Must be empty to query by patient_ids.</td><td>false</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>patient_ids</td><td>List of patient identifiers such as those returned by /api/patients. Unrecognized ids are silently ignored. Empty string returns all. If sample_ids argument was provided, this arument will be ignored.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBSample](#DBSample) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBSample">DBSample</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -752,21 +792,23 @@ POST /api/samples
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_id|A single study id, such as those returned by /api/studies. (example: brca_tcga)|true|string||
-|QueryParameter|sample_ids|List of sample identifiers. Unrecognized ids are silently ignored. Empty string returns all. Must be empty to query by patient_ids.|false|multi string array||
-|QueryParameter|patient_ids|List of patient identifiers such as those returned by /api/patients. Unrecognized ids are silently ignored. Empty string returns all. If sample_ids argument was provided, this arument will be ignored.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_id</td><td>A single study id, such as those returned by /api/studies. (example: brca_tcga)</td><td>true</td><td>string</td></tr>
+<tr><td>QueryParameter</td><td>sample_ids</td><td>List of sample identifiers. Unrecognized ids are silently ignored. Empty string returns all. Must be empty to query by patient_ids.</td><td>false</td><td>multi string array</td></tr>
+<tr><td>QueryParameter</td><td>patient_ids</td><td>List of patient identifiers such as those returned by /api/patients. Unrecognized ids are silently ignored. Empty string returns all. If sample_ids argument was provided, this arument will be ignored.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBSample](#DBSample) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBSample">DBSample</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -787,18 +829,20 @@ GET /api/studies
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_ids|List of study_ids. Unrecognized ids are silently ignored. Empty string returns all.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_ids</td><td>List of study_ids. Unrecognized ids are silently ignored. Empty string returns all.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBStudy](#DBStudy) array|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBStudy">DBStudy</a> array</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -819,19 +863,21 @@ POST /api/studies
 ```
 
 #### Parameters
-|Type|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|----|
-|QueryParameter|study_ids|List of study_ids. Unrecognized ids are silently ignored. Empty string returns all.|false|multi string array||
+<table>
+<tr><td>Type</td><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>QueryParameter</td><td>study_ids</td><td>List of study_ids. Unrecognized ids are silently ignored. Empty string returns all.</td><td>false</td><td>multi string array</td></tr>
+</table>
 
 
 #### Responses
-|HTTP Code|Description|Schema|
-|----|----|----|
-|200|OK|[DBStudy](#DBStudy) array|
-|201|Created|No Content|
-|401|Unauthorized|No Content|
-|403|Forbidden|No Content|
-|404|Not Found|No Content|
+<table>
+<tr><td>HTTP Code</td><td>Description</td><td>Schema</td></tr>
+<tr><td>200</td><td>OK</td><a href="#DBStudy">DBStudy</a> array</td></tr>
+<tr><td>201</td><td>Created</td><td>No Content</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>No Content</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>No Content</td></tr>
+<tr><td>404</td><td>Not Found</td><td>No Content</td></tr>
+</table>
 
 
 #### Consumes
@@ -848,110 +894,121 @@ POST /api/studies
 
 ## <a name="Definitions">Definitions</a>
 ### <a name="DBCancerType">DBCancerType</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|color||false|string||
-|id||false|string||
-|name||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>color</td><td>false</td><td>string</td></tr>
+<tr><td>id</td><td>false</td><td>string</td></tr>
+<tr><td>name</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBClinicalField">DBClinicalField</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|attr_id||false|string||
-|datatype||false|string||
-|description||false|string||
-|display_name||false|string||
-|is_patient_attribute||false|string||
-|priority||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>attr_id</td><td>false</td><td>string</td></tr>
+<tr><td>datatype</td><td>false</td><td>string</td></tr>
+<tr><td>description</td><td>false</td><td>string</td></tr>
+<tr><td>display_name</td><td>false</td><td>string</td></tr>
+<tr><td>is_patient_attribute</td><td>false</td><td>string</td></tr>
+<tr><td>priority</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBClinicalPatientData">DBClinicalPatientData</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|attr_id||false|string||
-|attr_val||false|string||
-|patient_id||false|string||
-|study_id||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>attr_id</td><td>false</td><td>string</td></tr>
+<tr><td>attr_val</td><td>false</td><td>string</td></tr>
+<tr><td>patient_id</td><td>false</td><td>string</td></tr>
+<tr><td>study_id</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBClinicalSampleData">DBClinicalSampleData</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|attr_id||false|string||
-|attr_val||false|string||
-|sample_id||false|string||
-|study_id||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>attr_id</td><td>false</td><td>string</td></tr>
+<tr><td>attr_val</td><td>false</td><td>string</td></tr>
+<tr><td>sample_id</td><td>false</td><td>string</td></tr>
+<tr><td>study_id</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBGene">DBGene</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|entrez_gene_id||false|string||
-|hugo_gene_symbol||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>entrez_gene_id</td><td>false</td><td>string</td></tr>
+<tr><td>hugo_gene_symbol</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBGeneticProfile">DBGeneticProfile</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|datatype||false|string||
-|description||false|string||
-|genetic_alteration_type||false|string||
-|id||false|string||
-|name||false|string||
-|show_profile_in_analysis_tab||false|string||
-|study_id||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>datatype</td><td>false</td><td>string</td></tr>
+<tr><td>description</td><td>false</td><td>string</td></tr>
+<tr><td>genetic_alteration_type</td><td>false</td><td>string</td></tr>
+<tr><td>id</td><td>false</td><td>string</td></tr>
+<tr><td>name</td><td>false</td><td>string</td></tr>
+<tr><td>show_profile_in_analysis_tab</td><td>false</td><td>string</td></tr>
+<tr><td>study_id</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBPatient">DBPatient</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|id||false|string||
-|study_id||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>id</td><td>false</td><td>string</td></tr>
+<tr><td>study_id</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBProfileData">DBProfileData</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|entrez_gene_id||false|string||
-|genetic_profile_id||false|string||
-|hugo_gene_symbol||false|string||
-|sample_id||false|string||
-|sample_list_id||false|string||
-|study_id||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>entrez_gene_id</td><td>false</td><td>string</td></tr>
+<tr><td>genetic_profile_id</td><td>false</td><td>string</td></tr>
+<tr><td>hugo_gene_symbol</td><td>false</td><td>string</td></tr>
+<tr><td>sample_id</td><td>false</td><td>string</td></tr>
+<tr><td>sample_list_id</td><td>false</td><td>string</td></tr>
+<tr><td>study_id</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBSample">DBSample</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|id||false|string||
-|internal_id||false|string||
-|patient_id||false|string||
-|sample_type||false|string||
-|study_id||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>id</td><td>false</td><td>string</td></tr>
+<tr><td>internal_id</td><td>false</td><td>string</td></tr>
+<tr><td>patient_id</td><td>false</td><td>string</td></tr>
+<tr><td>sample_type</td><td>false</td><td>string</td></tr>
+<tr><td>study_id</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBSampleList">DBSampleList</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|description||false|string||
-|id||false|string||
-|name||false|string||
-|sample_ids||false|string array||
-|study_id||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>description</td><td>false</td><td>string</td></tr>
+<tr><td>id</td><td>false</td><td>string</td></tr>
+<tr><td>name</td><td>false</td><td>string</td></tr>
+<tr><td>sample_ids</td><td>false</td><td>string array</td></tr>
+<tr><td>study_id</td><td>false</td><td>string</td></tr>
+</table>
 
 
 ### <a name="DBStudy">DBStudy</a>
-|Name|Description|Required|Schema|Default|
-|----|----|----|----|----|
-|citation||false|string||
-|description||false|string||
-|groups||false|string||
-|id||false|string||
-|name||false|string||
-|pmid||false|integer (int64)||
-|short_name||false|string||
-|type_of_cancer||false|string||
+<table>
+<tr><td>Name</td><td>Description</td><td>Required</td><td>Schema</td><td>Default</td></tr>
+<tr><td>citation</td><td>false</td><td>string</td></tr>
+<tr><td>description</td><td>false</td><td>string</td></tr>
+<tr><td>groups</td><td>false</td><td>string</td></tr>
+<tr><td>id</td><td>false</td><td>string</td></tr>
+<tr><td>name</td><td>false</td><td>string</td></tr>
+<tr><td>pmid</td><td>false</td><td>integer (int64)</td></tr>
+<tr><td>short_name</td><td>false</td><td>string</td></tr>
+<tr><td>type_of_cancer</td><td>false</td><td>string</td></tr>
+</table>
 
 ## <a name="Upcoming">Upcoming</a>
 ####Services to be rewritten to use the new Web API

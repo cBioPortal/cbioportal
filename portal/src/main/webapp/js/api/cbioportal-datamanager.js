@@ -888,7 +888,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		fetcher(this, fetch_promise);
 	    }
 	    fetch_promise.then(function (data) {
-		def.resolve(deepCopyObject(data));
+		var ret = data;
+		if ([(typeof ""), (typeof 0), (typeof true), (typeof undefined)].indexOf(typeof data) === -1
+			&& !(data instanceof RegExp)) {
+		    ret = deepCopyObject(data);
+		}
+		def.resolve(ret);
 	    });
 	    return def.promise();
 	};
@@ -960,24 +965,35 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	 * stable ID of the profile, or with null if no applicable
 	 * profiles are in use.
 	 */
-	'getDefaultHeatmapProfile': function () {
-	    return this.getGeneticProfiles()
+	'getDefaultHeatmapProfile': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+	    self.getGeneticProfiles()
 	    .then(function (gp_metadata_list) {
+		var mrna_profile_id = null;
+		var prot_profile_id = null;
 		for (var i = 0; i < gp_metadata_list.length; i++) {
 		    if (gp_metadata_list[i].genetic_alteration_type === "MRNA_EXPRESSION" &&
 			    gp_metadata_list[i].datatype === "Z-SCORE") {
-			return gp_metadata_list[i].id;
+			mrna_profile_id = gp_metadata_list[i].id;
+			break;
 		    }
 		}
 		for (var i = 0; i < gp_metadata_list.length; i++) {
 		    if (gp_metadata_list[i].genetic_alteration_type === "PROTEIN_LEVEL" &&
 			    gp_metadata_list[i].datatype === "Z-SCORE") {
-			return gp_metadata_list[i].id;
+			prot_profile_id = gp_metadata_list[i].id;
+			break;
 		    }
 		}
-		return null;
-	    }).promise();
-	},
+		if (mrna_profile_id !== null) {
+		    fetch_promise.resolve(mrna_profile_id);
+		} else if (prot_profile_id !== null) {
+		    fetch_promise.resolve(prot_profile_id);
+		} else {
+		    fetch_promise.reject();
+		}
+	    });
+	}),
 	'getSampleIds': function (opt_study_id) {
 	    if (typeof opt_study_id !== "undefined") {
 		return this.study_sample_map[opt_study_id].slice() || [];

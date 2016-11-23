@@ -1310,14 +1310,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    }
 	}).then(function fetchClinicalAttributes() {
 	    console.log("in initOncoprint, fetching clinical attributes");
-	    return QuerySession.getClinicalAttributes()
+	    QuerySession.getClinicalAttributes()
 	    .then(function (attrs) {
 		console.log("in initOncoprint, clinical attributes fetched");
 		State.unused_clinical_attributes = attrs;
-		return State.clinical_attributes_fetched.resolve().promise();
+		State.clinical_attributes_fetched.resolve();
 	    }).fail(function () {
-		return State.clinical_attributes_fetched.reject().promise();
+		return State.clinical_attributes_fetched.reject();
 	    });
+	    return State.clinical_attributes_fetched.promise();
 	}).then(function () {
 	    // specify sample or patient and populate data as appropriate
 	    console.log("in initOncoprint, setting the data type to " + (State.using_sample_data ? 'sample' : 'patient'));

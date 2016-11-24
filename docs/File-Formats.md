@@ -59,7 +59,7 @@ The file is comprised of the following fields:
 
 1. **genetic_alteration_type**: CANCER_TYPE
 2. **datatype**: CANCER_TYPE
-3. **data_filename**: &lt;your datafile&gt;
+3. **data_filename**: your datafile
 
 ##### Example
 An example meta_cancer_type.txt file would be:
@@ -96,7 +96,7 @@ The two clinical metadata files (or just one metadata file if you choose to leav
 1. **cancer_study_identifier**: same value specified in meta_study.txt
 2. **genetic_alteration_type**: CLINICAL
 3. **datatype**: PATIENT_ATTRIBUTES or SAMPLE_ATTRIBUTES
-4. **data_filename**: &lt;your datafile&gt;
+4. **data_filename**: your datafile
 
 ##### Examples
 An example metadata file, e.g. named meta_clinical_sample.txt, would be:
@@ -140,12 +140,12 @@ data - see examples below
 
 Following the metadata rows comes a tab delimited list of clinical attributes (column headers). The sixth row is the first row to contain actual data. 
 
-#####The patient file#####
+##### The patient file
 
 The file containing the patient attributes has one **required** column:
 - **PATIENT_ID (required)**: a unique patient ID.
 
-The following columns are used by the study view as well as the patient view. In the the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header] (http://www.cbioportal.org/case.do?cancer_study_id=lgg_ucsf_2014&case_id=P05). 
+The following columns are used by the study view as well as the patient view. In the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](http://www.cbioportal.org/case.do?cancer_study_id=lgg_ucsf_2014&case_id=P05). 
 - **OS_STATUS**:  Overall patient survival status
     - Possible values: DECEASED, LIVING
     - In the patient view, LIVING creates a green label, DECEASED a red label.
@@ -176,7 +176,7 @@ PATIENT_ID_2<TAB>LIVING<TAB>63.01<TAB>DiseaseFree<TAB>63.01<TAB>...
 ...
 ```
 
-#####The samples file#####
+##### The samples file
 The file containing the sample attributes has two **required** columns:
 - **PATIENT_ID (required)**: A patient ID.
 - **SAMPLE_ID (required)**: A sample ID.
@@ -241,7 +241,7 @@ The meta file is comprised of the following fields:
 5. **show_profile_in_analysis_tab**: true
 6. **profile_name**: A name for the discrete copy number data, e.g., "Putative copy-number alterations from GISTIC"
 7. **profile_description**: A description of the copy number data, e.g., "Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification."
-8. **data_filename**: &lt;your datafile&gt;
+8. **data_filename**: your datafile
 9. **gene_panel**: optional gene panel stable id
 
 ##### Example
@@ -297,7 +297,7 @@ The continuous copy number metadata file should contain the following fields:
 5. **show_profile_in_analysis_tab**: false.
 6. **profile_name**: A name for the copy number data, e.g., "copy-number values".
 7. **profile_description**: A description of the copy number data, e.g., "copy-number values for each gene (from Affymetrix SNP6).".
-8. **data_filename**: &lt;your datafile&gt;
+8. **data_filename**: your datafile
 9. **gene_panel**: optional gene panel stable id
 
 cBioPortal also supports log2 copy number data. If your data is in log2, change the following fields:
@@ -337,7 +337,7 @@ The segmented metadata file should contain the following fields:
 3. **datatype**: SEG
 4. **reference_genome_id**: Reference genome version. Supported values: "hg19"
 5. **description**: A description of the segmented data, e.g., "Segment data for the XYZ cancer study.".
-6. **data_filename**: &lt;your datafile&gt;
+6. **data_filename**: your datafile
 7. **gene_panel**: optional gene panel stable id
 
 #### Example:
@@ -385,7 +385,7 @@ The expression metadata file should contain the following fields:
 5. **show_profile_in_analysis_tab**: false (you can set to **true** if Z-SCORE to enable it in the oncoprint, for example).
 6. **profile_name**: A name for the expression data, e.g., "mRNA expression (microarray)".
 7. **profile_description**: A description of the expression data, e.g., "Expression levels (Agilent microarray).".
-8. **data_filename**: &lt;your datafile&gt;
+8. **data_filename**: your datafile
 9. **gene_panel**: optional gene panel stable id
 
 #### Supported stable_id values for MRNA_EXPRESSION
@@ -499,7 +499,7 @@ The mutation metadata file should contain the following fields:
 5. **show_profile_in_analysis_tab**: true
 6. **profile_name**: A name for the mutation data, e.g., "Mutations".
 7. **profile_description**: A description of the mutation data, e.g., "Mutation data from whole exome sequencing.".
-8. **data_filename**: &lt;your data file&gt;
+8. **data_filename**: your data file
 9. **gene_panel**: optional gene panel stable id
 10. **swissprot_identifier (optional)**: either `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
 
@@ -528,7 +528,7 @@ Note: next to Hugo_Symbol, it is recommended to have the Entrez gene ID:
 
 * **Entrez_Gene_Id (Optional, but recommended)**: An [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
 
-:information_source: special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.  
+Special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.  
  
 The following extra annotation columns are also important for making sure mutation specific UI functionality works well in the portal:
 
@@ -536,7 +536,7 @@ The following extra annotation columns are also important for making sure mutati
 * **SWISSPROT**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not absolutely required, but not having it may result in inconsistent PDB structure matching in [mutations view](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
 
 ##### Extending the MAF format
-:warning: **Attention**: for the list of ***required*** and ***recommended*** fields, check the subsection above :arrow_up:. The section below :arrow_down: only describes some of the *extra* fields you can have in your mutations file.
+**Attention**: for the list of ***required*** and ***recommended*** fields, check the subsection above. The section below only describes some of the *extra* fields you can have in your mutations file.
 
 *Adding your mutation annotation columns to the complete MAF rows* can also be done. In this way, the portal will parse and store the MAF fields as well. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a 'Mutation Assessor” column in the [mutation table](http://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
 
@@ -595,7 +595,7 @@ The methylation metadata file should contain the following fields:
 5. **show_profile_in_analysis_tab**: false
 6. **profile_name**: A name for the methylation data, e.g., "Methlytation (HM27)".
 7. **profile_description**: A description of the methlytation data, e.g., "Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.".
-8. **data_filename**: &lt;your datafile&gt;
+8. **data_filename**: your datafile
 9. **gene_panel**: optional gene panel stable id
 
 
@@ -633,7 +633,7 @@ The RPPA metadata file should contain the following fields:
 5. **show_profile_in_analysis_tab**: false (**true** for Z-SCORE datatype)
 6. **profile_name**: A name for the RPPA data, e.g., "RPPA data".
 7. **profile_description**: A description of the RPPA data, e.g., "RPPA levels.".
-8. **data_filename**: &lt;your datafile&gt;
+8. **data_filename**: your datafile
 9. **gene_panel**: optional gene panel stable id
 
 An example metadata file would be:
@@ -691,7 +691,7 @@ The fusion metadata file should contain the following fields:
 5. **show_profile_in_analysis_tab**: true.
 6. **profile_name**: A name for the fusion data, e.g., "Fusions.".
 7. **profile_description**: A description of the fusion data.
-8. **data_filename**: &lt;your datafile&gt;
+8. **data_filename**: your datafile
 9. **gene_panel**: optional gene panel stable id
 
 #### Example
@@ -757,12 +757,12 @@ case_list_description: Custom subset of samples (825 samples)
 case_list_ids: SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>SAMPLE_ID_3<TAB>...
 ```
 
-:warning: In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](http://www.cbioportal.org/public-portal/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property. This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
+**Attention**: In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](http://www.cbioportal.org/public-portal/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property. This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
 
 _TODO: add missing data types to this list and clear up how exactly these relate to genetic profiles, especially if there are multiple for the same data type – do the stable_id fields of case lists correspond to those of profiles?_
 
 * **Sequenced Samples**: "_sequenced" (e.g. "brca_tcga_pub_sequenced").
-* **CNA Patients**: "_cna". :warning: the size of this list is used to determine the percentage of genes with CNA in the study view. If this case list is not given, the system will assume that *all* samples have been sequenced and will calculate the frequency accordingly.
+* **CNA Patients**: "_cna". Warning: the size of this list is used to determine the percentage of genes with CNA in the study view. If this case list is not given, the system will assume that *all* samples have been sequenced and will calculate the frequency accordingly.
 * **mRNA (RNA-SeqV2)**: "_rna_seq_v2_mrna".
 * **mRNA (microarray)**: "_mrna".
 * **Methylation (HM27)**: "_methylation_hm27".
@@ -777,7 +777,7 @@ Finally, if you are not using *add_global_case_list* attribute in [Study metadat
 ## Timeline Data
 The timeline data is a representation of the various events that occur during the course of treatment for a patient from initial diagnosis. In cBioPortal timeline data is represented as one or more tracks in the patient view. Each main track is based on an event type, such as "Specimen", "Imaging", "Lab_test", etc.
 
-:warning: some clinical attributes affect the timeline visualization. Please check the [Clinical Data](#clinical-data) section for more information.  
+**Attention**: some clinical attributes affect the timeline visualization. Please check the [Clinical Data](#clinical-data) section for more information.  
 
 This type data is not yet being validated. It can, however, be uploaded.
 
@@ -787,7 +787,7 @@ Each event type requires its own meta file. A timeline meta file should contain 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
 2. **genetic_alteration_type**: CLINICAL
 3. **datatype**: TIMELINE
-4. **data_filename**: &lt;your datafile&gt;
+4. **data_filename**: your datafile
 
 An example metadata file would be:
 ```
@@ -810,7 +810,7 @@ And one optional columns with a special effect:
 
 1. **SPECIMEN_REFERENCE_NUMBER**: when this column has values that match the SAMPLE_ID/OTHER_SAMPLE_ID (defined in the clinical data file), the timeline will show case labels with black/red/etc 1, 2, 3, 4 circles. This only works for the first track and only if no STOP_DATE is set.
 
-#####Event Types
+##### Event Types
 As previously mentioned, the EVENT_TYPE can be anything. However, several event types have columns with special effects. Furthermore, for some event types cBioPortal has column naming suggestions.
 
 _**EVENT_TYPE: TREATMENT**_
@@ -864,7 +864,7 @@ Suggested columns
 
 Special: when the SPECIMEN_REFERENCE_NUMBER column has values that match the SAMPLE_ID/OTHER_SAMPLE_ID (defined in the clinical data file), the timeline will show case labels with black/red/etc 1, 2, 3, 4 circles. This only works for the first track and only if no STOP_DATE is set.
 
-#####Clinical Track Ordering
+##### Clinical Track Ordering
 Clinical tracks are ordered as follows (if available):
 
 1. Specimen
@@ -911,7 +911,7 @@ The Gistic metadata file should contain the following fields:
 2. **genetic_alteration_type**: GISTIC_GENES_AMP or GISTIC_GENES_DEL
 3. **datatype**: Q-VALUE
 4. **reference_genome_id**: reference genome version. Supported values: "hg19"
-5. **data_filename**: &lt;your datafile&gt;
+5. **data_filename**: your datafile
 
 An example metadata file would be:
 ```
@@ -962,7 +962,7 @@ The MutSig metadata file should contain the following fields:
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
 2. **genetic_alteration_type**: MUTSIG
 3. **datatype**: Q-VALUE
-4. **data_filename**: &lt;your datafile&gt;
+4. **data_filename**: your datafile
 
 An example metadata file would be:
 ```
@@ -1036,7 +1036,7 @@ SAMPLE_ID_2<TAB>NA<TAB>NA<TAB> ...
 The sample-profile matrix requires a meta file should contain the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
-2. **data_filename**: &lt;your datafile&gt
+2. **data_filename**: your datafile
 
 If all samples in a genetic profile will have the same gene panel associated with them, an optional field can be specified in the meta data file of that datatype called **gene_panel**. If this is present, the sample-profile matrix will automatically be generated and the gene panel applied if it exists in the database already.
 

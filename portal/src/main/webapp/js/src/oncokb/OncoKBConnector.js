@@ -1158,7 +1158,7 @@ OncoKB.Instance.prototype = {
                                                     var meta = {
                                                         title: variant.gene + ' ' + variant.alteration + ' in ' + variant.tumorType,
                                                         gene: variant.hasGene ? variant.gene : '',
-                                                        additionalInfo: variant.hasGene ? '' : 'This gene is not available in OncoKB.',
+                                                        additionalInfo: variant.hasGene ? '' : 'There is currently no information about this gene in OncoKB.',
                                                         oncogenicity: variant.evidence.oncogenic,
                                                         oncogenicityCitations: _.isArray(variant.evidence.oncogenicRefs) ?
                                                             variant.evidence.oncogenicRefs.map(function(article) {

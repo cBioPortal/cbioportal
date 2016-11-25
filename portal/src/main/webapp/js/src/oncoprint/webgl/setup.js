@@ -536,8 +536,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    return QuerySession.getDefaultHeatmapProfile();
 			}).then(function (heatmap_profile_id) {
 			    if (heatmap_profile_id !== null) {
-				console.log("in populateSampleData, calling QuerySession.getHeatmapData()");
-				return QuerySession.getHeatmapData(heatmap_profile_id, QuerySession.getQueryGenes(), 'sample')
+				console.log("in populateSampleData, calling QuerySession.getSampleHeatmapData()");
+				return QuerySession.getSampleHeatmapData()
 				.then(function (heatmap_data_by_line) {
 				    return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
 					console.log("heatmap data retrieved, populating sample data for track " + heatmap_data_by_line[hm_line].hugo_gene_symbol);
@@ -616,8 +616,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    return QuerySession.getDefaultHeatmapProfile();
 			}).then(function (heatmap_profile_id) {
 			    if (heatmap_profile_id !== null) {
-				console.log("in populatePatientData, calling QuerySession.getHeatmapData()");
-				return QuerySession.getHeatmapData(heatmap_profile_id, QuerySession.getQueryGenes(), 'patient')
+				console.log("in populatePatientData, calling QuerySession.getPatientHeatmapData()");
+				return QuerySession.getPatientHeatmapData()
 				.then(function (heatmap_data_by_line) {
 				    return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
 					console.log("heatmap data retrieved, populating patient data for track " + heatmap_data_by_line[hm_line].hugo_gene_symbol);
@@ -1295,7 +1295,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	}).then(function (heatmap_profile_id) {
 	    if (heatmap_profile_id !== null) {
 		console.log("in initOncoprint, fetching heatmap data");
-		return QuerySession.getHeatmapData(heatmap_profile_id, QuerySession.getQueryGenes(), "sample")
+		return QuerySession.getSampleHeatmapData()
 		.then(function (heatmap_data) {
 		    console.log("in initOncoprint, heatmap data fetched, adding tracks");
 		    State.addHeatmapTracks(heatmap_data);

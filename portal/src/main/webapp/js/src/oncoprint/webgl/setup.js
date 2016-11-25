@@ -745,7 +745,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var State = {
 	    'first_genetic_alteration_track': null,
 	    'genetic_alteration_tracks': {}, // track_id -> gene
-	    'first_heatmap_track': null,
 	    'heatmap_tracks': {},
 	    'clinical_tracks': {}, // track_id -> attr
 	    
@@ -896,13 +895,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    };
 		    var new_hm_id = oncoprint.addTracks([track_params])[0];
 		    hm_ids.push(new_hm_id);
-		    State.heatmap_tracks[i] = new_hm_id;
-		    // ???: wouldn't this always be State.heatmap_track[0]? <fedde-s 2016-10-06>
-		    if (State.first_heatmap_track === null) {
-			State.first_heatmap_track = new_hm_id;
-		    } else {
-			oncoprint.shareRuleSet(State.first_heatmap_track, new_hm_id);
+		    if (typeof State.heatmap_tracks[0] !== "undefined") {
+			oncoprint.shareRuleSet(State.heatmap_tracks[0], new_hm_id);
 		    }
+		    State.heatmap_tracks[i] = new_hm_id;
 		}
 		oncoprint.releaseRendering();
 		return hm_ids;

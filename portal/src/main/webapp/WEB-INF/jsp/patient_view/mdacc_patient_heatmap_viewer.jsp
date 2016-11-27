@@ -85,19 +85,12 @@
                 heatmapDiv.attr('style', 'display:block');
 
                 // And give it a click handler to insert the iframe
-
-
-                //var tabA = $('#link-heatmap-viewer');
-                //tabA.click(loadChmViewer);
-                // And give it a click handler to insert the iframe
                 $("#link-heatmap-viewer").click(function() {
-                    //if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
                     if (!$(this).hasClass("tab-clicked")) {
                         $(this).addClass("tab-clicked");
 
                         heatmapDiv.html('<iframe id="frame" src="'+viewerUrl+'" width="100%" height="700px"></iframe>');
                     }
-                    //window.location.hash = '#heatmap';
                 });
             }
         })
@@ -106,16 +99,6 @@
             console.log ('AJAX Error: ' + textStatus);
         });
     });
-
-    /*
-    function loadChmViewer(){
-        //if (!tissueImageLoaded) {
-        console.log ('########## ' + viewerUrl);
-        $("#chm-viewer-div").html('<iframe id="frame" src="'+viewerUrl+'" width="100%" height="700px"></iframe>');
-        //    tissueImageLoaded = true;
-        //}
-    }
-    */
 </script>
 
 <div id="chm-viewer-div"><img src="images/ajax-loader.gif"/></div>

@@ -199,6 +199,9 @@ if (patientViewError!=null) {
     <li><a id="link-tissue-images" href='#tab_images' class='patient-tab'>Tissue Images</a></li>
     <%}%>
 
+    <%-- Always start with tab.  Browser JS hides it if not needed. --%>
+    <li id="tab-heatmap-viewer"><a id="link-heatmap-viewer" href="#tab_chm" class="patient-tab">Heatmap</a></li>
+
     <%if(pathReportUrl!=null){%>
     <li><a id="link-path-report" href='#tab_path-report' class='patient-tab'>Pathology Report</a></li>
     <%}%>
@@ -238,6 +241,11 @@ if (patientViewError!=null) {
         <%@ include file="tissue_images.jsp" %>
     </div>
     <%}%>
+
+    <%-- Always start with this.  JS in browser will remove if not needed. --%>
+    <div class="patient-section" id="tab_chm">
+        <%@ include file="mdacc_patient_heatmap_viewer.jsp" %>
+    </div>
 
     <%if(pathReportUrl!=null){%>
     <div class="patient-section" id="tab_path-report">

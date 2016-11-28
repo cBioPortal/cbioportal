@@ -38,11 +38,11 @@
 <%@ page import="java.util.List" %>
 
 <%
-   String dataSetsHtml = GlobalProperties.getProperty("data_sets");
+   String dataSetsHtml = GlobalProperties.getDataSets();
    String siteTitle = GlobalProperties.getTitle();
    String dataSetsHeader = GlobalProperties.getDataSetsHeader();
    String dataSetsFooter = GlobalProperties.getDataSetsFooter();
-   String segFileURL = GlobalProperties.getProperty("segfile.url");
+   String segFileURL = GlobalProperties.getSegfileUrl();
    DataSetsUtil dataSetsUtil = new DataSetsUtil();
 
    // get list of cancer study stats to process

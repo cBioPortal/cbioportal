@@ -47,8 +47,8 @@
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
 <%
-    String global_style = GlobalProperties.getProperty("global_css");
-    String special_style = GlobalProperties.getProperty("special_css");
+    String global_style = GlobalProperties.getGlobalCss();
+    String special_style = GlobalProperties.getSpecialCss();
     if (global_style == null) {
         global_style = "css/global_portal.css?"+GlobalProperties.getAppVersion();
     } else {

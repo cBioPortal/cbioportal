@@ -111,14 +111,14 @@ public class IGVLinking {
 
 	private static boolean encryptionBinLocated()
 	{
-		return new File(GlobalProperties.getProperty(GlobalProperties.OPENSSL_BINARY)).exists();
+		return new File(GlobalProperties.getOpenSslBinary()).exists();
 	}
 
 	private static String getBAMFileURL(String caseId)
 	{
 		String token = IGVLinking.getToken(caseId);
 		return (token == null) ? null :
-			GlobalProperties.getProperty(GlobalProperties.BROAD_BAM_URL).replace(TOKEN_REGEX, token);
+			GlobalProperties.getBroadBamUrl().replace(TOKEN_REGEX, token);
 	}
 
 	private static String getToken(String caseId)
@@ -231,9 +231,9 @@ public class IGVLinking {
 
 	private static String getEncryptCommand(File messageToEncrypt, File encryptedMessage) throws Exception
 	{
-		return (GlobalProperties.getProperty(GlobalProperties.OPENSSL_BINARY) +
+		return (GlobalProperties.getOpenSslBinary() +
 				" rsautl -encrypt" +
-				" -inkey " + GlobalProperties.getProperty(GlobalProperties.ENCRYPTION_KEY) +
+				" -inkey " + GlobalProperties.getEncryptionKey() +
 				" -keyform PEM -pubin" +
 				" -in " + messageToEncrypt.getCanonicalPath() + 
 				" -out " + encryptedMessage.getCanonicalPath());
@@ -257,9 +257,9 @@ public class IGVLinking {
 
 	private static String getSignCommand(File encryptedMessage, File signedMessage) throws Exception
 	{
-		return (GlobalProperties.getProperty(GlobalProperties.OPENSSL_BINARY) +
+		return (GlobalProperties.getOpenSslBinary() +
 				" rsautl -sign" +
-				" -inkey " + GlobalProperties.getProperty(GlobalProperties.SIGNATURE_KEY) +
+				" -inkey " + GlobalProperties.getSignatureKey() +
 				" -keyform PEM" +
 				" -in " + encryptedMessage.getCanonicalPath() + 
 				" -out " + signedMessage.getCanonicalPath());
@@ -283,7 +283,7 @@ public class IGVLinking {
 
 	private static String getBase64Command(File signedMessage, File base64Message) throws Exception
 	{
-		return (GlobalProperties.getProperty(GlobalProperties.OPENSSL_BINARY) +
+		return (GlobalProperties.getOpenSslBinary() +
 				" enc -base64" +
 				" -in " + signedMessage.getCanonicalPath() + 
 				" -out " + base64Message.getCanonicalPath());
@@ -320,7 +320,7 @@ public class IGVLinking {
     private static String getBAMCheckingURL(String caseId)
     {
         String encodedCaseId = getEncoded(caseId);
-        String url = GlobalProperties.getProperty(GlobalProperties.BROAD_BAM_CHECKING_URL);
+        String url = GlobalProperties.getBroadBamCheckingUrl();
         return (url != null && !url.isEmpty() && encodedCaseId != null) ?
             url.replace(SAMPLE_REGEX, encodedCaseId) : null;
     }

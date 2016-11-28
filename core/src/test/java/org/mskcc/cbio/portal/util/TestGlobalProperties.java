@@ -48,7 +48,6 @@ import static org.hamcrest.CoreMatchers.*;
 /**
  * JUnit test for DaoUser class.
  */
-
 public class TestGlobalProperties {
 	public final String DB_VERSION = "db.version";
     public final String PROPERTIES_FILENAME = "portal.properties";
@@ -70,5 +69,19 @@ public class TestGlobalProperties {
         catch (IOException e) {}
         return properties;
     
+    }
+    
+    @Test
+    public void testGlobalPropertiesBean() throws Exception {
+        GlobalPropertiesBean gbBean = (GlobalPropertiesBean)SpringUtil.getApplicationContext().getBean("globalPropertiesBean");
+        assertNotNull(gbBean.getDbVersion());
+        System.out.println("GlobalPropertiesBean db version: " +gbBean.getDbVersion());
+    }
+    
+    @Test
+    public void testGlobalPropertiesDbVersion() throws Exception {
+        String dbVersion = GlobalProperties.getDbVersion();
+        assertNotNull(dbVersion);
+        System.out.println("GlobalProperties db version: " + dbVersion);
     }
 }

@@ -454,6 +454,9 @@
           <configuration>
             <source>1.7</source>
             <target>1.7</target>
+            <!--compilerArgs>
+              <arg>-Xlint:unchecked,deprecation</arg>
+            </compilerArgs-->
           </configuration>
         </plugin>
       </plugins>

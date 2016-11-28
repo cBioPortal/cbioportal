@@ -123,6 +123,7 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
     public static final String ONCOKB_URL = "oncokb.url";
+    public static final String SHOW_ONCOKB = "show.oncokb";
 
     public static final String SESSION_SERVICE_URL = "session.service.url";
 
@@ -659,7 +660,11 @@ public class GlobalProperties {
     public static String getOncoKBUrl()
     {
         String oncokbUrl = properties.getProperty(ONCOKB_URL);
+        String showOncokb = properties.getProperty(SHOW_ONCOKB);
 
+        if(showOncokb == null || showOncokb.isEmpty()) {
+            showOncokb = "true";
+        }
         // This only applies if there is no oncokb.url property in the portal.properties file.
         // Empty string should be used if you want to disable the OncoKB annotation.
         if(oncokbUrl == null) {
@@ -667,8 +672,7 @@ public class GlobalProperties {
         }
 
         //Test connection of OncoKB website.
-        if(!oncokbUrl.isEmpty()) {
-
+        if(!oncokbUrl.isEmpty() && showOncokb.equals("true")) {
             try {
                 URL url = new URL(oncokbUrl+"access");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();

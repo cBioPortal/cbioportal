@@ -32,19 +32,23 @@
 
 package org.mskcc.cbio.portal.web;
 
-import org.json.simple.*;
-import org.springframework.http.*;
-import org.springframework.http.converter.*;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.stereotype.Controller;
-import org.springframework.beans.factory.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.*;
-import javax.servlet.http.*;
-import java.util.Map;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/proxy")
@@ -64,8 +68,24 @@ public class ProxyController
 
   private String oncokbURL;
   @Value("${oncokb.url:http://oncokb.org/legacy-api/}")
-  public void setOncoKBURL(String property) { this.oncokbURL = property; }
+  public void setOncoKBURL(String property) {
+      // The annotation above can only prevent oncokb.url is not present in the property file.
+      // If user set the  oncokb.url to empty, we should also use the default OncoKB URL.
+      if (property.isEmpty()) {
+          property = "http://oncokb.org/legacy-api/";
+      }
+      this.oncokbURL = property;
+  }
+    
+    private Boolean enableOncokb;
 
+    @Value("${show.oncokb:true}")
+    public void setEnableOncokb(Boolean property) {
+        if(property == null) {
+            property = true;
+        }
+        this.enableOncokb = property;
+    }
   // This is a general proxy for future use.
   // Please modify and improve it as needed with your best expertise. The author does not have fully understanding
   // of JAVA proxy when creating this proxy.
@@ -95,6 +115,11 @@ public class ProxyController
             break;
         }
         
+        if(path != null && StringUtils.startsWithIgnoreCase(path, "oncokb") && !enableOncokb) {
+            response.sendError(403, "OncoKB service is disabled.");
+            return "";
+        }
+        
         //If request method is GET, include query string
         if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
           URL += "?" + request.getQueryString();
@@ -106,19 +131,31 @@ public class ProxyController
     @RequestMapping(value="/oncokbSummary", method = RequestMethod.POST)
     public @ResponseBody String getOncoKBSummary(@RequestBody String body, HttpMethod method,
                                                   HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        if(!enableOncokb) {
+            response.sendError(403, "OncoKB service is disabled.");
+            return "";
+        }
         return respProxy(oncokbURL + "summary.json", method, body, response);
     }
 
     @RequestMapping(value="/oncokbEvidence", method = RequestMethod.POST)
     public @ResponseBody String getOncoKBEvidence(@RequestBody JSONObject body, HttpMethod method,
                                           HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        if(!enableOncokb) {
+            response.sendError(403, "OncoKB service is disabled.");
+            return "";
+        }
         return respProxy(oncokbURL + "evidence.json", method, body, response);
     }
 
   @RequestMapping(value="/oncokb", method = RequestMethod.POST)
   public @ResponseBody String getOncoKB(@RequestBody JSONObject body, HttpMethod method,
                                           HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-    return respProxy(oncokbURL + "indicator.json", method, body, response);
+      if(!enableOncokb) {
+          response.sendError(403, "OncoKB service is disabled.");
+          return "";
+      }
+      return respProxy(oncokbURL + "indicator.json", method, body, response);
   }
   
      private String respProxy(String url, HttpMethod method, Object body, HttpServletResponse response) throws IOException {

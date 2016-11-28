@@ -79,17 +79,15 @@ var tooltip_utils = {
 	.then(function (profile_list) {
 	    var profile = profile_list[0];
 	    return function (d) {
+		var data_header = '';
+		var profile_data = 'NaN';
 		if (profile.genetic_alteration_type === "MRNA_EXPRESSION") {
-		    var data_header = 'MRNA: ';
+		    data_header = 'MRNA: ';
 		} else if (profile.genetic_alteration_type === "PROTEIN_LEVEL") {
-		    var data_header = 'PROT: ';
-		} else {
-		    var data_header = '';
+		    data_header = 'PROT: ';
 		}
 		if (d.profile_data) {
-		    var profile_data = d.profile_data.toString();
-		} else {
-		    var profile_data = 'NaN';
+		    profile_data = d.profile_data.toString();
 		}
 		var ret = data_header + '<b>' + profile_data + '</b><br>';
 		ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.study, d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.study, d.patient) : d.patient));

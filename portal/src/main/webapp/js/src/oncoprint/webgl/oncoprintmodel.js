@@ -670,15 +670,29 @@ var OncoprintModel = (function () {
 	var id_order = this.getIdOrder();
 	var zoomed_column_left = this.getZoomedColumnLeft();
 	var nearest_id_index = binarysearch(id_order, x, function(id) { return zoomed_column_left[id];}, true);
-	if (x <= zoomed_column_left[id_order[nearest_id_index]] + this.getCellWidth()) {
-	    var id = id_order[nearest_id_index];
-	    var tracks = this.getTracks();
-	    var cell_tops = this.getCellTops();
-	    var nearest_track_index = binarysearch(tracks, y, function(track) { return cell_tops[track];}, true);
-	    var nearest_track = tracks[nearest_track_index];
-	    if (y < cell_tops[nearest_track] + this.getCellHeight(nearest_track)) {
-		return {'id':id, 'track':nearest_track, 'top':cell_tops[nearest_track], 'left':zoomed_column_left[id]};
-	    }
+	if (nearest_id_index === -1) {
+	    return null;
+	}
+	var id = id_order[nearest_id_index];
+	
+	// Next, see if it's in a track
+	var tracks = this.getTracks();
+	var cell_tops = this.getCellTops();
+	var nearest_track_index = binarysearch(tracks, y, function (track) {
+	    return cell_tops[track];
+	}, true);
+	if (nearest_track_index === -1) {
+	    return null;
+	}
+	var nearest_track = tracks[nearest_track_index];
+	
+	// Finally, see if it's inside a cell
+	var hitzone_right = zoomed_column_left[id] + this.getCellWidth();
+	if (!this.getTrackHasColumnSpacing(nearest_track)) {
+	    hitzone_right += this.getCellPadding();
+	}
+	if (x <= hitzone_right && y < cell_tops[nearest_track] + this.getCellHeight(nearest_track)) {  
+	    return {'id': id, 'track': nearest_track, 'top': cell_tops[nearest_track], 'left': zoomed_column_left[id]};
 	}
 	return null;
     };

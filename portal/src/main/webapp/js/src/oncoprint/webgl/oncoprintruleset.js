@@ -477,27 +477,27 @@ var LinearInterpRuleSet = (function () {
 
 	this.makeInterpFn = function () {
 	    var range = this.getEffectiveValueRange();
-	    
+
 	    if (this.log_scale) {
 		var shift_to_make_pos = Math.abs(range[0]) + 1;
 		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
 		var log_range_lower = Math.log(range[0] + shift_to_make_pos);
-		return function(val) {
+		return function (val) {
 		    val = parseFloat(val);
-		    return (Math.log(val + shift_to_make_pos) - log_range_lower)/log_range;
+		    return (Math.log(val + shift_to_make_pos) - log_range_lower) / log_range;
 		};
 	    } else {
 		var range_spread = range[1] - range[0];
 		var range_lower = range[0];
 		return function (val) {
 		    val = parseFloat(val);
-        if (val <= range[0]) {
-          return 0.0
-        } else if (val >= range[1]) {
-          return 1.0
-        } else {
-		    return (val - range_lower) / range_spread;
-        }
+		    if (val <= range[0]) {
+			return 0;
+		    } else if (val >= range[1]) {
+			return 1;
+		    } else {
+			return (val - range_lower) / range_spread;
+		    }
 		};
 	    }
 	};
@@ -555,105 +555,60 @@ var LinearInterpRuleSet = (function () {
 var GradientRuleSet = (function () {
     function GradientRuleSet(params) {
 	/* params
-	 * - color_range
-   * - null_color
+	 * - colors || colormap_name
+	 * - null_color
 	 */
 	LinearInterpRuleSet.call(this, params);
 
-	this.color_range;
-  if (params.color_range) {
-	(function setUpColorRange(self) {
-	    var color_start;
-	    var color_end;
-	    try {
-		color_start = extractRGBA(params.color_range[0]);
-		color_end = extractRGBA(params.color_range[1]);
-		for (var i=0; i<3; i++) {
-		    color_start[i] *= 255;
-		    color_end[i] *= 255;
-		}
-	    } catch (err) {
-		color_start = [0, 0, 0, 1];
-		color_end = [255, 0, 0, 1];
-	    }
-	    self.color_range = color_start.map(function (c, i) {
-		return [c, color_end[i]];
-	    });
-	})(this);
-  } else {
-    this.color_range = null;
-  }
+	this.colors = [];
+	if (params.colors) {
+	    this.colors = params.colors || [];
+	} else if (params.colormap_name) {
+	    this.colors = heatmapColors[params.colormap_name] || [];
+	}
+	if (this.colors.length === 0) {
+	    this.colors.push([0,0,0,1],[255,0,0,1]);
+	}
 
 	this.gradient_rule;
-  this.null_color = params.null_color || "rgba(211,211,211,1)";
-  this.colormap = params.colormap || "viridis";
+	this.null_color = params.null_color || "rgba(211,211,211,1)";
     }
     GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
 
     // interpScaleColors,
     // were adapted from politiken-journalism's scale-color-perceptual repo on Github
-    GradientRuleSet.prototype.interpScaleColors = function (a, b) {
-      var ar = a[0];
-      var ag = a[1];
-      var ab = a[2];
-      var br = b[0] - ar;
-      var bg = b[1] - ag;
-      var bb = b[2] - ab;
-      return function (t) {
-        return [
-          ar + br * t,
-          ag + bg * t,
-          ab + bb * t,
-          1
-        ];
-      };
+    var linInterpColors = function(t, begin_color, end_color) {
+	// 0 <= t <= 1
+	// begin_color and end_color are 4-element arrays in ([0,255])x([0,255])x([0,255])x([0,1])
+	return [
+	    Math.round(begin_color[0]*(1-t) + end_color[0]*t),
+	    Math.round(begin_color[1]*(1-t) + end_color[1]*t),
+	    Math.round(begin_color[2]*(1-t) + end_color[2]*t),
+	    begin_color[3]*(1-t) + end_color[3]*t
+	];
     };
 
-    GradientRuleSet.prototype.makeColormapFn = function (scaleArr) {
-      var N = scaleArr.length - 2;
-      var intervals = [];
-      for (var i = 0; i <= N; i++) {
-        intervals[i] = this.interpScaleColors(scaleArr[i], scaleArr[i + 1]);
-      }
-      return function (t) {
-        if (t < 0) {
-          return scaleArr[0];
-        } else if (t > 1) {
-          return scaleArr[N];
-        } else {
-	  var tN = t*N;
-          var i = Math.floor(tN);
-	  var T = tN - i;
-          return intervals[i](T);
-        }
-      };
-    };
+    GradientRuleSet.prototype.makeColorFn = function(colors) {
+	var interval_size = 1 / (colors.length - 1);
+	return function(t) {
+	    // 0 <= t <= 1
+	    var interval_index = Math.floor(t / interval_size);
+	    var interval_t = (t / interval_size) - interval_index;
+	    var begin_color = colors[interval_index];
+	    var end_color = colors[Math.min(colors.length - 1, interval_index + 1)];
+	    return "rgba(" + linInterpColors(interval_t, begin_color, end_color).join(",") + ")";
+	};
+    }
 
     GradientRuleSet.prototype.updateLinearRules = function () {
 	if (typeof this.gradient_rule !== "undefined") {
 	    this.removeRule(this.gradient_rule);
 	}
+	var colorFn = this.makeColorFn(this.colors);
 	var interpFn = this.makeInterpFn();
-	var colormapFn = this.makeColormapFn(heatmapColors[this.colormap]);
 	var value_key = this.value_key;
-	var color_range = this.color_range;
 	var null_color = this.null_color;
 	
-	var colorFn;
-	if (color_range) {
-	    colorFn = function (t) {
-		return "rgba(" + color_range.map(
-			function (arr) {
-			    return (1 - t) * arr[0]
-				    + t * arr[1];
-			}).join(",") + ")";
-	    };
-	} else if (colormapFn) {
-	    colorFn = function (t) {
-		var interp_array = colormapFn(t);
-		return "rgba(" + interp_array.join(",") + ")";
-	    };
-	}
 	this.gradient_rule = this.addRule(function (d) {
 	    return d[NA_STRING] !== true;
 	},

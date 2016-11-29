@@ -879,8 +879,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    'type': 'gradient',
 			    'value_key': 'profile_data',
 			    'value_range': [-3, 3],
-			    'colormap': 'inferno',
-			    //'color_range': ['rgba(0,0,255,1)', 'rgba(255,0,0,1)'],
+			    'colors': [[255,0,0,1],[0,0,0,1],[0,255,0,1]],
 			    'null_color': 'rgba(211,211,211,1)'
 			},
 			'has_column_spacing': false,

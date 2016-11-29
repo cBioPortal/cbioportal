@@ -1310,7 +1310,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		State.unused_clinical_attributes = attrs;
 		State.clinical_attributes_fetched.resolve();
 	    }).fail(function () {
-		return State.clinical_attributes_fetched.reject();
+		State.clinical_attributes_fetched.reject();
 	    });
 	    return State.clinical_attributes_fetched.promise();
 	}).then(function () {

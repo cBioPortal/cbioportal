@@ -889,8 +889,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    }
 	    fetch_promise.then(function (data) {
 		var ret = data;
-		if ([(typeof ""), (typeof 0), (typeof true), (typeof undefined)].indexOf(typeof data) === -1
-			&& !(data instanceof RegExp)) {
+		if (typeof data === "object" && !(data instanceof RegExp)) {
 		    ret = deepCopyObject(data);
 		}
 		def.resolve(ret);
@@ -1097,7 +1096,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		} else if (prot_profile_id !== null) {
 		    fetch_promise.resolve(prot_profile_id);
 		} else {
-		    fetch_promise.reject();
+		    fetch_promise.resolve(null);
 		}
 	    });
 	}),

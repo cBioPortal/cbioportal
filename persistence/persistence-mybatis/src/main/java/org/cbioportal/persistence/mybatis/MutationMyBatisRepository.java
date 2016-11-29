@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
-import org.cbioportal.model.SNPCount;
 
 @Repository
 public class MutationMyBatisRepository implements MutationRepository {

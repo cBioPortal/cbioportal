@@ -35,7 +35,7 @@ public class MutationalSignatureMyBatisRepositoryTest {
 	}
 	
 	@Test
-	public void getSNPCountsForSpecificSamples() {
+	public void getSNPCountsForSpecificSamplesAllPresent() {
 		List<String> sampleIds1 = new LinkedList<>();
 		sampleIds1.add("TCGA-A1-A0SH-01");
 		List<SNPCount> snpCounts = mutationalSignatureMyBatisRepository.getSNPCounts("study_tcga_pub_mutations", sampleIds1);
@@ -66,6 +66,36 @@ public class MutationalSignatureMyBatisRepositoryTest {
 		sampleIds4.add("TCGA-A1-A0SE-01");
 		snpCounts = mutationalSignatureMyBatisRepository.getSNPCounts("study_tcga_pub_mutations", sampleIds4);
 		Assert.assertEquals(4, snpCounts.size());
+	}
+	
+	@Test
+	public void getSNPCountsForSpecificSamplesSomeNotPresent() {
+		List<String> sampleIds = new LinkedList<>();
+		sampleIds.add("TCGA-A1-A0SH-01");
+		sampleIds.add("TCGA-A1-A0SO-01");
+		sampleIds.add("TCGA-A1-A0SI-01");
+		sampleIds.add("TCGA-A1-A0SP-01");
+		sampleIds.add("TCGA-A1-A0SB-01");
+		sampleIds.add("TCGA-A1-A0SD-01");
+		sampleIds.add("TCGA-A1-A0SE-01");
+		List<SNPCount> snpCounts = mutationalSignatureMyBatisRepository.getSNPCounts("study_tcga_pub_mutations", sampleIds);
+		Assert.assertEquals(8, snpCounts.size());
+		
+		sampleIds.add("NONEXISTENT-SAMPLE1");
+		sampleIds.add("NONEXISTENT-SAMPLE2");
+		snpCounts = mutationalSignatureMyBatisRepository.getSNPCounts("study_tcga_pub_mutations", sampleIds);
+		Assert.assertEquals(8, snpCounts.size()); // nothing changed
+	}
+	
+	@Test
+	public void getSNPCountsForSpecificSamplesNonePresent() {
+		List<String> sampleIds = new LinkedList<>();
+		sampleIds.add("NONEXISTENT-SAMPLE1");
+		sampleIds.add("NONEXISTENT-SAMPLE2");
+		sampleIds.add("NONEXISTENT-SAMPLE3");
+		sampleIds.add("NONEXISTENT-SAMPLE4");
+		List<SNPCount> snpCounts = mutationalSignatureMyBatisRepository.getSNPCounts("study_tcga_pub_mutations", sampleIds);
+		Assert.assertEquals(0, snpCounts.size());
 	}
 	
 	@Test

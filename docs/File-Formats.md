@@ -388,23 +388,26 @@ The expression metadata file should contain the following fields:
 #### Supported stable_id values for MRNA_EXPRESSION
 For historical reasons, cBioPortal expects the `stable_id` to be one of those listed in the following static set.
 
-datatype | stable_id | description
---- | --- | ---
-CONTINUOUS|mrna_U133|Affymetrix U133 Array
-Z-SCORE|mrna_U133_Zscores|Affymetrix U133 Array
-CONTINUOUS|rna_seq_mrna|RNA-seq data
-Z-SCORE|rna_seq_mrna_median_Zscores|RNA-seq data
-CONTINUOUS|rna_seq_v2_mrna|RNA-seq data
-Z-SCORE|rna_seq_v2_mrna_median_Zscores|RNA-seq data
-CONTINUOUS|mirna|MicroRNA data
-Z-SCORE|mirna_median_Zscores|MicroRNA data
-Z-SCORE|mrna_merged_median_Zscores|?
-CONTINUOUS|mrna|mRNA data
-Z-SCORE|mrna_median_Zscores|mRNA data
-DISCRETE|mrna_outliers|mRNA data of outliers
-Z-SCORE|mrna_zbynorm|?
-CONTINUOUS|rna_seq_mrna_capture|data from Roche mRNA Capture Kit
-Z-SCORE|rna_seq_mrna_capture_Zscores|data from Roche mRNA Capture Kit
+<table>
+<thead>
+<tr><th>datatype</th><th>stable_id</th><th>description</th></th>
+</thead>
+<tr><td>CONTINUOUS</td><td>mrna_U133</td><td>Affymetrix U133 Array</td></tr>
+<tr><td>Z-SCORE</td><td>mrna_U133_Zscores</td><td>Affymetrix U133 Array</td></tr>
+<tr><td>Z-SCORE</td><td>rna_seq_mrna_median_Zscores</td><td>RNA-seq data</td></tr>
+<tr><td>Z-SCORE</td><td>mrna_median_Zscores</td><td>mRNA data</td></tr>
+<tr><td>CONTINUOUS</td><td>rna_seq_mrna</td><td>RNA-seq data</td></tr>
+<tr><td>CONTINUOUS</td><td>rna_seq_v2_mrna</td><td>RNA-seq data</td></tr>
+<tr><td>Z-SCORE</td><td>rna_seq_v2_mrna_median_Zscores</td><td>RNA-seq data</td></tr>
+<tr><td>CONTINUOUS</td><td>mirna</td><td>MicroRNA data</td></tr>
+<tr><td>Z-SCORE</td><td>mirna_median_Zscores</td><td>MicroRNA data</td></tr>
+<tr><td>Z-SCORE</td><td>mrna_merged_median_Zscores</td><td>?</td></tr>
+<tr><td>CONTINUOUS</td><td>mrna</td><td>mRNA data</td></tr>
+<tr><td>DISCRETE</td><td>mrna_outliers</td><td>mRNA data of outliers</td></tr>
+<tr><td>Z-SCORE</td><td>mrna_zbynorm</td><td>?</td></tr>
+<tr><td>CONTINUOUS</td><td>rna_seq_mrna_capture</td><td>data from Roche mRNA Capture Kit</td></tr>
+<tr><td>Z-SCORE</td><td>rna_seq_mrna_capture_Zscores</td><td>data from Roche mRNA Capture Kit</td></tr>
+</table>
 
 
 #### Example

@@ -122,7 +122,7 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
-    public static final String ONCOKB_URL = "oncokb.url";
+    public static final String ONCOKB_API_URL = "oncokb.api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
     public static final String SESSION_SERVICE_URL = "session.service.url";
@@ -657,9 +657,9 @@ public class GlobalProperties {
         return properties.getProperty(SESSION_SERVICE_URL);
     }
  
-    public static String getOncoKBUrl()
+    public static String getOncoKBApiUrl()
     {
-        String oncokbUrl = properties.getProperty(ONCOKB_URL);
+        String oncokbApiUrl = properties.getProperty(ONCOKB_API_URL);
         String showOncokb = properties.getProperty(SHOW_ONCOKB);
 
         if(showOncokb == null || showOncokb.isEmpty()) {
@@ -667,20 +667,20 @@ public class GlobalProperties {
         }
         // This only applies if there is no oncokb.url property in the portal.properties file.
         // Empty string should be used if you want to disable the OncoKB annotation.
-        if(oncokbUrl == null) {
-            oncokbUrl = "http://oncokb.org/legacy-api/";
+        if(oncokbApiUrl == null) {
+            oncokbApiUrl = "http://oncokb.org/legacy-api/";
         }
 
         //Test connection of OncoKB website.
-        if(!oncokbUrl.isEmpty() && showOncokb.equals("true")) {
+        if(!oncokbApiUrl.isEmpty() && showOncokb.equals("true")) {
             try {
-                URL url = new URL(oncokbUrl+"access");
+                URL url = new URL(oncokbApiUrl+"access");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 if(conn.getResponseCode() != 200) {
-                    oncokbUrl = "";
+                    oncokbApiUrl = "";
                 }
                 conn.disconnect();
-                return oncokbUrl;
+                return oncokbApiUrl;
             } catch (Exception e) {
                 return "";
             }

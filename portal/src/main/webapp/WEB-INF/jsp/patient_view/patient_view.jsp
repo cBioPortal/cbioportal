@@ -90,7 +90,7 @@ boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
 
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
-String oncokbUrl = (String)GlobalProperties.getOncoKBUrl();
+String oncokbUrl = (String)GlobalProperties.getOncoKBApiUrl();
 String oncokbGeneStatus = (String)GlobalProperties.getOncoKBGeneStatus();
 
 boolean showHotspot = (Boolean) GlobalProperties.showHotspot();

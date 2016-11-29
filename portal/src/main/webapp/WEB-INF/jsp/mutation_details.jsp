@@ -30,7 +30,7 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%
-    String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
+    String oncokbUrl = (String) GlobalProperties.getOncoKBApiUrl();
     boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();

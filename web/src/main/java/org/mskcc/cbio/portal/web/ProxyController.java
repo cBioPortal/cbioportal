@@ -66,15 +66,15 @@ public class ProxyController
   @Value("${pdb.database.url}")
   public void setPDBDatabaseURL(String property) { this.pdbDatabaseURL = property; }
 
-  private String oncokbURL;
-  @Value("${oncokb.url:http://oncokb.org/legacy-api/}")
+  private String oncokbApiURL;
+  @Value("${oncokb.api.url:http://oncokb.org/legacy-api/}")
   public void setOncoKBURL(String property) {
       // The annotation above can only prevent oncokb.url is not present in the property file.
       // If user set the  oncokb.url to empty, we should also use the default OncoKB URL.
       if (property.isEmpty()) {
           property = "http://oncokb.org/legacy-api/";
       }
-      this.oncokbURL = property;
+      this.oncokbApiURL = property;
   }
     
     private Boolean enableOncokb;
@@ -105,10 +105,10 @@ public class ProxyController
             URL = "http://cancerhotspots.org/api/hotspots/single/";
             break;
         case "oncokbAccess":
-            URL = oncokbURL + "access";
+            URL = oncokbApiURL + "access";
            break;
         case "oncokbSummary":
-            URL = oncokbURL + "summary.json";
+            URL = oncokbApiURL + "summary.json";
             break;
         default:
             URL = "";
@@ -135,7 +135,7 @@ public class ProxyController
             response.sendError(403, "OncoKB service is disabled.");
             return "";
         }
-        return respProxy(oncokbURL + "summary.json", method, body, response);
+        return respProxy(oncokbApiURL + "summary.json", method, body, response);
     }
 
     @RequestMapping(value="/oncokbEvidence", method = RequestMethod.POST)
@@ -145,7 +145,7 @@ public class ProxyController
             response.sendError(403, "OncoKB service is disabled.");
             return "";
         }
-        return respProxy(oncokbURL + "evidence.json", method, body, response);
+        return respProxy(oncokbApiURL + "evidence.json", method, body, response);
     }
 
   @RequestMapping(value="/oncokb", method = RequestMethod.POST)
@@ -155,7 +155,7 @@ public class ProxyController
           response.sendError(403, "OncoKB service is disabled.");
           return "";
       }
-      return respProxy(oncokbURL + "indicator.json", method, body, response);
+      return respProxy(oncokbApiURL + "indicator.json", method, body, response);
   }
   
      private String respProxy(String url, HttpMethod method, Object body, HttpServletResponse response) throws IOException {

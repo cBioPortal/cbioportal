@@ -19,4 +19,57 @@
             </include>
         </if>
     </sql>
+
+    <sql id="from">
+        FROM patient
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="where">
+        <where>
+            <if test="patientIds == null">
+                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+            </if>
+            <if test="patientIds != null">
+                <foreach index="i" collection="patientIds" open="(" separator="OR" close=")">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND patient.STABLE_ID = #{patientIds[${i}]}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <select id="getPatients" resultType="org.cbioportal.model.Patient">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="from"/>
+        <include refid="where"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY patient.STABLE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaPatients" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="from"/>
+        <include refid="where"/>
+    </select>
+
+    <select id="getPatient" resultType="org.cbioportal.model.Patient">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="from"/>
+        WHERE patient.STABLE_ID = #{patientId}
+        AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+    </select>
 </mapper>

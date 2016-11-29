@@ -11,19 +11,19 @@ public class SampleNotFoundException extends Exception {
         this.sampleId = sampleId;
     }
 
-    public String getSampleId() {
-        return sampleId;
-    }
-
-    public void setSampleId(String sampleId) {
-        this.sampleId = sampleId;
-    }
-
     public String getStudyId() {
         return studyId;
     }
 
     public void setStudyId(String studyId) {
         this.studyId = studyId;
+    }
+
+    public String getSampleId() {
+        return sampleId;
+    }
+
+    public void setSampleId(String sampleId) {
+        this.sampleId = sampleId;
     }
 }

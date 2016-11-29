@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.GeneticDataMapper">
+    <cache/> <!--  TODO - check this -->
+
+    <sql id="select">
+        genetic_alteration.VALUES AS "${prefix}orderedValuesList"
+    </sql>
+
+    <sql id="from">
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = genetic_alteration.GENETIC_PROFILE_ID
+    </sql>
+
+    <sql id="where">
+        <where>
+           genetic_profile.STABLE_ID IN (
+	           <foreach index="i" collection="geneticProfileIds" separator=",">
+	           	#{geneticProfileIds[${i}]}
+	           </foreach>
+           )
+        </where>
+    </sql>
+
+    <select id="getGeneticDataValues" resultType="org.cbioportal.model.GeneticDataValues">
+        SELECT genetic_alteration.GENETIC_PROFILE_ID as "geneticProfileId", 
+          genetic_alteration.GENETIC_ENTITY_ID as "geneticEntityId",
+          genetic_alteration.VALUES AS "orderedValuesList"
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = genetic_alteration.GENETIC_PROFILE_ID
+        <include refid="where"/>
+        <if test="geneticEntityIds != null">
+           AND genetic_alteration.GENETIC_ENTITY_ID IN (
+	           <foreach index="i" collection="geneticEntityIds" separator=",">
+	           	#{geneticEntityIds[${i}]}
+	           </foreach>
+           )
+        </if>
+        <if test="limit != null and limit != 0">
+	    <!-- add specific ordering, in case limit is specified -->
+	    ORDER BY genetic_alteration.GENETIC_PROFILE_ID, genetic_alteration.GENETIC_ENTITY_ID
+	    <!-- subset is done in java layer because CSV field ORDERED_SAMPLE_LIST is decomposed into
+	     many items there
+            LIMIT #{limit} OFFSET #{offset} -->
+        </if>
+    </select>
+    
+    
+    <select id="getGeneticDataSamples" resultType="org.cbioportal.model.GeneticDataSamples">
+        SELECT genetic_profile_samples.GENETIC_PROFILE_ID as "geneticProfileId", 
+          genetic_profile_samples.ORDERED_SAMPLE_LIST as "orderedSamplesList"
+        FROM genetic_profile_samples
+        INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = genetic_profile_samples.GENETIC_PROFILE_ID
+        <include refid="where"/>
+        <if test="limit != null and limit != 0">
+	    <!-- add specific ordering, in case limit is specified -->
+	    ORDER BY genetic_profile_samples.GENETIC_PROFILE_ID
+	    <!-- subset is done in java layer because CSV field ORDERED_SAMPLE_LIST is decomposed into
+	     many items there
+            LIMIT #{limit} OFFSET #{offset} -->
+        </if>
+    </select>
+
+    
+</mapper>

@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class Gene implements Serializable {
+public class Gene extends GeneticEntity implements Serializable {
 
     private Integer entrezGeneId;
     private String hugoGeneSymbol;

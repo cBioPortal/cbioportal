@@ -22,4 +22,6 @@ public interface SampleRepository {
     List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection);
 
     BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds);
+
+	List<Sample> fetchSamplesInSameStudyByInternalIds(String studyId, List<Integer> sampleIds, String projection);
 }

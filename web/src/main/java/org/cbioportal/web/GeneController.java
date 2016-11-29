@@ -88,7 +88,7 @@ public class GeneController {
             @RequestBody List<String> geneIds) throws PageSizeTooBigException {
 
         if (geneIds.size() > PagingConstants.MAX_PAGE_SIZE) {
-            throw new PageSizeTooBigException(geneIds.size());
+            throw new PageSizeTooBigException(geneIds.size()); //TODO - is this correct? Missing API documentation on how one can specify page size parameter 
         }
 
         if (projection == Projection.META) {

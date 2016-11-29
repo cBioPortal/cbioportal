@@ -6,7 +6,8 @@
 
     <sql id="select">
         gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
-        gene.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol"
+        gene.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol",
+        gene.GENETIC_ENTITY_ID as "${prefix}entityId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             gene.TYPE AS "${prefix}type",
@@ -54,6 +55,15 @@
         </include>
         FROM gene
         WHERE gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
+    </select>
+    
+    <select id="getGeneByGeneticEntityId" resultType="org.cbioportal.model.Gene">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM gene
+        WHERE gene.GENETIC_ENTITY_ID = #{geneticEntityId}
     </select>
 
     <select id="getAliasesOfGeneByEntrezGeneId" resultType="string">

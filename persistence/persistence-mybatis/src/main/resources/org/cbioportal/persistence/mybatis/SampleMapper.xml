@@ -43,6 +43,22 @@
             </if>
         </where>
     </sql>
+    
+    <sql id="whereInternal">
+        <where>
+            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            <if test="sampleIds != null">
+                AND sample.INTERNAL_ID IN (
+                <foreach index="i" collection="sampleIds" separator=",">
+                    #{sampleIds[${i}]}
+                </foreach>
+                )
+            </if>
+            <if test="patientId != null">
+                AND patient.STABLE_ID = #{patientId}
+            </if>
+        </where>
+    </sql>
 
     <select id="getSamples" resultType="org.cbioportal.model.Sample">
         SELECT
@@ -51,6 +67,24 @@
         </include>
         <include refid="from"/>
         <include refid="where"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY sample.STABLE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getSamplesInSameStudyByInternalIds" resultType="org.cbioportal.model.Sample">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="from"/>
+        <include refid="whereInternal"/>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>

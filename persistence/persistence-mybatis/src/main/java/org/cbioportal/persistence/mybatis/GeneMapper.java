@@ -52,6 +52,9 @@ public interface GeneMapper {
 
     Gene getGeneByHugoGeneSymbol(@Param("hugoGeneSymbol") String hugoGeneSymbol,
                                  @Param("projection") String projection);
+    
+    Gene getGeneByGeneticEntityId(@Param("geneticEntityId") Integer geneticEntityId,
+            @Param("projection") String projection);
 
     List<String> getAliasesOfGeneByEntrezGeneId(@Param("entrezGeneId") Integer entrezGeneId);
 

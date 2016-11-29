@@ -17,6 +17,15 @@ public interface SampleMapper {
                             @Param("sortBy") String sortBy,
                             @Param("direction") String direction);
 
+    List<Sample> getSamplesInSameStudyByInternalIds(@Param("studyId") String studyId,
+            @Param("patientId") String patientId,
+            @Param("sampleIds") List<Integer> sampleInternalIds,
+            @Param("projection") String projection,
+            @Param("limit") Integer limit,
+            @Param("offset") Integer offset,
+            @Param("sortBy") String sortBy,
+            @Param("direction") String direction);
+    
     BaseMeta getMetaSamples(@Param("studyIds") List<String> studyIds,
                             @Param("patientId") String patientId,
                             @Param("sampleIds") List<String> sampleIds);

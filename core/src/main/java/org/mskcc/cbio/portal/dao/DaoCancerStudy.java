@@ -532,6 +532,7 @@ public final class DaoCancerStudy {
                 "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM sample_list WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM structural_variant WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
+                "DELETE FROM genetic_profile_link WHERE REFERRED_GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID FROM genetic_profile where CANCER_STUDY_ID=?)",
                 "DELETE FROM genetic_profile WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM gistic_to_gene WHERE GISTIC_ROI_ID IN (SELECT GISTIC_ROI_ID FROM gistic WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM gistic WHERE CANCER_STUDY_ID=?",

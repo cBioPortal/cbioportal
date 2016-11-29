@@ -77,9 +77,11 @@ DROP TABLE IF EXISTS `gene_panel_list`;
 DROP TABLE IF EXISTS `gene_panel`;
 DROP TABLE IF EXISTS `genetic_profile_samples`;
 DROP TABLE IF EXISTS `genetic_alteration`;
+DROP TABLE IF EXISTS `genetic_profile_link`;
 DROP TABLE IF EXISTS `genetic_profile`;
 DROP TABLE IF EXISTS `uniprot_id_mapping`;
 DROP TABLE IF EXISTS `gene_alias`;
+DROP TABLE IF EXISTS `geneset_gene`;
 DROP TABLE IF EXISTS `gene`;
 DROP TABLE IF EXISTS `sample_list_list`;
 DROP TABLE IF EXISTS `sample_list`;
@@ -89,7 +91,11 @@ DROP TABLE IF EXISTS `authorities`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `cancer_study`;
 DROP TABLE IF EXISTS `type_of_cancer`;
+DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
+DROP TABLE IF EXISTS `geneset_hierarchy`;
+DROP TABLE IF EXISTS `geneset`;
 DROP TABLE IF EXISTS `genetic_entity`;
+DROP TABLE IF EXISTS `geneset_info`;
 
 -- --------------------------------------------------------
 CREATE TABLE `type_of_cancer` (
@@ -207,6 +213,53 @@ CREATE TABLE `gene_alias` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `geneset` (
+  `ID` INT(11) NOT NULL auto_increment,
+  `GENETIC_ENTITY_ID` INT NOT NULL,
+  `EXTERNAL_ID` VARCHAR(100) NOT NULL,
+  `NAME` VARCHAR(100) NOT NULL,
+  `DESCRIPTION` VARCHAR(300) NOT NULL,
+  `REF_LINK` TEXT,
+  PRIMARY KEY (`ID`),
+  UNIQUE INDEX `NAME_UNIQUE` (`NAME` ASC),
+  UNIQUE INDEX `EXTERNAL_ID_COLL_UNIQUE` (`EXTERNAL_ID` ASC),
+  UNIQUE INDEX `GENESET_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `geneset_gene` (
+  `GENESET_ID` INT(11) NOT NULL,
+  `ENTREZ_GENE_ID` INT(11) NOT NULL,
+  PRIMARY KEY (`GENESET_ID`, `ENTREZ_GENE_ID`),
+  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENESET_ID`) REFERENCES `geneset` (`ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `geneset_hierarchy` (
+  `NODE_ID` BIGINT(20) NOT NULL auto_increment,
+  `NODE_NAME` VARCHAR(200) NOT NULL,
+  `PARENT_ID` BIGINT NULL DEFAULT NULL,
+  PRIMARY KEY (`NODE_ID`),
+  UNIQUE INDEX `NODE_NAME_UNIQUE` (`NODE_NAME` ASC, `PARENT_ID` ASC)
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `geneset_hierarchy_leaf` (
+  `NODE_ID` BIGINT NOT NULL,
+  `GENESET_ID` INT NOT NULL,
+  PRIMARY KEY (`NODE_ID`, `GENESET_ID`),
+  FOREIGN KEY (`NODE_ID`) REFERENCES `geneset_hierarchy` (`NODE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENESET_ID`) REFERENCES `geneset` (`ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `geneset_info` (
+  `GENESET_VERSION` varchar(24)
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `uniprot_id_mapping` (
   `UNIPROT_ACC` varchar(255) NOT NULL,
   `UNIPROT_ID` varchar(255) NOT NULL,
@@ -230,6 +283,16 @@ CREATE TABLE `genetic_profile` (
   PRIMARY KEY (`GENETIC_PROFILE_ID`),
   UNIQUE (`STABLE_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `genetic_profile_link` (
+  `REFERRING_GENETIC_PROFILE_ID` INT NOT NULL,
+  `REFERRED_GENETIC_PROFILE_ID` INT NOT NULL,
+  `REFERENCE_TYPE` VARCHAR(45) NULL, -- COMMENT 'Values: AGGREGATION (e.g. for GSVA) or STATISTIC (e.g. for Z-SCORES)
+  PRIMARY KEY (`REFERRING_GENETIC_PROFILE_ID`, `REFERRED_GENETIC_PROFILE_ID`),
+  FOREIGN KEY (`REFERRING_GENETIC_PROFILE_ID` ) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`REFERRED_GENETIC_PROFILE_ID` ) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- --------------------------------------------------------
@@ -705,4 +768,4 @@ CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24)
 ) DEFAULT CHARSET=utf8;
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.0.1');
+INSERT INTO info VALUES ('2.1.0');

@@ -516,6 +516,8 @@ public final class DaoCancerStudy {
                 "delete from patient where CANCER_STUDY_ID=?;",
                 "delete from copy_number_seg where CANCER_STUDY_ID=?;",
                 "delete from sample_list where CANCER_STUDY_ID=?;",
+                "delete from genetic_profile_link where REFERRING_GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID FROM genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from genetic_profile_link where REFERRED_GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID FROM genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from genetic_profile where CANCER_STUDY_ID=?;",
                 "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",
                 "delete from gistic where CANCER_STUDY_ID=?;",

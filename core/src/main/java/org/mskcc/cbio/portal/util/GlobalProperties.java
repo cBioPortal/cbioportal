@@ -665,7 +665,7 @@ public class GlobalProperties {
         if(showOncokb == null || showOncokb.isEmpty()) {
             showOncokb = "true";
         }
-        // This only applies if there is no oncokb.url property in the portal.properties file.
+        // This only applies if there is no oncokb.api.url property in the portal.properties file.
         // Empty string should be used if you want to disable the OncoKB annotation.
         if(oncokbApiUrl == null) {
             oncokbApiUrl = "http://oncokb.org/legacy-api/";

@@ -12,7 +12,7 @@ After download, the files can be unzipped by entering the following command:
 
 ## Import the cBioPortal Database
 
-*Important:*  Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps.md#create-the-cbioportal-mysql-databases-and-user) for creating the `cbioportal` database.
+*Important:*  Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps.md) for creating the `cbioportal` database (see section "Create the cBioPortal MySQL Databases and User").
 
 Then import the seed database via the `mysql` commands:
 

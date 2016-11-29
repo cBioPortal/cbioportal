@@ -69,8 +69,8 @@ public class ProxyController
   private String oncokbApiURL;
   @Value("${oncokb.api.url:http://oncokb.org/legacy-api/}")
   public void setOncoKBURL(String property) {
-      // The annotation above can only prevent oncokb.url is not present in the property file.
-      // If user set the  oncokb.url to empty, we should also use the default OncoKB URL.
+      // The annotation above can only prevent oncokb.api.url is not present in the property file.
+      // If user set the  oncokb.api.url to empty, we should also use the default OncoKB URL.
       if (property.isEmpty()) {
           property = "http://oncokb.org/legacy-api/";
       }

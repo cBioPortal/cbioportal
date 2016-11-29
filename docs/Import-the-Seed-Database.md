@@ -4,19 +4,29 @@ The next step is to populate your cBioPortal instance with all the required back
 
 ## Download the cBioPortal Database
 
-A cBioPortal seed database can be found on the [Downloads](Downloads.md#seed-database) page.
+A cBioPortal seed database can be found on [the datahub page](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md).
 
-After download, this file can be unzipped by entering the following command:
+After download, the files can be unzipped by entering the following command:
 
-    gunzip cbioportal-seed.sql.gz
+    gunzip *.sql.gz
 
 ## Import the cBioPortal Database
 
 *Important:*  Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps.md#prepare_database) for creating the `cbioportal` database.  
 
-Then import the seed database via the `mysql` command:
+Then import the seed database via the `mysql` commands:
 
-    > mysql --user=cbio_user --password=somepassword cbioportal  < cbioportal-seed.sql
+    > mysql --user=cbio_user --password=somepassword cbioportal  < cgds.sql
+
+and:
+
+    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_no-pdb_hg19.sql
+    
+and (this command takes a bit longer to import PDB data that will enable the visualization of PDB structures in the mutation tab): 
+
+    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_only-pdb.sql
+
+:information_source: please be aware of the version of the seed DB. If it is different from what the cBioPortal system is expecting, the system will at some point ask you to run a migration step. The system will automatically give you a clear message (with instructions) about this (during startup or during data loading process) if a migration is needed. 
 
 ## Drug-target Data
 

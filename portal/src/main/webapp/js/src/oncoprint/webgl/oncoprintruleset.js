@@ -22,6 +22,7 @@
 var Shape = require('./oncoprintshape.js');
 var extractRGBA = require('./extractrgba.js');
 var heatmapColors = require('./heatmapcolors.js');
+var binarysearch = require('./binarysearch.js');
 
 function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
@@ -33,6 +34,14 @@ function makeIdCounter() {
 	id += 1;
 	return id;
     };
+}
+
+function intRange(length) {
+    var ret = [];
+    for (var i=0; i<length; i++) {
+	ret.push(i);
+    }
+    return ret;
 }
 
 function makeUniqueColorGetter(init_used_colors) {
@@ -569,6 +578,8 @@ var GradientRuleSet = (function () {
 	if (this.colors.length === 0) {
 	    this.colors.push([0,0,0,1],[255,0,0,1]);
 	}
+	
+	this.value_stop_points = params.value_stop_points;
 
 	this.gradient_rule;
 	this.null_color = params.null_color || "rgba(211,211,211,1)";
@@ -588,15 +599,28 @@ var GradientRuleSet = (function () {
 	];
     };
 
-    GradientRuleSet.prototype.makeColorFn = function(colors) {
-	var interval_size = 1 / (colors.length - 1);
+    GradientRuleSet.prototype.makeColorFn = function(colors, interpFn) {
+	var value_stop_points = this.value_stop_points;
+	var stop_points;
+	if (value_stop_points) {
+	    stop_points = value_stop_points.map(interpFn);
+	} else {
+	    stop_points = intRange(colors.length).map(function(x) { return x/(colors.length -1); });
+	}
 	return function(t) {
 	    // 0 <= t <= 1
-	    var interval_index = Math.floor(t / interval_size);
-	    var interval_t = (t / interval_size) - interval_index;
-	    var begin_color = colors[interval_index];
-	    var end_color = colors[Math.min(colors.length - 1, interval_index + 1)];
-	    return "rgba(" + linInterpColors(interval_t, begin_color, end_color).join(",") + ")";
+	    var begin_interval_index = binarysearch(stop_points, t, function(x) { return x; }, true);
+	    var end_interval_index = Math.min(colors.length - 1, begin_interval_index + 1);
+	    var spread = stop_points[end_interval_index] - stop_points[begin_interval_index];
+	    if (spread === 0) {
+		return "rgba(" + colors[end_interval_index].join(",") + ")";
+	    } else {
+		var interval_t = (t - stop_points[begin_interval_index]) / spread;
+		var begin_color = colors[begin_interval_index];
+		var end_color = colors[end_interval_index];
+		return "rgba(" + linInterpColors(interval_t, begin_color, end_color).join(",") + ")";
+	    }
+	    
 	};
     }
 
@@ -604,8 +628,8 @@ var GradientRuleSet = (function () {
 	if (typeof this.gradient_rule !== "undefined") {
 	    this.removeRule(this.gradient_rule);
 	}
-	var colorFn = this.makeColorFn(this.colors);
 	var interpFn = this.makeInterpFn();
+	var colorFn = this.makeColorFn(this.colors, interpFn);
 	var value_key = this.value_key;
 	var null_color = this.null_color;
 	

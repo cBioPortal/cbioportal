@@ -4936,7 +4936,7 @@ window.LogRankTest = (function(jStat) {
       V += obj.variance;
     });
     var chi_square_score = (O1 - E1) * (O1 - E1) / V;
-    var _pVal = jStat.chisquare.cdf(chi_square_score, 1);
+    var _pVal = 1 - jStat.chisquare.cdf(chi_square_score, 1);
     return _pVal;
   }
 

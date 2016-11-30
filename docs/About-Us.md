@@ -66,4 +66,4 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * American Association for Cancer Research (AACR) through Project GENIE
 * Adenoid Cystic Carcinoma Research Foundation
 * Robertson Foundation
-* Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK
+* Marie-Jos&eacute;e and Henry R. Kravis Center for Molecular Oncology at MSK

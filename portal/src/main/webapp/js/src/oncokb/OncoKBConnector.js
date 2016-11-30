@@ -272,7 +272,7 @@ var OncoKB = (function(_, $) {
                 'vIII deletion': ['any']
             };
             if (matrix.hasOwnProperty(consequence)) {
-                return matrix[consequence].join('+');
+                return matrix[consequence].join(',');
             } else {
                 return 'any';
             }

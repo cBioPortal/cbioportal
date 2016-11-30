@@ -24,9 +24,7 @@ Update the following lines with paths that make sense for your local system.
     log4j.appender.a.rollingPolicy.FileNamePattern = /srv/www/sander-tomcat/tomcat6/logs/public-portal.log.%d.gz
     log4j.appender.a.File = /srv/www/sander-tomcat/tomcat6/logs/public-portal.log
 
-<a name='prepare_database'>
-
-##  Create the cBioPortal MySQL Databases and User
+## Create the cBioPortal MySQL Databases and User
 
 You must create a `cbioportal` database and a `cgds_test` database within MySQL, and a user account with rights to access both databases.  This is done via the `mysql` shell.
 

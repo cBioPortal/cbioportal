@@ -65,7 +65,7 @@
     geneList = servletXssUtil.getCleanerInput(geneList);
 
 
-    String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
+    String oncokbUrl = (String) GlobalProperties.getOncoKBApiUrl();
     boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();

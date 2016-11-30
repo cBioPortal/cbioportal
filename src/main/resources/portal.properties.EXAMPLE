@@ -126,8 +126,8 @@ mdacc.heatmap.meta.url=//bioinformatics.mdanderson.org/participant2maps?particip
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
-# Enable OncoKB annotation. Please set it to empty if you want to disable the OncoKB annotation.
-oncokb.url=http://oncokb.org/legacy-api/
+# Enable OncoKB annotation (true, false)
+show.oncokb=true
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true

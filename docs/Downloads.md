@@ -8,9 +8,7 @@ This page describes the various files available for download.
 
 # [Seed Database](seed-database)
 
-This file is a MySQL database dump for seeding a new instance of the cBioPortal.  It contains all the necessary background data for a properly functioning cBioPortal website, including cancer types, gene, uniprot-mappings, drug and network data.  The file is available for download here:
-
-[cbioportal-seed.sql.gz](https://storage.googleapis.com/cbiostorage-1/cbioportal-seed.sql.gz)
+The files are MySQL database dump for seeding a new instance of the cBioPortal. For instructions for downloading it [see our datahub page](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md). 
 
 # [MAF Example](maf-example)
 

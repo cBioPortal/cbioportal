@@ -61,7 +61,7 @@
             return;
         }
 
-        var metaUrl = '<%=GlobalProperties.getPatientHeatmapMetaUrl()%>';
+        var metaUrl = '<%=GlobalProperties.getPatientHeatmapMetaUrl("")%>';
         if (metaUrl === 'null') return;                 // not configured in properties
 
         metaUrl += patientId;        // patientID set in patient_view.jsp

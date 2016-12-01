@@ -258,7 +258,7 @@ var OncoKB = (function(_, $) {
                 'Frame_Shift_Ins': ['frameshift_variant'],
                 'Fusion': ['fusion'],
                 'Indel': ['frameshift_variant', 'inframe_deletion', 'inframe_insertion'],
-                'In_Frame_Del': ['inframe_deletion', 'feature_truncation'],
+                'In_Frame_Del': ['inframe_deletion'],
                 'In_Frame_Ins': ['inframe_insertion'],
                 'Missense': ['missense_variant'],
                 'Missense_Mutation': ['missense_variant'],
@@ -272,7 +272,7 @@ var OncoKB = (function(_, $) {
                 'vIII deletion': ['any']
             };
             if (matrix.hasOwnProperty(consequence)) {
-                return matrix[consequence].join('+');
+                return matrix[consequence].join(',');
             } else {
                 return 'any';
             }

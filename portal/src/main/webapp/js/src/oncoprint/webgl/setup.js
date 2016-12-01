@@ -75,7 +75,7 @@ var tooltip_utils = {
 	return '<a href="' + href + '" target="_blank">' + patient_id + '</a>';
     },
     'makeGenePanelPopupLink': function(gene_panel_id) {
-	var anchor = $('<a href="#">'+gene_panel_id+'</a>');
+	var anchor = $('<a href="#" oncontextmenu="return false;">'+gene_panel_id+'</a>');
 	anchor.ready(anchor.click(function() {
 	    window.cbioportal_client.getGenePanelsByPanelId({panel_id:[gene_panel_id]}).then(function(response) {
 		var genes = response[0].genes.map(function(g) { return g.hugoGeneSymbol; }).sort();
@@ -553,7 +553,13 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    var track_data = oncoprint_data_frame.oncoprint_data;
 			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
 			    oncoprint.setTrackData(track_id, track_data, 'uid');
-			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(oncoprint_data_frame.altered_samples.length / oncoprint_data_frame.sequenced_samples.length));
+			    var track_info;
+			    if (oncoprint_data_frame.sequenced_samples.length > 0) { 
+				track_info = utils.proportionToPercentString(oncoprint_data_frame.altered_samples.length / oncoprint_data_frame.sequenced_samples.length);
+			    } else {
+				track_info = "N/S";
+			    }
+			    oncoprint.setTrackInfo(track_id, track_info);
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {
@@ -604,8 +610,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    var oncoprint_data_frame = oncoprint_data_by_line[track_line];
 			    var track_data = oncoprint_data_frame.oncoprint_data;
 			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
-			    oncoprint.setTrackData(track_id, track_data, 'uid');
-			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(oncoprint_data_frame.altered_patients.length / oncoprint_data_frame.sequenced_patients.length));
+			    oncoprint.setTrackData(track_id, track_data, 'uid'); 
+			    var track_info;
+			    if (oncoprint_data_frame.sequenced_patients.length > 0) { 
+				track_info = utils.proportionToPercentString(oncoprint_data_frame.altered_patients.length / oncoprint_data_frame.sequenced_patients.length);
+			    } else {
+				track_info = "N/S";
+			    }
+			    oncoprint.setTrackInfo(track_id, track_info);
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
 			    LoadingBar.update(i / total_tracks_to_add);
 			}).then(function() {

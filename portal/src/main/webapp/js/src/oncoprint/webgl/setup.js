@@ -881,7 +881,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    'value_range': [-3, 3],
 			    'colors': [[255,0,0,1],[0,0,0,1],[0,255,0,1]],
 			    'value_stop_points': [-3,0,3],
-			    'null_color': 'rgba(211,211,211,1)'
+			    'null_color': 'rgba(224,224,224,1)'
 			},
 			'has_column_spacing': false,
 			'track_padding': 0,

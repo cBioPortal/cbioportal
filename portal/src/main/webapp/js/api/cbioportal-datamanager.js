@@ -889,7 +889,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    }
 	    fetch_promise.then(function (data) {
 		var ret = data;
-		if (typeof data === "object" && !(data instanceof RegExp)) {
+		if (typeof data === "object" && !(data instanceof RegExp) && data !== null) {
 		    ret = deepCopyObject(data);
 		}
 		def.resolve(ret);
@@ -1075,29 +1075,32 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		function(self, fetch_promise) {
 	    self.getGeneticProfiles()
 	    .then(function (gp_metadata_list) {
-		var mrna_profile_id = null;
-		var prot_profile_id = null;
+		// For now, only use for MRNA
+		var mrna_profile = null;
 		for (var i = 0; i < gp_metadata_list.length; i++) {
 		    if (gp_metadata_list[i].genetic_alteration_type === "MRNA_EXPRESSION" &&
 			    gp_metadata_list[i].datatype === "Z-SCORE") {
-			mrna_profile_id = gp_metadata_list[i].id;
+			mrna_profile = gp_metadata_list[i];
 			break;
 		    }
 		}
+		fetch_promise.resolve(mrna_profile);
+		/*
+		var prot_profile = null;
 		for (var i = 0; i < gp_metadata_list.length; i++) {
 		    if (gp_metadata_list[i].genetic_alteration_type === "PROTEIN_LEVEL" &&
 			    gp_metadata_list[i].datatype === "Z-SCORE") {
-			prot_profile_id = gp_metadata_list[i].id;
+			prot_profile = gp_metadata_list[i];
 			break;
 		    }
-		}
-		if (mrna_profile_id !== null) {
-		    fetch_promise.resolve(mrna_profile_id);
-		} else if (prot_profile_id !== null) {
-		    fetch_promise.resolve(prot_profile_id);
+		}*/
+		/*if (mrna_profile !== null) {
+		    fetch_promise.resolve(mrna_profile);
+		} else if (prot_profile !== null) {
+		    fetch_promise.resolve(prot_profile);
 		} else {
 		    fetch_promise.resolve(null);
-		}
+		}*/
 	    });
 	}),
 	'getSampleIds': function (opt_study_id) {
@@ -1257,8 +1260,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getSampleHeatmapData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    console.log("fetching uncached sample-level heatmap data.");
-		    self.getDefaultHeatmapProfile().then(function (heatmap_profile_id) {
-			return getHeatmapData(self, heatmap_profile_id, self.getQueryGenes(), 'sample');
+		    self.getDefaultHeatmapProfile().then(function (heatmap_profile) {
+			return getHeatmapData(self, heatmap_profile.id, self.getQueryGenes(), 'sample');
 		    }).then(function (heatmap_data) {
 			fetch_promise.resolve(heatmap_data);
 		    }).fail(function () {
@@ -1276,8 +1279,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getPatientHeatmapData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    console.log("fetching uncached patient-level heatmap data.");
-		    self.getDefaultHeatmapProfile().then(function (heatmap_profile_id) {
-			return getHeatmapData(self, heatmap_profile_id, self.getQueryGenes(), 'patient');
+		    self.getDefaultHeatmapProfile().then(function (heatmap_profile) {
+			return getHeatmapData(self, heatmap_profile.id, self.getQueryGenes(), 'patient');
 		    }).then(function (heatmap_data) {
 			fetch_promise.resolve(heatmap_data);
 		    }).fail(function () {

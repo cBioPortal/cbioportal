@@ -105,4 +105,9 @@ public class MutationalSignatureMyBatisRepositoryTest {
 		
 		Assert.assertEquals(8, snpCounts.size());
 	}
+	
+	@Test
+	public void getSNPCountsInvalidProfile() {
+		Assert.assertTrue(mutationalSignatureMyBatisRepository.getSNPCounts("NONEXISTENT-PROFILE", new LinkedList<String>()).size() == 0);
+	}
 }

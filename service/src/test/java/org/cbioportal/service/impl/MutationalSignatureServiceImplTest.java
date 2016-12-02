@@ -4,7 +4,6 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
@@ -13,15 +12,17 @@ import java.util.List;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.MutationalSignature;
 import org.cbioportal.model.SNPCount;
-import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.GeneticProfileRepository;
-import org.cbioportal.persistence.MutationalSignatureRepository;
-import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.service.MutationalSignatureService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MutationalSignatureServiceImplTest {
+	@InjectMocks
+    private MutationalSignatureServiceImpl mutationalSignatureService;
+	
+	@Mock
+    private GeneticProfileRepository geneticProfileRepository;
     @Test
     public void noContextSignaturesTest() throws Exception {
 	    List<SNPCount> testSNPCounts = new LinkedList<>();
@@ -40,5 +41,15 @@ public class MutationalSignatureServiceImplTest {
 	    Assert.assertTrue(signature.getSample().equals("sample1"));
 	    Assert.assertTrue(Arrays.equals(signature.getMutationTypes(), new String[]{"C>A", "C>G", "C>T", "T>A", "T>C", "T>G"}));
 	    Assert.assertTrue(Arrays.equals(signature.getCounts(), new int[]{20, 0, 45, 15, 1, 0}));
+	    
+	    Assert.assertTrue(MutationalSignatureServiceImpl.MutationalSignatureFactory.NoContextSignatures(new LinkedList<SNPCount>(), sampleIds).size() == sampleIds.size());
+    }
+    
+    @Test
+    public void noProfileExists() throws Exception {
+	    Mockito.when(geneticProfileRepository.getAllGeneticProfilesInStudy(org.mockito.Matchers.anyString(),org.mockito.Matchers.anyString(),org.mockito.Matchers.anyInt(), org.mockito.Matchers.anyInt(), org.mockito.Matchers.anyString(), org.mockito.Matchers.anyString())).thenReturn(new LinkedList<GeneticProfile>());
+		    
+	    Assert.assertTrue(mutationalSignatureService.getMutationalSignatures("NONEXISTENT-STUDY").size() == 0);
+	    Assert.assertTrue(mutationalSignatureService.getMutationalSignaturesBySampleIds("NONEXISTENT-STUDY", new LinkedList<String>()).size() == 0);
     }
 }

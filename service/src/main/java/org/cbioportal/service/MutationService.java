@@ -4,7 +4,6 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.persistence.dto.AltCount;
 
 import java.util.List;
-import org.cbioportal.model.SNPCount;
 
 public interface MutationService {
 
@@ -13,5 +12,4 @@ public interface MutationService {
 
     List<AltCount> getMutationsCounts(String type, String hugoGeneSymbol, Integer start, Integer end,
                                       List<String> cancerStudyIdentifiers, Boolean perStudy);
-    
 }

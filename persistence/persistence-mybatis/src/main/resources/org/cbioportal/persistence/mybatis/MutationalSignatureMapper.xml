@@ -10,10 +10,10 @@
             mutation_event.REFERENCE_ALLELE as referenceAllele,
             mutation_event.TUMOR_SEQ_ALLELE as tumorAllele,
             count(*) as count
-        from sample,mutation_event,mutation,genetic_profile
-        where mutation_event.MUTATION_EVENT_ID=mutation.MUTATION_EVENT_ID and
-            mutation.SAMPLE_ID=sample.INTERNAL_ID and
-            mutation.GENETIC_PROFILE_ID=genetic_profile.GENETIC_PROFILE_ID and
+        from sample inner join mutation on sample.INTERNAL_ID = mutation.SAMPLE_ID
+                    inner join mutation_event on mutation_event.MUTATION_EVENT_ID=mutation.MUTATION_EVENT_ID
+                    inner join genetic_profile on mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        where
             genetic_profile.STABLE_ID=#{geneticProfileStableId} and
             mutation_event.REFERENCE_ALLELE in ('A','T','C','G') and
             mutation_event.TUMOR_SEQ_ALLELE in ('A','T','C','G')

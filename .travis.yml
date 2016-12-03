@@ -34,21 +34,15 @@ install:
         fi
 
 before_script:
-    # run mysql db for core tests
+    # set up empty database for core test on Travis
     - |
         if [[ "${TEST}" == core ]]
         then
-            docker run \
-                     --name core-tests-mysql \
-                     --net=host \
-                     -p 3306:3306 \
-                     -e MYSQL_USER=cbio_user \
-                     -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
-                     -e MYSQL_PASSWORD=somepassword \
-                     -e MYSQL_DATABASE=cgds_test \
-                     -d \
-                     mysql:5.7.12
-         fi
+            mysql --user root --password= <<< 'CREATE DATABASE cgds_test' && \
+            mysql --user root --password= <<< "CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword'" && \
+            mysql --user root --password= <<< "GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'" && \
+            mysql --user root --password= <<< "flush privileges"
+        fi
 
 script:
     - export PORTAL_HOME=$(pwd)
@@ -68,16 +62,6 @@ script:
         then
             mkdir -p ~/.m2 && \
             cp .travis/settings.xml ~/.m2
-        fi
-    # make sure mysql container is running
-    - |
-        if [[ "${TEST}" == core ]]
-        then
-            while [[ 1 != $(echo 'select 1;' | \
-                           mysql --user cbio_user -P 3306 -h 127.0.0.1 --password=somepassword cgds_test | head -1 2> /dev/null) ]]
-            do 
-                sleep 5s
-            done
         fi
     # core tests
     - |

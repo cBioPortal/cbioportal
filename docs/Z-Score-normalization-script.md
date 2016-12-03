@@ -52,22 +52,25 @@ Input: [discrete copy number (CNA)](File-Formats.md#discrete-copy-number-data) a
     }
 ```
 ## Example Calculation
-Hugo_Symbol | Entrez_Gene_Id | A1-A0SD-01 | A1-A0SE-01 | A1-A0SH-01 | A1-A0SJ-01 | A1-A0SK-01 | A1-A0SM-01 | A1-A0SO-01 | A1-A0SP-01 | A2-A04N-01 | A2-A04P-01 | A2-A04Q-01 | A2-A04R-01 | A2-A04T-01 | A2-A04U-01 | A2-A04V-01 | A2-A04W-01 | A2-A04X-01 | A2-A04Y-01
---- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |--- 
-RPS11 Expr | 6205 | 0.765 | 0.716 | 0.417125 | 0.115 | 0.492875 | -0.525 | -0.169 | 0.396 | 0.50475 | 0.400875 | 0.393125 | 0.9165 | 0.627125 | 0.337125 | 0.705 | 0.16425 | 0.325 | 0.11175
-RPS11 CNA | 6205 | 0 | 0 | 0 | 1 | 1 | 0 | -1 | 0 | 0 | 2 | 0 | 0 | 1 | -1 | 0 | 0 | -1 | 0
+<table>
+<tr><td>Hugo_Symbol</td><td>Entrez_Gene_Id</td><td>A1-A0SD-01</td><td>A1-A0SE-01</td><td>A1-A0SH-01</td><td>A1-A0SJ-01</td><td>A1-A0SK-01</td><td>A1-A0SM-01</td><td>A1-A0SO-01</td><td>A1-A0SP-01</td><td>A2-A04N-01</td><td>A2-A04P-01</td><td>A2-A04Q-01</td><td>A2-A04R-01</td><td>A2-A04T-01</td><td>A2-A04U-01</td><td>A2-A04V-01</td><td>A2-A04W-01</td><td>A2-A04X-01</td><td>A2-A04Y-01</td></tr>
+<tr><td>RPS11 Expr</td><td>6205</td><td>0.765</td><td>0.716</td><td>0.417125</td><td>0.115</td><td>0.492875</td><td>-0.525</td><td>-0.169</td><td>0.396</td><td>0.50475</td><td>0.400875</td><td>0.393125</td><td>0.9165</td><td>0.627125</td><td>0.337125</td><td>0.705</td><td>0.16425</td><td>0.325</td><td>0.11175</td></tr>
+<tr><td>RPS11 CNA</td><td>6205</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>-1</td><td>0</td><td>0</td><td>2</td><td>0</td><td>0</td><td>1</td><td>-1</td><td>0</td><td>0</td><td>-1</td><td>0</td></tr>
+</table>
 
 Calculate mean and stdev where CNA is 0 (=diploid):
 
-Diploid avg | Diploid std
---- | ---
-0.414954545454545 | 0.399504498851105
+<table>
+<tr><td>Diploid avg</td><td>Diploid std</td></tr>
+<tr><td>---</td><td>---</td></tr>
+<tr><td>0.414954545454545</td><td>0.399504498851105</td></tr>
+</table>
 
 Calculate the z-scores:
-
-Hugo_Symbol | Entrez_Gene_Id | A1-A0SD-01 | A1-A0SE-01 | A1-A0SH-01 | A1-A0SJ-01 | A1-A0SK-01 | A1-A0SM-01 | A1-A0SO-01 | A1-A0SP-01 | A2-A04N-01 | A2-A04P-01 | A2-A04Q-01 | A2-A04R-01 | A2-A04T-01 | A2-A04U-01 | A2-A04V-01 | A2-A04W-01 | A2-A04X-01 | A2-A04Y-01
---- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |--- 
-RPS11 Expr Output | 6205 | 0.8762 | 0.7535 | 0.0054 | -0.7508 | 0.1950 | -2.3528 | -1.4617 | -0.0474 | 0.2248 | -0.0352 | -0.0546 | 1.2554 | 0.5311 | -0.1948 | 0.7260 | -0.6275 | -0.2252 | -0.7590
+<table>
+<tr><td>Hugo_Symbol</td><td>Entrez_Gene_Id</td><td>A1-A0SD-01</td><td>A1-A0SE-01</td><td>A1-A0SH-01</td><td>A1-A0SJ-01</td><td>A1-A0SK-01</td><td>A1-A0SM-01</td><td>A1-A0SO-01</td><td>A1-A0SP-01</td><td>A2-A04N-01</td><td>A2-A04P-01</td><td>A2-A04Q-01</td><td>A2-A04R-01</td><td>A2-A04T-01</td><td>A2-A04U-01</td><td>A2-A04V-01</td><td>A2-A04W-01</td><td>A2-A04X-01</td><td>A2-A04Y-01</td></tr>
+<tr><td>RPS11 Expr Output</td><td>6205</td><td>0.8762</td><td>0.7535</td><td>0.0054</td><td>-0.7508</td><td>0.1950</td><td>-2.3528</td><td>-1.4617</td><td>-0.0474</td><td>0.2248</td><td>-0.0352</td><td>-0.0546</td><td>1.2554</td><td>0.5311</td><td>-0.1948</td><td>0.7260</td><td>-0.6275</td><td>-0.2252</td><td>-0.7590</td></tr>
+</table>
 
 Note: this implies that your full dataset does not have average=0, std=1
 

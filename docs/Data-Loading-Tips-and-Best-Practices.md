@@ -10,16 +10,28 @@ Running GISTIC 2.0 requires two input files:
 In some cases the marker file may not be available. Your can create one as follows:
 Using your segmentation file, create a line for each start and end position. E.g. if your seg file contains
 
-Sample | Chrom | Start | Stop | #Mark | Seg.CN
---- | --- | --- | --- | --- | ---
-S1 | 1 | 61735 | 77473 | 10 | -0.1234 
+<table>
+<tr>
+<td>Sample</td><td>Chrom</td><td>Start</td><td>Stop</td><td>#Mark</td><td>Seg.CN</td>
+</tr>
+<tr>
+<td>S1</td><td>1</td><td>61735</td><td>77473</td><td>10</td><td>-0.1234 </td>
+</tr>
+</table>
 
 In your markerfile this becomes
 
-Marker Name | Chrom | Pos
---- | --- | ---
-S1 | 1 | 61735
-S1 | 1 | 77473
+<table>
+<tr>
+<td>Marker Name</td><td>Chrom</td><td>Pos</td>
+</tr>
+<tr>
+<td>S1</td><td>1</td><td>61735</td>
+</tr>
+<tr>
+<td>S1</td><td>1</td><td>77473</td>
+</tr>
+</table>
 
 
 ## Effect of cBioPortal instance on validation

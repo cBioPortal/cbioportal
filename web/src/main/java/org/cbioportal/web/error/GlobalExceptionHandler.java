@@ -40,8 +40,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PatientNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePatientNotFound(PatientNotFoundException ex) {
 
-        return new ResponseEntity<>(new ErrorResponse("Patient not found: " + ex.getPatientId()),
-                HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse("Patient not found in study " + ex.getStudyId() + ": " +
+            ex.getPatientId()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CancerTypeNotFoundException.class)

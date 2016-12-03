@@ -888,7 +888,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		fetcher(this, fetch_promise);
 	    }
 	    fetch_promise.then(function (data) {
-		def.resolve(deepCopyObject(data));
+		var ret = data;
+		if (typeof data === "object" && !(data instanceof RegExp) && data !== null) {
+		    ret = deepCopyObject(data);
+		}
+		def.resolve(ret);
 	    });
 	    return def.promise();
 	};
@@ -914,6 +918,113 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	for (var i = 0; i < session_filter_change_callbacks.length; i++) {
 	    session_filter_change_callbacks[i]();
 	}
+    };
+    /**
+     * One cell of heatmap data for the Oncoprint
+     *
+     * @typedef {Object} OncoprintHeatmapDatum
+     * @property {string} hugo_gene_symbol - gene symbol for this track
+     * @property {string} study - identifier of the study to which this sample or patient belongs
+     * @property {string|undefined} sample - identifier of the sample, in case of sample-level data
+     * @property {string|undefined} patient - identifier of the patient, in case of patient-level data
+     * @property {number} uid - cross-study identifier of this sample or patient in the current Oncoprint
+     * @property {number} profile_data - score of the sample or patient for the gene
+     */
+    /**
+     * One track of heatmap data for the Oncoprint
+     *
+     * @typedef {Object} OncoprintHeatmapDataTrack
+     * @property {string} hugo_gene_symbol - gene symbol for this track
+     * @property {string} genetic_profile_id - identifier of the genetic profile used for this track
+     * @property {OncoprintHeatmapDatum[]} - oncoprint_data - list of objects for individual samples or patients
+     */
+    /**
+     * Fetches Oncoprint heatmap data per gene track for the given profile per sample or patient.
+     *
+     * @param {Object} self - the data manager from which to retrieve metadata
+     * @param {string} genetic_profile_id - identifier of the genetic profile to query
+     * @param {string[]} genes - list of gene symbols for which to return data
+     * @param {string} sample_or_patient - whether to return data per sample or aggregate to patient level
+     * @returns {Promise<OncoprintHeatmapDataTrack[]>}
+     */
+    var getHeatmapData = function (self, genetic_profile_id, genes, sample_or_patient) {
+	var def = new $.Deferred();
+	// TODO: handle  more than one study
+	var study_id = self.getCancerStudyIds()[0];
+	var sample_ids = self.getSampleIds();
+	var deferred_case_ids = sample_or_patient === "sample" ? sample_ids : self.getPatientIds();
+	genes = genes || [];
+	sample_or_patient = sample_or_patient || "sample";
+	$.when(window.cbioportal_client.getGeneticProfileDataBySample({
+		'genetic_profile_ids': [genetic_profile_id],
+		'genes': genes.map(function(x) { return x.toUpperCase(); }),
+		'sample_ids': sample_ids
+	    }),
+	    self.getPatientSampleIdMap(),
+	    deferred_case_ids,
+	    self.getCaseUIDMap()
+	).then(function (client_sample_data,
+		sample_to_patient_map,
+		case_ids,
+		case_uid_map) {
+	    // create an object for each sample or patient in each gene
+	    var interim_data = {};
+	    for (var i = 0; i < genes.length; i++) {
+		var gene = genes[i].toUpperCase();
+		interim_data[gene] = {};
+		for (var j = 0; j < case_ids.length; j++) {
+		    var case_id = case_ids[j];
+		    interim_data[gene][case_id] = {};
+		    interim_data[gene][case_id].hugo_gene_symbol = gene;
+		    interim_data[gene][case_id].study = study_id;
+		    interim_data[gene][case_id][sample_or_patient] = case_id;
+		    // index the UID map by sample or patient as appropriate
+		    interim_data[gene][case_id].uid = case_uid_map[study_id][case_id];
+		    interim_data[gene][case_id].profile_data = null;
+		}
+	    }
+	    // fill profile_data properties with scores
+	    for (var i = 0; i < client_sample_data.length; i++) {
+		var receive_datum = client_sample_data[i];
+		var gene = receive_datum.hugo_gene_symbol.toUpperCase();
+		var sample_id = receive_datum.sample_id;
+		var case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[sample_id]);
+		var interim_datum = interim_data[gene][case_id];
+		if (interim_datum.profile_data === null) {
+		    // set the initial value for this sample or patient
+		    interim_datum.profile_data = parseFloat(receive_datum.profile_data);
+		} else if (sample_or_patient === "sample") {
+		    // this would be a programming error (unexpected output from getGeneticProfileDataBySample)
+		    throw Error("Unexpectedly received multiple heatmap profile data for one sample");
+		} else {
+		    // aggregate samples for this patient by selecting the highest absolute (Z-)score
+		    if (Math.abs(parseFloat(receive_datum.profile_data)) >
+			    Math.abs(interim_datum.profile_data)) {
+			interim_datum.profile_data = parseFloat(receive_datum.profile_data);
+		    }
+		}
+	    }
+	    // construct the list to be returned
+	    var send_data = [];
+	    for (var i = 0; i < genes.length; i++) {
+		var gene = genes[i].toUpperCase();
+		var track_data = {};
+		track_data.hugo_gene_symbol = gene;
+		track_data.genetic_profile_id = genetic_profile_id;
+		var oncoprint_data = [];
+		for (var j = 0; j < case_ids.length; j++) {
+		    var case_id = case_ids[j];
+		    var datum = interim_data[gene][case_id];
+		    oncoprint_data.push(datum);
+		}
+		track_data.oncoprint_data = oncoprint_data;
+		send_data.push(track_data);
+	    }
+	    def.resolve(send_data);
+	}).fail(function () {
+	    def.reject();
+	});
+	return def.promise();
     };
 
     return {
@@ -953,6 +1064,45 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getGeneticProfileIds': function () {
 	    return this.genetic_profile_ids;
 	},
+	/**
+	 * Selects the genetic profile most suitable for heatmap rendering.
+	 *
+	 * @returns {Promise<?string>} promise resolving with the
+	 * stable ID of the profile, or with null if no applicable
+	 * profiles are in use.
+	 */
+	'getDefaultHeatmapProfile': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+	    self.getGeneticProfiles()
+	    .then(function (gp_metadata_list) {
+		// For now, only use for MRNA
+		var mrna_profile = null;
+		for (var i = 0; i < gp_metadata_list.length; i++) {
+		    if (gp_metadata_list[i].genetic_alteration_type === "MRNA_EXPRESSION" &&
+			    gp_metadata_list[i].datatype === "Z-SCORE") {
+			mrna_profile = gp_metadata_list[i];
+			break;
+		    }
+		}
+		fetch_promise.resolve(mrna_profile);
+		/*
+		var prot_profile = null;
+		for (var i = 0; i < gp_metadata_list.length; i++) {
+		    if (gp_metadata_list[i].genetic_alteration_type === "PROTEIN_LEVEL" &&
+			    gp_metadata_list[i].datatype === "Z-SCORE") {
+			prot_profile = gp_metadata_list[i];
+			break;
+		    }
+		}*/
+		/*if (mrna_profile !== null) {
+		    fetch_promise.resolve(mrna_profile);
+		} else if (prot_profile !== null) {
+		    fetch_promise.resolve(prot_profile);
+		} else {
+		    fetch_promise.resolve(null);
+		}*/
+	    });
+	}),
 	'getSampleIds': function (opt_study_id) {
 	    if (typeof opt_study_id !== "undefined") {
 		return this.study_sample_map[opt_study_id].slice() || [];
@@ -1099,6 +1249,44 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    return def.promise();
 	},
+	/**
+	 * Fetches sample-level heatmap data for the queried genes.
+	 *
+	 * Selects a profile using getDefaultHeatmapProfile, and
+	 * uses the cached result if called a second time.
+	 *
+	 * @returns {Promise<OncoprintHeatmapDataTrack[]>}
+	 */
+	'getSampleHeatmapData': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    console.log("fetching uncached sample-level heatmap data.");
+		    self.getDefaultHeatmapProfile().then(function (heatmap_profile) {
+			return getHeatmapData(self, heatmap_profile.id, self.getQueryGenes(), 'sample');
+		    }).then(function (heatmap_data) {
+			fetch_promise.resolve(heatmap_data);
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
+	/**
+	 * Fetches patient-level heatmap data for the queried genes.
+	 *
+	 * Selects a profile using getDefaultHeatmapProfile, and
+	 * uses the cached result if called a second time.
+	 *
+	 * @returns {Promise<OncoprintHeatmapDataTrack[]>}
+	 */
+	'getPatientHeatmapData': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    console.log("fetching uncached patient-level heatmap data.");
+		    self.getDefaultHeatmapProfile().then(function (heatmap_profile) {
+			return getHeatmapData(self, heatmap_profile.id, self.getQueryGenes(), 'patient');
+		    }).then(function (heatmap_data) {
+			fetch_promise.resolve(heatmap_data);
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
 	'getWebServiceGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    var profile_types = {};

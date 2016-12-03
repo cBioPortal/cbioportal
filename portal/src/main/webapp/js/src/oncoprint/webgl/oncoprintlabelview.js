@@ -246,6 +246,11 @@ var OncoprintLabelView = (function () {
 	resizeAndClear(this, model);
 	renderAllLabels(this, model);
     }
+    OncoprintLabelView.prototype.setTrackGroupOrder = function (model) {
+	updateFromModel(this, model);
+	resizeAndClear(this, model);
+	renderAllLabels(this, model);
+    }
     OncoprintLabelView.prototype.addTracks = function (model, track_ids) {
 	for (var i=0; i<track_ids.length; i++) {
 	    this.labels[track_ids[i]] = model.getTrackLabel(track_ids[i]);

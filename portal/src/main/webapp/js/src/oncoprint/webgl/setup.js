@@ -74,6 +74,23 @@ var tooltip_utils = {
 	var href = cbio.util.getLinkToPatientView(study_id, patient_id);
 	return '<a href="' + href + '" target="_blank">' + patient_id + '</a>';
     },
+    'makeHeatmapTrackTooltip': function(genetic_profile, data_type, link_id) {
+	return function (d) {
+	    var data_header = '';
+	    var profile_data = 'NaN';
+	    if (genetic_profile.genetic_alteration_type === "MRNA_EXPRESSION") {
+		data_header = 'MRNA: ';
+	    } else if (genetic_profile.genetic_alteration_type === "PROTEIN_LEVEL") {
+		data_header = 'PROT: ';
+	    }
+	    if (d.profile_data) {
+		profile_data = d.profile_data.toString();
+	    }
+	    var ret = data_header + '<b>' + profile_data + '</b><br>';
+	    ret += (data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.study, d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.study, d.patient) : d.patient));
+	    return ret;
+	};
+    },
     'makeGeneticTrackTooltip':function(data_type, link_id) {
 	var listOfTooltipDataToHTML = function(tooltip_data) {
 	    var ret = [];
@@ -484,36 +501,60 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var clinical_attrs = utils.objectValues(State.clinical_tracks);
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
+	    console.log("in populateSampleData, loading initial data");
 	    $.when(QuerySession.getOncoprintSampleGenomicEventData(true),
 		    ClinicalData.getSampleData(clinical_attrs))
 		    .then(function (oncoprint_data_by_line,
 				    clinical_data) {
-					
+
+			console.log("in populateSampleData, initial data loaded, starting Oncoprint");
 			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
 			oncoprint.hideIds([], true);
 			oncoprint.keepSorted(false);
 			
 			var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
+						+ Object.keys(State.heatmap_tracks).length
 						+ Object.keys(State.clinical_tracks).length;
 			
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
 			    var track_id = State.genetic_alteration_tracks[track_line];
 			    var track_data = oncoprint_data_by_line[track_line].oncoprint_data;
+			    console.log("populating sample data for alteration track " + oncoprint_data_by_line[track_line].gene);
 			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
 			    oncoprint.setTrackData(track_id, track_data, 'uid');
 			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(track_data.filter(oncoprintDatumIsAltered).length/window.QuerySession.getSampleIds().length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
 			    LoadingBar.update(i / total_tracks_to_add);
-			}).then(function() {
+			}).then(function () {
+			    return QuerySession.getDefaultHeatmapProfile();
+			}).then(function (heatmap_profile) {
+			    if (heatmap_profile !== null) {
+				console.log("in populateSampleData, calling QuerySession.getSampleHeatmapData()");
+				return QuerySession.getSampleHeatmapData()
+				.then(function (heatmap_data_by_line) {
+				    return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
+					console.log("heatmap data retrieved, populating sample data for track " + heatmap_data_by_line[hm_line].hugo_gene_symbol);
+					var hm_id = State.heatmap_tracks[hm_line];
+					oncoprint.setTrackData(hm_id, heatmap_data_by_line[hm_line].oncoprint_data, 'uid');
+					oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeHeatmapTrackTooltip(heatmap_profile, 'sample', true));
+					LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				    });
+				});
+			    } else {
+				return $.when();
+			    }
+			}).then(function () {
 			    return utils.timeoutSeparatedLoop(Object.keys(State.clinical_tracks), function(track_id, i) {
 				var attr = State.clinical_tracks[track_id];
+				console.log("populating sample data for clinical track " + attr.attr_id);
 				oncoprint.setTrackData(track_id, clinical_data[attr.attr_id], 'uid');
 				oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeClinicalTrackTooltip(attr, 'sample', true));
 				oncoprint.setTrackInfo(track_id, "");
-				LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				LoadingBar.update((i + Object.keys(State.heatmap_tracks).length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
+			    console.log("sample data populated, releasing rendering");
 			    oncoprint.keepSorted();
 			    if (State.unaltered_cases_hidden) {
 				oncoprint.hideIds(State.getUnalteredIds(), true);
@@ -536,37 +577,61 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var clinical_attrs = utils.objectValues(State.clinical_tracks);
 	    LoadingBar.show();
 	    LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
+	    console.log("in populatePatientData, loading initial data");
 	    $.when(QuerySession.getOncoprintPatientGenomicEventData(true),
 		    ClinicalData.getPatientData(clinical_attrs),
 		    QuerySession.getPatientIds())
 		    .then(function (oncoprint_data_by_line, 
 				    clinical_data,
 				    patient_ids) {
+			console.log("in populatePatientData, initial data loaded, starting Oncoprint");
 			LoadingBar.msg("Loading oncoprint");
 			oncoprint.suppressRendering();
 			oncoprint.hideIds([], true);
 			oncoprint.keepSorted(false);
 			
 			var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
+						+ Object.keys(State.heatmap_tracks).length
 						+ Object.keys(State.clinical_tracks).length;
 			
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
 			    var track_id = State.genetic_alteration_tracks[track_line];
 			    var track_data = oncoprint_data_by_line[track_line].oncoprint_data;
+			    console.log("populating patient data for alteration track " + oncoprint_data_by_line[track_line].gene);
 			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
 			    oncoprint.setTrackData(track_id, track_data, 'uid');
 			    oncoprint.setTrackInfo(track_id, utils.proportionToPercentString(track_data.filter(oncoprintDatumIsAltered).length/patient_ids.length));
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));
 			    LoadingBar.update(i / total_tracks_to_add);
-			}).then(function() {
+			}).then(function () {
+			    return QuerySession.getDefaultHeatmapProfile();
+			}).then(function (heatmap_profile) {
+			    if (heatmap_profile !== null) {
+				console.log("in populatePatientData, calling QuerySession.getPatientHeatmapData()");
+				return QuerySession.getPatientHeatmapData()
+				.then(function (heatmap_data_by_line) {
+				    return utils.timeoutSeparatedLoop(Object.keys(State.heatmap_tracks), function(hm_line, i) {
+					console.log("heatmap data retrieved, populating patient data for track " + heatmap_data_by_line[hm_line].hugo_gene_symbol);
+					var hm_id = State.heatmap_tracks[hm_line];
+					oncoprint.setTrackData(hm_id, heatmap_data_by_line[hm_line].oncoprint_data, 'uid');
+					oncoprint.setTrackTooltipFn(hm_id, tooltip_utils.makeHeatmapTrackTooltip(heatmap_profile, 'patient', true));
+					LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				    });
+				});
+			    } else {
+				return $.when();
+			    }
+			}).then(function () {
 			    return utils.timeoutSeparatedLoop(Object.keys(State.clinical_tracks), function(track_id, i) {
 				var attr = State.clinical_tracks[track_id];
+				console.log("populating patient data for clinical track " + attr.attr_id);
 				oncoprint.setTrackData(track_id, clinical_data[attr.attr_id], 'uid');
 				oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeClinicalTrackTooltip(attr, 'patient', true));
 				oncoprint.setTrackInfo(track_id, "");
-				LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				LoadingBar.update((i + Object.keys(State.heatmap_tracks).length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
+			    console.log("patient data populated, releasing rendering");
 			    oncoprint.keepSorted();
 			    if (State.unaltered_cases_hidden) {
 				oncoprint.hideIds(State.getUnalteredIds(), true);
@@ -668,6 +733,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var State = {
 	    'first_genetic_alteration_track': null,
 	    'genetic_alteration_tracks': {}, // track_id -> gene
+	    'heatmap_tracks': {},
 	    'clinical_tracks': {}, // track_id -> attr
 	    
 	    'used_clinical_attributes': [],
@@ -730,6 +796,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 	    },
 	    'setDataType': function (sample_or_patient) {
+		console.log("in setDataType");
 		var def = new $.Deferred();
 		var self = this;
 		QuerySession.getCaseUIDMap().then(function (case_uid_map) {
@@ -743,11 +810,13 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			self.using_sample_data = true;
 			URL.update();
 			updateAlteredPercentIndicator(self);
+			console.log("in setDataType, calling populateSampleData()");
 			proxy_promise = populateSampleData();
 		    } else if (sample_or_patient === 'patient') {
 			self.using_sample_data = false;
 			URL.update();
 			updateAlteredPercentIndicator(self);
+			console.log("in setDataType, calling populatePatientData()");
 			proxy_promise = populatePatientData();
 		    }
 		    self.patient_order_loaded.then(function () {
@@ -790,6 +859,38 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 		oncoprint.releaseRendering();
 		return track_ids;
+	    },
+	    'addHeatmapTracks': function (heatmap_data_by_line) {
+		oncoprint.suppressRendering();
+		var hm_ids = [];
+		for (var i = 0; i < heatmap_data_by_line.length; i++) {
+		    var track_params = {
+			'rule_set_params': {
+			    'type': 'gradient',
+			    'legend_label': 'mRNA Expression',
+			    'value_key': 'profile_data',
+			    'value_range': [-3, 3],
+			    'colors': [[255,0,0,1],[0,0,0,1],[0,255,0,1]],
+			    'value_stop_points': [-3,0,3],
+			    'null_color': 'rgba(224,224,224,1)'
+			},
+			'has_column_spacing': false,
+			'track_padding': 0,
+			'label': heatmap_data_by_line[i].hugo_gene_symbol,
+			'target_group': 2,
+			//'sortCmpFn': function(d1, d2) {return 0;},
+			'removable': true,
+			'description': heatmap_data_by_line[i].hugo_gene_symbol,
+		    };
+		    var new_hm_id = oncoprint.addTracks([track_params])[0];
+		    hm_ids.push(new_hm_id);
+		    if (typeof State.heatmap_tracks[0] !== "undefined") {
+			oncoprint.shareRuleSet(State.heatmap_tracks[0], new_hm_id);
+		    }
+		    State.heatmap_tracks[i] = new_hm_id;
+		}
+		oncoprint.releaseRendering();
+		return hm_ids;
 	    },
 	    'useAndAddAttribute': function(attr_id) {
 		var attr = this.useAttribute(attr_id);
@@ -1162,45 +1263,77 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	return State.addAndPopulateClinicalTracks(attr);
     };
 
-    (function initOncoprint() {
+    (/**
+      * Initializes the OncoPrint tracks, populates them and scrolls back.
+      *
+      * @returns {Promise} - promise that gets fulfilled when the
+      * initialization process is complete, or rejected if data
+      * could not be retrieved.
+      */
+     function initOncoprint() {
 	LoadingBar.show();
 	LoadingBar.msg(LoadingBar.DOWNLOADING_MSG);
-	var def = new $.Deferred();
 	oncoprint.setCellPaddingOn(State.cell_padding_on);
-	$.when(QuerySession.getOncoprintSampleGenomicEventData()).then(function (oncoprint_data) {
+	console.log("in initOncoprint, fetching genomic event data");
+	return QuerySession.getOncoprintSampleGenomicEventData()
+	.then(function (oncoprint_data) {
+	    console.log("in initOncoprint, adding genomic event tracks");
 	    State.addGeneticTracks(oncoprint_data);
-	}).fail(function () {
-	    def.reject();
-	}).then(function () {
-	    (function fetchClinicalAttributes() {
-		QuerySession.getClinicalAttributes().then(function (attrs) {
-		    State.unused_clinical_attributes = attrs;
-		    State.clinical_attributes_fetched.resolve();
-		    def.resolve();
-		}).fail(function () {
-		    def.reject();
-		    State.clinical_attributes_fetched.reject();
+	    // return the promise needed for the next step
+	    return QuerySession.getDefaultHeatmapProfile();
+	}).then(function (heatmap_profile) {
+	    if (heatmap_profile !== null) {
+		console.log("in initOncoprint, fetching heatmap data");
+		return QuerySession.getSampleHeatmapData()
+		.then(function (heatmap_data) {
+		    console.log("in initOncoprint, heatmap data fetched, adding tracks");
+		    State.addHeatmapTracks(heatmap_data);
 		});
-	    })();
-	})
-	return def.promise();
-    })().then(function () {
-        var populate_data_promise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
-	    
-        $.when(QuerySession.getPatientIds(), QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), QuerySession.getCaseUIDMap(), populate_data_promise).then(function(patient_ids, altered_samples, altered_patients, case_uid_map) {
-	    if ((State.using_sample_data ? window.QuerySession.getSampleIds() : patient_ids).length > 200) {
-		// TODO: assume multiple studies
-		var study_id = QuerySession.getCancerStudyIds()[0];
-		var getUID = function(id) {
-		    return case_uid_map[study_id][id];
-		};
-		oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples.map(getUID) : altered_patients.map(getUID));
+	    } else {
+		// heatmap not applicable, return a resolved Promise
+		return $.when();
 	    }
-	    oncoprint.scrollTo(0);
-	});
-	
-	return populate_data_promise;
-    });
+	}).then(function fetchClinicalAttributes() {
+	    console.log("in initOncoprint, fetching clinical attributes");
+	    QuerySession.getClinicalAttributes()
+	    .then(function (attrs) {
+		console.log("in initOncoprint, clinical attributes fetched");
+		State.unused_clinical_attributes = attrs;
+		State.clinical_attributes_fetched.resolve();
+	    }).fail(function () {
+		State.clinical_attributes_fetched.reject();
+	    });
+	    return State.clinical_attributes_fetched.promise();
+	}).then(function () {
+	    // specify sample or patient and populate data as appropriate
+	    console.log("in initOncoprint, setting the data type to " + (State.using_sample_data ? 'sample' : 'patient'));
+	    var dataPopulatedPromise = State.setDataType(State.using_sample_data ? 'sample' : 'patient');
+
+	    // zoom out if many columns are selected
+	    console.log("in initOncoprint, fetching altered cases while waiting for data to be populated");
+	    return $.when(QuerySession.getPatientIds(),
+		    QuerySession.getAlteredSamples(),
+		    QuerySession.getAlteredPatients(),
+		    QuerySession.getCaseUIDMap(),
+		    dataPopulatedPromise)
+	    .then(function (patient_ids,
+		    altered_samples,
+		    altered_patients,
+		    case_uid_map) {
+		console.log("in initOncoprint, altered cases fetched, setting zoom level");
+		if ((State.using_sample_data ? QuerySession.getSampleIds() : patient_ids).length > 200) {
+		    // TODO: assume multiple studies
+		    var study_id = QuerySession.getCancerStudyIds()[0];
+		    var getUID = function(id) {
+			return case_uid_map[study_id][id];
+		    };
+		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples.map(getUID) : altered_patients.map(getUID));
+		}
+		oncoprint.scrollTo(0);
+		return $.when();
+	    });
+	})
+    })();
     window.oncoprint = oncoprint;
 
     (function setUpToolbar() {

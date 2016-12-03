@@ -135,6 +135,7 @@ var OncoprintModel = (function () {
 	this.track_rule_set_id = {}; // track id -> rule set id
 	this.track_active_rules = {}; // from track id to active rule map (map with rule ids as keys)
 	this.track_info = {};
+	this.track_has_column_spacing = {}; // track id -> boolean
 	
 	// Rule Set Properties
 	this.rule_sets = {}; // map from rule set id to rule set
@@ -367,7 +368,9 @@ var OncoprintModel = (function () {
 	var active_rules = {};
 	var data = this.getTrackData(track_id);
 	var id_key = this.getTrackDataIdKey(track_id);
-	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(use_base_width), this.getCellHeight(track_id), active_rules);
+	var spacing = this.getTrackHasColumnSpacing(track_id);
+	var width = this.getCellWidth(use_base_width) + (!spacing ? this.getCellPadding(use_base_width) : 0);
+	var shapes = this.getRuleSet(track_id).apply(data, width, this.getCellHeight(track_id), active_rules);
 	this.track_active_rules[track_id] = active_rules;
 	
 	var z_comparator = function(shapeA, shapeB) {
@@ -418,6 +421,10 @@ var OncoprintModel = (function () {
 	});
     }
 
+    OncoprintModel.prototype.getTrackHasColumnSpacing = function(track_id) {
+	return !!(this.track_has_column_spacing[track_id]);
+    }
+    
     OncoprintModel.prototype.getCellWidth = function (base) {
 	return this.cell_width * (base ? 1 : this.horz_zoom);
     }
@@ -510,6 +517,12 @@ var OncoprintModel = (function () {
 	this.column_left.update();
     }
 
+    OncoprintModel.prototype.setTrackGroupOrder = function(index, track_order) {
+	this.track_groups[index] = track_order;
+	
+	this.track_tops.update();
+    }
+    
     OncoprintModel.prototype.moveTrackGroup = function (from_index, to_index) {
 	var new_groups = [];
 	var group_to_move = this.track_groups[from_index];
@@ -530,7 +543,7 @@ var OncoprintModel = (function () {
 	for (var i = 0; i < params_list.length; i++) {
 	    var params = params_list[i];
 	    addTrack(this, params.track_id, params.target_group,
-		    params.cell_height, params.track_padding,
+		    params.cell_height, params.track_padding, params.has_column_spacing,
 		    params.data_id_key, params.tooltipFn,
 		    params.removable, params.removeCallback, params.label, params.description, params.track_info,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
@@ -540,7 +553,7 @@ var OncoprintModel = (function () {
     }
   
     var addTrack = function (model, track_id, target_group,
-	    cell_height, track_padding,
+	    cell_height, track_padding, has_column_spacing,
 	    data_id_key, tooltipFn,
 	    removable, removeCallback, label, description, track_info,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
@@ -549,6 +562,7 @@ var OncoprintModel = (function () {
 	model.track_description[track_id] = ifndef(description, "");
 	model.cell_height[track_id] = ifndef(cell_height, 23);
 	model.track_padding[track_id] = ifndef(track_padding, 5);
+	model.track_has_column_spacing[track_id] = ifndef(has_column_spacing, true);
 
 	model.track_tooltip_fn[track_id] = ifndef(tooltipFn, function (d) {
 	    return d + '';
@@ -633,6 +647,7 @@ var OncoprintModel = (function () {
 	delete this.track_sort_direction_changeable[track_id];
 	delete this.track_sort_direction[track_id];
 	delete this.track_info[track_id];
+	delete this.track_has_column_spacing[track_id];
 
 	var containing_track_group = _getContainingTrackGroup(this, track_id, true);
 	if (containing_track_group !== null) {
@@ -655,15 +670,29 @@ var OncoprintModel = (function () {
 	var id_order = this.getIdOrder();
 	var zoomed_column_left = this.getZoomedColumnLeft();
 	var nearest_id_index = binarysearch(id_order, x, function(id) { return zoomed_column_left[id];}, true);
-	if (x <= zoomed_column_left[id_order[nearest_id_index]] + this.getCellWidth()) {
-	    var id = id_order[nearest_id_index];
-	    var tracks = this.getTracks();
-	    var cell_tops = this.getCellTops();
-	    var nearest_track_index = binarysearch(tracks, y, function(track) { return cell_tops[track];}, true);
-	    var nearest_track = tracks[nearest_track_index];
-	    if (y < cell_tops[nearest_track] + this.getCellHeight(nearest_track)) {
-		return {'id':id, 'track':nearest_track, 'top':cell_tops[nearest_track], 'left':zoomed_column_left[id]};
-	    }
+	if (nearest_id_index === -1) {
+	    return null;
+	}
+	var id = id_order[nearest_id_index];
+	
+	// Next, see if it's in a track
+	var tracks = this.getTracks();
+	var cell_tops = this.getCellTops();
+	var nearest_track_index = binarysearch(tracks, y, function (track) {
+	    return cell_tops[track];
+	}, true);
+	if (nearest_track_index === -1) {
+	    return null;
+	}
+	var nearest_track = tracks[nearest_track_index];
+	
+	// Finally, see if it's inside a cell
+	var hitzone_right = zoomed_column_left[id] + this.getCellWidth();
+	if (!this.getTrackHasColumnSpacing(nearest_track)) {
+	    hitzone_right += this.getCellPadding();
+	}
+	if (x <= hitzone_right && y < cell_tops[nearest_track] + this.getCellHeight(nearest_track)) {  
+	    return {'id': id, 'track': nearest_track, 'top': cell_tops[nearest_track], 'left': zoomed_column_left[id]};
 	}
 	return null;
     };
@@ -845,6 +874,14 @@ var OncoprintModel = (function () {
 	return this.track_data[track_id];
     }
     
+    /**
+     * Sets the data for an Oncoprint track.
+     *
+     * @param track_id - the ID that identifies the track
+     * @param {Object[]} data - the list of data for the cells
+     * @param {string} data_id_key - name of the property of the
+     * data objects to use as the (column) key
+     */
     OncoprintModel.prototype.setTrackData = function (track_id, data, data_id_key) {
 	this.track_data[track_id] = data;
 	this.track_data_id_key[track_id] = data_id_key;

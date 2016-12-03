@@ -190,6 +190,9 @@ var OncoprintTrackOptionsView = (function() {
     OncoprintTrackOptionsView.prototype.moveTrack = function(model) {
 	renderAllOptions(this, model);
     }
+    OncoprintTrackOptionsView.prototype.setTrackGroupOrder = function(model) {
+	renderAllOptions(this, model);
+    }
     OncoprintTrackOptionsView.prototype.removeTrack = function(model, track_id) {
 	delete this.track_options_$elts[track_id];
 	renderAllOptions(this, model);

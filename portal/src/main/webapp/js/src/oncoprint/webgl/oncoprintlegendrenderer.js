@@ -67,6 +67,8 @@ var OncoprintLegendView = (function() {
 	    return;
 	}
 	$(target_svg).empty();
+	var defs = svgfactory.defs();
+	target_svg.appendChild(defs);
 	
 	var everything_group = svgfactory.group(0,0);
 	target_svg.appendChild(everything_group);
@@ -97,7 +99,7 @@ var OncoprintLegendView = (function() {
 		if (rule.exclude_from_legend) {
 		    continue;
 		}
-		var group = ruleToSVGGroup(rule, view, model, target_svg);
+		var group = ruleToSVGGroup(rule, view, model, target_svg, defs);
 		group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		rule_set_group.appendChild(group);
 		if (x + group.getBBox().width > view.width) {
@@ -116,7 +118,7 @@ var OncoprintLegendView = (function() {
 	view.$svg[0].setAttribute('height', everything_box.height);
     };
     
-    var ruleToSVGGroup = function(rule, view, model, target_svg) {
+    var ruleToSVGGroup = function(rule, view, model, target_svg, target_defs) {
 	var root = svgfactory.group(0,0);
 	var config = rule.getLegendConfig();
 	if (config.type === 'rule') {
@@ -152,6 +154,18 @@ var OncoprintLegendView = (function() {
 	    }
 	    points.push([45, 20]);
 	    root.appendChild(svgfactory.path(points, config.color, config.color));
+	} else if (config.type === 'gradient') {
+	    var num_decimal_digits = 2;
+	    var display_range = config.range.map(function(x) {
+		var num_digit_multiplier = Math.pow(10, num_decimal_digits);
+		return Math.round(x * num_digit_multiplier) / num_digit_multiplier;
+	    });
+	    var gradient = svgfactory.gradient(config.colorFn);
+	    var gradient_id = gradient.getAttribute("id");
+	    target_defs.appendChild(gradient);
+	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
+	    root.appendChild(svgfactory.text(display_range[1], 120, 0, 12, 'Arial', 'normal'));
+	    root.appendChild(svgfactory.rect(30,0,60,20,"url(#"+gradient_id+")"));
 	}
 	return root;
     };

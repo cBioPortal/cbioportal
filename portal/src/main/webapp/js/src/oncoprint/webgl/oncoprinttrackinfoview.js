@@ -44,6 +44,10 @@ var OncoprintTrackInfoView = (function() {
 	renderAllInfo(this, model);
 	resize(this, model);
     }
+    OncoprintTrackInfoView.prototype.setTrackGroupOrder = function(model) {
+	renderAllInfo(this, model);
+	resize(this, model);
+    }
     OncoprintTrackInfoView.prototype.removeTrack = function(model) {
 	renderAllInfo(this, model);
 	resize(this, model);

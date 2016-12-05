@@ -58,7 +58,7 @@ public class SampleMyBatisRepository implements SampleRepository {
     @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
-        return sampleMapper.getSamples(studyIds, null, sampleIds,projection, 0, 0, null, null);
+        return sampleMapper.getSamples(studyIds, null, sampleIds, projection, 0, 0, null, null);
     }
 
     @Override

@@ -1,5 +1,6 @@
 var gl_matrix = require('gl-matrix');
 var svgfactory = require('./svgfactory.js');
+var extractRGBA = require('./extractrgba.js');
 
 // TODO: antialiasing
 
@@ -32,24 +33,6 @@ var getWebGLCanvasContext = function (view) {
     }
 };
 
-var extractRGBA = function (str) {
-    var ret = [0, 0, 0, 1];
-    if (str[0] === "#") {
-	// hex, convert to rgba
-	var r = parseInt(str[1] + str[2], 16);
-	var g = parseInt(str[3] + str[4], 16);
-	var b = parseInt(str[5] + str[6], 16);
-	str = 'rgba('+r+','+g+','+b+',1)';
-    }
-    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match && match.length === 5) {
-	ret = [parseFloat(match[1]) / 255,
-	    parseFloat(match[2]) / 255,
-	    parseFloat(match[3]) / 255,
-	    parseFloat(match[4])];
-    }
-    return ret;
-};
 var createShaderProgram = function (view, vertex_shader, fragment_shader) {
     var program = view.ctx.createProgram();
     view.ctx.attachShader(program, vertex_shader);
@@ -167,13 +150,15 @@ var OncoprintWebGLCellView = (function () {
 		if (!dragging) {
 		    var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
 		    var overlapping_datum = (overlapping_cell === null ? null : model.getTrackDatum(overlapping_cell.track, overlapping_cell.id));
+		    var cell_width = model.getCellWidth();
+		    var cell_padding = model.getCellPadding();
 		    if (overlapping_datum !== null) {
 			var left = model.getZoomedColumnLeft(overlapping_cell.id) - self.scroll_x;
-			overlayStrokeRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+			overlayStrokeRect(self, left, model.getCellTops(overlapping_cell.track), cell_width + (model.getTrackHasColumnSpacing(overlapping_cell.track) ? 0 : cell_padding), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
 			var tracks = model.getTracks();
 			for (var i=0; i<tracks.length; i++) {
 			    if (model.getTrackDatum(tracks[i], overlapping_cell.id) !== null) {
-				overlayStrokeRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
+				overlayStrokeRect(self, left, model.getCellTops(tracks[i]), cell_width + (model.getTrackHasColumnSpacing(tracks[i]) ? 0 : cell_padding), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 			    }
 			}
 			tooltip.show(250, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth() / 2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track) + offset.top, model.getTrackTooltipFn(overlapping_cell.track)(overlapping_datum));
@@ -601,6 +586,11 @@ var OncoprintWebGLCellView = (function () {
 	clearZoneBuffers(this, model);
 	renderAllTracks(this, model);
     }
+    OncoprintWebGLCellView.prototype.setTrackGroupOrder = function(model) {
+	clearZoneBuffers(this, model);
+	renderAllTracks(this, model);
+    }
+    
     OncoprintWebGLCellView.prototype.addTracks = function (model, track_ids) {
 	clearZoneBuffers(this, model);
 	for (var i=0; i<track_ids.length; i++) {
@@ -733,6 +723,11 @@ var OncoprintWebGLCellView = (function () {
 	clearZoneBuffers(this, model);
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
+	    if (!model.getTrackHasColumnSpacing(track_ids[i])) {
+		// We need to recompute shapes for tracks that don't have column spacing,
+		// because for those we're redefining the base width for shape generation.
+		getShapes(this, model, track_ids[i]);
+	    }
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);

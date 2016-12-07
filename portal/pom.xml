@@ -76,9 +76,60 @@
     </dependency>
   </dependencies>
 
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
   <build>
     <!-- final name of the app -->
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.github.jsimone</groupId>
+                  <artifactId>webapp-runner</artifactId>
+                  <version>8.0.24.0</version>
+                  <destFileName>webapp-runner.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <!-- unpack cbioportal-frontend -->
+          <execution>
+            <id>unpack</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.github.cbioportal</groupId>
+                  <artifactId>cbioportal-frontend</artifactId>
+                  <version>v0.3.1</version>
+                  <type>jar</type>
+                  <outputDirectory>.</outputDirectory>
+                  <excludes>*index*</excludes>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <!-- war plugin config -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -112,6 +163,10 @@
               </includes>
               <targetPath>WEB-INF</targetPath>
               <filtering>true</filtering>
+            </resource>
+            <resource>
+              <directory>reactapp</directory>
+              <targetPath>reactapp</targetPath>
             </resource>
           </webResources>
         </configuration>
@@ -157,88 +212,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.3</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.github.jsimone</groupId>
-                  <artifactId>webapp-runner</artifactId>
-                  <version>8.0.24.0</version>
-                  <destFileName>webapp-runner.jar</destFileName>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-        <!-- bash script executing plugin -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-                <execution>
-                    <phase>generate-sources</phase>
-                    <configuration>
-                        <tasks>
-                            <exec executable="/bin/bash">
-                                <arg value="runSpecJS.sh"/>
-                            </exec>
-                        </tasks>
-                    </configuration>
-                    <goals>
-                        <goal>run</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-        <!-- install node and npm -->
-        <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>1.0</version>
-
-            <executions>
-                <execution>
-                    <id>install node and npm</id>
-                    <goals>
-                        <goal>install-node-and-npm</goal>
-                    </goals>
-                    <configuration>
-                        <!-- See https://nodejs.org/en/download/ for latest node and npm (lts) versions -->
-                        <nodeVersion>v4.4.7</nodeVersion>
-                        <npmVersion>3.10.2</npmVersion>
-                    </configuration>
-                </execution>
-                <execution>
-                    <id>npm install</id>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <!-- Optional configuration which provides for running any npm command -->
-                    <configuration>
-                        <arguments>install</arguments>
-                    </configuration>
-                </execution>
-                <execution>
-                    <id>npm build</id>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <arguments>build</arguments>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
     </plugins>
 
     <filters>

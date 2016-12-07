@@ -185,14 +185,17 @@ var tooltip_utils = {
 		if (prot.length > 0) {
 		    ret.append('PROT: <b>' + prot.join(", ") + '</b><br>');
 		}
-		if (typeof d.gene_panel_ids !== "undefined") {
-		    ret.append("Gene Panel: ");
-		    var gene_panel_links = d.gene_panel_ids.map(function(id) { return tooltip_utils.makeGenePanelPopupLink(id); });
-		    for (var i=0; i<gene_panel_links.length; i++) {
+		if (typeof d.coverage !== "undefined") {
+		    ret.append("Coverage: ");
+		    var coverage_elts = d.coverage.filter(function(x) { return x !== "1"; /* code for whole-exome seq */ }).map(function(id) { return tooltip_utils.makeGenePanelPopupLink(id); });
+		    if (d.coverage.indexOf("1") > -1) {
+			coverage_elts.push("Whole-Exome Sequencing");
+		    }
+		    for (var i=0; i<coverage_elts.length; i++) {
 			if (i > 0) {
 			    ret.append(",");
 			}
-			ret.append(gene_panel_links[i]);
+			ret.append(coverage_elts[i]);
 		    }
 		    ret.append("<br>");
 		}

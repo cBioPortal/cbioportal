@@ -41,6 +41,10 @@ public class GeneticEntityVirtualRepository implements GeneticEntityRepository {
 
     @Autowired
     private GeneMapper geneMapper;
+    
+    @Autowired
+    private GenesetMapper genesetMapper;
+    
 
     @Override
     public GeneticEntity getGeneticEntity(String entityStableId, EntityType type) {
@@ -55,18 +59,21 @@ public class GeneticEntityVirtualRepository implements GeneticEntityRepository {
 			} catch (NumberFormatException e) {
 				throw new IllegalArgumentException("Entrez gene id should be a number. Given value is not valid: " + entityStableId);
 			}
-    	}
-    	else {
+    	} else if (type.equals(EntityType.GENE_SET)) {
+    		return genesetMapper.getGenesetByGenesetId(entityStableId, null);
+    	} else {
     		throw new UnsupportedOperationException("not implemented yet for other entities");
     	}    		
     }
 	
     @Override
     public GeneticEntity getGeneticEntity(Integer entityId, EntityType type) {
+
     	if (type.equals(EntityType.GENE)) {
     		return geneMapper.getGeneByGeneticEntityId(entityId, null); 
-    	}
-    	else {
+    	} else if (type.equals(EntityType.GENE_SET)) {
+    		return genesetMapper.getGenesetByGeneticEntityId(entityId, null);
+    	} else {
     		throw new UnsupportedOperationException("not implemented yet for other entities");
     	}
     }

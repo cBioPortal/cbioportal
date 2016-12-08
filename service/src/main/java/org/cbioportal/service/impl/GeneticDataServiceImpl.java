@@ -215,8 +215,9 @@ public class GeneticDataServiceImpl implements GeneticDataService {
     	
     	if (geneBasedTypes.contains(geneticProfile.getGeneticAlterationType())) { 
     		geneticEntity = geneticEntityRepository.getGeneticEntity(entityId, EntityType.GENE);
-    	}
-    	else {
+    	} else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.GENESET_SCORE)) {
+    		geneticEntity = geneticEntityRepository.getGeneticEntity(entityId, EntityType.GENE_SET);
+    	} else {
     		throw new UnsupportedOperationException("the profile type '" + geneticProfile.getGeneticAlterationType() + 
     				"' is not(yet) supported via this api...");
     	}

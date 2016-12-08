@@ -60,6 +60,7 @@ String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 
+
 // check if any Bam files exist
 boolean viewBam = false;
 Map<String,Boolean> mapCaseBam = new HashMap<String,Boolean>(caseIds.size());
@@ -293,6 +294,17 @@ if (patientViewError!=null) {
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/patient-view/main.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/patient-view/clinical-attributes.css?<%=GlobalProperties.getAppVersion()%>";
+		/*
+         Quickfix css issues when applying bootstrap.min.css last (white
+         padding around all tables). Normally this is loaded first, but
+         because we are loading it last through cbioportal-frontend repo some
+         customizations are no longer applied. A better fix would be to prefix
+         the bootstrap of cbioportal-frontend.
+        */
+		#header table:nth-child(2) {
+			margin-top: 4px;
+			margin-bottom: 4px;
+		}
 </style>
 
 <link rel="stylesheet" type="text/css" href="css/oncokb.css" />
@@ -1153,6 +1165,53 @@ var CaseNavigation = (function(currCaseId){
 
 window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
         = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;
+
+</script>
+<!-- Add script and style files for cbioportal-frontend -->
+<script>
+// Set frontend route to /patient
+window.defaultRoute = "/patient";
+
+// Set API root variable for cbioportal-frontend repo
+<%
+String url = request.getRequestURL().toString();
+String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath() + "/";
+baseURL = baseURL.replace("https://", "").replace("http://", "");
+%>
+__API_ROOT__ = '<%=baseURL%>' + '/api';
+    
+if (localStorage.getItem('localdev') === "true") {
+    // Use cbioportal-frontend localhost:3000 for dev
+    document.write('<script src="http://localhost:3000/reactapp/js/common.bundle.js"></scr'+'ipt>');
+    document.write('<script src="http://localhost:3000/reactapp/js/main.app.js"></scr'+'ipt>');
+    // Show alert
+    document.write('<div style="position: fixed; top: 0; left: 0; width: 100%;">'+
+                       '<div class="alert alert-warning">' +
+                            '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                            'cbioportal-frontend dev mode, using localhost:3000' +
+                       '</div>' +
+                   '</div>');
+} else if (localStorage.getItem('heroku')) {
+    var herokuInstance = 'https://' + localStorage.getItem('heroku') + '.herokuapp.com';
+    document.write('<link rel="stylesheet" type="text/css" href="' + herokuInstance + '/reactapp/css/bootstrap.min.css" />');
+    document.write('<link rel="stylesheet" type="text/css" href="' + herokuInstance + '/reactapp/css/styles.css" />');
+    document.write('<script src="' + herokuInstance + '/reactapp/js/common.bundle.js"></scr'+'ipt>');
+    document.write('<script src="' + herokuInstance + '/reactapp/js/main.app.js"></scr'+'ipt>');
+    // Show alert
+    document.write('<div style="position: fixed; top: 0; left: 0; width: 100%;">'+
+                       '<div class="alert alert-warning">' +
+                            '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                            'cbioportal-frontend dev mode, using ' + herokuInstance +
+                       '</div>' +
+                   '</div>');
+} else {
+    // Use deployed sources
+    document.write('<link rel="stylesheet" type="text/css" href="reactapp/css/bootstrap.min.css" />');
+    document.write('<link rel="stylesheet" type="text/css" href="/reactapp/css/styles.css" />');
+    document.write('<script src="/reactapp/js/common.bundle.js"></scr' + 'ipt>');
+    document.write('<script src="/reactapp/js/main.app.js"></scr'+'ipt>');
+}
+
 
 </script>
 </body>

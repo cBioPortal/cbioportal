@@ -553,7 +553,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    datum_to_add.attr_val_counts[data_to_combine[j].attr_val] += 1;
 			}
 		    }
-		    datum_to_add.attr_val = "Mixed";
+		    var attr_vals = Object.keys(datum_to_add.attr_val_counts);
+		    if (attr_vals.length > 1) {
+			datum_to_add.attr_val = "Mixed";
+		    } else if (attr_vals.length === 1) {
+			datum_to_add.attr_val = attr_vals[0];
+		    }
 		} else if (datatype.toLowerCase() === "counts_map") {
 		    for (var j = 0; j < data_to_combine.length; j++) {
 			for (var k in data_to_combine[j].attr_val) {

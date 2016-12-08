@@ -1,6 +1,6 @@
 sudo: required
 language: java
-jdk: oraclejdk7
+jdk: oraclejdk8
 services:
     - docker
 
@@ -10,9 +10,9 @@ cache:
         - $HOME/maven
 
 env:
-    - MAVEN_VERSION=3.3.3 TEST=core
-    - MAVEN_VERSION=3.3.3 TEST=python-validator
-    - MAVEN_VERSION=3.3.3 TEST=end-to-end
+    - MAVEN_VERSION=3.3.9 TEST=core
+    - MAVEN_VERSION=3.3.9 TEST=python-validator
+    - MAVEN_VERSION=3.3.9 TEST=end-to-end
 
 install:
     # install maven
@@ -23,7 +23,7 @@ install:
             test -d ~/maven/$MAVEN_VERSION/bin || { \
                 find ~/maven -mindepth 1 -delete && \
                 mkdir -p ~/maven/$MAVEN_VERSION && \
-                wget -O - http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
+                wget -O - http://www-us.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | \
                     tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
         fi
     # install dependencies for the python unit tests

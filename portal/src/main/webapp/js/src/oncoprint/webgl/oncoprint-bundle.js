@@ -1258,21 +1258,20 @@ var OncoprintLabelView = (function () {
 		} else {
 		    var hovered_track = isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top);
 		    if (hovered_track !== null) {
-			var tooltip_html_lines = [];
+			var $tooltip_div = $('<div>');
 			var offset = view.$canvas.offset();   
 			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])) {
-			    tooltip_html_lines.push('<b>'+view.labels[hovered_track]+'</b>');
+			    $tooltip_div.append($('<b>'+view.labels[hovered_track]+'</b>'));
 			}
 			var track_description = view.track_descriptions[hovered_track].replace("<", "&lt;").replace(">", "&gt;");
 			if (track_description.length > 0) {
-			    tooltip_html_lines.push(track_description);
+			    $tooltip_div.append(track_description);
 			}
 			if (model.getContainingTrackGroup(hovered_track).length > 1) {
 			    view.$canvas.css('cursor', 'move');
-			    tooltip_html_lines.push("<b>hold to drag</b>");
+			    $tooltip_div.append("<b>hold to drag</b>");
 			}
-			var tooltip_html = tooltip_html_lines.join("<br>");
-			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.cell_tops[hovered_track] + offset.top, tooltip_html);
+			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.cell_tops[hovered_track] + offset.top, $tooltip_div);
 		    } else {
 			view.$canvas.css('cursor', 'auto');
 			view.tooltip.hide();
@@ -2876,8 +2875,8 @@ function objectValues(obj) {
 var NA_SHAPES = [
     {
 	'type': 'rectangle',
-	'fill': 'rgba(125, 125, 125, 1)',
-	'z': 0,
+	'fill': 'rgba(224, 224, 224, 1)',
+	'z': 10000000,
     },
     /*{
 	'type': 'line',
@@ -3063,13 +3062,6 @@ var LookupRuleSet = (function () {
 	this.universal_rules = [];
 
 	this.rule_id_to_conditions = {};
-
-	this.addRule(NA_STRING, true, {
-	    shapes: NA_SHAPES,
-	    legend_label: NA_LABEL,
-	    exclude_from_legend: false,
-	    legend_config: {'type': 'rule', 'target': {'na': true}}
-	});
     }
     LookupRuleSet.prototype = Object.create(RuleSet.prototype);
 
@@ -3200,6 +3192,13 @@ var CategoricalRuleSet = (function () {
 	 * - categoryToColor
 	 */
 	LookupRuleSet.call(this, params);
+	
+	this.addRule(NA_STRING, true, {
+	    shapes: NA_SHAPES,
+	    legend_label: NA_LABEL,
+	    exclude_from_legend: false,
+	    legend_config: {'type': 'rule', 'target': {'na': true}}
+	});
 	
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
@@ -3566,6 +3565,12 @@ var GeneticAlterationRuleSet = (function () {
 		}
 	    }
 	})(this);
+	this.addRule(NA_STRING, true, {
+	    shapes: NA_SHAPES,
+	    legend_label: "N/S",
+	    exclude_from_legend: false,
+	    legend_config: {'type': 'rule', 'target': {'na': true}}
+	});
     }
     GeneticAlterationRuleSet.prototype = Object.create(LookupRuleSet.prototype);
 
@@ -3884,23 +3889,24 @@ var OncoprintToolTip = (function() {
 	    self.hide();
 	});
     }
-    OncoprintToolTip.prototype.show = function(wait, page_x, page_y, html_str, fade) {
+    OncoprintToolTip.prototype.show = function(wait, page_x, page_y, $contents, fade) {
 	cancelScheduledHide(this);
 	
 	if (typeof wait !== 'undefined' && !this.shown) {
 	    var self = this;
 	    cancelScheduledShow(this);
 	    this.show_timeout_id = setTimeout(function() {
-		doShow(self, page_x, page_y, html_str, fade);
+		doShow(self, page_x, page_y, $contents, fade);
 	    }, wait);
 	} else {
-	    doShow(this, page_x, page_y, html_str, fade);
+	    doShow(this, page_x, page_y, $contents, fade);
 	}
     }
-    var doShow = function(tt, page_x, page_y, html_str, fade) {
+    var doShow = function(tt, page_x, page_y, $contents, fade) {
 	cancelScheduledShow(tt);
 	tt.show_timeout_id = undefined;
-	tt.$div.html(html_str);
+	tt.$div.empty();
+	tt.$div.append($contents);
 	if (!fade) {
 	    tt.$div.show();
 	} else {
@@ -3930,9 +3936,9 @@ var OncoprintToolTip = (function() {
 	clearTimeout(tt.hide_timeout_id);
 	tt.hide_timeout_id = undefined;
     };
-    OncoprintToolTip.prototype.showIfNotAlreadyGoingTo = function(wait, page_x, page_y, html_str) {
+    OncoprintToolTip.prototype.showIfNotAlreadyGoingTo = function(wait, page_x, page_y, $contents) {
 	if (typeof this.show_timeout_id === 'undefined') {
-	    this.show(wait, page_x, page_y, html_str);
+	    this.show(wait, page_x, page_y, $contents);
 	}
     }
     OncoprintToolTip.prototype.hideIfNotAlreadyGoingTo = function(wait) {
@@ -3957,8 +3963,8 @@ var OncoprintToolTip = (function() {
 	    doHide(this);
 	}
     }
-    OncoprintToolTip.prototype.fadeIn = function(wait, page_x, page_y, html_str) {
-	this.show(wait, page_x, page_y, html_str, true);
+    OncoprintToolTip.prototype.fadeIn = function(wait, page_x, page_y, $contents) {
+	this.show(wait, page_x, page_y, $contents, true);
     }
     return OncoprintToolTip;
 })();

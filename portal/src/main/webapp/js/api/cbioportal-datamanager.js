@@ -471,6 +471,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return def.promise();
     };
+    
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, study_id, source_sample_or_patient, target_sample_or_patient,
 	    target_ids, sample_to_patient_map, case_uid_map, datatype, na_or_zero) {
 	na_or_zero = na_or_zero || "na";
@@ -592,7 +593,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return data;
     };
-    var makeOncoprintData = function (webservice_data, genes, study_to_id_map, sample_or_patient, sample_to_patient_map, case_uid_map) {
+    var makeOncoprintData = function (webservice_data, genes, study_to_id_map, sample_or_patient, sample_to_patient_map, case_uid_map, sequencing_data) {
 	// To fill in for non-existent data, need genes and samples to do so for
 	genes = genes || [];
 	study_to_id_map = study_to_id_map || {}; // to make blank data
@@ -612,7 +613,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    new_datum['data'] = [];
 		    new_datum['study_id'] = study;
 		    new_datum['uid'] = case_uid_map[study][id];
-		    gene_id_study_to_datum[gene + ',' + id + ',' + study] = new_datum;
+
+		    if (typeof sequencing_data[id] === "undefined" ||
+			typeof sequencing_data[id][gene] === "undefined") {
+			new_datum['na'] = true;
+		    } else {
+			new_datum['coverage'] = Object.keys(sequencing_data[id][gene]);
+		    }
+		    gene_id_study_to_datum[gene+','+id+','+study] = new_datum;
 		}
 	    }
 	}
@@ -714,11 +722,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return data;
     };
-    var makeOncoprintSampleData = function (webservice_data, genes, study_sample_map, case_uid_map) {
-	return makeOncoprintData(webservice_data, genes, study_sample_map, "sample", null, case_uid_map);
+    var makeOncoprintSampleData = function (webservice_data, genes, study_sample_map, case_uid_map, sequenced_samples_by_gene) {
+	return makeOncoprintData(webservice_data, genes, study_sample_map, "sample", null, case_uid_map, sequenced_samples_by_gene);
     };
-    var makeOncoprintPatientData = function (webservice_data, genes, study_patient_map, sample_to_patient_map, case_uid_map) {
-	return makeOncoprintData(webservice_data, genes, study_patient_map, "patient", sample_to_patient_map, case_uid_map);
+    var makeOncoprintPatientData = function (webservice_data, genes, study_patient_map, sample_to_patient_map, case_uid_map, sequenced_patients_by_gene) {
+	return makeOncoprintData(webservice_data, genes, study_patient_map, "patient", sample_to_patient_map, case_uid_map, sequenced_patients_by_gene);
     };
 
     var default_oql = '';
@@ -1176,7 +1184,98 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    return def.promise();
 	},
-	'getStudySampleMap': function () {
+	'getSequencedSamples': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    self.getSampleSequencingData().then(function(sample_sequencing_data) {
+			fetch_promise.resolve(self.getSampleIds().filter(function(sample) {
+			    return (Object.keys(sample_sequencing_data[sample]).length > 0); // at least one gene sequenced
+			}));
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
+		}),
+	'getSequencedPatients': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    $.when(self.getSequencedSamples(), self.getPatientSampleIdMap()).then(function(sequenced_samples, sample_to_patient) {
+			var sequenced_patients = {};
+			// a patient is sequenced if at least one of its samples is sequenced
+			for (var i=0; i<sequenced_samples.length; i++) {
+			    var patient = sample_to_patient[sequenced_samples[i]];
+			    if (patient) {
+				sequenced_patients[patient] = true;
+			    }
+			}
+			fetch_promise.resolve(Object.keys(sequenced_patients));
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
+		}),
+	'getSampleSequencingData': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    // returns sample -> gene -> set of (gene panel id | the number 1, indicating whole exome sequenced)
+		    self.getMutationProfileIds().then(function(ids) {
+			$.ajax({
+		       type: "GET",
+		       url: "api-legacy/genepanel/data",
+		       contentType: "application/json",
+		       data: ["profile_id="+ids[0], "genes="+self.getQueryGenes().join(",")].join("&")
+			}).then(function(response) {
+			    var sequenced_info = {};
+			    for (var i = 0; i < response.length; i++) {
+				var panel = response[i];
+				var genes = panel.genes.map(function (g) {
+				    return g.hugoGeneSymbol;
+				});
+				var gene_panel_id = panel.stableId;
+				var samples = panel.samples;
+				for (var h = 0; h < samples.length; h++) {
+				    sequenced_info[samples[h]] = sequenced_info[samples[h]] || {};
+				    var gene_info = sequenced_info[samples[h]];
+				    for (var j = 0; j < genes.length; j++) {
+					var gene = genes[j];
+					gene_info[gene] = gene_info[gene] || {};
+					gene_info[gene][gene_panel_id] = true;
+				    }
+				}
+			    }
+			    var all_samples = self.getSampleIds();
+			    var whole_exome_sequenced_map = self.getQueryGenes().reduce(function(map, gene) { map[gene] = {'1': true}; return map; }, {});
+			    for (var i = 0; i < all_samples.length; i++) {
+				// If no gene panel data recorded for sample up to this point, then
+				//  by our convention, that means it's whole exome sequenced.
+				sequenced_info[all_samples[i]] = sequenced_info[all_samples[i]] || whole_exome_sequenced_map;
+			    }
+			    fetch_promise.resolve(sequenced_info);
+			}).fail(function() {
+			    fetch_promise.reject();
+			});
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
+		}),
+	'getPatientSequencingData': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    $.when(self.getPatientSampleIdMap(), self.getSampleSequencingData()).then(function(sample_to_patient, sample_sequencing_data) {
+			var sequenced_info = {};
+			var sample_ids = self.getSampleIds();
+			for (var i=0; i<sample_ids.length; i++) {
+			    var sample = sample_ids[i];
+			    var patient = sample_to_patient[sample];
+			    if (patient) {
+				sequenced_info[patient] = sequenced_info[patient] || {};
+				var sequenced_genes = Object.keys(sample_sequencing_data[sample]);
+				for (var j=0; j<sequenced_genes.length; j++) {
+				    var gene = sequenced_genes[j];
+				    sequenced_info[patient][gene] = objectKeyUnion([(sequenced_info[patient][gene] || {}), sample_sequencing_data[sample][gene]]);
+				}
+			    }
+			}
+			fetch_promise.resolve(sequenced_info);
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
+		}),
+	'getStudySampleMap': function() {
 	    return deepCopyObject(this.study_sample_map);
 	},
 	'getStudyPatientMap': makeCachedPromiseFunction(
@@ -1403,11 +1502,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getOncoprintSampleGenomicEventData': function (use_session_filters) {
 	    var def = new $.Deferred();
 	    var self = this;
-	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), self.getStudySampleMap(), self.getCaseUIDMap()).then(function (ws_data, study_sample_map, case_uid_map) {
+	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), self.getStudySampleMap(), self.getCaseUIDMap(), self.getSampleSequencingData()).then(function (ws_data, study_sample_map, case_uid_map, sample_sequencing_data) {
 		var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true, true);
 		for (var i = 0; i < ws_data_by_oql_line.length; i++) {
 		    var line = ws_data_by_oql_line[i];
-		    line.oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], study_sample_map, case_uid_map);
+		    line.oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], study_sample_map, case_uid_map, sample_sequencing_data);
+		    line.sequenced_samples = line.oncoprint_data.filter(function(datum) {
+			return !datum.na;
+		    }).map(function (datum) {
+				return datum.sample;
+		    });
 		    line.altered_samples = line.oncoprint_data.filter(function (datum) {
 			return datum.data.length > 0;
 		    })
@@ -1502,11 +1606,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getOncoprintPatientGenomicEventData': function (use_session_filters) {
 	    var def = new $.Deferred();
 	    var self = this;
-	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), self.getPatientIds(), self.getStudyPatientMap(), self.getPatientSampleIdMap(), self.getCaseUIDMap()).then(function (ws_data, patient_ids, study_patient_map, sample_to_patient_map, case_uid_map) {
+	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), self.getPatientIds(), self.getStudyPatientMap(), self.getPatientSampleIdMap(), self.getCaseUIDMap(), self.getPatientSequencingData()).then(function (ws_data, patient_ids, study_patient_map, sample_to_patient_map, case_uid_map, patient_sequencing_data) {
 		var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true, true);
 		for (var i = 0; i < ws_data_by_oql_line.length; i++) {
 		    var line = ws_data_by_oql_line[i];
-		    line.oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], study_patient_map, sample_to_patient_map, case_uid_map);
+		    line.oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], study_patient_map, sample_to_patient_map, case_uid_map, patient_sequencing_data);
+		    line.sequenced_patients = line.oncoprint_data.filter(function(datum) {
+			return !datum.na;
+		    }).map(function(datum) {
+			return datum.patient;
+		    });
 		    line.altered_patients = line.oncoprint_data.filter(function (datum) {
 			return datum.data.length > 0;
 		    })

@@ -97,8 +97,8 @@ function objectValues(obj) {
 var NA_SHAPES = [
     {
 	'type': 'rectangle',
-	'fill': 'rgba(125, 125, 125, 1)',
-	'z': 0,
+	'fill': 'rgba(224, 224, 224, 1)',
+	'z': 10000000,
     },
     /*{
 	'type': 'line',
@@ -284,13 +284,6 @@ var LookupRuleSet = (function () {
 	this.universal_rules = [];
 
 	this.rule_id_to_conditions = {};
-
-	this.addRule(NA_STRING, true, {
-	    shapes: NA_SHAPES,
-	    legend_label: NA_LABEL,
-	    exclude_from_legend: false,
-	    legend_config: {'type': 'rule', 'target': {'na': true}}
-	});
     }
     LookupRuleSet.prototype = Object.create(RuleSet.prototype);
 
@@ -421,6 +414,13 @@ var CategoricalRuleSet = (function () {
 	 * - categoryToColor
 	 */
 	LookupRuleSet.call(this, params);
+	
+	this.addRule(NA_STRING, true, {
+	    shapes: NA_SHAPES,
+	    legend_label: NA_LABEL,
+	    exclude_from_legend: false,
+	    legend_config: {'type': 'rule', 'target': {'na': true}}
+	});
 	
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
@@ -787,6 +787,12 @@ var GeneticAlterationRuleSet = (function () {
 		}
 	    }
 	})(this);
+	this.addRule(NA_STRING, true, {
+	    shapes: NA_SHAPES,
+	    legend_label: "N/S",
+	    exclude_from_legend: false,
+	    legend_config: {'type': 'rule', 'target': {'na': true}}
+	});
     }
     GeneticAlterationRuleSet.prototype = Object.create(LookupRuleSet.prototype);
 

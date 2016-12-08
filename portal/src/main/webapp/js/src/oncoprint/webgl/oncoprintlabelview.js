@@ -49,21 +49,20 @@ var OncoprintLabelView = (function () {
 		} else {
 		    var hovered_track = isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top);
 		    if (hovered_track !== null) {
-			var tooltip_html_lines = [];
+			var $tooltip_div = $('<div>');
 			var offset = view.$canvas.offset();   
 			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])) {
-			    tooltip_html_lines.push('<b>'+view.labels[hovered_track]+'</b>');
+			    $tooltip_div.append($('<b>'+view.labels[hovered_track]+'</b>'));
 			}
 			var track_description = view.track_descriptions[hovered_track].replace("<", "&lt;").replace(">", "&gt;");
 			if (track_description.length > 0) {
-			    tooltip_html_lines.push(track_description);
+			    $tooltip_div.append(track_description);
 			}
 			if (model.getContainingTrackGroup(hovered_track).length > 1) {
 			    view.$canvas.css('cursor', 'move');
-			    tooltip_html_lines.push("<b>hold to drag</b>");
+			    $tooltip_div.append("<b>hold to drag</b>");
 			}
-			var tooltip_html = tooltip_html_lines.join("<br>");
-			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.cell_tops[hovered_track] + offset.top, tooltip_html);
+			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.cell_tops[hovered_track] + offset.top, $tooltip_div);
 		    } else {
 			view.$canvas.css('cursor', 'auto');
 			view.tooltip.hide();

@@ -798,6 +798,10 @@ td.op_data_cell{
   color:black;
 }
 
+#right_side p {
+  margin: 15px 0;
+}
+
 #right_side table {
   margin:10px;
 }
@@ -1113,11 +1117,81 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 }
 
 #right_side {
-  margin-top: 10px;
+  margin: 10px 0 0 10px;
+  padding: 5px 15px;
   background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
   text-align: left;
-  margin-left: 10px;
-  font-size:80%;
+  font-size: 80%;
+  width: 315px;
+}
+
+#right_side .sidebar-box {
+  padding: 0 0 15px 0;
+}
+
+#right_side ul {
+  padding: 0px 15px;
+  margin: 15px 0px;
+  list-style-type: disc;
+}
+
+#right_side li {
+  color: #cfd9ea;
+  padding: 2px 0;
+  text-indent: -3px;
+}
+
+#right_side form {
+  overflow: auto;
+}
+
+#right_side label {
+  display: block;
+  font: normal normal 400 12px/16px Verdana, Arial, sans-serif;
+}
+
+#right_side input[type="text"] {
+  width: 65%;
+  display: inline-block;
+  padding: 2%;
+  font-size: 12px;
+  font-weight: 200;
+  border: 1px solid #1974b8;
+  outline: none;
+  float: left;
+  height: 16px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+#right_side input[type="submit"] {
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  background: #1974b8;
+  border: 1px solid #1974b8;
+  font-weight: 700;
+  display: inline-block;
+  width: 25%;
+  margin: 0px;
+  text-align: center;
+  line-height: 24px;
+  float: left;
+  margin-left: -1px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+#right_side input[type="submit"]:hover {
+  cursor: pointer;
+  background: #2893e2;
+}
+
+/* IE11 specific styling */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {  
+  #right_side input[type="submit"] {
+    line-height: 27px;
+  }
 }
 
 /* section of right column containing user testimonials,
@@ -1133,22 +1207,16 @@ aka, "what people are saying" */
 
 /* individual testimonials */
 #testimonials blockquote {
-    width: 80%;
-    margin-left: 13px;
-    padding-top: 0px;
-    /*background-image: url("../images/openquote.png");
-    background-position: 0px 10px;
-    background-repeat: no-repeat;*/
-    border: 1px dashed testimonials; /*setting transparent border prevents scroll bar from 'jumping'
-                                      between fade in/fade out of each quote */
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
 
 /* actual quote from user */
-/*#testimonials blockquote p {
-    background-image: url("../images/closequote.png");
-    background-repeat: no-repeat;
-    background-position: right bottom;
-}*/
+#testimonials blockquote p {
+  font: normal normal 400 13px/18px Verdana, Arial sans-serif;
+  margin: 15px 0px;
+}
 
 /* name and institution of user */
 
@@ -1209,23 +1277,11 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 }
 
 #right_side h3 {
-  margin-top:5px; margin-bottom:10px; margin-left:5px; margin-right:5px;
-  padding:4px;
-  font-family: verdana, arial, sans-serif;
-  font-size: 14px;
-  font-weight: bold;
-  text-align: center;
-  line-height: 14px;
-  color: #FFFFFF;
-  border-right:1px solid #0f3974;
-  border-bottom: 1px solid #0f3974;
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ffffff;
-  background-color: #1974b8;
-
-  background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+  margin: 10px 0;
+  padding: 0;
+  font: normal normal 200 18px/24px 'Helvetica Neue', Verdana, Arial, sans-serif;
+  color: #333;
+  border-bottom: 1px solid #cfd9ea;
 }
 
 #left_side h3{
@@ -1602,10 +1658,6 @@ cc-ie-message {
 }
 
 /* right menu d3 map */
-#rightmenu-stats-box {
-    padding-left: 10px;
-}
-
 #rightmenu-stats-box rect {
     fill: none;
     pointer-events: all;

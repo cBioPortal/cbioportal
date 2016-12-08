@@ -42,18 +42,19 @@
 
     <!-- replaced the hard-coded what's new with a call to GlobalProperties
     <!-- Should the "What's New" itself stay? -->
-    <h3>What's New</h3>
-    <%= GlobalProperties.getRightNavWhatsNewBlurb() %>
+    <div class="sidebar-box">
+        <h3>What's New</h3>
+        <%= GlobalProperties.getRightNavWhatsNewBlurb() %>
+    </div>
 
 
-    <%
-if (GlobalProperties.showRightNavDataSets()) {
-%>
-    <h3>Data Sets</h3>
-    <p id="portal_data_stats_copy"></p>
-    <div id='rightmenu-stats-box'></div>
-	<script type="text/javascript">
-		$(document).ready( function() {
+    <% if (GlobalProperties.showRightNavDataSets()) { %>
+        <div class="sidebar-box">
+            <h3>Data Sets</h3>
+            <p id="portal_data_stats_copy"></p>
+            <div id='rightmenu-stats-box'></div>
+            <script type="text/javascript">
+    		    $(document).ready( function() {
                         var plotTree = function(json) {
                             var totalNumSamples = Object.keys(json.cancer_studies).map(function(x) { 
                                 return (x === 'all' ? 0 : json.cancer_studies[x].num_samples);
@@ -70,21 +71,24 @@ if (GlobalProperties.showRightNavDataSets()) {
                         } else {
                             $.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true", plotTree);
                         }
-		});
-	</script>
-<%
-    } // if showRightNavDataSets
-%>
+    		        });
+    	    </script>
+        </div>
+    <% } %>
+
 <% if (GlobalProperties.showRightNavExamples()) {%>
-    <h3>Example Queries</h3>
-    <%@ include file="/content/examples.html" %>
+    <div class="sidebar-box">
+        <h3>Example Queries</h3>
+        <%@ include file="/content/examples.html" %>
+    </div>
 <% } %>
 
 <% if (GlobalProperties.showRightNavTestimonials()) {%>
-    <div id="rotating_testimonials">
-        <h3>What People are Saying</h3>
-        <jsp:include page="../testimonials.jsp" flush="true" />
-
+    <div class="sidebar-box">
+        <div id="rotating_testimonials">
+            <h3>What People are Saying</h3>
+            <jsp:include page="../testimonials.jsp" flush="true" />
+        </div>
     </div>
 <% } %>
 </div>

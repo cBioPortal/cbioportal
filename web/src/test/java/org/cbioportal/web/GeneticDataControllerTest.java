@@ -66,31 +66,28 @@ public class GeneticDataControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticEntity.entrezGeneId").value(1)); 
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticEntityId").value("1001")); 
 
     }
 
 	private List<GeneticData> createGeneticDataList() {
 		List<GeneticData> expectedGeneticDataList = new ArrayList<GeneticData>();
-        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem(1, "SAMPLE_1", 1, 1, "GENE_1", "0.2"));
-        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem(2, "SAMPLE_2", 1, 1, "GENE_1", "34.99"));
-        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem(1, "SAMPLE_1", 2, 2, "GENE_2", "0.89"));
-        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem(2, "SAMPLE_2", 2, 2, "GENE_2", "15.09"));
+        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem(1, "SAMPLE_1", 1001, 1, "0.2"));
+        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem(2, "SAMPLE_2", 1001, 1, "34.99"));
+        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem(1, "SAMPLE_1", 2002, 2, "0.89"));
+        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem(2, "SAMPLE_2", 2002, 2, "15.09"));
         
 		return expectedGeneticDataList;
 	}
 
 	private GeneticData getSimpleFlatGeneticDataItem( 
 			int sampleId, String sampleStableId, 
-			int entrezGeneId, int entityId, String entityStableId, 
+			int entrezGeneId, int entityId,
 			String value){
 		GeneticData item = new GeneticData();
 	
-		Gene entity = new Gene();
-		entity.setEntityId(entityId);
-		entity.setEntityStableId(entityStableId);
-		entity.setEntrezGeneId(entrezGeneId); // not totally flat because we want to set entrez id in this case as well
-		item.setGeneticEntity(entity);
+		item.setGeneticEntityId(entityId);
+		item.setGeneticEntityStableId(entrezGeneId+"");
 		
 		item.setGeneticProfileId(geneticProfileId);
 		item.setGeneticProfileStableId(geneticProfileStableId);

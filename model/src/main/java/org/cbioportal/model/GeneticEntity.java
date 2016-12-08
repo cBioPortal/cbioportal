@@ -25,7 +25,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class GeneticEntity implements Serializable  {
+public abstract class GeneticEntity implements Serializable  {
 
 	public static enum EntityType
     {
@@ -35,8 +35,6 @@ public class GeneticEntity implements Serializable  {
     }
 	
 	private Integer entityId;
-	private String entityStableId;
-    private EntityType entityType;
 
     public Integer getEntityId() {
         return entityId;
@@ -46,20 +44,9 @@ public class GeneticEntity implements Serializable  {
         this.entityId = entityId;
     }
     
-    public String getEntityStableId() {
-        return entityStableId;
-    }
-
-    public void setEntityStableId(String entityStableId) {
-        this.entityStableId = entityStableId;
-    }
+    public abstract String getEntityStableId();
     
-    public EntityType getEntityType() {
-        return entityType;
-    }
+    public abstract EntityType getEntityType();
 
-    public void setEntityType(EntityType entityType) {
-        this.entityType = entityType;
-    }
     
 }

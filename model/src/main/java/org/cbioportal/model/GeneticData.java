@@ -7,7 +7,7 @@ public class GeneticData implements Serializable {
     private Integer geneticProfileId;
     private String geneticProfileStableId;
     private Integer geneticEntityId;
-    private String entityStableId;
+    private String geneticEntityStableId;
     private Integer sampleId;
     private String sampleStableId;
     private String value;
@@ -40,11 +40,11 @@ public class GeneticData implements Serializable {
     }
     
     public String getGeneticEntityStableId() {
-		return entityStableId;
+		return geneticEntityStableId;
 	}
     
-	public void setGeneticEntityStableId(String entityStableId) {
-		this.entityStableId = entityStableId;
+	public void setGeneticEntityStableId(String geneticEntityStableId) {
+		this.geneticEntityStableId = geneticEntityStableId;
 	}
     
     public Integer getSampleId() {
@@ -107,8 +107,6 @@ public class GeneticData implements Serializable {
 	    
 		boolean result = true;
 		//check mandatory fields for equality:
-		result = this.getGeneticEntity().getEntityId().equals(other.getGeneticEntity().getEntityId());
-		result = this.getGeneticEntity().getEntityStableId().equals(other.getGeneticEntity().getEntityStableId());
 		result = this.getGeneticEntityId().equals(other.getGeneticEntityId());
 		result = this.getGeneticEntityStableId().equals(other.getGeneticEntityStableId());
 		

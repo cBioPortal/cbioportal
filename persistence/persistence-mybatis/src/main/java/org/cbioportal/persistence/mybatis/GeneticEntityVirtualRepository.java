@@ -29,8 +29,15 @@ import org.cbioportal.persistence.GeneticEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+/**
+ * This repository implementation does not map to a single table but is rather 
+ * a utility class that can be used to get any genetic entity by stable id and type. 
+ * 
+ * @author pieter
+ *
+ */
 @Repository
-public class GeneticEntityMyBatisRepository implements GeneticEntityRepository {
+public class GeneticEntityVirtualRepository implements GeneticEntityRepository {
 
     @Autowired
     private GeneMapper geneMapper;

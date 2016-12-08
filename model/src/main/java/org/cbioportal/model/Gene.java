@@ -58,4 +58,14 @@ public class Gene extends GeneticEntity implements Serializable {
     public void setChromosome(String chromosome) {
         this.chromosome = chromosome;
     }
+
+	@Override
+	public String getEntityStableId() {
+		return entrezGeneId+"";
+	}
+
+	@Override
+	public EntityType getEntityType() {
+		return EntityType.GENE;
+	}
 }

@@ -57,13 +57,13 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
     	//genes in this test
     	Gene gene1 = new Gene();
     	gene1.setEntityId(1);
-    	gene1.setEntityStableId("GENE_1");
-    	Mockito.when(geneticEntityRepository.getGeneticEntity("GENE_1", GeneticEntity.EntityType.GENE)).thenReturn(gene1);
+    	gene1.setEntrezGeneId(1001);
+    	Mockito.when(geneticEntityRepository.getGeneticEntity("1001", GeneticEntity.EntityType.GENE)).thenReturn(gene1);
     	Mockito.when(geneticEntityRepository.getGeneticEntity(1, GeneticEntity.EntityType.GENE)).thenReturn(gene1);
     	Gene gene2 = new Gene();
     	gene2.setEntityId(2);
-    	gene2.setEntityStableId("GENE_2");
-    	Mockito.when(geneticEntityRepository.getGeneticEntity("GENE_2", GeneticEntity.EntityType.GENE)).thenReturn(gene2);
+    	gene2.setEntrezGeneId(2002);
+    	Mockito.when(geneticEntityRepository.getGeneticEntity("2002", GeneticEntity.EntityType.GENE)).thenReturn(gene2);
     	Mockito.when(geneticEntityRepository.getGeneticEntity(2, GeneticEntity.EntityType.GENE)).thenReturn(gene2);
     	
         //stub for genetic profile
@@ -124,16 +124,16 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
     	
     	//what we expect: 2 samples x 2 genetic entities = 4 GeneticData items:
     	//SAMPLE_1:
-    	//   GENE_1 value: 0.2
-    	//   GENE_2 value: 0.89
+    	//   1001 value: 0.2
+    	//   2002 value: 0.89
     	//SAMPLE_2:
-    	//   GENE_1 value: 34.99
-    	//   GENE_2 value: 15.09
+    	//   1001 value: 34.99
+    	//   2002 value: 15.09
     	List<GeneticData> expectedGeneticDataList = new ArrayList<GeneticData>();
-        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem("SAMPLE_1", "GENE_1", "0.2"));
-        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem("SAMPLE_2", "GENE_1", "34.99"));
-        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem("SAMPLE_1", "GENE_2", "0.89"));
-        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem("SAMPLE_2", "GENE_2", "15.09"));
+        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem("SAMPLE_1", "1001", "0.2"));
+        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem("SAMPLE_2", "1001", "34.99"));
+        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem("SAMPLE_1", "2002", "0.89"));
+        expectedGeneticDataList.add(getSimpleFlatGeneticDataItem("SAMPLE_2", "2002", "15.09"));
 
         Assert.assertEquals(expectedGeneticDataList, result);
         
@@ -158,14 +158,8 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
     	GeneticData item = new GeneticData();
 
     	GeneticEntity geneticEntity = geneticEntityRepository.getGeneticEntity(entityStableId, GeneticEntity.EntityType.GENE);
-    	Gene entity = new Gene();
-    	entity.setEntityId(geneticEntity.getEntityId());
-		entity.setEntityStableId(entityStableId);
-		entity.setEntrezGeneId(((Gene)geneticEntity).getEntrezGeneId());
-		item.setGeneticEntity(entity);
     	item.setGeneticEntityId(geneticEntity.getEntityId());
     	item.setGeneticEntityStableId(entityStableId);
-
     	
     	GeneticProfile geneticProfile = geneticProfileRepository.getGeneticProfile(geneticProfileStableId);
     	item.setGeneticProfileId(geneticProfile.getGeneticProfileId());

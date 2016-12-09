@@ -85,7 +85,8 @@ public class GeneticDataControllerTest {
 			int entrezGeneId, int entityId,
 			String value){
 		GeneticData item = new GeneticData();
-	
+		Gene gene = new Gene();
+		item.setGeneticEntity(gene);
 		item.setGeneticEntityId(entityId);
 		item.setGeneticEntityStableId(entrezGeneId+"");
 		

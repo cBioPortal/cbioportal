@@ -2,6 +2,8 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
+import org.cbioportal.model.GeneticEntity.EntityType;
+
 public class GeneticData implements Serializable {
 
     private Integer geneticProfileId;
@@ -85,6 +87,10 @@ public class GeneticData implements Serializable {
 
     public void setGeneticEntity(GeneticEntity geneticEntity) {
         this.geneticEntity = geneticEntity;
+    }
+    
+    public EntityType getGeneticEntityType() {
+    	return geneticEntity.getEntityType();
     }
 
     public Sample getSample() {

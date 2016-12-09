@@ -1,6 +1,7 @@
 package org.cbioportal.web.mixin;
 
 import org.cbioportal.model.GeneticEntity;
+import org.cbioportal.model.GeneticEntity.EntityType;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Sample;
 
@@ -18,6 +19,7 @@ public class GeneticDataMixin {
     private Integer geneticEntityId;
     @JsonProperty("geneticEntityId")
     private String geneticEntityStableId;
+    private EntityType geneticEntityType;
     
     @JsonIgnore
     private Integer sampleId;

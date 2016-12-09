@@ -67,6 +67,6 @@ public class Geneset extends GeneticEntity implements Serializable {
 	
 	@Override
 	public EntityType getEntityType() {
-		return EntityType.GENE_SET;
+		return EntityType.GENESET;
 	}
 }

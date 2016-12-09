@@ -59,7 +59,7 @@ public class GeneticEntityVirtualRepository implements GeneticEntityRepository {
 			} catch (NumberFormatException e) {
 				throw new IllegalArgumentException("Entrez gene id should be a number. Given value is not valid: " + entityStableId);
 			}
-    	} else if (type.equals(EntityType.GENE_SET)) {
+    	} else if (type.equals(EntityType.GENESET)) {
     		return genesetMapper.getGenesetByGenesetId(entityStableId, null);
     	} else {
     		throw new UnsupportedOperationException("not implemented yet for other entities");
@@ -71,7 +71,7 @@ public class GeneticEntityVirtualRepository implements GeneticEntityRepository {
 
     	if (type.equals(EntityType.GENE)) {
     		return geneMapper.getGeneByGeneticEntityId(entityId, null); 
-    	} else if (type.equals(EntityType.GENE_SET)) {
+    	} else if (type.equals(EntityType.GENESET)) {
     		return genesetMapper.getGenesetByGeneticEntityId(entityId, null);
     	} else {
     		throw new UnsupportedOperationException("not implemented yet for other entities");

@@ -30,7 +30,7 @@ public abstract class GeneticEntity implements Serializable  {
 	public static enum EntityType
     {
         GENE,
-        GENE_SET,
+        GENESET,
         PHOSPHOPROTEIN;
     }
 	

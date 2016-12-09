@@ -93,10 +93,10 @@ public class GeneticDataController {
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam(required = true, value = "Search criteria to return the values for a given set of samples and genetic entity items (e.g. genes). "
             		+ "geneticEntityIds: The list of identifiers for the genetic entities of interest. "
-            		+ "If entity type is GENE: list of Entrez Gene IDs. If entity type is GENESET: list of gene set identifiers"
+            		+ "If entity type is GENE: list of Entrez Gene IDs. If entity type is GENESET: list of gene set identifiers. "
             		+ "Use one of these if you want to specify a subset of samples:"
-            		+ "(1) caseListId: Identifier of pre-defined case list with samples to query, e.g. brca_tcga_all " 
-            		+ "or (2) caseIds: custom list of samples or patients to query, e.g. TCGA-BH-A1EO-01, TCGA-AR-A1AR-01")
+            		+ "(1) sampleListId: Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all " 
+            		+ "or (2) sampleIds: custom list of samples or patients to query, e.g. TCGA-BH-A1EO-01, TCGA-AR-A1AR-01")
             @RequestBody GeneticDataFilterCriteria geneticDataFilterCriteria,
             @ApiParam("Page size of the result list")
 	        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize, 
@@ -107,15 +107,15 @@ public class GeneticDataController {
             //TODO 
     		return null;
         } else {
-        	if (geneticDataFilterCriteria.getCaseListId() != null && geneticDataFilterCriteria.getCaseListId().trim().length() > 0) {
+        	if (geneticDataFilterCriteria.getSampleListId() != null && geneticDataFilterCriteria.getSampleListId().trim().length() > 0) {
         		return new ResponseEntity<>(
                 		geneticDataService.fetchGeneticDataInGeneticProfile(geneticProfileId, geneticEntityType,
-                				geneticDataFilterCriteria.getGeneticEntityIds(), geneticDataFilterCriteria.getCaseListId(),
+                				geneticDataFilterCriteria.getGeneticEntityIds(), geneticDataFilterCriteria.getSampleListId(),
                 				projection.name(), pageSize, pageNumber), HttpStatus.OK);
-        	} else if (geneticDataFilterCriteria.getCaseIds() != null) {
+        	} else if (geneticDataFilterCriteria.getSampleIds() != null) {
         		return new ResponseEntity<>(
                 		geneticDataService.fetchGeneticDataInGeneticProfile(geneticProfileId, geneticEntityType,
-                				geneticDataFilterCriteria.getGeneticEntityIds(), geneticDataFilterCriteria.getCaseIds(),
+                				geneticDataFilterCriteria.getGeneticEntityIds(), geneticDataFilterCriteria.getSampleIds(),
                 				projection.name(), pageSize, pageNumber), HttpStatus.OK);
         	} else {
         		return new ResponseEntity<>(

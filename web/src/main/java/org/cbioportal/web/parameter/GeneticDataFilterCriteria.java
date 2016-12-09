@@ -14,11 +14,11 @@ public class GeneticDataFilterCriteria {
 	//If entity type is GENE: list of Entrez Gene IDs. If entity type is GENESET: list of gene set identifiers
     private List<String> geneticEntityIds;
 
-    //Identifier of pre-defined case list with samples to query. E.g. brca_tcga_all 
-    private String caseListId;
+    //Identifier of pre-defined sample list with samples to query. E.g. brca_tcga_all 
+    private String sampleListId;
 
     //Full list of samples or patients to query, E.g. list with TCGA-AR-A1AR-01, TCGA-BH-A1EO-01...
-    private List<String> caseIds;
+    private List<String> sampleIds;
 
 	public List<String> getGeneticEntityIds() {
 		return geneticEntityIds;
@@ -28,20 +28,20 @@ public class GeneticDataFilterCriteria {
 		this.geneticEntityIds = geneticEntityIds;
 	}
 
-	public String getCaseListId() {
-		return caseListId;
+	public String getSampleListId() {
+		return sampleListId;
 	}
 
-	public void setCaseListId(String caseListId) {
-		this.caseListId = caseListId;
+	public void setSampleListId(String sampleListId) {
+		this.sampleListId = sampleListId;
 	}
 
-	public List<String> getCaseIds() {
-		return caseIds;
+	public List<String> getSampleIds() {
+		return sampleIds;
 	}
 
-	public void setCaseIds(List<String> caseIds) {
-		this.caseIds = caseIds;
+	public void setSampleIds(List<String> sampleIds) {
+		this.sampleIds = sampleIds;
 	} 
 
 }

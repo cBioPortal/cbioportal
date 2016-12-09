@@ -1141,17 +1141,26 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   text-indent: -3px;
 }
 
-#right_side form {
+#whats-new form {
   overflow: auto;
 }
 
-#right_side label {
-  display: block;
-  font: normal normal 400 12px/16px Verdana, Arial, sans-serif;
+#whats-new p {
+  color: #cfd9ea;
+  margin-left: -1px;
 }
 
-#right_side input[type="text"] {
-  width: 65%;
+#whats-new b {
+  font: normal normal 400 12px/16px 'Verdana',Arial,sans-serif;
+  margin-left: -10px;
+}
+
+#whats-new p a {
+  margin-left: 12px;
+}
+
+#whats-new input[type="text"] {
+  width: 61%;
   display: inline-block;
   padding: 2%;
   font-size: 12px;
@@ -1162,9 +1171,10 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   height: 16px;
   border-top-left-radius: 2px;
   border-bottom-left-radius: 2px;
+  margin: 5px 0px;
 }
 
-#right_side input[type="submit"] {
+#whats-new input[type="submit"] {
   color: #fff;
   font-size: 11px;
   text-transform: uppercase;
@@ -1173,16 +1183,15 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   font-weight: 700;
   display: inline-block;
   width: 25%;
-  margin: 0px;
+  margin: 5px 0px;
   text-align: center;
   line-height: 24px;
   float: left;
-  margin-left: -1px;
   border-top-right-radius: 2px;
   border-bottom-right-radius: 2px;
 }
 
-#right_side input[type="submit"]:hover {
+#whats-new input[type="submit"]:hover {
   cursor: pointer;
   background: #2893e2;
 }
@@ -1190,7 +1199,7 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 /* IE11 specific styling */
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {  
   #right_side input[type="submit"] {
-    line-height: 27px;
+    line-height: 28px;
   }
 }
 

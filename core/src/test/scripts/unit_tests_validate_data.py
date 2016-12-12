@@ -940,7 +940,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 3)
         
         # ERROR should be something like: "No Entrez id or gene symbol provided for gene"
-        self.assertIn("no entrez gene or gene symbol provided", record_list[0].getMessage().lower())
+        self.assertIn("no entrez gene id or gene symbol provided", record_list[0].getMessage().lower())
         self.assertEqual(record_list[0].levelno, logging.ERROR)
         # WARNING should be something like: "Gene specification for this mutation implies intergenic..."
         self.assertIn("implies intergenic", record_list[1].getMessage().lower())

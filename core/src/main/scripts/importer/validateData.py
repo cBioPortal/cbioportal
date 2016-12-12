@@ -594,24 +594,24 @@ class Validator(object):
         """Attempt to resolve a symbol-Entrez pair, logging any issues.
 
         It will fail to resolve in these cases:
-            1. (error) Entrez gene and gene symbol are both missing (None)
+            1. (error) Entrez gene id and gene symbol are both missing (None)
         If self.portal.hugo_entrez_map and self.portal.alias_entrez_map are
         defined:
             2. (warning) Only one of the identifiers is supplied, and its value
                cannot be found in the portal
-            3. (error) The gene symbol maps to multiple Entrez genes
-            4. (error) The gene alias maps to multiple Entrez genes
+            3. (error) The gene symbol maps to multiple Entrez gene ids
+            4. (error) The gene alias maps to multiple Entrez gene ids
 
         Furthermore, the function logs a warning in the following cases, if
         self.portal.hugo_entrez_map and self.portal.alias_entrez_map are
         defined:
-            1. (warning) Entrez gene exists, but the gene symbol specified is not
+            1. (warning) Entrez gene id exists, but the gene symbol specified is not
                known to the portal
-            2. (warning) Gene symbol and Entrez gene do not match
-            3. (warning) The Hugo gene symbol maps to a single Entrez gene,
+            2. (warning) Gene symbol and Entrez gene id do not match
+            3. (warning) The Hugo gene symbol maps to a single Entrez gene id,
                but is also associated to other genes as an alias.
 
-        Return the Entrez gene (or gene symbol if the PortalInstance maps are
+        Return the Entrez gene id (or gene symbol if the PortalInstance maps are
         undefined and the mapping step is skipped), or None if no gene could be
         unambiguously identified.
         """
@@ -626,14 +626,14 @@ class Validator(object):
                 entrez_as_int = None
             if entrez_as_int is None:
                 self.logger.warning(
-                    'Entrez gene is not an integer. '
-                    'This gene will not be loaded.',
+                    'Entrez gene id is not an integer. '
+                    'This record will not be loaded.',
                     extra={'line_number': self.line_number,
                            'cause': entrez_id})
                 return None
             elif entrez_as_int <= 0:
                 self.logger.error(
-                    'Entrez gene is non-positive.',
+                    'Entrez gene id is non-positive.',
                     extra={'line_number': self.line_number,
                            'cause': entrez_id})
                 return None
@@ -641,7 +641,7 @@ class Validator(object):
         # check whether at least one is present
         if entrez_id is None and gene_symbol is None:
             self.logger.error(
-                'No Entrez gene or gene symbol provided for gene.',
+                'No Entrez gene id or gene symbol provided for gene.',
                 extra={'line_number': self.line_number})
             return None
 
@@ -650,7 +650,7 @@ class Validator(object):
                 self.portal.alias_entrez_map is None):
             return entrez_id or gene_symbol
 
-        # try to use the portal maps to resolve to a single Entrez id
+        # try to use the portal maps to resolve to a single Entrez gene id
         identified_entrez_id = None
         if entrez_id is not None:
             if entrez_id in self.portal.entrez_set:
@@ -661,7 +661,7 @@ class Validator(object):
                     if (gene_symbol not in self.portal.hugo_entrez_map and
                             gene_symbol not in self.portal.alias_entrez_map):
                         self.logger.warning(
-                            'Entrez gene exists, but gene symbol specified '
+                            'Entrez gene id exists, but gene symbol specified '
                             'is not known to the cBioPortal instance. The '
                             'gene symbol will be ignored. Might be '
                             'wrong mapping, new or deprecated gene symbol.',
@@ -671,7 +671,7 @@ class Validator(object):
                             self.portal.hugo_entrez_map.get(gene_symbol, []),
                             self.portal.alias_entrez_map.get(gene_symbol, [])):
                         self.logger.warning(
-                            'Entrez gene and gene symbol do not match. '
+                            'Entrez gene id and gene symbol do not match. '
                             'The gene symbol will be ignored. Might be '
                             'wrong mapping or recycled gene symbol.',
                             extra={'line_number': self.line_number,
@@ -679,12 +679,12 @@ class Validator(object):
                                                           entrez_id)})
             else:
                 self.logger.warning(
-                    'Entrez gene not known to the cBioPortal instance. '
-                    'This gene will not be loaded. Might be new or deprecated '
-                    'Entrez gene.',
+                    'Entrez gene id not known to the cBioPortal instance. '
+                    'This record will not be loaded. Might be new or deprecated '
+                    'Entrez gene id.',
                     extra={'line_number': self.line_number,
                            'cause': entrez_id})
-        # no Entrez gene, only a symbol
+        # no Entrez gene id, only a gene symbol
         elif gene_symbol is not None:
             # count canonical gene symbols and aliases that map this symbol to
             # a gene
@@ -696,7 +696,7 @@ class Validator(object):
                 # set the value to be returned
                 identified_entrez_id = \
                     self.portal.hugo_entrez_map[gene_symbol][0]
-                # check if there are other *different* Entrez genes associated
+                # check if there are other *different* Entrez gene ids associated
                 # with this gene symbol
                 other_entrez_ids_in_aliases = [
                     x for x in
@@ -706,7 +706,7 @@ class Validator(object):
                     # give a warning, as the symbol may have been used to refer
                     # to different entrez_ids over time
                     self.logger.warning(
-                        'Gene symbol maps to a single Entrez gene, '
+                        'Gene symbol maps to a single Entrez gene id, '
                         'but is also associated to other genes as an '
                         'alias. The system will assume the official gene '
                         'symbol to be the intended one.',
@@ -715,7 +715,7 @@ class Validator(object):
             elif num_entrezs_for_hugo > 1:
                 # nb: this should actually never occur, see also https://github.com/cBioPortal/cbioportal/issues/799
                 self.logger.error(
-                    'Gene symbol maps to multiple Entrez genes (%s), '
+                    'Gene symbol maps to multiple Entrez gene ids (%s), '
                     'please specify which one you mean.',
                     '/'.join(self.portal.hugo_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number,
@@ -730,7 +730,7 @@ class Validator(object):
                 # Loader deals with this, so give warning
                 # TODO: move matched IDs out of the message for collapsing
                 self.logger.warning(
-                    'Gene alias maps to multiple Entrez genes (%s), '
+                    'Gene alias maps to multiple Entrez gene ids (%s), '
                     'please specify which one you mean or choose a non-ambiguous symbol.',
                     '/'.join(self.portal.alias_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number,
@@ -739,7 +739,7 @@ class Validator(object):
             else:
                 self.logger.warning(
                     'Gene symbol not known to the cBioPortal instance. This '
-                    'gene will not be loaded.',
+                    'record will not be loaded.',
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
 
@@ -869,7 +869,7 @@ class FeaturewiseFileValidator(Validator):
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
 
-    """FeatureWiseValidator that has Hugo and/or Entrez as feature columns."""
+    """FeatureWiseValidator that has gene symbol and/or Entrez gene id as feature columns."""
 
     REQUIRED_HEADERS = []
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
@@ -1013,8 +1013,8 @@ class MutationsExtendedValidator(Validator):
         elif not 'swissprot_identifier' in self.meta_dict:
             self.logger.warning(
                 "A SWISSPROT column was found without an associated "
-                "'swissprot_identifier' attribute; assuming "
-                "'swissprot_identifier: name'.",
+                "'swissprot_identifier' annotation column; assuming "
+                "'swissprot_identifier' column contains Swiss-Prot name.",
                 extra={'column_number': self.cols.index('SWISSPROT') + 1})
 
         # one of these columns should be present:
@@ -1221,7 +1221,7 @@ class MutationsExtendedValidator(Validator):
                 "intergenic even though Variant_Classification is "
                 "not 'IGR'; this variant will be filtered out",
                 extra={'line_number': self.line_number,
-                       'cause': "Gene symbol 'Unknown', Entrez gene 0"})
+                       'cause': "Gene symbol 'Unknown', Entrez gene id 0"})
             is_silent = True
         elif variant_classification in self.SKIP_VARIANT_TYPES:
             self.logger.info("Validation of line skipped due to cBioPortal's filtering. "
@@ -1269,12 +1269,12 @@ class MutationsExtendedValidator(Validator):
                 if ',' in value:
                     self.logger.warning('SWISSPROT value is not a single UniProtKB/Swiss-Prot name. '
                                         'Found multiple separated by a `,`. '
-                                        'Loader will try to find UniProt accession using Entrez gene or '
+                                        'Loader will try to find UniProt accession using Entrez gene id or '
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 else:
                     self.logger.warning('SWISSPROT value is not a (single) UniProtKB/Swiss-Prot name. '
-                                        'Loader will try to find UniProt accession using Entrez gene or '
+                                        'Loader will try to find UniProt accession using Entrez gene id or '
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 return True

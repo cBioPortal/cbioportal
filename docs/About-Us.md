@@ -54,6 +54,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Anders Jacobsen
 * Erik Larsson
 * Dong Li
+* James Xu
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided in part from:
 
@@ -65,4 +66,4 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * American Association for Cancer Research (AACR) through Project GENIE
 * Adenoid Cystic Carcinoma Research Foundation
 * Robertson Foundation
-* Marie-Jos&eacute;e and Henry R. Kravis Center for Molecular Oncology at MSK
+* Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK

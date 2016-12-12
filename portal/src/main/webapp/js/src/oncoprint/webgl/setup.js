@@ -82,7 +82,7 @@ var tooltip_utils = {
 		var tooltip_datum = tooltip_data[i];
 		new_ret_elt += tooltip_datum.amino_acid_change;
 		if (tooltip_datum.cancer_hotspots_hotspot) {
-		    new_ret_elt += ' <img src="images/oncokb-flame.svg" title="Hotspot" style="height:11px; width:11px;"/>';
+		    new_ret_elt += ' <img src="images/cancer-hotspots.svg" title="Hotspot" style="height:11px; width:11px;"/>';
 		}
 		if (tooltip_datum.oncokb_oncogenic) {
 		    new_ret_elt += ' <img src="images/oncokb-oncogenic-1.svg" title="'+tooltip_datum.oncokb_oncogenic+'" style="height:11px; width:11px;"/>';

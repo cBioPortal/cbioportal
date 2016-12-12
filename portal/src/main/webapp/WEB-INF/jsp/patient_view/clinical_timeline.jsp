@@ -200,12 +200,30 @@
                         .setTimepointsDisplay("Imaging", "square")
                         .orderTracks(["Specimen", "Surgery", "Status", "Diagnostics", "Diagnostic", "Imaging", "Lab_test", "Treatment"])
                         .splitByClinicalAttributes("Lab_test", "TEST")
-                        .sizeByClinicalAttribute("PSA", "RESULT")
-                        .sizeByClinicalAttribute("ALK", "RESULT")
-                        .sizeByClinicalAttribute("TEST", "RESULT")
-                        .sizeByClinicalAttribute("HGB", "RESULT")
-                        .sizeByClinicalAttribute("PHOS", "RESULT")
-                        .sizeByClinicalAttribute("LDH", "RESULT")
+                var splitData = window.pvTimeline.data();
+                // Get TEST names that have a RESULT field in their clinical
+                // tooltip table. We assume the RESULT field contains
+                // integer/float values that can be used to size the dots on the
+                // timeline by 
+                var testsWithResults = splitData.filter(function(x) {
+                    return x.parent_track === 'Lab_test' && 
+                           _.all(x.times.map(
+                                      function(t) {
+                                          return t.tooltip_tables.length === 1 && 
+                                                 t.tooltip_tables[0].filter(function(a) {return a[0] === 'RESULT'}).length > 0;
+                                      })
+                    )
+                }).map(function(x) {
+                    return x.label;
+                });
+                // Scale dot size on timepoint by RESULT field
+                testsWithResults.forEach(function(test) {
+                    window.pvTimeline =
+                        window.pvTimeline
+                        .sizeByClinicalAttribute(test, "RESULT")
+                })
+                window.pvTimeline =
+                        window.pvTimeline
                         .splitByClinicalAttributes("Treatment", ["SUBTYPE", "AGENT"])
                         .collapseAll()
                         .toggleTrackCollapse("Specimen")

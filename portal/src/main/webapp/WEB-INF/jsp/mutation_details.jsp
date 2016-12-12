@@ -30,7 +30,7 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%
-    String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
+    String oncokbUrl = (String) GlobalProperties.getOncoKBApiUrl();
     boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
@@ -49,7 +49,7 @@
         <img width='14' height='14' src='images/mcg_logo.png' alt='My Cancer Genome Symbol'>
     </span>
     <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
-        <img width='14' height='14' src='images/oncokb-flame.svg' alt='Recurrent Hotspot Symbol'>
+        <img width='14' height='14' src='images/cancer-hotspots.svg' alt='Recurrent Hotspot Symbol'>
     </span>
 </script>
 

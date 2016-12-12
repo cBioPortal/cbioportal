@@ -1918,11 +1918,13 @@ class SegValidator(Validator):
                     del parsed_coords[col_name]
             elif col_name == 'num.mark':
                 if not self.checkInt(value):
-                    self.logger.error(
-                        'Number of probes is not an integer',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
+                    # also check if the value is an int in scientific notation (1e+05) 
+                    if not ("e+" in value and self.checkFloat(value)):
+                        self.logger.error(
+                            'Number of probes is not an integer',
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
             elif col_name == 'seg.mean':
                 if not self.checkFloat(value):
                     self.logger.error(

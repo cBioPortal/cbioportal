@@ -74,7 +74,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                        boolean setGroupConcatMaxLen) {
 
         if (setGroupConcatMaxLen) {
-            mutationMapper.groupConcatMaxLenSet();
+            Integer returnVal = mutationMapper.groupConcatMaxLenSet();
         }
         return mutationMapper.getSignificantlyMutatedGenes(geneticProfileId, entrezGeneIds, sampleIds,
                 thresholdRecurrence, thresholdNumGenes);

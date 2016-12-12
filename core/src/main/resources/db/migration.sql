@@ -146,3 +146,9 @@ CREATE TABLE `structural_variant` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
 );
 UPDATE info SET DB_SCHEMA_VERSION="1.3.0";
+
+##version: 1.3.2
+-- increase varchar size to accomodate reference or tumor seq alleles larger than 255 chars
+ALTER TABLE `mutation_event` MODIFY COLUMN `REFERENCE_ALLELE` varchar(400);
+ALTER TABLE `mutation_event` MODIFY COLUMN `TUMOR_SEQ_ALLELE` varchar(400);
+UPDATE info SET DB_SCHEMA_VERSION="1.3.2";

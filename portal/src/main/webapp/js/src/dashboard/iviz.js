@@ -931,6 +931,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
       return data_.groups.patient.data_indices.patient_id;
     },
+    getPatientIds: function(sampleId) {
+      var map = this.getCasesMap('sample');
+      return map[sampleId];
+    },
+    getSampleIds: function(patientId) {
+      var map = this.getCasesMap('patient');
+      return map[patientId];
+    },
     openCases: function(type) {
       if (type !== 'patient') {
         type = 'sample';
@@ -1821,12 +1829,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
     function getPieWidthInfo(data) {
       var length = data.title.length;
-      var labels = data.labels;
+      var labels = _.values(data.labels);
       var labelMaxName = _.last(_.sortBy(_.pluck(labels, 'name'),
         function(item) {
           return item.toString().length;
         })).toString().length;
-      var labelMaxNumber = _.last(_.sortBy(_.pluck(labels, 'samples'),
+      var labelMaxNumber = _.last(_.sortBy(_.pluck(labels, 'cases'),
         function(item) {
           return item.toString().length;
         })).toString().length;
@@ -1850,12 +1858,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     }
 
     function pieChartCanvasDownload(data, downloadOpts) {
-      var _svgElement;
+      var _svgElement = '';
 
       var _width = getPieWidthInfo(data);
       var _pieLabelString = '';
       var _pieLabelYCoord = 0;
       var _svg = $('#' + data.chartId + ' svg');
+      var _svgClone = _svg.clone();
       var _previousHidden = false;
 
       if ($('#' + data.chartDivId).css('display') === 'none') {
@@ -1864,11 +1873,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
 
       var _svgHeight = _svg.height();
-      var _text = _svg.find('text');
+      var _text = _svgClone.find('text');
       var _textLength = _text.length;
-      var _slice = _svg.find('g .pie-slice');
+      var _slice = _svgClone.find('g .pie-slice');
       var _sliceLength = _slice.length;
-      var _pieLabel = data.labels;
+      var _pieLabel = _.sortBy(_.values(data.labels), function(item) {
+        return -item.cases;
+      });
       var _pieLabelLength = _pieLabel.length;
       var i = 0;
 
@@ -1929,7 +1940,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _label.color + '"></rect><text x="13" y="10" ' +
           'style="font-size:15px">' + _label.name + '</text>' +
           '<text x="' + _width.name * 10 + '" y="10" ' +
-          'style="font-size:15px">' + _label.samples + '</text>' +
+          'style="font-size:15px">' + _label.cases + '</text>' +
           '<text x="' + (_width.name + _width.number) * 10 + '" y="10" ' +
           'style="font-size:15px">' + _label.sampleRate + '</text>' +
           '</g>';
@@ -1937,8 +1948,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         _pieLabelYCoord += 15;
       }
 
-      _svgElement = cbio.download.serializeHtml(
-        $('#' + data.chartId + ' svg>g')[0]);
+      _svgClone.children().each(function(i, e) {
+        _svgElement += cbio.download.serializeHtml(e);
+      });
 
       var svg = '<svg xmlns="http://www.w3.org/2000/svg" ' +
         'version="1.1" width="' + _width.svg + '" height="' +
@@ -1952,35 +1964,21 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         _pieLabelString + '</g></svg>';
 
       cbio.download.initDownload(svg, downloadOpts);
-
-      // Remove pie slice text styles
-      for (i = 0; i < _textLength; i++) {
-        $(_text[i]).css({
-          'fill': '',
-          'font-size': '',
-          'stroke': '',
-          'stroke-width': ''
-        });
-      }
-
-      // Remove pie slice styles
-      for (i = 0; i < _sliceLength; i++) {
-        $($(_slice[i]).find('path')[0]).css({
-          'stroke': '',
-          'stroke-width': ''
-        });
-      }
     }
 
     function barChartCanvasDownload(data, downloadOpts) {
       var _svgElement = '';
-      var _svg = $('#' + data.chartId + ' svg');
+      var _svg = $('#' + data.chartId + '>svg').clone();
+      var _svgWidth = Number(_svg.attr('width'));
+      var _svgHeight = Number(_svg.attr('height')) + 20;
       var _brush = _svg.find('g.brush');
       var _brushWidth = Number(_brush.find('rect.extent').attr('width'));
       var i = 0;
 
+      // Remove brush if the width is zero(no rush presents)
+      // Otherwise width 0 brush will still show in the PDF
       if (_brushWidth === 0) {
-        _brush.css('display', 'none');
+        _brush.remove();
       }
 
       _brush.find('rect.extent')
@@ -2028,6 +2026,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         });
       }
 
+      // Remove clip-path from chart-body. Clip-path causes issue when
+      // generating pdf and useless in here.
+      // Related topic: https://github.com/dc-js/dc.js/issues/730
+      _chartBody.attr('clip-path', '');
+
       // Change x/y axis text size
       var _chartText = _svg.find('.axis text');
       var _chartTextLength = _chartText.length;
@@ -2038,16 +2041,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         });
       }
 
-      $('#' + data.chartId + ' svg>g').each(function(i, e) {
-        _svgElement += cbio.download.serializeHtml(e);
-      });
-      $('#' + data.chartId + ' svg>defs').each(function(i, e) {
+      _svg.children().each(function(i, e) {
         _svgElement += cbio.download.serializeHtml(e);
       });
 
       var svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" ' +
-        'width="370" height="200">' +
-        '<g><text x="180" y="20" ' +
+        'width="' + _svgWidth + '" height="' + _svgHeight + '">' +
+        '<g><text x="' + (_svgWidth / 2) + '" y="20" ' +
         'style="font-weight: bold; text-anchor: middle">' +
         data.title + '</text></g>' +
         '<g transform="translate(0, 20)">' + _svgElement + '</g></svg>';
@@ -2056,46 +2056,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         svg, downloadOpts);
 
       _brush.css('display', '');
-
-      // Remove added styles
-      _brush.find('rect.extent')
-        .css({
-          'fill-opacity': '',
-          'fill': ''
-        });
-
-      _brush.find('.resize path')
-        .css({
-          fill: '',
-          stroke: ''
-        });
-
-      for (i = 0; i < _deselectedChartsLength; i++) {
-        $(_deselectedCharts[i]).css({
-          stroke: '',
-          fill: ''
-        });
-      }
-
-      for (i = 0; i < _axisDomainLength; i++) {
-        $(_axisDomain[i]).css({
-          'fill': '',
-          'fill-opacity': '',
-          'stroke': ''
-        });
-      }
-
-      for (i = 0; i < _axisTickLength; i++) {
-        $(_axisTick[i]).css({
-          stroke: ''
-        });
-      }
-
-      for (i = 0; i < _chartTextLength; i++) {
-        $(_chartText[i]).css({
-          'font-size': ''
-        });
-      }
     }
 
     function survivalChartDownload(fileType, content) {
@@ -2122,19 +2082,23 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var _svgTitle;
       var _labelTextMaxLength = 0;
       var _numOfLabels = 0;
-      var _svgWidth = 380;
-      var _svgheight = 380;
+      var _svg = $('#' + data.chartDivId).clone();
+      var _svgWidth = Number($('#' + data.chartDivId + ' svg').attr('width')) + 50;
+      var _svgheight = Number($('#' + data.chartDivId + ' svg').attr('height')) + 50;
 
-      _svgElement = cbio.download.serializeHtml(
-        $('#' + data.chartDivId + ' svg')[0]);
+      // This is for PDF download. fill transparent will be treated as black.
+      _svg.find('rect').each(function(index, item) {
+        if($(item).css('fill') === 'transparent') {
+          $(item).css('fill', 'white');
+        }
+      });
+      _svgElement = cbio.download.serializeHtml(_svg.find('svg')[0]);
 
       _svgWidth += _labelTextMaxLength * 14;
 
       if (_svgheight < _numOfLabels * 20) {
         _svgheight = _numOfLabels * 20 + 40;
       }
-
-      // _svgLabels = cbio.download.serializeHtml(_svgLabels[0]);
 
       _svgTitle = '<g><text text-anchor="middle" x="210" y="30" ' +
         'style="font-weight:bold">' + data.title + '</text></g>';
@@ -2144,8 +2108,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         'px" style="font-size:14px">' +
         _svgTitle + '<g transform="translate(0,40)">' +
         _svgElement + '</g>' +
-        // '<g transform="translate(370,50)">' +
-        // _svgLabels + '</g>' +
         '</svg>';
 
       cbio.download.initDownload(
@@ -3003,7 +2965,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   });
 })(window.Vue);
 
-
 /**
  * @author Hongxin Zhang on 3/10/16.
  */
@@ -3234,18 +3195,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     }
 
     function initTsvDownloadData() {
-      var data = v.data.display_name + '\tCount';
+      var data = [v.data.display_name + '\tCount'];
 
-      var meta = labels || {};
-
-      for (var i = 0; i < meta.length; i++) {
-        data += '\r\n';
-        data += meta[i].name + '\t';
-        data += meta[i].cases;
-      }
+      _.each(labels, function(label, key) {
+        data.push(label.name + '\t' + label.cases);
+      });
+      
       content.setDownloadData('tsv', {
         fileName: v.data.display_name || 'Pie Chart',
-        data: data
+        data: data.join('\n')
       });
     }
 
@@ -3851,20 +3809,49 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     }
 
     function initTsvDownloadData() {
-      var data = '';
-      var _cases = chartInst_.dimension().top(Infinity);
+      var data = [];
+      var _cases = _.sortBy(chartInst_.dimension().top(Infinity), function(item) {
+        return isNaN(item[data_.attrId]) ? Infinity : -item[data_.attrId];
+      });
+      var header = ['Patient ID', 'Sample ID', opts_.displayName];
 
-      data = 'Sample ID\tPatient ID\t' + opts_.displayName;
+      if (opts_.groupType === 'sample') {
+        var tmp = header[0];
+        header[0] = header[1];
+        header[1] = tmp;
+      }
+      data.push(header.join('\t'));
 
       for (var i = 0; i < _cases.length; i++) {
-        data += '\r\n';
-        data += _cases[i].sample_id + '\t';
-        data += _cases[i].patient_id + '\t';
-        data += iViz.util.restrictNumDigits(_cases[i][data_.attrId]);
+        var sampleId = _cases[i].sample_id;
+        var patientId = _cases[i].patient_id;
+        var row = [];
+        if (opts_.groupType === 'patient') {
+          sampleId = iViz.getSampleIds(patientId);
+          if (_.isArray(sampleId)) {
+            sampleId = sampleId.join(', ');
+          } else {
+            sampleId = '';
+          }
+          row.push(patientId);
+          row.push(sampleId);
+        } else {
+          patientId = iViz.getPatientIds(sampleId);
+          if (_.isArray(patientId)) {
+            patientId = patientId.join(', ');
+          } else {
+            patientId = '';
+          }
+          row.push(sampleId);
+          row.push(patientId);
+        }
+        row.push(_.isUndefined(_cases[i][data_.attrId]) ? 'NA' :
+          iViz.util.restrictNumDigits(_cases[i][data_.attrId]));
+        data.push(row.join('\t'));
       }
       content.setDownloadData('tsv', {
         fileName: opts_.displayName,
-        data: data
+        data: data.join('\n')
       });
     }
 
@@ -4141,8 +4128,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       },
       changeLogScale: function(logScaleChecked) {
         $('#' + this.chartId).find('svg').remove();
+        this.chartInst.filterAll();
+        this.$dispatch('update-filters', true);
         dc.deregisterChart(this.chartInst, this.attributes.group_id);
         this.initChart(logScaleChecked);
+        this.chartInst.render();
       },
       addingChart: function(groupId, val) {
         if (this.attributes.group_id === groupId) {
@@ -4946,7 +4936,7 @@ window.LogRankTest = (function(jStat) {
       V += obj.variance;
     });
     var chi_square_score = (O1 - E1) * (O1 - E1) / V;
-    var _pVal = jStat.chisquare.cdf(chi_square_score, 1);
+    var _pVal = 1 - jStat.chisquare.cdf(chi_square_score, 1);
     return _pVal;
   }
 
@@ -5390,7 +5380,7 @@ window.LogRankTest = (function(jStat) {
 
     content.init =
       function(_attributes, _opts, _selectedSamples, _selectedGenes,
-               _data, _callbacks, _geneData, _dimension) {
+        _data, _callbacks, _geneData, _dimension) {
         initialized = false;
         allSamplesIds = _selectedSamples;
         selectedSamples = _selectedSamples;
@@ -5723,28 +5713,41 @@ window.LogRankTest = (function(jStat) {
     function initTsvDownloadData() {
       var attrs =
         iViz.util.tableView.getAttributes(type_).filter(function(attr) {
-          return attr.attr_id !== 'uniqueId';
+          return attr.attr_id !== 'uniqueId' && (_.isBoolean(attr.show) ? attr.show : true);
         });
       var downloadOpts = {
         fileName: displayName,
         data: ''
       };
+      var rowsData;
+
+      if (isMutatedGeneCna) {
+        rowsData = selectedGeneData;
+      } else {
+        rowsData = _.values(categories_);
+      }
+      rowsData = _.sortBy(rowsData, function(item) {
+        return -item.cases;
+      });
 
       if (_.isArray(attrs) && attrs.length > 0) {
-        var data = attrs.map(
-            function(attr) {
-              return attr.display_name;
-            }).join('\t') + '\n';
+        var data = [attrs.map(
+          function(attr) {
+            if (attr.attr_id === 'name') {
+              attr.display_name = displayName;
+            }
+            return attr.display_name;
+          }).join('\t')];
 
-        _.each(selectedGeneData, function(row) {
+        _.each(rowsData, function(row) {
           var _tmp = [];
           _.each(attrs, function(attr) {
             _tmp.push(row[attr.attr_id] || '');
           });
-          data += _tmp.join('\t') + '\n';
+          data.push(_tmp.join('\t'));
         });
 
-        downloadOpts.data = data;
+        downloadOpts.data = data.join('\n');
       }
       content.setDownloadData('tsv', downloadOpts);
     }

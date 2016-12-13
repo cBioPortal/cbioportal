@@ -4,6 +4,7 @@ import org.cbioportal.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.exception.PageNumberInvalidFormatException;
@@ -70,6 +71,13 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(new ErrorResponse("Gene not found: " + ex.getGeneId()),
                 HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(SampleListNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCaseListNotFound(SampleListNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Sample list not found: " + ex.getSampleListId()),
+            HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

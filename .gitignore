@@ -92,3 +92,5 @@ Procfile
 scripts/target
 node_modules/
 target/
+portal/META-INF/*
+portal/reactapp/*

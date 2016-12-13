@@ -16,4 +16,5 @@ public class BaseServiceImplTest {
     public static final String CLINICAL_DATA_TYPE = "clinical_data_type";
     public static final Integer ENTREZ_GENE_ID = 1;
     public static final String HUGO_GENE_SYMBOL = "hugo_gene_symbol";
+    public static final String SAMPLE_LIST_ID = "sample_list_id";
 }

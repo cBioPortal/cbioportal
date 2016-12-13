@@ -46,7 +46,7 @@ import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
 import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
-import org.mskcc.cbio.portal.persistence.SampleListMapper;
+import org.mskcc.cbio.portal.persistence.SampleListMapperLegacy;
 import org.mskcc.cbio.portal.persistence.SampleMapperLegacy;
 import org.mskcc.cbio.portal.persistence.StudyMapperLegacy;
 import org.springframework.context.annotation.Bean;
@@ -116,8 +116,8 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
         return Mockito.mock(ProfileDataMapper.class);
     }
     @Bean
-    public SampleListMapper sampleListMapper() {
-        return Mockito.mock(SampleListMapper.class);
+    public SampleListMapperLegacy sampleListMapper() {
+        return Mockito.mock(SampleListMapperLegacy.class);
     }
     @Bean
     public SampleMapperLegacy sampleMapper() {

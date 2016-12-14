@@ -18,7 +18,8 @@ DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 PORTAL_INSTANCE = None
-
+GSVA_SAMPLE_IDS = None
+GSVA_GENESET_IDS = None
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
@@ -26,12 +27,13 @@ def setUpModule():
     global DEFINED_SAMPLE_ATTRIBUTES
     global PATIENTS_WITH_SAMPLES
     global PORTAL_INSTANCE
+
     # mock information parsed from the sample attribute file
     DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
     DEFINED_SAMPLE_ATTRIBUTES = {'PATIENT_ID', 'SAMPLE_ID', 'SUBTYPE', 'CANCER_TYPE', 'CANCER_TYPE_DETAILED'}
     PATIENTS_WITH_SAMPLES = set("TEST-PAT{}".format(num) for
                                 num in range(1, 10) if
-                                num != 8)
+                                num != 8)    
     logger = logging.getLogger(__name__)
     # parse mock API results from a local directory
     PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json_unit_tests/',
@@ -112,12 +114,20 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         validateData.DEFINED_SAMPLE_ATTRIBUTES = DEFINED_SAMPLE_ATTRIBUTES
         self.orig_patients_with_samples = validateData.PATIENTS_WITH_SAMPLES
         validateData.PATIENTS_WITH_SAMPLES = PATIENTS_WITH_SAMPLES
+        
+        # reset all GSVA global variables when starting a test
+        self.orig_gsva_sample_ids = validateData.GSVA_SAMPLE_IDS
+        validateData.GSVA_SAMPLE_IDS = GSVA_SAMPLE_IDS
+        self.orig_gsva_geneset_ids = validateData.GSVA_GENESET_IDS
+        validateData.GSVA_GENESET_IDS = GSVA_GENESET_IDS
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
         validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
         validateData.DEFINED_SAMPLE_ATTRIBUTES = self.orig_defined_sample_attributes
         validateData.PATIENTS_WITH_SAMPLES = self.orig_patients_with_samples
+        validateData.GSVA_SAMPLE_IDS = self.orig_gsva_sample_ids
+        validateData.GSVA_GENESET_IDS = self.orig_gsva_geneset_ids
         super(PostClinicalDataFileTestCase, self).tearDown()
 
 
@@ -710,6 +720,102 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.line_number, expected_line)
             self.assertEqual(record.column_number, 1)
             self.assertIn('NA', record.getMessage())
+ 
+    def test_gsva_range_gsva_scores(self):
+        """Test if an error is issued if the score is outside GSVA scoring range"""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gsva_scores_outrange.txt',
+                                    validateData.GSVAScoreValidator)
+        # expecting an error for each line that contains value not within -1 and 1
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 2)
+        self.assertEqual(record.cause, '2.371393691351566')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, '-12')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 2)
+        self.assertEqual(record.cause, '1.5')
+        return
+         
+    def test_range_gsva_pvalues(self):
+        """Test if an error is issued if the score is outside pvalue range"""
+        
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gsva_pvalues_outrange.txt',
+                                    validateData.GSVAPvalueValidator)
+        # expecting an error for each line that contains value not within -1 and 1
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 4)
+        self.assertEqual(record.column_number, 2)
+        self.assertEqual(record.cause, '1.5')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.column_number, 4)
+        self.assertEqual(record.cause, '1e3')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 10)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, '-0.00000000000000005')
+        return
+
+    def test_missing_column_gsva(self):
+        """ dddd"""
+        #Test if an error is issued if the score and pvalue tables do not have same header
+        self.logger.setLevel(logging.ERROR)
+        
+        ### Error should appear when the second file is validated
+        record_list1 = self.validate('data_gsva_pvalues_missing_column.txt',
+                                    validateData.GSVAPvalueValidator)
+        
+        record_list2 = self.validate('data_gsva_scores_missing_column.txt',
+                                    validateData.GSVAScoreValidator)
+        self.assertEqual(len(record_list1), 0)
+        self.assertEqual(len(record_list2), 2)
+        for record in record_list2:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list2)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 1)
+        self.assertIn('headers', record.getMessage().lower())
+        self.assertIn('different', record.getMessage().lower())
+        record = record_iterator.next()
+        self.assertIn('invalid', record.getMessage().lower())
+        self.assertIn('column', record.getMessage().lower())
+        return
+
+
+    def test_missing_row_gsva(self):
+        #Test if an error is issued if the score and pvalue table does not have same rownames
+        self.logger.setLevel(logging.ERROR)
+        
+        ### Error should appear when the second file is validated
+        record_list1 = self.validate('data_gsva_pvalues_missing_row.txt',
+                                    validateData.GSVAPvalueValidator)
+
+        record_list2 = self.validate('data_gsva_scores_missing_row.txt',
+                                    validateData.GSVAScoreValidator)
+        self.assertEqual(len(record_list1), 0)
+        self.assertEqual(len(record_list2), 1)
+        for record in record_list2:
+            self.assertEqual(record.levelno, logging.ERROR)        
+        self.assertIn('first column', record.getMessage().lower())
+        self.assertIn('different', record.getMessage().lower())  
+        return
+#  
+#          
 
     # TODO: test other subclasses of FeatureWiseValidator
 

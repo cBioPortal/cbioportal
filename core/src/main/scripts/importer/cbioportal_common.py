@@ -46,6 +46,8 @@ class MetaFileTypes(object):
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
     MUTATION_SIGNIFICANCE = 'meta_mutsig'
+    GSVA_SCORES = 'meta_gsva_scores'
+    GSVA_PVALUES = 'meta_gsva_pvalues'
 
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
@@ -193,6 +195,28 @@ META_FIELD_MAP = {
         'genetic_alteration_type': True,
         'datatype': True,
         'data_filename': True
+    },
+    MetaFileTypes.GSVA_PVALUES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'source_stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+		'geneset_def_version': True
+    },
+    MetaFileTypes.GSVA_SCORES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'source_stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+		'geneset_def_version': True
     }
 }
 
@@ -213,7 +237,9 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS,
-    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
+    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData",
+    MetaFileTypes.GSVA_SCORES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+	MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData"
 }
 
 IMPORTER_REQUIRES_METADATA = {
@@ -430,6 +456,11 @@ def get_meta_file_type(metaDictionary, logger, filename):
     """
      Returns one of the metatypes found in MetaFileTypes
     """
+    # The following dictionary is required to define the MetaFileType for all
+    # combinations, which are used in validateData to determine which validator
+    # should be used. There is some redundancy with allowed_data_types.txt, which
+    # also contains genetic alteration types and datatype combinations, but is used 
+    # to check if the correct stable id is used.
     # GENETIC_ALTERATION_TYPE    DATATYPE    meta
     alt_type_datatype_to_meta = {
         # cancer type
@@ -458,7 +489,9 @@ def get_meta_file_type(metaDictionary, logger, filename):
         # cross-sample molecular statistics (for gene selection)
         ("GISTIC_GENES_AMP", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
         ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
-        ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE
+        ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE,
+        ("GENESET_SCORE", "GSVA-SCORE"): MetaFileTypes.GSVA_SCORES,
+        ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES
     }
     result = None
     if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
@@ -651,6 +684,15 @@ def parse_metadata_file(filename,
                 extra={'filename_': filename,
                        'cause': metaDictionary['swissprot_identifier']})
             meta_file_type = None
+			
+	### TODO: Need WEB-API to get geneset def version from geneset_info in database.
+	#database_version = some_future_web_api()
+	#if meta_file_type in (MetaFileTypes.GSVA_SCORES, MetaFileTypes.GSVA_PVALUES):
+		#if ('geneset_def_version' in metaDictionary and 
+		#	metaDictionary['geneset_def_version'] not database_version):
+		#		logger.error("Database gene set version and score/pvalue version does not match")
+
+			
 
     logger.info('Validation of meta file complete', extra={'filename_': filename})
     return metaDictionary, meta_file_type

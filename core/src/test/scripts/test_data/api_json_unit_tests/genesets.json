@@ -1,0 +1,13 @@
+[
+{"_comment": "genesets for data_genesets.txt", 
+	"genesetIdentifier":"GO_ACYLGLYCEROL_HOMEOSTASIS"},
+{"genesetIdentifier":"GO_ANATOMICAL_STRUCTURE_FORMATION_INVOLVED_IN_MORPHOGENESIS"},
+{"genesetIdentifier":"GO_ANTEROGRADE_AXONAL_TRANSPORT"},
+{"genesetIdentifier":"GO_APICAL_PROTEIN_LOCALIZATION"},
+{"genesetIdentifier":"GO_ATP_DEPENDENT_CHROMATIN_REMODELING"},
+{"genesetIdentifier":"GO_CALCIUM_ION_TRANSMEMBRANE_IMPORT_INTO_CYTOSOL"},
+{"genesetIdentifier":"GO_CARBOHYDRATE_CATABOLIC_PROCESS"},
+{"genesetIdentifier":"GO_CARBOXYLIC_ACID_BIOSYNTHETIC_PROCESS"},
+{"genesetIdentifier":"GO_CARDIAC_CHAMBER_DEVELOPMENT"},
+{"genesetIdentifier":"GO_CARDIAC_MUSCLE_ADAPTATION"}
+]

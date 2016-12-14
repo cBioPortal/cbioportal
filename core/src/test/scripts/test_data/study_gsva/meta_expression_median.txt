@@ -1,0 +1,8 @@
+cancer_study_identifier: brca_tcga
+genetic_alteration_type: MRNA_EXPRESSION
+datatype: CONTINUOUS
+data_filename: data_expression_median.txt
+stable_id: mrna
+show_profile_in_analysis_tab: false
+profile_description: Expression levels for 17155 genes in 590 brca cases (Agilent microarray).
+profile_name: mRNA expression (microarray)

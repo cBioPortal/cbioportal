@@ -1,0 +1,6 @@
+type_of_cancer: brca
+cancer_study_identifier: brca_tcga
+name: Breast Invasive Carcinoma (TCGA, Provisional)
+short_name: Breast (TCGA)
+description: TCGA Breast Invasive Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.
+groups: PUBLIC

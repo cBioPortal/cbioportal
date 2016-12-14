@@ -1,0 +1,6 @@
+cancer_study_identifier: brca_tcga
+stable_id: brca_tcga_all
+case_list_name: All Tumors
+case_list_description: Sample tumor samples (5 samples)
+case_list_category: all_cases_in_study
+case_list_ids:   TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SH-01

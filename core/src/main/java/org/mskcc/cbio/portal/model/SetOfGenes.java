@@ -30,20 +30,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.dao;
-
-import org.mskcc.cbio.portal.model.CanonicalGene;
-
-import java.util.Comparator;
+package org.mskcc.cbio.portal.model;
 
 /**
- * Compares two genes by their HUGO Symbols--ignores case
+ * Encapsulates a set of genes.
  */
-class GeneComparator implements Comparator {
+public class SetOfGenes {
+    private String name;
+    private String geneList;
 
-    public int compare(Object o, Object o1) {
-        CanonicalGene gene0 = (CanonicalGene) o;
-        CanonicalGene gene1 = (CanonicalGene) o1;
-        return (gene0.getHugoGeneSymbolAllCaps().compareTo(gene1.getHugoGeneSymbolAllCaps()));
+    /**
+     * Gets the name of the gene set.
+     *
+     * @return gene set name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Gets the alpha-numeric ID of the gene set.
+     *
+     * @return alpha-numeric ID of gene set.
+     */
+    public String getId() {
+        String id = name.replaceAll(" ", "-");
+        id = id.replaceAll("_", "-");
+        return id.toLowerCase();
+    }
+
+    /**
+     * Sets the name of the gene set.
+     *
+     * @param name gene set name.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Gets the List of Genes in the Set.
+     *
+     * @return whitespace delimited list of gene symbols.
+     */
+    public String getGeneList() {
+        return geneList;
+    }
+
+    /**
+     * Sets the List of Genes in the Set.
+     *
+     * @param geneList whitespace delimited list of gene symbols.
+     */
+    public void setGeneList(String geneList) {
+        this.geneList = geneList;
     }
 }

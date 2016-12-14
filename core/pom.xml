@@ -10,7 +10,7 @@
   <artifactId>core</artifactId>
   <name>Portal Core</name>
   <description>Core libraries shared among other modules</description>
-
+   
   <dependencies>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
@@ -157,6 +157,13 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>2.3</version>
+    </dependency>
+    
+    <!--yaml parser-->
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.17</version>
     </dependency>
 
     <!-- BioJava 4.x -->

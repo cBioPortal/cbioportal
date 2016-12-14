@@ -58,46 +58,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TestImportGeneData {
 
-    //private String geneDataFilename = null;
-    //private String suppGeneDataFilename = null;
-    private URL geneDataFilePath;
-    private URL suppGeneDataFilePath;
-    
-    @Before
-    public void setUp() {
-
-        //Old implementation, hardcoding file path into a string
-        //geneDataFilename = home + File.separator + "core/target/test-classes/genes_test.txt";
-        //suppGeneDataFilename = home + File.separator + "core/target/test-classes/supp-genes.txt";
-        geneDataFilePath = this.getClass().getResource("/genes_test.txt");
-        suppGeneDataFilePath = this.getClass().getResource("/supp-genes.txt");
-
-    }
-
     @Test
     public void testImportGeneData() throws Exception {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor.setConsoleMode(false);
-		// TBD: change this to use getResourceAsStream()
-        if (suppGeneDataFilePath!=null) {
-            File file = new File(suppGeneDataFilePath.getFile());
-            ImportGeneData.importSuppGeneData(file);
-        }
+	
+        // TBD: change this to use getResourceAsStream()
+        File file = new File("src/test/resources/supp-genes.txt");
+
+        ImportGeneData.importSuppGeneData(file);
         
-        if (geneDataFilePath != null) {
-            File file = new File(geneDataFilePath.getFile());
-            ImportGeneData.importData(file);
+        file = new File("src/test/resources/genes_test.txt");
+        ImportGeneData.importData(file);
 
-            CanonicalGene gene = daoGene.getGene(10);
-            assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());
-            gene = daoGene.getGene(15);
-            assertEquals("AANAT", gene.getHugoGeneSymbolAllCaps());
+        CanonicalGene gene = daoGene.getGene(10);
+        assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());
+        gene = daoGene.getGene(15);
+        assertEquals("AANAT", gene.getHugoGeneSymbolAllCaps());
 
-            gene = daoGene.getGene("ABCA3");
-            assertEquals(21, gene.getEntrezGeneId());
-        }
-        else {
-            throw new IllegalArgumentException("Cannot find test gene file, is PORTAL_HOME set?");
-        }
+        gene = daoGene.getGene("ABCA3");
+        assertEquals(21, gene.getEntrezGeneId());
     }
 }

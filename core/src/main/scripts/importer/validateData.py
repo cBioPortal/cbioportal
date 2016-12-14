@@ -52,6 +52,9 @@ DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 DEFINED_CANCER_TYPES = None
 
+# GSVA globals
+GSVA_SAMPLE_IDS = None
+GSVA_GENESET_IDS = None
 
 # ----------------------------------------------------------------------------
 
@@ -70,7 +73,9 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.RPPA:'RPPAValidator',
     cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
     cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator',
-    cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator'
+    cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator',
+    cbioportal_common.MetaFileTypes.GSVA_SCORES:'GSVAScoreValidator',
+    cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GSVAPvalueValidator'
 }
 
 
@@ -231,11 +236,12 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map):
+    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map, geneset_id_list):
         """Represent a portal instance with the given dictionaries."""
         self.cancer_type_dict = cancer_type_dict
         self.hugo_entrez_map = hugo_entrez_map
         self.alias_entrez_map = alias_entrez_map
+        self.geneset_id_list = geneset_id_list
         self.entrez_set = set()
         for entrez_map in (hugo_entrez_map, alias_entrez_map):
             if entrez_map is not None:
@@ -758,6 +764,7 @@ class Validator(object):
 
         return identified_entrez_id
 
+
     def _checkRepeatedColumns(self):
         num_errors = 0
         seen = set()
@@ -876,7 +883,6 @@ class FeaturewiseFileValidator(Validator):
                     extra={'line_number': self.line_number,
                            'cause': sample_id})
                 num_errors += 1
-                
         return num_errors
 
 
@@ -896,7 +902,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         """
         num_errors = super(GenewiseFileValidator, self).checkHeader(cols)
         # see if at least one of the gene identifiers is in the right place
-        
         
         if ('Hugo_Symbol' in self.sampleIds or
                   'Entrez_Gene_Id' in self.sampleIds):
@@ -933,6 +938,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             if entrez_id == '':
                 entrez_id = None
         return self.checkGeneIdentification(hugo_symbol, entrez_id)
+
 
 class CNAValidator(GenewiseFileValidator):
 
@@ -1457,7 +1463,7 @@ class ClinicalValidator(Validator):
 
     def processTopLines(self, line_list):
 
-        """Parse the the attribute definitions above the column header."""
+        """Parse the attribute definitions above the column header."""
 
         if not line_list:
             if not self.relaxed_mode:
@@ -1554,14 +1560,14 @@ class ClinicalValidator(Validator):
         num_errors = super(ClinicalValidator, self).checkHeader(cols)
 
         if self.numCols != len(self.attr_defs):
-             if not self.relaxed_mode:
+            if not self.relaxed_mode:
                 self.logger.error(
                     'Varying numbers of columns in clinical header (%d, %d)',
                     len(self.attr_defs),
                     len(self.cols),
                     extra={'line_number': self.line_number})
                 num_errors += 1
-            
+
         # fill in missing attr_defs data if in relaxed mode and clinical data is headerless
         if self.fill_in_attr_defs:
             self.logger.info('Filling in missing attribute properties for clinical data.')
@@ -2140,6 +2146,7 @@ class TimelineValidator(Validator):
         super(TimelineValidator, self).checkLine(data)
         # TODO check the values
 
+
 class CancerTypeValidator(Validator):
 
     """Validator for tab-separated cancer type definition files."""
@@ -2573,6 +2580,112 @@ class GisticGenesValidator(Validator):
             return parsed_value
 
 
+class GSVAWiseFileValidator(FeaturewiseFileValidator):
+
+    """FeatureWiseValidator that has Geneset ID as feature column."""
+    
+    REQUIRED_HEADERS = ['geneset_id']
+    def __init__(self, *args, **kwargs):
+        super(GSVAWiseFileValidator, self).__init__(*args, **kwargs)
+        self.geneset_ids = []
+
+    def checkHeader(self, cols):
+        """Validate the header and read sample IDs from it.
+
+        Return the number of fatal errors.
+        """
+        num_errors = super(GSVAWiseFileValidator, self).checkHeader(cols)
+
+        global GSVA_SAMPLE_IDS
+
+        if GSVA_SAMPLE_IDS != None:
+            if self.cols != GSVA_SAMPLE_IDS:
+                self.logger.error('Headers from score and p-value files are different',
+                                  extra={'line_number': self.line_number})
+                num_errors += 1
+        else:
+            GSVA_SAMPLE_IDS = self.cols
+            
+        return num_errors
+
+    def parseFeatureColumns(self, nonsample_col_vals):
+
+        """Check the geneset id column."""  
+        
+        global GSVA_GENESET_IDS
+        
+        geneset_id = nonsample_col_vals[0].strip()      
+        #Check if geneset is present
+        if geneset_id == '':
+            # Validator already gives warning for this in checkLine method   
+            pass
+        # Check if geneset contains whitespace    
+        elif ' ' in geneset_id:
+            self.logger.error("Whitespace found in the geneset id",
+                              extra={'line_number': self.line_number,
+                                     'cause': geneset_id})     
+        # Check if geneset is in database
+        elif self.portal.geneset_id_list is not None and geneset_id not in self.portal.geneset_id_list:
+            self.logger.error("Geneset not found in database, please make sure "
+                              "to update the database with new genesets",
+                              extra={'line_number': self.line_number, 'cause': geneset_id})      
+        else:
+            # Check if this is the second GSVA data file
+            if GSVA_GENESET_IDS != None:
+                # Check if geneset is in the first GSVA file
+                if not geneset_id in GSVA_GENESET_IDS:
+                    self.logger.error('Genesets differ between Score and Pvalue file',
+                                  extra={'line_number': self.line_number})
+            self.geneset_ids.append(geneset_id) 
+        return geneset_id
+    
+    def onComplete(self):
+        global GSVA_GENESET_IDS
+        
+        if GSVA_GENESET_IDS == None:
+            GSVA_GENESET_IDS = self.geneset_ids
+        else:
+            ### Check if geneset ids are the same 
+            if not GSVA_GENESET_IDS == self.geneset_ids:
+                self.logger.error(
+                    'First column of GSVA score/pvalue files is different')
+        super(GSVAWiseFileValidator, self).onComplete()
+
+
+class GSVAScoreValidator(GSVAWiseFileValidator):
+    """Validator for files containing scores per geneset from GSVA algorithm.
+
+    GSVA is an algorithm in R that outputs a score and pvalue (from 
+    bootstrapping for each inputted geneset per sample.
+    """
+    # Score must be between -1 and 1
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        stripped_value = float(value.strip())
+        if stripped_value < -1 or stripped_value > 1:
+            self.logger.error("Value is not between -1 and 1, and therefor not "
+                              "a valid GSVA score",
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
+     
+ 
+class GSVAPvalueValidator(GSVAWiseFileValidator):
+    """Validator for files containing pvalues per geneset from GSVA algorithm.
+
+    GSVA is an algorithm in R that outputs a score and pvalue (from bootstrapping)
+    for each inputted geneset per sample.
+    """
+    # Score must be between -0 and 1
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        stripped_value = float(value.strip())
+        if stripped_value <= 0 or stripped_value > 1:
+            self.logger.error("Value is not between 0 and 1, and therefor not a valid p-value",
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
+
 # ------------------------------------------------------------------------------
 # Functions
 
@@ -2769,9 +2882,17 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
     # TODO: check for required suffixes based on the defined profiles
 
 def request_from_portal_api(server_url, api_name, logger):
-    """Send a request to the portal API and return the decoded JSON object."""
-    service_url = server_url + '/api-legacy/' + api_name
-    logger.debug("Requesting %s from portal at '%s'",
+    """Send a request to the portal API and return the decoded JSON object."""    
+	
+	if api_name == 'genesets':
+    	service_url = server_url + '/api/' + api_name
+		
+	# TODO: change API for genes, gene aliases and cancer types to non-legacy
+	else:
+    	service_url = server_url + '/api-legacy/' + api_name
+
+	
+	logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
     # usually because the URL provided on the command line was invalid or
@@ -2860,6 +2981,16 @@ def transform_symbol_entrez_map(json_data,
     return result_dict
 
 
+def index_geneset_id_list(json_data,
+                         id_field = "genesetIdentifier"):
+    result_list = []
+    for data_item in json_data:
+        geneset_id = data_item[id_field]
+        if geneset_id not in result_list:
+            result_list.append(geneset_id)
+    return result_list
+
+
 def load_portal_info(path, logger, offline=False):
     """Create a PortalInstance object based on a server API or offline dir.
 
@@ -2876,7 +3007,9 @@ def load_portal_info(path, logger, offline=False):
                                         json_data, 'hugo_gene_symbol')),
             ('genesaliases',
                 lambda json_data: transform_symbol_entrez_map(
-                                        json_data, 'gene_alias'))):
+                                        json_data, 'gene_alias')),
+            ('genesets',
+                lambda json_data: index_geneset_id_list(json_data, 'genesetIdentifier'))):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -2887,9 +3020,10 @@ def load_portal_info(path, logger, offline=False):
     if all(d is None for d in portal_dict.values()):
         raise IOError('No portal information found at {}'.format(
                           path))
-    return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
-                          hugo_entrez_map=portal_dict['genes'],
-                          alias_entrez_map=portal_dict['genesaliases'])
+    return PortalInstance(cancer_type_dict = portal_dict['cancertypes'],
+                          hugo_entrez_map = portal_dict['genes'],
+                          alias_entrez_map = portal_dict['genesaliases'],
+                          geneset_id_list = portal_dict['genesets'])
 
 
 # ------------------------------------------------------------------------------
@@ -2954,6 +3088,8 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
             portal_instance.alias_entrez_map is None):
         logger.warning('Skipping validations relating to gene identifiers and '
                        'aliases defined in the portal')
+    if portal_instance.geneset_id_list is None:
+        logger.warning('Skipping validations relating to geneset identifiers')
 
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
@@ -3045,6 +3181,22 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
             if validator is None:
                 continue
             validator.validate()
+	        
+    # in case of gsva data, both score and p-value data must be present
+    if any(m in validators_by_meta_type for m in ("meta_gsva_pvalues", "meta_gsva_scores")):
+        ### Check if both files are present
+        if not "meta_gsva_pvalues" in validators_by_meta_type:
+            logger.error(
+            'Required meta GSVA pvalue file is missing')
+            
+        if not "meta_gsva_scores" in validators_by_meta_type:
+            logger.error(
+            'Required meta GSVA score file is missing')
+
+        if not "meta_expression" in validators_by_meta_type:
+			logger.error(
+			'Required meta expression file is missing.'
+			)
 
     # finally validate the case list directory if present
     case_list_dirname = os.path.join(study_dir, 'case_lists')
@@ -3141,7 +3293,8 @@ def main_validate(args):
     if args.no_portal_checks:
         portal_instance = PortalInstance(cancer_type_dict=None,
                                          hugo_entrez_map=None,
-                                         alias_entrez_map=None)
+                                         alias_entrez_map=None,
+                                         geneset_id_list=None)
     elif args.portal_info_dir:
         portal_instance = load_portal_info(args.portal_info_dir, logger,
                                            offline=True)

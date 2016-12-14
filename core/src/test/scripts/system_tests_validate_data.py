@@ -226,6 +226,19 @@ class ValidateDataSystemTester(unittest.TestCase):
         self.assertFileGenerated(out_file_name,
                                  'test_data/study_quotes/result_report.html')
 
+    def test_gsva_success(self):
+        '''
+        Study with GSVA data without errors or warnings
+        '''
+        # build up the argument list
+        print "===gsva study"
+        args = ['--study_directory','test_data/study_gsva/', 
+                '--portal_info_dir', PORTAL_INFO_DIR, '-v']
+        # execute main function with arguments provided as if from sys.argv
+        args = validateData.interface(args)
+        exit_status = validateData.main_validate(args)
+        self.assertEquals(0, exit_status)
+         
 
 if __name__ == '__main__':
     unittest.main(buffer=True)

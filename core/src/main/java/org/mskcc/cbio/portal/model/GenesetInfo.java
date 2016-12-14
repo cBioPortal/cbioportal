@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 The Hyve B.V.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,59 +30,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * @author Sander Tan
+*/
+
 package org.mskcc.cbio.portal.model;
 
-/**
- * Encapsulates a set of genes.
- */
-public class GeneSet {
-    private String name;
-    private String geneList;
+import java.io.Serializable;
 
-    /**
-     * Gets the name of the gene set.
-     *
-     * @return gene set name.
-     */
-    public String getName() {
-        return name;
+public class GenesetInfo implements Serializable {
+	private String version;
+	
+    public String getVersion() {
+        return version;
+    }
+    
+    public void setVersion(String version) {
+        this.version = version;
     }
 
-    /**
-     * Gets the alpha-numeric ID of the gene set.
-     *
-     * @return alpha-numeric ID of gene set.
-     */
-    public String getId() {
-        String id = name.replaceAll(" ", "-");
-        id = id.replaceAll("_", "-");
-        return id.toLowerCase();
-    }
-
-    /**
-     * Sets the name of the gene set.
-     *
-     * @param name gene set name.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Gets the List of Genes in the Set.
-     *
-     * @return whitespace delimited list of gene symbols.
-     */
-    public String getGeneList() {
-        return geneList;
-    }
-
-    /**
-     * Sets the List of Genes in the Set.
-     *
-     * @param geneList whitespace delimited list of gene symbols.
-     */
-    public void setGeneList(String geneList) {
-        this.geneList = geneList;
-    }
 }

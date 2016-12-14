@@ -22,7 +22,7 @@
         genetic_profile.DATATYPE as datatype,
         cancer_study.CANCER_STUDY_IDENTIFIER as study_id,
         genetic_profile.GENETIC_ALTERATION_TYPE as genetic_alteration_type,
-        genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB as show_profile_profile_in_analysis_tab
+        genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB as show_profile_in_analysis_tab
     from genetic_profile inner join cancer_study on genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     where genetic_profile.STABLE_ID in <foreach item="item" collection="genetic_profile_ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
@@ -34,7 +34,7 @@
         genetic_profile.DATATYPE as datatype,
         cancer_study.CANCER_STUDY_IDENTIFIER as study_id,
         genetic_profile.GENETIC_ALTERATION_TYPE as genetic_alteration_type,
-        genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB as show_profile_profile_in_analysis_tab
+        genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB as show_profile_in_analysis_tab
     from genetic_profile inner join cancer_study on genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
 </select>
@@ -46,7 +46,7 @@
         genetic_profile.DATATYPE as datatype,
         cancer_study.CANCER_STUDY_IDENTIFIER as study_id,
         genetic_profile.GENETIC_ALTERATION_TYPE as genetic_alteration_type,
-        genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB as show_profile_profile_in_analysis_tab
+        genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB as show_profile_in_analysis_tab
     from genetic_profile inner join cancer_study on genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
 </select>
     

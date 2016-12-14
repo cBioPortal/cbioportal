@@ -34,7 +34,7 @@ var OncoprintTrackOptionsView = (function() {
     }
     
     var renderAllOptions = function(view, model) {
-	if (this.rendering_suppressed) {
+	if (view.rendering_suppressed) {
 	    return;
 	}
 	view.$div.empty();

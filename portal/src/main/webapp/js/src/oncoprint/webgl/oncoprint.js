@@ -175,6 +175,9 @@ var Oncoprint = (function () {
 	}, 0);
     };
     var resizeAndOrganize = function(oncoprint) {
+	if (this.rendering_suppressed) {
+	    return;
+	}
 	var ctr_width = $(oncoprint.ctr_selector).width();
 	oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
 	oncoprint.$track_options_div.css({'left':oncoprint.label_view.getWidth()});
@@ -282,11 +285,23 @@ var Oncoprint = (function () {
 	resizeAndOrganizeAfterTimeout(this);
     }
     
-    Oncoprint.prototype.removeAllTracks = function() {
-	var track_ids = this.model.getTracks();
+    Oncoprint.prototype.removeTracks = function(track_ids) {
+	this.keepSorted(false);
+	this.suppressRendering();
 	for (var i=0; i<track_ids.length; i++) {
 	    this.removeTrack(track_ids[i]);
 	}
+	this.keepSorted(true);
+	this.releaseRendering();
+    }
+    
+    Oncoprint.prototype.getTracks = function() {
+	return this.model.getTracks().slice();
+    }
+    
+    Oncoprint.prototype.removeAllTracks = function() {
+	var track_ids = this.model.getTracks();
+	this.removeTracks(track_ids);
     }
 
     Oncoprint.prototype.setHorzZoomToFit = function(ids) {
@@ -367,7 +382,7 @@ var Oncoprint = (function () {
 	}
 	resizeAndOrganizeAfterTimeout(this);
     }
-
+    
     Oncoprint.prototype.setTrackGroupSortPriority = function(priority) {
 	this.model.setTrackGroupSortPriority(priority);
 	this.cell_view.setTrackGroupSortPriority(this.model);

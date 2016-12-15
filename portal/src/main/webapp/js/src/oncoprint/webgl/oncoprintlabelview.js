@@ -56,7 +56,7 @@ var OncoprintLabelView = (function () {
 			}
 			var track_description = view.track_descriptions[hovered_track].replace("<", "&lt;").replace(">", "&gt;");
 			if (track_description.length > 0) {
-			    $tooltip_div.append(track_description);
+			    $tooltip_div.append(track_description + "<br>");
 			}
 			if (model.getContainingTrackGroup(hovered_track).length > 1) {
 			    view.$canvas.css('cursor', 'move');

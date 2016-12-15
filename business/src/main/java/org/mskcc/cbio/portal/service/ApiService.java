@@ -39,7 +39,7 @@ import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
 import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
-import org.mskcc.cbio.portal.persistence.SampleListMapper;
+import org.mskcc.cbio.portal.persistence.SampleListMapperLegacy;
 import org.mskcc.cbio.portal.persistence.SampleMapperLegacy;
 import org.mskcc.cbio.portal.persistence.StudyMapperLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +69,7 @@ public class ApiService {
 	@Autowired
 	private GeneticProfileMapperLegacy geneticProfileMapperLegacy;
 	@Autowired
-	private SampleListMapper sampleListMapper;
+	private SampleListMapperLegacy sampleListMapperLegacy;
 	@Autowired
 	private PatientMapperLegacy patientMapperLegacy;
 	@Autowired
@@ -364,7 +364,7 @@ public class ApiService {
 	@Transactional
 	private List<DBSampleList> addSampleIdsToSampleLists(List<DBSampleList> incomplete_lists) {
 		for (DBSampleList l : incomplete_lists) {
-			List<DBSample> sample_list = sampleListMapper.getSampleIds(l.id);
+			List<DBSample> sample_list = sampleListMapperLegacy.getSampleIds(l.id);
 			l.sample_ids = new ArrayList<>();
 			for (DBSample samp : sample_list) {
 				l.sample_ids.add(samp.id);
@@ -375,17 +375,17 @@ public class ApiService {
 
 	@Transactional
 	public List<DBSampleList> getSampleLists() {
-		return addSampleIdsToSampleLists(sampleListMapper.getAllIncompleteSampleLists());
+		return addSampleIdsToSampleLists(sampleListMapperLegacy.getAllIncompleteSampleLists());
 	}
 
 	@Transactional
 	public List<DBSampleList> getSampleLists(String study_id) {
-		return addSampleIdsToSampleLists(sampleListMapper.getIncompleteSampleListsByStudy(study_id));
+		return addSampleIdsToSampleLists(sampleListMapperLegacy.getIncompleteSampleListsByStudy(study_id));
 	}
 
 	@Transactional
 	public List<DBSampleList> getSampleLists(List<String> sample_list_ids) {
-		return addSampleIdsToSampleLists(sampleListMapper.getIncompleteSampleLists(sample_list_ids));
+		return addSampleIdsToSampleLists(sampleListMapperLegacy.getIncompleteSampleLists(sample_list_ids));
 	}
 
 	@Transactional

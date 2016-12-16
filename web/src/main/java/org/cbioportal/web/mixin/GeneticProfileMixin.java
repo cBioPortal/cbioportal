@@ -9,15 +9,12 @@ public class GeneticProfileMixin {
 
     @JsonIgnore
     private Integer geneticProfileId;
+    @JsonProperty("geneticProfileId")
     private String stableId;
     @JsonIgnore
     private Integer cancerStudyId;
-    @JsonProperty("cancerStudyId")
+    @JsonProperty("studyId")
     private String cancerStudyIdentifier;
-    private GeneticProfile.GeneticAlterationType geneticAlterationType;
-    private String datatype;
-    private String name;
-    private String description;
-    private Boolean showProfileInAnalysisTab;
+    @JsonProperty("study")
     private CancerStudy cancerStudy;
 }

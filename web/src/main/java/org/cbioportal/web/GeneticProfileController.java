@@ -54,7 +54,7 @@ public class GeneticProfileController {
         } else {
             return new ResponseEntity<>(
                     geneticProfileService.getAllGeneticProfiles(projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
@@ -93,7 +93,7 @@ public class GeneticProfileController {
         } else {
             return new ResponseEntity<>(
                     geneticProfileService.getAllGeneticProfilesInStudy(studyId, projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 }

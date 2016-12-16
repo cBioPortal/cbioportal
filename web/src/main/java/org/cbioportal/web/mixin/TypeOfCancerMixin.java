@@ -1,11 +1,9 @@
 package org.cbioportal.web.mixin;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class TypeOfCancerMixin {
 
+    @JsonProperty("cancerTypeId")
     private String typeOfCancerId;
-    private String name;
-    private String clinicalTrialKeywords;
-    private String dedicatedColor;
-    private String shortName;
-    private String parent;
 }

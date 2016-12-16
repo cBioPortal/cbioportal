@@ -10,7 +10,4 @@ public class MutationCountMixin {
     private Integer geneticProfileId;
     @JsonIgnore
     private Integer sampleId;
-    private Integer mutationCount;
-    private GeneticProfile geneticProfile;
-    private Sample sample;
 }

@@ -2,10 +2,20 @@ package org.cbioportal.web.parameter.sort;
 
 public enum CancerTypeSortBy {
 
-    typeOfCancerId,
-    name,
-    clinicalTrialKeywords,
-    dedicatedColor,
-    shortName,
-    parent
+    cancerTypeId("typeOfCancerId"),
+    name("name"),
+    clinicalTrialKeywords("clinicalTrialKeywords"),
+    dedicatedColor("dedicatedColor"),
+    shortName("shortName"),
+    parent("parent");
+
+    private String originalValue;
+
+    CancerTypeSortBy(String originalValue) {
+        this.originalValue = originalValue;
+    }
+
+    public String getOriginalValue() {
+        return originalValue;
+    }
 }

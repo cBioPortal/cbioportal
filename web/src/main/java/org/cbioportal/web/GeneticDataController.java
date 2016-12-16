@@ -99,7 +99,7 @@ public class GeneticDataController {
             		+ "or (2) sampleIds: custom list of samples or patients to query, e.g. TCGA-BH-A1EO-01, TCGA-AR-A1AR-01")
             @RequestBody GeneticDataFilterCriteria geneticDataFilterCriteria,
             @ApiParam("Page size of the result list")
-	        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize, 
+	        @RequestParam(defaultValue = PagingConstants.DEFAULT_MAX_PAGE_SIZE) Integer pageSize, 
 	        @ApiParam("Page number of the result list")
 	        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber) throws PageSizeTooBigException {
 

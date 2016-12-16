@@ -49,12 +49,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableWebMvc
 @ComponentScan(basePackages = {"org.cbioportal.weblegacy"})
 public class StructuralVariantControllerTestConfig extends WebMvcConfigurerAdapter {
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
-        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
-        converters.add(mappingJackson2HttpMessageConverter);
-    }
+
     @Bean
     public StructuralVariantService svService(){
         return Mockito.mock(StructuralVariantService.class);

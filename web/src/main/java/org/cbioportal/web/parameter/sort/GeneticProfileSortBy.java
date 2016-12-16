@@ -2,10 +2,20 @@ package org.cbioportal.web.parameter.sort;
 
 public enum GeneticProfileSortBy {
 
-    stableId,
-    geneticAlterationType,
-    datatype,
-    name,
-    description,
-    showProfileInAnalysisTab
+    geneticProfileId("stableId"),
+    geneticAlterationType("geneticAlterationType"),
+    datatype("datatype"),
+    name("name"),
+    description("description"),
+    showProfileInAnalysisTab("showProfileInAnalysisTab");
+
+    private String originalValue;
+
+    GeneticProfileSortBy(String originalValue) {
+        this.originalValue = originalValue;
+    }
+
+    public String getOriginalValue() {
+        return originalValue;
+    }
 }

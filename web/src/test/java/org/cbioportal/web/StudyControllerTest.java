@@ -129,7 +129,7 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyIdentifier")
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId")
                         .value(TEST_CANCER_STUDY_IDENTIFIER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].citation").value(TEST_CITATION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
@@ -140,9 +140,9 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].publicStudy").value(TEST_PUBLIC_STUDY_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].shortName").value(TEST_SHORT_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].status").value(TEST_STATUS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].typeOfCancerId").value(TEST_TYPE_OF_CANCER_ID_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyIdentifier")
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId")
                         .value(TEST_CANCER_STUDY_IDENTIFIER_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].citation").value(TEST_CITATION_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
@@ -153,7 +153,7 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].publicStudy").value(TEST_PUBLIC_STUDY_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].shortName").value(TEST_SHORT_NAME_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].status").value(TEST_STATUS_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].typeOfCancerId").value(TEST_TYPE_OF_CANCER_ID_2));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2));
 
     }
 
@@ -217,8 +217,7 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyIdentifier")
-                        .value(TEST_CANCER_STUDY_IDENTIFIER_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.citation").value(TEST_CITATION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.groups").value(TEST_GROUPS_1))
@@ -228,16 +227,16 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.publicStudy").value(TEST_PUBLIC_STUDY_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.shortName").value(TEST_SHORT_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(TEST_STATUS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfCancerId").value(TEST_TYPE_OF_CANCER_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfCancer.typeOfCancerId")
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.cancerTypeId")
                         .value(TEST_TYPE_OF_CANCER_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfCancer.name").value(TEST_TYPE_OF_CANCER_NAME))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfCancer.clinicalTrialKeywords")
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.name").value(TEST_TYPE_OF_CANCER_NAME))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.clinicalTrialKeywords")
                         .value(TEST_CLINICAL_TRIAL_KEYWORDS))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfCancer.dedicatedColor").value(TEST_DEDICATED_COLOR))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfCancer.shortName")
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.dedicatedColor").value(TEST_DEDICATED_COLOR))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.shortName")
                         .value(TEST_TYPE_OF_CANCER_SHORT_NAME))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfCancer.parent").value(TEST_PARENT));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.parent").value(TEST_PARENT));
 
     }
 }

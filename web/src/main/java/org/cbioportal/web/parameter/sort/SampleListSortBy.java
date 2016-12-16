@@ -2,19 +2,19 @@ package org.cbioportal.web.parameter.sort;
 
 public enum SampleListSortBy {
 
-    caseListId("stableId"),
+    sampleListId("stableId"),
     category("category"),
     cancerStudyId("cancerStudyIdentifier"),
     name("name"),
     description("description");
     
-    private String value;
+    private String originalValue;
 
-    SampleListSortBy(String value) {
-        this.value = value;
+    SampleListSortBy(String originalValue) {
+        this.originalValue = originalValue;
     }
 
-    public String getValue() {
-        return value;
+    public String getOriginalValue() {
+        return originalValue;
     }
 }

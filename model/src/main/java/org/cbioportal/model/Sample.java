@@ -49,6 +49,7 @@ public class Sample implements Serializable {
     private String patientStableId;
     private String typeOfCancerId;
     private Patient patient;
+    private String cancerStudyIdentifier;
 
     public Integer getInternalId() {
         return internalId;
@@ -104,5 +105,13 @@ public class Sample implements Serializable {
 
     public void setPatient(Patient patient) {
         this.patient = patient;
+    }
+
+    public String getCancerStudyIdentifier() {
+        return cancerStudyIdentifier;
+    }
+
+    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+        this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
 }

@@ -1288,7 +1288,7 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 #right_side h3 {
   margin: 10px 0;
   padding: 0;
-  font: normal normal 200 18px/24px 'Helvetica Neue', Verdana, Arial, sans-serif;
+  font: normal normal 600 18px/24px 'Helvetica Neue', Verdana, Arial, sans-serif;
   color: #333;
   border-bottom: 1px solid #cfd9ea;
 }

@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class Gene implements Serializable {
+public class Gene extends GeneticEntity implements Serializable {
 
     private Integer entrezGeneId;
     private String hugoGeneSymbol;
@@ -58,4 +58,14 @@ public class Gene implements Serializable {
     public void setChromosome(String chromosome) {
         this.chromosome = chromosome;
     }
+
+	@Override
+	public String getEntityStableId() {
+		return entrezGeneId+"";
+	}
+
+	@Override
+	public EntityType getEntityType() {
+		return EntityType.GENE;
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -29,25 +29,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+package org.cbioportal.persistence.mybatis;
 
-package org.mskcc.cbio.portal.model;
+import java.util.List;
 
-// Copied to org.cbioportal.model.GeneticProfile.GeneticAlterationType, if you alter this,
-// don't forget to change the other one too
-public enum GeneticAlterationType {
-    MUTATION_EXTENDED,
-    FUSION,
-    STRUCTURAL_VARIANT,
-    COPY_NUMBER_ALTERATION,
-    MICRO_RNA_EXPRESSION,
-    MRNA_EXPRESSION,
-    MRNA_EXPRESSION_NORMALS,
-    RNA_EXPRESSION,
-    METHYLATION,
-    METHYLATION_BINARY,
-    PHOSPHORYLATION,
-    PROTEIN_LEVEL,
-    PROTEIN_ARRAY_PROTEIN_LEVEL,
-    PROTEIN_ARRAY_PHOSPHORYLATION,
-	GENESET_SCORE;
-};
+import org.apache.ibatis.annotations.Param;
+import org.cbioportal.model.Geneset;
+import org.cbioportal.model.meta.BaseMeta;
+
+public interface GenesetMapper {
+
+    List<Geneset> getGenesets(@Param("projection") String projection,
+                        @Param("limit") Integer limit,
+                        @Param("offset") Integer offset,
+                        @Param("sortBy") String sortBy,
+                        @Param("direction") String direction);
+
+    BaseMeta getMetaGenesets();
+
+    Geneset getGenesetByInternalId(@Param("genesetId") Integer internalId,
+            @Param("projection") String projection);
+    
+    Geneset getGenesetByGenesetId(@Param("genesetId") String genesetId,
+                               @Param("projection") String projection);
+
+    Geneset getGenesetByGeneticEntityId(@Param("geneticEntityId") Integer geneticEntityId,
+            @Param("projection") String projection);
+
+    List<Geneset> getGenesetsByGenesetIds(@Param("genesetIds") List<String> genesetIds,
+            @Param("projection") String projection);
+}

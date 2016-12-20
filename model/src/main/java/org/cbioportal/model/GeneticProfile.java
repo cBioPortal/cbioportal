@@ -19,8 +19,9 @@ public class GeneticProfile implements Serializable {
         METHYLATION_BINARY,
         PHOSPHORYLATION,
         PROTEIN_LEVEL,
-        PROTEIN_ARRAY_PROTEIN_LEVEL,
-        PROTEIN_ARRAY_PHOSPHORYLATION;
+        PROTEIN_ARRAY_PROTEIN_LEVEL, //TODO - remove? I think this is not used anymore...
+        PROTEIN_ARRAY_PHOSPHORYLATION, //TODO - remove? I think this is not used anymore...
+        GENESET_SCORE;
     }
 
     private Integer geneticProfileId;

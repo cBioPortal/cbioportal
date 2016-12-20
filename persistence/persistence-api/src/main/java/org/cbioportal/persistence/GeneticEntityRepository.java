@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -29,25 +29,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+package org.cbioportal.persistence;
 
-package org.mskcc.cbio.portal.model;
+import org.cbioportal.model.GeneticEntity;
+import org.cbioportal.model.GeneticEntity.EntityType;
 
-// Copied to org.cbioportal.model.GeneticProfile.GeneticAlterationType, if you alter this,
-// don't forget to change the other one too
-public enum GeneticAlterationType {
-    MUTATION_EXTENDED,
-    FUSION,
-    STRUCTURAL_VARIANT,
-    COPY_NUMBER_ALTERATION,
-    MICRO_RNA_EXPRESSION,
-    MRNA_EXPRESSION,
-    MRNA_EXPRESSION_NORMALS,
-    RNA_EXPRESSION,
-    METHYLATION,
-    METHYLATION_BINARY,
-    PHOSPHORYLATION,
-    PROTEIN_LEVEL,
-    PROTEIN_ARRAY_PROTEIN_LEVEL,
-    PROTEIN_ARRAY_PHOSPHORYLATION,
-	GENESET_SCORE;
-};
+public interface GeneticEntityRepository {
+
+	GeneticEntity getGeneticEntity(String entityStableId, EntityType gene);
+	
+	GeneticEntity getGeneticEntity(Integer entityId, EntityType gene);
+}

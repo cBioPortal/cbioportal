@@ -1,10 +1,12 @@
 package org.cbioportal.web.mixin;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneticEntity;
+import org.cbioportal.model.GeneticEntity.EntityType;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Sample;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GeneticDataMixin {
 
@@ -12,13 +14,25 @@ public class GeneticDataMixin {
     private Integer geneticProfileId;
     @JsonProperty("geneticProfileId")
     private String geneticProfileStableId;
-    private Integer entrezGeneId;
+    
+    @JsonIgnore
+    private Integer geneticEntityId;
+    @JsonProperty("geneticEntityId")
+    private String geneticEntityStableId;
+    private EntityType geneticEntityType;
+    
     @JsonIgnore
     private Integer sampleId;
-    @JsonProperty("sampleStableId")
+    @JsonProperty("sampleId")
     private String sampleStableId;
+    
     private String value;
+    
+    @JsonIgnore
     private GeneticProfile geneticProfile;
-    private Gene gene;
+    @JsonIgnore
+    private GeneticEntity geneticEntity;
+    @JsonIgnore
     private Sample sample;
+    
 }

@@ -60,6 +60,12 @@ public class SampleMyBatisRepository implements SampleRepository {
 
         return sampleMapper.getSamples(studyIds, null, sampleIds, projection, 0, 0, null, null);
     }
+    
+    @Override
+    public List<Sample> fetchSamplesInSameStudyByInternalIds(String studyId, List<Integer> sampleIds, String projection) {
+    	 
+    	return sampleMapper.getSamplesInSameStudyByInternalIds(studyId, null, sampleIds, projection, 0, 0, null, null);
+    }
 
     @Override
     public BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds) {

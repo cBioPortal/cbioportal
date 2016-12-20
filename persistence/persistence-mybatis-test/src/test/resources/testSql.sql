@@ -46,6 +46,7 @@ CREATE TABLE "type_of_cancer" (
 CREATE TABLE "gene" (
   "ENTREZ_GENE_ID" INTEGER NOT NULL,
   "HUGO_GENE_SYMBOL" VARCHAR(255) NOT NULL,
+  "GENETIC_ENTITY_ID" INTEGER, -- just a quick fix for GeneMapper.xml to work. TODO this part of the file should not exist...use cgds.sql instead. TODO 2 - add genetic_entity insert statements when making tests that involve this table
   "TYPE" VARCHAR(50),
   "CYTOBAND" VARCHAR(50),
   "LENGTH" INTEGER,

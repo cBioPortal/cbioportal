@@ -70,6 +70,12 @@ public class GenesetMyBatisRepository implements GenesetRepository {
 	}
 
 	@Override
+	public Geneset getGenesetByGeneticEntityId(Integer entityId) {
+		
+		return genesetMapper.getGenesetByGeneticEntityId(entityId, PersistenceConstants.DETAILED_PROJECTION);
+	}
+	
+	@Override
 	public List<Geneset> fetchGenesetsByGenesetIds(List<String> genesetIds, String projection) {
 		
 		return genesetMapper.getGenesetsByGenesetIds(genesetIds, projection);
@@ -80,5 +86,4 @@ public class GenesetMyBatisRepository implements GenesetRepository {
 		// TODO Auto-generated method stub
 		return null;
 	}
-   
 }

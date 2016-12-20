@@ -34,6 +34,8 @@ public interface GenesetRepository {
     BaseMeta getMetaGenesets();
 
     Geneset getGenesetByGenesetId(String genesetId);
+    
+    Geneset getGenesetByGeneticEntityId(Integer entityId);
 
     List<Geneset> fetchGenesetsByGenesetIds(List<String> genesetIds, String projection);
 

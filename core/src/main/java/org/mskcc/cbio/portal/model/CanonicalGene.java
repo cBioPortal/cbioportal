@@ -47,6 +47,7 @@ import java.util.Set;
 public class CanonicalGene extends Gene {
     public static final String MIRNA_TYPE = "miRNA";
     public static final String PHOSPHOPROTEIN_TYPE = "phosphoprotein";
+    private int geneticEntityId;
     private long entrezGeneId;
     private String hugoGeneSymbol;
     private Set<String> aliases;
@@ -55,20 +56,59 @@ public class CanonicalGene extends Gene {
     private int length;
     private String type;
 
+    /**
+     * @deprecated: hardly used (2 places that are not relevant, 
+     * potentially dead code), should be deprecated 
+     * 
+     * @param hugoGeneSymbol
+     */
     public CanonicalGene(String hugoGeneSymbol) {
-        this(-1, hugoGeneSymbol);
+        this(hugoGeneSymbol, null);
     }
 
-    public CanonicalGene(long entrezGeneId, String hugoGeneSymbol) {
-        this(entrezGeneId, hugoGeneSymbol, null);
-    }
-
+    /**
+     * This constructor can be used to get a rather empty object 
+     * representing this gene symbol. 
+     * 
+     * Note: Its most important use is for data loading of "phosphogenes"
+     * (ImportTabDelimData.importPhosphoGene) where a dummy gene record
+     * is generated on the fly for this entity. TODO this constructor needs
+     * to be deprecated once "phosphogenes" become a genetic entity on their own. 
+     * 
+     * @param hugoGeneSymbol
+     */
     public CanonicalGene(String hugoGeneSymbol, Set<String> aliases) {
-        this(-1, hugoGeneSymbol, aliases);
+        this(-1, -1, hugoGeneSymbol, aliases);
+    }
+    
+    /** 
+     * This constructor can be used when geneticEntityId is not yet known, 
+     * e.g. in case of a new gene (like when adding new genes in ImportGeneData), or is
+     * not needed (like when retrieving mutation data)
+     * 
+     * @param entrezGeneId
+     * @param hugoGeneSymbol
+     */
+    public CanonicalGene(long entrezGeneId, String hugoGeneSymbol) {
+        this(-1, entrezGeneId, hugoGeneSymbol, null);
     }
 
+    /**
+     * This constructor can be used when geneticEntityId is not yet known, 
+     * e.g. in case of a new gene (like when adding new genes in ImportGeneData), or is
+     * not needed (like when retrieving mutation data)
+     * 
+     * @param entrezGeneId
+     * @param hugoGeneSymbol
+     * @param aliases
+     */
     public CanonicalGene(long entrezGeneId, String hugoGeneSymbol, Set<String> aliases) {
-        this.entrezGeneId = entrezGeneId;
+    	this(-1, entrezGeneId, hugoGeneSymbol, aliases);
+    }
+    
+    public CanonicalGene(int geneticEntityId, long entrezGeneId, String hugoGeneSymbol, Set<String> aliases) {
+   		this.geneticEntityId = geneticEntityId;
+    	this.entrezGeneId = entrezGeneId;
         this.hugoGeneSymbol = hugoGeneSymbol;
         setAliases(aliases);
     }
@@ -120,6 +160,14 @@ public class CanonicalGene extends Gene {
         }
         
         this.aliases = new HashSet<String>(map.values());
+    }
+    
+    public int getGeneticEntityId() {
+    	return geneticEntityId;
+    }
+    
+    public void setGeneticEntityId(int geneticEntityId) {
+        this.geneticEntityId = geneticEntityId;
     }
 
     public long getEntrezGeneId() {

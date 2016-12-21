@@ -1680,10 +1680,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 	(function setUpHeatmap() {
 	    QuerySession.getHeatmapProfiles().then(function (profiles) {
+		// Sort, mRNA first
+		profiles.sort(function(a,b) {
+		    var order = {'MRNA_EXPRESSION':0, 'PROTEIN_LEVEL':1};
+		    return order[a.genetic_alteration_type] - order[b.genetic_alteration_type];
+		});
 		// Add profile dropdown options
 		if (profiles.length === 0) {
 		    // Hide menu if no heatmaps available
 		    $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu').hide();
+		    return;
 		}
 		// See if any of the heatmap profiles have been queried
 		// If so, select it automatically - prefer mRNA to protein
@@ -1702,12 +1708,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}
 		    }
 		}
+		profile_to_select = profile_to_select || profiles[0];
 		for (var i = 0; i < profiles.length; i++) {
 		    (function (profile) {
 			var $option = $("<option>").attr({"value": profile.id, "title": profile.description}).text(profile.name);
 			if (profile_to_select && profile_to_select === profile.id) {
 			    $option.prop("selected", true);
-			    $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles #placeholder').remove();
 			}
 			$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles').append($option);
 		    })(profiles[i]);

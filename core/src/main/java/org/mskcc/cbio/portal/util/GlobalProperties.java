@@ -806,19 +806,15 @@ public class GlobalProperties {
         return darwinAuthority;
     }
     
-    public static Map<String, Set<String>> getPriorityStudies() {
-	    Map<String, Set<String>> priorityStudiesObject = new HashMap<>();
+    public static List<String[]> getPriorityStudies() {
+	    List<String[]> priorityStudiesObject = new LinkedList<>();
 	    try {
 		    String priorityStudies = properties.getProperty(PRIORITY_STUDIES).trim();
 		    for (String priorityStudyCategory: priorityStudies.split(";")) {
 			    String[] elements = priorityStudyCategory.split("[#,]");
-			    String category = elements[0];
-			    Set<String> studies = new HashSet<>();
-			    for (int i=1; i<elements.length; i++) {
-				    studies.add(elements[i]);
-			    }
-			    if (studies.size() > 0) {
-				priorityStudiesObject.put(category, studies);
+			    elements = Arrays.stream(elements).filter(s -> s.length() > 0).toArray(String[]::new);
+			    if (elements.length > 1) {
+				    priorityStudiesObject.add(elements);
 			    }
 		    }
 	    } catch (NullPointerException e) {}

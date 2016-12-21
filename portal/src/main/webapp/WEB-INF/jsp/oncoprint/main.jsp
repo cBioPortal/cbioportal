@@ -66,7 +66,6 @@
                <div class="dropdown-menu" style="padding: 10px 5px; width: 270px;min-width: 270px;">
                    <form action="" style="margin-bottom: 0;">
                        <select id="oncoprint_diagram_heatmap_profiles" style="width:100%">
-                           <option id="placeholder" value="" disabled selected hidden>Select genetic profile</option>
                        </select>
                        <textarea id="add_genes_input" rows="5" cols="100" wordwrap="true" placeholder="Type space- or comma-separated genes here, then click 'Add Genes to Heatmap'"></textarea><br>
                        <button id="add_genes_btn" style='font-size:13px; cursor:pointer'>Add Genes to Heatmap</button> <br/>

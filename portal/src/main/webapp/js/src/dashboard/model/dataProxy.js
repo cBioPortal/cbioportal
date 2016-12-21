@@ -769,6 +769,7 @@ window.DataManagerForIviz = (function($, _) {
               patient_ids: studyCasesMap[_studyId].patients
             }).then(function(data) {
               for (var i = 0; i < data.length; i++) {
+                data[i].attr_id = data[i].attr_id.toUpperCase();
                 var attr_id = data[i].attr_id;
                 clinical_data[attr_id] = clinical_data[attr_id] || [];
                 clinical_data[attr_id].push(data[i]);
@@ -828,6 +829,7 @@ window.DataManagerForIviz = (function($, _) {
                 sample_ids: studyCasesMap[_studyId].samples
               }).then(function(data) {
                 for (var i = 0; i < data.length; i++) {
+                  data[i].attr_id = data[i].attr_id.toUpperCase();
                   var attr_id = data[i].attr_id;
                   clinical_data[attr_id] = clinical_data[attr_id] || [];
                   clinical_data[attr_id].push(data[i]);
@@ -1024,6 +1026,7 @@ window.DataManagerForIviz = (function($, _) {
                 for (var i = 0; i < attrs.length; i++) {
                   // TODO : Need to update logic incase if multiple studies
                   // have same attribute name but different properties
+                  attrs[i].attr_id = attrs[i].attr_id.toUpperCase();
                   if (clinical_attributes_set[attrs[i].attr_id] === undefined) {
                     attrs[i].study_ids = [cancer_study_id];
                     clinical_attributes_set[attrs[i].attr_id] = attrs[i];

@@ -47,12 +47,7 @@ import org.cbioportal.service.CNSegmentService;
 @EnableWebMvc
 @ComponentScan(basePackages = {"org.cbioportal.weblegacy"}, resourcePattern = "**/*CNSegmentController.class")
 public class CNSegmentControllerConfig extends WebMvcConfigurerAdapter {
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
-        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
-        converters.add(mappingJackson2HttpMessageConverter);
-    }
+
     @Bean
     public CNSegmentService cNSegmentService() {
         return Mockito.mock(CNSegmentService.class);

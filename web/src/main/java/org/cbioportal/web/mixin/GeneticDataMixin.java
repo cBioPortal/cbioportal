@@ -12,13 +12,8 @@ public class GeneticDataMixin {
     private Integer geneticProfileId;
     @JsonProperty("geneticProfileId")
     private String geneticProfileStableId;
-    private Integer entrezGeneId;
     @JsonIgnore
     private Integer sampleId;
     @JsonProperty("sampleStableId")
     private String sampleStableId;
-    private String value;
-    private GeneticProfile geneticProfile;
-    private Gene gene;
-    private Sample sample;
 }

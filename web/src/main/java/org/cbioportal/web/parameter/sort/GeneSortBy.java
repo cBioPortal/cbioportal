@@ -2,10 +2,19 @@ package org.cbioportal.web.parameter.sort;
 
 public enum GeneSortBy {
 
-    entrezGeneId,
-    hugoGeneSymbol,
-    type,
-    cytoband,
-    length,
-    chromosome
+    entrezGeneId("entrezGeneId"),
+    hugoGeneSymbol("hugoGeneSymbol"),
+    type("type"),
+    cytoband("cytoband"),
+    length("length");
+
+    private String originalValue;
+
+    GeneSortBy(String originalValue) {
+        this.originalValue = originalValue;
+    }
+
+    public String getOriginalValue() {
+        return originalValue;
+    }
 }

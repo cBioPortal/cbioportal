@@ -1,5 +1,5 @@
 cbioportal:
-  image: maven:3.2-jdk-7
+  image: maven:3.3.9-jdk-8
   ports:
     - "8080:8080"
   volumes:

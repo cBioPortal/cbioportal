@@ -1,6 +1,16 @@
 window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, study_sample_map, z_score_threshold, rppa_score_threshold,
 	case_set_properties) {
 
+    var signOfDiff = function(a,b) {
+	if (a < b) {
+	    return -1;
+	} else if (a > b) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    };
+    
     var deepCopyObject = function (obj) {
 	return $.extend(true, ($.isArray(obj) ? [] : {}), obj);
     };
@@ -447,7 +457,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    .map(function (x) {
 				return parseInt(x, 10);
 			    })
-			    .sort();
+			    .sort(function(a,b) { return signOfDiff(a,b); });
 		}
 		for (var i = 0; i < missense_mutation_webservice_data.length; i++) {
 		    var datum = missense_mutation_webservice_data[i];
@@ -552,7 +562,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    datum_to_add.attr_val_counts[data_to_combine[j].attr_val] += 1;
 			}
 		    }
-		    datum_to_add.attr_val = "Mixed";
+		    var attr_vals = Object.keys(datum_to_add.attr_val_counts);
+		    if (attr_vals.length > 1) {
+			datum_to_add.attr_val = "Mixed";
+		    } else if (attr_vals.length === 1) {
+			datum_to_add.attr_val = attr_vals[0];
+		    }
 		} else if (datatype.toLowerCase() === "counts_map") {
 		    for (var j = 0; j < data_to_combine.length; j++) {
 			for (var k in data_to_combine[j].attr_val) {

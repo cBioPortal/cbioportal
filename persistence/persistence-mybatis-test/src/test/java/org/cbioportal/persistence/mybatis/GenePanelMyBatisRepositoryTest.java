@@ -58,9 +58,11 @@ public class GenePanelMyBatisRepositoryTest {
     private GenePanelMyBatisRepository genePanelMyBatisRepository;
     
     @Test
-    public void getGenePanelBySampleAndProfileId() {
-        String result = genePanelMyBatisRepository.getGenePanelBySampleIdAndProfileId("TCGA-A1-A0SB-01", "study_tcga_pub_gistic");
-        Assert.assertEquals("TESTPANEL1", result);
+    public void getGenePanelsByProfiles() {
+        List<String> genes = new ArrayList<>();
+        List<GenePanelWithSamples> result = genePanelMyBatisRepository.getGenePanelsByProfile("study_tcga_pub_gistic");
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.get(0).getGenes().size());
     }
     
     @Test

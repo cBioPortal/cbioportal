@@ -31,13 +31,30 @@
 */
 package org.cbioportal.persistence;
 
-import java.util.List;
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.meta.BaseMeta;
 
-/**
- *
- * @author jiaojiao
- */
+import java.util.List;
+
 public interface GeneRepository {
-    List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol);
+
+    List<Gene> getAllGenes(String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
+
+    BaseMeta getMetaGenes();
+
+    Gene getGeneByEntrezGeneId(Integer entrezGeneId);
+
+    Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol);
+
+    List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
+
+    List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
+
+    List<Gene> fetchGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
+
+    List<Gene> fetchGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
+
+    BaseMeta fetchMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
+
+    BaseMeta fetchMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
 }

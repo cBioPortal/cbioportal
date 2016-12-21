@@ -48,7 +48,7 @@ var sidebar = (function() {
             $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.x.gene).val()), function(index, obj) {
                 if($.inArray(obj.type, _type_arr) === -1 &&
                     obj.type !== "MUTATION_EXTENDED" &&
-                    obj.type !== "PROTEIN_LEVEL") //tmp: skip mutation profile
+                    obj.type !== "PROTEIN_LEVEL") //skip mutation & (old)protein profile
                     _type_arr.push(obj.type);
             });
 

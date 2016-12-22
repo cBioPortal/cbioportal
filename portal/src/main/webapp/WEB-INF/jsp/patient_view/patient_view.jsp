@@ -1207,9 +1207,9 @@ if (localStorage.getItem('localdev') === "true") {
 } else {
     // Use deployed sources
     document.write('<link rel="stylesheet" type="text/css" href="reactapp/css/bootstrap.min.css" />');
-    document.write('<link rel="stylesheet" type="text/css" href="/reactapp/css/styles.css" />');
-    document.write('<script src="/reactapp/js/common.bundle.js"></scr' + 'ipt>');
-    document.write('<script src="/reactapp/js/main.app.js"></scr'+'ipt>');
+    document.write('<link rel="stylesheet" type="text/css" href="reactapp/css/styles.css" />');
+    document.write('<script src="reactapp/js/common.bundle.js"></scr' + 'ipt>');
+    document.write('<script src="reactapp/js/main.app.js"></scr'+'ipt>');
 }
 
 

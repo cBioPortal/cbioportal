@@ -224,6 +224,9 @@ public class GlobalProperties {
     
     public static final String PRIORITY_STUDIES = "priority_studies";
     
+    public static final String SHOW_CIVIC = "show.civic";
+    public static final String CIVIC_URL = "civic.url";
+
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -726,6 +729,34 @@ public class GlobalProperties {
         return "";
     }
 
+    public static String getCivicUrl()
+    {
+        String civicUrl = properties.getProperty(CIVIC_URL);
+        boolean showCivic = showCivic();
+
+        // This only applies if there is no civic.url property in the portal.properties file.
+        if (civicUrl == null || civicUrl.isEmpty()) {
+            civicUrl = "https://civic.genome.wustl.edu/api/";
+        }
+
+        //Test connection of CIVIC website.
+        if(!civicUrl.isEmpty() && showCivic) {
+
+            try {
+                URL url = new URL(civicUrl + "genes");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                if(conn.getResponseCode() != 200) {
+                    civicUrl = "";
+                }
+                conn.disconnect();
+                return civicUrl;
+            } catch (Exception e) {
+                return "";
+            }
+        }
+        return "";
+    }
+
     public static boolean showHotspot() {
         String hotspot = properties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
@@ -737,6 +768,13 @@ public class GlobalProperties {
         }else{
             return false;
         }
+    }
+
+    public static boolean showCivic() {
+        String showCivic = properties.getProperty(SHOW_CIVIC);
+        if (showCivic == null || showCivic.isEmpty())
+            return true;  // show CIVIC by default
+        return Boolean.parseBoolean(showCivic);
     }
 
     public static boolean filterGroupsByAppName() {

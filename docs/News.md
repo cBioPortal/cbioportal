@@ -1,4 +1,4 @@
-# December 22, 2016
+# December 23, 2016
 *   **New features**:
     * Heat map visualization of gene expression data in the OncoPrint
 

@@ -879,14 +879,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    return list_of_oncoprint_data;
 	};
 	
+	var local_storage_minimap_var = "oncoprintState.is_minimap_shown";
 	var saveToLocalStorage = function(state) {
 	    if (Storage) {
-		localStorage.setItem("oncoprintState.is_minimap_shown", state.is_minimap_shown);
+		localStorage.setItem(local_storage_minimap_var, state.is_minimap_shown);
 	    }
 	};
 	var loadFromLocalStorage = function(state) {
 	    if (Storage) {
-		state.is_minimap_shown = localStorage.getItem("oncoprintState.is_minimap_shown");
+		state.is_minimap_shown = (localStorage.getItem(local_storage_minimap_var) === "true");
 	    }
 	};
 	
@@ -944,8 +945,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		return Math.max(Math.max.apply(null, heatmap_genetic_profiles.map(function(id) { return State.heatmap_track_groups[id].track_group_id; })) + 1, 2);
 	    },	    
 	    
-	    'toggleMinimapShown': function() {
-		this.is_minimap_shown = !this.is_minimap_shown;
+	    'toggleMinimapShown': function(opt_val) {
+		if (typeof opt_val !== "undefined") {
+		    this.is_minimap_shown = opt_val;
+		} else {
+		    this.is_minimap_shown = !this.is_minimap_shown;
+		}
 		saveToLocalStorage(this);
 	    },
 	    'useAttribute': function (attr_id) {
@@ -1805,7 +1810,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				    oncoprint.setMinimapVisible(State.is_minimap_shown);
 				});
 	    oncoprint.onMinimapClose(function() {
-		State.is_minimap_shown = false;
+		State.toggleMinimapShown(false);
 		update();
 	    });
 	})();

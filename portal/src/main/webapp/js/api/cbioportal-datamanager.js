@@ -1,6 +1,16 @@
 window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, study_sample_map, z_score_threshold, rppa_score_threshold,
 	case_set_properties) {
 
+    var signOfDiff = function(a,b) {
+	if (a < b) {
+	    return -1;
+	} else if (a > b) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    };
+    
     var deepCopyObject = function (obj) {
 	return $.extend(true, ($.isArray(obj) ? [] : {}), obj);
     };
@@ -447,7 +457,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    .map(function (x) {
 				return parseInt(x, 10);
 			    })
-			    .sort();
+			    .sort(function(a,b) { return signOfDiff(a,b); });
 		}
 		for (var i = 0; i < missense_mutation_webservice_data.length; i++) {
 		    var datum = missense_mutation_webservice_data[i];

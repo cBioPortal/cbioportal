@@ -146,7 +146,7 @@ public class StructuralVariantControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene1.entrezGeneId").value(2064))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene2.hugoGeneSymbol").value("GRB7"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene2.entrezGeneId").value(2886))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("TCGA-A1-A0SB-01"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample.stableId").value("TCGA-A1-A0SB-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].breakpointType").value("PRECISE"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].annotation").value("n/a"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].comments").value("n/a"))
@@ -176,7 +176,7 @@ public class StructuralVariantControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene1.entrezGeneId").value(2064))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene2.hugoGeneSymbol").value("GRB7"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene2.entrezGeneId").value(2886))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value("TCGA-A1-A0SD-01"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample.stableId").value("TCGA-A1-A0SD-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].breakpointType").value("PRECISE"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].annotation").value("n/a"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].comments").value("ERBB2 (NM_004448) rearrangement"))
@@ -206,7 +206,7 @@ public class StructuralVariantControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].gene1.entrezGeneId").value(2064))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].gene2.hugoGeneSymbol").value("ERBB2"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].gene2.entrezGeneId").value(2064))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].stableId").value("TCGA-A1-A0SE-01"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].sample.stableId").value("TCGA-A1-A0SE-01"))
                 ;
     }
 

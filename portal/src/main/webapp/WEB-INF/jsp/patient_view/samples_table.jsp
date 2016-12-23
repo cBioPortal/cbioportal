@@ -66,4 +66,4 @@
 %>
 
 <!-- Add React root node for cbioportal-frontend -->
-<div id="reactRoot"></div>
+<div id="reactRoot" class="cbioportal-frontend"></div>

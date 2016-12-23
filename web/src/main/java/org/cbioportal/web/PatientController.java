@@ -56,7 +56,7 @@ public class PatientController {
         } else {
             return new ResponseEntity<>(
                 patientService.getAllPatientsInStudy(studyId, projection.name(), pageSize, pageNumber,
-                    sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 

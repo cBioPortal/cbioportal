@@ -54,7 +54,7 @@ public class SampleListController {
         } else {
             return new ResponseEntity<>(
                 sampleListService.getAllSampleLists(projection.name(), pageSize, pageNumber,
-                    sortBy == null ? null : sortBy.getValue(), direction.name()), HttpStatus.OK);
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
@@ -93,7 +93,7 @@ public class SampleListController {
         } else {
             return new ResponseEntity<>(
                 sampleListService.getAllSampleListsInStudy(studyId, projection.name(), pageSize, pageNumber,
-                    sortBy == null ? null : sortBy.getValue(), direction.name()), HttpStatus.OK);
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 

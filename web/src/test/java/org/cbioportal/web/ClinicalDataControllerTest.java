@@ -84,13 +84,13 @@ public class ClinicalDataControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrId").value(TEST_ATTR_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrValue").value(TEST_ATTR_VALUE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrId").value(TEST_ATTR_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrValue").value(TEST_ATTR_VALUE_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
@@ -134,13 +134,13 @@ public class ClinicalDataControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrId").value(TEST_ATTR_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrValue").value(TEST_ATTR_VALUE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrId").value(TEST_ATTR_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrValue").value(TEST_ATTR_VALUE_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
@@ -185,13 +185,13 @@ public class ClinicalDataControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrId").value(TEST_ATTR_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrValue").value(TEST_ATTR_VALUE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrId").value(TEST_ATTR_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrValue").value(TEST_ATTR_VALUE_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
@@ -234,11 +234,11 @@ public class ClinicalDataControllerTest {
         List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
         ClinicalDataIdentifier clinicalDataIdentifier1 = new ClinicalDataIdentifier();
         clinicalDataIdentifier1.setStudyId("test_study1");
-        clinicalDataIdentifier1.setId("test_patient1");
+        clinicalDataIdentifier1.setEntityId("test_patient1");
         clinicalDataIdentifiers.add(clinicalDataIdentifier1);
         ClinicalDataIdentifier clinicalDataIdentifier2 = new ClinicalDataIdentifier();
         clinicalDataIdentifier2.setStudyId("test_study2");
-        clinicalDataIdentifier2.setId("test_patient2");
+        clinicalDataIdentifier2.setEntityId("test_patient2");
         clinicalDataIdentifiers.add(clinicalDataIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch")
@@ -249,13 +249,13 @@ public class ClinicalDataControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrId").value(TEST_ATTR_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrValue").value(TEST_ATTR_VALUE_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrId").value(TEST_ATTR_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrValue").value(TEST_ATTR_VALUE_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
@@ -273,11 +273,11 @@ public class ClinicalDataControllerTest {
         List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
         ClinicalDataIdentifier clinicalDataIdentifier1 = new ClinicalDataIdentifier();
         clinicalDataIdentifier1.setStudyId("test_study1");
-        clinicalDataIdentifier1.setId("test_patient1");
+        clinicalDataIdentifier1.setEntityId("test_patient1");
         clinicalDataIdentifiers.add(clinicalDataIdentifier1);
         ClinicalDataIdentifier clinicalDataIdentifier2 = new ClinicalDataIdentifier();
         clinicalDataIdentifier2.setStudyId("test_study2");
-        clinicalDataIdentifier2.setId("test_patient2");
+        clinicalDataIdentifier2.setEntityId("test_patient2");
         clinicalDataIdentifiers.add(clinicalDataIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch")

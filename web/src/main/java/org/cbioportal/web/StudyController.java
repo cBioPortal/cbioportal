@@ -53,7 +53,7 @@ public class StudyController {
         } else {
             return new ResponseEntity<>(
                     studyService.getAllStudies(projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 

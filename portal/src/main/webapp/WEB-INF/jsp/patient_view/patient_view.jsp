@@ -1169,50 +1169,21 @@ window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
 </script>
 <!-- Add script and style files for cbioportal-frontend -->
 <script>
-// Set frontend route to /patient
-window.defaultRoute = "/patient";
 
-// Set API root variable for cbioportal-frontend repo
-<%
-String url = request.getRequestURL().toString();
-String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath() + "/";
-baseURL = baseURL.replace("https://", "").replace("http://", "");
-%>
-__API_ROOT__ = '<%=baseURL%>' + '/api';
+
     
-if (localStorage.getItem('localdev') === "true") {
-    // Use cbioportal-frontend localhost:3000 for dev
-    document.write('<script src="http://localhost:3000/reactapp/js/common.bundle.js"></scr'+'ipt>');
-    document.write('<script src="http://localhost:3000/reactapp/js/main.app.js"></scr'+'ipt>');
-    // Show alert
-    document.write('<div style="position: fixed; top: 0; left: 0; width: 100%;">'+
-                       '<div class="alert alert-warning">' +
-                            '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
-                            'cbioportal-frontend dev mode, using localhost:3000' +
-                       '</div>' +
-                   '</div>');
-} else if (localStorage.getItem('heroku')) {
-    var herokuInstance = 'https://' + localStorage.getItem('heroku') + '.herokuapp.com';
-    document.write('<link rel="stylesheet" type="text/css" href="' + herokuInstance + '/reactapp/css/bootstrap.min.css" />');
-    document.write('<link rel="stylesheet" type="text/css" href="' + herokuInstance + '/reactapp/css/styles.css" />');
-    document.write('<script src="' + herokuInstance + '/reactapp/js/common.bundle.js"></scr'+'ipt>');
-    document.write('<script src="' + herokuInstance + '/reactapp/js/main.app.js"></scr'+'ipt>');
-    // Show alert
-    document.write('<div style="position: fixed; top: 0; left: 0; width: 100%;">'+
-                       '<div class="alert alert-warning">' +
-                            '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
-                            'cbioportal-frontend dev mode, using ' + herokuInstance +
-                       '</div>' +
-                   '</div>');
-} else {
-    // Use deployed sources
-    document.write('<link rel="stylesheet" type="text/css" href="reactapp/css/bootstrap.min.css" />');
-    document.write('<link rel="stylesheet" type="text/css" href="/reactapp/css/styles.css" />');
-    document.write('<script src="/reactapp/js/common.bundle.js"></scr' + 'ipt>');
-    document.write('<script src="/reactapp/js/main.app.js"></scr'+'ipt>');
-}
+window.loadReactApp({ defaultRoute: 'patient' });
+    
+window.onReactAppReady(function(){
+    
+    <%--var genomicOverviewDiv = document.getElementById('genomics-overview');--%>
+    <%--if (genomicOverviewDiv) {--%>
+        <%--window.renderGenomicOverview(genomicOverviewDiv);--%>
+    <%--}--%>
+ 
+});
 
-
-</script>
+    
+    </script>
 </body>
 </html>

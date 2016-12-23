@@ -9,12 +9,16 @@ public class SampleMixin {
 
     @JsonIgnore
     private Integer internalId;
+    @JsonProperty("sampleId")
     private String stableId;
-    private Sample.SampleType sampleType;
     @JsonIgnore
     private Integer patientId;
     @JsonProperty("patientId")
     private String patientStableId;
-    private String typeOfCancerId;
+    @JsonIgnore
     private Patient patient;
+    @JsonProperty("studyId")
+    private String cancerStudyIdentifier;
+    @JsonProperty("cancerTypeId")
+    private String typeOfCancerId;
 }

@@ -65,7 +65,7 @@ public class ClinicalDataController {
             return new ResponseEntity<>(
                     clinicalDataService.getAllClinicalDataOfSampleInStudy(
                             studyId, sampleId, attributeId, projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
@@ -99,7 +99,7 @@ public class ClinicalDataController {
             return new ResponseEntity<>(
                     clinicalDataService.getAllClinicalDataOfPatientInStudy(
                             studyId, patientId, attributeId, projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
@@ -133,7 +133,7 @@ public class ClinicalDataController {
             return new ResponseEntity<>(
                     clinicalDataService.getAllClinicalDataInStudy(studyId, attributeId,
                             clinicalDataType == null ? null : clinicalDataType.name(), projection.name(), pageSize,
-                            pageNumber, sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
@@ -159,7 +159,7 @@ public class ClinicalDataController {
 
         for (ClinicalDataIdentifier identifier : identifiers) {
             studyIds.add(identifier.getStudyId());
-            ids.add(identifier.getId());
+            ids.add(identifier.getEntityId());
         }
 
         if (projection == Projection.META) {

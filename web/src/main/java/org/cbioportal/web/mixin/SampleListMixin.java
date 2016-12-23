@@ -10,12 +10,10 @@ public class SampleListMixin {
     private Integer listId;
     @JsonProperty("sampleListId")
     private String stableId;
-    private String category;
     @JsonIgnore
     private Integer cancerStudyId;
-    @JsonProperty("cancerStudyId")
+    @JsonProperty("studyId")
     private String cancerStudyIdentifier;
+    @JsonIgnore
     private CancerStudy cancerStudy;
-    private String name;
-    private String description;
 }

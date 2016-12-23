@@ -56,7 +56,7 @@ public class SampleController {
         } else {
             return new ResponseEntity<>(
                     sampleService.getAllSamplesInStudy(studyId, projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
@@ -99,7 +99,7 @@ public class SampleController {
         } else {
             return new ResponseEntity<>(
                     sampleService.getAllSamplesOfPatientInStudy(studyId, patientId, projection.name(), pageSize,
-                            pageNumber, sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 

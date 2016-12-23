@@ -83,13 +83,13 @@ public class PatientControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyIdentifier").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudy").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyIdentifier").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudy").doesNotExist());
     }
@@ -145,18 +145,9 @@ public class PatientControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.stableId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyIdentifier").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudy.cancerStudyId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudy.cancerStudyIdentifier")
-                .value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudy.description")
-                .value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudy.name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudy.shortName").value(TEST_SHORT_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudy.typeOfCancerId")
-                .value(TEST_TYPE_OF_CANCER_ID_1));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.patientId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyIdentifier").doesNotExist());
     }
 
     @Test
@@ -185,13 +176,13 @@ public class PatientControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyIdentifier").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudy").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyIdentifier").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudy").doesNotExist());
     }

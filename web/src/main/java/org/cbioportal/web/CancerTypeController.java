@@ -53,7 +53,7 @@ public class CancerTypeController {
         } else {
             return new ResponseEntity<>(
                     cancerTypeService.getAllCancerTypes(projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 

@@ -22,23 +22,24 @@ var OncoprintToolTip = (function() {
 	    self.hide();
 	});
     }
-    OncoprintToolTip.prototype.show = function(wait, page_x, page_y, html_str, fade) {
+    OncoprintToolTip.prototype.show = function(wait, page_x, page_y, $contents, fade) {
 	cancelScheduledHide(this);
 	
 	if (typeof wait !== 'undefined' && !this.shown) {
 	    var self = this;
 	    cancelScheduledShow(this);
 	    this.show_timeout_id = setTimeout(function() {
-		doShow(self, page_x, page_y, html_str, fade);
+		doShow(self, page_x, page_y, $contents, fade);
 	    }, wait);
 	} else {
-	    doShow(this, page_x, page_y, html_str, fade);
+	    doShow(this, page_x, page_y, $contents, fade);
 	}
     }
-    var doShow = function(tt, page_x, page_y, html_str, fade) {
+    var doShow = function(tt, page_x, page_y, $contents, fade) {
 	cancelScheduledShow(tt);
 	tt.show_timeout_id = undefined;
-	tt.$div.html(html_str);
+	tt.$div.empty();
+	tt.$div.append($contents);
 	if (!fade) {
 	    tt.$div.show();
 	} else {
@@ -68,9 +69,9 @@ var OncoprintToolTip = (function() {
 	clearTimeout(tt.hide_timeout_id);
 	tt.hide_timeout_id = undefined;
     };
-    OncoprintToolTip.prototype.showIfNotAlreadyGoingTo = function(wait, page_x, page_y, html_str) {
+    OncoprintToolTip.prototype.showIfNotAlreadyGoingTo = function(wait, page_x, page_y, $contents) {
 	if (typeof this.show_timeout_id === 'undefined') {
-	    this.show(wait, page_x, page_y, html_str);
+	    this.show(wait, page_x, page_y, $contents);
 	}
     }
     OncoprintToolTip.prototype.hideIfNotAlreadyGoingTo = function(wait) {
@@ -95,8 +96,8 @@ var OncoprintToolTip = (function() {
 	    doHide(this);
 	}
     }
-    OncoprintToolTip.prototype.fadeIn = function(wait, page_x, page_y, html_str) {
-	this.show(wait, page_x, page_y, html_str, true);
+    OncoprintToolTip.prototype.fadeIn = function(wait, page_x, page_y, $contents) {
+	this.show(wait, page_x, page_y, $contents, true);
     }
     return OncoprintToolTip;
 })();

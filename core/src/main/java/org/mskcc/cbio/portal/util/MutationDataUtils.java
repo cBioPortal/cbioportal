@@ -301,7 +301,7 @@ public class MutationDataUtils {
     }
 
     public String generateMutationId(ExtendedMutation mutation) {
-        return "m" + Integer.toString(mutation.hashCode());
+        return "m" + Integer.toString(mutation.hashCode()) + "-" + mutation.getSampleId();
     }
 
     public String generateMutationSid(ExtendedMutation mutation, Sample sample)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,19 +32,17 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
-import org.mskcc.cbio.portal.web_api.*;
 import org.mskcc.cbio.portal.util.*;
-
-import org.apache.log4j.Logger;
-import org.json.simple.JSONValue;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
-import java.io.*;
+import org.mskcc.cbio.portal.web_api.*;
 import java.util.*;
 
 public class CrossCancerJSON extends HttpServlet {
@@ -115,7 +113,7 @@ public class CrossCancerJSON extends HttpServlet {
 		if (!studyMap.containsKey(cancerStudyId)) {
 			continue;
 		}
-                if(cancerStudyId.equalsIgnoreCase("all"))
+                if (cancerStudyId.equalsIgnoreCase("all"))
                     continue;
 
                 Map cancerMap = new LinkedHashMap();
@@ -156,9 +154,9 @@ public class CrossCancerJSON extends HttpServlet {
                 String mutationProfile = "", cnaProfile = "";
                 for (GeneticProfile geneticProfile : defaultGeneticProfileSet.values()) {
                     GeneticAlterationType geneticAlterationType = geneticProfile.getGeneticAlterationType();
-                    if(geneticAlterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                    if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
                         cnaProfile = geneticProfile.getStableId();
-                    } else if(geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+                    } else if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED) {
                         mutationProfile = geneticProfile.getStableId();
                     }
                 }
@@ -193,13 +191,13 @@ public class CrossCancerJSON extends HttpServlet {
                         noOfAll = 0;
 
                 boolean skipStudy = defaultGeneticProfileSet.isEmpty();
-                if(!skipStudy) {
+                if (!skipStudy) {
                     
                     for (String sampleId: sampleIds) {
-                        if(sampleId == null) {
+                        if (sampleId == null) {
                             continue;
                         }
-                        if(!genomicData.isCaseAltered(sampleId)) continue;
+                        if (!genomicData.isCaseAltered(sampleId)) continue;
 
                         boolean isAnyMutated = false,
                                 isAnyCnaUp = false,
@@ -222,17 +220,17 @@ public class CrossCancerJSON extends HttpServlet {
                         }
 
                         boolean isAnyCnaChanged = isAnyCnaUp || isAnyCnaDown;
-                        if(isAnyMutated && !isAnyCnaChanged)
+                        if (isAnyMutated && !isAnyCnaChanged)
                             noOfMutated++;
-                        else if(isAnyMutated && isAnyCnaChanged)
+                        else if (isAnyMutated && isAnyCnaChanged)
                             noOfOther++;
-                        else if(isAnyCnaUp)
+                        else if (isAnyCnaUp)
                             noOfCnaUp++;
-                        else if(isAnyCnaDown)
+                        else if (isAnyCnaDown)
                             noOfCnaDown++;
-                        else if(isAnyCnaGain)
+                        else if (isAnyCnaGain)
                             noOfCnaGain++;
-                        else if(isAnyCnaLoss)
+                        else if (isAnyCnaLoss)
                             noOfCnaLoss++;
 
                         noOfAll++;

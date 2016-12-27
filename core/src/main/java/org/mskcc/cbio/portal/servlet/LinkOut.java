@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,19 +32,17 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.web_api.*;
-import org.mskcc.cbio.portal.util.XDebug;
-import org.mskcc.cbio.portal.dao.DaoException;
-
-import org.apache.commons.collections15.iterators.IteratorEnumeration;
-
 import java.io.*;
 import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import org.apache.commons.collections15.iterators.IteratorEnumeration;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.SpringUtil;
+import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.web_api.*;
 
 /**
  * Central Servlet for Stable LinkOuts.
@@ -185,7 +183,7 @@ public class LinkOut extends HttpServlet {
         ret += "&";
         String geneticProfiles = "";
         for (String geneticProfileId: defaultGeneticProfileSet.keySet()) {
-            ret += QueryBuilder.GENETIC_PROFILE_IDS+"_PROFILE_"+defaultGeneticProfileSet.get(geneticProfileId).getGeneticAlterationType().toString();
+            ret += QueryBuilder.GENETIC_PROFILE_IDS+"_PROFILE_"+defaultGeneticProfileSet.get(geneticProfileId).getGeneticAlterationType().name();
             ret += "="+geneticProfileId;
             ret += "&";
         }

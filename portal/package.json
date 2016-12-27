@@ -1,0 +1,28 @@
+{
+  "name": "cbioportal",
+  "version": "1.0.0",
+  "description": "The cBioPortal for Cancer Genomics provides visualization, analysis, and download of large-scale cancer genomics data sets.  The cBioPortal is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License, version 3, as published by the Free Software Foundation.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cBioPortal/cbioportal.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cBioPortal/cbioportal/issues"
+  },
+  "homepage": "https://github.com/cBioPortal/cbioportal#readme",
+  "dependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2",
+    "underscore": "^1.8.3"
+  }
+}

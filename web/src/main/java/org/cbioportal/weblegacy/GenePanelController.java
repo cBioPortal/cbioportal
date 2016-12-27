@@ -35,8 +35,10 @@ package org.cbioportal.weblegacy;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.GenePanel;
+import org.cbioportal.model.GenePanelWithSamples;
 import org.cbioportal.service.GenePanelService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -69,15 +71,15 @@ public class GenePanelController {
         }
     }
 
-    @ApiOperation(value = "Get gene panel information for a sample profile pair",
+    @ApiOperation(value = "Get gene panel information for a profile and set of genes. Will return a mapping of samples and genes from the query that are in profile",
             nickname = "getGenePanelData",
             notes = "")
     @Transactional
     @RequestMapping(method = RequestMethod.GET, value = "/genepanel/data",  produces="application/json")
-    public String getGenePanelData(@ApiParam(required = true, value = "sample id, such as those returned by /api/samples")
-            @RequestParam(required = true) String sample_id,
-            @ApiParam(required = true, value = "genetic profile id, such as those returned by /api/geneticprofiles")
-            @RequestParam(required = true) String profile_id) {
-        return genePanelService.getGenePanelBySampleIdAndProfileId(sample_id, profile_id);
+    public List<GenePanelWithSamples> getGenePanelData(@ApiParam(required = true, value = "genetic profile id, such as those returned by /api/geneticprofiles")
+            @RequestParam(required = true) String profile_id,
+            @ApiParam(required = true, value = "List of gene hugo symbols")
+            @RequestParam(required = true) List<String> genes) {
+        return genePanelService.getGenePanelDataByProfileAndGenes(profile_id, genes);
     }
 }

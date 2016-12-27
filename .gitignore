@@ -12,6 +12,7 @@ portal/.DS_Store
 portal/Portal.ipr
 portal/Portal.iws
 portal/checkstyle_report.xml
+portal/node
 core/nbactions.xml
 logs
 importer/nbactions.xml
@@ -89,3 +90,7 @@ dependency-reduced-pom.xml
 .profile.d/
 Procfile
 scripts/target
+node_modules/
+target/
+portal/META-INF/*
+portal/reactapp/*

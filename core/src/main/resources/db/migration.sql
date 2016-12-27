@@ -1,3 +1,4 @@
+--
 -- Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
@@ -109,7 +110,7 @@ INSERT INTO clinical_attribute_meta
   INNER JOIN clinical_patient ON clinical_attribute.ATTR_ID = clinical_patient.ATTR_ID 
   INNER JOIN patient ON clinical_patient.internal_id = patient.internal_id 
   INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id;
-DROP TABLE clinical_attribute;
+DROP TABLE IF EXISTS clinical_attribute;
 CREATE TABLE `structural_variant` (
   `SAMPLE_ID` int(11) NOT NULL,
   `INTERNAL_ID` int(11) NOT NULL auto_increment,
@@ -147,8 +148,57 @@ CREATE TABLE `structural_variant` (
 );
 UPDATE info SET DB_SCHEMA_VERSION="1.3.0";
 
+##version: 1.3.1
+DROP TABLE IF EXISTS entity_attribute;
+DROP TABLE IF EXISTS attribute_metadata;
+DROP TABLE IF EXISTS entity_link;
+DROP TABLE IF EXISTS entity;
+-- cannot drop / adjust foreign keys without knowing unspecified constraint identifier : drop and recreate table instead
+DROP TABLE IF EXISTS structural_variant;
+CREATE TABLE `structural_variant` (
+  `SAMPLE_ID` int(11) NOT NULL,
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `BREAKPOINT_TYPE` varchar(25),
+  `ANNOTATION` varchar(255),
+  `COMMENTS` varchar(2048),
+  `CONFIDENCE_CLASS` varchar(25),
+  `CONNECTION_TYPE` varchar(25),
+  `EVENT_INFO` varchar(255),
+  `MAPQ` int(11),
+  `NORMAL_READ_COUNT` int(11),
+  `NORMAL_VARIANT_COUNT` int(11),
+  `PAIRED_END_READ_SUPPORT` varchar(255),
+  `SITE1_CHROM` varchar(25),
+  `SITE1_DESC` varchar(255),
+  `SITE1_ENTREZ_GENE_ID` int(11),
+  `SITE1_POS` int(11),
+  `SITE2_CHROM` varchar(25),
+  `SITE2_DESC` varchar(255),
+  `SITE2_ENTREZ_GENE_ID` int(11),
+  `SITE2_POS` int(11),
+  `SPLIT_READ_SUPPORT` varchar(255),
+  `SV_CLASS_NAME` varchar(25),
+  `SV_DESC` varchar(255),
+  `SV_LENGTH` int(11),
+  `TUMOR_READ_COUNT` int(11),
+  `TUMOR_VARIANT_COUNT` int(11),
+  `VARIANT_STATUS_NAME` varchar(255),
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`),
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SITE1_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SITE2_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
+);
+UPDATE info SET DB_SCHEMA_VERSION="1.3.1";
+
 ##version: 1.3.2
 -- increase varchar size to accomodate reference or tumor seq alleles larger than 255 chars
 ALTER TABLE `mutation_event` MODIFY COLUMN `REFERENCE_ALLELE` varchar(400);
 ALTER TABLE `mutation_event` MODIFY COLUMN `TUMOR_SEQ_ALLELE` varchar(400);
 UPDATE info SET DB_SCHEMA_VERSION="1.3.2";
+
+##version: 1.4.0
+-- alter version number to distinguish from cbioportal web application version numbering
+ALTER TABLE info MODIFY COLUMN DB_SCHEMA_VERSION VARCHAR(24);
+UPDATE info SET DB_SCHEMA_VERSION="1.4.0";

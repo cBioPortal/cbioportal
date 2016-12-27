@@ -44,8 +44,8 @@ import javax.servlet.http.HttpServletRequest;
  * displayed at the bottom of the JSP page.
  */
 public class XDebug {
-    private ArrayList messages;
-    private ArrayList parameters;
+    private ArrayList<XDebugMessage> messages;
+    private ArrayList<XDebugParameter> parameters;
     private Date startTime;
     private Date stopTime;
     private long timeElapsed;
@@ -55,8 +55,8 @@ public class XDebug {
      * Constructor.
      */
     public XDebug() {
-       messages = new ArrayList();
-       parameters = new ArrayList();
+       messages = new ArrayList<XDebugMessage>();
+       parameters = new ArrayList<XDebugParameter>();
        startTime = null;
        stopTime = null;
        timeElapsed = -1;
@@ -196,7 +196,7 @@ public class XDebug {
             log.append("No Log Messages");
         }
         for (int i = 0; i < messages.size(); i++) {
-            XDebugMessage msg = (XDebugMessage) messages.get(i);
+            XDebugMessage msg = messages.get(i);
             log.append(msg.getMessage() + "\n");
         }
         return log.toString();

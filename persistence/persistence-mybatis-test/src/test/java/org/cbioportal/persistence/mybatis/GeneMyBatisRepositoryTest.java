@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -29,12 +29,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 package org.cbioportal.persistence.mybatis;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,35 +42,220 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-/**
- *
- * @author jiaojiao
- */
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
 @Configurable
 public class GeneMyBatisRepositoryTest {
+
     @Autowired
     private GeneMyBatisRepository geneMyBatisRepository;
 
     @Test
-    public void getEmptyGeneList() {
-                List hugo_gene_symbol = new ArrayList<>();
-		List<Gene> result = geneMyBatisRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
-		Assert.assertEquals(0, result.size());
+    public void getAllGenesIdProjection() throws Exception {
+
+        List<Gene> result = geneMyBatisRepository.getAllGenes("ID", null, null, null, null);
+
+        Assert.assertEquals(16, result.size());
+        Gene gene = result.get(0);
+        Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
+        Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
     }
-    
+
     @Test
-    public void getSingleGene() {
-                List hugo_gene_symbol = new ArrayList<>(Arrays.asList("AKT1"));
-		List<Gene> result = geneMyBatisRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
-		Assert.assertEquals(1, result.size());
+    public void getAllGenesSummaryProjection() throws Exception {
+
+        List<Gene> result = geneMyBatisRepository.getAllGenes("SUMMARY", null, null, null, null);
+
+        Assert.assertEquals(16, result.size());
+        Gene gene = result.get(0);
+        Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
+        Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
+        Assert.assertEquals("protein-coding", gene.getType());
+        Assert.assertEquals("14q32.32", gene.getCytoband());
+        Assert.assertEquals((Integer) 10838, gene.getLength());
     }
-    
+
     @Test
-    public void getGeneList() {
-                List hugo_gene_symbol = new ArrayList<>(Arrays.asList("AKT1", "AKT2", "AKT3"));
-		List<Gene> result = geneMyBatisRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
-		Assert.assertEquals(3, result.size());
+    public void getAllGenesDetailedProjection() throws Exception {
+
+        List<Gene> result = geneMyBatisRepository.getAllGenes("DETAILED", null, null, null, null);
+
+        Assert.assertEquals(16, result.size());
+        Gene gene = result.get(0);
+        Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
+        Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
+        Assert.assertEquals("protein-coding", gene.getType());
+        Assert.assertEquals("14q32.32", gene.getCytoband());
+        Assert.assertEquals((Integer) 10838, gene.getLength());
+    }
+
+    @Test
+    public void getAllGenesSummaryProjection1PageSize() throws Exception {
+
+        List<Gene> result = geneMyBatisRepository.getAllGenes("SUMMARY", 1, 0, null, null);
+
+        Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    public void getAllGenesSummaryProjectionHugoGeneSymbolSort() throws Exception {
+
+        List<Gene> result = geneMyBatisRepository.getAllGenes("SUMMARY", null, null, "hugoGeneSymbol", "ASC");
+
+        Assert.assertEquals(16, result.size());
+        Assert.assertEquals("AKT1", result.get(0).getHugoGeneSymbol());
+        Assert.assertEquals("AKT2", result.get(1).getHugoGeneSymbol());
+        Assert.assertEquals("AKT3", result.get(2).getHugoGeneSymbol());
+        Assert.assertEquals("ARAF", result.get(3).getHugoGeneSymbol());
+        Assert.assertEquals("ATM", result.get(4).getHugoGeneSymbol());
+        Assert.assertEquals("BRAF", result.get(5).getHugoGeneSymbol());
+        Assert.assertEquals("SAMD11", result.get(15).getHugoGeneSymbol());
+    }
+
+    @Test
+    public void getMetaGenes() throws Exception {
+
+        BaseMeta result = geneMyBatisRepository.getMetaGenes();
+
+        Assert.assertEquals((Integer) 16, result.getTotalCount());
+    }
+
+    @Test
+    public void getGeneByEntrezGeneIdNullResult() throws Exception {
+
+        Gene result = geneMyBatisRepository.getGeneByEntrezGeneId(999);
+
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void getGeneByEntrezGeneId() throws Exception {
+
+        Gene result = geneMyBatisRepository.getGeneByEntrezGeneId(207);
+
+        Assert.assertEquals((Integer) 207, result.getEntrezGeneId());
+        Assert.assertEquals("AKT1", result.getHugoGeneSymbol());
+        Assert.assertEquals("protein-coding", result.getType());
+        Assert.assertEquals("14q32.32", result.getCytoband());
+        Assert.assertEquals((Integer) 10838, result.getLength());
+    }
+
+    @Test
+    public void getGeneByHugoGeneSymbolNullResult() throws Exception {
+
+        Gene result = geneMyBatisRepository.getGeneByHugoGeneSymbol("invalid_gene");
+
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void getGeneByHugoGeneSymbol() throws Exception {
+
+        Gene result = geneMyBatisRepository.getGeneByHugoGeneSymbol("AKT1");
+
+        Assert.assertEquals((Integer) 207, result.getEntrezGeneId());
+        Assert.assertEquals("AKT1", result.getHugoGeneSymbol());
+        Assert.assertEquals("protein-coding", result.getType());
+        Assert.assertEquals("14q32.32", result.getCytoband());
+        Assert.assertEquals((Integer) 10838, result.getLength());
+    }
+
+    @Test
+    public void getAliasesOfGeneByEntrezGeneIdEmptyList() throws Exception {
+
+        List<String> result = geneMyBatisRepository.getAliasesOfGeneByEntrezGeneId(208);
+
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getAliasesOfGeneByEntrezGeneId() throws Exception {
+
+        List<String> result = geneMyBatisRepository.getAliasesOfGeneByEntrezGeneId(207);
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals("AKT alias", result.get(0));
+        Assert.assertEquals("AKT alias2", result.get(1));
+    }
+
+    @Test
+    public void getAliasesOfGeneByHugoGeneSymbolEmptyList() throws Exception {
+
+        List<String> result = geneMyBatisRepository.getAliasesOfGeneByHugoGeneSymbol("AKT2");
+
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getAliasesOfGeneByHugoGeneSymbol() throws Exception {
+
+        List<String> result = geneMyBatisRepository.getAliasesOfGeneByHugoGeneSymbol("AKT1");
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals("AKT alias", result.get(0));
+        Assert.assertEquals("AKT alias2", result.get(1));
+    }
+
+    @Test
+    public void fetchGenesByEntrezGeneIds() throws Exception {
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(207);
+        entrezGeneIds.add(208);
+
+        List<Gene> result = geneMyBatisRepository.fetchGenesByEntrezGeneIds(entrezGeneIds, "SUMMARY");
+
+        Assert.assertEquals(2, result.size());
+        Gene gene = result.get(0);
+        Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
+        Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
+        Assert.assertEquals("protein-coding", gene.getType());
+        Assert.assertEquals("14q32.32", gene.getCytoband());
+        Assert.assertEquals((Integer) 10838, gene.getLength());
+    }
+
+    @Test
+    public void fetchGenesByHugoGeneSymbols() throws Exception {
+
+        List<String> hugoGeneSymbols = new ArrayList<>();
+        hugoGeneSymbols.add("AKT1");
+        hugoGeneSymbols.add("AKT2");
+
+        List<Gene> result = geneMyBatisRepository.fetchGenesByHugoGeneSymbols(hugoGeneSymbols, "SUMMARY");
+
+        Assert.assertEquals(2, result.size());
+        Gene gene = result.get(0);
+        Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
+        Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
+        Assert.assertEquals("protein-coding", gene.getType());
+        Assert.assertEquals("14q32.32", gene.getCytoband());
+        Assert.assertEquals((Integer) 10838, gene.getLength());
+    }
+
+    @Test
+    public void fetchMetaGenesByEntrezGeneIds() throws Exception {
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(207);
+        entrezGeneIds.add(208);
+
+        BaseMeta result = geneMyBatisRepository.fetchMetaGenesByEntrezGeneIds(entrezGeneIds);
+
+        Assert.assertEquals((Integer) 2, result.getTotalCount());
+    }
+
+    @Test
+    public void fetchMetaGenesByHugoGeneSymbol() throws Exception {
+
+        List<String> hugoGeneSymbols = new ArrayList<>();
+        hugoGeneSymbols.add("AKT1");
+        hugoGeneSymbols.add("AKT2");
+
+        BaseMeta result = geneMyBatisRepository.fetchMetaGenesByHugoGeneSymbols(hugoGeneSymbols);
+
+        Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
 }

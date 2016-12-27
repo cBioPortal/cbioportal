@@ -30,7 +30,6 @@ var plotsTab = (function() {
 
     return {
         init: function() {
-   
             clear_plot_box();
             metaData.fetch(
             	//fetch data, and then continue with callback below:

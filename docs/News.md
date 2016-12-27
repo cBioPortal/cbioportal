@@ -1,3 +1,11 @@
+# December 23, 2016
+*   **New features**:
+    * Heat map visualization of gene expression data in the OncoPrint
+
+    ![OncoPrint Heatmap](https://cloud.githubusercontent.com/assets/840895/21407479/81f8c008-c79e-11e6-9b82-3f4eb8f8e1ea.png)
+    
+    * Heat map visualization of gene expression data in the Study View page connecting to MDACC's TCGA Next-Generation Clustered Heat Map Compendium
+
 # October 7, 2016
 *   **New features**:
     * All data sets can now be downloaded as flat files from the new [Data Hub](https://github.com/cBioPortal/datahub)

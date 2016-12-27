@@ -1,7 +1,38 @@
+/*
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package org.mskcc.cbio.portal.util;
 
 import java.util.*;
-
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.TestUtils;
@@ -23,7 +54,7 @@ import org.mskcc.cbio.portal.stats.FisherExact;
 public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationProcesser {
 
     private String geneticProfileStableId;
-    private String profileType;
+    private GeneticAlterationType geneticAlterationType;
     private String[] queriedGenes;
     private String copyNumType = "none";
     private List<Integer> alteredSampleIds;
@@ -43,28 +74,23 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
     private final String COL_NAME_STDEV_ALTERED = "standard deviation of alteration in altered group";
     private final String COL_NAME_STDEV_UNALTERED = "standard deviation of alteration in unaltered group";
 
-
     public EnrichmentsAnalysisUtil(
-
-        String geneticProfileStableId,
-        String profileType,
-        String copyNumType,
-        List<Integer> alteredSampleIds,
-        List<Integer> unalteredSampleIds,
-        String[] queriedGenes) throws DaoException, IllegalArgumentException {
-
+            String geneticProfileStableId,
+            GeneticAlterationType geneticAlterationType,
+            String copyNumType,
+            List<Integer> alteredSampleIds,
+            List<Integer> unalteredSampleIds,
+            String[] queriedGenes) throws DaoException, IllegalArgumentException {
         this.geneticProfileStableId = geneticProfileStableId;
-        this.profileType = profileType;
+        this.geneticAlterationType = geneticAlterationType;
         this.copyNumType = copyNumType;
         this.alteredSampleIds = alteredSampleIds;
         this.unalteredSampleIds = unalteredSampleIds;
         this.queriedGenes = queriedGenes;
-
     }
 
     public ObjectNode processMutHm(long entrezGeneId, ArrayList<Integer> sampleList, Map mutHm) {
         ObjectNode _datum = mapper.createObjectNode();
-
         //create map to pair sample and value
         HashMap<Integer, String> mapSampleValue = new HashMap<>();
         for (Integer sampleId : sampleList) { //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
@@ -73,7 +99,6 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
             if (mutHm.containsKey(tmpStr)) mutationStatus = "Mutated";
             mapSampleValue.put(sampleId, mutationStatus);
         }
-
         //remove empty entry
         Iterator it = mapSampleValue.entrySet().iterator();
         while (it.hasNext()) {
@@ -82,37 +107,32 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                 it.remove();
             }
         }
-
         //get Gene Name and Cytoband
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         String geneName = daoGeneOptimized.getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
         String cytoband = daoGeneOptimized.getGene(entrezGeneId).getCytoband();
-
         //statistics analysis
         if (!(Arrays.asList(queriedGenes)).contains(geneName)) { //remove queried genes from result
             _datum.put(COL_NAME_GENE, geneName);
             _datum.put(COL_NAME_CYTOBAND, cytoband);
-            _datum.put(COL_NAME_PCT_ALTERED, Integer.toString(countAltered(mapSampleValue, profileType, "altered")) + "////" + Double.toString(calcPct(mapSampleValue, profileType, "altered")));
-            _datum.put(COL_NAME_PCT_UNALTERED, Integer.toString(countAltered(mapSampleValue, profileType, "unaltered")) + "////" + Double.toString(calcPct(mapSampleValue, profileType, "unaltered")));
+            _datum.put(COL_NAME_PCT_ALTERED, Integer.toString(countAltered(mapSampleValue, "altered")) + "////" + Double.toString(calcPct(mapSampleValue, "altered")));
+            _datum.put(COL_NAME_PCT_UNALTERED, Integer.toString(countAltered(mapSampleValue, "unaltered")) + "////" + Double.toString(calcPct(mapSampleValue, "unaltered")));
             _datum.put(COL_NAME_RATIO, calcRatio(
-                    calcPct(mapSampleValue, profileType, "altered"), calcPct(mapSampleValue, profileType, "unaltered")));
+                    calcPct(mapSampleValue, "altered"), calcPct(mapSampleValue, "unaltered")));
             _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
-            _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, profileType, geneticProfileStableId));
-            if (!(calcPct(mapSampleValue, profileType, "altered") == 0.0 &&
-                    calcPct(mapSampleValue, profileType, "unaltered") == 0.0) &&
-                    !Double.isNaN(calcPval(mapSampleValue, profileType, geneticProfileStableId))) {
+            _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, geneticProfileStableId));
+            if (!(calcPct(mapSampleValue, "altered") == 0.0 &&
+                    calcPct(mapSampleValue, "unaltered") == 0.0) &&
+                    !Double.isNaN(calcPval(mapSampleValue, geneticProfileStableId))) {
                 return _datum;
             }
         }
-
         return null;
     }
 
     @Override
     public ObjectNode process(long entrezGeneId, String[] values, ArrayList<Integer> sampleList) {
-
         ObjectNode _datum = mapper.createObjectNode();
-
         //create map to pair sample and value
         HashMap<Integer, String> mapSampleValue = new HashMap<>();
         for (int i = 0; i < values.length; i++) {
@@ -120,7 +140,6 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
             Integer sampleId = sampleList.get(i);
             mapSampleValue.put(sampleId, value);
         }
-
         //remove empty entry
         Iterator it = mapSampleValue.entrySet().iterator();
         while (it.hasNext()) {
@@ -129,58 +148,54 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                 it.remove();
             }
         }
-
         //get Gene Name and Cytoband
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         String geneName = daoGeneOptimized.getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
         String cytoband = daoGeneOptimized.getGene(entrezGeneId).getCytoband();
         if (cytoband == null || cytoband.length() == 0) {
             cytoband = "--";
-        } 
-
+        }
         //statistics analysis
-        if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+        if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
             if (!(Arrays.asList(queriedGenes)).contains(geneName)) { //remove queried genes from result
                 _datum.put(COL_NAME_GENE, geneName);
                 _datum.put(COL_NAME_CYTOBAND, cytoband);
-                _datum.put(COL_NAME_PCT_ALTERED, Integer.toString(countAltered(mapSampleValue, profileType, "altered")) + "////" + Double.toString(calcPct(mapSampleValue, profileType, "altered")));
-                _datum.put(COL_NAME_PCT_UNALTERED, Integer.toString(countAltered(mapSampleValue, profileType, "unaltered")) + "////" + Double.toString(calcPct(mapSampleValue, profileType, "unaltered")));
+                _datum.put(COL_NAME_PCT_ALTERED, Integer.toString(countAltered(mapSampleValue, "altered")) + "////" + Double.toString(calcPct(mapSampleValue, "altered")));
+                _datum.put(COL_NAME_PCT_UNALTERED, Integer.toString(countAltered(mapSampleValue, "unaltered")) + "////" + Double.toString(calcPct(mapSampleValue, "unaltered")));
                 _datum.put(COL_NAME_RATIO, calcRatio(
-                        calcPct(mapSampleValue, profileType, "altered"), calcPct(mapSampleValue, profileType, "unaltered")));
+                        calcPct(mapSampleValue, "altered"), calcPct(mapSampleValue, "unaltered")));
                 _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
-                _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, profileType, geneticProfileStableId));
-                if (!(calcPct(mapSampleValue, profileType, "altered") == 0.0 &&
-                        calcPct(mapSampleValue, profileType, "unaltered") == 0.0) &&
-                        !Double.isNaN(calcPval(mapSampleValue, profileType, geneticProfileStableId))) {
+                _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, geneticProfileStableId));
+                if (!(calcPct(mapSampleValue, "altered") == 0.0 &&
+                        calcPct(mapSampleValue, "unaltered") == 0.0) &&
+                        !Double.isNaN(calcPval(mapSampleValue, geneticProfileStableId))) {
                     return _datum;
                 }
             }
-        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
+        } else if (geneticAlterationType == GeneticAlterationType.MRNA_EXPRESSION) {
             _datum.put(COL_NAME_GENE, geneName);
             _datum.put(COL_NAME_CYTOBAND, cytoband);
             _datum.put(COL_NAME_MEAN_ALTERED, calcMean(mapSampleValue, "altered", geneticProfileStableId));
             _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(mapSampleValue, "unaltered", geneticProfileStableId));
             _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(mapSampleValue, "altered", geneticProfileStableId));
             _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(mapSampleValue, "unaltered", geneticProfileStableId));
-            _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, profileType, geneticProfileStableId));
-            if (!Double.isNaN(calcPval(mapSampleValue, profileType, geneticProfileStableId))) {
+            _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, geneticProfileStableId));
+            if (!Double.isNaN(calcPval(mapSampleValue, geneticProfileStableId))) {
                 return _datum;
             }
-        } else if (profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
+        } else if (geneticAlterationType == GeneticAlterationType.PROTEIN_LEVEL) {
             _datum.put(COL_NAME_GENE, geneName);
             _datum.put(COL_NAME_CYTOBAND, cytoband);
             _datum.put(COL_NAME_MEAN_ALTERED, calcMean(mapSampleValue, "altered", geneticProfileStableId));
             _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(mapSampleValue, "unaltered", geneticProfileStableId));
             _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(mapSampleValue, "altered", geneticProfileStableId));
             _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(mapSampleValue, "unaltered", geneticProfileStableId));
-            _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, profileType, geneticProfileStableId));
-            if (!Double.isNaN(calcPval(mapSampleValue, profileType, geneticProfileStableId))) {
+            _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, geneticProfileStableId));
+            if (!Double.isNaN(calcPval(mapSampleValue, geneticProfileStableId))) {
                 return _datum;
             }
         }
-
         return null;
-
     }
 
     private String calcRatio(double pct1, double pct2) {
@@ -213,12 +228,14 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 alteredArray[_index_altered] = Math.log(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId))) / Math.log(2);
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         } else {
                             try {
                                 alteredArray[_index_altered] = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                         _index_altered += 1;
@@ -235,12 +252,14 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 unalteredArray[_index_unaltered] = Math.log(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId))) / Math.log(2);
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         } else {
                             try {
                                 unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                         _index_unaltered += 1;
@@ -263,12 +282,14 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 stats_altered.addValue(Math.log(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId))) / Math.log(2));
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         } else {
                             try {
                                 stats_altered.addValue(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)));
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
@@ -283,12 +304,14 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 stats_unaltered.addValue(Math.log(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId))) / Math.log(2));
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         } else {
                             try {
                                 stats_unaltered.addValue(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)));
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
@@ -297,15 +320,12 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
             default:
                 return Double.NaN; //error
         }
-
     }
 
     //count alterations in different groups (altered/unaltered) (only for mutation tab and cna tab)
-    private int countAltered(HashMap<Integer, String> singleGeneCaseValueMap, String profileType, String groupType) {
-
+    private int countAltered(HashMap<Integer, String> singleGeneCaseValueMap, String groupType) {
         int _count = 0; //altered samples count
-
-        if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("del")) {
+        if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION && copyNumType.equals("del")) {
             switch (groupType) {
                 case "altered":
                     for (Integer alteredSampleId : alteredSampleIds) {
@@ -316,6 +336,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 }
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
@@ -329,12 +350,13 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 }
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
                     break;
             }
-        } else if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("amp")) {
+        } else if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION && copyNumType.equals("amp")) {
             switch (groupType) {
                 case "altered":
                     for (Integer alteredSampleId : alteredSampleIds) {
@@ -345,6 +367,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 }
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
@@ -358,12 +381,13 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 }
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
                     break;
             }
-        } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+        } else if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED) {
             switch (groupType) {
                 case "altered":
                     for (Integer alteredSampleId : alteredSampleIds) {
@@ -385,15 +409,12 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                     break;
             }
         }
-
         return _count;
     }
 
-    private double calcPct(HashMap<Integer, String> singleGeneCaseValueMap, String profileType, String groupType) { // group type: altered or unaltered
-
+    private double calcPct(HashMap<Integer, String> singleGeneCaseValueMap, String groupType) { // group type: altered or unaltered
         double _result_pct = 0, _count = 0; //altered samples count
-
-        if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("del")) {
+        if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION && copyNumType.equals("del")) {
             switch (groupType) {
                 case "altered":
                     for (Integer alteredSampleId : alteredSampleIds) {
@@ -404,6 +425,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 }
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
@@ -418,13 +440,14 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 }
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
                     _result_pct = _count / unalteredSampleIds.size();
                     break;
             }
-        } else if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("amp")) {
+        } else if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION && copyNumType.equals("amp")) {
             switch (groupType) {
                 case "altered":
                     for (Integer alteredSampleId : alteredSampleIds) {
@@ -435,6 +458,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 }
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
@@ -449,13 +473,14 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                                 }
                             } catch (NumberFormatException e) {
                                 e.getStackTrace();
+                                //TODO: add proper handling of this situation
                             }
                         }
                     }
                     _result_pct = _count / unalteredSampleIds.size();
                     break;
             }
-        } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+        } else if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED) {
             switch (groupType) {
                 case "altered":
                     for (Integer alteredSampleId : alteredSampleIds) {
@@ -479,31 +504,24 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                     break;
             }
         }
-
         return _result_pct;
-
     }
 
-    private double calcPval(HashMap<Integer, String> singleGeneCaseValueMap, String profileType, String profileStableId)
+    private double calcPval(HashMap<Integer, String> singleGeneCaseValueMap, String profileStableId)
             throws IllegalArgumentException {
         double _p_value = 0.0;
-        if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString()) ||
-                profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
-            _p_value = runFisherExactTest(singleGeneCaseValueMap, profileType);
-        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString()) ||
-                profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
+        if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED || geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
+            _p_value = runFisherExactTest(singleGeneCaseValueMap);
+        } else if (geneticAlterationType == GeneticAlterationType.MRNA_EXPRESSION || geneticAlterationType == GeneticAlterationType.PROTEIN_LEVEL) {
             _p_value = runTTest(singleGeneCaseValueMap, profileStableId);
         }
         return _p_value;
     }
 
-    private double runTTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileStableId)
-            throws IllegalArgumentException {
-
+    private double runTTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileStableId) throws IllegalArgumentException {
         double[] unalteredArray = new double[unalteredSampleIds.size()];
         double[] alteredArray = new double[alteredSampleIds.size()];
         int _index_unaltered = 0, _index_altered = 0;
-
         for (Integer alteredSampleId : alteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
                 if (profileStableId.indexOf("rna_seq") != -1) {
@@ -511,6 +529,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                         alteredArray[_index_altered] = Math.log(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId))) / Math.log(2);
                     } catch (NumberFormatException e) {
                         e.getStackTrace();
+                        //TODO: add proper handling of this situation
                     }
                 } else {
                     try {
@@ -529,35 +548,35 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                         unalteredArray[_index_unaltered] = Math.log(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId))) / Math.log(2);
                     } catch (NumberFormatException e) {
                         e.getStackTrace();
+                        //TODO: add proper handling of this situation
                     }
                 } else {
                     try {
                         unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
                     } catch (NumberFormatException e) {
                         e.getStackTrace();
+                        //TODO: add proper handling of this situation
                     }
                 }
                 _index_unaltered += 1;
             }
         }
-
-        if (alteredArray.length < 2 || unalteredArray.length < 2) return Double.NaN;
-        else {
+        if (alteredArray.length < 2 || unalteredArray.length < 2) {
+            return Double.NaN;
+        } else {
             double pvalue = TestUtils.tTest(alteredArray, unalteredArray);
             return pvalue;
         }
     }
 
-    private double runFisherExactTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) {
-
-        int a = 0, //non altered
-                b = 0, //x non altered, y altered
-                c = 0, //x altered, y non altered
-                d = 0; //both alered
-
+    private double runFisherExactTest(HashMap<Integer, String> singleGeneCaseValueMap) {
+        int a = 0; //non altered
+        int b = 0; //x non altered, y altered
+        int c = 0; //x altered, y non altered
+        int d = 0; //both alered
         for (Integer alteredSampleId : alteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
-                if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+                if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
                     try {
                         Double value = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
                         if (copyNumType.equals("del")) {
@@ -575,8 +594,9 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                         }
                     } catch (NumberFormatException e) {
                         e.getStackTrace();
+                        //TODO: add proper handling of this situation
                     }
-                } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                } else if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED) {
                     String value = singleGeneCaseValueMap.get(alteredSampleId);
                     if (value.equals("Non")) {
                         c += 1;
@@ -589,7 +609,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
 
         for (Integer unalteredSampleId : unalteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
-                if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+                if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
                     try {
                         Double value = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
                         if (copyNumType.equals("del")) {
@@ -607,8 +627,9 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                         }
                     } catch (NumberFormatException e) {
                         e.getStackTrace();
+                        //TODO: add proper handling of this situation
                     }
-                } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                } else if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED) {
                     String value = singleGeneCaseValueMap.get(unalteredSampleId);
                     if (value.equals("Non")) {
                         a += 1;
@@ -618,11 +639,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
                 }
             }
         }
-
         FisherExact fisher = new FisherExact(a + b + c + d);
         return fisher.getCumlativeP(a, b, c, d);
-
     }
-
 }
-

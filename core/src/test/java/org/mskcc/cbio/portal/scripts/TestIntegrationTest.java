@@ -37,9 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.cbioportal.model.Mutation;
-import org.cbioportal.service.MutationService;
-import org.cbioportal.service.impl.MutationServiceImpl;
+import org.mskcc.cbio.portal.model.Mutation;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -54,6 +52,7 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -131,10 +130,10 @@ public class TestIntegrationTest {
             assertEquals("Test study es_0", cancerStudy.getName());
             
             //===== Check MUTATION data ========
-            MutationService mutationService = applicationContext.getBean(MutationServiceImpl.class);
+            MutationMapperLegacy mutationMapperLegacy = applicationContext.getBean(MutationMapperLegacy.class);
             List<String> geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_mutations");
-            List<Mutation> mutations = mutationService.getMutationsDetailed(geneticProfileStableIds,null,null,null);
+            List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds,null,null,null);
             //there are 13 records in the mutation file, but 3 are filtered, 
             //so we expect 10 in DB:
             assertEquals(10, mutations.size());

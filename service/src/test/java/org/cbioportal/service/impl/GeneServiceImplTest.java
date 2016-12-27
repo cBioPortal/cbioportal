@@ -4,6 +4,7 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.exception.GeneNotFoundException;
+import org.cbioportal.service.util.ChromosomeCalculator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,17 +25,22 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private GeneRepository geneRepository;
+    @Mock
+    private ChromosomeCalculator chromosomeCalculator;
 
     @Test
     public void getAllGenes() throws Exception {
 
         List<Gene> expectedGeneList = new ArrayList<>();
         Gene gene = new Gene();
-        gene.setCytoband("19q13.4");
         expectedGeneList.add(gene);
 
         Mockito.when(geneRepository.getAllGenes(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
                 .thenReturn(expectedGeneList);
+        Mockito.doAnswer(invocationOnMock -> {
+            ((Gene) invocationOnMock.getArguments()[0]).setChromosome("19");
+            return null;
+        }).when(chromosomeCalculator).setChromosome(gene);
 
         List<Gene> result = geneService.getAllGenes(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
@@ -64,8 +70,12 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
     public void getGeneByEntrezGeneId() throws Exception {
 
         Gene expectedGene = new Gene();
-        expectedGene.setCytoband("Xq13.3");
         Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID)).thenReturn(expectedGene);
+        Mockito.doAnswer(invocationOnMock -> {
+            ((Gene) invocationOnMock.getArguments()[0]).setChromosome("X");
+            return null;
+        }).when(chromosomeCalculator).setChromosome(expectedGene);
+        
         Gene result = geneService.getGene(ENTREZ_GENE_ID.toString());
 
         Assert.assertEquals(expectedGene, result);
@@ -84,8 +94,12 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
     public void getGeneByHugoGeneSymbol() throws Exception {
 
         Gene expectedGene = new Gene();
-        expectedGene.setCytoband("Yq11");
         Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(expectedGene);
+        Mockito.doAnswer(invocationOnMock -> {
+            ((Gene) invocationOnMock.getArguments()[0]).setChromosome("Y");
+            return null;
+        }).when(chromosomeCalculator).setChromosome(expectedGene);
+        
         Gene result = geneService.getGene(HUGO_GENE_SYMBOL);
 
         Assert.assertEquals(expectedGene, result);
@@ -119,7 +133,6 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
         List<Gene> expectedGeneList1 = new ArrayList<>();
         Gene gene1 = new Gene();
-        gene1.setCytoband("12q13.13");
         expectedGeneList1.add(gene1);
         List<Gene> expectedGeneList2 = new ArrayList<>();
         Gene gene2 = new Gene();
@@ -131,6 +144,10 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(geneRepository.fetchGenesByEntrezGeneIds(Arrays.asList(ENTREZ_GENE_ID), PROJECTION))
                 .thenReturn(expectedGeneList1);
+        Mockito.doAnswer(invocationOnMock -> {
+            ((Gene) invocationOnMock.getArguments()[0]).setChromosome("12");
+            return null;
+        }).when(chromosomeCalculator).setChromosome(gene1);
 
         Mockito.when(geneRepository.fetchGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL), PROJECTION))
                 .thenReturn(expectedGeneList2);

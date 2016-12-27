@@ -32,7 +32,6 @@
 
 package org.cbioportal.persistence.mybatis;
 
-import org.apache.ibatis.annotations.Param;
 import org.cbioportal.model.StructuralVariant;
 
 import java.util.List;
@@ -42,8 +41,6 @@ import java.util.List;
  */
 public interface StructuralVariantMapper {
 
-    List<StructuralVariant> getStructuralVariant(@Param("geneticProfileStableIds")List<String> geneticProfileStableIds,
-                                  @Param("hugoGeneSymbols")List<String> hugoGeneSymbols,
-                                  @Param("sampleStableIds")List<String> sampleStableIds);
-
+    List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, 
+                                                 List<String> sampleStableIds);
 }

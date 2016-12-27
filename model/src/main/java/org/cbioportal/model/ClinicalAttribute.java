@@ -11,6 +11,7 @@ public class ClinicalAttribute implements Serializable {
     private Boolean patientAttribute;
     private String priority;
     private Integer cancerStudyId;
+    private CancerStudy cancerStudy;
 
     public String getAttrId() {
         return attrId;
@@ -59,13 +60,20 @@ public class ClinicalAttribute implements Serializable {
     public void setPriority(String priority) {
         this.priority = priority;
     }
-    
+
     public Integer getCancerStudyId() {
         return cancerStudyId;
     }
-    
+
     public void setCancerStudyId(Integer cancerStudyId) {
         this.cancerStudyId = cancerStudyId;
     }
-}
 
+    public CancerStudy getCancerStudy() {
+        return cancerStudy;
+    }
+
+    public void setCancerStudy(CancerStudy cancerStudy) {
+        this.cancerStudy = cancerStudy;
+    }
+}

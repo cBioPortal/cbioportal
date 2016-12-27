@@ -11,10 +11,12 @@ package org.cbioportal.service;
  */
 
 import org.cbioportal.model.GenePanel;
+import org.cbioportal.model.GenePanelWithSamples;
 import java.util.List;
+import java.util.Map;
 
 public interface GenePanelService {
-    String getGenePanelBySampleIdAndProfileId(String sampleId, String profileId);
+    List<GenePanelWithSamples> getGenePanelDataByProfileAndGenes(String profileId, List<String> genes);
     List<GenePanel> getGenePanelByStableId(String panelId);
     List<GenePanel> getGenePanels();
 }

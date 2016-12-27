@@ -14,7 +14,7 @@ var non_mutation_rule_params = {
     '*': {
 	shapes: [{
 		'type': 'rectangle',
-		'fill': 'rgba(211, 211, 211, 1)',
+		'fill': 'rgba(190, 190, 190, 1)',
 		'z': 1
 	    }],
 	exclude_from_legend: true,

@@ -31,13 +31,23 @@
 */
 package org.cbioportal.service;
 
-import java.util.List;
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.service.exception.GeneNotFoundException;
 
-/**
- *
- * @author jiaojiao
- */
+import java.util.List;
+
 public interface GeneService {
-    List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol);
+
+    List<Gene> getAllGenes(String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
+
+    BaseMeta getMetaGenes();
+
+    Gene getGene(String geneId) throws GeneNotFoundException;
+
+    List<String> getAliasesOfGene(String geneId);
+
+    List<Gene> fetchGenes(List<String> geneIds, String projection);
+
+    BaseMeta fetchMetaGenes(List<String> geneIds);
 }

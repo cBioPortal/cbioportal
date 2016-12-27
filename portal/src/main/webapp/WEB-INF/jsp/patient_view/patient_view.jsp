@@ -60,6 +60,7 @@ String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 
+
 // check if any Bam files exist
 boolean viewBam = false;
 Map<String,Boolean> mapCaseBam = new HashMap<String,Boolean>(caseIds.size());
@@ -293,6 +294,17 @@ if (patientViewError!=null) {
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/patient-view/main.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/patient-view/clinical-attributes.css?<%=GlobalProperties.getAppVersion()%>";
+		/*
+         Quickfix css issues when applying bootstrap.min.css last (white
+         padding around all tables). Normally this is loaded first, but
+         because we are loading it last through cbioportal-frontend repo some
+         customizations are no longer applied. A better fix would be to prefix
+         the bootstrap of cbioportal-frontend.
+        */
+		#header table:nth-child(2) {
+			margin-top: 4px;
+			margin-bottom: 4px;
+		}
 </style>
 
 <link rel="stylesheet" type="text/css" href="css/oncokb.css" />
@@ -1155,5 +1167,23 @@ window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
         = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;
 
 </script>
+<!-- Add script and style files for cbioportal-frontend -->
+<script>
+
+
+    
+window.loadReactApp({ defaultRoute: 'patient' });
+    
+window.onReactAppReady(function(){
+    
+    <%--var genomicOverviewDiv = document.getElementById('genomics-overview');--%>
+    <%--if (genomicOverviewDiv) {--%>
+        <%--window.renderGenomicOverview(genomicOverviewDiv);--%>
+    <%--}--%>
+ 
+});
+
+    
+    </script>
 </body>
 </html>

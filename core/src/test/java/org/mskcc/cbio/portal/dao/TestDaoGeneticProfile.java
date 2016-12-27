@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -33,7 +33,6 @@
 package org.mskcc.cbio.portal.dao;
 
 import java.util.ArrayList;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +41,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-
 import static org.junit.Assert.*;
 
 /**
@@ -67,7 +65,7 @@ public class TestDaoGeneticProfile {
 	public void testDaoGetAllGeneticProfiles() throws DaoException {
 
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
-		assertEquals(5, list.size());
+		assertEquals(6, list.size());
 	}
 		
 	@Test
@@ -129,12 +127,12 @@ public class TestDaoGeneticProfile {
 
 		GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
 
-		assertEquals(5, DaoGeneticProfile.getCount());
+		assertEquals(6, DaoGeneticProfile.getCount());
 		DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
-		assertEquals(4, DaoGeneticProfile.getCount());
+		assertEquals(5, DaoGeneticProfile.getCount());
 		
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
-		assertEquals(4, list.size());
+		assertEquals(5, list.size());
 		geneticProfile = list.get(0);
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("mRNA expression (microarray)", geneticProfile.getProfileName());
@@ -150,7 +148,7 @@ public class TestDaoGeneticProfile {
 				geneticProfile.getGeneticProfileId(), "Updated Name",
 				"Updated Description"));
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
-		assertEquals(5, list.size());
+		assertEquals(6, list.size());
 		geneticProfile = list.get(0);
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("Updated Name", geneticProfile.getProfileName());

@@ -43,7 +43,7 @@ import org.cbioportal.model.*;
 
 public interface GenePanelMapper {
 
-    String getGenePanelBySampleIdAndProfileId(@Param("sampleId") String sampleId, @Param("profileId") String profileId);
+    List<GenePanelWithSamples> getGenePanelsByProfile(@Param("profileId") String profileId);
     // TODO: All of the below methods are for importing purposes only. They should be
     // removed once a proper import solution is put in place.
     List<GenePanel> getGenePanelByStableId(@Param("stableId") String stableId);

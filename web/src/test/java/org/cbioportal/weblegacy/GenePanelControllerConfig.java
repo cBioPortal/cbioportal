@@ -52,12 +52,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableWebMvc
 @ComponentScan(basePackages = {"org.cbioportal.weblegacy"}, resourcePattern = "**/*GenePanelController.class")
 public class GenePanelControllerConfig extends WebMvcConfigurerAdapter {
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
-        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
-        converters.add(mappingJackson2HttpMessageConverter);
-    }
+
     @Bean
     public GenePanelService genePanelService() {
         return Mockito.mock(GenePanelService.class);

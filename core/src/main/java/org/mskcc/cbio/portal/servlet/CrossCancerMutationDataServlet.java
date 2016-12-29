@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,6 +32,16 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.util.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
@@ -43,17 +53,6 @@ import org.mskcc.cbio.portal.web_api.*;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.util.*;
 
 /**
  * A servlet designed to return a JSON array of mutation objects.
@@ -137,7 +136,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 			continue;
 		}
                 String cancerStudyId = cancerStudy.getCancerStudyStableId();
-                if(cancerStudyId.equalsIgnoreCase("all"))
+                if (cancerStudyId.equalsIgnoreCase("all"))
                     continue;
 
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.
@@ -173,10 +172,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 
                 for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
                     ArrayList<String> targetGeneList = this.parseValues(geneList);
-
-                    if(!profile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
-                            continue;
-
+                    if (profile.getGeneticAlterationType() != GeneticAlterationType.MUTATION_EXTENDED) continue;
                     // add mutation data for each genetic profile
                     JSONArray mutationData
                             = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, sampleList);

@@ -4554,9 +4554,10 @@ function MutationInputParser ()
 		var index = indexMap[column];
 		var value = undefined;
 
-		if (index != null)
+		if (index != null &&
+		    values[index] != null)
 		{
-			value = values[index] || undefined;
+			value = values[index].trim();
 		}
 
 		return value;
@@ -4575,7 +4576,7 @@ function MutationInputParser ()
 		var map = {};
 
 		_.each(columns, function(column, index) {
-			map[column.toLowerCase()] = index;
+			map[column.trim().toLowerCase()] = index;
 		});
 
 		return map;
@@ -7817,9 +7818,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		// initially hide the 3d visualizer container
 		var container3d = self.$el;
-		container3d.hide();
 
 		// initially hide the residue warning message
 		self.hideResidueWarning();
@@ -7837,6 +7836,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		if (mut3dVis != null)
 		{
 			mut3dVis.updateContainer(container3d);
+			mut3dVis.show();
 		}
 
 		// add listeners to panel (header) buttons
@@ -7854,14 +7854,6 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// format toolbar elements
 
-//		var spinChecker = self.$el.find(".mutation-3d-spin");
-//		spinChecker.change(function(){
-//			if (mut3dVis != null)
-//			{
-//				mut3dVis.toggleSpin();
-//			}
-//		});
-
 		// mutation style controls
 		self._initMutationControls();
 
@@ -7873,6 +7865,8 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// init buttons
 		self._initButtons();
+
+		self.showMainLoader();
 
 		// make the main container draggable
 		container3d.draggable({
@@ -7949,34 +7943,6 @@ var Mutation3dVisView = Backbone.View.extend({
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
-
-//		var centerSelected = self.$el.find(".mutation-3d-center-selected");
-//
-//		centerSelected.button(
-//			{icons: {primary: "ui-icon-arrow-4"},
-//			text: false});
-//
-//		centerSelected.click(function() {
-//			// center on the selected mutation
-//			mut3dVis.center();
-//		});
-//
-//		var centerDefault = self.$el.find(".mutation-3d-center-default");
-//
-//		centerDefault.button(
-//			{icons: {primary: "ui-icon-arrowreturn-1-w"},
-//			text: false});
-//
-//		centerDefault.click(function() {
-//			// restore to the default center
-//			mut3dVis.resetCenter();
-//		});
-//
-//		var qtipOpts = self._generateTooltipOpts("NA");
-//		qtipOpts.content = {attr: 'alt'};
-//
-//		centerSelected.qtip(qtipOpts);
-//		centerDefault.qtip(qtipOpts);
 
 		// init help text controls
 
@@ -8056,26 +8022,6 @@ var Mutation3dVisView = Backbone.View.extend({
 				mut3dVis.reapplyStyle();
 			}
 		});
-
-//		var colorByType = self.$el.find(".mutation-3d-mutation-color-by-type");
-//		// handler for color type checkbox
-//		colorByType.change(function() {
-//			var color = colorByType.is(":checked");
-//			var type = "byMutationType";
-//
-//			// if not coloring by mutation type, then use default atom colors
-//			if (!color)
-//			{
-//				type = "byAtomType";
-//			}
-//
-//			if (mut3dVis)
-//			{
-//				// update and reapply visual style
-//				mut3dVis.updateOptions({colorMutations: type});
-//				mut3dVis.reapplyStyle();
-//			}
-//		});
 
 		// add info tooltip for the color and side chain checkboxes
 		self._initMutationColorInfo();
@@ -8210,45 +8156,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		});
 	},
 	/**
-	 * Initializes the zoom slider with default values.
-	 */
-	_initZoomSlider: function()
-	{
-		var self = this;
-		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
-		var mut3dVis = self.options.mut3dVis;
-
-		// helper function to transform slider value into an actual zoom value
-		var transformValue = function (value)
-		{
-			if (value < 0)
-			{
-				return 100 + value;
-			}
-			else
-			{
-				return 100 + (value * 5);
-			}
-		};
-
-		// handler function for zoom slider events
-		var zoomHandler = function(event, ui)
-		{
-			if (mut3dVis)
-			{
-				mut3dVis.zoomTo(transformValue(ui.value));
-			}
-		};
-
-		// init y-axis slider controls
-		zoomSlider.slider({value: 0,
-			min: -80,
-			max: 80,
-			stop: zoomHandler,
-			slide: zoomHandler
-		});
-	},
-	/**
 	 * Updates the 3D visualizer content for the given gene,
 	 * pdb id, and chain.
 	 *
@@ -8267,7 +8174,6 @@ var Mutation3dVisView = Backbone.View.extend({
 			chain.positionMap = positionMap;
 
 			// reload the selected pdb and chain data
-			mut3dVis.show();
 			self.refreshView(pdbId, chain);
 
 			// store pdb id and chain for future reference
@@ -8290,6 +8196,8 @@ var Mutation3dVisView = Backbone.View.extend({
 				model.molInfo = summary.molecule;
 			}
 
+			self.hideMainLoader();
+
 			// init info view
 			var infoView = new Mutation3dVisInfoView(
 				{el: self.$el.find(".mutation-3d-info"), model: model});
@@ -8300,6 +8208,8 @@ var Mutation3dVisView = Backbone.View.extend({
 			pdbProxy.getPositionMap(geneSymbol, chain, mapCallback);
 		};
 
+		self.showMainLoader();
+		mut3dVis.show();
 		pdbProxy.getPdbInfo(pdbId, infoCallback);
 	},
 	/**
@@ -8365,10 +8275,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		// reload the new pdb structure
 		else
 		{
-			// reset zoom slider
-			//var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
-			//zoomSlider.slider("value", 0);
-
 			// show loader image
 			self.showLoader();
 
@@ -8526,6 +8432,20 @@ var Mutation3dVisView = Backbone.View.extend({
 		self.dispatcher.trigger(
 			MutationDetailsEvents.VIEW_3D_PANEL_CLOSED);
 	},
+	/**
+	 * Shows the 3D visualizer panel.
+	 */
+	showView: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		// hide the vis pane
+		if (mut3dVis != null)
+		{
+			mut3dVis.show();
+		}
+	},
 	isVisible: function()
 	{
 		var self = this;
@@ -8620,6 +8540,36 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// show actual vis container
 		container.css("height", self._actualHeight);
+	},
+	/**
+	 * Shows the loader for the entire panel body.
+	 */
+	showMainLoader: function()
+	{
+		var self = this;
+		var loaderImage = self.$el.find(".mutation-3d-vis-main-loader");
+		var mainContent = self.$el.find(".mutation-3d-vis-body");
+
+		// show the image
+		loaderImage.show();
+
+		// hide the main body
+		mainContent.hide();
+	},
+	/**
+	 * Hides the loader image and shows the main content (panel body).
+	 */
+	hideMainLoader: function()
+	{
+		var self = this;
+		var loaderImage = self.$el.find(".mutation-3d-vis-main-loader");
+		var mainContent = self.$el.find(".mutation-3d-vis-body");
+
+		// show the image
+		loaderImage.hide();
+
+		// hide the main body
+		mainContent.show();
 	},
 	/**
 	 * Shows a warning message for unmapped residues.
@@ -11673,7 +11623,8 @@ function MutationDataProxy(options)
 	var _defaultOpts = {
 		servletName: "getMutationData.json",
 		geneList: "", // list of target genes (genes of interest) as a string
-		params: {}    // fixed servlet params
+		params: {},    // fixed servlet params
+		paramsPromise: null // alternative servlet params as a promise object
 	};
 
 	// merge options with default options to use defaults for missing values
@@ -11788,40 +11739,41 @@ function MutationDataProxy(options)
 				mutationData = mutationData.concat(mutations.models);
 				callback(mutationData);
 			};
-			
-			var paramsPromise = _options.paramsPromise || (new $.Deferred()).resolve(_options.params);
-			paramsPromise.then(function (servletParams) {
-			    // some (or all) data is missing,
-			    // send ajax request for missing genes
-			    if (genesToQuery.length > 0)
-			    {
 
-				// add genesToQuery to the servlet params
-				servletParams.geneList = genesToQuery.join(" ");
+			var paramsPromise = _options.paramsPromise ||
+			                    (new $.Deferred()).resolve(_options.params);
 
-				// retrieve data from the server
-				//$.post(_options.servletName, servletParams, process, "json");
-				var ajaxOpts = {
-				    type: "POST",
-				    url: _options.servletName,
-				    data: servletParams,
-				    success: process,
-				    error: function () {
-					console.log("[MutationDataProxy.getMutationData] " +
-						"error retrieving mutation data for genetic profiles: " + servletParams.geneticProfiles);
-					process([]);
-				    },
-				    dataType: "json"
-				};
+			paramsPromise.then(function(servletParams) {
+				// some (or all) data is missing,
+				// send ajax request for missing genes
+				if (genesToQuery.length > 0)
+				{
+					// add genesToQuery to the servlet params
+					servletParams.geneList = genesToQuery.join(" ");
 
-				self.requestData(ajaxOpts);
-			    }
-			    // data for all requested genes already cached
-			    else
-			    {
-				// just forward the data to the callback function
-				callback(mutationData);
-			    }
+					// retrieve data from the server
+					//$.post(_options.servletName, servletParams, process, "json");
+					var ajaxOpts = {
+						type: "POST",
+						url: _options.servletName,
+						data: servletParams,
+						success: process,
+						error: function() {
+							console.log("[MutationDataProxy.getMutationData] " +
+								"error retrieving mutation data for genetic profiles: " + servletParams.geneticProfiles);
+							process([]);
+						},
+						dataType: "json"
+					};
+
+					self.requestData(ajaxOpts);
+				}
+				// data for all requested genes already cached
+				else
+				{
+					// just forward the data to the callback function
+					callback(mutationData);
+				}
 			});
 		}
 	}
@@ -13538,9 +13490,6 @@ function Mutation3dVis(name, options)
 	// spin indicator (initially off)
 	var _spin = "OFF";
 
-	// used for show/hide option (workaround)
-	var _prevTop = null;
-
 	// used for glow effect on highlighted mutations
 	var _glowInterval = null;
 
@@ -13685,23 +13634,6 @@ function Mutation3dVis(name, options)
 		if (_container != null)
 		{
 			_container.show();
-
-			// this is a workaround. see the hide() function below for details
-
-			var currentTop = parseInt(_container.css('top'));
-
-			// update the top position only if it is negative
-			if (currentTop < 0)
-			{
-				if (_prevTop != null && _prevTop > 0)
-				{
-					_container.css('top', _prevTop);
-				}
-				else
-				{
-					_container.css('top', 0);
-				}
-			}
 		}
 	}
 
@@ -13710,22 +13642,9 @@ function Mutation3dVis(name, options)
 	 */
 	function hide()
 	{
-		// TODO jQuery.hide function is problematic after Jmol init
-		// Reloading the PDB data throws an error message (Error: Bad NPObject as private data!)
-		// see https://code.google.com/p/gdata-issues/issues/detail?id=4820
-
-		// So, the current workaround is to reposition instead of hiding
 		if (_container != null)
 		{
-			//_container.hide();
-			var currentTop = parseInt(_container.css('top'));
-
-			if (currentTop > 0)
-			{
-				_prevTop = currentTop;
-			}
-
-			_container.css('top', -9999);
+			_container.hide();
 		}
 	}
 
@@ -17929,11 +17848,17 @@ MutationDiagram.prototype.highlightMutation = function(mutationSid)
 	var self = this;
 
 	var pileupId = self.mutationPileupMap[mutationSid];
-	var pileup = self.svg.select("#" + pileupId);
 
-	if (pileup.length > 0)
+	// there may not be a pileup corresponding to the given sid,
+	// because not every mutation is mapped onto the diagram
+	if (pileupId != null)
 	{
-		self.highlight(pileup[0][0]);
+		var pileup = self.svg.select("#" + pileupId);
+
+		if (pileup.length > 0)
+		{
+			self.highlight(pileup[0][0]);
+		}
 	}
 };
 
@@ -21071,6 +20996,13 @@ function Mutation3dController(mutationDetailsView, mainMutationView, viewOptions
 				_pdbPanelView.autoCollapse();
 			}
 		};
+
+		if (mut3dView != null &&
+		    _mut3dVisView != null)
+		{
+			_mut3dVisView.showMainLoader();
+			_mut3dVisView.showView();
+		}
 
 		// init view with the pdb data
 		pdbProxy.getPdbData(uniprotId, initView);

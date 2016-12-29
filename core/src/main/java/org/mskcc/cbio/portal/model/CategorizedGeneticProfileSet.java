@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -170,9 +170,9 @@ public class CategorizedGeneticProfileSet {
 
     private void addGeneticProfile(GeneticProfile geneticProfile) {
         GeneticAlterationType geneticAlterationType = geneticProfile.getGeneticAlterationType();
-        if (geneticAlterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+        if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
             addCopyNumberProfile(geneticProfile);
-        } else if (geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+        } else if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED) {
             addMutationProfile(geneticProfile);
         }
     }

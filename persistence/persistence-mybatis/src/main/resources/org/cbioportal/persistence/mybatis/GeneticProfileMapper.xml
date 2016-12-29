@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.GeneticProfileMapper">
+    <cache/>
+
+    <sql id="select">
+        genetic_profile.GENETIC_PROFILE_ID AS "${prefix}geneticProfileId",
+        genetic_profile.STABLE_ID AS "${prefix}stableId"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            genetic_profile.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
+            genetic_profile.GENETIC_ALTERATION_TYPE AS "${prefix}geneticAlterationType",
+            genetic_profile.DATATYPE AS "${prefix}datatype",
+            genetic_profile.NAME AS "${prefix}name",
+            genetic_profile.DESCRIPTION AS "${prefix}description",
+            genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB AS "${prefix}showProfileInAnalysisTab"
+        </if>
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.StudyMapper.select">
+                <property name="prefix" value="${prefix}cancerStudy."/>
+            </include>
+        </if>
+    </sql>
+
+    <select id="getAllGeneticProfiles" resultType="org.cbioportal.model.GeneticProfile">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <if test="studyId != null">
+            WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        </if>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY genetic_profile.STABLE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaGeneticProfiles" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM genetic_profile
+        <if test="studyId != null">
+            INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        </if>
+    </select>
+    
+    <select id="getGeneticProfile" resultType="org.cbioportal.model.GeneticProfile">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+    </select>
+</mapper>

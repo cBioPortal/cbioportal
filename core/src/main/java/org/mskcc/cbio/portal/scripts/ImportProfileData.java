@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -34,74 +34,58 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
 import java.util.Date;
-
 import joptsimple.*;
-
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
 /**
- * Import 'profile' files that contain data matrices indexed by gene, case. 
- * <p>
+ * Import 'profile' files that contain data matrices indexed by gene, case.
+ *
  * @author ECerami
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public class ImportProfileData extends ConsoleRunnable {
 
     public void run() {
-       try {
-           String description = "Import 'profile' files that contain data matrices indexed by gene, case";
-	
-	       // using a real options parser, helps avoid bugs
-	       OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
-	       File dataFile = new File((String) options.valueOf("data"));
-	       File descriptorFile = new File((String) options.valueOf( "meta" ) );
-	       
-			SpringUtil.initDataSource();
-	        ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());
-	        GeneticProfile geneticProfile = null;
-                             String genePanel = null;
-	         try {
-	            geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
-                                 genePanel = GeneticProfileReader.loadGenePanelInformation( descriptorFile );
-                                  
-	         } catch (java.io.FileNotFoundException e) {
-	        	 throw new java.io.FileNotFoundException("Descriptor file '" + descriptorFile + "' not found.");
-	         }
-	
-	        int numLines = FileUtil.getNumLines(dataFile);
+        try {
+            String description = "Import 'profile' files that contain data matrices indexed by gene, case";
+            // using a real options parser, helps avoid bugs
+
+            OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
+            File dataFile = new File((String) options.valueOf("data"));
+            File descriptorFile = new File((String) options.valueOf( "meta" ) );
+            SpringUtil.initDataSource();
+            ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());
+            GeneticProfile geneticProfile = null;
+            String genePanel = null;
+            try {
+                geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
+                genePanel = GeneticProfileReader.loadGenePanelInformation( descriptorFile );
+            } catch (java.io.FileNotFoundException e) {
+                throw new java.io.FileNotFoundException("Descriptor file '" + descriptorFile + "' not found.");
+            }
+            int numLines = FileUtil.getNumLines(dataFile);
             ProgressMonitor.setCurrentMessage(
                     " --> profile id:  " + geneticProfile.getGeneticProfileId() +
                     "\n --> profile name:  " + geneticProfile.getProfileName() +
-                    "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
-	        ProgressMonitor.setMaxValue(numLines);
-	        
-	        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-	
-	   
-	            ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
-	                  geneticProfile.getGeneticProfileId(), genePanel);
-	            String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
-	            if (swissprotIdType != null && swissprotIdType.equals("accession")) {
-	                importer.setSwissprotIsAccession(true);
-	            } else if (
-	                    swissprotIdType != null &&
-	                    !swissprotIdType.equals("name")) {
-	                throw new RuntimeException(
-	                        "Unrecognized swissprot_identifier " +
-	                        "specification, must be 'name' or 'accession'.");
-	            }
-	            importer.importData();
-	        }
-		    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
-		        ImportFusionData importer = new ImportFusionData(dataFile,
-					geneticProfile.getGeneticProfileId(), genePanel);
-		        importer.importData();
-	        } else {
-	            ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
-	                    geneticProfile.getGeneticProfileId(), genePanel);
-	            importer.importData(numLines);
-	        }
+                    "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType().name());
+            ProgressMonitor.setMaxValue(numLines);
+            if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
+                ImportExtendedMutationData importer = new ImportExtendedMutationData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
+                String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
+                if (swissprotIdType != null && swissprotIdType.equals("accession")) {
+                    importer.setSwissprotIsAccession(true);
+                } else if (swissprotIdType != null && !swissprotIdType.equals("name")) {
+                    throw new RuntimeException( "Unrecognized swissprot_identifier specification, must be 'name' or 'accession'.");
+                }
+                importer.importData();
+            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.FUSION) {
+                ImportFusionData importer = new ImportFusionData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
+                importer.importData();
+            } else {
+                ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(), geneticProfile.getGeneticProfileId(), genePanel);
+                importer.importData(numLines);
+            }
        }
        catch (RuntimeException e) {
            throw e;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -53,9 +53,9 @@ public class TestOddsRatio extends TestCase {
 
         GeneticProfile profile0 =
                 new GeneticProfile("gbm", 1,
-								   GeneticAlterationType.COPY_NUMBER_ALTERATION, "DISCRETE",
-								   "CNA", "CNA", true);
-		// TBD: change this to use getResourceAsStream()
+                                   GeneticAlterationType.COPY_NUMBER_ALTERATION, "DISCRETE",
+                                   "CNA", "CNA", true);
+        // TBD: change this to use getResourceAsStream()
         String matrix0[][] = WebFileConnect.retrieveMatrix(new File("target/test-classes/cna_sample2.txt"));
         ProfileData data0 = new ProfileData(profile0, matrix0);
         profileList.add(data0);

@@ -1,11 +1,41 @@
--- A manually extracted subset of data for a small number of genes and samples from the BRCA 
--- data set. This is intended to be used during unit testing, to validate the portal APIs. 
+--
+-- Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+--
+-- This library is distributed in the hope that it will be useful, but WITHOUT
+-- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+-- FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+-- is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+-- obligations to provide maintenance, support, updates, enhancements or
+-- modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+-- liable to any party for direct, indirect, special, incidental or
+-- consequential damages, including lost profits, arising out of the use of this
+-- software and its documentation, even if Memorial Sloan-Kettering Cancer
+-- Center has been advised of the possibility of such damage.
+--
+-- This file is part of cBioPortal.
+--
+-- cBioPortal is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU Affero General Public License as
+-- published by the Free Software Foundation, either version 3 of the
+-- License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU Affero General Public License for more details.
+--
+-- You should have received a copy of the GNU Affero General Public License
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-- ----------------------------------------------------------------------------
+-- A manually extracted subset of data for a small number of genes and samples from the BRCA
+-- data set. This is intended to be used during unit testing, to validate the portal APIs.
 -- In theory, it should be enough to run up a portal.
 --
 -- Prepared by Stuart Watt -- 13th May 2015
 
 SET SESSION sql_mode = 'ANSI_QUOTES';
 
+DELETE FROM structural_variant;
 DELETE FROM clinical_event_data;
 DELETE FROM clinical_event;
 DELETE FROM pdb_uniprot_residue_mapping;
@@ -29,8 +59,6 @@ DELETE FROM protein_array_info;
 DELETE FROM mut_sig;
 DELETE FROM interaction;
 DELETE FROM clinical_attribute_meta;
-DELETE FROM entity_attribute;
-DELETE FROM attribute_metadata;
 DELETE FROM mutation_count;
 DELETE FROM mutation;
 DELETE FROM mutation_event;
@@ -51,11 +79,8 @@ DELETE FROM clinical_patient;
 DELETE FROM patient;
 DELETE FROM authorities;
 DELETE FROM users;
-DELETE FROM entity_link;
-DELETE FROM entity;
 DELETE FROM cancer_study;
 DELETE FROM type_of_cancer;
-
 
 -- type_of_cancer
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acc','Adrenocortical Carcinoma','adrenocortical','Purple','ACC','tissue');
@@ -165,6 +190,7 @@ INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG-VALUE','Log2 copy-number values','Log2 copy-number values for each gene (from Affymetrix SNP6).','0');
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (5,'study_tcga_pub_methylation_hm27',1,'METHYLATION','CONTINUOUS','Methylation (HM27)','Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.','0');
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (6,'study_tcga_pub_mutations',1,'MUTATION_EXTENDED','MAF','Mutations','Mutation data from whole exome sequencing.','1');
+INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (7,'study_tcga_pub_sv',1,'STRUCTURAL_VARIANT','SV','Structural Variants','Structural Variants detected by Illumina HiSeq sequencing.',1);
 
 -- genetic_alteration
 INSERT INTO "genetic_alteration" ("GENETIC_PROFILE_ID","ENTREZ_GENE_ID","VALUES") VALUES (2,10000,'0,0,1,2,0,1,1,1,0,1,1,1,0,1,');

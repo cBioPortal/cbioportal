@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,11 +32,10 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.ProfileData;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.ProfileData;
 
 /*
  * TODO:
@@ -140,50 +139,49 @@ public class ProfileMerger {
 
             //  Get the data value and alteration type for gene X in caseId Y in profile Z
             String value = data.getValue(gene, caseId);
-            GeneticAlterationType alterationType =
-                    data.getGeneticProfile().getGeneticAlterationType();
+            GeneticAlterationType alterationType = data.getGeneticProfile().getGeneticAlterationType();
 
             //  Handle Copy Number Changes
-            if (alterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+            if (alterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
                 if (value != null) {
-                    status.append(GeneticAlterationType.COPY_NUMBER_ALTERATION + TYPE_VALUE_SEPARATOR
+                    status.append(GeneticAlterationType.COPY_NUMBER_ALTERATION.name() + TYPE_VALUE_SEPARATOR
                             + value + VALUE_SEPARATOR);
                 }
-            } else if (alterationType.equals(GeneticAlterationType.MRNA_EXPRESSION)) {
+            } else if (alterationType == GeneticAlterationType.MRNA_EXPRESSION) {
                 //  Handle mRNA Data
                 if (value != null) {
-                    status.append(GeneticAlterationType.MRNA_EXPRESSION
+                    status.append(GeneticAlterationType.MRNA_EXPRESSION.name()
                             + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                 }
-            } else if (alterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+            } else if (alterationType == GeneticAlterationType.MUTATION_EXTENDED) {
                 //  Handle Mutation Data
                 if (value != null) {
-                    status.append(GeneticAlterationType.MUTATION_EXTENDED
+                    status.append(GeneticAlterationType.MUTATION_EXTENDED.name()
                             + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                 }
-            } else if (alterationType.equals(GeneticAlterationType.METHYLATION)) {
+            } else if (alterationType == GeneticAlterationType.METHYLATION) {
                 if (value != null) {
-                    status.append(GeneticAlterationType.METHYLATION
+                    status.append(GeneticAlterationType.METHYLATION.name()
                             + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                 }
-            } else if (alterationType.equals(GeneticAlterationType.METHYLATION_BINARY)) {
+            } else if (alterationType == GeneticAlterationType.METHYLATION_BINARY) {
                if (value != null) {
-                   status.append(GeneticAlterationType.METHYLATION_BINARY
+                   status.append(GeneticAlterationType.METHYLATION_BINARY.name()
                            + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                }
-            } else if (alterationType.equals(GeneticAlterationType.PROTEIN_LEVEL)) {
+            } else if (alterationType == GeneticAlterationType.PROTEIN_LEVEL) {
                if (value != null) {
-                   status.append(GeneticAlterationType.PROTEIN_LEVEL
+                   status.append(GeneticAlterationType.PROTEIN_LEVEL.name()
                            + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                }
-            } else if (alterationType.equals(GeneticAlterationType.PHOSPHORYLATION)) {
+            } else if (alterationType == GeneticAlterationType.PHOSPHORYLATION) {
                if (value != null) {
-                   status.append(GeneticAlterationType.PHOSPHORYLATION
+                   status.append(GeneticAlterationType.PHOSPHORYLATION.name()
                            + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                }
-            }   else if (alterationType.equals(GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL)) {
+            } else if (alterationType == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
                if (value != null) {
-                   status.append(GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL
+                   status.append(GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL.name()
                            + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                }
             }

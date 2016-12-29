@@ -31,17 +31,17 @@ import org.mskcc.cbio.portal.model.DBSample;
 import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBSimpleProfileData;
 import org.mskcc.cbio.portal.model.DBStudy;
-import org.mskcc.cbio.portal.persistence.CancerTypeMapper;
-import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
+import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
+import org.mskcc.cbio.portal.persistence.ClinicalDataMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
-import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
-import org.mskcc.cbio.portal.persistence.PatientMapper;
+import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
+import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
-import org.mskcc.cbio.portal.persistence.SampleListMapper;
-import org.mskcc.cbio.portal.persistence.SampleMapper;
-import org.mskcc.cbio.portal.persistence.StudyMapper;
+import org.mskcc.cbio.portal.persistence.SampleListMapperLegacy;
+import org.mskcc.cbio.portal.persistence.SampleMapperLegacy;
+import org.mskcc.cbio.portal.persistence.StudyMapperLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,9 +57,9 @@ import org.cbioportal.model.CosmicCount;
 public class ApiService {
 
 	@Autowired
-	private CancerTypeMapper cancerTypeMapper;
+	private CancerTypeMapperLegacy cancerTypeMapperLegacy;
 	@Autowired
-	private ClinicalDataMapper clinicalDataMapper;
+	private ClinicalDataMapperLegacy clinicalDataMapperLegacy;
 	@Autowired
 	private ClinicalFieldMapper clinicalFieldMapper;
 	@Autowired
@@ -67,17 +67,17 @@ public class ApiService {
 	@Autowired
 	private GeneAliasMapper geneAliasMapper;
 	@Autowired
-	private GeneticProfileMapper geneticProfileMapper;
+	private GeneticProfileMapperLegacy geneticProfileMapperLegacy;
 	@Autowired
-	private SampleListMapper sampleListMapper;
+	private SampleListMapperLegacy sampleListMapperLegacy;
 	@Autowired
-	private PatientMapper patientMapper;
+	private PatientMapperLegacy patientMapperLegacy;
 	@Autowired
 	private ProfileDataMapper profileDataMapper;
 	@Autowired
-	private SampleMapper sampleMapper;
+	private SampleMapperLegacy sampleMapperLegacy;
 	@Autowired
-	private StudyMapper studyMapper;
+	private StudyMapperLegacy studyMapperLegacy;
 	@Autowired
 	private MutationService mutationService;
 	@Autowired
@@ -85,12 +85,12 @@ public class ApiService {
 
 	@Transactional
 	public List<DBCancerType> getCancerTypes() {
-		return cancerTypeMapper.getAllCancerTypes();
+		return cancerTypeMapperLegacy.getAllCancerTypes();
 	}
 
 	@Transactional
 	public List<DBCancerType> getCancerTypes(List<String> cancer_type_ids) {
-		return cancerTypeMapper.getCancerTypes(cancer_type_ids);
+		return cancerTypeMapperLegacy.getCancerTypes(cancer_type_ids);
 	}
 
 
@@ -121,7 +121,7 @@ public class ApiService {
 		List<String> genetic_profile_ids = new LinkedList<>();
 		genetic_profile_ids.add(genetic_profile_id);
 		List<Mutation> mutations = mutationService.getMutationsDetailed(genetic_profile_ids, new LinkedList<String>(), sample_ids, null);
-		HashMap<String, List<Mutation>> mutationsBySample = new HashMap<>();
+		HashMap<String, LinkedList<Mutation>> mutationsBySample = new HashMap<>();
 		for (Mutation mutation:  mutations) {
 			String id = mutation.getSampleId().toString();
 			if (!mutationsBySample.containsKey(id)) {
@@ -131,8 +131,8 @@ public class ApiService {
 		}
 		List<MutationSignature> signatures = new LinkedList<>();
 		if (context_size_on_each_side_of_snp == 0) {
-			for (Map.Entry kv: mutationsBySample.entrySet()) {
-				signatures.add(MutationSignatureFactory.NoContextMutationSignature((String)kv.getKey(), (List<Mutation>)kv.getValue()));
+			for (Map.Entry<String, LinkedList<Mutation>> kv: mutationsBySample.entrySet()) {
+                                signatures.add(MutationSignatureFactory.NoContextMutationSignature((String)kv.getKey(), kv.getValue()));
 			}
 		}
 		// TODO: implement other contexts
@@ -240,20 +240,20 @@ public class ApiService {
         
 	@Transactional
 	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> attribute_ids) {
-		return clinicalDataMapper.getSampleClinicalDataByStudyAndAttribute(study_id, attribute_ids);
+		return clinicalDataMapperLegacy.getSampleClinicalDataByStudyAndAttribute(study_id, attribute_ids);
 	}
 	@Transactional
 	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> attribute_ids, List<String> sample_ids) {
-		return clinicalDataMapper.getSampleClinicalDataBySampleAndAttribute(study_id, attribute_ids, sample_ids);
+		return clinicalDataMapperLegacy.getSampleClinicalDataBySampleAndAttribute(study_id, attribute_ids, sample_ids);
 	}
 
 	@Transactional
 	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> attribute_ids) {
-		return clinicalDataMapper.getPatientClinicalDataByStudyAndAttribute(study_id, attribute_ids);
+		return clinicalDataMapperLegacy.getPatientClinicalDataByStudyAndAttribute(study_id, attribute_ids);
 	}
 	@Transactional
 	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> attribute_ids, List<String> patient_ids) {
-		return clinicalDataMapper.getPatientClinicalDataByPatientAndAttribute(study_id, attribute_ids, patient_ids);
+		return clinicalDataMapperLegacy.getPatientClinicalDataByPatientAndAttribute(study_id, attribute_ids, patient_ids);
 	}
 
 	@Transactional
@@ -263,7 +263,7 @@ public class ApiService {
         
 	@Transactional
 	public List<DBClinicalField> getClinicalAttributes(String study_id) {
-       Integer internal_study_id = studyMapper.getStudies(Arrays.asList(study_id)).get(0).internal_id;
+       Integer internal_study_id = studyMapperLegacy.getStudies(Arrays.asList(study_id)).get(0).internal_id;
 		return clinicalFieldMapper.getAllClinicalFieldsByStudy(internal_study_id);
 	}        
 	@Transactional
@@ -279,7 +279,7 @@ public class ApiService {
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id) {
 		List<String> study_ids = new LinkedList<>();
 		study_ids.add(study_id);
-		List<DBStudy> studies = studyMapper.getStudies(study_ids);
+		List<DBStudy> studies = studyMapperLegacy.getStudies(study_ids);
 		if (studies.size() > 0) {
 			return clinicalFieldMapper.getSampleClinicalFieldsByStudy(studies.get(0).internal_id);
 		} else {
@@ -289,7 +289,7 @@ public class ApiService {
 
 	@Transactional
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id, List<String> sample_ids) {
-		List<Integer> internal_sample_ids = sampleMapper.getSampleInternalIdsBySample(study_id, sample_ids);
+		List<Integer> internal_sample_ids = sampleMapperLegacy.getSampleInternalIdsBySample(study_id, sample_ids);
 		return getSampleClinicalAttributesByInternalIds(internal_sample_ids);
 	}
 
@@ -307,7 +307,7 @@ public class ApiService {
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id) {
 		List<String> study_ids = new LinkedList<>();
 		study_ids.add(study_id);
-		List<DBStudy> studies = studyMapper.getStudies(study_ids);
+		List<DBStudy> studies = studyMapperLegacy.getStudies(study_ids);
 		if (studies.size() > 0) {
 			return clinicalFieldMapper.getPatientClinicalFieldsByStudy(studies.get(0).internal_id);
 		} else {
@@ -317,7 +317,7 @@ public class ApiService {
 
 	@Transactional
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id, List<String> patient_ids) {
-		List<Integer> internal_patient_ids = patientMapper.getPatientInternalIdsByPatient(study_id, patient_ids);
+		List<Integer> internal_patient_ids = patientMapperLegacy.getPatientInternalIdsByPatient(study_id, patient_ids);
 		return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(internal_patient_ids);
 	}
 
@@ -348,23 +348,23 @@ public class ApiService {
 	
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles() {
-		return geneticProfileMapper.getAllGeneticProfiles();
+		return geneticProfileMapperLegacy.getAllGeneticProfiles();
 	}
 
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles(String study_id) {
-		return geneticProfileMapper.getGeneticProfilesByStudy(study_id);
+		return geneticProfileMapperLegacy.getGeneticProfilesByStudy(study_id);
 	}
 
 	@Transactional
 	public List<DBGeneticProfile> getGeneticProfiles(List<String> genetic_profile_ids) {
-		return geneticProfileMapper.getGeneticProfiles(genetic_profile_ids);
+		return geneticProfileMapperLegacy.getGeneticProfiles(genetic_profile_ids);
 	}
 
 	@Transactional
 	private List<DBSampleList> addSampleIdsToSampleLists(List<DBSampleList> incomplete_lists) {
 		for (DBSampleList l : incomplete_lists) {
-			List<DBSample> sample_list = sampleListMapper.getSampleIds(l.id);
+			List<DBSample> sample_list = sampleListMapperLegacy.getSampleIds(l.id);
 			l.sample_ids = new ArrayList<>();
 			for (DBSample samp : sample_list) {
 				l.sample_ids.add(samp.id);
@@ -375,42 +375,42 @@ public class ApiService {
 
 	@Transactional
 	public List<DBSampleList> getSampleLists() {
-		return addSampleIdsToSampleLists(sampleListMapper.getAllIncompleteSampleLists());
+		return addSampleIdsToSampleLists(sampleListMapperLegacy.getAllIncompleteSampleLists());
 	}
 
 	@Transactional
 	public List<DBSampleList> getSampleLists(String study_id) {
-		return addSampleIdsToSampleLists(sampleListMapper.getIncompleteSampleListsByStudy(study_id));
+		return addSampleIdsToSampleLists(sampleListMapperLegacy.getIncompleteSampleListsByStudy(study_id));
 	}
 
 	@Transactional
 	public List<DBSampleList> getSampleLists(List<String> sample_list_ids) {
-		return addSampleIdsToSampleLists(sampleListMapper.getIncompleteSampleLists(sample_list_ids));
+		return addSampleIdsToSampleLists(sampleListMapperLegacy.getIncompleteSampleLists(sample_list_ids));
 	}
 
 	@Transactional
 	public List<DBPatient> getPatients(String study_id) {
-		return patientMapper.getPatientsByStudy(study_id);
+		return patientMapperLegacy.getPatientsByStudy(study_id);
 	}
 
 	@Transactional
 	public List<DBPatient> getPatientsByPatient(String study_id, List<String> patient_ids) {
-		return patientMapper.getPatientsByPatient(study_id, patient_ids);
+		return patientMapperLegacy.getPatientsByPatient(study_id, patient_ids);
 	}
 
 	@Transactional
 	public List<DBPatient> getPatientsBySample(String study_id, List<String> sample_ids) {
-		return patientMapper.getPatientsBySample(study_id, sample_ids);
+		return patientMapperLegacy.getPatientsBySample(study_id, sample_ids);
 	}
 
     @Transactional
     public List<Integer> getPatientInternalIdsByStudy(String study_id) {
-        return patientMapper.getPatientInternalIdsByStudy(study_id);
+        return patientMapperLegacy.getPatientInternalIdsByStudy(study_id);
     }
 
     @Transactional
     public List<Integer> getSampleInternalIds(String study_id) {
-        return sampleMapper.getSampleInternalIdsByStudy(study_id);
+        return sampleMapperLegacy.getSampleInternalIdsByStudy(study_id);
     }
 
 	@Transactional
@@ -485,7 +485,7 @@ public class ApiService {
 			}
 			List<String> internal_sample_ids = new ArrayList<>();
 			internal_sample_ids.addAll(sample_order_map.values());
-			List<DBSample> samples = sampleMapper.getSamplesByInternalId(internal_sample_ids);
+			List<DBSample> samples = sampleMapperLegacy.getSamplesByInternalId(internal_sample_ids);
 			for (DBSample sample: samples) {
 				stable_sample_id_map.put(sample.internal_id, sample.id);
 			}
@@ -560,7 +560,7 @@ public class ApiService {
 		}
 		List<String> internal_sample_ids = new ArrayList<>();
 		internal_sample_ids.addAll(sample_order_map.values());
-		List<DBSample> samples = sampleMapper.getSamplesByInternalId(internal_sample_ids);
+		List<DBSample> samples = sampleMapperLegacy.getSamplesByInternalId(internal_sample_ids);
 		for (DBSample sample: samples) {
 			stable_sample_id_map.put(sample.internal_id, sample.id);
 		}
@@ -591,27 +591,27 @@ public class ApiService {
 
 	@Transactional
 	public List<DBSample> getSamples(String study_id) {
-		return sampleMapper.getSamplesByStudy(study_id);
+		return sampleMapperLegacy.getSamplesByStudy(study_id);
 	}
 
 	@Transactional
 	public List<DBSample> getSamplesBySample(String study_id, List<String> sample_ids) {
-		return sampleMapper.getSamplesBySample(study_id, sample_ids);
+		return sampleMapperLegacy.getSamplesBySample(study_id, sample_ids);
 	}
 
 	@Transactional
 	public List<DBSample> getSamplesByPatient(String study_id, List<String> patient_ids) {
-		return sampleMapper.getSamplesByPatient(study_id, patient_ids);
+		return sampleMapperLegacy.getSamplesByPatient(study_id, patient_ids);
 	}
 
 	@Transactional
 	public List<DBStudy> getStudies() {
-		return studyMapper.getAllStudies();
+		return studyMapperLegacy.getAllStudies();
 	}
 
 	@Transactional
 	public List<DBStudy> getStudies(List<String> study_ids) {
-		return studyMapper.getStudies(study_ids);
+		return studyMapperLegacy.getStudies(study_ids);
 	}
 
 }

@@ -122,7 +122,15 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
-    public static final String ONCOKB_URL = "oncokb.url";
+
+    public static final String PATIENT_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.meta.url";
+    public static final String PATIENT_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.patient.url";
+
+    public static final String STUDY_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.study.url";
+    public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
+
+    public static final String ONCOKB_API_URL = "oncokb.api.url";
+    public static final String SHOW_ONCOKB = "show.oncokb";
 
     public static final String SESSION_SERVICE_URL = "session.service.url";
 
@@ -631,6 +639,32 @@ public class GlobalProperties {
         return url+caseId;
     }
 
+    public static String getStudyHeatmapMetaUrl()
+    {
+        String url = properties.getProperty(STUDY_VIEW_MDACC_HEATMAP_META_URL);
+        return url;
+    }
+
+    public static String getStudyHeatmapViewerUrl()
+    {
+        String url = properties.getProperty(STUDY_VIEW_MDACC_HEATMAP_URL);
+        return url;
+    }
+
+    public static String getPatientHeatmapMetaUrl(String caseId)
+    {
+        String url = properties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_META_URL);
+        if (url == null || url.length() == 0) return null;
+        return url + caseId;
+    }
+
+    public static String getPatientHeatmapViewerUrl(String caseId)
+    {
+        String url = properties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_URL);
+        if (url == null || url.length() == 0) return null;
+        return url + caseId;
+    }
+
     public static String getTCGAPathReportUrl()
     {
         String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
@@ -656,27 +690,30 @@ public class GlobalProperties {
         return properties.getProperty(SESSION_SERVICE_URL);
     }
  
-    public static String getOncoKBUrl()
+    public static String getOncoKBApiUrl()
     {
-        String oncokbUrl = properties.getProperty(ONCOKB_URL);
+        String oncokbApiUrl = properties.getProperty(ONCOKB_API_URL);
+        String showOncokb = properties.getProperty(SHOW_ONCOKB);
 
-        // This only applies if there is no oncokb.url property in the portal.properties file.
+        if(showOncokb == null || showOncokb.isEmpty()) {
+            showOncokb = "true";
+        }
+        // This only applies if there is no oncokb.api.url property in the portal.properties file.
         // Empty string should be used if you want to disable the OncoKB annotation.
-        if(oncokbUrl == null) {
-            oncokbUrl = "http://oncokb.org/legacy-api/";
+        if(oncokbApiUrl == null) {
+            oncokbApiUrl = "http://oncokb.org/legacy-api/";
         }
 
         //Test connection of OncoKB website.
-        if(!oncokbUrl.isEmpty()) {
-
+        if(!oncokbApiUrl.isEmpty() && showOncokb.equals("true")) {
             try {
-                URL url = new URL(oncokbUrl+"access");
+                URL url = new URL(oncokbApiUrl+"access");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 if(conn.getResponseCode() != 200) {
-                    oncokbUrl = "";
+                    oncokbApiUrl = "";
                 }
                 conn.disconnect();
-                return oncokbUrl;
+                return oncokbApiUrl;
             } catch (Exception e) {
                 return "";
             }
@@ -769,19 +806,15 @@ public class GlobalProperties {
         return darwinAuthority;
     }
     
-    public static Map<String, Set<String>> getPriorityStudies() {
-	    Map<String, Set<String>> priorityStudiesObject = new HashMap<>();
+    public static List<String[]> getPriorityStudies() {
+	    List<String[]> priorityStudiesObject = new LinkedList<>();
 	    try {
 		    String priorityStudies = properties.getProperty(PRIORITY_STUDIES).trim();
 		    for (String priorityStudyCategory: priorityStudies.split(";")) {
 			    String[] elements = priorityStudyCategory.split("[#,]");
-			    String category = elements[0];
-			    Set<String> studies = new HashSet<>();
-			    for (int i=1; i<elements.length; i++) {
-				    studies.add(elements[i]);
-			    }
-			    if (studies.size() > 0) {
-				priorityStudiesObject.put(category, studies);
+			    elements = Arrays.stream(elements).filter(s -> s.length() > 0).toArray(String[]::new);
+			    if (elements.length > 1) {
+				    priorityStudiesObject.add(elements);
 			    }
 		    }
 	    } catch (NullPointerException e) {}

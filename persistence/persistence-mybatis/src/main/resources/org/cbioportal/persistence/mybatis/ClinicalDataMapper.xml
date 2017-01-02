@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.ClinicalDataMapper">
+    <cache/>
+
+    <sql id="selectSample">
+        clinical_sample.INTERNAL_ID AS "${prefix}internalId",
+        sample.STABLE_ID AS "${prefix}stableId",
+        clinical_sample.ATTR_ID AS "${prefix}attrId"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            , clinical_sample.ATTR_VALUE AS "${prefix}attrValue"
+        </if>
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+                <property name="prefix" value="${prefix}clinicalAttribute."/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="selectPatient">
+        clinical_patient.INTERNAL_ID AS "${prefix}internalId",
+        patient.STABLE_ID AS "${prefix}stableId",
+        clinical_patient.ATTR_ID AS "${prefix}attrId"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            , clinical_patient.ATTR_VALUE AS "${prefix}attrValue"
+        </if>
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+                <property name="prefix" value="${prefix}clinicalAttribute."/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="fromSample">
+        FROM clinical_sample
+        INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="fromPatient">
+        FROM clinical_patient
+        INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="whereSample">
+        <where>
+            <if test="sampleIds == null">
+                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+            </if>
+            <if test="sampleIds != null">
+                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND sample.STABLE_ID = #{sampleIds[${i}]}
+                </foreach>
+            </if>
+            <if test="attributeId != null">
+                AND clinical_sample.ATTR_ID = #{attributeId}
+            </if>
+        </where>
+    </sql>
+
+    <sql id="wherePatient">
+        <where>
+            <if test="patientIds == null">
+                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+            </if>
+            <if test="patientIds != null">
+                <foreach index="i" collection="patientIds" open="(" separator="OR" close=")">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND patient.STABLE_ID = #{patientIds[${i}]}
+                </foreach>
+            </if>
+            <if test="attributeId != null">
+                AND clinical_patient.ATTR_ID = #{attributeId}
+            </if>
+        </where>
+    </sql>
+
+    <select id="getSampleClinicalData" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+        <include refid="selectSample">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="fromSample"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN clinical_attribute_meta ON clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID
+            AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+        </if>
+        <include refid="whereSample"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_sample.ATTR_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaSampleClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="fromSample"/>
+        <include refid="whereSample"/>
+    </select>
+
+    <select id="getPatientClinicalData" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+        <include refid="selectPatient">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="fromPatient"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN clinical_attribute_meta ON clinical_patient.ATTR_ID = clinical_attribute_meta.ATTR_ID
+            AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+        </if>
+        <include refid="wherePatient"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_patient.ATTR_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaPatientClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="fromPatient"/>
+        <include refid="wherePatient"/>
+    </select>
+
+</mapper>

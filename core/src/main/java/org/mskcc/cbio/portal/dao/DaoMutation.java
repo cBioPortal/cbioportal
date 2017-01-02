@@ -33,7 +33,6 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.model.ExtendedMutation.*;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +51,11 @@ public final class DaoMutation {
         if (!MySQLbulkLoader.isBulkLoad()) {
             throw new DaoException("You have to turn on MySQLbulkLoader in order to insert mutations");
         } else {
+        	int result = 1;
+        	if (newMutationEvent) {
+        		//add event first, as mutation has a Foreign key constraint to the event:
+        		result = addMutationEvent(mutation.getEvent())+1;
+            } 
             MySQLbulkLoader.getMySQLbulkLoader("mutation").insertRecord(
                     Long.toString(mutation.getMutationEventId()),
                     Integer.toString(mutation.getGeneticProfileId()),
@@ -80,11 +84,7 @@ public final class DaoMutation {
                     Integer.toString(mutation.getTumorRefCount()),
                     Integer.toString(mutation.getNormalAltCount()),
                     Integer.toString(mutation.getNormalRefCount()));
-            if (newMutationEvent) {
-                return addMutationEvent(mutation.getEvent())+1;
-            } else {
-                return 1;
-            }
+            return result;
         }
     }
 

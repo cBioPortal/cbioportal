@@ -1300,8 +1300,11 @@ class ClinicalValidator(Validator):
                       'datatype',
                       'priority')
 
-    # attributes required to have certain properties because of hard-coded use
-    # TODO add unit tests for this functionality
+    # Attributes required to have certain properties because of hard-coded use.
+    # Note: the 'when_wrong' property (found in some attributes like METASTATIC_SITE), 
+    # can be set to WARNING to indicate that only a WARNING should be given 
+    # if this attribute is found in the "wrong" file (e.g. a PATIENT attribute found
+    # in a SAMPLE file or vice-versa).
     PREDEFINED_ATTRIBUTES = {
         'AGE': {
             'is_patient_attribute': '1',
@@ -1341,7 +1344,8 @@ class ClinicalValidator(Validator):
             'datatype': 'STRING'
         },
         'GLEASON_SCORE': {
-            'is_patient_attribute': '0'
+            'is_patient_attribute': '0',
+            'when_wrong': 'WARNING' 
         },
         'GLEASON_SCORE_1': {
             'is_patient_attribute': '0'
@@ -1357,7 +1361,8 @@ class ClinicalValidator(Validator):
         },
         'METASTATIC_SITE': {
             'is_patient_attribute': '0',
-            'datatype': 'STRING'
+            'datatype': 'STRING',
+            'when_wrong': 'WARNING' 
         },
         'OS_STATUS': {
             'is_patient_attribute': '1',
@@ -1377,7 +1382,8 @@ class ClinicalValidator(Validator):
         },
         'PRIMARY_SITE': {
             'is_patient_attribute': '0',
-            'datatype': 'STRING'
+            'datatype': 'STRING',
+            'when_wrong': 'WARNING' 
         },
         'SAMPLE_CLASS': {
             'is_patient_attribute': '0',
@@ -1406,14 +1412,16 @@ class ClinicalValidator(Validator):
         },
         'TUMOR_SITE': {
             'is_patient_attribute': '0',
-            'datatype': 'STRING'
+            'datatype': 'STRING',
+            'when_wrong': 'WARNING' 
         },
         'TUMOR_STAGE_2009': {
             'is_patient_attribute': '0'
         },
         'TUMOR_TISSUE_SITE': {
             'is_patient_attribute': '0',
-            'datatype': 'STRING'
+            'datatype': 'STRING',
+            'when_wrong': 'WARNING' 
         },
         'TUMOR_TYPE': {
             'is_patient_attribute': '0',
@@ -1570,32 +1578,45 @@ class ClinicalValidator(Validator):
                         expected_level = \
                             self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
                         if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
-                            self.logger.error(
-                                'Attribute must be a %s-level attribute',
-                                {'0': 'sample', '1': 'patient'}[expected_level],
-                                extra={'line_number': self.line_number,
-                                       'column_number': col_index + 1,
-                                       'cause': col_name})
-                    # check pre-header metadata if applicable -- if these were
-                    # found missing or unparseable, `relaxed mode' has made
-                    # validation continue assuming all attributes to be
-                    # unformatted strings
-                    elif not self.fill_in_attr_defs:
-                        value = self.attr_defs[col_index][attr_property]
-                        expected_value = \
-                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
-                        if (value != expected_value and
-                                not self.fill_in_attr_defs):
-                            self.logger.error(
-                                "%s definition for attribute '%s' must be %s",
-                                attr_property,
-                                col_name,
-                                expected_value,
-                                extra={'line_number':
-                                                self.METADATA_LINES.index(
-                                                    attr_property) + 1,
-                                       'column_number': col_index + 1,
-                                       'cause': value})
+                            # check if only warning should be given: 
+                            if ('when_wrong' in self.PREDEFINED_ATTRIBUTES[col_name] and 
+                            self.PREDEFINED_ATTRIBUTES[col_name]['when_wrong'] == 'WARNING'):
+                                self.logger.warning(
+                                    'Attribute expected to be a %s-level attribute. Some *minor* details will be '
+                                    'missing in patient/sample view for this study',
+                                    {'0': 'sample', '1': 'patient'}[expected_level],
+                                    extra={'line_number': self.line_number,
+                                           'column_number': col_index + 1,
+                                           'cause': col_name})
+                            else: 
+                                self.logger.error(
+                                    'Attribute must be a %s-level attribute',
+                                    {'0': 'sample', '1': 'patient'}[expected_level],
+                                    extra={'line_number': self.line_number,
+                                           'column_number': col_index + 1,
+                                           'cause': col_name})
+                    # check pre-header datatype property:
+                    if attr_property == 'datatype':
+                        # check pre-header metadata if applicable -- if these were
+                        # found missing or unparseable, `relaxed mode' has made
+                        # validation continue assuming all attributes to be
+                        # unformatted strings
+                        if not self.fill_in_attr_defs:
+                            value = self.attr_defs[col_index][attr_property]
+                            expected_value = \
+                                self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                            if (value != expected_value and
+                                    not self.fill_in_attr_defs):
+                                self.logger.error(
+                                    "%s definition for attribute '%s' must be %s",
+                                    attr_property,
+                                    col_name,
+                                    expected_value,
+                                    extra={'line_number':
+                                                    self.METADATA_LINES.index(
+                                                        attr_property) + 1,
+                                           'column_number': col_index + 1,
+                                           'cause': value})
 
             self.defined_attributes.add(col_name)
         return num_errors

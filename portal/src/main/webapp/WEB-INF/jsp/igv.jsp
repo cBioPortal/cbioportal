@@ -35,11 +35,8 @@
         var sampleIds = window.QuerySession.getSampleIds().join(",");
         function generateHTML(cancerStudyId, hugoSymbol, id){
             $.when($.ajax({
-                    method : "POST",
-                    url : "api-legacy/gene/fetch-by-hugo",
-                    data : {
-                        hugo_gene_symbols: hugoSymbol
-                    }
+                    method : "GET",
+                    url : "api/genes/" + hugoSymbol
                 })).then(
                     function(response) {
                         
@@ -53,7 +50,7 @@
                             + '<script type="text/javascript" src="js/lib/igv.min.js"><\/script></head>';
                         var bodyContent1 = '<body><div id="igvDiv" style="padding-top: 10px;padding-bottom: 10px; border:1px solid lightgray;width:100%"></div><script type="text/javascript">  $(document).ready(function () {    var div = $("#igvDiv"),   options = {'
                             + 'divId: "igvDiv", showNavigation: true, showRuler: true, genome: "hg19", divId: "igvDiv", locus: "' + hugoSymbol + '", tracks: [  { url: "api-legacy/copynumbersegments", indexed: false, name: "Alt click to sort", type:"seg", json: true, method: "POST", ';
-                        var bodyContent2 = 'cancerStudyId: "' + cancerStudyId + '", chromosome: "' + response[0].chromosome +'", sampleIds: "' + sampleIds + '"},{name: "Genes", url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed", order: Number.MAX_VALUE,  displayMode: "EXPANDED"}]};igv.createBrowser(div, options);});<\/script><\/body>';    
+                        var bodyContent2 = 'cancerStudyId: "' + cancerStudyId + '", chromosome: "' + response.chromosome +'", sampleIds: "' + sampleIds + '"},{name: "Genes", url: "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed", order: Number.MAX_VALUE,  displayMode: "EXPANDED"}]};igv.createBrowser(div, options);});<\/script><\/body>';
                         var fullContent = headerContent + bodyContent1 + bodyContent2;
                         var iframe = document.createElement('iframe');
                         $("#"+id).html(iframe);

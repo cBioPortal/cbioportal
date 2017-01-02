@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,16 +32,14 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.*;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Import protein array data into database
@@ -52,8 +50,7 @@ public class ImportProteinArrayData {
     private String cancerStudyStableId;
     private File arrayData;
     
-    public ImportProteinArrayData(File arrayData, int cancerStudyId, 
-            String cancerStudyStableId) {
+    public ImportProteinArrayData(File arrayData, int cancerStudyId, String cancerStudyStableId) {
         this.arrayData = arrayData;
         this.cancerStudyId = cancerStudyId;
         this.cancerStudyStableId = cancerStudyStableId;
@@ -68,9 +65,7 @@ public class ImportProteinArrayData {
         MySQLbulkLoader.bulkLoadOff();
         // import array data
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
-
         GeneticProfile profile = addRPPAProfile();
-        
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
@@ -82,16 +77,13 @@ public class ImportProteinArrayData {
         for (int i=1; i<sampleIds.length; i++) {
             samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
         }
-        
         ArrayList<Integer> internalSampleIds = new ArrayList<Integer>();
         while ((line=buf.readLine()) != null) {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
-            
             String[] strs = line.split("\t");
             String arrayInfo = strs[0];
             String arrayId = importArrayInfo(arrayInfo);
-           
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
                 if (samples[i]==null || Double.isNaN(zscores[i])) {
@@ -102,9 +94,7 @@ public class ImportProteinArrayData {
                 daoPAD.addProteinArrayData(pad);
                 internalSampleIds.add(sampleId);
             }
-            
         }
-        
         // add samples to profile
         DaoGeneticProfileSamples.addGeneticProfileSamples(profile.getGeneticProfileId(), internalSampleIds);
     }
@@ -120,11 +110,9 @@ public class ImportProteinArrayData {
                 nan = true;
             }
         }
-        
         DescriptiveStatistics ds = new DescriptiveStatistics(nan?copyWithNoNaN(data):data);
         double mean = ds.getMean();
         double std = ds.getStandardDeviation();
-        
         for (int i=0; i<data.length; i++) {
             if (!Double.isNaN(data[i])) {
                 data[i] = (data[i]-mean)/std;
@@ -140,12 +128,10 @@ public class ImportProteinArrayData {
                 list.add(d);
             }
         }
-        
         double[] ret = new double[list.size()];
         for (int i=0; i<list.size(); i++) {
             ret[i] = list.get(i);
         }
-        
         return ret;
     }
     
@@ -243,8 +229,7 @@ public class ImportProteinArrayData {
         }
     }
     
-    private GeneticProfile addRPPAProfile() throws DaoException
-    {
+    private GeneticProfile addRPPAProfile() throws DaoException {
         // add profile
         String idProfProt = cancerStudyStableId+"_RPPA_protein_level";
         GeneticProfile gpPro = DaoGeneticProfile.getGeneticProfileByStableId(idProfProt);
@@ -268,8 +253,7 @@ public class ImportProteinArrayData {
             // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
-        
-		SpringUtil.initDataSource();
+        SpringUtil.initDataSource();
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
         ProgressMonitor.setConsoleModeAndParseShowProgress(args);
@@ -353,8 +337,6 @@ public class ImportProteinArrayData {
                             ProteinArrayData norm = new ProteinArrayData(studyId, id, sampleId, abud);
                             daoPAD.addProteinArrayData(norm);
                         }
-                        
-                        //break;
                     }
                 }
             }

@@ -31,24 +31,142 @@
 */
 package org.cbioportal.service.impl;
 
-import java.util.List;
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.GeneService;
+import org.cbioportal.service.exception.GeneNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- *
- * @author jiaojiao
- */
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Service
-public class GeneServiceImpl implements GeneService{
+public class GeneServiceImpl implements GeneService {
+
     @Autowired
     private GeneRepository geneRepository;
-    
+
     @Override
-    public List<Gene> getGeneListByHugoSymbols(List<String> hugo_gene_symbol){
-        return geneRepository.getGeneListByHugoSymbols(hugo_gene_symbol);
+    public List<Gene> getAllGenes(String projection, Integer pageSize, Integer pageNumber, String sortBy,
+                                  String direction) {
+
+        List<Gene> geneList = geneRepository.getAllGenes(projection, pageSize, pageNumber, sortBy, direction);
+
+        for (Gene gene : geneList) {
+            gene.setChromosome(getChromosome(gene.getCytoband()));
+        }
+
+        return geneList;
+    }
+
+    @Override
+    public BaseMeta getMetaGenes() {
+
+        return geneRepository.getMetaGenes();
+    }
+
+    @Override
+    public Gene getGene(String geneId) throws GeneNotFoundException {
+
+        Gene gene;
+
+        if (isInteger(geneId)) {
+            gene = geneRepository.getGeneByEntrezGeneId(Integer.valueOf(geneId));
+        } else {
+            gene = geneRepository.getGeneByHugoGeneSymbol(geneId);
+        }
+
+        if (gene == null) {
+            throw new GeneNotFoundException(geneId);
+        }
+
+        gene.setChromosome(getChromosome(gene.getCytoband()));
+        return gene;
+    }
+
+    @Override
+    public List<String> getAliasesOfGene(String geneId) {
+
+        if (isInteger(geneId)) {
+            return geneRepository.getAliasesOfGeneByEntrezGeneId(Integer.valueOf(geneId));
+        } else {
+            return geneRepository.getAliasesOfGeneByHugoGeneSymbol(geneId);
+        }
+    }
+
+    @Override
+    public List<Gene> fetchGenes(List<String> geneIds, String projection) {
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        List<String> hugoGeneSymbols = new ArrayList<>();
+
+        splitIdsByType(geneIds, entrezGeneIds, hugoGeneSymbols);
+
+        List<Gene> geneList = geneRepository.fetchGenesByEntrezGeneIds(entrezGeneIds, projection);
+        geneList.addAll(geneRepository.fetchGenesByHugoGeneSymbols(hugoGeneSymbols, projection));
+
+        for (Gene gene : geneList) {
+            gene.setChromosome(getChromosome(gene.getCytoband()));
+        }
+
+        return geneList;
+    }
+
+
+
+    @Override
+    public BaseMeta fetchMetaGenes(List<String> geneIds) {
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        List<String> hugoGeneSymbols = new ArrayList<>();
+
+        splitIdsByType(geneIds, entrezGeneIds, hugoGeneSymbols);
+
+        BaseMeta baseMeta = new BaseMeta();
+        baseMeta.setTotalCount(geneRepository.fetchMetaGenesByEntrezGeneIds(entrezGeneIds).getTotalCount() +
+                geneRepository.fetchMetaGenesByHugoGeneSymbols(hugoGeneSymbols).getTotalCount());
+
+        return baseMeta;
+    }
+
+    private void splitIdsByType(List<String> geneIds, List<Integer> entrezGeneIds, List<String> hugoGeneSymbols) {
+
+        for (String geneId : geneIds) {
+            if (isInteger(geneId)) {
+                entrezGeneIds.add(Integer.valueOf(geneId));
+            } else {
+                hugoGeneSymbols.add(geneId);
+            }
+        }
+    }
+
+    private boolean isInteger(String geneId) {
+        return geneId.matches("^-?\\d+$");
+    }
+
+    private String getChromosome(String cytoband) {
+
+        if (cytoband == null) {
+            return null;
+        }
+
+        cytoband = cytoband.toUpperCase();
+        if (cytoband.startsWith("X")) {
+            return "X";
+        } else if (cytoband.startsWith("Y")) {
+            return "Y";
+        }
+
+        Pattern p = Pattern.compile("([0-9]+).*");
+        Matcher m = p.matcher(cytoband);
+        if (m.find()) {
+            return m.group(1);
+        }
+
+        return null;
     }
 }

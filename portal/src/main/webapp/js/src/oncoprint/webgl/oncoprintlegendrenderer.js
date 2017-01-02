@@ -2,8 +2,8 @@ var svgfactory = require('./svgfactory.js');
 
 var nodeIsVisible = function(node) {
     var ret = true;
-    while (node.tagName.toLowerCase() !== "body") {
-	if (!$(node).is(":visible")) {
+    while (node.tagName.toLowerCase() !== "html") {
+	if ($(node).css('display') === 'none') {
 	    ret = false;
 	    break;
 	}
@@ -38,24 +38,6 @@ var OncoprintLegendView = (function() {
 	this.padding_between_rule_set_rows = 10;
     }
     
-    var getMaximumLabelWidth = function(view, model) {
-	var rule_sets = model.getRuleSets();
-	var maximum = 0;
-	for (var i=0; i<rule_sets.length; i++) {
-	    if (rule_sets[i].exclude_from_legend || typeof rule_sets[i].legend_label === 'undefined') {
-		continue;
-	    }
-	    
-	    var label = svgfactory.text(rule_sets[i].legend_label, 0, 0, 
-					view.rule_set_label_config.size, 
-					view.rule_set_label_config.font,
-					view.rule_set_label_config.weight);
-	    view.$svg[0].appendChild(label);
-	    maximum = Math.max(maximum, label.getBBox().width);
-	    label.parentNode.removeChild(label);
-	}
-	return maximum;
-    };
     var renderLegend = function(view, model, target_svg, show_all) {
 	if (view.rendering_suppressed) {
 	    return;
@@ -67,6 +49,8 @@ var OncoprintLegendView = (function() {
 	    return;
 	}
 	$(target_svg).empty();
+	var defs = svgfactory.defs();
+	target_svg.appendChild(defs);
 	
 	var everything_group = svgfactory.group(0,0);
 	target_svg.appendChild(everything_group);
@@ -97,7 +81,7 @@ var OncoprintLegendView = (function() {
 		if (rule.exclude_from_legend) {
 		    continue;
 		}
-		var group = ruleToSVGGroup(rule, view, model, target_svg);
+		var group = ruleToSVGGroup(rule, view, model, target_svg, defs);
 		group.setAttribute('transform', 'translate('+x+','+in_group_y_offset+')');
 		rule_set_group.appendChild(group);
 		if (x + group.getBBox().width > view.width) {
@@ -116,7 +100,7 @@ var OncoprintLegendView = (function() {
 	view.$svg[0].setAttribute('height', everything_box.height);
     };
     
-    var ruleToSVGGroup = function(rule, view, model, target_svg) {
+    var ruleToSVGGroup = function(rule, view, model, target_svg, target_defs) {
 	var root = svgfactory.group(0,0);
 	var config = rule.getLegendConfig();
 	if (config.type === 'rule') {
@@ -152,6 +136,18 @@ var OncoprintLegendView = (function() {
 	    }
 	    points.push([45, 20]);
 	    root.appendChild(svgfactory.path(points, config.color, config.color));
+	} else if (config.type === 'gradient') {
+	    var num_decimal_digits = 2;
+	    var display_range = config.range.map(function(x) {
+		var num_digit_multiplier = Math.pow(10, num_decimal_digits);
+		return Math.round(x * num_digit_multiplier) / num_digit_multiplier;
+	    });
+	    var gradient = svgfactory.gradient(config.colorFn);
+	    var gradient_id = gradient.getAttribute("id");
+	    target_defs.appendChild(gradient);
+	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
+	    root.appendChild(svgfactory.text(display_range[1], 120, 0, 12, 'Arial', 'normal'));
+	    root.appendChild(svgfactory.rect(30,0,60,20,"url(#"+gradient_id+")"));
 	}
 	return root;
     };

@@ -20,6 +20,9 @@
  */
 
 var Shape = require('./oncoprintshape.js');
+var extractRGBA = require('./extractrgba.js');
+var heatmapColors = require('./heatmapcolors.js');
+var binarysearch = require('./binarysearch.js');
 
 function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
@@ -31,6 +34,14 @@ function makeIdCounter() {
 	id += 1;
 	return id;
     };
+}
+
+function intRange(length) {
+    var ret = [];
+    for (var i=0; i<length; i++) {
+	ret.push(i);
+    }
+    return ret;
 }
 
 function makeUniqueColorGetter(init_used_colors) {
@@ -83,44 +94,15 @@ function objectValues(obj) {
     return Object.keys(obj).map(function(key) { return obj[key]; });
 }
 
-var NA_SHAPES = [
-    {
+var makeNAShapes = function(z) {
+    return [{
 	'type': 'rectangle',
-	'fill': 'rgba(125, 125, 125, 1)',
-	'z': 0,
-    },
-    /*{
-	'type': 'line',
-	'x1': '0%',
-	'y1': '0%',
-	'x2': '100%',
-	'y2': '100%',
-	'stroke': 'rgba(85, 85, 85, 0.7)',
-	'stroke-width': '1',
-	'z': '1',
-    },*/
-];
+	'fill': 'rgba(224, 224, 224, 1)',
+	'z': z
+    }];
+};
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
-
-var extractRGBA = function (str) {
-    var ret = [0, 0, 0, 1];
-    if (str[0] === "#") {
-	// hex, convert to rgba
-	var r = parseInt(str[1] + str[2], 16);
-	var g = parseInt(str[3] + str[4], 16);
-	var b = parseInt(str[5] + str[6], 16);
-	str = 'rgba('+r+','+g+','+b+',1)';
-    }
-    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
-    if (match.length === 5) {
-	ret = [parseFloat(match[1]) / 255,
-	    parseFloat(match[2]) / 255,
-	    parseFloat(match[3]) / 255,
-	    parseFloat(match[4])];
-    }
-    return ret;
-};
 
 var colorToHex = function(str) {
     var r;
@@ -292,13 +274,6 @@ var LookupRuleSet = (function () {
 	this.universal_rules = [];
 
 	this.rule_id_to_conditions = {};
-
-	this.addRule(NA_STRING, true, {
-	    shapes: NA_SHAPES,
-	    legend_label: NA_LABEL,
-	    exclude_from_legend: false,
-	    legend_config: {'type': 'rule', 'target': {'na': true}}
-	});
     }
     LookupRuleSet.prototype = Object.create(RuleSet.prototype);
 
@@ -387,7 +362,7 @@ var ConditionRuleSet = (function () {
 	this.addRule(function (d) {
 	    return d[NA_STRING] === true;
 	},
-		{shapes: NA_SHAPES,
+		{shapes: makeNAShapes(params.na_z || 1000),
 		    legend_label: NA_LABEL,
 		    exclude_from_legend: false,
 		    legend_config: {'type': 'rule', 'target': {'na': true}}
@@ -429,6 +404,13 @@ var CategoricalRuleSet = (function () {
 	 * - categoryToColor
 	 */
 	LookupRuleSet.call(this, params);
+	
+	this.addRule(NA_STRING, true, {
+	    shapes: makeNAShapes(params.na_z || 1000),
+	    legend_label: NA_LABEL,
+	    exclude_from_legend: false,
+	    legend_config: {'type': 'rule', 'target': {'na': true}}
+	});
 	
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
@@ -494,21 +476,27 @@ var LinearInterpRuleSet = (function () {
 
 	this.makeInterpFn = function () {
 	    var range = this.getEffectiveValueRange();
-	    
+
 	    if (this.log_scale) {
 		var shift_to_make_pos = Math.abs(range[0]) + 1;
 		var log_range = Math.log(range[1] + shift_to_make_pos) - Math.log(range[0] + shift_to_make_pos);
 		var log_range_lower = Math.log(range[0] + shift_to_make_pos);
-		return function(val) {
+		return function (val) {
 		    val = parseFloat(val);
-		    return (Math.log(val + shift_to_make_pos) - log_range_lower)/log_range;
+		    return (Math.log(val + shift_to_make_pos) - log_range_lower) / log_range;
 		};
 	    } else {
 		var range_spread = range[1] - range[0];
 		var range_lower = range[0];
 		return function (val) {
 		    val = parseFloat(val);
-		    return (val - range_lower) / range_spread;
+		    if (val <= range[0]) {
+			return 0;
+		    } else if (val >= range[1]) {
+			return 1;
+		    } else {
+			return (val - range_lower) / range_spread;
+		    }
 		};
 	    }
 	};
@@ -566,60 +554,91 @@ var LinearInterpRuleSet = (function () {
 var GradientRuleSet = (function () {
     function GradientRuleSet(params) {
 	/* params
-	 * - color_range
+	 * - colors || colormap_name
+	 * - null_color
 	 */
 	LinearInterpRuleSet.call(this, params);
-	this.color_range;
-	(function setUpColorRange(self) {
-	    var color_start;
-	    var color_end;
-	    try {
-		color_start = params.color_range[0]
-			.match(/rgba\(([\d.,]+)\)/)
-			.split(',')
-			.map(parseFloat);
-		color_end = params.color_range[1]
-			.match(/rgba\(([\d.,]+)\)/)
-			.split(',')
-			.map(parseFloat);
-		if (color_start.length !== 4 || color_end.length !== 4) {
-		    throw "wrong number of color components";
-		}
-	    } catch (err) {
-		color_start = [0, 0, 0, 1];
-		color_end = [255, 0, 0, 1];
-	    }
-	    self.color_range = color_start.map(function (c, i) {
-		return [c, color_end[i]];
-	    });
-	})(this);
+
+	this.colors = [];
+	if (params.colors) {
+	    this.colors = params.colors || [];
+	} else if (params.colormap_name) {
+	    this.colors = heatmapColors[params.colormap_name] || [];
+	}
+	if (this.colors.length === 0) {
+	    this.colors.push([0,0,0,1],[255,0,0,1]);
+	}
+	
+	this.value_stop_points = params.value_stop_points;
+
 	this.gradient_rule;
+	this.null_color = params.null_color || "rgba(211,211,211,1)";
     }
     GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
+
+    // interpScaleColors,
+    // were adapted from politiken-journalism's scale-color-perceptual repo on Github
+    var linInterpColors = function(t, begin_color, end_color) {
+	// 0 <= t <= 1
+	// begin_color and end_color are 4-element arrays in ([0,255])x([0,255])x([0,255])x([0,1])
+	return [
+	    Math.round(begin_color[0]*(1-t) + end_color[0]*t),
+	    Math.round(begin_color[1]*(1-t) + end_color[1]*t),
+	    Math.round(begin_color[2]*(1-t) + end_color[2]*t),
+	    begin_color[3]*(1-t) + end_color[3]*t
+	];
+    };
+
+    GradientRuleSet.prototype.makeColorFn = function(colors, interpFn) {
+	var value_stop_points = this.value_stop_points;
+	var stop_points;
+	if (value_stop_points) {
+	    stop_points = value_stop_points.map(interpFn);
+	} else {
+	    stop_points = intRange(colors.length).map(function(x) { return x/(colors.length -1); });
+	}
+	return function(t) {
+	    // 0 <= t <= 1
+	    var begin_interval_index = binarysearch(stop_points, t, function(x) { return x; }, true);
+	    var end_interval_index = Math.min(colors.length - 1, begin_interval_index + 1);
+	    var spread = stop_points[end_interval_index] - stop_points[begin_interval_index];
+	    if (spread === 0) {
+		return "rgba(" + colors[end_interval_index].join(",") + ")";
+	    } else {
+		var interval_t = (t - stop_points[begin_interval_index]) / spread;
+		var begin_color = colors[begin_interval_index];
+		var end_color = colors[end_interval_index];
+		return "rgba(" + linInterpColors(interval_t, begin_color, end_color).join(",") + ")";
+	    }
+	    
+	};
+    }
 
     GradientRuleSet.prototype.updateLinearRules = function () {
 	if (typeof this.gradient_rule !== "undefined") {
 	    this.removeRule(this.gradient_rule);
 	}
 	var interpFn = this.makeInterpFn();
+	var colorFn = this.makeColorFn(this.colors, interpFn);
 	var value_key = this.value_key;
-	var color_range = this.color_range;
+	var null_color = this.null_color;
+	
 	this.gradient_rule = this.addRule(function (d) {
 	    return d[NA_STRING] !== true;
 	},
 		{shapes: [{
 			    type: 'rectangle',
-			    fill: function (d) {
-				var t = interpFn(d[value_key]);
-				return "rgba(" + color_range.map(
-					function (arr) {
-					    return (1 - t) * arr[0]
-						    + t * arr[1];
-					}).join(",") + ")";
+			    fill: function(d) {
+				if (d[value_key]) {
+				    var t = interpFn(d[value_key]);
+				    return colorFn(t);
+				} else {
+				    return null_color;
+				}
 			    }
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'gradient', 'range': this.getEffectiveValueRange()}
+		    legend_config: {'type': 'gradient', 'range': this.getEffectiveValueRange(), 'colorFn':colorFn}
 		});
     };
 
@@ -758,6 +777,12 @@ var GeneticAlterationRuleSet = (function () {
 		}
 	    }
 	})(this);
+	this.addRule(NA_STRING, true, {
+	    shapes: makeNAShapes(params.na_z || 1),
+	    legend_label: "N/S",
+	    exclude_from_legend: false,
+	    legend_config: {'type': 'rule', 'target': {'na': true}}
+	});
     }
     GeneticAlterationRuleSet.prototype = Object.create(LookupRuleSet.prototype);
 

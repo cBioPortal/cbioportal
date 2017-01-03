@@ -50,7 +50,7 @@
         SELECT
         COUNT(*) AS totalCount
         FROM genetic_profile
-        <if test="studyId != null">
+        <if test="_parameter != null">
             INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
             WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
         </if>

@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.util;
 
 import org.apache.log4j.Logger;
-import org.cbioportal.persistence.MutationRepository;
+import org.mskcc.cbio.portal.repository.MutationRepositoryLegacy;
 import org.json.simple.JSONArray;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
@@ -106,7 +106,7 @@ public class MutationDataUtils {
     public static final String OMA_LINK_NOT_AVAILABLE_VALUE = "NA";
 
     @Autowired
-    private MutationRepository mutationRepository;
+    private MutationRepositoryLegacy mutationRepositoryLegacy;
 
     @Autowired
     private MutationModelConverter mutationModelConverter;
@@ -140,7 +140,7 @@ public class MutationDataUtils {
         {
             internalSampleIds = InternalIdUtil.getInternalSampleIds(
                 geneticProfile.getCancerStudyId(), targetSampleList);
-            GetMutationData remoteCallMutation = new GetMutationData(mutationRepository, mutationModelConverter);
+            GetMutationData remoteCallMutation = new GetMutationData(mutationRepositoryLegacy, mutationModelConverter);
 
             mutationList = remoteCallMutation.getMutationData(geneticProfile,
                     targetGeneList,
@@ -347,7 +347,7 @@ public class MutationDataUtils {
 
         // retrieve count map
         counts = mutationModelConverter.convertMutationCountToMap(
-                mutationRepository.countMutationEvents(geneticProfileId, sampleIds));
+                mutationRepositoryLegacy.countMutationEvents(geneticProfileId, sampleIds));
 
         return counts;
     }

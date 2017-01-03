@@ -9,11 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationSignatureFactory;
+import org.mskcc.cbio.portal.model.Mutation;
+import org.mskcc.cbio.portal.model.MutationSignatureFactory;
 import org.cbioportal.model.MutationWithSampleListId;
-import org.cbioportal.persistence.dto.AltCount;
-import org.cbioportal.service.MutationService;
+import org.mskcc.cbio.portal.model.AltCount;
 import org.mskcc.cbio.portal.model.DBAltCountInput;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
@@ -37,6 +36,7 @@ import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
+import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapperLegacy;
@@ -79,7 +79,7 @@ public class ApiService {
 	@Autowired
 	private StudyMapperLegacy studyMapperLegacy;
 	@Autowired
-	private MutationService mutationService;
+	private MutationMapperLegacy mutationMapperLegacy;
 	@Autowired
 	private CosmicCountService cosmicCountService;
 
@@ -120,7 +120,7 @@ public class ApiService {
 	public List<MutationSignature> getSampleMutationSignatures(String genetic_profile_id, List<String> sample_ids, int context_size_on_each_side_of_snp) {
 		List<String> genetic_profile_ids = new LinkedList<>();
 		genetic_profile_ids.add(genetic_profile_id);
-		List<Mutation> mutations = mutationService.getMutationsDetailed(genetic_profile_ids, new LinkedList<String>(), sample_ids, null);
+		List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(genetic_profile_ids, new LinkedList<String>(), sample_ids, null);
 		HashMap<String, LinkedList<Mutation>> mutationsBySample = new HashMap<>();
 		for (Mutation mutation:  mutations) {
 			String id = mutation.getSampleId().toString();
@@ -156,7 +156,7 @@ public class ApiService {
                         echo.add(key);
                     }
                 }
-               List<AltCount> eles = mutationService.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study);
+               List<AltCount> eles = mutationMapperLegacy.getMutationsCounts(type, genes.get(i), (starts == null ? null : starts.get(i)), (ends == null ? null : ends.get(i)), studyIds, per_study);
                for(AltCount ele: eles )
                {
                    result = new HashMap<String,String>();
@@ -212,7 +212,7 @@ public class ApiService {
                         echo.add(key);
                     }
                 }
-                List<AltCount> eles = mutationService.getMutationsCounts(type, item.get("gene"), (item.get("start") == null ? null : Integer.parseInt(item.get("start"))), (item.get("end") == null ? null : Integer.parseInt(item.get("end"))), studyIds, per_study) ;
+                List<AltCount> eles = mutationMapperLegacy.getMutationsCounts(type, item.get("gene"), (item.get("start") == null ? null : Integer.parseInt(item.get("start"))), (item.get("end") == null ? null : Integer.parseInt(item.get("end"))), studyIds, per_study) ;
                 for(AltCount ele: eles)
                 {
                     result = new HashMap<String,String>();

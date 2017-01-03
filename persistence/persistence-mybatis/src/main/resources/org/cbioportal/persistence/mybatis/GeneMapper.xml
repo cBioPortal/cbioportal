@@ -100,7 +100,7 @@
         COUNT(*) AS totalCount
         FROM gene
         WHERE gene.ENTREZ_GENE_ID IN
-        <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+        <foreach item="item" collection="list" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>
@@ -110,7 +110,7 @@
         COUNT(*) AS totalCount
         FROM gene
         WHERE gene.HUGO_GENE_SYMBOL IN
-        <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">
+        <foreach item="item" collection="list" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>

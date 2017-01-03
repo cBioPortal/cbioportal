@@ -41,7 +41,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cbioportal.persistence.MutationRepository;
+import org.mskcc.cbio.portal.repository.MutationRepositoryLegacy;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
@@ -79,7 +79,7 @@ public class EnrichmentsJSON extends HttpServlet  {
     }
 
     @Autowired
-    private MutationRepository mutationRepository;
+    private MutationRepositoryLegacy mutationRepositoryLegacy;
 
     @Autowired
     private MutationModelConverter mutationModelConverter;
@@ -205,7 +205,7 @@ public class EnrichmentsJSON extends HttpServlet  {
                     intEntrezGeneIds.add(entrezGeneId.intValue());
                 }
                 final Map mutHm = mutationModelConverter.convertSampleIdAndEntrezGeneIdToMap(
-                        mutationRepository.getSimplifiedMutations(sampleIds, intEntrezGeneIds, gpId));
+                        mutationRepositoryLegacy.getSimplifiedMutations(sampleIds, intEntrezGeneIds, gpId));
 
 
                 //multi-threading settings

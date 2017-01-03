@@ -36,6 +36,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
+import org.cbioportal.service.util.ChromosomeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,8 @@ public class GeneServiceImpl implements GeneService {
 
     @Autowired
     private GeneRepository geneRepository;
+    @Autowired
+    private ChromosomeCalculator chromosomeCalculator;
 
     @Override
     public List<Gene> getAllGenes(String projection, Integer pageSize, Integer pageNumber, String sortBy,
@@ -56,10 +59,7 @@ public class GeneServiceImpl implements GeneService {
 
         List<Gene> geneList = geneRepository.getAllGenes(projection, pageSize, pageNumber, sortBy, direction);
 
-        for (Gene gene : geneList) {
-            gene.setChromosome(getChromosome(gene.getCytoband()));
-        }
-
+        geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
 
@@ -84,7 +84,7 @@ public class GeneServiceImpl implements GeneService {
             throw new GeneNotFoundException(geneId);
         }
 
-        gene.setChromosome(getChromosome(gene.getCytoband()));
+        chromosomeCalculator.setChromosome(gene);
         return gene;
     }
 
@@ -109,14 +109,9 @@ public class GeneServiceImpl implements GeneService {
         List<Gene> geneList = geneRepository.fetchGenesByEntrezGeneIds(entrezGeneIds, projection);
         geneList.addAll(geneRepository.fetchGenesByHugoGeneSymbols(hugoGeneSymbols, projection));
 
-        for (Gene gene : geneList) {
-            gene.setChromosome(getChromosome(gene.getCytoband()));
-        }
-
+        geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
-
-
 
     @Override
     public BaseMeta fetchMetaGenes(List<String> geneIds) {
@@ -146,27 +141,5 @@ public class GeneServiceImpl implements GeneService {
 
     private boolean isInteger(String geneId) {
         return geneId.matches("^-?\\d+$");
-    }
-
-    private String getChromosome(String cytoband) {
-
-        if (cytoband == null) {
-            return null;
-        }
-
-        cytoband = cytoband.toUpperCase();
-        if (cytoband.startsWith("X")) {
-            return "X";
-        } else if (cytoband.startsWith("Y")) {
-            return "Y";
-        }
-
-        Pattern p = Pattern.compile("([0-9]+).*");
-        Matcher m = p.matcher(cytoband);
-        if (m.find()) {
-            return m.group(1);
-        }
-
-        return null;
     }
 }

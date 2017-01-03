@@ -31,7 +31,6 @@
 */
 package org.cbioportal.persistence.mybatis;
 
-import org.apache.ibatis.annotations.Param;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
 
@@ -39,31 +38,23 @@ import java.util.List;
 
 public interface GeneMapper {
 
-    List<Gene> getGenes(@Param("projection") String projection,
-                        @Param("limit") Integer limit,
-                        @Param("offset") Integer offset,
-                        @Param("sortBy") String sortBy,
-                        @Param("direction") String direction);
+    List<Gene> getGenes(String projection, Integer limit, Integer offset, String sortBy, String direction);
 
     BaseMeta getMetaGenes();
 
-    Gene getGeneByEntrezGeneId(@Param("entrezGeneId") Integer entrezGeneId,
-                               @Param("projection") String projection);
+    Gene getGeneByEntrezGeneId(Integer entrezGeneId, String projection);
 
-    Gene getGeneByHugoGeneSymbol(@Param("hugoGeneSymbol") String hugoGeneSymbol,
-                                 @Param("projection") String projection);
+    Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol, String projection);
 
-    List<String> getAliasesOfGeneByEntrezGeneId(@Param("entrezGeneId") Integer entrezGeneId);
+    List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
 
-    List<String> getAliasesOfGeneByHugoGeneSymbol(@Param("hugoGeneSymbol") String hugoGeneSymbol);
+    List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
-    List<Gene> getGenesByEntrezGeneIds(@Param("entrezGeneIds") List<Integer> entrezGeneIds,
-                                       @Param("projection") String projection);
+    List<Gene> getGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
 
-    List<Gene> getGenesByHugoGeneSymbols(@Param("hugoGeneSymbols") List<String> hugoGeneSymbols,
-                                         @Param("projection") String projection);
+    List<Gene> getGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
 
-    BaseMeta getMetaGenesByEntrezGeneIds(@Param("entrezGeneIds") List<Integer> entrezGeneIds);
+    BaseMeta getMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
 
-    BaseMeta getMetaGenesByHugoGeneSymbols(@Param("hugoGeneSymbols") List<String> hugoGeneSymbols);
+    BaseMeta getMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
 }

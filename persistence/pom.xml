@@ -14,7 +14,6 @@
     <modules>
         <module>persistence-api</module>
         <module>persistence-mybatis</module>
-        <module>persistence-mybatis-test</module>
     </modules>
 
 </project>

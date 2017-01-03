@@ -1,13 +1,13 @@
-#Patient Identifier	Overall Survival (Months)	Overall Survival Status	Disease Free (Months)	Disease Free Status	Other Sample ID
-#Identifier to uniquely specify a patient.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.	Legacy DMP sample identifier (DMPnnnn)
-#STRING	STRING	STRING	NUMBER	STRING	STRING
-#1	1	1	1	1	1
-PATIENT_ID	OS_MONTHS	OS_STATUS	DFS_MONTHS	DFS_STATUS	OTHER_SAMPLE_ID
-TEST-PAT1	272	LIVING	272	Recurred/Progressed	NA
-TEST-PAT3	208	LIVING	208	Recurred/Progressed	NA
-TEST-PAT4	60	DECEASED	60	Recurred/Progressed	NA
-TEST-PAT6	151	LIVING	151	Recurred/Progressed	NA
-TEST-PAT5	290	LIVING	290	Recurred/Progressed	NA
-TEST-PAT7	88	LIVING	88	Recurred/Progressed	NA
-TEST-PAT9	72	LIVING	72	Recurred/Progressed	NA
-TEST-PAT2	161	DECEASED	161	NA	NA
+#Patient Identifier	Overall Survival (Months)	Overall Survival Status	Disease Free (Months)	Disease Free Status	Other Sample ID	Metastatic site
+#Identifier to uniquely specify a patient.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.	Legacy DMP sample identifier (DMPnnnn)	Metastatic site
+#STRING	STRING	STRING	NUMBER	STRING	STRING	STRING
+#1	1	1	1	1	1	1
+PATIENT_ID	OS_MONTHS	OS_STATUS	DFS_MONTHS	DFS_STATUS	OTHER_SAMPLE_ID	METASTATIC_SITE
+TEST-PAT1	272	LIVING	272	Recurred/Progressed	NA	neck
+TEST-PAT3	208	LIVING	208	Recurred/Progressed	NA	
+TEST-PAT4	60	DECEASED	60	Recurred/Progressed	NA	
+TEST-PAT6	151	LIVING	151	Recurred/Progressed	NA	
+TEST-PAT5	290	LIVING	290	Recurred/Progressed	NA	
+TEST-PAT7	88	LIVING	88	Recurred/Progressed	NA	
+TEST-PAT9	72	LIVING	72	Recurred/Progressed	NA	
+TEST-PAT2	161	DECEASED	161	NA	NA	

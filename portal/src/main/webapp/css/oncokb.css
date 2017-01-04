@@ -271,12 +271,13 @@
 /* 
 
 The following code is generated automatically in oncokb-card repository, please do not edit it directly in here.
-For more information, please see here: https://github.com/knowledgesystems/oncokb-card
+For more information, please see here: https://github.com/oncokb/oncokb-card
 
 */
 
 .oncokb-card {
     margin: auto;
+    margin-top: 20px;
     width: 500px;
     font-size: 14px;
     line-height: 18px; }
@@ -369,15 +370,15 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     padding: 0; }
 .oncokb-card .collapsible-header {
     cursor: pointer;
-    min-height: 3rem;
-    line-height: 3rem;
+    min-height: 2.6rem;
+    line-height: 2.6rem;
     padding: 0 1rem;
     background-color: white;
     border-bottom: 1px solid #ddd; }
 .oncokb-card .collapsible-header i {
     width: 2rem;
     font-size: 1.6rem;
-    line-height: 3rem;
+    line-height: 2.6rem;
     float: left;
     text-align: center;
     margin-right: 1rem; }
@@ -472,17 +473,17 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     border-top-left-radius: 0;
     border-top-right-radius: 0; }
 .oncokb-card .oncogenicity .title {
-    line-height: 25px;
-    font-size: 14px;
+    line-height: 22px;
+    font-size: 13px;
     width: 100%;
     float: left;
     color: white; }
 .oncokb-card .oncogenicity .title-content {
     width: 100%;
     float: left;
-    line-height: 25px;
+    line-height: 23px;
     color: orange;
-    font-size: 13px;
+    font-size: 15px;
     margin: -3px 0;
     text-transform: none; }
 .oncokb-card .oncogenicity .title-content .fa.fa-book {
@@ -492,24 +493,24 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     text-align: center;
     margin-bottom: 0; }
 .oncokb-card .oncogenicity .table thead > tr > th {
-    padding: 3px; }
+    padding: 0 0 3px 0; }
 .oncokb-card .oncogenicity .table tbody > tr > td {
-    padding: 3px;
+    padding: 1px 0px;
     vertical-align: middle; }
 .oncokb-card .mutation-effect .title {
     color: white;
     font-size: 8px;
-    line-height: 25px;
-    font-size: 14px;
+    line-height: 22px;
+    font-size: 13px;
     width: 100%;
     float: left; }
 .oncokb-card .mutation-effect .title-content {
     width: 100%;
     float: left;
-    line-height: 25px;
+    line-height: 23px;
     margin: -3px 0;
     color: orange;
-    font-size: 13px;
+    font-size: 15px;
     text-transform: none; }
 .oncokb-card .mutation-effect .fa.fa-book {
     color: #fff; }
@@ -523,7 +524,7 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
 .oncokb-card .footer {
     width: 100%;
     padding-top: 0;
-    line-height: 30px;
+    line-height: 32px;
     height: 32px; }
 .oncokb-card .footer .oncokb-logo {
     height: 19px;
@@ -533,12 +534,12 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     margin-right: 10px;
     font-size: 12px; }
 .oncokb-card .tabs {
-    height: 50px; }
+    height: 45px; }
 .oncokb-card .tabs .tab {
-    line-height: 50px;
-    height: 50px; }
+    line-height: 22px;
+    height: 45px; }
 .oncokb-card .tab-content > .tab-pane {
-    padding: 5px 10px; }
+    padding: 5px 10px 0 10px; }
 .oncokb-card .enable-hover > a:hover {
     opacity: 0.7;
     cursor: pointer; }
@@ -554,9 +555,11 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     box-shadow: none;
     margin: 0; }
 .oncokb-card td, .oncokb-card th {
-    padding: 3px 5px;
-    text-align: center;
+    text-align: center; }
+.oncokb-card th {
     font-size: 12px; }
+.oncokb-card td {
+    font-size: 13px; }
 .oncokb-card table thead th {
     border-bottom: 2px solid #1c75cd; }
 .oncokb-card .levels {
@@ -575,12 +578,12 @@ For more information, please see here: https://github.com/knowledgesystems/oncok
     float: left;
     width: calc(100% - 22px); }
 .oncokb-card .tip-header {
-    line-height: 25px;
+    line-height: 22px;
     font-size: 22px;
     background-color: #1c75cd;
     color: #fff;
     text-align: center;
-    padding: 7px 10px; }
+    padding: 5px 10px; }
 .oncokb-card .grey-out {
     opacity: 0.4 !important; }
 .oncokb-card .additional-info {

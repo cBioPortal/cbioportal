@@ -871,8 +871,8 @@ var orSubTabView = function() {
 
                     $("#" + loading_div).empty();
 
-                    // hide mrna tables initially
-                    if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
+                    // hide mrna and protein tables initially
+                    if (_profile_type === enrichmentsTabSettings.profile_type.mrna || _profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
                         $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + "_container_table").hide();
                     }
                 }

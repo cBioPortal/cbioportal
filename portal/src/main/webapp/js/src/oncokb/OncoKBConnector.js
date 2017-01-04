@@ -880,7 +880,7 @@ OncoKB.Instance.prototype = {
                             self.variants[_id].evidence = $.extend(self.variants[_id].evidence, datum);
                             self.variants[_id].evidence.geneSummary = record.geneSummary || '';
                             self.variants[_id].evidence.variantSummary = record.variantSummary || '';
-                            self.variants[_id].evidence.tumorTypeSummary = (self.variants[_id].hasVariant && !self.variants[_id].isVUS) ? (record.tumorTypeSummary || '') : '';
+                            self.variants[_id].evidence.tumorTypeSummary = (self.variants[_id].hasVariant || self.variants[_id].alleleExist) ? (record.tumorTypeSummary || '') : '';
                         }
                     })
                 });

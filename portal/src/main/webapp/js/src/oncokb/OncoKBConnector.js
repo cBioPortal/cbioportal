@@ -69,9 +69,8 @@ var OncoKB = (function(_, $) {
     self.oncogenic = ['Unknown', 'Inconclusive', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic'];
 
     _.templateSettings = {
-        evaluate: /\{\{(.+?)\}\}/g,
-        interpolate : /\{\{=(.+?)\}\}/g,
-        scape: /\{\{-(.+?)\}\}/g
+        evaluate: /<@([\s\S]+?)@>/g,
+        interpolate: /\{\{(.+?)\}\}/g
     };
 
     function InstanceManager(id) {

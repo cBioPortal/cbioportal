@@ -47,7 +47,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"org.cbioportal.weblegacy"})
+@ComponentScan(basePackages = {"org.cbioportal.weblegacy"}, resourcePattern = "**/*StructuralVariantController.class")
 public class StructuralVariantControllerTestConfig extends WebMvcConfigurerAdapter {
 
     @Bean

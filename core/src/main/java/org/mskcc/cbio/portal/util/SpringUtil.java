@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.cbioportal.persistence.GenePanelRepository;
+import org.mskcc.cbio.portal.repository.GenePanelRepository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

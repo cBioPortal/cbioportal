@@ -17,11 +17,6 @@
       <artifactId>business</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.mskcc.cbio</groupId>
-      <artifactId>persistence-mybatis</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <!-- antisamy -->
     <dependency>
@@ -428,7 +423,9 @@
         <directory>src/main/resources</directory>
         <excludes>
           <exclude>sample_data/**</exclude>
-          <exclude>db/**</exclude>
+          <exclude>db/cbioportal-er-diagram.pdf</exclude>
+          <exclude>db/cbioportal-er-diagram.png</exclude>
+          <exclude>db/migration.sql</exclude>
         </excludes>
       </resource>
       <resource>

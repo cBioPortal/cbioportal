@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.cbioportal.service.impl;
+package org.mskcc.cbio.portal.service;
 
 /**
  *
@@ -13,10 +13,10 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GenePanelWithSamples;
-import org.cbioportal.persistence.GenePanelRepository;
-import org.cbioportal.service.GenePanelService;
 import java.util.List;
 import java.util.ArrayList;
+
+import org.mskcc.cbio.portal.repository.GenePanelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

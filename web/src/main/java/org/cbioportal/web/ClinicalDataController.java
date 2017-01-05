@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.web.parameter.ClinicalDataType;
@@ -31,6 +32,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Clinical Data", description = " ")

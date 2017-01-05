@@ -31,7 +31,7 @@
 */
 package org.cbioportal.weblegacy;
 
-import org.cbioportal.persistence.mybatis.CosmicCountMapper;
+import org.mskcc.cbio.portal.persistence.CosmicCountMapperLegacy;
 import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.cbioportal.service.CosmicCountService;
 import org.mockito.Mockito;
@@ -62,8 +62,8 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
 	return Mockito.mock(CosmicCountService.class);
     }
     @Bean
-    public CosmicCountMapper cosmicCountMapper() {
-	return Mockito.mock(CosmicCountMapper.class);
+    public CosmicCountMapperLegacy cosmicCountMapper() {
+	return Mockito.mock(CosmicCountMapperLegacy.class);
     }
     @Bean
     public MutationMapperLegacy mutationMapper() {

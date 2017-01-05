@@ -30,10 +30,10 @@
         <!-- these are required to get properly autowired mappers into our service classes -->
         <!-- when creating services via manually loading this context file -->
         <bean id="genePanelMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-            <property name="mapperInterface" value="org.cbioportal.persistence.mybatis.GenePanelMapper" />
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GenePanelMapper" />
             <property name="sqlSessionFactory" ref="sqlSessionFactory" />
         </bean>
-        <bean id="genePanelRepository" class="org.cbioportal.persistence.mybatis.GenePanelMyBatisRepository">
+        <bean id="genePanelRepository" class="org.mskcc.cbio.portal.repository.GenePanelMyBatisRepository">
             <property name="genePanelMapper" ref="genePanelMapper" />
         </bean>
 

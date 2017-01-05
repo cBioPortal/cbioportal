@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.GenePanelMapper">
+<mapper namespace="org.mskcc.cbio.portal.persistence.GenePanelMapper">
     <cache/>
 
    <resultMap id="genePanelResultMap" type="org.cbioportal.model.GenePanel">

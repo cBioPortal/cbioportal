@@ -33,6 +33,7 @@ import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
+import org.mskcc.cbio.portal.persistence.CosmicCountMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
@@ -45,7 +46,6 @@ import org.mskcc.cbio.portal.persistence.StudyMapperLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.cbioportal.service.CosmicCountService;
 import org.cbioportal.model.MutationSignature;
 import org.cbioportal.model.CosmicCount;
 
@@ -81,7 +81,7 @@ public class ApiService {
 	@Autowired
 	private MutationMapperLegacy mutationMapperLegacy;
 	@Autowired
-	private CosmicCountService cosmicCountService;
+	private CosmicCountMapperLegacy cosmicCountMapperLegacy;
 
 	@Transactional
 	public List<DBCancerType> getCancerTypes() {
@@ -114,7 +114,7 @@ public class ApiService {
 	}
 
 	public List<CosmicCount> getCOSMICCountsByKeywords(List<String> keywords) {
-		return cosmicCountService.getCOSMICCountsByKeywords(keywords);
+		return cosmicCountMapperLegacy.getCOSMICCountsByKeywords(keywords);
 	}
 
 	public List<MutationSignature> getSampleMutationSignatures(String genetic_profile_id, List<String> sample_ids, int context_size_on_each_side_of_snp) {

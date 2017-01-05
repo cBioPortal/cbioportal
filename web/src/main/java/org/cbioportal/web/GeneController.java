@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
@@ -29,6 +30,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.util.List;
 
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Genes", description = " ")

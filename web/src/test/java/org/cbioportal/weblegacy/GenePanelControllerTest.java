@@ -34,7 +34,7 @@ package org.cbioportal.weblegacy;
 import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.*;
-import org.cbioportal.service.GenePanelService;
+import org.mskcc.cbio.portal.service.GenePanelService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;

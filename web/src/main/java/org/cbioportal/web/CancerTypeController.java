@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
@@ -27,6 +28,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
 
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Cancer Types", description = " ")

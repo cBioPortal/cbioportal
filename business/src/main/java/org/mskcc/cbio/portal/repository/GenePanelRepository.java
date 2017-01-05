@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.persistence;
+package org.mskcc.cbio.portal.repository;
 
 /**
  *

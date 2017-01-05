@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.PatientSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Patients", description = " ")

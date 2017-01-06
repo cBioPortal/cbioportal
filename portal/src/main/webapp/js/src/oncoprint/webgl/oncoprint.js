@@ -66,7 +66,7 @@ var Oncoprint = (function () {
 			.addClass("noselect");
 		
 	var $cell_canvas = $('<canvas></canvas>')
-			    .attr('width', width)
+			    .attr({'width':'0px', 'height':'0px'})
 			    .css({'position':'absolute', 'top':'0px', 'left':'0px'})
 			    .addClass("noselect");
 		    
@@ -82,7 +82,7 @@ var Oncoprint = (function () {
 	var $dummy_scroll_div_contents = $('<div>').appendTo($dummy_scroll_div);
 				
 	var $cell_overlay_canvas = $('<canvas></canvas>')
-				    .attr('width', width)
+				    .attr({'width':'0px', 'height':'0px'})
 				    .css({'position':'absolute', 
 					    'top':'0px', 
 					    'left':'0px'})
@@ -302,11 +302,15 @@ var Oncoprint = (function () {
 	    return;
 	}
 	setTimeout(function () {
-	    oncoprint.$ctr.css({'min-height': oncoprint.model.getCellViewHeight() + Math.max(oncoprint.$legend_div.outerHeight(), oncoprint.$minimap_div.outerHeight()) + 30});
+	    setHeight(oncoprint);
 	    _SetLegendTop(oncoprint);
 	}, 0);
     };
 
+    var setHeight = function(oncoprint) {
+	oncoprint.$ctr.css({'min-height': oncoprint.model.getCellViewHeight() + Math.max(oncoprint.$legend_div.outerHeight(), (oncoprint.$minimap_div.is(":visible") ? oncoprint.$minimap_div.outerHeight() : 0)) + 30});
+    };
+    
     var resizeAndOrganize = function (oncoprint) {
 	if (oncoprint.model.rendering_suppressed_depth > 0) {
 	    return;
@@ -321,8 +325,8 @@ var Oncoprint = (function () {
 	_SetLegendTop(oncoprint);
 	oncoprint.legend_view.setWidth(ctr_width - oncoprint.$minimap_div.outerWidth() - 20, oncoprint.model);
 
-	oncoprint.$ctr.css({'min-height': oncoprint.model.getCellViewHeight() + Math.max(oncoprint.$legend_div.outerHeight(), oncoprint.$minimap_div.outerHeight()) + 30,
-	    'min-width': ctr_width});
+	setHeight(oncoprint);
+	oncoprint.$ctr.css({'min-width': ctr_width});
 
 	setTimeout(function () {
 	    if (oncoprint.keep_horz_zoomed_to_fit) {
@@ -362,6 +366,7 @@ var Oncoprint = (function () {
 	    this.$minimap_div.css('display', 'none');
 	    executeMinimapCloseCallbacks(this);
 	}
+	resizeAndOrganizeAfterTimeout(this);
     }
     
     Oncoprint.prototype.scrollTo = function(left) {

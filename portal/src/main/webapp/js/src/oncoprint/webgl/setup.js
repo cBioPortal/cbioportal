@@ -463,14 +463,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     
     var oncoprint = new window.Oncoprint(ctr_selector, 1050);
     var toolbar_fade_out_timeout;
+    $(toolbar_selector).css({'visibility':'visible'});
     $(ctr_selector).add(toolbar_selector).on("mouseover", function(evt) {
-	$(toolbar_selector).fadeIn('fast');
+	$(toolbar_selector).stop().animate({opacity:1});
 	clearTimeout(toolbar_fade_out_timeout);
     });
     $(ctr_selector).add(toolbar_selector).on("mouseleave", function(evt) {
 	clearTimeout(toolbar_fade_out_timeout);
 	toolbar_fade_out_timeout = setTimeout(function() {
-	    $(toolbar_selector).fadeOut();
+	    $(toolbar_selector).stop().animate({opacity:0});
 	}, 700);
     });
     
@@ -882,12 +883,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var local_storage_minimap_var = "oncoprintState.is_minimap_shown";
 	var saveToLocalStorage = function(state) {
 	    if (Storage) {
-		localStorage.setItem(local_storage_minimap_var, state.is_minimap_shown);
+		//localStorage.setItem(local_storage_minimap_var, state.is_minimap_shown);
 	    }
 	};
 	var loadFromLocalStorage = function(state) {
 	    if (Storage) {
-		state.is_minimap_shown = (localStorage.getItem(local_storage_minimap_var) === "true");
+		//state.is_minimap_shown = (localStorage.getItem(local_storage_minimap_var) === "true");
 	    }
 	};
 	
@@ -1800,6 +1801,35 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    oncoprint.setHorzZoom(new_zoom);
 		}
 	    });
+	    oncoprint.onHorzZoom(function() {
+		$zoom_slider.trigger('change');
+		$('#oncoprint_zoom_scale_input').val(Math.round(10000*oncoprint.getHorzZoom())/100);
+	    });
+
+	    appendTo($slider, zoom_elt);
+	    addQTipTo($slider, {
+		id: 'oncoprint_zoom_slider_tooltip',
+		prerender: true,
+		content: {text: 'Zoom in/out of oncoprint'},
+		position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
+		style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
+		show: {event: "mouseover"},
+		hide: {fixed: true, delay: 100, event: "mouseout"}
+	    });
+	    // use aria-labelledby instead of aria-describedby, as Section 508
+	    // requires that inputs have an explicit label for accessibility
+	    $slider.attr('aria-labelledby', 'qtip-oncoprint_zoom_slider_tooltip');
+	    $slider.removeAttr('aria-describedby');
+	    setUpHoverEffect($slider);
+
+	    setUpButton($(toolbar_selector + ' #oncoprint_zoomout'), [], ["Zoom out of oncoprint"], null, function () {
+		oncoprint.setHorzZoom(oncoprint.getHorzZoom()*zoom_discount);
+	    });
+	    setUpButton($(toolbar_selector + ' #oncoprint_zoomin'), [], ["Zoom in to oncoprint"], null, function () {
+		oncoprint.setHorzZoom(oncoprint.getHorzZoom()/zoom_discount);
+	    });
+
+	    return $slider;
 	})();
 	(function setUpShowMinimap() {
 	    var $btn = $(toolbar_selector + ' #oncoprint_show_minimap');
@@ -2252,14 +2282,15 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
     
     var oncoprint = new window.Oncoprint(ctr_selector, 1050);
     var toolbar_fade_out_timeout;
+    $(toolbar_selector).css({'visibility':'visible'});
     $(ctr_selector).add(toolbar_selector).on("mouseover", function(evt) {
-	$(toolbar_selector).fadeIn('fast');
+	$(toolbar_selector).stop().animate({opacity:1});
 	clearTimeout(toolbar_fade_out_timeout);
     });
     $(ctr_selector).add(toolbar_selector).on("mouseleave", function(evt) {
 	clearTimeout(toolbar_fade_out_timeout);
 	toolbar_fade_out_timeout = setTimeout(function() {
-	    $(toolbar_selector).fadeOut();
+	    $(toolbar_selector).stop().animate({opacity:0});
 	}, 700);
     });
     

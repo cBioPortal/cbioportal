@@ -1205,35 +1205,17 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 }
 
 #footer {
-  height: 50px;
-  background-color: #1974b8;
+  border-top: 1px solid #f5f5f5;
   clear: both;
   text-align: center;
-  padding-top:12px;
-  color: #FFFFFF;
-  font-family: verdana, arial, sans-serif;
-  font-size: 13px;
-  line-height: 18px;
-  border-right:1px solid #0f3974; /*#bbb;*/
-  border-bottom: 1px solid #0f3974;
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ffffff;
-  background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+  padding: 15px 20px;
+  margin: 20px 20px 0 20px;
+  font: normal normal 12px/18px 'Helvetica Neue', Arial, sans-serif;
 }
 
-#footer A:link {
-  COLOR: #FFFFFF; text-decoration: underline;
-}
-#footer A:visited {
-  COLOR: #FFFFFF; text-decoration: underline;
-}
-#footer A:active {
-  COLOR: #FFFFFF; text-decoration: underline;
-}
-#footer A:hover {
-  COLOR: #FFFFFF; text-decoration: underline;
+#footer a:link, #footer a:visited, #footer a:active, a:hover {
+  color: #428bca;
+  text-decoration: none;
 }
 
 #right_side h3 {

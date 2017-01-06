@@ -57,18 +57,19 @@ var OncoKB = (function(_, $) {
     };
     self.levelsInfo = {
         '1': '<span><b>FDA-recognized</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in this indication</b></span>',
-        '2A': '<span><b>Standard of care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in this indication</b></span>',
-        '2B': '<span><b>Standard of care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in another indication</b> but not standard of care for this indication</span>',
-        '3A': '<span><b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in this indication</b> but neither biomarker and drug are standard of care</span>',
-        '3B': '<span><b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in another indication</b> but neither biomarker and drug are standard of care</span>',
-        '4': '<span><b>Compelling biological evidence</b> supports the biomarker as being predictive of response to a drug but neither biomarker and drug are standard of care</span>',
-        'R1': '<span><b>Standard of care</b> biomarker predictive of <b>resistance</b> to an <b>FDA-approved</b> drug <b>in this indication</b></span>',
+        '2A': '<span><b>Standard care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in this indication</b></span>',
+        '2B': '<span><b>Standard care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in another indication</b>, but not standard care for this indication</span>',
+        '3A': '<span><b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in this indication</b>, but neither biomarker and drug are standard care</span>',
+        '3B': '<span><b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in another indication</b>, but neither biomarker and drug are standard care</span>',
+        '4': '<span><b>Compelling biological evidence</b> supports the biomarker as being predictive of response to a drug, but neither biomarker and drug are standard care</span>',
+        'R1': '<span><b>Standard care</b> biomarker predictive of <b>resistance</b> to an <b>FDA-approved</b> drug <b>in this indication</b></span>',
     };
     self.instanceManagers = {};
 
     self.oncogenic = ['Unknown', 'Inconclusive', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic'];
 
     _.templateSettings = {
+        evaluate: /<@([\s\S]+?)@>/g,
         interpolate: /\{\{(.+?)\}\}/g
     };
 
@@ -160,7 +161,7 @@ var OncoKB = (function(_, $) {
         this.source = 'cbioportal';
         this.geneStatus = 'Complete';
         this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE,INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY';
-        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_2B', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_R1'];
+        this.evidenceLevels = ['LEVEL_1', 'LEVEL_2A', 'LEVEL_2B', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_4', 'LEVEL_R1'];
         this.variants = {};
         this.evidence = {};
         this.id = id || 'OncoKB-Instance-' + new Date().getTime();
@@ -878,7 +879,7 @@ OncoKB.Instance.prototype = {
                             self.variants[_id].evidence = $.extend(self.variants[_id].evidence, datum);
                             self.variants[_id].evidence.geneSummary = record.geneSummary || '';
                             self.variants[_id].evidence.variantSummary = record.variantSummary || '';
-                            self.variants[_id].evidence.tumorTypeSummary = record.tumorTypeSummary || '';
+                            self.variants[_id].evidence.tumorTypeSummary = (self.variants[_id].hasVariant || self.variants[_id].alleleExist) ? (record.tumorTypeSummary || '') : '';
                         }
                     })
                 });
@@ -1171,7 +1172,7 @@ OncoKB.Instance.prototype = {
                                                             }).sort().join(', ') : '',
                                                         clinicalSummary: '<div>' + variant.evidence.geneSummary +
                                                         '</div><div style="margin-top: 6px">' + variant.evidence.variantSummary +
-                                                        // '</div><div style="margin-top: 6px">' + variant.evidence.tumorTypeSummary +
+                                                        '</div><div style="margin-top: 6px">' + variant.evidence.tumorTypeSummary +
                                                         '</div>',
                                                         biologicalSummary: variant.evidence.mutationEffect.description,
                                                         treatments: []
@@ -1221,9 +1222,19 @@ OncoKB.Instance.prototype = {
                                                                             return alteration.alteration;
                                                                         }),
                                                                         treatment: _treatment,
-                                                                        citations: content.articles.map(function(article) {
+                                                                        pmids: content.articles.filter(function(article) {
+                                                                            return !isNaN(article.pmid);
+                                                                        }).map(function(article) {
                                                                             return Number(article.pmid);
                                                                         }).sort().join(', '),
+                                                                        abstracts: content.articles.filter(function(article) {
+                                                                            return _.isString(article.abstract);
+                                                                        }).map(function(article) {
+                                                                            return {
+                                                                                abstract: article.abstract,
+                                                                                link: article.link
+                                                                            };
+                                                                        }),
                                                                         cancerType: content.tumorType
                                                                     });
                                                                 });
@@ -1246,7 +1257,7 @@ OncoKB.Instance.prototype = {
                                                                 '&entry.1671960263=' + self.variants[oncokbId].alteration +
                                                                 '&entry.118699694&entry.1568641202&entry.1381123986=' + user +
                                                                 '&entry.1083850662=' + encodeURIComponent(window.location.href) +
-                                                                '&embedded=true" width="550" height="880" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
+                                                                '&embedded=true" width="550" height="500" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
                                                             closeIcon
                                                                 .find('.bootstrap-dialog-close')
                                                                 .on('click', {dialogRef: dialogRef}, function(event) {
@@ -1256,6 +1267,7 @@ OncoKB.Instance.prototype = {
                                                             div.append(message);
                                                             return div;
                                                         },
+                                                        cssClass: 'oncokb-feedback',
                                                         closable: true
                                                     });
                                             

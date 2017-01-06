@@ -3,12 +3,12 @@ var OncoKBCard = (function(_, $) {
     var levels = ['1', '2A', '2B', '3A', '3B', '4', 'R1'];
     var levelDes = {
         '1': '<b>FDA-recognized</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in this indication</b>',
-        '2A': '<b>Standard of care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in this indication</b>',
-        '2B': '<b>Standard of care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in another indication</b> but not standard of care for this indication',
-        '3A': '<b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in this indication</b> but neither biomarker and drug are standard of care',
-        '3B': '<b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in another indication</b> but neither biomarker and drug are standard of care',
-        '4': '<b>Compelling biological evidence</b> supports the biomarker as being predictive of response to a drug but neither biomarker and drug are standard of care',
-        'R1': '<b>Standard of care</b> biomarker predictive of <b>resistance</b> to an <b>FDA-approved</b> drug <b>in this indication</b>'
+        '2A': '<b>Standard care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in this indication</b>',
+        '2B': '<b>Standard care</b> biomarker predictive of response to an <b>FDA-approved</b> drug <b>in another indication</b>, but not standard care for this indication',
+        '3A': '<b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in this indication</b>, but neither biomarker and drug are standard care',
+        '3B': '<b>Compelling clinical evidence</b> supports the biomarker as being predictive of response to a drug <b>in another indication</b>, but neither biomarker and drug are standard care',
+        '4': '<b>Compelling biological evidence</b> supports the biomarker as being predictive of response to a drug, but neither biomarker and drug are standard care',
+        'R1': '<b>Standard care</b> biomarker predictive of <b>resistance</b> to an <b>FDA-approved</b> drug <b>in this indication</b>'
     };
     var status = {
         mutationRefInitialized: false,
@@ -92,7 +92,7 @@ var OncoKBCard = (function(_, $) {
         var treatmentTemplates = [];
         var levelTemplates = [];
 
-        _.each(data.treatments, function(treatment) {
+        _.each(data.treatments, function(treatment, index) {
             var treatmentFn = getTemplateFn('oncokb-card-treatment-row');
 
             if (treatment.level) {
@@ -101,6 +101,7 @@ var OncoKBCard = (function(_, $) {
             if (_.isArray(treatment.variant)) {
                 treatment.variant = concatAlterations(treatment.variant);
             }
+            treatment.treatmentIndex = index;
             treatmentTemplates.push(treatmentFn(treatment));
         });
 
@@ -118,9 +119,9 @@ var OncoKBCard = (function(_, $) {
             gene: data.gene,
             additionalInfo: data.additionalInfo || '',
             oncogenicity: data.oncogenicity || 'Unknown',
-            oncogenicityCitations: data.oncogenicityCitations,
+            oncogenicityPmids: data.oncogenicityPmids,
             mutationEffect: data.mutationEffect || '',
-            mutationEffectCitations: data.mutationEffectCitations,
+            mutationEffectPmids: data.mutationEffectPmids,
             clinicalSummary: data.clinicalSummary,
             biologicalSummary: data.biologicalSummary,
             treatmentRows: treatmentTemplates.join(''),
@@ -138,7 +139,8 @@ var OncoKBCard = (function(_, $) {
         var cardMainTemplate = cardMainTemplateFn(cardMainTemplateMeta);
 
         // Have to cache template in here. After Ajax call, we lost the template
-        getTemplateFn('oncokb-card-refs-item');
+        getTemplateFn('oncokb-card-pmid-item');
+        getTemplateFn('oncokb-card-abstract-item');
 
         $(target).html(cardMainTemplate);
 
@@ -165,7 +167,7 @@ var OncoKBCard = (function(_, $) {
             $(target + ' a.mutation-effect').addClass('grey-out');
         }
 
-        if (!(data.biologicalSummary || data.mutationEffectCitations)) {
+        if (!(data.biologicalSummary || data.mutationEffectPmids)) {
             $(target + ' .tab-pane.mutation-effect').remove();
             $(target + ' a.mutation-effect').removeAttr('href');
             $(target + ' a.oncogenicity').removeAttr('href');
@@ -225,7 +227,16 @@ var OncoKBCard = (function(_, $) {
                     events: {
                         render: function(event, api) {
                             if (element.hasClass('fa-book')) {
-                                $.when(getReferenceRows(element.attr('qtip-content')))
+                                var _pmids = '';
+                                var _abstracts = [];
+                                if (element.attr('qtip-treatment-index')) {
+                                    var _treatment = data.treatments[Number(element.attr('qtip-treatment-index'))];
+                                    _pmids = _treatment.pmids;
+                                    _abstracts = _treatment.abstracts;
+                                } else {
+                                    _pmids = element.attr('qtip-content');
+                                }
+                                $.when(getReferenceRows(_pmids, _abstracts))
                                     .then(function(result) {
                                         api.set({
                                             'content.text': result
@@ -249,9 +260,9 @@ var OncoKBCard = (function(_, $) {
         $(target + ' a.mutation-effect[data-toggle="tab"]').on('shown.bs.tab', function() {
             var classname = 'mutation-effect';
             var initialKey = 'mutationRefInitialized';
-            var citationKey = 'mutationEffectCitations';
+            var citationKey = 'mutationEffectPmids';
 
-            if (data.mutationEffectCitations && !data.biologicalSummary && !status[initialKey]) {
+            if (data.mutationEffectPmids && !data.biologicalSummary && !status[initialKey]) {
                 if (data[citationKey]) {
                     $.when(getReferenceRows(data[citationKey]))
                         .then(function(data) {
@@ -280,37 +291,58 @@ var OncoKBCard = (function(_, $) {
      * @param {Array} refs - Reference list
      * @return {promise} - jQuery promise
      */
-    function getReferenceRows(refs) {
+    function getReferenceRows(pmids, abstracts) {
         var dfd = $.Deferred();
-        $.when(getReferenceInfoCall(refs))
-            .then(function(data) {
-                var refsTemplates = [];
-                var articlesData = data.result;
+        var refsTemplates = [];
+        refsTemplates = ['<ul class="list-group" style="margin-bottom: 0">'];
+        if (pmids) {
+            $.when(getReferenceInfoCall(pmids))
+                .then(function(data) {
+                    var articlesData = data.result;
 
-                if (articlesData !== undefined && _.isArray(articlesData.uids) && articlesData.uids.length > 0) {
-                    refsTemplates = ['<ul class="list-group" style="margin-bottom: 0">'];
+                    if (articlesData !== undefined && _.isArray(articlesData.uids) && articlesData.uids.length > 0) {
+                        _.each(articlesData.uids, function(uid) {
+                            var refsFn = getTemplateFn('oncokb-card-pmid-item');
+                            var articleContent = articlesData[uid];
+                            refsTemplates.push(refsFn({
+                                pmid: articleContent.uid,
+                                title: articleContent.title,
+                                author: (_.isArray(articleContent.authors) && articleContent.authors.length > 0) ? (articleContent.authors[0].name + ' et al.') : 'Unknown',
+                                source: articleContent.source,
+                                date: (new Date(articleContent.pubdate)).getFullYear()
+                            }));
+                        });
+                    }
 
-                    _.each(articlesData.uids, function(uid) {
-                        var refsFn = getTemplateFn('oncokb-card-refs-item');
-                        var articleContent = articlesData[uid];
-                        refsTemplates.push(refsFn({
-                            pmid: articleContent.uid,
-                            title: articleContent.title,
-                            author: (_.isArray(articleContent.authors) && articleContent.authors.length > 0) ? (articleContent.authors[0].name + ' et al.') : 'Unknown',
-                            source: articleContent.source,
-                            date: (new Date(articleContent.pubdate)).getFullYear()
-                        }));
-                    });
+                    refsTemplates = _.extend(refsTemplates, getAbstractHtml(abstracts));
                     refsTemplates.push('</ul>');
-                }
 
-                dfd.resolve(refsTemplates.join(''));
-            }, function(error) {
-                dfd.reject(error);
-            }, function(status) {
+                    dfd.resolve(refsTemplates.join(''));
+                }, function(error) {
+                    dfd.reject(error);
+                }, function(status) {
 
-            });
+                });
+        } else if (_.isArray(abstracts) && abstracts.length > 0) {
+            refsTemplates = _.extend(refsTemplates, getAbstractHtml(abstracts));
+            refsTemplates.push('</ul>');
+            dfd.resolve(refsTemplates.join(''));
+        } else {
+            dfd.resolve('');
+        }
+
         return dfd.promise();
+    }
+
+    function getAbstractHtml(abstracts) {
+        var refsTemplates = [];
+        if (_.isArray(abstracts)) {
+            _.each(abstracts, function(abstract) {
+                var refsFn = getTemplateFn('oncokb-card-abstract-item');
+                refsTemplates.push(refsFn(abstract));
+            });
+        }
+        return refsTemplates;
     }
 
     /**

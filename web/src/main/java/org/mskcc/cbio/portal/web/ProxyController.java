@@ -243,9 +243,6 @@ public class ProxyController
 	          default:
 	        	  return new ResponseEntity<>(new JSONObject(), HttpStatus.METHOD_NOT_ALLOWED);
 			}
-			if(method.equals(HttpMethod.PUT)) {
-				requestObject = body;
-			}
 			return restTemplate.exchange(uri, method,
 					new HttpEntity<JSONObject>(requestObject), JSONObject.class);
 	}

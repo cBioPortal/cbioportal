@@ -105,7 +105,7 @@ var CoExpView = (function() {
 
         function filterProfiles(_profileList) {
             $.each(_profileList, function(i, obj) {
-                if (obj["GENETIC_ALTERATION_TYPE"] === "MRNA_EXPRESSION") {
+                if (obj["GENETIC_ALTERATION_TYPE"] === "MRNA_EXPRESSION" || obj["GENETIC_ALTERATION_TYPE"] === "PROTEIN_LEVEL") {
                     if (obj["STABLE_ID"].toLowerCase().indexOf("zscores") !== -1) {
                         if (obj["STABLE_ID"].toLowerCase().indexOf("merged_median_zscores") !== -1) {
                             profileList.push(obj);

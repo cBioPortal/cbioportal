@@ -155,9 +155,7 @@ var enrichmentsTab = (function() {
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
             if (_obj.GENETIC_ALTERATION_TYPE === enrichmentsTabSettings.profile_type.protein_exp &&
-                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1 &&
-                _obj.DATATYPE.toLowerCase()!="z-score") {
-                _obj.NAME = "Phosphoprotein / Protein expression (RPPA)";
+                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1) {
                 _profile_list.push(_obj);
             }
         });

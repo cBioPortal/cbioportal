@@ -63,6 +63,7 @@ var enrichmentsTabSettings = (function() {
             datatable_update_query_button: "_update_query_btn",
             datatable_gene_checkbox_class: "_gene_checkbox_class",
             mrna_sub_tab_profile_selection_dropdown_menu: "_mrna_sub_tab_profile_selection_dropdown_menu",
+            protein_exp_sub_tab_profile_selection_dropdown_menu: "_protein_exp_sub_tab_profile_selection_dropdown_menu",
             update_query_gene_list: "_update_query_gene_list",
             title_log: " (log)"
         },

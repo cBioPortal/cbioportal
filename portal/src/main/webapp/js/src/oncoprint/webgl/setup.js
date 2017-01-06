@@ -660,7 +660,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 				return utils.timeoutSeparatedLoop(heatmap_data, function(heatmap_track_data, i) {
 					var track_id = State.heatmap_track_groups[heatmap_track_data.genetic_profile_id].gene_to_track_id[heatmap_track_data.gene];
-					//console.log("heatmap data retrieved, populating sample data for track " + heatmap_data_by_line[hm_line].hugo_gene_symbol);
+					console.log("heatmap data retrieved, populating sample data for track " + heatmap_track_data.gene);
 					oncoprint.setTrackData(track_id, heatmap_track_data.oncoprint_data, 'uid');
 					oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeHeatmapTrackTooltip(heatmap_track_data.genetic_alteration_type, 'sample', true));
 					LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
@@ -672,7 +672,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				oncoprint.setTrackData(track_id, clinical_data[attr.attr_id], 'uid');
 				oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeClinicalTrackTooltip(attr, 'sample', true));
 				oncoprint.setTrackInfo(track_id, "");
-				LoadingBar.update((i + Object.keys(State.heatmap_tracks).length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				LoadingBar.update((i + heatmap_data.length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
 			    console.log("sample data populated, releasing rendering");
@@ -740,7 +740,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 			    return utils.timeoutSeparatedLoop(heatmap_data, function(heatmap_track_data, i) {
 					var track_id = State.heatmap_track_groups[heatmap_track_data.genetic_profile_id].gene_to_track_id[heatmap_track_data.gene];
-					//console.log("heatmap data retrieved, populating sample data for track " + heatmap_data_by_line[hm_line].hugo_gene_symbol);
+					console.log("heatmap data retrieved, populating sample data for track " + heatmap_track_data.gene);
 					oncoprint.setTrackData(track_id, heatmap_track_data.oncoprint_data, 'uid');
 					oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeHeatmapTrackTooltip(heatmap_track_data.genetic_alteration_type, 'patient', true));
 					LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
@@ -752,7 +752,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				oncoprint.setTrackData(track_id, clinical_data[attr.attr_id], 'uid');
 				oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeClinicalTrackTooltip(attr, 'patient', true));
 				oncoprint.setTrackInfo(track_id, "");
-				LoadingBar.update((i + Object.keys(State.heatmap_tracks).length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				LoadingBar.update((i + heatmap_data.length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
 			    console.log("patient data populated, releasing rendering");
@@ -879,14 +879,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    return list_of_oncoprint_data;
 	};
 	
+	var local_storage_minimap_var = "oncoprintState.is_minimap_shown";
 	var saveToLocalStorage = function(state) {
 	    if (Storage) {
-		localStorage.setItem("oncoprintState.is_minimap_shown", state.is_minimap_shown);
+		localStorage.setItem(local_storage_minimap_var, state.is_minimap_shown);
 	    }
 	};
 	var loadFromLocalStorage = function(state) {
 	    if (Storage) {
-		state.is_minimap_shown = localStorage.getItem("oncoprintState.is_minimap_shown");
+		state.is_minimap_shown = (localStorage.getItem(local_storage_minimap_var) === "true");
 	    }
 	};
 	
@@ -944,8 +945,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		return Math.max(Math.max.apply(null, heatmap_genetic_profiles.map(function(id) { return State.heatmap_track_groups[id].track_group_id; })) + 1, 2);
 	    },	    
 	    
-	    'toggleMinimapShown': function() {
-		this.is_minimap_shown = !this.is_minimap_shown;
+	    'toggleMinimapShown': function(opt_val) {
+		if (typeof opt_val !== "undefined") {
+		    this.is_minimap_shown = opt_val;
+		} else {
+		    this.is_minimap_shown = !this.is_minimap_shown;
+		}
 		saveToLocalStorage(this);
 	    },
 	    'useAttribute': function (attr_id) {
@@ -1680,10 +1685,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 	(function setUpHeatmap() {
 	    QuerySession.getHeatmapProfiles().then(function (profiles) {
+		// Sort, mRNA first
+		profiles.sort(function(a,b) {
+		    var order = {'MRNA_EXPRESSION':0, 'PROTEIN_LEVEL':1};
+		    return order[a.genetic_alteration_type] - order[b.genetic_alteration_type];
+		});
 		// Add profile dropdown options
 		if (profiles.length === 0) {
 		    // Hide menu if no heatmaps available
 		    $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu').hide();
+		    return;
 		}
 		// See if any of the heatmap profiles have been queried
 		// If so, select it automatically - prefer mRNA to protein
@@ -1702,12 +1713,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}
 		    }
 		}
+		profile_to_select = profile_to_select || profiles[0];
 		for (var i = 0; i < profiles.length; i++) {
 		    (function (profile) {
 			var $option = $("<option>").attr({"value": profile.id, "title": profile.description}).text(profile.name);
 			if (profile_to_select && profile_to_select === profile.id) {
 			    $option.prop("selected", true);
-			    $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles #placeholder').remove();
 			}
 			$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles').append($option);
 		    })(profiles[i]);
@@ -1799,7 +1810,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				    oncoprint.setMinimapVisible(State.is_minimap_shown);
 				});
 	    oncoprint.onMinimapClose(function() {
-		State.is_minimap_shown = false;
+		State.toggleMinimapShown(false);
 		update();
 	    });
 	})();

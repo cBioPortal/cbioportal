@@ -89,21 +89,6 @@
 		}
 	}
 })();
-
-$(document).ready(function(){
-    $('#td-content').width("70%");
-
-	// TODO IE detection doesn't work inside document.ready because jQuery 2.0 functions
-	// don't work with IE8 or below! So, the check is moved outside document.ready
-//	if (cbio.util.browser.msie) {
-//        var version = cbio.util.browser.version;
-//        //version = /^([0-9]+)/.exec(version);
-//        if (version && version.length && parseInt(version) <= 10)
-//        {
-//            $('#ie10-warning').show();
-//        }
-//    }
-});
 </script>
 
 <p id="ie10-warning" style="background-color:red;display:none;">

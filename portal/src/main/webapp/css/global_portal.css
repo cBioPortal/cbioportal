@@ -130,9 +130,13 @@ fieldset#patient-view-summary-fieldset > legend {
   text-align: left;
 }
 
+#page_wrapper_table {
+  border-collapse: collapse;
+  border-spacing: 0px;
+}
+
 #content {
-  /* margin-top: 10px; */
-  margin-bottom: 0px;
+  padding: 0 20px;
 }
 
 img {
@@ -854,6 +858,10 @@ td.op_data_cell{
 }
 
 #load {
+  border: 1px solid #aaaaaa;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
   display: none;
   position: relative;
   background: url(../images/ajax-loader.gif);
@@ -861,6 +869,7 @@ td.op_data_cell{
   background-position:center;
   width: 100%;
   height: 500px;
+  margin-top: 5px;
 }
 
 #plots {
@@ -1357,17 +1366,6 @@ cursor: default;
 * Styles Required for Dynamic Query Sections
 */
 
-/* Main Query Panel */
-.main_query_panel {
-    border-top: 3px solid #DDDDDD;
-    border-left: 1px solid #DDDDDD;
-    border-right: 1px solid #DDDDDD;
-    border-bottom: 1px solid #DDDDDD;
-    padding:10px;
-    margin-top:6px;
-    padding-top:10px;
-}
-
 /* Main Query Form */
 #main_query_form {
     display:none; /* hide until window is loaded */
@@ -1382,6 +1380,10 @@ cursor: default;
     border:1px solid #aaaaaa;
     -moz-border-radius: 10px;
     border-radius: 10px;
+}
+
+.query_step_section:nth-of-type(1) {
+  border-top-left-radius: 0px;
 }
 
 /* Step Header */

@@ -89,7 +89,7 @@
                   role="button"
                   tabindex="0"><i class="fa fa-download" alt="download"></i></span>
 
-            <span id="query-by-gene-span">
+            <span id="query-by-gene-span" style="padding: 0 !important;">
           <textarea id="query-by-gene-textarea" class="expand expandFocusOut" rows="1" cols="10"></textarea>
       </span>
             <span class="iviz-header-arrow">

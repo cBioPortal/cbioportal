@@ -131,7 +131,7 @@ public class SessionServiceUtil {
 		try {
 			String result = restTemplate.getForObject(url + virtualStudyId, String.class);
 			actualObj = mapper.readTree(result);
-			cohort = mapper.convertValue(actualObj.get("data").get("virtualCohort"), Cohort.class);
+			cohort = mapper.convertValue(actualObj.get("data"), Cohort.class);
 			cohort.setVirtualCohort(true);
 			cohort.setId(virtualStudyId);
 		} catch (HttpStatusCodeException e) {

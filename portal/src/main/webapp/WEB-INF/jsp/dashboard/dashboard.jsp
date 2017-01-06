@@ -49,7 +49,6 @@
     }
     
     String reqCohortIds = request.getParameter("cohorts");
-    String sessionServiceUrl = GlobalProperties.getSessionServiceUrl()+"virtual_cohort/";
     String studySampleMap = (String)request.getAttribute(CancerStudyView.STUDY_SAMPLE_MAP);
     String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
 
@@ -220,7 +219,6 @@
 	var hasCnaSegmentData = false;
 	var cnaProfileId = '';
 	var mutationProfileId = '';
-	vcSession.URL = '<%= sessionServiceUrl %>';
 	var appendMutationTab = function(){
 		hasMutation = true;
     	$("#study-tabs ul").append("<li><a href='#mutations' id='study-tab-mutations-a' class='study-tab' title='Mutations'>Mutated Genes</a></li>");
@@ -306,14 +304,13 @@
     				// show submit button
     				$.ajax({
                     	method: 'GET',
-                    	url: vcSession.URL + 'query/',
-                    	data:{field:'id', value: cohortIdsList[0]}
+                    	url: vcSession.URL + '/' + cohortIdsList[0]
                   	}).done(function(response){
                 	 	$("#show_study_details").css('display','block');
-                	  	$("#study_name").html("<b><u>"+response[0]['data']['virtualCohort']['studyName']+"</u></b>");
-                	  	$("#study_desc").html(response[0]['data']['virtualCohort']['description']);
+                	  	$("#study_name").html("<b><u>"+response['data']['studyName']+"</u></b>");
+                	  	$("#study_desc").html(response['data']['description']);
                 	  	$("#submit_button").css('display','none');
-                    	var studyName = response[0]['data']['virtualCohort']['studyName'];
+                    	var studyName = response['data']['studyName'];
                     	document.title = studyName?studyName:'Summary';
                   	});
     			}
@@ -375,9 +372,12 @@
         	iViz.vue.manage.init();
 
          	// This is used to indicate how to disable two buttons. By default, they are set to true.
-         	iViz.vue.manage.getInstance().showSaveButton=true;
-         	iViz.vue.manage.getInstance().showManageButton=false;
-         	iViz.vue.manage.getInstance().userid = username;
+         	if(vcSession.URL !== undefined) {
+         		iViz.vue.manage.getInstance().showSaveButton=true;
+             	iViz.vue.manage.getInstance().showManageButton=false;
+             	iViz.vue.manage.getInstance().userid = username;
+         	}
+         	
 
         	var urlHash = window.location.hash;
             for (var i = 0, tabsL = $('#study-tabs').find('li').length; i < tabsL; i++) {

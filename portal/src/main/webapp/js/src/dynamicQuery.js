@@ -195,8 +195,6 @@ function loadMetaData() {
                 window.metaDataJson.cancer_studies[window.cancer_study_id_selected] = json;
                 //  Add Meta Data to current page
                 var username = $('#header_bar_table span').text() || '';
-                vcSession.URL = window.session_service_url+'virtual_cohort/';
-
                 
                 if(username.length>0){
                     $.when(vcSession.model.loadUserVirtualCohorts(username)).then(function(resp){

@@ -49,25 +49,36 @@
 <jsp:include page="css_include.jsp" flush="true" />
 <jsp:include page="js_include.jsp" flush="true" />
 <%}%>
+<%
+String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
+%>
 <jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
 
     <script type="text/javascript">
         $(document).ready(function(){
         	window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
-            $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
-            vcSessionsManagement = new Vue({
-                el: '#cohort-component',
-                data: {
-                  selectedPatientsNum: 0,
-                  selectedSamplesNum: 0,
-                  userid: 'DEFAULT',
-                  showSaveButton: false,
-                  showManageButton: true,
-                  cohortData: {},
-                  stats: {},
-                  updateStats: false
-                }
-            });
+        	window.session_service_url =  '<%= sessionServiceUrl %>';
+        	<%if(!sessionServiceUrl.equals("")){%>
+        		vcSession.URL = 'api-legacy/proxy/virtual-cohort';
+        		var username = $('#header_bar_table span').text() || '';
+                $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+                vcSessionsManagement = new Vue({
+                    el: '#cohort-component',
+                    data: {
+                      selectedPatientsNum: 0,
+                      selectedSamplesNum: 0,
+                      userid: username,
+                      showSaveButton: false,
+                      showManageButton: true,
+                      cohortData: {},
+                      stats: {},
+                      updateStats: false,
+                      showShareButton: true
+                    }
+                });
+                $('#manage_cohort_button').css('display','block');
+        	<%}%>
+        	
         });
     
         // Set API root variable for cbioportal-frontend repo
@@ -186,14 +197,15 @@
 					                            <a href="visualize_your_data.jsp" float="left">VISUALIZE YOUR DATA</a>
 					                        </li>
                                             <% } %>
-											<li class="internal" style="float: left"><a float="left"
+											<li class="internal" style="display: none; float: left" id="manage_cohort_button"><a float="left"
 												id="cohort-component" class="session-management"> <session-component
 														:show-save-button="showSaveButton"
 														:show-manage-button="showManageButton"
 														:selected-patients-num="selectedPatientsNum"
 														:selected-samples-num="selectedSamplesNum"
 														:userid="userid" :stats="stats"
-														:update-stats.sync="updateStats"></session-component>
+														:update-stats.sync="updateStats"
+														:show-share-button="showShareButton"></session-component>
 											</a></li>
 
 										<!--li class="internal" style="float:right">

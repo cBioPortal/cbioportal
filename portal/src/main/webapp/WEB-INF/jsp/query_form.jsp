@@ -58,8 +58,6 @@
 	//String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 	String localGeneList = request.getParameter(QueryBuilder.GENE_LIST);
 	
-	String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
-
 	if (request instanceof XssRequestWrapper)
 	{
 		localGeneList = localXssUtil.getCleanInput(
@@ -149,7 +147,6 @@
     window.tab_index = '<%= localTabIndex %>';
     window.zscore_threshold = '<%= localzScoreThreshold %>';
     window.rppa_score_threshold = '<%= localRppaScoreThreshold %>';
-    window.session_service_url = '<%= sessionServiceUrl %>';
 
     //  Store the currently selected genomic profiles within an associative array
     window.genomic_profile_id_selected = new Array();

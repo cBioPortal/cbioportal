@@ -1241,8 +1241,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             charts: {},
             groupCount: 0,
             updateSpecialCharts: false,
-            showSaveButton: true,
-            showManageButton: true,
+            showSaveButton: false,
+            showManageButton: false,
             userid: 'DEFAULT',
             stats: '',
             updateStats: false,
@@ -1464,7 +1464,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                   ' case(s) selected.', {message_type: 'info'});
               }
 
-              $('#iviz-header-right-1').qtip('toggle');
+              $('#custom-case-input-button').qtip('toggle');
               if (selectedCaseIds.length > 0) {
                 this.clearAllCharts(false);
                 var self_ = this;
@@ -6167,7 +6167,7 @@ window.LogRankTest = (function(jStat) {
     style: 'qtip-light qtip-rounded qtip-wide'
   };
   Vue.component('customCaseInput', {
-    template: '<input type="button" id="iviz-header-right-1" ' +
+    template: '<input type="button" id="custom-case-input-button" ' +
     'class="iviz-header-button" value="Select cases by IDs"/>' +
     '<div class="iviz-hidden" id="iviz-case-select-custom-dialog">' +
     '<b>Please input IDs (one per line)</b><textarea rows="20" cols="50" ' +
@@ -6196,7 +6196,7 @@ window.LogRankTest = (function(jStat) {
         $.extend(true, {}, headerCaseSelectCustomDialog);
       _customDialogQtip.position.target = $(window);
       _customDialogQtip.content.text = $('#iviz-case-select-custom-dialog');
-      $('#iviz-header-right-1').qtip(_customDialogQtip);
+      $('#custom-case-input-button').qtip(_customDialogQtip);
     }
   });
 })(

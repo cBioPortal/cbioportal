@@ -90,7 +90,9 @@
         </div>
 
         <div id="iviz-header-right">
-            <custom-case-input></custom-case-input>
+            <div style="display: inline-flex">
+                <custom-case-input></custom-case-input>
+            </div>
 
             <select id="iviz-add-chart" class="chosen-select"
                     v-select :charts="charts" v-if="showDropDown">

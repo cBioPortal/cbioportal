@@ -40,6 +40,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="java.util.List" %>
 
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
@@ -86,7 +87,7 @@
     }
     // Get prioritized studies for study selector
     
-    Map<String, Set<String>> priorityStudies = GlobalProperties.getPriorityStudies();
+    List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
 %>
 
 <%
@@ -120,19 +121,19 @@
 
     // Prioritized studies for study selector
     window.priority_studies = [];
-    <% for (Map.Entry<String, Set<String>> entry : priorityStudies.entrySet()) {
-            if (entry.getValue().size() > 0) {
-                    out.println("window.priority_studies.push({'category':'"+entry.getKey()+"',");
+    <% for (String[] group : priorityStudies) {
+            if (group.length > 1) {
+                    out.println("window.priority_studies.push({'category':'"+group[0]+"',");
                     out.println("'studies':[");
-                    int i = 0;
-            for (String s: entry.getValue()) {
-                    if (i >= 1) {
-                            out.println(",");
+                    int i = 1;
+                    while (i < group.length) {
+                            if (i >= 2) {
+                                    out.println(",");
+                            }
+                            out.println("'"+group[i]+"'");
+                            i++;
                     }
-                    out.println("'"+s+"'");
-                    i++;
-            }
-            out.println("]})");
+                    out.println("]})");
             }
         } %>
             

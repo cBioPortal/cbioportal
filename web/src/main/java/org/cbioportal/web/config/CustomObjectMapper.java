@@ -80,6 +80,10 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(Mutation.class, MutationMixin.class);
         mixinMap.put(Patient.class, PatientMixin.class);
         mixinMap.put(Sample.class, SampleMixin.class);
+<<<<<<< HEAD
+=======
+        mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
+>>>>>>> 94f0cf053a981b8721033544010faf206c64675e
         mixinMap.put(SampleList.class, SampleListMixin.class);
         mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
         super.setMixInAnnotations(mixinMap);

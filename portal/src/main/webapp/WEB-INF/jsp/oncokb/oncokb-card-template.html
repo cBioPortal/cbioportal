@@ -92,7 +92,7 @@
         <td>{{variant}}</td>
         <td>{{treatment}}</td>
         <td>{{cancerType}}</td>
-        <td><i class="fa fa-book" qtip-content="{{citations}}" position-my="top right"
+        <td><i class="fa fa-book" qtip-content="Treatment Info" qtip-treatment-index="{{treatmentIndex}}" position-my="top right"
                position-at="bottom left"></i></td>
     </tr>
 </script>
@@ -102,9 +102,21 @@
     </li>
 </script>
 
-<script type="text/template" id="oncokb-card-refs-item">
+<script type="text/template" id="oncokb-card-pmid-item">
     <li class="list-group-item" style="width: 100%">
         <a href="http://www.ncbi.nlm.nih.gov/pubmed/{{pmid}}" target="_blank"><b>{{title}}</b></a><br/>
         <div style="width: 100%">{{author}} {{source}}. {{date}} <span style="float: right">PMID: {{pmid}}</span></div>
+    </li>
+</script>
+
+<script type="text/template" id="oncokb-card-abstract-item">
+    <li class="list-group-item" style="width: 100%">
+        <@ if(link)  { @>
+        <a href="{{link}}" target="_blank">
+            <@ } @>
+            <b>{{abstract}}</b>
+            <@  if(link)  { @>
+        </a>
+        <@ } @>
     </li>
 </script>

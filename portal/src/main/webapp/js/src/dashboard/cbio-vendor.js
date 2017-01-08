@@ -3092,7 +3092,7 @@ window.DataManagerForIviz = (function($, _) {
                   _sampleAttributes.copy_number_alterations = {
                     datatype: 'NUMBER',
                     description: '',
-                    display_name: 'Copy Number Alterations',
+                    display_name: 'Fraction of copy number altered genome',
                     attr_id: 'copy_number_alterations',
                     view_type: 'bar_chart',
                     priority: 6,

@@ -78,7 +78,7 @@ var enrichmentsTabPlots = (function() {
 			    var _obj = result[gene][_sampleId];
 			    var _datum = {};
 			    _datum.alteration = "";
-			    if (!isNaN(_obj[profile_id])) {
+			    if (!isNaN(_obj[profile_id]) && _obj[profile_id] !== 'NaN' && _obj[profile_id] !== '') {
 				if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
 				    _datum.x_val = 0;
 				} else { //sample is unaltered
@@ -86,7 +86,7 @@ var enrichmentsTabPlots = (function() {
 				}
 
 				//if rna seq data, apply log 10
-				if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
+				if (profile_id.indexOf("rna_seq") !== -1 && _obj[profile_id] !== '0') _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
 				else _datum.y_val = parseFloat(_obj[profile_id]);
 
 				_datum.case_id = _sampleId;
@@ -136,7 +136,6 @@ var enrichmentsTabPlots = (function() {
 				dotsArr.push(_datum);
 			    }
 			});
-
 			generate_plots();
 		});
 	});
@@ -261,7 +260,7 @@ var enrichmentsTabPlots = (function() {
             .attr("y", 270)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
-            .text("Query: " + window.QuerySession.getQueryGenes().join(" ") + " (p-Value: " + p_value + ")");
+            .text("Query: " + window.QuerySession.getQueryGenes().join(" ") + " (p-Value: " + cbio.util.toPrecision(p_value, 3, 0.01) + ")");
         axisTitleGroup.append("text")
             .attr("class", "rppa-plots-y-axis-title")
             .attr("transform", "rotate(-90)")
@@ -465,8 +464,9 @@ var enrichmentsTabPlots = (function() {
             profile_type = _profile_type;
             profile_id = _profile_id;
             profile_name = _profile_name;
-            if (_p_value.indexOf("up1") !== -1) p_value = _p_value.replace("<img src=\"images/up1.png\"/>",  "");
-            if (_p_value.indexOf("down1") !== -1) p_value = _p_value.replace("<img src=\"images/down1.png\"/>",  "");
+            if (_p_value.toString().indexOf("up1") !== -1) p_value = _p_value.replace("<img src=\"images/up1.png\"/>",  "");
+            if (_p_value.toString().indexOf("down1") !== -1) p_value = _p_value.replace("<img src=\"images/down1.png\"/>",  "");
+            else p_value = _p_value;
 
             var params_get_profile_data = {
                 cancer_study_id: window.QuerySession.getCancerStudyIds()[0],

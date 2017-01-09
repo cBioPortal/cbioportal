@@ -158,11 +158,6 @@ public class CancerStudyView extends HttpServlet {
     
     /**
      * This method builds the response for the servlet request.
-     * Request format could be one of the following
-     * 1. Predefined cohort or a cohort list(Ex : cohorts=acc_tcga or cohorts=acc_tcga,brca_tcga)
-     * 2. User defined virtual cohort (Ex : cohorts=57e293a9d4c6c0c4ed706f2)
-     * 3. Any combination of 1 and 2
-     * 4. Encoded URI of study sample map string(Ex : {"acc_tcga":["TCGA-PK-A5H9-01","TCGA-OR-A5J3-01","TCGA-OR-A5JJ-01"]})
      * @param request
      * @return boolean value( whether success or not)
      * @throws DaoException
@@ -226,15 +221,13 @@ public class CancerStudyView extends HttpServlet {
 		// check if there are any studies in the response map, if no then check
 		if (studySampleMap.size() == 0) {
 			if (unknownStudyIds.size() > 0 && unAuthorizedStudyIds.size() > 0) {
-				request.setAttribute(ERROR,
-						"No such cohort(s): " + StringUtils.join(unknownStudyIds, ",")
-								+ "' and unauthorized to view with id(s):" + StringUtils.join(unAuthorizedStudyIds, ",")
-								+ "'. ");
+				request.setAttribute(ERROR, "No such cohort(s): " + StringUtils.join(unknownStudyIds, ",")
+						+ "and unauthorized to view with id(s):" + StringUtils.join(unAuthorizedStudyIds, ",") + ".");
 			} else if (unknownStudyIds.size() > 0) {
-				request.setAttribute(ERROR, "No such cohort(s): " + StringUtils.join(unknownStudyIds, ",") + "'. ");
+				request.setAttribute(ERROR, "No such cohort(s): " + StringUtils.join(unknownStudyIds, ",") + ".");
 			} else {
 				request.setAttribute(ERROR, "You are not authorized to view the cancer study with id(s): "
-						+ StringUtils.join(unAuthorizedStudyIds, ",") + "'. ");
+						+ StringUtils.join(unAuthorizedStudyIds, ",") + ".");
 			}
 			return false;
 		}
@@ -281,14 +274,28 @@ public class CancerStudyView extends HttpServlet {
 
 	/**
 	 * Get cohort Ids from httprequest
+	 * Request format could be one of the following
+     * 1. Predefined cohort or a cohort list(Ex : cohorts=acc_tcga or cohorts=acc_tcga,brca_tcga)
+     * 2. User defined virtual cohort (Ex : cohorts=57e293a9d4c6c0c4ed706f2)
+     * 3. Any combination of 1 and 2
+     * 4. Encoded URI of study sample map string(Ex : {"acc_tcga":["TCGA-PK-A5H9-01","TCGA-OR-A5J3-01","TCGA-OR-A5JJ-01"]})
+     * 5. Existing 
 	 * @param request
 	 * @return Map<String, HashSet<String>> cohortIds
 	 * @throws JsonParseException
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	private Map<String, HashSet<String>> getCohortIds(HttpServletRequest request) throws JsonParseException, JsonMappingException, IOException {
+	private Map<String, HashSet<String>> getCohortIds(HttpServletRequest request)
+			throws JsonParseException, JsonMappingException, IOException {
 		String cohortIds = request.getParameter(COHORTS);
+
+		// TODO: this block is temporarily to support cancer_study_id. Once
+		// everything changes we could get rid of this
+		if (cohortIds == null) {
+			cohortIds = request.getParameter("cancer_study_id");
+		}
+
 		Map<String, HashSet<String>> inputCohortMap = new HashMap<String, HashSet<String>>();
 		if (cohortIds == null) {
 			// if cohorts is null check for study_sample_map request parameter

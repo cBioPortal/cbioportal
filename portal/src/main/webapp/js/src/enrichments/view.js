@@ -290,8 +290,10 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div, profile_
     function addGeneClick(){
         $('.selectHighlight_'+table_id).on('click', function() {
             var current_gene = $(this).text();
+            var _pValObj = _.filter(self.originalData, function(_dataObj) {return _dataObj.Gene == current_gene; });
+            var _pVal = _pValObj[0]["p-Value"];
             if (profile_type === enrichmentsTabSettings.profile_type.mrna || profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
-                enrichmentsTabPlots.init(self.profile_plot_div, current_gene, profile_type, profile_id, table_title, "");
+                enrichmentsTabPlots.init(self.profile_plot_div, current_gene, profile_type, profile_id, table_title, _pVal);
             } else {
                 self.miniOnco.render(current_gene);
             }
@@ -759,9 +761,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div, profile_
                 self.volcanoPlot = new VolcanoPlot();
                 self.volcanoPlot.render(self);
             }
-
-
-
         }
     };
 }; //close enrichmentsTabTable
@@ -771,35 +770,40 @@ var orSubTabView = function() {
     return {
         init: function(_div_id, _profile_list, _profile_type, _gene_set) {
 
-            //for mrna sub tab, there is an EXTRA dropdown menu for selecting profiles
+            //for protein_exp and mrna sub tab, there is an EXTRA dropdown menu for selecting profiles
             //order profiles by priority list -- swap the rna seq profile to the top
             $.each(_profile_list, function(i, obj) {
                 if (obj.STABLE_ID.indexOf("rna_seq") !== -1) {
+                    cbio.util.swapElement(_profile_list, i, 0);
+                }
+                if (obj.STABLE_ID.indexOf("ms_abundance") !== -1) {
                     cbio.util.swapElement(_profile_list, i, 0);
                 }
             });
 
             $("#" + _div_id).css("padding-right","10px");
 
-            //append profile selection dropdown menu for mrna sub-tab
-            if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
+            // add drop down menu for selecting profiles under mrna sub tab and protein sub tab
+            if (_profile_type === enrichmentsTabSettings.profile_type.mrna ) {
+                addDropDownMenu(enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu);
+            } else if (_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
+                addDropDownMenu(enrichmentsTabSettings.postfix.protein_exp_sub_tab_profile_selection_dropdown_menu);
+            }
+            function addDropDownMenu (_elemId) {
                 $("#" + _div_id + "_loading_img").empty();
-                $("#" + _div_id).append("<div id='" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div'></div>");
-                if ($("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").is(":empty")) {
-                    if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
-                        $("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").append(
-                            "Data Set <select id='" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "'></select>"
-                        );
-                    }
-                    $.each(_profile_list, function(_index, _profile_obj) {
-                        $("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu).append(
-                            "<option value='" + _profile_obj.STABLE_ID + "'>" + _profile_obj.NAME + "</option>"
-                        );
-                    });
+                $("#" + _div_id).append("<div id='" + _div_id + _elemId + "_div'></div>");
+                if ($("#" + _div_id + _elemId + "_div").is(":empty")) {
+                    $("#" + _div_id + _elemId + "_div").append(
+                        "Data Set <select id='" + _div_id + _elemId + "'></select>"
+                    );
                 }
-                //add event listener to the profile selection under mrna sub tab.
-                $("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu).change(function() {
-                    var selected_profile_id = $( "#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val();
+                $.each(_profile_list, function(_index, _profile_obj) {
+                    $("#" + _div_id + _elemId).append(
+                        "<option value='" + _profile_obj.STABLE_ID + "'>" + _profile_obj.NAME + "</option>"
+                    );
+                });
+                $("#" + _div_id + _elemId).change(function() {
+                    var selected_profile_id = $( "#" + _div_id + _elemId).val();
                     $.each(_profile_list, function(_index, _profile_obj) {
                         var usableId = _profile_obj.STABLE_ID.replace(/\./g, "_");
                         if (_profile_obj.STABLE_ID !== selected_profile_id) {
@@ -812,7 +816,7 @@ var orSubTabView = function() {
                 //adding loading image for table
                 $("#" + _div_id).append("<div id='" + _div_id + "_table_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif' alt='loading' /></div>");
             }
-
+            
             $.each(_profile_list, function(_index, _profile_obj) {
 
                 var element = $("." + _profile_obj.STABLE_ID.replace(/\./g, "_") + enrichmentsTabSettings.postfix.datatable_class);
@@ -866,19 +870,24 @@ var orSubTabView = function() {
 
                     $("#" + loading_div).empty();
 
-                    // hide mrna tables initially
-                    if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
+                    // hide mrna and protein tables initially
+                    if (_profile_type === enrichmentsTabSettings.profile_type.mrna || _profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
                         $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + "_container_table").hide();
                     }
                 }
 
             });
 
-            //show mrna table that's being selected
+            //show mrna or protein exp table that's being selected
             if (_profile_type === enrichmentsTabSettings.profile_type.mrna) {
+                showSelectedTable(enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu);
+            } else if (_profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
+                showSelectedTable(enrichmentsTabSettings.postfix.protein_exp_sub_tab_profile_selection_dropdown_menu);
+            }
+            function showSelectedTable(_elemId) {
                 var tmp = setInterval(function () { timer(); }, 1000);
                 function timer() {
-                    var selectedVal = $("#" + _div_id + enrichmentsTabSettings.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val().replace(/\./g, "_");
+                    var selectedVal = $("#" + _div_id + _elemId).val().replace(/\./g, "_");
                     var _target_table_div = selectedVal + enrichmentsTabSettings.postfix.datatable_div;
                     if (!$( "#" + _target_table_div).is(":empty")) {
                         clearInterval(tmp);

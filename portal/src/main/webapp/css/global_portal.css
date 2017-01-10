@@ -1699,8 +1699,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 }
 
 /* BootstrapDialog styles*/
-.modal-dialog {
-    height:920px;
+.oncokb-feedback .modal-dialog {
     padding: 0;
 }
 

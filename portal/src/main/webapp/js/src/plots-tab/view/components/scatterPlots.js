@@ -1026,8 +1026,10 @@ var scatterPlots = (function() {
                     var tmpGeneXcoExpStr = "",
                         tmpGeneYcoExpStr = "";
                     $.each(data, function(index, obj) {
-                        tmpGeneXcoExpStr += obj.xVal + " ";
-                        tmpGeneYcoExpStr += obj.yVal + " ";
+                        if (obj.xVal.length !== 0 && obj.xVal !== "" && obj.yVal.length !== 0 && obj.yVal !== "") {
+                            tmpGeneXcoExpStr += obj.xVal + " ";
+                            tmpGeneYcoExpStr += obj.yVal + " ";
+                        }
                     });
                     var paramsCalcCoexp = {
                         gene_x : tmpGeneXcoExpStr,

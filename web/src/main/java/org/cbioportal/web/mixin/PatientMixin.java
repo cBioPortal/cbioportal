@@ -8,10 +8,12 @@ public class PatientMixin {
 
     @JsonIgnore
     private Integer internalId;
+    @JsonProperty("patientId")
     private String stableId;
     @JsonIgnore
     private Integer cancerStudyId;
-    @JsonProperty("cancerStudyId")
+    @JsonProperty("studyId")
     private String cancerStudyIdentifier;
+    @JsonIgnore
     private CancerStudy cancerStudy;
 }

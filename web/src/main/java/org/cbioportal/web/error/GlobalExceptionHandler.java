@@ -4,14 +4,9 @@ import org.cbioportal.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.web.exception.PageNumberInvalidFormatException;
-import org.cbioportal.web.exception.PageNumberTooSmallException;
-import org.cbioportal.web.exception.PageSizeInvalidFormatException;
-import org.cbioportal.web.exception.PageSizeTooBigException;
-import org.cbioportal.web.exception.PageSizeTooSmallException;
-import org.cbioportal.web.parameter.PagingConstants;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +14,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ElementKind;
+import javax.validation.Path;
+import java.util.Iterator;
 
 @ControllerAdvice("org.cbioportal.web")
 public class GlobalExceptionHandler {
@@ -40,8 +41,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PatientNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePatientNotFound(PatientNotFoundException ex) {
 
-        return new ResponseEntity<>(new ErrorResponse("Patient not found: " + ex.getPatientId()),
-                HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse("Patient not found in study " + ex.getStudyId() + ": " +
+            ex.getPatientId()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CancerTypeNotFoundException.class)
@@ -72,6 +73,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(SampleListNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSampleListNotFound(SampleListNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Sample list not found: " + ex.getSampleListId()),
+            HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex) {
@@ -87,45 +95,29 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(PageSizeTooBigException.class)
-    public ResponseEntity<ErrorResponse> handlePageSizeTooBig(PageSizeTooBigException ex) {
-
-        return new ResponseEntity<>(new ErrorResponse("Page size " + ex.getPageSize()
-                + " is greater than the maximum allowed: " + PagingConstants.MAX_PAGE_SIZE), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(PageSizeTooSmallException.class)
-    public ResponseEntity<ErrorResponse> handlePageSizeTooSmall(PageSizeTooSmallException ex) {
-
-        return new ResponseEntity<>(new ErrorResponse("Page size " + ex.getPageSize()
-                + " is smaller than the minimum allowed: " + PagingConstants.MIN_PAGE_SIZE), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(PageSizeInvalidFormatException.class)
-    public ResponseEntity<ErrorResponse> handlePageSizeInvalidFormat(PageSizeInvalidFormatException ex) {
-
-        return new ResponseEntity<>(new ErrorResponse("Page size " + ex.getPageSize() + " must be integer"),
-                HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(PageNumberTooSmallException.class)
-    public ResponseEntity<ErrorResponse> handlePageNumberTooSmall(PageNumberTooSmallException ex) {
-
-        return new ResponseEntity<>(new ErrorResponse("Page number " + ex.getPageNumber()
-                + " is smaller than the minimum allowed: " + PagingConstants.MIN_PAGE_NUMBER), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(PageNumberInvalidFormatException.class)
-    public ResponseEntity<ErrorResponse> handlePageNumberInvalidFormat(PageNumberInvalidFormatException ex) {
-
-        return new ResponseEntity<>(new ErrorResponse("Page number " + ex.getPageNumber() + " must be integer"),
-                HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
 
         return new ResponseEntity<>(new ErrorResponse("There is an error in the JSON format of the request payload"),
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+
+        ConstraintViolation constraintViolation = ex.getConstraintViolations().iterator().next();
+        Iterator<Path.Node> iterator = constraintViolation.getPropertyPath().iterator();
+        String parameterName = null;
+        
+        while (iterator.hasNext()) {
+            Path.Node node = iterator.next();
+            if (node.getKind() == ElementKind.PARAMETER) {
+                parameterName = node.getName();
+                break;
+            }
+        }
+
+        return new ResponseEntity<>(new ErrorResponse(parameterName + " " + constraintViolation.getMessage()),
+            HttpStatus.BAD_REQUEST);
     }
 }

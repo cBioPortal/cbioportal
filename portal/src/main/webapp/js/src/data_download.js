@@ -78,26 +78,30 @@ var DataDownloadTab = (function() {
 		    var sample = datum.sample;
 		    var alt_type = "";
 		    sample_to_line_to_alt_type[sample] = sample_to_line_to_alt_type[sample] || [];
-		    if (typeof datum.disp_mut !== "undefined") {
-			alt_type += "MUT: ";
-			var mutations = [];
-			for (var k=0; k<datum.data.length; k++) {
-			    if (datum.data[k].genetic_alteration_type === "MUTATION_EXTENDED") {
-				mutations.push(datum.data[k].amino_acid_change);
+			if (datum.na) {
+			    alt_type = "N/S";
+			} else {
+			    if (typeof datum.disp_mut !== "undefined") {
+				alt_type += "MUT: ";
+				var mutations = [];
+				for (var k = 0; k < datum.data.length; k++) {
+				    if (datum.data[k].genetic_alteration_type === "MUTATION_EXTENDED") {
+					mutations.push(datum.data[k].amino_acid_change);
+				    }
+				}
+				alt_type += mutations.join(",");
+				alt_type += ";";
+			    }
+			    if (typeof datum.disp_cna !== "undefined") {
+				alt_type += datum.disp_cna.toUpperCase() + ";";
+			    }
+			    if (typeof datum.disp_mrna !== "undefined") {
+				alt_type += datum.disp_mrna.toUpperCase() + ";";
+			    }
+			    if (typeof datum.disp_prot !== "undefined") {
+				alt_type += "RPPA-" + datum.disp_prot.toUpperCase() + ";";
 			    }
 			}
-			alt_type += mutations.join(",");
-			alt_type += ";";
-		    }
-		    if (typeof datum.disp_cna !== "undefined") {
-			alt_type += datum.disp_cna.toUpperCase() + ";";
-		    }
-		    if (typeof datum.disp_mrna !== "undefined") {
-			alt_type += datum.disp_mrna.toUpperCase() + ";";
-		    }
-		    if (typeof datum.disp_prot !== "undefined") {
-			alt_type += "RPPA-"+datum.disp_prot.toUpperCase() + ";";
-		    }
 		    sample_to_line_to_alt_type[sample].push(alt_type);
 		}
 	    }

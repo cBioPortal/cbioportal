@@ -6,7 +6,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.4.0-SNAPSHOT</version>
+  <version>1.5.0-SNAPSHOT</version>
   <description>master maven module</description>
 
   <scm>
@@ -179,7 +179,7 @@
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>1.4.0</db.version>
+    <db.version>2.0.1</db.version>
 
   </properties>
 
@@ -452,8 +452,11 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.5.1</version>
           <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
+            <source>1.8</source>
+            <target>1.8</target>
+            <compilerArgs>
+              <arg>-parameters</arg>
+            </compilerArgs>
           </configuration>
         </plugin>
       </plugins>

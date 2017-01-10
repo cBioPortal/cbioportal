@@ -38,13 +38,12 @@ import org.apache.commons.lang.SerializationUtils;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationEvent;
+import org.mskcc.cbio.portal.model.Mutation;
+import org.mskcc.cbio.portal.model.MutationEvent;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.Sample.SampleType;
 import org.cbioportal.model.TypeOfCancer;
-import org.cbioportal.service.MutationService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -56,6 +55,7 @@ import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
+import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -77,7 +77,7 @@ public class ApiControllerTest {
     @Autowired
     private GeneticProfileMapperLegacy geneticProfileMapperLegacyMock;
     @Autowired
-    private MutationService mutationServiceMock;
+    private MutationMapperLegacy mutationMapperLegacy;
     @Autowired
     private WebApplicationContext webApplicationContext;
     private MockMvc mockMvc;
@@ -89,7 +89,7 @@ public class ApiControllerTest {
     public void setup() {
         Mockito.reset(cancerTypeMapperLegacyMock);
         Mockito.reset(geneticProfileMapperLegacyMock);
-        Mockito.reset(mutationServiceMock);
+        Mockito.reset(mutationMapperLegacy);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
@@ -167,7 +167,7 @@ public class ApiControllerTest {
         Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
-        Mockito.when(mutationServiceMock.getMutationsDetailed(
+        Mockito.when(mutationMapperLegacy.getMutationsDetailed(
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
@@ -357,7 +357,7 @@ public class ApiControllerTest {
         Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
-        Mockito.when(mutationServiceMock.getMutationsDetailed(
+        Mockito.when(mutationMapperLegacy.getMutationsDetailed(
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
@@ -439,7 +439,7 @@ public class ApiControllerTest {
         Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
-        Mockito.when(mutationServiceMock.getMutationsDetailed(
+        Mockito.when(mutationMapperLegacy.getMutationsDetailed(
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
@@ -467,7 +467,7 @@ public class ApiControllerTest {
         Mockito.when(geneticProfileMapperLegacyMock.getGeneticProfiles(
                         org.mockito.Matchers.anyListOf(String.class)
 )).thenReturn(ctMockResponse);
-        Mockito.when(mutationServiceMock.getMutationsDetailed(
+        Mockito.when(mutationMapperLegacy.getMutationsDetailed(
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),
                         org.mockito.Matchers.anyListOf(String.class),

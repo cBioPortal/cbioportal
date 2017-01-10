@@ -36,28 +36,20 @@ package org.cbioportal.weblegacy;
  * @author heinsz
  */
 
-import java.util.List;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.web.config.CustomObjectMapper;
+import org.mskcc.cbio.portal.service.GenePanelService;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"org.cbioportal.weblegacy"}, resourcePattern = "**/*GenePanelController.class")
+@ComponentScan(basePackages = {"org.cbioportal.weblegacy", "org.mskcc.cbio.portal.service"},
+    resourcePattern = "**/*GenePanelController.class")
 public class GenePanelControllerConfig extends WebMvcConfigurerAdapter {
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
-        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
-        converters.add(mappingJackson2HttpMessageConverter);
-    }
+
     @Bean
     public GenePanelService genePanelService() {
         return Mockito.mock(GenePanelService.class);

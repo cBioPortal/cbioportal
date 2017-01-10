@@ -2,15 +2,15 @@ package org.cbioportal.web.parameter;
 
 public class ClinicalDataIdentifier {
 
-    private String id;
+    private String entityId;
     private String studyId;
 
-    public String getId() {
-        return id;
+    public String getEntityId() {
+        return entityId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
     }
 
     public String getStudyId() {

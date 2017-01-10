@@ -84,16 +84,15 @@
             <span class="iviz-header-arrow">
           <i class="fa fa-arrow-right fa-lg" aria-hidden="true"></i>
         </span>
-            <form id="iviz-form" v-on:submit.prevent="submitForm" method="post" target="_blank"
-                  style="float: left;">
-                <input type="submit" id="iviz-header-left-1" value="Query" class="iviz-header-button"
-                       style="display: block;">
-            </form>
+            <input type="button" id="iviz-header-left-1" value="Query" class="iviz-header-button" style="display: block;"
+                   v-on:click="submitForm">
 
         </div>
 
         <div id="iviz-header-right">
-            <custom-case-input></custom-case-input>
+            <div style="display: inline-flex">
+                <custom-case-input></custom-case-input>
+            </div>
 
             <select id="iviz-add-chart" class="chosen-select"
                     v-select :charts="charts" v-if="showDropDown">

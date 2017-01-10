@@ -26,6 +26,7 @@
     </bean>
 
     <context:component-scan base-package="org.mskcc.cbio.portal.web" />
+    <context:component-scan base-package="org.mskcc.cbio.portal.service" />
     <context:component-scan base-package="org.mskcc.cbio.portal.documentation" />
     <context:component-scan base-package="org.cbioportal.weblegacy" />
 

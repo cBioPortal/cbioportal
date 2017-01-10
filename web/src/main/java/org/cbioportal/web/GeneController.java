@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.web.exception.PageSizeTooBigException;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,9 +25,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.util.List;
 
+@PublicApi
 @RestController
+@Validated
 @Api(tags = "Genes", description = " ")
 public class GeneController {
 
@@ -39,8 +45,11 @@ public class GeneController {
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam("Page size of the result list")
+            @Max(PagingConstants.MAX_PAGE_SIZE)
+            @Min(PagingConstants.MIN_PAGE_SIZE)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
             @ApiParam("Page number of the result list")
+            @Min(PagingConstants.MIN_PAGE_NUMBER)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
             @ApiParam("Name of the property that the result list is sorted by")
             @RequestParam(required = false) GeneSortBy sortBy,
@@ -55,7 +64,7 @@ public class GeneController {
         } else {
             return new ResponseEntity<>(
                     geneService.getAllGenes(projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.name(), direction.name()), HttpStatus.OK);
+                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
@@ -85,11 +94,8 @@ public class GeneController {
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam(required = true, value = "List of Entrez Gene IDs and/or Hugo Gene Symbols")
-            @RequestBody List<String> geneIds) throws PageSizeTooBigException {
-
-        if (geneIds.size() > PagingConstants.MAX_PAGE_SIZE) {
-            throw new PageSizeTooBigException(geneIds.size());
-        }
+            @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+            @RequestBody List<String> geneIds) {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();

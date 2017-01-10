@@ -59,7 +59,7 @@
 
 <jsp:include page="../global/header.jsp" flush="true" />
 
-<table width="100%" id="show_study_details" style="display:none;">
+<table width="100%" id="show_study_details" style="margin: 8px 2px 5px 2px;display:none;">
     <tr>
         <td class="study-view-header-first-row-td">
             <form method="post" action="index.do">

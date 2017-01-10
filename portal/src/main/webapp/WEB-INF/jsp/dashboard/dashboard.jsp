@@ -62,8 +62,8 @@
 <table width="100%" id="show_study_details" style="margin: 8px 2px 5px 2px;display:none;">
     <tr>
         <td class="study-view-header-first-row-td">
+        	<b><u id="study_name"></u></b>
             <form method="post" action="index.do">
-            <span id="study_name"></span>
                 <input type="hidden" id="cancer_study_id" name="cancer_study_id">
                 <input type="hidden" id="cancer_study_list">
                 <input type="submit" id="submit_button" value="Query this study" class="btn btn-primary btn-xs">
@@ -265,7 +265,7 @@
     				$("#show_study_details").css('display','block');
     				var _cancerStudy = _cancerStudies[0]
     				document.title = _cancerStudy.name
-    				$("#study_name").html("<b><u>"+_cancerStudy.name+"</u></b>");
+    				$("#study_name").html(_cancerStudy.name);
     	        	$("#cancer_study_id").val(_cancerStudy.id);
     	        	$("#cancer_study_list").val(_cancerStudy.id);
     	        	var _desc = _cancerStudy.description
@@ -307,7 +307,7 @@
                     	url: vcSession.URL + '/' + cohortIdsList[0]
                   	}).done(function(response){
                 	 	$("#show_study_details").css('display','block');
-                	  	$("#study_name").html("<b><u>"+response['data']['studyName']+"</u></b>");
+                	  	$("#study_name").html(response['data']['studyName']);
                 	  	$("#study_desc").html(response['data']['description']);
                 	  	$("#submit_button").css('display','none');
                     	var studyName = response['data']['studyName'];

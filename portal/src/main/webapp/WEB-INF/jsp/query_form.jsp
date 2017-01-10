@@ -57,7 +57,7 @@
     String localCaseIds = request.getParameter(QueryBuilder.CASE_IDS);
 	//String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 	String localGeneList = request.getParameter(QueryBuilder.GENE_LIST);
-	
+
 	if (request instanceof XssRequestWrapper)
 	{
 		localGeneList = localXssUtil.getCleanInput(

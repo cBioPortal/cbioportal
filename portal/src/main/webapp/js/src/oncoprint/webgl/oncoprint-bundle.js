@@ -4898,7 +4898,7 @@ var GeneticAlterationRuleSet = (function () {
 	})(this);
 	this.addRule(NA_STRING, true, {
 	    shapes: makeNAShapes(params.na_z || 1),
-	    legend_label: "N/S",
+	    legend_label: "Not sequenced",
 	    exclude_from_legend: false,
 	    legend_config: {'type': 'rule', 'target': {'na': true}}
 	});

@@ -51,13 +51,14 @@
 <%}%>
 <%
 String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
+//remove this line to enable virtual cohort feature
+sessionServiceUrl ="";
 %>
 <jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
 
     <script type="text/javascript">
         $(document).ready(function(){
         	window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
-        	window.session_service_url =  '<%= sessionServiceUrl %>';
         	<%if(!sessionServiceUrl.equals("")){%>
         		vcSession.URL = 'api-legacy/proxy/virtual-cohort';
         		var username = $('#header_bar_table span').text() || '';
@@ -75,7 +76,7 @@ String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "
                     }
                 });
                 $('#manage_cohort_button').css('display','block');
-        	<%}%>
+                <%}%>
         	
         });
     

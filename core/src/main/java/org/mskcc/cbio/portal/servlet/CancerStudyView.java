@@ -234,7 +234,7 @@ public class CancerStudyView extends HttpServlet {
 		ObjectMapper mapper = new ObjectMapper();
 		String studySampleMapString = mapper.writeValueAsString(studySampleMap);
 		request.setAttribute(STUDY_SAMPLE_MAP, studySampleMapString);
-		request.setAttribute(COHORTS, request.getParameter(COHORTS));
+		request.setAttribute(COHORTS, inputCohortMap.keySet());
 		return true;
 	}
     /**

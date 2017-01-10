@@ -37,7 +37,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.*" %>
 <%@ page import="java.util.List" %>
 <%@page import="java.util.Set"%>
-
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
     request.setAttribute("standard-js-css", true);
     String isDemoMode = request.getParameter("demo");
@@ -48,7 +48,7 @@
         showPlaceHoder = GlobalProperties.showPlaceholderInPatientView();
     }
     
-    String reqCohortIds = request.getParameter("cohorts");
+    String reqCohortIds = StringUtils.join((Set<String>)request.getAttribute("cohorts"),",");
     String studySampleMap = (String)request.getAttribute(CancerStudyView.STUDY_SAMPLE_MAP);
     String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
 

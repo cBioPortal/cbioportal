@@ -36,8 +36,6 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
-    String zScoreThesholdStr4Network =
-		    xssUtil.getCleanerInput(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString());
 	String useXDebug = request.getParameter("xdebug");
     if (useXDebug==null)
         useXDebug = "0";
@@ -99,13 +97,13 @@
 
 			var genomicData = {};
 			// Send genomic data query again
-		    var geneDataQuery = {
-                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-		        genes: window.QuerySession.getQueryGenes().join(" "),
-		        geneticProfileIds: window.QuerySession.getGeneticProfileIds(),
-		        z_score_threshold: <%=zScoreThreshold%>,
-		        rppa_score_threshold: <%=rppaScoreThreshold%>
-		    };
+		    <%--var geneDataQuery = {--%>
+                <%--cancer_study_id: window.QuerySession.getCancerStudyIds()[0],--%>
+		        <%--genes: window.QuerySession.getQueryGenes().join(" "),--%>
+		        <%--geneticProfileIds: window.QuerySession.getGeneticProfileIds(),--%>
+		        <%--z_score_threshold: <%=zScoreThreshold%>,--%>
+		        <%--rppa_score_threshold: <%=rppaScoreThreshold%>--%>
+		    <%--};--%>
 
             // show messages in graphml
             function showNetworkMessage(graphml, divNetMsg) {
@@ -142,7 +140,7 @@
                      <%=QueryBuilder.CANCER_STUDY_ID%>:window.QuerySession.getCancerStudyIds()[0],
                      <%=QueryBuilder.CASE_IDS_KEY%>:window.QuerySession.getCaseIdsKey(),
                      <%=QueryBuilder.CASE_SET_ID%>:window.QuerySession.getCaseSetId(),
-                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
+                     zscore_threshold:'<%=mRnaZscoreUpThreshold%>', //TODO: separate up/down threshold
                      heat_map:$("#heat_map").html(),
                      xdebug:'<%=useXDebug%>',
                      netsrc:'<%=netSrc%>',

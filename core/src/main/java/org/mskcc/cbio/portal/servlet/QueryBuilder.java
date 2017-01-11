@@ -90,8 +90,16 @@ public class QueryBuilder extends HttpServlet {
     public static final String TAB_VISUALIZE = "tab_visualize";
     public static final String USER_ERROR_MESSAGE = "user_error_message";
     public static final String ATTRIBUTE_URL_BEFORE_FORWARDING = "ATTRIBUTE_URL_BEFORE_FORWARDING";
-    public static final String Z_SCORE_THRESHOLD = "Z_SCORE_THRESHOLD";
-    public static final String RPPA_SCORE_THRESHOLD = "RPPA_SCORE_THRESHOLD";
+    public static final String APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD = "mrna_exp_apply_up_threshold";
+    public static final String APPLY_MRNA_EXP_Z_SCORE_DOWN_THRESHOLD = "mrna_exp_apply_down_threshold";
+    public static final String MRNA_EXP_Z_SCORE_UP_THRESHOLD = "mrna_exp_up_threshold_val";
+    public static final String MRNA_EXP_Z_SCORE_DOWN_THRESHOLD = "mrna_exp_down_threshold_val";
+    public static final String MRNA_EXP_Z_SCORE_SAMPLE_SET = "mrna_exp_zscore_sample_set";
+    public static final String APPLY_PROTEIN_EXP_Z_SCORE_UP_THRESHOLD = "protein_exp_apply_up_threshold";
+    public static final String APPLY_PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD = "protein_exp_apply_down_threshold";
+    public static final String PROTEIN_EXP_Z_SCORE_UP_THRESHOLD = "protein_exp_up_threshold_val";
+    public static final String PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD = "protein_exp_down_threshold_val";
+    public static final String PROTEIN_EXP_Z_SCORE_SAMPLE_SET = "protein_exp_zscore_sample_set";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
     public static final int MUTATION_DETAIL_LIMIT = 100;
@@ -176,6 +184,18 @@ public class QueryBuilder extends HttpServlet {
 
         //  Get User Selected Genetic Profiles
         HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
+
+        // Get zscore threshold settings
+        httpServletRequest.setAttribute(APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD, httpServletRequest.getParameter(APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD));
+        httpServletRequest.setAttribute(APPLY_MRNA_EXP_Z_SCORE_DOWN_THRESHOLD, httpServletRequest.getParameter(APPLY_MRNA_EXP_Z_SCORE_DOWN_THRESHOLD));
+        httpServletRequest.setAttribute(MRNA_EXP_Z_SCORE_UP_THRESHOLD, httpServletRequest.getParameter(MRNA_EXP_Z_SCORE_UP_THRESHOLD));
+        httpServletRequest.setAttribute(MRNA_EXP_Z_SCORE_DOWN_THRESHOLD, httpServletRequest.getParameter(MRNA_EXP_Z_SCORE_DOWN_THRESHOLD));
+        httpServletRequest.setAttribute(MRNA_EXP_Z_SCORE_SAMPLE_SET, httpServletRequest.getParameter(MRNA_EXP_Z_SCORE_SAMPLE_SET));
+        httpServletRequest.setAttribute(APPLY_PROTEIN_EXP_Z_SCORE_UP_THRESHOLD, httpServletRequest.getParameter(APPLY_PROTEIN_EXP_Z_SCORE_UP_THRESHOLD));
+        httpServletRequest.setAttribute(APPLY_PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD, httpServletRequest.getParameter(APPLY_PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD));
+        httpServletRequest.setAttribute(PROTEIN_EXP_Z_SCORE_UP_THRESHOLD, httpServletRequest.getParameter(PROTEIN_EXP_Z_SCORE_UP_THRESHOLD));
+        httpServletRequest.setAttribute(PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD, httpServletRequest.getParameter(PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD));
+        httpServletRequest.setAttribute(PROTEIN_EXP_Z_SCORE_SAMPLE_SET, httpServletRequest.getParameter(PROTEIN_EXP_Z_SCORE_SAMPLE_SET));
 
         //  Get User Defined Gene List
 	    String geneList = httpServletRequest.getParameter(GENE_LIST);
@@ -442,10 +462,6 @@ public class QueryBuilder extends HttpServlet {
         request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
         String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
         if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
-            double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-            double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
-            request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
-            request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
             // Store download links in session (for possible future retrieval).
             RequestDispatcher dispatcher =

@@ -64,15 +64,85 @@
 			((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST));
 	}
     
+    /*
+     *   getting z-score threshold setting
+     *   @author: suny1@mskcc.org
+     */
+    boolean display_applyMrnaZscoreUpThreshold = true;
+    double display_mRnaZscoreUpThreshold = 2.0;
+    boolean display_applyMrnaZscoreDownThreshold = true;
+    double display_mRnaZscoreDownThreshold = -2.0;
+    String display_mRnaZscoreSampleSet = "diploid";
+    boolean display_applyProteinZscoreUpThreshold = true;
+    double display_proteinZscoreUpThreshold = 2.0;
+    boolean display_applyProteinZscoreDownThreshold = true;
+    double display_proteinZscoreDownThreshold = -2.0;
+    String display_proteinExpZscoreSampleSet = "diploid";
+    // zscore calculation sample set for mrna exp profiles
+    if (request.getParameter(QueryBuilder.MRNA_EXP_Z_SCORE_SAMPLE_SET) != null) {
+        display_mRnaZscoreSampleSet = request.getParameter(QueryBuilder.MRNA_EXP_Z_SCORE_SAMPLE_SET).toString();
+    }
+    // up threshold for mrna expression profiles
+    if (("on").equals(request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD))) {
+        display_applyMrnaZscoreUpThreshold = true;
+    } else {
+        if (request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_UP_THRESHOLD) != null) {
+            display_applyMrnaZscoreUpThreshold = false;
+        } else {
+            display_applyMrnaZscoreUpThreshold = true;
+        }
+    }
+    if (request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_UP_THRESHOLD) != null) {
+        display_mRnaZscoreUpThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_UP_THRESHOLD).toString());
+    }
+
+    // down threshold for mrna expression profiles
+    if (("on").equals(request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_DOWN_THRESHOLD))) {
+        display_applyMrnaZscoreDownThreshold = true;
+    } else {
+        if (request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_DOWN_THRESHOLD) != null) {
+            display_applyMrnaZscoreDownThreshold = false;
+        } else {
+            display_applyMrnaZscoreDownThreshold = true;
+        }
+    }
+    if (request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_DOWN_THRESHOLD) != null) {
+        display_mRnaZscoreDownThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_DOWN_THRESHOLD).toString());
+    }
+    // zscore calculation sample set for protein exp profiles
+    if (request.getParameter(QueryBuilder.PROTEIN_EXP_Z_SCORE_SAMPLE_SET) != null) {
+        display_proteinExpZscoreSampleSet = request.getParameter(QueryBuilder.PROTEIN_EXP_Z_SCORE_SAMPLE_SET).toString();
+    }
+    // up threshold for protein expression profiles
+    if (("on").equals(request.getParameter(QueryBuilder.APPLY_PROTEIN_EXP_Z_SCORE_UP_THRESHOLD))) {
+        display_applyProteinZscoreUpThreshold = true;
+    } else {
+        if (request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_UP_THRESHOLD) != null) {
+            display_applyProteinZscoreUpThreshold = false;
+        } else {
+            display_applyProteinZscoreUpThreshold = true;
+        }
+    }
+    if (request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_UP_THRESHOLD) != null) {
+        display_proteinZscoreUpThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_UP_THRESHOLD).toString());
+    }
+
+    // down threshold for protein expression profiles
+    if (("on").equals(request.getParameter(QueryBuilder.APPLY_PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD))) {
+        display_applyProteinZscoreDownThreshold = true;
+    } else {
+        if (request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD) != null) {
+            display_applyProteinZscoreDownThreshold = false;
+        } else {
+            display_applyProteinZscoreDownThreshold = true;
+        }
+    }
+    if (request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD) != null) {
+        display_proteinZscoreDownThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD).toString());
+    }
+    // ------ closing getting zsocre theshold
+    
     String localTabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
-    String localzScoreThreshold = request.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
-    if (localzScoreThreshold == null) {
-        localzScoreThreshold = "2.0";
-    }
-    String localRppaScoreThreshold = request.getParameter(QueryBuilder.RPPA_SCORE_THRESHOLD);
-    if (localRppaScoreThreshold == null) {
-        localRppaScoreThreshold = "2.0";
-    }
     if (localTabIndex == null) {
         localTabIndex = QueryBuilder.TAB_VISUALIZE;
     } else {
@@ -145,8 +215,19 @@
     window.case_ids_selected = '<%= (localCaseIds == null ? "" : localCaseIds).trim() %>';
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
-    window.zscore_threshold = '<%= localzScoreThreshold %>';
-    window.rppa_score_threshold = '<%= localRppaScoreThreshold %>';
+    '<%=request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD)%>';
+    '<%=("on").equals(request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD))%>';
+    window.apply_mrna_zscore_up_threshold = '<%=display_applyMrnaZscoreUpThreshold%>';
+    window.apply_mrna_zscore_down_threshold = '<%=display_applyMrnaZscoreDownThreshold%>';
+    window.mrna_zscore_up_threshold = '<%=display_mRnaZscoreUpThreshold%>';
+    window.mrna_zscore_down_threshold = '<%=display_mRnaZscoreDownThreshold%>';
+    window.mrna_exp_zscore_sample_set = '<%=display_mRnaZscoreSampleSet%>';
+    window.apply_protein_zscore_up_threshold = '<%=display_applyProteinZscoreUpThreshold%>';
+    window.apply_protein_zscore_down_threshold = '<%=display_applyProteinZscoreDownThreshold%>';
+    window.protein_exp_zscore_up_threshold = '<%=display_proteinZscoreUpThreshold%>';
+    window.protein_exp_zscore_down_threshold = '<%=display_proteinZscoreDownThreshold%>';
+    window.protein_exp_zscore_sample_set = '<%=display_proteinExpZscoreSampleSet%>';
+
 
     //  Store the currently selected genomic profiles within an associative array
     window.genomic_profile_id_selected = new Array();

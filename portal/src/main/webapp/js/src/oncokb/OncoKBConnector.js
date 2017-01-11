@@ -1125,7 +1125,7 @@ OncoKB.Instance.prototype = {
                             OncoKB.svgs.createOncogenicImage(this, -1, false);
                         }
 
-                        _hotspotTip = cbio.util.getHotSpotDesc();
+                        _hotspotTip = cbio.util.getHotSpotDesc(true);
 
 
                         if ($(this).hasClass('oncogenic')) {

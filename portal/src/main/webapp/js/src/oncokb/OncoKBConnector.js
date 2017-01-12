@@ -1126,7 +1126,7 @@ OncoKB.Instance.prototype = {
                     $(this).empty(); // remove spinner image
                     if (geneSymbol != null) {
                         var civicGene = self.civicGenes[geneSymbol];
-                        if (civicGene) {
+                        if (civicGene && civicGene.description) {
                             $(this).append('<i class="civic-image"></i>');
                             $(this).one('mouseenter', function () {
                                 $(this).qtip({

@@ -5,7 +5,8 @@
 Make sure that you have cloned the last code, and make sure you are on the ```master``` branch:
 
 	git clone https://github.com/cBioPortal/cbioportal.git
-	git checkout master
+	cd cbioportal
+    git checkout master
 
 ## Prepare Property Files
 
@@ -21,8 +22,8 @@ For more information about the `portal.properties` file, see the following [refe
 
 Update the following lines with paths that make sense for your local system.
 
-    log4j.appender.a.rollingPolicy.FileNamePattern = /srv/www/sander-tomcat/tomcat6/logs/public-portal.log.%d.gz
-    log4j.appender.a.File = /srv/www/sander-tomcat/tomcat6/logs/public-portal.log
+    log4j.appender.a.rollingPolicy.FileNamePattern = ${catalina.base}/logs/public-portal.log.%d.gz
+    log4j.appender.a.File = ${catalina.base}/logs/public-portal.log
 
 ## Create the cBioPortal MySQL Databases and User
 

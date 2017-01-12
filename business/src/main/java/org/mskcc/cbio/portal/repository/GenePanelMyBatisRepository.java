@@ -39,6 +39,8 @@ package org.mskcc.cbio.portal.repository;
 
 import java.util.*;
 import org.cbioportal.model.*;
+import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 import org.mskcc.cbio.portal.persistence.GenePanelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

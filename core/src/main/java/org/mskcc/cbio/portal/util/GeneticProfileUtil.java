@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import org.mskcc.cbio.portal.repository.GenePanelRepository;
-import org.cbioportal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 

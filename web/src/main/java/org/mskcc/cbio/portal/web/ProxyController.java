@@ -39,8 +39,21 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.simple.*;
+import org.springframework.http.*;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -196,4 +209,82 @@ public class ProxyController
 
     return responseEntity.getBody();
   }
+  
+	@RequestMapping(value = "/virtual-cohort", method = RequestMethod.POST)
+	public ResponseEntity<JSONObject> addVirtualCohort(@RequestBody JSONObject body) throws URISyntaxException {
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+		URI uri = new URI(sessionServiceURL + "virtual_cohort");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null) {
+			body.put("userID", ((User) authentication.getPrincipal()).getUsername());
+		} else {
+			body.put("userID", "DEFAULT");
+		}
+		return restTemplate.exchange(uri, HttpMethod.POST,
+				new HttpEntity<JSONObject>(body), JSONObject.class);
+	}
+	
+	@RequestMapping(value = "/virtual-cohort/{id}")
+	public ResponseEntity<JSONObject> getVirtualCohortById(@PathVariable String id, @RequestBody(required = false)  JSONObject body, HttpMethod method) throws URISyntaxException {
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+		String urlString = sessionServiceURL + "virtual_cohort";
+			urlString = urlString + "/" + id;
+			URI uri = new URI(urlString);
+			JSONObject requestObject = new JSONObject();
+			switch (method){
+	          case PUT:
+	        	  requestObject = body;
+	        	  break;
+	          case DELETE:
+	          case GET:
+	        	  break;
+	          default:
+	        	  return new ResponseEntity<>(new JSONObject(), HttpStatus.METHOD_NOT_ALLOWED);
+			}
+			return restTemplate.exchange(uri, method,
+					new HttpEntity<JSONObject>(requestObject), JSONObject.class);
+	}
+	
+	@RequestMapping(value = "/virtual-cohort/get-user-cohorts", method = RequestMethod.GET)
+	public @ResponseBody JSONArray getUserVirtualCohorts() throws URISyntaxException {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		JSONArray responseObject = new JSONArray();
+		if (authentication != null) {
+			User user = (User) authentication.getPrincipal();
+			RestTemplate restTemplate = new RestTemplate();
+			restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+			String urlString = sessionServiceURL + "virtual_cohort";
+			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(urlString + "/query")
+					.queryParam("field", "data.userID").queryParam("value", user.getUsername());
+			ResponseEntity<JSONArray> responseEntity = restTemplate.exchange(builder.build().toUri(), HttpMethod.GET,
+					new HttpEntity<JSONObject>(new JSONObject()), JSONArray.class);
+			responseObject = responseEntity.getBody();
+		}
+		return responseObject;
+	}
+	
+}
+
+class CustomResponseErrorHandler implements ResponseErrorHandler {
+
+	private static final Log logger = LogFactory.getLog(CustomResponseErrorHandler.class);
+	
+	@Override
+	public void handleError(ClientHttpResponse clienthttpresponse) throws IOException {
+		 logger.debug(clienthttpresponse);
+	}
+
+	@Override
+	public boolean hasError(ClientHttpResponse clienthttpresponse) throws IOException {
+
+		if (clienthttpresponse.getStatusCode() != HttpStatus.OK) {
+			 logger.debug("Status code: " + clienthttpresponse.getStatusCode());
+			 logger.debug("Response" + clienthttpresponse.getStatusText());
+			 logger.debug(clienthttpresponse.getBody());
+			return false;
+		}
+		return true;
+	}
 }

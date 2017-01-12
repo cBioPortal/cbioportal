@@ -31,12 +31,9 @@
 */
 package org.cbioportal.weblegacy;
 
-import java.util.List;
 import org.cbioportal.persistence.mybatis.CosmicCountMapper;
-import org.cbioportal.persistence.mybatis.MutationMapper;
+import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.cbioportal.service.CosmicCountService;
-import org.cbioportal.service.MutationService;
-import org.cbioportal.web.config.CustomObjectMapper;
 import org.mockito.Mockito;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapperLegacy;
@@ -52,8 +49,6 @@ import org.mskcc.cbio.portal.persistence.StudyMapperLegacy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -71,12 +66,8 @@ public class ApiControllerConfig extends WebMvcConfigurerAdapter {
 	return Mockito.mock(CosmicCountMapper.class);
     }
     @Bean
-    public MutationService mutationService() {
-        return Mockito.mock(MutationService.class);
-    }
-    @Bean
-    public MutationMapper mutationMapper() {
-        return Mockito.mock(MutationMapper.class);
+    public MutationMapperLegacy mutationMapper() {
+        return Mockito.mock(MutationMapperLegacy.class);
     }
     @Bean
     public CancerTypeMapperLegacy cancerTypeMapper() {

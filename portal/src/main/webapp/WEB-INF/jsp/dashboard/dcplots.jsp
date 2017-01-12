@@ -42,6 +42,17 @@
         padding-left: 5px;
         padding-right: 0;
     }
+	.cohort-save-button {
+		float: left;
+		font-size: 1.1em !important;
+		background: 0 0;
+		font-weight: 400;
+		color: #555;
+		padding: 5px 10px !important;
+		border: 1px solid #a9a9a9;
+		border-radius: 5px;
+		line-height: 18px;
+	}
 </style>
 
 <!-- This loading is used to before all JS/CSS files loaded -->
@@ -58,9 +69,8 @@
         <div id="iviz-header-left">
             <div class="iviz-cohort-component" style="float: left; margin-right: 10px;">
                 <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
-                                   :selected-patients-num="selectedPatientsNum"
-                                   :selected-samples-num="selectedSamplesNum"
-                                   :userid="userid" :stats="stats"
+                                   :load-user-specific-cohorts="loadUserSpecificCohorts"
+                                   :stats="stats"
                                    :update-stats.sync="updateStats"></session-component>
             </div>
 
@@ -78,7 +88,7 @@
                   role="button"
                   tabindex="0"><i class="fa fa-download" alt="download"></i></span>
 
-            <span id="query-by-gene-span">
+            <span id="query-by-gene-span" style="padding: 0 !important;">
           <textarea id="query-by-gene-textarea" class="expand expandFocusOut" rows="1" cols="10"></textarea>
       </span>
             <span class="iviz-header-arrow">

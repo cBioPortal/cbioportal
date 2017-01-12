@@ -14,9 +14,9 @@
         
         from cosmic_mutation
         <where>
-            <if test="keywords != null and !keywords.isEmpty()">
+            <if test="list != null and !list.isEmpty()">
             cosmic_mutation.KEYWORD in 
-            <foreach item="item" collection="keywords" open="(" separator="," close=")">#{item}</foreach>
+            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

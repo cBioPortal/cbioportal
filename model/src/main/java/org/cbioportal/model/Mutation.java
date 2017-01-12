@@ -1,83 +1,35 @@
-/*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
- * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
- * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
- * liable to any party for direct, indirect, special, incidental or
- * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
- * Center has been advised of the possibility of such damage.
- */
-
-/*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 package org.cbioportal.model;
 
 import java.io.Serializable;
 
 public class Mutation implements Serializable {
 
-    private Integer mutationEventId;
     private Integer geneticProfileId;
     private String geneticProfileStableId;
     private Integer sampleId;
     private String sampleStableId;
     private Integer entrezGeneId;
     private String center;
-    private String sequencer;
     private String mutationStatus;
     private String validationStatus;
-    private String tumorSeqAllele1;
-    private String tumorSeqAllele2;
-    private String matchedNormSampleBarcode;
-    private String matchNormSeqAllele1;
-    private String matchNormSeqAllele2;
-    private String tumorValidationAllele1;
-    private String tumorValidationAllele2;
-    private String matchNormValidationAllele1;
-    private String matchNormValidationAllele2;
-    private String verificationStatus;
-    private String sequencingPhase;
-    private String sequenceSource;
-    private String validationMethod;
-    private String score;
-    private String bamFile;
     private Integer tumorAltCount;
     private Integer tumorRefCount;
     private Integer normalAltCount;
     private Integer normalRefCount;
     private String aminoAcidChange;
-    private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
-    private Sample sample;
+    private Long startPosition;
+    private Long endPosition;
+    private String referenceAllele;
+    private String tumorSeqAllele;
+    private String proteinChange;
+    private String mutationType;
+    private String ncbiBuild;
+    private String variantType;
+    private String oncotatorRefseqMrnaId;
+    private Integer oncotatorProteinPosStart;
+    private Integer oncotatorProteinPosEnd;
+    private String keyword;
     private Gene gene;
-
-    public Integer getMutationEventId() {
-        return mutationEventId;
-    }
-
-    public void setMutationEventId(Integer mutationEventId) {
-        this.mutationEventId = mutationEventId;
-    }
 
     public Integer getGeneticProfileId() {
         return geneticProfileId;
@@ -127,14 +79,6 @@ public class Mutation implements Serializable {
         this.center = center;
     }
 
-    public String getSequencer() {
-        return sequencer;
-    }
-
-    public void setSequencer(String sequencer) {
-        this.sequencer = sequencer;
-    }
-
     public String getMutationStatus() {
         return mutationStatus;
     }
@@ -149,126 +93,6 @@ public class Mutation implements Serializable {
 
     public void setValidationStatus(String validationStatus) {
         this.validationStatus = validationStatus;
-    }
-
-    public String getTumorSeqAllele1() {
-        return tumorSeqAllele1;
-    }
-
-    public void setTumorSeqAllele1(String tumorSeqAllele1) {
-        this.tumorSeqAllele1 = tumorSeqAllele1;
-    }
-
-    public String getTumorSeqAllele2() {
-        return tumorSeqAllele2;
-    }
-
-    public void setTumorSeqAllele2(String tumorSeqAllele2) {
-        this.tumorSeqAllele2 = tumorSeqAllele2;
-    }
-
-    public String getMatchedNormSampleBarcode() {
-        return matchedNormSampleBarcode;
-    }
-
-    public void setMatchedNormSampleBarcode(String matchedNormSampleBarcode) {
-        this.matchedNormSampleBarcode = matchedNormSampleBarcode;
-    }
-
-    public String getMatchNormSeqAllele1() {
-        return matchNormSeqAllele1;
-    }
-
-    public void setMatchNormSeqAllele1(String matchNormSeqAllele1) {
-        this.matchNormSeqAllele1 = matchNormSeqAllele1;
-    }
-
-    public String getMatchNormSeqAllele2() {
-        return matchNormSeqAllele2;
-    }
-
-    public void setMatchNormSeqAllele2(String matchNormSeqAllele2) {
-        this.matchNormSeqAllele2 = matchNormSeqAllele2;
-    }
-
-    public String getTumorValidationAllele1() {
-        return tumorValidationAllele1;
-    }
-
-    public void setTumorValidationAllele1(String tumorValidationAllele1) {
-        this.tumorValidationAllele1 = tumorValidationAllele1;
-    }
-
-    public String getTumorValidationAllele2() {
-        return tumorValidationAllele2;
-    }
-
-    public void setTumorValidationAllele2(String tumorValidationAllele2) {
-        this.tumorValidationAllele2 = tumorValidationAllele2;
-    }
-
-    public String getMatchNormValidationAllele1() {
-        return matchNormValidationAllele1;
-    }
-
-    public void setMatchNormValidationAllele1(String matchNormValidationAllele1) {
-        this.matchNormValidationAllele1 = matchNormValidationAllele1;
-    }
-
-    public String getMatchNormValidationAllele2() {
-        return matchNormValidationAllele2;
-    }
-
-    public void setMatchNormValidationAllele2(String matchNormValidationAllele2) {
-        this.matchNormValidationAllele2 = matchNormValidationAllele2;
-    }
-
-    public String getVerificationStatus() {
-        return verificationStatus;
-    }
-
-    public void setVerificationStatus(String verificationStatus) {
-        this.verificationStatus = verificationStatus;
-    }
-
-    public String getSequencingPhase() {
-        return sequencingPhase;
-    }
-
-    public void setSequencingPhase(String sequencingPhase) {
-        this.sequencingPhase = sequencingPhase;
-    }
-
-    public String getSequenceSource() {
-        return sequenceSource;
-    }
-
-    public void setSequenceSource(String sequenceSource) {
-        this.sequenceSource = sequenceSource;
-    }
-
-    public String getValidationMethod() {
-        return validationMethod;
-    }
-
-    public void setValidationMethod(String validationMethod) {
-        this.validationMethod = validationMethod;
-    }
-
-    public String getScore() {
-        return score;
-    }
-
-    public void setScore(String score) {
-        this.score = score;
-    }
-
-    public String getBamFile() {
-        return bamFile;
-    }
-
-    public void setBamFile(String bamFile) {
-        this.bamFile = bamFile;
     }
 
     public Integer getTumorAltCount() {
@@ -311,30 +135,102 @@ public class Mutation implements Serializable {
         this.aminoAcidChange = aminoAcidChange;
     }
 
-    public MutationEvent getMutationEvent() {
-        return mutationEvent;
+    public Long getStartPosition() {
+        return startPosition;
     }
 
-    public void setMutationEvent(MutationEvent mutationEvent) {
-        this.mutationEvent = mutationEvent;
+    public void setStartPosition(Long startPosition) {
+        this.startPosition = startPosition;
     }
 
-    public GeneticProfile getGeneticProfile() {
-        return geneticProfile;
+    public Long getEndPosition() {
+        return endPosition;
     }
 
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
-        this.geneticProfile = geneticProfile;
+    public void setEndPosition(Long endPosition) {
+        this.endPosition = endPosition;
     }
 
-    public Sample getSample() {
-        return sample;
+    public String getReferenceAllele() {
+        return referenceAllele;
     }
 
-    public void setSample(Sample sample) {
-        this.sample = sample;
+    public void setReferenceAllele(String referenceAllele) {
+        this.referenceAllele = referenceAllele;
     }
 
+    public String getTumorSeqAllele() {
+        return tumorSeqAllele;
+    }
+
+    public void setTumorSeqAllele(String tumorSeqAllele) {
+        this.tumorSeqAllele = tumorSeqAllele;
+    }
+
+    public String getProteinChange() {
+        return proteinChange;
+    }
+
+    public void setProteinChange(String proteinChange) {
+        this.proteinChange = proteinChange;
+    }
+
+    public String getMutationType() {
+        return mutationType;
+    }
+
+    public void setMutationType(String mutationType) {
+        this.mutationType = mutationType;
+    }
+
+    public String getNcbiBuild() {
+        return ncbiBuild;
+    }
+
+    public void setNcbiBuild(String ncbiBuild) {
+        this.ncbiBuild = ncbiBuild;
+    }
+
+    public String getVariantType() {
+        return variantType;
+    }
+
+    public void setVariantType(String variantType) {
+        this.variantType = variantType;
+    }
+
+    public String getOncotatorRefseqMrnaId() {
+        return oncotatorRefseqMrnaId;
+    }
+
+    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
+        this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+    }
+
+    public Integer getOncotatorProteinPosStart() {
+        return oncotatorProteinPosStart;
+    }
+
+    public void setOncotatorProteinPosStart(Integer oncotatorProteinPosStart) {
+        this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+    }
+
+    public Integer getOncotatorProteinPosEnd() {
+        return oncotatorProteinPosEnd;
+    }
+
+    public void setOncotatorProteinPosEnd(Integer oncotatorProteinPosEnd) {
+        this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+    
     public Gene getGene() {
         return gene;
     }

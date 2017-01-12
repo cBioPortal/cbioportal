@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.web.exception.PageSizeTooBigException;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.web.parameter.ClinicalDataType;
@@ -18,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,10 +25,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@Validated
 @Api(tags = "Clinical Data", description = " ")
 public class ClinicalDataController {
 
@@ -48,8 +52,11 @@ public class ClinicalDataController {
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam("Page size of the result list")
+            @Max(PagingConstants.MAX_PAGE_SIZE)
+            @Min(PagingConstants.MIN_PAGE_SIZE)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
             @ApiParam("Page number of the result list")
+            @Min(PagingConstants.MIN_PAGE_NUMBER)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
             @ApiParam("Name of the property that the result list is sorted by")
             @RequestParam(required = false) ClinicalDataSortBy sortBy,
@@ -82,8 +89,11 @@ public class ClinicalDataController {
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam("Page size of the result list")
+            @Max(PagingConstants.MAX_PAGE_SIZE)
+            @Min(PagingConstants.MIN_PAGE_SIZE)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
             @ApiParam("Page number of the result list")
+            @Min(PagingConstants.MIN_PAGE_NUMBER)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
             @ApiParam("Name of the property that the result list is sorted by")
             @RequestParam(required = false) ClinicalDataSortBy sortBy,
@@ -116,8 +126,11 @@ public class ClinicalDataController {
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam("Page size of the result list")
+            @Max(PagingConstants.MAX_PAGE_SIZE)
+            @Min(PagingConstants.MIN_PAGE_SIZE)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
             @ApiParam("Page number of the result list")
+            @Min(PagingConstants.MIN_PAGE_NUMBER)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
             @ApiParam("Name of the property that the result list is sorted by")
             @RequestParam(required = false) ClinicalDataSortBy sortBy,
@@ -148,11 +161,8 @@ public class ClinicalDataController {
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
             @ApiParam(required = true, value = "List of patient or sample identifiers")
-            @RequestBody List<ClinicalDataIdentifier> identifiers) throws PageSizeTooBigException {
-
-        if (identifiers.size() > PagingConstants.MAX_PAGE_SIZE) {
-            throw new PageSizeTooBigException(identifiers.size());
-        }
+            @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+            @RequestBody List<ClinicalDataIdentifier> identifiers) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> ids = new ArrayList<>();

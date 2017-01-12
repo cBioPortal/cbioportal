@@ -112,10 +112,12 @@ var listenCancerStudy = function() {
 
         // if the selected cancer study has mutsig data,
         // show the mutsig button
-        if (window.json.cancer_studies[cancerStudyId].has_mutsig_data) {
-            $('#mutsit-gistic-div').show();
-        } else {
-            $('#toggle_mutsig_dialog').hide();
+        if (_.isObject(window.json.cancer_studies[cancerStudyId])) {
+        	if (window.json.cancer_studies[cancerStudyId].has_mutsig_data) {
+                $('#mutsit-gistic-div').show();
+            } else {
+                $('#toggle_mutsig_dialog').hide();
+            }
         }
     });
 };

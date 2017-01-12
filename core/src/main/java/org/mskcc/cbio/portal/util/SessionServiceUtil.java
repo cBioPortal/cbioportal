@@ -37,9 +37,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.httpclient.HttpException;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.mskcc.cbio.portal.model.Cohort;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.Charset;
 
@@ -87,8 +91,8 @@ public class SessionServiceUtil {
                 String contentString = stringWriter.toString();
                 LOG.debug("SessionServiceUtil.getSession(): response = '" + contentString + "'");
                 JsonNode json = new ObjectMapper().readTree(contentString); 
-                LOG.debug("SessionServiceUtil.getSession(): response.data = '" + json.get("data").getValueAsText() + "'");
-                parameterMap = new ObjectMapper().readValue(json.get("data"), new TypeReference<Map<String, String[]>>(){});
+                LOG.debug("SessionServiceUtil.getSession(): response.data = '" + json.get("data").textValue() + "'");
+                parameterMap = new ObjectMapper().readValue(json.get("data").textValue(), new TypeReference<Map<String, String[]>>(){});
             } else {
                 LOG.warn("SessionServiceUtil.getSession(): conn.getResponseCode() = '" + conn.getResponseCode() + "'");
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -112,4 +116,30 @@ public class SessionServiceUtil {
         }
         return parameterMap;
     }
+    /**
+     * Return cohort object if there is success response from 
+     * session-service API, else it would return null
+     * @param virtualStudyId
+     * @return cohort object
+     */
+	public Cohort getVirtualCohortData(String virtualStudyId) {
+		String url = GlobalProperties.getSessionServiceUrl() + "virtual_cohort/";
+		RestTemplate restTemplate = new RestTemplate();
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode actualObj = null;
+		Cohort cohort = null;
+		try {
+			String result = restTemplate.getForObject(url + virtualStudyId, String.class);
+			actualObj = mapper.readTree(result);
+			cohort = mapper.convertValue(actualObj.get("data"), Cohort.class);
+			cohort.setVirtualCohort(true);
+			cohort.setId(virtualStudyId);
+		} catch (HttpStatusCodeException e) {
+			LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + e.getStatusCode() + "'");
+		}
+		catch (Exception e) {
+			LOG.warn("SessionServiceUtil.getVirtualCohortData(): Exception = '" + e.getMessage() + "'");
+		}
+		return cohort;
+	}
 }

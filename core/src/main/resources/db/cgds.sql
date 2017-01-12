@@ -89,6 +89,7 @@ DROP TABLE IF EXISTS `authorities`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `cancer_study`;
 DROP TABLE IF EXISTS `type_of_cancer`;
+DROP TABLE IF EXISTS `genetic_entity`;
 
 -- --------------------------------------------------------
 CREATE TABLE `type_of_cancer` (
@@ -177,14 +178,24 @@ CREATE TABLE `sample_list_list` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `genetic_entity` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `ENTITY_TYPE` varchar(45) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `gene` (
   `ENTREZ_GENE_ID` int(11) NOT NULL,
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
+  `GENETIC_ENTITY_ID` int(11) NOT NULL,
   `TYPE` varchar(50),
   `CYTOBAND` varchar(50),
   `LENGTH` int(11),
   PRIMARY KEY (`ENTREZ_GENE_ID`),
-  KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`)
+  UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),  
+  KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
@@ -224,12 +235,11 @@ CREATE TABLE `genetic_profile` (
 -- --------------------------------------------------------
 CREATE TABLE `genetic_alteration` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `GENETIC_ENTITY_ID` int(11) NOT NULL,
   `VALUES` longtext NOT NULL,
-  KEY `QUICK_LOOK_UP` (`ENTREZ_GENE_ID`),
-  KEY `QUICK_LOOK_UP2` (`ENTREZ_GENE_ID`,`GENETIC_PROFILE_ID`),
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
-  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
+  PRIMARY KEY (`GENETIC_PROFILE_ID`,`GENETIC_ENTITY_ID`),
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`)
 );
 
 -- --------------------------------------------------------
@@ -339,7 +349,6 @@ CREATE TABLE `mutation_event` (
   `KEYWORD` varchar(50) DEFAULT NULL COMMENT 'e.g. truncating, V200 Missense, E338del, ',
   KEY (`KEYWORD`),
   PRIMARY KEY (`MUTATION_EVENT_ID`),
-  UNIQUE (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`, `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
 ) COMMENT='Mutation Data';
 
@@ -695,4 +704,4 @@ CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24)
 ) DEFAULT CHARSET=utf8;
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('1.4.0');
+INSERT INTO info VALUES ('2.0.0');

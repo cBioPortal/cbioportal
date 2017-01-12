@@ -53,6 +53,9 @@
 <link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="js/src/oncoprint/webgl/oncoprint.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
+<link rel="stylesheet" href="css/vc-session.css?<%=GlobalProperties.getAppVersion()%>"/>
+<link rel="stylesheet" href="css/vc-session-vendor.css?<%=GlobalProperties.getAppVersion()%>"/>
+
 <%
     String authenticationMethod = GlobalProperties.authenticationMethod();
     String global_style = GlobalProperties.getProperty("global_css");

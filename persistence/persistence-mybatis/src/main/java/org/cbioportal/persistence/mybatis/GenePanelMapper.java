@@ -37,29 +37,34 @@ package org.cbioportal.persistence.mybatis;
  * @author heinsz
  */
 
-import java.util.*;
-import org.apache.ibatis.annotations.Param;
-import org.cbioportal.model.*;
+import java.util.List;
+import java.util.Map;
+
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GenePanel;
+import org.cbioportal.model.GenePanelWithSamples;
+import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.Sample;
 
 public interface GenePanelMapper {
 
-    List<GenePanelWithSamples> getGenePanelsByProfile(@Param("profileId") String profileId);
+    List<GenePanelWithSamples> getGenePanelsByProfile(String profileId);
     // TODO: All of the below methods are for importing purposes only. They should be
     // removed once a proper import solution is put in place.
-    List<GenePanel> getGenePanelByStableId(@Param("stableId") String stableId);
+    List<GenePanel> getGenePanelByStableId(String stableId);
     List<GenePanel> getGenePanels();
-    Sample getSampleByStableIdAndStudyId(@Param("stableId") String stableId, @Param("studyId") String studyId);
-    GeneticProfile getGeneticProfileByStableId(@Param("stableId") String stableId);
-    Gene getGeneByEntrezGeneId(@Param("geneId") Integer geneId);
-    Gene getGeneByHugoSymbol(@Param("symbol") String symbol);
-    Gene getGeneByAlias(@Param("symbol") String symbol);
-    Integer sampleProfileMappingExistsByProfile(@Param("profileId") Integer profileId);
-    Integer sampleProfileMappingExistsByPanel(@Param("panelId") Integer panelId);    
+    Sample getSampleByStableIdAndStudyId(String stableId, String studyId);
+    GeneticProfile getGeneticProfileByStableId(String stableId);
+    Gene getGeneByEntrezGeneId(Integer geneId);
+    Gene getGeneByHugoSymbol(String symbol);
+    Gene getGeneByAlias(String symbol);
+    Integer sampleProfileMappingExistsByProfile(Integer profileId);
+    Integer sampleProfileMappingExistsByPanel(Integer panelId);    
     void insertGenePanel(Map<String, Object> map);
-    void deleteGenePanel(@Param("internalId") Integer internalId);
-    void deleteGenePanelList(@Param("internalId") Integer internalId);
-    void deleteSampleProfileMappingByProfile(@Param("profileId") Integer profileId);
-    void deleteSampleProfileMappingByPanel(@Param("panelId") Integer panelId);
+    void deleteGenePanel(Integer internalId);
+    void deleteGenePanelList(Integer internalId);
+    void deleteSampleProfileMappingByProfile(Integer profileId);
+    void deleteSampleProfileMappingByPanel(Integer panelId);
     void insertGenePanelList(Map<String, Object> map);
     void insertGenePanelListByHugo(Map<String, Object> map);
     void insertGenePanelSampleProfileMap(Map<String, Object> map);

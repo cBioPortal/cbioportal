@@ -215,8 +215,6 @@
     window.case_ids_selected = '<%= (localCaseIds == null ? "" : localCaseIds).trim() %>';
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
-    '<%=request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD)%>';
-    '<%=("on").equals(request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD))%>';
     window.apply_mrna_zscore_up_threshold = '<%=display_applyMrnaZscoreUpThreshold%>';
     window.apply_mrna_zscore_down_threshold = '<%=display_applyMrnaZscoreDownThreshold%>';
     window.mrna_zscore_up_threshold = '<%=display_mRnaZscoreUpThreshold%>';

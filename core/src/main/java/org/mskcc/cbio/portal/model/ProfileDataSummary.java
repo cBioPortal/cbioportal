@@ -60,8 +60,10 @@ public class ProfileDataSummary {
             new HashMap<String,HashMap<String,ValueParser>>();
     private double percentOfCasesWithAlteredPathway;
     private ProfileData profileData;
-    private double zScoreThreshold;
-    private double rppaScoreThreshold;
+    private double mRnaZscoreUpThreshold;
+    private double mRnaZscoreDownThreshold;
+    private double proteinZscoreUpThreshold;
+    private double proteinZscoreDownThreshold;
     private OncoPrintSpecification theOncoPrintSpecification;
     private int numCasesAffected;
     
@@ -72,16 +74,25 @@ public class ProfileDataSummary {
      * 
      * @param data
      * @param theOncoPrintSpecification
-     * @param zScoreThreshold
+     * @param mRnaZscoreUpThreshold
+     * @param mRnaZscoreDownThreshold
+     * @param proteinZscoreUpThreshold
+     * @param proteinZscoreDownThreshold
      */
-    public ProfileDataSummary(ProfileData data, 
-            OncoPrintSpecification theOncoPrintSpecification,  
-            double zScoreThreshold,
-            double rppaScoreThreshold) {
+    public ProfileDataSummary(
+            ProfileData data, 
+            OncoPrintSpecification theOncoPrintSpecification,
+            double mRnaZscoreUpThreshold,
+            double mRnaZscoreDownThreshold,
+            double proteinZscoreUpThreshold,
+            double proteinZscoreDownThreshold
+    ) {
         this.profileData = data;
         this.theOncoPrintSpecification = theOncoPrintSpecification;
-        this.zScoreThreshold = zScoreThreshold;
-        this.rppaScoreThreshold = rppaScoreThreshold;
+        this.mRnaZscoreUpThreshold = mRnaZscoreUpThreshold;
+        this.mRnaZscoreDownThreshold = mRnaZscoreDownThreshold;
+        this.proteinZscoreUpThreshold = proteinZscoreUpThreshold;
+        this.proteinZscoreDownThreshold = proteinZscoreDownThreshold;
         ArrayList<String> geneList = data.getGeneList();
         ArrayList<String> caseList = data.getCaseIdList();
         geneAlteredList = determineFrequencyOfGeneAlteration(geneList, caseList);
@@ -169,8 +180,11 @@ public class ProfileDataSummary {
         ValueParser parser = mapCaseParser.get(caseId);
         if (parser==null) {
             String value = profileData.getValue(gene, caseId);
-            parser = ValueParser.generateValueParser(gene, value, 
-                    this.zScoreThreshold, this.rppaScoreThreshold,
+            parser = ValueParser.generateValueParser(gene, value,
+                    this.mRnaZscoreUpThreshold,
+                    this.mRnaZscoreDownThreshold,
+                    this.proteinZscoreUpThreshold,
+                    this.proteinZscoreDownThreshold,
                     this.theOncoPrintSpecification);
             mapCaseParser.put(caseId, parser);
         }
@@ -313,7 +327,7 @@ public class ProfileDataSummary {
      * Gene percentage of cases where gene X is up/down regulated.
      *
      * @param gene gene symbol.
-     * @param upOrDown true if up regulated; false if down regulated.
+     * @param true if up regulated; false if down regulated.
      * @return percentage value.
      */
     private double getPercentCasesWhereMRNAIsUpOrDownRegulated(String gene, boolean up) {

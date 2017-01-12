@@ -51,16 +51,23 @@ public class ConvertProfileDataToGeneticEvents {
    /**
     * Converts a Profile Data Summary Object into a 2D Matrix of Genetic Event Objects.
     * 
-    * @param pSummaryData
-    *           Profile Summary Data.
-    * @param zScoreThreshold
-    *           Z Score Threshold.
-    * @param geneList
-    *           list of rows of genes to return in the matrix
+    * @param pSummaryData Profile Summary Data.
+    * @param mRnaZscoreUpThreshold
+    * @param mRnaZscoreDownThreshold
+    * @param proteinExpZscoreUpThreshold
+    * @param proteinExpZscoreDownThreshold
+    * @param geneList list of rows of genes to return in the matrix
     * @return 2D Matrix of GeneticEvent Objects.
     */
-   public static GeneticEvent[][] convert(ProfileDataSummary pSummaryData, String[] geneList, 
-            OncoPrintSpecification theOncoPrintSpecification, double zScoreThreshold, double rppaScoreThreshold) {
+   public static GeneticEvent[][] convert(
+       ProfileDataSummary pSummaryData, 
+       String[] geneList,
+       OncoPrintSpecification theOncoPrintSpecification, 
+       double mRnaZscoreUpThreshold, 
+       double mRnaZscoreDownThreshold, 
+       double proteinExpZscoreUpThreshold, 
+       double proteinExpZscoreDownThreshold
+   ) {
       ProfileData pData = pSummaryData.getProfileData();
       
       ArrayList <String> goodGenes = new ArrayList <String>();
@@ -78,8 +85,15 @@ public class ConvertProfileDataToGeneticEvents {
          for (int j = 0; j < pData.getCaseIdList().size(); j++) {
             String currentCaseId = pData.getCaseIdList().get(j);
             String value = pData.getValue(currentGene, currentCaseId);
-            ValueParser valueParser = ValueParser.generateValueParser( currentGene, value, zScoreThreshold,
-                    rppaScoreThreshold, theOncoPrintSpecification );
+            ValueParser valueParser = ValueParser.generateValueParser(
+                currentGene, 
+                value, 
+                mRnaZscoreUpThreshold, 
+                mRnaZscoreDownThreshold, 
+                proteinExpZscoreUpThreshold, 
+                proteinExpZscoreDownThreshold, 
+                theOncoPrintSpecification 
+            );
             if( null == valueParser){
                System.err.println( "Yikes null valueParser");
             }else{

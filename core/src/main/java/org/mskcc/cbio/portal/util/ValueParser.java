@@ -76,9 +76,10 @@ public class ValueParser {
     * it to set mRNA thresholds for over and under expression.
     * 
     * @param str
-    * @param zScoreThreshold
+    * @param zScoreUpThreshold
+    * @param zScoreDownThreshold
     */
-   public ValueParser(String str, double zScoreThreshold) {
+   public ValueParser(String str, double zScoreUpThreshold, double zScoreDownThreshold) {
       // TODO: get rid of this as soon as we can stop the calls
       // isCaseEpigeneticallySilenced()
       // ProfileData.getValueParsed()
@@ -87,11 +88,11 @@ public class ValueParser {
       // and thresholds high and low expression values
       // with zScoreThreshold, i.e., filter mRNA<= -zScoreThreshold
       // mRNA>=zScoreThreshold
-      if (zScoreThreshold < 0.0) {
-         throw new IllegalArgumentException("zScoreThreshold must be greater than 0");
-      }
+//      if (zScoreThreshold < 0.0) {
+//         throw new IllegalArgumentException("zScoreThreshold must be greater than 0");
+//      }
       ParsedFullDataTypeSpec aParsedFullDataTypeSpec =
-              createParsedFullDataTypeSpecFromZscore(zScoreThreshold);
+              createParsedFullDataTypeSpecFromZscore(zScoreUpThreshold, zScoreDownThreshold);
 
       // add other data types
       aParsedFullDataTypeSpec.addSpec(new ConcreteDataTypeSpec("CNA"));
@@ -104,15 +105,16 @@ public class ValueParser {
    /**
     * create a ParsedFullDataTypeSpec with symmetric zScore thresholds.
     * 
-    * @param zScoreThreshold
+    * @param zScoreUpThreshold
+    * @param zScoreDownThreshold
     * @return
     */
-   private ParsedFullDataTypeSpec createParsedFullDataTypeSpecFromZscore(double zScoreThreshold) {
+   private ParsedFullDataTypeSpec createParsedFullDataTypeSpecFromZscore(double zScoreUpThreshold, double zScoreDownThreshold) {
       ParsedFullDataTypeSpec aParsedFullDataTypeSpec = new ParsedFullDataTypeSpec();
       aParsedFullDataTypeSpec.addSpec(new ContinuousDataTypeSpec(GeneticDataTypes.Expression,
-              ComparisonOp.convertCode("<="), (float) -zScoreThreshold));
+              ComparisonOp.convertCode("<="), (float) zScoreDownThreshold));
       aParsedFullDataTypeSpec.addSpec(new ContinuousDataTypeSpec(GeneticDataTypes.Expression,
-              ComparisonOp.convertCode(">="), (float) zScoreThreshold));
+              ComparisonOp.convertCode(">="), (float) zScoreUpThreshold));
       return aParsedFullDataTypeSpec;
    }
 
@@ -138,7 +140,10 @@ public class ValueParser {
     * 
     * @param gene
     * @param value
-    * @param zScoreThreshold
+    * @param mRnaZscoreUpThreshold
+    * @param mRnaZscoreDownThreshold
+    * @param proteinZscoreUpThreshold
+    * @param proteinZscoreDownThreshold
     * @param theOncoPrintSpecification
     * @return null if the gene cannot be found in theOncoPrintSpecification,
     *         otherwise a new ValueParser, as constructed by ValueParser(String
@@ -146,8 +151,9 @@ public class ValueParser {
     *         theOncoPrintGeneDisplaySpec) for theOncoPrintGeneDisplaySpec for
     *         the gene in theOncoPrintSpecification.
     */
-   static public ValueParser generateValueParser(String gene, String value, double zScoreThreshold,
-            double rppaScoreThreshold, OncoPrintSpecification theOncoPrintSpecification) {
+   static public ValueParser generateValueParser(String gene, String value, 
+                                                 double mRnaZscoreUpThreshold, double mRnaZscoreDownThreshold, double proteinZscoreUpThreshold, double proteinZscoreDownThreshold, 
+                                                 OncoPrintSpecification theOncoPrintSpecification) {
 
       // check that gene can be found
       GeneWithSpec theGeneWithSpec = theOncoPrintSpecification.getGeneWithSpec(gene);
@@ -155,7 +161,7 @@ public class ValueParser {
          // System.err.println("Cannot find " + gene + " in theOncoPrintSpecification.");
          return null;
       }
-      return new ValueParser(value, zScoreThreshold, rppaScoreThreshold,
+      return new ValueParser(value, mRnaZscoreUpThreshold, mRnaZscoreDownThreshold, proteinZscoreUpThreshold, proteinZscoreDownThreshold,
               theGeneWithSpec.getTheOncoPrintGeneDisplaySpec());
    }
 
@@ -174,18 +180,21 @@ public class ValueParser {
     * a mRNA inequality
     * 
     * @param value
-    * @param zScoreThreshold
+    * @param mRnaZscoreUpThreshold
+    * @param mRnaZscoreDownThreshold
+    * @param proteinZscoreUpThreshold
+    * @param proteinZscoreDownThreshold
     * @param theOncoPrintGeneDisplaySpec
     */
-   public ValueParser(String value, double zScoreThreshold, double rppaScoreThreshold,
+   public ValueParser(String value, double mRnaZscoreUpThreshold, double mRnaZscoreDownThreshold, double proteinZscoreUpThreshold, double proteinZscoreDownThreshold,
            OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec) {
        this.theOncoPrintGeneDisplaySpec = theOncoPrintGeneDisplaySpec;
-       determineExpressionThresholds(GeneticDataTypes.Expression, zScoreThreshold);
-       determineExpressionThresholds(GeneticDataTypes.RPPA, rppaScoreThreshold);
+       determineExpressionThresholds(GeneticDataTypes.Expression, mRnaZscoreUpThreshold, mRnaZscoreDownThreshold);
+       determineExpressionThresholds(GeneticDataTypes.RPPA, proteinZscoreUpThreshold, proteinZscoreDownThreshold);
        parseValue(value);
    }
    
-   private void determineExpressionThresholds(GeneticDataTypes theGeneticDataType, double zScoreThreshold) {
+   private void determineExpressionThresholds(GeneticDataTypes theGeneticDataType, double zscoreUpThreshold, double zscoreDownThreshold) {
        // if theOncoPrintGeneDisplaySpec shows Expression and does not define an
       // inequality on Expression ...
       // then use the zScore to determine Expression thresholds
@@ -196,7 +205,7 @@ public class ValueParser {
                && null == theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec()) {
 
          ParsedFullDataTypeSpec aParsedFullDataTypeSpec =
-                 createParsedFullDataTypeSpecFromZscore(zScoreThreshold);
+                 createParsedFullDataTypeSpecFromZscore(zscoreUpThreshold, zscoreDownThreshold);
 
          // combine this with the given OncoPrintGeneDisplaySpec
          ResultDataTypeSpec expressionResultDataTypeSpec = aParsedFullDataTypeSpec.cleanUpInput()
@@ -551,7 +560,7 @@ public class ValueParser {
 
    /**
     * 
-    * @param geneWithScore
+    * @param 
     * @return
     */
    public String getMRNAGlyph() {
@@ -570,7 +579,7 @@ public class ValueParser {
 
    /**
     * 
-    * @param geneWithScore
+    * @param 
     * @return
     */
    public String getRPPAGlyph() {

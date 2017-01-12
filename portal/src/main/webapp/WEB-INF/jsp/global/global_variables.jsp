@@ -204,8 +204,10 @@
                                                             converted_oql,
                                                             ['<%=cancerStudyId%>'.trim()],
                                                             JSON.parse('<%=studySampleMapJson%>'),
-                                                            parseFloat('2.0'),
-                                                            parseFloat('2.0'),
+                                                            parseFloat('<%=mRnaZscoreUpThreshold%>'),
+                                                            parseFloat('<%=mRnaZscoreDownThreshold%>'),
+                                                            parseFloat('<%=proteinZscoreUpThreshold%>'),
+                                                            parseFloat('<%=proteinZscoreDownThreshold%>'),
                                                             {
                                                                 case_set_id: '<%=sampleSetId%>',
                                                                 case_ids_key: '<%=sampleIdsKey%>',

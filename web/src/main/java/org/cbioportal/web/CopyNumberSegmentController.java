@@ -3,6 +3,7 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.cbioportal.model.CopyNumberSegment;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Copy Number Segments", description = " ")

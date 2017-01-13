@@ -1,7 +1,8 @@
 package org.cbioportal.persistence.mybatis;
 
-import java.util.List;
 import org.cbioportal.model.CosmicCount;
+
+import java.util.List;
 
 public interface CosmicCountMapper {
 

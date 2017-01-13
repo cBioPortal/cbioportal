@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.persistence.mybatis;
+package org.mskcc.cbio.portal.repository;
 
 /**
  *
@@ -39,7 +39,7 @@ package org.cbioportal.persistence.mybatis;
 
 import java.util.*;
 import org.cbioportal.model.*;
-import org.cbioportal.persistence.GenePanelRepository;
+import org.mskcc.cbio.portal.persistence.GenePanelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

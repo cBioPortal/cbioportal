@@ -270,3 +270,7 @@ ALTER TABLE `genetic_entity` DROP COLUMN `TMP_GENE_ID`;
 -- ========================== end of genetic_entity related migration =============================================
 
 UPDATE info SET DB_SCHEMA_VERSION="2.0.0";
+
+##version: 2.0.1
+ALTER TABLE `genetic_profile` MODIFY COLUMN `SHOW_PROFILE_IN_ANALYSIS_TAB` BOOLEAN NOT NULL;
+UPDATE info SET DB_SCHEMA_VERSION="2.0.1";

@@ -181,6 +181,11 @@ public class GlobalProperties {
 
     // property for the saml entityid
     public static final String SAML_IDP_METADATA_ENTITYID="saml.idp.metadata.entityid";
+    // property for the name of the email attribute
+    public static final String SAML_IDP_METADATA_ATTRIBUTE_EMAIL="saml.idp.metadata.attribute.email";
+    public static final String DEFAULT_SAML_IDP_METADATA_ATTRIBUTE_EMAIL="mail";
+    // property for whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
+    public static final String SAML_IS_LOGOUT_LOCAL="saml.logout.local";
 
     // property for the custom header tabs
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
@@ -443,6 +448,20 @@ public class GlobalProperties {
     {
         return getProperty(SAML_IDP_METADATA_ENTITYID);
     }
+    // returns the name of the attribute containing user's email address in SAML IDP response message
+    public static String getSamlIdpMetadataEmailAttributeName()
+    {
+    	String emailAttributeName = properties.getProperty(SAML_IDP_METADATA_ATTRIBUTE_EMAIL);
+        return (emailAttributeName == null) ? DEFAULT_SAML_IDP_METADATA_ATTRIBUTE_EMAIL : emailAttributeName;
+    	
+    }
+    // returns whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
+    public static String getSamlIsLogoutLocal()
+    {
+    	return properties.getProperty(SAML_IS_LOGOUT_LOCAL, "false");
+    }
+    
+    
     public static String getTagLineImage()
     {
         String tagLineImage = properties.getProperty(SKIN_TAG_LINE_IMAGE);

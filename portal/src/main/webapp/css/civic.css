@@ -383,6 +383,7 @@
 /* Annotation icon listed in the tables */
 .civic-image {
     background-image: url("../images/civic-logo.png");
+    background-size: 16px 16px;
     width: 16px;
     height: 16px;
     line-height: 24px;

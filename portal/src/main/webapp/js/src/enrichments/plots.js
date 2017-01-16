@@ -420,7 +420,11 @@ var enrichmentsTabPlots = (function() {
                 if (profile_type === enrichmentsTabSettings.profile_type.mrna) {
                     content += "mRNA expression: ";
                 } else if (profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
-                    content += "RPPA score: ";
+                    if ($("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp + enrichmentsTabSettings.postfix.protein_exp_sub_tab_profile_selection_dropdown_menu).val().indexOf("ms_abundance") !== -1) {
+                        content += "Mass spec: ";
+                    } else if ($("#" + enrichmentsTabSettings.ids.sub_tab_protein_exp + enrichmentsTabSettings.postfix.protein_exp_sub_tab_profile_selection_dropdown_menu).val().indexOf("rppa") !== -1){
+                        content += "RPPA score: ";
+                    }
                 }
                 content += "<strong>" + parseFloat(d.y_val).toFixed(3) + "</strong><br>";
                 if (d.hasOwnProperty("alteration")) {

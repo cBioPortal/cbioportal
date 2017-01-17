@@ -39,15 +39,16 @@ import java.util.List;
 
 public interface GeneService {
 
-    List<Gene> getAllGenes(String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
+    List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
+                           String direction);
 
-    BaseMeta getMetaGenes();
+    BaseMeta getMetaGenes(String alias);
 
     Gene getGene(String geneId) throws GeneNotFoundException;
 
     List<String> getAliasesOfGene(String geneId);
 
-    List<Gene> fetchGenes(List<String> geneIds, String projection);
+    List<Gene> fetchGenes(List<String> geneIds, String geneIdType, String projection);
 
-    BaseMeta fetchMetaGenes(List<String> geneIds);
+    BaseMeta fetchMetaGenes(List<String> geneIds, String geneIdType);
 }

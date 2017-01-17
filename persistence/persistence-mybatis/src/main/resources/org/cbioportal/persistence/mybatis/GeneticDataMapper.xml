@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.GeneticDataMapper">
+    <cache/>
+
+    <select id="getCommaSeparatedSampleIdsOfGeneticProfile" resultType="string">
+        SELECT genetic_profile_samples.ORDERED_SAMPLE_LIST
+        FROM genetic_profile_samples
+        INNER JOIN genetic_profile ON genetic_profile_samples.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+    </select>
+    
+    <select id="getGeneticAlterations" resultType="org.cbioportal.model.GeneticAlteration">
+        SELECT
+        gene.ENTREZ_GENE_ID AS entrezGeneId,
+        genetic_alteration.VALUES AS "values"
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{geneticProfileId}
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND gene.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -51,8 +51,8 @@
 <%}%>
 <%
 String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
-//remove this line to enable virtual cohort feature
-sessionServiceUrl ="";
+//to disable virtual cohort feature uncomment this line
+//sessionServiceUrl ="";
 %>
 <jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
 

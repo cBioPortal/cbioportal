@@ -35,78 +35,12 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
     _.templateSettings = {
         interpolate : /\{\{(.+?)\}\}/g
-    };
-
-    var drawPanCanThumbnails = function(oTable) {
-        genomicEventObs.subscribePancanMutationsFrequency(function() {
-            $(oTable).find('.pancan_mutations_histogram_wait').remove();
-            $(oTable).find('.pancan_mutations_histogram_count').each(function() {
-                if ($(this).hasClass("initialized")) return;
-                $(this).addClass("initialized");
-                var proteinPos = $(this).attr('protein_pos');
-                var keyword = $(this).attr('keyword');
-                var gene = $(this).attr('gene');
-                $(this).html(genomicEventObs.pancan_mutation_frequencies.countByKey(proteinPos));
-                $(this).qtip({
-                    content: {text: 'pancancer mutation bar chart is broken'},
-                    events: {
-                        render: function(event, api) {
-                            var byPositionData = genomicEventObs.pancan_mutation_frequencies.data[proteinPos];
-                            var byKeywordData = genomicEventObs.pancan_mutation_frequencies.data[keyword];
-                            var byHugoData = genomicEventObs.pancan_mutation_frequencies.data[gene];
-                            var invisible_container = document.getElementById("pancan_mutations_histogram_container");
-                            var histogram = PancanMutationHistogram(byPositionData, byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
-
-                            var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
-                                        "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+
-                                        "<button class='cross-cancer-download' file-type='svg'>SVG</button></div></div>"+
-                                        "<div><p>"+histogram.overallCountText()+"</p></div>";
-                            var content = title+invisible_container.innerHTML;
-                            api.set('content.text', content);
-
-                            // correct the qtip width
-                            var svg_width = $(invisible_container).find('svg').attr('width');
-                            $(this).css('max-width', parseInt(svg_width));
-
-                            var this_svg = $(this).find('svg')[0];
-                            histogram.qtip(this_svg);
-
-                            $(".cross-cancer-download").click(function() {
-                                var fileType = $(this).attr("file-type");
-	                            var filename = gene + "_mutations." + fileType;
-
-	                            if (fileType == "pdf")
-	                            {
-		                            cbio.download.initDownload(this_svg, {
-			                            filename: filename,
-			                            contentType: "application/pdf",
-			                            servletName: "svgtopdf.do"
-		                            });
-	                            }
-	                            else // svg
-	                            {
-		                            cbio.download.initDownload(this_svg, {
-			                            filename: filename
-		                            });
-	                            }
-                            });
-
-                            $(invisible_container).empty();     // N.B.
-                        }
-                    },
-                    hide: { fixed: true, delay: 100 },
-                    style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-                    position: {my:'center right',at:'center left',viewport: $(window)}
-                });
-            });
-        });
     };
     var mutationOncokbInstance;
 
@@ -1171,55 +1105,6 @@
                                 .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
                     }
 
-                    var splitJobs = function(cmd, reqData, type) {
-                        var jobs = [];
-                        var batchSize = 1000;
-
-                        var numOfBatches = Math.ceil(reqData.length / batchSize);
-                        for(var b=0; b<numOfBatches; b++) {
-                            var first = b*batchSize;
-                            var last = Math.min((b+1)*batchSize, reqData.length);
-
-                            var accData = reqData.slice(first, last).join(",");
-
-                            jobs.push(
-                                    $.post(pancanMutationsUrl,
-                                            {
-                                                cmd: cmd,
-                                                q: accData
-                                            }, function(batchData) {
-                                                if(cmd === "byKeywords") {
-                                                    byKeywordResponse = byKeywordResponse.concat(batchData);
-                                                } else if( cmd === "byHugos") {
-                                                    byHugoResponse = byHugoResponse.concat(batchData);
-                                                } else if (cmd === "byProteinPos") {
-                                                    byProteinPosResponse = byProteinPosResponse.concat(batchData);
-                                                } else {
-                                                    console.trace("Ooops! Something is wrong!");
-                                                }
-                                            }
-                                    )
-                            );
-
-                        }
-
-                        return jobs;
-                    };
-
-                    var keys = genomicEventObs.mutations.data.key;
-                    var genes = genomicEventObs.mutations.data.gene;
-                    var positions = _.map(_.zip.apply(_, [genes, genomicEventObs.mutations.data['protein-start']]), function(pieces) {
-                                    return pieces[0]+"_"+pieces[1];
-                               });
-                    var jobs = splitJobs("byKeywords", keys)
-                            .concat(splitJobs("byHugos", genes))
-                            .concat(splitJobs("byProteinPos", positions));
-                    $.when.apply($, jobs).done(function() {
-                        genomicEventObs.pancan_mutation_frequencies.setData(
-                                _.extend(munge(byProteinPosResponse, "protein_start_with_hugo"), munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
-                        genomicEventObs.fire("pancan-mutation-frequency-built");
-                    });
-                    
                     // Get OncoKB info
                     mutationOncokbInstance = initOncoKB('patient-mutation', genomicEventObs.mutations.getEventIds(false), genomicEventObs.mutations, 'mutation', function() {
                         var mutationSummaryTable = $('#mutation_summary_table').dataTable();

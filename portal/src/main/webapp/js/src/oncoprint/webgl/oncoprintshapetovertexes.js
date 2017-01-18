@@ -18,116 +18,106 @@ var extractRGBA = function (str) {
     }
     return ret;
 };
-
-var addVertexColor = function (vertex_color_array, rgba_str, n_times) {
-    var color = extractRGBA(rgba_str);
-    for (var h = 0; h < n_times; h++) {
-	vertex_color_array.push(color[0], color[1], color[2], color[3]);
-    }
-};
     
-var rectangleToVertexes = function(params, z_index, target_position_array, target_color_array) {
-    // Stroke
+var rectangleToVertexes = function(params, z_index, addVertex) {
     var x = parseFloat(params.x), y = parseFloat(params.y), height = parseFloat(params.height), width = parseFloat(params.width);
+
+    // Fill
+    var fill_rgba = extractRGBA(params.fill);
+    addVertex([x,y,z_index], fill_rgba);
+    addVertex([x+width, y, z_index], fill_rgba);
+    addVertex([x+width, y+height, z_index], fill_rgba);
+    
+    addVertex([x,y,z_index], fill_rgba);
+    addVertex([x+width, y+height, z_index], fill_rgba);
+    addVertex([x,y+height,z_index],fill_rgba);
+
+    // Stroke
     var stroke_width = parseFloat(params['stroke-width']);
-
-    target_position_array.push(x, y, z_index);
-    target_position_array.push(x + width, y, z_index);
-    target_position_array.push(x + width, y + height, z_index);
-
-    target_position_array.push(x, y, z_index);
-    target_position_array.push(x + width, y + height, z_index);
-    target_position_array.push(x, y + height, z_index);
-
-    addVertexColor(target_color_array, params.fill, 6);
-
     if (stroke_width > 0) {
 	// left side
-	target_position_array.push(x, y, z_index);
-	target_position_array.push(x + stroke_width, y, z_index);
-	target_position_array.push(x + stroke_width, y + height, z_index);
+	var stroke_rgba = extractRGBA(params.stroke);
+	addVertex([x, y, z_index], stroke_rgba);
+	addVertex([x + stroke_width, y, z_index], stroke_rgba);
+	addVertex([x + stroke_width, y + height, z_index], stroke_rgba);
 
-	target_position_array.push(x, y, z_index);
-	target_position_array.push(x + stroke_width, y + height, z_index);
-	target_position_array.push(x, y + height, z_index);
+	addVertex([x, y, z_index], stroke_rgba);
+	addVertex([x + stroke_width, y + height, z_index], stroke_rgba);
+	addVertex([x, y + height, z_index], stroke_rgba);
 
 	// right side
-	target_position_array.push(x + width, y, z_index);
-	target_position_array.push(x + width - stroke_width, y, z_index);
-	target_position_array.push(x + width - stroke_width, y + height, z_index);
+	addVertex([x + width, y, z_index], stroke_rgba);
+	addVertex([x + width - stroke_width, y, z_index], stroke_rgba);
+	addVertex([x + width - stroke_width, y + height, z_index], stroke_rgba);
 
-	target_position_array.push(x + width, y, z_index);
-	target_position_array.push(x + width - stroke_width, y + height, z_index);
-	target_position_array.push(x + width, y + height, z_index);
+	addVertex([x + width, y, z_index], stroke_rgba);
+	addVertex([x + width - stroke_width, y + height, z_index], stroke_rgba);
+	addVertex([x + width, y + height, z_index], stroke_rgba);
 
 	// top side
-	target_position_array.push(x, y, z_index);
-	target_position_array.push(x + width, y, z_index);
-	target_position_array.push(x + width, y + stroke_width, z_index);
+	addVertex([x, y, z_index], stroke_rgba);
+	addVertex([x + width, y, z_index], stroke_rgba);
+	addVertex([x + width, y + stroke_width, z_index], stroke_rgba);
 
-	target_position_array.push(x, y, z_index);
-	target_position_array.push(x + width, y + stroke_width, z_index);
-	target_position_array.push(x, y + stroke_width, z_index);
+	addVertex([x, y, z_index], stroke_rgba);
+	addVertex([x + width, y + stroke_width, z_index], stroke_rgba);
+	addVertex([x, y + stroke_width, z_index], stroke_rgba);
 
 	// bottom side
-	target_position_array.push(x, y + height, z_index);
-	target_position_array.push(x + width, y + height, z_index);
-	target_position_array.push(x + width, y + height - stroke_width, z_index);
+	addVertex([x, y + height, z_index], stroke_rgba);
+	addVertex([x + width, y + height, z_index], stroke_rgba);
+	addVertex([x + width, y + height - stroke_width, z_index], stroke_rgba);
 
-	target_position_array.push(x, y + height, z_index);
-	target_position_array.push(x + width, y + height - stroke_width, z_index);
-	target_position_array.push(x, y + height - stroke_width, z_index);
-
-	addVertexColor(target_color_array, params.stroke, 6 * 4);
+	addVertex([x, y + height, z_index], stroke_rgba);
+	addVertex([x + width, y + height - stroke_width, z_index], stroke_rgba);
+	addVertex([x, y + height - stroke_width, z_index], stroke_rgba);
     }
 };
-var triangleToVertexes = function(params, z_index, target_position_array, target_color_array) {
-    target_position_array.push(parseFloat(params.x1), parseFloat(params.y1), z_index);
-    target_position_array.push(parseFloat(params.x2), parseFloat(params.y2), z_index);
-    target_position_array.push(parseFloat(params.x3), parseFloat(params.y3), z_index);
-
-    addVertexColor(target_color_array, params.fill, 3);
+var triangleToVertexes = function(params, z_index, addVertex) {
+    var fill_rgba = extractRGBA(params.fill);
+    addVertex([parseFloat(params.x1), parseFloat(params.y1), z_index], fill_rgba);
+    addVertex([parseFloat(params.x2), parseFloat(params.y2), z_index], fill_rgba);
+    addVertex([parseFloat(params.x3), parseFloat(params.y3), z_index], fill_rgba);
 };
-var ellipseToVertexes = function(params, z_index, target_position_array, target_color_array) {
+var ellipseToVertexes = function(params, z_index, addVertex) {
     var center = {x: parseFloat(params.x) + parseFloat(params.width) / 2, y: parseFloat(params.y) + parseFloat(params.height) / 2};
     var horzrad = parseFloat(params.width) / 2;
     var vertrad = parseFloat(params.height) / 2;
 
-    target_position_array.push(center.x, center.y, z_index);
-    target_position_array.push(center.x + horzrad, center.y, z_index);
-    target_position_array.push(center.x + halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, z_index);
+    var fill_rgba = extractRGBA(params.fill);
+    addVertex([center.x, center.y, z_index], fill_rgba);
+    addVertex([center.x + horzrad, center.y, z_index], fill_rgba);
+    addVertex([center.x + halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, z_index], fill_rgba);
 
-    target_position_array.push(center.x, center.y, z_index);
-    target_position_array.push(center.x + halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, z_index);
-    target_position_array.push(center.x, center.y + vertrad, z_index);
+    addVertex([center.x, center.y, z_index], fill_rgba);
+    addVertex([center.x + halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, z_index], fill_rgba);
+    addVertex([center.x, center.y + vertrad, z_index], fill_rgba);
 
-    target_position_array.push(center.x, center.y, z_index);
-    target_position_array.push(center.x, center.y + vertrad, z_index);
-    target_position_array.push(center.x - halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, z_index);
+    addVertex([center.x, center.y, z_index], fill_rgba);
+    addVertex([center.x, center.y + vertrad, z_index], fill_rgba);
+    addVertex([center.x - halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, z_index], fill_rgba);
 
-    target_position_array.push(center.x, center.y, z_index);
-    target_position_array.push(center.x - halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, z_index);
-    target_position_array.push(center.x - horzrad, center.y, z_index);
+    addVertex([center.x, center.y, z_index], fill_rgba);
+    addVertex([center.x - halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, z_index], fill_rgba);
+    addVertex([center.x - horzrad, center.y, z_index], fill_rgba);
 
-    target_position_array.push(center.x, center.y, z_index);
-    target_position_array.push(center.x - horzrad, center.y, z_index);
-    target_position_array.push(center.x - halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, z_index);
+    addVertex([center.x, center.y, z_index], fill_rgba);
+    addVertex([center.x - horzrad, center.y, z_index], fill_rgba);
+    addVertex([center.x - halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, z_index], fill_rgba);
 
-    target_position_array.push(center.x, center.y, z_index);
-    target_position_array.push(center.x - halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, z_index);
-    target_position_array.push(center.x, center.y - vertrad, z_index);
+    addVertex([center.x, center.y, z_index], fill_rgba);
+    addVertex([center.x - halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, z_index], fill_rgba);
+    addVertex([center.x, center.y - vertrad, z_index], fill_rgba);
 
-    target_position_array.push(center.x, center.y, z_index);
-    target_position_array.push(center.x, center.y - vertrad, z_index);
-    target_position_array.push(center.x + halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, z_index);
+    addVertex([center.x, center.y, z_index], fill_rgba);
+    addVertex([center.x, center.y - vertrad, z_index], fill_rgba);
+    addVertex([center.x + halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, z_index], fill_rgba);
 
-    target_position_array.push(center.x, center.y, z_index);
-    target_position_array.push(center.x + halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, z_index);
-    target_position_array.push(center.x + horzrad, center.y, z_index);
-
-    addVertexColor(target_color_array, params.fill, 3 * 8);
+    addVertex([center.x, center.y, z_index], fill_rgba);
+    addVertex([center.x + halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, z_index], fill_rgba);
+    addVertex([center.x + horzrad, center.y, z_index], fill_rgba);
 };
-var lineToVertexes = function(params, z_index, target_position_array, target_color_array) {
+var lineToVertexes = function(params, z_index, addVertex) {
     // For simplicity of dealing with webGL we'll implement lines as thin triangle pairs
     var x1 = parseFloat(params.x1);
     var x2 = parseFloat(params.x2);
@@ -158,29 +148,28 @@ var lineToVertexes = function(params, z_index, target_position_array, target_col
     var C = [x2 + direction1[0], y2 + direction1[1]];
     var D = [x2 + direction2[0], y2 + direction2[1]];
 
-    target_position_array.push(A[0], A[1], z_index);
-    target_position_array.push(B[0], B[1], z_index);
-    target_position_array.push(C[0], C[1], z_index);
+    var stroke_rgba = extractRGBA(params.stroke);
+    addVertex([A[0], A[1], z_index], stroke_rgba);
+    addVertex([B[0], B[1], z_index], stroke_rgba);
+    addVertex([C[0], C[1], z_index], stroke_rgba);
 
-    target_position_array.push(C[0], C[1], z_index);
-    target_position_array.push(D[0], D[1], z_index);
-    target_position_array.push(B[0], B[1], z_index);
-
-    addVertexColor(target_color_array, params.stroke, 3 * 2);
+    addVertex([C[0], C[1], z_index], stroke_rgba);
+    addVertex([D[0], D[1], z_index], stroke_rgba);
+    addVertex([B[0], B[1], z_index], stroke_rgba);
 };
-module.exports = function(oncoprint_shape_computed_params, z_index, target_position_array, target_color_array) {
+module.exports = function(oncoprint_shape_computed_params, z_index, addVertex) {
     // target_position_array is an array with 3-d float vertexes
     // target_color_array is an array with rgba values in [0,1]
     // We pass them in to save on concatenation costs
     
     var type = oncoprint_shape_computed_params.type;
     if (type === "rectangle") {
-	return rectangleToVertexes(oncoprint_shape_computed_params, z_index, target_position_array, target_color_array);
+	return rectangleToVertexes(oncoprint_shape_computed_params, z_index, addVertex);
     } else if (type === "triangle") {
-	return triangleToVertexes(oncoprint_shape_computed_params, z_index, target_position_array, target_color_array);
+	return triangleToVertexes(oncoprint_shape_computed_params, z_index, addVertex);
     } else if (type === "ellipse") {
-	return ellipseToVertexes(oncoprint_shape_computed_params, z_index, target_position_array, target_color_array);
+	return ellipseToVertexes(oncoprint_shape_computed_params, z_index, addVertex);
     } else if (type === "line") {
-	return lineToVertexes(oncoprint_shape_computed_params, z_index, target_position_array, target_color_array);
+	return lineToVertexes(oncoprint_shape_computed_params, z_index, addVertex);
     }
 }

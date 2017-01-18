@@ -138,7 +138,6 @@ var Oncoprint = (function () {
 	
 	this.model = new OncoprintModel();
 	
-	
 	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div_contents, this.model, new OncoprintToolTip($tooltip_ctr), function(left, right) {
 	    var enclosed_ids = self.model.getIdsInLeftInterval(left, right);
 	    self.setHorzZoom(self.model.getHorzZoomToFit(self.cell_view.visible_area_width, enclosed_ids));
@@ -200,6 +199,11 @@ var Oncoprint = (function () {
 	function() {
 	    self.setMinimapVisible(false);
 	});
+	/*this.minimap_view = {};
+	var methods = ['moveTrack','addTracks','removeTrack','setHorzZoom','setVertZoom','setScroll','setZoom','setHorzScroll','setVertScroll','setTrackData','sort','shareRuleSet','setRuleSet','setIdOrder','suppressRendering','releaseRendering','hideIds'];
+	for (var i=0; i<methods.length; i++) {
+	    this.minimap_view[methods[i]] = function(){};
+	}*/
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div,
 								function(track_id) { 
@@ -482,6 +486,9 @@ var Oncoprint = (function () {
     }
     Oncoprint.prototype.updateHorzZoomToFitIds = function(ids) {
 	this.keep_horz_zoomed_to_fit_ids = ids.slice();
+	if (this.keep_horz_zoomed_to_fit) {
+	    updateHorzZoomToFit(this);
+	}
     }
     var updateHorzZoomToFit = function(oncoprint) {
 	oncoprint.setHorzZoom(getHorzZoomToFit(oncoprint, oncoprint.keep_horz_zoomed_to_fit_ids), true);

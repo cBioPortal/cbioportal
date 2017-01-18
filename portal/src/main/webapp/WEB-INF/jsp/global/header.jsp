@@ -49,11 +49,35 @@
 <jsp:include page="css_include.jsp" flush="true" />
 <jsp:include page="js_include.jsp" flush="true" />
 <%}%>
+<%
+String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
+//to disable virtual cohort feature uncomment this line
+//sessionServiceUrl ="";
+%>
 <jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
 
     <script type="text/javascript">
         $(document).ready(function(){
-            $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+        	window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
+        	<%if(!sessionServiceUrl.equals("")){%>
+        		vcSession.URL = 'api-legacy/proxy/virtual-cohort';
+        		var username = $('#header_bar_table span').text() || '';
+                $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+                vcSessionsManagement = new Vue({
+                    el: '#cohort-component',
+                    data: {
+                      loadUserSpecificCohorts: (username !== '') ? true : false,
+                      showSaveButton: false,
+                      showManageButton: true,
+                      cohortData: {},
+                      stats: {},
+                      updateStats: false,
+                      showShareButton: true
+                    }
+                });
+                $('#manage_cohort_button').css('display','block');
+                <%}%>
+        	
         });
     
         // Set API root variable for cbioportal-frontend repo
@@ -67,7 +91,18 @@
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 </head>
-
+<style type="text/css">
+.cohort-manage-button {
+	font-size: inherit;
+	font-weight: inherit;
+	float: left;
+	text-transform: uppercase;
+	text-decoration: none;
+	background-color: inherit;
+	color: #ffffff;
+	border: none;
+}
+</style>
 <center>
     <div id="page_wrapper">
         <table id="page_wrapper_table" width=100% cellpadding="0px" cellspacing="5px" border="0px">
@@ -161,8 +196,17 @@
 					                            <a href="visualize_your_data.jsp" float="left">VISUALIZE YOUR DATA</a>
 					                        </li>
                                             <% } %>
+											<li class="internal" style="display: none; float: left" id="manage_cohort_button"><a float="left"
+												id="cohort-component" class="session-management"> <session-component
+														:show-save-button="showSaveButton"
+														:show-manage-button="showManageButton"
+														:load-user-specific-cohorts="loadUserSpecificCohorts"
+														:stats="stats"
+														:update-stats.sync="updateStats"
+														:show-share-button="showShareButton"></session-component>
+											</a></li>
 
-                                            <!--li class="internal" style="float:right">
+										<!--li class="internal" style="float:right">
 					    <a href="jobs.jsp" float="right"><b><i>JOBS</i></b></a>
 					    </li-->
                                         </ul>

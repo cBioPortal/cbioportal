@@ -178,6 +178,24 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	return upper_exc;
     };
 
+    var getGeneticProfileDataForQueryCases = function(self, genetic_profile_id, genes) {
+	var def;
+	var case_set_id = self.getCaseSetId();
+	if (!case_set_id || case_set_id === "-1") {
+	    def = window.cbioportal_client.getGeneticProfileDataBySample({
+		'genetic_profile_ids': [genetic_profile_id],
+		'genes': genes.map(function(x) { return x.toUpperCase(); }),
+		'sample_ids': self.getSampleIds()
+	    });
+	} else {
+	    def = window.cbioportal_client.getGeneticProfileDataBySampleList({
+		'genetic_profile_ids': [genetic_profile_id],
+		'genes': genes.map(function(x) { return x.toUpperCase(); }),
+		'sample_list_id': [case_set_id]
+	    });
+	}
+	return def;
+    };
     var getCBioPortalMutationCounts = function (webservice_data) {
 	/* In: - webservice_data, a list of data obtained from the webservice API
 	 * Out: Promise which resolves with map from gene+","+start_pos+","+end_pos to cbioportal mutation count for that position range and gene
@@ -987,11 +1005,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	var deferred_case_ids = sample_or_patient === "sample" ? sample_ids : self.getPatientIds();
 	genes = genes || [];
 	sample_or_patient = sample_or_patient || "sample";
-	$.when(window.cbioportal_client.getGeneticProfileDataBySample({
-		'genetic_profile_ids': [genetic_profile_id],
-		'genes': genes.map(function(x) { return x.toUpperCase(); }).filter(function(x) { return x.length > 0; }),
-		'sample_ids': sample_ids
-	    }),
+	$.when(getGeneticProfileDataForQueryCases(self, genetic_profile_id, genes.map(function(x) { return x.toUpperCase(); }).filter(function(x) { return x.length > 0; })),
 	    self.getPatientSampleIdMap(),
 	    deferred_case_ids,
 	    self.getCaseUIDMap(),
@@ -1490,13 +1504,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			var all_data = [];
 			for (var i = 0; i < self.getGeneticProfileIds().length; i++) {
 			    (function (I) {
-				window.cbioportal_client.getGeneticProfileDataBySample({
-				    'genetic_profile_ids': [genetic_profile_ids[I]],
-				    'genes': self.getQueryGenes().map(function (x) {
-					return x.toUpperCase();
-				    }),
-				    'sample_ids': self.getSampleIds()
-				}).fail(function () {
+				getGeneticProfileDataForQueryCases(self, 
+								[genetic_profile_ids[I]], 
+								self.getQueryGenes().map(function (x) {
+								    return x.toUpperCase();
+								})).fail(function () {
 				    fetch_promise.reject();
 				}).then(function (data) {
 				    var genetic_alteration_type = profile_types[genetic_profile_ids[I]];

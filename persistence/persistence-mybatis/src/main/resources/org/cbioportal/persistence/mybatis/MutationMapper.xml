@@ -362,5 +362,31 @@
         </if>
 
     </select>
-
+    
+    <select id="getPositionMutationCounts" resultType="org.cbioportal.persistence.dto.PositionMutationCount">
+        select
+            gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,
+            mutation_event.ONCOTATOR_PROTEIN_POS_START as position,
+            count(*) as count
+        from gene,sample,mutation,mutation_event
+        where
+            <!-- Match arguments -->
+            gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol} and
+            mutation_event.ONCOTATOR_PROTEIN_POS_START in 
+                <foreach item="item" collection="positions" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                
+                and
+            <!-- Join -->
+            sample.INTERNAL_ID = mutation.SAMPLE_ID and
+            gene.ENTREZ_GENE_ID = mutation.ENTREZ_GENE_ID and
+            mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID and
+            
+            <!-- Looking for mutation at single position -->
+            mutation_event.ONCOTATOR_PROTEIN_POS_START = mutation_event.ONCOTATOR_PROTEIN_POS_END
+            
+        group by gene.HUGO_GENE_SYMBOL, mutation_event.ONCOTATOR_PROTEIN_POS_START
+    </select>
+    
 </mapper>

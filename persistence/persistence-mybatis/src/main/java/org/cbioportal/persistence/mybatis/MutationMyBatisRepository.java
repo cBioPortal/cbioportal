@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
+import org.cbioportal.persistence.dto.PositionMutationCount;
 
 @Repository
 public class MutationMyBatisRepository implements MutationRepository {
@@ -108,5 +109,9 @@ public class MutationMyBatisRepository implements MutationRepository {
                                              List<String> cancerStudyIdentifiers, Boolean perStudy) {
 
         return mutationMapper.getMutationsCounts(type, hugoGeneSymbol, start, end, cancerStudyIdentifiers, perStudy);
+    }
+    
+    public List<PositionMutationCount> getPositionMutationCounts(String hugoGeneSymbol, List<Integer> positions) {
+	    return mutationMapper.getPositionMutationCounts(hugoGeneSymbol, positions);
     }
 }

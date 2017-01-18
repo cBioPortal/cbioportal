@@ -5,7 +5,8 @@
  */
 package org.cbioportal.weblegacy;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
 import org.mskcc.cbio.portal.service.ApiService;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.cbioportal.model.CosmicCount;
 import org.cbioportal.model.MutationSignature;
+import org.cbioportal.persistence.dto.PositionMutationCount;
 
 /**
  *
@@ -106,6 +109,22 @@ public class ApiController {
         }
         return service.getMutationsCounts(customizedAttrs, type, per_study, studyId, gene, start, end, echo);
                 
+    }
+    
+    @ApiOperation(value = "Get mutation count for certain gene at specified positions.",
+            nickname = "getPositionMutationCount",
+            notes = "")
+    @Transactional
+    @RequestMapping(value = "/mutation_count/position", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<PositionMutationCount> getPositionMutationCounts(
+        HttpServletRequest request,
+        @RequestParam(required = true) String hugoGeneSymbolToPositions) {
+	    try {
+		Map<String, List<Integer>> hugoGeneSymbolToPositionsDecodedMap = (new ObjectMapper()).readValue(hugoGeneSymbolToPositions, new TypeReference<Map<String, List<Integer>>>(){});
+		return service.getPositionMutationCounts(hugoGeneSymbolToPositionsDecodedMap);
+	    } catch (IOException e) {
+		    return new ArrayList<>();
+	    }
     }
 
 

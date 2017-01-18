@@ -8,6 +8,8 @@ import org.cbioportal.persistence.dto.MutatedGeneSampleCount;
 import org.cbioportal.persistence.dto.SignificantlyMutatedGene;
 
 import java.util.List;
+import java.util.Map;
+import org.cbioportal.persistence.dto.PositionMutationCount;
 
 public interface MutationRepository {
 
@@ -43,4 +45,7 @@ public interface MutationRepository {
 
     List<AltCount> getMutationsCounts(String type, String hugoGeneSymbol, Integer start, Integer end,
                                       List<String> cancerStudyIdentifiers, Boolean perStudy);
+    
+    List<PositionMutationCount> getPositionMutationCounts(String hugoGeneSymbol, List<Integer> positions);
+    
 }

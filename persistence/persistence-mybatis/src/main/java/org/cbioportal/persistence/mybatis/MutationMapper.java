@@ -9,6 +9,7 @@ import org.cbioportal.persistence.dto.MutatedGeneSampleCount;
 import org.cbioportal.persistence.dto.SignificantlyMutatedGene;
 
 import java.util.List;
+import org.cbioportal.persistence.dto.PositionMutationCount;
 
 public interface MutationMapper {
 
@@ -50,4 +51,7 @@ public interface MutationMapper {
     List<Integer> getGenesOfMutations(@Param("mutationEventIds") List<Integer> mutationEventIds);
 
     List<String> getKeywordsOfMutations(@Param("mutationEventIds") List<Integer> mutationEventIds);
+    
+    List<PositionMutationCount> getPositionMutationCounts(@Param("hugoGeneSymbol") String hugoGeneSymbol, 
+							@Param("positions") List<Integer> positions);
 }

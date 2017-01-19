@@ -125,6 +125,7 @@ public class MutationControllerTest {
             .thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
+            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -189,6 +190,7 @@ public class MutationControllerTest {
             .thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
+            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -264,6 +266,7 @@ public class MutationControllerTest {
             .thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
+            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));

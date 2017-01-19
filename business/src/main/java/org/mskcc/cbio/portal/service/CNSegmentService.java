@@ -2,10 +2,11 @@
  *
  * @author jiaojiao
  */
-package org.cbioportal.service;
+package org.mskcc.cbio.portal.service;
+
+import org.mskcc.cbio.portal.model.CNSegmentData;
 
 import java.util.List;
-import org.cbioportal.model.CNSegmentData;
 
 public interface CNSegmentService {
 

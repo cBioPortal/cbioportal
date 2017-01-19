@@ -85,11 +85,11 @@ public class PatientController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch patients by ID")
     public ResponseEntity<List<Patient>> fetchPatients(
-        @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam(required = true, value = "List of patient identifiers")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<PatientIdentifier> patientIdentifiers) {
+        @RequestBody List<PatientIdentifier> patientIdentifiers,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> patientIds = new ArrayList<>();

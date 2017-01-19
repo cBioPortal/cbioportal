@@ -1,17 +1,20 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
-public class CopyNumberSegment implements Serializable {
+public class CopyNumberSeg implements Serializable {
 
     private Integer segId;
     private Integer cancerStudyId;
+    private String cancerStudyIdentifier;
     private Integer sampleId;
+    private String sampleStableId;
     private String chr;
     private Integer start;
     private Integer end;
     private Integer numProbes;
-    private Double segmentMean;
+    private BigDecimal segmentMean;
 
     public Integer getSegId() {
         return segId;
@@ -29,12 +32,28 @@ public class CopyNumberSegment implements Serializable {
         this.cancerStudyId = cancerStudyId;
     }
 
+    public String getCancerStudyIdentifier() {
+        return cancerStudyIdentifier;
+    }
+
+    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+        this.cancerStudyIdentifier = cancerStudyIdentifier;
+    }
+
     public Integer getSampleId() {
         return sampleId;
     }
 
     public void setSampleId(Integer sampleId) {
         this.sampleId = sampleId;
+    }
+
+    public String getSampleStableId() {
+        return sampleStableId;
+    }
+
+    public void setSampleStableId(String sampleStableId) {
+        this.sampleStableId = sampleStableId;
     }
 
     public String getChr() {
@@ -69,11 +88,11 @@ public class CopyNumberSegment implements Serializable {
         this.numProbes = numProbes;
     }
 
-    public Double getSegmentMean() {
+    public BigDecimal getSegmentMean() {
         return segmentMean;
     }
 
-    public void setSegmentMean(Double segmentMean) {
+    public void setSegmentMean(BigDecimal segmentMean) {
         this.segmentMean = segmentMean;
     }
 }

@@ -74,8 +74,8 @@ public class GeneControllerTest {
 
         List<Gene> geneList = createGeneList();
 
-        Mockito.when(geneService.getAllGenes(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.anyString())).thenReturn(geneList);
+        Mockito.when(geneService.getAllGenes(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), 
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(geneList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genes")
                 .accept(MediaType.APPLICATION_JSON))
@@ -103,7 +103,7 @@ public class GeneControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(ENTREZ_GENE_ID_2);
 
-        Mockito.when(geneService.getMetaGenes()).thenReturn(baseMeta);
+        Mockito.when(geneService.getMetaGenes(Mockito.anyString())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genes")
                 .param("projection", "META"))
@@ -172,7 +172,8 @@ public class GeneControllerTest {
 
         List<Gene> geneList = createGeneList();
 
-        Mockito.when(geneService.fetchGenes(Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(geneList);
+        Mockito.when(geneService.fetchGenes(Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(geneList);
 
         List<String> geneIds = new ArrayList<>();
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_1));
@@ -205,7 +206,8 @@ public class GeneControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(geneService.fetchMetaGenes(Mockito.anyListOf(String.class))).thenReturn(baseMeta);
+        Mockito.when(geneService.fetchMetaGenes(Mockito.anyListOf(String.class), Mockito.anyString()))
+            .thenReturn(baseMeta);
 
         List<String> geneIds = new ArrayList<>();
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_1));

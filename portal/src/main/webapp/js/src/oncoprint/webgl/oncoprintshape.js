@@ -29,12 +29,25 @@ var Shape = (function() {
 	'y2':1,
 	'y3':1
     };
+    var hash_parameter_order = Object.keys(default_parameter_values).concat("type");
+    
     function Shape(params) {
 	this.params = params;
 	this.params_with_type = {};
 	this.completeWithDefaults();
 	this.markParameterTypes();
     }
+    
+    var getCachedShape = (function() {
+	var cache = {}; // shape cache to save memory
+    
+	return function(computed_params) {
+	    var hash = Shape.hashComputedShape(computed_params);
+	    cache[hash] = cache[hash] || Object.freeze(computed_params);
+	    return cache[hash];
+	};
+    })();
+    
     Shape.prototype.completeWithDefaults = function() {
 	var required_parameters = this.getRequiredParameters();
 	for (var i=0; i<required_parameters.length; i++) {
@@ -78,7 +91,12 @@ var Shape = (function() {
 	    }
 	    computed_params[param_name] = param_val;
 	}
-	return computed_params;
+	return getCachedShape(computed_params);
+    };
+    Shape.hashComputedShape = function (computed_params, z_index) {
+	return hash_parameter_order.reduce(function (hash, param_name) {
+	    return hash + "," + computed_params[param_name];
+	}, "") + "," + z_index;
     };
     return Shape;
 })();
@@ -133,5 +151,6 @@ module.exports = {
     'Rectangle':Rectangle,
     'Triangle':Triangle,
     'Ellipse':Ellipse,
-    'Line':Line
+    'Line':Line,
+    'Shape':Shape
 };

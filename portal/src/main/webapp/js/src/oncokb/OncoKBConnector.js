@@ -440,7 +440,7 @@ var OncoKB = (function(_, $) {
 
         function isHotspot(mutation) {
             try {
-                if(mutation.get("isHotspot")) {
+                if(mutation.get("isHotspot") || mutation.get("is3dHotspot")) {
                     return true;
                 }else {
                     return false;
@@ -1125,7 +1125,7 @@ OncoKB.Instance.prototype = {
                             OncoKB.svgs.createOncogenicImage(this, -1, false);
                         }
 
-                        _hotspotTip = cbio.util.getHotSpotDesc();
+                        _hotspotTip = cbio.util.getHotSpotDesc(true);
 
 
                         if ($(this).hasClass('oncogenic')) {

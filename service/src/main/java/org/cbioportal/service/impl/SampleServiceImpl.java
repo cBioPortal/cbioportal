@@ -67,4 +67,10 @@ public class SampleServiceImpl implements SampleService {
 
         return sampleRepository.fetchMetaSamples(studyIds, sampleIds);
     }
+
+    @Override
+    public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
+
+        return sampleRepository.getSamplesByInternalIds(internalIds);
+    }
 }

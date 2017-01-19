@@ -4,7 +4,7 @@
 <mapper namespace="org.mskcc.cbio.portal.persistence.GenePanelMapper">
     <cache/>
 
-   <resultMap id="genePanelResultMap" type="org.cbioportal.model.GenePanel">
+   <resultMap id="genePanelResultMap" type="org.mskcc.cbio.portal.model.GenePanel">
         <result property="internalId" column="internalId"/>       
         <result property="stableId" column="stableId"/>
         <result property="description" column="description"/>
@@ -17,12 +17,12 @@
         </collection>
     </resultMap>
     
-   <resultMap id="genePanelNoGenesResultMap" type="org.cbioportal.model.GenePanel">
+   <resultMap id="genePanelNoGenesResultMap" type="org.mskcc.cbio.portal.model.GenePanel">
         <result property="stableId" column="stableId"/>
         <result property="description" column="description"/>
     </resultMap>
     
-    <resultMap id="genePanelSampleResultMap" type="org.cbioportal.model.GenePanelWithSamples">
+    <resultMap id="genePanelSampleResultMap" type="org.mskcc.cbio.portal.model.GenePanelWithSamples">
         <result property="stableId" column="stableId" />
         <result property="description" column="description"/>
         <collection property = "genes" ofType="org.cbioportal.model.Gene">

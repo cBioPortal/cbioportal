@@ -374,11 +374,18 @@ var OncoprintModel = (function () {
     }
     OncoprintModel.prototype.getHorzZoomToFit = function(width, ids) {
 	ids = ids || [];
+	if (ids.length === 0) {
+	    return 1;
+	}
 	var id_to_index_map = this.getVisibleIdToIndexMap();
 	var indexes = ids.map(function(id) { return id_to_index_map[id]; });
-	var max = Math.max.apply(null, indexes);
-	var min = Math.min.apply(null, indexes);
-	var num_cols = max - min;
+	var max = Number.NEGATIVE_INFINITY;
+	var min = Number.POSITIVE_INFINITY;
+	for (var i=0; i<indexes.length; i++) {
+	    max = Math.max(indexes[i], max);
+	    min = Math.min(indexes[i], min);
+	}
+	var num_cols = max - min + 1;
 	return this.getHorzZoomToFitNumCols(width, num_cols);
     }
     

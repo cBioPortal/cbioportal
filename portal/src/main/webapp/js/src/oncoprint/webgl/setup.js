@@ -84,6 +84,9 @@ var utils = {
 	    min = Math.min(list_of_numbers[i], min);
 	}
 	return [Math.floor(min), Math.ceil(max)];
+    },
+    'deepCopyObject': function (obj) {
+	return $.extend(true, ($.isArray(obj) ? [] : {}), obj);
     }
 };
 
@@ -278,7 +281,7 @@ var comparator_utils = {
 		    return ({'true': 1, 'false': 2})[!!m];
 		}
 	    } else if (!distinguish_mutation_types && distinguish_recurrent) {
-		_order = makeComparatorMetric([['inframe_rec', 'missense_rec', 'promoter_rec'], ['inframe', 'missense', 'promoter', 'trunc', 'trunc_rec'], undefined]); 
+		_order = makeComparatorMetric([['inframe_rec', 'missense_rec', 'promoter_rec', 'trunc_rec', 'inframe', 'promoter', 'trunc',], 'missense', undefined]); 
 	    } else if (distinguish_mutation_types && !distinguish_recurrent) {
 		_order = makeComparatorMetric([['trunc', 'trunc_rec'], ['inframe','inframe_rec'], ['promoter', 'promoter_rec'], ['missense', 'missense_rec'], undefined, true, false]);
 	    } else if (distinguish_mutation_types && distinguish_recurrent) {
@@ -645,7 +648,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
 			    var track_id = State.genetic_alteration_tracks[track_line];
 			    var oncoprint_data_frame = oncoprint_data_by_line[track_line];
-			    var track_data = oncoprint_data_frame.oncoprint_data;
+			    var track_data = utils.deepCopyObject(oncoprint_data_frame.oncoprint_data);
 			    console.log("populating sample data for alteration track " + oncoprint_data_by_line[track_line].gene);
 			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
 			    oncoprint.setTrackData(track_id, track_data, 'uid');
@@ -685,7 +688,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    updateAlteredPercentIndicator(State);
-			    oncoprint.setHorzZoomToFit(altered_sample_uids);
+			    oncoprint.updateHorzZoomToFitIds(altered_sample_uids);
 			    done.resolve();
 			});
 		    }).fail(function() {
@@ -725,7 +728,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
 			    var track_id = State.genetic_alteration_tracks[track_line];
 			    var oncoprint_data_frame = oncoprint_data_by_line[track_line];
-			    var track_data = oncoprint_data_frame.oncoprint_data;
+			    var track_data = utils.deepCopyObject(oncoprint_data_frame.oncoprint_data);
 			    console.log("populating patient data for alteration track " + oncoprint_data_by_line[track_line].gene);
 			    track_data = State.colorby_knowledge ? annotateOncoprintDataWithRecurrence(State, track_data) : track_data;
 			    oncoprint.setTrackData(track_id, track_data, 'uid'); 
@@ -756,16 +759,20 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				LoadingBar.update((i + heatmap_data.length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
-			    console.log("patient data populated, releasing rendering");
+			    console.log("patient data populated");
+			    console.log("sorting");
 			    oncoprint.keepSorted();
 			    if (State.unaltered_cases_hidden) {
+				console.log("hiding unaltered cases");
 				oncoprint.hideIds(unaltered_patient_uids, true);
 			    }
+			    console.log("releasing rendering");
 			    oncoprint.releaseRendering();
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    updateAlteredPercentIndicator(State);   					
-			    oncoprint.setHorzZoomToFit(altered_patient_uids);
+			    console.log("setting horz zoom to fit");
+			    oncoprint.updateHorzZoomToFitIds(altered_patient_uids);
 			    done.resolve();
 			});
 		    }).fail(function() {
@@ -1578,7 +1585,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		oncoprint.scrollTo(0);
 	    });
 	}).then(function() {
+	    console.log("releasing rendering at end of oncoprint init");
 	    oncoprint.releaseRendering();
+	    console.log("setting minimap visible");
 	    oncoprint.setMinimapVisible(State.is_minimap_shown);
 	});
     })();
@@ -1686,6 +1695,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 	(function setUpHeatmap() {
 	    QuerySession.getHeatmapProfiles().then(function (profiles) {
+		// Make a copy to modify here
+		profiles = utils.deepCopyObject(profiles);
 		// Sort, mRNA first
 		profiles.sort(function(a,b) {
 		    var order = {'MRNA_EXPRESSION':0, 'PROTEIN_LEVEL':1};

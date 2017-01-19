@@ -2,15 +2,14 @@
  *
  * @author jiaojiao
  */
-package org.cbioportal.service.impl;
+package org.mskcc.cbio.portal.service;
 
+import org.mskcc.cbio.portal.model.CNSegmentData;
+import org.mskcc.cbio.portal.repository.CNSegmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import org.cbioportal.model.CNSegmentData;
-import org.cbioportal.persistence.CNSegmentRepository;
-import org.cbioportal.service.CNSegmentService;
 
 @Service
 public class CNSegmentServiceImpl implements CNSegmentService {

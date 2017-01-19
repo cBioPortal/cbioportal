@@ -3,10 +3,11 @@
  * @author jiaojiao
  */
 
-package org.cbioportal.persistence.mybatis;
+package org.mskcc.cbio.portal.persistence;
+
+import org.mskcc.cbio.portal.model.CNSegmentData;
 
 import java.util.List;
-import org.cbioportal.model.CNSegmentData;
 
 public interface CNSegmentMapper {
 

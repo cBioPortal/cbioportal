@@ -34,6 +34,8 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
 import java.util.*;
+
+import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.repository.GenePanelRepository;
 import org.cbioportal.model.*;
 import joptsimple.*;

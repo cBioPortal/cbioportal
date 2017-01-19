@@ -56,9 +56,10 @@ var SurvivalCurveProxy  = function() {
         //Then order by time, filtered NA cases and add on num of risk for each time point
         function assembleDatums(_result) {
             var _totalNum = 0;
+	    var caseListSet = caseList.reduce(function(set, case_id) { set[case_id] = true; return set;}, {});
             //Get event and time
             for (var caseId in _result) {
-                if (_result.hasOwnProperty(caseId) && _result[caseId] !== "" && caseList.indexOf(caseId) !== -1) {
+                if (_result.hasOwnProperty(caseId) && _result[caseId] !== "" && caseListSet.hasOwnProperty(caseId)) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.case_id = _result[caseId].case_id;
                     _datum.time = _result[caseId].months;

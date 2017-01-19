@@ -35,14 +35,14 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
         Gene gene = new Gene();
         expectedGeneList.add(gene);
 
-        Mockito.when(geneRepository.getAllGenes(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        Mockito.when(geneRepository.getAllGenes(ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
                 .thenReturn(expectedGeneList);
         Mockito.doAnswer(invocationOnMock -> {
             ((Gene) invocationOnMock.getArguments()[0]).setChromosome("19");
             return null;
         }).when(chromosomeCalculator).setChromosome(gene);
 
-        List<Gene> result = geneService.getAllGenes(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+        List<Gene> result = geneService.getAllGenes(ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedGeneList, result);
         Assert.assertEquals("19", result.get(0).getChromosome());
@@ -52,8 +52,8 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
     public void getMetaGenes() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(geneRepository.getMetaGenes()).thenReturn(expectedBaseMeta);
-        BaseMeta result = geneService.getMetaGenes();
+        Mockito.when(geneRepository.getMetaGenes(ALIAS)).thenReturn(expectedBaseMeta);
+        BaseMeta result = geneService.getMetaGenes(ALIAS);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
@@ -130,35 +130,27 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void fetchGenes() throws Exception {
-
-        List<Gene> expectedGeneList1 = new ArrayList<>();
-        Gene gene1 = new Gene();
-        expectedGeneList1.add(gene1);
-        List<Gene> expectedGeneList2 = new ArrayList<>();
-        Gene gene2 = new Gene();
-        expectedGeneList2.add(gene2);
+        
+        List<Gene> expectedGeneList = new ArrayList<>();
+        Gene gene = new Gene();
+        expectedGeneList.add(gene);
 
         List<String> geneIds = new ArrayList<>();
-        geneIds.add(ENTREZ_GENE_ID.toString());
         geneIds.add(HUGO_GENE_SYMBOL);
-
-        Mockito.when(geneRepository.fetchGenesByEntrezGeneIds(Arrays.asList(ENTREZ_GENE_ID), PROJECTION))
-                .thenReturn(expectedGeneList1);
+        
         Mockito.doAnswer(invocationOnMock -> {
             ((Gene) invocationOnMock.getArguments()[0]).setChromosome("12");
             return null;
-        }).when(chromosomeCalculator).setChromosome(gene1);
+        }).when(chromosomeCalculator).setChromosome(gene);
 
         Mockito.when(geneRepository.fetchGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL), PROJECTION))
-                .thenReturn(expectedGeneList2);
+                .thenReturn(expectedGeneList);
 
-        List<Gene> result = geneService.fetchGenes(geneIds, PROJECTION);
+        List<Gene> result = geneService.fetchGenes(geneIds, GENE_ID_TYPE, PROJECTION);
 
-        Assert.assertEquals(2, result.size());
-        Assert.assertEquals(gene1, result.get(0));
-        Assert.assertEquals(gene2, result.get(1));
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(gene, result.get(0));
         Assert.assertEquals("12", result.get(0).getChromosome());
-        Assert.assertNull(result.get(1).getChromosome());
     }
 
     @Test
@@ -170,17 +162,13 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
         expectedBaseMeta2.setTotalCount(1);
 
         List<String> geneIds = new ArrayList<>();
-        geneIds.add(ENTREZ_GENE_ID.toString());
         geneIds.add(HUGO_GENE_SYMBOL);
-
-        Mockito.when(geneRepository.fetchMetaGenesByEntrezGeneIds(Arrays.asList(ENTREZ_GENE_ID)))
-                .thenReturn(expectedBaseMeta1);
 
         Mockito.when(geneRepository.fetchMetaGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL)))
                 .thenReturn(expectedBaseMeta2);
 
-        BaseMeta result = geneService.fetchMetaGenes(geneIds);
+        BaseMeta result = geneService.fetchMetaGenes(geneIds, GENE_ID_TYPE);
 
-        Assert.assertEquals((Integer) 2, result.getTotalCount());
+        Assert.assertEquals((Integer) 1, result.getTotalCount());
     }
 }

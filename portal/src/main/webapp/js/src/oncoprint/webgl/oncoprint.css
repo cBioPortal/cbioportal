@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -28,56 +28,10 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*//* 
 */
-package org.cbioportal.model;
 
-/**
- *
- * @author heinsz
- */
-
-import java.io.Serializable;
-import java.util.List;
-
-public class GenePanel  implements Serializable{
-    
-    private Integer internalId;
-    private String stableId;
-    private String description;
-    private List<Gene> genes;
-    
-    public GenePanel() {}
-    
-    public Integer getInternalId() {
-        return internalId;
-    }
-    
-    public void setInternalId(Integer internalId) {
-        this.internalId = internalId;
-    }
-    
-    public String getStableId() {
-        return stableId;
-    }
-    
-    public void setStableId(String stableId) {
-        this.stableId = stableId;
-    }
-    
-    public String getDescription() {
-        return description;
-    }
-    
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    public List<Gene> getGenes() {
-        return genes;
-    }
-    
-    public void setGenes(List<Gene> genes) {
-        this.genes = genes;
-    }
-    
+.oncoprint-zoomtofit-btn {
+    background: url(zoomtofit.svg);
+    background-repeat: no-repeat;
 }

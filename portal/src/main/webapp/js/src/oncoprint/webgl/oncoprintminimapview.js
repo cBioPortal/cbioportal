@@ -73,53 +73,64 @@ var getWebGLContextAndSetUpMatrices = function (view) {
 	self.pMatrix = pMatrix;
     })(view);
 };
-var getWebGLContextAndSetUpMatricesAndShaders = function (view) {
-    getWebGLContextAndSetUpMatrices(view);
-    (function initializeShaders(self) {// Initialize shaders
-	var vertex_shader_source = ['attribute vec3 aVertexPosition;',
-	    'attribute vec4 aVertexColor;',
-	    'attribute float aVertexOncoprintColumn;',
-	    'uniform float columnWidth;',
-	    'uniform float zoomX;',
-	    'uniform float zoomY;',
-	    'uniform mat4 uMVMatrix;',
-	    'uniform mat4 uPMatrix;',
-	    'uniform float offsetY;',
-	    'varying vec4 vColor;',
-	    'void main(void) {',
-	    '	gl_Position = vec4(aVertexPosition, 1.0);',
-	    '	gl_Position[0] += aVertexOncoprintColumn * columnWidth;',
-	    '	gl_Position[1] += offsetY;',
-	    '	gl_Position *= vec4(zoomX, zoomY, 1.0, 1.0);',
-	    '	gl_Position = uPMatrix * uMVMatrix * gl_Position;',
-	    '	vColor = aVertexColor;',
-	    '}'].join('\n');
-	var fragment_shader_source = ['precision mediump float;',
-	    'varying vec4 vColor;',
-	    '',
-	    'void main(void) {',
-	    '   gl_FragColor = vColor;',
-	    '}'].join('\n');
+var setUpShaders = function(self, vertex_bank_size) {
+    var vertex_shader_source = ['precision highp float;',
+	'attribute float aPosVertex;',
+	'attribute float aColVertex;',
+	'attribute float aVertexOncoprintColumn;',
+	'uniform float columnWidth;',
+	'uniform float zoomX;',
+	'uniform float zoomY;',
+	'uniform mat4 uMVMatrix;',
+	'uniform mat4 uPMatrix;',
+	'uniform float offsetY;',
+	'uniform float positionBitPackBase;',
+	'uniform float texSize;',
+	'varying float texCoord;',
+	'vec3 unpackVec3(float packedVec3, float base) {',
+	'	float pos0 = floor(packedVec3 / (base*base));',
+	'	float pos0Contr = pos0*base*base;',
+	'	float pos1 = floor((packedVec3 - pos0Contr)/base);',
+	'	float pos1Contr = pos1*base;',
+	'	float pos2 = packedVec3 - pos0Contr - pos1Contr;',
+	'	return vec3(pos0, pos1, pos2);',
+	'}',
+	'void main(void) {',
+	'	gl_Position = vec4(unpackVec3(aPosVertex, positionBitPackBase), 1.0);',
+	'	gl_Position[0] += aVertexOncoprintColumn*columnWidth;',
+	'	gl_Position[1] += offsetY;',
+	'	gl_Position *= vec4(zoomX, zoomY, 1.0, 1.0);',
+	'	gl_Position = uPMatrix * uMVMatrix * gl_Position;',
+	'	texCoord = (aColVertex + 0.5) / texSize;',
+	'}'].join('\n');
+	 var fragment_shader_source = ['precision mediump float;',
+		'varying float texCoord;',
+		'uniform sampler2D uSampler;',
+		'void main(void) {',
+		'   gl_FragColor = texture2D(uSampler, vec2(texCoord, 0.5));',
+		'}'].join('\n');
 	var vertex_shader = createShader(self, vertex_shader_source, 'VERTEX_SHADER');
-	var fragment_shader = createShader(self, fragment_shader_source, 'FRAGMENT_SHADER');
+	    var fragment_shader = createShader(self, fragment_shader_source, 'FRAGMENT_SHADER');
 
-	var shader_program = createShaderProgram(self, vertex_shader, fragment_shader);
-	shader_program.vertexPositionAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexPosition');
-	self.ctx.enableVertexAttribArray(shader_program.vertexPositionAttribute);
-	shader_program.vertexColorAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexColor');
-	self.ctx.enableVertexAttribArray(shader_program.vertexColorAttribute);
-	shader_program.vertexOncoprintColumnAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexOncoprintColumn');
-	self.ctx.enableVertexAttribArray(shader_program.vertexOncoprintColumnAttribute);
+	    var shader_program = createShaderProgram(self, vertex_shader, fragment_shader);
+	    shader_program.vertexPositionAttribute = self.ctx.getAttribLocation(shader_program, 'aPosVertex');
+	    self.ctx.enableVertexAttribArray(shader_program.vertexPositionAttribute);
+	    shader_program.vertexColorAttribute = self.ctx.getAttribLocation(shader_program, 'aColVertex');
+	    self.ctx.enableVertexAttribArray(shader_program.vertexColorAttribute);
+	    shader_program.vertexOncoprintColumnAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexOncoprintColumn');
+	    self.ctx.enableVertexAttribArray(shader_program.vertexOncoprintColumnAttribute);
 
-	shader_program.pMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uPMatrix');
-	shader_program.mvMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uMVMatrix');
-	shader_program.columnWidthUniform = self.ctx.getUniformLocation(shader_program, 'columnWidth');
-	shader_program.zoomXUniform = self.ctx.getUniformLocation(shader_program, 'zoomX');
-	shader_program.zoomYUniform = self.ctx.getUniformLocation(shader_program, 'zoomY');
-	shader_program.offsetYUniform = self.ctx.getUniformLocation(shader_program, 'offsetY');
+	    shader_program.samplerUniform = self.ctx.getUniformLocation(shader_program, 'uSampler');
+	    shader_program.pMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uPMatrix');
+	    shader_program.mvMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uMVMatrix');
+	    shader_program.columnWidthUniform = self.ctx.getUniformLocation(shader_program, 'columnWidth');
+	    shader_program.zoomXUniform = self.ctx.getUniformLocation(shader_program, 'zoomX');
+	    shader_program.zoomYUniform = self.ctx.getUniformLocation(shader_program, 'zoomY');
+	    shader_program.offsetYUniform = self.ctx.getUniformLocation(shader_program, 'offsetY');
+	    shader_program.positionBitPackBaseUniform = self.ctx.getUniformLocation(shader_program, 'positionBitPackBase');
+	    shader_program.texSizeUniform = self.ctx.getUniformLocation(shader_program, 'texSize');
 
-	self.shader_program = shader_program;
-    })(view);
+	    self.shader_program = shader_program;
 };
 
 var clamp = function(x, lower, upper) {
@@ -193,19 +204,18 @@ var OncoprintMinimapView = (function () {
 								    'onChange': function(val) { vert_zoom_callback(val); }});							
 	
 	(function setUpZoomToFitButton() {
+	    var btn_height = self.layout_numbers.horizontal_zoom_area_height - padding;
+	    var btn_width = self.layout_numbers.vertical_zoom_area_width - padding;
 	    var $btn = $('<div>').css({'position': 'absolute',
-		'min-height': self.layout_numbers.horizontal_zoom_area_height - padding,
-		'min-width': self.layout_numbers.vertical_zoom_area_width - padding,
-		'background-color': '#ffffff',
+		'min-height': btn_height,
+		'min-width': btn_width,
 		'outline': 'solid 1px black',
 		'left': self.layout_numbers.canvas_left + width + padding,
 		'top': self.layout_numbers.canvas_top + height + padding,
-		'cursor': 'pointer'})
+		'background-size': (btn_width - 4) + 'px '+ (btn_height - 4) + 'px',
+		'background-position': '2px 2px',
+		'cursor': 'pointer'}).addClass('oncoprint-zoomtofit-btn')
 		    .appendTo($div);
-	    $("<img>").appendTo($btn).attr({"src": "images/fitalteredcases.svg",
-		"preserveaspectratio": "none",
-		"width": parseInt($btn.css('min-width'),10) - 4,
-		"height": parseInt($btn.css('min-height'),10) - 4}).css({'position':'absolute', 'top': 2, 'left': 2});
 	    $btn.hover(function () {
 		$(this).css({'background-color': '#cccccc'});
 	    }, function () {
@@ -215,7 +225,8 @@ var OncoprintMinimapView = (function () {
 	    zoom_to_fit_callback = zoom_to_fit_callback || function() {};
 	    $btn.click(zoom_to_fit_callback);
 	})();
-	getWebGLContextAndSetUpMatricesAndShaders(this);
+	getWebGLContextAndSetUpMatrices(this);
+	setUpShaders(this);
 	this.overlay_ctx = $overlay_canvas[0].getContext("2d");
 
 	this.img = new Image();
@@ -631,20 +642,36 @@ var OncoprintMinimapView = (function () {
     }
 
     var getTrackBuffers = function (view, cell_view, track_id) {
-	var vertex_position_buffer = view.ctx.createBuffer();
-	var vertex_color_buffer = view.ctx.createBuffer();
-	var vertex_position_array = cell_view.vertex_position_array[track_id];
-	var vertex_color_array = cell_view.vertex_color_array[track_id];
+	var pos_buffer = view.ctx.createBuffer();
+	var pos_array = cell_view.vertex_data[track_id].pos_array;
 
-	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_position_buffer);
-	view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(vertex_position_array), view.ctx.STATIC_DRAW);
-	vertex_position_buffer.itemSize = 3;
-	vertex_position_buffer.numItems = vertex_position_array.length / vertex_position_buffer.itemSize;
+	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, pos_buffer);
+	view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(pos_array), view.ctx.STATIC_DRAW);
+	pos_buffer.itemSize = 1;
+	pos_buffer.numItems = pos_array.length / pos_buffer.itemSize;
+	
+	var col_buffer = view.ctx.createBuffer();
+	var col_array = cell_view.vertex_data[track_id].col_array;
 
-	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_color_buffer);
-	view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(vertex_color_array), view.ctx.STATIC_DRAW);
-	vertex_color_buffer.itemSize = 4;
-	vertex_color_buffer.numItems = vertex_color_array.length / vertex_color_buffer.itemSize;
+	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, col_buffer);
+	view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(col_array), view.ctx.STATIC_DRAW);
+	col_buffer.itemSize = 1;
+	col_buffer.numItems = col_array.length / col_buffer.itemSize;
+
+	var tex = view.ctx.createTexture();
+	view.ctx.bindTexture(view.ctx.TEXTURE_2D, tex);
+
+	var color_bank = cell_view.vertex_data[track_id].col_bank;
+	var width = Math.pow(2, Math.ceil(Math.log2(color_bank.length / 4)));
+	while (color_bank.length < 4 * width) {
+	    color_bank.push(0);
+	}
+	var height = 1;
+	view.ctx.texImage2D(view.ctx.TEXTURE_2D, 0, view.ctx.RGBA, width, height, 0, view.ctx.RGBA, view.ctx.UNSIGNED_BYTE, new Uint8Array(color_bank));
+	view.ctx.texParameteri(view.ctx.TEXTURE_2D, view.ctx.TEXTURE_MIN_FILTER, view.ctx.NEAREST);
+	view.ctx.texParameteri(view.ctx.TEXTURE_2D, view.ctx.TEXTURE_MAG_FILTER, view.ctx.NEAREST);
+	
+	var color_texture = {'texture': tex, 'size': width};
 
 	var vertex_column_buffer = view.ctx.createBuffer();
 	var vertex_column_array = cell_view.vertex_column_array[track_id];
@@ -653,9 +680,10 @@ var OncoprintMinimapView = (function () {
 	vertex_column_buffer.itemSize = 1;
 	vertex_column_buffer.numItems = vertex_column_array.length / vertex_column_buffer.itemSize;
 
-	return {'position': vertex_position_buffer,
-	    'color': vertex_color_buffer,
-	    'column': vertex_column_buffer};
+	return {'position': pos_buffer,
+		'color': col_buffer,
+		'color_tex': color_texture,
+		'column': vertex_column_buffer};
     };
 
     var drawOncoprint = function (view, model, cell_view) {
@@ -676,23 +704,28 @@ var OncoprintMinimapView = (function () {
 	    if (buffers.position.numItems === 0) {
 		continue;
 	    }
-
+	    
 	    view.ctx.useProgram(view.shader_program);
 	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, buffers.position);
 	    view.ctx.vertexAttribPointer(view.shader_program.vertexPositionAttribute, buffers.position.itemSize, view.ctx.FLOAT, false, 0, 0);
-
 	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, buffers.color);
 	    view.ctx.vertexAttribPointer(view.shader_program.vertexColorAttribute, buffers.color.itemSize, view.ctx.FLOAT, false, 0, 0);
-
+	    
 	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, buffers.column);
 	    view.ctx.vertexAttribPointer(view.shader_program.vertexOncoprintColumnAttribute, buffers.column.itemSize, view.ctx.FLOAT, false, 0, 0);
 
+	    view.ctx.activeTexture(view.ctx.TEXTURE0);
+	    view.ctx.bindTexture(view.ctx.TEXTURE_2D, buffers.color_tex.texture);
+	    view.ctx.uniform1i(view.shader_program.samplerUniform, 0);
+	    view.ctx.uniform1f(view.shader_program.texSizeUniform, buffers.color_tex.size);
+	    
 	    view.ctx.uniformMatrix4fv(view.shader_program.pMatrixUniform, false, view.pMatrix);
 	    view.ctx.uniformMatrix4fv(view.shader_program.mvMatrixUniform, false, view.mvMatrix);
 	    view.ctx.uniform1f(view.shader_program.columnWidthUniform, model.getCellWidth(true));
 	    view.ctx.uniform1f(view.shader_program.zoomXUniform, zoom.x);
 	    view.ctx.uniform1f(view.shader_program.zoomYUniform, zoom.y);
 	    view.ctx.uniform1f(view.shader_program.offsetYUniform, cell_top);
+	    view.ctx.uniform1f(view.shader_program.positionBitPackBaseUniform, cell_view.position_bit_pack_base);
 
 	    view.ctx.drawArrays(view.ctx.TRIANGLES, 0, buffers.position.numItems);
 	}
@@ -871,7 +904,8 @@ var OncoprintMinimapView = (function () {
     OncoprintMinimapView.prototype.setWidth = function (w, model, cell_view) {
 	this.$canvas[0].width = w;
 	this.$overlay_canvas[0].width = w;
-	getWebGLContextAndSetUpMatricesAndShaders(this);
+	getWebGLContextAndSetUpMatrices(this);
+	setUpShaders(this);
 	this.overlay_ctx = this.$overlay_canvas[0].getContext("2d");
 
 	drawOncoprintAndOverlayRect(this, model, cell_view);

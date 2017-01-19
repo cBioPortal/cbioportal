@@ -290,8 +290,10 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div, profile_
     function addGeneClick(){
         $('.selectHighlight_'+table_id).on('click', function() {
             var current_gene = $(this).text();
+            var _pValObj = _.filter(self.originalData, function(_dataObj) {return _dataObj.Gene == current_gene; });
+            var _pVal = _pValObj[0]["p-Value"];
             if (profile_type === enrichmentsTabSettings.profile_type.mrna || profile_type === enrichmentsTabSettings.profile_type.protein_exp) {
-                enrichmentsTabPlots.init(self.profile_plot_div, current_gene, profile_type, profile_id, table_title, "");
+                enrichmentsTabPlots.init(self.profile_plot_div, current_gene, profile_type, profile_id, table_title, _pVal);
             } else {
                 self.miniOnco.render(current_gene);
             }
@@ -759,9 +761,6 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div, profile_
                 self.volcanoPlot = new VolcanoPlot();
                 self.volcanoPlot.render(self);
             }
-
-
-
         }
     };
 }; //close enrichmentsTabTable

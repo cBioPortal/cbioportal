@@ -67,7 +67,7 @@ public class SampleListController {
         }
     }
 
-    @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET, 
+    @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get sample list")
     public ResponseEntity<SampleList> getSampleList(

@@ -41,8 +41,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GenePanel;
-import org.cbioportal.model.GenePanelWithSamples;
+import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Sample;
 

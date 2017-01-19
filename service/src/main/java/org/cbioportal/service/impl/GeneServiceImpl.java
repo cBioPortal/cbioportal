@@ -44,29 +44,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class GeneServiceImpl implements GeneService {
 
+    public static final String ENTREZ_GENE_ID_GENE_ID_TYPE = "ENTREZ_GENE_ID";
+    
     @Autowired
     private GeneRepository geneRepository;
     @Autowired
     private ChromosomeCalculator chromosomeCalculator;
 
     @Override
-    public List<Gene> getAllGenes(String projection, Integer pageSize, Integer pageNumber, String sortBy,
+    public List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                   String direction) {
 
-        List<Gene> geneList = geneRepository.getAllGenes(projection, pageSize, pageNumber, sortBy, direction);
+        List<Gene> geneList = geneRepository.getAllGenes(alias, projection, pageSize, pageNumber, sortBy, direction);
 
         geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
 
     @Override
-    public BaseMeta getMetaGenes() {
+    public BaseMeta getMetaGenes(String alias) {
 
-        return geneRepository.getMetaGenes();
+        return geneRepository.getMetaGenes(alias);
     }
 
     @Override
@@ -99,44 +102,34 @@ public class GeneServiceImpl implements GeneService {
     }
 
     @Override
-    public List<Gene> fetchGenes(List<String> geneIds, String projection) {
-
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        List<String> hugoGeneSymbols = new ArrayList<>();
-
-        splitIdsByType(geneIds, entrezGeneIds, hugoGeneSymbols);
-
-        List<Gene> geneList = geneRepository.fetchGenesByEntrezGeneIds(entrezGeneIds, projection);
-        geneList.addAll(geneRepository.fetchGenesByHugoGeneSymbols(hugoGeneSymbols, projection));
+    public List<Gene> fetchGenes(List<String> geneIds, String geneIdType, String projection) {
+        
+        List<Gene> geneList;
+        
+        if (geneIdType.equals(ENTREZ_GENE_ID_GENE_ID_TYPE)) {
+            geneList = geneRepository.fetchGenesByEntrezGeneIds(geneIds.stream().filter(this::isInteger)
+                .map(Integer::valueOf).collect(Collectors.toList()), projection);
+        } else {
+            geneList = geneRepository.fetchGenesByHugoGeneSymbols(geneIds, projection);
+        }
 
         geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
 
     @Override
-    public BaseMeta fetchMetaGenes(List<String> geneIds) {
+    public BaseMeta fetchMetaGenes(List<String> geneIds, String geneIdType) {
 
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        List<String> hugoGeneSymbols = new ArrayList<>();
+        BaseMeta baseMeta;
 
-        splitIdsByType(geneIds, entrezGeneIds, hugoGeneSymbols);
-
-        BaseMeta baseMeta = new BaseMeta();
-        baseMeta.setTotalCount(geneRepository.fetchMetaGenesByEntrezGeneIds(entrezGeneIds).getTotalCount() +
-                geneRepository.fetchMetaGenesByHugoGeneSymbols(hugoGeneSymbols).getTotalCount());
-
-        return baseMeta;
-    }
-
-    private void splitIdsByType(List<String> geneIds, List<Integer> entrezGeneIds, List<String> hugoGeneSymbols) {
-
-        for (String geneId : geneIds) {
-            if (isInteger(geneId)) {
-                entrezGeneIds.add(Integer.valueOf(geneId));
-            } else {
-                hugoGeneSymbols.add(geneId);
-            }
+        if (geneIdType.equals(ENTREZ_GENE_ID_GENE_ID_TYPE)) {
+            baseMeta = geneRepository.fetchMetaGenesByEntrezGeneIds(geneIds.stream().filter(this::isInteger)
+                .map(Integer::valueOf).collect(Collectors.toList()));
+        } else {
+            baseMeta = geneRepository.fetchMetaGenesByHugoGeneSymbols(geneIds);
         }
+        
+        return baseMeta;
     }
 
     private boolean isInteger(String geneId) {

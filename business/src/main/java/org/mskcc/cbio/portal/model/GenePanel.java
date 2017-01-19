@@ -29,44 +29,57 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.persistence.mybatis;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.cbioportal.model.CNSegmentData;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+package org.mskcc.cbio.portal.model;
 
 /**
  *
- * @author jiaojiao
+ * @author heinsz
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContextDatabase.xml")
-@Configurable
-public class CNSegmentMyBatisRepositoryTest {
-    @Autowired
-    private CNSegmentMyBatisRepository cnSegmentMyBatisRepository;
 
-    @Test
-    public void getSegmentData() {
-        String cancerStudyId = "study_tcga_pub";
-        List chromosomes = new ArrayList<>(Arrays.asList("1", "2", "3"));
-        List sampleIds = new ArrayList<>(Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01"));
-        List<CNSegmentData> result = cnSegmentMyBatisRepository.getCNSegmentData(cancerStudyId, chromosomes, sampleIds);
-        Assert.assertEquals(3, result.size());
+import org.cbioportal.model.Gene;
+
+import java.io.Serializable;
+import java.util.List;
+
+public class GenePanel  implements Serializable{
+    
+    private Integer internalId;
+    private String stableId;
+    private String description;
+    private List<Gene> genes;
+    
+    public GenePanel() {}
+    
+    public Integer getInternalId() {
+        return internalId;
     }
     
-    @Test
-    public void getEmptySegmentData() {
-        String cancerStudyId = "acc_tcga";
-        List<CNSegmentData> result = cnSegmentMyBatisRepository.getCNSegmentData(cancerStudyId, null, null);
-        Assert.assertEquals(0, result.size());
+    public void setInternalId(Integer internalId) {
+        this.internalId = internalId;
     }
+    
+    public String getStableId() {
+        return stableId;
+    }
+    
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public List<Gene> getGenes() {
+        return genes;
+    }
+    
+    public void setGenes(List<Gene> genes) {
+        this.genes = genes;
+    }
+    
 }

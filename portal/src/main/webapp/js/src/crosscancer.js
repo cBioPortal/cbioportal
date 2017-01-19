@@ -1197,15 +1197,15 @@
                                 redrawHistogram();
                             });
 
-			    // By default hide unaltered studies and animate this to warn user about this change
-			    if( $("#histogram-remove-notaltered").trigger("click") ) {
+                            // By default hide unaltered studies and animate this to warn user about this change
+                            if( $("#histogram-remove-notaltered").trigger("click") ) {
                                 setTimeout(redrawHistogram, 500);
-			    }
+                            }
 
                             // Let's load the mutation details as well
                             var servletParams = {
                                 data_priority: priority,
-				cancer_study_list: histData.map(function(d) { return d.studyId;}).join(",")
+                                cancer_study_list: histData.map(function(d) { return d.studyId;}).join(",")
                             };
                             var servletName = "crosscancermutation.json";
                             // init mutation data proxy with the data servlet config
@@ -1215,6 +1215,23 @@
 								params: servletParams
 							});
                             proxy.init();
+
+                            var annotationCol = null;
+
+                            if(OncoKB.getAccess()) {
+                                var oncokbInstanceManager = new OncoKB.addInstanceManager();
+                                _.each(genes, function (gene) {
+                                    var instance = oncokbInstanceManager.addInstance(gene);
+                                    if (oncokbGeneStatus) {
+                                        instance.setGeneStatus(oncokbGeneStatus);
+                                    }
+                                });
+
+                                annotationCol = new AnnotationColumn(oncokbInstanceManager, showHotspot, enableMyCancerGenome);
+                            }
+                            else {
+                                annotationCol = new AnnotationColumn(null, showHotspot, enableMyCancerGenome);
+                            }
 
                             // init default mutation details view
 
@@ -1238,7 +1255,10 @@
 		                        proxy: {
 			                        mutationProxy: {
 				                        instance: proxy
-			                        }
+			                        },
+                                    hotspots3dProxy: {
+                                        instanceClass: Hotspots3dDataProxy
+                                    }
 		                        },
 		                        view: {
                                     vis3d: {
@@ -1271,65 +1291,10 @@
                                             }
                                         },
                                         columnRender: {
-                                            annotation: function (datum) {
-                                                var mutation = datum.mutation;
-                                                var vars = {};
-                                                vars.oncokbId = mutation.get("mutationSid");
-                                                vars.mcgAlt = '';
-                                                vars.changHotspotAlt = '';
-
-                                                if (enableMyCancerGenome &&
-                                                    mutation.get("myCancerGenome") instanceof Array &&
-                                                    mutation.get("myCancerGenome").length > 0) {
-                                                    vars.mcgAlt = "<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>" + mutation.get("myCancerGenome").join("</li><li>") + "</li></ul>";
-                                                }
-
-                                                if (showHotspot && mutation.get('isHotspot')) {
-                                                    vars.changHotspotAlt = cbio.util.getHotSpotDesc();
-                                                }
-
-                                                if (_.isUndefined(mutation.get("oncokb")))
-                                                {
-                                                    datum.table.requestColumnData("annotation");
-                                                }
-
-                                                var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_annotation_template");
-                                                return templateFn(vars);
-                                            }
+                                            annotation: annotationCol.render
                                         },
                                         columnTooltips: {
-                                            annotation: function (selector, helper) {
-                                                $(selector).find('span.oncokb').remove();
-                                                $(selector).find('span.mcg[alt=""]').empty();
-                                                $(selector).find('span.chang_hotspot[alt=""]').empty();
-                                                $(selector).find('span.mcg').one('mouseenter', function () {
-                                                    $(this).qtip({
-                                                        content: {attr: 'alt'},
-                                                        show: {event: "mouseover"},
-                                                        hide: {fixed: true, delay: 100, event: "mouseout"},
-                                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                                        position: {
-                                                            my: 'top left',
-                                                            at: 'bottom center',
-                                                            viewport: $(window)
-                                                        }
-                                                    });
-                                                });
-
-                                                $(selector).find('span.chang_hotspot').one('mouseenter', function () {
-                                                    $(this).qtip({
-                                                        content: {attr: 'alt'},
-                                                        show: {event: "mouseover"},
-                                                        hide: {fixed: true, delay: 100, event: "mouseout"},
-                                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                                        position: {
-                                                            my: 'top left',
-                                                            at: 'bottom center',
-                                                            viewport: $(window)
-                                                        }
-                                                    });
-                                                });
-                                            }
+                                            annotation: annotationCol.tooltip
                                         },
                                         dataTableOpts: {
 					                        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F"<"mutation_datatables_download"T><"datatable-paging"pl>>',
@@ -1350,95 +1315,17 @@
 
                             options = jQuery.extend(true, cbio.util.baseMutationMapperOpts(), options);
                             if(OncoKB.getAccess()) {
-                                var oncokbInstanceManager = new OncoKB.addInstanceManager();
-                                _.each(genes, function (gene) {
-                                    var instance = oncokbInstanceManager.addInstance(gene);
-                                    if(oncokbGeneStatus) {
-                                        instance.setGeneStatus(oncokbGeneStatus);
-                                    }
-                                });
 	                            jQuery.extend(true, options, {
                                     dataManager: {
                                         dataFn: {
-                                            annotation: function(dataProxies, params, callback) {
-                                                var indexMap = params.mutationTable.getIndexMap();
-                                                var dataTable = params.mutationTable.getDataTable();
-                                                var tableData = dataTable.fnGetData();
-                                                var oncokbInstance = oncokbInstanceManager.getInstance(params.mutationTable.getGene());
-                                                if (tableData.length > 0) {
-                                                    _.each(tableData, function (ele, i) {
-                                                        var _mutation = ele[indexMap["datum"]].mutation;
-                                                        oncokbInstance.addVariant(_mutation.get("mutationSid"), '',
-                                                                                  _mutation.get("geneSymbol"),
-                                                                                  _mutation.get("proteinChange"),
-                                                                                  _mutation.get("tumorType") ? _mutation.get("tumorType") : _mutation.get("cancerType"),
-                                                                                  _mutation.get("mutationType"),
-                                                                                  _mutation.get("cosmicCount"),
-                                                                                  _mutation.get("isHotspot"),
-                                                                                  _mutation.get("proteinPosStart"),
-                                                                                  _mutation.get("proteinPosEnd"));
-                                                    });
-                                                    oncokbInstance.getIndicator().done(function () {
-                                                        var tableData = dataTable.fnGetData();
-                                                        if (tableData.length > 0) {
-                                                            _.each(tableData, function (ele, i) {
-                                                                if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid"))) {
-                                                                    if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid")).hasOwnProperty('evidence')) {
-                                                                        ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid"));
-                                                                        ele[indexMap['datum']].mutation.set({oncokb: true});
-                                                                        //dataTable.fnUpdate(null, i, indexMap["annotation"], false, false);
-                                                                    }
-                                                                }
-                                                            });
-                                                            //dataTable.fnUpdate(null, 0, indexMap['annotation']);
-                                                        }
-
-                                                        if (_.isFunction(callback))
-                                                        {
-                                                            callback(params);
-                                                        }
-                                                    });
-                                                }
-                                            }
+                                            annotation: annotationCol.annotationData,
+                                            hotspot3d: annotationCol.hotspotData
                                         }
                                     },
                                     view : {
                                     mutationTable: {
                                         columnTooltips: {
-                                            annotation: function (selector, helper) {
-                                                $(selector).find('span.mcg[alt=""]').empty();
-                                                $(selector).find('span.chang_hotspot[alt=""]').empty();
-                                                oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'column');
-                                                oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'alteration');
-
-                                                $(selector).find('span.mcg').one('mouseenter', function () {
-                                                    $(this).qtip({
-                                                        content: {attr: 'alt'},
-                                                        show: {event: "mouseover"},
-                                                        hide: {fixed: true, delay: 100, event: "mouseout"},
-                                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                                        position: {
-                                                            my: 'top left',
-                                                            at: 'bottom center',
-                                                            viewport: $(window)
-                                                        }
-                                                    });
-                                                });
-
-                                                $(selector).find('span.chang_hotspot').one('mouseenter', function () {
-                                                    $(this).qtip({
-                                                        content: {attr: 'alt'},
-                                                        show: {event: "mouseover"},
-                                                        hide: {fixed: true, delay: 100, event: "mouseout"},
-                                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                                        position: {
-                                                            my: 'top left',
-                                                            at: 'bottom center',
-                                                            viewport: $(window)
-                                                        }
-                                                    });
-                                                });
-                                            }
+                                            annotation: annotationCol.tooltipWithManager
                                         }
                                     }
                                 }});
@@ -1456,8 +1343,8 @@
                             window.crossCancerMutationProxy = proxy;
                         });
                     },
-		    type: 'POST',
-		    data: {gene_list: genes, data_priority:priority, cancer_study_list:study_list}
+                    type: 'POST',
+                    data: {gene_list: genes, data_priority:priority, cancer_study_list:study_list}
                 }); // Done with the histogram
 
                 

@@ -476,6 +476,15 @@ cbio.util = (function() {
                         servletName: "https://cbioportal.mskcc.org/pdb-annotation/pdb_annotation"
                     }
                 },
+                // using proxy for now since 3d Hotspots service is not compatible with https instances
+                hotspots3dProxy: {
+                    options: {
+                        servletName: "api-legacy/proxy",
+                        subService : {
+                            hotspotsByGene: "3dHotspots"
+                        }
+                    }
+                },
                 // TODO for now init variant annotation data proxy with full empty data
                 // (this will practically disable the genome-nexus connections until it is ready)
                 variantAnnotationProxy: {
@@ -550,20 +559,95 @@ cbio.util = (function() {
         return target;
     }
 
-    //Get hotspot description. TODO: add type as parameter for different source of hotspot sources.
-    function getHotSpotDesc() {
+    //Get hotspot description.
+    function getHotSpotDesc(isHotspot, is3dHotspot) {
         //Single quote attribute is not supported in mutation view Backbone template.
         //HTML entity is not supported in patient view.
         //Another solution is to use unquoted attribute value which has been
         //supported since HTML2.0
-        return "<b>Recurrent Hotspot</b><br/>" +
-            "This mutated amino acid was identified as a recurrent hotspot " +
-            "(statistically significant) in a population-scale cohort of " +
-            "tumor samples of various cancer types using methodology based in " +
-            "part on <a href=\"http://www.ncbi.nlm.nih.gov/pubmed/26619011\" target=\"_blank\">" +
-            "Chang et al., Nat Biotechnol, 2016</a>.<br/><br/>" +
-            "Explore all mutations at " +
-            "<a href=\"http://cancerhotspots.org/\" target=\"_blank\">http://cancerhotspots.org/</a>.";
+        
+        var strBuilder = [];
+        
+        // title
+        if (isHotspot)
+        {
+            strBuilder.push("<b>Recurrent Hotspot</b>");
+            
+            if (is3dHotspot) {
+                strBuilder.push(" and ");
+            }
+        }
+        
+        if (is3dHotspot)
+        {
+            strBuilder.push("<b>3D Clustered Hotspot</b>");
+        }
+        
+        strBuilder.push("<br/>");
+        // end title
+        
+        // hotspot&publication info
+        strBuilder.push("This mutated amino acid was identified as ");
+
+        if (isHotspot)
+        {
+            strBuilder.push("a recurrent hotspot (statistically significant) ");
+
+            if (is3dHotspot) {
+                strBuilder.push("and ");
+            }
+        }
+
+        if (is3dHotspot) {
+            strBuilder.push("a 3D clustered hotspot ");
+        }
+
+        strBuilder.push("in a population-scale cohort of tumor samples of " +
+            "various cancer types using methodology based in part on ");
+
+        if (isHotspot)
+        {
+            strBuilder.push("<a href=\"http://www.ncbi.nlm.nih.gov/pubmed/26619011\" target=\"_blank\">" +
+                "Chang et al., Nat Biotechnol, 2016</a>");
+
+            if (is3dHotspot) {
+                strBuilder.push(" and ");
+            }
+            else {
+                strBuilder.push(".");
+            }
+        }
+        
+        if (is3dHotspot)
+        {
+            // TODO add the publication link when published
+            strBuilder.push("Gao et al., in press.");
+        }
+        
+        strBuilder.push("<br/><br/>");
+        // end hotspot&publication info
+        
+        // links
+        strBuilder.push("Explore all mutations at ");
+        
+        if (isHotspot)
+        {
+            strBuilder.push("<a href=\"http://cancerhotspots.org/\" target=\"_blank\">http://cancerhotspots.org/</a>");
+
+            if (is3dHotspot) {
+                strBuilder.push(" and ");
+            }
+            else {
+                strBuilder.push(".");
+            }
+        }
+        
+        if (is3dHotspot) {
+            strBuilder.push("<a href=\"http://3dhotspots.org/\" target=\"_blank\">http://3dhotspots.org/</a>.");
+        }
+        // end links
+        
+        return strBuilder.join("");
     }
 
     /**

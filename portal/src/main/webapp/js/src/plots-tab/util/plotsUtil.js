@@ -133,7 +133,7 @@ var clinical_attr_is_discretized = function(_axis) {
 };
 
 var isEmpty = function(inputVal) {
-    if (inputVal !== "NaN" && inputVal !== "NA") {
+    if (inputVal !== "NaN" && inputVal !== "NA" && inputVal !== "" && inputVal.length !== 0) {
         return false;
     }
     return true;

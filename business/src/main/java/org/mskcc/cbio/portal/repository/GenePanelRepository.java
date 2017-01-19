@@ -38,6 +38,9 @@ package org.mskcc.cbio.portal.repository;
  */
 
 import org.cbioportal.model.*;
+import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GenePanelWithSamples;
+
 import java.util.*;
 
 public interface GenePanelRepository {

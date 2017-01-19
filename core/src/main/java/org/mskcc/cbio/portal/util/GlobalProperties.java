@@ -36,6 +36,8 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -48,6 +50,7 @@ import java.net.URL;
 /**
  * Utility class for getting / setting global properties.
  */
+@Configuration
 public class GlobalProperties {
 
     public static final String HOME_DIR = "PORTAL_HOME";
@@ -132,7 +135,9 @@ public class GlobalProperties {
     public static final String ONCOKB_API_URL = "oncokb.api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
-    public static final String SESSION_SERVICE_URL = "session.service.url";
+    private static String sessionServiceURL;
+    @Value("${session.service.url:}") // default is empty string
+    public void setSessionServiceURL(String property) { sessionServiceURL = property; }
 
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
@@ -687,7 +692,7 @@ public class GlobalProperties {
    
     public static String getSessionServiceUrl()
     {
-        return properties.getProperty(SESSION_SERVICE_URL);
+        return sessionServiceURL;
     }
  
     public static String getOncoKBApiUrl()

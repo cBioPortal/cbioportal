@@ -106,27 +106,17 @@ public class ProxyController
   @RequestMapping(value="/{path}")
   public @ResponseBody String getProxyURL(@PathVariable String path,
                                           @RequestBody String body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-      String URL = null;
-    
-        //Switch could be replaced by a filter function
-        switch (path){
-          case "bitly":
-            URL = bitlyURL;
-            break;
-        case "cancerHotSpots":
-            URL = "http://cancerhotspots.org/api/hotspots/single/";
-            break;
-        case "oncokbAccess":
-            URL = oncokbApiURL + "access";
-           break;
-        case "oncokbSummary":
-            URL = oncokbApiURL + "summary.json";
-            break;
-        default:
-            URL = "";
-            break;
-        }
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
+  {
+      Map<String, String> pathToUrl = new HashMap<>();
+      
+      pathToUrl.put("bitly", bitlyURL);
+      pathToUrl.put("cancerHotSpots", "http://cancerhotspots.org/api/hotspots/single/");
+      pathToUrl.put("3dHotspots", "http://3dhotspots.org/3d/api/hotspots/3d");
+      pathToUrl.put("oncokbAccess", oncokbApiURL + "access");
+      pathToUrl.put("oncokbSummary", oncokbApiURL + "summary.json");
+
+      String URL = pathToUrl.get(path) == null ? "" : pathToUrl.get(path);
         
         if(path != null && StringUtils.startsWithIgnoreCase(path, "oncokb") && !enableOncokb) {
             response.sendError(403, "OncoKB service is disabled.");

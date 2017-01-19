@@ -10,9 +10,9 @@ package org.mskcc.cbio.portal.service;
  * @author heinsz
  */
 
-import org.cbioportal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GenePanel;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GenePanelWithSamples;
+import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 import java.util.List;
 import java.util.ArrayList;
 

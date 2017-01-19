@@ -38,9 +38,10 @@ import java.util.List;
 
 public interface GeneMapper {
 
-    List<Gene> getGenes(String projection, Integer limit, Integer offset, String sortBy, String direction);
+    List<Gene> getGenes(String alias, String projection, Integer limit, Integer offset, String sortBy,
+                        String direction);
 
-    BaseMeta getMetaGenes();
+    BaseMeta getMetaGenes(String alias);
 
     Gene getGeneByEntrezGeneId(Integer entrezGeneId, String projection);
 

@@ -32,7 +32,7 @@ import java.util.List;
 @Validated
 @Api(tags = "Significantly Mutated Genes", description = " ")
 public class SignificantlyMutatedGenesController {
-    
+
     @Autowired
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
 
@@ -58,7 +58,7 @@ public class SignificantlyMutatedGenesController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, 
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT,
                 significantlyMutatedGeneService.getMetaSignificantlyMutatedGenes(studyId).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {

@@ -17,4 +17,6 @@ public class BaseServiceImplTest {
     public static final Integer ENTREZ_GENE_ID = 1;
     public static final String HUGO_GENE_SYMBOL = "hugo_gene_symbol";
     public static final String SAMPLE_LIST_ID = "sample_list_id";
+    public static final String ALIAS = "alias";
+    public static final String GENE_ID_TYPE = "gene_id_type";
 }

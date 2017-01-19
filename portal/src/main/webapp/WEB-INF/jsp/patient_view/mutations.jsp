@@ -840,7 +840,7 @@
                     addNoteTooltip("."+table_id+"-tip");
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
                     if(showHotspot) {
-                        addNoteTooltip('.'+table_id+'-hotspot', cbio.util.getHotSpotDesc());
+                        addNoteTooltip('.'+table_id+'-hotspot', cbio.util.getHotSpotDesc(true));
                     }
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);

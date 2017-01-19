@@ -141,7 +141,8 @@ public class GetAlterationDataJSON extends HttpServlet {
                 for (int i = 0; i < sampleIds.size(); i++) {
                     if (!tmpProfileDataArr.get(i).equals("NA") && 
                         tmpProfileDataArr.get(i) != null &&
-                        !tmpProfileDataArr.get(i).equals("NaN")) {
+                        !tmpProfileDataArr.get(i).equals("NaN") &&
+                        !tmpProfileDataArr.get(i).equals("")) {
                         //JSONObject _datum = new JSONObject();
                         ObjectNode _datum = mapper.createObjectNode();
                         Sample sample = DaoSample.getSampleById(sampleIds.get(i));

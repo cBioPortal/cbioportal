@@ -86,7 +86,7 @@ Retrieves meta-data regarding cancer studies stored on the server.
 
 A tab-delimited file with three columns:
 
-* **cancer\_study\_id:**  a unique integer ID that should be used to identify the cancer study in subsequent interface calls.  
+* **cancer\_study\_id:**  a unique ID that should be used to identify the cancer study in subsequent interface calls.  
 * **name:**  short name of the cancer study.
 * **description:**  short description of the cancer study.
 

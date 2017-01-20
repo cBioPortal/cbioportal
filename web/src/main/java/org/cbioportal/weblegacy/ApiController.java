@@ -9,18 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.mskcc.cbio.portal.service.ApiService;
-import org.mskcc.cbio.portal.model.DBCancerType;
-import org.mskcc.cbio.portal.model.DBClinicalField;
-import org.mskcc.cbio.portal.model.DBClinicalPatientData;
-import org.mskcc.cbio.portal.model.DBClinicalSampleData;
-import org.mskcc.cbio.portal.model.DBGene;
-import org.mskcc.cbio.portal.model.DBGeneAlias;
-import org.mskcc.cbio.portal.model.DBGeneticProfile;
-import org.mskcc.cbio.portal.model.DBPatient;
-import org.mskcc.cbio.portal.model.DBProfileData;
-import org.mskcc.cbio.portal.model.DBSample;
-import org.mskcc.cbio.portal.model.DBSampleList;
-import org.mskcc.cbio.portal.model.DBStudy;
+import org.mskcc.cbio.portal.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -101,7 +90,7 @@ public class ApiController {
             if(!Arrays.asList(fixedInput).contains(paramName)){
                 
                 String[] paramValues = request.getParameterValues(paramName);
-                customizedAttrs.put(paramName, paramValues[0].split(","));
+                customizedAttrs.put(paramName, paramValues[0].split(", "));
             }
         }
         return service.getMutationsCounts(customizedAttrs, type, per_study, studyId, gene, start, end, echo);

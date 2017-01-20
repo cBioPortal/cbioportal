@@ -51,7 +51,7 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
             int numberOfSamplesOfGeneticProfile = allGeneticDataList.size() / entrezGeneIds.size();
             double rank = ranks[allGeneticDataList.indexOf(geneticData) % numberOfSamplesOfGeneticProfile];
             double percentile = (rank / ranks.length) * 100;
-            mrnaPercentile.setPercentile(BigDecimal.valueOf(percentile).setScale(2));
+            mrnaPercentile.setPercentile(BigDecimal.valueOf(percentile).setScale(2, BigDecimal.ROUND_HALF_UP));
             mrnaPercentileList.add(mrnaPercentile);
         }
         

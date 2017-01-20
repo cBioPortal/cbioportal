@@ -52,6 +52,12 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
         geneticData4.setSampleId("sample_id_2");
         geneticData4.setValue(new BigDecimal("0.1456"));
         geneticDataList.add(geneticData4);
+        GeneticData geneticData5 = new GeneticData();
+        geneticData5.setGeneticProfileId(GENETIC_PROFILE_ID);
+        geneticData5.setEntrezGeneId(2);
+        geneticData5.setSampleId("sample_id_3");
+        geneticData5.setValue(new BigDecimal("0.1466"));
+        geneticDataList.add(geneticData5);
         
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID);
@@ -75,6 +81,6 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(SAMPLE_ID, mrnaPercentile2.getSampleId());
         Assert.assertEquals((Integer) 2, mrnaPercentile2.getEntrezGeneId());
         Assert.assertEquals(new BigDecimal("-0.4456"), mrnaPercentile2.getzScore());
-        Assert.assertEquals(new BigDecimal("50.00"), mrnaPercentile2.getPercentile());
+        Assert.assertEquals(new BigDecimal("33.33"), mrnaPercentile2.getPercentile());
     }
 }

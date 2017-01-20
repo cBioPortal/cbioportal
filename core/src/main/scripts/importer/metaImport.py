@@ -57,6 +57,8 @@ def interface():
                                        action='store_true',
                                        help='Skip tests requiring information '
                                             'from the cBioPortal installation')
+    parser.add_argument('-P', '--portal_properties', type=str, 
+                        help='portal.properties file path', required=False) 
     parser.add_argument('-jar', '--jar_path', type=str, required=False,
                         help='Path to scripts JAR file')
     parser.add_argument('-html', '--html_table', type=str,

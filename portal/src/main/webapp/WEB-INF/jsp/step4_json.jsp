@@ -66,8 +66,8 @@
         });
     </script>
 
-<textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
-name='<%= QueryBuilder.GENE_LIST %>' title='Enter HUGO Gene Symbols or Gene Aliases'><%
+<textarea rows='5' cols='80' id='gene_list' placeholder="Enter Gene Symbols or Gene Aliases" required
+name='<%= QueryBuilder.GENE_LIST %>' title='Enter Gene Symbols or Gene Aliases'><%
     if (localGeneList != null && localGeneList.length() > 0) {
 	    String geneListWithSemis =
 			    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);

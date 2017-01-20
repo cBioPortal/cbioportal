@@ -80,7 +80,6 @@ public class MutationDataUtils {
 	public static final String MUTATION_STATUS = "mutationStatus";
 	public static final String VALIDATION_STATUS = "validationStatus";
 	public static final String SEQUENCING_CENTER = "sequencingCenter";
-	public static final String NCBI_BUILD_NO = "ncbiBuildNo";
 	public static final String CHR = "chr";
 	public static final String START_POS = "startPos";
 	public static final String END_POS = "endPos";
@@ -265,7 +264,7 @@ public class MutationDataUtils {
         mutationData.put(MUTATION_STATUS, mutation.getMutationStatus());
         mutationData.put(VALIDATION_STATUS, mutation.getValidationStatus());
         mutationData.put(SEQUENCING_CENTER, this.getSequencingCenter(mutation));
-        mutationData.put(NCBI_BUILD_NO, this.getNcbiBuild(mutation));
+        mutationData.put(GlobalProperties.getNCBIBuild(), this.getNcbiBuild(mutation));
         mutationData.put(CHR, this.getChromosome(mutation));
         mutationData.put(START_POS, mutation.getStartPosition());
         mutationData.put(END_POS, mutation.getEndPosition());

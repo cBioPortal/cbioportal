@@ -116,7 +116,32 @@ public final class ImportUniProtIdMapping {
 
 	return accs;
     }
-
+    
+    public static Set<String> getSwissProtAccessionMouse() throws IOException {
+            String strURL = "http://www.uniprot.org/uniprot/?query="
+                    + "taxonomy%3amouse+AND+reviewed%3ayes&force=yes&format=list";
+            
+            URL url = new URL(strURL);
+    
+            URLConnection pfamConn = url.openConnection();
+   
+            BufferedReader in = new BufferedReader(
+                            new InputStreamReader(pfamConn.getInputStream()));
+    
+            String line;
+            Set<String> accs = new HashSet<String>();
+    
+            // read all
+            while((line = in.readLine()) != null)
+            {
+                    accs.add(line);
+            }
+    
+            in.close();
+    
+    	return accs;
+        }
+    
     public static void main(final String[] args) {
         if (args.length < 1) {
             System.out.println("command line usage: importUniProtIdMapping.pl <uniprot_id_mapping.txt>");

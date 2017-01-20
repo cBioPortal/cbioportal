@@ -35,9 +35,9 @@ public class MrnaPercentileController {
 
     @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/mrna-percentile/fetch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get mutations in a genetic profile")
+    @ApiOperation("Get mRNA expression percentiles for list of genes for a sample")
     public ResponseEntity<List<MrnaPercentile>> getMrnaPercentile(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
+        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String geneticProfileId,
         @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
         @RequestParam String sampleId,
@@ -45,8 +45,8 @@ public class MrnaPercentileController {
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<Integer> entrezGeneIds)
         throws SampleNotFoundException, GeneticProfileNotFoundException {
-        
-            return new ResponseEntity<>(
-                mrnaPercentileService.fetchMrnaPercentile(geneticProfileId, sampleId, entrezGeneIds), HttpStatus.OK);
+
+        return new ResponseEntity<>(
+            mrnaPercentileService.fetchMrnaPercentile(geneticProfileId, sampleId, entrezGeneIds), HttpStatus.OK);
     }
 }

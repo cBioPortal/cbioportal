@@ -35,11 +35,11 @@ public class CopyNumberSegmentController {
 
     private static final int COPY_NUMBER_SEGMENT_MAX_PAGE_SIZE = 20000;
     private static final String COPY_NUMBER_SEGMENT_DEFAULT_PAGE_SIZE = "20000";
-    
+
     @Autowired
     private CopyNumberSegmentService copyNumberSegmentService;
 
-    @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/copy-number-segments", method = RequestMethod.GET, 
+    @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/copy-number-segments", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get copy number segments in a sample in a study")
     public ResponseEntity<List<CopyNumberSeg>> getCopyNumberSegmentsInSampleInStudy(
@@ -68,8 +68,8 @@ public class CopyNumberSegmentController {
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId, 
-                    projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), 
+                copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId,
+                    projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(),
                     direction.name()), HttpStatus.OK);
         }
     }

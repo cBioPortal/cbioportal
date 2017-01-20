@@ -3,7 +3,7 @@ package org.cbioportal.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
@@ -259,11 +259,11 @@ public class MutationControllerTest {
     @Test
     public void getMutationsInGeneticProfileMetaProjection() throws Exception {
 
-        BaseMeta baseMeta = new BaseMeta();
-        baseMeta.setTotalCount(2);
+        MutationMeta mutationMeta = new MutationMeta();
+        mutationMeta.setTotalCount(2);
 
         Mockito.when(mutationService.getMetaMutationsInGeneticProfile(Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(baseMeta);
+            .thenReturn(mutationMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
             .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
@@ -426,11 +426,11 @@ public class MutationControllerTest {
     @Test
     public void fetchMutationsInGeneticProfileMetaProjection() throws Exception {
 
-        BaseMeta baseMeta = new BaseMeta();
-        baseMeta.setTotalCount(2);
+        MutationMeta mutationMeta = new MutationMeta();
+        mutationMeta.setTotalCount(2);
 
         Mockito.when(mutationService.fetchMetaMutationsInGeneticProfile(Mockito.anyString(), 
-            Mockito.anyListOf(String.class))).thenReturn(baseMeta);
+            Mockito.anyListOf(String.class))).thenReturn(mutationMeta);
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);

@@ -6,11 +6,9 @@ public class Geneset extends GeneticEntity implements Serializable {
 
     private Integer internalId;
     private String genesetId;
-    private String nameShort;
     private String name;
+    private String description;
     private String refLink;
-    private String version;
-
 
 	public Integer getInternalId() {
 		return internalId;
@@ -28,14 +26,6 @@ public class Geneset extends GeneticEntity implements Serializable {
 		this.genesetId = genesetId;
 	}
 
-	public String getNameShort() {
-		return nameShort;
-	}
-
-	public void setNameShort(String nameShort) {
-		this.nameShort = nameShort;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -44,20 +34,20 @@ public class Geneset extends GeneticEntity implements Serializable {
 		this.name = name;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public String getRefLink() {
 		return refLink;
 	}
 
 	public void setRefLink(String refLink) {
 		this.refLink = refLink;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
 	}
 
 	@Override

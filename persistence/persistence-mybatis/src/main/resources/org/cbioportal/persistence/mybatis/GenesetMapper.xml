@@ -8,11 +8,9 @@
         geneset.ID AS "${prefix}internalId",
         geneset.EXTERNAL_ID AS "${prefix}genesetId",
         geneset.GENETIC_ENTITY_ID as "${prefix}entityId",
-        geneset.NAME_SHORT as "${prefix}nameShort",
-        geneset.NAME_SHORT as "${prefix}nameShort",
         geneset.NAME as "${prefix}name",
+        geneset.DESCRIPTION as "${prefix}description",
         geneset.REF_LINK as "${prefix}refLink",
-        geneset.VERSION as "${prefix}version"
     </sql>
 
     <select id="getGenesets" resultType="org.cbioportal.model.Geneset">

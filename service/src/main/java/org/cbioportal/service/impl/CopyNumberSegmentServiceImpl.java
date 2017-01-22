@@ -30,4 +30,17 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
         
         return copyNumberSegmentRepository.getMetaCopyNumberSegmentsInSampleInStudy(studyId, sampleId);
     }
+
+    @Override
+    public List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, 
+                                                       String projection) {
+        
+        return copyNumberSegmentRepository.fetchCopyNumberSegments(studyIds, sampleIds, projection);
+    }
+
+    @Override
+    public BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds) {
+        
+        return copyNumberSegmentRepository.fetchMetaCopyNumberSegments(studyIds, sampleIds);
+    }
 }

@@ -34,9 +34,9 @@ public class MrnaPercentileController {
     private MrnaPercentileService mrnaPercentileService;
 
     @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/mrna-percentile/fetch", method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get mRNA expression percentiles for list of genes for a sample")
-    public ResponseEntity<List<MrnaPercentile>> getMrnaPercentile(
+    public ResponseEntity<List<MrnaPercentile>> fetchMrnaPercentile(
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String geneticProfileId,
         @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")

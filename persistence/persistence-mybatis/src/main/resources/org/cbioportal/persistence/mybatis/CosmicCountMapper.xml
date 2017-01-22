@@ -4,21 +4,20 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.CosmicCountMapper">
     <cache/>
 
-    <select id="getCOSMICCountsByKeywords" resultType="org.cbioportal.model.CosmicCount">
-        select
-
-        cosmic_mutation.PROTEIN_CHANGE as proteinChange,
-        cosmic_mutation.KEYWORD as keyword,
-        cosmic_mutation.COUNT as count,
-        cosmic_mutation.COSMIC_MUTATION_ID as cosmicMutationId
-        
-        from cosmic_mutation
+    <select id="getCosmicCountsByKeywords" resultType="org.cbioportal.model.CosmicMutation">
+        SELECT
+        cosmic_mutation.COSMIC_MUTATION_ID AS cosmicMutationId,
+        cosmic_mutation.PROTEIN_CHANGE AS proteinChange,
+        cosmic_mutation.KEYWORD AS keyword,
+        cosmic_mutation.COUNT AS count
+        FROM cosmic_mutation
         <where>
             <if test="list != null and !list.isEmpty()">
-            cosmic_mutation.KEYWORD in 
-            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
+                cosmic_mutation.KEYWORD IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
             </if>
         </where>
     </select>
-
 </mapper>

@@ -28,8 +28,11 @@
     
     <sql id="where">
         <where>
-            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
-            AND sample.STABLE_ID = #{sampleId}
+            <if test="sampleIds != null and !sampleIds.isEmpty()">
+                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND sample.STABLE_ID = #{sampleIds[${i}]}
+                </foreach>
+            </if>
         </where>
     </sql>
     

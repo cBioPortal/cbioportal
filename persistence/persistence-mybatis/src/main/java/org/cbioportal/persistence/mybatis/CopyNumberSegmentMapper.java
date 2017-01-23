@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface CopyNumberSegmentMapper {
     
-    List<CopyNumberSeg> getCopyNumberSegments(String studyId, String sampleId, String projection, Integer limit,
-                                              Integer offset, String sortBy, String direction);
+    List<CopyNumberSeg> getCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String projection, 
+                                              Integer limit, Integer offset, String sortBy, String direction);
 
-    BaseMeta getMetaCopyNumberSegments(String studyId, String sampleId);
+    BaseMeta getMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds);
 }

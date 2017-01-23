@@ -12,4 +12,8 @@ public interface CopyNumberSegmentRepository {
                                                              String direction);
 
     BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId);
+
+    List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String projection);
+
+    BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds);
 }

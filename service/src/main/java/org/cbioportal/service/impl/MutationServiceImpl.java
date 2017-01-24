@@ -1,7 +1,9 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.model.MutationSampleCountByGene;
+import org.cbioportal.model.MutationSampleCountByKeyword;
+import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.util.ChromosomeCalculator;
@@ -23,15 +25,15 @@ public class MutationServiceImpl implements MutationService {
                                                        Integer pageSize, Integer pageNumber, String sortBy, 
                                                        String direction) {
 
-        List<Mutation> mutationList = mutationRepository.getMutationsInGeneticProfile(geneticProfileId, sampleId, projection, pageSize,
-            pageNumber, sortBy, direction);
+        List<Mutation> mutationList = mutationRepository.getMutationsInGeneticProfile(geneticProfileId, sampleId, 
+            projection, pageSize, pageNumber, sortBy, direction);
         
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;
     }
 
     @Override
-    public BaseMeta getMetaMutationsInGeneticProfile(String geneticProfileId, String sampleId) {
+    public MutationMeta getMetaMutationsInGeneticProfile(String geneticProfileId, String sampleId) {
         
         return mutationRepository.getMetaMutationsInGeneticProfile(geneticProfileId, sampleId);
     }
@@ -41,16 +43,29 @@ public class MutationServiceImpl implements MutationService {
                                                          String projection, Integer pageSize, Integer pageNumber,
                                                          String sortBy, String direction) {
 
-        List<Mutation> mutationList = mutationRepository.fetchMutationsInGeneticProfile(geneticProfileId, sampleIds, projection, pageSize,
-            pageNumber, sortBy, direction);
+        List<Mutation> mutationList = mutationRepository.fetchMutationsInGeneticProfile(geneticProfileId, sampleIds, 
+            projection, pageSize, pageNumber, sortBy, direction);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;
     }
 
     @Override
-    public BaseMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds) {
+    public MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds) {
 
         return mutationRepository.fetchMetaMutationsInGeneticProfile(geneticProfileId, sampleIds);
+    }
+
+    @Override
+    public List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, 
+                                                                         List<Integer> entrezGeneIds) {
+        
+        return mutationRepository.getSampleCountByEntrezGeneIds(geneticProfileId, entrezGeneIds);
+    }
+
+    @Override
+    public List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords) {
+        
+        return mutationRepository.getSampleCountByKeywords(geneticProfileId, keywords);
     }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.mskcc.cbio.portal.model.CosmicCount;
 import org.mskcc.cbio.portal.model.Mutation;
 import org.mskcc.cbio.portal.model.MutationSignatureFactory;
 import org.cbioportal.model.MutationWithSampleListId;
@@ -47,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.cbioportal.model.MutationSignature;
-import org.cbioportal.model.CosmicCount;
+
 
 /**
  *

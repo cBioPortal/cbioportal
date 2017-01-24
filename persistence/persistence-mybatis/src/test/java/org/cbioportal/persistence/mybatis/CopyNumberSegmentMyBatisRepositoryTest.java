@@ -11,13 +11,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
 @Configurable
 public class CopyNumberSegmentMyBatisRepositoryTest {
-    
+
     @Autowired
     private CopyNumberSegmentMyBatisRepository copyNumberSegmentMyBatisRepository;
 
@@ -108,5 +109,39 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
             "TCGA-A1-A0SB-01");
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
+    }
+
+    @Test
+    public void fetchCopyNumberSegments() throws Exception {
+
+        List<String> studyIds = new ArrayList<>();
+        studyIds.add("study_tcga_pub");
+        studyIds.add("acc_tcga");
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-B0SO-01");
+        
+        List<CopyNumberSeg> result = copyNumberSegmentMyBatisRepository.fetchCopyNumberSegments(studyIds, sampleIds, 
+            "SUMMARY");
+        
+        Assert.assertEquals(3, result.size());
+        Assert.assertEquals("TCGA-A1-B0SO-01", result.get(0).getSampleStableId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", result.get(1).getSampleStableId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", result.get(2).getSampleStableId());
+    }
+
+    @Test
+    public void fetchMetaCopyNumberSegments() throws Exception {
+
+        List<String> studyIds = new ArrayList<>();
+        studyIds.add("study_tcga_pub");
+        studyIds.add("acc_tcga");
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-B0SO-01");
+
+        BaseMeta result = copyNumberSegmentMyBatisRepository.fetchMetaCopyNumberSegments(studyIds, sampleIds);
+
+        Assert.assertEquals((Integer) 3, result.getTotalCount());
     }
 }

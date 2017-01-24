@@ -13,7 +13,6 @@ import org.cbioportal.service.exception.SampleNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +48,7 @@ public class GeneticDataServiceImpl implements GeneticDataService {
             geneticData.setGeneticProfileId(geneticProfileId);
             geneticData.setSampleId(sampleId);
             geneticData.setEntrezGeneId(geneticAlteration.getEntrezGeneId());
-            geneticData.setValue(new BigDecimal(geneticAlteration.getValues().split(",")[indexOfSampleId]));
+            geneticData.setValue(geneticAlteration.getValues().split(",")[indexOfSampleId]);
             geneticDataList.add(geneticData);
         }
 
@@ -71,6 +70,7 @@ public class GeneticDataServiceImpl implements GeneticDataService {
         List<GeneticData> geneticDataList = new ArrayList<>();
 
         for (GeneticAlteration geneticAlteration : geneticAlterations) {
+            String[] splitValues = geneticAlteration.getValues().split(",");
             for (int i = 0; i < sampleIds.size(); i++) {
                 Integer sampleId = sampleIds.get(i);
                 GeneticData geneticData = new GeneticData();
@@ -78,8 +78,7 @@ public class GeneticDataServiceImpl implements GeneticDataService {
                 Sample sample = samples.stream().filter(s -> s.getInternalId().equals(sampleId)).findFirst().get();
                 geneticData.setSampleId(sample.getStableId());
                 geneticData.setEntrezGeneId(geneticAlteration.getEntrezGeneId());
-                geneticData.setValue(new BigDecimal(geneticAlteration.getValues()
-                    .split(",")[i]));
+                geneticData.setValue(splitValues[i]);
                 geneticDataList.add(geneticData);
             }
         }

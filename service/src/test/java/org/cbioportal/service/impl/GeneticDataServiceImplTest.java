@@ -64,7 +64,7 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(ENTREZ_GENE_ID, geneticData.getEntrezGeneId());
         Assert.assertEquals(GENETIC_PROFILE_ID, geneticData.getGeneticProfileId());
         Assert.assertEquals(SAMPLE_ID, geneticData.getSampleId());
-        Assert.assertEquals(new BigDecimal("0.4674"), geneticData.getValue());
+        Assert.assertEquals("0.4674", geneticData.getValue());
     }
 
     @Test
@@ -107,11 +107,11 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(ENTREZ_GENE_ID, geneticData1.getEntrezGeneId());
         Assert.assertEquals(GENETIC_PROFILE_ID, geneticData1.getGeneticProfileId());
         Assert.assertEquals(SAMPLE_ID, geneticData1.getSampleId());
-        Assert.assertEquals(new BigDecimal("0.4674"), geneticData1.getValue());
+        Assert.assertEquals("0.4674", geneticData1.getValue());
         GeneticData geneticData2 = result.get(1);
         Assert.assertEquals(ENTREZ_GENE_ID, geneticData2.getEntrezGeneId());
         Assert.assertEquals(GENETIC_PROFILE_ID, geneticData2.getGeneticProfileId());
         Assert.assertEquals("sample_id_2", geneticData2.getSampleId());
-        Assert.assertEquals(new BigDecimal("-0.3456"), geneticData2.getValue());
+        Assert.assertEquals("-0.3456", geneticData2.getValue());
     }
 }

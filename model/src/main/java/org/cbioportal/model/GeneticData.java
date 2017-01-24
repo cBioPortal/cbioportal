@@ -8,7 +8,7 @@ public class GeneticData implements Serializable {
     private String geneticProfileId;
     private Integer entrezGeneId;
     private String sampleId;
-    private BigDecimal value;
+    private String value;
 
     public String getGeneticProfileId() {
         return geneticProfileId;
@@ -34,11 +34,11 @@ public class GeneticData implements Serializable {
         this.sampleId = sampleId;
     }
 
-    public BigDecimal getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(BigDecimal value) {
+    public void setValue(String value) {
         this.value = value;
     }
 }

@@ -203,11 +203,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
     var getCBioPortalMutationCounts = function (webservice_data) {
 	/* In: - webservice_data, a list of data obtained from the webservice API
-	 * Out: Promise which resolves with map from gene+","+start_pos+","+end_pos to cbioportal mutation count for that position range and gene
+	 * Out: Promise which resolves with map of type [gene]=>[codon position]=>mutation count
 	 */
-	var counts_map = {};
 	var def = new $.Deferred();
-	var to_query = {};
+	var to_query = {}; // [gene]=>[position]=>true, iff it should be queried
 	for (var i = 0; i < webservice_data.length; i++) {
 	    var datum = webservice_data[i];
 	    if (datum.genetic_alteration_type !== "MUTATION_EXTENDED" || datum.simplified_mutation_type !== "missense") {
@@ -215,47 +214,37 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    }
 	    var gene = datum.hugo_gene_symbol;
 	    var start_pos = datum.protein_start_position;
-	    var end_pos = datum.protein_end_position;
-	    if (gene && start_pos && end_pos && !isNaN(start_pos) && !isNaN(end_pos)) {
-		to_query[gene + ',' + parseInt(start_pos, 10) + ',' + parseInt(end_pos, 10)] = true;
+	    if (gene && start_pos && !isNaN(start_pos)) {
+		to_query[gene] = to_query[gene] || {};
+		to_query[gene][parseInt(start_pos, 10)] = true;
 	    }
 	}
-	var queries = Object.keys(to_query).map(function (x) {
-	    var splitx = x.split(',');
-	    return {
-		gene: splitx[0],
-		start_pos: splitx[1],
-		end_pos: splitx[2]
-	    };
-	});
-	var genes = queries.map(function (q) {
-	    return q.gene;
-	});
-	var starts = queries.map(function (q) {
-	    return q.start_pos;
-	});
-	var ends = queries.map(function (q) {
-	    return q.end_pos;
-	});
-
-	if (queries.length > 0) {
-	    window.cbioportal_client.getMutationCounts({
-		'type': 'count',
-		'per_study': false,
-		'gene': genes,
-		'start': starts,
-		'end': ends,
-		'echo': ['gene', 'start', 'end']
-	    }).then(function (counts) {
-		for (var i = 0; i < counts.length; i++) {
-		    var gene = counts[i].gene;
-		    var start = parseInt(counts[i].start, 10);
-		    var end = parseInt(counts[i].end, 10);
-		    counts_map[gene + ',' + start + ',' + end] = parseInt(counts[i].count, 10);
-		}
-		def.resolve(counts_map);
-	    }).fail(function () {
+	if (Object.keys(to_query).length > 0) {
+	    var query_genes = Object.keys(to_query);
+	    var query_positions = query_genes.map(function(gene) {
+		return Object.keys(to_query[gene]).map(function(pos) { return parseInt(pos, 10); });
+	    });
+	    $.ajax({
+		type: "POST",
+		url: "api-legacy/position-mutation-count",
+		data: {
+		    genes: query_genes,
+		    positions: query_positions
+		},
+		dataType: "json",
+		traditional: true
+	    }).fail(function() {
 		def.reject();
+	    }).then(function(position_mutation_counts) {
+		var gene_to_position_to_count = {};
+		for (var i=0; i<position_mutation_counts.length; i++) {
+		    var gene = position_mutation_counts[i].hugoGeneSymbol;
+		    var position = position_mutation_counts[i].codonPosition;
+		    var count = position_mutation_counts[i].mutationCount;
+		    gene_to_position_to_count[gene] = gene_to_position_to_count[gene] || {};
+		    gene_to_position_to_count[gene][position] = count;
+		}
+		def.resolve(gene_to_position_to_count);
 	    });
 	} else {
 	    def.resolve({});
@@ -360,18 +349,17 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	 */
 	var def = new $.Deferred();
 	var attribute_name = 'cbioportal_mutation_count';
-	getCBioPortalMutationCounts(webservice_data).then(function (counts_map) {
+	getCBioPortalMutationCounts(webservice_data).then(function (gene_to_position_to_count) {
 	    for (var i = 0; i < webservice_data.length; i++) {
 		var datum = webservice_data[i];
-		if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
+		if (datum.genetic_alteration_type !== "MUTATION_EXTENDED" || datum.simplified_mutation_type !== "missense") {
 		    continue;
 		}
 		var gene = datum.hugo_gene_symbol;
 		gene && (gene = gene.toUpperCase());
 		var start_pos = datum.protein_start_position;
-		var end_pos = datum.protein_end_position;
-		if (gene && start_pos && end_pos && !isNaN(start_pos) && !isNaN(end_pos)) {
-		    datum[attribute_name] = counts_map[gene + ',' + parseInt(start_pos, 10) + ',' + parseInt(end_pos, 10)];
+		if (gene && start_pos && !isNaN(start_pos)) {
+		    datum[attribute_name] = gene_to_position_to_count[gene][start_pos];
 		}
 	    }
 	    def.resolve(webservice_data);

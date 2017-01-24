@@ -204,7 +204,11 @@ $(document).ready(function() {
 						initMode: "full",
 						data: mutationData
 					}
-				}
+				},
+                // temp workaround to disable the default 3d hotspots proxy
+                hotspots3dProxy: {
+				    instance: {}
+                }
 			},
 			view: {
 				mutationTable: tableOpts,

@@ -97,10 +97,10 @@
                        <div class="checkbox"><label><input type="checkbox" name="type" value="type"/> Type</label></div>
                        <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence"> Putative drivers based on:</label><i class="fa fa-md fa-info-circle" style="cursor:pointer; padding-top:0.2em;" id="putative_driver_info_icon"></i></div>
                        <div style="margin-left: 20px;">
+                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/> driver annotation</label></div>
                            <div class="checkbox"><label><input type="checkbox" name="hotspots" value="hotspots"> Hotspots <img id="colorby_hotspot_info" src="images/cancer-hotspots.svg" style="height:15px; width:15px; cursor:pointer;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cbioportal" value="cbioportal"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cosmic" value="cosmic"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/></label></div>
-                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/> driver annotation</label></div>
                            <div class="checkbox"><label><input type="checkbox" name="hide_unknown" value="hide_unknown"> Hide putative passenger mutations</label></div>
                        </div>
                    </form>

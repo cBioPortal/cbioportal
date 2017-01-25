@@ -1700,6 +1700,14 @@ class SampleClinicalValidator(ClinicalValidator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
+                # this one gives problems in old parts of the java code such as CnaJSON.processCnaFractionsRequest(),
+                # so block commas in sample id:
+                if ',' in value:
+                    self.logger.error(
+                        'Comma (,) in SAMPLE_ID is not supported',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
                 if value in self.sample_id_lines:
                     if value.startswith('TCGA-'):
                         self.logger.warning(

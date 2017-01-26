@@ -894,12 +894,15 @@ OncoKB.Instance.prototype = {
             .fail(function() {
                 console.log('POST failed.');
             });
-        
-        var civicPromise = self.civicService.getCivicGenes(geneSymbols)
-            .then(function(result) {
-                self.civicGenes = result;
-            });
-        var promises = [oncokbPromise, civicPromise];
+
+        var promises = [oncokbPromise];
+        if (showCivic) {
+            var civicPromise = self.civicService.getCivicGenes(geneSymbols)
+                .then(function (result) {
+                    self.civicGenes = result;
+                });
+            promises.push(civicPromise);
+        }
         
         // We're explicitly waiting for all promises to finish (done or fail).
         // We are wrapping them in another promise separately, to make sure we also 

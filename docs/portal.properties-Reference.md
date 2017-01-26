@@ -63,7 +63,7 @@ app.name should be set to the name of the portal instance referenced in the "AUT
 
 # Civic integration
 
-Civic integration can be turned on or off with the following property:
+Civic integration can be turned on or off with the following property (default: true):
 ```
 show.civic=true|false
 ```

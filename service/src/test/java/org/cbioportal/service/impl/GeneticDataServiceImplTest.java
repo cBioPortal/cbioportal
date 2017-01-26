@@ -17,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,9 +43,13 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
         geneticProfile.setCancerStudyIdentifier(STUDY_ID);
         Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
         
+        List<Sample> sampleList = new ArrayList<>();
         Sample sample = new Sample();
         sample.setInternalId(1);
-        Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID)).thenReturn(sample);
+        sample.setStableId(SAMPLE_ID);
+        sampleList.add(sample);
+        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID), "ID"))
+            .thenReturn(sampleList);
 
         List<GeneticAlteration> geneticAlterationList = new ArrayList<>();
         GeneticAlteration geneticAlteration = new GeneticAlteration();
@@ -54,10 +59,11 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID);
-        Mockito.when(geneticDataRepository.getGeneticAlterations(GENETIC_PROFILE_ID, entrezGeneIds))
+        Mockito.when(geneticDataRepository.getGeneticAlterations(GENETIC_PROFILE_ID, entrezGeneIds, PROJECTION))
             .thenReturn(geneticAlterationList);
 
-        List<GeneticData> result = geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_ID, entrezGeneIds);
+        List<GeneticData> result = geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_ID, entrezGeneIds, 
+            PROJECTION);
 
         Assert.assertEquals(1, result.size());
         GeneticData geneticData = result.get(0);
@@ -81,7 +87,7 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID);
-        Mockito.when(geneticDataRepository.getGeneticAlterations(GENETIC_PROFILE_ID, entrezGeneIds))
+        Mockito.when(geneticDataRepository.getGeneticAlterations(GENETIC_PROFILE_ID, entrezGeneIds, PROJECTION))
             .thenReturn(geneticAlterationList);
         
         List<Integer> internalIds = new ArrayList<>();
@@ -99,8 +105,8 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
         samples.add(sample2);
         Mockito.when(sampleService.getSamplesByInternalIds(internalIds)).thenReturn(samples);
 
-        List<GeneticData> result = geneticDataService.getGeneticDataOfAllSamplesOfGeneticProfile(GENETIC_PROFILE_ID,
-            entrezGeneIds);
+        List<GeneticData> result = geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, null, entrezGeneIds, 
+            PROJECTION);
 
         Assert.assertEquals(2, result.size());
         GeneticData geneticData1 = result.get(0);

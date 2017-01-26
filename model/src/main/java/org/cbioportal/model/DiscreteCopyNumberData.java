@@ -1,14 +1,13 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
-public class GeneticData implements Serializable {
+public class DiscreteCopyNumberData implements Serializable {
 
     private String geneticProfileId;
     private Integer entrezGeneId;
     private String sampleId;
-    private String value;
+    private Integer alteration;
     private Gene gene;
 
     public String getGeneticProfileId() {
@@ -35,12 +34,12 @@ public class GeneticData implements Serializable {
         this.sampleId = sampleId;
     }
 
-    public String getValue() {
-        return value;
+    public Integer getAlteration() {
+        return alteration;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setAlteration(Integer alteration) {
+        this.alteration = alteration;
     }
 
     public Gene getGene() {

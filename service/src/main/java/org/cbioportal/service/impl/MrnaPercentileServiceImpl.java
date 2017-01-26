@@ -5,11 +5,12 @@ import org.apache.commons.math3.stat.ranking.NaNStrategy;
 import org.apache.commons.math3.stat.ranking.NaturalRanking;
 import org.apache.commons.math3.stat.ranking.TiesStrategy;
 import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.GeneticDataService;
+import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.MrnaPercentileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
-import org.cbioportal.service.exception.SampleNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +24,18 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
 
     @Autowired
     private GeneticDataService geneticDataService;
+    @Autowired
+    private GeneticProfileService geneticProfileService;
 
     @Override
     public List<MrnaPercentile> fetchMrnaPercentile(String geneticProfileId, String sampleId,
                                                     List<Integer> entrezGeneIds)
-        throws SampleNotFoundException, GeneticProfileNotFoundException {
+        throws GeneticProfileNotFoundException {
 
-        List<GeneticData> allGeneticDataList = geneticDataService.getGeneticDataOfAllSamplesOfGeneticProfile(
-            geneticProfileId, entrezGeneIds);
+        validateGeneticProfile(geneticProfileId);
+
+        List<GeneticData> allGeneticDataList = geneticDataService.fetchGeneticData(
+            geneticProfileId, null, entrezGeneIds, "SUMMARY");
 
         List<GeneticData> geneticDataList = allGeneticDataList.stream().filter(g -> g.getSampleId().equals(sampleId))
             .collect(Collectors.toList());
@@ -61,5 +66,16 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
         }
         
         return mrnaPercentileList;
+    }
+
+    private void validateGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException {
+        
+        GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+
+        if (!geneticProfile.getGeneticAlterationType()
+            .equals(GeneticProfile.GeneticAlterationType.MRNA_EXPRESSION)) {
+
+            throw new GeneticProfileNotFoundException(geneticProfileId);
+        }
     }
 }

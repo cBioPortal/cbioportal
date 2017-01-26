@@ -84,7 +84,7 @@ public class MutationController {
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
         @PathVariable String geneticProfileId,
         @ApiParam(required = true, value = "List of Sample IDs")
-        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
+        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> sampleIds,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,

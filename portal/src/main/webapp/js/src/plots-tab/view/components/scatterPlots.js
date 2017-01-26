@@ -338,6 +338,9 @@ var scatterPlots = (function() {
                     .attr("fill", function(d){
                         return mutationInterpreter.getFill(d);
                     })
+                    .style("opacity", function(d){
+                        return mutationInterpreter.getOpacity();
+                    })
                     .attr("stroke", function(d){
                         return mutationInterpreter.getStroke(d);
                     })
@@ -390,6 +393,9 @@ var scatterPlots = (function() {
                 .attr("fill", function(d){
                     return mutationInterpreter.getFill(d);
                 })
+                .style("opacity", function(d){
+                    return mutationInterpreter.getOpacity();
+                })
                 .attr("stroke", function(d){
                     return mutationInterpreter.getStroke(d);
                 })
@@ -440,6 +446,9 @@ var scatterPlots = (function() {
                     }))
                 .attr("fill", function(d){
                     return mutationInterpreter.getFill(d);
+                })
+                .style("opacity", function(d){
+                    return mutationInterpreter.getOpacity();
                 })
                 .attr("stroke", function(d){
                     return mutationInterpreter.getStroke(d);
@@ -530,7 +539,12 @@ var scatterPlots = (function() {
         };
         
         var update_axis_title = function(_axis, _opt) {
-            var _previous_text = d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text();
+            var _previous_text;
+            if ($('.' + d3_class[_axis].axis_title).length !== 0) {
+                _previous_text = d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text();
+            } else {
+                _previous_text = d3.select("#plots-box").select("." + d3_class[_axis].axis_title + "_trimmed").text();
+            }
             if (_opt === "append") {
                 if (_previous_text.indexOf("(log2)") === -1) {
                     d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text(_previous_text + " (log2)");
@@ -877,15 +891,8 @@ var scatterPlots = (function() {
                 });
             }
 
-            $(this).qtip(
-                {
-                    content: {text: _content},
-                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                    show: {event: "mouseover"},
-                    hide: {fixed:true, delay: 100, event: "mouseout"},
-                    position: {my:'left bottom',at:'top right', viewport: $(window)}
-                }
-            );
+            //make qtip for an element on first mouseenter:
+            cbio.util.addTargetedQTip($(this), {content: {text: _content}});           
         });
         var mouseOn = function() {
             var dot = d3.select(this);
@@ -1019,8 +1026,10 @@ var scatterPlots = (function() {
                     var tmpGeneXcoExpStr = "",
                         tmpGeneYcoExpStr = "";
                     $.each(data, function(index, obj) {
-                        tmpGeneXcoExpStr += obj.xVal + " ";
-                        tmpGeneYcoExpStr += obj.yVal + " ";
+                        if (obj.xVal.length !== 0 && obj.xVal !== "" && obj.yVal.length !== 0 && obj.yVal !== "") {
+                            tmpGeneXcoExpStr += obj.xVal + " ";
+                            tmpGeneYcoExpStr += obj.yVal + " ";
+                        }
                     });
                     var paramsCalcCoexp = {
                         gene_x : tmpGeneXcoExpStr,

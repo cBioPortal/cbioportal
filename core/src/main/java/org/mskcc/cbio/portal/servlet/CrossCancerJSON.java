@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,19 +32,17 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
-import org.mskcc.cbio.portal.web_api.*;
 import org.mskcc.cbio.portal.util.*;
-
-import org.apache.log4j.Logger;
-import org.json.simple.JSONValue;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
-import java.io.*;
+import org.mskcc.cbio.portal.web_api.*;
 import java.util.*;
 
 public class CrossCancerJSON extends HttpServlet {
@@ -115,7 +113,7 @@ public class CrossCancerJSON extends HttpServlet {
 		if (!studyMap.containsKey(cancerStudyId)) {
 			continue;
 		}
-                if(cancerStudyId.equalsIgnoreCase("all"))
+                if (cancerStudyId.equalsIgnoreCase("all"))
                     continue;
 
                 Map cancerMap = new LinkedHashMap();
@@ -126,16 +124,16 @@ public class CrossCancerJSON extends HttpServlet {
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
                 //  Get all Patient Lists Associated with this Cancer Study ID.
-                ArrayList<PatientList> patientSetList = GetPatientLists.getPatientLists(cancerStudyId);
+                ArrayList<SampleList> sampleSetList = GetSampleLists.getSampleLists(cancerStudyId);
 
                 //  Get the default patient set
-                AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
-                PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
-                if (defaultPatientSet == null) {
+                AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
+                SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
+                if (defaultSampleSet == null) {
                     continue;
                 }
                 
-                List<String> sampleIds = defaultPatientSet.getPatientList();
+                List<String> sampleIds = defaultSampleSet.getSampleList();
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -156,9 +154,9 @@ public class CrossCancerJSON extends HttpServlet {
                 String mutationProfile = "", cnaProfile = "";
                 for (GeneticProfile geneticProfile : defaultGeneticProfileSet.values()) {
                     GeneticAlterationType geneticAlterationType = geneticProfile.getGeneticAlterationType();
-                    if(geneticAlterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                    if (geneticAlterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
                         cnaProfile = geneticProfile.getStableId();
-                    } else if(geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+                    } else if (geneticAlterationType == GeneticAlterationType.MUTATION_EXTENDED) {
                         mutationProfile = geneticProfile.getStableId();
                     }
                 }
@@ -166,16 +164,16 @@ public class CrossCancerJSON extends HttpServlet {
                 cancerMap.put("mutationProfile", mutationProfile);
                 cancerMap.put("cnaProfile", cnaProfile);
 
-                cancerMap.put("caseSetId", defaultPatientSet.getStableId());
+                cancerMap.put("caseSetId", defaultSampleSet.getStableId());
                 cancerMap.put("caseSetLength", sampleIds.size());
 
 
                 ProfileDataSummary genomicData = getGenomicData(
                         cancerStudyId,
                         defaultGeneticProfileSet,
-                        defaultPatientSet,
+                        defaultSampleSet,
                         geneList,
-                        patientSetList,
+                        sampleSetList,
                         request,
                         response
                 );
@@ -193,13 +191,13 @@ public class CrossCancerJSON extends HttpServlet {
                         noOfAll = 0;
 
                 boolean skipStudy = defaultGeneticProfileSet.isEmpty();
-                if(!skipStudy) {
+                if (!skipStudy) {
                     
                     for (String sampleId: sampleIds) {
-                        if(sampleId == null) {
+                        if (sampleId == null) {
                             continue;
                         }
-                        if(!genomicData.isCaseAltered(sampleId)) continue;
+                        if (!genomicData.isCaseAltered(sampleId)) continue;
 
                         boolean isAnyMutated = false,
                                 isAnyCnaUp = false,
@@ -222,17 +220,17 @@ public class CrossCancerJSON extends HttpServlet {
                         }
 
                         boolean isAnyCnaChanged = isAnyCnaUp || isAnyCnaDown;
-                        if(isAnyMutated && !isAnyCnaChanged)
+                        if (isAnyMutated && !isAnyCnaChanged)
                             noOfMutated++;
-                        else if(isAnyMutated && isAnyCnaChanged)
+                        else if (isAnyMutated && isAnyCnaChanged)
                             noOfOther++;
-                        else if(isAnyCnaUp)
+                        else if (isAnyCnaUp)
                             noOfCnaUp++;
-                        else if(isAnyCnaDown)
+                        else if (isAnyCnaDown)
                             noOfCnaDown++;
-                        else if(isAnyCnaGain)
+                        else if (isAnyCnaGain)
                             noOfCnaGain++;
-                        else if(isAnyCnaLoss)
+                        else if (isAnyCnaLoss)
                             noOfCnaLoss++;
 
                         noOfAll++;
@@ -268,7 +266,7 @@ public class CrossCancerJSON extends HttpServlet {
      * Gets all Genomic Data.
      */
     private ProfileDataSummary getGenomicData(String cancerStudyId, HashMap<String, GeneticProfile> defaultGeneticProfileSet,
-                                              PatientList defaultPatientSet, String geneListStr, ArrayList<PatientList> patientList,
+                                              SampleList defaultSampleSet, String geneListStr, ArrayList<SampleList> sampleList,
                                               HttpServletRequest request,
                                               HttpServletResponse response) throws IOException,
             ServletException, DaoException {
@@ -294,7 +292,7 @@ public class CrossCancerJSON extends HttpServlet {
             try {
                 GetProfileData remoteCall =
                     new GetProfileData(profile, geneList,
-                                   StringUtils.join(defaultPatientSet.getPatientList(), " "));
+                                   StringUtils.join(defaultSampleSet.getSampleList(), " "));
                 ProfileData pData = remoteCall.getProfileData();
                 warningUnion.addAll(remoteCall.getWarnings());
                 profileDataList.add(pData);
@@ -306,8 +304,6 @@ public class CrossCancerJSON extends HttpServlet {
         ProfileMerger merger = new ProfileMerger(profileDataList);
         ProfileData mergedProfile = merger.getMergedProfile();
 
-        request.setAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
-        request.setAttribute(QueryBuilder.WARNING_UNION, warningUnion);
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScore, rppaScore);
         return dataSummary;

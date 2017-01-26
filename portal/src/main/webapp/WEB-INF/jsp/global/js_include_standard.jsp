@@ -33,6 +33,8 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <!-- Include Global List of Javascript Files to Load -->
 <script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/bootstrap-dialog.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery-migrate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.tipTip.minified.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.address.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -58,5 +60,6 @@
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/global-tabs.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/cbio-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cbio-stat.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/download-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/gene-symbol-validator.js?<%=GlobalProperties.getAppVersion()%>"></script>

@@ -37,12 +37,12 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <!DOCTYPE HTML>
-<html ng-app="menu">
+<html ng-app="menu" lang="eng">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<%if(request.getAttribute("tumormap")!=null){%>
+<%if(request.getAttribute("standard-js-css")!=null){%>
 <jsp:include page="css_include_standard.jsp" flush="true" />
 <jsp:include page="js_include_standard.jsp" flush="true" />
 <%} else {%>
@@ -55,6 +55,15 @@
         $(document).ready(function(){
             $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
         });
+    
+        // Set API root variable for cbioportal-frontend repo
+        <%
+        String url = request.getRequestURL().toString();
+        String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath() + "/";
+        baseURL = baseURL.replace("https://", "").replace("http://", "");
+        %>
+        __API_ROOT__ = '<%=baseURL%>' + '/api';
+    
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 </head>
@@ -148,8 +157,8 @@
 
                                             <!-- Added call GlobalProperties to check whether to show the Visualize tab -->
                                             <% if (GlobalProperties.showVisualizeYourDataTab()) { %>
-                                            <li class="internal" style="float:right">
-					                            <a href="visualize_your_data.jsp" float="right"><b><i>VISUALIZE YOUR DATA</i></b></a>
+                                            <li class="internal" style="float:left">
+					                            <a href="visualize_your_data.jsp" float="left">VISUALIZE YOUR DATA</a>
 					                        </li>
                                             <% } %>
 

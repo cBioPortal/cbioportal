@@ -47,7 +47,7 @@
 
     <div id="instructions">
     <div class="markdown">
-            <p><jsp:include page="content/release_notes_mutation_mapper.html" flush="true" /></p>
+            <p><%@ include file="content/release_notes_mutation_mapper.html" %></p>
     </div>
     <jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
     </div>

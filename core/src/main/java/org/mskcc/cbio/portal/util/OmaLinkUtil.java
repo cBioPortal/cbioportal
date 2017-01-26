@@ -36,6 +36,7 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -52,6 +53,7 @@ import java.util.Collections;
 public class OmaLinkUtil {
     private final static String OMA_REDIRECT_LINK = "omaRedirect.do?";
     private final static String SITE_PARAM = "site";
+    private final static ArrayList<String> EMPTY_FIELD_MARKERS= new ArrayList<String>(Arrays.asList("", "NA", "[Not Available]"));
 
     /**
      * Creates a Redirect Link from Portal to OMA.
@@ -67,6 +69,9 @@ public class OmaLinkUtil {
      * @throws MalformedURLException Malformed URL Error.
      */
     public static String createOmaRedirectLink(String omaUrl) throws MalformedURLException {
+        if (EMPTY_FIELD_MARKERS.contains(omaUrl)) {
+            throw new MalformedURLException("value is empty field marker: " + omaUrl);
+        }
         omaUrl = conditionallyPrependHttp(omaUrl);
         URL url = new URL (omaUrl);
         String site = url.getHost();
@@ -89,14 +94,20 @@ public class OmaLinkUtil {
      * @throws MalformedURLException Malformed URL Error.
      */
     public static String createOmaLink(String omaQueryString) throws MalformedURLException {
+        if (EMPTY_FIELD_MARKERS.contains(omaQueryString)) {
+            throw new MalformedURLException("value is empty field marker: " + omaQueryString);
+        }
         omaQueryString = removePath(omaQueryString);
         String params[] = omaQueryString.split("&");
         HashMap<String, String> paramMap = getParameterMap(params);
         String path = paramMap.get(SITE_PARAM);
         ArrayList<String> keyList = getKeyList(paramMap);
-
         String queryString = createQueryString(keyList, paramMap);
         return "http://" + path + "?" + queryString;
+    }
+
+    public static boolean omaLinkIsValid(String omaQueryString) {
+        return !(omaQueryString == null || omaQueryString.length() == 0 || EMPTY_FIELD_MARKERS.contains(omaQueryString));
     }
 
     private static String conditionallyPrependHttp(String omaUrl) {

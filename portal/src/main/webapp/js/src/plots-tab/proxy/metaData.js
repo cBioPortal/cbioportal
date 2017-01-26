@@ -1,5 +1,7 @@
 var metaData = (function() {
     
+	var readyCallBackFunction;
+	
     var datum_genetic_profile_meta = {
             type: "",
             id: "",
@@ -36,6 +38,7 @@ var metaData = (function() {
         };
         $.post("webservice.do", paramsGetClinicalAttributes, function(result) {
             registerMetaData(result.attributes, profileMetaDataResult);
+            readyCallBackFunction();
         }, "json");
     }
 
@@ -122,7 +125,13 @@ var metaData = (function() {
     }
     
     return {
-        fetch: function() {
+    	/**
+    	 * Fetch metadata 
+    	 * 
+    	 * @param readyCallBack: function to call when metadata retrieval is done
+    	 */
+        fetch: function(readyCallBack) {
+        	readyCallBackFunction = readyCallBack;
             retrieve_status = -1;
             fetchProfileMetaData();
         },

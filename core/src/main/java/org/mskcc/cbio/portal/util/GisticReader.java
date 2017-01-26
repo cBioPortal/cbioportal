@@ -33,42 +33,18 @@
 package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
-import org.mskcc.cbio.portal.validate.ValidateGistic;
-import org.mskcc.cbio.portal.validate.validationException;
-import org.springframework.ui.context.Theme;
+import org.mskcc.cbio.portal.scripts.ValidationUtils;
 
 import java.io.*;
-import java.lang.System;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Utility for importing Gistic data from a file
  */
 public class GisticReader {
 
-    /**
-     * Extracts find the database's internal Id for the record
-     * associated with the Cancer Study string
-     * @param cancerStudy_str   String (e.g. "tcga_gbm")
-     * @return                  CancerStudyId
-     * @throws DaoException
-     */
-
-    public int getCancerStudyInternalId(String cancerStudy_str)
-            throws DaoException {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudy_str);
-
-        if (cancerStudy == null) {
-            throw new DaoException(cancerStudy_str);
-        }
-        return cancerStudy.getInternalId();
-    }
 
     public ArrayList<Gistic> parse(File gistic_f, int cancerStudyId) throws IOException, DaoException {
 
@@ -76,96 +52,103 @@ public class GisticReader {
 
         FileReader reader = new FileReader(gistic_f);
         BufferedReader buf = new BufferedReader(reader);
-
-        String line = buf.readLine();
-
-        // -- parse field names --
-        // todo: would it be better to use <enums>?
-
-        int chromosomeField = -1;
-        int peakStartField = -1;
-        int peakEndField = -1;
-        int genesField = -1;
-        int qvalField = -1;
-        int ampField = -1;
-        int cytobandField = -1;
-
-        String[] fields = line.split("\t");
-        int num_fields = fields.length;
-
-        for (int i = 0 ; i < num_fields; i+=1) {
-            if (fields[i].equals("chromosome")) {
-                chromosomeField = i;
-            }
-
-            else if (fields[i].equals("peak_start")) {
-                peakStartField = i;
-            }
-
-            else if (fields[i].equals("peak_end")) {
-                peakEndField = i;
-            }
-
-            else if (fields[i].equals("genes_in_region")) {
-                genesField = i;
-            }
-
-            else if (fields[i].equals("q_value")) {
-                qvalField = i;
-            }
-
-            else if (fields[i].equals("cytoband")) {
-                cytobandField = i;
-            }
-
-            else if (fields[i].equals("amp")) {
-                ampField = i;
-            }
+        try {
+	        String line = buf.readLine();
+	
+	        // -- parse field names --
+	        // todo: would it be better to use <enums>?
+	
+	        int chromosomeField = -1;
+	        int peakStartField = -1;
+	        int peakEndField = -1;
+	        int genesField = -1;
+	        int qvalField = -1;
+	        int ampField = -1;
+	        int cytobandField = -1;
+	
+	        String[] fields = line.split("\t");
+	        int num_fields = fields.length;
+	
+	        for (int i = 0 ; i < num_fields; i+=1) {
+	            if (fields[i].equals("chromosome")) {
+	                chromosomeField = i;
+	            }
+	
+	            else if (fields[i].equals("peak_start")) {
+	                peakStartField = i;
+	            }
+	
+	            else if (fields[i].equals("peak_end")) {
+	                peakEndField = i;
+	            }
+	
+	            else if (fields[i].equals("genes_in_region")) {
+	                genesField = i;
+	            }
+	
+	            else if (fields[i].equals("q_value")) {
+	                qvalField = i;
+	            }
+	
+	            else if (fields[i].equals("cytoband")) {
+	                cytobandField = i;
+	            }
+	
+	            else if (fields[i].equals("amp")) {
+	                ampField = i;
+	            }
+	        }
+	
+	        if (chromosomeField == -1) {
+	            throw new IllegalStateException("The field: chromosome, is missing");
+	        }
+	
+	        if (peakStartField == -1) {
+	            throw new IllegalStateException("The field: peak start, is missing");
+	        }
+	
+	        if (peakEndField == -1) {
+	            throw new IllegalStateException("The field: peak end, is missing");
+	        }
+	
+	        if (genesField == -1) {
+	            throw new IllegalStateException("The field: genes, is missing");
+	        }
+	
+	        if (qvalField == -1) {
+	            throw new IllegalStateException("The field: q_value, is missing");
+	        }
+	
+	        if (cytobandField == -1) {
+	            throw new IllegalStateException("The field: cytoband, is missing");
+	        }
+	
+	        if (ampField == -1) {
+	            throw new IllegalStateException("The field: amp, is missing");
+	        }
+	
+	        line = buf.readLine();
+	        while (line != null) {
+	            Gistic gistic;
+	            try {
+	                gistic = this.parseLine(line, cancerStudyId, chromosomeField, peakStartField, peakEndField, genesField, qvalField, ampField, cytobandField);
+	                if (gistic != null) {
+	                    gistics.add(gistic);
+	                }
+	            } catch(Exception e) {
+	                e.printStackTrace();
+	                throw e;
+	            }
+	            line = buf.readLine();
+	        }
+	
+	        buf.close();
+	        reader.close();
+	        return gistics;
         }
-
-        if (chromosomeField == -1) {
-            throw new IllegalStateException("The field: chromosome, is missing");
+        finally {
+        	buf.close();
         }
-
-        if (peakStartField == -1) {
-            throw new IllegalStateException("The field: peak start, is missing");
-        }
-
-        if (peakEndField == -1) {
-            throw new IllegalStateException("The field: peak end, is missing");
-        }
-
-        if (genesField == -1) {
-            throw new IllegalStateException("The field: genes, is missing");
-        }
-
-        if (qvalField == -1) {
-            throw new IllegalStateException("The field: q_value, is missing");
-        }
-
-        if (cytobandField == -1) {
-            throw new IllegalStateException("The field: cytoband, is missing");
-        }
-
-        if (ampField == -1) {
-            throw new IllegalStateException("The field: amp, is missing");
-        }
-
-        line = buf.readLine();
-        while (line != null) {
-            Gistic gistic;
-            try {
-                gistic = this.parseLine(line, cancerStudyId, chromosomeField, peakStartField, peakEndField, genesField, qvalField, ampField, cytobandField);
-                gistics.add(gistic);
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-            line = buf.readLine();
-        }
-
-        buf.close();
-        reader.close();
-        return gistics;
     }
     
     private Gistic parseLine(String line, int cancerStudyId, int chromosomeField, int peakStartField, int peakEndField, int genesField, int qvalField, int ampField, int cytobandField) {
@@ -174,11 +157,8 @@ public class GisticReader {
         Gistic gistic = new Gistic();
         gistic.setCancerStudyId(cancerStudyId);
 
-        if (fields[chromosomeField].equalsIgnoreCase("X"))
-            fields[chromosomeField] = "23";
-        if (fields[chromosomeField].equalsIgnoreCase("Y"))
-            fields[chromosomeField] = "24";
-        gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
+        int chromosomeNumber = ValidationUtils.validateChromosome(fields[chromosomeField]);
+        gistic.setChromosome(chromosomeNumber);
 
         gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
         gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));
@@ -199,26 +179,39 @@ public class GisticReader {
         // map _genes to list of CanonicalGenes
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        ArrayList<CanonicalGene> alreadyProcessedGenes = new ArrayList<CanonicalGene>();
         for (String gene : _genes) {
+            
+            gene = gene.split("\\|")[0];
 
             CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
-
-            if (canonicalGene == null) {
-                canonicalGene = new CanonicalGene(gene);
-
-//                    System.out.println("gene not found, skipping: " + gene);
-//                    throw new DaoException("gene not found: " + gene);
-            }
-
-            if (canonicalGene.isMicroRNA()) {
-                System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
+            if (alreadyProcessedGenes.contains(canonicalGene)) {
+            	String geneSymbolMessage = "";
+	        	if (!gene.equalsIgnoreCase(canonicalGene.getHugoGeneSymbolAllCaps()))
+	        		geneSymbolMessage = "(given as alias in your file as: " + gene + ") ";
+	        	ProgressMonitor.logWarning("Gene " + canonicalGene.getHugoGeneSymbolAllCaps() + " (" + canonicalGene.getEntrezGeneId() + ")" + geneSymbolMessage + " found to be duplicated in your file. Skipping this duplicated entry of the gene.");
                 continue;
             }
+            if (canonicalGene != null) {
+                if (canonicalGene.isMicroRNA()) {
+                	ProgressMonitor.logWarning("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
+                    continue;
+                }
 
-            genes.add(canonicalGene);
+                genes.add(canonicalGene);
+                alreadyProcessedGenes.add(canonicalGene);
+            } 
+            else {
+            	ProgressMonitor.logWarning("Gene " + gene + " not found or was ambiguous. Skipping this gene.");
+            }
+            
         }
         // -- end parse genes --
-
+        
+        if (genes.size() == 0) {
+        	ProgressMonitor.logWarning("No genes found in database for " + fields[genesField] + ". Skipping gistic event");
+            return null;
+        }
         gistic.setGenes_in_ROI(genes);
 
         return gistic;

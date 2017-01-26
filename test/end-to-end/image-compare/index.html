@@ -1,0 +1,34 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <h1>Visual Regression Test Failed</h1>
+        <h2 class="screenshot-name"></h1>
+        <div class="juxtapose">
+            <img id="img1"  data-label="master" />
+            <img id="img2" data-label="PR" />
+        </div>
+        <p id="help-text">
+        When the screenshot test fails, it means that the screenshot taken from
+        your instance of the portal differs from the screenshot stored in the
+        repo.<br />
+        <br />
+        1. If the change in the screenshot is <b>undesired</b>, i.e. there is
+        regression, you should fix your PR.<br />
+        <br />
+        2. If the change in the screenshot is <b>desired</b>, add the screenshot
+        to the repo, commit it and push it to your PR's branch, that is:
+        <br />
+        <br /> curl > <span class="screenshot-name"></span><br />
+        git add <span class="screenshot-name"></span><br />
+        <br />
+        Then preferably use git commit --amend and change your commit message
+        to explain how the commit changed the screenshot. Subsequently force
+        push to your <b>own branch</b>.
+        </p>
+        <script src="js/main.js"></script>
+        <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css" />
+    </body>
+</html>

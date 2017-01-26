@@ -90,6 +90,13 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
         fill : "white",
         stroke : "gray",
         legendText : "Not sequenced"
+    },
+    {
+        typeName : "clin_clin",
+        symbol : "circle",
+        fill : "#00AAF8",
+        stroke : "grey",
+        opacity: 0.6
     }
 
 ];
@@ -112,6 +119,15 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
                 }
             });
             return _result;
+        },
+        getOpacity: function(_typeName) {
+            var _result = "";
+            $.each(styleSheet, function(index, obj) {
+                if (obj.typeName === _typeName) {
+                    _result = obj.opacity;
+                }
+            });            
+            return _result;            
         },
         getStroke: function(_typeName) {
             var _result = "";

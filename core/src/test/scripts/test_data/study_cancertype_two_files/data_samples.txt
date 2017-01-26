@@ -1,0 +1,13 @@
+#Patient Identifier	Sample Identifier	Subtype	Cancer Type	Cancer Type Detailed
+#Identifier to uniquely specify a patient.	A unique sample identifier.	Subtype description.	Disease type.	Cancer Type Detailed.
+#STRING	STRING	STRING	STRING	STRING
+#1	1	1	1	1
+PATIENT_ID	SAMPLE_ID	SUBTYPE	CANCER_TYPE	CANCER_TYPE_DETAILED
+TEST-PAT1	TEST-PAT1-SAMPLE1	Luminal A	Cancer_type20	Cancer_type20_Sub16
+TEST-PAT1	TEST-PAT1-SAMPLE2	Luminal B	Cancer_type27	Cancer_type27_Sub16
+TEST-PAT1	TEST-PAT1-SAMPLE3	basal-like	Cancer_type8	Cancer_type8_Sub13
+TEST-PAT1	TEST-PAT1-SAMPLE4	basal-like	Cancer_type17	Cancer_type17_Sub10
+TEST-PAT1	TEST-PAT1-SAMPLE5	Her2 enriched	Cancer_type27	Cancer_type27_Sub18
+TEST-PAT1	TEST-PAT1-SAMPLE6	Luminal A	Cancer_type7	Cancer_type7_Sub13
+TEST-PAT2	TEST-PAT2-SAMPLE1	Luminal A	Cancer_type23	Cancer_type23_Sub3
+TEST-PAT2	TEST-PAT2-SAMPLE2	basal-like	Cancer_type7	Cancer_type7_Sub5

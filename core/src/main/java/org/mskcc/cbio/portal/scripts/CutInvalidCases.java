@@ -48,14 +48,12 @@ import java.util.HashSet;
  */
 public class CutInvalidCases {
 
-    private ProgressMonitor pMonitor;
     private File caseExclusionFile;
     private File dataFile;
 
-    public CutInvalidCases(File caseExclusionFile, File dataFile, ProgressMonitor pMonitor) {
+    public CutInvalidCases(File caseExclusionFile, File dataFile) {
         this.caseExclusionFile = caseExclusionFile;
         this.dataFile = dataFile;
-        this.pMonitor = pMonitor;
     }
 
     public String process() throws IOException, DaoException {
@@ -68,12 +66,12 @@ public class CutInvalidCases {
         boolean includeColumn[] = new boolean [parts.length];
 
         //  Mark all columns for inclusion / exclusion
-        pMonitor.setCurrentMessage("Total number of columns to process:  " + parts.length);
+        ProgressMonitor.setCurrentMessage("Total number of columns to process:  " + parts.length);
         for (int i = 0; i < parts.length; i++) {
             String colHeading = parts[i].trim();
             if (excludedCaseSet.contains(colHeading)) {
                 includeColumn[i] = false;
-                pMonitor.setCurrentMessage ("Marking for exclusion, col #" + i
+                ProgressMonitor.setCurrentMessage ("Marking for exclusion, col #" + i
                         + ", Case ID:  " + colHeading);
             } else {
                 includeColumn[i] = true;
@@ -87,10 +85,8 @@ public class CutInvalidCases {
 
         String line = buf.readLine();
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             parts = line.split("\t");
             for (int i=0; i<parts.length; i++) {
                 if (includeColumn[i]) {
@@ -129,20 +125,19 @@ public class CutInvalidCases {
             return;
         }
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         File casesExcludedFile = new File (args[0]);
         File dataFile = new File(args[1]);
 
 
         System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(dataFile);
-        pMonitor.setMaxValue(numLines);
+        ProgressMonitor.setMaxValue(numLines);
         CutInvalidCases parser = new CutInvalidCases(casesExcludedFile,
-                dataFile, pMonitor);
+                dataFile);
         String out = parser.process();
         System.out.print (out);
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

@@ -436,13 +436,15 @@ public class MafUtil
 
         MafRecord record = new MafRecord();
 
-	    // standard MAF cols
+        // standard MAF cols
         record.setCenter(TabDelimitedFileUtil.getPartString(centerIndex, parts));
         record.setChr(TabDelimitedFileUtil.getPartString(chrIndex, parts));
         record.setStartPosition(TabDelimitedFileUtil.getPartLong(startPositionIndex, parts));
         record.setEndPosition(TabDelimitedFileUtil.getPartLong(endPositionIndex, parts));
-        record.setEntrezGeneId(TabDelimitedFileUtil.getPartLong(entrezGeneIdIndex, parts));
-        record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartString(hugoGeneSymbolIndex, parts));
+        // store the literal value of the gene ID column for later parsing
+        record.setGivenEntrezGeneId(TabDelimitedFileUtil.getPartStringAllowEmpty(entrezGeneIdIndex, parts));
+        // NA may be an actual gene symbol, so use "" for missing values
+        record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartStringAllowEmpty(hugoGeneSymbolIndex, parts));
         record.setNcbiBuild(TabDelimitedFileUtil.getPartString(ncbiIndex, parts));
         record.setReferenceAllele(TabDelimitedFileUtil.getPartString(referenceAlleleIndex, parts));
         record.setStrand(TabDelimitedFileUtil.getPartString(strandIndex, parts));

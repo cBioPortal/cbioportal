@@ -41,12 +41,10 @@ import java.io.*;
 import java.util.regex.*;
 
 public class ImportCosmicData {
-    private ProgressMonitor pMonitor;
     private File file;
 
-    public ImportCosmicData(File file, ProgressMonitor pMonitor) {
+    public ImportCosmicData(File file) {
         this.file = file;
-        this.pMonitor = pMonitor;
     }
 
     public void importData() throws IOException, DaoException {
@@ -57,10 +55,8 @@ public class ImportCosmicData {
         BufferedReader buf = new BufferedReader(reader);
         String line;
         while ((line = buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t",-1);
                 if (parts.length<8) {
@@ -84,7 +80,7 @@ public class ImportCosmicData {
 //                    if (gene.contains("_HUMAN")) {
 //                        gene = gene.substring(0,gene.indexOf("_HUMAN"));
 //                    }
-                    CanonicalGene canonicalGene = daoGeneOptimized.getNonAmbiguousGene(gene);
+                    CanonicalGene canonicalGene = daoGeneOptimized.getNonAmbiguousGene(gene, null);
                     if (canonicalGene==null) {
                         System.err.println("Gene symbol in COSMIC not recognized: "+gene);
                         continue;
@@ -125,17 +121,16 @@ public class ImportCosmicData {
         }
 		SpringUtil.initDataSource();
         DaoCosmicData.deleteAllRecords();
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportCosmicData parser = new ImportCosmicData(file, pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ImportCosmicData parser = new ImportCosmicData(file);
         parser.importData();
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

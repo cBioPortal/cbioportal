@@ -1,4 +1,4 @@
 #!/usr/bin/perl
-require "../scripts/env.pl";
+require "../scripts/envSimple.pl";
 
-system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cp -DPORTAL_HOME='$portalHome' org.mskcc.cbio.portal.scripts.NormalizeExpressionLevels @ARGV");
+system ("$JAVA_HOME/bin/java -Xmx1524M -Dspring.profiles.active=dbcp -cp $cp -DPORTAL_HOME='$portalHome' org.mskcc.cbio.portal.scripts.NormalizeExpressionLevels @ARGV");

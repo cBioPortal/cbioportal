@@ -34,6 +34,19 @@
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 <%@ page import="java.util.Map" %>
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
+
+<%
+    // we have session service running AND this was a post, 
+    // then modify URL to include session service id so bookmarking will work
+    if (useSessionServiceBookmark && "POST".equals(request.getMethod())) {
+%>
+    <script>
+        changeURLToSessionServiceURL(window.location.href, 
+            window.location.pageTitle, 
+            <%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>);
+   </script>
+<% } // end if isPost and we have session service running %>
 
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
@@ -50,38 +63,17 @@
     </div>
 </div>
 
-<%
-    if (warningUnion.size() > 0) {
-        out.println ("<div class='warning'>");
-        out.println ("<h4>Errors:</h4>");
-        out.println ("<ul>");
-        Iterator<String> warningIterator = warningUnion.iterator();
-        int counter = 0;
-        while (warningIterator.hasNext()) {
-            String warning = warningIterator.next();
-            if (counter++ < 10) {
-                out.println ("<li>" +  warning + "</li>");
-            }
-        }
-        if (warningUnion.size() > 10) {
-            out.println ("<li>...</li>");
-        }
-        out.println ("</ul>");
-        out.println ("</div>");
-    }
-
-    if (geneWithScoreList.size() == 0) {
-        out.println ("<b>Please go back and try again.</b>");
-        out.println ("</div>");
-    } else {
-%>
-
 <div id="tabs">
     <ul>
     <%
         Boolean showMutTab = false;
         Boolean showCancerTypesSummary = false;
-        if (geneWithScoreList.size() > 0) {
+        Boolean showEnrichmentsTab = true;
+        Boolean showSurvivalTab = true;
+        Boolean showPlotsTab = true;
+        Boolean showDownloadTab = true;
+        Boolean showBookmarkTab = true;
+        List<String> disabledTabs = GlobalProperties.getDisabledTabs();
 
             Enumeration paramEnum = request.getParameterNames();
             StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
@@ -97,11 +89,46 @@
                     {
                         String currentValue = values[i].trim();
 
-                        if (currentValue.contains("mutation"))
+                        if (currentValue.contains("mutation") && !disabledTabs.contains("mutations"))
                         {
                             showMutTab = true;
+                        }                        
+                        if (disabledTabs.contains("co_expression")) 
+                        {
+                            showCoexpTab = false;
+                        }                        
+                        if (disabledTabs.contains("IGV")) 
+                        {
+                            showIGVtab = false;
+                        }                        
+                        if (disabledTabs.contains("mutual_exclusivity")) 
+                        {
+                            computeLogOddsRatio = false;
+                        }                        
+                        if (disabledTabs.contains("enrichments")) 
+                        {
+                            showEnrichmentsTab = false;
+                        }                        
+                        if (disabledTabs.contains("survival")) 
+                        {
+                            has_survival = false;
+                        }                        
+                        if (disabledTabs.contains("network")) 
+                        {
+                            includeNetworks = false;
+                        }                        
+                        if (disabledTabs.contains("plots")) 
+                        {
+                            showPlotsTab = false;
                         }
-
+                        if (disabledTabs.contains("download")) 
+                        {
+                            showDownloadTab = false;
+                        }
+                        if (disabledTabs.contains("bookmark")) {
+                            showBookmarkTab = false;
+                        }
+                        
                         if (paramName.equals(QueryBuilder.GENE_LIST)
                             && currentValue != null)
                         {
@@ -145,6 +172,9 @@
             else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
             	showCancerTypesSummary = true;
             }
+            if (disabledTabs.contains("cancer_types_summary")) {
+                showCancerTypesSummary = false;
+            }
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
             // if showCancerTypesSummary is try, add the list item
             if(showCancerTypesSummary){
@@ -152,19 +182,21 @@
                 + "Cancer Types Summary</a></li>");
             }
 
-            if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
+            if (computeLogOddsRatio) {
                 out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
             }
-            out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
+            if (showPlotsTab) {
+                out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
+            }            
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
             if (showCoexpTab) {
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
-            if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments</a></li>");
+            if (has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) {
+                out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
@@ -172,33 +204,40 @@
             if (includeNetworks) {
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
-                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
+            if (showIGVtab){
+                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>CN Segments</a></li>");
             }
-            out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
-            out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
+            if (showDownloadTab) {
+                out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
+            }       
+            if (showBookmarkTab) {
+                out.print ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'");
+                if (useSessionServiceBookmark) {
+                    out.print (" data-session='");
+	                out.print (new ObjectMapper().writeValueAsString(request.getParameterMap()));
+	                out.print ("'");
+                } 
+	            out.println (">Bookmark</a></li>");
+            }            
             out.println ("</ul>");
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
-            // diable bookmark link if case set is user-defined
-            if (patientSetId.equals("-1"))
+            if (!useSessionServiceBookmark && sampleSetId.equals("-1"))
             {
                 out.println("<br>");
                 out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
-            }
-            else
+            } 
+            else 
             {
-                out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a id='bookmark-link' href='#'>" + request.getAttribute
-                        (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
-                out.println("<br><br>");
-                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                out.println("<BR><button type='button' id='bitly-generator'>Shorten URL</button>");
+                out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
+                out.println("<br>");
+                out.println("<div id='session-id'></div>");
+                out.println("<br>");
+                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
                 out.println("<div id='bitly'></div>");
             }
-
             out.println("</div>");
-        }
     %>
 
         <div class="section" id="summary">
@@ -213,7 +252,7 @@
 
         <%@ include file="plots_tab.jsp" %>
 
-        <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
+        <% if (showIGVtab) { %>
             <%@ include file="igv.jsp" %>
         <% } %>
 
@@ -221,7 +260,7 @@
             <%@ include file="survival_tab.jsp" %>
         <% } %>
 
-        <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
+        <% if (computeLogOddsRatio) { %>
             <%@ include file="mutex_tab.jsp" %>
         <% } %>
 
@@ -244,13 +283,13 @@
         <% } %>
 
         <% if (has_mrna || has_copy_no || showMutTab) { %>
-            <%@ include file="over_representation_analysis.jsp" %>
+            <%@ include file="enrichments_tab.jsp" %>
         <% } %>
 
         <%@ include file="data_download.jsp" %>
 
 </div> <!-- end tabs div -->
-<% } %>
+
 
 </div>
 </td>
@@ -318,16 +357,15 @@
 
                 }
               }, 50);
-            } else {
-                if($(this).attr("href")=="#bookmark_email") {
-                    $("#bookmark-link").attr("href",window.location.href);
-                }
             }
         });
 
-
-        $("#bitly-generator").click(function() {
-             bitlyURL(window.location.href);
+        $("#bookmark-result-tab").parent().click(function() {
+            <% if (useSessionServiceBookmark) { %>
+                addSessionServiceBookmark(window.location.href, $(this).children("#bookmark-result-tab").data('session'));
+            <% } else { %>
+                addURLBookmark();
+            <% } %>
         });
 
         //qtips
@@ -340,6 +378,9 @@
                 position: {my:'left top',at:'right bottom', viewport: $(window)}
             }
         );
+        $("#oncoprint-result-tab").click(function() {
+            $(window).trigger('resize');
+        });
         $("#mutex-result-tab").qtip(
             {
                 content: {text: "Mutual exclusivity and co-occurrence analysis"},

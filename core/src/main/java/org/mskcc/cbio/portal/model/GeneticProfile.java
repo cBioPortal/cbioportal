@@ -32,6 +32,8 @@
 
 package org.mskcc.cbio.portal.model;
 
+import java.util.Properties;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -47,6 +49,7 @@ public class GeneticProfile {
     private String profileDescription;
     private String targetLine;
     private boolean showProfileInAnalysisTab;
+    private Properties otherMetadataFields;
 
     public GeneticProfile() {
       super();
@@ -54,7 +57,7 @@ public class GeneticProfile {
 
    public GeneticProfile(String stableId, int cancerStudyId, GeneticAlterationType geneticAlterationType,
 						 String datatype, String profileName, String profileDescription, boolean showProfileInAnalysisTab) {
-      super();
+      this();
       this.stableId = stableId;
       this.cancerStudyId = cancerStudyId;
       this.geneticAlterationType = geneticAlterationType;
@@ -62,6 +65,26 @@ public class GeneticProfile {
       this.profileName = profileName;
       this.profileDescription = profileDescription;
       this.showProfileInAnalysisTab = showProfileInAnalysisTab;
+   }
+
+
+   /**
+    * Constructs a new genetic profile object with the same attributes as the one given as an argument.
+    *
+    * @param template  the object to copy
+    */
+   public GeneticProfile(GeneticProfile template) {
+       this(
+               template.getStableId(),
+               template.getCancerStudyId(),
+               template.getGeneticAlterationType(),
+               template.getDatatype(),
+               template.getProfileName(),
+               template.getProfileDescription(),
+               template.showProfileInAnalysisTab());
+       this.setGeneticProfileId(template.geneticProfileId);
+       this.setTargetLine(template.getTargetLine());
+       this.setOtherMetadataFields(template.getAllOtherMetadataFields());
    }
 
    public int getGeneticProfileId() {
@@ -135,10 +158,42 @@ public class GeneticProfile {
     public void setShowProfileInAnalysisTab(boolean showProfileInAnalysisTab) {
         this.showProfileInAnalysisTab = showProfileInAnalysisTab;
     }
-    
+
+    /**
+     * Stores metadata fields only recognized in particular data file types.
+     *
+     * @param fields  a properties instance holding the keys and values
+     */
+    public void setOtherMetadataFields(Properties fields) {
+        this.otherMetadataFields = fields;
+    }
+
+    /**
+     * Returns all file-specific metadata fields as a Properties object.
+     *
+     * @return  a properties instance holding the keys and values or null
+     */
+    public Properties getAllOtherMetadataFields() {
+        return this.otherMetadataFields;
+    }
+
+    /**
+     * Retrieves metadata fields specific to certain data file types.
+     *
+     * @param fieldname  the name of the field to retrieve
+     * @return  the value of the field or null
+     */
+    public String getOtherMetaDataField(String fieldname) {
+        if (otherMetadataFields == null) {
+            return null;
+        } else {
+            return otherMetadataFields.getProperty(fieldname);
+        }
+    }
+
     @Override
     public String toString() {
        return ToStringBuilder.reflectionToString(this);
     }
-    
+
 }

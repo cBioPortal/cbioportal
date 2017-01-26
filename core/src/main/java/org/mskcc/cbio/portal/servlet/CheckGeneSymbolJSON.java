@@ -34,13 +34,9 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.util.OncoPrintSpecificationDriver;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
-import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -48,9 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -95,9 +89,12 @@ public class CheckGeneSymbolJSON extends HttpServlet {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         //  Use the OQL Parser to Extract the Gene Symbols
-        ParserOutput parserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(genes);
-        ArrayList<String> geneList = new ArrayList<String>();
-        geneList.addAll(parserOutput.getTheOncoPrintSpecification().listOfGenes());
+        String[] geneList;
+	if (genes.length() > 0) {
+		geneList = genes.split(",");
+	} else {
+		geneList = new String[0];
+	}
 
         for(String symbol: geneList) {
             Map map = new HashMap();

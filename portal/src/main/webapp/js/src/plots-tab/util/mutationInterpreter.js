@@ -79,9 +79,17 @@ var mutationInterpreter = (function() {
                     return mutationStyle.getFill("non");
                 }                  
             } else if (clinical_vs_clinical()) {
-                
+            	return mutationStyle.getFill("clin_clin");
             }
 
+        },
+        getOpacity: function() {
+        	if (clinical_vs_clinical()) {
+            	return mutationStyle.getOpacity("clin_clin");
+            }
+        	else {
+        		return 1.0;
+        	}
         },
         getStroke: function(obj) {
             if (genetic_vs_genetic()) {
@@ -110,7 +118,7 @@ var mutationInterpreter = (function() {
                     return mutationStyle.getStroke("non");
                 }                  
             } else if (clinical_vs_clinical()) {
-                
+            	return mutationStyle.getStroke("clin_clin");
             }
         }
     };

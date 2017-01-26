@@ -1,0 +1,26 @@
+package org.cbioportal.web.parameter.sort;
+
+public enum StudySortBy {
+
+    cancerStudyId("cancerStudyIdentifier"),
+    cancerTypeId("typeOfCancerId"),
+    name("name"),
+    shortName("shortName"),
+    description("description"),
+    publicStudy("public"),
+    pmid("pmid"),
+    citation("citation"),
+    groups("groups"),
+    status("status"),
+    importDate("importDate");
+
+    private String originalValue;
+
+    StudySortBy(String originalValue) {
+        this.originalValue = originalValue;
+    }
+
+    public String getOriginalValue() {
+        return originalValue;
+    }
+}

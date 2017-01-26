@@ -35,6 +35,9 @@ package org.mskcc.cbio.portal.util;
 import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.owasp.validator.html.PolicyException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
@@ -48,6 +51,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
  */
 public class XssRequestWrapper extends HttpServletRequestWrapper
 {
+	private static Log LOG = LogFactory.getLog(XssRequestWrapper.class);
 	protected ServletXssUtil xssUtil;
 
 	public XssRequestWrapper(HttpServletRequest request) {
@@ -68,14 +72,18 @@ public class XssRequestWrapper extends HttpServletRequestWrapper
 	{
 		String parameter = super.getParameter(name);
 
+		LOG.debug("XssRequestWrapper.getParameter(" + name + "): '" + parameter + "'");
 		String clean = xssUtil.getCleanerInput(parameter);
+		LOG.debug("XssRequestWrapper.getParameter(" + name + "): cleaned = '" + clean + "'");
 
 		return clean;
 	}
 
 	public String getRawParameter(String name)
 	{
-		return super.getParameter(name);
+		String raw = super.getParameter(name);
+		LOG.debug("XssRequestWrapper.getRawParameter(" + name + "): cleaned = '" + raw + "'");
+		return raw;
 	}
 
 	// TODO also overwrite getParameterValues & getAttribute method?

@@ -61,10 +61,9 @@ public class TestGenerateMutationData {
         File sequencedGeneFile = new File ("target/test-classes/sequenced_genes.txt");
         File sequencedCasesFile = new File ("target/test-classes/sequenced_cases.txt");
         File mutationDataFile = new File ("target/test-classes/mutations.txt");
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
         GenerateMutationData util = new GenerateMutationData (allCasesFile, sequencedGeneFile,
-                sequencedCasesFile, mutationDataFile, pMonitor);
+                sequencedCasesFile, mutationDataFile);
         String out = util.execute();
         String lines[] = out.split("\n");
         boolean line1Pass = false;

@@ -1,0 +1,13 @@
+PATIENT_ID	AGE	CANCER_TYPE
+TEST-PAT1	60	Breast Cancer
+TEST-PAT2	53	Glioma
+TEST-PAT3	57	Glioma
+TEST-PAT4	63	Breast Cancer
+TEST-PAT5	69	Glioma
+TEST-PAT6	67	Lung Cancer
+TEST-PAT7	59	Glioma
+TEST-PAT8	55	Breast Cancer
+TEST-PAT9	54	Breast Cancer
+TEST-PAT10	63	Glioma
+TEST-PAT11	62	Breast Cancer
+TEST-PAT12	65	Glioma

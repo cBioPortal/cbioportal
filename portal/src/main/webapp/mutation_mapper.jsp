@@ -98,14 +98,6 @@
 
 <script type="text/javascript">
 
-// TODO 3d Visualizer should be initialized before document get ready
-// ...due to incompatible Jmol initialization behavior
-var _mut3dVis = null;
-_mut3dVis = new Mutation3dVis("default3dView", {
-	pdbUri: "api/proxy/jsmol/"
-});
-_mut3dVis.init();
-
 // Set up Mutation View
 $(document).ready(function() {
 	function processInput(input)
@@ -175,16 +167,16 @@ $(document).ready(function() {
 			columnRender: {
 				caseId: function(datum) {
 					var mutation = datum.mutation;
-					var caseIdFormat = MutationDetailsTableFormatter.getCaseId(mutation.caseId);
+					var caseIdFormat = MutationDetailsTableFormatter.getCaseId(mutation.get("caseId"));
 					var vars = {};
-					vars.linkToPatientView = mutation.linkToPatientView;
+					vars.linkToPatientView = mutation.get("linkToPatientView");
 					vars.caseId = caseIdFormat.text;
 					vars.caseIdClass = caseIdFormat.style;
 					vars.caseIdTip = caseIdFormat.tip;
 
 					var templateFn;
 
-					if (mutation.linkToPatientView)
+					if (mutation.get("linkToPatientView"))
 					{
 						templateFn = _.template($("#mutation_table_case_id_template").html());
 					}
@@ -193,6 +185,7 @@ $(document).ready(function() {
 						templateFn = _.template($("#standalone_mutation_case_id_template").html());
 					}
 
+					return templateFn(vars);
 					return templateFn(vars);
 				}
 			}
@@ -214,13 +207,19 @@ $(document).ready(function() {
 				}
 			},
 			view: {
-				mutationTable: tableOpts
+				mutationTable: tableOpts,
+                vis3d: {
+                	// // use https for all portal instances
+                    pdbUri: "https://files.rcsb.org/view/"
+                }
 			}
 		};
 
+        options = jQuery.extend(true, cbio.util.baseMutationMapperOpts(), options);
+        
 		// init mutation mapper
 		var mutationMapper = new MutationMapper(options);
-		mutationMapper.init(_mut3dVis);
+		mutationMapper.init();
 	}
 
 	var standaloneView = new StandaloneMutationView({el: "#standalone_mutation_view"});

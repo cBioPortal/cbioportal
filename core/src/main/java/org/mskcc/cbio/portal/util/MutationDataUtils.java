@@ -33,19 +33,22 @@
 package org.mskcc.cbio.portal.util;
 
 import org.apache.log4j.Logger;
+import org.cbioportal.persistence.MutationRepository;
 import org.json.simple.JSONArray;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.mskcc.cbio.portal.web_api.GetMutationData;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.*;
 
+@Component
 public class MutationDataUtils {
     private static final Logger logger = Logger.getLogger(MutationDataUtils.class);
 
@@ -97,10 +100,16 @@ public class MutationDataUtils {
 	public static final String PROTEIN_POS_START = "proteinPosStart";
 	public static final String PROTEIN_POS_END = "proteinPosEnd";
 	public static final String MUTATION_COUNT = "mutationCount";
-	public static final String SPECIAL_GENE_DATA = "specialGeneData";
 	public static final String CNA_CONTEXT = "cna";
     public static final String MY_CANCER_GENOME = "myCancerGenome";
     public static final String IS_HOTSPOT = "isHotspot";
+    public static final String OMA_LINK_NOT_AVAILABLE_VALUE = "NA";
+
+    @Autowired
+    private MutationRepository mutationRepository;
+
+    @Autowired
+    private MutationModelConverter mutationModelConverter;
 
     /**
      * Generates an array (JSON array) of mutations for the given sample
@@ -125,11 +134,13 @@ public class MutationDataUtils {
 
         //convert sample list into a set (to be able to use with get mutation data)
         HashSet<String> setOfSampleIds = new HashSet<String>(targetSampleList);
-        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), targetSampleList);
+        List<Integer> internalSampleIds;
 
         if (geneticProfile != null)
         {
-            GetMutationData remoteCallMutation = new GetMutationData();
+            internalSampleIds = InternalIdUtil.getInternalSampleIds(
+                geneticProfile.getCancerStudyId(), targetSampleList);
+            GetMutationData remoteCallMutation = new GetMutationData(mutationRepository, mutationModelConverter);
 
             mutationList = remoteCallMutation.getMutationData(geneticProfile,
                     targetGeneList,
@@ -165,7 +176,8 @@ public class MutationDataUtils {
         {
             Integer sampleId = mutation.getSampleId();
 
-            if (internalSampleIds.contains(sampleId))
+            if (internalSampleIds!= null &&
+                internalSampleIds.contains(sampleId))
             {
                 mutationArray.add(getMutationDataMap(
 		                mutation, geneticProfile, cancerStudy, countMap, cnaDataMap, cosmic, clinicalDataMap));
@@ -180,7 +192,7 @@ public class MutationDataUtils {
 			String attrId) throws DaoException
 	{
 		Map<Integer, ClinicalData> map = new HashMap<Integer, ClinicalData>();
-		ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+		ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum(attrId, cancerStudy.getInternalId());
 
 		// check if attrId is in the DB
 		if (attr != null)
@@ -273,7 +285,6 @@ public class MutationDataUtils {
         mutationData.put(PROTEIN_POS_START, mutation.getOncotatorProteinPosStart());
         mutationData.put(PROTEIN_POS_END, mutation.getOncotatorProteinPosEnd());
         mutationData.put(MUTATION_COUNT, countMap.get(mutation.getSampleId()));
-        mutationData.put(SPECIAL_GENE_DATA, this.getSpecialGeneData(mutation));
         mutationData.put(CNA_CONTEXT, getCnaData(cnaDataMap, mutation));
         mutationData.put(MY_CANCER_GENOME, mcgLinks);
         mutationData.put(IS_HOTSPOT, isHotspot);
@@ -290,7 +301,7 @@ public class MutationDataUtils {
     }
 
     public String generateMutationId(ExtendedMutation mutation) {
-        return "m" + Integer.toString(mutation.hashCode());
+        return "m" + Integer.toString(mutation.hashCode()) + "-" + mutation.getSampleId();
     }
 
     public String generateMutationSid(ExtendedMutation mutation, Sample sample)
@@ -305,42 +316,6 @@ public class MutationDataUtils {
 
 	    // remove problematic characters from the id
 	    return sid.replaceAll("[^a-zA-Z0-9-]", "-");
-    }
-
-    /**
-     * Returns special gene data (if exists) for the given mutation. Returns null
-     * if no special gene exists for the given mutation.
-     *
-     * @param mutation  mutation instance
-     * @return          Map of (field header, field value) pairs.
-     */
-    protected HashMap<String, String> getSpecialGeneData(ExtendedMutation mutation)
-    {
-        HashMap<String, String> specialGeneData = null;
-
-        SpecialGene specialGene = SpecialGeneFactory.getInstance(mutation.getGeneSymbol());
-
-        //  fields & values for "Special" genes
-        if (specialGene != null)
-        {
-            specialGeneData = new HashMap<String, String>();
-
-            ArrayList<String> specialHeaders = specialGene.getDataFieldHeaders();
-            ArrayList<String> specialData = specialGene.getDataFields(mutation);
-
-            if (specialHeaders.size() == specialData.size())
-            {
-                for (int i=0; i < specialData.size(); i++)
-                {
-                    String header = specialHeaders.get(i);
-                    String data = specialData.get(i);
-
-                    specialGeneData.put(header, data);
-                }
-            }
-        }
-
-        return specialGeneData;
     }
 
     /**
@@ -371,51 +346,28 @@ public class MutationDataUtils {
         Map<Integer, Integer> counts;
 
         // retrieve count map
-        try
-        {
-            counts = DaoMutation.countMutationEvents(geneticProfileId, sampleIds);
-        }
-        catch (DaoException e)
-        {
-            counts = null;
-        }
+        counts = mutationModelConverter.convertMutationCountToMap(
+                mutationRepository.countMutationEvents(geneticProfileId, sampleIds));
 
         return counts;
     }
-
+ 
     /**
      * Returns the MSA (alignment) link for the given mutation.
      *
      * @param mutation  mutation instance
      * @return          corresponding MSA link
      */
-    protected String getMsaLink(ExtendedMutation mutation)
-    {
-        String urlMsa = "";
-
-        if (linkIsValid(mutation.getLinkMsa()))
-        {
-            try
-            {
-                if(mutation.getLinkMsa().length() == 0 ||
-                        mutation.getLinkMsa().equals("NA"))
-                {
-                    urlMsa = "NA";
-                }
-                else
-                {
-                    urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
-                }
-            }
-            catch (MalformedURLException e)
-            {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
+    protected String getMsaLink(ExtendedMutation mutation) {
+        if (mutation != null && OmaLinkUtil.omaLinkIsValid(mutation.getLinkMsa())) {
+            try {
+                return OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL " + mutation.getLinkMsa() + " : " + e.getMessage());
             }
         }
-
-        return urlMsa;
+        return OMA_LINK_NOT_AVAILABLE_VALUE;
     }
-
 
     /**
      * Returns the PDB (structure) link for the given mutation.
@@ -423,31 +375,15 @@ public class MutationDataUtils {
      * @param mutation  mutation instance
      * @return          corresponding PDB link
      */
-    protected String getPdbLink(ExtendedMutation mutation)
-    {
-        String urlPdb = "";
-
-        if (linkIsValid(mutation.getLinkPdb()))
-        {
-            try
-            {
-                if(mutation.getLinkPdb().length() == 0 ||
-                        mutation.getLinkPdb().equals("NA"))
-                {
-                    urlPdb = "NA";
-                }
-                else
-                {
-                    urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
-                }
-            }
-            catch (MalformedURLException e)
-            {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
+    protected String getPdbLink(ExtendedMutation mutation) {
+        if (mutation != null && OmaLinkUtil.omaLinkIsValid(mutation.getLinkPdb())) {
+            try {
+                return OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL " + mutation.getLinkPdb() + " : " + e.getMessage());
             }
         }
-
-        return urlPdb;
+        return OMA_LINK_NOT_AVAILABLE_VALUE;
     }
 
     /**
@@ -456,37 +392,17 @@ public class MutationDataUtils {
      * @param mutation  mutation instance
      * @return          corresponding xVar link
      */
-    protected String getXVarLink(ExtendedMutation mutation)
-    {
-        String xVarLink = "";
 
-        if (linkIsValid(mutation.getLinkXVar()))
-        {
-            try
-            {
-                xVarLink = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
-            }
-            catch (MalformedURLException e)
-            {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
+    protected String getXVarLink(ExtendedMutation mutation) {
+        if (mutation != null && OmaLinkUtil.omaLinkIsValid(mutation.getLinkXVar())) {
+            try {
+                return OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL " + mutation.getLinkXVar() + " : " + e.getMessage());
                 //return HtmlUtil.createEmptySpacer();
             }
         }
-
-        return xVarLink;
-    }
-
-    /**
-     * Checks the validity of the given link.
-     *
-     * @param link  string representation of a URL
-     * @return      true if valid, false otherwise
-     */
-    protected boolean linkIsValid(String link)
-    {
-        return link != null &&
-                link.length() > 0 &&
-                !link.equalsIgnoreCase("NA");
+        return OMA_LINK_NOT_AVAILABLE_VALUE;
     }
 
     protected String getSequencingCenter(ExtendedMutation mutation)

@@ -42,12 +42,10 @@ import java.io.*;
  * Command Line Tool to Import Sanger Cancer Gene Census Data.
  */
 public class ImportSangerCensusData {
-    private ProgressMonitor pMonitor;
     private File censusFile;
 
-    public ImportSangerCensusData(File censusFile, ProgressMonitor pMonitor) {
+    public ImportSangerCensusData(File censusFile) {
         this.censusFile = censusFile;
-        this.pMonitor = pMonitor;
     }
 
     public void importData() throws IOException, DaoException {
@@ -60,10 +58,8 @@ public class ImportSangerCensusData {
         String line = buf.readLine();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             String parts[] = line.split(",");
             long entrezGeneId = Long.parseLong(parts[2]);
             CanonicalGene gene = daoGene.getGene(entrezGeneId);
@@ -83,7 +79,7 @@ public class ImportSangerCensusData {
                         tissueType, mutationType, translocationPartner, otherGermlineMutation,
                         otherDisease);
             } else {
-                pMonitor.setCurrentMessage("Cannot identify gene:  " + entrezGeneId);
+                ProgressMonitor.setCurrentMessage("Cannot identify gene:  " + entrezGeneId);
             }
             line = buf.readLine();
         }
@@ -113,8 +109,7 @@ public class ImportSangerCensusData {
             System.out.println("command line usage:  importSangerCensus.pl <sanger.txt>");
             return;
         }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
 		SpringUtil.initDataSource();
 
@@ -122,10 +117,10 @@ public class ImportSangerCensusData {
         System.out.println("Reading data from:  " + geneFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(geneFile);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportSangerCensusData parser = new ImportSangerCensusData(geneFile, pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ImportSangerCensusData parser = new ImportSangerCensusData(geneFile);
         parser.importData();
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

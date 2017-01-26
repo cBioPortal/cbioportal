@@ -39,13 +39,13 @@ var SurvivalCurve = function() {
         style = "",
         divs = "",
         vals = "";
-    
+
     //Each curve will have unique ID which will be used to add/remove curve
     var curvesInfo = {};
-    
+
     //qtip func
     var qtipFunc = {};
-    
+
     function initCanvas() {
         $('#' + divs.curveDivId).empty();
         elem.svg = d3.select("#" + divs.curveDivId)
@@ -146,9 +146,15 @@ var SurvivalCurve = function() {
                 .style("opacity", .9);
 
             if(! $(this).data('qtip' )) {
+                //TODO: need to find a better way to grab cancer study ID. 
+                //QuerySession is only available after submitting query.
+                //cancerStudyId is only available in study view
+                //cancer_study_id and cancer_study_id_selected are only available in certain pages.
+                //But they all point to same attribute.
+                var cancerStudy = window.QuerySession ? window.QuerySession.getCancerStudyIds()[0] : (window.cancerStudyId || window.cancer_study_id || window.cancer_study_id_selected);
                 var content = "<font size='2'>";
                 content += text.qTips.id + ": " + "<strong><a href='"
-                        + qtipFunc(cancer_study_id, d.case_id)
+                        + qtipFunc(cancerStudy, d.case_id)
                         + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                 content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                 if (d.status === "0") { // If censored, mark it
@@ -223,39 +229,27 @@ var SurvivalCurve = function() {
             .style("fill", "black");
     }
 
-    function drawCensoredDots(data, opts) {
-        elem.censoredDots.selectAll("path")
+    function drawCensoredDots(data, opts, curveId) {
+        // crossDots specifically for the curve for easier deletion
+        // changed two separate lines to a single cross symbol
+        var curveCrossdots = elem.censoredDots.append("g").attr("id", curveId+"-crossdots");
+        curveCrossdots.selectAll("path")
             .data(data)
             .enter()
-            .append("line")
-            .attr("x1", function(d) {return elem.xScale(d.time);})
-            .attr("x2", function(d) {return elem.xScale(d.time);})
-            .attr("y1", function(d) {return elem.yScale(d.survival_rate) + style.censored_sign_size;})
-            .attr("y2", function(d) {return elem.yScale(d.survival_rate) - style.censored_sign_size;})
-            .attr("stroke", opts.line_color)
-            .style("opacity", function(d) {
-                if (d.status === "1") {
-                    return 0; //hidden
-                } else if (d.status === "0") { //censored
-                    return 1;
-                }
-            });
-        elem.censoredDots.selectAll("path")
-            .data(data)
-            .enter()
-            .append("line")
-            .attr("x1", function(d) {return elem.xScale(d.time) + style.censored_sign_size;})
-            .attr("x2", function(d) {return elem.xScale(d.time) - style.censored_sign_size;})
-            .attr("y1", function(d) {return elem.yScale(d.survival_rate);})
-            .attr("y2", function(d) {return elem.yScale(d.survival_rate);})
-            .attr("stroke", opts.line_color)
-            .style("opacity", function(d) {
-                if (d.status === "1") {
-                    return 0; //hidden
-                } else if (d.status === "0") { //censored
-                    return 1;
-                }
-            });
+            .append("path")
+            .filter(function(d){
+                return d.status==="0";
+            })
+            .attr("transform", function(d) {
+                return "translate(" + elem.xScale(d.time) + "," + elem.yScale(d.survival_rate) + ")";
+            })
+            .attr("d", d3.svg.symbol().type("cross")
+                .size(function(d){
+                    return 25;
+                })
+            )
+            .attr("fill", opts.line_color);
+
     }
 
     function addLegends(_inputArr) {
@@ -333,15 +327,15 @@ var SurvivalCurve = function() {
         $("#" + divs.infoTableDivId).empty();
         $("#" + divs.infoTableDivId).append("<tr>" +
             "<td style='width: 600px; text-align:left;'></td>" +
-            "<td style='width: 200px;'>" + text.infoTableTitles.total_cases + "</td>" + 
-            "<td style='width: 200px;'>" + text.infoTableTitles.num_of_events_cases + "</td>" +  
-            "<td style='width: 200px;'>" + text.infoTableTitles.median + "</td>" + 
+            "<td style='width: 200px;'>" + text.infoTableTitles.total_cases + "</td>" +
+            "<td style='width: 200px;'>" + text.infoTableTitles.num_of_events_cases + "</td>" +
+            "<td style='width: 200px;'>" + text.infoTableTitles.median + "</td>" +
             "</tr>");
         $.each(_infoTableInputArr, function(index, obj) {
-            $("#" + divs.infoTableDivId).append("<tr>" + 
-                                                "<td>" + obj.groupName + "</td>" + 
-                                                "<td><b>" + obj.num_cases + "</b></td>" + 
-                                                "<td><b>" + obj.num_of_events_cases + "</b></td>" + 
+            $("#" + divs.infoTableDivId).append("<tr>" +
+                                                "<td>" + obj.groupName + "</td>" +
+                                                "<td><b>" + obj.num_cases + "</b></td>" +
+                                                "<td><b>" + obj.num_of_events_cases + "</b></td>" +
                                                 "<td><b>" + obj.median + "</b></td>" +
                                                 "</tr>");
         });
@@ -400,7 +394,7 @@ var SurvivalCurve = function() {
             cbio.download.clientSideDownload([final_str], file_name);
         });
     }
-    
+
     function drawCurve(_inputArr, _obj){
         var data = _obj.data;
         var opts = _obj.settings;
@@ -411,37 +405,28 @@ var SurvivalCurve = function() {
         elem.dots[_curve.id] = elem.svg.append("g").attr('id', _curve.id+"-dots"); //the invisible dots
         initLines();
         drawLines(data.getData(), opts, _curve.id);
-        
-        //First element is used to draw lines and its case_id is NA, this dot 
+
+        //First element is used to draw lines and its case_id is NA, this dot
         //will not be needed for drawing censored dots and invisible dots.
         //Then remove move it in here.
         data.getData().shift();
         drawCensoredDots(data.getData(), opts, _curve.id);
         drawInvisiableDots(_curve.id, data.getData(), opts.mouseover_color);
         addQtips(_curve.id);
-        
+
         if (settings.include_legend) {
             addLegends(_inputArr);
         }
     }
-    
+
     function removeCurve(_curveId){
         d3.selectAll('#' + _curveId + '-dots').remove();
         d3.selectAll('#' + _curveId + '-line').remove();
-        removeCurveCensoredDots(_curveId);
+        // remove the crossdots for the curveId
+        d3.selectAll('#' + _curveId + "-crossdots").remove();
+
         delete curvesInfo[_curveId];
         //TODO: Add redraw curve label function
-    }
-    
-    function removeCurveCensoredDots(_curveId){
-        var _allDots = $("#" + divs.curveDivId + " #crossDots").find('line');
-        
-        $.each(_allDots, function(index, value){
-            var _currentColor = $(value).attr('stroke');
-            if(_currentColor === curvesInfo[_curveId].color){
-                $(value).remove();
-            }
-        });
     }
 
     function updateSettings(newSettings){
@@ -465,7 +450,7 @@ var SurvivalCurve = function() {
             }
         }
     }
-    
+
     function addCurve(_obj){
         if(!(_obj.settings.curveId in curvesInfo)){
             drawCurve([_obj], _obj);
@@ -473,7 +458,7 @@ var SurvivalCurve = function() {
             console.log("%c Error: Curve ID exists", "color:red");
         }
     }
-    
+
     return {
         init: function(_inputArr, _opts) {
             //Place parameters
@@ -514,7 +499,7 @@ var SurvivalCurve = function() {
                     }
                     if (_opts.settings.include_pvalue) {
                         addPvals(vals.pVal);
-                    }            
+                    }
             } else {
                 $("#" + divs.infoTableDivId).empty();
                 $("#" + divs.infoTableDivId).append("<span style='margin: 20px; color: grey;'>Survival data not available</span>");

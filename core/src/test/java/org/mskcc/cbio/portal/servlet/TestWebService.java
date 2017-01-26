@@ -44,6 +44,7 @@ import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -71,21 +72,25 @@ public class TestWebService {
    private GeneticProfile publicGeneticProfile;
    
    private AccessControl oldAccessControl;
-   
+
    @Before
    public void setUp() throws DaoException {
-	   oldAccessControl = SpringUtil.getAccessControl();
-	   
-	   // This is truly awful, but basically mocks the access control. The API for 
-	   // isAccessibleCancerStudy is a bit silly, as it's intended to be boolean
-	   // but is really a list. So we mock with a non-empty list with a null in it. 
+      oldAccessControl = SpringUtil.getAccessControl();
 
-	   AccessControl control = createMock(AccessControl.class);
-	   List<CancerStudy> mockTrue = new ArrayList<CancerStudy>();
-	   mockTrue.add(null);
-	   expect(control.isAccessibleCancerStudy(isA(String.class))).andStubReturn(mockTrue);
-       replay(control);
-       SpringUtil.setAccessControl(control);
+      // This is truly awful, but basically mocks the access control. The API for
+      // isAccessibleCancerStudy is a bit silly, as it's intended to be boolean
+      // but is really a list. So we mock with a non-empty list with a null in it.
+
+      AccessControl control = createMock(AccessControl.class);
+      List<CancerStudy> mockTrue = new ArrayList<CancerStudy>();
+      mockTrue.add(null);
+      UserDetails mockUserDetails = createMock(UserDetails.class);
+      expect(control.isAccessibleCancerStudy(isA(String.class))).andStubReturn(mockTrue);
+      expect(control.getUserDetails()).andStubReturn(mockUserDetails);
+      replay(control);
+      SpringUtil.setAccessControl(control);
+      
+      DaoCancerStudy.reCacheAll();
    }
    
    @After
@@ -300,18 +305,18 @@ public class TestWebService {
       NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
       
       CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
-      DaoPatientList daoPatientList = new DaoPatientList();
-      PatientList patientList = new PatientList();
-      patientList.setName("Name0");
-      patientList.setDescription("Description0");
-      patientList.setStableId("stable_0");
-      patientList.setCancerStudyId(study.getInternalId());
-      patientList.setPatientListCategory(PatientListCategory.ALL_CASES_WITH_CNA_DATA);
-      ArrayList<String> patients = new ArrayList<String>();
-      patients.add("TCGA-1-S1");
-      patients.add("TCGA-2-S1");
-      patientList.setPatientList(patients);
-      daoPatientList.addPatientList(patientList);
+      DaoSampleList daoSampleList = new DaoSampleList();
+      SampleList sampleList = new SampleList();
+      sampleList.setName("Name0");
+      sampleList.setDescription("Description0");
+      sampleList.setStableId("stable_0");
+      sampleList.setCancerStudyId(study.getInternalId());
+      sampleList.setSampleListCategory(SampleListCategory.ALL_CASES_WITH_CNA_DATA);
+      ArrayList<String> samples = new ArrayList<String>();
+      samples.add("TCGA-1-S1");
+      samples.add("TCGA-2-S1");
+      sampleList.setSampleList(samples);
+      daoSampleList.addSampleList(sampleList);
       
       aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, "stable_0" );
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);

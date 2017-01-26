@@ -69,7 +69,6 @@ public class GenerateMutationData {
     private File sequencedGeneFile;
     private File sequencedCaseFile;
     private File knownMutationFile;
-    private ProgressMonitor pMonitor;
 
     /**
      * Constructor.
@@ -77,15 +76,13 @@ public class GenerateMutationData {
      * @param sequencedGeneFile     File containing all sequenced genes.
      * @param sequencedCaseFile     File containing all cases, which were sequenced.
      * @param knownMutationFile     File containing discovered mutations.
-     * @param pMonitor              Progress Monitor.
      */
     public GenerateMutationData (File allCasesFile, File sequencedGeneFile, File sequencedCaseFile,
-            File knownMutationFile, ProgressMonitor pMonitor) {
+            File knownMutationFile) {
         this.allCasesFile = allCasesFile;
         this.sequencedGeneFile = sequencedGeneFile;
         this.sequencedCaseFile = sequencedCaseFile;
         this.knownMutationFile = knownMutationFile;
-        this.pMonitor = pMonitor;
     }
 
     /**
@@ -104,7 +101,7 @@ public class GenerateMutationData {
         applyNoMutationData(sequencedGeneList, sequencedCaseList, mutationsMap);
 
         // overlay known mutations on top of mutation map
-        applyKnownMutationsData(pMonitor, knownMutationFile, mutationsMap);
+        applyKnownMutationsData(knownMutationFile, mutationsMap);
 
         // generate mutation file for import
         return generateMutationFile(mutationsMap);
@@ -193,11 +190,10 @@ public class GenerateMutationData {
     /**
 	 * Applies know mutations to mutation map
 	 *
-	 * @param pMonitor ProgressMonitor
 	 * @param knownMutationsFile File
 	 * @param mutationsMap Map<String,String>
 	 */
-	private void applyKnownMutationsData(ProgressMonitor pMonitor, File knownMutationsFile,
+	private void applyKnownMutationsData(File knownMutationsFile,
             Map<String,String> mutationsMap) throws IOException {
 
 		// setup reader
@@ -207,7 +203,7 @@ public class GenerateMutationData {
 		// read header
 		String line = buf.readLine();
 		if (!line.startsWith("Entrez_Gene_Id")) {
-			pMonitor.logWarning("Missing header in: " + knownMutationsFile.getCanonicalPath()
+			ProgressMonitor.logWarning("Missing header in: " + knownMutationsFile.getCanonicalPath()
                     + " aborting mutation file import...");
 			return;
 		}
@@ -232,7 +228,7 @@ public class GenerateMutationData {
 		for (String key : keys) {
 			if (!mutationsMap.containsKey(key)) {
 				String[] parts = key.split(":::");
-				pMonitor.logWarning("Missing gene/case combination: " + parts[0] + " " + parts[1]
+				ProgressMonitor.logWarning("Missing gene/case combination: " + parts[0] + " " + parts[1]
                         + " in mutationMap.  In other words, it looks like we have a mutation "
                         + "call for this gene/case combination, but the case is not listed as being "
                         + " sequenced in the first place!");
@@ -268,13 +264,13 @@ public class GenerateMutationData {
         if (args.length < 4) {
             System.out.println("command line usage:  generateMutationData.pl " +
                     "<case-list> <sequenced-gene-list> <sequenced-cases> <known-mutation-file>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
 
 		// setup some vars
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
-        pMonitor.setCurrentMessage("Generating mutation data file...");
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+        ProgressMonitor.setCurrentMessage("Generating mutation data file...");
         File allCasesFile = new File(args[0]);
         File sequencedGeneFile = new File(args[1]);
         File sequencedCaseFile = new File(args[2]);
@@ -283,14 +279,14 @@ public class GenerateMutationData {
 		try {
 			// construct our lists
             GenerateMutationData util = new GenerateMutationData(allCasesFile, sequencedGeneFile,
-                    sequencedCaseFile, knownMutationFile, pMonitor);
+                    sequencedCaseFile, knownMutationFile);
             String out = util.execute();
             System.out.println (out);
         } catch (IOException e) {
 			System.err.println(e.getMessage());
 		}
 
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

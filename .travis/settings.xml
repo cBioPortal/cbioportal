@@ -3,8 +3,8 @@
   <servers>
     <server>
       <id>settingsKey</id>
-      <username>travis</username>
-      <password></password>
+      <username>cbio_user</username>
+      <password>somepassword</password>
    </server>
  </servers>
 </settings>

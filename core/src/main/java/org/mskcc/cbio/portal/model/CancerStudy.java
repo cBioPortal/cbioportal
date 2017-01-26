@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -79,7 +79,7 @@ public class CancerStudy {
         super();
         this.studyID = CancerStudy.NO_SUCH_STUDY;
         this.name = name;
-        this.shortName = "";
+        this.shortName = cancerStudyIdentifier;
         this.description = description;
         this.cancerStudyIdentifier = cancerStudyIdentifier;
         this.typeOfCancerId = typeOfCancerId;
@@ -213,7 +213,7 @@ public class CancerStudy {
     public GeneticProfile getMutationProfile(ArrayList<GeneticProfile> geneticProfiles,
             String caseId) throws DaoException {
         for(GeneticProfile geneticProfile: geneticProfiles) {
-            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED) &&
+            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED &&
                acceptableCaseId(caseId, geneticProfile)) {
                 return geneticProfile;
             }
@@ -274,7 +274,7 @@ public class CancerStudy {
     public GeneticProfile getCopyNumberAlterationProfile(String caseId, boolean showInAnalysisOnly)
             throws DaoException {
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.COPY_NUMBER_ALTERATION) &&
+            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION &&
                (!showInAnalysisOnly || geneticProfile.showProfileInAnalysisTab()) &&
                acceptableCaseId(caseId, geneticProfile)) {
                 return geneticProfile;
@@ -310,7 +310,7 @@ public class CancerStudy {
             throws DaoException {
         GeneticProfile ret = null;
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MRNA_EXPRESSION) &&
+            if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION &&
                acceptableCaseId(caseId, geneticProfile)) {
                 String stableId = geneticProfile.getStableId().toLowerCase();
                 if (stableId.matches(".+rna_seq.*_zscores")) {
@@ -358,21 +358,21 @@ public class CancerStudy {
         return groups;
     }
 
-    public void setGroups(Set<String> groups) {
-        this.groups = groups;
-    }
-
     /**
+     * Determines the set of groups by splitting the given groups string
+     * on ';' and transforming all group names to their UPPER CASE 
+     * representation (this last one is in compliance to what is expected 
+     * in CancerStudyPermissionEvaluator.hasPermission() ).
      * 
-     * @param groups comma delimited groups
+     * @param groups semi-colon (;) delimited groups
      */
-    public void setGroups(String groups) {
+    public void setGroupsInUpperCase(String groups) {
         if (groups==null) {
             this.groups = null;
             return;
         }
         
-        this.groups = new HashSet<String>(Arrays.asList(groups.split(";")));
+        this.groups = new HashSet<String>(Arrays.asList(groups.toUpperCase().split(";")));
     }
 
     /**
@@ -439,10 +439,17 @@ public class CancerStudy {
     }
 
     public String getShortName() {
+        if (shortName==null || shortName.length()==0) {
+            return cancerStudyIdentifier;
+        }
         return shortName;
     }
 
     public void setShortName(String shortName) {
         this.shortName = shortName;
+    }
+    
+    public String getTypeOfCancer() throws DaoException {
+        return DaoTypeOfCancer.getTypeOfCancerById(this.typeOfCancerId).getName();
     }
 }

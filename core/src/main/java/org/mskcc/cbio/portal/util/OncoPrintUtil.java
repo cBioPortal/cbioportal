@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.PatientList;
+import org.mskcc.cbio.portal.model.SampleList;
 
 import java.util.Formatter;
 import java.util.List;
@@ -42,17 +42,17 @@ public class OncoPrintUtil {
     /**
      * Constructs the OncoPrint patient set description.
      *
-     * @param patientSetId String
-     * @param patientSets List<PatientList>
+     * @param sampleSetId String
+     * @param sampleSets List<SampleList>
      *
      * @return String
      */
-    public static String getPatientSetDescription(String patientSetId, List<PatientList> patientSets) {
+    public static String getSampleSetDescription(String sampleSetId, List<SampleList> sampleSets) {
 
         StringBuilder builder = new StringBuilder();
-        for (PatientList patientSet : patientSets) {
-            if (patientSetId.equals(patientSet.getStableId())) {
-                builder.append(patientSet.getName() + ": " + patientSet.getDescription());
+        for (SampleList sampleSet : sampleSets) {
+            if (sampleSetId.equals(sampleSet.getStableId())) {
+                builder.append(sampleSet.getName() + ": " + sampleSet.getDescription());
             }
         }
         return builder.toString();

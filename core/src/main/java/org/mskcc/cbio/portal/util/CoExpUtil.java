@@ -41,22 +41,22 @@ import org.mskcc.cbio.portal.dao.*;
 
 public class CoExpUtil {
 
-    public static ArrayList<String> getPatientIds(String patientSetId, String patientIdsKey) {
+    public static ArrayList<String> getSampleIds(String sampleSetId, String sampleIdsKeys) {
 		try {
-			DaoPatientList daoPatientList = new DaoPatientList();
-            PatientList patientList;
-            ArrayList<String> patientIdList = new ArrayList<String>();
-            if (patientSetId.equals("-1")) {
-                String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
-                String[] patientArray = strPatientIds.split("\\s+");
-                for (String item : patientArray) {
-                    patientIdList.add(item);
+			DaoSampleList daoSampleList = new DaoSampleList();
+            SampleList sampleList;
+            ArrayList<String> sampleIdList = new ArrayList<String>();
+            if (sampleSetId.equals("-1")) {
+                String strSampleIds = SampleSetUtil.getSampleIds(sampleIdsKeys);
+                String[] sampleArray = strSampleIds.split("\\s+");
+                for (String item : sampleArray) {
+                    sampleIdList.add(item);
                 }
             } else {
-                patientList = daoPatientList.getPatientListByStableId(patientSetId);
-                patientIdList = patientList.getPatientList();
+                sampleList = daoSampleList.getSampleListByStableId(sampleSetId);
+                sampleIdList = sampleList.getSampleList();
             }
-			return patientIdList;
+			return sampleIdList;
         } catch (DaoException e) {
             System.out.println("Caught Dao Exception: " + e.getMessage());
 			return null;
@@ -88,10 +88,10 @@ public class CoExpUtil {
 		}
     }
 
-    public static Map<Long,double[]> getExpressionMap(int profileId, String patientSetId, String patientIdsKey) throws DaoException {
+    public static Map<Long,double[]> getExpressionMap(int profileId, String sampleSetId, String sampleIdsKeys) throws DaoException {
         
         GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
-        List<String> stableSampleIds = getPatientIds(patientSetId, patientIdsKey);
+        List<String> stableSampleIds = getSampleIds(sampleSetId, sampleIdsKeys);
         List<Integer> sampleIds = new ArrayList<Integer>();
         for(String sampleId : stableSampleIds) {
             Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(gp.getCancerStudyId(), sampleId);   

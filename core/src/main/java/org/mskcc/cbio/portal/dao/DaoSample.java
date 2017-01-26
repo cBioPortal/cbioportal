@@ -34,7 +34,7 @@ package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.sql.*;
 import java.util.*;
@@ -194,12 +194,49 @@ public class DaoSample {
         
         return new ArrayList<Sample>(samples.values());
     }
+    
+    /**
+     * This method returns the list of sample (stable) ids for a study, e.g. TCGA-A1-A0SB-01, etc.
+     * 
+     * @param cancerStudyId : the cancer study internal id
+     * @return
+     */
+    public static List<String> getSampleStableIdsByCancerStudy(int cancerStudyId) 
+    {
+    	List<Sample> samples = getSamplesByCancerStudy(cancerStudyId);
+    	List<String> result = new ArrayList<String>();
+    	for (Sample sample : samples) {
+    		result.add(sample.getStableId());
+    	}
+    	return result;
+    }
 
     public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
     {
+    	return getSampleByCancerStudyAndSampleId(cancerStudyId, stableSampleId, true);
+    	
+    }
+    
+    /**
+     * Same as getSampleByCancerStudyAndSampleId, but with extra option on whether or not
+     * to log extra warning when sample is not found. 
+     * 
+     * @param cancerStudyId
+     * @param stableSampleId
+     * @param errorWhenNotFound : set to true to log warning in ProgressMonitor in case sample is not found. 
+     * Some processes, like ImportClinicalData do not want an error here, but use the null result as a flag
+     * to decide whether a new sample should be added to the DB. These processes should set this parameter
+     * to false.
+     * 
+     * @return Sample object if sample was found in cache, null otherwise.
+     */
+    public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId, boolean errorWhenNotFound)
+    {
         Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
         if (samples==null) {
-            System.err.println("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
+        	if (errorWhenNotFound) {
+        		ProgressMonitor.logWarning("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
+        	}
             return null;
         }
         
@@ -213,8 +250,10 @@ public class DaoSample {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoSample.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE sample");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         }
         catch (SQLException e) {
             throw new DaoException(e);

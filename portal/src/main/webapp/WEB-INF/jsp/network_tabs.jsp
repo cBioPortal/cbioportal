@@ -52,7 +52,7 @@ if (includeHelpTab==null) {
 	    <div class="header">
 		  <span class="title"><label >Drugs of Specified Genes</label></span><br><br>
 	      <div class="combo">
-			<select id="drop_down_select">
+			<select id="drop_down_select" title="Show drugs options">
 			  <option value="HIDE_DRUGS">Hide Drugs</option>
               <option value="SHOW_CANCER"> Show Cancer Drugs</option>
               <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
@@ -64,16 +64,16 @@ if (includeHelpTab==null) {
 	    		<label>Filter Neighbors by Alteration (%)</label>
 	    		<div id="weight_slider_area">
 		    		<span class="slider-value">
-		    			<input id="weight_slider_field" type="text" value="0"/>
+		    			<input id="weight_slider_field" type="text" value="0" title="weight slider"/>
 		    		</span>
 		    		<span class="slider-min"><label>0</label></span>
 		    		<span class="slider-max"><label>MAX</label></span>
 		    		<div id="weight_slider_bar"></div>
 	    		</div>
-	    		
+
 	    		<div id="affinity_slider_area" class="hidden-network-ui">
 	    			<span class="slider-value">
-	    				<input id="affinity_slider_field" type="text" value="0.80"/>
+	    				<input id="affinity_slider_field" type="text" value="0.80" title="affinity slider"/>
 	    			</span>
 	    			<span class="slider-min"><label>0</label></span>
 		    		<span class="slider-max"><label>1.0</label></span>
@@ -98,8 +98,8 @@ if (includeHelpTab==null) {
 							<span class="ui-button-icon-primary ui-icon ui-icon-circle-plus"></span>
 						</button>
 					</td>
-					<td>					
-						<input type="text" id="search_box" value=""/>
+					<td>
+						<input type="text" id="search_box" value="" title="search genes"/>
 					</td>
 					<td>
 						<button id="search_genes" class="tabs-button" title="Search">
@@ -120,7 +120,7 @@ if (includeHelpTab==null) {
 	        			</td>
 	        		</tr>
         		</table>
-			</div>			
+			</div>
 		</div>
 		<div id="gene_list_area">
 		</div>
@@ -128,109 +128,28 @@ if (includeHelpTab==null) {
     <div id="relations_tab">
 		<div>
 	        <table id="edge_type_filter">
-	        	<tr class="edge-type-header">
-	        		<td>
-	        			<label class="heading">Type:</label>
-	        		</td>
-	        	</tr>
-	        	<tr class="in-same-component">
-		        	<td class="edge-type-checkbox">
-		        		<input id="in_same_component_check" type="checkbox" checked="checked">
-		        		<label>In Same Component</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="in-same-component">
-	        		<td>
-	        			<div class="percent-bar"></div>	        			
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
-	        	<tr class="reacts-with">
-		        	<td class="edge-type-checkbox">
-		        		<input id="reacts_with_check" type="checkbox" checked="checked">
-		        		<label>Reacts with</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="reacts-with">
-	        		<td>
-	        			<div class="percent-bar"></div>	        			
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
-	        	<tr class="state-change">
-		        	<td class="edge-type-checkbox">
-		        		<input id="state_change_check" type="checkbox" checked="checked">
-		        		<label>State Change</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="state-change">
-	        		<td>
-	        			<div class="percent-bar"></div>
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
-	        	<tr class="targeted-by-drug">
-		        	<td class="edge-type-checkbox">
-		        		<input id="targeted_by_drug_check" type="checkbox" checked="checked">
-		        		<label>Targeted by Drug</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="targeted-by-drug">
-	        		<td>
-	        			<div class="percent-bar"></div>	        			
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
-	        	<tr class="other">
-		        	<td class="edge-type-checkbox">
-		        		<input id="other_check" type="checkbox" checked="checked">
-		        		<label>Other</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="other">
-	        		<td>
-	        			<div class="percent-bar"></div>	        			
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
 	        </table>
 	        <table id="edge_source_filter">
-	        	<tr class="edge-source-header">
-	        		<td>
-	        			<label class="heading">Source:</label>
-	        		</td>
-	        	</tr>
 	        </table>
 	    </div>
-        <div class="footer">
+        <!-- <div class="footer">
         	<table>
         		<tr>
         			<td>
         				<label class="button-text">Update</label>
         			</td>
-        			<td> 
+        			<td>
         				<button id="update_edges" class="tabs-button" title="Update">
 					        <span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
         				</button>
         			</td>
         		</tr>
         	</table>
-		</div>
+		</div> -->
     </div>
 	<div id="element_details_tab">
 		<div class="error">
-			Currently there is no selected node. Please, select a node to see details.
-		</div>
+      Currently there is no selected node/edge. Please, select a node/edge to see details.		</div>
 		<div class="genomic-profile-content"></div>
 		<div class="biogene-content"></div>
 		<div class="drug-info-content"></div>

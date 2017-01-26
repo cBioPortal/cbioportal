@@ -96,6 +96,40 @@
     #plots-sidebar select {
         max-width: 180px;
     }
+    /* define a non-responsive subset of Bootstrap's form-inline to style
+       radio and checkbox labels in this bar, it does not make sense for
+       certain form controls to split up vertically on small screens while
+       the sidebar itself stays the same width */
+    #plots-sidebar .form-inline .form-group,
+    #plots-sidebar .form-inline .form-control {
+        display: inline-block;
+        width: auto;
+        vertical-align: middle;
+    }
+    #plots-sidebar .form-inline .radio,
+    #plots-sidebar .form-inline .checkbox {
+        display: inline-block;
+        margin-top: 0;
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+    #plots-sidebar .form-inline .radio label,
+    #plots-sidebar .form-inline .checkbox label {
+        padding-left: 0;
+    }
+    #plots-sidebar .form-inline .radio input[type="radio"],
+    #plots-sidebar .form-inline .checkbox input[type="checkbox"] {
+        position: relative;
+        margin-left: 0;
+    }
+
+    #plots-sidebar .form-inline .form-group,
+    #plots-sidebar .form-inline h5 {
+        margin-bottom: 0;
+    }
+    #plots-sidebar .form-inline {
+        margin-bottom: 10px;
+    }
     #plots-box {
         width: 850px;
         height: 670px;
@@ -135,27 +169,27 @@
                     <div id="plots-sidebar-x-div" class="plots">
                         <h4>Horizontal Axis</h4>
                         <div id="plots-x-data-type" style="padding-left:20px;">
-                            <input type="radio" name="plots-x-data-type" value="genetic_profile" checked>Genetic Profile
-                            <input type="radio" name="plots-x-data-type" value="clinical_attribute">Clinical Attribute
+                            <input type="radio" name="plots-x-data-type" value="genetic_profile" title="x data type genetic profile" checked>Genetic Profile
+                            <input type="radio" name="plots-x-data-type" value="clinical_attribute" title="x data type clinical attribute">Clinical Attribute
                         </div>
                         <div id="plots-x-spec"></div>
                     </div>
-                    <button id='plots-tab-swap-btn'><img src='images/swap.png'></button>
+                    <button id='plots-tab-swap-btn'><img src='images/swap.png' alt='swap'></button>
                     <div id="plots-sidebar-y-div" class="plots">
                         <h4>Vertical Axis</h4>
                         <div id="plots-y-data-type" style="padding-left:20px;">
-                            <input type="radio" name="plots-y-data-type" value="genetic_profile" checked>Genetic Profile
-                            <input type="radio" name="plots-y-data-type" value="clinical_attribute">Clinical Attribute
+                            <input type="radio" name="plots-y-data-type" value="genetic_profile" title="y data type genetic profile" checked>Genetic Profile
+                            <input type="radio" name="plots-y-data-type" value="clinical_attribute" title="y data type clinical attribute">Clinical Attribute
                         </div>
                         <div id="plots-y-spec"></div>
                     </div>
                     <div id="plots-sidebar-util-div" class="plots">
                         <h4>Utilities</h4>
-                        <h5>Search Case(s)</h5><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="Case ID.." onkeyup="search_case_id();"><br>
-                        <h5>Search Mutation(s)</h5><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="Protein Change.." onkeyup="search_mutation();"><br>
+                        <label for="case_id_search_keyword"><h5>Search Case(s)</h5></label><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="Case ID.." onkeyup="search_case_id();"><br>
+                        <label for="mutation_search_keyword"><h5>Search Mutation(s)</h5></label><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="Protein Change.." onkeyup="search_mutation();"><br>
                         <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view" style="display:inline;"></div>
                         <h5>Download</h5><div id="download_buttons" style="display: inline;"></div>
-                    </div>        
+                    </div>
                 </div>
             </td>
             <td>
@@ -169,23 +203,23 @@
 
 <script>
     $(document).ready( function() {
-        var plots_tab_init = false;
-        if ($("#plots").is(":visible")) {
-            plotsTab.init();
-            plots_tab_init = true;
-        } else {
-            $(window).trigger("resize");
-        }
+    	//whether this tab has already been initialized or not:
+    	var tab_init = false;
+    	//function that will listen to tab changes and init this one when applicable:
+    	function tabsUpdate() {
+	        if ($("#plots").is(":visible")) {
+		    	if (tab_init === false) {
+		        	plotsTab.init();
+		            tab_init = true;
+		        }
+		        $(window).trigger("resize");
+	    	}
+    	}
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
+    	tabsUpdate();
+        //this is for the scenario where the user navigates to this tab:
         $("#tabs").bind("tabsactivate", function(event, ui) {
-            if (ui.newTab.text().trim().toLowerCase() === "plots") {
-                if (plots_tab_init === false) {
-                    plotsTab.init();
-                    plots_tab_init = true;
-                    $(window).trigger("resize");
-                } else {
-                    $(window).trigger("resize");
-                }
-            }
+        	tabsUpdate();
         });
     });
 </script>

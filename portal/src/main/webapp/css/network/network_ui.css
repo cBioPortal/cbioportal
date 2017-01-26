@@ -566,7 +566,7 @@ table #network_wrapper{
 
 #relations_tab .percent-bar
 {
-	margin: 0.2em 0.5em 0 2.5em;
+	/*margin: 0.2em 0.5em 0 2.5em;*/
 	height: 0.3em;
 	border-right: 0px solid #b0b0b0;
 	clear: both;
@@ -600,12 +600,19 @@ table #network_wrapper{
 #relations_tab, #genes_tab, #help_tab, #element_details_tab
 {
 	height: 575px;
-	width: 245px;
 }
 
-#relations_tab #edge_source_filter
+#edge_source_filter
 {
 	padding-top: 1em;
+	font-size: 9px;
+	font-weight: normal;
+}
+
+#relations_tab label
+{
+	font-size: 12px;
+	font-weight: normal;
 }
 
 /*
@@ -758,6 +765,7 @@ table #network_wrapper{
 .network_node_legend img
 {
 	margin: 0.4em;
+	width: 400px;
 }
 
 .network_drug_legend img
@@ -776,6 +784,7 @@ table #network_wrapper{
 {
 	margin-top: 0.4em;
 	margin-bottom: 0.4em;
+	width: 290px;
 }
 
 .network_edge_legend .color-bar
@@ -806,3 +815,34 @@ table #network_wrapper{
 #network_tabs ul {
   font-size:12px !important;
 }
+
+/*
+ * ########################################################
+ * #################### SBGN View 		#####################
+ * ########################################################
+ */
+
+.SBGNPopUpButton{
+	margin-top: 15px;
+}
+
+ #sbgnLoadingAnimation
+ {
+	 width: 100%;
+	 height: 100%;
+	 position: absolute;
+	 left: 0;
+	 top: 0;
+	 z-index: 999999;
+	 text-align: center;
+ }
+
+ #sbgnCanvas
+ {
+	  width: 100%;
+	  height: 100%;
+	  position: absolute;
+		left: 0;
+		top: 0;
+		z-index: 99999;
+ }

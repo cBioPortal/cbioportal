@@ -45,6 +45,7 @@ import org.apache.commons.dbcp.BasicDataSource;
  * Connection Utility for JDBC.
  *
  * @author Ethan Cerami
+ * @author Ersin Ciftci
  */
 public class JdbcUtil {
     private static DataSource ds;
@@ -56,6 +57,7 @@ public class JdbcUtil {
      * @return the data source
      */
     public static DataSource getDataSource() {
+        if (ds==null) ds = initDataSource();
     	return ds;
     }
     
@@ -65,6 +67,33 @@ public class JdbcUtil {
      */
     public static void setDataSource(DataSource value) {
     	ds = value;
+    }
+    
+    private static DataSource initDataSource() {
+        DatabaseProperties dbProperties = DatabaseProperties.getInstance();
+        String host = dbProperties.getDbHost();
+        String userName = dbProperties.getDbUser();
+        String password = dbProperties.getDbPassword();
+        String database = dbProperties.getDbName();
+
+        String url ="jdbc:mysql://" + host + "/" + database +
+                        "?user=" + userName + "&password=" + password +
+                        "&zeroDateTimeBehavior=convertToNull";
+        
+        //  Set up poolable data source
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setUsername(userName);
+        ds.setPassword(password);
+        ds.setUrl(url);
+
+        //  By pooling/reusing PreparedStatements, we get a major performance gain
+        ds.setPoolPreparedStatements(true);
+        ds.setMaxActive(100);
+        
+        activeConnectionCount = new HashMap<String,Integer>();
+        
+        return ds;
     }
 
     /**
@@ -91,7 +120,7 @@ public class JdbcUtil {
         
         Connection con;
         try {
-            con = ds.getConnection();
+            con = getDataSource().getConnection();
         }
         catch (Exception e) {
             logMessage(e.getMessage());
@@ -142,7 +171,7 @@ public class JdbcUtil {
      * @param rs  ResultSet Object.
      */
     public static void closeAll(ResultSet rs) {
-                JdbcUtil.closeAll((String)null, null, rs);
+                JdbcUtil.closeAll((String)null, null, null, rs);
         }
 
     /**
@@ -154,7 +183,7 @@ public class JdbcUtil {
      */
     public static void closeAll(Class clazz, Connection con, PreparedStatement ps,
             ResultSet rs) {
-        closeAll(clazz.getName(), con, rs);
+        closeAll(clazz.getName(), con, ps, rs);
     }
 
     /**
@@ -163,9 +192,8 @@ public class JdbcUtil {
      * @param con Connection Object.
      * @param rs  ResultSet Object.
      */
-    private static void closeAll(String requester, Connection con,
+    private static void closeAll(String requester, Connection con, PreparedStatement ps,
                                  ResultSet rs) {
-        closeConnection(requester, con);
         if (rs != null) {
             try {
                 rs.close();
@@ -173,6 +201,14 @@ public class JdbcUtil {
                 e.printStackTrace();
             }
         }
+        if (ps != null) {
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        closeConnection(requester, con);        
     }
 
     /**
@@ -215,5 +251,31 @@ public class JdbcUtil {
     static Double readDoubleFromResultSet(ResultSet rs, String column) throws SQLException {
         double d = rs.getDouble(column);
         return rs.wasNull() ? null : d;
+    }
+
+    /**
+     * Tells the database to ignore foreign key constraints, effective only for current session.
+     * Useful when you want to truncate a table that has foreign key constraints. Note that this
+     * may create orphan records in child tables.
+     * @param con Database connection
+     * @throws SQLException
+     */
+    public static void disableForeignKeyCheck(Connection con) throws SQLException {
+
+        Statement stmt = con.createStatement();
+        stmt.execute("SET FOREIGN_KEY_CHECKS=0");
+        stmt.close();
+    }
+
+    /**
+     * Reverses the effect of disableForeignKeyCheck method.
+     * @param con Database Connection
+     * @throws SQLException
+     */
+    public static void enableForeignKeyCheck(Connection con) throws SQLException {
+
+        Statement stmt = con.createStatement();
+        stmt.execute("SET FOREIGN_KEY_CHECKS=1");
+        stmt.close();
     }
 }

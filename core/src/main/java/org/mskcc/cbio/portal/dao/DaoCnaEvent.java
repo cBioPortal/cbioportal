@@ -32,13 +32,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.CnaEvent;
+import org.mskcc.cbio.portal.model.Sample;
+
+import java.sql.*;
+import java.util.*;
 
 /**
  *
@@ -47,62 +46,57 @@ import org.mskcc.cbio.portal.model.*;
 public final class DaoCnaEvent {
     private DaoCnaEvent() {}
     
-    public static int addCaseCnaEvent(CnaEvent cnaEvent, boolean newCnaEvent) throws DaoException {
+    public static void addCaseCnaEvent(CnaEvent cnaEvent, boolean newCnaEvent) throws DaoException {
         if (!MySQLbulkLoader.isBulkLoad()) {
             throw new DaoException("You have to turn on MySQLbulkLoader in order to insert sample_cna_event");
         }
         else {
+        	long eventId = cnaEvent.getEventId();
+        	if (newCnaEvent) {
+                eventId = addCnaEventDirectly(cnaEvent);
+                // update object based on new DB id (since this object is locally cached after this):
+                cnaEvent.setEventId(eventId);
+            }
+            
             MySQLbulkLoader.getMySQLbulkLoader("sample_cna_event").insertRecord(
-                    Long.toString(cnaEvent.getEventId()),
+                    Long.toString(eventId),
                     Integer.toString(cnaEvent.getSampleId()),
                     Integer.toString(cnaEvent.getCnaProfileId())
                     );
-            
-            if (newCnaEvent) {
-                return addCnaEvent(cnaEvent) + 1;
-            }
-            else {
-                return 1;
-            }
         }
     }
     
     /**
-     * add event and return the event id
+     * Add new event directly and return the auto increment value.
+     * 
      * @param cnaEvent
-     * @param con
      * @return
      * @throws DaoException 
      */
-    private static int addCnaEvent(CnaEvent cnaEvent) throws DaoException {
-        if (!MySQLbulkLoader.isBulkLoad()) {
-            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert cna_event");
-        } else {
-            MySQLbulkLoader.getMySQLbulkLoader("cna_event").insertRecord(
-                    Long.toString(cnaEvent.getEventId()),
-                    Long.toString(cnaEvent.getEntrezGeneId()),
-                    Short.toString(cnaEvent.getAlteration().getCode())
-                    );
-            return 1;
-        }
-    }
-    
-    public static long getLargestCnaEventId() throws DaoException {
+    private static long addCnaEventDirectly(CnaEvent cnaEvent) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
-                    ("SELECT MAX(`CNA_EVENT_ID`) FROM `cna_event`");
-            rs = pstmt.executeQuery();
-            return rs.next() ? rs.getLong(1) : 0;
+                    ("INSERT INTO cna_event (" +
+                            "`ENTREZ_GENE_ID`," +
+                            "`ALTERATION` )" +
+                            " VALUES(?,?)", Statement.RETURN_GENERATED_KEYS);
+            pstmt.setLong(1, cnaEvent.getEntrezGeneId());
+            pstmt.setShort(2, cnaEvent.getAlteration().getCode());
+            pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+            rs.next();
+            long newId = rs.getLong(1);
+            return newId;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
-    }
+	}
     
     public static Map<Sample, Set<Long>> getSamplesWithAlterations(
             Collection<Long> eventIds) throws DaoException {
@@ -184,7 +178,7 @@ public final class DaoCnaEvent {
             JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
-    
+
     public static List<CnaEvent.Event> getAllCnaEvents() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

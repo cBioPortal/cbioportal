@@ -52,7 +52,7 @@ var plotsbox = (function() {
     
     return {
         init: function() {
-            plotsData.get(render);
+        	render(plotsData.get());
         }        
     };
     

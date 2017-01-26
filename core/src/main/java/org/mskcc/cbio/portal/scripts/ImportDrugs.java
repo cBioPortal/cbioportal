@@ -42,13 +42,11 @@ import java.io.*;
  * Command Line tool to import background drug information.
  */
 public class ImportDrugs {
-    private ProgressMonitor pMonitor;
     private File file;
     private static final String NA = "N/A";
 
-    public ImportDrugs(File file, ProgressMonitor pMonitor) {
+    public ImportDrugs(File file) {
         this.file = file;
-        this.pMonitor = pMonitor;
     }
 
     public void importData() throws IOException, DaoException {
@@ -59,10 +57,8 @@ public class ImportDrugs {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#") && line.trim().length() > 0) {
                 line = line.trim();
                 String parts[] = line.split("\t");
@@ -83,18 +79,17 @@ public class ImportDrugs {
             System.out.println("command line usage:  importDrugs.pl <XXXX.txt>");
             return;
         }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 		SpringUtil.initDataSource();
 
         File file = new File(args[0]);
         System.out.println("Reading drug data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportDrugs parser = new ImportDrugs(file, pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ImportDrugs parser = new ImportDrugs(file);
         parser.importData();
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

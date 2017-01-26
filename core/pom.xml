@@ -1,204 +1,225 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-  <!-- module meta data -->
+  <!-- meta data -->
   <parent>
-	<artifactId>master</artifactId>
-	<groupId>org.mskcc.cbio</groupId>
-    <version>1.0.3</version>
+    <artifactId>master</artifactId>
+    <groupId>org.mskcc.cbio</groupId>
+    <version>1.4.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
   <name>Portal Core</name>
   <description>Core libraries shared among other modules</description>
-    <repositories>
-        <repository>
-		<id>biojava-maven-repo</id>
-		<name>BioJava repository</name>
-		<url>http://www.biojava.org/download/maven/</url>
-		<releases>
-			<enabled>true</enabled>
-		</releases>
-	</repository>
-    </repositories>
 
-
-  <!-- dependencies -->
   <dependencies>
-
-	<dependency>
-	  <groupId>org.mskcc.cbio</groupId>
-	  <artifactId>business</artifactId>
-	  <version>${project.version}</version>
-	</dependency>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>business</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>persistence-mybatis</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- antisamy -->
-	<dependency>
-	  <groupId>org.owasp</groupId>
-	  <artifactId>antisamy</artifactId>
-	  <version>1.4</version>
-	</dependency>
+    <dependency>
+      <groupId>org.owasp</groupId>
+      <artifactId>antisamy</artifactId>
+      <version>1.4</version>
+    </dependency>
 
-	<!-- antlr -->
-	<dependency>
-	  <groupId>org.antlr</groupId>
-	  <artifactId>antlr-runtime</artifactId>
-	  <version>3.2</version>
-	</dependency>
+    <!-- antlr -->
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr-runtime</artifactId>
+      <version>3.2</version>
+    </dependency>
 
-	<!-- apache commons -->
-	<dependency>
-	  <groupId>commons-collections</groupId>
-	  <artifactId>commons-collections</artifactId>
-	  <version>3.2.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.geronimo.bundles</groupId>
-	  <artifactId>commons-discovery</artifactId>
-	  <version>0.4_1</version>
-	  <scope>runtime</scope>
-	</dependency>
-	<dependency>
-		<groupId>commons-dbcp</groupId>
-		<artifactId>commons-dbcp</artifactId>
-		<version>1.2.2</version>
-	</dependency>
-	<dependency>
-	  <groupId>commons-fileupload</groupId>
-	  <artifactId>commons-fileupload</artifactId>
-	  <version>1.2.2</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.axis</groupId>
-	  <artifactId>axis</artifactId>
-	  <version>1.4</version>
-	  <scope>runtime</scope>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.axis</groupId>
-	  <artifactId>axis-jaxrpc</artifactId>
-	  <version>1.4</version>
-	  <scope>runtime</scope>
-	</dependency>
-	<dependency>
-	  <groupId>commons-io</groupId>
-	  <artifactId>commons-io</artifactId>
-	  <version>2.4</version>
-	</dependency>
-	<dependency>
-	  <groupId>commons-httpclient</groupId>
-	  <artifactId>commons-httpclient</artifactId>
-	  <version>3.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.httpcomponents</groupId>
-	  <artifactId>httpcore</artifactId>
-	  <version>4.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>commons-lang</groupId>
-	  <artifactId>commons-lang</artifactId>
-	  <version>2.4</version>
-	</dependency>
+    <!-- apache commons -->
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.bundles</groupId>
+      <artifactId>commons-discovery</artifactId>
+      <version>0.4_1</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
+        <version>1.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.axis</groupId>
+      <artifactId>axis</artifactId>
+      <version>1.4</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.axis</groupId>
+      <artifactId>axis-jaxrpc</artifactId>
+      <version>1.4</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.4</version>
+    </dependency>
         <dependency>
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-math3</artifactId>
           <version>3.2</version>
         </dependency>
-
-	<!-- guava -->
-	<dependency>
-	  <groupId>com.google.guava</groupId>
-	  <artifactId>guava</artifactId>
-	  <version>14.0.1</version>
-	</dependency>
-
-	<!-- jackson -->
-	<dependency>
-	  <groupId>org.codehaus.jackson</groupId>
-	  <artifactId>jackson-core-asl</artifactId>
-	  <version>1.9.3</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.codehaus.jackson</groupId>
-	  <artifactId>jackson-mapper-asl</artifactId>
-	  <version>1.9.3</version>
-	</dependency>
-
-	<!-- javax servlet -->
-	<dependency>
-	  <groupId>javax.servlet</groupId>
-	  <artifactId>servlet-api</artifactId>
-	  <version>2.3</version>
-	  <scope>provided</scope>
-	</dependency>
-
-	<!-- jopt -->
-	<dependency>
-	  <groupId>net.sf.jopt-simple</groupId>
-	  <artifactId>jopt-simple</artifactId>
-	  <version>3.0-rc2</version>
-	</dependency>
-
-	<!-- json simple  -->
-	<dependency>
-	  <groupId>com.googlecode.json-simple</groupId>
-	  <artifactId>json-simple</artifactId>
-	  <version>1.1</version>
-	</dependency>
-
-	<!-- jung -->
-	<dependency>
-	  <groupId>net.sf.jung</groupId>
-	  <artifactId>jung-api</artifactId>
-	  <version>2.0.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>net.sf.jung</groupId>
-	  <artifactId>jung-graph-impl</artifactId>
-	  <version>2.0.1</version>
-	</dependency>
-
-	<!-- opencsv -->
-	<dependency>
-	  <groupId>net.sf.opencsv</groupId>
-	  <artifactId>opencsv</artifactId>
-	  <version>2.3</version>
-	</dependency>
-
-    <!-- BioJava3 -->
     <dependency>
-        <groupId>org.biojava</groupId>
-        <artifactId>biojava3-core</artifactId>
-        <version>3.0.7</version>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>1.3</version>
+    </dependency>         
+
+    <!-- guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>14.0.1</version>
+    </dependency>
+
+    <!-- jackson -->
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-core-asl</artifactId>
+      <version>1.9.3</version>
     </dependency>
     <dependency>
-        <groupId>org.biojava</groupId>
-        <artifactId>biojava3-structure</artifactId>
-        <version>3.0.7</version>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>1.9.3</version>
+    </dependency>
+
+    <!-- javax servlet -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- jopt -->
+    <dependency>
+      <groupId>net.sf.jopt-simple</groupId>
+      <artifactId>jopt-simple</artifactId>
+      <version>3.0-rc2</version>
+    </dependency>
+
+    <!-- json simple  -->
+    <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1</version>
+    </dependency>
+
+    <!-- jung -->
+    <dependency>
+      <groupId>net.sf.jung</groupId>
+      <artifactId>jung-api</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.jung</groupId>
+      <artifactId>jung-graph-impl</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
+    <!-- opencsv -->
+    <dependency>
+      <groupId>net.sf.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>2.3</version>
+    </dependency>
+
+    <!-- BioJava 4.x -->
+    <dependency>
+      <groupId>org.biojava</groupId>
+      <artifactId>biojava-core</artifactId>
+      <version>4.2.0</version>
+      <exclusions>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-slf4j-impl</artifactId>
+      	</exclusion>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-api</artifactId>
+      	</exclusion>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-core</artifactId>
+      	</exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.biojava</groupId>
+      <artifactId>biojava-structure</artifactId>
+      <version>4.2.0</version>
+      <exclusions>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-slf4j-impl</artifactId>
+      	</exclusion>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-api</artifactId>
+      	</exclusion>
+      	<exclusion>
+      	  <groupId>org.apache.logging.log4j</groupId>
+      	  <artifactId>log4j-core</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Mockito -->
     <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>1.9.5</version>
-        <scope>test</scope>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.9.5</version>
+      <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.3.2</version>
     </dependency>
-
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.10</version>
     </dependency>
-
-	<!--svg to PDF Converter-->
+  <!--svg to PDF Converter-->
     <dependency>
       <groupId>batik</groupId>
       <artifactId>batik</artifactId>
@@ -211,6 +232,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-codec</artifactId>
+      <version>1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>fop</artifactId>
       <version>1.0</version>
     </dependency>
@@ -219,197 +245,228 @@
       <artifactId>xercesImpl</artifactId>
       <version>2.11.0</version>
     </dependency>
-
     <!--xml parser-->
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
       <version>1.6.1</version>
     </dependency>
-
     <dependency>
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
       <version>1.1.6</version>
     </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
       <version>${spring.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <version>${spring.version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency>   
     <dependency>
-		<groupId>org.easymock</groupId>
-		<artifactId>easymock</artifactId>
-		<version>3.2</version>
-		<scope>test</scope>
-		<exclusions>
-			<exclusion>
-				<groupId>cglib</groupId>
-				<artifactId>cglib-nodep</artifactId>
-			</exclusion>
-		</exclusions>
-	</dependency>
-
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <version>3.2</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>cglib</groupId>
+          <artifactId>cglib-nodep</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 
-	<profiles>
-		<profile>
-			<id>heroku</id>
-			<build>
-				<plugins>
-					<!-- remove core temp build files -->
-					<plugin>
-						<artifactId>maven-clean-plugin</artifactId>
-						<version>2.5</version>
-						<executions>
-							<execution>
-								<id>clean-artifacts</id>
-								<phase>install</phase>
-								<goals><goal>clean</goal></goals>
-								<configuration>
-									<excludeDefaultDirectories>true</excludeDefaultDirectories>
-									<filesets>
-										<fileset>
-											<directory>target</directory>
-										</fileset>
-									</filesets>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+  <profiles>
+    <profile>
+      <id>heroku</id>
+      <build>
+        <plugins>
+          <!-- remove core temp build files -->
+          <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>2.5</version>
+            <executions>
+              <execution>
+                <id>clean-artifacts</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>clean</goal>
+                </goals>
+                <configuration>
+                  <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                  <filesets>
+                    <fileset>
+                      <directory>target</directory>
+                    </fileset>
+                  </filesets>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
+  <build>
+    <plugins>
+      <!-- surefire (test) config -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.16</version>
+        <configuration>
+          <forkMode>always</forkMode>
+          <filtering>true</filtering>
+          <systemProperties>
+            <property>
+              <name>log4j.configuration</name>
+              <value>file:${project.parent.basedir}/src/main/resources/log4j.properties</value>
+            </property>
+          </systemProperties>
+          <additionalClasspathElements>
+            <additionalClasspathElement>${project.parent.basedir}/src/main/resources/</additionalClasspathElement>
+          </additionalClasspathElements>
+        </configuration>
+      </plugin>
+      <!-- sql plugin - for tests -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>sql-maven-plugin</artifactId>
+        <version>1.5</version>
+        <dependencies>
+          <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.0.3</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+            <!-- username & password gets put in .m2/settings.xml -->
+              <settingsKey>settingsKey</settingsKey>
+              <driver>${db.test.driver}</driver>
+              <url>${db.test.url}</url>
+              <username>${db.test.username}</username>
+              <password>${db.test.password}</password>
+              <sqlCommand>SET storage_engine=INNODB</sqlCommand>
+              <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
+              <srcFiles>
+                <srcFile>src/main/resources/db/cgds.sql</srcFile>
+                <srcFile>src/test/resources/seed_mini.sql</srcFile>
+              </srcFiles>
+              <!-- added encoding to prevent Unknown initial character set index '192' received from server error -->
+              <encoding>UTF-8</encoding>
+              <driverProperties>characterEncoding=utf8, connectionCollation=utf8_general_ci</driverProperties>
+              <!--all executions are ignored if -DskipTests -->
+              <skip>${skipTests}</skip>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- this plugin lets us grab shared resources from our parent -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-parent-resources</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/classes</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.parent.basedir}/src/main/resources</directory>
+                  <includes>
+                    <include>**/*.properties</include>
+                  </includes>
+                  <excludes>
+                    <exclude>**/portal.properties.*</exclude>
+                    <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/*.EXAMPLE</exclude>
+                  </excludes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+        <!-- JaCoCo Test coverage plugin -->
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
+            <executions>
+                <execution>
+                    <goals><goal>prepare-agent</goal></goals>
+                </execution>
+                <execution>
+                    <id>report</id>
+                    <phase>prepare-package</phase>
+                    <goals><goal>report</goal></goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
 
-	<!-- plugins -->
-	<build>
-
-	  <plugins>
-
-		<!-- java 1.7 support -->
-		<plugin>
-		  <groupId>org.apache.maven.plugins</groupId>
-		  <artifactId>maven-compiler-plugin</artifactId>
-		  <version>2.0.2</version>
-		  <configuration>
-			<source>1.7</source>
-			<target>1.7</target>
-		  </configuration>
-		</plugin>
-
-		<plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-shade-plugin</artifactId>
-         <version>2.3</version>
-         <executions>
-             <execution>
-                 <phase>package</phase>
-                 <goals>
-                     <goal>shade</goal>
-                 </goals>
-                 <configuration>
-						<artifactSet>
-              		<excludes>
-                			<exclude>org.bouncycastle:bcprov-jdk15</exclude>
-              		</excludes>
-            			</artifactSet>
-                     <transformers>
-                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                             <resource>META-INF/spring.handlers</resource>
-                         </transformer>
-                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                             <resource>META-INF/spring.schemas</resource>
-                         </transformer>
-                     </transformers>
-                 </configuration>
-             </execution>
-         </executions>
-     	</plugin>
-
-		<!-- surefire (test) config -->
-		<plugin>
-		  <groupId>org.apache.maven.plugins</groupId>
-		  <artifactId>maven-surefire-plugin</artifactId>
-		  <version>2.16</version>
-		  <configuration>
-			<forkMode>always</forkMode>
-			<filtering>true</filtering>
-			<testFailureIgnore>true</testFailureIgnore>
-			<systemProperties>
-			  <property>
-				<name>log4j.configuration</name>
-				<value>file:${PORTAL_HOME}/src/main/resources/log4j.properties</value>
-			  </property>
-			</systemProperties>
-			<additionalClasspathElements>
-			  <additionalClasspathElement>${PORTAL_HOME}/src/main/resources/</additionalClasspathElement>
-			</additionalClasspathElements>
-		  </configuration>
-		</plugin>
-
-		<!-- sql plugin - for tests -->
-		<plugin>
-		  <groupId>org.codehaus.mojo</groupId>
-		  <artifactId>sql-maven-plugin</artifactId>
-		  <version>1.5</version>
-		  <dependencies>
-			<dependency>
-			  <groupId>mysql</groupId>
-			  <artifactId>mysql-connector-java</artifactId>
-			  <version>5.0.3</version>
-			</dependency>
-		  </dependencies>
-		  <executions>
-			<execution>
-			  <phase>test-compile</phase>
-			  <goals>
-				<goal>execute</goal>
-			  </goals>
-			  <configuration>
-				<!-- username & password gets put in .m2/settings.xml -->
-				<settingsKey>settingsKey</settingsKey>
-				<driver>com.mysql.jdbc.Driver</driver>
-                <url>jdbc:mysql://localhost:3306/cgds_test</url>
-				<sqlCommand>SET storage_engine=INNODB</sqlCommand>
-				<sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
-				<srcFiles>
-				  <srcFile>src/main/resources/db/cgds.sql</srcFile>
-				  <srcFile>src/test/resources/seed_mini.sql</srcFile>
-				</srcFiles>
-				<!-- added encoding to prevent Unknown initial character set index '192' received from server error -->
-				<encoding>UTF-8</encoding>
-				<driverProperties>characterEncoding=utf8, connectionCollation=utf8_general_ci</driverProperties>
-                <!--all executions are ignored if -DskipTests -->
-                <skip>${skipTests}</skip>
-			  </configuration>
-			</execution>
-		  </executions>
-		</plugin>
-
-
-	  </plugins>
-
-	  <!-- prevent some resources from getting into jar -->
-	  <resources>
-		<resource>
-		  <directory>src/main/resources</directory>
-		  <excludes>
-			<exclude>db/**</exclude>
-			<exclude>sample_data/**</exclude>
-		  </excludes>
-		</resource>
-	  </resources>
-
-	</build>
-
+    <!-- prevent some resources from getting into jar -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>sample_data/**</exclude>
+          <exclude>db/**</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>../src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+            <include>**/portal.properties</include>
+        </includes>
+      </resource>
+    </resources>
+    <pluginManagement>
+        <plugins>
+            <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+            <plugin>
+                <groupId>org.eclipse.m2e</groupId>
+                <artifactId>lifecycle-mapping</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <lifecycleMappingMetadata>
+                        <pluginExecutions>
+                            <pluginExecution>
+                                <pluginExecutionFilter>
+                                    <groupId>org.codehaus.mojo</groupId>
+                                    <artifactId>sql-maven-plugin</artifactId>
+                                    <versionRange>[1.5,)</versionRange>
+                                    <goals>
+                                        <goal>execute</goal>
+                                    </goals>
+                                </pluginExecutionFilter>
+                                <action>
+                                    <ignore></ignore>
+                                </action>
+                            </pluginExecution>
+                        </pluginExecutions>
+                    </lifecycleMappingMetadata>
+                </configuration>
+            </plugin>
+        </plugins>
+    </pluginManagement>
+  </build>
 </project>

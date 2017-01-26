@@ -300,10 +300,10 @@
 				pubmedIdLinks: pubmedIdLinks};
 
 			// compile the template using underscore
-			var template = _.template($("#drug_info_template").html(), variables);
+			var template = _.template($("#drug_info_template").html());
 
 			// load the compiled HTML into the Backbone "el"
-			this.$el.html(template);
+			this.$el.html(template(variables));
 
 			// format after loading
 			this.format(options, variables);

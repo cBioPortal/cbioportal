@@ -32,9 +32,7 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import static org.junit.Assert.*;
 
@@ -44,36 +42,33 @@ import java.io.File;
  * JUnit test for CutInvalidCases class.
  */
 public class TestCutInvalidCases {
-
-	// TODO Fix this test following the change in data file
-	@Ignore
+    
 	@Test
     public void testCutInvalidCases() throws Exception {
 		// TBD: change this to use getResourceAsStream()
-        File casesExcludedFile = new File("target/test-classes/cases_excluded_test.txt");
-        File dataFile = new File("target/test-classes/cna_test.txt");
-        ProgressMonitor pMonitor = new ProgressMonitor();
+        File casesExcludedFile = new File("src/test/resources/cases_excluded_test.txt");
+        File dataFile = new File("src/test/resources/cna_test.txt");
         CutInvalidCases parser = new CutInvalidCases(casesExcludedFile,
-                dataFile, pMonitor);
+                dataFile);
         String out = parser.process();
 
         String lines[] = out.split("\n");
         String headerLine = lines[0];
         String parts[] = headerLine.split("\t");
         for (String header : parts) {
-            if (header.trim().equals("TCGA-06-0142")) {
+            if (header.trim().equals("TCGA-A1-A0SB-01")) {
                 fail("TCGA-06-0142 should have been stripped out.");
-            } else if (header.trim().equals("TCGA-06-0151")) {
+            } else if (header.trim().equals("TCGA-A1-A0SD-01")) {
                 fail("TCGA-06-0142 should have been stripped out.");
-            } else if (header.trim().equals("TCGA-06-0159")) {
+            } else if (header.trim().equals("TCGA-A1-A0SE-01")) {
                 fail("TCGA-06-0159 should have been stripped out.");
             }
         }
         int numHeaders = parts.length;
-        parts = lines[3].split("\t");
+        parts = lines[4].split("\t");
 
-        //  Should go from 95 to 93 columns.
-        assertEquals (93, numHeaders);
-        assertEquals (93, parts.length);
+        //  Should go from 16 to 13 columns.
+        assertEquals (13, numHeaders);
+        assertEquals (13, parts.length);
     }
 }

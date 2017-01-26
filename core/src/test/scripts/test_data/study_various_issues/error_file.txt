@@ -1,0 +1,8 @@
+>data_patients.txt | ERROR: datatype definition for attribute 'DFS_MONTHS' must be NUMBER
+3
+>data_patients.txt | ERROR: Value of numeric attribute is not a real number
+536,540
+>brca_tcga_pub.maf | WARNING: Entrez gene id not known to the cBioPortal instance. This record will not be loaded. Might be new or deprecated Entrez gene id.
+2,3,5,8,9,11,12,16
+>brca_tcga_pub.maf | ERROR: Normal sample id not in list of sample ids configured in corresponding metafile. Please check your metafile field 'normal_samples_list'.
+8,9,11,12

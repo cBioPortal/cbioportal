@@ -36,10 +36,11 @@ import java.io.*;
 import java.util.*;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  * 
- * Given expression and CNV data for a set of samples (patients), generate normalized expression values. 
+ * Given expression and CNV data for a set of samples generate normalized expression values. 
  * 
  * Each gene is normalized separately. First, the expression distribution for unaltered copies of the 
  * gene is estimated by calculating the mean and variance of the expression values for samples in which 
@@ -100,6 +101,7 @@ public class NormalizeExpressionLevels{
 
 	public static void main (String[]args){
 		try {
+			SpringUtil.initDataSource();
 			driver(args);
 		}
 		catch (RuntimeException e) {
@@ -258,7 +260,7 @@ public class NormalizeExpressionLevels{
                       // Double.NaN indicates an invalid expression value
                       if(zscores[k] != Double.NaN){
                          // limit precision
-                         outputLine.add( String.format( "%.4f", zscores[k] ) );
+                         outputLine.add( String.format( Locale.US, "%.4f", zscores[k] ) ); 
                       }else{
                          outputLine.add( NOT_AVAILABLE );
                       }
@@ -541,7 +543,7 @@ public class NormalizeExpressionLevels{
     # 
     # The different sample types for (4) are:
     #  ...
-    # 11  normal tissue (not always matched to a cancer patient, used for mRNA, microRNA, methylation) 
+    # 11  normal tissue (not always matched to a cancer sample, used for mRNA, microRNA, methylation) 
    */
    public static boolean isTCGANormal(String name){
       String suffix = "";

@@ -32,8 +32,8 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,14 +42,10 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.scripts.MutationFilter;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.Assert.*;
 
 /**
  * JUnit tests for MutationFilter class.
@@ -68,15 +64,6 @@ public class TestMutationFilter {
 	      loadGene( "BIG", 234234L  );
 	}
    
-   @Test
-   public void testBadWhiteLists( ){
-      try {
-         new MutationFilter("no_such_file");
-         Assert.fail( "Should throw IllegalArgumentException");
-      } catch (IllegalArgumentException e) {
-         assertEquals( "Gene list 'no_such_file' not found.", e.getMessage() );
-      }
-   }
    
    @Test
    public void testNoWhitelists( ){
@@ -138,52 +125,7 @@ public class TestMutationFilter {
 
    }
 
-   @Test
-   public void testAcceptMutationGermlineWhiteList() throws DaoException {
-      
-                 
-      // create MutationFilter
-	  // TBD: change this to use getResourceAsStream()
-      MutationFilter myMutationFilter = new MutationFilter("target/test-classes/test_germline_white_list_file.txt");
-
-      alwaysRejectTheseMutations( myMutationFilter );      
-      tryGermlineMutations( myMutationFilter );      
-   }
    
-   private void tryGermlineMutations( MutationFilter myMutationFilter ){
-
-      // a germline on whitelist
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            true, 
-            3L, 
-            "Unknown",        // validationStatus,
-            "GERMLINE",        // mutationStatus,
-            "Unknown"         // mutationType
-         );
-
-      // a germline on whitelist, but also missense
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            true, 
-            3L, 
-            "Unknown",        // validationStatus,
-            "GERMLINE",        // mutationStatus,
-            "Missense_Mutation"         // mutationType
-         );
-
-      // a germline NOT on whitelist
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            true, 
-            9999L, 
-            "Unknown",        // validationStatus,
-            "GERMLINE",        // mutationStatus,
-            "Unknown"         // mutationType
-         );
-
-   }
-
     private void nowTestAcceptMutation(
             MutationFilter myMutationFilter,
             boolean expectedResult,

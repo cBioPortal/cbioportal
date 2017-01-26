@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+   Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+
+   This library is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+   FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+   is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+   obligations to provide maintenance, support, updates, enhancements or
+   modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+   liable to any party for direct, indirect, special, incidental or
+   consequential damages, including lost profits, arising out of the use of this
+   software and its documentation, even if Memorial Sloan-Kettering Cancer
+   Center has been advised of the possibility of such damage.
+
+   This file is part of cBioPortal.
+
+   cBioPortal is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Affero General Public License as
+   published by the Free Software Foundation, either version 3 of the
+   License.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Affero General Public License for more details.
+
+   You should have received a copy of the GNU Affero General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+                      http://www.springframework.org/schema/beans/spring-beans.xsd
+                      http://www.springframework.org/schema/context
+                      http://www.springframework.org/schema/context/spring-context.xsd
+                      http://www.springframework.org/schema/util
+                      http://www.springframework.org/schema/util/spring-util.xsd">
+  <bean id="dbcpDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="url" value="jdbc:h2:mem:;MODE=MySQL;DATABASE_TO_UPPER=false;INIT=RUNSCRIPT FROM '${basedir}/src/test/resources/testSql.sql'"/>
+  </bean>
+
+  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dbcpDataSource" />
+    <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model"/>
+    <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler"/>
+  </bean>
+
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="org.cbioportal.persistence.mybatis"/>
+  </bean>
+
+  <context:component-scan base-package="org.cbioportal.persistence.mybatis"/>
+</beans>

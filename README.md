@@ -3,7 +3,9 @@ The cBioPortal for Cancer Genomics provides visualization, analysis, and downloa
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 
-A public instance of cBioPortal (http://cbioportal.org) is hosted and maintained by Memorial Sloan Kettering Cancer Center. It provides access to data by The Cancer Genome Atlas as well as many carefully curated published data sets. The cBioPortal software can be used to for local instances that provide access to private data. If you would like to know how to contribute code changes or setup a private instance of the portal, [see the wiki.](https://github.com/cBioPortal/cbioportal/wiki)
+A public instance of cBioPortal (http://cbioportal.org) is hosted and maintained by Memorial Sloan Kettering Cancer Center. It provides access to data by The Cancer Genome Atlas as well as many carefully curated published data sets. The cBioPortal software can be used to for local instances that provide access to private data.
+
+If you would like to know how to setup a private instance of the portal and/or get set up for developing, [see the documentation.](https://cbioportal.readthedocs.io)  For details on contributing code changes via pull requests, [see our Contributing document.](CONTRIBUTING.md)
 
 If you are interested in coordinating the development of new features, please contact cbioportal@cbio.mskcc.org.
 
@@ -12,3 +14,5 @@ If you are interested in coordinating the development of new features, please co
 [![ZenHub] (https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)] (https://zenhub.io)
 
 [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal)
+
+[![codebeat badge](https://codebeat.co/badges/0738d3c9-5ffe-4b61-80c4-abb5698d8d44)](https://codebeat.co/projects/github-com-cbioportal-cbioportal)

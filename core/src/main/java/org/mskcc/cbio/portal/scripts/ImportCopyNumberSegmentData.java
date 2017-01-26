@@ -41,162 +41,163 @@ import joptsimple.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.regex.*;
 
 /**
- * Import protein array antibody information into database.
+ * Import Segment data into database.
  * @author jj
  */
-public class ImportCopyNumberSegmentData {
-    private ProgressMonitor pMonitor;
-    private int cancerStudyId;
-    private File file;
+public class ImportCopyNumberSegmentData extends ConsoleRunnable {
+    private int entriesSkipped;
     
-    public ImportCopyNumberSegmentData(File file, int cancerStudyId, ProgressMonitor pMonitor)
-    {
-        this.file = file;
-        this.cancerStudyId = cancerStudyId;
-        this.pMonitor = pMonitor;
-    }
-    
-    public void importData() throws Exception
-    {
+    private void importData(File file, int cancerStudyId) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
-        String line = buf.readLine(); // skip header line
-        long segId = DaoCopyNumberSegment.getLargestId();
-        while ((line=buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
-            
-            String[] strs = line.split("\t");
-            if (strs.length<6) {
-                System.err.println("wrong format: "+line);
-            }
-
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-            ImportDataUtil.addPatients(new String[] { strs[0] }, cancerStudy);
-            ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
-
-            String sampleId = StableIdUtil.getSampleId(strs[0]);
-            long start = Double.valueOf(strs[2]).longValue();
-            long end = Double.valueOf(strs[3]).longValue();
-            int numProbes = new BigDecimal((strs[4])).intValue();
-            double segMean = Double.parseDouble(strs[5]);
-            
-            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
-            if (s == null) {
-                assert StableIdUtil.isNormal(sampleId);
-                continue;
-            }
-            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), strs[1], start, end, numProbes, segMean);
-            cns.setSegId(++segId);
-            DaoCopyNumberSegment.addCopyNumberSegment(cns);
+        try {
+	        String line = buf.readLine(); // skip header line
+	        long segId = DaoCopyNumberSegment.getLargestId();
+	        while ((line=buf.readLine()) != null) {
+	            ProgressMonitor.incrementCurValue();
+	            ConsoleUtil.showProgress();
+	            
+	            String[] strs = line.split("\t");
+	            if (strs.length<6) {
+	                System.err.println("wrong format: "+line);
+	            }
+	
+	            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+	            //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
+		        //procedure. In this new procedure, Patients and Samples should only be added 
+		        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
+		        //sample per patient, which is not always the case.
+	            String barCode = strs[0];
+	            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId,
+                        StableIdUtil.getSampleId(barCode));
+                if (sample == null ) {
+    	            ImportDataUtil.addPatients(new String[] { barCode }, cancerStudy);
+    		        ImportDataUtil.addSamples(new String[] { barCode }, cancerStudy);
+    		        ProgressMonitor.logWarning("WARNING: Sample added on the fly because it was missing in clinical data");
+    		    }
+	
+	            String sampleId = StableIdUtil.getSampleId(barCode);
+	            String chrom = strs[1].trim(); 
+	            //validate in same way as GistitReader:
+	            ValidationUtils.validateChromosome(chrom);
+	            
+	            long start = Double.valueOf(strs[2]).longValue();
+	            long end = Double.valueOf(strs[3]).longValue();
+	            if (start >= end) {
+	            	//workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
+	            	ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
+	            	entriesSkipped++;
+	            	continue;
+	            }            
+	            int numProbes = new BigDecimal((strs[4])).intValue();
+	            double segMean = Double.parseDouble(strs[5]);
+	            
+	            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+	            if (s == null) {
+	                assert StableIdUtil.isNormal(sampleId);
+	                entriesSkipped++;
+	                continue;
+	            }
+	            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
+	            cns.setSegId(++segId);
+	            DaoCopyNumberSegment.addCopyNumberSegment(cns);
+	        }
+	        MySQLbulkLoader.flushAll();
         }
-        MySQLbulkLoader.flushAll();
+        finally {
+        	buf.close();
+        }
     }
     
-    public static void main(String[] args) throws Exception
-    {
-        if (args.length < 4) {
-            System.out.println("command line usage:  importCopyNumberSegmentData --data <copy_number_segment_file.seg> --meta <meta_cna_seg.txt>");
-            return;
-        }
-
-        String[] filenames = getFilenames(args);
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(filenames[1]));
-
-		SpringUtil.initDataSource();
-        CancerStudy cancerStudy = getCancerStudy(properties);
+    public void run() {
+        try {
+		    String description = "Import 'segment data' files";
+	    	
+		    OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
+		    String dataFile = (String) options.valueOf("data");
+		    File descriptorFile = new File((String) options.valueOf("meta"));
         
-        if (segmentDataExistsForCancerStudy(cancerStudy)) {
-            System.err.println("Ignoring this file since seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + filenames[0]);
-            return;
+		    Properties properties = new Properties();
+		    properties.load(new FileInputStream(descriptorFile));
+            
+            ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile);
+            
+			SpringUtil.initDataSource();
+		    CancerStudy cancerStudy = getCancerStudy(properties);
+		    
+		    if (segmentDataExistsForCancerStudy(cancerStudy)) {
+			     throw new IllegalArgumentException("Seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + dataFile);
+		    }
+		
+		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);
+		    importCopyNumberSegmentFileData(cancerStudy, dataFile);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException|DaoException e) {
+            throw new RuntimeException(e);
         }
-
-        importCopyNumberSegmentFileMetadata(cancerStudy, properties);
-        importCopyNumberSegmentFileData(cancerStudy, filenames[0]);
-        
-        System.err.println("Done.");
     }
 
-    private static String[] getFilenames(String[] args) throws Exception
-    {
-        String[] filenames = new String[2];
-        OptionParser parser = new OptionParser();
-        OptionSpec<String> data = parser.accepts( "data",
-            "copy number segment data file" ).withRequiredArg().describedAs( "copy_number_segment_file.seg" ).ofType( String.class );
-        OptionSpec<String> meta = parser.accepts( "meta",
-            "meta (description) file" ).withRequiredArg().describedAs( "meta_cna_seg.txt" ).ofType( String.class );
-        parser.acceptsAll(Arrays.asList("dbmsAction", "loadMode"));
-        OptionSet options = parser.parse( args );
 
-        if (options.has(data)) {
-            filenames[0] = options.valueOf(data);
-        }
-        else {
-            throw new Exception ("'data' argument is missing!");
-        }
-
-        if (options.has(meta)) {
-            filenames[1] = options.valueOf(meta);
-        }
-        else {
-            throw new Exception ("'meta' argument is missing!");
-        }
-
-        return filenames;
-    }
-
-    private static CancerStudy getCancerStudy(Properties properties) throws Exception
-    {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier"));
+    private static CancerStudy getCancerStudy(Properties properties) throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier").trim());
         if (cancerStudy == null) {
-            throw new Exception("Unknown cancer study: " + properties.getProperty("cancer_study_identifier"));
+            throw new RuntimeException("Unknown cancer study: " + properties.getProperty("cancer_study_identifier").trim());
         }
         return cancerStudy;
     }
 
-    private static boolean segmentDataExistsForCancerStudy(CancerStudy cancerStudy) throws Exception
-    {
+    private static boolean segmentDataExistsForCancerStudy(CancerStudy cancerStudy) throws DaoException {
         return (DaoCopyNumberSegment.segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
     }
 
-    private static void importCopyNumberSegmentFileMetadata(CancerStudy cancerStudy, Properties properties) throws Exception
-    {
+    private static void importCopyNumberSegmentFileMetadata(CancerStudy cancerStudy, Properties properties) throws DaoException {
         CopyNumberSegmentFile copyNumSegFile = new CopyNumberSegmentFile();
         copyNumSegFile.cancerStudyId = cancerStudy.getInternalId();
-        copyNumSegFile.referenceGenomeId = getRefGenId(properties.getProperty("reference_genome_id")); 
-        copyNumSegFile.description = properties.getProperty("description");
-        copyNumSegFile.filename = properties.getProperty("data_filename");
+        copyNumSegFile.referenceGenomeId = getRefGenId(properties.getProperty("reference_genome_id").trim()); 
+        copyNumSegFile.description = properties.getProperty("description").trim();
+        copyNumSegFile.filename = properties.getProperty("data_filename").trim();
         DaoCopyNumberSegmentFile.addCopyNumberSegmentFile(copyNumSegFile);
     }
 
-    private static void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws Exception
-    {
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
-        
+    private void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws IOException, DaoException {
         File file = new File(dataFilename);
-        System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
-        System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportCopyNumberSegmentData parser = new ImportCopyNumberSegmentData(file, cancerStudy.getInternalId(), pMonitor);
-        parser.importData();
+        ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
+        ProgressMonitor.setMaxValue(numLines);
+        entriesSkipped = 0;
+        importData(file, cancerStudy.getInternalId());
+        ProgressMonitor.setCurrentMessage(" --> total number of entries skipped:  " + entriesSkipped);
     }
 
-    private static CopyNumberSegmentFile.ReferenceGenomeId getRefGenId(String potentialRefGenId) throws Exception
-    {
+    private static CopyNumberSegmentFile.ReferenceGenomeId getRefGenId(String potentialRefGenId) {
         if (CopyNumberSegmentFile.ReferenceGenomeId.has(potentialRefGenId)) {
             return CopyNumberSegmentFile.ReferenceGenomeId.valueOf(potentialRefGenId);
         }
         else {
-            throw new Exception ("Unknown reference genome id: " + potentialRefGenId);
+            throw new RuntimeException ("Unknown reference genome id: " + potentialRefGenId);
         }
+    }
+
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportCopyNumberSegmentData(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportCopyNumberSegmentData(args);
+        runner.runInConsole();
     }
 }

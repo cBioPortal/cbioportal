@@ -30,13 +30,15 @@ var plotsTab = (function() {
 
     return {
         init: function() {
-   
             clear_plot_box();
-            metaData.fetch(); 
-            sidebar.init();
-            plotsData.fetch("x");
-            plotsData.fetch("y");
-            plotsbox.init();
+            metaData.fetch(
+            	//fetch data, and then continue with callback below:
+	            function () { 
+	            	sidebar.init();
+	            	plotsData.fetch("x", function () {
+	                	plotsData.fetch("y", plotsbox.init);
+	                });
+	            });
             
         }
         

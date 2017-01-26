@@ -29,6 +29,12 @@ on the cBioPortal for Cancer Genomics, including the OncoPrint, heat map, and da
         <td>All somatic, non-synonymous mutations</td>
     </tr>
     <tr>
+        <td>Fusions</td>
+        <td><TT>FUSION</TT></td>
+        <td><TT>FUSION</TT></td>
+        <td>Show cases with fusions</td>
+    </tr>
+    <tr>
         <td>mRNA Expression</td>
         <td><TT>EXP</TT></td>
         <td><TT>EXP &lt; -x </TT> Under-expression is less than <TT>x</TT> SDs below the mean.<BR>
@@ -114,8 +120,8 @@ your query, you can use OQL to view only amplified cases in CCNE1:</p>
 in the tumors are CCNE1 amplification, RB1 deletions or mutations, and loss of expression
 of CDKN2A.  To investigate this hypothesis, we use OQL to display only
 these events:</p>
-<pre><code>CCNE1: AMP MUTATED
-RB1: HOMDEL MUTATED
+<pre><code>CCNE1: AMP MUT
+RB1: HOMDEL MUT
 CDKN2A: HOMDEL EXP &lt; -1
 </code></pre>
 <p><img alt="Example 1" src="images/example_oncoPrint_for_instructions_2.png" /></p>

@@ -31,27 +31,10 @@
 --%>
 
 <style>
-    #cc-plots .cc-plots {
-        border: 1px solid #aaaaaa;
-        border-radius: 4px;
-        margin: 15px;
-    }
-
     #cc-plots-sidebar {
-        height: 45px;
+        /*height: 25px;*/
         width: 1160px;
     }
-
-    #cc-plots-sidebar h4 {
-        margin: 15px;
-        font-size: 12px;
-        color: grey;
-        background-color: white;
-        margin-top: -6px;
-        display: table;
-        padding: 5px;
-    }
-
     #cc-plots-sidebar h5 {
         margin-left: 20px;
         padding-left: 5px;
@@ -61,45 +44,43 @@
         font-weight: bold;
         color: grey;
     }
-
-    #cc-plots-sidebar select {
-        max-width: 180px;
-    }
-
-    #cc-plots-box {
+    #cc_plots_box {
+        border: 1px solid #aaaaaa;
+        border-radius: 4px;
+        margin: 15px;
         width: 1160px;
-        height: 640px;
+        height: 600px;
     }
-
 </style>
 
 <table>
     <tr>
         <div id="cc-plots-sidebar">
             <h5>Gene</h5>
-            <span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();">
-                <select id="cc_plots_gene_list"></select>
+            <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
+                <select disabled id="cc_plots_gene_list" style="width:80px" title="Select gene"></select>
             </span>
-            <h5>Download</h5>
-            <button id='cc_plots_svg_download'>SVG</button>
-            <button id='cc_plots_pdf_download'>PDF</button>
-            <button id='cc_plots_data_download'>Data</button>
             <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Cancer Study
-            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="median"/> Median
-            <br>
+            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" title="Sort by cancer study" checked/> Cancer Study
+            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="median" title="Sort by median"/> Median
             <h5>Log Scale</h5>
-            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
+            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.update()" title="Log scale" checked/>
             <h5>Show Mutations</h5>
-            <input type="checkbox" id="cc_plots_show_mut" onchange="ccPlots.toggle_show_mut()" checked/>
-            <h5>Show Sequenced Samples Only</h5>
-            <input type="checkbox" id="cc_plots_show_sequenced_only" onchange="ccPlots.toggle_show_sequenced()"/>
+            <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.update()" title="Show mutations" checked/>
+            <h5>Download</h5>
+            <button class="btn btn-default btn-xs" type="button" id="cc_plots_pdf_download">PDF</button>
+            <button class="btn btn-default btn-xs" type="button" id="cc_plots_svg_download">SVG</button>
+            <button class="btn btn-default btn-xs" type="button" id="cc_plots_data_download">Data</button>
+            <button class="btn btn-default btn-sm disabled" type="button" data-target="#cc_plots_select_study_collapse" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
+                <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span> &nbsp;Select Studies
+            </button>
+            <div class="collapse" id="cc_plots_select_study_collapse">
+                <div class="well" id="cc_plots_select_study_box"></div>
+            </div>
         </div>
     </tr>
     <tr>
-        <div id="cc-plots-box" class="cc-plots" style="overflow: scroll;">
-            <img src="images/ajax-loader.gif" id="cc_plots_loading" style="padding:200px;"/>
-        </div>
+        <div id="cc_plots_box"><img style='padding:250px;' src='images/ajax-loader.gif' alt='loading'></div>
     </tr>
 </table>
 

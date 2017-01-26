@@ -43,7 +43,7 @@ import org.mskcc.cbio.portal.util.*;
  */
 public class ImportMicroRNAIDs {
 
-    public static void importData(ProgressMonitor pMonitor, File geneFile) throws IOException, DaoException {
+    public static void importData(File geneFile) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
@@ -54,10 +54,8 @@ public class ImportMicroRNAIDs {
         List<CanonicalGene> mirnas = new ArrayList<CanonicalGene>();
         
         while ((line=buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
                 
@@ -144,16 +142,15 @@ public class ImportMicroRNAIDs {
 //            System.out.println("command line usage:  importMicroRNAIDs.pl <microrna.txt>");
 //            return;
 //        }
-//        ProgressMonitor pMonitor = new ProgressMonitor();
-//        pMonitor.setConsoleMode(true);
+//        ProgressMonitor.setConsoleMode(true);
 //
 //        File geneFile = new File(args[0]);
 //        System.out.println("Reading data from:  " + geneFile.getAbsolutePath());
 //        int numLines = FileUtil.getNumLines(geneFile);
 //        System.out.println(" --> total number of lines:  " + numLines);
-//        pMonitor.setMaxValue(numLines);
-//        ImportMicroRNAIDs.importData(pMonitor, geneFile);
-//        ConsoleUtil.showWarnings(pMonitor);
+//        ProgressMonitor.setMaxValue(numLines);
+//        ImportMicroRNAIDs.importData(geneFile);
+//        ConsoleUtil.showWarnings();
 //        System.err.println("Done.");
     }
 }

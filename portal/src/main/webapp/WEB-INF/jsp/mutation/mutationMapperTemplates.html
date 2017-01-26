@@ -5,9 +5,6 @@
 </script>
 
 <script type="text/template" id="mutation_3d_vis_info_template">
-	<div class='mutation-3d-info-title'>
-		3D Structure
-	</div>
 	<div class='mutation-3d-info-main'>
 		PDB
 		<span class='mutation-3d-pdb-id'>
@@ -27,174 +24,144 @@
 	<div class='mutation-3d-vis-header'>
 		<span class='mutation-3d-close ui-icon ui-icon-circle-close' title='close'></span>
 		<span class='mutation-3d-minimize ui-icon ui-icon-circle-minus' title='minimize'></span>
+		<div class='mutation-3d-info-title'>
+			3D Structure
+		</div>
+	</div>
+	<div class='mutation-3d-vis-main-loader'>
+		<img src='{{loaderImage}}' alt='Loading 3d visualization' />
+	</div>
+	<div class='mutation-3d-vis-body'>
 		<div class='mutation-3d-info'></div>
-	</div>
-	<div class='mutation-3d-residue-warning'>
-		<span class="mutation-3d-unmapped-info">Selected mutation</span>
-		cannot be mapped onto this structure.
-	</div>
-	<div class='mutation-3d-nomap-warning'>
-		None of the mutations can be mapped onto this structure.
-	</div>
-	<div class='mutation-3d-vis-loader'>
-		<img src='{{loaderImage}}'/>
-	</div>
-	<div class='mutation-3d-vis-container'></div>
-	<div class='mutation-3d-vis-toolbar'>
-		<div class='mutation-3d-vis-help-init'>
-			<table>
+		<div class='mutation-3d-residue-warning'>
+			<span class="mutation-3d-unmapped-info">Selected mutation</span>
+			cannot be mapped onto this structure.
+		</div>
+		<div class='mutation-3d-nomap-warning'>
+			None of the mutations can be mapped onto this structure.
+		</div>
+		<div class='mutation-3d-vis-loader'>
+			<img src='{{loaderImage}}' alt='Loading 3d visualization' />
+		</div>
+		<div class='mutation-3d-vis-container'></div>
+		<div class='mutation-3d-vis-toolbar'>
+			<div class='mutation-3d-vis-help-init'>
+				<table>
+					<tr>
+						<td align="left">
+							<button class='mutation-3d-pymol-dload'>PyMOL</button>
+						</td>
+						<td align="right">
+							<a class='mutation-3d-vis-help-open' href="#">how to pan/zoom/rotate?</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class='mutation-3d-vis-help-content'></div>
+			<table class="mutation-3d-controls-menu" cellpadding="0">
 				<tr>
-					<td align="left">
-						<button class='mutation-3d-pymol-dload'>PyMOL</button>
+					<td class='mutation-3d-protein-style-menu' valign='top'>
+						<div class='mutation-3d-style-header'>
+							<label>Protein Style</label>
+						</div>
+						<table cellpadding='0'>
+							<tr>
+								<td>
+									<label>
+										<input class='mutation-3d-display-non-protein'
+											   type='checkbox'
+											   checked='checked'>
+										Display bound molecules
+									</label>
+									<img class='display-non-protein-help' src='{{helpImage}}'
+										alt='Help (non-protein display)' />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Scheme:</label>
+									<select class='mutation-3d-protein-style-select'
+											title='Select 3d protein style'>
+										<option value='cartoon'
+												title='Switch to the Cartoon Scheme'>cartoon</option>
+										<option value='spaceFilling'
+												title='Switch to the Space-filling Scheme'>space-filling</option>
+										<option value='trace'
+												title='Switch to the Trace Scheme'>trace</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Color:</label>
+									<select class='mutation-3d-protein-color-select'
+											title='Select 3d protein coloring'>
+										<option value='uniform'
+												title='Uniform Color'>uniform</option>
+										<option value='bySecondaryStructure'
+												title='Color by Secondary Structure'>secondary structure</option>
+										<option value='byChain'
+												title='Color by Rainbow Gradient'>N-C rainbow</option>
+										<option value='byAtomType'
+												title='Color by Atom Type'
+												disabled='disabled'>atom type</option>
+									</select>
+									<img class='protein-struct-color-help' src='{{helpImage}}'
+										alt='Help (protein coloring)' />
+								</td>
+							</tr>
+						</table>
 					</td>
-					<td align="right">
-						<a class='mutation-3d-vis-help-open' href="#">how to pan/zoom/rotate?</a>
+					<td class='mutation-3d-mutation-style-menu' valign='top'>
+						<div class='mutation-3d-style-header'>
+							<label>Mutation Style</label>
+						</div>
+						<table cellpadding="0">
+							<tr>
+								<td>
+									<!--label>
+										<input class='mutation-3d-side-chain'
+											   type='checkbox'
+											   checked='checked'>
+										Display side chain
+									</label-->
+									<label>Side chain:</label>
+									<select class='mutation-3d-side-chain-select'
+											title='Select 3d protein side-chain display'>
+										<option value='all'
+												title='Display side chain for all mapped residues'>all</option>
+										<option value='highlighted'
+												selected='selected'
+												title='Display side chain for highlighted residues only'>selected</option>
+										<option value='none'
+												title='Do not display side chains'>none</option>
+									</select>
+									<img class='display-side-chain-help' src='{{helpImage}}'
+										alt='Help (side chain display)' />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Color:</label>
+									<select class='mutation-3d-mutation-color-select'
+											title='Select 3d protein mutation color'>
+										<option value='uniform'
+												title='Uniform color'>uniform</option>
+										<option value='byMutationType'
+												selected='selected'
+												title='Color by mutation type'>mutation type</option>
+										<option value='none'
+												title='Do not color'>none</option>
+									</select>
+									<img class='mutation-type-color-help' src='{{helpImage}}'
+										alt='Help (mutation type coloring)' />
+								</td>
+							</tr>
+						</table>
 					</td>
 				</tr>
 			</table>
 		</div>
-		<div class='mutation-3d-vis-help-content'></div>
-		<table>
-			<tr>
-				<!--td>
-					<input class='mutation-3d-spin' type='checkbox'>
-					<label>Spin</label>
-				</td>
-				<td class='mutation-3d-buttons'>
-					<button class='mutation-3d-button mutation-3d-center-selected'
-							alt='Center the view on the highlighted residue'></button>
-					<button class='mutation-3d-button mutation-3d-center-default'
-							alt='Restore the view to its default center'></button>
-				</td>
-				<td class='mutation-3d-zoom-label'>
-					<label>Zoom</label>
-				</td>
-				<td>
-					<div class='mutation-3d-zoom-slider'></div>
-				</td-->
-			</tr>
-		</table>
-		<table class="mutation-3d-controls-menu" cellpadding="0">
-			<tr>
-				<td class='mutation-3d-protein-style-menu' valign='top'>
-					<div class='mutation-3d-style-header'>
-						<label>Protein Style</label>
-					</div>
-					<table cellpadding='0'>
-						<tr>
-							<td>
-								<label>
-									<input class='mutation-3d-display-non-protein'
-									       type='checkbox'
-									       checked='checked'>
-									Display bound molecules
-								</label>
-								<img class='display-non-protein-help' src='{{helpImage}}'/>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label>Scheme:</label>
-								<select class='mutation-3d-protein-style-select'>
-									<option value='cartoon'
-									        title='Switch to the Cartoon Scheme'>cartoon</option>
-									<option value='spaceFilling'
-									        title='Switch to the Space-filling Scheme'>space-filling</option>
-									<option value='trace'
-									        title='Switch to the Trace Scheme'>trace</option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label>Color:</label>
-								<select class='mutation-3d-protein-color-select'>
-									<option value='uniform'
-									        title='Uniform Color'>uniform</option>
-									<option value='bySecondaryStructure'
-									        title='Color by Secondary Structure'>secondary structure</option>
-									<option value='byChain'
-									        title='Color by Rainbow Gradient'>N-C rainbow</option>
-									<option value='byAtomType'
-									        title='Color by Atom Type'
-									        disabled='disabled'>atom type</option>
-								</select>
-								<img class='protein-struct-color-help' src='{{helpImage}}'/>
-							</td>
-						</tr>
-					</table>
-				</td>
-				<td class='mutation-3d-mutation-style-menu' valign='top'>
-					<div class='mutation-3d-style-header'>
-						<label>Mutation Style</label>
-					</div>
-					<table cellpadding="0">
-						<tr>
-							<td>
-								<!--label>
-									<input class='mutation-3d-side-chain'
-									       type='checkbox'
-									       checked='checked'>
-									Display side chain
-								</label-->
-								<label>Side chain:</label>
-								<select class='mutation-3d-side-chain-select'>
-									<option value='all'
-									        title='Display side chain for all mapped residues'>all</option>
-									<option value='highlighted'
-									        selected='selected'
-									        title='Display side chain for highlighted residues only'>selected</option>
-									<option value='none'
-									        title='Do not display side chains'>none</option>
-								</select>
-								<img class='display-side-chain-help' src='{{helpImage}}'/>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<!--table cellpadding="0">
-									<tr>
-										<td>
-											<label>Color:</label>
-										</td>
-										<td>
-											<label>
-												<input class='mutation-3d-mutation-color-by-type'
-												       type='checkbox'
-												       checked='checked'>
-												mutation type
-											</label>
-											<img class='mutation-type-color-help' src='{{helpImage}}'/>
-										</td>
-									</tr>
-									<tr>
-										<td></td>
-										<td>
-											<label>
-												<input class='mutation-3d-mutation-color-by-atom'
-												       type='checkbox'>
-												atom type
-											</label>
-										</td>
-									</tr>
-								</table-->
-								<label>Color:</label>
-								<select class='mutation-3d-mutation-color-select'>
-									<option value='uniform'
-									        title='Uniform color'>uniform</option>
-									<option value='byMutationType'
-									        selected='selected'
-									        title='Color by mutation type'>mutation type</option>
-									<option value='none'
-									        title='Do not color'>none</option>
-								</select>
-								<img class='mutation-type-color-help' src='{{helpImage}}'/>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
 	</div>
 </script>
 
@@ -240,10 +207,6 @@
 			(Nonsense, Nonstop, FS del, FS ins)</li>
 		<li><span class='inframe_mutation'>Inframe Mutations</span>
 			(IF del, IF ins)</li>
-		<li>
-			Residues colored with <span class='mutation-3d-tied'>purple</span> indicate residues
-			that are affected by different mutation types at the same proportion.
-		</li>
 	</ul>
 	<b>None:</b> Disables coloring of the mutated residues
 	except for manually selected (highlighted) residues.<br>
@@ -285,6 +248,22 @@
 	This option has no effect if the current structure
 	does not contain any co-crystalized bound molecules.
 </script>
+<script type="text/template" id="mutation_info_panel_template">
+    <div class="mutation-info-panel-content">
+        <div class="mutation-info-panel-mutation-type">
+            {{mutationTypeContent}}
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="mutation_info_panel_type_template">
+    <span class='mutation-type-info'>
+        <span class="mutation-type-info-link" alt='{{mutationType}}'>
+            <span class='mutation-type-count {{countStyle}}'>{{count}}</span>
+            <span class='mutation-type-label {{textStyle}}'>{{type}}</span>
+        </span>
+	</span>
+</script>
 <script type="text/template" id="mutation_details_table_template">
 	<table class='display mutation_details_table'
 	       cellpadding='0' cellspacing='0' border='0'>
@@ -322,7 +301,7 @@
 	</span>
     <span class='mutation-table-additional-protein-change simple-tip'
           alt='{{additionalProteinChangeTip}}'>
-        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif'>
+        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif' />
     </span>
 	<a href='{{pdbMatchLink}}' class="mutation-table-3d-link">
 		<span class="mutation-table-3d-icon">3D</span>
@@ -330,69 +309,65 @@
 </script>
 
 <script type="text/template" id="mutation_table_mutation_type_template">
-	<span class='{{mutationTypeClass}}'>
-		<label>{{mutationTypeText}}</label>
-	</span>
+	<span class='{{mutationTypeClass}}'>{{mutationTypeText}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_cna_template">
-	<label alt='{{cnaTip}}' class='simple-tip {{cnaClass}}'>{{cna}}</label>
+	<span alt='{{cnaTip}}' class='simple-tip {{cnaClass}}'>{{cna}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_cosmic_template">
-	<label class='{{cosmicClass}}'>{{cosmicCount}}</label>
+	<span class='{{cosmicClass}}'>{{cosmicCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_mutation_status_template">
 	<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
-		<label>{{mutationStatusText}}</label>
+		{{mutationStatusText}}
 	</span>
 </script>
 
 <script type="text/template" id="mutation_table_validation_status_template">
 	<span alt='{{validationStatusTip}}' class="simple-tip {{validationStatusClass}}">
-		<label>{{validationStatusText}}</label>
+		{{validationStatusText}}
 	</span>
 </script>
 
 <script type="text/template" id="mutation_table_mutation_assessor_template">
-	<span class='{{omaClass}} {{fisClass}}'>
-		<label>{{fisText}}</label>
-	</span>
+	<span class='{{omaClass}} {{fisClass}}'>{{fisText}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_start_pos_template">
-	<label class='{{startPosClass}}'>{{startPos}}</label>
+	<span class='{{startPosClass}}'>{{startPos}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_end_pos_template">
-	<label class='{{endPosClass}}'>{{endPos}}</label>
+	<span class='{{endPosClass}}'>{{endPos}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_tumor_freq_template">
-	<label alt='<b>{{tumorAltCount}}</b> variant reads out of <b>{{tumorTotalCount}}</b> total'
-	       class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</label>
+	<span alt='<b>{{tumorAltCount}}</b> variant reads out of <b>{{tumorTotalCount}}</b> total'
+	      class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_normal_freq_template">
-	<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
-	       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
+	<span alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
+	      class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_tumor_ref_count_template">
-	<label class='{{tumorRefCountClass}}'>{{tumorRefCount}}</label>
+	<span class='{{tumorRefCountClass}}'>{{tumorRefCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_tumor_alt_count_template">
-	<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
+	<span class='{{tumorAltCountClass}}'>{{tumorAltCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_normal_ref_count_template">
-	<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
+	<span class='{{normalRefCountClass}}'>{{normalRefCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_normal_alt_count_template">
-	<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
+	<span class='{{normalAltCountClass}}'>{{normalAltCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_igv_link_template">
@@ -402,15 +377,16 @@
 </script>
 
 <script type="text/template" id="mutation_table_placeholder_template">
-    <img width='{{width}}' height='{{height}}' src='{{loaderImage}}'/>
+    <img width='{{width}}' height='{{height}}' src='{{loaderImage}}'
+        alt='Loading mutation table' />
 </script>
 
 <script type="text/template" id="mutation_table_mutation_count_template">
-	<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
+	<span class='{{mutationCountClass}}'>{{mutationCount}}</span>
 </script>
 
 <script type="text/template" id="mutation_table_cbio_portal_template">
-    <label class='{{portalClass}}'>{{portalFrequency}}</label>
+    <span class='{{portalClass}}'>{{portalFrequency}}</span>
 </script>
 
 <!-- end Mutation Table components -->
@@ -436,7 +412,8 @@
 	Predicted impact score: <b>{{impact}}</b>
 	<div class='mutation-assessor-main-link mutation-assessor-link'>
 		<a href='{{linkOut}}' target='_blank'>
-			<img height=15 width=19 src='images/ma.png'>
+			<img height=15 width=19 src='images/ma.png'
+				alt='Mutation Assessor' />
 			Go to Mutation Assessor
 		</a>
 	</div>
@@ -472,7 +449,7 @@
 <script type="text/template" id="default_mutation_details_template">
 	<div class='mutation-3d-container'></div>
 	<div class='mutation-details-loader'>
-		<img src='{{loaderImage}}'/>
+		<img src='{{loaderImage}}' alt='Loading mutation details' />
 	</div>
 	<div class='mutation-details-content'>
 		<ul>
@@ -484,7 +461,7 @@
 
 <script type="text/template" id="default_mutation_details_main_content_template">
 	<div id='mutation_details_{{geneId}}'>
-		<img src='{{loaderImage}}'/>
+		<img src='{{loaderImage}}' alt='Loading mutation details for gene' />
 	</div>
 </script>
 
@@ -510,8 +487,12 @@
 	<br>
 </script>
 
-<script type="text/template" id="mutation_view_template">
+<script type="text/template" id="mutation_summary_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
+</script>
+
+<script type="text/template" id="mutation_view_template">
+	<div class='mutation-summary-view'></div>
 	<div>
 		<table>
 			<tr>
@@ -528,13 +509,12 @@
 	<div class='mutation-details-no-data-info'>
 		There are no {{geneSymbol}} mutations in the selected samples.
 	</div>
+	<div class='mutation-info-panel-container'></div>
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
 	</div>
-	<div class='mutation-table-container'>
-		<img src='images/ajax-loader.gif'/>
-	</div>
+	<div class='mutation-table-container'></div>
 </script>
 
 <script type="text/template" id="mutation_diagram_view_template">
@@ -601,9 +581,6 @@
 				: Inframe deletion, Inframe insertion</li>
 			<li><span class='other_mutation'>Other Mutations</span>
 				: All other types of mutations</li>
-			<li>Circles colored with <span class='mutation-3d-tied'>purple</span>
-				indicate residues that are affected by different mutation types<br>
-				at the same proportion.</li>
 		</ul>
 	</div>
 </script>
@@ -612,7 +589,7 @@
 	<div class="diagram-region-tip">
 		<div>{{identifier}} {{type}}, {{description}} ({{start}} - {{end}})</div>
         <div>
-            <a href="http://pfam.xfam.org/family/{{pfamAccession}}" class="diagram-pfam-link "target="_blank">PFAM</a>
+            <a href="http://pfam.xfam.org/family/{{pfamAccession}}" class="diagram-pfam-link" target="_blank">PFAM</a>
             {{mutationAlignerInfo}}
         </div>
 	</div>
@@ -715,7 +692,7 @@
 </script>
 <script type="text/template" id="pdb_table_view_template">
 	<div class='pdb-chain-table-loader'>
-		<img src='{{loaderImage}}'/>
+		<img src='{{loaderImage}}' alt='Loading chain table' />
 	</div>
 	<table>
 		<tr>

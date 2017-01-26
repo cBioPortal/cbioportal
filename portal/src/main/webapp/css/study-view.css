@@ -18,6 +18,11 @@
     padding: 0 0 5px 0;
 }
 */
+
+embed {
+    height: 20px !important;    
+}
+
 #study_view_add_chart_chzn {
     margin-top: -3px;
     width: 250px !important;
@@ -87,6 +92,7 @@
     border: solid 1px;
     border-radius: 5px;
     border-color: darkgrey;
+    line-height: 18px;
 }
 .study-view-header-button:hover {
     cursor: pointer;
@@ -99,7 +105,7 @@
     height:auto;
     overflow: hidden;
 }
-#study-view-charts {	
+#study-view-charts {
     width:1200px;
     height:auto;
     margin:0 auto;
@@ -197,6 +203,15 @@
     display: none;
     z-index: 1;
 }
+
+#study-view-case-select-custom-dialog input[type="radio"] {
+    margin: 3px;
+}
+
+#study-view-case-select-custom-dialog {
+    margin: 3px 0;
+}
+
 #clinical_table_info {
     float: left;
 }
@@ -217,7 +232,7 @@
     float: left;
 }*/
 #study-view-word-cloud-title {
-    width:180px; 
+    width:180px;
     text-align:center;
     margin-bottom: 20px;
 }
@@ -261,6 +276,10 @@
 .study-view-qtip table.dataTable td.pieLabelValue {
     padding: 3px 2px 3px 0 !important;
 }
+
+#qtip-study-view-case-select-custom-dialog .qtip-title {
+    font-size: 14px;
+}
 .smallTable thead th {
     font-size: 10px !important;
 }
@@ -274,7 +293,7 @@
     margin-left: 3px;
 }
 /* CLASS styles */
-.study-view-header{    
+.study-view-header{
     //border-style: solid;
     //border-width: 1px;
     //border-color: lightgrey;
@@ -295,7 +314,7 @@
     display: inline-block;
     line-height: 30px;
 }
-.study-view-header:hover{    
+.study-view-header:hover{
     cursor: pointer !important;
     background-color: #2986e2 !important;
     color: white !important;
@@ -316,7 +335,7 @@
 .boxRight {
     //box-shadow: -2px 2px 2px lightgrey;
 }
-.hidden {
+.study-view-hidden {
     display: none;
 }
 .show {
@@ -328,7 +347,7 @@
     border-spacing: 0px;
 }
 .study-view-scatter-plot-checkbox {
-    margin: 5px 10px 0px 0px; 
+    margin: 5px 10px 0px 0px;
     color: grey;
     font-size: 10px;
 }
@@ -363,9 +382,7 @@
 }
 .study-view-pie-label {
     height:55px;
-    width:95%;
     float:left;
-    padding: 0 5px;
     display: none;
 }
 .pieLabel:hover{
@@ -407,6 +424,10 @@
 .study-view-pdf-svg-side.bar {
     /*left: 375px;*/
     /*left: 325px;*/
+}
+.mutated-gene-cna {
+    float: left;
+    margin-top: 3px;
 }
 .w1 {
     width: 180px;
@@ -483,15 +504,15 @@
     margin-right: 5px;
     color: grey;
     cursor: pointer;
-} 
+}
 
-.study-view-chart-plot-delete{  
+.study-view-chart-plot-delete{
     margin-right: 5px;
     color: grey;
     cursor: pointer;
     float: right;
 }
-.study-view-chart-cloud-delete{  
+.study-view-chart-cloud-delete{
     margin-right: 5px;
     color: lightgray;
     cursor: pointer;
@@ -618,7 +639,7 @@ pieH3{
 }
 .data-pie-chart {
     width:100px;
-    float:left;	
+    float:left;
     text-align:center;
 }
 .subData {
@@ -723,7 +744,7 @@ pieH3{
     fill-opacity: .125;
     shape-rendering: crispEdges;
     z-index: -1;
-} 
+}
 .row_selected{
     background-color: lightgray;
 }
@@ -782,7 +803,7 @@ pieH3{
     -moz-transition: All 0.3s ease;
     -o-transition: All 0.3s ease;
     -ms-transition: All 0.3s ease;
-    transition: All 0.3s ease;    
+    transition: All 0.3s ease;
 }
 
 Style for search box in dataTable of Summaery Tab
@@ -899,7 +920,9 @@ Style for search box in dataTable of Summaery Tab
     position: absolute;
     top: 30%;
 }
-
+.study-view-pie-label-qtip {
+    padding: 5px;
+}
 /* tag styles */
 /*
 ul {
@@ -924,7 +947,7 @@ ul li a:hover, ul li a:focus {
 #data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white; white-space: nowrap;}
 #data-table-chart table.dataTable>thead>tr>th {
     //white-space:nowrap;
-    //-webkit-transform: rotate(315deg);  
+    //-webkit-transform: rotate(315deg);
     //-moz-transform: rotate(315deg);
     //-ms-transform: rotate(315deg);
    // -o-transform: rotate(315deg);
@@ -962,11 +985,12 @@ ul li a:hover, ul li a:focus {
 }
 #clinical_table_wrapper .DTTT_container.ui-buttonset.ui-buttonset-multi a {
     width: 50px;
-    height: 20px;
-    line-height: 20px;
+    height: 13px;
+    line-height: 13px;
 }
 #clinical_table_wrapper .DTTT_container.ui-buttonset.ui-buttonset-multi {
     float: left;
+    margin-bottom: 0;
 }
 div.DTTT_print_info {
     position: absolute;
@@ -1102,16 +1126,249 @@ span.geneSelected{
     font-weight: bold;
 }
 
-div.geneValidationNotification,
-div.geneAddedNotification{
-    width:400px;
-    height: 15px;
-    font-size: 0.8em;
-}
 input.disabled{
     color: darkgrey;
     background-color: lightgrey;
 }
 span.close{
 cursor: pointer;
+}
+
+/*  Enhanced fixed datatable styles, these are auto-generated from the library
+    Please edit the library sass file directly*/
+#ruler {
+    visibility: hidden;
+    white-space: nowrap;
+}
+
+#clinical-data-table-div .EFDT-table * {
+    box-sizing: border-box;
+}
+
+#clinical-data-table-div .EFDT-top-btn {
+    margin-right: 5px;
+}
+#clinical-data-table-div .EFDT-show-hide, #clinical-data-table-div .EFDT-fixed-choose, #clinical-data-table-div .EFDT-download {
+    float: left;
+}
+#clinical-data-table-div .dropdown-checkbox-toggle {
+    color: #333;
+    background-color: #fff;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#clinical-data-table-div .EFDT-header-filters-reset {
+    cursor: pointer;
+    text-decoration: underline;
+}
+#clinical-data-table-div .EFDT-download-btn {
+    float: left;
+}
+#clinical-data-table-div .EFDT-header-filters {
+    margin: 3px 5px;
+}
+#clinical-data-table-div .EFDT-header {
+    text-align: center;
+    vertical-align: middle;
+}
+#clinical-data-table-div .EFDT-header .EFDT-header-sort {
+    width: 100%;
+    padding: 3px 8px;
+    display: inline-block;
+    color: black;
+    white-space: nowrap;
+}
+#clinical-data-table-div .EFDT-header .EFDT-header-sort .EFDT-header-sort-content {
+    float: left;
+}
+#clinical-data-table-div .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon {
+    float: right;
+}
+#clinical-data-table-div .EFDT-filter {
+    float: right;
+}
+#clinical-data-table-div .EFDT-table-prefix {
+    margin-bottom: 10px;
+}
+#clinical-data-table-div .EFDT-result-info {
+    float: left;
+}
+#clinical-data-table-div .EFDT-result-info-content {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.428571429;
+}
+
+#study-view-charts .EFDT-table, .study-view-pie-label-qtip .EFDT-table {
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 12px;
+}
+
+#study-view-charts .EFDT-table *, .study-view-pie-label-qtip .EFDT-table * {
+    box-sizing: border-box;
+    text-align: left;
+}
+
+#study-view-charts .EFDT-table input[type=checkbox], #study-view-charts .EFDT-table input[type=radio], .study-view-pie-label-qtip .EFDT-table input[type=checkbox], .study-view-pie-label-qtip .EFDT-table input[type=radio] {
+    margin: 1px 0 0;
+}
+
+#study-view-charts .EFDT-table .EFDT-top-btn, .study-view-pie-label-qtip .EFDT-table .EFDT-top-btn {
+    margin-right: 5px;
+}
+
+#study-view-charts .EFDT-table .EFDT-show-hide, #study-view-charts .EFDT-table .EFDT-fixed-choose, #study-view-charts .EFDT-table .EFDT-download, .study-view-pie-label-qtip .EFDT-table .EFDT-show-hide, .study-view-pie-label-qtip .EFDT-table .EFDT-fixed-choose, .study-view-pie-label-qtip .EFDT-table .EFDT-download {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .dropdown-checkbox-toggle, .study-view-pie-label-qtip .EFDT-table .dropdown-checkbox-toggle {
+    color: #333;
+    background-color: #fff;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#study-view-charts .EFDT-table .EFDT-header-filters-reset, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters-reset {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#study-view-charts .EFDT-table .EFDT-download-btn, .study-view-pie-label-qtip .EFDT-table .EFDT-download-btn {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-header-filters, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters {
+    margin: 3px 0;
+}
+
+#study-view-charts .EFDT-table .EFDT-header-filters input, .study-view-pie-label-qtip .EFDT-table .EFDT-header-filters input {
+    height: 20px;
+    font-size: 12px;
+    line-height: 12px;
+}
+
+#study-view-charts .EFDT-table .EFDT-header, .study-view-pie-label-qtip .EFDT-table .EFDT-header {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort {
+    width: 100%;
+    padding: 3px 8px;
+    display: inline-block;
+    color: black;
+    white-space: nowrap;
+}
+
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-content, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-content {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort .EFDT-header-sort-icon {
+    float: right;
+}
+
+#study-view-charts .EFDT-table .EFDT-header .EFDT-header-sort:hover, .study-view-pie-label-qtip .EFDT-table .EFDT-header .EFDT-header-sort:hover {
+    cursor: pointer;
+}
+
+#study-view-charts .EFDT-table .EFDT-filter, .study-view-pie-label-qtip .EFDT-table .EFDT-filter {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-result-info, .study-view-pie-label-qtip .EFDT-table .EFDT-result-info {
+    float: left;
+}
+
+#study-view-charts .EFDT-table .EFDT-result-info-content, .study-view-pie-label-qtip .EFDT-table .EFDT-result-info-content {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.428571429;
+}
+
+#study-view-charts .EFDT-table .gene-selected, .study-view-pie-label-qtip .EFDT-table .gene-selected {
+    font-weight: bold;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .gene:hover, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .gene:hover {
+    border: 2px solid #1974b8;
+    cursor: pointer;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .gene.gene-selected, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .gene.gene-selected {
+    font-weight: bold;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .alt-type-red, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .alt-type-red {
+    font-weight: bold;
+    color: #ff0000;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .alt-type-blue, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .alt-type-blue {
+    font-weight: bold;
+    color: #0000ff;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell .qval-icon, .study-view-pie-label-qtip .EFDT-table .EFDT-cell .qval-icon {
+    margin-bottom: 4px;
+    width: 10px;
+}
+
+#study-view-charts .EFDT-table .EFDT-cell-full, .study-view-pie-label-qtip .EFDT-table .EFDT-cell-full {
+    width: 100%;
+}
+
+#study-view-charts .EFDT-table .row-selected, .study-view-pie-label-qtip .EFDT-table .row-selected {
+    background-color: lightgrey;
+}
+
+#study-view-charts .EFDT-table .public_fixedDataTable_header, #study-view-charts .EFDT-table .public_fixedDataTable_header .public_fixedDataTableCell_main, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTable_header, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTable_header .public_fixedDataTableCell_main {
+    background-color: white;
+    background-image: none;
+}
+
+#study-view-charts .EFDT-table .fixedDataTableLayout_main, #study-view-charts .EFDT-table .fixedDataTableCellLayout_main, .study-view-pie-label-qtip .EFDT-table .fixedDataTableLayout_main, .study-view-pie-label-qtip .EFDT-table .fixedDataTableCellLayout_main {
+    border: 0;
+}
+
+#study-view-charts .EFDT-table .public_fixedDataTableCell_cellContent, .study-view-pie-label-qtip .EFDT-table .public_fixedDataTableCell_cellContent {
+    line-height: 13px;
+    padding: 6px 5px;
 }

@@ -209,10 +209,12 @@ public final class DaoClinicalEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE clinical_event_data");
             pstmt.executeUpdate();
             pstmt = con.prepareStatement("TRUNCATE TABLE clinical_event");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

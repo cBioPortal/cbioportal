@@ -32,9 +32,9 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.compound.AminoAcidCompoundSet;
-import org.biojava3.core.sequence.loader.UniprotProxySequenceReader;
+import org.biojava.nbio.core.sequence.compound.AminoAcidCompound;
+import org.biojava.nbio.core.sequence.compound.AminoAcidCompoundSet;
+import org.biojava.nbio.core.sequence.loader.UniprotProxySequenceReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -108,14 +108,29 @@ public class PfamSequenceServlet extends HttpServlet
 		{
 			this.writeOutput(response, JSONValue.parse(jsonString));
 		}
-		// else: no PFAM data available for this gene/uniprotAcc
+		else {
+		    // else: no PFAM data available for this gene/uniprotAcc, 
+		    // so try to create a dummy sequence data with only length info
+            JSONArray dummyData = this.generateDummyData(hugoGeneSymbol);
+
+            // write dummy (or empty) output
+            if (dummyData != null)
+            {
+                this.writeOutput(response, dummyData);
+            }
+            else
+            {
+                // last resort: send empty data - should not occur...but can if gene length is empty
+                // TODO - throw exception instead?
+                this.writeOutput(response, JSONValue.parse(""));
+            }
+		}
 	}
 
 	protected String getUniprotAcc(String hugoGeneSymbol,
 			HttpServletResponse response) throws IOException
 	{
 		String uniprotAcc = null;
-		String jsonString = "";
 
 		List<String> uniProtAccs =
 				this.idMappingService.mapFromHugoToUniprotAccessions(hugoGeneSymbol);
@@ -123,19 +138,7 @@ public class PfamSequenceServlet extends HttpServlet
 		// if no uniprot mapping, then try to get only the sequence length
 		if (uniProtAccs.isEmpty())
 		{
-			// try to create a dummy sequence data with only length info
-			JSONArray dummyData = this.generateDummyData(hugoGeneSymbol);
-
-			// write dummy (or empty) output
-			if (dummyData != null)
-			{
-				this.writeOutput(response, dummyData);
-			}
-			else
-			{
-				// last resort: send empty data
-				this.writeOutput(response, JSONValue.parse(jsonString));
-			}
+			return null;
 		}
 		else
 		{
@@ -170,12 +173,20 @@ public class PfamSequenceServlet extends HttpServlet
 		return jsonString;
 	}
 
+	/**
+	 * Generate dummy pfam data with "length" attribute being the 
+	 * gene length/3. If gene length is not set, then this method returns null.
+	 * 
+	 * @param hugoGeneSymbol : the gene symbol to look for (and get its length).
+	 * 
+	 * @return returns null if gene length is not filled in DB record.
+	 */
 	protected JSONArray generateDummyData(String hugoGeneSymbol)
 	{
 		CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(hugoGeneSymbol);
 		JSONArray data = new JSONArray();
 
-		if (gene != null)
+		if (gene != null && gene.getLength() > 0)
 		{
 			int length = gene.getLength() / 3;
 
@@ -187,9 +198,12 @@ public class PfamSequenceServlet extends HttpServlet
 			dummy.put("metadata", new JSONObject());
 
 			data.add(dummy);
+	        return data;
+		}
+		else {
+		    return null;
 		}
 
-		return data;
 	}
 
 	protected void writeOutput(HttpServletResponse response,

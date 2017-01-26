@@ -31,6 +31,7 @@
 --%>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.SessionServiceRequestWrapper" %>
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
 <%@ page import="java.net.URLEncoder" %>
 
@@ -38,7 +39,7 @@
     String siteTitle = GlobalProperties.getTitle();
     String popeye = GlobalProperties.getProperty("popeye");
 
-    if (popeye == null) {
+    if (popeye == null || !popeye.trim().toLowerCase().endsWith(".jsp")) {
         popeye = "preview.jsp";
     } 
     if (siteTitle == null) {
@@ -106,10 +107,26 @@ $(document).ready(function(){
 </script>
 
 <p id="ie10-warning" style="background-color:red;display:none;">
-    <img src="images/warning.gif"/>
+    <img src="images/warning.gif" alt="warning"/>
     You are using an old version of Internet Explorer. For better performance, we recommend
     using <b>Google Chrome, Firefox, Safari, or Internet Explorer V11 to visit this web site</b>.
 </p>
+
+<%
+String dbError = (String) request.getAttribute(QueryBuilder.DB_ERROR);
+if (dbError != null && userMessage != null) {  %>
+<p id="db-warning" style="background-color:red;display:block;">
+    <img src="images/warning.gif" alt="warning"/>
+    The version of the portal is out of sync with the database! Please contact the site administrator to update the database.<br/><%= dbError %>
+</p>
+<% } 
+String sessionError = (String) request.getAttribute(SessionServiceRequestWrapper.SESSION_ERROR);
+if (sessionError != null) {  %>
+<p id="session-warning" style="background-color:red;display:block;">
+    <img src="images/warning.gif"/>
+    <%= sessionError %>
+</p>
+<% } %>
 
     <table cellspacing="2px">
         <tr>

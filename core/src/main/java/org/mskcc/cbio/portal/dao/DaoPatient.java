@@ -158,8 +158,10 @@ public class DaoPatient {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoPatient.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE patient");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         }
         catch (SQLException e) {
             throw new DaoException(e);

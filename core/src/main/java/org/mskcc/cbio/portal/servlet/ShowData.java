@@ -61,14 +61,14 @@ public class ShowData extends HttpServlet {
      * @throws java.io.IOException            IO Error.
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
         XDebug xdebug = new XDebug( request );
         showData(getServletContext(), request, response, xdebug);
     }
 
     private static void showData(ServletContext servletContext, HttpServletRequest request,
                                  HttpServletResponse response, XDebug xdebug)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
         String index = request.getParameter(INDEX);
         if (index == null || index.trim().length() == 0) {
             forwardToErrorPage(servletContext, request, response, xdebug);
@@ -95,9 +95,9 @@ public class ShowData extends HttpServlet {
     public static void showDataAtSpecifiedIndex(ServletContext servletContext,
                                                 HttpServletRequest request, HttpServletResponse response, int i,
                                                 XDebug xdebug)
-            throws IOException, ServletException {
+        throws IOException, ServletException {
         ArrayList<DownloadLink> downloadLinkList = (ArrayList<DownloadLink>)
-                request.getSession().getAttribute(QueryBuilder.DOWNLOAD_LINKS);
+            request.getSession().getAttribute(QueryBuilder.DOWNLOAD_LINKS);
         if (downloadLinkList == null || downloadLinkList.size() == 0) {
             xdebug.logMsg(xdebug, "Download link list is null or empty");
             forwardToErrorPage(servletContext, request, response, xdebug);
@@ -107,7 +107,7 @@ public class ShowData extends HttpServlet {
                 PrintWriter writer = response.getWriter();
                 response.setContentType("text/plain");
                 String transposeStr = request.getParameter(
-                        QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
+                    QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
                 boolean transpose = false;
                 if (transposeStr != null) {
                     transpose = true;
@@ -170,10 +170,10 @@ public class ShowData extends HttpServlet {
 
     private static void forwardToErrorPage(ServletContext servletContext,
                                            HttpServletRequest request, HttpServletResponse response, XDebug xdebug)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
         request.setAttribute("xdebug_object", xdebug);
         RequestDispatcher dispatcher =
-                servletContext.getRequestDispatcher("/WEB-INF/jsp/error.jsp");
+            servletContext.getRequestDispatcher("/WEB-INF/jsp/error.jsp");
         dispatcher.forward(request, response);
     }
 }

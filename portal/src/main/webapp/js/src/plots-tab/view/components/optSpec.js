@@ -1,31 +1,46 @@
 var optSpec = (function() {
     
-    var append_view_switch_opt = function() {
-        var stat = plotsData.stat();
-        var tmp = setInterval(function () {timer();}, 1000);
-        function timer() {
-            if (metaData.getRetrieveStatus() !== -1 && stat.retrieved) {
-                clearInterval(tmp);
-                append();
+	/**
+	 * Check if there is COPY_NUMBER_ALTERATION data for the x or y axis gene. Returns true
+	 * if this is the case. 
+	 */
+	var hasCNA = function() {
+		var elt_x = document.getElementById(ids.sidebar.x.gene);
+	    var elt_y = document.getElementById(ids.sidebar.y.gene);
+	    //TODO - these two should be read from a model instead (once there is a model) - see also TODO's in plotUtils.js
+	    var gene_x = elt_x.options[elt_x.selectedIndex].value;
+	    var gene_y = elt_y.options[elt_y.selectedIndex].value;
+	    
+		var profiles = metaData.getGeneticProfilesMeta(gene_x).concat(metaData.getGeneticProfilesMeta(gene_y));
+		for (var i = 0; i < profiles.length; i++) {
+			if (profiles[i].type === "COPY_NUMBER_ALTERATION") {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+    var append_view_switch_opt = function() {        
+    	//if these conditions apply, we want to show an extra switch to allow different visualization of the data:
+        if (genetic_vs_genetic() && isSameGene() && hasCNA()) {
+        	if ($("#" + ids.sidebar.util.view_switch).is(':empty')) {
+                $("#" + ids.sidebar.util.view_switch).append(
+                    "<div class='form-inline'>" +
+                    "<h5>View</h5>" +
+                    "<label class='radio-inline'><input type='radio' value='mutation_details' name='"+ids.sidebar.util.view_switch+"' checked>Mutation Type</label>" +
+                    "<label class='radio-inline'><input type='radio' value='gistic' name='"+ids.sidebar.util.view_switch+"' >Copy-number</label>" +
+                    "</div>"
+                );
             }
         }
-        function append() {
-            $("#" + ids.sidebar.util.view_switch).empty();
-            if (genetic_vs_genetic()) {
-                if(isSameGene()) {
-                    if (stat.hasCnaAnno) {
-                        $("#" + ids.sidebar.util.view_switch).append(
-                            "<h5>View</h5>" + 
-                            "<input type='radio' value='mutation_details' name='mutation_details_vs_gistic_view' checked>Mutation Type" + 
-                            "<input type='radio' value='gistic' name='mutation_details_vs_gistic_view' >Copy-number"
-                        );                    
-                    }
-                }                
-            }
+    	//switch is not applicable in this case, so remove from UI:
+        else {
+        	$("#" + ids.sidebar.util.view_switch).empty();
         }
     };
     
     var append_download_buttons = function() {
+        $("#" + ids.sidebar.util.download_buttons).empty();
 
         //SVG & PDF buttons
         $("#" + ids.sidebar.util.download_buttons).append("<button id='svg_download'>SVG</button>");
@@ -132,11 +147,7 @@ var optSpec = (function() {
  
     return {
         init: function() {
-
-            $("#" + ids.sidebar.util.view_switch).empty();
             append_view_switch_opt();
-
-            $("#" + ids.sidebar.util.download_buttons).empty();
             append_download_buttons();
         }
     };

@@ -13,32 +13,39 @@
 </resultMap>
 
 <select id="getSampleClinicalFieldsByStudy" resultMap="ClinicalFieldResult">
-    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
-                inner join clinical_sample on clinical_sample.ATTR_ID = clinical_attribute.ATTR_ID
-                inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-                inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
-                inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
-    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+    select clinical_attribute_meta.ATTR_ID,clinical_attribute_meta.DISPLAY_NAME,clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,clinical_attribute_meta.PATIENT_ATTRIBUTE,clinical_attribute_meta.PRIORITY from clinical_attribute_meta
+    where clinical_attribute_meta.CANCER_STUDY_ID=#{study_id} and clinical_attribute_meta.PATIENT_ATTRIBUTE=0    
 </select>
 <select id="getPatientClinicalFieldsByStudy" resultMap="ClinicalFieldResult">
-    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
-                inner join clinical_patient on clinical_patient.ATTR_ID = clinical_attribute.ATTR_ID
-                inner join patient on patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
-                inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
-    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+    select clinical_attribute_meta.ATTR_ID,clinical_attribute_meta.DISPLAY_NAME,clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,clinical_attribute_meta.PATIENT_ATTRIBUTE,clinical_attribute_meta.PRIORITY from clinical_attribute_meta
+    where clinical_attribute_meta.CANCER_STUDY_ID=#{study_id} and clinical_attribute_meta.PATIENT_ATTRIBUTE=1    
+</select>
+
+<select id="getAllClinicalFieldsByStudy" resultMap="ClinicalFieldResult">
+    select clinical_attribute_meta.ATTR_ID,clinical_attribute_meta.DISPLAY_NAME,clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,clinical_attribute_meta.PATIENT_ATTRIBUTE,clinical_attribute_meta.PRIORITY from clinical_attribute_meta
+    where clinical_attribute_meta.CANCER_STUDY_ID=#{study_id}
 </select>
 <select id="getSampleClinicalFieldsBySample" resultMap="ClinicalFieldResult">
-    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
-                inner join clinical_sample on clinical_sample.ATTR_ID = clinical_attribute.ATTR_ID
+    select clinical_attribute_meta.ATTR_ID,clinical_attribute_meta.DISPLAY_NAME,clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,clinical_attribute_meta.PATIENT_ATTRIBUTE,clinical_attribute_meta.PRIORITY from clinical_attribute_meta
+                inner join clinical_sample on clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID
                 inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-                inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
-                inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+                inner join cancer_study on clinical_attribute_meta.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
     and sample.STABLE_ID in <foreach item="item" collection="sample_ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
+<select id="getSampleClinicalFieldsBySampleInternalIds" resultMap="ClinicalFieldResult">
+    select distinct clinical_attribute_meta.ATTR_ID,clinical_attribute_meta.DISPLAY_NAME,clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,clinical_attribute_meta.PATIENT_ATTRIBUTE,clinical_attribute_meta.PRIORITY from clinical_attribute_meta
+                inner join clinical_sample on clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID
+    where clinical_sample.INTERNAL_ID in <foreach item="item" collection="sample_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
+<select id="getPatientClinicalFieldsByPatientInternalIds" resultMap="ClinicalFieldResult">
+    select distinct clinical_attribute_meta.ATTR_ID,clinical_attribute_meta.DISPLAY_NAME,clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,clinical_attribute_meta.PATIENT_ATTRIBUTE,clinical_attribute_meta.PRIORITY from clinical_attribute_meta
+                inner join clinical_patient on clinical_patient.ATTR_ID = clinical_attribute_meta.ATTR_ID
+    where clinical_patient.INTERNAL_ID in <foreach item="item" collection="patient_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
 <select id="getPatientClinicalFieldsByPatient" resultMap="ClinicalFieldResult">
-    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
-                inner join clinical_patient on clinical_patient.ATTR_ID = clinical_attribute.ATTR_ID
+    select clinical_attribute_meta.ATTR_ID,clinical_attribute_meta.DISPLAY_NAME,clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,clinical_attribute_meta.PATIENT_ATTRIBUTE,clinical_attribute_meta.PRIORITY from clinical_attribute_meta
+                inner join clinical_patient on clinical_patient.ATTR_ID = clinical_attribute_meta.ATTR_ID
                 inner join patient on patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
                 inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
@@ -46,11 +53,22 @@
 </select>
 
 <select id="getAllSampleClinicalFields" resultMap="ClinicalFieldResult">
-    select * from clinical_attribute where PATIENT_ATTRIBUTE=0
+    select * from clinical_attribute_meta where PATIENT_ATTRIBUTE=0
 </select>
 
 <select id="getAllPatientClinicalFields" resultMap="ClinicalFieldResult">
-    select * from clinical_attribute where PATIENT_ATTRIBUTE=1
+    select * from clinical_attribute_meta where PATIENT_ATTRIBUTE=1
 </select>
-    
+
+
+
+<select id="getClinicalFieldsById" resultMap="ClinicalFieldResult">
+    select clinical_attribute_meta.ATTR_ID,clinical_attribute_meta.DISPLAY_NAME,clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,clinical_attribute_meta.PATIENT_ATTRIBUTE,clinical_attribute_meta.PRIORITY from clinical_attribute_meta
+    where clinical_attribute_meta.ATTR_ID in <foreach item="item" collection="attr_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
+
+<select id="getAllClinicalFields" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute_meta
+</select>
+        
 </mapper>

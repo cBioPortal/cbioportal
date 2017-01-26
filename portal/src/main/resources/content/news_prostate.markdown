@@ -1,7 +1,7 @@
 # October 24, 2014
 * Added 2 published studies:
     * [Prostate Adenocarcinoma-CNA data (MSKCC, PNAS 2014)](index.do?cancer_study_id=prad_mskcc_2014)
-    * [Prostate Adenocarcinoma Organoids (MSKCC, Cell 2014)](study.do?cancer_study_id=prad_mskcc_cheny1_organoids_2014)
+    * [Prostate Adenocarcinoma Organoids (MSKCC, Cell 2014)](study?id=prad_mskcc_cheny1_organoids_2014)
 
 # May 12, 2014
 * Improved study summary page including survival analysis based on clinical attributes

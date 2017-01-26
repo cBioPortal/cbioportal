@@ -110,7 +110,7 @@
 </script>
 
 <script type="text/template" id="example_mutation_data_template">
-	<jsp:include page="mutation-file-example.txt"/>
+	<%@ include file="mutation-file-example.txt" %>
 </script>
 
 <!-- Customized Mutation Table components -->
@@ -119,4 +119,5 @@
 	<b alt="{{caseIdTip}}" class="{{caseIdClass}}">{{caseId}}</b>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/StandaloneMutationView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/StandaloneMutationView.js?<%=GlobalProperties.getAppVersion()%>">
+</script>

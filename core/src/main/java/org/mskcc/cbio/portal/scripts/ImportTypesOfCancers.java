@@ -44,47 +44,81 @@ import java.util.*;
  *
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
-public class ImportTypesOfCancers {
-    public static void main(String[] args) throws IOException, DaoException {
-        if (args.length < 1) {
-            System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt> <clobber>");
-            return;
+public class ImportTypesOfCancers extends ConsoleRunnable {
+    public void run() {
+        try {
+	    	if (args.length < 1) {
+	            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+	            throw new UsageException(
+	                    "importTypesOfCancer.pl",
+	                    null,
+	                    "<types_of_cancer.txt> <clobber>");
+	        }
+	
+	        ProgressMonitor.setCurrentMessage("Loading cancer types...");
+	        File file = new File(args[0]);
+	        // default to clobber = true (existing behavior)
+	        boolean clobber = (args.length > 1 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
+	        load(file, clobber);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException|DaoException e) {
+            throw new RuntimeException(e);
         }
-
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
-
-        File file = new File(args[0]);
-	// default to clobber = true (existing behavior)
-	boolean clobber = (args.length == 2 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
-        load(pMonitor, file, clobber);
     }
 
-    public static void load(ProgressMonitor pMonitor, File file) throws IOException, DaoException {
+    public static void load(File file, boolean clobber) throws IOException, DaoException {
 		SpringUtil.initDataSource();
-        ImportTypesOfCancers.load(pMonitor, file, true);
-    }
-
-    public static void load(ProgressMonitor pMonitor, File file, boolean clobber) throws IOException, DaoException {
-        if (clobber) DaoTypeOfCancer.deleteAllRecords();
+        if (clobber) DaoTypeOfCancer.deleteAllRecords(); //TODO - this option should not exist...in a relational DB it basically means the whole DB is cleaned-up...there should be more efficient ways to do this...and here it is probably an unwanted side effect. REMOVE??
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         Scanner scanner = new Scanner(file);
-
+        int numNewCancerTypes = 0;
+        
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            assert tokens.length == 5;
-
+            if (tokens.length != 5) {
+                throw new IOException(
+                    "Cancer type file '" + file.getPath() +
+                    "' is not a five-column tab-delimited file");
+            }
+            
             String typeOfCancerId = tokens[0].trim();
-            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
-            aTypeOfCancer.setName(tokens[1].trim());
-            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
-            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
-            aTypeOfCancer.setShortName(typeOfCancerId);
-            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
-            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
+            //if not clobber, then existing cancer types should be skipped:
+            if (!clobber && DaoTypeOfCancer.getTypeOfCancerById(typeOfCancerId.toLowerCase()) != null ) {
+            	ProgressMonitor.logWarning("Cancer type with id '" + typeOfCancerId + "' already exists. Skipping.");
+            }
+            else {
+	            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
+	            aTypeOfCancer.setName(tokens[1].trim());
+	            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
+	            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
+	            aTypeOfCancer.setShortName(typeOfCancerId);
+	            aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
+	            DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
+	            numNewCancerTypes++;
+            }
         }
-        pMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");
-        ConsoleUtil.showWarnings(pMonitor);
+        ProgressMonitor.setCurrentMessage(" --> Loaded " + numNewCancerTypes + " new cancer types.");
+        ProgressMonitor.setCurrentMessage("Done.");
+        ConsoleUtil.showMessages();
     }
 
+    /**
+     * Makes an instance to run with the given command line arguments.
+     *
+     * @param args  the command line arguments to be used
+     */
+    public ImportTypesOfCancers(String[] args) {
+        super(args);
+    }
+
+    /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportTypesOfCancers(args);
+        runner.runInConsole();
+    }
 }

@@ -492,6 +492,10 @@ var rgbs     = ['rgba(254,80,51,0.8)', 'rgba(53,91,255,0.8)', 'rgba(255,208,214,
             }
         }
         if (node._private.style['show-total-alteration'] === true) {
+
+            if (node._private.data['type'] === 'Drug')
+              return;
+
             context.fillStyle = "#000000";
             context.shadowColor = "rgb(30,30,30)";
             context.shadowOffsetX = 3;
@@ -510,16 +514,10 @@ var rgbs     = ['rgba(254,80,51,0.8)', 'rgba(53,91,255,0.8)', 'rgba(255,208,214,
 
             context.fill();
             context.fillStyle = node._private.style['total-alteration-color'].strValue;
-            if (node._private.data['type'] === 'Drug'){
-              context.fillText("n/a",
-                  node._private.style['mouse-position-x']+node._private.style['total-alteration-font-size'].pxValue * 4,
-                  node._private.style['mouse-position-y']+node._private.style['total-alteration-font-size'].pxValue * 3.3);
-            }
-            else{
-              context.fillText((node._private.data['PERCENT_ALTERED']*100).toString().substring(0,4) + "%",
-                  node._private.style['mouse-position-x']+node._private.style['total-alteration-font-size'].pxValue * 4,
-                  node._private.style['mouse-position-y']+node._private.style['total-alteration-font-size'].pxValue * 3.3);
-            }
+            context.fillText((node._private.data['PERCENT_ALTERED']*100).toString().substring(0,4) + "%",
+                node._private.style['mouse-position-x']+node._private.style['total-alteration-font-size'].pxValue * 4,
+                node._private.style['mouse-position-y']+node._private.style['total-alteration-font-size'].pxValue * 3.3);
+
             context.closePath();
             context.stroke();
         }

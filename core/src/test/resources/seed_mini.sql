@@ -1,15 +1,45 @@
--- A manually extracted subset of data for a small number of genes and samples from the BRCA 
--- data set. This is intended to be used during unit testing, to validate the portal APIs. 
+--
+-- Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+--
+-- This library is distributed in the hope that it will be useful, but WITHOUT
+-- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+-- FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+-- is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+-- obligations to provide maintenance, support, updates, enhancements or
+-- modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+-- liable to any party for direct, indirect, special, incidental or
+-- consequential damages, including lost profits, arising out of the use of this
+-- software and its documentation, even if Memorial Sloan-Kettering Cancer
+-- Center has been advised of the possibility of such damage.
+--
+-- This file is part of cBioPortal.
+--
+-- cBioPortal is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU Affero General Public License as
+-- published by the Free Software Foundation, either version 3 of the
+-- License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU Affero General Public License for more details.
+--
+-- You should have received a copy of the GNU Affero General Public License
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-- ----------------------------------------------------------------------------
+-- A manually extracted subset of data for a small number of genes and samples from the BRCA
+-- data set. This is intended to be used during unit testing, to validate the portal APIs.
 -- In theory, it should be enough to run up a portal.
 --
 -- Prepared by Stuart Watt -- 13th May 2015
 
+SET SESSION sql_mode = 'ANSI_QUOTES';
+
+DELETE FROM structural_variant;
 DELETE FROM clinical_event_data;
 DELETE FROM clinical_event;
 DELETE FROM pdb_uniprot_residue_mapping;
 DELETE FROM pdb_uniprot_alignment;
-DELETE FROM clinical_trial_keywords;
-DELETE FROM clinical_trials;
 DELETE FROM cosmic_mutation;
 DELETE FROM copy_number_seg_file;
 DELETE FROM copy_number_seg;
@@ -28,16 +58,13 @@ DELETE FROM protein_array_target;
 DELETE FROM protein_array_info;
 DELETE FROM mut_sig;
 DELETE FROM interaction;
-DELETE FROM clinical_attribute;
-DELETE FROM entity_attribute;
-DELETE FROM attribute_metadata;
-DELETE FROM mutation_frequency;
+DELETE FROM clinical_attribute_meta;
 DELETE FROM mutation_count;
 DELETE FROM mutation;
 DELETE FROM mutation_event;
-DELETE FROM micro_rna;
-DELETE FROM micro_rna_alteration;
 DELETE FROM sample_profile;
+DELETE FROM gene_panel;
+DELETE FROM gene_panel_list;
 DELETE FROM genetic_profile_samples;
 DELETE FROM genetic_alteration;
 DELETE FROM genetic_profile;
@@ -46,17 +73,14 @@ DELETE FROM gene_alias;
 DELETE FROM gene;
 DELETE FROM clinical_sample;
 DELETE FROM sample;
-DELETE FROM patient_list_list;
-DELETE FROM patient_list;
+DELETE FROM sample_list_list;
+DELETE FROM sample_list;
 DELETE FROM clinical_patient;
 DELETE FROM patient;
 DELETE FROM authorities;
 DELETE FROM users;
-DELETE FROM entity_link;
-DELETE FROM entity;
 DELETE FROM cancer_study;
 DELETE FROM type_of_cancer;
-
 
 -- type_of_cancer
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acc','Adrenocortical Carcinoma','adrenocortical','Purple','ACC','tissue');
@@ -166,6 +190,7 @@ INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG-VALUE','Log2 copy-number values','Log2 copy-number values for each gene (from Affymetrix SNP6).','0');
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (5,'study_tcga_pub_methylation_hm27',1,'METHYLATION','CONTINUOUS','Methylation (HM27)','Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.','0');
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (6,'study_tcga_pub_mutations',1,'MUTATION_EXTENDED','MAF','Mutations','Mutation data from whole exome sequencing.','1');
+INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (7,'study_tcga_pub_sv',1,'STRUCTURAL_VARIANT','SV','Structural Variants','Structural Variants detected by Illumina HiSeq sequencing.',1);
 
 -- genetic_alteration
 INSERT INTO "genetic_alteration" ("GENETIC_PROFILE_ID","ENTREZ_GENE_ID","VALUES") VALUES (2,10000,'0,0,1,2,0,1,1,1,0,1,1,1,0,1,');
@@ -268,89 +293,89 @@ INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT")
 INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,10,24);
 INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,12,165);
 
--- patient_list
-INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (1,'study_tcga_pub_all','other',1,'All Tumors','All tumor samples (14 samples)');
-INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (2,'study_tcga_pub_acgh','other',1,'Tumors aCGH','All tumors with aCGH data (778 samples)');
-INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (3,'study_tcga_pub_cnaseq','other',1,'Tumors with sequencing and aCGH data','All tumor samples that have CNA and sequencing data (482 samples)');
-INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (4,'study_tcga_pub_complete','other',1,'Complete samples (mutations, copy-number, expression)','Samples with complete data (463 samples)');
-INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (5,'study_tcga_pub_log2CNA','other',1,'Tumors log2 copy-number','All tumors with log2 copy-number data (778 samples)');
-INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (6,'study_tcga_pub_methylation_hm27','other',1,'Tumors with methylation data','All samples with methylation (HM27) data (311 samples)');
-INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (7,'study_tcga_pub_mrna','other',1,'Tumors with mRNA data (Agilent microarray)','All samples with mRNA expression data (526 samples)');
-INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (8,'study_tcga_pub_sequenced','other',1,'Sequenced Tumors','All sequenced samples (507 samples)');
+-- sample_list
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (1,'study_tcga_pub_all','other',1,'All Tumors','All tumor samples (14 samples)');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (2,'study_tcga_pub_acgh','other',1,'Tumors aCGH','All tumors with aCGH data (778 samples)');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (3,'study_tcga_pub_cnaseq','other',1,'Tumors with sequencing and aCGH data','All tumor samples that have CNA and sequencing data (482 samples)');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (4,'study_tcga_pub_complete','other',1,'Complete samples (mutations, copy-number, expression)','Samples with complete data (463 samples)');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (5,'study_tcga_pub_log2CNA','other',1,'Tumors log2 copy-number','All tumors with log2 copy-number data (778 samples)');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (6,'study_tcga_pub_methylation_hm27','other',1,'Tumors with methylation data','All samples with methylation (HM27) data (311 samples)');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (7,'study_tcga_pub_mrna','other',1,'Tumors with mRNA data (Agilent microarray)','All samples with mRNA expression data (526 samples)');
+INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (8,'study_tcga_pub_sequenced','other',1,'Sequenced Tumors','All sequenced samples (507 samples)');
 
--- patient_list_list
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,1);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,2);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,3);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,4);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,5);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,6);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,7);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,8);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,9);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,10);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,11);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,12);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,13);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,14);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,1);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,2);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,3);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,4);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,5);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,6);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,7);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,8);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,9);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,10);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,11);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,12);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,13);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (2,14);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (3,2);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (3,3);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (3,6);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (3,8);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (3,9);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (3,10);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (3,12);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (4,2);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (4,3);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (4,6);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (4,8);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (4,9);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (4,10);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (4,12);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,1);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,2);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,3);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,4);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,5);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,6);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,7);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,8);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,9);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,10);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,11);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,12);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,13);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (5,14);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (6,2);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (7,2);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (7,3);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (7,6);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (7,8);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (7,9);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (7,10);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (7,12);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (7,13);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (8,2);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (8,3);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (8,6);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (8,8);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (8,9);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (8,10);
-INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (8,12);
+-- sample_list_list
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,1);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,4);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,5);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,7);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,11);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,13);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,14);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,1);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,4);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,5);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,7);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,11);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,13);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (2,14);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (3,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (3,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (3,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (3,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (3,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (3,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (3,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (4,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (4,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (4,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (4,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (4,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (4,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (4,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,1);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,4);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,5);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,7);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,11);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,13);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (5,14);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (6,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (7,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (7,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (7,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (7,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (7,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (7,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (7,12);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (7,13);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,2);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,3);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,6);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,8);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,9);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,10);
+INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,12);
 
 -- sample_cna_event
 INSERT INTO "sample_cna_event" ("CNA_EVENT_ID","SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (2774,4,2);
@@ -360,50 +385,50 @@ INSERT INTO "sample_cna_event" ("CNA_EVENT_ID","SAMPLE_ID","GENETIC_PROFILE_ID")
 INSERT INTO "sample_cna_event" ("CNA_EVENT_ID","SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (26161,14,2);
 
 -- sample_profile
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (1,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (1,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (2,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (2,3);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (2,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (2,5);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (2,6);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (3,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (3,3);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (3,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (3,6);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (4,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (4,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (5,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (5,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (6,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (6,3);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (6,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (6,6);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (7,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (7,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (8,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (8,3);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (8,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (8,6);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (9,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (9,3);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (9,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (9,6);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (10,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (10,3);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (10,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (10,6);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (11,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (11,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (12,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (12,3);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (12,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (12,6);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (13,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (13,3);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (13,4);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (14,2);
-INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (14,4);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (1,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (1,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (2,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (2,3,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (2,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (2,5,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (2,6,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (3,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (3,3,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (3,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (3,6,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (4,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (4,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (5,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (5,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (6,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (6,3,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (6,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (6,6,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (7,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (7,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (8,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (8,3,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (8,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (8,6,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (9,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (9,3,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (9,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (9,6,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (10,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (10,3,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (10,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (10,6,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (11,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (11,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (12,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (12,3,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (12,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (12,6,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (13,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (13,3,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (13,4,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (14,2,NULL);
+INSERT INTO "sample_profile" ("SAMPLE_ID","GENETIC_PROFILE_ID","PANEL_ID") VALUES (14,4,NULL);
 
 -- uniprot_id_mapping
 INSERT INTO "uniprot_id_mapping" ("UNIPROT_ACC","UNIPROT_ID","ENTREZ_GENE_ID") VALUES ('P31749','AKT1_HUMAN',207);
@@ -441,3 +466,14 @@ INSERT INTO authorities (EMAIL, AUTHORITY) values ('jami@gmail.com', 'ROLE_USER'
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Lonnie@openid.org', 'ROLE_USER');
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Dhorak@yahoo.com', 'ROLE_USER');
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Dhorak@yahoo.com', 'ROLE_MANAGER');
+
+INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(1, 'TESTPANEL1', 'A test panel consisting of a few genes');
+INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(2, 'TESTPANEL2', 'Another test panel consisting of a few genes');
+
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 207);
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 369);
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 672);
+
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 207);
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 208);
+INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 4893);

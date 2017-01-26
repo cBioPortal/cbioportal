@@ -74,78 +74,16 @@ var MutexData = (function() {
 			significant: "(Significant)"
 		};
 
-	function countEventCombinations() {
-            var _geneArr = window.QuerySession.getQueryGenes();
-            //eliminate genes with no alteration
-            var _gene_arr = []; //only genes with alterations
-            $.each(_geneArr, function(index, _gene) {
-                var _has_alteration = false;
-                $.each(oncoprintData, function(index, _data_obj) {
-                    $.each(_data_obj.values, function(_index, _single_gene_obj) {
-                        if (_single_gene_obj.gene === _gene) {
-                            if (Object.keys(_single_gene_obj).length > 2) {
-                                _has_alteration = true;
-                            }
-                        }
-                    });
-                });
-                if (_has_alteration) _gene_arr.push(_gene);
-            });
-
-            $.each(_gene_arr, function(outterIndex, outterObj) {
-                for (var innerIndex = outterIndex + 1; innerIndex < _gene_arr.length; innerIndex++) {
-                    var _geneA = _gene_arr[outterIndex],
-                        _geneB = _gene_arr[innerIndex];
-                    var _a = 0, //--
-                        _b = 0, //-+
-                        _c = 0, //+-
-                        _d = 0; //++
-                    //Count mutex
-                    $.each(oncoprintData, function(singleCaseIndex, singleCaseObj) {
-                        var _alteredGeneA = false,
-                            _alteredGeneB = false;
-                        $.each(singleCaseObj.values, function(singleGeneIndex, singleGeneObj) {
-                            if (singleGeneObj.gene === _geneA) {
-                                if (Object.keys(singleGeneObj).length > 2) {
-                                //if more than two fields(gene and sample) -- meaning there's alterations
-                                        _alteredGeneA = true;
-                                }
-                            } else if(singleGeneObj.gene === _geneB) {
-                                if (Object.keys(singleGeneObj).length > 2) {
-                                //if more than two fields(gene and sample) -- meaning there's alterations
-                                        _alteredGeneB = true;
-                                }
-                            }
-                        });
-                        if (_alteredGeneA === true && _alteredGeneB === true) {
-                            _d += 1;
-                        } else if (_alteredGeneA === true && _alteredGeneB === false) {
-                            _c += 1;
-                        } else if (_alteredGeneA === false && _alteredGeneB === true) {
-                            _b += 1;
-                        } else if (_alteredGeneA === false && _alteredGeneB === false) {
-                            _a += 1;
-                        }
-                    });
-
-                    //store the result
-                    var _datum = $.extend(true, {}, datum);
-                    _datum.geneA = _geneA;
-                    _datum.geneB = _geneB;
-                    _datum.a = _a;
-                    _datum.b = _b;
-                    _datum.c = _c;
-                    _datum.d = _d;
-                    dataArr.push(_datum);
-                }
-            });
-	}
-
     function calc() {
+	var def = new $.Deferred();
         //Calculate odds-ratio and p-value
         var params = { params: "" };
         $.each(dataArr, function(index, obj) {
-            params.params += obj.a + " " + obj.b + " " + obj.c + " " + obj.d + ":";
+	    // a: not A not B
+	    // b: not A, B
+	    // c: A, not B
+	    // d: both
+            params.params += [obj.neither, obj.B_not_A, obj.A_not_B, obj.both].join(" ") + ":";
         });
         params.params = params.params.substring(0, params.params.length - 1);
             $.post("calcFisherExact.do", params, function(result) {
@@ -155,8 +93,8 @@ var MutexData = (function() {
                         var _dataObj = dataArr[index];
 
                         _dataObj.p_value = parseFloat(value);
-                        if (_dataObj.b !== 0 && _dataObj.c !== 0) {
-                            _dataObj.odds_ratio = (_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c);
+                        if (_dataObj.B_not_A !== 0 && _dataObj.A_not_B !== 0) {
+                            _dataObj.odds_ratio = (_dataObj.neither * _dataObj.both) / (_dataObj.B_not_A * _dataObj.A_not_B);
                             _dataObj.log_odds_ratio = Math.log(_dataObj.odds_ratio);
 
                             //categorize
@@ -181,7 +119,9 @@ var MutexData = (function() {
                         }
                     });
                 }
+		def.resolve();
             });
+	    return def.promise();
         }
 
     function buildStat() {
@@ -206,43 +146,28 @@ var MutexData = (function() {
         },
         init: function() {
 
-            //eliminate genes with no alteration
-            var _gene_arr = []; //only genes with alterations
-            $.each(window.QuerySession.getQueryGenes(), function(index, _gene) {
-                var _has_alteration = false;
-                $.each(oncoprintData, function(index, _data_obj) {
-                    $.each(_data_obj.values, function(_index, _single_gene_obj) {
-                        if (_single_gene_obj.gene === _gene) {
-                            if (Object.keys(_single_gene_obj).length > 2) {
-                                _has_alteration = true;
-                            }
-                        }
-                    });
-                });
-                if (_has_alteration) _gene_arr.push(_gene);
-            });
-
-            if (_gene_arr.length > 1) {
-                countEventCombinations();
-                calc();
-
-                function detectInstance() {
-                    if (dataArr.length !== 0) {
-                        abortTimer();
-                    }
-                }
-                function abortTimer() {
-                    clearInterval(tid);
-                    buildStat();
-                    MutexView.init();
-                }
-								
-		var tid = setInterval(detectInstance, 600);
-
-            } else {
-                $("#mutex").empty();
-                $("#mutex").append("Calculation could not be performed.");
-            }
+	    window.QuerySession.getAlteredGenes().then(function (altered_genes) {
+		if (altered_genes.length > 1) {
+		    window.QuerySession.getMutualAlterationCounts().then(function (counts) {
+			dataArr = counts.map(function (count_obj) {
+			    count_obj.geneA = count_obj.geneA.toUpperCase();
+			    count_obj.geneB = count_obj.geneB.toUpperCase();
+			    count_obj.odds_ratio = 0;
+			    count_obj.log_odds_ratio = 0;
+			    count_obj.p_value = 0;
+			    count_obj.association = "";
+			    return count_obj;
+			});
+			return calc();
+		    }).then(function() {
+			buildStat();
+			MutexView.init();
+		    });
+		} else {
+		    $("#mutex").empty();
+		    $("#mutex").append("Calculation could not be performed.");
+		}
+	    });
         },
         getDataArr: function() {
             return dataArr;

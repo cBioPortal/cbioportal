@@ -1,25 +1,24 @@
-#1	1	1			1	1	1	1
-#PATIENT	SAMPLE	SAMPLE	SAMPLE	SAMPLE	PATIENT	PATIENT	PATIENT	PATIENT
-#Patient Identifier	#Sample Identifier	Subtype	Cancer Type	Cancer Type Detailed	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
-#Patient identifier	#Sample identifier	Subtype description	Cancer Type	Cancer Type Detailed	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
-#STRING	#STRING	STRING	STRING	STRING	STRING	NUMBER	STRING	NUMBER
-PATIENT_ID	SAMPLE_ID	SUBTYPE	CANCER_TYPE	CANCER_TYPE_DETAILED	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
-TCGA-A1-A0SB	TCGA-A1-A0SB-01	NA	cns	byst	LIVING	8.51	DiseaseFree	8.51
-TCGA-A1-A0SD	TCGA-A1-A0SD-01	Luminal A	cns	byst	LIVING	14.36	DiseaseFree	14.36
-TCGA-A1-A0SE	TCGA-A1-A0SE-01	Luminal A	cns	byst	LIVING	43.37	DiseaseFree	43.37
-TCGA-A1-A0SF	TCGA-A1-A0SF-01	NA	cns	byst	LIVING	48.06	DiseaseFree	48.06
-TCGA-A1-A0SG	TCGA-A1-A0SG-01	NA	cns	bimt	LIVING	14.23	DiseaseFree	14.23
-TCGA-A1-A0SH	TCGA-A1-A0SH-01	Luminal A	cns	bimt	LIVING	47.21	DiseaseFree	47.21
-TCGA-A1-A0SI	TCGA-A1-A0SI-01	NA	cns	bimt	LIVING	20.83	DiseaseFree	20.83
-TCGA-A1-A0SJ	TCGA-A1-A0SJ-01	Luminal A	cns	bimt	LIVING	14	DiseaseFree	14
-TCGA-A1-A0SK	TCGA-A1-A0SK-01	basal-like	cervix	cead	DECEASED	31.77	NA	NA
-TCGA-A1-A0SM	TCGA-A1-A0SM-01	Luminal B	cervix	cead	LIVING	7.95	DiseaseFree	7.95
-TCGA-A1-A0SN	TCGA-A1-A0SN-01	NA	cervix	cead	LIVING	39.29	DiseaseFree	39.29
-TCGA-A1-A0SO	TCGA-A1-A0SO-01	basal-like	cervix	cead	LIVING	27.99	DiseaseFree	27.99
-TCGA-A1-A0SP	TCGA-A1-A0SP-01	NA	cervix	cene	LIVING	19.15	DiseaseFree	19.15
-TCGA-A1-A0SQ	TCGA-A1-A0SQ-01	NA	cervix	cene	LIVING	18.17	DiseaseFree	18.17
-TCGA-A2-A04N	TCGA-A2-A04N-01	Luminal A	cervix	cene	LIVING	103.59	DiseaseFree	103.59
-TCGA-A2-A04P	TCGA-A2-A04P-01	basal-like	cervix	cene	DECEASED	17.97	Recurred/Progressed	NA
-TCGA-A2-A04Q	TCGA-A2-A04Q-01	basal-like	cervix	cacc	LIVING	41.89	DiseaseFree	41.89
-TCGA-A2-A04R	TCGA-A2-A04R-01	Luminal B	cervix	cacc	LIVING	77.67	DiseaseFree	77.67
-TCGA-A2-A04T	TCGA-A2-A04T-01	NA	cervix	cacc	LIVING	64.06	DiseaseFree	64.06
+#Patient Identifier	Sample Identifier	Subtype	Cancer Type	Cancer Type Detailed
+#Patient identifier	Sample identifier	Subtype description	Cancer Type	Cancer Type Detailed
+#STRING	STRING	STRING	STRING	STRING
+#1	1	1	1	1
+PATIENT_ID	SAMPLE_ID	SUBTYPE	CANCER_TYPE	CANCER_TYPE_DETAILED
+TCGA-A1-A0SB	TCGA-A1-A0SB-01	NA	cns	byst
+TCGA-A1-A0SD	TCGA-A1-A0SD-01	Luminal A	cns	byst
+TCGA-A1-A0SE	TCGA-A1-A0SE-01	Luminal A	cns	byst
+TCGA-A1-A0SF	TCGA-A1-A0SF-01	NA	cns	byst
+TCGA-A1-A0SG	TCGA-A1-A0SG-01	NA	cns	bimt
+TCGA-A1-A0SH	TCGA-A1-A0SH-01	Luminal A	cns	bimt
+TCGA-A1-A0SI	TCGA-A1-A0SI-01	NA	cns	bimt
+TCGA-A1-A0SJ	TCGA-A1-A0SJ-01	Luminal A	cns	bimt
+TCGA-A1-A0SK	TCGA-A1-A0SK-01	basal-like	cervix	cead
+TCGA-A1-A0SM	TCGA-A1-A0SM-01	Luminal B	cervix	cead
+TCGA-A1-A0SN	TCGA-A1-A0SN-01	NA	cervix	cead
+TCGA-A1-A0SO	TCGA-A1-A0SO-01	basal-like	cervix	cead
+TCGA-A1-A0SP	TCGA-A1-A0SP-01	NA	cervix	cene
+TCGA-A1-A0SQ	TCGA-A1-A0SQ-01	NA	cervix	cene
+TCGA-A2-A04N	TCGA-A2-A04N-01	Luminal A	cervix	cene
+TCGA-A2-A04P	TCGA-A2-A04P-01	basal-like	cervix	cene
+TCGA-A2-A04Q	TCGA-A2-A04Q-01	basal-like	cervix	cacc
+TCGA-A2-A04R	TCGA-A2-A04R-01	Luminal B	cervix	cacc
+TCGA-A2-A04T	TCGA-A2-A04T-01	NA	cervix	cacc

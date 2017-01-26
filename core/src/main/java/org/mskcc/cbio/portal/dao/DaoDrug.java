@@ -231,8 +231,10 @@ public class DaoDrug {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoDrug.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE drug");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

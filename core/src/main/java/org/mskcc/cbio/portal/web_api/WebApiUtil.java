@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,18 +32,17 @@
 
 package org.mskcc.cbio.portal.web_api;
 
-import org.mskcc.cbio.portal.model.Gene;
-import org.mskcc.cbio.portal.model.MicroRna;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.servlet.ServletXssUtil;
-import org.mskcc.cbio.portal.util.GeneComparator;
-import org.mskcc.cbio.portal.dao.DaoMicroRna;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.Gene;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.MicroRna;
+import org.mskcc.cbio.portal.servlet.ServletXssUtil;
+import org.mskcc.cbio.portal.util.GeneComparator;
 
 /**
  * Utility class for web api
@@ -58,11 +57,6 @@ public class WebApiUtil {
                     GeneticAlterationType alterationType, StringBuffer warningBuffer,
                     List<String> warningList) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoMicroRna daoMicroRna = new DaoMicroRna();
-        if (microRnaIdSet == null) {
-            microRnaIdSet = daoMicroRna.getEntireSet();
-            variantMicroRnaIdSet = daoMicroRna.getEntireVariantSet();
-        }
 
 	    ServletXssUtil xssUtil = null;
 
@@ -83,25 +77,17 @@ public class WebApiUtil {
                 if (geneId.startsWith("hsa")) {
                     if (microRnaIdSet.contains(geneId)) {
                         //  Conditionally Expand Micro RNAs
-                        if (alterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                        if (alterationType == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
                             //  Option 1:  Client has specified a variant ID and really wants CNA
                             //  data for this variant
                             if (variantMicroRnaIdSet.contains(geneId)) {
                                 MicroRna microRna = new MicroRna(geneId);
                                 geneList.add(microRna);
-                            } else {
-                                //  Option 2:  Client has specified a primary ID, and we need to map
-                                //  to all variants
-                                List <String> variantList = daoMicroRna.getVariantIds(geneId);
-                                for (String variant:  variantList) {
-                                    MicroRna microRna = new MicroRna(variant);
-                                    geneList.add(microRna);
-                                }
                             }
                         } else {
                             MicroRna microRna = new MicroRna(geneId);
                             geneList.add(microRna);
-                        }
+						 }
                     } else {
 	                    if (xssUtil != null) {
 		                    geneId = xssUtil.getCleanerInput(geneId);

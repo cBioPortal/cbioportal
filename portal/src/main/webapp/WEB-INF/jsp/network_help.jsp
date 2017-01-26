@@ -65,11 +65,11 @@
 </p>
 <p class="regular">
 	<span class="italic">Seed nodes</span> are represented with a thick border:<br></br>
-	<img class="seed_node_img" src="images/network/seed_node.png"></img>
+	<img class="seed_node_img" src="images/network/seed_node.png" alt='seed node'></img>
 </p>
 <p class="regular">
 	<span class="italic">Linker nodes</span> are represented with a thin border:<br></br>
-	<img class="linker_node_img" src="images/network/linker_node.png"></img>
+	<img class="linker_node_img" src="images/network/linker_node.png" alt='linker node'></img>
 </p>
 
 <p class="heading">
@@ -86,11 +86,11 @@
 </p>
 <p class="regular">
 	For example, EGFR is frequently altered in glibolastoma:<br></br>
-	<img class="altered_node_img" src="images/network/altered_node.png"></img>
+	<img class="altered_node_img" src="images/network/altered_node.png" alt='altered node'></img>
 </p>
 <p class="regular">
 	By contrast, STAT3 is not altered at all in glioblastoma:<br></br>
-	<img class="not_altered_node_img" src="images/network/not_altered_node.png"></img>
+	<img class="not_altered_node_img" src="images/network/not_altered_node.png" alt='not altered node'></img>
 </p>
 
 <p class="regular">
@@ -127,25 +127,60 @@
 	In addition, if selected, drug-gene interactions are shown as edges in the network. The interaction types are:
 	<ul>
 		<li>
-			<span class="bold">In same component:</span>
-			Two entities belong to the same molecular complex.
+		  <span class="bold">Controls-state-change-of:
+		  </span>First protein controls a reaction that changes the state of the second protein.
 		</li>
 		<li>
-			<span class="bold">Reacts with:</span>
-			The entities participate in a conversion as substrates or products.
+		  <span class="bold">Controls-transport-of:
+		  </span>First protein controls a reaction that changes the cellular location of the second protein.
 		</li>
 		<li>
-			<span class="bold">State change:</span>
-			The first entity controls a reaction that changes the state of the second entity,
-			e.g. by phosphorylation or other posttranslational modification,
-			or by a change in subcellular location.
+		  <span class="bold">Controls-phosphorylation-of:
+		  </span>First protein controls a reaction that changes the phosphorylation status of the second protein.
 		</li>
 		<li>
-			<span class="bold">Targeted by drug:</span>
-			The source node (drug) targets the destination node (gene).
+		  <span class="bold">Controls-expression-of:
+		  </span>First protein controls a conversion or a template reaction that changes expression of the second protein.
 		</li>
 		<li>
-			<span class="bold">Other</span>
+		  <span class="bold">Catalysis-precedes:
+		  </span>First protein controls a reaction whose output molecule is input to another reaction controled by the second protein.
+		</li>
+		<li>
+		  <span class="bold">In-complex-with:
+		  </span>Proteins are members of the same complex.
+		</li>
+		<li>
+		  <span class="bold">Interacts-with:
+		  </span>Proteins are participants of the same MolecularInteraction.
+		</li>
+		<li>
+		  <span class="bold">Neighbor-of:
+		  </span>Proteins are participants or controlers of the same interaction.
+		</li>
+		<li>
+		  <span class="bold">Consumption-controled-by:
+		  </span>The small molecule is consumed by a reaction that is controled by a protein
+		</li>
+		<li>
+		  <span class="bold">Controls-production-of:
+		  </span>The protein controls a reaction of which the small molecule is an output.
+		</li>
+		<li>
+		  <span class="bold">Controls-transport-of-chemical:
+		  </span>The protein controls a reaction that changes cellular location of the small molecule.
+		</li>
+		<li>
+		  <span class="bold">Chemical-affects:
+		  </span>A small molecule has an effect on the protein state.
+		</li>
+		<li>
+		  <span class="bold">Reacts-with:
+		  </span>Small molecules are input to a biochemical reaction.
+		</li>
+		<li>
+		  <span class="bold">Used-to-produce:
+		  </span>A reaction consumes a small molecule to produce another small molecule.
 		</li>
 	</ul>
 </p>
@@ -153,7 +188,7 @@
 	Click <a id="show_edge_legend">here</a> to see the color codes.
 </p>
 <p class="regular">
-	Complete details are available on the <a href="http://www.pathwaycommons.org/pc/sif_interaction_rules.do" target="_blank">Pathway Commons web site</a>.
+	Complete details are available on the <a href="http://www.pathwaycommons.org/pc2/formats" target="_blank">Pathway Commons web site</a>.
 </p>
 <p class="regular">
 	By default, redundant interactions are merged are merged into a single edge.
@@ -224,8 +259,20 @@
 </p>
 
 <p class="heading">
+	Detailed Process Level (SBGN) View
+</p>
+<p class="regular">
+	When you are interested in process level details of an interaction,
+  you may either right-click on that interaction or click the "Detailed Process (SBGN)" button
+  in the Details tab while inspecting the interaction.
+  This will pop up a detailed process view in <a href="http://www.sbgn.org/Main_Page" target="_blank">SBGN Process Description Language</a>.
+  The shown network corresponds to all paths between source and target genes of that interaction as returned by <a href="http://www.pathwaycommons.org/pc2/" target="_blank">Pathway Commons' web service</a>.
+	SBGN view allows users to modify the process level view in many ways, including changing its layout and topology through complexity management techniques such as hiding or collapsing.
+  You may also store the current network as a static image or in <a href="http://www.sbgn.org/LibSBGN/Exchange_Format" target="_blank">SBGN-ML format</a>. For further help, please refer to the Help menu of this view.
+</p>
+<p class="heading">
 	Technology
 </p>
 <p class="regular">
-	Network visualization is powered by <a href="http://js.cytoscape.org/" target="_blank">Cytoscape.js</a>.
+	Network visualization is powered by <a href="http://js.cytoscape.org/" target="_blank">Cytoscape.js</a> and <a href="https://github.com/iVis-at-Bilkent/sbgnviz-js" target="_blank">SBGNViz.js</a>.
 </p>

@@ -32,17 +32,9 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-
 import java.util.Set;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.model.CanonicalGene;
+
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 /**
@@ -52,26 +44,20 @@ import org.mskcc.cbio.portal.model.ExtendedMutation;
  */
 public class MutationFilter {
    
-   // lists of Entrez gene IDs
-   private HashSet<Long> cancerSpecificGermlineWhiteList = new HashSet<Long>();
-
-   // text lists of the gene lists, for reporting
-   private ArrayList<String> cancerSpecificGermlineWhiteListGeneNames = new ArrayList<String>();
-   
    private Set<Long> whiteListGenesForPromoterMutations;
 
    private int accepts=0;
    private int germlineWhitelistAccepts=0;
    private int somaticWhitelistAccepts=0;
    private int unknownAccepts=0;
-   private int decisions=0;
+   public int decisions=0;
    private int silentOrIntronRejects=0;
    private int mutationStatusNoneRejects=0;
    private int lohOrWildTypeRejects=0;
    private int emptyAnnotationRejects=0;
    private int missenseGermlineRejects=0;
 	private int utrRejects=0;
-	private int igrRejects=0;
+	public int igrRejects=0;
 	private int redactedRejects=0;
 
    /**
@@ -82,29 +68,9 @@ public class MutationFilter {
     * <br>
     * KEEP all other mutations.
     */
-   public MutationFilter( ) {
-      __internalConstructor(null);
-   }
-   
-   /**
-    * Construct a MutationFilter with a germline whitelist.
-    * Whitelists contain Gene symbols.
-    * <p>
-    * <p>
-    * @param germlineWhiteListFile filename for the germline whitelist; null if not provided
-    */
-   public MutationFilter(String germlineWhiteListFile) {
-      __internalConstructor(germlineWhiteListFile);
-   }
-   
-   private void __internalConstructor(String germlineWhiteListFile) throws IllegalArgumentException{
+   public MutationFilter() throws IllegalArgumentException{
       whiteListGenesForPromoterMutations = new HashSet<Long>();
       whiteListGenesForPromoterMutations.add(Long.valueOf(7015)); // TERT
-      // read germlineWhiteListFile (e.g., ova: BRCA1 BRCA2)
-      if( null != germlineWhiteListFile){
-         cancerSpecificGermlineWhiteList = getContents(
-                 germlineWhiteListFile, this.cancerSpecificGermlineWhiteListGeneNames );
-      }
    }
    
    /**
@@ -157,20 +123,6 @@ public class MutationFilter {
          lohOrWildTypeRejects++;
          return false;
       }
-//
-//      // Do not accept Germline Missense Mutations or Germline Mutations that are not on the white list
-//      if( safeStringTest( mutation.getMutationStatus(), "Germline" ) ){
-//         if( safeStringTest( mutation.getMutationType(), "Missense" ) ){
-//            missenseGermlineRejects++;
-//            return false;
-//         }
-//         if(cancerSpecificGermlineWhiteList != null && cancerSpecificGermlineWhiteList.size() > 0) {
-//             if (!cancerSpecificGermlineWhiteList.contains(
-//                  new Long( mutation.getEntrezGeneId() ) ) ){
-//                return false;
-//             }
-//         }         
-//      }
 
 		// Do not accept Redacted mutations
 		if (safeStringTest(mutation.getValidationStatus(), "Redacted"))
@@ -324,55 +276,6 @@ public class MutationFilter {
    }
 
    /**
-   * Fetch the entire contents of a text file, and return it in a HashSet.
-   * This style of implementation does not throw Exceptions to the caller.
-   *
-   * @param filename  is a file which already exists and can be read.
-   */
-   private HashSet<Long> getContents( String filename, ArrayList <String> geneNames ) {
-
-      //...checks on filename are elided
-      HashSet<Long> contents = new HashSet<Long>();
-      
-     try {
-        
-        File aFile = new File( filename );
-       //use buffering, reading one line at a time
-       //FileReader always assumes default encoding is OK!
-       BufferedReader input =  new BufferedReader(new FileReader(aFile));
-       try {
-         String line = null; //not declared within while loop
-         /*
-         * readLine is a bit quirky :
-         * it returns the content of a line MINUS the newline.
-         * it returns null only for the END of the stream.
-         * it returns an empty String if two newlines appear in a row.
-         */
-         DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
-
-         while (( line = input.readLine()) != null){
-
-            // convert Hugo symbol to Entrez ID
-            CanonicalGene aCanonicalGene = aDaoGene.getGene( line.trim() );
-            if( null != aCanonicalGene ){
-               contents.add( new Long( aCanonicalGene.getEntrezGeneId() ) );
-               geneNames.add( line.trim() );
-            }else{
-               System.err.println( "MutationFilter: Gene " + line.trim() + " not in dbms." );
-            }
-         }
-      } finally {
-         input.close();
-       }
-     } catch (FileNotFoundException e){
-        throw new IllegalArgumentException( "Gene list '" + filename + "' not found.");
-     } catch (IOException ex){
-        ex.printStackTrace();
-     }
-     return contents;
-   }
-   
-   /**
     * Carefully look for pattern in data.
     * <p>
     * @param data
@@ -389,7 +292,6 @@ public class MutationFilter {
    @Override
    public String toString(){
       StringBuffer sb = new StringBuffer();
-      sb.append( "Germline whitelist: " + this.cancerSpecificGermlineWhiteListGeneNames.toString() + "\n" );
       return( sb.toString() );
    }
 }

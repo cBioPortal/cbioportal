@@ -40,6 +40,8 @@ import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -62,6 +64,9 @@ import org.apache.commons.logging.LogFactory;
 public class GisticJSON extends HttpServlet {
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
     private static Log log = LogFactory.getLog(GisticJSON.class);
+    
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
 
     /**
      * Initializes the servlet.
@@ -70,6 +75,7 @@ public class GisticJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**
@@ -126,31 +132,30 @@ public class GisticJSON extends HttpServlet {
             throws ServletException, IOException {
 
         String cancer_study_id = request.getParameter(SELECTED_CANCER_STUDY);
-
+        // Collections.sort(gistics, new sortMutsigByRank());
+        JSONArray gisticJSONArray = new JSONArray();
         try {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
-            
-            if (log.isDebugEnabled()) {
-                log.debug("cancerStudyId passed to GisticJSON: " + cancerStudy.getInternalId()) ;
-            }
+            if(cancerStudy != null && accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 1) {
+            	if (log.isDebugEnabled()) {
+                    log.debug("cancerStudyId passed to GisticJSON: " + cancerStudy.getInternalId()) ;
+                }
 
-            ArrayList<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudy.getInternalId());
+                ArrayList<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudy.getInternalId());
 
-            if (log.isDebugEnabled()) {
-                log.debug("list of gistics associated with cancerStudy: " + gistics) ;
-            }
+                if (log.isDebugEnabled()) {
+                    log.debug("list of gistics associated with cancerStudy: " + gistics) ;
+                }
 
-//            Collections.sort(gistics, new sortMutsigByRank());
+                for (Gistic gistic : gistics) {
+                    Map map = Gistic_toMap(gistic);
 
-            JSONArray gisticJSONArray = new JSONArray();
-
-            for (Gistic gistic : gistics) {
-                Map map = Gistic_toMap(gistic);
-
-                if (!map.isEmpty()) {
-                    gisticJSONArray.add(map);
+                    if (!map.isEmpty()) {
+                        gisticJSONArray.add(map);
+                    }
                 }
             }
+            
             response.setContentType("application/json");
             PrintWriter out = response.getWriter();
 

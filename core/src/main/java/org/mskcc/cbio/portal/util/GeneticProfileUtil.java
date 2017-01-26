@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,12 +32,13 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import org.cbioportal.persistence.GenePanelRepository;
+import org.cbioportal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 
 /**
  * Genetic Profile Util Class.
@@ -75,8 +76,7 @@ public class GeneticProfileUtil {
         while (geneticProfileIdIterator.hasNext()) {
             String geneticProfileId = geneticProfileIdIterator.next();
             GeneticProfile geneticProfile = getProfile (geneticProfileId, profileList);
-            if (geneticProfile != null && geneticProfile.getGeneticAlterationType().
-                    equals(GeneticAlterationType.MRNA_EXPRESSION)) {
+            if (geneticProfile != null && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
                 String profileName = geneticProfile.getProfileName();
                 if (profileName != null) {
                     if (profileName.toLowerCase().contains("outlier")) {
@@ -86,5 +86,11 @@ public class GeneticProfileUtil {
             }
         }
         return false;
+    }
+    
+    public static int getGenePanelId(String panelId) {
+        GenePanelRepository genePanelRepository = SpringUtil.getGenePanelRepository();  
+        GenePanel genePanel = genePanelRepository.getGenePanelByStableId(panelId).get(0);
+        return genePanel.getInternalId();
     }
 }

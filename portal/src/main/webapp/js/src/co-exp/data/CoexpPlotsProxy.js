@@ -88,10 +88,10 @@ var CoexpPlotsProxy = (function() {
                         var _mut_obj = {};
                         $.each(mutationMap[(_obj_x["caseId"]).toLowerCase()], function(index, obj) {
                             var _tmp_obj = {};
-                            _tmp_obj["protein_change"] = obj.proteinChange;
-                            _tmp_obj["mutation_type"] = obj.mutationType;
-                            if (obj.geneSymbol === geneX || obj.geneSymbol === geneY) {
-                                if (obj.geneSymbol === geneX) {
+                            _tmp_obj["protein_change"] = obj.get("proteinChange");
+                            _tmp_obj["mutation_type"] = obj.get("mutationType");
+                            if (obj.get("geneSymbol") === geneX || obj.get("geneSymbol") === geneY) {
+                                if (obj.get("geneSymbol") === geneX) {
                                     attr.mut_x = true;
                                     if (!_mut_obj.hasOwnProperty(geneX)) {
                                         var _tmp_arr = [];
@@ -99,12 +99,12 @@ var CoexpPlotsProxy = (function() {
                                         _tmp_arr.push(_tmp_obj);
                                         _mut_obj[geneX] = _tmp_arr;   
                                         datum.qtip = datum.qtip + "<br>" + geneX + " Mutation: " + 
-                                                     "<strong>" + obj.proteinChange + "</strong>";
+                                                     "<strong>" + obj.get("proteinChange") + "</strong>";
                                     } else {
                                         _mut_obj[geneX].push(_tmp_obj);
-                                        datum.qtip = datum.qtip + ", " + "<strong>" + obj.proteinChange + "</strong>";
+                                        datum.qtip = datum.qtip + ", " + "<strong>" + obj.get("proteinChange") + "</strong>";
                                     }
-                                } else if(obj.geneSymbol === geneY) {
+                                } else if(obj.get("geneSymbol") === geneY) {
                                     attr.mut_y = true;
                                     if (!_mut_obj.hasOwnProperty(geneY)) {
                                         var _tmp_arr = [];
@@ -112,10 +112,10 @@ var CoexpPlotsProxy = (function() {
                                         _tmp_arr.push(_tmp_obj);
                                         _mut_obj[geneY] =  _tmp_arr; 
                                         datum.qtip = datum.qtip + "<br>" + geneY + " Mutation: " + 
-                                                     "<strong>" + obj.proteinChange + "</strong>";  
+                                                     "<strong>" + obj.get("proteinChange") + "</strong>";  
                                     } else {
                                         _mut_obj[geneY].push(_tmp_obj);
-                                        datum.qtip = datum.qtip + ", " + "<strong>" + obj.proteinChange + "</strong>";
+                                        datum.qtip = datum.qtip + ", " + "<strong>" + obj.get("proteinChange") + "</strong>";
                                     }
                                 }
                                 datum["mutation"] = _mut_obj;

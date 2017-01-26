@@ -364,10 +364,6 @@
                     clearInterval(tid);
                     mutexTableInstance.fnAdjustColumnSizing();
                 }
-            },
-            isTableInstanceExisted: function() {
-                if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) return true;
-                else return false;
             }
  	};
  }());

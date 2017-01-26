@@ -1,0 +1,122 @@
+<script type="text/template" id="oncokb-card">
+    <div class="oncokb-card">
+        <div class="z-depth-2">
+            <div class="item tabs-wrapper">
+                <div class="col s12 tip-header">{{title}}</div>
+                <div class="col s12">
+                    <ul class="tabs" tabs="">
+                        <li class="tab col s6 enable-hover">
+                            <a class="oncogenicity" data-toggle="tab" data-target=".oncogenicity">
+                                <span class="title">clinical implications</span>
+                                <span class="title-content">{{oncogenicity}}</span>
+                            </a>
+                        </li>
+                        <li class="tab col s6 enable-hover">
+                            <a class="mutation-effect" data-toggle="tab" data-target=".mutation-effect">
+                                <span class="title">Biological Effect</span>
+                                <span class="title-content">{{mutationEffect}}</span>
+                            </a>
+                        </li>
+                        <div class="indicator"></div>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="col s12 tab-pane oncogenicity">
+                        <div class="summary">{{clinicalSummary}}</div>
+                        <div>
+                            <table class="bordered table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Level</th>
+                                    <th scope="col">Alteration(s)</th>
+                                    <th scope="col">Drug(s)</th>
+                                    <th scope="col">Level-associated<br/>cancer type(s)</th>
+                                    <th scope="col">Citation(s)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{treatmentRows}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="col s12 tab-pane mutation-effect">
+                        <div>{{biologicalSummary}}</div>
+                        <div class="refs">
+                            <img src="images/loader.gif" alt="Loading...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="additional-info">{{additionalInfo}}</div>
+
+            <div class="item disclaimer">
+        <span>
+          The information above is intended for research purposes only and should not be used as a
+          substitute for professional
+          diagnosis and treatment.</span>
+            </div>
+
+            <div class="item-list levels-wrapper">
+                <ul class="collapsible" data-toggle="collapse" data-target=".oncokb-card-levels-collapse">
+                    <li class="">
+                        <div class="collapsible-header">Levels
+                            <span class="secondary-content">
+                <i class="glyphicon glyphicon-chevron-down"></i>
+                <i class="glyphicon glyphicon-chevron-up" style="display: none"></i>
+              </span>
+                        </div>
+                        <div class="collapsible-body collapse levels oncokb-card-levels-collapse">
+                            <ul>
+                                {{levelRows}}
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="item footer">
+                <a href="http://oncokb.org/#/gene/{{gene}}" target="_blank">
+                    <img src="images/oncokb.png" class="oncokb-logo" alt="OncoKB">
+                </a>
+                <span class="pull-right feedback"><button
+                    class="btn btn-default btn-xs oncokb-card-feedback-btn"><i>Feedback</i></button></span></div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="oncokb-card-treatment-row">
+    <tr>
+        <td><i class="level-icon level-{{level}}" qtip-content="{{levelDes}}" position-my="top center"
+               position-at="bottom center"></i></td>
+        <td>{{variant}}</td>
+        <td>{{treatment}}</td>
+        <td>{{cancerType}}</td>
+        <td><i class="fa fa-book" qtip-content="Treatment Info" qtip-treatment-index="{{treatmentIndex}}" position-my="top right"
+               position-at="bottom left"></i></td>
+    </tr>
+</script>
+
+<script type="text/template" id="oncokb-card-level-list-item">
+    <li><i class="level-icon level-{{level}}"></i><span>{{levelDes}}</span>
+    </li>
+</script>
+
+<script type="text/template" id="oncokb-card-pmid-item">
+    <li class="list-group-item" style="width: 100%">
+        <a href="http://www.ncbi.nlm.nih.gov/pubmed/{{pmid}}" target="_blank"><b>{{title}}</b></a><br/>
+        <div style="width: 100%">{{author}} {{source}}. {{date}} <span style="float: right">PMID: {{pmid}}</span></div>
+    </li>
+</script>
+
+<script type="text/template" id="oncokb-card-abstract-item">
+    <li class="list-group-item" style="width: 100%">
+        <@ if(link)  { @>
+        <a href="{{link}}" target="_blank">
+            <@ } @>
+            <b>{{abstract}}</b>
+            <@  if(link)  { @>
+        </a>
+        <@ } @>
+    </li>
+</script>

@@ -31,9 +31,11 @@
 --%>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.SessionServiceRequestWrapper" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -63,25 +65,36 @@
     geneList = servletXssUtil.getCleanerInput(geneList);
 
 
-    String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
-    String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
+    String oncokbUrl = (String) GlobalProperties.getOncoKBApiUrl();
+    boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+    String userName = GlobalProperties.getAuthenticatedUserName();
+
+    //are we using session service for bookmarking?
+    boolean useSessionServiceBookmark = !StringUtils.isBlank(GlobalProperties.getSessionServiceUrl());
 
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<%@ include file="oncokb/oncokb-card-template.html" %>
+<script type="text/javascript" src="js/src/oncokb/OncoKBCard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/data/Hotspots3dDataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/column/AnnotationColumn.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cross-cancer-plotly-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
+<link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="css/oncokb.css?<%=GlobalProperties.getAppVersion()%>" />
 
 
 <%
@@ -99,6 +112,14 @@
 <%
     }
 %>
+<% 
+String sessionError = (String) request.getAttribute(SessionServiceRequestWrapper.SESSION_ERROR);
+if (sessionError != null) {  %>  
+<p id="session-warning" style="background-color:red;display:block;">
+    <img src="images/warning.gif"/>
+    <%= sessionError %>
+</p>
+<% } %>
 
 <table>
     <tr>
@@ -117,15 +138,16 @@
                 </div>
             </div>
             <!-- end results container -->
+       
         </td>
     </tr>
 </table>
 
 <script>
-    var myCancerGenomeUrl = '<%=myCancerGenomeUrl%>';
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
-    var enableMyCancerGenome = myCancerGenomeUrl?true:false;
+    var userName = '<%=userName%>';
+    var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
 
    function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector) !== null) {
@@ -166,16 +188,14 @@
             $(".query-toggle").toggle();
         });
 
-        $("a.result-tab").click(function(){
-            if($(this).attr("href")=="#bookmark_email") {
-                $("#bookmark-link").attr("href",window.location.href);
-            }
-        });
 
-        $("#bitly-generator").click(function() {
-            bitlyURL(window.location.href);
+        $("#cc-bookmark-link").parent().click(function() {
+            <% if (useSessionServiceBookmark) { %>
+                addSessionServiceBookmark(window.location.href, $(this).children("#cc-bookmark-link").data('session'));
+            <% } else { %>
+                addURLBookmark();
+            <% } %>
         });
-
     });
 
 </script>
@@ -197,73 +217,82 @@
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
             </li>
             <li>
-                <a href='#cc-bookmark' class='result-tab' title="Bookmark or generate a URL for email">
+                <% if (useSessionServiceBookmark) { %>
+                <a href='#cc-bookmark' id='cc-bookmark-link' class='result-tab' title="Bookmark or generate a URL for email" data-session='<%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>'>
+                <% } else { %>
+                <a href='#cc-bookmark' id='cc-bookmark-link' class='result-tab' title="Bookmark or generate a URL for email">
+                <% } %>
                     Bookmark
                 </a>
             </li>
         </ul>
-        <div class="section" id="cc-overview">
+        <div class="section" id="cc-overview" style="display:none">
+            <div id="headerBar" style="display:none">
+                <div id="cctitlecontainer" style="margin-left:200px;float:left"></div>
+                <div>
+                    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
+                    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
+                </div>
 
-            <div id="cctitlecontainer"></div>
+                <div style="margin-top:10px;margin-bottom:10px;">
+                    <div style="float:left;margin-right:20px;">
+                        Y-Axis value:
+                        <select id="yAxis" title="y-axis value"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
+                    </div>
+                    <!-- explicitly set anchors without href for the handles, as jQuery UI 1.10 otherwise adds href="#" which may confuse assistive technologies -->
+                    <div style="float:left;margin-right:20px;">
+                        <span style="float:left;" class="diagram-general-slider-text" id="sliderLabel">Min. % altered samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="sliderMinY"><a class="ui-slider-handle" tabindex="0"></a></div>
+                        <input style="float:left;" id="minY" size="3" type="text" aria-labelledby="sliderLabel">
+                        <span id="suffix">%</span>
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <span style="float:left;" class="diagram-general-slider-text" id="minTotalSamplesLabel">Min. # total samples:</span>
+                        <div style="float:left;width:60px;margin-top:4px;margin-right:4px;margin-left:8px;" id="totalSampleSlider"><a class="ui-slider-handle" tabindex="0"></a></div>
+                        <input style="float:left;" id="minTotal" size="3" type="text" aria-labelledby="minTotalSamplesLabel">
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <input type="checkbox" id="histogram-show-colors" title="Show alteration types" checked> Show alteration types
+                    </div>
+                    <div style="float:left;margin-right:20px;">
+                        <input type="checkbox" id="sortBy" title="Sort alphabetically"> Sort alphabetically
+                    </div>
+                </div>
 
-            <div id="customize-controls" class="ui-widget cc-hide">
+                <div style="display:none">
+                    <div id="show-hide-studies">
+                        <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
+                        <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
+                        <b id="show-hide-studies-toggle">Select studies</b>
+                        <br/>
+                    </div>
+                    <div id="cancerbycancer-controls" class="cc-hide">
+                        (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
+                        <br>
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <div id="customize-controls" class="ui-widget cc-hide" style="display:none">
                 <div class="close-customize">
                     <a href="#">&times;</a>
                 </div>
                 <h3>Customize histogram</h3>
-                <table>
-                    <tr>
-                        <td>
-                            <span id="no-alterations-control">
-                                <input type="checkbox" id="histogram-remove-notaltered">
-                                <label for="histogram-remove-notaltered">Hide studies with no alteration</label>
-                            </span>
-                        </td>
-                        <td>
-                            <span id="no-colors-control">
-                                <input type="checkbox" id="histogram-show-colors" checked>
-                                <label for="histogram-show-colors">Show alteration types</label>
-                            </span>
-                        </td>
-                        <td>
-                            <span id="sort-by-control">
-                                Sort by:
-                                <select id="histogram-sort-by">
-                                    <option value="alteration">Alteration frequency</option>
-                                    <option value="name">Cancer study name</option>
-                                </select>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-                            <div id="show-hide-studies">
-                                <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
-                                <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
-                                <b id="show-hide-studies-toggle">Select studies</b>
-                                <br/>
-                            </div>
-                            <div id="cancerbycancer-controls" class="cc-hide">
-                                (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
-                                <br>
-                                <br>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                
             </div>
 
-            <div id="cchistogram">
-                <img src="images/ajax-loader.gif"/>
+            <div id="cchistogram" style="width: 1100px; height: 700px;position:relative;margin-top:30px;">
+                <img src="images/ajax-loader.gif" alt='loading'/>
             </div>
 
             <div id="studies-with-no-data">
             </div>
+            <span style="color:grey;position:relative;top:-40px;left:10px;" id="note"></span>
         </div>
 
         <div class="section" id="cc-mutations">
             <div id="mutation_details" class="mutation-details-content">
-                <img src="images/ajax-loader.gif"/>
+                <img src="images/ajax-loader.gif" alt='loading'/>
             </div>
         </div>
         <div class="section" id="cc-plots">
@@ -274,22 +303,18 @@
                 <br>
                 <h4>Contents can be copied and pasted into Excel.</h4>
                 <p>Frequency of Alteration Across Studies:<p/>
-                <textarea rows="30" cols="40" id="cc-download-text">
+                <textarea rows="30" cols="40" id="cc-download-text" title="Frequency of Alteration Across Studies">
                 </textarea>
             </div>
         </div>
 
         <div class="section" id="cc-bookmark">
-            <h4>Right click</b> on the link below to bookmark your results or send by email:</h4>
+            <h4>Right click on one of the links below to bookmark your results:</h4>
             <br/>
-            <a  id="bookmark-link" href="#">
-                <%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?...
-            </a>
-            <br/>
+            <div id='session-id'></div>
             <br/>
 
-            If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>
-            <BR><button type="button" id="bitly-generator">Shorten URL</button>
+            If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>
             <div id='bitly'></div>
         </div>
 
@@ -304,6 +329,7 @@
         </label>
     </div>
 </script>
+
 
 <script type="text/template" id="studies-with-no-data-item-tmpl">
     <li>{{name}}</li>
@@ -364,15 +390,14 @@
 </script>
 
 <script type="text/template" id="mutation_table_annotation_template">
-    <span class='oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
-        <img class='oncokb oncogenic loader' width="13" height="13" class="loader" src="images/ajax-loader.gif"/>
+    <span class='annotation-item oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
+        <img class='oncokb oncogenic' width="14" height="14" src="images/ajax-loader.gif" alt='loading'/>
     </span>
-    <span class='oncokb oncokb_column' oncokbId='{{oncokbId}}'></span>
-    <span class='mcg' alt='{{mcgAlt}}'>
-        <img src='images/mcg_logo.png'>
+    <span class='annotation-item mcg' alt='{{mcgAlt}}'>
+        <img width='14' height='14' src='images/mcg_logo.png'>
     </span>
-    <span class='chang_hotspot' alt='{{changHotspotAlt}}'>
-        <img width='13' height='13' src='images/oncokb-flame.svg'>
+    <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
+        <img width='{{hotspotsImgWidth}}' height='{{hotspotsImgHeight}}' src='{{hotspotsImgSrc}}' alt='Recurrent Hotspot Symbol'>
     </span>
 </script>
 
@@ -394,9 +419,6 @@
     <b class="cctitle">
         Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
-    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
-    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
-    <button id="histogram-customize">Customize histogram</button>
 </script>
 
 <!-- Mutation views -->

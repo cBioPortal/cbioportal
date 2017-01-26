@@ -1,0 +1,36 @@
+cbioportal:
+  image: maven:3.3.9-jdk-8
+  ports:
+    - "8080:8080"
+  volumes:
+    - $PWD/../../:/cbioportal
+  command: java -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --expand-war portal/target/cbioportal.war
+  environment:
+    PORTAL_HOME: /cbioportal
+  working_dir: /cbioportal
+hub:
+  image: selenium/hub:2.53.0
+  ports:
+    - "4444:4444"
+  links:
+    - cbioportal
+firefox:
+  image: selenium/node-firefox:2.53.0
+  links:
+    - hub
+    - cbioportal
+chrome:
+  image: selenium/node-chrome:2.53.0
+  links:
+    - hub
+    - cbioportal
+python-selenium:
+  image: inodb/python-selenium
+  links:
+    - hub
+    - cbioportal
+  volumes:
+    - $PWD:/end-to-end
+  working_dir: /end-to-end
+  # keep image running
+  command: tail -f /dev/null

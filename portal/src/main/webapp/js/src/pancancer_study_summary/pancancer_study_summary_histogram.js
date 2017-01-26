@@ -65,10 +65,43 @@ function PancancerStudySummaryHistogram()
     };
     
     var filterCriteriaChanged = function(model) {
-    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") || model.hasChanged("minTotalSamples");;
+    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") ||	model.hasChanged("minTotalSamples");
     }
-    
-    
+
+    /**
+     * Returns font-size based on the study width
+     * @param studyWidth
+     * @returns {string}
+     */
+    var getFontSize = function(studyWidth){
+        return Math.min((studyWidth * .65), 11) + "px";
+    }
+
+    /**
+     * Determines some dynamic settings which the histogram uses:
+     * - paddingLeft
+     * - height
+     * @param histData
+     */
+    var setupHistogram = function (histData){
+        // determine the maximum label length to be used in the histogram
+        var maxLabelLength = 0;
+        for(var i=0; i<histData.length; i++){
+            var curType = histData[i].typeOfCancer;
+            if(curType.length > maxLabelLength) maxLabelLength = curType.length;
+        }
+        // determine the font-size used
+        var studyWidth = getStudyWidth(histData);
+        var fontSize = getFontSize(studyWidth);
+        // determine the space used by the label and calculate the padding en height
+        var fontSpace = maxLabelLength*fontSize.substr(0, fontSize.length-2)*0.66;
+        
+        // calculate the leftpadding based on the fontspace and the angle of the text
+        paddingLeft = Math.max(Math.cos(0.33*Math.PI) * fontSpace, paddingLeft);
+        // calculate the height based on the fontspace, the size of the histogram and the angle of the text
+        height = Math.max((Math.sin(0.33*Math.PI) * fontSpace) + histBottom, height);
+    }
+
     /**
      * Trigger the rendering of the histogram.
      * 
@@ -83,21 +116,24 @@ function PancancerStudySummaryHistogram()
 	    
 		//if data will change, e.g. because a cancer type was added or removed to the 
 		//filter criteria, then get processed data again: 
-	    if (filterCriteriaChanged(model)) {
+	    if (!this.histogramPresenter || filterCriteriaChanged(model)) {
+	    	console.log("Initial fetch data or Filter criteria changed, filtering/processing/sorting data...");
 	    	//get data via presenter layer:
 			this.histogramPresenter = new HistogramPresenter(model, dmPresenter, geneId);
 			//Get data:
 		    this.histogramPresenter.getJSONDataForHistogram(function (histData) {
 		    	//sort data:
 		    	sortItems(histData, model);
-		    	//draw histogram. 
+                //set some variables, based on the histData
+                setupHistogram(histData);
+                //draw histogram. 
 		    	var histogram = drawHistogram(histData, model, histogramEl);
 		    });
 	    }
 	    else {
 	    	var histData = this.histogramPresenter.histData;
-	    	//only sorting/scaling has changed. Adjust/redraw histogram accordingly:
-	    	var histogram = drawHistogram(histData, model, histogramEl);
+	    	//only sorting has changed. Adjust/redraw histogram accordingly:
+	    	var histogram = continueDrawHistogram(histData, model, histogramEl);
 			//animation, sorting also the histogram:
 			sortItems(histData, model, histogram);
 	    }
@@ -112,7 +148,7 @@ function PancancerStudySummaryHistogram()
 	 */
     var drawHistogram = function(histData, model, histogramEl) {
 		// Add loading image to histogramEl
-		$(histogramEl).html("<div style='width:"+width+"px; height:"+height+"px'><img src='images/ajax-loader.gif'</div>");
+		$(histogramEl).html("<div style='width:"+width+"px; height:"+height+"px'><img src='images/ajax-loader.gif' alt='loading' /></div>");
 		// call continueDraHistogram with a 1 ms delay to ensure the image is shown
 		window.setTimeout(continueDrawHistogram, 1, histData, model, histogramEl);
 	}
@@ -394,8 +430,8 @@ function PancancerStudySummaryHistogram()
 	            return getTypeOfCancer(d);
 	        })
 	        .attr("font-family", fontFamily)
-	        .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
-	        .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
+            .attr("font-size", function() { return getFontSize(studyWidth); })
+            .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
 	        .attr("y", function() { return histBottom + 10; })
 	        .attr("text-anchor", "end")
 	        .attr("transform", function(d, i) {

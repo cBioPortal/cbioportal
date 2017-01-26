@@ -45,7 +45,7 @@
     - Summary of __mutations__ and __copy-number alterations__ of interest
     - __Clinical trial__ information
     - TCGA __Pathology Reports__
-* New __cancer summary view__ (Example [Endometrial Cancer](study.do?cancer_study_id=ucec_tcga))
+* New __cancer summary view__ (Example [Endometrial Cancer](study?id=ucec_tcga))
 * __Updated drug data__ from KEGG DRUG and NCI Cancer Drugs (aggregated by [PiHelper](https://bitbucket.org/armish/pihelper))
 
 # October 10, 2012

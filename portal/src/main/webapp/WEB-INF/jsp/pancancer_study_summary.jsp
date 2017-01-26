@@ -40,7 +40,7 @@
 
 <!-- The pancer_study_summary files: -->
 <link href="css/pancancer_study_summary/pancancer_study_summary.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<jsp:include page="pancancer_study_summary/pancancer_study_summary_templates.html" flush="true"/>
+<%@ include file="pancancer_study_summary/pancancer_study_summary_templates.html" %>
 <!-- js files: -->
 <script type="text/javascript" src="js/src/pancancer_study_summary/pancancer_study_summary.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/pancancer_study_summary/pancancer_study_summary_histogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -61,9 +61,28 @@
 
 	//Initialize the pancancer study summary object which triggers the creation of the sub tabs,
 	//models and respective views, one per gene:
-	$(document).ready( function() {
-		var pancancerStudySummary = new PancancerStudySummary();
-		pancancerStudySummary.init();
-	});
+    $(document).ready( function() {
+    	//whether this tab has already been initialized or not:
+    	var tab_init = false;
+    	//function that will listen to tab changes and init this one when applicable:
+    	function tabsUpdate() {
+	        if ($("#pancancer_study_summary").is(":visible")) {
+		    	if (tab_init === false) {
+		    		var pancancerStudySummary = new PancancerStudySummary();
+                    pancancerStudySummary.init();
+		            tab_init = true;
+		            console.log("pancancer_study_summary tab initialized");
+		        }
+		        $(window).trigger("resize");
+	    	}
+    	}
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
+    	tabsUpdate();
+        //this is for the scenario where the user navigates to this tab:
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+        	tabsUpdate();
+        });
+    }); 
+	
 </script>
 

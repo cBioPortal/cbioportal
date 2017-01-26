@@ -46,11 +46,13 @@
                <td><div id='customize-cancertype-dropdown-{{geneId}}'></div></td>
                <td><div id='customize-data-type-y-axis-{{geneId}}'></div></td>
                <td><div id='customize-min-nr-altered-samples-slider-{{geneId}}'></div></td>
+               
             </tr>
             <tr>
                <td><div id='customize-show-genomic-alteration-types-{{geneId}}'></div></td>
                <td><div id='customize-sort-by-x-axis-{{geneId}}'></div></td>
                <td><div id='customize-total-nr-altered-samples-slider-{{geneId}}'></div></td>
+               
             </tr>
             <tr>
                <td colspan="3">
@@ -81,16 +83,17 @@
                       <td width="30%" valign="top">
                           <div class="slider-label">
                               <span class="diagram-general-slider-text">{{text}}</span>
-                              <span class="diagram-general-slider-value">{{init}}</span>{{suffix}}
+                              
                           </div>
                       </td>
-                      <td valign="top">
-                          <div style="width:30%">
+                      <td width="30%" valign="top">
+                          <div style="width:90%">
                               <div class="diagram-general-slider"></div>
                               <span class="diagram-general-slider-min-label">{{min}}{{suffix}}</span>
                               <span class="diagram-general-slider-max-label">{{max}}{{suffix}}</span>
                           </div>
                       </td>
+                      <td><input size="4" class="diagram-general-slider-value" value={{init}}></input></td>
                   </tr>
               </table>
           </div>

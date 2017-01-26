@@ -101,11 +101,6 @@ var ClinicalCNAColl = Backbone.Collection.extend({
     url: "cna.json"
 });
 
-var GeneDataColl = Backbone.Collection.extend({
-    model: Backbone.Model.extend({}),
-    url: "GeneData.json"
-});
-
 var ClinicalAttributesColl= Backbone.Collection.extend({
     model: Backbone.Model.extend({}),       // the trivial model
     url: function() {

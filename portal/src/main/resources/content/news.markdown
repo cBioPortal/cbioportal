@@ -8,22 +8,22 @@
 
 # October 6, 2015
 * __New TCGA data__:
-    * [Breast Invasive Carcinoma (TCGA, Cell 2015)](study.do?cancer_study_id=brca_tcga_pub2015)
-    * [Prostate Adenocarcinoma (TCGA, in press)](study.do?cancer_study_id=prad_tcga_pub)
-    * [Uveal Melanoma (TCGA, Provisional)](study.do?cancer_study_id=uvm_tcga)
+    * [Breast Invasive Carcinoma (TCGA, Cell 2015)](study?id=brca_tcga_pub2015)
+    * [Prostate Adenocarcinoma (TCGA, in press)](study?id=prad_tcga_pub)
+    * [Uveal Melanoma (TCGA, Provisional)](study?id=uvm_tcga)
 * __Added data__ of 763 samples from 12 published studies:
-    * [Small Cell Lung Cancer (U Cologne, Nature 2015)](study.do?cancer_study_id=sclc_ucologne_2015)
-    * [Uterine Carcinosarcoma (JHU, Nat Commun 2014)](study.do?cancer_study_id=ucs_jhu_2014)
-    * [Microdissected Pancreatic Cancer Whole Exome Sequencing (UTSW, Nat Commun 2015)](study.do?cancer_study_id=paad_utsw_2015)
-    * [Pancreatic Neuroendocrine Tumors (JHU, Science 2011)](study.do?cancer_study_id=panet_jhu_2011)
-    * [Renal Non-Clear Cell Carcinoma (Genentech, Nat Genet 2014)](study.do?cancer_study_id=nccrcc_genentech_2014)
-    * [Infant MLL-Rearranged Acute Lymphoblastic Leukemia (St Jude, Nat Genet 2015)](study.do?cancer_study_id=all_stjude_2015)
-    * [Rhabdomyosarcoma (NIH, Cancer Discov 2014)](study.do?cancer_study_id=rms_nih_2014)
-    * [Thymic epithelial tumors (NCI, Nat Genet 2014)](study.do?cancer_study_id=tet_nci_2014)
-    * [Pediatric Ewing Sarcoma (DFCI, Cancer Discov 2014)](study.do?cancer_study_id=es_dfarber_broad_2014)
-    * [Ewing Sarcoma (Institut Cuire, Cancer Discov 2014)](study.do?cancer_study_id=es_iocurie_2014)
-    * [Cutaneous squamous cell carcinoma (DFCI, Clin Cancer Res 2015)](study.do?cancer_study_id=cscc_dfarber_2015)
-    * [Gallbladder Carcinoma (Shanghai, Nat Genet 2014)](study.do?cancer_study_id=gbc_shanghai_2014)
+    * [Small Cell Lung Cancer (U Cologne, Nature 2015)](study?id=sclc_ucologne_2015)
+    * [Uterine Carcinosarcoma (JHU, Nat Commun 2014)](study?id=ucs_jhu_2014)
+    * [Microdissected Pancreatic Cancer Whole Exome Sequencing (UTSW, Nat Commun 2015)](study?id=paad_utsw_2015)
+    * [Pancreatic Neuroendocrine Tumors (JHU, Science 2011)](study?id=panet_jhu_2011)
+    * [Renal Non-Clear Cell Carcinoma (Genentech, Nat Genet 2014)](study?id=nccrcc_genentech_2014)
+    * [Infant MLL-Rearranged Acute Lymphoblastic Leukemia (St Jude, Nat Genet 2015)](study?id=all_stjude_2015)
+    * [Rhabdomyosarcoma (NIH, Cancer Discov 2014)](study?id=rms_nih_2014)
+    * [Thymic epithelial tumors (NCI, Nat Genet 2014)](study?id=tet_nci_2014)
+    * [Pediatric Ewing Sarcoma (DFCI, Cancer Discov 2014)](study?id=es_dfarber_broad_2014)
+    * [Ewing Sarcoma (Institut Cuire, Cancer Discov 2014)](study?id=es_iocurie_2014)
+    * [Cutaneous squamous cell carcinoma (DFCI, Clin Cancer Res 2015)](study?id=cscc_dfarber_2015)
+    * [Gallbladder Carcinoma (Shanghai, Nat Genet 2014)](study?id=gbc_shanghai_2014)
 
 # August 21, 2015
 * All __TCGA data__ updated to the Firehose run of April 16, 2015.
@@ -61,12 +61,12 @@
     * Added complete and up-to-date __clinical data__ for all __TCGA__ provisional studies
     * All TCGA data updated to the Firehose run of July 15, 2014
     * New TCGA provisional studies: Esophageal cancer, Pheochromocytoma and Paraganglioma (PCPG)
-    * New published TCGA studies: [Thyroid Cancer](study.do?cancer_study_id=thca_tcga_pub) and [Kidney Chromophobe](study.do?cancer_study_id=kich_tcga_pub)
+    * New published TCGA studies: [Thyroid Cancer](study?id=thca_tcga_pub) and [Kidney Chromophobe](study?id=kich_tcga_pub)
 * __Added data__ of 172 samples from 4 published studies:
-    * [Cholangiocarcinoma (National University of Singapore, Nature Genetics 2012)](study.do?cancer_study_id=chol_nus_2012)
-    * [Cholangiocarcinoma (National Cancer Centre of Singapore, Nature Genetics 2013)](study.do?cancer_study_id=chol_nccs_2013)
-    * [Intrahepatic Cholangiocarcinoma (Johns Hopkins University, Nature Genetics 2013)](study.do?cancer_study_id=chol_jhu_2013)
-    * [Bladder Cancer (MSKCC, Eur Urol 2014)](study.do?cancer_study_id=blca_mskcc_solit_2014)
+    * [Cholangiocarcinoma (National University of Singapore, Nature Genetics 2012)](study?id=chol_nus_2012)
+    * [Cholangiocarcinoma (National Cancer Centre of Singapore, Nature Genetics 2013)](study?id=chol_nccs_2013)
+    * [Intrahepatic Cholangiocarcinoma (Johns Hopkins University, Nature Genetics 2013)](study?id=chol_jhu_2013)
+    * [Bladder Cancer (MSKCC, Eur Urol 2014)](study?id=blca_mskcc_solit_2014)
 * __New features__:
     * Redesigned __Mutual Exclusivity__ tab
     * Added __correlation scores__ for scatter plots on the Plots tab
@@ -75,17 +75,17 @@
 
 # October 24, 2014
 * Added data of 885 samples from 11 published studies:
-    * [Colorectal Adenocarcinoma Triplets (MSKCC, Genome Biology 2014)](study.do?cancer_study_id=coadread_mskcc)
-    * [Esophageal Squamous Cell Carcinoma (ICGC, Nature 2014)](study.do?cancer_study_id=escc_icgc)
-    * [Malignant Peripheral Nerve Sheath Tumor (MSKCC, Nature Genetics 2014)](study.do?cancer_study_id=mpnst_mskcc)
-    * [Melanoma (Broad/Dana Farber, Nature 2012)](study.do?cancer_study_id=skcm_broad_dfarber)
-    * [Nasopharyngeal Carcinoma (National University Singapore, Nature Genetics 2014)](study.do?cancer_study_id=npc_nusingapore)
+    * [Colorectal Adenocarcinoma Triplets (MSKCC, Genome Biology 2014)](study?id=coadread_mskcc)
+    * [Esophageal Squamous Cell Carcinoma (ICGC, Nature 2014)](study?id=escc_icgc)
+    * [Malignant Peripheral Nerve Sheath Tumor (MSKCC, Nature Genetics 2014)](study?id=mpnst_mskcc)
+    * [Melanoma (Broad/Dana Farber, Nature 2012)](study?id=skcm_broad_dfarber)
+    * [Nasopharyngeal Carcinoma (National University Singapore, Nature Genetics 2014)](study?id=npc_nusingapore)
     * [Prostate Adenocarcinoma CNA study (MSKCC, PNAS 2014)](index.do?cancer_study_id=prad_mskcc_2014)
-    * [Prostate Adenocarcinoma Organoids (MSKCC, Cell 2014)](study.do?cancer_study_id=prad_mskcc_cheny1_organoids_2014)
-    * [Stomach Adenocarcinoma (TCGA, Nature 2014)](study.do?cancer_study_id=stad_tcga_pub)
-    * [Stomach Adenocarcinoma (Pfizer and University of Hong Kong, Nature Genetics 2014)](study.do?cancer_study_id=stad_pfizer_uhongkong)
-    * [Stomach Adenocarcinoma (University of Hong Kong, Nature Genetics 2011)](study.do?cancer_study_id=stad_uhongkong)
-    * [Stomach Adenocarcinoma (University of Tokyo, Nature Genetics 2014)](study.do?cancer_study_id=stad_utokyo)
+    * [Prostate Adenocarcinoma Organoids (MSKCC, Cell 2014)](study?id=prad_mskcc_cheny1_organoids_2014)
+    * [Stomach Adenocarcinoma (TCGA, Nature 2014)](study?id=stad_tcga_pub)
+    * [Stomach Adenocarcinoma (Pfizer and University of Hong Kong, Nature Genetics 2014)](study?id=stad_pfizer_uhongkong)
+    * [Stomach Adenocarcinoma (University of Hong Kong, Nature Genetics 2011)](study?id=stad_uhongkong)
+    * [Stomach Adenocarcinoma (University of Tokyo, Nature Genetics 2014)](study?id=stad_utokyo)
 
 # August 8, 2014
 * Released two new tools
@@ -97,7 +97,7 @@
 
 # May 12, 2014
 * Improved study summary page including survival analysis based on clinical attributes
-<br/>e.g. [TCGA Endometrial Cancer cohort](study.do?cancer_study_id=ucec_tcga_pub)
+<br/>e.g. [TCGA Endometrial Cancer cohort](study?id=ucec_tcga_pub)
 <br/>![Study view](images/previews/study_view.png)
 
 # March 27, 2014
@@ -232,7 +232,7 @@
     - Summary of __mutations__ and __copy-number alterations__ of interest
     - __Clinical trial__ information
     - TCGA __Pathology Reports__
-* New __cancer summary view__ (Example [Endometrial Cancer](study.do?cancer_study_id=ucec_tcga))
+* New __cancer summary view__ (Example [Endometrial Cancer](study?id=ucec_tcga))
 * __Updated drug data__ from KEGG DRUG and NCI Cancer Drugs (aggregated by [PiHelper](https://bitbucket.org/armish/pihelper))
 
 # October 22, 2012

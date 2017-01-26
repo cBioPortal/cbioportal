@@ -32,6 +32,27 @@
 
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
+
+<!-- Include Global Style Sheets -->
+<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link rel="icon" href="images/cbioportal_icon.png"/>
+<link href="css/responsiveslides.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/tipTip.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/smoothness/jquery-ui-1.10.3.custom.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/data_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/dataTables.tableTools.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/custom_case_set.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="css/ui.dropdownchecklist.themeroller.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="css/chosen.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="<c:url value="${bootstrapCSSPath}"/>" type="text/css" rel="stylesheet"/>
+<link type="text/css" rel="stylesheet" href="css/jstree.style.css?<%=GlobalProperties.getAppVersion()%>"/>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="js/src/oncoprint/webgl/oncoprint.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+
 <%
     String authenticationMethod = GlobalProperties.authenticationMethod();
     String global_style = GlobalProperties.getProperty("global_css");
@@ -47,32 +68,8 @@
     String globalStyleCSSPath = (authenticationMethod.equals("saml")) ?
         "/" + global_style : global_style;
     pageContext.setAttribute("globalStyleCSSPath", globalStyleCSSPath);
-    String bootstrapCSSPath = "css/bootstrap.min.css"+"?"+GlobalProperties.getAppVersion();
-    bootstrapCSSPath = (authenticationMethod.equals("saml")) ?
-        "/" + bootstrapCSSPath : bootstrapCSSPath;
-    pageContext.setAttribute("bootstrapCSSPath", bootstrapCSSPath);
 %>
-
-<!-- Include Global Style Sheets -->
-<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/bootstrap334.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link rel="icon" href="images/cbioportal_icon.png"/>
-<link href="css/responsiveslides.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/tipTip.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="<c:url value="${globalStyleCSSPath}"/>" type="text/css" rel="stylesheet" />
 <% if (special_style != null) { %>
-    <link href="<%= special_style %>" type="text/css" rel="stylesheet" />
+<link href="<%= special_style %>" type="text/css" rel="stylesheet" />
 <% } %>
-<link href="css/smoothness/jquery-ui-1.10.3.custom.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/data_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/dataTables.tableTools.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/custom_case_set.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
-<link href="css/ui.dropdownchecklist.themeroller.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
-<link href="css/chosen.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
-<link href="<c:url value="${bootstrapCSSPath}"/>" type="text/css" rel="stylesheet"/>
-<link type="text/css" rel="stylesheet" href="css/jstree.style.css?<%=GlobalProperties.getAppVersion()%>"/>
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-<link href="js/src/oncoprint/new/oncoprint.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />

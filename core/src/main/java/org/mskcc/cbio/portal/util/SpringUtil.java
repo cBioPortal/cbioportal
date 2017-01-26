@@ -32,13 +32,14 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.cbioportal.persistence.GenePanelRepository;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import javax.sql.DataSource;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 public class SpringUtil
 {
@@ -46,7 +47,19 @@ public class SpringUtil
 
 	private static AccessControl accessControl;
 	private static ApplicationContext context;
+        private static GenericXmlApplicationContext applicationContext;
 
+    public static GenePanelRepository getGenePanelRepository() {
+        if (applicationContext == null) {
+            applicationContext = new GenericXmlApplicationContext();
+            applicationContext.getEnvironment().setActiveProfiles("dbcp");
+            applicationContext.load("classpath:applicationContext-business.xml");
+            applicationContext.refresh();
+        }
+        
+        return (GenePanelRepository)applicationContext.getBean("genePanelRepository");
+    }    
+    
     public static void setAccessControl(AccessControl accessControl) {
     	log.debug("Setting access control");
 		SpringUtil.accessControl = accessControl;
@@ -63,5 +76,34 @@ public class SpringUtil
 			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
 		}
 	}
+	
+	/**
+     * Get the app context as initialized or refreshed by initDataSource()
+     *
+     * @return the Spring Framework application context
+     */
+    public static ApplicationContext getApplicationContext() {
+        return context;
+    }
 
+	/**
+	 * setter to allow override by unit test classes (which run in different context, connecting
+	 * to test DB).
+	 * 
+	 * @param context
+	 */
+	public static void setApplicationContext(ApplicationContext context) {
+		SpringUtil.context = context;		
+	}
+
+	/**
+	 * Directly injects a context into the class, so we don't need to open 
+	 * any more XML files. 
+	 * 
+	 * @param context
+	 */
+	public static synchronized void initDataSource(ApplicationContext context)
+	{
+		SpringUtil.context = context;
+	}
 }

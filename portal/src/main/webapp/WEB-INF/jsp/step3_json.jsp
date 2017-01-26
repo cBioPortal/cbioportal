@@ -42,7 +42,7 @@
     		    <span class="step_header">Select Patient/Case Set:</span>
 			</td>
 			<td>
-				<select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>"></select>
+				<select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>" title="Select Patient/Case Set"></select>
 	 		</td>
 	 		<td>
                 <!--
@@ -95,14 +95,14 @@
 	</div>
     <script type="text/javascript" src="js/src/mutsig.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <div id="mutsig_dialog" title="Recurrently Mutated Genes" class='display' style="font-size: 11px; .ui-dialog {padding: 0em;};">
-        <img id='loader-img' src="images/ajax-loader.gif"/>
+        <img id='loader-img' src="images/ajax-loader.gif" alt='loading'/>
         <table class="MutSig">
             <thead>
                 <tr>
                     <th>Gene Symbol</th>
                     <th>Num Mutations</th>
                     <th>Q-Value</th>
-                    <th><input class="checkall" type="checkbox"></td>
+                    <th>All<input class="checkall" type="checkbox" title="Select All Genes"></th>
                 </tr>
             </thead>
             <tbody>
@@ -115,7 +115,7 @@
     </div>
     <script type="text/javascript" src="js/src/gistic.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <div id="gistic_dialog" title="Recurrent Copy Number Alterations (Gistic)" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
-        <div id='gistic_loading'><img id='loader-img' src="images/ajax-loader.gif"/></div>
+        <div id='gistic_loading'><img id='loader-img' src="images/ajax-loader.gif" alt='loading'/></div>
         <table id="gistic_table" class='display' style='border-spacing:12px;'></table>
         <div id="gistic_dialog_footer">
             <button style="float: right; display:none; margin-top:1.1em;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Select Genes</button>
@@ -190,11 +190,11 @@ if (step3ErrorMsg != null) {
 %>
     <div id='custom_case_list_section' style="display:<%= customCaseListStyle %>;">
         <p><span style="font-size:80%">Enter case IDs below:</span></p>
-<textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80></textarea>
+<textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80 title="Enter case IDs"></textarea>
 <br/>
-<input type="radio" name='patient_case_select' value="sample" checked>By sample ID</input>
+<input type="radio" name='patient_case_select' value="sample" title="Query by sample ID" checked>By sample ID</input>
 <br/>
-<input type="radio" name='patient_case_select' value="patient">By patient ID</input>
+<input type="radio" name='patient_case_select' value="patient" title="Query by patient ID">By patient ID</input>
     </div>
 
 <%

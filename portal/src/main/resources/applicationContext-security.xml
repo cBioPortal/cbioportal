@@ -10,7 +10,18 @@
 
 
     <!-- beans shared across any authentication system -->
-    <b:beans profile="googleplus,openid,saml,ad">
+    <b:beans profile="googleplus,openid,saml,ad,ldap">
+        <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+           <b:property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+           <b:property name="searchSystemEnvironment" value="true" />
+           <b:property name="ignoreResourceNotFound" value="true" />
+           <b:property name="locations">
+             <b:list>
+               <b:value>file:///${PORTAL_HOME}/portal.properties</b:value>
+               <b:value>classpath:portal.properties</b:value>
+             </b:list>
+           </b:property>
+        </b:bean>
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
@@ -29,6 +40,18 @@
     <!-- this bean needs to come after context:annotation-config so that annotations are recognized -->
     <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
 
+    <!-- set accessControl into SpringUtil -->
+    <b:bean
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <b:property name="staticMethod"
+            value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl" />
+        <b:property name="arguments">
+            <b:list>
+                <b:ref bean="accessControl" />
+            </b:list>
+        </b:property>
+    </b:bean>
+
     <!-- beans used to access portal user db tables -->
     <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
         <b:constructor-arg ref="dataSource"/>
@@ -46,25 +69,24 @@
     <http pattern="/saml/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
     <http pattern="/saml/gfx/**" security="none"/>
-
+		
+	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+        <b:property name="arguments">
+            <b:list>
+                <b:ref bean="accessControl"/>
+            </b:list>
+        </b:property>
+    </b:bean>
+ 
     <!-- end beans shared across any authentication provider -->
     </b:beans>
 
     <!-- googleplus beans -->
     <b:beans profile="googleplus">
 
-	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-	    <b:property name="arguments">
-	        <b:list>
-	            <b:ref bean="accessControl"/>
-	        </b:list>
-	   </b:property>
-	</b:bean>
-
     <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
-        ${url.intercepts}
-
+<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for google+ authentication (spring social) -->
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
 
@@ -144,17 +166,7 @@
     <!-- openid beans -->
     <b:beans profile="openid">
 
-	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-	    <b:property name="arguments">
-	        <b:list>
-	            <b:ref bean="accessControl"/>
-	        </b:list>
-	   </b:property>
-	</b:bean>
-
     <http use-expressions="true"> 
-        ${url.intercepts}
 
         <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
             <attribute-exchange identifier-match="https://www.google.com/.*">
@@ -190,18 +202,8 @@
     <!-- saml beans -->
     <b:beans profile="saml">
 
-	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-	    <b:property name="arguments">
-	        <b:list>
-	            <b:ref bean="accessControl"/>
-	        </b:list>
-	   </b:property>
-	</b:bean>
-
     <http entry-point-ref="samlEntryPoint" use-expressions="true">
-        ${url.intercepts}
-
+<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for saml authentication -->
         <custom-filter after="FIRST" ref="metadataGeneratorFilter"/>
         <custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
@@ -236,7 +238,7 @@
 
    <!-- Handler for successful logout -->
     <b:bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
-        <b:property name="defaultTargetUrl" value="/logout.jsp?logout_success=true"/>
+        <b:property name="defaultTargetUrl" value="/login.jsp?logout_success=true"/>
     </b:bean>
 
     <authentication-manager alias="authenticationManager">
@@ -452,12 +454,9 @@
     <!-- authenticate with Active Directory -->
     <b:beans profile="ad">
         <http use-expressions="true" auto-config="true">
-
             <form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
             <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
-
-            ${url.intercepts}
-
+<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
             <!-- to enable access from matlab, r, python, etc clients -->
             <session-management session-fixation-protection="none"/>
         </http>
@@ -471,6 +470,58 @@
             <b:constructor-arg value="${ad.domain}"/>
             <b:constructor-arg value="${ad.url}"/>
         </b:bean>
+    </b:beans>
+
+    <!-- begin ldap beans -->
+    <b:beans profile="ldap">
+        <b:bean
+            class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <b:property name="staticMethod"
+                value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl" />
+            <b:property name="arguments">
+                <b:list>
+                    <b:ref bean="accessControl" />
+                </b:list>
+            </b:property>
+        </b:bean>
+
+        <http use-expressions="true" auto-config="true">
+            <form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
+            <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
+            <intercept-url pattern="/auth/*" access="permitAll"/>
+            <intercept-url pattern="/favicon.ico" access="permitAll"/>
+            <intercept-url pattern="/login.jsp*" access="permitAll"/>
+            <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+            <intercept-url pattern="/**" access="isAuthenticated()"/>
+
+            <!-- to enable access from matlab, r, python, etc clients -->
+            <session-management session-fixation-protection="none" />
+        </http>
+
+        <ldap-server id="ldapServer" url="${ldap.url}"
+            manager-dn="${ldap.manager.dn}" manager-password="${ldap.manager.password}" />
+
+        <!-- Loading full name and email from AD after authentication -->
+        <b:bean id="userDetailsService"
+            class="org.mskcc.cbio.portal.authentication.ldap.LDAPUserDetailsContextMapper">
+            <b:constructor-arg ref="ldapServer" />
+            <b:constructor-arg ref="portalUserDAO" />
+
+            <b:property name="baseDn" value="${ldap.user_search_base}" />
+            <b:property name="usernameAttribute" value="${ldap.attributes.username}" />
+            <b:property name="givenNameAttribute" value="${ldap.attributes.given_name}" />
+            <b:property name="lastNameAttribute" value="${ldap.attributes.last_name}" />
+            <b:property name="emailAttribute" value="${ldap.attributes.email}" />
+        </b:bean>
+
+        <authentication-manager>
+            <ldap-authentication-provider
+                server-ref="ldapServer" user-search-filter="(${ldap.attributes.username}={0})"
+                user-search-base="${ldap.user_search_base}"
+                group-search-base="#{ null }" user-context-mapper-ref="userDetailsService" />
+        </authentication-manager>
+
+        <!-- end ldap beans -->
     </b:beans>
 
     <!-- authenticate is off beans --> 

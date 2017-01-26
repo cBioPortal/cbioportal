@@ -50,8 +50,7 @@ public class UpdateMetaData {
             return;
         }
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 		SpringUtil.initDataSource();
         File descriptorFile = new File(args[0]);
 
@@ -77,7 +76,7 @@ public class UpdateMetaData {
             System.out.println ("Update Failed!");
         }
 
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 

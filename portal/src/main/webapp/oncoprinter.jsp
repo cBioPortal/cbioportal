@@ -63,8 +63,6 @@
     }
 </style>
 <script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
-        
-<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <div id="container" style="margin-left:20px;">
     <h1 style="display:inline;">OncoPrinter</h1>
@@ -159,7 +157,7 @@
             <script type="text/javascript">
             $('#load-example-data').click(function()
             {
-                document.getElementById("mutation-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-genomic-events.txt"/>";
+                document.getElementById("mutation-file-example").value="<%@ include file="WEB-INF/jsp/oncoprint/example-genomic-events.txt" %>";
             });
             </script>
             </div>
@@ -175,7 +173,7 @@
             <script type="text/javascript">
             $('#clinic-load-example-data').click(function()
             {
-                document.getElementById("clinic-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-clinic-events.txt"/>";
+                document.getElementById("clinic-file-example").value="<%@ include file="WEB-INF/jsp/oncoprint/example-clinic-events.txt" %>";
             });
             </script>
             </div>
@@ -218,7 +216,7 @@
                 <div class="control-group">
                     <label class="control-label" for="mutation">Input Mutation Data File</label>
                     <div class="controls">
-                        <input id="mutation" name="mutation" type="file">
+                        <input id="mutation" name="mutation" type="file" name="files[]">
                     </div>
                 </div>
             </form>
@@ -239,7 +237,11 @@
 
         <div style="margin-top:20px;">
             <p>Please define the order of genes (optional).</p>
-            <textarea id="filter_example" rows=2 style="width:40%;"></textarea>
+            <textarea id="gene_order" rows=2 style="width:40%;"></textarea>
+        </div>
+        <div style="margin-top:20px;">
+            <p>Please define the order of samples (optional).</p>
+            <textarea id="sample_order" rows=2 style="width:40%;"></textarea>
         </div>
         <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Submit</button>
         <div id="error_msg" style="color:#ff0000"></div>
@@ -247,7 +249,7 @@
     <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
 
     <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
-    <img id="oncoprint_loader_img" src="images/ajax-loader.gif" style="display:none;">
+    <img id="oncoprint_loader_img" src="images/ajax-loader.gif" style="display:none;" alt="loading" />
     </div>
      <div id='oncoprint'>
          <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           
@@ -259,15 +261,17 @@
                 <button type="button" id="oncoprint_zoomout" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-out.svg" alt="icon" width="16" height="16" /></button>
                 <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 100px;display:inline"></span> 
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
+                 <button type="button" id="oncoprint_zoomtofit" class="btn btn-default" style="background-color:#efefef;margin:0px;border-left: 0;"><img src="images/fitalteredcases.svg" alt="icon" width="18" height="18" preserveAspectRatio="none"/></button>
             </div>
         </div>
     <div>
+        <br>
         <br>
          <div id='oncoprint_body'></div>
      </div>
     <div id='oncoprint_legend' style="display: inline;"></div>
     <!--<script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/events.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/events.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/utils.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/defaults.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/RuleSet.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -275,8 +279,19 @@
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintSVGRenderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprint.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script src="js/src/oncoprint/oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
+    <!--<script src="js/src/oncoprint/oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/canvas-toBlob.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/zlib.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/png.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.addimage.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.png_support.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    </script>
 </div>
         <script type="text/javascript"> 
                $('.sample-download').qtip({

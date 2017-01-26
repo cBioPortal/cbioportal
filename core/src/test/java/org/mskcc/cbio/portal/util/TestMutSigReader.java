@@ -56,8 +56,6 @@ public class TestMutSigReader {
     File properties = new File("target/test-classes/testCancerStudy.txt");
     File mutSigFile = new File("target/test-classes/test_mut_sig_data.txt");
 
-    ProgressMonitor pm = new ProgressMonitor();
-    
 	int studyId;
 	
 	@Before 
@@ -70,10 +68,9 @@ public class TestMutSigReader {
     @Test
     public void testloadMutSig() throws Exception {
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
 
-        MutSigReader.loadMutSig(studyId, mutSigFile, pMonitor);
+        MutSigReader.loadMutSig(studyId, mutSigFile);
         
         // Is the data in the database?
         MutSig mutSig = DaoMutSig.getMutSig("AKT1", studyId);

@@ -77,17 +77,16 @@ public class TestImportGeneData {
     @Test
     public void testImportGeneData() throws Exception {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         if (suppGeneDataFilePath!=null) {
             File file = new File(suppGeneDataFilePath.getFile());
-            ImportGeneData.importSuppGeneData(pMonitor, file);
+            ImportGeneData.importSuppGeneData(file);
         }
         
         if (geneDataFilePath != null) {
             File file = new File(geneDataFilePath.getFile());
-            ImportGeneData.importData(pMonitor, file);
+            ImportGeneData.importData(file);
 
             CanonicalGene gene = daoGene.getGene(10);
             assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());

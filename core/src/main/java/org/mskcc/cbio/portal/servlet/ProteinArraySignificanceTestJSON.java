@@ -59,7 +59,10 @@ import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ProteinArrayInfo;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.mskcc.cbio.portal.web_api.GetProteinArrayData;
 
@@ -70,6 +73,20 @@ import org.mskcc.cbio.portal.web_api.GetProteinArrayData;
 public class ProteinArraySignificanceTestJSON extends HttpServlet {
     private static Logger logger = Logger.getLogger(ProteinArraySignificanceTestJSON.class);
 
+	// class which process access control to cancer studies
+	private AccessControl accessControl;
+	
+    /**
+     * Initializes the servlet.
+     *
+     * @throws ServletException Serlvet Init Error.
+     */
+    @Override
+    public void init() throws ServletException {
+        super.init();
+		accessControl = SpringUtil.getAccessControl();
+    }
+    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -81,7 +98,8 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             throws ServletException, IOException {
 
         JSONArray table = new JSONArray();
-
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
         String cancerStudyStableId = request.getParameter("cancer_study_id");
         String heatMap = request.getParameter("heat_map");
         String gene = request.getParameter("gene");
@@ -123,8 +141,30 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
 
         Map<String,ProteinArrayInfo> proteinArrays;
         Map<String,Map<String,Double>> proteinArrayData;
+        boolean hasError = false;
         try {
-            int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId();
+        	CancerStudy cancerStudy = null;
+        	if(cancerStudyStableId == null){
+        		hasError = true;
+        	} else{
+        		cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
+        		if (cancerStudy==null) {
+        			hasError = true;
+                }
+        		if (accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() != 1) {
+        			hasError = true;
+                }
+        	}
+			if (hasError) {
+				try {
+					JSONValue.writeJSONString(table, out);
+				} finally {
+					out.close();
+				}
+				return;
+			}
+        	
+            int cancerStudyId = cancerStudy.getInternalId();
             proteinArrays = GetProteinArrayData.getProteinArrayInfo(cancerStudyId, null, antibodyTypes);
             proteinArrayData = GetProteinArrayData.getProteinArrayData(cancerStudyId, proteinArrays.keySet(), allCases);
         } catch (DaoException e) {
@@ -139,8 +179,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             export(table, gene, alteredCases[0], proteinArrays, proteinArrayData, dataScale);
         }
 
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
+        
         try {
             JSONValue.writeJSONString(table, out);
         } finally {            

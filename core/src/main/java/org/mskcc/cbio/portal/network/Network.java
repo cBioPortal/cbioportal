@@ -37,6 +37,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -157,14 +158,16 @@ public class Network {
      * add an edge
      * @param edge an edge 
      */
-    public void addEdge(Edge edge, String idOfNode1, String idOfNode2) {
-        Node node1 = nodesByIds.get(idOfNode1);
-        Node node2 = nodesByIds.get(idOfNode2);
+    public void addEdge(Edge edge) {
+        Node node1 = nodesByIds.get(edge.getSourceID());
+        Node node2 = nodesByIds.get(edge.getTargetID());
+        
         if (node1==null || node2==null) {
             throw new java.lang.UnsupportedOperationException("Add nodes before adding an edge");
         }
-        
+		
         graph.addEdge(edge, node1, node2);
+     
     }
     
     /**
@@ -199,5 +202,10 @@ public class Network {
      */
     public int getDegree(Node node) {
         return graph.degree(node);
+    }
+    
+    public Collection findEdgeSet(Node node1, Node node2)
+    {
+    	return this.graph.findEdgeSet(node1, node2);
     }
 }

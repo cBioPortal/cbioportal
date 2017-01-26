@@ -33,7 +33,6 @@
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.cbio.portal.util.ValueParser" %>
 <%@ page import="java.util.TreeSet" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.ShowData" %>
 <%@ page import="org.mskcc.cbio.portal.model.DownloadLink" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
@@ -43,7 +42,7 @@
 <div class="section" id="data_download">
 
     <div id='data_download_tab_links_li_div'>
-        <h4>The following are downloadable data files (click to donwload) </h4>
+        <h4>The following are downloadable data files (click to download) </h4>
         <ul id='data_download_links_li'></ul>
         <div id='data_download_redirect_home_page'></div>
     </div><!-- end data_download_tab_info_div -->
@@ -51,13 +50,13 @@
     <div id='data_download_tab_text_areas'>
         <h4>Contents below can be copied and pasted into Excel</h4><br>
         <h3><small>Frequency of Gene Alteration:</small></h3>
-        <textarea class="form-control" id="text_area_gene_alteration_freq"></textarea><br>
+        <textarea class="form-control" id="text_area_gene_alteration_freq" title="Frequency of Gene Alteration"></textarea><br>
         <h3><small>Type of Genetic alterations across all cases: (Alterations are summarized as MUT, Gain, HetLoss, etc.)</small></h3>
-        <textarea class="form-control" id="text_area_gene_alteration_type"></textarea><br>
+        <textarea class="form-control" id="text_area_gene_alteration_type" title="Type of Genetic alterations across all cases"></textarea><br>
         <h3><small>Cases affected: (Only cases with an alteration are included)</small></h3>
-        <textarea class="form-control" id="text_area_case_affected"></textarea><br>
+        <textarea class="form-control" id="text_area_case_affected" title="Cases affected"></textarea><br>
         <h3><small>Case matrix: (1= Case harbors alteration in one of the input genes)</small></h3>
-        <textarea class="form-control" id="text_area_case_matrix"></textarea><br>
+        <textarea class="form-control" id="text_area_case_matrix" title="Case matrix"></textarea><br>
     </div>
 
 </div><!-- end data download div -->

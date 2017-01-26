@@ -85,7 +85,7 @@ public final class NetworkIO {
         StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());
 			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
         for (String gene : genes) {
-            sbUrl.append("&source=urn:biopax:RelationshipXref:HGNC_");
+            sbUrl.append("&source=");
             sbUrl.append(gene.toUpperCase());
         }
 
@@ -180,18 +180,18 @@ public final class NetworkIO {
 
             String interaction = strs[1];
             boolean isDirect = isEdgeDirected(interaction);
-            Edge edge = new Edge(isDirect, interaction);
+            Edge edge = new Edge(isDirect, interaction, strs[0], strs[2]);
 
-            for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
-                if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
+            for (int i=0; i<strs.length&&i<edgeHeaders.length; i++) {
+                /*if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
                         && !strs[i].startsWith("PubMed:")) {
                     //TODO: REMOVE THIS CHECK AFTER THE CPATH2 PUBMED ISSUE IS FIXED
                     continue;
-                }
+                }*/
 
                 edge.addAttribute(edgeHeaders[i], strs[i]);
             }
-            network.addEdge(edge, strs[0], strs[2]);
+            network.addEdge(edge);
         }
 
         NetworkUtils.mergeNodesWithSameSymbol(network);
@@ -199,6 +199,7 @@ public final class NetworkIO {
         return network;
     }
 
+//TODO FIX THIS PART FOR NEW INTERACTION TYPES !!
     private static boolean isEdgeDirected(String interaction) {
         if (interaction==null) {
             return false;
@@ -284,7 +285,7 @@ public final class NetworkIO {
             String source = interaction.getSource();
             String exp = interaction.getExperimentTypes();
             boolean isDirected = isEdgeDirected(interactionType); //TODO: how about HPRD
-            Edge edge = new Edge(isDirected, interactionType);
+            Edge edge = new Edge(isDirected, interactionType, geneAID, geneBID);
             if (pubmed!=null) {
                 edge.addAttribute("INTERACTION_PUBMED_ID", pubmed);
             }
@@ -295,7 +296,7 @@ public final class NetworkIO {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
 
-            net.addEdge(edge, geneAID, geneBID);
+            net.addEdge(edge);
         }
 
         Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
@@ -320,7 +321,7 @@ public final class NetworkIO {
 
             String exp = interaction.getExperimentTypes();
             boolean isDirected = isEdgeDirected(interactionType);
-            Edge edge = new Edge(isDirected, interactionType);
+            Edge edge = new Edge(isDirected, interactionType, drugID, geneID);
 
             if (pubmed!=null) {
                 edge.addAttribute("INTERACTION_PUBMED_ID", pubmed);
@@ -332,7 +333,7 @@ public final class NetworkIO {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
 
-            net.addEdge(edge, drugID, geneID);
+            net.addEdge(edge);
         }
 
         return net;

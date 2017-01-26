@@ -1,6 +1,8 @@
-sudo: false
+sudo: required
 language: java
-jdk: openjdk7
+jdk: oraclejdk8
+services:
+    - docker
 
 cache:
     directories:
@@ -8,29 +10,102 @@ cache:
         - $HOME/maven
 
 env:
-    - MAVEN_VERSION=3.3.3
+    - MAVEN_VERSION=3.3.9 TEST=core
+    - MAVEN_VERSION=3.3.9 TEST=python-validator
+    - MAVEN_VERSION=3.3.9 TEST=end-to-end
 
 install:
-    - mkdir -p ~/maven
+    # install maven
     - |
-        test -d ~/maven/$MAVEN_VERSION/bin || { \
-            find ~/maven -mindepth 1 -delete && \
-            mkdir -p ~/maven/$MAVEN_VERSION && \
-            wget -O - http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
-                tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
+        if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]
+        then
+            mkdir -p ~/maven
+            test -d ~/maven/$MAVEN_VERSION/bin || { \
+                find ~/maven -mindepth 1 -delete && \
+                mkdir -p ~/maven/$MAVEN_VERSION && \
+                wget -O - http://www-us.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | \
+                    tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
+        fi
+    # install dependencies for the python unit tests
+    - |
+        if [[ "${TEST}" == python-validator ]]
+        then
+            sudo -H pip install -r requirements.txt
+        fi
 
 before_script:
-    - mkdir -p ~/.m2
-    - cp .travis/settings.xml ~/.m2
-    - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
-    - cp src/main/resources/spring.security.url.intercepts .travis/src/main/resources
+    # set up empty database for core test on Travis
+    - |
+        if [[ "${TEST}" == core ]]
+        then
+            mysql --user root --password= <<< 'CREATE DATABASE cgds_test' && \
+            mysql --user root --password= <<< "CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword'" && \
+            mysql --user root --password= <<< "GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'" && \
+            mysql --user root --password= <<< "flush privileges"
+        fi
 
 script:
     - export PORTAL_HOME=$(pwd)
-    - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
-    - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
-    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ddb.user=travis -Ddb.password= clean install
+    # run the python unit tests (for the dataset validation scripts)
+    - |
+        if [[ "${TEST}" == python-validator ]]
+        then
+            export PYTHONPATH=$PYTHONPATH:$PORTAL_HOME/core/src/main/scripts:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages && \
+            cd $PORTAL_HOME/core/src/test/scripts/ && \
+            $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py && \
+            $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py && \
+            cd $PORTAL_HOME
+        fi
+    # use .travis/settings.xml for core tests
+    - |
+        if [[ "${TEST}" == core ]]
+        then
+            mkdir -p ~/.m2 && \
+            cp .travis/settings.xml ~/.m2
+        fi
+    # core tests
+    - |
+        if [[ "${TEST}" == core ]]
+        then
+            ~/maven/$MAVEN_VERSION/bin/mvn \
+                -e \
+                -DPORTAL_HOME=$PORTAL_HOME \
+                -Ppublic \
+                -Dfinal.war.name=cbioportal \
+                -Ddb.user=cbio_user \
+                -Ddb.password=somepassword \
+                -Ddb.host=127.0.0.1 \
+                -Ddb.connection_string=jdbc:mysql://127.0.0.1:3306/ \
+                clean test
+        fi
+    # end-to-end tests
+    # compile war to use amazon db
+    - |
+        if [[ "${TEST}" == end-to-end ]]
+        then
+            ~/maven/$MAVEN_VERSION/bin/mvn \
+                -e -DPORTAL_HOME=$PORTAL_HOME \
+                -Ppublic -DskipTests \
+                -Dfinal.war.name=cbioportal \
+                -Ddb.user=cbio_user \
+                -Ddb.password=cbio_pass \
+                -Ddb.portal_db_name=public_test \
+                -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ \
+                -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com \
+                clean install
+        fi
+    # spin up selenium docker grid
+    - |
+        if [[ "${TEST}" == end-to-end ]]
+        then
+            cd test/end-to-end && \
+            docker-compose up -d && \
+            sleep 30s && \
+            cd ../.. && \
+            # spot visual regression by comparing screenshots in the repo with
+            # screenshots of this portal loaded with the data from the amazon db
+            bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
+        fi
 
 notifications:
   slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6
-  

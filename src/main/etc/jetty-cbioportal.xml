@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+
+    <New id="httpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
+      <Set name="outputBufferSize">32768</Set>
+      <Set name="requestHeaderSize">8192</Set>
+      <Set name="responseHeaderSize">8192</Set> 
+    </New>
+    
+    <!-- Fairly awful configuration of the class list -->
+	<Call name="setServerDefault" class="org.eclipse.jetty.webapp.Configuration$ClassList">
+		<Arg><Ref refid="Server" /></Arg>
+		<Call name="addAfter">
+			<Arg>org.eclipse.jetty.webapp.FragmentConfiguration</Arg>
+			<Arg>
+				<Array type="java.lang.String">
+					<Item>org.eclipse.jetty.plus.webapp.EnvConfiguration</Item>
+					<Item>org.eclipse.jetty.plus.webapp.PlusConfiguration</Item>
+				</Array>
+			</Arg>
+		</Call>
+	</Call>
+    
+    <Call name="addConnector">
+      <Arg>
+        <New class="org.eclipse.jetty.server.ServerConnector">
+          <Arg name="server"><Ref refid="Server" /></Arg>
+          <Arg name="factories">
+            <Array type="org.eclipse.jetty.server.ConnectionFactory">
+              <Item>
+                <New class="org.eclipse.jetty.server.HttpConnectionFactory">
+                  <Arg name="config"><Ref refid="httpConfig" /></Arg>
+                </New>
+              </Item>
+            </Array>
+          </Arg>
+          <Set name="port"><Property name="jetty.port" default="8080"/></Set>
+        </New>
+      </Arg>
+    </Call>
+
+    <New id="webapp" class="org.eclipse.jetty.webapp.WebAppContext">
+
+	<Set name="overrideDescriptor">file://<SystemProperty name="user.dir" />/src/main/etc/override-web.xml</Set>
+
+		<Set name="contextPath">/</Set>
+		
+		<!-- The scratch directory -->
+		
+		<New class="java.io.File">
+			<Arg><Call class="java.lang.System" name="getProperty"><Arg>java.io.tmpdir</Arg></Call></Arg>
+			<Call name="toString" id="tempDir" />
+		</New>
+		<New id="scratchDir" class="java.io.File">
+			<Arg><Ref refid="tempDir"/></Arg>
+			<Arg type="java.lang.String">embedded-jetty-jsp</Arg>
+			<Call name="mkdirs"></Call>
+		</New>
+		<Call name="setAttribute">
+			<Arg>javax.servlet.context.tempdir</Arg>
+			<Arg><Ref refid="scratchDir" /></Arg>
+		</Call>
+		
+		<!-- Configure the webapp -->
+		<Call name="setAttribute">
+			<Arg>org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern</Arg>
+			<Arg type="java.lang.String">.*/[^/]*servlet-api-[^/]*\.jar$|.*/javax.servlet.jsp.jstl-.*\.jar$|.*/.*taglibs.*\.jar$</Arg>
+		</Call>
+		<Call name="setAttribute">
+			<Arg>org.apache.tomcat.InstanceManager</Arg>
+			<Arg><New class="org.apache.tomcat.SimpleInstanceManager" /></Arg>
+		</Call>	
+
+                <Call name="setInitParameter">
+                       <Arg>spring.profiles.active</Arg>
+                       <Arg type="java.lang.String">default,dbcp</Arg>
+                </Call>
+
+		<Call name="addBean">
+			<Arg>
+				<New class="org.eclipse.jetty.annotations.ServletContainerInitializersStarter">
+					<Arg><Ref refid="webapp" /></Arg>
+				</New>
+			</Arg>
+			<Arg type="boolean">true</Arg>
+		</Call>
+	
+		<!-- Set the resource base -->
+		<!-- TODO This contains a file path, so we'd probably best Mavenify the location and read from test classes -->
+		<New class="java.net.URI">
+			<Arg>file://<SystemProperty name="user.dir" />/portal/target/portal</Arg>
+			<Call name="toASCIIString" id="baseUri" />
+		</New>
+		<Call name="setResourceBase">
+			<Arg><Ref refid="baseUri"></Ref></Arg>
+		</Call>
+				
+		<!-- Add the JSP initializer -->
+		<!--          context.setAttribute("org.eclipse.jetty.containerInitializers", jspInitializers());
+		 -->
+		<Call name="setAttribute">
+			<Arg>org.eclipse.jetty.containerInitializers</Arg>
+			<Arg>
+				<New class="java.util.ArrayList">
+			    	<Call name="add">
+			    		<Arg>
+				    	    <New class="org.eclipse.jetty.plus.annotation.ContainerInitializer">
+				    			<Arg><New class="org.eclipse.jetty.apache.jsp.JettyJasperInitializer"></New></Arg>
+				    			<Arg><Array type="java.lang.Class"></Array></Arg>
+				    		</New>
+			    		</Arg>
+			    	</Call>
+			    </New>
+			</Arg>
+		</Call>
+	
+		<!--  Set the default servlet holder -->
+	    <Call name="addServlet">
+	    	<Arg>
+	    		<New class="org.eclipse.jetty.servlet.ServletHolder">
+	    			<Arg>default</Arg>
+	    			<Arg>
+	    				<Call name="forName" class="java.lang.Class">
+	     					<Arg>org.eclipse.jetty.servlet.DefaultServlet</Arg>
+	     				</Call>
+	    			</Arg>
+	    			<Call name="setInitParameter"><Arg>resourceBase</Arg><Arg><Ref refid="baseUri" /></Arg></Call>
+	    			<Call name="setInitParameter"><Arg>dirAllowed</Arg><Arg>true</Arg></Call>
+	    		</New>
+	    	</Arg>
+	    	<Arg>/</Arg>
+	    </Call> 
+	    
+	    <!-- Add the JSP servlet -->
+		<Call name="addServlet">
+		   	<Arg>
+		   		<New class="org.eclipse.jetty.servlet.ServletHolder">
+		   			<Arg>jsp</Arg>
+		   			<Arg>
+		   				<Call name="forName" class="java.lang.Class">
+		    				<Arg>org.eclipse.jetty.jsp.JettyJspServlet</Arg>
+		    			</Call>
+		   			</Arg>
+		   			<Set name="initOrder">0</Set>
+		   			<Call name="setInitParameter"><Arg>logVerbosityLevel</Arg><Arg>DEBUG</Arg></Call>
+		   			<Call name="setInitParameter"><Arg>fork</Arg><Arg>false</Arg></Call>
+		   			<Call name="setInitParameter"><Arg>xpoweredBy</Arg><Arg>false</Arg></Call>
+		   			<Call name="setInitParameter"><Arg>compilerTargetVM</Arg><Arg>1.7</Arg></Call>
+		   			<Call name="setInitParameter"><Arg>compilerSourceVM</Arg><Arg>1.7</Arg></Call>
+		   			<Call name="setInitParameter"><Arg>keepgenerated</Arg><Arg>true</Arg></Call>
+		   		</New>
+		   	</Arg>
+		   	<Arg>*.jsp</Arg>
+		</Call> 
+		
+		<Call name="forName" class="java.lang.Class">
+			<Arg>ca.uhnresearch.pughlab.tracker.server.httpd.EmbeddedJettyServer</Arg>
+			<Call name="getClassLoader" id="serverClassloader" />
+		</Call>
+	        
+	    <!-- Initialize the classloader -->
+	    <Call name="setClassLoader">
+	       	<Arg>
+	        	<New class="org.eclipse.jetty.webapp.WebAppClassLoader">
+	                <Arg><Ref refid="serverClassloader" /></Arg>
+	                <Arg><Ref refid="webapp" /></Arg>
+	            </New>
+            </Arg>
+	    </Call>
+	
+            <!-- The data source -->
+	    <New id="ds" class="org.eclipse.jetty.plus.jndi.Resource">
+	        <Arg><Ref refid="webapp"/></Arg>
+	        <Arg>jdbc/cbioportal</Arg>
+	        <Arg>
+	            <New class="org.apache.commons.dbcp.BasicDataSource">
+	                <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
+	                <Set name="url">jdbc:mysql://localhost/cbioportal</Set>
+	                <Set name="username">cbioportal</Set>
+	                <Set name="password">cbioportal</Set>
+	                <Set name="testOnBorrow">true</Set>
+	                <Set name="validationQuery">SELECT 1</Set>
+	            </New>
+	        </Arg>
+	    </New>
+    </New>
+    
+    <Set name="handler"><Ref refid="webapp"/></Set>
+
+    <Call class="org.eclipse.jetty.util.log.Log" name="getRootLogger">
+        <Call name="setDebugEnabled">
+            <Arg type="boolean">true</Arg>
+        </Call>
+    </Call>
+
+
+</Configure>

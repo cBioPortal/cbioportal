@@ -87,7 +87,7 @@
           <% if (logout_success != null) { %>
           <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-            <strong>You are now signed out.</strong></p>
+            <strong>You are now signed out.   It is recommended that you close your browser to complete the termination of this session.</strong></p>
           </div>
           <% } %>
 
@@ -117,12 +117,12 @@
                   <input type="hidden" name="action" value="verify" />
                   <p/>
 
-                <% } else if (authenticationMethod.equals("ad")) { %>
+                <% } else if (authenticationMethod.equals("ad") || authenticationMethod.equals("ldap")) { %>
                   <form name='loginForm' action="<c:url value='j_spring_security_check' />" method='POST'>
                 <% } %>
 
-                <fieldset>
-                  <legend style="width:96px;border-bottom:none;color:#666666;font-family:verdana,arial,sans-serif;font-size:12px;">
+                <fieldset id="login-fieldset">
+                  <legend>
                       Login to Portal:
                   </legend>
                   <p>
@@ -150,7 +150,7 @@
                 <% } else if (authenticationMethod.equals("saml")) { %>
                   <p>
                     <!-- removed the hard-coded saml registration html and calling GlobalProperties instead -->
-                    <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'login?idp=<%= GlobalProperties.getSamlIdpMetadataEntityid() %>'" >
+                    <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=<%= GlobalProperties.getSamlIdpMetadataEntityid() %>'" >
                     <%= GlobalProperties.getLoginSamlRegistrationHtml() %></button>
                   </p>
                 </fieldset>
@@ -163,7 +163,7 @@
                   </p>
                 </fieldset>
 
-                <% } else if (authenticationMethod.equals("ad")){ %>
+                <% } else if (authenticationMethod.equals("ad") || authenticationMethod.equals("ldap")){ %>
                   <div>
                     <label for=username>Username: </label> <input type='text' id='username' name='j_username' value=''>  <br/>
                     <label for=password>Password: </label> <input type='password' name='j_password' /> <br/>

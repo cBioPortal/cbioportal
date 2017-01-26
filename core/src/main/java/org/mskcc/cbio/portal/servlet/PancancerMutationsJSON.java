@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,6 +32,15 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
@@ -44,18 +53,8 @@ import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
-import org.owasp.validator.html.PolicyException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.owasp.validator.html.PolicyException;
 
 /**
  * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
@@ -83,7 +82,7 @@ public class PancancerMutationsJSON extends HttpServlet {
     /**
      * Initializes the AccessControl member.
      *
-     * TODO: may want to refactor this into a public method somewhere that other's can use.  I grabbed this from `TumorMapServlet`
+     * TODO: may want to refactor this into a public method somewhere that other's can use.  I grabbed this from `PatientViewServlet`
      */
     private static synchronized AccessControl getaccessControl() {
         if (accessControl==null) {
@@ -180,7 +179,7 @@ public class PancancerMutationsJSON extends HttpServlet {
 
 			for (GeneticProfile geneticProfile : geneticProfiles) {
 
-				if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+				if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
 					internalGeneticProfileIds.add(geneticProfile.getGeneticProfileId());
 				}
 			}

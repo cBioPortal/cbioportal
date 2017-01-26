@@ -35,11 +35,11 @@ package org.mskcc.cbio.portal.util;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
 import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
 
 /**
@@ -55,7 +55,7 @@ public class CancerStudyReader {
     }
 
     public static CancerStudy loadCancerStudy(File file, boolean strict, boolean addStudyToDb) throws IOException, DaoException {
-        Properties properties = new Properties();
+    	TrimmedProperties properties = new TrimmedProperties();
         properties.load(new FileInputStream(file));
 
         CancerStudy cancerStudy = getCancerStudy(properties);
@@ -71,7 +71,7 @@ public class CancerStudyReader {
         return cancerStudy;
     }
 
-    private static CancerStudy getCancerStudy(Properties properties)
+    private static CancerStudy getCancerStudy(TrimmedProperties properties)
     {
         String cancerStudyIdentifier = properties.getProperty("cancer_study_identifier");
         if (cancerStudyIdentifier == null) {
@@ -94,7 +94,7 @@ public class CancerStudyReader {
         }
         
         String shortName = properties.getProperty("short_name");
-        if ( typeOfCancer == null) {
+        if ( shortName == null) {
             throw new IllegalArgumentException("short_name is not specified.");
         }
 
@@ -102,13 +102,13 @@ public class CancerStudyReader {
                                                   typeOfCancer, publicStudy(properties));
         cancerStudy.setPmid(properties.getProperty("pmid"));
         cancerStudy.setCitation(properties.getProperty("citation"));
-        cancerStudy.setGroups(properties.getProperty("groups"));
+        cancerStudy.setGroupsInUpperCase(properties.getProperty("groups"));
         cancerStudy.setShortName(shortName);
 
         return cancerStudy;
     }
 
-    private static boolean publicStudy( Properties properties ) {
+    private static boolean publicStudy( TrimmedProperties properties ) {
         String studyAccess = properties.getProperty("study_access");
         if ( studyAccess != null) {
             if( studyAccess.equals("public") ){

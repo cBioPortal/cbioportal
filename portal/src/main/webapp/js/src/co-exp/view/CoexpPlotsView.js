@@ -191,7 +191,7 @@ var CoexpPlotsView = function() {
     function initPlots() {
         //Init Plots
         var coexpPlots = new ScatterPlots();
-        coexpPlots.init(plotsOpts, dataArr, dataAttr, false);
+        coexpPlots.init(plotsOpts, dataArr, dataAttr, false, true);
         PlotsHeader.init(
             plotsOpts.names, 
             plotsOpts.text.title, 

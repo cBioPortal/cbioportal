@@ -42,6 +42,7 @@ import org.mskcc.cbio.portal.util.*;
 
 import org.json.simple.*;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -58,6 +59,15 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class GetSurvivalDataJSON extends HttpServlet {
 
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /**
      * Handles HTTP GET Request.
      *
@@ -81,34 +91,40 @@ public class GetSurvivalDataJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String patientSetId = httpServletRequest.getParameter("case_set_id");
-        String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String sampleSetId = httpServletRequest.getParameter("case_set_id");
+        String sampleIdsKey = httpServletRequest.getParameter("case_ids_key");
         //So far only accept single data type
         String dataType = httpServletRequest.getParameter("data_type");
-
+        CancerStudy cancerStudy = null;
         try {
-
-            //Get Cancer Study ID (int)
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+			if (cancerStudyIdentifier != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
             int cancerStudyId = cancerStudy.getInternalId();
 
             //Get patient ID list
-            DaoPatientList daoPatientList = new DaoPatientList();
-            PatientList patientList;
-            ArrayList<String> patientIdList = new ArrayList<String>();
-            if (patientSetId.equals("-1") && patientIdsKey.length() != 0) {
-                String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
-                String[] patientArray = strPatientIds.split("\\s+");
-                for (String item : patientArray) {
-                    patientIdList.add(item);
+            DaoSampleList daoSampleList = new DaoSampleList();
+            SampleList sampleList;
+            ArrayList<String> sampleIdList = new ArrayList<String>();
+            if (sampleSetId.equals("-1") && sampleIdsKey.length() != 0) {
+                String strSampleIds = SampleSetUtil.getSampleIds(sampleIdsKey);
+                String[] sampleArray = strSampleIds.split("\\s+");
+                for (String item : sampleArray) {
+                    sampleIdList.add(item);
                 }
             } else {
-                patientList = daoPatientList.getPatientListByStableId(patientSetId);
-                patientIdList = patientList.getPatientList();
+                sampleList = daoSampleList.getSampleListByStableId(sampleSetId);
+                sampleIdList = sampleList.getSampleList();
             }
 
             //Get Clinical Data List - NOTE - as of 12/12/14, patient lists contain sample ids
-            HashSet<String> patientIdListHashSet = new HashSet<String>(InternalIdUtil.getStablePatientIdsFromSampleIds(cancerStudyId, patientIdList));
+            HashSet<String> patientIdListHashSet = new HashSet<String>(InternalIdUtil.getStablePatientIdsFromSampleIds(cancerStudyId, sampleIdList));
             List<Patient> clinicalDataList =
                     GetClinicalData.getClinicalData(cancerStudyId, patientIdListHashSet);
 

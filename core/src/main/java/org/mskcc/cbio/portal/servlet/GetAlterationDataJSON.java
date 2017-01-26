@@ -41,6 +41,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.servlet.http.*;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import java.io.*;
@@ -59,6 +60,15 @@ import java.lang.Float;
 
 public class GetAlterationDataJSON extends HttpServlet {
 
+	// class which process access control to cancer studies
+    private AccessControl accessControl;
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        accessControl = SpringUtil.getAccessControl();
+    }
+    
     /**
      * Handles HTTP GET Request.
      *
@@ -82,7 +92,7 @@ public class GetAlterationDataJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String patientSetId = httpServletRequest.getParameter("case_set_id");
+        String sampleSetId = httpServletRequest.getParameter("case_set_id");
         String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
         
         String rawGeneIdList;
@@ -94,12 +104,23 @@ public class GetAlterationDataJSON extends HttpServlet {
         
         String[] geneIdList = rawGeneIdList.split("\\s+");
         String profileId = httpServletRequest.getParameter("profile_id");
-
+        CancerStudy cancerStudy = null;
 
         try {
-
+        	if (cancerStudyIdentifier != null) {
+				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+				if (cancerStudy == null
+						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+					return;
+				}
+			} else {
+				return;
+			}
             GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-            List<String> stableSampleIds = CoExpUtil.getPatientIds(patientSetId, patientIdsKey);
+            if(final_gp.getCancerStudyId() != cancerStudy.getInternalId()) {
+            	return;
+            }
+            List<String> stableSampleIds = CoExpUtil.getSampleIds(sampleSetId, patientIdsKey);
             List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(final_gp.getCancerStudyId(), stableSampleIds);
 
             ObjectMapper mapper = new ObjectMapper();
@@ -120,7 +141,8 @@ public class GetAlterationDataJSON extends HttpServlet {
                 for (int i = 0; i < sampleIds.size(); i++) {
                     if (!tmpProfileDataArr.get(i).equals("NA") && 
                         tmpProfileDataArr.get(i) != null &&
-                        !tmpProfileDataArr.get(i).equals("NaN")) {
+                        !tmpProfileDataArr.get(i).equals("NaN") &&
+                        !tmpProfileDataArr.get(i).equals("")) {
                         //JSONObject _datum = new JSONObject();
                         ObjectNode _datum = mapper.createObjectNode();
                         Sample sample = DaoSample.getSampleById(sampleIds.get(i));

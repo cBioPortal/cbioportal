@@ -36,16 +36,8 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
-    String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
-    String geneticProfileIds4Network = xssUtil.getCleanerInput(StringUtils.join(geneticProfileIdSet," "));
-    String cancerTypeId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
-// 	String caseIds4Network = ((String)request.getAttribute(QueryBuilder.CASE_IDS)).
-// 			replaceAll("\\s", " ").trim(); // convert white spaces to space (to prevent network tab to crash)
-	String caseIdsKey4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_IDS_KEY));
-    String caseSetId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_SET_ID));
     String zScoreThesholdStr4Network =
 		    xssUtil.getCleanerInput(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString());
-    //String useXDebug = xssUtil.getCleanInput(request, "xdebug");
 	String useXDebug = request.getParameter("xdebug");
     if (useXDebug==null)
         useXDebug = "0";
@@ -81,13 +73,36 @@
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
+    $(document).ready( function() {
+    	//whether this tab has already been initialized or not:
+    	var tab_init = false;
+    	//function that will listen to tab changes and init this one when applicable:
+    	function tabsUpdate() {
+    		if ($("#network").is(":visible")) {
+	    		if (tab_init === false) {
+		        	showNetwork();
+		            tab_init = true;
+		        }
+		        $(window).trigger("resize");
+	    	}
+    	}
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
+    	tabsUpdate();
+        //this is for the scenario where the user navigates to this tab:
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+        	tabsUpdate();
+        });
+    });
+
+
+
 
 			var genomicData = {};
 			// Send genomic data query again
 		    var geneDataQuery = {
-                cancer_study_id: "<%=cancerTypeId%>",
-		        genes: genes,
-		        geneticProfileIds: geneticProfiles,
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+		        genes: window.QuerySession.getQueryGenes().join(" "),
+		        geneticProfileIds: window.QuerySession.getGeneticProfileIds(),
 		        z_score_threshold: <%=zScoreThreshold%>,
 		        rppa_score_threshold: <%=rppaScoreThreshold%>
 		    };
@@ -121,11 +136,12 @@
             }
 
             var showNetwork = function() {
-                var networkParams = {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
-                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
-                     <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
-                     <%=QueryBuilder.CASE_IDS_KEY%>:'<%=caseIdsKey4Network%>',
-                     <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
+                var networkParams = {
+                    <%=QueryBuilder.GENE_LIST%>:window.QuerySession.getQueryGenes().join(" "),
+                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:window.QuerySession.getGeneticProfileIds().join(" "),
+                     <%=QueryBuilder.CANCER_STUDY_ID%>:window.QuerySession.getCancerStudyIds()[0],
+                     <%=QueryBuilder.CASE_IDS_KEY%>:window.QuerySession.getCaseIdsKey(),
+                     <%=QueryBuilder.CASE_SET_ID%>:window.QuerySession.getCaseSetId(),
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
                      heat_map:$("#heat_map").html(),
                      xdebug:'<%=useXDebug%>',
@@ -142,6 +158,8 @@
                         var json = gml2jsonConverter.toJSON();
                         window.networkGraphJSON = json;
 
+
+
                         if (typeof graphml !== "string")
                         {
                           if (window.ActiveXObject) { // IE
@@ -154,12 +172,12 @@
                         //show debug message !
                         showXDebug(graphml);
                         showNetworkMessage(graphml, "#network #netmsg");
+
+                        // when the data is available call send2cytoscapeweb
+                        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
                     });
             }
 
-            $(document).ready(function() {
-                showNetwork();
-            });
         </script>
 
 <jsp:include page="network_views.jsp"/>

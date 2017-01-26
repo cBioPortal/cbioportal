@@ -43,6 +43,9 @@ public class LargeTestSetGenerator {
 		System.out.println("Generating CNA data....");
 		generateDataCNA(dataCNAfile, outputDir, sampleList);
 
+		System.out.println("Generating CNA SEG data....");
+		generateDataCNA_SEG(dataCNAfile + ".seg", outputDir, sampleList);
+		
 		System.out.println("Generating cases_all.txt....");
 		generateCasesAll(outputDir, sampleList, studyId);
 		
@@ -68,6 +71,11 @@ public class LargeTestSetGenerator {
         System.out.println("Generating meta_CNA.txt....");
         generateMetaCna(outputDir, studyId);
         
+        System.out.println("Generating meta_CNA_seg.txt....");
+        generateMetaCnaSEG(outputDir, studyId);
+        
+        
+        
         
         System.out.println("Done. You will find the files in " + outputDir);
 	}
@@ -87,7 +95,6 @@ public class LargeTestSetGenerator {
 			"citation: The Hyve, Pieter Lukasse\n"+
 			"pmid: 23000897\n"+
 			"groups: PUBLIC;GDAC;SU2C-PI3K\n"+
-			"dedicated_color: Yellow\n"+
 			"short_name: " + studyId+ " (TEST)");
 		resultFile.close();
 	}
@@ -124,7 +131,23 @@ public class LargeTestSetGenerator {
 			"stable_id: " + studyId+ "_gistic\n"+
 			"show_profile_in_analysis_tab: true\n"+
 			"profile_description: Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.\n"+
-			"profile_name: Putative copy-number alterations from GISTIC " + studyId);
+			"profile_name: Putative copy-number alterations from GISTIC " + studyId );
+		
+		resultFile.close();
+	}
+	
+	private static void generateMetaCnaSEG(String outputDir, String studyId) throws IOException {
+		FileWriter resultFile = new FileWriter(outputDir + "/meta_CNA_seg.txt");
+		resultFile.write("cancer_study_identifier: " + studyId+ "\n"+
+				"genetic_alteration_type: SEGMENT\n"+
+				"datatype: SEGMENT\n"+
+				"stable_id: " + studyId+ "_segment\n"+
+				"show_profile_in_analysis_tab: false\n"+
+				"profile_description: Segment data for the study " + studyId+ "\n"+
+				"profile_name: Segment data values " + studyId+ "\n"+ 
+				"reference_genome_id: hg19\n"+
+				"data_filename: data_CNA_txt.seg\n"+
+				"description: Segment data for the study " + studyId );
 		resultFile.close();
 	}
 
@@ -132,20 +155,25 @@ public class LargeTestSetGenerator {
 		FileWriter resultFile = new FileWriter(outputDir + "/data_clinical.txt");
 		//write header, with CANCER_TYPE, CANCER_TYPE_DETAILED in pos 3 and 4:
 		if (nrSubTypes > 0) {
-			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\t1\n");
-			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
+			//Display Name: The display name for each clinical attribute.
 			resultFile.write("#Patient Identifier\t#Sample Identifier\tSubtype\tCancer Type\tCancer Type Detailed\tOverall Survival Status\tOverall Survival (Months)\tDisease Free Status\tDisease Free (Months)\n");
+			//Description: Long(er) description of each clinical attribute.
 			resultFile.write("#Patient identifier\t#Sample identifier\tSubtype description\tCancer Type\tCancer Type Detailed\tOverall survival status\tOverall survival in months since diagnosis\tDisease free status\tDisease free in months since treatment\n");
+			//Datatype: The datatype of each clinical attribute (must be one of: STRING, NUMBER, BOOLEAN).
 			resultFile.write("#STRING\t#STRING\tSTRING\tSTRING\tSTRING\tSTRING\tNUMBER\tSTRING\tNUMBER\n");
+			//Attribute Type: The type of each clinical attribute, e.g. should this attribute be attached to a PATIENT or SAMPLE.
+			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
+			//Priority: A number which indicates the importance of each attribute. In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages. A lower number indicates a higher priority.
+			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\t1\n");
 			resultFile.write("PATIENT_ID\tSAMPLE_ID\tSUBTYPE\tCANCER_TYPE\tCANCER_TYPE_DETAILED\tOS_STATUS\tOS_MONTHS\tDFS_STATUS\tDFS_MONTHS\n");
 		}
 		else {
 			//shorter, without CANCER_TYPE_DETAILED
-			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\n");
-			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
 			resultFile.write("#Patient Identifier\t#Sample Identifier\tSubtype\tCancer Type\tOverall Survival Status\tOverall Survival (Months)\tDisease Free Status\tDisease Free (Months)\n");
 			resultFile.write("#Patient identifier\t#Sample identifier\tSubtype description\tCancer Type\tOverall survival status\tOverall survival in months since diagnosis\tDisease free status\tDisease free in months since treatment\n");
 			resultFile.write("#STRING\t#STRING\tSTRING\tSTRING\tSTRING\tNUMBER\tSTRING\tNUMBER\n");
+			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
+			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\n");
 			resultFile.write("PATIENT_ID\tSAMPLE_ID\tSUBTYPE\tCANCER_TYPE\tOS_STATUS\tOS_MONTHS\tDFS_STATUS\tDFS_MONTHS\n");
 		}
 		
@@ -289,6 +317,82 @@ public class LargeTestSetGenerator {
 		
 		
 	}
+	
+	
+	private static void generateDataCNA_SEG(String dataCNASegfile, String outputDir, List<String> sampleList) throws IOException {
+		// Hugo_Symbol	Entrez_Gene_Id sample1 sample2 ....
+		FileWriter resultFile = new FileWriter(outputDir + "/" + new File(dataCNASegfile).getName());
+		//write header: 
+		resultFile.write("Sample\tchrom\tloc.start\tloc.end\tnum.mark\tseg.mean\n");
+		
+		//example:
+		//Sample			chrom	loc.start	loc.end		num.mark	seg.mean
+		//TCGA-A1-A0SB-01		1	1737357		39975142	17096		0.009
+		
+		
+		for (String sample : sampleList) {
+			
+			int nrChrom = random(10,20); //some of the chromosomes 
+			for (int i = 1; i < nrChrom; i ++) {
+				double seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"13684348\t" +"13833633\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"13833728\t" +"15413875\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"15416808\t" +"16121303\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"16124160\t" +"16764830\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"16769801\t" +"18101891\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"18104300\t" +"18657376\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"18658403\t" +"25343371\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"25346379\t" +"27014651\t" +"17096\t" + seg_mean + "\n");
+				
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"27021371\t" +"27182923\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"27182944\t" +"27339665\t" +"17096\t" + seg_mean + "\n"); 
+				seg_mean = random(-200,200)/100.0;
+				resultFile.write(sample + "\t" + i + "\t" +"27340606\t" +"29923280\t" +"17096\t" + seg_mean + "\n"); 
+
+				//TODO the segments above cover only a small portion of the chromosomes. Ideally we base this on a table
+				//with chromosome size and try to cover a large portion...perhaps something to add later if really necessary for a specific test...
+				
+			}
+
+//			TCGA-GI-A2C8-01	17	13684348	13833633	115	-1.0971
+//			TCGA-GI-A2C8-01	17	13833728	15413875	1243	-0.0309
+//			TCGA-GI-A2C8-01	17	15416808	16121303	185	-0.9382
+//			TCGA-GI-A2C8-01	17	16124160	16764830	213	-0.2745
+//			TCGA-GI-A2C8-01	17	16769801	18101891	668	0.2376
+//			TCGA-GI-A2C8-01	17	18104300	18657376	41	0.4776
+//			TCGA-GI-A2C8-01	17	18658403	25343371	868	-0.2243
+//			TCGA-GI-A2C8-01	17	25346379	27014651	810	0.1167
+			
+			
+//			TCGA-GI-A2C8-01	17	27021371	27182923	55	0.5718
+//			TCGA-GI-A2C8-01	17	27182944	27339665	74	0.2509
+//			TCGA-GI-A2C8-01	17	27340606	29923280	1067	-0.217
+			
+//			TCGA-GI-A2C8-01	17	29926532	30117305	108	0.2985
+//			TCGA-GI-A2C8-01	17	30117461	30347325	107	-0.2215
+//			TCGA-GI-A2C8-01	17	30347502	30579182	108	0.9076
+//			TCGA-GI-A2C8-01	17	30580272	30974499	163	1.5428
+//			TCGA-GI-A2C8-01	17	30976522	31180523	116	-0.2454
+//			TCGA-GI-A2C8-01	17	31182534	31250961	38	1.1809
+//			TCGA-GI-A2C8-01	17	31259041	31284664	22	-0.1943
+//			TCGA-GI-A2C8-01	17	31285744	31351121	57	1.0972
+			
+		}
+		resultFile.close();
+		
+		
+	}
+	
+	
 	
 	private static void generateCasesAll(String outputDir, List<String> sampleList, String studyId) throws IOException {
 		

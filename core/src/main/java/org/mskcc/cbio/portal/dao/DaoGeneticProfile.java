@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,10 +32,9 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.*;
-
 import java.sql.*;
 import java.util.*;
+import org.mskcc.cbio.portal.model.*;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -100,7 +99,7 @@ public final class DaoGeneticProfile {
                             "VALUES (?,?,?,?,?,?,?)");
             pstmt.setString(1, profile.getStableId());
             pstmt.setInt(2, profile.getCancerStudyId());
-            pstmt.setString(3, profile.getGeneticAlterationType().toString());
+            pstmt.setString(3, profile.getGeneticAlterationType().name());
             pstmt.setString(4, profile.getDatatype());
             pstmt.setString(5, profile.getProfileName());
             pstmt.setString(6, profile.getProfileDescription());
@@ -209,9 +208,8 @@ public final class DaoGeneticProfile {
         } catch (SQLException e) {
             profileType.setShowProfileInAnalysisTab(true);
         }
-        profileType.setGeneticAlterationType
-                (GeneticAlterationType.getType(rs.getString("GENETIC_ALTERATION_TYPE")));
-		profileType.setDatatype(rs.getString("DATATYPE"));
+        profileType.setGeneticAlterationType(GeneticAlterationType.valueOf(rs.getString("GENETIC_ALTERATION_TYPE")));
+        profileType.setDatatype(rs.getString("DATATYPE"));
         profileType.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
         return profileType;
     }
@@ -235,8 +233,10 @@ public final class DaoGeneticProfile {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
+            JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE genetic_profile");
             pstmt.executeUpdate();
+            JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

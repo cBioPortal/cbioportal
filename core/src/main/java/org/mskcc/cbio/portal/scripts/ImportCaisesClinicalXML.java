@@ -35,84 +35,111 @@ package org.mskcc.cbio.portal.scripts;
 import java.io.File;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.SpringUtil;
 
 import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import joptsimple.*;
 
 import java.util.*;
-import java.io.FileInputStream;
-
 /**
  *
  * @author jgao
  */
-public final class ImportCaisesClinicalXML {
+public class ImportCaisesClinicalXML extends ConsoleRunnable {
     
-    private ImportCaisesClinicalXML() {}
+    private File xmlFile;
+    private int cancerStudyId;
     
-    public static void main(String[] args) throws Exception {
+    public ImportCaisesClinicalXML(String[] args) {
+        super(args);
+    }
+    
+        /**
+     * Runs the command as a script and exits with an appropriate exit code.
+     *
+     * @param args  the arguments given on the command line
+     */
+    public static void main(String[] args) {
+        ConsoleRunnable runner = new ImportCaisesClinicalXML(args);
+        runner.runInConsole();
+    }
+    
+    public void run() {
 //        args = new String[] {"--data","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
 //            "--meta","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt",
 //            "--loadMode", "bulkLoad"};
-        if (args.length < 4) {
-            System.out.println("command line usage:  importCaisesXml --data <data_clinical_caises.xml> --meta <meta_clinical_caises.txt>");
-            return;
+        try {
+            String progName = "ImportCaisesClinicalXML";
+            String description = "Import clinical Caises XML files";
+
+           OptionParser parser = new OptionParser();
+           parser.accepts("noprogress");
+           OptionSpec<String> data = parser.accepts( "data",
+                   "caises data file" ).withRequiredArg().describedAs( "data_clinical_caises.xml" ).ofType( String.class );  
+           OptionSpec<String> study = parser.accepts("study",
+                   "cancer study identifier").withRequiredArg().describedAs("study").ofType(String.class);
+           parser.acceptsAll(Arrays.asList("dbmsAction", "loadMode"));
+           OptionSet options = null;
+          try {
+             options = parser.parse( args );
+             //exitJVM = !options.has(returnFromMain);
+          } catch (OptionException e) {
+              throw new UsageException(
+                            progName, description, parser,
+                            e.getMessage());
+          }
+
+           String dataFile = null;
+           if( options.has( data ) ){
+              dataFile = options.valueOf( data );
+           } else{
+                throw new UsageException(
+                            progName, description, parser,
+                           "'data' argument required");
+           }       
+           
+            String cancerStudyIdentifier = null;
+           if( options.has( study ) ){
+              cancerStudyIdentifier = options.valueOf( study );
+           } else{
+                throw new UsageException(
+                            progName, description, parser,
+                           "'study' argument required");
+           }
+
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+            if (cancerStudy == null) {
+                throw new RuntimeException("Unknown cancer study: " + cancerStudyIdentifier);
+            }
+
+            this.cancerStudyId = cancerStudy.getInternalId();
+            DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
+            this.xmlFile = new File(dataFile);
+            
+            importData();
+            
+            System.out.println("Done!");                                
+        }
+        catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         
-       OptionParser parser = new OptionParser();
-       OptionSpec<String> data = parser.accepts( "data",
-               "caises data file" ).withRequiredArg().describedAs( "data_clinical_caises.xml" ).ofType( String.class );
-       OptionSpec<String> meta = parser.accepts( "meta",
-               "meta (description) file" ).withRequiredArg().describedAs( "meta_clinical_caises.txt" ).ofType( String.class );
-       parser.acceptsAll(Arrays.asList("dbmsAction", "loadMode"));
-       OptionSet options = null;
-      try {
-         options = parser.parse( args );
-         //exitJVM = !options.has(returnFromMain);
-      } catch (OptionException e) {
-          e.printStackTrace();
-      }
-       
-       String dataFile = null;
-       if( options.has( data ) ){
-          dataFile = options.valueOf( data );
-       }else{
-           throw new Exception( "'data' argument required.");
-       }
-
-       String descriptorFile = null;
-       if( options.has( meta ) ){
-          descriptorFile = options.valueOf( meta );
-       }else{
-           throw new Exception( "'meta' argument required.");
-       }
-        
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(descriptorFile));
-		SpringUtil.initDataSource();
-      
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier"));
-        if (cancerStudy == null) {
-            throw new Exception("Unknown cancer study: " + properties.getProperty("cancer_study_identifier"));
-        }
-        
-        int cancerStudyId = cancerStudy.getInternalId();
-        DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
-        
-        importData(new File(dataFile), cancerStudy.getInternalId());
-
-        System.out.println("Done!");
     }
     
-    static void importData(File xmlFile, int cancerStudyId) throws Exception {
+    public void setFile(File xmlFile, CancerStudy cancerStudy) {
+        this.xmlFile = xmlFile;
+        this.cancerStudyId = cancerStudy.getInternalId();
+    }
+    
+    public void importData() throws Exception {
         MySQLbulkLoader.bulkLoadOn();
         
         // add unknow attriutes -- this 
-        for (ClinicalAttribute ca : getClinicalAttributes()) {
-            if (DaoClinicalAttribute.getDatum(ca.getAttrId())==null) {
-                DaoClinicalAttribute.addDatum(ca);
+        for (ClinicalAttribute ca : getClinicalAttributes(cancerStudyId)) {
+            if (DaoClinicalAttributeMeta.getDatum(ca.getAttrId(), cancerStudyId)==null) {
+                DaoClinicalAttributeMeta.addDatum(ca);
             }
         }
         
@@ -189,25 +216,25 @@ public final class ImportCaisesClinicalXML {
         return map;
     }
     
-    private static List<ClinicalAttribute> getClinicalAttributes() {
+    private static List<ClinicalAttribute> getClinicalAttributes(int cancerStudyId) {
         return Arrays.asList(
 //                new ClinicalAttribute("PATIENT_ID", "Patient ID", "Patient ID", "STRING", true, "1"),
-                new ClinicalAttribute("RACE", "Race", "Race", "STRING", true, "1"),
-                new ClinicalAttribute("AGE", "Age", "Age", "Number", true, "1"),
-                new ClinicalAttribute("PATIENT_CATEGORY", "Patient category", "Patient category", "STRING", true, "1"),
-                new ClinicalAttribute("CLIN_T_Stage", "Clinical T stage", "Clinical T stage", "STRING", true, "1"),
-                new ClinicalAttribute("CLIN_N_Stage", "Clinical N stage", "Clinical N stage", "STRING", true, "1"),
-                new ClinicalAttribute("CLIN_M_Stage", "Clinical M stage", "Clinical M stage", "STRING", true, "1"),
-                new ClinicalAttribute("HISTOLOGY", "Histology", "Histology", "STRING", true, "1"),
-                new ClinicalAttribute("PATH_RESULT", "Pathology result", "Pathology result", "STRING", true, "1"),
-                new ClinicalAttribute("PATH_T_STAGE", "Pathology T stage", "Pathology T stage", "STRING", true, "1"),
-                new ClinicalAttribute("PATH_N_STAGE", "Pathology N stage", "Pathology N stage", "STRING", true, "1"),
-                new ClinicalAttribute("PATH_M_STAGE", "Pathology M stage", "Pathology M stage", "STRING", true, "1"),
-                new ClinicalAttribute("GLEASON_SCORE_1", "Gleason score 1", "Gleason score 1", "Number", true, "1"),
-                new ClinicalAttribute("GLEASON_SCORE_2", "Gleason score 2", "Gleason score 2", "Number", true, "1"),
-                new ClinicalAttribute("GLEASON_SCORE", "Gleason score", "Gleason score", "Number", true, "1"),
-                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", false, "1"),
-                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING", false, "1")
+                new ClinicalAttribute("RACE", "Race", "Race", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("AGE", "Age", "Age", "Number", true, "1", cancerStudyId),
+                new ClinicalAttribute("PATIENT_CATEGORY", "Patient category", "Patient category", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("CLIN_T_STAGE", "Clinical T stage", "Clinical T stage", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("CLIN_N_STAGE", "Clinical N stage", "Clinical N stage", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("CLIN_M_STAGE", "Clinical M stage", "Clinical M stage", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("HISTOLOGY", "Histology", "Histology", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("PATH_RESULT", "Pathology result", "Pathology result", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("PATH_T_STAGE", "Pathology T stage", "Pathology T stage", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("PATH_N_STAGE", "Pathology N stage", "Pathology N stage", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("PATH_M_STAGE", "Pathology M stage", "Pathology M stage", "STRING", true, "1", cancerStudyId),
+                new ClinicalAttribute("GLEASON_SCORE_1", "Gleason score 1", "Gleason score 1", "Number", true, "1", cancerStudyId),
+                new ClinicalAttribute("GLEASON_SCORE_2", "Gleason score 2", "Gleason score 2", "Number", true, "1", cancerStudyId),
+                new ClinicalAttribute("GLEASON_SCORE", "Gleason score", "Gleason score", "Number", true, "1", cancerStudyId),
+                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", false, "1", cancerStudyId),
+                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING", false, "1", cancerStudyId)
         );
     }
     

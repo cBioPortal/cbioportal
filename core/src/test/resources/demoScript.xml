@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<!-- 
+        The principle here is a simple one: it's initialized with a list of lists of strings. Each starts with
+        a class name and set of string arguments, which are then mapped to a call to a run() method in the class (given 
+        in the first string argument) which is initialized with the arguments built up by the subsequent arguments in the 
+        next <value> tags. The class org.mskcc.cbio.portal.util.TransactionalScripts will run then all within a single VM 
+        and a single DB transaction. 
+	    
+	    We also have used Maven variables here for testing, but in reality, these will need to be real file 
+	    names. 
+	    
+	    A script can generate a file like this, and pass it with a DAO context file to the 
+	    TransactionalScriptRunner class to run all the steps in one go. 
+	-->
+	<bean class="org.mskcc.cbio.portal.util.TransactionalScripts">
+		<constructor-arg>
+			<list>
+				<!-- Script 1 - load a study -->
+				<list>
+					<value>org.mskcc.cbio.portal.scripts.ImportCancerStudy</value>
+					<value>src/test/resources/cancer_study.txt</value>
+				</list>
+				
+				<!-- Script 2 - load clinical data - needed to set up patients and samples -->
+				<list>
+					<value>org.mskcc.cbio.portal.scripts.ImportClinicalData</value>
+					<value>--data</value>
+					<value>src/test/resources/clinical_data.txt</value>
+					<value>--meta</value>
+					<value>src/test/resources/clinical_meta.txt</value>
+					<value>--study</value>
+					<value>test_brca</value>
+					<value>--loadMode</value>
+					<value>bulkLoad</value>
+				</list>
+			</list>
+		</constructor-arg>
+	</bean>
+
+</beans>

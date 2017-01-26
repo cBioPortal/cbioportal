@@ -48,7 +48,7 @@ import org.mskcc.cbio.portal.util.ProgressMonitor;
  */
 public class FetchPfamGraphicsData
 {
-	public static final String URL_PREFIX = "http://pfam.sanger.ac.uk/protein/";
+	public static final String URL_PREFIX = "http://pfam.xfam.org/protein/";
 	public static final String URL_SUFFIX = "/graphic";
 
 	/**
@@ -75,15 +75,13 @@ public class FetchPfamGraphicsData
                 
                 Set<String> uniprotAccs = ImportUniProtIdMapping.getSwissProtAccessionHuman();
                 
-                ProgressMonitor pMonitor = new ProgressMonitor();
-                pMonitor.setConsoleMode(true);
-                pMonitor.setMaxValue(uniprotAccs.size());
+                ProgressMonitor.setMaxValue(uniprotAccs.size());
 
 		// read all
 		for (String uniprotId : uniprotAccs)
 		{
-                            pMonitor.incrementCurValue();
-                            ConsoleUtil.showProgress(pMonitor);
+                            ProgressMonitor.incrementCurValue();
+                            ConsoleUtil.showProgress();
                             
                             // avoid to add a duplicate entry
                             if (keySet.contains(uniprotId))
@@ -210,6 +208,7 @@ public class FetchPfamGraphicsData
 
                     System.out.println("Fetching started...");
                     Date start = new Date();
+                    ProgressMonitor.setConsoleMode(true);
                     int numErrors = driver(output, incremental);
                     Date end = new Date();
                     System.out.println("Fetching finished.");

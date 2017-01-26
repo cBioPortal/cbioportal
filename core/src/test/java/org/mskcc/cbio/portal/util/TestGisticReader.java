@@ -44,7 +44,6 @@ public class TestGisticReader {
 //    File metadata = new File(".//testCancerStudy.txt");
 //    File gisticFile = new File("/test-gistic-amp.txt");
 //    File gisticTable_file = new File("/test-gistic-table-amp.txt");
-//    ProgressMonitor pm = new ProgressMonitor();
 //    Gistic dummyGistic = new Gistic();
 //
 //    GisticReader reader = new GisticReader();

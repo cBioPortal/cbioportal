@@ -45,7 +45,6 @@ import java.util.*;
  * @author Ethan Cerami.
  */
 public class ImportSif {
-    private ProgressMonitor pMonitor;
     private File sifFile;
     private String dataSource;
 
@@ -54,12 +53,10 @@ public class ImportSif {
      *
      * @param sifFile SIF File.
      * @param dataSource data source, e.g. "REACTOME"
-     * @param pMonitor Progress Monitor.
      */
-    public ImportSif(File sifFile, String dataSource, ProgressMonitor pMonitor) {
+    public ImportSif(File sifFile, String dataSource) {
         this.sifFile = sifFile;
         this.dataSource = dataSource;
-        this.pMonitor = pMonitor;
     }
 
     /**
@@ -80,10 +77,8 @@ public class ImportSif {
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
 
@@ -91,15 +86,15 @@ public class ImportSif {
                 String interactionType = parts[1];
                 String geneBId = parts[2];
 
-                CanonicalGene geneA = daoGeneOptimized.getNonAmbiguousGene(geneAId);
-                CanonicalGene geneB = daoGeneOptimized.getNonAmbiguousGene(geneBId);
+                CanonicalGene geneA = daoGeneOptimized.getNonAmbiguousGene(geneAId, null);
+                CanonicalGene geneB = daoGeneOptimized.getNonAmbiguousGene(geneBId, null);
 
                 //  Log genes that we cannot identify.
                 if (geneA == null) {
-                    pMonitor.logWarning("Cannot identify gene:  " + geneAId);
+                    ProgressMonitor.logWarning("Cannot identify gene:  " + geneAId);
                 }
                 if (geneB == null) {
-                    pMonitor.logWarning("Cannot identify gene:  " + geneBId);
+                    ProgressMonitor.logWarning("Cannot identify gene:  " + geneBId);
                 }
 
                 if (geneA != null && geneB != null) {
@@ -126,10 +121,10 @@ public class ImportSif {
         if (MySQLbulkLoader.isBulkLoad()) {
            MySQLbulkLoader.flushAll();
         }
-        pMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
-        pMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
+        ProgressMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
+        ProgressMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
                 "invalid gene IDs:  " + numInteractionsNotSaved);
-        pMonitor.setCurrentMessage("Total number of redundant interactions skipped:  "
+        ProgressMonitor.setCurrentMessage("Total number of redundant interactions skipped:  "
                 + numRedundantInteractionsSkipped);
     }
 
@@ -157,8 +152,7 @@ public class ImportSif {
             System.out.println("command line usage:  importSif.pl <sif.txt> <data_source>");
             return;
         }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
 		SpringUtil.initDataSource();
 
@@ -168,15 +162,15 @@ public class ImportSif {
             System.out.println("Reading interactions from:  " + geneFile.getAbsolutePath());
             int numLines = FileUtil.getNumLines(geneFile);
             System.out.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
-            ImportSif parser = new ImportSif(geneFile, dataSource, pMonitor);
+            ProgressMonitor.setMaxValue(numLines);
+            ImportSif parser = new ImportSif(geneFile, dataSource);
             parser.importData();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DaoException e) {
             e.printStackTrace();
         } finally {
-            ConsoleUtil.showWarnings(pMonitor);
+            ConsoleUtil.showWarnings();
             System.err.println("Done.");
         }
     }

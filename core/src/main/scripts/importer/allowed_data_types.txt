@@ -1,0 +1,34 @@
+# Users, admins: DO NOT CHANGE THIS FILE! 
+# These are the combinations of GENETIC_ALTERATION_TYPE, DATATYPE and STABLE_ID that will
+# be allowed by the validator. Changing this file is not recommended by end users as parts of the 
+# cBioPortal code currently depend on some of these stable IDs to be exactly as they are specified
+# here. The validator will check if the users used the right combinations and can also warn them
+# when specific important combinations were found to be missing in their study directory. 
+GENETIC_ALTERATION_TYPE	DATATYPE	STABLE_ID
+COPY_NUMBER_ALTERATION	DISCRETE	cna
+COPY_NUMBER_ALTERATION	DISCRETE	cna_rae
+COPY_NUMBER_ALTERATION	DISCRETE	cna_consensus
+COPY_NUMBER_ALTERATION	DISCRETE	gistic
+COPY_NUMBER_ALTERATION	CONTINUOUS	linear_CNA
+COPY_NUMBER_ALTERATION	LOG2-VALUE	log2CNA
+MUTATION_EXTENDED	MAF	mutations
+MRNA_EXPRESSION	CONTINUOUS	mrna_U133
+MRNA_EXPRESSION	Z-SCORE	mrna_U133_Zscores
+MRNA_EXPRESSION	Z-SCORE	rna_seq_mrna_median_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_median_Zscores
+MRNA_EXPRESSION	CONTINUOUS	rna_seq_mrna
+MRNA_EXPRESSION	CONTINUOUS	rna_seq_v2_mrna
+MRNA_EXPRESSION	Z-SCORE	rna_seq_v2_mrna_median_Zscores
+MRNA_EXPRESSION	CONTINUOUS	mirna
+MRNA_EXPRESSION	Z-SCORE	mirna_median_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_merged_median_Zscores
+MRNA_EXPRESSION	CONTINUOUS	mrna
+MRNA_EXPRESSION	DISCRETE	mrna_outliers
+MRNA_EXPRESSION	Z-SCORE	mrna_zbynorm
+MRNA_EXPRESSION	CONTINUOUS	rna_seq_mrna_capture
+MRNA_EXPRESSION	Z-SCORE	rna_seq_mrna_capture_Zscores
+METHYLATION	CONTINUOUS	methylation_hm27
+METHYLATION	CONTINUOUS	methylation_hm450
+FUSION	FUSION	fusion
+PROTEIN_LEVEL	LOG2-VALUE	rppa
+PROTEIN_LEVEL	Z-SCORE	rppa_Zscores

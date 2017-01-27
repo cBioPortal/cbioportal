@@ -104,12 +104,12 @@ public class GeneController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, geneService.fetchMetaGenes(geneIds,
-                geneIdType == null ? null : geneIdType.name()).getTotalCount().toString());
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, geneService.fetchMetaGenes(geneIds, geneIdType.name())
+                .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(geneService.fetchGenes(geneIds, geneIdType == null ? null : geneIdType.name(),
-                projection.name()), HttpStatus.OK);
+            return new ResponseEntity<>(geneService.fetchGenes(geneIds, geneIdType.name(), projection.name()), 
+                HttpStatus.OK);
         }
     }
 }

@@ -44,13 +44,15 @@
 
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
-    String localCancerTypeId =
-		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     String localSampleSetId =
 		    (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-                    String localCancerStudyList = (String) request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+    String localCancerStudyList = (String) request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+    String localCancerTypeId = null;
+   
                     if (localCancerStudyList == null) {
                         localCancerStudyList = "";
+                        } else {
+                        	localCancerTypeId =  (localCancerStudyList).split(",")[0];
                         }
     HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);

@@ -1604,31 +1604,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    // zoom out if many columns are selected
 	    console.log("in initOncoprint, fetching altered cases while waiting for data to be populated");
 	    return $.when(QuerySession.getPatientIds(),
-		    QuerySession.getAlteredSamples(),
-		    QuerySession.getAlteredPatients(),
-		    QuerySession.getCaseUIDMap(),
+		    QuerySession.getAlteredSampleUIDs(),
+		    QuerySession.getAlteredPatientUIDs(),
 		    QuerySession.getStudyPatientMap(),
 		    dataPopulatedPromise)
 	    .then(function (patient_ids,
-		    altered_samples,
-		    altered_patients,
-		    case_uid_map,
+		    altered_sample_uids,
+		    altered_patient_uids,
 		    studyPatientMap) {
 		console.log("in initOncoprint, altered cases fetched, setting zoom level");
-		var _data = (State.using_sample_data ? QuerySession.getStudySampleMap() : studyPatientMap);
-		if (Object.keys(_data).length > 200) {
-			var getUID = function (studyIdsList,caseId) {
-		    	var tempUIDs = [];
-		    	studyIdsList.forEach(function(studyId){
-		    		tempUIDs.push(case_uid_map[studyId][caseId])
-		    	})
-		    	return tempUIDs;
-		    };
-		    var _resultcaseStudyCaseMap = {};
-		    $.each((State.using_sample_data ? altered_samples : altered_patients), function(key,caseId){
-		    	_resultcaseStudyCaseMap[caseId] = _data[caseId];
-		    });
-		    oncoprint.setHorzZoomToFit(utils.flatten(_.map(_caseStudyMap,getUID)));
+		if ((State.using_sample_data ? QuerySession.getSampleIds() : patient_ids).length > 200) {
+		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_sample_uids : altered_patient_uids);
 		}
 		oncoprint.scrollTo(0);
 	    });
@@ -2059,7 +2045,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    	});
 			    	return tempUIDs;
 			    };
-			oncoprint.setSortConfig({'type': 'order', order: utils.flattern(_.map(_caseStudyMap,getUID))});
+			oncoprint.setSortConfig({'type': 'order', order: utils.flatten(_.map(_caseStudyMap,getUID))});
 		    });
 		    }
 		};

@@ -729,32 +729,13 @@ public class GlobalProperties {
         return "";
     }
 
-    public static String getCivicUrl()
-    {
+    public static String getCivicUrl() {
         String civicUrl = properties.getProperty(CIVIC_URL);
-        boolean showCivic = showCivic();
-
-        // This only applies if there is no civic.url property in the portal.properties file.
-        if (civicUrl == null || civicUrl.isEmpty()) {
-            civicUrl = "https://civic.genome.wustl.edu/api/";
-        }
-
-        //Test connection of CIVIC website.
-        if(!civicUrl.isEmpty() && showCivic) {
-
-            try {
-                URL url = new URL(civicUrl + "genes");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                if(conn.getResponseCode() != 200) {
-                    civicUrl = "";
-                }
-                conn.disconnect();
-                return civicUrl;
-            } catch (Exception e) {
-                return "";
-            }
-        }
-        return "";
+        if (civicUrl == null || civicUrl.isEmpty())
+            return "https://civic.genome.wustl.edu/api/";
+        if (civicUrl.substring(civicUrl.length() - 1) != "/")
+            civicUrl += "/";
+        return civicUrl;
     }
 
     public static boolean showHotspot() {

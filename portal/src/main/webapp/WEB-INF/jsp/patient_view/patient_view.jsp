@@ -97,6 +97,7 @@ String oncokbGeneStatus = (String)GlobalProperties.getOncoKBGeneStatus();
 boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
 
 boolean showCivic = (Boolean) GlobalProperties.showCivic();
+String civicUrl = (String) GlobalProperties.getCivicUrl();
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
@@ -351,6 +352,7 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 var showCivic = <%=showCivic%>;
+var civicUrl = '<%=civicUrl%>';
 var userName = '<%=userName%>';
 
 var darwinAccessUrl = '<%=darwinAccessURL%>';

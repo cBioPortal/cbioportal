@@ -86,25 +86,6 @@ public class ProxyController
         }
         this.enableOncokb = property;
     }
-
-  private String civicURL;
-  @Value("${civic.url:https://civic.genome.wustl.edu/api/}")
-  public void setCivicURL(String property) {
-      if (property.isEmpty()) {
-          property = "https://civic.genome.wustl.edu/api/";
-      }
-      this.civicURL = property;
-  }
-    
-  private Boolean enableCivic;
-  @Value("${show.civic:true}")
-  public void setEnableCivic(Boolean property) {
-      if (property == null) {
-          property = true;
-      }
-      this.enableCivic = property;
-  }
-
   // This is a general proxy for future use.
   // Please modify and improve it as needed with your best expertise. The author does not have fully understanding
   // of JAVA proxy when creating this proxy.
@@ -205,27 +186,4 @@ public class ProxyController
 
     return responseEntity.getBody();
   }
-
-    @RequestMapping(value="/civic/genes/{ids}", method = RequestMethod.GET)
-    public @ResponseBody String getCivicGenes(@PathVariable String ids, @RequestParam("identifier_type") String identifier_type,
-                                              @RequestBody String body, HttpMethod method,
-                                              HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-        if (!enableCivic) {
-            response.sendError(403, "Civic service is disabled");
-            return "";
-        }
-        String url = civicURL + "genes/" + ids + "?identifier_type=" + identifier_type;
-        return respProxy(url, method, body, response);
-    }
-
-    @RequestMapping(value="/civic/variants/{id}", method = RequestMethod.GET)
-    public @ResponseBody String getCivicVariants(@PathVariable String id, @RequestBody String body, HttpMethod method,
-                                                 HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-        if (!enableCivic) {
-            response.sendError(403, "Civic service is disabled");
-            return "";
-        }
-        return respProxy(civicURL + "variants/" + id, method, body, response);
-    }
-
 }

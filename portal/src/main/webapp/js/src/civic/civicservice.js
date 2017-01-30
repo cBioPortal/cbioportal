@@ -7,9 +7,8 @@ function CivicService() {
     function getCivicGenesBatch(ids) {
         return $.ajax({
             type: 'GET',
-            url: 'api-legacy/proxy/civic/genes/' + ids,
+            url: civicUrl + 'genes/' + ids,
             dataType: 'json',
-            contentType: 'application/json',
             data: {
                 identifier_type: 'entrez_symbol'
             }
@@ -126,9 +125,8 @@ function CivicService() {
             else {
                 $.ajax({
                         type: 'GET',
-                        url: 'api-legacy/proxy/civic/variants/' + civicVariant.id,
-                        dataType: 'json',
-                        contentType: 'application/json'
+                        url: civicUrl + 'variants/' + civicVariant.id,
+                        dataType: 'json'
                     })
                     .done(function (result) {
                         if (_.isString(result)) {

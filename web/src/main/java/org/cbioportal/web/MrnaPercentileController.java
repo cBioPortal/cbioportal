@@ -7,6 +7,7 @@ import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.MrnaPercentileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
+import org.cbioportal.web.parameter.PagingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,8 +29,6 @@ import java.util.List;
 @Api(tags = "mRNA Percentile", description = " ")
 public class MrnaPercentileController {
 
-    private static final int MRNA_PERCENTILE_MAX_PAGE_SIZE = 50000;
-
     @Autowired
     private MrnaPercentileService mrnaPercentileService;
 
@@ -42,7 +41,7 @@ public class MrnaPercentileController {
         @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
         @RequestParam String sampleId,
         @ApiParam(required = true, value = "List of Entrez Gene IDs")
-        @Size(min = 1, max = MRNA_PERCENTILE_MAX_PAGE_SIZE)
+        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<Integer> entrezGeneIds)
         throws GeneticProfileNotFoundException {
 

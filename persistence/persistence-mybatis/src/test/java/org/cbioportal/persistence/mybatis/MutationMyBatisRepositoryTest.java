@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +88,11 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
         Assert.assertEquals("Germline", mutation.getMutationStatus());
         Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
+        Assert.assertEquals("NA", mutation.getFunctionalImpactScore());
+        Assert.assertEquals(new BigDecimal("0.0"), mutation.getFisValue());
+        Assert.assertEquals("getma.org/?cm=var&var=hg19,17,41244748,G,A&fts=all", mutation.getLinkXvar());
+        Assert.assertEquals("NA", mutation.getLinkPdb());
+        Assert.assertEquals("NA", mutation.getLinkMsa());
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());

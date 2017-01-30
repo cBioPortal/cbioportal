@@ -48,7 +48,7 @@
     </script>
 
     <% if (localTabIndex.equals(QueryBuilder.TAB_VISUALIZE)) { %>
-        <% out.println("<span style='font-size:120%; color:black'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='onco_query_lang_desc.jsp' onclick='return popitup('onco_query_lang_desc.jsp')'>Advanced: Onco Query Language (OQL)</a></span>"); %>
+        <% out.println("<span style='font-size:120%; color:black'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='onco_query_lang_desc.jsp' onclick='return popitup(\"onco_query_lang_desc.jsp\")'>Advanced: Onco Query Language (OQL)</a></span>"); %>
     <% } %>
     
     <div style='padding-top:10px;padding-bottom:5px;'>

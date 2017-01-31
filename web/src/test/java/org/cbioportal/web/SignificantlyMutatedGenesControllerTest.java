@@ -41,8 +41,6 @@ public class SignificantlyMutatedGenesControllerTest {
     private static final int TEST_NUMMUTATIONS_1 = 1;
     private static final BigDecimal TEST_P_VALUE_1 = new BigDecimal(0.1);
     private static final BigDecimal TEST_Q_VALUE_1 = new BigDecimal(0.1);
-    private static final int TEST_CANCER_STUDY_ID_2 = 2;
-    private static final String TEST_CANCER_STUDY_IDENTIFIER_2 = "test_study_2";
     private static final int TEST_ENTREZ_GENE_ID_2 = 2;
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final int TEST_RANK_2 = 2;
@@ -86,8 +84,8 @@ public class SignificantlyMutatedGenesControllerTest {
         mutSig1.setqValue(TEST_Q_VALUE_1);
         mutSigList.add(mutSig1);
         MutSig mutSig2 = new MutSig();
-        mutSig2.setCancerStudyId(TEST_CANCER_STUDY_ID_2);
-        mutSig2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_2);
+        mutSig2.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
+        mutSig2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
         mutSig2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         mutSig2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         mutSig2.setRank(TEST_RANK_2);
@@ -117,7 +115,7 @@ public class SignificantlyMutatedGenesControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].qValue").value(TEST_Q_VALUE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].numbasescovered").doesNotExist())

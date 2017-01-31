@@ -45,7 +45,7 @@ public class SignificantlyMutatedGeneServiceImplTest extends BaseServiceImplTest
         BaseMeta expectedBaseMeta = new BaseMeta();
         Mockito.when(significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes(GENETIC_PROFILE_ID))
             .thenReturn(expectedBaseMeta);
-        BaseMeta result = significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes(GENETIC_PROFILE_ID);
+        BaseMeta result = significantlyMutatedGeneService.getMetaSignificantlyMutatedGenes(GENETIC_PROFILE_ID);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }

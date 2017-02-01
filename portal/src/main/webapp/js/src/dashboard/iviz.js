@@ -3260,7 +3260,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     }
 
     function updateTables() {
-      if (currentView === 'pie') {
+      if (currentView === 'pie' && qtipRendered) {
         updateQtipReactTable();
       }
       if (currentView === 'table') {

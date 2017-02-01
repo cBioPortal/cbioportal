@@ -223,6 +223,12 @@ public class GlobalProperties {
     public static final String DISABLED_TABS = "disabled_tabs";
     
     public static final String PRIORITY_STUDIES = "priority_studies";
+    public static final String SPECIES = "species";
+    public static final String DEFAULT_SPECIES = "human";
+    public static final String NCBI_BUILD = "ncbi.build";
+    public static final String DEFAULT_NCBI_BUILD = "37";
+    public static final String UCSC_BUILD = "ucsc.build";
+    public static final String DEFAULT_UCSC_BUILD = "hg19";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -600,6 +606,24 @@ public class GlobalProperties {
     {
         String dataSetsFooter = properties.getProperty(SKIN_DATASETS_FOOTER);
         return dataSetsFooter == null ? DEFAULT_SKIN_DATASETS_FOOTER : dataSetsFooter;
+    }
+    
+    public static String getSpecies()
+    {
+        String species = properties.getProperty(SPECIES);
+        return species == null ? DEFAULT_SPECIES : species;
+    }
+    
+    public static String getNCBIBuild()
+    {
+        String NCBIBuild = properties.getProperty(NCBI_BUILD);
+        return NCBIBuild == null ? DEFAULT_NCBI_BUILD : NCBIBuild;
+    }
+    
+    public static String getGenomicBuild()
+    {
+        String genomicBuild = properties.getProperty(UCSC_BUILD);
+        return genomicBuild == null ? DEFAULT_UCSC_BUILD : genomicBuild;
     }
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)

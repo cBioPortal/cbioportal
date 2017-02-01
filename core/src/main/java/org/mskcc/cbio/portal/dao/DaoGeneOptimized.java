@@ -162,7 +162,7 @@ public class DaoGeneOptimized {
     public int addGene(CanonicalGene gene) throws DaoException {
         int ret;
         if (gene.getEntrezGeneId()>0) {
-            ret = DaoGene.addOrUpdateGene(gene);
+            ret = DaoGene.addOrUpdateGeneObject(gene);
         } else {
             ret = DaoGene.addGeneWithoutEntrezGeneId(gene);
         }
@@ -172,18 +172,13 @@ public class DaoGeneOptimized {
     }
     
     /**
-     * Update database with gene length
-     * @return number of records updated.
-     * @throws DaoException 
+     * Update Gene Record in the Database. It will also replace this 
+     * gene's aliases with the ones found in the given gene object.
      */
-    public int flushUpdateToDatabase() throws DaoException {
-        DaoGene.deleteAllRecords();
-        MySQLbulkLoader.bulkLoadOn();
-        int ret = 0;
-        for (CanonicalGene gene : getAllGenes()) {
-            ret += DaoGene.addOrUpdateGene(gene);
-        }
-        MySQLbulkLoader.flushAll();
+    public int updateGene(CanonicalGene gene)  throws DaoException {
+        int ret = DaoGene.updateGene(gene);
+        //recache:
+        cacheGene(gene);
         return ret;
     }
     
@@ -441,6 +436,10 @@ public class DaoGeneOptimized {
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
     public CanonicalGene getNonAmbiguousGene(String geneId, String chr) {
+    	return getNonAmbiguousGene(geneId, chr, true);
+    }
+    
+    public CanonicalGene getNonAmbiguousGene(String geneId, String chr, boolean issueWarning) {
         List<CanonicalGene> genes = guessGene(geneId, chr);
         if (genes.isEmpty()) {
             return null;
@@ -453,17 +452,18 @@ public class DaoGeneOptimized {
         if (disambiguousGenes.containsKey(geneId)) {
             return disambiguousGenes.get(geneId);
         }
-        
-        StringBuilder sb = new StringBuilder("Ambiguous alias ");
-        sb.append(geneId);
-        sb.append(": corresponding entrez ids of ");
-        for (CanonicalGene gene : genes) {
-            sb.append(gene.getEntrezGeneId());
-            sb.append(",");
+        if (issueWarning) {
+	        StringBuilder sb = new StringBuilder("Ambiguous alias ");
+	        sb.append(geneId);
+	        sb.append(": corresponding entrez ids of ");
+	        for (CanonicalGene gene : genes) {
+	            sb.append(gene.getEntrezGeneId());
+	            sb.append(",");
+	        }
+	        sb.deleteCharAt(sb.length()-1);
+	        
+	        ProgressMonitor.logWarning(sb.toString());
         }
-        sb.deleteCharAt(sb.length()-1);
-        
-        ProgressMonitor.logWarning(sb.toString());
         return null;
         
     }
@@ -495,8 +495,11 @@ public class DaoGeneOptimized {
     /**
      * Deletes all Gene Records in the Database.
      * @throws DaoException Database Error.
+     * 
+     * @deprecated  only used by deprecated code, so deprecating this as well.
      */
     public void deleteAllRecords() throws DaoException {
         DaoGene.deleteAllRecords();
     }
+
 }

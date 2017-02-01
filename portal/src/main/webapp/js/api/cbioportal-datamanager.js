@@ -363,7 +363,6 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return def.promise();
     };
-    
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, study_id, source_sample_or_patient, target_sample_or_patient,
 	    target_ids, sample_to_patient_map, case_uid_map, datatype, na_or_zero) {
 	na_or_zero = na_or_zero || "na";
@@ -1341,6 +1340,49 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			fetch_promise.resolve(deepCopyObject(self.external_data_status));
 		    });
 		}),
+	'getClusteringOrder': function (track_uid_map, heatmapData, case_ids) {
+			var study_id = QuerySession.getCancerStudyIds()[0];
+			var def = new $.Deferred();
+			//prepare input:
+			var cluster_input = {};
+			for (var i = 0; i < case_ids.length; i++) {
+				//case ids as key:
+				cluster_input[case_ids[i]] = {};
+				//iterate over genetic entities and get the sample data (heatmap data has genetic entityId as key):
+				for (var j = 0; j < heatmapData.length; j++) {
+					var entityId = heatmapData[j].gene;
+					//small validation/defensive programming:
+					if (!entityId) {
+						throw new Error("Unexpected error during getClusteringOrder: attribute 'gene' not found");
+					}
+					var value = heatmapData[j].oncoprint_data[i].profile_data;
+					cluster_input[case_ids[i]][entityId] = value;
+				}					
+			}
+			//do hierarchical clustering in background:
+			$.when(this.getCaseUIDMap(), cbio.stat.hclusterCases(cluster_input), cbio.stat.hclusterGeneticEntities(cluster_input)).then(
+					function (case_uid_map, sampleClusterOrder, entityClusterOrder) {
+						//get result in "uid format":
+						var uids = [];
+						for (var i = 0; i < sampleClusterOrder.length; i++) {
+							var uid_case = case_uid_map[study_id][sampleClusterOrder[i].caseId];
+							uids.push(uid_case);
+						}
+						//get entityUids in order:
+						var entityUids = [];
+						for (var i = 0; i < entityClusterOrder.length; i++) {
+							var trackUid = track_uid_map[entityClusterOrder[i].entityId];
+							entityUids.push(trackUid);
+						}
+						//setup and resolve result object:
+						var result = new Object();
+						result.sampleUidsInClusteringOrder = uids;
+						result.entityUidsInClusteringOrder = entityUids;
+						def.resolve(result);
+					}
+			);
+			return def.promise();
+		},		
 	'getWebServiceGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    var profile_types = {};

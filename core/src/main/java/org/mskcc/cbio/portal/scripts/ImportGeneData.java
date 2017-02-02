@@ -57,12 +57,22 @@ public class ImportGeneData {
                     continue;
                 }
                 
+                	String species = GlobalProperties.getSpecies();
                     String parts[] = line.split("\t");
-                    int taxonimy = Integer.parseInt(parts[0]);
-                    if (taxonimy!=9606) {
-                        // only import human genes
-                        continue;
-                    }
+                    int taxonomy = Integer.parseInt(parts[0]);
+                    if (species.equals("human")) {
+	                    if (taxonomy!=9606) {
+	                        // only import human genes
+	                        continue;
+	                    }
+	                } else if (species.equals("mouse")) {
+	                    if (taxonomy!=10090) {
+	                        // only import mouse genes
+	                        continue;
+	                    }
+	                } else {
+	                	throw new Error("Species "+species+" is not supported.");
+	                }
                     
                     int entrezGeneId = Integer.parseInt(parts[1]);
                     String geneSymbol = parts[2];
@@ -74,6 +84,7 @@ public class ImportGeneData {
                     String type = parts[9];
                     String mainSymbol = parts[10]; // use 10 instead of 2 since column 2 may have duplication
                     Set<String> aliases = new HashSet<String>();
+
                     if (!locusTag.equals("-")) {
                         aliases.add(locusTag);
                     }
@@ -83,7 +94,7 @@ public class ImportGeneData {
                     
                     if (geneSymbol.startsWith("MIR") && type.equalsIgnoreCase("miscRNA")) {
                         line = buf.readLine();
-                        continue; // ignore miRNA; process seperately
+                        continue; // ignore miRNA; process separately
                     }
                     
                     CanonicalGene gene = null;
@@ -107,7 +118,29 @@ public class ImportGeneData {
                     
                     if (gene!=null) {
                         if (!cytoband.equals("-")) {
-                            gene.setCytoband(cytoband);
+                        	if (species.equals("mouse")) {
+                        		//Usually three cytobands are represented in the gene info for mouse:
+                        		//First, only the chromosome number, then the chromosome number and the position
+                        		//of the gene in cM, and finally, by the "Correct" cytoband, that is the name of 
+                        		//the chromosome and the cytoband, which is a letter (from A to H) followed by a
+                        		//numeric position, for example X A3 or 3 A1.2.
+                            	List<String> cytobands = new ArrayList<String>();
+                            	cytobands.addAll(Arrays.asList(cytoband.split("\\|")));
+                            	for (String i : cytobands) {
+                            		if (!i.contains("cM")) { //Skip cytobands containing cM
+                            			if (cytobands.size() <=2) {
+                            				cytoband = i; //Only one cytoband is left from these gene.
+                            			} else { 
+                            				//We have more than one cytoband for these gene, so keep the one which
+                            				//has the cytoband.
+                            				if (i.contains("A") || i.contains("B") || i.contains("C") || i.contains("D") || i.contains("E") || i.contains("F") || i.contains("G") || i.contains("H")) {
+                            					cytoband = i;
+                            				}
+                            			}
+                            		}
+                            	}
+                        	}
+                        	gene.setCytoband(cytoband); //For human there is no need to parse the cytoband
                         }
                         gene.setType(type);
                     }

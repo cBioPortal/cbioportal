@@ -123,22 +123,25 @@ public class SessionServiceUtil {
      * @return cohort object
      */
 	public Cohort getVirtualCohortData(String virtualStudyId) {
-		String url = GlobalProperties.getSessionServiceUrl() + "virtual_cohort/";
-		RestTemplate restTemplate = new RestTemplate();
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode actualObj = null;
 		Cohort cohort = null;
-		try {
-			String result = restTemplate.getForObject(url + virtualStudyId, String.class);
-			actualObj = mapper.readTree(result);
-			cohort = mapper.convertValue(actualObj.get("data"), Cohort.class);
-			cohort.setVirtualCohort(true);
-			cohort.setId(virtualStudyId);
-		} catch (HttpStatusCodeException e) {
-			LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + e.getStatusCode() + "'");
-		}
-		catch (Exception e) {
-			LOG.warn("SessionServiceUtil.getVirtualCohortData(): Exception = '" + e.getMessage() + "'");
+		if(GlobalProperties.getSessionServiceUrl() != null) {
+			String url = GlobalProperties.getSessionServiceUrl() + "virtual_cohort/";
+			RestTemplate restTemplate = new RestTemplate();
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode actualObj = null;
+			
+			try {
+				String result = restTemplate.getForObject(url + virtualStudyId, String.class);
+				actualObj = mapper.readTree(result);
+				cohort = mapper.convertValue(actualObj.get("data"), Cohort.class);
+				cohort.setVirtualCohort(true);
+				cohort.setId(virtualStudyId);
+			} catch (HttpStatusCodeException e) {
+				LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + e.getStatusCode() + "'");
+			}
+			catch (Exception e) {
+				LOG.warn("SessionServiceUtil.getVirtualCohortData(): Exception = '" + e.getMessage() + "'");
+			}
 		}
 		return cohort;
 	}

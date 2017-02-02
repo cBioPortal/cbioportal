@@ -414,8 +414,7 @@ function chooseAction(evt) {
 			return false;
 		}
        }
-       // TODO : remve the virtual studies filtering logic when the index.do query
-       // supports querying them
+       
        var virtualStudiesIdsList = [], selectedVirtualStudyList = [];
        if(_.isArray(virtualStudies)){
     	   virtualStudiesIdsList = _.pluck(virtualStudies,'virtualCohortID');
@@ -432,12 +431,14 @@ function chooseAction(evt) {
         	return _.indexOf(virtualStudiesIdsList,_id) !== -1;
         })
     }
-    if(selectedVirtualStudyList.length>0) {
-        createAnError("Cannot query virtual study(s) for now", $('#select_cancer_type_section'), "");
-        return false;
-    }
+    
+       
     if (selected_studies.length > 1) {
-	if ( haveExpInQuery ) {
+    	if(selectedVirtualStudyList.length>0) {
+            createAnError("Cannot query virtual study(s) for now", $('#select_cancer_type_section'), "");
+            return false;
+        }
+    	if ( haveExpInQuery ) {
             createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
             return false;
         }
@@ -642,7 +643,7 @@ function updateCancerStudyInformation() {
     // toggle every time a new cancer study is selected
     toggleByCancerStudy(cancer_study);
 
-    if (cancerStudyId=='all'){
+    if (cancerStudyId=='all' || (_.isObject(cancer_study) && _.keys(cancer_study).length ==0)){
         crossCancerStudySelected();
         return;
     }
@@ -785,9 +786,9 @@ function cancerStudySelected() {
     $("#main_submit").attr("disabled",false);
 
     var cancerStudyId = $("#select_single_study").val() || "all";
-    
-    if(_.isObject(window.metaDataJson.cancer_studies[cancerStudyId])) {
-    	if (window.metaDataJson.cancer_studies[cancerStudyId].partial==="true") {
+    var _studyObject = window.metaDataJson.cancer_studies[cancerStudyId];
+    if(_.isObject(_studyObject)) {
+    	if (_.keys(_studyObject).length >0 && _studyObject.partial==="true") {
             console.log("cancerStudySelected( loadStudyMetaData )");
             loadStudyMetaData(cancerStudyId);
     	} else {

@@ -53,7 +53,7 @@
     <div id='main_smry_info_div'>
         <table style='margin-left:0px;width:40%;margin-top:-10px;margin-bottom:-5px;' >
             <tr>
-                <td><div id='main_smry_modify_query_btn'><div></td>
+                <td style="width:25%;"><div id='main_smry_modify_query_btn'><div></td>
                 <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
             </tr>
         </table>
@@ -162,6 +162,18 @@
                     }
                 }
             }
+            
+            if(isVirtualStudy){
+            	showMutTab = false;
+            	showCoexpTab = false;
+            	showIGVtab = false;
+            	showEnrichmentsTab = false;
+            	computeLogOddsRatio = false;
+            	has_survival = false;
+            	includeNetworks = false;
+            	showPlotsTab = false;
+            	showDownloadTab = false;
+            }
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values
@@ -195,7 +207,7 @@
             if (showCoexpTab) {
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
-            if (has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) {
+            if ((has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) && !isVirtualStudy) {
                 out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
@@ -249,9 +261,9 @@
         <% if(showCancerTypesSummary) { %>
         <%@ include file="pancancer_study_summary.jsp" %>
         <%}%>
-
+ <% if(showPlotsTab) { %>
         <%@ include file="plots_tab.jsp" %>
-
+<%}%>
         <% if (showIGVtab) { %>
             <%@ include file="igv.jsp" %>
         <% } %>
@@ -282,11 +294,12 @@
             <%@ include file="co_expression.jsp" %>
         <% } %>
 
-        <% if (has_mrna || has_copy_no || showMutTab) { %>
+        <% if ((has_mrna || has_copy_no || showMutTab) && !isVirtualStudy) { %>
             <%@ include file="enrichments_tab.jsp" %>
         <% } %>
-
+ <% if(showDownloadTab) { %>
         <%@ include file="data_download.jsp" %>
+         <% } %>
 
 </div> <!-- end tabs div -->
 

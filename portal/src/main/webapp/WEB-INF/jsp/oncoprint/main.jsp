@@ -57,7 +57,7 @@
                 </ul>
             </div>
             
-            <div class="btn-group btn-group-sm"   id="oncoprint_diagram_heatmap_menu">
+            <div class="btn-group btn-group-sm"   id="oncoprint_diagram_heatmap_menu" style="display: none;">
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_heatmap_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span>Heatmap</span>&nbsp;<span class="caret"></span>
                </button>

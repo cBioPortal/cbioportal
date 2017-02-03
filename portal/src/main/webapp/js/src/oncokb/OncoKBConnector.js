@@ -1142,77 +1142,9 @@ OncoKB.Instance.prototype = {
 
                             // Show an icon if
                             // * there is CNA info or
-                            // * the gene has a description (grayed-out)
+                            // * the gene has a description (grayed-out icon)
                             if (matchingCivicVariants.length > 0 || civicGene.description) {
-                                
-                                // Construct element for icon
-                                var imageClass = 'civic-image';
-                                if (matchingCivicVariants.length == 0) {
-                                    // Show a grayed-out icon when no CNA info is available
-                                    imageClass += ' civic-image-disabled';
-                                }
-                                $(this).append('<i class="' + imageClass + '"></i>');
-
-                                // Show popup on mouse-over
-                                $(this).one('mouseenter', function () {
-                                    $(this).qtip({
-                                        content: {text: '<span><img src="images/loader.gif" alt="loading" /></span>'},
-                                        show: {ready: true},
-                                        hide: {fixed: true, delay: 500},
-                                        style: {
-                                            classes: 'qtip-light qtip-shadow oncokb-card-qtip',
-                                            tip: true
-                                        },
-                                        position: {
-                                            my: 'center left',
-                                            at: 'center right'
-                                        },
-                                        events: {
-                                            render: function (event, api) {
-                                                // Load variant information for all matching civicVariants,
-                                                // after which we construct the html for the qtip
-                                                var promises = matchingCivicVariants.map(self.civicService.getCivicVariant, self);
-                                                // Use apply, because 'when' doesn't support arrays
-                                                $.when.apply($, promises)
-                                                    .done(function () {
-                                                        var url = matchingCivicVariants.length > 0 ?
-                                                            matchingCivicVariants[0].url : civicGene.url;
-
-                                                        // Build html for list of variants
-                                                        var variantsHTML = matchingCivicVariants.length > 0 ?
-                                                            '' : _.template($('#civic-qtip-variant-item-not-available').html())();
-                                                        matchingCivicVariants.forEach(function (variant) {
-
-                                                            // Build entry types text
-                                                            var entries = [];
-                                                            $.each(variant.evidence, function (key, value) {
-                                                                entries.push(key.toLowerCase() + ': ' + value);
-                                                            });
-                                                            variant.entryTypes = entries.join(', ') + '.';
-
-                                                            // Build the html from the variant and the template
-                                                            var templateFn = _.template($('#civic-qtip-variant-item').html());
-                                                            variantsHTML += templateFn(variant);
-                                                        });
-
-                                                        //Build main html and update the qtip
-                                                        vars = {
-                                                            title: "CIViC Variants",
-                                                            gene: civicGene,
-                                                            variantsHTML: variantsHTML,
-                                                            url: url
-                                                        };
-                                                        var templateFn = _.template($('#civic-qtip').html());
-                                                        civicHTML = templateFn(vars);
-                                                        api.set('content.text', civicHTML);
-                                                    })
-                                                    .fail(function () {
-                                                        api.set('content.text', 'Civic service is not available at this moment.');
-                                                    });
-                                            }
-                                        }
-                                    });
-                                });
+                                self.createCivicIcon($(this), civicGene, matchingCivicVariants);
                             }
                         }
                     }
@@ -1417,67 +1349,11 @@ OncoKB.Instance.prototype = {
                         var civicGene = self.civicGenes[geneSymbol];
                         if (civicGene) {
                             // Look up matching civic variants
-                            var matchingCivicVariants = self.civicService.getMatchingCivicVariants(civicGene.variants, proteinChange);
+                            var matchingCivicVariants = self.civicService.getMatchingCivicVariants(
+                                civicGene.variants, proteinChange);
 
                             if (matchingCivicVariants.length > 0) {
-                                $(this).append('<i class="civic-image"></i>');
-                                $(this).one('mouseenter', function () {
-                                    $(this).qtip({
-                                        content: {text: '<span><img src="images/loader.gif" alt="loading" /></span>'},
-                                        show: {ready: true},
-                                        hide: {fixed: true, delay: 500},
-                                        style: {
-                                            classes: 'qtip-light qtip-shadow oncokb-card-qtip',
-                                            tip: true
-                                        },
-                                        position: {
-                                            my: 'center left',
-                                            at: 'center right'
-                                        },
-                                        events: {
-                                            render: function (event, api) {
-                                                // Load variant information for all matching civicVariants,
-                                                // after which we construct the html for the qtip
-                                                var promises = matchingCivicVariants.map(self.civicService.getCivicVariant, self);
-                                                // Use apply, because 'when' doesn't support arrays
-                                                $.when.apply($, promises)
-                                                    .done(function () {
-                                                        var mainMatchingCivicVariant = matchingCivicVariants[0];
-
-                                                        // Build html for list of variants
-                                                        var variantsHTML = '';
-                                                        matchingCivicVariants.forEach(function(variant) {
-
-                                                            // Build entry types text
-                                                            var entries = [];
-                                                            $.each(variant.evidence, function (key, value) {
-                                                                entries.push(key.toLowerCase() + ': ' + value);
-                                                            });
-                                                            variant.entryTypes = entries.join(', ') + '.';
-
-                                                            // Build the html from the variant and the template
-                                                            var templateFn = _.template($('#civic-qtip-variant-item').html());
-                                                            variantsHTML += templateFn(variant);
-                                                        });
-
-                                                        //Build main html and update the qtip
-                                                        vars = {
-                                                            title: "CIViC Variants",
-                                                            gene: civicGene,
-                                                            variantsHTML: variantsHTML,
-                                                            url: mainMatchingCivicVariant.url
-                                                        };
-                                                        var templateFn = _.template($('#civic-qtip').html());
-                                                        civicHTML = templateFn(vars);
-                                                        api.set('content.text', civicHTML);
-                                                    })
-                                                    .fail(function() {
-                                                        api.set('content.text', 'Civic service is not available at this moment.');
-                                                    });
-                                            }
-                                        }
-                                    });
-                                });
+                                self.createCivicIcon($(this), civicGene, matchingCivicVariants);
                             }
                         }
                     }
@@ -1488,6 +1364,79 @@ OncoKB.Instance.prototype = {
 
     getId: function() {
         return this.id;
+    },
+
+    createCivicIcon: function(target, civicGene, matchingCivicVariants) {
+        var self = this;
+
+        // Construct element for icon
+        var imageClass = 'civic-image';
+        if (matchingCivicVariants.length == 0) {
+            // Show a grayed-out icon when no CNA info is available
+            imageClass += ' civic-image-disabled';
+        }
+        target.append('<i class="' + imageClass + '"></i>');
+
+        // Create popup on mouse-over
+        target.one('mouseenter', function () {
+            target.qtip({
+                content: {text: '<span><img src="images/loader.gif" alt="loading" /></span>'},
+                show: {ready: true},
+                hide: {fixed: true, delay: 500},
+                style: {
+                    classes: 'qtip-light qtip-shadow oncokb-card-qtip',
+                    tip: true
+                },
+                position: {
+                    my: 'center left',
+                    at: 'center right'
+                },
+                events: {
+                    render: function (event, api) {
+                        // Load variant information for all matching civicVariants,
+                        // after which we construct the html for the qtip
+                        var promises = matchingCivicVariants.map(self.civicService.getCivicVariant, self);
+                        // Use apply, because 'when' doesn't support arrays
+                        $.when.apply($, promises)
+                            .done(function () {
+                                var url = matchingCivicVariants.length > 0 ?
+                                    matchingCivicVariants[0].url : civicGene.url;
+
+                                // Build html for list of variants
+                                var variantsHTML = matchingCivicVariants.length > 0 ?
+                                    '' : _.template($('#civic-qtip-variant-item-not-available').html())();
+                                matchingCivicVariants.forEach(function(variant) {
+
+                                    // Build entry types text
+                                    var entries = [];
+                                    $.each(variant.evidence, function (key, value) {
+                                        entries.push(key.toLowerCase() + ': ' + value);
+                                    });
+                                    variant.entryTypes = entries.join(', ') + '.';
+
+                                    // Build the html from the variant and the template
+                                    var templateFn = _.template($('#civic-qtip-variant-item').html());
+                                    variantsHTML += templateFn(variant);
+                                });
+
+                                //Build main html and update the qtip
+                                var vars = {
+                                    title: "CIViC Variants",
+                                    gene: civicGene,
+                                    variantsHTML: variantsHTML,
+                                    url: url
+                                };
+                                var templateFn = _.template($('#civic-qtip').html());
+                                var civicHTML = templateFn(vars);
+                                api.set('content.text', civicHTML);
+                            })
+                            .fail(function() {
+                                api.set('content.text', 'Civic service is not available at this moment.');
+                            });
+                    }
+                }
+            });
+        });
     }
 };
 

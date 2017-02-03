@@ -58,4 +58,21 @@
         <include refid="from"/>
         <include refid="where"/>
     </select>
+    
+    <select id="getSampleCountByGeneAndAlteration" resultType="org.cbioportal.model.CopyNumberSampleCountByGene">
+        SELECT
+        cna_event.ENTREZ_GENE_ID AS entrezGeneId,
+        cna_event.ALTERATION AS alteration,
+        COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS sampleCount
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId} AND
+        <if test="entrezGeneIds != null">
+            <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">
+                cna_event.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]} AND cna_event.ALTERATION = #{alterations[${i}]}
+            </foreach>
+        </if>
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION
+    </select>
 </mapper>

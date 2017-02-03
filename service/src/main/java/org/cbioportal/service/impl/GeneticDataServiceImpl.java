@@ -79,4 +79,15 @@ public class GeneticDataServiceImpl implements GeneticDataService {
         
         return geneticDataList;
     }
+    
+    public Integer getNumberOfSamplesInGeneticProfile(String geneticProfileId) {
+
+        String commaSeparatedSampleIdsOfGeneticProfile = geneticDataRepository
+            .getCommaSeparatedSampleIdsOfGeneticProfile(geneticProfileId);
+        if (commaSeparatedSampleIdsOfGeneticProfile == null) {
+            return null;
+        }
+        
+        return commaSeparatedSampleIdsOfGeneticProfile.split(",").length;
+    }
 }

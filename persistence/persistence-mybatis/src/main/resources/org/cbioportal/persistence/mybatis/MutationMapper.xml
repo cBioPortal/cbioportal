@@ -89,7 +89,7 @@
     <select id="getMetaMutations" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT
         COUNT(*) AS totalCount,
-        COUNT(DISTINCT(SAMPLE_ID)) AS sampleCount
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         <include refid="from"/>
         <include refid="where"/>
     </select>
@@ -97,7 +97,7 @@
     <select id="getSampleCountByEntrezGeneIds" resultType="org.cbioportal.model.MutationSampleCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
-        COUNT(DISTINCT(SAMPLE_ID)) AS sampleCount
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
@@ -113,7 +113,7 @@
     <select id="getSampleCountByKeywords" resultType="org.cbioportal.model.MutationSampleCountByKeyword">
         SELECT
         mutation_event.KEYWORD AS keyword,
-        COUNT(DISTINCT(SAMPLE_ID)) AS sampleCount
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID

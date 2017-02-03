@@ -13,4 +13,6 @@ public interface GeneticDataService {
     
     List<GeneticData> fetchGeneticData(String geneticProfileId, List<String> sampleIds, List<Integer> entrezGeneIds, 
                                        String projection) throws GeneticProfileNotFoundException;
+
+    Integer getNumberOfSamplesInGeneticProfile(String geneticProfileId);
 }

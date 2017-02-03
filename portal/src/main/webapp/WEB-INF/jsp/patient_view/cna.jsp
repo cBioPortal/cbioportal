@@ -189,7 +189,7 @@
                                 }
                                 if (showCivic) {
                                     var gene = cnas.getValue(source[0], "gene");
-                                    str += "<span class='annotation-item civic-gene' geneSymbol='" + gene + "' " +
+                                    str += "<span class='annotation-item civic-cna' geneSymbol='" + gene + "' " +
                                         "<img width='14' height='14' src='images/ajax-loader.gif' alt='Civic Gene Entry'></span>";
                                 }
                                 return str;

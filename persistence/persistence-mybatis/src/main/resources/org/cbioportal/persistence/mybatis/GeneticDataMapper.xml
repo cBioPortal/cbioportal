@@ -35,4 +35,24 @@
         </where>
     </select>
 
+    <select id="getGenesetAlterations" resultType="org.cbioportal.model.GenesetAlteration">
+        SELECT
+        geneset.EXTERNAL_ID AS genesetId,
+        genetic_alteration.VALUES AS "values"
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN geneset ON genetic_alteration.GENETIC_ENTITY_ID = geneset.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{geneticProfileId}
+            <if test="genesetIds != null and genesetIds">
+                AND geneset.EXTERNAL_ID IN
+                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+
 </mapper>

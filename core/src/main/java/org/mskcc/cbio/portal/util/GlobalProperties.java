@@ -733,7 +733,8 @@ public class GlobalProperties {
         String civicUrl = properties.getProperty(CIVIC_URL);
         if (civicUrl == null || civicUrl.isEmpty())
             return "https://civic.genome.wustl.edu/api/";
-        if (civicUrl.substring(civicUrl.length() - 1) != "/")
+        civicUrl = civicUrl.trim();
+        if (!civicUrl.endsWith("/"))
             civicUrl += "/";
         return civicUrl;
     }

@@ -20,6 +20,8 @@ INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(13,'GENE');
 INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(14,'GENE');
 INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(15,'GENE');
 INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(16,'GENE');
+INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(17,'GENESET');
+INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(18,'GENESET');
 
 INSERT INTO gene (ENTREZ_GENE_ID,HUGO_GENE_SYMBOL,GENETIC_ENTITY_ID,TYPE,CYTOBAND,LENGTH) VALUES(207,'AKT1',1,'protein-coding','14q32.32',10838);
 INSERT INTO gene (ENTREZ_GENE_ID,HUGO_GENE_SYMBOL,GENETIC_ENTITY_ID,TYPE,CYTOBAND,LENGTH) VALUES(208,'AKT2',2,'protein-coding','19q13.1-q13.2',15035);
@@ -51,10 +53,12 @@ INSERT INTO gene_alias (ENTREZ_GENE_ID,GENE_ALIAS) VALUES(675,'BRCA1 alias');
 
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(2,'study_tcga_pub_gistic',1,'COPY_NUMBER_ALTERATION','DISCRETE','Putative copy-number alterations from GISTIC','Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.',1);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(3,'study_tcga_pub_mrna',1,'MRNA_EXPRESSION','Z-SCORE','mRNA expression (microarray)','Expression levels (Agilent microarray).',0);
-INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG-VALUE','Log2 copy-number values','Log2 copy-number VALUESfor each gene (from Affymetrix SNP6).',0);
+INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG2-VALUE','Log2 copy-number values','Log2 copy-number VALUESfor each gene (from Affymetrix SNP6).',0);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(5,'study_tcga_pub_methylation_hm27',1,'METHYLATION','CONTINUOUS','Methylation (HM27)','Methylation beta-VALUES(HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.',0);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(6,'study_tcga_pub_mutations',1,'MUTATION_EXTENDED','MAF','Mutations','Mutation data from whole exome sequencing.',1);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(7,'study_tcga_pub_sv',1,'STRUCTURAL_VARIANT','SV','Structural Variants','Structural Variants detected by Illumina HiSeq sequencing.',1);
+INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) 
+                    VALUES(8,'study_tcga_pub_gsva_scores',1,'GENESET_SCORE','GSVA-SCORE','GSVA scores','GSVA scores for oncogenic signature gene sets from MsigDB calculated with GSVA version 1.22.4, R version 3.3.2.',1);
 
 INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(2,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(3,'2,3,6,8,9,10,12,13,');
@@ -379,3 +383,29 @@ INSERT INTO clinical_event_data (CLINICAL_EVENT_ID,KEY,VALUE) VALUES(1,'STATUS',
 INSERT INTO clinical_event_data (CLINICAL_EVENT_ID,KEY,VALUE) VALUES(1,'SAMPLE_ID','TCGA-A1-A0SB-01');
 INSERT INTO clinical_event_data (CLINICAL_EVENT_ID,KEY,VALUE) VALUES(2,'SURGERY','OA II Initial');
 INSERT INTO clinical_event_data (CLINICAL_EVENT_ID,KEY,VALUE) VALUES(3,'EVENT_TYPE_DETAILED','AA III Recurrence1');
+
+INSERT INTO geneset (ID,GENETIC_ENTITY_ID,EXTERNAL_ID,NAME,DESCRIPTION,REF_LINK) VALUES(1,17,'MORF_ATRX','MORF ATRX name','Morf description','https://morf_link');
+INSERT INTO geneset (ID,GENETIC_ENTITY_ID,EXTERNAL_ID,NAME,DESCRIPTION,REF_LINK) VALUES(2,18,'HINATA_NFKB_MATRIX','HINATA NFKB MATRIX name','Hinata description','https://hinata_link');
+
+INSERT INTO geneset_gene (GENESET_ID,ENTREZ_GENE_ID) VALUES(1,207);
+INSERT INTO geneset_gene (GENESET_ID,ENTREZ_GENE_ID) VALUES(1,208);
+INSERT INTO geneset_gene (GENESET_ID,ENTREZ_GENE_ID) VALUES(1,10000);
+INSERT INTO geneset_gene (GENESET_ID,ENTREZ_GENE_ID) VALUES(2,369);
+INSERT INTO geneset_gene (GENESET_ID,ENTREZ_GENE_ID) VALUES(2,472);
+
+INSERT INTO genetic_alteration (GENETIC_PROFILE_ID,GENETIC_ENTITY_ID,VALUES) VALUES(8,17,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');
+INSERT INTO genetic_alteration (GENETIC_PROFILE_ID,GENETIC_ENTITY_ID,VALUES) VALUES(8,18,'1.0106,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1106,0.3098,0.0309,0.0927,-0.8665,-0.0750,-0.7221,');
+
+-- Root node ->  sub node A -> parent node 1 -> MORF_ATRX
+--    "              "             "         -> HINATA_NFKB_MATRIX
+--    "              "      -> parent node 2 -> HINATA_NFKB_MATRIX
+-- Root node ->  sub node B -> x (dead branch)
+INSERT INTO geneset_hierarchy_node (NODE_ID,NODE_NAME,PARENT_ID) VALUES(1,'Root node',NULL);
+INSERT INTO geneset_hierarchy_node (NODE_ID,NODE_NAME,PARENT_ID) VALUES(2,'Sub node A',1);
+INSERT INTO geneset_hierarchy_node (NODE_ID,NODE_NAME,PARENT_ID) VALUES(3,'Sub node B',1);
+INSERT INTO geneset_hierarchy_node (NODE_ID,NODE_NAME,PARENT_ID) VALUES(4,'Parent node 1',2);
+INSERT INTO geneset_hierarchy_node (NODE_ID,NODE_NAME,PARENT_ID) VALUES(5,'Parent node 2',2);
+
+INSERT INTO geneset_hierarchy_leaf (NODE_ID,GENESET_ID) VALUES(4,1);
+INSERT INTO geneset_hierarchy_leaf (NODE_ID,GENESET_ID) VALUES(4,2);
+INSERT INTO geneset_hierarchy_leaf (NODE_ID,GENESET_ID) VALUES(5,2);

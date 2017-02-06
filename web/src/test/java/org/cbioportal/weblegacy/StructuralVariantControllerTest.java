@@ -35,6 +35,7 @@ package org.cbioportal.weblegacy;
 import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.*;
+import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.web.config.CustomObjectMapper;
@@ -278,7 +279,7 @@ public class StructuralVariantControllerTest {
         geneticProfile1.setStableId("study_tcga_pub_sv");
         geneticProfile1.setCancerStudy(cancerStudy1);
         geneticProfile1.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.STRUCTURAL_VARIANT);
-        geneticProfile1.setDatatype("StructuralVariant");
+        geneticProfile1.setDatatype(DataType.SV);
         geneticProfile1.setName("Structural Variants");
         geneticProfile1.setDescription("Structural Variants detected by Illumina HiSeq sequencing.");
         geneticProfile1.setShowProfileInAnalysisTab(true);

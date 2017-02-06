@@ -2,8 +2,9 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -122,7 +123,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
             alterations);
     }
 
-    private DiscreteCopyNumberData convert(GeneticData geneticData) {
+    private DiscreteCopyNumberData convert(GeneGeneticData geneticData) {
 
         DiscreteCopyNumberData discreteCopyNumberData = new DiscreteCopyNumberData();
         discreteCopyNumberData.setGeneticProfileId(geneticData.getGeneticProfileId());
@@ -139,7 +140,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         return !alterations.contains(-1) && !alterations.contains(0) && !alterations.contains(1);
     }
 
-    private boolean isValidAlteration(List<Integer> alterations, GeneticData geneticData) {
+    private boolean isValidAlteration(List<Integer> alterations, GeneGeneticData geneticData) {
 
         boolean result;
         try {
@@ -156,7 +157,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
         if (!geneticProfile.getGeneticAlterationType()
             .equals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION) ||
-            !geneticProfile.getDatatype().equals("DISCRETE")) {
+            !geneticProfile.getDatatype().equals(DataType.DISCRETE)) {
 
             throw new GeneticProfileNotFoundException(geneticProfileId);
         }

@@ -20,4 +20,8 @@ public interface GeneticProfileService {
                                                       Integer pageNumber, String sortBy, String direction) throws StudyNotFoundException;
 
     BaseMeta getMetaGeneticProfilesInStudy(String studyId) throws StudyNotFoundException;
+
+	List<GeneticProfile> getGeneticProfilesReferredBy(String referringGeneticProfileId) throws GeneticProfileNotFoundException;
+	
+	List<GeneticProfile> getGeneticProfilesReferringTo(String referredGeneticProfileId) throws GeneticProfileNotFoundException;
 }

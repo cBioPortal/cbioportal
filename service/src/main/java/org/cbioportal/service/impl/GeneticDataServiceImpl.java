@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GeneticAlteration;
-import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneGeneticAlteration;
+import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.GeneticDataRepository;
@@ -34,7 +34,7 @@ public class GeneticDataServiceImpl implements GeneticDataService {
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GeneticData> getGeneticData(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds, 
+    public List<GeneGeneticData> getGeneticData(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds, 
                                             String projection)
         throws GeneticProfileNotFoundException {
         
@@ -43,11 +43,11 @@ public class GeneticDataServiceImpl implements GeneticDataService {
     }
    
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GeneticData> fetchGeneticData(String geneticProfileId, List<String> sampleIds, 
+    public List<GeneGeneticData> fetchGeneticData(String geneticProfileId, List<String> sampleIds, 
                                               List<Integer> entrezGeneIds, String projection) 
         throws GeneticProfileNotFoundException {
 
-        List<GeneticData> geneticDataList = new ArrayList<>();
+        List<GeneGeneticData> geneticDataList = new ArrayList<>();
 
         String commaSeparatedSampleIdsOfGeneticProfile = geneticDataRepository
             .getCommaSeparatedSampleIdsOfGeneticProfile(geneticProfileId);
@@ -67,14 +67,14 @@ public class GeneticDataServiceImpl implements GeneticDataService {
             samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
         }
 
-        List<GeneticAlteration> geneticAlterations = geneticDataRepository.getGeneticAlterations(geneticProfileId,
+        List<GeneGeneticAlteration> geneticAlterations = geneticDataRepository.getGeneGeneticAlterations(geneticProfileId,
             entrezGeneIds, projection);
         
         for (Sample sample : samples) {
             int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
             if (indexOfSampleId != -1) {
-                for (GeneticAlteration geneticAlteration : geneticAlterations) {
-                    GeneticData geneticData = new GeneticData();
+                for (GeneGeneticAlteration geneticAlteration : geneticAlterations) {
+                    GeneGeneticData geneticData = new GeneGeneticData();
                     geneticData.setGeneticProfileId(geneticProfileId);
                     geneticData.setSampleId(sample.getStableId());
                     geneticData.setEntrezGeneId(geneticAlteration.getEntrezGeneId());

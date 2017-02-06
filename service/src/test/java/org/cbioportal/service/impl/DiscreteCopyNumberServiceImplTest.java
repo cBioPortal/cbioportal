@@ -5,8 +5,9 @@ import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.CopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.GeneticDataService;
@@ -64,11 +65,11 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
         createGeneticProfile();
         
-        List<GeneticData> expectedGeneticDataList = new ArrayList<>();
-        GeneticData geneticData = new GeneticData();
+        List<GeneGeneticData> expectedGeneticDataList = new ArrayList<>();
+        GeneGeneticData geneticData = new GeneGeneticData();
         geneticData.setValue("-1");
         geneticData.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData.setSampleId(SAMPLE_ID);
+        geneticData.setSampleId(SAMPLE_ID1);
         geneticData.setEntrezGeneId(ENTREZ_GENE_ID);
         Gene gene = new Gene(); 
         geneticData.setGene(gene);
@@ -88,7 +89,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
         Assert.assertEquals((Integer) (-1), discreteCopyNumberData.getAlteration());
         Assert.assertEquals(GENETIC_PROFILE_ID, discreteCopyNumberData.getGeneticProfileId());
-        Assert.assertEquals(SAMPLE_ID, discreteCopyNumberData.getSampleId());
+        Assert.assertEquals(SAMPLE_ID1, discreteCopyNumberData.getSampleId());
         Assert.assertEquals(ENTREZ_GENE_ID, discreteCopyNumberData.getEntrezGeneId());
         Assert.assertEquals(gene, discreteCopyNumberData.getGene());
     }
@@ -117,8 +118,8 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
         createGeneticProfile();
 
-        List<GeneticData> expectedGeneticDataList = new ArrayList<>();
-        GeneticData geneticData = new GeneticData();
+        List<GeneGeneticData> expectedGeneticDataList = new ArrayList<>();
+        GeneGeneticData geneticData = new GeneGeneticData();
         geneticData.setValue("-1");
         expectedGeneticDataList.add(geneticData);
 
@@ -147,11 +148,11 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         alterationTypes.add(-2);
 
         Mockito.when(discreteCopyNumberRepository.fetchDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID, 
-            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterationTypes, PROJECTION))
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID), alterationTypes, PROJECTION))
             .thenReturn(expectedDiscreteCopyNumberDataList);
 
         List<DiscreteCopyNumberData> result = discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterationTypes, PROJECTION);
+            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID), alterationTypes, PROJECTION);
 
         Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
     }
@@ -161,30 +162,30 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
         createGeneticProfile();
 
-        List<GeneticData> expectedGeneticDataList = new ArrayList<>();
-        GeneticData geneticData = new GeneticData();
+        List<GeneGeneticData> expectedGeneticDataList = new ArrayList<>();
+        GeneGeneticData geneticData = new GeneGeneticData();
         geneticData.setValue("-1");
         geneticData.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData.setSampleId(SAMPLE_ID);
+        geneticData.setSampleId(SAMPLE_ID1);
         geneticData.setEntrezGeneId(ENTREZ_GENE_ID);
         Gene gene = new Gene();
         geneticData.setGene(gene);
         expectedGeneticDataList.add(geneticData);
 
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), 
+        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1), 
             Arrays.asList(ENTREZ_GENE_ID), PROJECTION)).thenReturn(expectedGeneticDataList);
 
         List<Integer> alterationTypes = new ArrayList<>();
         alterationTypes.add(-1);
 
         List<DiscreteCopyNumberData> result = discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterationTypes, PROJECTION);
+            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID), alterationTypes, PROJECTION);
 
         Assert.assertEquals(1, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
         Assert.assertEquals((Integer) (-1), discreteCopyNumberData.getAlteration());
         Assert.assertEquals(GENETIC_PROFILE_ID, discreteCopyNumberData.getGeneticProfileId());
-        Assert.assertEquals(SAMPLE_ID, discreteCopyNumberData.getSampleId());
+        Assert.assertEquals(SAMPLE_ID1, discreteCopyNumberData.getSampleId());
         Assert.assertEquals(ENTREZ_GENE_ID, discreteCopyNumberData.getEntrezGeneId());
         Assert.assertEquals(gene, discreteCopyNumberData.getGene());
     }
@@ -199,10 +200,10 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
         Mockito.when(discreteCopyNumberRepository.fetchMetaDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID,
-            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterationTypes)).thenReturn(expectedBaseMeta);
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID), alterationTypes)).thenReturn(expectedBaseMeta);
 
         BaseMeta result = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterationTypes);
+            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID), alterationTypes);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
@@ -212,19 +213,19 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
         createGeneticProfile();
 
-        List<GeneticData> expectedGeneticDataList = new ArrayList<>();
-        GeneticData geneticData = new GeneticData();
+        List<GeneGeneticData> expectedGeneticDataList = new ArrayList<>();
+        GeneGeneticData geneticData = new GeneGeneticData();
         geneticData.setValue("-1");
         expectedGeneticDataList.add(geneticData);
 
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), 
+        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1), 
             Arrays.asList(ENTREZ_GENE_ID), "ID")).thenReturn(expectedGeneticDataList);
 
         List<Integer> alterationTypes = new ArrayList<>();
         alterationTypes.add(-1);
 
         BaseMeta result = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterationTypes);
+            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID), alterationTypes);
 
         Assert.assertEquals((Integer) 1, result.getTotalCount());
     }
@@ -250,7 +251,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         
         GeneticProfile geneticProfile = new GeneticProfile();
         geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION);
-        geneticProfile.setDatatype("DISCRETE");
+        geneticProfile.setDatatype(DataType.DISCRETE);
         Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
     }
 

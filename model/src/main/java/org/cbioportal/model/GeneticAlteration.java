@@ -2,42 +2,31 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class GeneticAlteration implements Serializable {
+public abstract class GeneticAlteration implements Serializable {
     
-    private Integer entrezGeneId;
     private String values;
-    private String[] splitValues;
-    private Gene gene;
+    private String[] splitValues = null;
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
-
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
-
-    public String getValues() {
-        return values;
-    }
-
+    /**
+     * Set the values for all samples.
+     * 
+     * @param values: string with list of values, comma (,) separated
+     */
     public void setValues(String values) {
         this.values = values;
     }
 
+    /**
+     * Returns the values attribute split on (,).
+     * 
+     * Remembers last .split to avoid repeating this costly operation.
+     * 
+     * @return list of values for all samples
+     */
     public String[] getSplitValues() {
-
-        if (splitValues == null) {
-            splitValues = values.split(",");
-        }
-        return splitValues;
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
+    	if (splitValues == null) {
+    		splitValues = values.split(",");
+    	}
+    	return splitValues;
     }
 }

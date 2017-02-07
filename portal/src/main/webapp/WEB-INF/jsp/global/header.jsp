@@ -52,7 +52,10 @@
 <jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
 
     <script type="text/javascript">
-        $(document).ready(function(){
+    
+    window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    
+    $(document).ready(function(){
             $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
         });
     

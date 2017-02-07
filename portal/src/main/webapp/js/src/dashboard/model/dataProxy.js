@@ -852,7 +852,8 @@ window.DataManagerForIviz = (function($, _) {
       initialSetupResult: '',
       cancerStudyIds: [],
       mutationProfileIdsMap: {},
-      cnaProfileIdsMap: {},
+      cnaProfileIdsMap: {}, 
+      panelSampleMap: {},
       portalUrl: _portalUrl,
       studyCasesMap: _study_cases_map,
       initialSetup: initialSetup,
@@ -1279,7 +1280,95 @@ window.DataManagerForIviz = (function($, _) {
       getClinicalData: function(attribute_ids, isPatientAttributes) {
         return isPatientAttributes ? this.getPatientClinicalData(attribute_ids) :
           this.getSampleClinicalData(attribute_ids);
-      }
+      },
+        getAllGenePanelSampleIds: window.cbio.util.makeCachedPromiseFunction(
+            function (self, fetch_promise) {
+                var _map = {};
+                var asyncAjaxCalls = [];
+                var responses = [];
+                _.each(self.getCancerStudyIds(), function(_studyId) {
+                    asyncAjaxCalls.push(
+                        $.ajax({
+                            url: window.cbioURL + 'api-legacy/genepanel/data',
+                            contentType: "application/json",
+                            data: ["profile_id=" + _studyId + "_mutations", "genes="].join("&"),
+                            type: 'GET',
+                            success: function(_res) {
+                                responses.push(_res);
+                            }
+                        })
+                    );
+                });
+                $.when.apply($, asyncAjaxCalls).done(function(){
+                    var _panelMetaArr = _.flatten(responses);
+                    _.each(_panelMetaArr, function(_panelMeta) {
+                        _map[_panelMeta.stableId] = (_panelMeta.samples);
+                    });
+                    fetch_promise.resolve(_map);
+                }).fail(function(){
+                    fetch_promise.reject();
+                });
+            }
+        ),
+        getGenePanelMap: window.cbio.util.makeCachedPromiseFunction(
+            function (self, fetch_promise) {
+                self.getAllGenePanelSampleIds().then(function(_panelSampleMap) {
+                    self.panelSampleMap = _panelSampleMap;
+                    var asyncAjaxCalls = [];
+                    var responses = [];
+                    _.each(Object.keys(_panelSampleMap), function(_panelId){
+                        asyncAjaxCalls.push(
+                            $.ajax({
+                                url: window.cbioURL + 'api-legacy/genepanel',
+                                contentType: "application/json",
+                                data: {panel_id: _panelId},
+                                type: 'GET',
+                                success: function(_res) {
+                                    responses.push(_res);
+                                }
+                            })
+                        );
+                    });
+                    $.when.apply($, asyncAjaxCalls).done(function(){
+                        var _panelMetaArr = _.map(responses, function(responseArr) { return responseArr[0] });
+                        var _map = {};
+                        _.each(_panelMetaArr, function(_panelMeta) {
+                            _.each(_panelMeta["genes"], function(_gene) {
+                                if (!_map.hasOwnProperty(_gene.hugoGeneSymbol)) {
+                                    _map[_gene.hugoGeneSymbol] = {};
+                                    _map[_gene.hugoGeneSymbol]["panel_id"] = [];
+                                    _map[_gene.hugoGeneSymbol]["sample_num"] = 0;
+                                }
+                                _map[_gene.hugoGeneSymbol]["panel_id"].push(_panelMeta.stableId);
+                                _map[_gene.hugoGeneSymbol]["sample_num"] += _panelSampleMap[_panelMeta.stableId].length;
+                            });
+                        });
+                        fetch_promise.resolve(_map);
+                    }).fail(function(){
+                        fetch_promise.reject();
+                    });
+                });
+            }
+        ),
+        updateGenePanelMap: function(_map, _selectedSampleIds) {
+            var _self = this;
+            if (typeof _selectedSampleIds !== 'undefined') {
+                //update panel sample count map
+                _.each(Object.keys(_self.panelSampleMap), function (_panelId) {
+                    _self.panelSampleMap[_panelId] = _.intersection(_self.panelSampleMap[_panelId], _selectedSampleIds);
+                });
+                _.each(Object.keys(_map), function (_gene) {
+                    var _sampleNumPerGene = 0;
+                    _.each(_map[_gene]["panel_id"], function (_panelId) {
+                        _sampleNumPerGene += _self.panelSampleMap[_panelId].length;
+                    });
+                    _map[_gene]["sample_num"] = _sampleNumPerGene;
+                });
+                return _map;
+            } else {
+                return _map
+            }
+        }
     };
   };
 

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
-    <cache/>
+    <cache size="50000"/>
 
     <sql id="select">
         mutation.GENETIC_PROFILE_ID AS geneticProfileId,

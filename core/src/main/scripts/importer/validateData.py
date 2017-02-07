@@ -46,11 +46,6 @@ import cbioportal_common
 # ------------------------------------------------------------------------------
 # globals
 
-# Only supported reference genome build number and name
-# nb: keep this in synch with MutationDataUtils.getNcbiBuild
-NCBI_BUILD_NUMBER = 37
-GENOMIC_BUILD_NAME = 'hg19'
-
 # study-specific globals
 DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
@@ -247,7 +242,25 @@ class PortalInstance(object):
                 for entrez_list in entrez_map.values():
                     for entrez_id in entrez_list:
                         self.entrez_set.add(entrez_id)
-
+        #Set defaults for genome version and species
+        self.species = 'human'
+        self.ncbi_build = '37'
+        self.genome_build = 'hg19'
+    
+    def load_genome_info(self, properties_filename):
+        """Retrieves the species and genome information from portal.properties."""
+        with open(properties_filename, 'r') as properties_file:
+            for line in properties_file:
+                line = line.strip()
+                if line.startswith('#') or '=' not in line:
+                    continue
+                sp_line = line.split('=', 1)
+                if sp_line[0] == 'species':
+                    self.species = sp_line[1]
+                elif sp_line[0] == 'ncbi.build':
+                    self.ncbi_build = sp_line[1]
+                elif sp_line[0] == 'ucsc.build':
+                    self.genome_build = sp_line[1]
 
 class Validator(object):
 
@@ -1120,9 +1133,12 @@ class MutationsExtendedValidator(Validator):
     def checkNCBIbuild(self, value):
         if value != '':
             # based on MutationDataUtils.getNcbiBuild
-            # TODO - make the supported build version a Portal property
-            if value not in [str(NCBI_BUILD_NUMBER), GENOMIC_BUILD_NAME, 'GRCh'+str(NCBI_BUILD_NUMBER)]:
-                return False
+            if self.portal.species == "human":
+                if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCh'+str(self.portal.ncbi_build)]:
+                    return False
+            elif self.portal.species == "mouse":
+                if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCm'+str(self.portal.ncbi_build)]:
+                    return False
         return True
     
     def checkMatchedNormSampleBarcode(self, value):
@@ -2321,9 +2337,10 @@ class GisticGenesValidator(Validator):
         super(GisticGenesValidator, self).__init__(*args, **kwargs)
         # checkLine() expects particular values here, for the 'amp' column
         if not self.meta_dict['reference_genome_id'].startswith('hg'):
-            raise RuntimeError(
-                    "GisticGenesValidator requires the metadata field "
-                    "reference_genome_id to start with 'hg'")
+            if not self.meta_dict['reference_genome_id'].startswith('mm'):
+                raise RuntimeError(
+                        "GisticGenesValidator requires the metadata field "
+                        "reference_genome_id to start with 'hg' or 'mm'")
         if self.meta_dict['genetic_alteration_type'] not in (
                 'GISTIC_GENES_AMP', 'GISTIC_GENES_DEL'):
             raise RuntimeError(
@@ -2598,7 +2615,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
     for filename in filenames:
 
         meta, meta_file_type = cbioportal_common.parse_metadata_file(
-            filename, logger, study_id, GENOMIC_BUILD_NAME)
+            filename, logger, study_id, portal_instance.genome_build)
         if meta_file_type is None:
             continue
         # validate stable_id to be unique (check can be removed once we deprecate this field):
@@ -2907,7 +2924,9 @@ def interface(args=None):
     parser.add_argument('-r', '--relaxed_clinical_definitions', required=False, 
                         action='store_true', 
                         help='Option to enable relaxed mode for validator when '
-                        'validating clinical data without header definitions')                             
+                        'validating clinical data without header definitions')
+    parser.add_argument('-P', '--portal_properties', type=str,
+                        help='portal.properties file path', required=False)                             
 
     parser = parser.parse_args(args)
     return parser
@@ -3128,6 +3147,9 @@ def main_validate(args):
                                            offline=True)
     else:
         portal_instance = load_portal_info(server_url, logger)
+        
+    if args.portal_properties:
+        portal_instance.load_genome_info(args.portal_properties)
 
     validate_study(study_dir, portal_instance, logger, relaxed_mode)
 

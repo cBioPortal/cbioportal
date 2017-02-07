@@ -178,3 +178,8 @@ disabled_tabs=
 # study ids and categories to force to top of study selector
 # format is category1#study1a,study1b,study1c;category2#study2
 priority_studies=
+
+# species and genomic information
+species=human
+ncbi.build=37
+ucsc.build=hg19

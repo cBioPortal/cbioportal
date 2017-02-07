@@ -13,4 +13,6 @@ public interface GeneticProfileMapper {
     BaseMeta getMetaGeneticProfiles(String studyId);
 
     GeneticProfile getGeneticProfile(String geneticProfileId, String projection);
+
+	List<GeneticProfile> getGeneticProfilesReferredBy(String referringGeneticProfileId, String projection);
 }

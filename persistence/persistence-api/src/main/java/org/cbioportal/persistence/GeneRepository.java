@@ -31,10 +31,10 @@
 */
 package org.cbioportal.persistence;
 
+import java.util.List;
+
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
-
-import java.util.List;
 
 public interface GeneRepository {
 
@@ -58,4 +58,6 @@ public interface GeneRepository {
     BaseMeta fetchMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
 
     BaseMeta fetchMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
+    
+	List<Gene> getGenesByGenesetId(String genesetId);
 }

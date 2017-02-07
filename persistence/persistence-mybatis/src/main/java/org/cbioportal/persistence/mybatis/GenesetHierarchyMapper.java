@@ -33,31 +33,15 @@ package org.cbioportal.persistence.mybatis;
 
 import java.util.List;
 
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.meta.BaseMeta;
+import org.apache.ibatis.annotations.Param;
+import org.cbioportal.model.Geneset;
+import org.cbioportal.model.GenesetHierarchyInfo;
 
-public interface GeneMapper {
+public interface GenesetHierarchyMapper {
 
-    List<Gene> getGenes(String alias, String projection, Integer limit, Integer offset, String sortBy,
-                        String direction);
+	List<GenesetHierarchyInfo> getGenesetHierarchyParents(@Param("genesetIds") List<String> genesetIds);
 
-    BaseMeta getMetaGenes(String alias);
+	List<Geneset> getGenesetHierarchyGenesets(Integer nodeId);
 
-    Gene getGeneByEntrezGeneId(Integer entrezGeneId, String projection);
-
-    Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol, String projection);
-
-    List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
-
-    List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
-
-    List<Gene> getGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
-
-    List<Gene> getGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
-
-    BaseMeta getMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
-
-    BaseMeta getMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
-    
-	List<Gene> getGenesByGenesetId(String genesetId, String projection);
+	List<GenesetHierarchyInfo> getGenesetHierarchySuperNodes(@Param("genesetIds") List<String> genesetIds);
 }

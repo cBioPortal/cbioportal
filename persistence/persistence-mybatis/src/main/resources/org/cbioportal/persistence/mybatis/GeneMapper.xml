@@ -113,6 +113,18 @@
         </where>
     </select>
 
+    <select id="getGenesByGenesetId" resultType="org.cbioportal.model.Gene">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM gene
+        join geneset_gene on gene.ENTREZ_GENE_ID = geneset_gene.ENTREZ_GENE_ID
+	    join geneset on geneset.ID = geneset_gene.GENESET_ID
+        WHERE 
+         geneset.EXTERNAL_ID = #{genesetId}
+    </select>
+
     <select id="getGenesByHugoGeneSymbols" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">

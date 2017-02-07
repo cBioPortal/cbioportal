@@ -59,7 +59,7 @@ public class GenesetDataServiceImpl implements GenesetDataService {
         		genesetIds, "SUMMARY");
         
         for (Sample sample : samples) {
-            int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
+            int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());//TODO maybe use hashset?
             if (indexOfSampleId != -1) {
                 for (GenesetAlteration genesetAlteration : genesetAlterations) {
                     GenesetData genesetData = new GenesetData();

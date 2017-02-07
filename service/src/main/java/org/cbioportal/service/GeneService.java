@@ -51,4 +51,6 @@ public interface GeneService {
     List<Gene> fetchGenes(List<String> geneIds, String geneIdType, String projection);
 
     BaseMeta fetchMetaGenes(List<String> geneIds, String geneIdType);
+    
+	List<Gene> getGenesByGenesetId(String genesetId);
 }

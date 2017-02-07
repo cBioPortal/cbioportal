@@ -29,35 +29,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.service;
 
 import java.util.List;
 
-import org.cbioportal.model.Gene;
+import org.cbioportal.model.Geneset;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.service.exception.GenesetNotFoundException;
 
-public interface GeneMapper {
+public interface GenesetService {
 
-    List<Gene> getGenes(String alias, String projection, Integer limit, Integer offset, String sortBy,
-                        String direction);
+    List<Geneset> getAllGenesets(String projection, Integer pageSize, Integer pageNumber);
 
-    BaseMeta getMetaGenes(String alias);
+    BaseMeta getMetaGenesets();
 
-    Gene getGeneByEntrezGeneId(Integer entrezGeneId, String projection);
-
-    Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol, String projection);
-
-    List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
-
-    List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
-
-    List<Gene> getGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
-
-    List<Gene> getGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
-
-    BaseMeta getMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
-
-    BaseMeta getMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
+    Geneset getGeneset(String genesetId) throws GenesetNotFoundException;
     
-	List<Gene> getGenesByGenesetId(String genesetId, String projection);
 }
+

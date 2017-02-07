@@ -18,4 +18,6 @@ public interface GeneticProfileRepository {
                                                       Integer pageNumber, String sortBy, String direction);
 
     BaseMeta getMetaGeneticProfilesInStudy(String studyId);
+
+	List<GeneticProfile> getGeneticProfilesReferredBy(String referringGeneticProfileId);
 }

@@ -33,31 +33,30 @@ package org.cbioportal.persistence.mybatis;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.Geneset;
 import org.cbioportal.model.meta.BaseMeta;
 
-public interface GeneMapper {
+public interface GenesetMapper {
 
-    List<Gene> getGenes(String alias, String projection, Integer limit, Integer offset, String sortBy,
-                        String direction);
+    List<Geneset> getGenesets(@Param("projection") String projection,
+                        @Param("limit") Integer limit,
+                        @Param("offset") Integer offset,
+                        @Param("sortBy") String sortBy,
+                        @Param("direction") String direction);
 
-    BaseMeta getMetaGenes(String alias);
+    BaseMeta getMetaGenesets();
 
-    Gene getGeneByEntrezGeneId(Integer entrezGeneId, String projection);
-
-    Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol, String projection);
-
-    List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
-
-    List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
-
-    List<Gene> getGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
-
-    List<Gene> getGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
-
-    BaseMeta getMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
-
-    BaseMeta getMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
+    Geneset getGenesetByInternalId(@Param("genesetId") Integer internalId,
+            @Param("projection") String projection);
     
-	List<Gene> getGenesByGenesetId(String genesetId, String projection);
+    Geneset getGenesetByGenesetId(@Param("genesetId") String genesetId,
+                               @Param("projection") String projection);
+
+    Geneset getGenesetByGeneticEntityId(@Param("geneticEntityId") Integer geneticEntityId,
+            @Param("projection") String projection);
+
+    List<Geneset> getGenesetsByGenesetIds(@Param("genesetIds") List<String> genesetIds,
+            @Param("projection") String projection);
 }

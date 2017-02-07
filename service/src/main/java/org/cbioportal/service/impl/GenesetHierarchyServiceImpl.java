@@ -29,35 +29,43 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.model.GenesetAlteration;
+import org.cbioportal.model.GenesetHierarchyInfo;
+import org.cbioportal.persistence.GenesetHierarchyRepository;
+import org.cbioportal.persistence.GeneticDataRepository;
+import org.cbioportal.service.GenesetHierarchyService;
+import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public interface GeneMapper {
+@Service
+public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 
-    List<Gene> getGenes(String alias, String projection, Integer limit, Integer offset, String sortBy,
-                        String direction);
-
-    BaseMeta getMetaGenes(String alias);
-
-    Gene getGeneByEntrezGeneId(Integer entrezGeneId, String projection);
-
-    Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol, String projection);
-
-    List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
-
-    List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
-
-    List<Gene> getGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
-
-    List<Gene> getGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
-
-    BaseMeta getMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
-
-    BaseMeta getMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
+    @Autowired
+    private GeneticDataRepository geneticDataRepository;
+    @Autowired
+    private GeneticProfileService geneticProfileService;
+    @Autowired
+    private GenesetHierarchyRepository genesetHierarchyRepository;
     
-	List<Gene> getGenesByGenesetId(String genesetId, String projection);
+	@Override
+	public List<GenesetHierarchyInfo> getGenesetHierarchyInfo(String geneticProfileId) throws GeneticProfileNotFoundException {
+		
+		//validate 
+		geneticProfileService.getGeneticProfile(geneticProfileId);
+		//TODO could also validate if profile is of geneset_score type
+		
+		//get list of genesets that have data for this profile:
+		List<GenesetAlteration> genesets = geneticDataRepository.getGenesetAlterations(geneticProfileId, null, "SUMMARY");
+		
+		return genesetHierarchyRepository.getGenesetHierarchyItems(genesets);
+	}
+
+
 }

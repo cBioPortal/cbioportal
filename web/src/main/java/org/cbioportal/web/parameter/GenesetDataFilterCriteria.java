@@ -9,7 +9,7 @@ import java.util.List;
  * @author pieter
  *
  */
-public class GeneticDataFilterCriteria {
+public class GenesetDataFilterCriteria {
 	//The list of identifiers for the gene sets of interest. 
     private List<String> genesetIds;
 

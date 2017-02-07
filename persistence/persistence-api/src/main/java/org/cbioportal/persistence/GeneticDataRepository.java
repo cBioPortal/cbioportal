@@ -12,5 +12,5 @@ public interface GeneticDataRepository {
     List<GeneticAlteration> getGeneticAlterations(String geneticProfileId, List<Integer> entrezGeneIds, 
                                                   String projection);
 
-	List<GenesetAlteration> getGenesetAlterations(String geneticProfileId, List<String> genesetIds, String string);
+	List<GenesetAlteration> getGenesetAlterations(String geneticProfileId, List<String> genesetIds, String projection);
 }

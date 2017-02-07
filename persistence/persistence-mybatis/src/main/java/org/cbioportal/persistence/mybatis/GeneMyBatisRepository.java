@@ -111,4 +111,10 @@ public class GeneMyBatisRepository implements GeneRepository {
 
         return geneMapper.getMetaGenesByHugoGeneSymbols(hugoGeneSymbols);
     }
+
+	@Override
+	public List<Gene> getGenesByGenesetId(String genesetId) {
+		
+		return geneMapper.getGenesByGenesetId(genesetId, "SUMMARY");
+	}
 }

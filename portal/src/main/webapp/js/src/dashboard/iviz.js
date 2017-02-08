@@ -5603,6 +5603,7 @@ window.LogRankTest = (function(jStat) {
         genePanelMap = window.iviz.datamanager.updateGenePanelMap(genePanelMap, _selectedSampleIds);
 
       selectedGeneData.length = 0;
+        var numOfCases_ = content.getCases().length;
 
       if (geneData_) {
         _.each(geneData_, function(item, index) {
@@ -5616,7 +5617,7 @@ window.LogRankTest = (function(jStat) {
               if (typeof genePanelMap[item.gene] !== 'undefined') {
                   freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
               } else {
-                  freq = 'NA';
+                  freq = iViz.util.calcFreq(datum.cases, numOfCases_);
               }
             switch (type_) {
               case 'mutatedGene':
@@ -5641,7 +5642,7 @@ window.LogRankTest = (function(jStat) {
               if (typeof genePanelMap[item.gene] !== 'undefined') {
                   freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
               } else {
-                  freq = 'NA';
+                  freq = iViz.util.calcFreq(datum.cases, numOfCases_);
               }
             switch (type_) {
               case 'mutatedGene':

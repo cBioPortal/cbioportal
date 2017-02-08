@@ -1342,7 +1342,7 @@ window.DataManagerForIviz = (function($, _) {
                                     _map[_gene.hugoGeneSymbol]["sample_num"] = 0;
                                 }
                                 _map[_gene.hugoGeneSymbol]["panel_id"].push(_panelMeta.stableId);
-                                _map[_gene.hugoGeneSymbol]["sample_num"] += _panelSampleMap[_panelMeta.stableId].length;
+                                _map[_gene.hugoGeneSymbol]["sample_num"] += _panelSampleMap[_panelMeta.stableId]["samples"].length;
                             });
                         });
                         fetch_promise.resolve(_map);

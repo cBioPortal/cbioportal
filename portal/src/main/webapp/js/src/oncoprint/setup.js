@@ -574,7 +574,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    },
 	    'getInitDataType': function() {
 		if (init_show_samples === null) {
-		    return null;
+		    // If no parameter is specified in the url, take the configured value
+		    return defaultOncoprintView;
 		} else {
 		    return (init_show_samples === 'true' ? 'sample' : 'patient');
 		}

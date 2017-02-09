@@ -230,6 +230,9 @@ public class GlobalProperties {
     public static final String UCSC_BUILD = "ucsc.build";
     public static final String DEFAULT_UCSC_BUILD = "hg19";
     
+    // oncoprint
+    public static final String ONCOPRINT_DEFAULTVIEW = "oncoprint.defaultview";
+    
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -866,6 +869,14 @@ public class GlobalProperties {
         
         String[] tabs = disabledTabs.split("\\|");
         return (tabs.length > 0 && disabledTabs.length() > 0) ? Arrays.asList(tabs) : new ArrayList<String>();
+    }
+    
+    public static String getDefaultOncoprintView() {
+        String defaultOncoprintView = properties.getProperty(ONCOPRINT_DEFAULTVIEW);
+        if (defaultOncoprintView == null || defaultOncoprintView.isEmpty()) {
+            return "patient";
+        }
+        return defaultOncoprintView.trim();
     }
 
     public static void main(String[] args)

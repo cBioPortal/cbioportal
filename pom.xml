@@ -192,6 +192,7 @@
     <module>persistence</module>
     <module>service</module>
     <module>scripts</module>
+    <module>db-scripts</module>
   </modules>
 
   <dependencies>

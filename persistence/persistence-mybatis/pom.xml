@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>org.mskcc.cbio</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>db-scripts</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

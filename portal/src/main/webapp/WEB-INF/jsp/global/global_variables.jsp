@@ -148,7 +148,7 @@
     window.PortalGlobals = {
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
     };
-    
+    var isVirtualStudy = <%=isVirtualStudy%> ;
     (function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
@@ -166,7 +166,8 @@
                                                                 case_ids_key: '<%=sampleIdsKey%>',
                                                                 case_set_name: '<%=sampleSetName%>',
                                                                 case_set_description: '<%=sampleSetDescription%>'
-                                                            });
+                                                            },
+                                                            isVirtualStudy);
     })();
 </script>
 

@@ -3,7 +3,6 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.Gistic;
 import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.persistence.SignificantCopyNumberRegionRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,13 +21,13 @@ import java.util.List;
 public class SignificantCopyNumberRegionMyBatisRepositoryTest {
     
     @Autowired
-    private SignificantCopyNumberRegionRepository significantCopyNumberRegionRepository;
+    private SignificantCopyNumberRegionMyBatisRepository significantCopyNumberRegionMyBatisRepository;
     
     @Test
     public void getSignificantCopyNumberRegionsIdProjection() throws Exception {
 
-        List<Gistic> result = significantCopyNumberRegionRepository.getSignificantCopyNumberRegions("study_tcga_pub", 
-            "ID", null, null, null, null);
+        List<Gistic> result = significantCopyNumberRegionMyBatisRepository.getSignificantCopyNumberRegions(
+            "study_tcga_pub", "ID", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         Gistic gistic = result.get(0);
@@ -41,8 +40,8 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
     @Test
     public void getSignificantCopyNumberRegionsSummaryProjection() throws Exception {
 
-        List<Gistic> result = significantCopyNumberRegionRepository.getSignificantCopyNumberRegions("study_tcga_pub",
-            "SUMMARY", null, null, null, null);
+        List<Gistic> result = significantCopyNumberRegionMyBatisRepository.getSignificantCopyNumberRegions(
+            "study_tcga_pub", "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         Gistic gistic = result.get(0);
@@ -59,8 +58,8 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
     @Test
     public void getSignificantCopyNumberRegionsDetailedProjection() throws Exception {
 
-        List<Gistic> result = significantCopyNumberRegionRepository.getSignificantCopyNumberRegions("study_tcga_pub",
-            "DETAILED", null, null, null, null);
+        List<Gistic> result = significantCopyNumberRegionMyBatisRepository.getSignificantCopyNumberRegions(
+            "study_tcga_pub", "DETAILED", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         Gistic gistic = result.get(0);
@@ -77,8 +76,8 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
     @Test
     public void getSignificantCopyNumberRegionsSummaryProjection1PageSize() throws Exception {
 
-        List<Gistic> result = significantCopyNumberRegionRepository.getSignificantCopyNumberRegions("study_tcga_pub",
-            "SUMMARY", 1, 0, null, null);
+        List<Gistic> result = significantCopyNumberRegionMyBatisRepository.getSignificantCopyNumberRegions(
+            "study_tcga_pub", "SUMMARY", 1, 0, null, null);
 
         Assert.assertEquals(1, result.size());
     }
@@ -86,8 +85,8 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
     @Test
     public void getSignificantCopyNumberRegionsSummaryProjectionQValueSort() throws Exception {
 
-        List<Gistic> result = significantCopyNumberRegionRepository.getSignificantCopyNumberRegions("study_tcga_pub",
-            "SUMMARY", null, null, "qValue", "ASC");
+        List<Gistic> result = significantCopyNumberRegionMyBatisRepository.getSignificantCopyNumberRegions(
+            "study_tcga_pub", "SUMMARY", null, null, "qValue", "ASC");
 
         Assert.assertEquals(2, result.size());
         Assert.assertEquals(new BigDecimal("0.000323799991747364"), result.get(0).getqValue());
@@ -97,7 +96,8 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
     @Test
     public void getMetaSignificantCopyNumberRegions() throws Exception {
 
-        BaseMeta result = significantCopyNumberRegionRepository.getMetaSignificantCopyNumberRegions("study_tcga_pub");
+        BaseMeta result = significantCopyNumberRegionMyBatisRepository.getMetaSignificantCopyNumberRegions(
+            "study_tcga_pub");
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
@@ -108,7 +108,7 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
         List<Long> gisticRoiIds = new ArrayList<>();
         gisticRoiIds.add(1L);
         gisticRoiIds.add(2L);
-        List<GisticToGene> result = significantCopyNumberRegionRepository.getGenesOfRegions(gisticRoiIds);
+        List<GisticToGene> result = significantCopyNumberRegionMyBatisRepository.getGenesOfRegions(gisticRoiIds);
         
         Assert.assertEquals(3, result.size());
         GisticToGene gisticToGene1 = result.get(0);

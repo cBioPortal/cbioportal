@@ -92,16 +92,21 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         alterations.add(-2);
         alterations.add(2);
         
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(207);
+        entrezGeneIds.add(208);
+        
         List<DiscreteCopyNumberData> result = discreteCopyNumberMyBatisRepository
-            .fetchDiscreteCopyNumbersInGeneticProfile("study_tcga_pub_gistic", sampleIds, alterations, "SUMMARY");
+            .fetchDiscreteCopyNumbersInGeneticProfile("study_tcga_pub_gistic", sampleIds, entrezGeneIds, alterations, 
+                "SUMMARY");
         
         Assert.assertEquals(3, result.size());
         Assert.assertEquals("study_tcga_pub_gistic", result.get(0).getGeneticProfileId());
         Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getSampleId());
         Assert.assertEquals("study_tcga_pub_gistic", result.get(1).getGeneticProfileId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", result.get(1).getSampleId());
+        Assert.assertEquals("TCGA-A1-A0SD-01", result.get(1).getSampleId());
         Assert.assertEquals("study_tcga_pub_gistic", result.get(2).getGeneticProfileId());
-        Assert.assertEquals("TCGA-A1-A0SD-01", result.get(2).getSampleId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", result.get(2).getSampleId());
     }
 
     @Test
@@ -115,8 +120,13 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         alterations.add(-2);
         alterations.add(2);
 
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(207);
+        entrezGeneIds.add(208);
+
         BaseMeta result = discreteCopyNumberMyBatisRepository
-            .fetchMetaDiscreteCopyNumbersInGeneticProfile("study_tcga_pub_gistic", sampleIds, alterations);
+            .fetchMetaDiscreteCopyNumbersInGeneticProfile("study_tcga_pub_gistic", sampleIds, entrezGeneIds,
+                alterations);
 
         Assert.assertEquals((Integer) 3, result.getTotalCount());
     }

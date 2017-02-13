@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.DiscreteCopyNumberMapper">
-    <cache/>
+    <cache size="50000"/>
 
     <sql id="select">
         genetic_profile.STABLE_ID AS geneticProfileId,
@@ -30,6 +30,12 @@
             <if test="sampleIds != null and !sampleIds.isEmpty()">
                 AND sample.STABLE_ID IN
                 <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND cna_event.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>

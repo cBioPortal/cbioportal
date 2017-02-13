@@ -32,6 +32,7 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
             gisticList.forEach(g -> g.setGenes(gisticToGeneList.stream().filter(p -> p.getGisticRoiId()
                 .equals(g.getGisticRoiId())).collect(Collectors.toList())));
         }
+        
         return gisticList;
     }
 

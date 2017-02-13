@@ -2582,7 +2582,7 @@ class GisticGenesValidator(Validator):
 
 class GSVAWiseFileValidator(FeaturewiseFileValidator):
 
-    """FeatureWiseValidator that has Geneset ID as feature column."""
+    """FeatureWiseValidator that has Gene set ID as feature column."""
     
     REQUIRED_HEADERS = ['geneset_id']
     def __init__(self, *args, **kwargs):
@@ -2626,15 +2626,15 @@ class GSVAWiseFileValidator(FeaturewiseFileValidator):
                                      'cause': geneset_id})     
         # Check if geneset is in database
         elif self.portal.geneset_id_list is not None and geneset_id not in self.portal.geneset_id_list:
-            self.logger.error("Geneset not found in database, please make sure "
-                              "to update the database with new genesets",
+            self.logger.error("Gene set not found in database, please make sure "
+                              "to update the database with new gene sets",
                               extra={'line_number': self.line_number, 'cause': geneset_id})      
         else:
             # Check if this is the second GSVA data file
             if GSVA_GENESET_IDS != None:
                 # Check if geneset is in the first GSVA file
                 if not geneset_id in GSVA_GENESET_IDS:
-                    self.logger.error('Genesets differ between Score and Pvalue file',
+                    self.logger.error('Gene sets in GSVA score and p-value files are not equal',
                                   extra={'line_number': self.line_number})
             self.geneset_ids.append(geneset_id) 
         return geneset_id
@@ -2648,14 +2648,14 @@ class GSVAWiseFileValidator(FeaturewiseFileValidator):
             ### Check if geneset ids are the same 
             if not GSVA_GENESET_IDS == self.geneset_ids:
                 self.logger.error(
-                    'First column of GSVA score/pvalue files is different')
+                    'First column of GSVA score and p-value files is not equal')
         super(GSVAWiseFileValidator, self).onComplete()
 
 
 class GSVAScoreValidator(GSVAWiseFileValidator):
     """Validator for files containing scores per geneset from GSVA algorithm.
 
-    GSVA is an algorithm in R that outputs a score and pvalue (from 
+    GSVA is an algorithm in R that outputs a score and p-value (from 
     bootstrapping for each inputted geneset per sample.
     """
     # Score must be between -1 and 1
@@ -2671,9 +2671,9 @@ class GSVAScoreValidator(GSVAWiseFileValidator):
      
  
 class GSVAPvalueValidator(GSVAWiseFileValidator):
-    """Validator for files containing pvalues per geneset from GSVA algorithm.
+    """Validator for files containing p-values per geneset from GSVA algorithm.
 
-    GSVA is an algorithm in R that outputs a score and pvalue (from bootstrapping)
+    GSVA is an algorithm in R that outputs a score and p-value (from bootstrapping)
     for each inputted geneset per sample.
     """
     # Score must be between -0 and 1
@@ -2883,16 +2883,15 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
 
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""    
-	
-	if api_name == 'genesets':
-    	service_url = server_url + '/api/' + api_name
-		
-	# TODO: change API for genes, gene aliases and cancer types to non-legacy
-	else:
-    	service_url = server_url + '/api-legacy/' + api_name
+    
+    if api_name == 'genesets':
+        service_url = server_url + '/api/' + api_name
 
-	
-	logger.debug("Requesting %s from portal at '%s'",
+    # TODO: change API for genes, gene aliases and cancer types to non-legacy
+    else:
+        service_url = server_url + '/api-legacy/' + api_name
+
+    logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
     # usually because the URL provided on the command line was invalid or
@@ -2982,7 +2981,7 @@ def transform_symbol_entrez_map(json_data,
 
 
 def index_geneset_id_list(json_data,
-                         id_field = "genesetIdentifier"):
+                         id_field = "genesetId"):
     result_list = []
     for data_item in json_data:
         geneset_id = data_item[id_field]
@@ -3009,7 +3008,7 @@ def load_portal_info(path, logger, offline=False):
                 lambda json_data: transform_symbol_entrez_map(
                                         json_data, 'gene_alias')),
             ('genesets',
-                lambda json_data: index_geneset_id_list(json_data, 'genesetIdentifier'))):
+                lambda json_data: index_geneset_id_list(json_data, 'genesetId'))):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -3187,7 +3186,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
         ### Check if both files are present
         if not "meta_gsva_pvalues" in validators_by_meta_type:
             logger.error(
-            'Required meta GSVA pvalue file is missing')
+            'Required meta GSVA p-value file is missing')
             
         if not "meta_gsva_scores" in validators_by_meta_type:
             logger.error(

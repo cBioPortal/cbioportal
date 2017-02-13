@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VariantCountServiceImpl implements VariantCountService {
@@ -45,11 +46,17 @@ public class VariantCountServiceImpl implements VariantCountService {
             variantCount.setEntrezGeneId(entrezGeneId);
             variantCount.setKeyword(keyword);
             variantCount.setNumberOfSamples(numberOfSamplesInGeneticProfile);
-            variantCount.setNumberOfSamplesWithMutationInGene(mutationSampleCountByGeneList.stream()
-                .filter(p -> p.getEntrezGeneId().equals(entrezGeneId)).findFirst().get().getSampleCount());
+            
+            Optional<MutationSampleCountByGene> mutationSampleCountByGene = mutationSampleCountByGeneList.stream()
+                .filter(p -> p.getEntrezGeneId().equals(entrezGeneId)).findFirst();
+            mutationSampleCountByGene.ifPresent(m -> variantCount.setNumberOfSamplesWithMutationInGene(m
+                .getSampleCount()));
+            
             if (keyword != null) {
-                variantCount.setNumberOfSamplesWithKeyword(mutationSampleCountByKeywordList.stream()
-                    .filter(p -> p.getKeyword().equals(keyword)).findFirst().get().getSampleCount());
+                Optional<MutationSampleCountByKeyword> mutationSampleCountByKeyword = mutationSampleCountByKeywordList
+                    .stream().filter(p -> p.getKeyword().equals(keyword)).findFirst();
+                mutationSampleCountByKeyword.ifPresent(m -> variantCount.setNumberOfSamplesWithKeyword(m
+                    .getSampleCount()));
             }
             variantCounts.add(variantCount);
         }

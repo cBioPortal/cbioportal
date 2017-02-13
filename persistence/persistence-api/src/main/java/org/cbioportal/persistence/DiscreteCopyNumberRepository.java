@@ -1,5 +1,6 @@
 package org.cbioportal.persistence;
 
+import org.cbioportal.model.CopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 
@@ -18,6 +19,10 @@ public interface DiscreteCopyNumberRepository {
                                                                           List<String> sampleIds, 
                                                                           List<Integer> alterations, String projection);
 
-    BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
-                                                          List<Integer> alterations);
+    BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds,
+                                                                        List<Integer> alterations);
+
+    List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlteration(String geneticProfileId,
+                                                                        List<Integer> entrezGeneIds,
+                                                                        List<Integer> alterations);
 }

@@ -1,9 +1,9 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.cbioportal.model.CopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -26,7 +26,7 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
     }
 
     @Override
-    public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId, 
+    public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
                                                                List<Integer> alterations) {
         
         return discreteCopyNumberMapper.getMetaDiscreteCopyNumbers(geneticProfileId, 
@@ -43,9 +43,18 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
     }
 
     @Override
-    public BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
-                                                                 List<Integer> alterations) {
+    public BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, 
+                                                                               List<String> sampleIds, 
+                                                                               List<Integer> alterations) {
         
         return discreteCopyNumberMapper.getMetaDiscreteCopyNumbers(geneticProfileId, sampleIds, alterations);
+    }
+
+    @Override
+    public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlteration(String geneticProfileId, 
+                                                                               List<Integer> entrezGeneIds, 
+                                                                               List<Integer> alterations) {
+        
+        return discreteCopyNumberMapper.getSampleCountByGeneAndAlteration(geneticProfileId, entrezGeneIds, alterations);
     }
 }

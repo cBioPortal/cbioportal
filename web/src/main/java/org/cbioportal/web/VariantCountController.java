@@ -37,10 +37,10 @@ public class VariantCountController {
     @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/variant-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts of specific variants within a mutation genetic profile")
-    public ResponseEntity<List<VariantCount>> getVariantCounts(
+    public ResponseEntity<List<VariantCount>> fetchVariantCounts(
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
         @PathVariable String geneticProfileId,
-        @ApiParam(required = true, value = "List of Entrez Gene IDs")
+        @ApiParam(required = true, value = "List of variant count identifiers")
         @Size(min = 1, max = VARIANT_COUNT_MAX_PAGE_SIZE)
         @RequestBody List<VariantCountIdentifier> variantCountIdentifiers) throws GeneticProfileNotFoundException {
 

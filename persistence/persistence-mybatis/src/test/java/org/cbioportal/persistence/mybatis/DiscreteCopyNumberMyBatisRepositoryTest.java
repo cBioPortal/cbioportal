@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.cbioportal.model.CopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
@@ -12,13 +13,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
 @Configurable
 public class DiscreteCopyNumberMyBatisRepositoryTest {
-    
+
     @Autowired
     private DiscreteCopyNumberMyBatisRepository discreteCopyNumberMyBatisRepository;
     
@@ -72,7 +74,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-2);
         alterations.add(2);
-        
+
         BaseMeta result = discreteCopyNumberMyBatisRepository.getMetaDiscreteCopyNumbersInGeneticProfile(
             "study_tcga_pub_gistic", "TCGA-A1-A0SB-01", alterations);
         
@@ -112,10 +114,27 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-2);
         alterations.add(2);
-        
-        BaseMeta result = discreteCopyNumberMyBatisRepository.fetchMetaDiscreteCopyNumbersInGeneticProfile(
-            "study_tcga_pub_gistic", sampleIds, alterations);
+
+        BaseMeta result = discreteCopyNumberMyBatisRepository
+            .fetchMetaDiscreteCopyNumbersInGeneticProfile("study_tcga_pub_gistic", sampleIds, alterations);
 
         Assert.assertEquals((Integer) 3, result.getTotalCount());
+    }
+
+    @Test
+    public void getSampleCountByGeneAndAlteration() throws Exception {
+
+        List<CopyNumberSampleCountByGene> result  = discreteCopyNumberMyBatisRepository
+            .getSampleCountByGeneAndAlteration("study_tcga_pub_gistic", Arrays.asList(207, 208), Arrays.asList(-2, 2));
+        
+        Assert.assertEquals(2, result.size());
+        CopyNumberSampleCountByGene copyNumberSampleCountByGene1 = result.get(0);
+        Assert.assertEquals((Integer) 207, copyNumberSampleCountByGene1.getEntrezGeneId());
+        Assert.assertEquals((Integer) (-2), copyNumberSampleCountByGene1.getAlteration());
+        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene1.getSampleCount());
+        CopyNumberSampleCountByGene copyNumberSampleCountByGene2 = result.get(1);
+        Assert.assertEquals((Integer) 208, copyNumberSampleCountByGene2.getEntrezGeneId());
+        Assert.assertEquals((Integer) (2), copyNumberSampleCountByGene2.getAlteration());
+        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene2.getSampleCount());
     }
 }

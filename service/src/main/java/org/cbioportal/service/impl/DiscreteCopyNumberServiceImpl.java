@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.CopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.GeneticData;
 import org.cbioportal.model.GeneticProfile;
@@ -82,8 +83,9 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    public BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
-                                                                 List<Integer> alterations) 
+    public BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, 
+                                                                               List<String> sampleIds, 
+                                                                               List<Integer> alterations) 
         throws GeneticProfileNotFoundException {
 
         validateGeneticProfile(geneticProfileId);
@@ -100,7 +102,16 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
         return baseMeta;
     }
-    
+
+    @Override
+    public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlteration(String geneticProfileId, 
+                                                                               List<Integer> entrezGeneIds, 
+                                                                               List<Integer> alterations) {
+        
+        return discreteCopyNumberRepository.getSampleCountByGeneAndAlteration(geneticProfileId, entrezGeneIds, 
+            alterations);
+    }
+
     private DiscreteCopyNumberData convert(GeneticData geneticData) {
         
         DiscreteCopyNumberData discreteCopyNumberData = new DiscreteCopyNumberData();

@@ -6,6 +6,7 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
+import org.cbioportal.web.parameter.DiscreteCopyNumberFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -164,19 +165,17 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
 
         Mockito.when(discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString()))
-            .thenReturn(discreteCopyNumberDataList);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class),
+            Mockito.anyString())).thenReturn(discreteCopyNumberDataList);
 
-        List<String> sampleIds = new ArrayList<>();
-        sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
-        sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
+        DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
             .post("/genetic-profiles/test_genetic_profile_id/discrete-copy-number/fetch")
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIds)))
+            .content(objectMapper.writeValueAsString(discreteCopyNumberFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -198,12 +197,11 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
 
         Mockito.when(discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString()))
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class),
+            Mockito.anyString()))
             .thenReturn(discreteCopyNumberDataList);
 
-        List<String> sampleIds = new ArrayList<>();
-        sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
-        sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
+        DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
         
         mockMvc.perform(MockMvcRequestBuilders
             .post("/genetic-profiles/test_genetic_profile_id/discrete-copy-number/fetch")
@@ -211,7 +209,7 @@ public class DiscreteCopyNumberControllerTest {
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIds)))
+            .content(objectMapper.writeValueAsString(discreteCopyNumberFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -244,22 +242,36 @@ public class DiscreteCopyNumberControllerTest {
         baseMeta.setTotalCount(2);
 
         Mockito.when(discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInGeneticProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class)))
+            .thenReturn(baseMeta);
 
-        List<String> sampleIds = new ArrayList<>();
-        sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
-        sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
+        DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
         
         mockMvc.perform(MockMvcRequestBuilders.
             post("/genetic-profiles/test_genetic_profile_id/discrete-copy-number/fetch")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIds))
+            .content(objectMapper.writeValueAsString(discreteCopyNumberFilter))
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
-    
+
+    private DiscreteCopyNumberFilter createDiscreteCopyNumberFilter() {
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
+        sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_1);
+        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_2);
+
+        DiscreteCopyNumberFilter discreteCopyNumberFilter = new DiscreteCopyNumberFilter();
+        discreteCopyNumberFilter.setEntrezGeneIds(entrezGeneIds);
+        discreteCopyNumberFilter.setSampleIds(sampleIds);
+        return discreteCopyNumberFilter;
+    }
+
     private List<DiscreteCopyNumberData> createExampleDiscreteCopyNumberData() {
         
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();

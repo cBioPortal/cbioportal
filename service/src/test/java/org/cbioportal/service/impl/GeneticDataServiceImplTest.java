@@ -120,4 +120,15 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals("sample_id_2", geneticData2.getSampleId());
         Assert.assertEquals("-0.3456", geneticData2.getValue());
     }
+
+    @Test
+    public void getNumberOfSamplesInGeneticProfile() throws Exception {
+
+        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(
+            "1,2,");
+        
+        Integer result = geneticDataService.getNumberOfSamplesInGeneticProfile(GENETIC_PROFILE_ID);
+        
+        Assert.assertEquals((Integer) 2, result);
+    }
 }

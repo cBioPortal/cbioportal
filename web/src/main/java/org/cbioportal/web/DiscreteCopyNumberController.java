@@ -8,8 +8,8 @@ import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
+import org.cbioportal.web.parameter.DiscreteCopyNumberFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.Size;
+import javax.validation.Valid;
 import java.util.List;
 
 @PublicApi
@@ -52,7 +52,7 @@ public class DiscreteCopyNumberController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, discreteCopyNumberService
-                .getMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleId, 
+                .getMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleId,
                     discreteCopyNumberEventType.getAlterations()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
@@ -62,8 +62,8 @@ public class DiscreteCopyNumberController {
         }
     }
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/discrete-copy-number/fetch", 
-        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/discrete-copy-number/fetch",
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch discrete copy number alterations in a genetic profile by sample ID")
     public ResponseEntity<List<DiscreteCopyNumberData>> fetchDiscreteCopyNumbersInGeneticProfile(
@@ -71,21 +71,23 @@ public class DiscreteCopyNumberController {
         @PathVariable String geneticProfileId,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
-        @ApiParam(required = true, value = "List of Sample IDs")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<String> sampleIds,
+        @ApiParam(required = true, value = "List of Sample IDs and Entrez Gene IDs")
+        @Valid @RequestBody DiscreteCopyNumberFilter discreteCopyNumberFilter,
         @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GeneticProfileNotFoundException {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection)
+        throws GeneticProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, discreteCopyNumberService
-                .fetchMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleIds, 
-                    discreteCopyNumberEventType.getAlterations()).getTotalCount().toString());
+                .fetchMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, discreteCopyNumberFilter.getSampleIds(),
+                    discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterations())
+                .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleIds,
+                discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(geneticProfileId,
+                    discreteCopyNumberFilter.getSampleIds(), discreteCopyNumberFilter.getEntrezGeneIds(),
                     discreteCopyNumberEventType.getAlterations(), projection.name()), HttpStatus.OK);
         }
     }

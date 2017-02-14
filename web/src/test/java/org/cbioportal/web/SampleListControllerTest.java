@@ -45,6 +45,7 @@ public class SampleListControllerTest {
     private static final String TEST_STUDY_NAME_1 = "test_study_name_1";
     private static final String TEST_SHORT_NAME_1 = "test_short_name_1";
     private static final String TEST_STUDY_DESCRIPTION_1 = "test_study_description_1";
+    private static final int TEST_SAMPLE_COUNT_1 = 10;
     private static final int TEST_LIST_ID_2 = 2;
     private static final String TEST_STABLE_ID_2 = "test_stable_id_2";
     private static final int TEST_CANCER_STUDY_ID_2 = 2;
@@ -52,8 +53,8 @@ public class SampleListControllerTest {
     private static final String TEST_CATEGORY_2 = "test_datatype_2";
     private static final String TEST_NAME_2 = "test_name_2";
     private static final String TEST_DESCRIPTION_2 = "test_description_2";
-    public static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
-    public static final String TEST_SAMPLE_ID_2 = "test_sample_id_2";
+    private static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
+    private static final String TEST_SAMPLE_ID_2 = "test_sample_id_2";
 
     @Autowired
     private WebApplicationContext wac;
@@ -121,7 +122,8 @@ public class SampleListControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value(TEST_CATEGORY_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleCount").value(TEST_SAMPLE_COUNT_1));
     }
 
     @Test
@@ -167,7 +169,8 @@ public class SampleListControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.category").value(TEST_CATEGORY_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleCount").value(TEST_SAMPLE_COUNT_1));
     }
 
     @Test
@@ -218,7 +221,8 @@ public class SampleListControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value(TEST_CATEGORY_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleCount").value(TEST_SAMPLE_COUNT_1));
     }
 
     @Test
@@ -278,6 +282,7 @@ public class SampleListControllerTest {
     }
 
     private SampleList createExampleSampleListWithStudy() {
+        
         SampleList sampleList = new SampleList();
         sampleList.setListId(TEST_LIST_ID_1);
         sampleList.setStableId(TEST_STABLE_ID_1);
@@ -286,6 +291,7 @@ public class SampleListControllerTest {
         sampleList.setCategory(TEST_CATEGORY_1);
         sampleList.setName(TEST_NAME_1);
         sampleList.setDescription(TEST_DESCRIPTION_1);
+        sampleList.setSampleCount(TEST_SAMPLE_COUNT_1);
         CancerStudy cancerStudy = new CancerStudy();
         cancerStudy.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
         cancerStudy.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);

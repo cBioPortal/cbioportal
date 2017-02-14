@@ -305,8 +305,6 @@ cBioPortal also supports log2 copy number data. If your data is in log2, change 
 3. **datatype**: LOG2-VALUE
 4. **stable_id**: log2CNA 
 
-_**TODO: In issue [#571](https://github.com/cBioPortal/cbioportal/issues/571) log2 is changed to linear. This means the information that it is a log value is now lost. It should be discussed, as this is probably not a good idea.**_
-
 ##### Example
 An example metadata file, e.g. meta_CNA_log2.txt, would be:
 ```

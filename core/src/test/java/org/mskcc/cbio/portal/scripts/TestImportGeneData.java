@@ -62,6 +62,7 @@ public class TestImportGeneData {
     //private String suppGeneDataFilename = null;
     private URL geneDataFilePath;
     private URL suppGeneDataFilePath;
+    private String geneLengthDataFilePath;
     
     @Before
     public void setUp() {
@@ -71,10 +72,15 @@ public class TestImportGeneData {
         //suppGeneDataFilename = home + File.separator + "core/target/test-classes/supp-genes.txt";
         geneDataFilePath = this.getClass().getResource("/genes_test.txt");
         suppGeneDataFilePath = this.getClass().getResource("/supp-genes.txt");
+        geneLengthDataFilePath = "src/test/resources/gene-length_test.txt";
 
     }
 
     @Test
+    /*
+     * Checks that ImportGeneData works by calculating the length from three genes 
+     * in genes_test.txt. The file genes_test.txt contains real data.
+     */
     public void testImportGeneData() throws Exception {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor.setConsoleMode(false);
@@ -96,8 +102,49 @@ public class TestImportGeneData {
             gene = daoGene.getGene("ABCA3");
             assertEquals(21, gene.getEntrezGeneId());
         }
+        
         else {
             throw new IllegalArgumentException("Cannot find test gene file, is PORTAL_HOME set?");
+        }
+    }
+    
+    @Test
+    /*
+     * Checks that ImportGeneLength works by calculating the length from three genes
+     * in gene-length_test.txt. The data contained in this file is real, except the transcript
+     * on line 5: the position has been changed for testing purposes.
+     * 
+     * The test checks that the function calculates the correct gene length in this scenarios:
+     * ABCA4: two exons from the same chromosome which do not overlap.
+     * AACP: contains a transcript that must be skipped, and two overlapping exons.
+     * AARS: contains an exon in a different chromosome that must be skipped, the rest of exons do not overlap.
+     * AGER: calculates the gene length using a single exon.
+     * MED28P8: two exons from different chromosomes.
+     */
+    public void testImportGeneLength() throws Exception {
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        //run import gene data (this test depends on it):
+        testImportGeneData();
+        if (geneLengthDataFilePath != null) {
+            File file = new File(geneLengthDataFilePath);
+            ImportGeneData.importGeneLength(file);
+            CanonicalGene gene = daoGene.getNonAmbiguousGene("ABCA4", "chr1", false);
+            assertEquals(372,gene.getLength());
+
+            gene = daoGene.getNonAmbiguousGene("AACP", "chr8", false);
+            assertEquals(16267,gene.getLength());
+            
+            gene = daoGene.getNonAmbiguousGene("AARS", "chr16", false);
+            assertEquals(1163,gene.getLength());
+            
+            gene = daoGene.getNonAmbiguousGene("AGER", "chr6", false);
+            assertEquals(1001,gene.getLength());
+            
+            gene = daoGene.getNonAmbiguousGene("MED28P8", "chr4", false);
+            assertEquals(201,gene.getLength());
+        }
+        else {
+            throw new IllegalArgumentException("Cannot find test gene length file, is PORTAL_HOME set?");
         }
     }
 }

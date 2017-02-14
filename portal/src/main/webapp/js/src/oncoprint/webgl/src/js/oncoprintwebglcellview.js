@@ -4,8 +4,6 @@ var shapeToVertexes = require('./oncoprintshapetovertexes.js');
 var CachedProperty = require('./CachedProperty.js');
 var Shape = require('./oncoprintshape.js');
 
-// TODO: antialiasing
-
 var sgndiff = function(a,b) {
     if (a < b) {
 	return -1;
@@ -625,6 +623,10 @@ var OncoprintWebGLCellView = (function () {
 	    }
 	}
 	color_bank = color_bank.reduce(function(arr, next) { return arr.concat(next); }, []);
+	// minimum color bank to avoid webGL texture errors
+	if (color_bank.length === 0) {
+	    color_bank.push(0,0,0,0);
+	}
 	view.vertex_data[track_id] = {
 	    pos_array: vertex_pos_array,
 	    col_array: vertex_col_array,

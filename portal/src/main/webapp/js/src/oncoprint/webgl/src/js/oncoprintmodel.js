@@ -1,4 +1,5 @@
 var binarysearch = require('./binarysearch.js');
+var hasElementsInInterval = require('./haselementsininterval.js');
 var CachedProperty = require('./CachedProperty.js');
 
 function ifndef(x, val) {
@@ -1106,9 +1107,15 @@ var OncoprintModel = (function () {
 	var curr_id_to_index = model.getIdToIndexMap();
 	var combinedComparator = function(idA, idB) {
 	    var res = 0;
+            var abs_res = 0;
 	    for (var i=0; i<track_sort_priority.length; i++) {
-		res = precomputed_comparator[track_sort_priority[i]].compare(idA, idB);
-		if (res !== 0) {
+		var next_res = precomputed_comparator[track_sort_priority[i]].compare(idA, idB);
+                var abs_next_res = Math.abs(next_res);
+		if (abs_next_res > abs_res) {
+		    res = next_res;
+                    abs_res = abs_next_res;
+		}
+		if (abs_res === 1) {
 		    break;
 		}
 	    }
@@ -1116,7 +1123,7 @@ var OncoprintModel = (function () {
 		// stable sort
 		res = ( curr_id_to_index[idA] < curr_id_to_index[idB] ? -1 : 1); // will never be the same, no need to check for 0
 	    }
-	    return res;
+	    return (res > 0) ? 1 : -1;
 	}
 	var id_order = model.getIdOrder(true).slice();
 	id_order.sort(combinedComparator);
@@ -1142,27 +1149,46 @@ var OncoprintModel = (function () {
 
 var PrecomputedComparator = (function() {
     function PrecomputedComparator(list, comparator, sort_direction, element_identifier_key) {
-	var directed_comparator = function(d1, d2) {
-	    if (sort_direction === 0) {
-		return 0;
-	    }
-	    var res = comparator(d1, d2);
-	    if (res === 2) {
-		return 1;
-	    } else if (res === -2) {
-		return -1;
-	    } else {
-		return res*sort_direction;
-	    }
+	var preferred, mandatory;
+	if (typeof comparator === "function") {
+	    preferred = comparator;
+	    mandatory = comparator;
+	} else {
+	    preferred = comparator.preferred;
+	    mandatory = comparator.mandatory;
+	}
+	var makeDirectedComparator = function(cmp) {
+	    return function (d1, d2) {
+		if (sort_direction === 0) {
+		    return 0;
+		}
+		var res = cmp(d1, d2);
+		if (res === 2) {
+		    return 1;
+		} else if (res === -2) {
+		    return -1;
+		} else {
+		    return res * sort_direction;
+		}
+	    };
 	};
-	var sorted_list = list.sort(directed_comparator);
-	this.change_points = []; // i is a change point iff comp(elt[i], elt[i+1]) !== 0
+	var preferredComparator = makeDirectedComparator(preferred);
+	var mandatoryComparator = makeDirectedComparator(mandatory);
+	var sorted_list = list.sort(preferredComparator);
+	
+	// i is a change point iff comp(elt[i], elt[i+1]) !== 0
+	this.preferred_change_points = []; // i is a preferred change pt iff its a change pt with comp = preferredComparator but not with comp = mandatoryComparator
+	this.mandatory_change_points = []; // i is a mandatory change pt iff its a change pt with comp = mandatoryComparator
+	
+	// note that by the following process, preferred_change_points and mandatory_change_points are sorted
 	for (var i=0; i<sorted_list.length; i++) {
 	    if (i === sorted_list.length - 1) {
 		break;
 	    }
-	    if (directed_comparator(sorted_list[i], sorted_list[i+1]) !== 0) {
-		this.change_points.push(i);
+	    if (mandatoryComparator(sorted_list[i], sorted_list[i+1]) !== 0) {
+		this.mandatory_change_points.push(i);
+	    } else if (preferredComparator(sorted_list[i], sorted_list[i+1]) !== 0) {
+		this.preferred_change_points.push(i);
 	    }
 	}
 	// Note that by this process change_points is sorted
@@ -1193,22 +1219,11 @@ var PrecomputedComparator = (function() {
 	    should_negate_result = true;
 	}
 	// See if any changepoints in [indA, indB)
-	var upper_bd_excl = this.change_points.length;
-	var lower_bd_incl = 0;
-	var middle;
 	var res = 0;
-	while (true) {
-	    middle = Math.floor((lower_bd_incl + upper_bd_excl) / 2);
-	    if (lower_bd_incl === upper_bd_excl) {
-		break;
-	    } else if (this.change_points[middle] >= indB) {
-		upper_bd_excl = middle;
-	    } else if (this.change_points[middle] < indA) {
-		lower_bd_incl = middle+1;
-	    } else {
-		res = -1;
-		break;
-	    }
+	if (hasElementsInInterval(this.mandatory_change_points, function(x) { return x; }, indA, indB)) {
+	    res = -1;
+	} else if (hasElementsInInterval(this.preferred_change_points, function(x) { return x; }, indA, indB)) {
+	    res = -0.5;
 	}
 	if (should_negate_result) {
 	    res = res * -1;

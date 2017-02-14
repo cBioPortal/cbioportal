@@ -5364,6 +5364,7 @@ window.LogRankTest = (function(jStat) {
     var group = {};
     var labelInitData = {};
     var opts = {};
+      var genePanelMap = {};
 
     // Category based color assignment. Avoid color changing
     var assignedColors = {
@@ -5385,7 +5386,7 @@ window.LogRankTest = (function(jStat) {
 
     content.init =
       function(_attributes, _opts, _selectedSamples, _selectedGenes,
-        _data, _callbacks, _geneData, _dimension) {
+        _data, _callbacks, _geneData, _dimension, _genePanelMap) {
         initialized = false;
         allSamplesIds = _selectedSamples;
         selectedSamples = _selectedSamples;
@@ -5395,6 +5396,7 @@ window.LogRankTest = (function(jStat) {
         selectedGenes = _selectedGenes;
         chartId_ = _opts.chartId;
         opts = _opts;
+          genePanelMap = _genePanelMap;
         caseIndices = iViz.getCaseIndices(_attributes.group_type);
         data_ = _data;
         geneData_ = _geneData;
@@ -5469,7 +5471,7 @@ window.LogRankTest = (function(jStat) {
               });
             }
           });
-          initReactTable(true, selectedMap_);
+          initReactTable(true, selectedMap_, selectedSamples);
         }
       } else {
         initReactTable(false);
@@ -5487,9 +5489,9 @@ window.LogRankTest = (function(jStat) {
       }
     };
 
-    function initReactTable(_reloadData, _selectedMap) {
+    function initReactTable(_reloadData, _selectedMap, _selectedSampleIds) {
       if (_reloadData) {
-        reactTableData = initReactData(_selectedMap);
+        reactTableData = initReactData(_selectedMap, _selectedSampleIds);
       }
       var _opts = {
         input: reactTableData,
@@ -5597,10 +5599,11 @@ window.LogRankTest = (function(jStat) {
       categories_ = _labels;
     }
 
-    function mutatedGenesData(_selectedGenesMap) {
-      var numOfCases_ = content.getCases().length;
+    function mutatedGenesData(_selectedGenesMap, _selectedSampleIds) {
+        genePanelMap = window.iviz.datamanager.updateGenePanelMap(genePanelMap, _selectedSampleIds);
 
       selectedGeneData.length = 0;
+        var numOfCases_ = content.getCases().length;
 
       if (geneData_) {
         _.each(geneData_, function(item, index) {
@@ -5611,7 +5614,11 @@ window.LogRankTest = (function(jStat) {
             datum.caseIds = iViz.util.unique(item.caseIds);
             datum.cases = datum.caseIds.length;
             datum.uniqueId = index;
-            freq = iViz.util.calcFreq(datum.cases, numOfCases_);
+              if (typeof genePanelMap[item.gene] !== 'undefined') {
+                  freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
+              } else {
+                  freq = iViz.util.calcFreq(datum.cases, numOfCases_);
+              }
             switch (type_) {
               case 'mutatedGene':
                 datum.numOfMutations = item.num_muts;
@@ -5632,7 +5639,11 @@ window.LogRankTest = (function(jStat) {
             datum.caseIds =
               iViz.util.unique(_selectedGenesMap[item.index].caseIds);
             datum.cases = datum.caseIds.length;
-            freq = iViz.util.calcFreq(datum.cases, numOfCases_);
+              if (typeof genePanelMap[item.gene] !== 'undefined') {
+                  freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
+              } else {
+                  freq = iViz.util.calcFreq(datum.cases, numOfCases_);
+              }
             switch (type_) {
               case 'mutatedGene':
                 datum.numOfMutations = _selectedGenesMap[item.index].num_muts;
@@ -5666,7 +5677,7 @@ window.LogRankTest = (function(jStat) {
       return selectedGeneData;
     }
 
-    function initReactData(_selectedMap) {
+    function initReactData(_selectedMap, _selectedSampleIds) {
       attr_ = iViz.util.tableView.getAttributes(type_);
       var result = {
         data: [],
@@ -5674,7 +5685,7 @@ window.LogRankTest = (function(jStat) {
       };
 
       if (isMutatedGeneCna) {
-        var _mutationData = mutatedGenesData(_selectedMap);
+        var _mutationData = mutatedGenesData(_selectedMap, _selectedSampleIds);
         _.each(_mutationData, function(item) {
           for (var key in item) {
             if (item.hasOwnProperty(key)) {
@@ -5963,7 +5974,8 @@ window.LogRankTest = (function(jStat) {
         invisibleDimension: {},
         isMutatedGeneCna: false,
         classTableHeight: 'grid-item-h-2',
-        madeSelection: false
+        madeSelection: false,
+          genePanelMap: {}
       };
     },
     watch: {
@@ -6086,7 +6098,7 @@ window.LogRankTest = (function(jStat) {
           this.$root.selectedgenes, data, {
             addGeneClick: this.addGeneClick,
             submitClick: this.submitClick
-          }, this.isMutatedGeneCna ? _data.geneMeta : null, this.invisibleDimension);
+          }, this.isMutatedGeneCna ? _data.geneMeta : null, this.invisibleDimension, this.genePanelMap);
         this.setDisplayTitle(this.chartInst.getCases().length);
         if (!this.isMutatedGeneCna &&
           Object.keys(this.attributes.keys).length <= 3) {
@@ -6121,11 +6133,16 @@ window.LogRankTest = (function(jStat) {
       callbacks.submitClick = this.submitClick;
       _self.chartInst = new iViz.view.component.TableView();
       _self.chartInst.setDownloadDataTypes(['tsv']);
-      if (this.isMutatedGeneCna) {
-        $.when(iViz.getTableData(_self.attributes.attr_id))
-          .then(this.processTableData);
+      if (_self.isMutatedGeneCna) {
+        $.when(iViz.getTableData(_self.attributes.attr_id)).then(function(_tableData) {
+            $.when(window.iviz.datamanager.getGenePanelMap()).then(function (_genePanelMap) {
+                //create gene panel map
+                _self.genePanelMap = _genePanelMap;
+                _self.processTableData(_tableData);
+            });    
+          });
       } else {
-        this.processTableData();
+        _self.processTableData();
       }
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }

@@ -295,14 +295,8 @@ var comparator_utils = {
 	var rppa_key = 'disp_prot';
 	var regulation_order = makeComparatorMetric(['up', 'down', undefined]);
 
-	return function (d1, d2) {
-	    // First, test if either is not sequenced
-	    var ns_diff = utils.sign(+(!!d1.na) - (+(!!d2.na)));
-	    if (ns_diff !== 0) {
-		return ns_diff;
-	    }
-	    
-	    // Next, test fusion
+	var mandatory = function(d1, d2) {
+	    // Test fusion
 	    if (d1[fusion_key] && !(d2[fusion_key])) {
 		return -1;
 	    } else if (!(d1[fusion_key]) && d2[fusion_key]) {
@@ -335,6 +329,19 @@ var comparator_utils = {
 
 	    // If we reach this point, there's no order difference
 	    return 0;
+	}
+	var preferred = function (d1, d2) {
+	    // First, test if either is not sequenced
+	    var ns_diff = utils.sign(+(!!d1.na) - (+(!!d2.na)));
+	    if (ns_diff !== 0) {
+		return ns_diff;
+	    }
+	    
+	    return mandatory(d1, d2);
+	};
+	return {
+	    preferred: preferred,
+	    mandatory: mandatory
 	};
     },
     'numericalClinicalComparator': function (d1, d2) {

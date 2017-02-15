@@ -56,9 +56,6 @@
     <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
         <b:constructor-arg ref="dataSource"/>
     </b:bean>
-    <b:bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <b:property name="jndiName" value="java:comp/env/${db.tomcat_resource_name}" />
-    </b:bean>
 
     <!-- static resources not processed by spring security filters -->
     <http pattern="/css/**" security="none"/>
@@ -540,4 +537,26 @@
     </b:bean>
     </b:beans>
 
+    <!-- User database DBCP configuration (for Heroku etc.) -->
+    <b:beans profile="dbcp">
+        <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+            <b:property name="driverClassName" value="${db.driver}"/>
+            <b:property name="url" value="${db.connection_string}${db.portal_db_name}?zeroDateTimeBehavior=convertToNull"/>
+            <b:property name="username" value="${db.user}"/>
+            <b:property name="password" value="${db.password}"/>
+            <b:property name="minIdle" value="0"/>
+            <b:property name="maxIdle" value="10"/>
+            <b:property name="maxActive" value="100"/>
+            <b:property name="poolPreparedStatements" value="true"/>
+            <b:property name="testOnBorrow" value="true" />
+            <b:property name="validationQuery" value="SELECT 1" />
+        </b:bean>
+    </b:beans>
+
+    <!-- User database JNDI data source (for Tomcat) -->
+    <b:beans profile="jndi">
+        <b:bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+            <b:property name="jndiName" value="java:comp/env/${db.tomcat_resource_name}"/>
+        </b:bean>
+    </b:beans>
 </b:beans>

@@ -1351,7 +1351,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               self_.checkForDropDownCharts();
               _.every(self_.groups, function(group) {
                 if (group.type === attrData.group_type) {
-                  if (group.attributes.length < 31) {
+                  if (group.attributes.length < 30) {
                     attrData.group_id = group.id;
                     _groupIdToPush = group.id;
                     _attrAdded = true;
@@ -2216,7 +2216,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   })();
 })(window.iViz,
   window._, window.cbio);
-
 /**
  * Created by Karthik Kalletla on 4/13/16.
  */
@@ -2384,12 +2383,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                   iViz.util.intersection(_selectedCasesByFilters,
                     _groupFilteredCases);
               }
-            } else {
-              _selectedCasesByFilters = (updateType_ === 'patient') ?
-                self_.completePatientsList : self_.completeSamplesList;
             }
           }
         });
+
+        if (_selectedCasesByFilters.length === 0) {
+          _selectedCasesByFilters = (updateType_ === 'patient') ?
+            self_.completePatientsList : self_.completeSamplesList;
+        }
         self_.hasfilters = _hasFilters;
         if (updateType_ === 'patient') {
           self_.selectedPatientsByFilters = _selectedCasesByFilters.sort();
@@ -2414,9 +2415,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var _resultCounterSelectedCases =
           iViz.util.intersection(_mappedCounterSelectedCases,
             _counterSelectedCasesByFilters);
-        var _resultSelectedCases =
-          iViz.util.idMapping(iViz.getCasesMap(_counterCaseType),
-            _resultCounterSelectedCases);
         var _casesSync = iViz.util.idMapping(iViz.getCasesMap(_counterCaseType),
           _counterSelectedCasesByFilters);
         var _counterCasesSync = _mappedCounterSelectedCases;
@@ -2426,7 +2424,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           self_.samplesync = _counterCasesSync;
           if (self_.hasfilters) {
             self_.selectedsamples = _resultCounterSelectedCases;
-            self_.selectedpatients = _resultSelectedCases;
+            self_.selectedpatients = _selectedCasesByFilters;
           } else {
             self_.selectedsamples = self_.completeSamplesList;
             self_.selectedpatients = self_.completePatientsList;
@@ -2435,7 +2433,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           self_.samplesync = _casesSync;
           self_.patientsync = _counterCasesSync;
           if (self_.hasfilters) {
-            self_.selectedsamples = _resultSelectedCases;
+            self_.selectedsamples = _selectedCasesByFilters;
             self_.selectedpatients = _resultCounterSelectedCases;
           } else {
             self_.selectedsamples = self_.completeSamplesList;
@@ -3088,10 +3086,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         content: '<div id="qtip-' + v.opts.chartDivId + '-content-react">Loading....</div>',
         events: {
           show: function() {
-            if (qtipRendered) {
-              qtipRendered = false;
-              updateQtip = false;
-            } else if (updateQtip) {
+            if (updateQtip) {
               updateQtip = false;
               updatePieLabels();
             }
@@ -3205,7 +3200,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       _.each(labels, function(label, key) {
         data.push(label.name + '\t' + label.cases);
       });
-      
+
       content.setDownloadData('tsv', {
         fileName: v.data.display_name || 'Pie Chart',
         data: data.join('\n')
@@ -3506,7 +3501,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   window.ReactDOM,
   window.EnhancedFixedDataTableSpecial
 );
-
 /**
  * Created by Karthik Kalletla on 4/6/16.
  */
@@ -3663,7 +3657,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   window.dc,
   window.iViz,
   window.$ || window.jQuery, window._);
-
 'use strict';
 (function(iViz, dc, _, $, d3, cbio) {
   // iViz pie chart component. It includes DC pie chart.
@@ -5364,7 +5357,7 @@ window.LogRankTest = (function(jStat) {
     var group = {};
     var labelInitData = {};
     var opts = {};
-      var genePanelMap = {};
+    var genePanelMap = {};
 
     // Category based color assignment. Avoid color changing
     var assignedColors = {
@@ -5396,7 +5389,7 @@ window.LogRankTest = (function(jStat) {
         selectedGenes = _selectedGenes;
         chartId_ = _opts.chartId;
         opts = _opts;
-          genePanelMap = _genePanelMap;
+        genePanelMap = _genePanelMap;
         caseIndices = iViz.getCaseIndices(_attributes.group_type);
         data_ = _data;
         geneData_ = _geneData;
@@ -5600,10 +5593,11 @@ window.LogRankTest = (function(jStat) {
     }
 
     function mutatedGenesData(_selectedGenesMap, _selectedSampleIds) {
-        genePanelMap = window.iviz.datamanager.updateGenePanelMap(genePanelMap, _selectedSampleIds);
 
+      genePanelMap = window.iviz.datamanager.updateGenePanelMap(genePanelMap, _selectedSampleIds);
+      
       selectedGeneData.length = 0;
-        var numOfCases_ = content.getCases().length;
+      var numOfCases_ = content.getCases().length;
 
       if (geneData_) {
         _.each(geneData_, function(item, index) {
@@ -5614,11 +5608,11 @@ window.LogRankTest = (function(jStat) {
             datum.caseIds = iViz.util.unique(item.caseIds);
             datum.cases = datum.caseIds.length;
             datum.uniqueId = index;
-              if (typeof genePanelMap[item.gene] !== 'undefined') {
-                  freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
-              } else {
-                  freq = iViz.util.calcFreq(datum.cases, numOfCases_);
-              }
+            if (typeof genePanelMap[item.gene] !== 'undefined') {
+              freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
+            } else {
+              freq = iViz.util.calcFreq(datum.cases, numOfCases_);
+            }
             switch (type_) {
               case 'mutatedGene':
                 datum.numOfMutations = item.num_muts;
@@ -5639,11 +5633,11 @@ window.LogRankTest = (function(jStat) {
             datum.caseIds =
               iViz.util.unique(_selectedGenesMap[item.index].caseIds);
             datum.cases = datum.caseIds.length;
-              if (typeof genePanelMap[item.gene] !== 'undefined') {
-                  freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
-              } else {
-                  freq = iViz.util.calcFreq(datum.cases, numOfCases_);
-              }
+            if (typeof genePanelMap[item.gene] !== 'undefined') {
+              freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
+            } else {
+              freq = iViz.util.calcFreq(datum.cases, numOfCases_);
+            }
             switch (type_) {
               case 'mutatedGene':
                 datum.numOfMutations = _selectedGenesMap[item.index].num_muts;
@@ -5975,7 +5969,7 @@ window.LogRankTest = (function(jStat) {
         isMutatedGeneCna: false,
         classTableHeight: 'grid-item-h-2',
         madeSelection: false,
-          genePanelMap: {}
+        genePanelMap: {}
       };
     },
     watch: {
@@ -6135,12 +6129,12 @@ window.LogRankTest = (function(jStat) {
       _self.chartInst.setDownloadDataTypes(['tsv']);
       if (_self.isMutatedGeneCna) {
         $.when(iViz.getTableData(_self.attributes.attr_id)).then(function(_tableData) {
-            $.when(window.iviz.datamanager.getGenePanelMap()).then(function (_genePanelMap) {
-                //create gene panel map
-                _self.genePanelMap = _genePanelMap;
-                _self.processTableData(_tableData);
-            });    
+          $.when(window.iviz.datamanager.getGenePanelMap()).then(function (_genePanelMap) {
+            //create gene panel map
+            _self.genePanelMap = _genePanelMap;
+            _self.processTableData(_tableData);
           });
+        });
       } else {
         _self.processTableData();
       }

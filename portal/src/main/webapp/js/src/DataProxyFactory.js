@@ -41,7 +41,7 @@ var DataProxyFactory = (function()
 	 *
 	 * @return singleton instance of MutationDataProxy class
 	 */
-	function getDefaultMutationDataProxy()
+	function getDefaultMutationDataProxy(_isVirtualStudy)
 	{
 		// init default mutation data proxy only once
 		if (_defaultMutationDataProxy == null)
@@ -51,30 +51,36 @@ var DataProxyFactory = (function()
 			var servletParamsPromise = (function() {
 			    var def = new $.Deferred();
 			    window.QuerySession.getMutationProfileIds().then(function(mutation_profile_ids) {
-				var servletParams = {};
-				servletParams.geneticProfiles = mutation_profile_ids[0];
-				// first, try to retrieve mutation data by using a predefined case set id
-				var caseSetId = window.QuerySession.getCaseSetId();
-				var caseIdsKey = window.QuerySession.getCaseIdsKey();
-
-				if (caseSetId &&
-					caseSetId.length > 0 &&
-					caseSetId != "-1")
-				{
-				    servletParams.caseSetId = caseSetId;
-				}
-				// second, try to use a custom case set defined by a hash key
-				else if (caseIdsKey &&
-					caseIdsKey.length > 0)
-				{
-				    servletParams.caseIdsKey = caseIdsKey;
-				}
-				// last resort: send the actual case list as a long string
-				else
-				{
-				    servletParams.caseList = QuerySession.getSampleIds();
-				}
-				def.resolve(servletParams);
+                    var servletParams = {};
+                    servletParams.geneticProfiles = mutation_profile_ids.join(",");
+                        
+                    if (!_isVirtualStudy) {
+                        // first, try to retrieve mutation data by using a predefined case set id
+                        var caseSetId = window.QuerySession.getCaseSetId();
+                        var caseIdsKey = window.QuerySession.getCaseIdsKey();
+    
+                        if (caseSetId &&
+                            caseSetId.length > 0 &&
+                            caseSetId != "-1")
+                        {
+                            servletParams.caseSetId = caseSetId;
+                        }
+                        // second, try to use a custom case set defined by a hash key
+                        else if (caseIdsKey &&
+                            caseIdsKey.length > 0)
+                        {
+                            servletParams.caseIdsKey = caseIdsKey;
+                        }
+                        // last resort: send the actual case list as a long string
+                        else
+                        {
+                            servletParams.caseList = QuerySession.getSampleIds().join(",");
+                        }                    
+                    } else { 
+                        // get sample ids
+                        servletParams.caseList = QuerySession.getSampleIds().join(",");
+                    }
+                    def.resolve(servletParams);
 			    });
 			    return def.promise();
 			})();

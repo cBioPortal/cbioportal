@@ -356,7 +356,10 @@ public final class DaoClinicalData {
     {
         List<Integer> sampleIdsInt = new ArrayList<Integer>();
         for (String sampleId : sampleIds) {
-            sampleIdsInt.add(DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId).getInternalId());
+            Sample _sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            if (_sample != null) {
+                sampleIdsInt.add(_sample.getInternalId());
+            }
         }
         return getDataByInternalIds(cancerStudyId, SAMPLE_TABLE, sampleIdsInt, Collections.singletonList(attr.getAttrId()));
     }

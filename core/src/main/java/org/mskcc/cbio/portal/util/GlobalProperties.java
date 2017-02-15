@@ -230,6 +230,9 @@ public class GlobalProperties {
     public static final String UCSC_BUILD = "ucsc.build";
     public static final String DEFAULT_UCSC_BUILD = "hg19";
     
+    public static final String SHOW_CIVIC = "show.civic";
+    public static final String CIVIC_URL = "civic.url";
+
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -747,6 +750,16 @@ public class GlobalProperties {
         return "";
     }
 
+    public static String getCivicUrl() {
+        String civicUrl = properties.getProperty(CIVIC_URL);
+        if (civicUrl == null || civicUrl.isEmpty())
+            return "https://civic.genome.wustl.edu/api/";
+        civicUrl = civicUrl.trim();
+        if (!civicUrl.endsWith("/"))
+            civicUrl += "/";
+        return civicUrl;
+    }
+
     public static boolean showHotspot() {
         String hotspot = properties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
@@ -758,6 +771,13 @@ public class GlobalProperties {
         }else{
             return false;
         }
+    }
+
+    public static boolean showCivic() {
+        String showCivic = properties.getProperty(SHOW_CIVIC);
+        if (showCivic == null || showCivic.isEmpty())
+            return true;  // show CIVIC by default
+        return Boolean.parseBoolean(showCivic);
     }
 
     public static boolean filterGroupsByAppName() {

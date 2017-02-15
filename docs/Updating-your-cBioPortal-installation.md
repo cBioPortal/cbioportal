@@ -48,7 +48,7 @@ To run the migration script first go to the scripts folder
 `<your_cbioportal_dir>/core/src/main/scripts` 
 and then run the following command:
 ```console
-$ python migrate_db.py --properties-file <your_cbioportal_dir>/src/main/resources/portal.properties --sql <your_cbioportal_dir>/db-scripts/src/main/resources/db/migration.sql
+$ python migrate_db.py --properties-file <your_cbioportal_dir>/src/main/resources/portal.properties --sql <your_cbioportal_dir>/db-scripts/src/main/resources/migration.sql
 ```
 This should result in the following output:
 ```console

@@ -16,6 +16,7 @@
     * [Gistic Data](#gistic-data)
     * [Mutsig Data](#mutsig-data)
     * [Gene Panel Data](#gene-panel-data)
+    * [Gene Set Data](#gene-set-data)
 
 # Introduction
 
@@ -929,7 +930,7 @@ The following fields from the generated Gistic file are used by the cBioPortal i
 * **chromosome**: chromosome on which the region was found, without the `chr` prefix
 * **peak_start**: start coordinate of the region of maximal amplification or deletion within the significant region
 * **peak_end**: end coordinate of the region of maximal amplification or deletion within the significant region
-* **genes_in_region**: comma-separated list of HUGO gene symbols in the `wide peak' (allowing for single-sample errors in the peak boundaries)
+* **genes_in_region**: comma-separated list of HUGO gene symbols in the 'wide peak' (allowing for single-sample errors in the peak boundaries)
 * **amp**: 1 for amp, 0 for del
 * **cytoband**: cytogenetic band specification of the region, including chromosome (Giemsa stain)
 * **q_value**: the q-value of the peak region
@@ -1043,3 +1044,89 @@ If all samples in a genetic profile will have the same gene panel associated wit
 If all profiles for a sample will have the sample gene panel, in the clinical data a column can be added called **GENE_PANEL** which can specify the gene panel stable id.
 
 In both of these cases, the sample-profile matrix file does not need to be provided in order to associate gene panel information with a sample-profile.
+
+
+## Gene Set Data
+A description of importing gene sets (required before loading gene set study) and gene set hierarchy data, can be found [here](Import-Gene-Sets.md).
+
+cBioPortal supports GSVA Scores and p-values (from bootstrapping) calculated using [Gene Set Variation Analysis]([http://www.bioconductor.org/packages/release/bioc/html/GSVA.html]) (GSVA, [Hänzelmann, 2013](http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)). To import the GSVA Scores and p-values 2 sets of meta and data files are required, according to cBioPortal data loading specifications for study data. One set is used for GSVA scores, and one for the respective GSVA p-values of these scores. It is important that the dimensions of the GSVA Score and p-value file are the same and that they contain the same gene sets and samples.
+
+### GSVA Score meta file
+The meta file will be similar to meta files of other genetic profiles, such as mRNA expression. These are the required fields: 
+
+```
+cancer_study_identifier: Same value as specified in study meta file
+genetic_alteration_type: GENESET_SCORE
+datatype: GSVA-SCORE
+stable_id: Any unique identifier within the study
+source_stable_id: Stable id of the genetic profile (in this same study) that was used as the input source for calculating the GSVA scores. Typically this will be one of the mRNA expression genetic profiles. 
+profile_name: A name describing the analysis.
+profile_description: A description of the data processing done.
+data_filename: <your GSVA score datafile>
+geneset_def_version: Version of the gene set definition this calculation was based on. 
+```
+
+Example:
+```
+cancer_study_identifier: study_es_0
+genetic_alteration_type: GENESET_SCORE
+datatype: GSVA-SCORE
+stable_id: gsva_oncogenic_sets_scores
+source_stable_id: rna_seq_v2_mrna
+profile_name: GSVA scores on oncogenic signatures gene sets
+profile_description: GSVA scores on oncogenic signatures gene sets using mRNA expression data calculated with GSVA version x with parameters x and y.
+data_filename: data_gsva_scores.txt
+geneset_def_version: 1
+```
+
+### GSVA Score data file
+The data file will be a simple tab separated format, similar to the expression data  file: each sample is a column, each gene set a row, each cell represents the GSVA score for that sample x gene set combination.
+
+The first column is the GENESET_ID. This contains the EXTERNAL_ID or "stable id" (MsigDB calls this "standard name") of the gene set. The other colums are the sample columns: An additional column for each sample in the dataset using the sample id as the column header.
+
+The cells contain the GSVA score: which is real number, between -1.0 and 1.0, representing the GSVA score for the gene set in the respective sample, or  NA for when the GSVA score for the gene set in the respective sample could not be (or was not) calculated. Example with 2 gene sets and 3 samples: 
+
+| GENESET_ID                      | TCGA-AO-A0J | TCGA-A2-A0Y | TCGA-A2-A0S |
+|---------------------------------|-------------|-------------|-------------|
+| GO_POTASSIUM_ION_TRANSPOR       | -0.987      | 0.423       | -0.879      |
+| GO_GLUCURONATE_METABOLIC_PROCES | 0.546       | 0.654       | 0.123       |
+| ..                              |             |             |             |
+
+### GSVA p-value meta file
+The meta file will be similar to meta files of other genetic profiles, such as mRNA expression. These are the required fields: 
+```
+cancer_study_identifier: Same value as specified in study meta file
+genetic_alteration_type: GENESET_SCORE
+datatype: P-VALUE
+stable_id: Any unique identifier within the study
+source_stable_id: Stable id of the GSVA-SCORES genetic profile (see above). 
+profile_name: A name describing the analysis.
+profile_description: A description of the data processing done.
+data_filename: <your GSVA p-value datafile>
+geneset_def_version: Version of the gene sets definition this calculation was based on. 
+```
+Example:
+```
+cancer_study_identifier: study_es_0
+genetic_alteration_type: GENESET_SCORE
+datatype: P-VALUE
+stable_id: gsva_oncogenic_sets_pvalues
+source_stable_id: gsva_oncogenic_sets_scores
+profile_name: GSVA p-values for GSVA scores on oncogenic signatures gene sets
+profile_description: GSVA p-values for GSVA scores on oncogenic signatures gene sets using mRNA expression data calculated with the bootstrapping method in GSVA version x with parameters x and y.
+data_filename: data_gsva_pvalues.txt
+geneset_def_version: 1
+```
+
+### GSVA p-value data file
+The data file will be a simple tab separated format, similar to the GSVA score file: each sample is a column, each gene set a row, each cell represents the GSVA p-value for the score found for that sample x gene set combination.
+
+The first column is the GENESET_ID. This contains the EXTERNAL_ID or "stable id" (MsigDB calls this "standard name") of the gene set. The other colums are the sample columns: An additional column for each sample in the dataset using the sample id as the column header.
+
+The cells contain the p-value for the GSVA score: A real number, between 0.0 and 1.0, representing the p-value for the GSVA score calculated for the gene set in the respective sample, or NA for when the GSVA score for the gene is also NA. Example with 2 gene sets and 3 samples: 
+
+| GENESET_ID                      | TCGA-AO-A0J | TCGA-A2-A0Y | TCGA-A2-A0S |
+|---------------------------------|-------------|-------------|-------------|
+| GO_POTASSIUM_ION_TRANSPOR       | 0.0811      | 0.0431      | 0.0087      |
+| GO_GLUCURONATE_METABOLIC_PROCES | 0.6621      | 0.0031      | 1.52e-9     |
+| ..                              |             |             |             |

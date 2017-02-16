@@ -55,9 +55,9 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
    * [Data Loading: What You Need To Change](Data-Loading-What-You-Need-To-Change.md)
    * [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
    * [Importer Tool](Importer-Tool.md) (deprecated)
+   * [Importing Gene Sets](Import-Gene-Sets.md)
 
 ### 5.2 Datasets
 * [Downloads](Downloads.md)
 * [Data Examples](Data-Examples.md)
 * [Public Datasets](Public-datasets.md)
-

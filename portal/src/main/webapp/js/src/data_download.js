@@ -48,6 +48,7 @@ var DataDownloadTab = (function() {
     var data = [],
         stat = {},
         profiles = {},
+        downloadDataModel = {},
 	altered_samples = [];
         
     var _isRendered = false;
@@ -148,31 +149,39 @@ var DataDownloadTab = (function() {
             { name: "Tab-delimited Format", value: "tab"},
             { name: "Transposed Matrix", value: "matrix"}
         ];
-
-        $.each(window.QuerySession.getGeneticProfileIds(), function(index, val) {
-            var _str = "<li>" + profiles[val].NAME + ": "; 
-            $.each(_formats, function(inner_index, inner_obj) {
-                // var _href_str = "<a href='#' onclick=\"DataDownloadTab.onClick('" + val + "', '" + inner_obj.value + "');\">" + inner_obj.name + "</a>";
-                // $("#data_download_links_li").append(_href_str);                 
-                var _download_form =
-                    "<form name='download_tab_form_" + val + "_" + inner_obj.value + "' style='display:inline-block' action='getProfileData.json' method='post' target='_blank'>" +
-                        "<input type='hidden' name='cancer_study_id' value='" + window.QuerySession.getCancerStudyIds()[0] + "'>" +
-                        "<input type='hidden' name='case_set_id' value='" + window.QuerySession.getCaseSetId() + "'>" +
-                        "<input type='hidden' name='case_ids_key' value='" + window.QuerySession.getCaseIdsKey() + "'>" + 
-                        "<input type='hidden' name='genetic_profile_id' value='" + val + "'>" +
-                        "<input type='hidden' name='gene_list' value='" + window.QuerySession.getQueryGenes().join(" ") + "'>" +
-                        "<input type='hidden' name='force_download' value='true'>" +
-                        "<input type='hidden' name='file_name' value='" + window.QuerySession.getCancerStudyIds()[0] + "_" + val + ".txt'>" +
-                        "<input type='hidden' name='format' value='"  + inner_obj.value + "'>" +
-                        "<a href='#' onclick=\"document.forms['download_tab_form_" + val + "_" + inner_obj.value + "'].submit();return false;\"> [ " + inner_obj.name + " ]</a>" + 
-                        "</form>&nbsp;&nbsp;&nbsp;";
-                _str += _download_form;                 
-            });      
-            _str += "</li>";
-            $("#data_download_links_li").append(_str);
+        var _profileNames = {
+            "MUTATION_EXTENDED":"Mutations",
+            "COPY_NUMBER_ALTERATION":"Copy-number alterations"
+        }
+        
+        window.QuerySession.getGeneticProfiles().then(function(response){
+            var  _processedProfiles = [];
+            $.each(response, function(index,profile){
+                profiles[profile.id] = profile;
+                var _p = {name:profile.name, profileIds:profile.id, alterationType:profile.genetic_alteration_type, fileName:profile.study_id+'_'+profile.id+'.txt'}
+                    _processedProfiles.push(_p);
+            });
+           
+            if( window.QuerySession.isVirtualStudy) {
+                _processedProfiles = [];
+                $.each(_.groupBy(profiles, function(_profile){ return _profile.genetic_alteration_type}), function(k,v){
+                    var _p = {name:_profileNames[k], profileIds:_.pluck(v,'id').join(','), alterationType:k,fileName:k.toLowerCase()}
+                    _processedProfiles.push(_p);
+                });
+            }
+            
+            $.each(_processedProfiles, function(index, val) {
+            	var _str = "<li style=\"margin-bottom: 1em;\">" + val.name + ": ";
+            	_formats.forEach(function(inner_obj) {
+            		_str += "<a href='#' onclick=\"DataDownloadTab.onClickDownload('"+val.profileIds+"','" +val.alterationType+"','" + inner_obj.value + "','" + val.fileName + "')\"> [ " + inner_obj.name + " ]</a>&nbsp;&nbsp;&nbsp;"
+            	});
+            	_str += "</li>";
+            	$("#data_download_links_li").append(_str);
+            });
         });
 
         //configure the download link (link back to the home page download data tab)
+        if(!window.QuerySession.isVirtualStudy) {
         var _sample_ids_str = "";
         if (!(window.QuerySession.getCaseSetId() !== "" ||
             window.QuerySession.getCaseIdsKey() !== "" ||
@@ -192,6 +201,7 @@ var DataDownloadTab = (function() {
                     "tab_index=tab_download";
         $("#data_download_redirect_home_page").append(
             "<a href='" + _link + "' target='_blank' style='margin-left:20px;'>Click to download data with other genetic profiles ...</a>");
+        }
     }
 
     function renderTextareas() {
@@ -199,6 +209,70 @@ var DataDownloadTab = (function() {
         $("#text_area_gene_alteration_type").append(strs.alt_type);
         $("#text_area_case_affected").append(strs.case_affected);
         $("#text_area_case_matrix").append(strs.case_matrix);
+    }
+    //TODO : include study name(id) incase of sample id match across studies?
+    function tabDelimitedData(_data) {
+    	var resultData = {'GENE_ID':['GENE_ID','COMMON']};
+    	var def = new $.Deferred();
+    	$.when(window.cbioportal_client.getGenes({'hugo_gene_symbols':window.QuerySession.getQueryGenes()})).then(function(genes){
+    		var genesEntrezIdMap = genes.reduce(function(result, item){
+    			result[item.hugo_gene_symbol] = item.entrez_gene_id;
+    			return result;
+    		},{});
+    		var geneObject = window.QuerySession.getQueryGenes().reduce(function(result, item) {
+    			result[item.toUpperCase()] = [item.toUpperCase(),genesEntrezIdMap[item.toUpperCase()]];
+    			return result;
+    		}, resultData);
+    		$.each(_data, function(_studyId,_obj1){
+    			$.each(_obj1, function(_sampleId,_obj2){
+    				resultData['GENE_ID'].push(_sampleId);
+    				$.each(_obj2, function(_geneId,_obj3){
+    					resultData[_geneId].push(_obj3['profile_data']);
+    				});
+    			});
+    		});
+    		var content = '';
+    		$.each(resultData,function(key,downloadRow){
+    			content += downloadRow.join('\t') + '\r\n' ;
+    		});
+    		
+    		def.resolve(content);
+        }).fail(function(){
+        	def.reject();
+        });
+    	
+    	return def.promise();
+    }
+    //TODO : include study name(id) incase of sample id match across studies?
+    function transposedMatrixData(_data) {
+    	var resultData = {'GENE_ID':['GENE_ID'],'COMMON':['COMMON']};
+    	var _genes = [];
+    	var def = new $.Deferred();
+    	$.when(window.cbioportal_client.getGenes({'hugo_gene_symbols':window.QuerySession.getQueryGenes()})).then(function(genes){
+    		$.each(genes,function(index,item){
+    			resultData['GENE_ID'].push(item.hugo_gene_symbol.toUpperCase());
+    			_genes.push(item.hugo_gene_symbol.toUpperCase())
+    			resultData['COMMON'].push(item.entrez_gene_id);
+    		});
+    		$.each(_data, function(_studyId,_obj1){
+    			$.each(_obj1, function(_sampleId,_obj2){
+    				resultData[_sampleId] = [];
+    				resultData[_sampleId].push(_sampleId);
+    				$.each(_genes, function(_index,_geneId){
+    					resultData[_sampleId].push(_obj2[_geneId]['profile_data']);
+    				});
+    			});
+    		});
+    		var content = '';
+    		$.each(resultData,function(key,downloadRow){
+    			content += downloadRow.join('\t') + '\r\n' ;
+    		});
+    		def.resolve(content);
+        }).fail(function(){
+        	def.reject();
+        });
+    	
+    	return def.promise();
     }
 
     return {
@@ -225,6 +299,47 @@ var DataDownloadTab = (function() {
         },
         isRendered: function() {
             return _isRendered;
+        },
+        setDownloadModelObject: function(_inputData) {
+            downloadDataModel = _inputData;
+        },
+        onClickDownload: function(_profileIds,_profileType , _formatType, _fileName) {
+            var profile_ids = _profileIds.split(',');
+            var all_data = [];
+            $.when(window.QuerySession.getStudySampleMap()).then(function(studySampleMap){
+                var promises = [];
+                $.each(profile_ids, function(k,genetic_profile_id){
+                     var def = new $.Deferred();
+                     promises.push(def)
+                    $.when(window.cbioportal_client.getGeneticProfileDataBySample({
+                    	'genetic_profile_ids': [genetic_profile_id],
+                    	'genes': window.QuerySession.getQueryGenes().map(function(x) { return x.toUpperCase();}),
+                    	'sample_ids': studySampleMap[profiles[genetic_profile_id]['study_id']]
+                    })).then(function(_data){
+                    	all_data = all_data.concat(_data);
+                    	def.resolve();
+                    }).fail(function(){
+                    	def.reject();
+                    });
+               });
+                
+               $.when.apply($, promises).then(function() {
+            	   var newObject = jQuery.extend(true, {}, downloadDataModel);
+            	   $.each(all_data,function(key,_data){
+                     newObject[_data['study_id']][_data['sample_id']][_data['hugo_gene_symbol']]['profile_data'] = _profileType === 'MUTATION_EXTENDED'?_data['amino_acid_change']:_data['profile_data'];
+                   });
+            	   
+            	   var downloadOpts = {
+             				filename: _fileName,
+             				contentType: 'text/plain;charset=utf-8',
+             				preProcess: false
+                     };
+               	$.when(_formatType==='tab'?tabDelimitedData(newObject):transposedMatrixData(newObject)).then(function(content){
+               		cbio.download.initDownload(content, downloadOpts);
+               	})
+           		
+               });
+           });
         }
     };
 
@@ -236,14 +351,24 @@ $(document).ready( function() {
     $.when(window.QuerySession.getOncoprintSampleGenomicEventData(), window.QuerySession.getAlteredSamples()).then(function(oncoprint_data, altered_samples) {
 	DataDownloadTab.setOncoprintData(oncoprint_data);
 	DataDownloadTab.setAlteredSamples(altered_samples);
-        //AJAX call to grab relevant data
-        var _paramsGetProfiles = {
-            cancer_study_id: window.QuerySession.getCancerStudyIds()[0]
-        };
-        $.post("getGeneticProfile.json", _paramsGetProfiles, getGeneticProfileCallback, "json");
-
+	
+		var downloadDataModel = {};
+		var geneObject = window.QuerySession.getQueryGenes().reduce(function(result, item) {
+			  result[item.toUpperCase()] = {'profile_data': 'NA'};
+			  return result;
+			}, {});
+		$.when(window.QuerySession.getStudySampleMap()).then(function(studySampleMap){
+            $.each(studySampleMap, function(studyId,sampleIds){
+                downloadDataModel[studyId]={};
+                $.each(sampleIds, function(key,sampleId){
+                downloadDataModel[studyId][sampleId]=geneObject
+                });
+            });
+            getGeneticProfileCallback(downloadDataModel);
+		});
+        
         function getGeneticProfileCallback(result) {
-            DataDownloadTab.setProfiles(result);
+        	DataDownloadTab.setDownloadModelObject(result);
             //DataDownloadTab.init();
             //Bind tab clicking event listener
             $("#tabs").bind("tabsactivate", function(event, ui) {

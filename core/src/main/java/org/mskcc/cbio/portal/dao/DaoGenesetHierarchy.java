@@ -54,7 +54,12 @@ public class DaoGenesetHierarchy {
 	        
             // Fill in statement
             preparedStatement.setString(1, genesetHierarchy.getNodeName());
-            preparedStatement.setInt(2, genesetHierarchy.getParentId());
+            
+            if (genesetHierarchy.getParentId() == 0) {
+                preparedStatement.setNull(2, java.sql.Types.INTEGER);
+            } else {
+                preparedStatement.setInt(2, genesetHierarchy.getParentId());
+            }
             
             // Execute statement
             preparedStatement.executeUpdate();
@@ -107,44 +112,7 @@ public class DaoGenesetHierarchy {
             JdbcUtil.closeAll(DaoGenesetHierarchy.class, connection, preparedStatement, resultSet);
         }
 	}
-	
-    /**
-     * Retrieve gene set hierarchy objects from geneset_hierarchy table in database.
-     * @throws DaoException 
-     */
-	public static GenesetHierarchy getGenesetHierarchyFromNodeId(int nodeId) throws DaoException {
-		Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        
-        try {
-        	// Open connection to database
-            connection = JdbcUtil.getDbConnection(DaoGenesetHierarchy.class);
-	        
-	        // Prepare SQL statement
-            preparedStatement = connection.prepareStatement("SELECT * FROM geneset_hierarchy WHERE NODE_ID = ?");
-            preparedStatement.setInt(1, nodeId);
 
-            // Execute statement
-            resultSet = preparedStatement.executeQuery();
-            
-            // Extract genesetHierarchy values
-            if (resultSet.next()) {
-                GenesetHierarchy genesetHierarchy = new GenesetHierarchy();
-                genesetHierarchy.setNodeId(resultSet.getInt("NODE_ID"));
-                genesetHierarchy.setNodeName(resultSet.getString("NODE_NAME"));
-                genesetHierarchy.setParentId(resultSet.getInt("PARENT_ID"));
-                return genesetHierarchy;
-            }
-            
-        	return null;
-
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoGenesetHierarchy.class, connection, preparedStatement, resultSet);
-        }
-	}
 
     /**
      * Deletes all records from 'geneset_hierarchy_parent' table in database

@@ -32,11 +32,17 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneset;
 import org.mskcc.cbio.portal.dao.DaoGenesetHierarchy;
 import org.mskcc.cbio.portal.dao.DaoGenesetHierarchyLeaf;
+import org.mskcc.cbio.portal.dao.JdbcUtil;
 import org.mskcc.cbio.portal.model.Geneset;
 import org.mskcc.cbio.portal.model.GenesetHierarchy;
 import org.mskcc.cbio.portal.model.GenesetHierarchyLeaf;
@@ -82,11 +88,51 @@ public class TestImportGenesetHierarchyData {
         GenesetHierarchyLeaf genesetHierarchyLeaf = genesetHierarchyLeafs.get(0);
         
         // Get node name from genesetHierarchy
-        GenesetHierarchy genesetHierarchy = DaoGenesetHierarchy.getGenesetHierarchyFromNodeId(genesetHierarchyLeaf.getNodeId());
+        GenesetHierarchy genesetHierarchy = getGenesetHierarchyFromNodeId(genesetHierarchyLeaf.getNodeId());
         
         // Check if node name is as expected
         assertEquals("Institutes Subcategory 2", genesetHierarchy.getNodeName());
     }
+	
+	/**
+	 * Retrieve gene set hierarchy objects from geneset_hierarchy table in database.
+	 * THis 
+	 * @throws DaoException 
+	 */
+	public static GenesetHierarchy getGenesetHierarchyFromNodeId(int nodeId) throws DaoException {
+		Connection connection = null;
+	    PreparedStatement preparedStatement = null;
+	    ResultSet resultSet = null;
+	    
+	    try {
+	    	// Open connection to database
+	        connection = JdbcUtil.getDbConnection(DaoGenesetHierarchy.class);
+	        
+	        // Prepare SQL statement
+	        preparedStatement = connection.prepareStatement("SELECT * FROM geneset_hierarchy WHERE NODE_ID = ?");
+	        preparedStatement.setInt(1, nodeId);
+
+	        // Execute statement
+	        resultSet = preparedStatement.executeQuery();
+	        
+	        // Extract genesetHierarchy values
+	        if (resultSet.next()) {
+	            GenesetHierarchy genesetHierarchy = new GenesetHierarchy();
+	            genesetHierarchy.setNodeId(resultSet.getInt("NODE_ID"));
+	            genesetHierarchy.setNodeName(resultSet.getString("NODE_NAME"));
+	            genesetHierarchy.setParentId(resultSet.getInt("PARENT_ID"));
+	            return genesetHierarchy;
+	        }
+	        
+	    	return null;
+
+	    } catch (SQLException e) {
+	        throw new DaoException(e);
+	    } finally {
+	        JdbcUtil.closeAll(DaoGenesetHierarchy.class, connection, preparedStatement, resultSet);
+	    }
+	}
 }
+
 
 

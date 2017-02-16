@@ -20,11 +20,12 @@ Before loading a study with gene set data, gene set definitions have to be added
 ## Quick example
 This example shows how the process of importing gene set data using test data.
 
-1- Navigate to:
+1- Navigate to scripts folder:
 
 `cd $PORTAL_HOME/core/src/main/scripts`
 
-2- Import gene sets and supplementary data:
+2- Import gene sets and supplementary data:<br>
+Note: This removes existing gene set, gene set hierarchy and gene set genetic profile data.
 
 `./importGenesetData.pl --data ../../test/resources/genesets/genesets_test.txt --new-version 1 --supp ../../test/resources/genesets/supp-genesets.txt`
 
@@ -35,10 +36,10 @@ This example shows how the process of importing gene set data using test data.
 4- Import study (replace argument after `-u` with local cBioPortal):
 
 ```
-python importer/metaImport.py \
+./importer/metaImport.py \
 	-s ../../test/scripts/test_data/study_gsva \
 	-u http://cbioportal:8080/cbioportal \
-	-html report_geneset-test-studyM.html \
+	-html report_study_gsva.html \
 	-v \
 	-o
 ```
@@ -81,7 +82,7 @@ required:     --data <data_file.gmt>
               --new-version <Version> OR --update-info
 optional:     --supp <supp_file.txt>
 ```
-The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `v1.0` or `Oncogenic_2017`. Running the script with `--new-version` does **remove** all previous gene sets, gene set hierarchy and gene set score genetic profiles. A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless. 
+The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `v1.0` or `Oncogenic_2017`. Running the script with `--new-version` does **remove all previous gene sets, gene set hierarchy and gene set genetic profiles.** A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless. 
 
 The `--update info` can be used only to update only the long name, description and reference URL.
 

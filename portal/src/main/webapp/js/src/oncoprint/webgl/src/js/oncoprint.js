@@ -1,3 +1,5 @@
+require('./polyfill.js');
+
 var OncoprintModel = require('./oncoprintmodel.js');
 var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
 var OncoprintLabelView = require('./oncoprintlabelview.js');

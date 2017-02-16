@@ -75,7 +75,7 @@
             var clinicalData = clinicalDataMap[caseId];
             var compareAgainstIds = [caseId];
             var OtherSampleId = clinicalData["OTHER_SAMPLE_ID"];
-            if (cbio.util.checkNullOrUndefined(OtherSampleId)) {
+            if (!cbio.util.checkNullOrUndefined(OtherSampleId)) {
                 compareAgainstIds = compareAgainstIds.concat(OtherSampleId);
             }
             var circle = d3.selectAll(".timelineSeries_0").filter(function (x) {

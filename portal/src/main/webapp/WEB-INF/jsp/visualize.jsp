@@ -168,11 +168,9 @@
             	showCoexpTab = false;
             	showIGVtab = false;
             	showEnrichmentsTab = false;
-            	computeLogOddsRatio = false;
             	has_survival = false;
             	includeNetworks = false;
             	showPlotsTab = false;
-            	showDownloadTab = false;
             }
 
             // determine whether to show the cancerTypesSummaryTab

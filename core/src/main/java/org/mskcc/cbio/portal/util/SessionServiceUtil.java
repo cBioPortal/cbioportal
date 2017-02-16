@@ -92,7 +92,7 @@ public class SessionServiceUtil {
                 LOG.debug("SessionServiceUtil.getSession(): response = '" + contentString + "'");
                 JsonNode json = new ObjectMapper().readTree(contentString); 
                 LOG.debug("SessionServiceUtil.getSession(): response.data = '" + json.get("data").textValue() + "'");
-                parameterMap = new ObjectMapper().readValue(json.get("data").textValue(), new TypeReference<Map<String, String[]>>(){});
+                parameterMap = new ObjectMapper().readValue(json.get("data").toString(), new TypeReference<Map<String, String[]>>(){});
             } else {
                 LOG.warn("SessionServiceUtil.getSession(): conn.getResponseCode() = '" + conn.getResponseCode() + "'");
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {

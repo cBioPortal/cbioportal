@@ -1,5 +1,5 @@
 window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, study_sample_map, z_score_threshold, rppa_score_threshold,
-	case_set_properties) {
+	case_set_properties, isVirtualStudy) {
 
     var signOfDiff = function(a,b) {
 	if (a < b) {
@@ -1028,6 +1028,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'study_sample_map': study_sample_map,
 	'genetic_profile_ids': genetic_profile_ids,
 	'mutation_counts': {},
+	'isVirtualStudy' : isVirtualStudy,
 	'getKnownMutationSettings': function () {
 	    return deepCopyObject(this.known_mutation_settings);
 	},

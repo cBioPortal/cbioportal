@@ -62,7 +62,7 @@ public class MrnaPercentileControllerTest {
     }
 
     @Test
-    public void getMrnaPercentile() throws Exception {
+    public void fetchMrnaPercentile() throws Exception {
 
         List<MrnaPercentile> mrnaPercentileList = new ArrayList<>();
         MrnaPercentile mrnaPercentile1 = new MrnaPercentile();

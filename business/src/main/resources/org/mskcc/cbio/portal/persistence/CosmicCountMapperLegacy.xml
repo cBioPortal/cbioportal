@@ -4,7 +4,7 @@
 <mapper namespace="org.mskcc.cbio.portal.persistence.CosmicCountMapperLegacy">
     <cache/>
 
-    <select id="getCOSMICCountsByKeywords" resultType="org.cbioportal.model.CosmicCount">
+    <select id="getCOSMICCountsByKeywords" resultType="org.mskcc.cbio.portal.model.CosmicCount">
         select
 
         cosmic_mutation.PROTEIN_CHANGE as proteinChange,

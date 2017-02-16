@@ -39,6 +39,7 @@
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.text.DecimalFormat" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="java.util.*" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="java.util.Enumeration" %>
@@ -69,14 +70,14 @@
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
 
     //Info about Genetic Profiles
-    ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
+    //ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
     String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
     geneticProfiles = xssUtil.getCleanerInput(geneticProfiles.trim());
 
     //Info about threshold settings
-    double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-    double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
+    double zScoreThreshold = Double.parseDouble(String.valueOf(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD)));
+    double rppaScoreThreshold = Double.parseDouble(String.valueOf(request.getAttribute(QueryBuilder.RPPA_SCORE_THRESHOLD)));
 
     //Onco Query Language Parser Instance
     String oql = request.getParameter(QueryBuilder.GENE_LIST);
@@ -84,42 +85,21 @@
         oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
     }
     oql = xssUtil.getCleanerInput(oql);
-
-    //Info about queried cancer study
-    ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
-    String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    CancerStudy cancerStudy = cancerStudies.get(0);
-    for (CancerStudy cs : cancerStudies){
-        if (cancerStudyId.equals(cs.getCancerStudyStableId())){
-            cancerStudy = cs;
-            break;
-        }
-    }
-    String cancerStudyName = cancerStudy.getName(); 
-    GeneticProfile mutationProfile = cancerStudy.getMutationProfile();
-    String mutationProfileID = mutationProfile==null ? null : mutationProfile.getStableId();
-
-    //Info about Patient Set(s)/Patients
-    ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
+    Boolean isVirtualStudy = (Boolean)request.getAttribute("is_virtual_study");
+    String cancerStudyIdsString = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
+    String[] cancerStudyIdList = (String[])(cancerStudyIdsString).split(",");
     String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String sampleSetName = "";
-    String sampleSetDescription = "";
-    for (SampleList sampleSet:  sampleSets) {
-        if (sampleSetId.equals(sampleSet.getStableId())) {
-            sampleSetName = sampleSet.getName();
-            sampleSetDescription = sampleSet.getDescription();
-        }
-    }
-    String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-    String sampleIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+    String sampleSetName = request.getAttribute("case_set_name") != null ? (String) request.getAttribute("case_set_name") : "User-defined Patient List";
+    String sampleSetDescription = request.getAttribute("case_set_description") != null ? (String) request.getAttribute("case_set_description") : "User-defined Patient List.";
 
+    String sampleIdsKey = request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null ? (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY) : "";
     //Vision Control Tokens
-    boolean showIGVtab = cancerStudy.hasCnaSegmentData();
-    boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0;
-    boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
-    boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
-    boolean has_survival = cancerStudy.hasSurvivalData();
+    Boolean showIGVtab = (Boolean) request.getAttribute("showIGVtab");
+    Boolean has_mrna = (Boolean) request.getAttribute("hasMrna");
+    Boolean has_methylation = (Boolean) request.getAttribute("hasMethylation");
+     Boolean has_copy_no = (Boolean) request.getAttribute("hasCopyNo");
+     Boolean has_survival = (Boolean) request.getAttribute("hasSurvival");
     boolean includeNetworks = GlobalProperties.includeNetworks();
     boolean computeLogOddsRatio = true;
     Boolean mutationDetailLimitReached = (Boolean)request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
@@ -132,19 +112,18 @@
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
 
-    //Escape quotes in the returned strings
-    samples = samples.replaceAll("'", "\\'");
-    samples = samples.replaceAll("\"", "\\\"");
     sampleSetName = sampleSetName.replaceAll("'", "\\'");
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
 
     //check if show co-expression tab
     boolean showCoexpTab = false;
-    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyId);
-    if (final_gp != null) {
-        showCoexpTab = true;
-    } 
-    Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
+    if(!isVirtualStudy){
+    	 GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdList[0]);
+    	    if (final_gp != null) {
+    	        showCoexpTab = true;
+    	    } 
+    }
+   
     
     String patientCaseSelect = (String)request.getAttribute(QueryBuilder.PATIENT_CASE_SELECT);
 
@@ -169,15 +148,17 @@
     window.PortalGlobals = {
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
     };
-    
+    var isVirtualStudy = <%=isVirtualStudy%> ;
     (function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
+        var studySampleObj = JSON.parse('<%=studySampleMapJson%>');
+        var studyIdsList = Object.keys(studySampleObj)
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
-                                                            ['<%=cancerStudyId%>'.trim()],
-                                                            JSON.parse('<%=studySampleMapJson%>'),
+                                                            studyIdsList,
+                                                            studySampleObj,
                                                             parseFloat('<%=zScoreThreshold%>'),
                                                             parseFloat('<%=rppaScoreThreshold%>'),
                                                             {
@@ -185,7 +166,8 @@
                                                                 case_ids_key: '<%=sampleIdsKey%>',
                                                                 case_set_name: '<%=sampleSetName%>',
                                                                 case_set_description: '<%=sampleSetDescription%>'
-                                                            });
+                                                            },
+                                                            isVirtualStudy);
     })();
 </script>
 
@@ -217,20 +199,44 @@
     }
     
 $(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getPatientIds(), window.QuerySession.getCancerStudyNames()).then(function(altered_samples, patient_ids, cancer_study_names) {
-            var sample_ids = window.QuerySession.getSampleIds();
+	var getCohortName = function(cohortId){
+		var def = new $.Deferred();
+		$.ajax({
+        	method: 'GET',
+        	url: 'api-legacy/proxy/virtual-cohort/' + cohortId
+      	}).done(function(response){
+      		var cancer_study_names = [];
+      		cancer_study_names.push(response['data']['studyName']);
+        	def.resolve(cancer_study_names)
+      	}).fail(function () {
+      		def.resolve([]);
+		});
+		return def.promise();
+	}
+	var studyNamerequest = <%=isVirtualStudy%> ? getCohortName('<%=cancerStudyIdList[0]%>') : window.QuerySession.getCancerStudyNames();
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getStudyPatientMap(), studyNamerequest).then(function(altered_samples, studyPatientMap, cancer_study_names) {
+            var sampleLength = 0;
+			$.each(window.QuerySession.getStudySampleMap(), function(studyId,cases){
+				sampleLength += cases.length;
+			})
+			var patientLength = 0;
+			$.each(studyPatientMap, function(studyId,cases){
+				patientLength += cases.length;
+			})
             
-            var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
+            
+            var altered_samples_percentage = (100 * altered_samples.length / sampleLength).toFixed(1);
 
             //Configure the summary line of alteration statstics
             var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
             $("#main_smry_stat_div").append(_stat_smry);
+            var cohortDisplayName = cancer_study_names[0];
 
             //Configure the summary line of query
-            var _query_smry = "<h3 style='font-size:110%;'><a href='study?id=" + 
-                window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
-                cancer_study_names[0] + "</a><br>" + " " +  
-                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " + 
+            var _query_smry = "<h3 style='font-size:110%;'><a href='study?cohorts=" + 
+            '<%=cancerStudyIdList[0]%>' + "' target='_blank'>" + 
+                cohortDisplayName + "</a><br>" + " " +  
+                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sampleLength + "</b> samples)" + " / " + 
                 "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
             $("#main_smry_query_div").append(_query_smry);
 
@@ -257,9 +263,9 @@ $(document).ready(function() {
             //Oncoprint summary lines
             $("#oncoprint_sample_set_description").append("Case Set: " + window.QuerySession.getSampleSetName()
 							+ " "
-							+ "("+patient_ids.length + " patients / " + sample_ids.length + " samples)");
+							+ "("+patientLength + " patients / " + sampleLength + " samples)");
             $("#oncoprint_sample_set_name").append("Case Set: "+window.QuerySession.getSampleSetName());
-            if (patient_ids.length !== sample_ids.length) {
+            if (patientLength !== sampleLength) {
                 $("#switchPatientSample").css("display", "inline-block");
             }
             

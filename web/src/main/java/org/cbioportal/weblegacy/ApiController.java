@@ -5,9 +5,10 @@
  */
 package org.cbioportal.weblegacy;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.mskcc.cbio.portal.model.CosmicCount;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
@@ -32,7 +33,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.cbioportal.model.CosmicCount;
 import org.cbioportal.model.MutationSignature;
 
 /**

@@ -170,6 +170,10 @@
     #study-tabs>ul{
         margin-right: 7px;
     }
+    #iviz-header-left-1:disabled {
+    	background: #dddddd !important;
+    	cursor:not-allowed !important;
+    }
 </style>
 
 <script src="js/src/dashboard/iviz-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -260,8 +264,10 @@
     
     	$.when(window.cbioportal_client.getStudies({ study_ids: cohortIdsList}), window.iviz.datamanager.getGeneticProfiles())
     	.then(function(_cancerStudies, _geneticProfiles){
+    		$( "#iviz-header-left-1" ).prop( "disabled", true );
     		if(cohortIdsList.length === 1){
     			if(_cancerStudies.length === 1){
+    				$( "#iviz-header-left-1" ).prop( "disabled", false );
     				$("#show_study_details").css('display','block');
     				var _cancerStudy = _cancerStudies[0]
     				document.title = _cancerStudy.name
@@ -302,17 +308,19 @@
     				// TODO : Right now we are just showing the cohort name and description for virtual cohort.
     				// in future we the other visualizations support virtual cohort the update this to 
     				// show submit button
-    				$.ajax({
-                    	method: 'GET',
-                    	url: vcSession.URL + '/' + cohortIdsList[0]
-                  	}).done(function(response){
-                	 	$("#show_study_details").css('display','block');
-                	  	$("#study_name").html(response['data']['studyName']);
-                	  	$("#study_desc").html(response['data']['description']);
-                	  	$("#submit_button").css('display','none');
-                    	var studyName = response['data']['studyName'];
-                    	document.title = studyName?studyName:'Summary';
-                  	});
+    				if (vcSession.URL !== undefined) {
+    					$.ajax({
+                        	method: 'GET',
+                        	url: vcSession.URL + '/' + cohortIdsList[0]
+                      	}).done(function(response){
+                    	 	$("#show_study_details").css('display','block');
+                    	  	$("#study_name").html(response['data']['studyName']);
+                    	  	$("#study_desc").html(response['data']['description']);
+                    	  	$("#submit_button").css('display','none');
+                        	var studyName = response['data']['studyName'];
+                        	document.title = studyName?studyName:'Summary';
+                      	});
+    				}
     			}
     		}
         

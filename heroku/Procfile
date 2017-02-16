@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --enable-compression --expand-war --port $PORT portal/target/cbioportal.war
+web: java $JAVA_OPTS -Dsession.service.url=https://cbioportal-session-service.herokuapp.com/api/sessions/heroku_portal/ -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --enable-compression --expand-war --port $PORT portal/target/cbioportal.war

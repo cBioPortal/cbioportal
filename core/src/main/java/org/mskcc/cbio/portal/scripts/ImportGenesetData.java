@@ -102,7 +102,7 @@ public class ImportGenesetData extends ConsoleRunnable {
             genesetInfo = new GenesetInfo();
             genesetInfo.setVersion(options.valueOf(newVersionArgument));
             
-            // Check if geneset tables are empty. In that case, no extra argument is required
+            // Check if gene set tables are empty. In that case, no extra argument is required
 
         	// Geneset tables are not empty. Need to specify if we update info or add new version
             if ((!updateInfo && !newVersion) || (updateInfo && newVersion)) {      
@@ -110,7 +110,7 @@ public class ImportGenesetData extends ConsoleRunnable {
                         progName, description, parser,
                         "Please specify 1 of 2 options:\n" +
                         "--update-info             Only update gene info (Ref Link, name, description). Genes will not be updated.\n" +
-                		"--new-version <Version>   Import new gene set version. This will REMOVE all previous loaded genesets, gene set genetic profiles and geneset hierarchy.\n");
+                		"--new-version <Version>   Import new gene set version. This will REMOVE all previous loaded gene sets, gene set genetic profiles and gene set hierarchy.\n");
     
         	// In case of updating info only
             } else if (updateInfo) {
@@ -147,7 +147,6 @@ public class ImportGenesetData extends ConsoleRunnable {
 		                try (Scanner scanner = new Scanner(System.in)) {
 		
 			            	String confirmEmptyingGenesets = scanner.next().toLowerCase();
-			            	ProgressMonitor.setCurrentMessage(confirmEmptyingGenesets);
 			            	if (confirmEmptyingGenesets.equals("yes")) {
 			            		confirmEmptyGenesets = true;
 			            	} else {
@@ -197,7 +196,7 @@ public class ImportGenesetData extends ConsoleRunnable {
     }
     
     /**
-     * Imports data from geneset file.
+     * Imports data from gene set file.
      * @param genesetFile
      * @param allowUpdates
      * @param version 
@@ -207,7 +206,7 @@ public class ImportGenesetData extends ConsoleRunnable {
     	
     	ProgressMonitor.setCurrentMessage("Reading data from: " + genesetFile.getCanonicalPath());
    
-        // read geneset data file - note: this file does not contain headers
+        // read gene set data file - note: this file does not contain headers
         FileReader reader = new FileReader(genesetFile);
         BufferedReader buf = new BufferedReader(reader);        
         String line = buf.readLine();
@@ -216,7 +215,7 @@ public class ImportGenesetData extends ConsoleRunnable {
         while (line != null) {            
             String[] parts = line.split("\t");
                         
-            // assumed that geneset id and ref link are the first two columns in file            
+            // assumed that gene set id and ref link are the first two columns in file            
             Geneset geneset = new Geneset();
             geneset.setExternalId(parts[0]);
             geneset.setRefLink(parts[1]);
@@ -225,14 +224,14 @@ public class ImportGenesetData extends ConsoleRunnable {
             geneset.setName(geneset.getExternalId());
             geneset.setDescription(geneset.getExternalId());
                 
-            // parse entrez ids for geneset
+            // parse entrez ids for gene set
             Set<Long> genesetGenes = new HashSet<Long>();
             for (int i=2; i<parts.length; i++) {
                 genesetGenes.add(Long.valueOf(parts[i]));
             }
             geneset.setGenesetGenes(genesetGenes);
                      
-            // check if geneset already exists by external id
+            // check if gene set already exists by external id
             Geneset existingGeneset = DaoGeneset.getGenesetByExternalId(geneset.getExternalId());
             
             // Update only reflink
@@ -242,14 +241,14 @@ public class ImportGenesetData extends ConsoleRunnable {
             	} else {
             		ProgressMonitor.setCurrentMessage("Updating gene set: " + geneset.getExternalId());
             		
-            		// Get geneset id for the already existing gene
+            		// Get gene set id for the already existing gene
             		geneset.setId(existingGeneset.getId());
                     DaoGeneset.updateGeneset(geneset, true);
             	}
                 
             // Add a new gene
         	} else {
-        		ProgressMonitor.setCurrentMessage("Adding geneset: " + geneset.getExternalId());
+        		ProgressMonitor.setCurrentMessage("Adding gene set: " + geneset.getExternalId());
                 DaoGeneset.addGeneset(geneset);            
         	}
 
@@ -272,7 +271,7 @@ public class ImportGenesetData extends ConsoleRunnable {
     }
 
     /**
-     * Imports supplemental geneset data from supp file.
+     * Imports supplemental gene set data from supp file.
      * @param suppFile
      * @throws Exception 
      */
@@ -280,7 +279,7 @@ public class ImportGenesetData extends ConsoleRunnable {
     	
         ProgressMonitor.setCurrentMessage("Reading data from: " + suppFile.getCanonicalPath());
         
-        // read supplemental geneset data file - note: this file does not contain headers
+        // read supplemental gene set data file - note: this file does not contain headers
         FileReader reader = new FileReader(suppFile);
         BufferedReader buf = new BufferedReader(reader);        
         String line = buf.readLine();
@@ -291,16 +290,16 @@ public class ImportGenesetData extends ConsoleRunnable {
             // assumed that fields contain: geneset id, name, short name
             Geneset geneset = DaoGeneset.getGenesetByExternalId(parts[0]);
             
-            // if geneset does not already exist then alert user and skip record
+            // if gene set does not already exist then alert user and skip record
             if (geneset == null) {
                 ProgressMonitor.logWarning("Could not find gene set " + parts[0] + " in DB. Record will be skipped.");
             }
             else {
-                // update name and short name for geneset
+                // update name and short name for gene set
                 geneset.setName(parts[1]);
                 geneset.setDescription(parts[2]);
                 
-                // update geneset record in db without updating geneset genes
+                // update gene set record in db without updating gene set genes
                 DaoGeneset.updateGeneset(geneset, false);
             }
             

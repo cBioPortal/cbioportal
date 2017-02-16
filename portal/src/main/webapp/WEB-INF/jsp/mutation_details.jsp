@@ -72,12 +72,13 @@
     var showHotspot = <%=showHotspot%>;
     var userName = '<%=userName%>';
     var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
+    var isVirtualStudy = <%=isVirtualStudy%>;
 
     // Set up Mutation View
     $(document).ready(function () {
         var sampleArray = window.QuerySession.getSampleIds();
         OncoKB.setUrl('<%=oncokbUrl%>');
-        var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
+        var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy(isVirtualStudy);
         var annotationCol = null;
 
         if(OncoKB.getAccess()) {

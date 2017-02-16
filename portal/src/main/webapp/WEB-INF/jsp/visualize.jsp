@@ -164,7 +164,7 @@
             }
             
             if(isVirtualStudy){
-            	showMutTab = false;
+            	showMutTab = true;
             	showCoexpTab = false;
             	showIGVtab = false;
             	showEnrichmentsTab = false;

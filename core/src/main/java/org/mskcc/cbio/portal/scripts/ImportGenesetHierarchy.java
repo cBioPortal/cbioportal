@@ -92,12 +92,11 @@ public class ImportGenesetHierarchy extends ConsoleRunnable {
             	
                 try (Scanner scanner = new Scanner(System.in)) {
 
-                	String confirmEmptyingGenesetHierarchy = scanner.next().toLowerCase();
-                	if (!confirmEmptyingGenesetHierarchy.equals("yes")) {
-                		throw new UsageException(
-        	                    progName, description, parser,
-        	    				"User did not confirm to remove previous gene set hierarchy.");
-                	}
+                    String confirmEmptyingGenesetHierarchy = scanner.next().toLowerCase();
+                    if (!confirmEmptyingGenesetHierarchy.equals("yes")) {
+                        ProgressMonitor.setCurrentMessage("Replacing the gene set hierarchy not confirmed; aborting.");
+                        return;
+                    }
                 }
 
     	    	ProgressMonitor.setCurrentMessage("Emptying `geneset_hierarchy` and `geneset_hierarchy_leaf` before filling with new data.\n");
@@ -107,9 +106,10 @@ public class ImportGenesetHierarchy extends ConsoleRunnable {
             // If this is succesful, we want to import
             validate = false;
             importData(genesetFile, validate);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
     

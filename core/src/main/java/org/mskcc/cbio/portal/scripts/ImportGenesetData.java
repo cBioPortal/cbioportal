@@ -52,13 +52,13 @@ public class ImportGenesetData extends ConsoleRunnable {
     
     @Override
     public void run() {
-        try {        	
+        try {
             String progName = "ImportGenesetData";
             String description = "Import gene set data files.";
-            // usage: 		--data <data_file.txt> --supp <supp_file.txt> 
-            // optional:	--new-version <version> 
-            //				--update-info
-            
+            // usage:     --data <data_file.txt> --supp <supp_file.txt>
+            // optional:  --new-version <version>
+            //            --update-info
+
             OptionParser parser = new OptionParser();
             OptionSpec<String> data = parser.accepts("data", "Geneset data file")
                     .withRequiredArg().ofType(String.class);
@@ -149,11 +149,10 @@ public class ImportGenesetData extends ConsoleRunnable {
 			            	String confirmEmptyingGenesets = scanner.next().toLowerCase();
 			            	if (confirmEmptyingGenesets.equals("yes")) {
 			            		confirmEmptyGenesets = true;
-			            	} else {
-			            		throw new UsageException(
-			    	                    progName, description, parser,
-			    	    				"User did not confirm to empty gene sets. For update of gene sets please use --update-info.");
-			            	}
+                            } else {
+                                ProgressMonitor.setCurrentMessage("Replacing existing gene sets not confirmed; aborting.");
+                                return;
+                            }
 		                }
             		} else {
             			ProgressMonitor.setCurrentMessage("Auto confirm to empty gene sets, gene set hierarchy and gene set genetic profiles is set.");
@@ -169,9 +168,10 @@ public class ImportGenesetData extends ConsoleRunnable {
             	}
         		ProgressMonitor.setCurrentMessage("It is now possible to import gene set hierarchy data and gene set genetic profiles such as GSVA scores.");
             }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
     
@@ -256,15 +256,16 @@ public class ImportGenesetData extends ConsoleRunnable {
         }
         // close file
         reader.close();
-        
+
         // print warnings message with skipped genes
         if (skippedGenes > 0) {
-        System.err.println("\n" + skippedGenes + " times a gene was not found in local gene table. Possible reasons:\n\n"
-        		+ "1. The Entrez gene IDs are relatively new. Consider adding them to database.\n"
-        		+ "2. The Entrez gene IDs are depricated. Consider updating gene sets and recalculating GSVA scores.\n"
-        		+ "3. Invalid Entrez gene IDs. Please check .gmt file to verify genes are in Entrez gene ID format.\n\n");
+            ProgressMonitor.setCurrentMessage(
+                    "\n" + skippedGenes + " times a gene was not found in local gene table. Possible reasons:\n\n" +
+                    "1. The Entrez gene IDs are relatively new. Consider adding them to database.\n" +
+                    "2. The Entrez gene IDs are deprecated. Consider updating gene sets and recalculating GSVA scores.\n" +
+                    "3. Invalid Entrez gene IDs. Please check .gmt file to verify genes are in Entrez gene ID format.\n\n");
         }
-        
+
     	ProgressMonitor.setCurrentMessage("Finished loading gene sets.\n");
   
         return skippedGenes;

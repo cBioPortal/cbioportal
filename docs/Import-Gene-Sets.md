@@ -2,7 +2,7 @@
 
 Gene sets are collections of genes that are grouped together based on higher level function or system characteristics, such as being part of the same molecular process or found to be co-regulated for example. Assessing gene sets in cBioPortal is useful when the user wants to visualize the number of mutations in sets of genes, or wants to see if all genes in a set are up- or down-regulated. To visualize gene set variation in a sample, the user can calculate scores per gene set per sample using the Gene Set Variation Analysis (GSVA) algorithm ([Hänzelmann, 2013](#references)). 
 
-Before loading a study with gene set data, gene set definitions have to be added to the database. These can be custom user defined sets, or sets downloaded from external sources such as [MSigDB](#references). Additionally, a gene set hierarchy can be imported which is used on the cBioPortal Query page for selecting gene sets.
+Before loading a study with gene set data, gene set definitions have to be added to the database. These can be custom user-defined sets, or sets downloaded from external sources such as [MSigDB](#references). Additionally, a gene set hierarchy can be imported which is used on the cBioPortal Query page for selecting gene sets.
 
 ## Table of contents
 
@@ -24,7 +24,7 @@ This example shows how the process of importing gene set data using test data.
 
 `cd $PORTAL_HOME/core/src/main/scripts`
 
-2- Import gene sets and supplementary data:<br>
+2- Import gene sets and supplementary data:  
 Note: This removes existing gene set, gene set hierarchy and gene set genetic profile data.
 
 `./importGenesetData.pl --data ../../test/resources/genesets/genesets_test.txt --new-version 1 --supp ../../test/resources/genesets/supp-genesets.txt`
@@ -44,7 +44,6 @@ Note: This removes existing gene set, gene set hierarchy and gene set genetic pr
 	-o
 ```
  
- 
 ## Requirements for gene sets in cBioPortal
 Gene set functionality was added in cBioPortal x.x.x. Please use this or a later version. In addition, the database has to be updated to version 2.1.0 or higher, depending on the cBioPortal version. This can be done by running the python wrapper `migrate_db.py` for `migration.sql`. 
 
@@ -57,9 +56,9 @@ Once you have initialized MySQL with cBioPortal database, it is possible to impo
 
 Sample of .gmt file:
 ```
-GLI1_UP.V1_DN	http://...	22818	143384
-GLI1_UP.V1_UP	http://...	3489	3119
-E2F1_UP.V1_DN	http://...	7041	6374	5460	
+GLI1_UP.V1_DN<TAB>http://...<TAB>22818<TAB>143384
+GLI1_UP.V1_UP<TAB>http://...<TAB>3489<TAB>3119
+E2F1_UP.V1_DN<TAB>http://...<TAB>7041<TAB>6374<TAB>5460
 ```
 
 GMT files contain a row for every gene set. The first column contains the EXTERNAL_ID or `stable id` (MsigDB calls this "standard name"), e.g. GO_POTASSIUM_ION_TRANSPORT, not longer than 100 characters. The second column contains the REF_LINK. This is an optional URL linking to external information about this gene set. Column 3 to N contain the Entrez gene IDs that belong to this gene set.
@@ -68,17 +67,18 @@ Additional information can be placed in a supplementary file. This file should b
 
 Sample of supplementary .txt file:
 ```
-GLI1_UP.V1_DN	GLI1 upregulated v1 down genes	Genes down-regulated in RK3E cells (kidney epithelium) over-expressing GLI1 [GeneID=2735].
-GLI1_UP.V1_UP	GLI1 upregulated v1 up genes	Genes up-regulated in RK3E cells (kidney epithelium) over-expressing GLI1 [GeneID=2735].
-E2F1_UP.V1_DN	E2F1 upregulated v1 down genes	Identification of E2F1-regulated genes that modulate the transition from quiescence into DNA synthesis, or have roles in apoptosis, signal transduction, membrane biology, and transcription repression.
+GLI1_UP.V1_DN<TAB>GLI1 upregulated v1 down genes<TAB>Genes down-regulated in RK3E cells (kidney epithelium) over-expressing GLI1 [GeneID=2735].
+GLI1_UP.V1_UP<TAB>GLI1 upregulated v1 up genes<TAB>Genes up-regulated in RK3E cells (kidney epithelium) over-expressing GLI1 [GeneID=2735].
+E2F1_UP.V1_DN<TAB>E2F1 upregulated v1 down genes<TAB>Identification of E2F1-regulated genes that modulate the transition from quiescence into DNA synthesis, or have roles in apoptosis, signal transduction, membrane biology, and transcription repression.
 
 ```
 ### Run the gene set importer
 The importer for gene sets can be run with a perl wrapper, which is located at the following location and requires the following arguments:
 ```
-perl core/src/main/scripts/importGenesetData.pl
+cd $PORTAL_HOME/core/src/main/scripts
+perl importGenesetData.pl
 
-required:     --data <data_file.gmt>  
+required:     --data <data_file.gmt>
               --new-version <Version> OR --update-info
 optional:     --supp <supp_file.txt>
 ```
@@ -88,10 +88,10 @@ The `--update info` can be used only to update only the long name, description a
 
 ## Import Gene Set hierarchy
 
-When gene sets are imported, the user can import a gene set hierarchy that is used on the query page to select gene sets.
+After importing gene sets, you can import a gene set hierarchy that is used on the query page to select gene sets.
 
 ### File format
-For gene set hierarchy files, we use the YAML format. This is common format to sturcture hierarchical data. 
+For gene set hierarchy files, we use the YAML format. This is common format to structure hierarchical data.
 
 Sample of format (note this is mock data):
 
@@ -118,9 +118,10 @@ To make your own hierarchy, make sure every branchname ends with `:`. Every bran
 
 ### Running the gene set hierarchy importer
 ```
-$PORTAL_HOME/core/src/main/java/org/mskcc/cbio/portal/scripts/ImportGenesetHierarchy.java
+cd $PORTAL_HOME/core/src/main/scripts
+perl importGenesetHierarchy.pl
 
-required:     --data <data_file.yaml>  
+required:     --data <data_file.yaml>
 ```
 
 ## Import a study with gene set data

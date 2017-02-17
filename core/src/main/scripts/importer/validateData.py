@@ -2610,29 +2610,29 @@ class GSVAWiseFileValidator(FeaturewiseFileValidator):
 
     def parseFeatureColumns(self, nonsample_col_vals):
 
-        """Check the geneset id column."""  
+        """Check the `geneset_id` column."""  
         
         global GSVA_GENESET_IDS
         
         geneset_id = nonsample_col_vals[0].strip()      
-        #Check if geneset is present
+        #Check if gene set is present
         if geneset_id == '':
             # Validator already gives warning for this in checkLine method   
             pass
-        # Check if geneset contains whitespace    
+        # Check if gene set contains whitespace    
         elif ' ' in geneset_id:
-            self.logger.error("Whitespace found in the geneset id",
+            self.logger.error("Whitespace found in `geneset_id`",
                               extra={'line_number': self.line_number,
                                      'cause': geneset_id})     
-        # Check if geneset is in database
+        # Check if gene set is in database
         elif self.portal.geneset_id_list is not None and geneset_id not in self.portal.geneset_id_list:
-            self.logger.error("Gene set not found in database, please make sure "
-                              "to update the database with new gene sets",
+            self.logger.warning("Gene set not found in database, please make sure "
+                                "to import gene sets prior to study loading",
                               extra={'line_number': self.line_number, 'cause': geneset_id})      
         else:
             # Check if this is the second GSVA data file
             if GSVA_GENESET_IDS != None:
-                # Check if geneset is in the first GSVA file
+                # Check if gene set is in the first GSVA file
                 if not geneset_id in GSVA_GENESET_IDS:
                     self.logger.error('Gene sets in GSVA score and p-value files are not equal',
                                   extra={'line_number': self.line_number})
@@ -2648,15 +2648,15 @@ class GSVAWiseFileValidator(FeaturewiseFileValidator):
             ### Check if geneset ids are the same 
             if not GSVA_GENESET_IDS == self.geneset_ids:
                 self.logger.error(
-                    'First column of GSVA score and p-value files is not equal')
+                    'First columns of GSVA score and p-value files are not equal')
         super(GSVAWiseFileValidator, self).onComplete()
 
 
 class GSVAScoreValidator(GSVAWiseFileValidator):
-    """Validator for files containing scores per geneset from GSVA algorithm.
+    """Validator for files containing scores per gegene setrom GSVA algorithm.
 
     GSVA is an algorithm in R that outputs a score and p-value (from 
-    bootstrapping for each inputted geneset per sample.
+    bootstrapping for each inputted gene set per sample.
     """
     # Score must be between -1 and 1
     def checkValue(self, value, col_index):
@@ -2671,10 +2671,10 @@ class GSVAScoreValidator(GSVAWiseFileValidator):
      
  
 class GSVAPvalueValidator(GSVAWiseFileValidator):
-    """Validator for files containing p-values per geneset from GSVA algorithm.
+    """Validator for files containing p-values per gene set from GSVA algorithm.
 
     GSVA is an algorithm in R that outputs a score and p-value (from bootstrapping)
-    for each inputted geneset per sample.
+    for each inputted gene set per sample.
     """
     # Score must be between -0 and 1
     def checkValue(self, value, col_index):
@@ -3088,7 +3088,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
         logger.warning('Skipping validations relating to gene identifiers and '
                        'aliases defined in the portal')
     if portal_instance.geneset_id_list is None:
-        logger.warning('Skipping validations relating to geneset identifiers')
+        logger.warning('Skipping validations relating to gene set identifiers')
 
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,

@@ -128,7 +128,16 @@
                         annotation: annotationCol.render
                     },
                     columnVisibility: {
-                        annotation: 'visible'
+                        annotation: 'visible',
+                        "tumorType": function() {
+                            if (isVirtualStudy) return "visible";
+                            else return "excluded";      
+                        },
+                        "cancerStudy": function() {
+                            if (isVirtualStudy) return "visible";
+                            else return "excluded";
+                        },
+                        'annotation': 'visible'
                     },
                     columns: {
                         annotation: {

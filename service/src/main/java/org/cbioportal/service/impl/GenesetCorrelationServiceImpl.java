@@ -109,6 +109,7 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
         	genesetCorrelationItem.setEntrezGeneId(entrezGeneId);
         	genesetCorrelationItem.setHugoGeneSymbol(gene.getHugoGeneSymbol());
         	genesetCorrelationItem.setCorrelationValue(correlationValue);
+        	genesetCorrelationItem.setGeneticProfileId(expressionProfile.getStableId());
         	result.add(genesetCorrelationItem);
         }        
 		// return sorted

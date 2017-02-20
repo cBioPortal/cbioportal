@@ -7,6 +7,7 @@ public class GenesetCorrelation implements Serializable {
 	private Integer entrezGeneId;
     private String hugoGeneSymbol;
 	private Double correlationValue;
+    private String geneticProfileId;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -31,4 +32,12 @@ public class GenesetCorrelation implements Serializable {
     public void setCorrelationValue(Double correlationValue) {
         this.correlationValue = correlationValue;
     }
+
+	public String getGeneticProfileId() {
+		return geneticProfileId;
+	}
+
+	public void setGeneticProfileId(String geneticProfileId) {
+		this.geneticProfileId = geneticProfileId;
+	}
 }

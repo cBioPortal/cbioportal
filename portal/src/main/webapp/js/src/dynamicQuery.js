@@ -782,8 +782,6 @@ function updateCancerStudyInformation() {
 //  or programatically.
 function cancerStudySelected() {
 
-    //  make sure submit button is enabled unless determined otherwise by lack of data
-    $("#main_submit").attr("disabled",false);
 
     var cancerStudyId = $("#select_single_study").val() || "all";
     var _studyObject = window.metaDataJson.cancer_studies[cancerStudyId];
@@ -1467,8 +1465,6 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
     if (numProfiles == 0) {
         return;
     } else if(numProfiles >1 && downloadTab == false) {
-        // enable submit button
-        $('#main_submit').attr('disabled', false);
         //  If we have more than 1 profile, output group checkbox
         //  assign a class to associate the checkbox with any subgroups (radio buttons)
         profileHtml += "<div class='checkbox'><label>"

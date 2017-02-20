@@ -3190,15 +3190,6 @@
 			}
 		},
 		/**
-         * Jump to study page with selected nodes
-         */
-		dashboard: function() {
-			var selected = $("#select_multiple_studies").val().split(',').map(function(i) {
-				return i.trim();
-			});
-			window.open('study.do?cohorts='+selected.join(','));
-		},
-		/**
 		 * checks if a node is selected
 		 * @name is_selected(obj)
 		 * @param  {mixed}  obj

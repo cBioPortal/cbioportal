@@ -170,10 +170,7 @@ A:hover {
 }
 
 #main_submit {
-    background-color: #e6e6e6;    
-    color: transparent;     
-    display: inline-block;           
-    text-shadow: 0 0 0 black;
+    margin-top: 0px;
 }
 
 .wpasA {

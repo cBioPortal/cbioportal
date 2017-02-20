@@ -344,6 +344,8 @@
 		        }
 	        }, 50);
         }
+        
+        $("#dashboard_button").attr("disabled", false);
 
         $("a.result-tab").click(function(){
 

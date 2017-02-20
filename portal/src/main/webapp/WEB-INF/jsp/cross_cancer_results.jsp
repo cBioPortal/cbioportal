@@ -179,6 +179,9 @@ if (sessionError != null) {  %>
             } else {
                 $("#modify_query_btn").addClass("active");
             }
+            if (window.studies.length > 0) {
+                $("#dashboard_button").attr("disabled", false);
+            }
             waitForElementToDisplay('.jstree-clicked', '5');
         });
         $("#toggle_query_form").click(function(event) {

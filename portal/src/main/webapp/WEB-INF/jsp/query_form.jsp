@@ -160,6 +160,12 @@
             }
         }
     %>
+    function clickDashboard() {
+        var selected = $("#select_multiple_studies").val().split(',').map(function(i) {
+            return i.trim();
+        });
+        window.open('study.do?cohorts='+selected.join(','));
+    }
 
 </script>
 <div class="main_query_panel">
@@ -178,12 +184,17 @@
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         </p>
         <p>
-        <input id="main_submit" class="btn btn-default btn-lg" onclick="submitHandler()" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>" title='Submit Query' readonly/>
-        <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
+            <input type="button" id="dashboard_button" class="btn btn-default btn-lg" name="Overview" value="Overview" onclick='clickDashboard()' disabled/>
+            <button id="main_submit" class="btn btn-default btn-lg" onclick="submitHandler()" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>" title='Submit Query' disabled readonly>Query</button>
+            <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
         </p>
         </form>
     </div>
 </div>      
+
+<script>
+
+</script>
 
 <%!
     private void conditionallyOutputTransposeMatrixOption(String localTabIndex,

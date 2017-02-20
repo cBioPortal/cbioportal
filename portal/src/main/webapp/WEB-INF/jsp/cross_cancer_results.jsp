@@ -179,7 +179,7 @@ if (sessionError != null) {  %>
             } else {
                 $("#modify_query_btn").addClass("active");
             }
-            if (window.studies.length > 0) {
+            if (typeof window.studies !== 'undefined' && window.studies.length > 0) {
                 $("#dashboard_button").attr("disabled", false);
             }
             waitForElementToDisplay('.jstree-clicked', '5');

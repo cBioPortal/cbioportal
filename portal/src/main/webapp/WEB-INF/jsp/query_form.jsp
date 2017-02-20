@@ -168,6 +168,7 @@
     }
 
 </script>
+
 <div class="main_query_panel">
     <div id="main_query_form">
         <form id="main_form" name="main_form" action="index.do" method="post">
@@ -191,10 +192,6 @@
         </form>
     </div>
 </div>      
-
-<script>
-
-</script>
 
 <%!
     private void conditionallyOutputTransposeMatrixOption(String localTabIndex,

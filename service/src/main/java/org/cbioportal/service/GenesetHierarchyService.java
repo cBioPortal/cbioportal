@@ -7,6 +7,6 @@ import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 
 public interface GenesetHierarchyService {
 
-	List<GenesetHierarchyInfo> getGenesetHierarchyInfo(String geneticProfileId) throws GeneticProfileNotFoundException;
+	List<GenesetHierarchyInfo> getGenesetHierarchyInfo(String geneticProfileId, Integer percentile, Double scoreThreshold, Double pvalueThreshold) throws GeneticProfileNotFoundException;
 
 }

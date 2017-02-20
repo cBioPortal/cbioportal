@@ -56,4 +56,10 @@ public class GeneticProfileMyBatisRepository implements GeneticProfileRepository
 
 		return geneticProfileMapper.getGeneticProfilesReferredBy(referringGeneticProfileId, PersistenceConstants.DETAILED_PROJECTION);
 	}
+
+	@Override
+	public List<GeneticProfile> getGeneticProfilesReferringTo(String referredGeneticProfileId) {
+		
+		return geneticProfileMapper.getGeneticProfilesReferringTo(referredGeneticProfileId, PersistenceConstants.DETAILED_PROJECTION);
+	}
 }

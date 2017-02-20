@@ -38,9 +38,9 @@ public class GenesetCorrelationController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the genes in a gene set that have expression correlated to the gene set scores")
     public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(
-    	@ApiParam(required = true, value = "Gene set ID, e.g. MORF_ATRX.")
+    	@ApiParam(required = true, value = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
         @PathVariable String genesetId,
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. brca_tcga_gsva_oncogenic_sets_scores")
+        @ApiParam(required = true, value = "Genetic Profile ID e.g. brca_tcga_gsva_scores")
     	@RequestParam String geneticProfileId,
     	@ApiParam("Correlation threshold (for absolute correlation value, Spearman correlation)")
         @Max(1)

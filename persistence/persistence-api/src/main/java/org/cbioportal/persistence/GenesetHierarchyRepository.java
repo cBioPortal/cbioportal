@@ -7,5 +7,6 @@ import org.cbioportal.model.GenesetHierarchyInfo;
 
 public interface GenesetHierarchyRepository {
 
-    List<GenesetHierarchyInfo> getGenesetHierarchyItems(List<GenesetAlteration> genesetData);
+    List<GenesetHierarchyInfo> getGenesetHierarchyItems(String geneticProfileId, List<GenesetAlteration> genesetScores, 
+    		Integer percentile, Double scoreThreshold, Double pvalueThreshold);
 }

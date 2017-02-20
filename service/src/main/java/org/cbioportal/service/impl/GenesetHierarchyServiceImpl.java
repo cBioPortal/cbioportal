@@ -32,10 +32,11 @@
 package org.cbioportal.service.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.cbioportal.model.GenesetAlteration;
 import org.cbioportal.model.GenesetHierarchyInfo;
+import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.persistence.GenesetHierarchyRepository;
 import org.cbioportal.persistence.GeneticDataRepository;
 import org.cbioportal.service.GenesetHierarchyService;
@@ -55,17 +56,18 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
     private GenesetHierarchyRepository genesetHierarchyRepository;
     
 	@Override
-	public List<GenesetHierarchyInfo> getGenesetHierarchyInfo(String geneticProfileId) throws GeneticProfileNotFoundException {
+	public List<GenesetHierarchyInfo> getGenesetHierarchyInfo(String geneticProfileId, Integer percentile, Double scoreThreshold, Double pvalueThreshold) throws GeneticProfileNotFoundException {
 		
-		//validate 
-		geneticProfileService.getGeneticProfile(geneticProfileId);
-		//TODO could also validate if profile is of geneset_score type
+		//validate: 
+		GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+		//also validate if profile is of geneset_score type:
+		if (!geneticProfile.getDatatype().equals(DataType.GSVA_SCORE)) {
+			throw new IllegalArgumentException("Genetic profile should be of DATA_TYPE = " + DataType.GSVA_SCORE);
+		}
 		
-		//get list of genesets that have data for this profile:
-		List<GenesetAlteration> genesets = geneticDataRepository.getGenesetAlterations(geneticProfileId, null, "SUMMARY");
+		//get list of genesets and respective score records for gene sets that have data for this profile:
+		List<GenesetAlteration> genesetScores = geneticDataRepository.getGenesetAlterations(geneticProfileId, null, "SUMMARY");
 		
-		return genesetHierarchyRepository.getGenesetHierarchyItems(genesets);
+		return genesetHierarchyRepository.getGenesetHierarchyItems(geneticProfileId, genesetScores, percentile, scoreThreshold, pvalueThreshold);
 	}
-
-
 }

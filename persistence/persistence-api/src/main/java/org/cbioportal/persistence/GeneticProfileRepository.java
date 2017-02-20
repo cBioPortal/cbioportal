@@ -20,4 +20,6 @@ public interface GeneticProfileRepository {
     BaseMeta getMetaGeneticProfilesInStudy(String studyId);
 
 	List<GeneticProfile> getGeneticProfilesReferredBy(String referringGeneticProfileId);
+
+	List<GeneticProfile> getGeneticProfilesReferringTo(String referredGeneticProfileId);
 }

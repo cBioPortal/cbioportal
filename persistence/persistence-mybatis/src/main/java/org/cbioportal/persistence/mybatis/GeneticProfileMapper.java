@@ -15,4 +15,6 @@ public interface GeneticProfileMapper {
     GeneticProfile getGeneticProfile(String geneticProfileId, String projection);
 
 	List<GeneticProfile> getGeneticProfilesReferredBy(String referringGeneticProfileId, String projection);
+
+	List<GeneticProfile> getGeneticProfilesReferringTo(String referredGeneticProfileId, String projection);
 }

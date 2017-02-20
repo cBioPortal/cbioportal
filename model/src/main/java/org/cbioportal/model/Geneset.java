@@ -11,6 +11,7 @@ public class Geneset implements Serializable {
     private String refLink;
     //representative score (can be set when retrieved in study context):
     private Double representativeScore;
+    private Double representativePvalue;
 
 	public Integer getInternalId() {
 		return internalId;
@@ -58,5 +59,13 @@ public class Geneset implements Serializable {
 
 	public void setRepresentativeScore(Double representativeScore) {
 		this.representativeScore = representativeScore;
+	}
+
+	public Double getRepresentativePvalue() {
+		return representativePvalue;
+	}
+
+	public void setRepresentativePvalue(Double representativePvalue) {
+		this.representativePvalue = representativePvalue;
 	}
 }

@@ -207,7 +207,11 @@ function loadMetaData() {
                 		});
                 	}else{
                         virtualStudies = vcSession.utils.getVirtualCohorts();
-                        addMetaDataToPage(virtualStudies);
+                        if (window.tab_index !== 'tab_download') {
+                            addMetaDataToPage(virtualStudies);
+                        } else {
+                            addMetaDataToPage([]);
+                        }
                         showNewContent();
                 	}
                 } else {

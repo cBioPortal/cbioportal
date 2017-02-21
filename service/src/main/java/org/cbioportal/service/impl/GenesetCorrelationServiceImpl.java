@@ -85,7 +85,8 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
         if (expressionProfilesReferredByGenesetProfile.size() != 1) {
         	throw new RuntimeException("Unexpected error: give geneset profile refers to " + expressionProfilesReferredByGenesetProfile.size() + " profile(s)");
         }
-        GeneticProfile expressionProfile = expressionProfilesReferredByGenesetProfile.get(0); 
+        GeneticProfile expressionProfile = expressionProfilesReferredByGenesetProfile.get(0);
+        GeneticProfile zscoresProfile = getLinkedZscoreProfile(expressionProfile);
         
         // TODO : if this turns out to take too long, we can always implement this loop in parallel to improve performance. Multi-threading is easy in this scenario.
 		// get genetic data for each gene and calculate correlation
@@ -109,7 +110,8 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
         	genesetCorrelationItem.setEntrezGeneId(entrezGeneId);
         	genesetCorrelationItem.setHugoGeneSymbol(gene.getHugoGeneSymbol());
         	genesetCorrelationItem.setCorrelationValue(correlationValue);
-        	genesetCorrelationItem.setGeneticProfileId(expressionProfile.getStableId());
+        	genesetCorrelationItem.setExpressionGeneticProfileId(expressionProfile.getStableId());
+        	genesetCorrelationItem.setzScoreGeneticProfileId(zscoresProfile.getStableId());
         	result.add(genesetCorrelationItem);
         }        
 		// return sorted
@@ -117,6 +119,22 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
 		return result;
 	}
 
+
+	private GeneticProfile getLinkedZscoreProfile(GeneticProfile expressionProfile) {
+		
+		//TODO - This is a temp solution until we discuss whether indeed to show z-scores on frontend oncoprint expansion tracks.
+    	//       The final solution will involve finding the related z-score profile via the genetic_profile_link 
+    	//       table (and respective adjustments in validator and loader to make this link).
+        String zscoresProfileId = expressionProfile.getStableId() + "_median_Zscores";
+        try {
+	        //validate and fetch:
+	        GeneticProfile zscoresProfile = geneticProfileService.getGeneticProfile(zscoresProfileId);
+	        return zscoresProfile;
+        } catch (GeneticProfileNotFoundException e) {
+			throw new IllegalArgumentException("The expression profile [" + expressionProfile.getStableId() + "] linked to the given "
+					+ "gene set scores profile does not have a corresponding z-scores profile in this study.", e);
+		}
+	}
 
 	private void sortResult(List<GenesetCorrelation> result) {
         Comparator<GenesetCorrelation> comparator = new Comparator<GenesetCorrelation>() {

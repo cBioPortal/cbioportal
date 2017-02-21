@@ -59,14 +59,14 @@ public class GenesetDataServiceImpl implements GenesetDataService {
         		genesetIds, "SUMMARY");
         
         for (Sample sample : samples) {
-            int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());//TODO maybe use hashset?
+            int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
             if (indexOfSampleId != -1) {
                 for (GenesetAlteration genesetAlteration : genesetAlterations) {
                     GenesetData genesetData = new GenesetData();
                     genesetData.setGeneticProfileId(geneticProfileId);
                     genesetData.setSampleId(sample.getStableId());
                     genesetData.setGenesetId(genesetAlteration.getGenesetId());
-                    genesetData.setValue(genesetAlteration.getValues().split(",")[indexOfSampleId]);
+                    genesetData.setValue(genesetAlteration.getSplitValues()[indexOfSampleId]); //TODO introduce this "splitValues cache" in genetic data API as well...since .split(",") turned out to be bottleneck here...service went from 4s to 165ms after this improvement!
                     genesetDataList.add(genesetData);
                 }
             }

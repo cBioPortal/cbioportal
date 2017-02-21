@@ -22,4 +22,19 @@ public class GenesetAlteration implements Serializable {
     public void setValues(String values) {
         this.values = values;
     }
+    
+    private String[] splitValues = null;
+    
+    /**
+     * Split on ',' of getValues(). Remembers last .split to avoid 
+     * repeating this costly operation.
+     * 
+     * @return
+     */
+    public String[] getSplitValues() {
+    	if (splitValues == null) {
+    		splitValues = values.split(",");
+    	}
+    	return splitValues;
+    }
 }

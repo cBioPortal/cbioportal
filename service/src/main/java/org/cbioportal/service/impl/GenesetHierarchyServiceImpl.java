@@ -203,7 +203,7 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 	private List<Geneset> getFilteredGenesets(List<Geneset> genesets, Double scoreThreshold, Double pvalueThreshold) {
 
 		return genesets.stream().filter(
-					g -> g.getRepresentativeScore() >= scoreThreshold &&
+					g -> Math.abs(g.getRepresentativeScore()) >= scoreThreshold &&
 					     g.getRepresentativePvalue() <= pvalueThreshold
 				).collect(Collectors.toList());
 	}
@@ -320,18 +320,18 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 		} else {
 			//sort scores:
 			Collections.sort(positiveScoresAndPvalues, ScoreAndPvalue.comparator);
-			Collections.sort(negativeScoresAndPvalues, ScoreAndPvalue.comparator);
+			Collections.sort(negativeScoresAndPvalues, ScoreAndPvalue.comparatorDesc);
 			
 			//use percentile:
 			ScoreAndPvalue representativePositiveScoreAndPvalue = new ScoreAndPvalue(0, 1);
 			ScoreAndPvalue representativeNegativeScoreAndPvalue = new ScoreAndPvalue(0, 1);
 			if (positiveScoresAndPvalues.size() > 0) {
-				int idxPositiveScores = (int)Math.round(percentile * positiveScoresAndPvalues.size() / 100.0); //or Math.floor ?
-				representativePositiveScoreAndPvalue = positiveScoresAndPvalues.get(idxPositiveScores);
+				int idxPositiveScores = (int)Math.round(percentile * positiveScoresAndPvalues.size() / 100.0);
+				representativePositiveScoreAndPvalue = positiveScoresAndPvalues.get(idxPositiveScores-1);
 			}
 			if (negativeScoresAndPvalues.size() > 0) {
 				int idxNegativeScores = (int)Math.round(percentile * negativeScoresAndPvalues.size() / 100.0);
-				representativeNegativeScoreAndPvalue = negativeScoresAndPvalues.get(idxNegativeScores);
+				representativeNegativeScoreAndPvalue = negativeScoresAndPvalues.get(idxNegativeScores-1);
 			}
 			
 			//set best one:
@@ -369,6 +369,20 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
         			return -1;
         		if (o1.score > o2.score)
         			return 1;
+        		
+        		return 0;
+            }
+        };
+        
+        static final Comparator<ScoreAndPvalue> comparatorDesc = new Comparator<ScoreAndPvalue>() {
+            @Override
+            public int compare(ScoreAndPvalue o1, ScoreAndPvalue o2) {
+            	
+        		//asc order
+        		if (o1.score < o2.score)
+        			return 1;
+        		if (o1.score > o2.score)
+        			return -1;
         		
         		return 0;
             }

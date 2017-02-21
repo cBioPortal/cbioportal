@@ -281,7 +281,7 @@ public class GenesetHierarchyMyBatisRepository implements GenesetHierarchyReposi
         		if (o1.score < o2.score)
         			return -1;
         		if (o1.score > o2.score)
-        			return -1;
+        			return 1;
         		
         		return 0;
             }

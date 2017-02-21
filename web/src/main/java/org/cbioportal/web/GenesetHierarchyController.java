@@ -42,7 +42,7 @@ public class GenesetHierarchyController {
     	@RequestParam String geneticProfileId,
         @ApiParam("Percentile (for score calculation). Which percentile to use when determining the *representative score*")
         @Max(100)
-        @Min(0)
+        @Min(1)
         @RequestParam(defaultValue = "75") Integer percentile,
         @ApiParam("Gene set score threshold (for absolute score value). Filters out gene sets where the GSVA(like) *representative score* is under this threshold.")
         @Max(1)

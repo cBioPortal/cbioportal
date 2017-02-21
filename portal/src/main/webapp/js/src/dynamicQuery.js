@@ -239,7 +239,7 @@ function userClickedMainTab(tabAction) {
     window.changingTabs = true;
     //  Change hidden field value
     $("#tab_index").val(tabAction);
-    $("#main_form").get(0).elements["Action"].setAttribute("value","");
+    //$("#main_form").get(0).elements["Action"].setAttribute("value","");
 
     //  Then, submit the form
     $("#main_form").submit();

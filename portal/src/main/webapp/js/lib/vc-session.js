@@ -170,7 +170,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     };
 
     return {
-      saveSession: function(virtualCohort) {
+      saveSession: function(virtualCohort, callbackFunc) {
         $.ajax({
           type: 'POST',
           url: vcSession.URL,
@@ -180,10 +180,12 @@ window.vcSession = window.vcSession ? window.vcSession : {};
           if (virtualCohort.userID === 'DEFAULT') {
             virtualCohort.virtualCohortID = response.id;
             localStorageAdd_(virtualCohort);
+              callbackFunc(response.id);
           }
         }).fail(function() {
           virtualCohort.virtualCohortID = vcSession.utils.generateUUID();
           localStorageAdd_(virtualCohort);
+            callbackFunc(response.id);
         });
       },
       removeSession: function(_virtualCohort) {

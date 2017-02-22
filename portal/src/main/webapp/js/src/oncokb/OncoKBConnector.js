@@ -66,7 +66,7 @@ var OncoKB = (function(_, $) {
     };
     self.instanceManagers = {};
 
-    self.oncogenic = ['Unknown', 'Inconclusive', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic'];
+    self.oncogenic = ['Unknown', 'Inconclusive', 'Likely Neutral', 'Predicted Oncogenic', 'Likely Oncogenic', 'Oncogenic'];
 
     _.templateSettings = {
         evaluate: /<@([\s\S]+?)@>/g,
@@ -699,6 +699,9 @@ var OncoKB = (function(_, $) {
                     break;
                 case 'Inconclusive':
                     iconType[1] = 'unknown-oncogenic';
+                    break;
+                case 'Predicted Oncogenic':
+                    iconType[1] = 'oncogenic';
                     break;
                 case 'Likely Oncogenic':
                     iconType[1] = 'oncogenic';

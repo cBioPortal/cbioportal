@@ -188,6 +188,22 @@ window.vcSession = window.vcSession ? window.vcSession : {};
             callbackFunc(response.id);
         });
       },
+        saveSessionWithoutWritingLocalStorage: function(_virtualCohort, _callbackFunc) {
+            $.ajax({
+                type: 'POST',
+                url: vcSession.URL,
+                contentType: 'application/json;charset=UTF-8',
+                data: JSON.stringify(_virtualCohort)
+            }).done(function(response) {
+                if (_virtualCohort.userID === 'DEFAULT') {
+                    _virtualCohort.virtualCohortID = response.id;
+                    _callbackFunc(response.id);
+                }
+            }).fail(function() {
+                _virtualCohort.virtualCohortID = vcSession.utils.generateUUID();
+                _callbackFunc(response.id);
+            });
+        },
       removeSession: function(_virtualCohort) {
         $.ajax({
           type: 'DELETE',

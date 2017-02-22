@@ -329,7 +329,8 @@ var OncoKB = (function(_, $) {
         }
 
         function getOncogenicIndex(oncogenic) {
-            if (oncogenic === 'Likely Oncogenic') {
+            if (oncogenic === 'Likely Oncogenic' ||
+                oncogenic === 'Predicted Oncogenic') {
                 oncogenic = 'Oncogenic'; //Group likely oncogenic with oncogenic
             }
             return OncoKB.oncogenic.indexOf(oncogenic);

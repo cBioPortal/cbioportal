@@ -211,6 +211,13 @@ var OncoKB = (function(_, $) {
                         var uniqueResult = result.filter(function(elem, pos) {
                             return result.indexOf(elem) === pos;
                         });
+
+                        // In order to avoid the shorter match may exist in 
+                        // longer match, replace the longer text first.
+                        uniqueResult.sort(function(a, b) {
+                            return b.length - a.length;
+                        });
+
                         for (var i = 0, resultL = uniqueResult.length; i < resultL; i++) {
                             var _datum = uniqueResult[i];
 
@@ -218,9 +225,9 @@ var OncoKB = (function(_, $) {
                                 case 0:
                                     var _number = _datum.split(':')[1].trim();
                                     _number = _number.replace(/\s+/g, '');
-                                    if(type === 'refs-icon') {
-                                        str = str.replace(new RegExp(_datum, 'g'), '<i class="fa fa-book" qtip-content="'+_number+'" style="color:black"></i>');
-                                    }else {
+                                    if (type === 'refs-icon') {
+                                        str = str.replace(new RegExp(_datum, 'g'), '<i class="fa fa-book" qtip-content="' + _number + '" style="color:black"></i>');
+                                    } else {
                                         str = str.replace(new RegExp(_datum, 'g'), '<a class="withUnderScore" target="_blank" href="' + links[j] + _number + '">' + _datum + '</a>');
                                     }
                                     break;
@@ -572,7 +579,22 @@ var OncoKB = (function(_, $) {
             getOncogenicIndex: getOncogenicIndex,
             getTumorTypeFromClinicalDataMap: getTumorTypeFromClinicalDataMap,
             processEvidence: processEvidence,
-            getTumorTypeFromEvidence: getTumorTypeFromEvidence
+            getTumorTypeFromEvidence: getTumorTypeFromEvidence,
+            attachLinkInStr: function(str, matches) {
+                if (_.isArray(matches)) {
+                    _.each(matches, function(match) {
+                        if (str.indexOf(match.keyword) !== -1) {
+                            str = str.replace(
+                                new RegExp(match.keyword, 'g'),
+                                '<a href="' + match.link + '" ' +
+                                'target="' + (match.target || '_blank') + '">' +
+                                match.keyword +
+                                '</a>');
+                        }
+                    })
+                }
+                return str;
+            }
         };
     })();
 
@@ -619,7 +641,7 @@ var OncoKB = (function(_, $) {
                     treatments.push(drugToStr((treatment.drugs)));
                 });
 
-                return treatments.join(',');
+                return treatments.join(', ');
             }
         }
 
@@ -1175,7 +1197,11 @@ OncoKB.Instance.prototype = {
                                                                 return Number(article.pmid);
                                                             }).sort().join(', ') : '',
                                                         clinicalSummary: '<div>' + variant.evidence.geneSummary +
-                                                        '</div><div style="margin-top: 6px">' + variant.evidence.variantSummary +
+                                                        '</div><div style="margin-top: 6px">' +
+                                                        OncoKB.utils.attachLinkInStr(variant.evidence.variantSummary, [{
+                                                            keyword: 'Chang et al. 2016',
+                                                            link: 'https://www.ncbi.nlm.nih.gov/pubmed/26619011'
+                                                        }]) +
                                                         '</div><div style="margin-top: 6px">' + variant.evidence.tumorTypeSummary +
                                                         '</div>',
                                                         biologicalSummary: variant.evidence.mutationEffect.description,

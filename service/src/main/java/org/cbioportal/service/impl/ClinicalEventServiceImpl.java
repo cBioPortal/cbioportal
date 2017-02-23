@@ -6,6 +6,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalEventRepository;
 import org.cbioportal.service.ClinicalEventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
     private ClinicalEventRepository clinicalEventRepository;
     
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalEvent> getAllClinicalEventsOfPatientInStudy(String studyId, String patientId, String projection, 
                                                                     Integer pageSize, Integer pageNumber, String sortBy, 
                                                                     String direction) {
@@ -38,6 +40,7 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaPatientClinicalEvents(String studyId, String patientId) {
         
         return clinicalEventRepository.getMetaPatientClinicalEvents(studyId, patientId);

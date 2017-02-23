@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.authentication.ldap;
+package org.cbioportal.security.spring.authentication.ldap;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -7,10 +7,13 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.portal.authentication.PortalUserDetails;
-import org.mskcc.cbio.portal.dao.PortalUserDAO;
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.model.UserAuthorities;
+
+import org.cbioportal.model.User;
+import org.cbioportal.model.UserAuthorities;
+import org.cbioportal.persistence.SecurityRepository;
+import org.cbioportal.security.spring.authentication.PortalUserDetails;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -21,6 +24,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
+import org.springframework.stereotype.Service;
 
 import com.google.inject.internal.Lists;
 
@@ -31,6 +35,7 @@ import com.google.inject.internal.Lists;
  *
  * @author Manuel Holtgrewe <manuel.holtgrewe@bihealth.de>
  */
+@Service
 public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
 
     /** {@link Log} to use */
@@ -39,7 +44,8 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
     /** {@link DefaultSpringSecurityContextSource} with the LDAP connection */
     private DefaultSpringSecurityContextSource ldapServer;
     /** data access object to use for retrieving the authorities from the database */
-    private PortalUserDAO portalUserDAO;
+    @Autowired
+    private SecurityRepository securityRepository;
 
     /** base path to search users in */
     private String baseDn;
@@ -58,11 +64,10 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
 
     /**
      * Initialize the {@link LDAPUserDetailsContextMapper} with the given {@link DefaultSpringSecurityContextSource} and
-     * {@link PortalUserDAO}.
+     * {@link SecurityRepository}.
      */
-    public LDAPUserDetailsContextMapper(DefaultSpringSecurityContextSource ldapServer, PortalUserDAO portalUserDAO) {
+    public LDAPUserDetailsContextMapper(DefaultSpringSecurityContextSource ldapServer) {
         this.ldapServer = ldapServer;
-        this.portalUserDAO = portalUserDAO;
     }
 
     @Override
@@ -109,7 +114,7 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
     private List<GrantedAuthority> getGrantedAuthorities(String email) {
         User user = null;
         try {
-            user = portalUserDAO.getPortalUser(email);
+            user = securityRepository.getPortalUser(email);
         } catch (Exception e) {
             // ignore, handle below with user == null
         }
@@ -121,7 +126,7 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
             LOG.debug("getGrantedAuthorities(), attempting to fetch portal user authorities, email: " + email);
             UserAuthorities authorities = null;
             try {
-                authorities = portalUserDAO.getPortalUserAuthorities(email);
+                authorities = securityRepository.getPortalUserAuthorities(email);
             } catch (Exception e) {
                 LOG.debug("problem with database query:" + e.getMessage());
                 throw new UsernameNotFoundException("Could not retrieve authorities for " + email, e);
@@ -147,16 +152,6 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
     /** Set {@link DefaultSpringSecurityContextSource} with the LDAP connection */
     public void setLdapServer(DefaultSpringSecurityContextSource ldapServer) {
         this.ldapServer = ldapServer;
-    }
-
-    /** @return data access object to use for retrieving the authorities from the database */
-    public PortalUserDAO getPortalUserDAO() {
-        return portalUserDAO;
-    }
-
-    /** Set data access object to use for retrieving the authorities from the database */
-    public void setPortalUserDAO(PortalUserDAO portalUserDAO) {
-        this.portalUserDAO = portalUserDAO;
     }
 
     /** @return base path to search users in */

@@ -30,41 +30,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.authentication;
+package org.cbioportal.security.spring.authentication.googleplus;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-
-import java.util.Collection;
-
+import org.springframework.social.connect.UserProfile;
+import org.springframework.social.connect.support.OAuth2ConnectionFactory;
+import org.springframework.social.google.api.Google;
+import org.springframework.social.google.connect.GoogleAdapter;
+import org.springframework.social.google.connect.GoogleServiceProvider;
+import org.springframework.social.oauth2.AccessGrant;
 /**
- * A class which extends User and provides
- * methods to set and get properties obtained
- * via an authentication protocol.
+ * @author criscuof
  *
- * @author Benjamin Gross
  */
-public class PortalUserDetails extends User {
+public class GoogleplusConnectionFactory extends OAuth2ConnectionFactory<Google> {
+	
 
-    private String email;
-    private String name;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param username String
-	 * @param authorities Collection<GrantedAuthority>
-	 *
-	 * Username is what is presented to the authentication provider.
-	 * Authorities is what should  be granted to the caller.
+	public GoogleplusConnectionFactory(String clientId, String clientSecret) {
+		super("google", new GoogleServiceProvider(clientId, clientSecret),
+				new GoogleAdapter());
+	}
+
+	/*
+	 * modification of original factory class to support using the user's email address as his/her id
+	 * original method utilized the google id, a numeric string
 	 */
-    public PortalUserDetails(String username, Collection<GrantedAuthority> authorities) {
-        super(username, "unused", authorities);
-    }
+	@Override
+	protected String extractProviderUserId(AccessGrant accessGrant) {
+		Google api = ((GoogleServiceProvider)getServiceProvider()).getApi(accessGrant.getAccessToken());
+	    UserProfile userProfile = getApiAdapter().fetchUserProfile(api);
+	    return userProfile.getEmail();
+	}
 
-	// accessors
-    public String getEmail() { return email; }
-    public void setEmail(String email) {this.email = email; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+
 }

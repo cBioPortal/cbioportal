@@ -55,18 +55,6 @@
 		<property name="poolPreparedStatements" value="true" />
 	</bean>
 	
-	<bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
-	
-	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-	    <property name="arguments">
-	        <list>
-	            <ref bean="accessControl"/>
-	        </list>
-	   </property>
-	</bean>
-
-    
     <!-- define the SqlSessionFactory -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="businessDataSource" />
@@ -98,9 +86,9 @@
 
     <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
     <context:component-scan base-package="org.mskcc.cbio.portal.service" />
-     <context:component-scan base-package="org.cbioportal.persistence" />
-     <context:component-scan base-package="org.cbioportal.service" />
-    
+    <context:component-scan base-package="org.cbioportal.persistence" />
+    <context:component-scan base-package="org.cbioportal.service" />
+   
     <!-- enable autowire -->
     <context:annotation-config />
 	

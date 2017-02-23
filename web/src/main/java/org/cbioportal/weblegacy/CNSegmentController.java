@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
-import org.cbioportal.model.CNSegmentData;
-import org.cbioportal.service.CNSegmentService;
+import org.mskcc.cbio.portal.model.CNSegmentData;
+import org.mskcc.cbio.portal.service.CNSegmentService;
 import org.springframework.transaction.annotation.Transactional;
 
 @RestController

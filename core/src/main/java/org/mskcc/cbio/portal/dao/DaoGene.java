@@ -33,6 +33,7 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,6 +42,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,19 +69,65 @@ final class DaoGene {
     public static synchronized int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
         CanonicalGene existingGene = getGene(gene.getHugoGeneSymbolAllCaps());
         gene.setEntrezGeneId(existingGene==null?getNextFakeEntrezId():existingGene.getEntrezGeneId());
-        return addGene(gene);
+        return addOrUpdateGene(gene);
     }
 
     /**
-     * Adds a new Gene Record to the Database.
-     *
+     * Update Gene Record in the Database. 
+     */
+    public static int updateGene(CanonicalGene gene) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean setBulkLoadAtEnd = false;
+        try {
+            //this method only works well with bulk load off, especially 
+            //when it is called in a process that may update a gene more than once
+            //(e.g. the ImportGeneData updates some of the fields based on one 
+            // input file and other fields based on another input file):
+            setBulkLoadAtEnd = MySQLbulkLoader.isBulkLoad();
+            MySQLbulkLoader.bulkLoadOff();
+            
+            int rows = 0;
+            con = JdbcUtil.getDbConnection(DaoGene.class);
+            pstmt = con.prepareStatement
+                    ("UPDATE gene SET `HUGO_GENE_SYMBOL`=?, `TYPE`=?,`CYTOBAND`=?,`LENGTH`=? WHERE `ENTREZ_GENE_ID`=?");
+            pstmt.setString(1, gene.getHugoGeneSymbolAllCaps());
+            pstmt.setString(2, gene.getType());
+            pstmt.setString(3, gene.getCytoband());
+            pstmt.setInt(4, gene.getLength());
+            pstmt.setLong(5, gene.getEntrezGeneId());
+            rows += pstmt.executeUpdate();
+            if (rows != 1) {
+                ProgressMonitor.logWarning("No change for " + gene.getEntrezGeneId() + " " + gene.getHugoGeneSymbolAllCaps() + "? Code " + rows);
+            }
+
+            return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            if (setBulkLoadAtEnd) {
+                //reset to original state:
+                MySQLbulkLoader.bulkLoadOn();
+            }   
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
+        }
+        
+}
+    
+    /**
+     * Adds a new Gene Record to the Database OR updates the given gene object
+     * with the geneticEntityId found in the DB for this gene.
+     * If it is a new gene, it will generate a new genetic entity id and
+     * update the given CanonicalGene with the generated 
+     * geneticEntityId. 
+     * 
      * @param gene Canonical Gene Object.
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
-    public static int addGene(CanonicalGene gene) throws DaoException {
-    	//because many tables depend on gene, we want to add gene directly to DB, and
-    	//never through MySQLbulkLoader to avoid any Foreign key constraint violations:
+    public static int addOrUpdateGene(CanonicalGene gene) throws DaoException {
+
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -87,18 +135,33 @@ final class DaoGene {
             int rows = 0;
             CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
             if (existingGene == null) {
-                con = JdbcUtil.getDbConnection(DaoGene.class);
-                pstmt = con.prepareStatement
-                        ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`TYPE`,`CYTOBAND`,`LENGTH`) "
-                                + "VALUES (?,?,?,?,?)");
-                pstmt.setLong(1, gene.getEntrezGeneId());
-                pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
-                pstmt.setString(3, gene.getType());
-                pstmt.setString(4, gene.getCytoband());
-                pstmt.setInt(5, gene.getLength());
+            	//new gene, so add genetic entity first:
+            	int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(DaoGeneticEntity.EntityTypes.GENE);
+            	//update the Canonical gene as well:
+            	gene.setGeneticEntityId(geneticEntityId); //TODO can we find a better way for this, to avoid this side effect? 
+            	//add gene, referring to this genetic entity
+            	con = JdbcUtil.getDbConnection(DaoGene.class);
+            	pstmt = con.prepareStatement
+                        ("INSERT INTO gene (`GENETIC_ENTITY_ID`, `ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`TYPE`,`CYTOBAND`,`LENGTH`) "
+                                + "VALUES (?,?,?,?,?,?)");
+            	pstmt.setInt(1, geneticEntityId);
+                pstmt.setLong(2, gene.getEntrezGeneId());
+                pstmt.setString(3, gene.getHugoGeneSymbolAllCaps());
+                pstmt.setString(4, gene.getType());
+                pstmt.setString(5, gene.getCytoband());
+                pstmt.setInt(6, gene.getLength());
                 rows += pstmt.executeUpdate();
 
-            }
+            } else {
+            	if (gene.getGeneticEntityId() == -1) {
+	            	//update the Canonical gene  //TODO can we find a better way for this, to avoid this side effect?
+	            	gene.setGeneticEntityId(existingGene.getGeneticEntityId());
+            	} else {
+            		//check correctness...normally this error would not occur unless there is an invalid use of CanonicalGene
+            		if (gene.getGeneticEntityId() != existingGene.getGeneticEntityId())
+            			throw new RuntimeException("Unexpected error. Invalid genetic entity id for gene: " + gene.getHugoGeneSymbolAllCaps() + " (" + gene.getGeneticEntityId() + ")"); 
+            	} 
+            }	
 
             rows += addGeneAliases(gene);
 
@@ -239,7 +302,7 @@ final class DaoGene {
             JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
-
+    
     /**
      * Gets all Genes in the Database.
      *
@@ -258,9 +321,10 @@ final class DaoGene {
                     ("SELECT * FROM gene");
             rs = pstmt.executeQuery();
             while (rs.next()) {
+            	int geneticEntityId = rs.getInt("GENETIC_ENTITY_ID");
                 long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
                 Set<String> aliases = mapAliases.get(entrezGeneId);
-                CanonicalGene gene = new CanonicalGene(entrezGeneId,
+                CanonicalGene gene = new CanonicalGene(geneticEntityId, entrezGeneId,
                         rs.getString("HUGO_GENE_SYMBOL"), aliases);
                 gene.setCytoband(rs.getString("CYTOBAND"));
                 gene.setLength(rs.getInt("LENGTH"));
@@ -306,9 +370,10 @@ final class DaoGene {
     }
     
     private static CanonicalGene extractGene(ResultSet rs) throws SQLException, DaoException {
-        long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
+    	int geneticEntityId = rs.getInt("GENETIC_ENTITY_ID");
+    	long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
             Set<String> aliases = getAliases(entrezGeneId);
-            CanonicalGene gene = new CanonicalGene(entrezGeneId,
+            CanonicalGene gene = new CanonicalGene(geneticEntityId, entrezGeneId,
                     rs.getString("HUGO_GENE_SYMBOL"), aliases);
             gene.setCytoband(rs.getString("CYTOBAND"));
             gene.setLength(rs.getInt("LENGTH"));
@@ -344,11 +409,14 @@ final class DaoGene {
     }
     
     /**
+     * Deletes the Gene Record that has the Entrez Gene ID in the Database.
      * 
      * @param entrezGeneId 
      */
     public static void deleteGene(long entrezGeneId) throws DaoException {
-        Connection con = null;
+        deleteGeneAlias(entrezGeneId);
+        
+    	Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
@@ -361,11 +429,10 @@ final class DaoGene {
         } finally {
             JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
-        
-        deleteGeneAlias(entrezGeneId);
     }
     
     /**
+     * Deletes the Gene Alias Record(s) that has/have the Entrez Gene ID in the Database.
      * 
      * @param entrezGeneId 
      */
@@ -389,6 +456,8 @@ final class DaoGene {
      * Deletes all Gene Records in the Database.
      *
      * @throws DaoException Database Error.
+     * 
+     * @deprecated only used by deprecated code, so deprecating this as well.
      */
     public static void deleteAllRecords() throws DaoException {
         Connection con = null;
@@ -408,6 +477,12 @@ final class DaoGene {
         deleteAllAliasRecords();
     }
     
+    /**
+     * 
+     * @throws DaoException
+     * 
+     * @deprecated only used by deprecated code, so deprecating this as well.
+     */
     private static void deleteAllAliasRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

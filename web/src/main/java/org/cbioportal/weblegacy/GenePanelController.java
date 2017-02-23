@@ -34,11 +34,11 @@ package org.cbioportal.weblegacy;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.cbioportal.model.GenePanel;
-import org.cbioportal.model.GenePanelWithSamples;
-import org.cbioportal.service.GenePanelService;
+import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GenePanelWithSamples;
+import org.mskcc.cbio.portal.service.GenePanelService;
 import java.util.List;
-import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;

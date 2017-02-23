@@ -61,6 +61,7 @@ public class DaoGeneOptimized {
     //nb: make sure any map is also cleared in clearCache() method below:
     private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
+    private final HashMap<Integer, CanonicalGene> geneticEntityMap = new HashMap<Integer, CanonicalGene>();
     private final HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
     private final Set<CanonicalGene> cbioCancerGenes = new HashSet<CanonicalGene>();
     private final Map<String, CanonicalGene> disambiguousGenes = new HashMap<String, CanonicalGene>();
@@ -134,6 +135,7 @@ public class DaoGeneOptimized {
     {
         geneSymbolMap.clear();
         entrezIdMap.clear();
+        geneticEntityMap.clear();
         geneAliasMap.clear();
         cbioCancerGenes.clear();
         disambiguousGenes.clear();
@@ -160,27 +162,23 @@ public class DaoGeneOptimized {
     public int addGene(CanonicalGene gene) throws DaoException {
         int ret;
         if (gene.getEntrezGeneId()>0) {
-            ret = DaoGene.addGene(gene);
+            ret = DaoGene.addOrUpdateGene(gene);
         } else {
             ret = DaoGene.addGeneWithoutEntrezGeneId(gene);
         }
+        //only overwrite cache if ..?
         cacheGene(gene);
         return ret;
     }
     
     /**
-     * Update database with gene length
-     * @return number of records updated.
-     * @throws DaoException 
+     * Update Gene Record in the Database. It will also replace this 
+     * gene's aliases with the ones found in the given gene object.
      */
-    public int flushUpdateToDatabase() throws DaoException {
-        DaoGene.deleteAllRecords();
-        MySQLbulkLoader.bulkLoadOn();
-        int ret = 0;
-        for (CanonicalGene gene : getAllGenes()) {
-            ret += DaoGene.addGene(gene);
-        }
-        MySQLbulkLoader.flushAll();
+    public int updateGene(CanonicalGene gene)  throws DaoException {
+        int ret = DaoGene.updateGene(gene);
+        //recache:
+        cacheGene(gene);
         return ret;
     }
     
@@ -200,6 +198,7 @@ public class DaoGeneOptimized {
     private void cacheGene(CanonicalGene gene) {
         geneSymbolMap.put(gene.getHugoGeneSymbolAllCaps(), gene);
         entrezIdMap.put(gene.getEntrezGeneId(), gene);
+        geneticEntityMap.put(gene.getGeneticEntityId(), gene);
 
         for (String alias : gene.getAliases()) {
             String aliasUp = alias.toUpperCase();
@@ -220,6 +219,41 @@ public class DaoGeneOptimized {
      */
     public static DaoGeneOptimized getInstance() {
         return daoGeneOptimized;
+    }
+    
+    /**
+     * Return geneticEntityId from cache for given entrezGeneId
+     * 
+     * @param entrezGeneId
+     * @return
+     */
+    public static int getGeneticEntityId(long entrezGeneId) {
+    	//get entity id from cache:
+    	CanonicalGene gene = daoGeneOptimized.getGene(entrezGeneId);
+		if (gene != null) {
+			return gene.getGeneticEntityId();
+		}
+		else {
+			throw new RuntimeException("Invalid entrezGeneId symbol. Not found in cache: " + entrezGeneId);
+		}    			
+    }
+    
+    /**
+     * Return entrezGeneId from cache for given geneticEntityId
+     * 
+     * @param geneticEntityId
+     * @return
+     */
+    public static long getEntrezGeneId(int geneticEntityId) {
+    	//get entity id from cache:
+    	CanonicalGene gene = daoGeneOptimized.getGeneByEntityId(geneticEntityId);
+		//since not every genetic entity will be a gene, this could be null (but would
+    	//be a programming error elsewhere, so throw exception):
+    	if (gene == null) {
+    		throw new RuntimeException("Genetic entity was not found in gene cache: " + geneticEntityId);
+    	}
+    		
+    	return daoGeneOptimized.getGeneByEntityId(geneticEntityId).getEntrezGeneId();
     }
 
     /**
@@ -265,6 +299,16 @@ public class DaoGeneOptimized {
      */
     public CanonicalGene getGene(long entrezId) {
         return entrezIdMap.get(entrezId);
+    }
+    
+    /**
+     * Gets Gene By Entrez Gene ID.
+     *
+     * @param entrezId Entrez Gene ID.
+     * @return Canonical Gene Object.
+     */
+    public CanonicalGene getGeneByEntityId(int geneticEntityId) {
+        return geneticEntityMap.get(geneticEntityId);
     }
     
     /**
@@ -392,6 +436,18 @@ public class DaoGeneOptimized {
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
     public CanonicalGene getNonAmbiguousGene(String geneId, String chr) {
+    	return getNonAmbiguousGene(geneId, chr, true);
+    }
+    
+    /**
+     * Look for gene that can be non-ambiguously determined
+     * @param geneId an Entrez Gene ID or HUGO symbol or gene alias
+     * @param chr chromosome
+     * @param issueWarning if true and gene is not ambiguous, 
+     * print all the Entrez Ids corresponding to the geneId provided
+     * @return a gene that can be non-ambiguously determined, or null if cannot.
+     */
+    public CanonicalGene getNonAmbiguousGene(String geneId, String chr, boolean issueWarning) {
         List<CanonicalGene> genes = guessGene(geneId, chr);
         if (genes.isEmpty()) {
             return null;
@@ -404,17 +460,18 @@ public class DaoGeneOptimized {
         if (disambiguousGenes.containsKey(geneId)) {
             return disambiguousGenes.get(geneId);
         }
-        
-        StringBuilder sb = new StringBuilder("Ambiguous alias ");
-        sb.append(geneId);
-        sb.append(": corresponding entrez ids of ");
-        for (CanonicalGene gene : genes) {
-            sb.append(gene.getEntrezGeneId());
-            sb.append(",");
+        if (issueWarning) {
+	        StringBuilder sb = new StringBuilder("Ambiguous alias ");
+	        sb.append(geneId);
+	        sb.append(": corresponding entrez ids of ");
+	        for (CanonicalGene gene : genes) {
+	            sb.append(gene.getEntrezGeneId());
+	            sb.append(",");
+	        }
+	        sb.deleteCharAt(sb.length()-1);
+	        
+	        ProgressMonitor.logWarning(sb.toString());
         }
-        sb.deleteCharAt(sb.length()-1);
-        
-        ProgressMonitor.logWarning(sb.toString());
         return null;
         
     }
@@ -446,8 +503,11 @@ public class DaoGeneOptimized {
     /**
      * Deletes all Gene Records in the Database.
      * @throws DaoException Database Error.
+     * 
+     * @deprecated  only used by deprecated code, so deprecating this as well.
      */
     public void deleteAllRecords() throws DaoException {
         DaoGene.deleteAllRecords();
     }
+
 }

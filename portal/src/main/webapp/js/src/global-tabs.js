@@ -62,9 +62,9 @@ window.loadReactApp = function(config) {
 
     if (localStorage.getItem('localdev') === "true") {
         // Use cbioportal-frontend localhost:3000 for dev
-        document.write('<link rel="stylesheet" type="text/css" href="http://localhost:3000/reactapp/prefixed-bootstrap.min.css" />');
-        document.write('<script src="http://localhost:3000/reactapp/common.bundle.js"></scr' + 'ipt>');
-        document.write('<script src="http://localhost:3000/reactapp/main.app.js"></scr' + 'ipt>');
+        document.write('<link rel="stylesheet" type="text/css" href="http://localhost:3000/reactapp/prefixed-bootstrap.min.css?'+ window.appVersion +'" />');
+        document.write('<script src="http://localhost:3000/reactapp/common.bundle.js?'+ window.appVersion +'"></scr' + 'ipt>');
+        document.write('<script src="http://localhost:3000/reactapp/main.app.js?'+ window.appVersion +'"></scr' + 'ipt>');
         // Show alert
         document.write('<div style="position: fixed; top: 0; left: 0; width: 100%;">' +
             '<div class="alert alert-warning">' +
@@ -74,10 +74,10 @@ window.loadReactApp = function(config) {
             '</div>');
     } else if (localStorage.getItem('heroku')) {
         var herokuInstance = 'https://' + localStorage.getItem('heroku') + '.herokuapp.com';
-        document.write('<link rel="stylesheet" type="text/css" href="' + herokuInstance + '/reactapp/prefixed-bootstrap.min.css" />');
-        document.write('<link rel="stylesheet" type="text/css" href="' + herokuInstance + '/reactapp/styles.css" />');
-        document.write('<script src="' + herokuInstance + '/reactapp/common.bundle.js"></scr' + 'ipt>');
-        document.write('<script src="' + herokuInstance + '/reactapp/main.app.js"></scr' + 'ipt>');
+        document.write('<link rel="stylesheet" type="text/css" href="' + herokuInstance + '/reactapp/prefixed-bootstrap.min.css?'+ window.appVersion +'" />');
+        document.write('<link rel="stylesheet" type="text/css" href="' + herokuInstance + '/reactapp/styles.css?'+ window.appVersion +'" />');
+        document.write('<script src="' + herokuInstance + '/reactapp/common.bundle.js?'+ window.appVersion +'"></scr' + 'ipt>');
+        document.write('<script src="' + herokuInstance + '/reactapp/main.app.js?'+ window.appVersion +'"></scr' + 'ipt>');
         // Show alert
         document.write('<div style="position: fixed; top: 0; left: 0; width: 100%;">' +
             '<div class="alert alert-warning">' +
@@ -86,11 +86,11 @@ window.loadReactApp = function(config) {
             '</div>' +
             '</div>');
     } else {
-        // Use deployed sources
-        document.write('<link rel="stylesheet" type="text/css" href="reactapp/prefixed-bootstrap.min.css" />');
-        document.write('<link rel="stylesheet" type="text/css" href="reactapp/styles.css" />');
-        document.write('<script src="reactapp/common.bundle.js"></scr' + 'ipt>');
-        document.write('<script src="reactapp/main.app.js"></scr' + 'ipt>');
+        // Use deployed sources//
+        document.write('<link rel="stylesheet" type="text/css" href="reactapp/prefixed-bootstrap.min.css?'+ window.appVersion +'" />');
+        document.write('<link rel="stylesheet" type="text/css" href="reactapp/styles.css?'+ window.appVersion +'" />');
+        document.write('<script src="reactapp/common.bundle.js?'+ window.appVersion +'"></scr' + 'ipt>');
+        document.write('<script src="reactapp/main.app.js?'+ window.appVersion +'"></scr' + 'ipt>');
     }
 
 };

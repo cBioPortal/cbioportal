@@ -45,22 +45,22 @@ import java.util.List;
 public class GeneMyBatisRepository implements GeneRepository {
 
     @Autowired
-    GeneMapper geneMapper;
+    private GeneMapper geneMapper;
     @Autowired
     private OffsetCalculator offsetCalculator;
 
     @Override
-    public List<Gene> getAllGenes(String projection, Integer pageSize, Integer pageNumber, String sortBy,
+    public List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                   String direction) {
 
-        return geneMapper.getGenes(projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy,
-                direction);
+        return geneMapper.getGenes(alias, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), 
+            sortBy, direction);
     }
 
     @Override
-    public BaseMeta getMetaGenes() {
+    public BaseMeta getMetaGenes(String alias) {
 
-        return geneMapper.getMetaGenes();
+        return geneMapper.getMetaGenes(alias);
     }
 
     @Override

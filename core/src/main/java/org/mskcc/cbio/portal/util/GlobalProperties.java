@@ -36,6 +36,8 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -48,6 +50,7 @@ import java.net.URL;
 /**
  * Utility class for getting / setting global properties.
  */
+@Configuration
 public class GlobalProperties {
 
     public static final String HOME_DIR = "PORTAL_HOME";
@@ -132,7 +135,9 @@ public class GlobalProperties {
     public static final String ONCOKB_API_URL = "oncokb.api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
-    public static final String SESSION_SERVICE_URL = "session.service.url";
+    private static String sessionServiceURL;
+    @Value("${session.service.url:}") // default is empty string
+    public void setSessionServiceURL(String property) { sessionServiceURL = property; }
 
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
@@ -218,7 +223,16 @@ public class GlobalProperties {
     public static final String DISABLED_TABS = "disabled_tabs";
     
     public static final String PRIORITY_STUDIES = "priority_studies";
+    public static final String SPECIES = "species";
+    public static final String DEFAULT_SPECIES = "human";
+    public static final String NCBI_BUILD = "ncbi.build";
+    public static final String DEFAULT_NCBI_BUILD = "37";
+    public static final String UCSC_BUILD = "ucsc.build";
+    public static final String DEFAULT_UCSC_BUILD = "hg19";
     
+    public static final String SHOW_CIVIC = "show.civic";
+    public static final String CIVIC_URL = "civic.url";
+
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -596,6 +610,21 @@ public class GlobalProperties {
         String dataSetsFooter = properties.getProperty(SKIN_DATASETS_FOOTER);
         return dataSetsFooter == null ? DEFAULT_SKIN_DATASETS_FOOTER : dataSetsFooter;
     }
+    
+    public static String getSpecies(){
+    	String species = properties.getProperty(SPECIES);
+    	return species == null ? DEFAULT_SPECIES : species;
+    	}
+
+    public static String getNCBIBuild(){
+    	String NCBIBuild = properties.getProperty(NCBI_BUILD);
+    	return NCBIBuild == null ? DEFAULT_NCBI_BUILD : NCBIBuild;
+    	}
+   
+    public static String getGenomicBuild(){
+    	String genomicBuild = properties.getProperty(UCSC_BUILD);
+    	return genomicBuild == null ? DEFAULT_UCSC_BUILD : genomicBuild;
+    	}
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
@@ -687,7 +716,7 @@ public class GlobalProperties {
    
     public static String getSessionServiceUrl()
     {
-        return properties.getProperty(SESSION_SERVICE_URL);
+        return sessionServiceURL;
     }
  
     public static String getOncoKBApiUrl()
@@ -721,6 +750,16 @@ public class GlobalProperties {
         return "";
     }
 
+    public static String getCivicUrl() {
+        String civicUrl = properties.getProperty(CIVIC_URL);
+        if (civicUrl == null || civicUrl.isEmpty())
+            return "https://civic.genome.wustl.edu/api/";
+        civicUrl = civicUrl.trim();
+        if (!civicUrl.endsWith("/"))
+            civicUrl += "/";
+        return civicUrl;
+    }
+
     public static boolean showHotspot() {
         String hotspot = properties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
@@ -732,6 +771,13 @@ public class GlobalProperties {
         }else{
             return false;
         }
+    }
+
+    public static boolean showCivic() {
+        String showCivic = properties.getProperty(SHOW_CIVIC);
+        if (showCivic == null || showCivic.isEmpty())
+            return true;  // show CIVIC by default
+        return Boolean.parseBoolean(showCivic);
     }
 
     public static boolean filterGroupsByAppName() {

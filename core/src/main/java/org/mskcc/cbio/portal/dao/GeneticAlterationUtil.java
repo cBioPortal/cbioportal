@@ -34,7 +34,7 @@ package org.mskcc.cbio.portal.dao;
 
 import java.util.*;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.cbioportal.persistence.MutationRepository;
+import org.mskcc.cbio.portal.repository.MutationRepositoryLegacy;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +52,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class GeneticAlterationUtil {
     private static final String NAN = "NaN";
-    private static MutationRepository mutationRepository;
+    private static MutationRepositoryLegacy mutationRepositoryLegacy;
     private static MutationModelConverter mutationModelConverter;
 
     @Autowired
-    public GeneticAlterationUtil(MutationRepository mutationRepository, MutationModelConverter mutationModelConverter) {
-        GeneticAlterationUtil.mutationRepository = mutationRepository;
+    public GeneticAlterationUtil(MutationRepositoryLegacy mutationRepositoryLegacy, MutationModelConverter mutationModelConverter) {
+        GeneticAlterationUtil.mutationRepositoryLegacy = mutationRepositoryLegacy;
         GeneticAlterationUtil.mutationModelConverter = mutationModelConverter;
     }
 
@@ -142,7 +142,7 @@ public class GeneticAlterationUtil {
                                                              int geneticProfileId, long entrezGeneId) throws DaoException {
         HashMap <Integer, String> mutationMap = new HashMap <Integer, String>();
         List <ExtendedMutation> mutationList = mutationModelConverter.convert(
-                mutationRepository.getMutations(targetSampleList, (int) entrezGeneId, geneticProfileId));
+                mutationRepositoryLegacy.getMutations(targetSampleList, (int) entrezGeneId, geneticProfileId));
         for (ExtendedMutation mutation : mutationList) {
             Integer sampleId = mutation.getSampleId();
             //  Handle the possibility of multiple mutations in the same gene / sample

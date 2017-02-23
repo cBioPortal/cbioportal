@@ -34,7 +34,7 @@ package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cbioportal.model.CNSegmentData;
+import org.mskcc.cbio.portal.model.CNSegmentData;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -51,7 +51,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.cbioportal.service.CNSegmentService;
+import org.mskcc.cbio.portal.service.CNSegmentService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration

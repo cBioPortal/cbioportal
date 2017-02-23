@@ -48,7 +48,7 @@
     </script>
 
     <% if (localTabIndex.equals(QueryBuilder.TAB_VISUALIZE)) { %>
-        <% out.println("<span style='font-size:120%; color:black'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='onco_query_lang_desc.jsp' onclick='return popitup('onco_query_lang_desc.jsp')'>Advanced: Onco Query Language (OQL)</a></span>"); %>
+        <% out.println("<span style='font-size:120%; color:black'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='onco_query_lang_desc.jsp' onclick='return popitup(\"onco_query_lang_desc.jsp\")'>Advanced: Onco Query Language (OQL)</a></span>"); %>
     <% } %>
     
     <div style='padding-top:10px;padding-bottom:5px;'>
@@ -66,8 +66,8 @@
         });
     </script>
 
-<textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
-name='<%= QueryBuilder.GENE_LIST %>' title='Enter HUGO Gene Symbols or Gene Aliases'><%
+<textarea rows='5' cols='80' id='gene_list' placeholder="Enter Gene Symbols or Gene Aliases" required
+name='<%= QueryBuilder.GENE_LIST %>' title='Enter Gene Symbols or Gene Aliases'><%
     if (localGeneList != null && localGeneList.length() > 0) {
 	    String geneListWithSemis =
 			    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);

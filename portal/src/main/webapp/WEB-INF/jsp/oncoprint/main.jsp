@@ -68,6 +68,7 @@
                        <textarea id="add_genes_input" rows="5" cols="100" wordwrap="true" placeholder="Type space- or comma-separated genes here, then click 'Add Genes to Heatmap'"></textarea><br>
                        <button id="add_genes_btn" style='font-size:13px; cursor:pointer'>Add Genes to Heatmap</button> <br/>
                        <button id="remove_heatmaps_btn" style='font-size:13px; cursor:pointer'>Remove Heatmap</button> <br/>
+                       <div class="checkbox"><label style='cursor:pointer'><input id="cluster_heatmap_chk" type="checkbox"/>Cluster Heatmap</label></div>
                    </form>
                </div>
             </div>
@@ -85,6 +86,7 @@
                        </div>
                        <div class="radio"><label><input type="radio" name="sortby" value="id" /> Sort by case id (alphabetical)</label></div>
                        <div class="radio"><label><input type="radio" name="sortby" value="custom" /> Sort by user-defined order / default</label></div>
+                       <div class="radio"><label><input type="radio" name="sortby" value="clustering" disabled/> Sorted by heatmap clustering order</label></div>
                    </form>
                </div>
             </div>
@@ -97,10 +99,10 @@
                        <div class="checkbox"><label><input type="checkbox" name="type" value="type"/> Type</label></div>
                        <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence"> Putative drivers based on:</label><i class="fa fa-md fa-info-circle" style="cursor:pointer; padding-top:0.2em;" id="putative_driver_info_icon"></i></div>
                        <div style="margin-left: 20px;">
+                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/> driver annotation</label></div>
                            <div class="checkbox"><label><input type="checkbox" name="hotspots" value="hotspots"> Hotspots <img id="colorby_hotspot_info" src="images/cancer-hotspots.svg" style="height:15px; width:15px; cursor:pointer;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cbioportal" value="cbioportal"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cosmic" value="cosmic"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/></label></div>
-                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/> driver annotation</label></div>
                            <div class="checkbox"><label><input type="checkbox" name="hide_unknown" value="hide_unknown"> Hide putative passenger mutations</label></div>
                        </div>
                    </form>
@@ -172,15 +174,15 @@
         </script>
 
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/dist/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/canvas-toBlob.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/zlib.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/png.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.addimage.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.png_support.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-main.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-main.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </div>
 </div>

@@ -352,13 +352,13 @@ var OncoKB = (function(_, $) {
             }
 
             if (category === 'oncogenic') {
-                if (!x.oncokb || !(x.oncokb.hasVariant || x.oncokb.hasAllele || x.isVUS)) {
-                    if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele || y.isVUS)) {
+                if (!x.oncokb) {
+                    if (!y.oncokb) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele || y.isVUS)) {
+                if (!y.oncokb) {
                     return xWeight;
                 }
 
@@ -373,6 +373,7 @@ var OncoKB = (function(_, $) {
                         if (!y.oncokb.isVUS) {
                             return xWeight;
                         }
+                        return 0;
                     }
                     return yWeight;
                 }
@@ -383,18 +384,17 @@ var OncoKB = (function(_, $) {
             }
 
             if (category === 'oncokb') {
-                if (!x.oncokb || !(x.oncokb.hasVariant || x.oncokb.hasAllele)) {
-                    if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele)) {
+                if (!x.oncokb) {
+                    if (!y.oncokb) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele)) {
+                if (!y.oncokb) {
                     return xWeight;
                 }
-
-                if (!x.oncokb.hasOwnProperty('evidence') || !(x.oncokb.hasVariant || x.oncokb.hasAllele) || !x.oncokb.hasOwnProperty(levelType) || !x.oncokb[levelType]) {
-                    if (!y.oncokb || !(y.oncokb.hasVariant || y.oncokb.hasAllele) || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
+                if (!x.oncokb.hasOwnProperty('evidence') || !x.oncokb.hasOwnProperty(levelType) || !x.oncokb[levelType]) {
+                    if (!y.oncokb || !y.oncokb.hasOwnProperty(levelType) || !y.oncokb[levelType]) {
                         return 0;
                     }
                     return yWeight;
@@ -905,7 +905,7 @@ OncoKB.Instance.prototype = {
                             self.variants[_id].evidence = $.extend(self.variants[_id].evidence, datum);
                             self.variants[_id].evidence.geneSummary = record.geneSummary || '';
                             self.variants[_id].evidence.variantSummary = record.variantSummary || '';
-                            self.variants[_id].evidence.tumorTypeSummary = (self.variants[_id].hasVariant || self.variants[_id].alleleExist) ? (record.tumorTypeSummary || '') : '';
+                            self.variants[_id].evidence.tumorTypeSummary = record.tumorTypeSummary || '';
                         }
                     })
                 });

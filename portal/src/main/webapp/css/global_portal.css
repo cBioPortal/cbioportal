@@ -1468,6 +1468,20 @@ cursor: default;
    font-size:90%;
 }
 
+/* main query buttons*/
+.main-btn-disabled {
+    color: lightgrey;
+}
+.main-btn-disabled:hover {
+    color: lightgrey;
+}
+.main-btn-enabled {
+    color: black;
+}
+.main-btn-enabled:hover {
+    color: black;
+}
+
 /* Z-score threshold input (hidden until appropriate radio button selected) */
 .score_threshold {
    display: none;

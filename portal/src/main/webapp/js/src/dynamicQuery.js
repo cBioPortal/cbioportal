@@ -578,7 +578,7 @@ function updateDefaultCaseList() {
 //  for which no genomic profiles are available
 function genomicProfilesUnavailable(){
     $("#genomic_profiles").html("<strong>No Genomic Profiles available for this Cancer Study</strong>");
-    $('#main_submit').attr('disabled',true);
+    cbio.util.toggleMainBtn("main_submit", "disable");
 }
 
 // Show or hide mRNA threshold field based on mRNA profile selected

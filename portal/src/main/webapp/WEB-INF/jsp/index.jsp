@@ -177,7 +177,7 @@ if (sessionError != null) {  %>
                     if (typeof window.cancer_study_id_selected !== 'undefined' &&
                         window.cancer_study_id_selected.length > 0 && 
                         window.cancer_study_id_selected !== "null") {
-                        $("#dashboard_button").attr("disabled", false);
+                        cbio.util.toggleMainBtn("dashboard_button", "enable");
                     }
                 });
             </script>

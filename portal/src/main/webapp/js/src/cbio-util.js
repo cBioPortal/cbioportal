@@ -747,6 +747,63 @@ cbio.util = (function() {
         return def.promise();
     }
     
+    function toggleMainBtn(_btnId, _action) {
+   
+        var clickDashboard = function() {
+            var selected = $("#select_multiple_studies").val().split(',').map(function(i) {
+                return i.trim();
+            });
+            window.open('study.do?cohorts='+selected.join(','));
+        }
+
+        var submitHandler = (function() {
+            var sample_mapping_completed = false;
+            return function() {
+                if (sample_mapping_completed) {
+                    $('#main_form').submit();
+                    sample_mapping_completed = false;
+                } else {
+                    getMapping().then(function() {
+                        sample_mapping_completed = true;
+                        submitHandler();
+                    });
+                }
+            };
+        })();
+
+        var _qtipTxt = "";
+        if (_action === 'enable') {
+            $("#" + _btnId).removeClass("main-btn-disabled");
+            $("#" + _btnId).addClass("main-btn-enabled");
+            if (_btnId === "dashboard_button") {
+                $("#" + _btnId).bind("click", clickDashboard);
+                _qtipTxt = "Overview of the samples in the selected studies"
+            } else if (_btnId === "main_submit") {
+                $("#" + _btnId).bind("click", submitHandler);
+                _qtipTxt = "Query the selected studies";
+
+            }
+        } else if (_action === 'disable') {
+            $("#" + _btnId).removeClass("main-btn-enabled");
+            $("#" + _btnId).addClass("main-btn-disabled");
+            var _qtipTxt = "";
+            if (_btnId === "dashboard_button") {
+                _qtipTxt = "Select at least one study to have an overview of the samples in the selected studies";
+
+            } else if (_btnId === "main_submit") {
+                _qtipTxt = "Type at least one gene to query";
+                
+            }
+            $("#" + _btnId).unbind("click");
+        }
+        $("#" + _btnId).qtip({
+            content: { text: _qtipTxt },
+            style: { classes: 'qtip-light qtip-rounded' },
+            position: { my:'bottom center',at:'top center',viewport: $(window) },
+            hide: { delay:200, fixed:true }
+        });
+    }
+    
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -774,7 +831,8 @@ cbio.util = (function() {
         findExtremes: findExtremes,
         deepCopyObject: deepCopyObject,
         makeCachedPromiseFunction: makeCachedPromiseFunction,
-        getDatahubStudiesList: getDatahubStudiesList
+        getDatahubStudiesList: getDatahubStudiesList,
+        toggleMainBtn: toggleMainBtn
     };
 
 })();

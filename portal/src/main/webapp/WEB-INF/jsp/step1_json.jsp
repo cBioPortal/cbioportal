@@ -121,9 +121,9 @@ $('#jstree').bind('mousewheel DOMMouseScroll', function(e) {
 
 $('#jstree').on('changed.jstree', function (e, data) {
 	if($("#jstree").jstree(true).get_selected_leaves().length > 0){
-		$("#dashboard_button").attr("disabled", false);
+        cbio.util.toggleMainBtn("dashboard_button", "enable");
 	}else{
-		$("#dashboard_button").attr("disabled", true);
+        cbio.util.toggleMainBtn("dashboard_button", "disable");
 	}
 });
 

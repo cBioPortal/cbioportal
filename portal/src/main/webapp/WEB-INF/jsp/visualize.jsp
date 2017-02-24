@@ -345,7 +345,7 @@
 	        }, 50);
         }
         
-        $("#dashboard_button").attr("disabled", false);
+        cbio.util.toggleMainBtn("dashboard_button", "enable");
 
         $("a.result-tab").click(function(){
 

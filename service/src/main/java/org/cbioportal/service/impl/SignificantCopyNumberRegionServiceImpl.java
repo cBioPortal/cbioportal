@@ -6,6 +6,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantCopyNumberRegionRepository;
 import org.cbioportal.service.SignificantCopyNumberRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
     private SignificantCopyNumberRegionRepository significantCopyNumberRegionRepository;
     
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Gistic> getSignificantCopyNumberRegions(String studyId, String projection, Integer pageSize, 
                                                         Integer pageNumber, String sortBy, String direction) {
         
@@ -37,6 +39,7 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSignificantCopyNumberRegions(String studyId) {
         
         return significantCopyNumberRegionRepository.getMetaSignificantCopyNumberRegions(studyId);

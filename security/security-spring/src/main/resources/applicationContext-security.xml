@@ -26,7 +26,7 @@
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
 
-    <!-- we do post filtering within AccessControl -->
+    <!-- we use @PostFilter and @PreAuthorize -->
     <global-method-security pre-post-annotations="enabled">
         <expression-handler ref="expressionHandler"/>
     </global-method-security>
@@ -35,30 +35,7 @@
     <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
     </b:bean>
-    <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.portal.util.CancerStudyPermissionEvaluator"/>
-
-    <!-- this bean needs to come after context:annotation-config so that annotations are recognized -->
-    <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
-
-    <!-- set accessControl into SpringUtil -->
-    <b:bean
-        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <b:property name="staticMethod"
-            value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl" />
-        <b:property name="arguments">
-            <b:list>
-                <b:ref bean="accessControl" />
-            </b:list>
-        </b:property>
-    </b:bean>
-
-    <!-- beans used to access portal user db tables -->
-    <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
-        <b:constructor-arg ref="dataSource"/>
-    </b:bean>
-    <b:bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <b:property name="jndiName" value="java:comp/env/${db.tomcat_resource_name}" />
-    </b:bean>
+    <b:bean id="customPermissionEvaluator" class="org.cbioportal.security.spring.CancerStudyPermissionEvaluator"/>
 
     <!-- static resources not processed by spring security filters -->
     <http pattern="/css/**" security="none"/>
@@ -70,15 +47,6 @@
     <http pattern="/gfx/**" security="none"/>
     <http pattern="/saml/gfx/**" security="none"/>
 		
-	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-        <b:property name="arguments">
-            <b:list>
-                <b:ref bean="accessControl"/>
-            </b:list>
-        </b:property>
-    </b:bean>
- 
     <!-- end beans shared across any authentication provider -->
     </b:beans>
 
@@ -109,6 +77,8 @@
         <b:property name="signupUrl" value="/login.jsp" />
         <b:property name="defaultFailureUrl" value="/login.jsp?login_error=true" />
         <b:property name="postLoginUrl" value="/index.do" />
+        <!-- UsernameNotFoundException will be stored in session with username as message -->
+        <b:property name="allowSessionCreation" value="true" />
     </b:bean>
 
     <authentication-manager alias="authenticationManager">
@@ -118,8 +88,7 @@
     </authentication-manager>
     
     <!-- beans used to compare token returned by authentication-provider against portal user db tables -->
-    <b:bean id="userDetailsService" class="org.mskcc.cbio.portal.authentication.googleplus.PortalUserDetailsService">
-        <b:constructor-arg ref="portalUserDAO"/>
+    <b:bean id="userDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService">
     </b:bean>
 
      <!-- configure the social authentication provider which processes authentication requests -->
@@ -128,7 +97,7 @@
         <b:constructor-arg index="1" ref="socialUserDetailsService" />
     </b:bean>
     
-    <b:bean id="socialUserDetailsService" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusUserDetailsService">
+    <b:bean id="socialUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusUserDetailsService">
         <b:constructor-arg index="0" ref="userDetailsService" />
     </b:bean>
 
@@ -141,7 +110,7 @@
         <b:constructor-arg ref="connectionFactoryLocator" />
         <b:property name="connectionSignUp" ref="connectionSignUp"/>
     </b:bean>
-    <b:bean id="connectionSignUp" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusConnectionSignUp"/>
+    <b:bean id="connectionSignUp" class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusConnectionSignUp"/>
     <b:bean id="connectionFactoryLocator" class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
         <b:property name="authenticationServices">
             <b:list>
@@ -155,7 +124,7 @@
             </b:list>
         </b:property>
     </b:bean>
-    <b:bean id="googleplusConnectionFactory" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusConnectionFactory" >
+    <b:bean id="googleplusConnectionFactory" class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusConnectionFactory" >
         <b:constructor-arg value="${googleplus.consumer.key}" />
         <b:constructor-arg value="${googleplus.consumer.secret}" />
     </b:bean>
@@ -192,8 +161,7 @@
 
     <authentication-manager alias="authenticationManager"/>
 
-    <b:bean id="customUserService" class="org.mskcc.cbio.portal.authentication.openID.PortalUserDetailsService">
-        <b:constructor-arg ref="portalUserDAO"/>
+    <b:bean id="customUserService" class="org.cbioportal.security.spring.authentication.openID.PortalUserDetailsService">
     </b:bean>
 
     <!-- end openid beans -->
@@ -320,8 +288,7 @@
         <b:property name="userDetails" ref="customUserService" />
     </b:bean>
 
-    <b:bean id="customUserService" class="org.mskcc.cbio.portal.authentication.saml.MSKCCPortalUserDetailsService">
-        <b:constructor-arg ref="portalUserDAO"/>
+    <b:bean id="customUserService" class="org.cbioportal.security.spring.authentication.saml.MSKCCPortalUserDetailsService">
     </b:bean>
 
     <!-- Provider of default SAML Context -->
@@ -474,16 +441,6 @@
 
     <!-- begin ldap beans -->
     <b:beans profile="ldap">
-        <b:bean
-            class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-            <b:property name="staticMethod"
-                value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl" />
-            <b:property name="arguments">
-                <b:list>
-                    <b:ref bean="accessControl" />
-                </b:list>
-            </b:property>
-        </b:bean>
 
         <http use-expressions="true" auto-config="true">
             <form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
@@ -503,9 +460,8 @@
 
         <!-- Loading full name and email from AD after authentication -->
         <b:bean id="userDetailsService"
-            class="org.mskcc.cbio.portal.authentication.ldap.LDAPUserDetailsContextMapper">
+            class="org.cbioportal.security.spring.authentication.ldap.LDAPUserDetailsContextMapper">
             <b:constructor-arg ref="ldapServer" />
-            <b:constructor-arg ref="portalUserDAO" />
 
             <b:property name="baseDn" value="${ldap.user_search_base}" />
             <b:property name="usernameAttribute" value="${ldap.attributes.username}" />
@@ -528,16 +484,6 @@
     <b:beans profile="false">
     <global-method-security pre-post-annotations="disabled"/>
     <http pattern="/**" security="none"/>
-    <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
-
-    <b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-        <b:property name="arguments">
-            <b:list>
-                <b:ref bean="accessControl"/>
-            </b:list>
-        </b:property>
-    </b:bean>
     </b:beans>
 
 </b:beans>

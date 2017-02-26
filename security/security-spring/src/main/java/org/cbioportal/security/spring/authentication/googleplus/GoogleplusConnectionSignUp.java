@@ -30,49 +30,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.cbioportal.security.spring.authentication.googleplus;
 
-// imports
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
+import org.springframework.social.connect.Connection;
+import org.springframework.social.connect.ConnectionSignUp;
 
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.List;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 /**
- * Utilities for managing access control.
+ * provide an implementation of a ConnectionSignup that facilitates finding a user id in
+ * the user connection repository
+ * @author criscuof
  *
- * @author Benjamin Gross
  */
-public interface AccessControl {
+public final class GoogleplusConnectionSignUp implements ConnectionSignUp {
 
-    public static final String ALL_CANCER_STUDIES_ID = "all";
-    public static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
-    public static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
-    public static final String MULTIPLE_CANCER_STUDIES_ID = "multiple";
+	/* (non-Javadoc)
+	 * @see org.springframework.social.connect.ConnectionSignUp#execute(org.springframework.social.connect.Connection)
+	 */
+	@Override
+	public String execute(Connection<?> connection) {
+		Preconditions.checkArgument(null!=connection, "A Connection property is required");
+		Preconditions.checkArgument(null != connection.getKey(), "The Connection must have a key");
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(connection.getKey().getProviderUserId()), "The Connection key must have a provider user id");
+		return connection.getKey().getProviderUserId();
+		
+	}
 
-    /**
-     * Gets Cancer Studies. Used by QueryBuilder.
-     *
-     * @return List<CancerStudy>
-     * @throws DaoException         Database Error.
-     * @throws ProtocolException    Protocol Error.
-     */
-    @PostFilter("hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudy', 'read')")
-    List<CancerStudy> getCancerStudies() throws DaoException, ProtocolException;
-
-    /**
-     * Return true if the user can access the study, false otherwise.
-	 *
-     * @param stableStudyId
-     * @return ListCancerStudy
-     * @throws DaoException
-     */
-    @PostFilter("hasPermission(#stableStudyId, 'CancerStudy', 'read')")
-    List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException;
-
-    UserDetails getUserDetails();
 }

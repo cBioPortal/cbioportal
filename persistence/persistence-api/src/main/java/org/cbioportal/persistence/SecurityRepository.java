@@ -30,32 +30,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.authentication.googleplus;
+package org.cbioportal.persistence;
 
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionSignUp;
+// imports
+import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import org.cbioportal.model.User;
+import org.cbioportal.model.UserAuthorities;
 
 /**
- * provide an implementation of a ConnectionSignup that facilitates finding a user id in
- * the user connection repository
- * @author criscuof
- *
+ * Interface to use to retrieve
+ * portal user information.
  */
-public final class GoogleplusConnectionSignUp implements ConnectionSignUp {
+public interface SecurityRepository {
 
-	/* (non-Javadoc)
-	 * @see org.springframework.social.connect.ConnectionSignUp#execute(org.springframework.social.connect.Connection)
-	 */
-	@Override
-	public String execute(Connection<?> connection) {
-		Preconditions.checkArgument(null!=connection, "A Connection property is required");
-		Preconditions.checkArgument(null != connection.getKey(), "The Connection must have a key");
-		Preconditions.checkArgument(!Strings.isNullOrEmpty(connection.getKey().getProviderUserId()), "The Connection key must have a provider user id");
-		return connection.getKey().getProviderUserId();
-		
-	}
+    /**
+     * Given a user id, returns a user instance.
+     * If username does not exist in db, returns null.
+     *
+     * @param username String
+     * @return User
+     */
+    User getPortalUser(String username);
 
+    /**
+     * Given a user id, returns a UserAuthorities instance.
+     * If username does not exist in db, returns null.
+     *
+     * @param username String
+     * @return UserAuthorities
+     */
+    UserAuthorities getPortalUserAuthorities(String username);
+
+    void addPortalUser(User user);
+    void addPortalUserAuthorities(UserAuthorities userAuthorities);
+
+    /**
+     * Given an internal cancer study id, returns a set of upper case cancer study group strings.
+     * Returns empty set if cancer study does not exist or there are no groups.
+     *
+     * @param internalCancerStudyId Integer
+     * @return Set<String> cancer study group strings in upper case
+     */
+    Set<String> getCancerStudyGroups(Integer internalCancerStudyId);
 }

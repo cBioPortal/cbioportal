@@ -12,6 +12,7 @@ import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.MrnaPercentileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,6 +29,7 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
     private GeneticProfileService geneticProfileService;
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<MrnaPercentile> fetchMrnaPercentile(String geneticProfileId, String sampleId,
                                                     List<Integer> entrezGeneIds)
         throws GeneticProfileNotFoundException {

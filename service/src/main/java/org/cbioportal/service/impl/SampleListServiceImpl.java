@@ -7,6 +7,8 @@ import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -20,6 +22,7 @@ public class SampleListServiceImpl implements SampleListService {
     private SampleListRepository sampleListRepository;
 
     @Override
+    @PostFilter("hasPermission(filterObject, 'read')")
     public List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                               String direction) {
 
@@ -40,6 +43,7 @@ public class SampleListServiceImpl implements SampleListService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
     public SampleList getSampleList(String sampleListId) throws SampleListNotFoundException {
 
         SampleList sampleList = sampleListRepository.getSampleList(sampleListId);
@@ -55,6 +59,7 @@ public class SampleListServiceImpl implements SampleListService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<SampleList> getAllSampleListsInStudy(String studyId, String projection, Integer pageSize,
                                                      Integer pageNumber, String sortBy, String direction) {
 
@@ -69,12 +74,14 @@ public class SampleListServiceImpl implements SampleListService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSampleListsInStudy(String studyId) {
 
         return sampleListRepository.getMetaSampleListsInStudy(studyId);
     }
 
     @Override
+    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
     public List<String> getAllSampleIdsInSampleList(String sampleListId) {
 
         return sampleListRepository.getAllSampleIdsInSampleList(sampleListId);

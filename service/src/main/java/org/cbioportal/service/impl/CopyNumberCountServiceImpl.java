@@ -9,6 +9,7 @@ import org.cbioportal.service.GeneticDataService;
 import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class CopyNumberCountServiceImpl implements CopyNumberCountService {
     private GeneticProfileService geneticProfileService;
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<CopyNumberCount> fetchCopyNumberCounts(String geneticProfileId, List<Integer> entrezGeneIds,
                                                        List<Integer> alterations)
         throws GeneticProfileNotFoundException {

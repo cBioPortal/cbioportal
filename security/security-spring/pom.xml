@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>security</artifactId>
+        <groupId>org.mskcc.cbio</groupId>
+        <version>1.5.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>security-spring</artifactId>
+
+    <properties>
+      <spring.social.version>1.1.0.RELEASE</spring.social.version>
+      <org.springframework.social.google-version>1.0.0.RELEASE</org.springframework.social.google-version>
+    </properties>
+
+    <dependencies>
+      <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>persistence-mybatis</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- Spring Security -->
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-acl</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-config</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-ldap</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-openid</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security.extensions</groupId>
+        <artifactId>spring-security-saml2-core</artifactId>
+        <version>${spring.security.saml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-taglibs</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-web</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <!-- Spring Social -->
+      <dependency>
+        <groupId>org.springframework.social</groupId>
+        <artifactId>spring-social-config</artifactId>
+        <version>${spring.social.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.social</groupId>
+        <artifactId>spring-social-core</artifactId>
+        <version>${spring.social.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.social</groupId>
+        <artifactId>spring-social-security</artifactId>
+        <version>${spring.social.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.social</groupId>
+        <artifactId>spring-social-web</artifactId>
+        <version>${spring.social.version}</version>
+      </dependency>
+      <!-- Spring Social Google-->
+      <dependency>
+        <groupId>org.springframework.social</groupId>
+        <artifactId>spring-social-google</artifactId>
+        <version>${org.springframework.social.google-version}</version>
+      </dependency>
+      <!-- javax servlet -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.0.1</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+
+</project>

@@ -30,49 +30,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.cbioportal.model;
 
 // imports
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
-
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.core.userdetails.UserDetails;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
- * Utilities for managing access control.
+ * User authorites bean.
  *
  * @author Benjamin Gross
  */
-public interface AccessControl {
+public class UserAuthorities implements Serializable {
 
-    public static final String ALL_CANCER_STUDIES_ID = "all";
-    public static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
-    public static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
-    public static final String MULTIPLE_CANCER_STUDIES_ID = "multiple";
+    private String email;
+    private List<String> authorities;
 
+    public UserAuthorities() {}
+   
     /**
-     * Gets Cancer Studies. Used by QueryBuilder.
-     *
-     * @return List<CancerStudy>
-     * @throws DaoException         Database Error.
-     * @throws ProtocolException    Protocol Error.
+     * Constructor.
      */
-    @PostFilter("hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudy', 'read')")
-    List<CancerStudy> getCancerStudies() throws DaoException, ProtocolException;
+    public UserAuthorities(String email, List<String> authorities) {
+        this.email = email;
+        this.authorities = authorities;
+    }
 
-    /**
-     * Return true if the user can access the study, false otherwise.
-	 *
-     * @param stableStudyId
-     * @return ListCancerStudy
-     * @throws DaoException
-     */
-    @PostFilter("hasPermission(#stableStudyId, 'CancerStudy', 'read')")
-    List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException;
-
-    UserDetails getUserDetails();
+    // accessors
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email.toLowerCase(); }
+    public List<String> getAuthorities() { return authorities; }
+    public void setAuthorities(List<String> authorities) { this.authorities = authorities; }
 }

@@ -37,9 +37,9 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -50,7 +50,7 @@ import java.net.URL;
 /**
  * Utility class for getting / setting global properties.
  */
-@Configuration
+@Component
 public class GlobalProperties {
 
     public static final String HOME_DIR = "PORTAL_HOME";
@@ -780,20 +780,6 @@ public class GlobalProperties {
         return Boolean.parseBoolean(showCivic);
     }
 
-    public static boolean filterGroupsByAppName() {
-        String filterGroupsByNameFlag = properties.getProperty(FILTER_GROUPS_BY_APPNAME);
-        return filterGroupsByNameFlag == null || Boolean.parseBoolean(filterGroupsByNameFlag);
-    }
-    
-    public static String getAlwaysShowStudyGroup() {
-        String group = properties.getProperty(ALWAYS_SHOW_STUDY_GROUP);
-        if (group!=null && group.trim().isEmpty()) {
-            return null;
-        }
-        
-        return group;
-    }
-    
     public static boolean showMyCancerGenomeUrl()
     {
         String show = properties.getProperty(MYCANCERGENOME_SHOW);

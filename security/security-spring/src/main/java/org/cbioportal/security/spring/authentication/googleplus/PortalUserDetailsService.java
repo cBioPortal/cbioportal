@@ -30,13 +30,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.authentication.googleplus;
+package org.cbioportal.security.spring.authentication.googleplus;
 
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.portal.dao.PortalUserDAO;
-import org.mskcc.cbio.portal.authentication.PortalUserDetails;
-import org.mskcc.cbio.portal.util.DynamicState;
+import org.cbioportal.model.User;
+import org.cbioportal.model.UserAuthorities;
+import org.cbioportal.persistence.SecurityRepository;
+import org.cbioportal.security.spring.authentication.PortalUserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,9 +43,13 @@ import org.apache.commons.logging.LogFactory;
 import com.google.common.base.Strings;
 import com.google.inject.internal.Preconditions;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -59,23 +62,19 @@ import java.util.List;
  *
  * @author criscuof
  */
+@Service
 public class PortalUserDetailsService implements UserDetailsService {
 
     private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
 
-    // ref to our user dao
-    private final PortalUserDAO portalUserDAO;
+    @Autowired
+    private SecurityRepository securityRepository;
 
     /**
      * Constructor.
      *
-     * Takes a ref to PortalUserDAO used to authenticate registered users in the
-     * database.
-     *
-     * @param portalUserDAO PortalUserDAO
      */
-    public PortalUserDetailsService(PortalUserDAO portalUserDAO) {
-        this.portalUserDAO = portalUserDAO;
+    public PortalUserDetailsService() {
     }
 
     @Override
@@ -83,22 +82,22 @@ public class PortalUserDetailsService implements UserDetailsService {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "A username is required");
         // set the username into the global state so other components can find out who
         // logged in or tried to log in most recently
-        DynamicState.INSTANCE.setCurrentUser(username);
         if (log.isDebugEnabled()) {
             log.debug("loadUserByUsername(), attempting to fetch portal user, email: " + username);
         }
         PortalUserDetails toReturn = null;
         User user = null;
         try {
-            user = portalUserDAO.getPortalUser(username);
+            user = securityRepository.getPortalUser(username);
         } catch (Exception e ){
             log.debug("User " +username +" was not found in the cbio users table");
+            log.debug("Error:" + e);
         }
         if (user != null && user.isEnabled()) {
             if (log.isDebugEnabled()) {
                 log.debug("loadUserByUsername(), attempting to fetch portal user authorities, username: " + username);
             }
-            UserAuthorities authorities = portalUserDAO.getPortalUserAuthorities(username);
+            UserAuthorities authorities = securityRepository.getPortalUserAuthorities(username);
             if (authorities != null) {
                 List<GrantedAuthority> grantedAuthorities
                         = AuthorityUtils.createAuthorityList(
@@ -116,9 +115,6 @@ public class PortalUserDetailsService implements UserDetailsService {
             if (log.isDebugEnabled()) {
                 log.debug("loadUserByUsername(), user and/or user authorities is null, user name: " +username);
             }
-            // set the failedUser  & currentUser attributes
-            DynamicState.INSTANCE.setCurrentUser("");
-            DynamicState.INSTANCE.setFailedUser(username);
             // use the Exception message to attache the username to the request object
             throw new UsernameNotFoundException(username);
         }    

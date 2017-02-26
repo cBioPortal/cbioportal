@@ -30,14 +30,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.authentication.saml;
+package org.cbioportal.security.spring.authentication.saml;
 
 // imports
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.portal.dao.PortalUserDAO;
-import org.mskcc.cbio.portal.authentication.PortalUserDetails;
-import org.mskcc.cbio.portal.util.GlobalProperties;
+import org.cbioportal.model.User;
+import org.cbioportal.model.UserAuthorities;
+import org.cbioportal.persistence.SecurityRepository;
+import org.cbioportal.security.spring.authentication.PortalUserDetails;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.userdetails.*;
@@ -45,6 +47,8 @@ import org.springframework.security.saml.userdetails.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import org.springframework.stereotype.Service;
 
 import org.apache.commons.logging.*;
 
@@ -56,40 +60,42 @@ import java.util.*;
  *
  * @author Benjamin Gross
  */
+@Service
 public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
 {
-	private static final Collection<String> mskEmailSuffixes = initializeDefaultEmailSuffixes();
-	private static final Collection<String> initializeDefaultEmailSuffixes()
+
+  private static String appName;
+  @Value("${app.name}:public_portal")
+  public void setAppName(String property) { this.appName = property; }
+
+
+	private static final List<String> mskEmailSuffixes = initializeDefaultEmailSuffixes();
+	private static final List<String> initializeDefaultEmailSuffixes()
 	{
-		Collection<String> toReturn = new ArrayList<String>();
+		List<String> toReturn = new ArrayList<String>();
 		toReturn.add("mskcc.org");
 		toReturn.add("sloankettering.edu");
 		return toReturn;
 	}
 	private static final Log log = LogFactory.getLog(MSKCCPortalUserDetailsService.class);
-    private static final Collection<String> defaultAuthorities = initializeDefaultAuthorities();
-    private static final Collection<String> initializeDefaultAuthorities()
+    private static final List<String> defaultAuthorities = initializeDefaultAuthorities();
+    private static final List<String> initializeDefaultAuthorities()
     {
-        String appName = GlobalProperties.getAppName();
-        Collection<String> toReturn = new ArrayList<String>();
+        List<String> toReturn = new ArrayList<String>();
         toReturn.add(appName + ":PUBLIC");
         toReturn.add(appName + ":EXTENDED");
         toReturn.add(appName + ":MSKPUB");
         return toReturn;
     }
 
-    private final PortalUserDAO portalUserDAO;
+    @Autowired
+    private SecurityRepository securityRepository;
 
     /**
      * Constructor.
      *
-     * Takes a ref to PortalUserDAO used to authenticate registered
-     * users in the database.
-     *
-     * @param portalUserDAO PortalUserDAO
      */
-    public MSKCCPortalUserDetailsService(PortalUserDAO portalUserDAO) {
-        this.portalUserDAO = portalUserDAO;
+    public MSKCCPortalUserDetailsService() {
     }
           
 
@@ -111,12 +117,12 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
             if (log.isDebugEnabled()) {
                 log.debug("loadUserDetails(), attempting to fetch portal user, userid: " + userid);
             }
-            User user = portalUserDAO.getPortalUser(userid);
+            User user = securityRepository.getPortalUser(userid);
             if (user != null && user.isEnabled()) {
                 if (log.isDebugEnabled()) {
                     log.debug("loadUserDetails(), attempting to fetch portal user authorities, userid: " + userid);
                 }
-                UserAuthorities authorities = portalUserDAO.getPortalUserAuthorities(userid);
+                UserAuthorities authorities = securityRepository.getPortalUserAuthorities(userid);
                 if (authorities != null) {
                     List<GrantedAuthority> grantedAuthorities =
                         AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
@@ -131,14 +137,14 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
             }
 		}
 		catch (Exception e) {
-            if (mskUser(userid) && !GlobalProperties.getAppName().toLowerCase().contains("triage")) {
+            if (mskUser(userid) && !appName.toLowerCase().contains("triage")) {
                 if (log.isDebugEnabled()) {
                     log.debug("loadUserDetails(), granting default authorities for userid: " + userid);
                 }
                 toReturn = new PortalUserDetails(userid, getDefaultGrantedAuthorities(userid));
                 //TBD - we need to get user name from SAML credential
-                portalUserDAO.addPortalUser(new User(userid, name, true));
-                portalUserDAO.addPortalUserAuthorities(new UserAuthorities(userid, defaultAuthorities));
+                securityRepository.addPortalUser(new User(userid, name, true));
+                securityRepository.addPortalUserAuthorities(new UserAuthorities(userid, defaultAuthorities));
             }
             else {
                 if (log.isDebugEnabled()) {
@@ -177,8 +183,7 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
 
     private List<GrantedAuthority> getDefaultGrantedAuthorities(final String username)
     {
-        String appName = GlobalProperties.getAppName();
-        Collection<String> defAuthorities = new ArrayList<String>(defaultAuthorities);
+        List<String> defAuthorities = new ArrayList<String>(defaultAuthorities);
         defAuthorities.add(appName + ":" + username.substring(0, username.indexOf("@")).toUpperCase());
         UserAuthorities authorities = new UserAuthorities(username, defAuthorities);
         return AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));

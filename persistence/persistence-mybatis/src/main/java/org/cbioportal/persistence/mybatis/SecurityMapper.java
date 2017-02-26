@@ -30,37 +30,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.dao;
+package org.cbioportal.persistence.mybatis;
 
 // imports
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.portal.authentication.PortalUserDetails;
+import org.apache.ibatis.annotations.Param;
+
+import org.cbioportal.model.User;
+import org.cbioportal.model.UserAuthorities;
 
 /**
  * Interface to use to retrieve
  * portal user information.
  */
-public interface PortalUserDAO {
+public interface SecurityMapper {
 
-	/**
-	 * Given a user id, returns a user instance.
-	 * If username does not exist in db, returns null.
+    /**
+     * Given a user id, returns a user instance.
+     * If username does not exist in db, returns null.
      *
      * @param username String
      * @return User
-	 */
-	User getPortalUser(String username);
+     */
+    User getPortalUser(@Param("username") String username);
 
-	/**
-	 * Given a user id, returns a UserAuthorities instance.
-	 * If username does not exist in db, returns null.
+    /**
+     * Given a user id, returns a UserAuthorities instance.
+     * If username does not exist in db, returns null.
      *
      * @param username String
      * @return User
-	 */
-	UserAuthorities getPortalUserAuthorities(String username);
+     */
+    UserAuthorities getPortalUserAuthorities(@Param("username") String username);
 
-	void addPortalUser(User user);
-	void addPortalUserAuthorities(UserAuthorities userAuthorities);
+    void addPortalUser(User user);
+    void addPortalUserAuthority(@Param("email") String email, @Param("authority") String authority);
+
+    /**
+     * Given an internal cancer study id, returns groups string.
+     * Returns null if cancer study does not exist.
+     *
+     * @param internalCancerStudyId Integer
+     * @return String groups
+     */
+    String getCancerStudyGroups(Integer internalCancerStudyId);
 }

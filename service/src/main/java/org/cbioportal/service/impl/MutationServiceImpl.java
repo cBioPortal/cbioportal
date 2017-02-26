@@ -8,6 +8,7 @@ import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.util.ChromosomeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class MutationServiceImpl implements MutationService {
     private ChromosomeCalculator chromosomeCalculator;
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<Mutation> getMutationsInGeneticProfile(String geneticProfileId, String sampleId, String projection, 
                                                        Integer pageSize, Integer pageNumber, String sortBy, 
                                                        String direction) {
@@ -33,12 +35,14 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public MutationMeta getMetaMutationsInGeneticProfile(String geneticProfileId, String sampleId) {
         
         return mutationRepository.getMetaMutationsInGeneticProfile(geneticProfileId, sampleId);
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
                                                          String projection, Integer pageSize, Integer pageNumber,
                                                          String sortBy, String direction) {
@@ -51,12 +55,14 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds) {
 
         return mutationRepository.fetchMetaMutationsInGeneticProfile(geneticProfileId, sampleIds);
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, 
                                                                          List<Integer> entrezGeneIds) {
         
@@ -64,6 +70,7 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords) {
         
         return mutationRepository.getSampleCountByKeywords(geneticProfileId, keywords);

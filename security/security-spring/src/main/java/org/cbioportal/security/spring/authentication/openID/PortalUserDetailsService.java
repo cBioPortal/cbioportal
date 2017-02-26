@@ -30,19 +30,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.authentication.openID;
+package org.cbioportal.security.spring.authentication.openID;
 
 // imports
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.portal.dao.PortalUserDAO;
-import org.mskcc.cbio.portal.authentication.PortalUserDetails;
+import org.cbioportal.model.User;
+import org.cbioportal.model.UserAuthorities;
+import org.cbioportal.persistence.SecurityRepository;
+import org.cbioportal.security.spring.authentication.PortalUserDetails;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.openid.*;
 
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import org.springframework.stereotype.Service;
 
 import org.apache.commons.logging.*;
 
@@ -54,108 +58,103 @@ import java.util.List;
  *
  * @author Benjamin Gross
  */
+@Service
 public class PortalUserDetailsService
-	implements UserDetailsService, AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
+    implements UserDetailsService, AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
 
-	// logger
-	private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
+    // logger
+    private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
 
-	// ref to our user dao
-    private final PortalUserDAO portalUserDAO;
+    @Autowired
+    private SecurityRepository securityRepository;
 
     /**
      * Constructor.
      *
-     * Takes a ref to PortalUserDAO used to authenticate registered
-     * users in the database.
-     *
-     * @param portalUserDAO PortalUserDAO
      */
-    public PortalUserDetailsService(PortalUserDAO portalUserDAO) {
-        this.portalUserDAO = portalUserDAO;
+    public PortalUserDetailsService() {
     }
           
 
     /**
      * Implementation of {@code UserDetailsService}.
-	 * We only need this to satisfy the {@code RememberMeServices} requirements.
+     * We only need this to satisfy the {@code RememberMeServices} requirements.
      */
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-		throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
-
 
     /**
      * Implementation of {@code AuthenticationUserDetailsService}
-	 * which allows full access to the submitted {@code Authentication} object.
-	 * Used by the OpenIDAuthenticationProvider.
+     * which allows full access to the submitted {@code Authentication} object.
+     * Used by the OpenIDAuthenticationProvider.
      */
     public UserDetails loadUserDetails(OpenIDAuthenticationToken token) throws UsernameNotFoundException {
 
-		// what we return
-		PortalUserDetails toReturn = null;
+        // what we return
+        PortalUserDetails toReturn = null;
 
-		// get open id
+        // get open id
         String id = token.getIdentityUrl();
-		id = id.toLowerCase();
+        id = id.toLowerCase();
 
-		// grab other open id attributes
+        // grab other open id attributes
         String email = null;
         String firstName = null;
         String lastName = null;
         String fullName = null;
 
-		// myopenid does not return attributes in the token
-		if (id.indexOf("myopenid") != -1) {
-			email = id;
-			fullName = id;
-		}
-		else {
-			try {
-				List<OpenIDAttribute> attributes = token.getAttributes();
-				for (OpenIDAttribute attribute : attributes) {
-					if (attribute.getName().equals("email")) {
-						email = attribute.getValues().get(0);
-						email = email.toLowerCase();
-					}
-					if (attribute.getName().equals("firstname")) {
-						firstName = attribute.getValues().get(0);
-					}
-					if (attribute.getName().equals("lastname")) {
-						lastName = attribute.getValues().get(0);
-					}
-					if (attribute.getName().equals("fullname")) {
-						fullName = attribute.getValues().get(0);
-					}
-				}
-				if (fullName == null) {
-					StringBuilder fullNameBldr = new StringBuilder();
-					if (firstName != null) {
-						fullNameBldr.append(firstName);
-					}
-					if (lastName != null) {
-						fullNameBldr.append(" ").append(lastName);
-					}
-					fullName = fullNameBldr.toString();
-				}
-        		}
-			catch (NullPointerException ex) {
-				log.warn("Attribute exchange failed using OpenID "+token.getIdentityUrl()+" for everything");
-				fullName = email = token.getIdentityUrl();
-			}
-		}
+        // myopenid does not return attributes in the token
+        if (id.indexOf("myopenid") != -1) {
+            email = id;
+            fullName = id;
+        }
+        else {
+            try {
+                List<OpenIDAttribute> attributes = token.getAttributes();
+                for (OpenIDAttribute attribute : attributes) {
+                    if (attribute.getName().equals("email")) {
+                        email = attribute.getValues().get(0);
+                        email = email.toLowerCase();
+                    }
+                    if (attribute.getName().equals("firstname")) {
+                        firstName = attribute.getValues().get(0);
+                    }
+                    if (attribute.getName().equals("lastname")) {
+                        lastName = attribute.getValues().get(0);
+                    }
+                    if (attribute.getName().equals("fullname")) {
+                        fullName = attribute.getValues().get(0);
+                    }
+                }
+                if (fullName == null) {
+                    StringBuilder fullNameBldr = new StringBuilder();
+                    if (firstName != null) {
+                        fullNameBldr.append(firstName);
+                    }
+                    if (lastName != null) {
+                        fullNameBldr.append(" ").append(lastName);
+                    }
+                    fullName = fullNameBldr.toString();
+                }
+            }
+            catch (NullPointerException ex) {
+                log.warn("Attribute exchange failed using OpenID "+token.getIdentityUrl()+" for everything");
+                fullName = email = token.getIdentityUrl();
+            }
+        }
 
-		// check if this user exists in our backend db
-		try {
+        // check if this user exists in our backend db
+        try {
             if (log.isDebugEnabled()) {
                 log.debug("loadUserDetails(), attempting to fetch portal user, email: " + email);
             }
-            User user = portalUserDAO.getPortalUser(email);
+            User user = securityRepository.getPortalUser(email);
             if (user != null && user.isEnabled()) {
                 if (log.isDebugEnabled()) {
                     log.debug("loadUserDetails(), attempting to fetch portal user authorities, email: " + email);
                 }
-                UserAuthorities authorities = portalUserDAO.getPortalUserAuthorities(email);
+                UserAuthorities authorities = securityRepository.getPortalUserAuthorities(email);
                 if (authorities != null) {
                     List<GrantedAuthority> grantedAuthorities =
                         AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
@@ -164,28 +163,28 @@ public class PortalUserDetailsService
                     toReturn.setName(fullName);
                 }
             }
-		}
-		catch (Exception e) {
+        }
+        catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug(e.getMessage());
             }
             else {
                 e.printStackTrace();
             }
-		}
+        }
 
-		// outta here
-		if (toReturn == null) {
+        // outta here
+        if (toReturn == null) {
             if (log.isDebugEnabled()) {
                 log.debug("loadUserDetails(), user and/or user authorities is null, email: " + email);
             }
-			throw new UsernameNotFoundException("Error:  Unknown user or account disabled");
-		}
-		else {
+            throw new UsernameNotFoundException("Error:  Unknown user or account disabled");
+        }
+        else {
             if (log.isDebugEnabled()) {
                 log.debug("loadUserDetails(), successfully authenticated user, email: " + email);
             }
-			return toReturn;
-		}
+            return toReturn;
+        }
     }
 }

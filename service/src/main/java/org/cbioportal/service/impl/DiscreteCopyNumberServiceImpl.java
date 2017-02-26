@@ -11,6 +11,7 @@ import org.cbioportal.service.GeneticDataService;
 import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     private GeneticProfileService geneticProfileService;
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
                                                                                List<Integer> alterations,
                                                                                String projection)
@@ -45,6 +47,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
                                                                List<Integer> alterations)
         throws GeneticProfileNotFoundException {
@@ -65,6 +68,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
                                                                                  List<String> sampleIds,
                                                                                  List<Integer> entrezGeneIds,
@@ -84,6 +88,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
                                                                  List<String> sampleIds,
                                                                  List<Integer> entrezGeneIds,
@@ -106,6 +111,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlteration(String geneticProfileId,
                                                                                List<Integer> entrezGeneIds,
                                                                                List<Integer> alterations) {

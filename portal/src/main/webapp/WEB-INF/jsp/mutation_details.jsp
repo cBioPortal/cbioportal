@@ -129,15 +129,21 @@
                     },
                     columnVisibility: {
                         annotation: 'visible',
-                        "tumorType": function() {
-                            if (isVirtualStudy) return "visible";
-                            else return "excluded";      
+                        "tumorType": function (util, gene) {
+                            if (isVirtualStudy) {
+                                return "visible";
+                            }
+                            else if (util.distinctTumorTypeCount(gene) > 1) {
+                                return "visible";
+                            }
+                            else {
+                                return "hidden";
+                            }
                         },
                         "cancerStudy": function() {
                             if (isVirtualStudy) return "visible";
                             else return "excluded";
-                        },
-                        'annotation': 'visible'
+                        }
                     },
                     columns: {
                         annotation: {

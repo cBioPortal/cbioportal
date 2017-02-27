@@ -777,6 +777,7 @@ cbio.util = (function() {
             $("#" + _btnId).removeClass("main-btn-disabled");
             $("#" + _btnId).addClass("main-btn-enabled");
             if (_btnId === "dashboard_button") {
+                $("#" + _btnId).unbind("click");
                 $("#" + _btnId).bind("click", clickDashboard);
                 _qtipTxt = "Overview of the samples in the selected studies"
             } else if (_btnId === "main_submit") {

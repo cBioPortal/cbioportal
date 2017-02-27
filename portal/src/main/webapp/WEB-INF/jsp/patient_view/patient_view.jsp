@@ -96,6 +96,9 @@ String oncokbGeneStatus = (String)GlobalProperties.getOncoKBGeneStatus();
 
 boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
 
+boolean showCivic = (Boolean) GlobalProperties.showCivic();
+String civicUrl = (String) GlobalProperties.getCivicUrl();
+
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
 
@@ -308,9 +311,12 @@ if (patientViewError!=null) {
 </style>
 
 <link rel="stylesheet" type="text/css" href="css/oncokb.css" />
+<link rel="stylesheet" type="text/css" href="css/civic.css?<%=GlobalProperties.getAppVersion()%>" />
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <%@ include file="../oncokb/oncokb-card-template.html" %>
+<%@ include file="../civic/civic-qtip-template.html" %>
+<script type="text/javascript" src="js/src/civic/civicservice.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/oncokb/OncoKBCard.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/util/PatientViewUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -345,6 +351,8 @@ var caseMetaData = {
 };
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
+var showCivic = <%=showCivic%>;
+var civicUrl = '<%=civicUrl%>';
 var userName = '<%=userName%>';
 
 var darwinAccessUrl = '<%=darwinAccessURL%>';

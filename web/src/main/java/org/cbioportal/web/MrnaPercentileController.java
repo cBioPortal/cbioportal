@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.MrnaPercentileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
-import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ public class MrnaPercentileController {
         @ApiParam(required = true, value = "List of Entrez Gene IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<Integer> entrezGeneIds)
-        throws SampleNotFoundException, GeneticProfileNotFoundException {
+        throws GeneticProfileNotFoundException {
 
         return new ResponseEntity<>(
             mrnaPercentileService.fetchMrnaPercentile(geneticProfileId, sampleId, entrezGeneIds), HttpStatus.OK);

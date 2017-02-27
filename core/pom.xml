@@ -17,6 +17,18 @@
       <artifactId>business</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>security-spring</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>db-scripts</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+    </dependency>
 
     <!-- antisamy -->
     <dependency>
@@ -80,11 +92,6 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
       <version>4.1</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.4</version>
     </dependency>
     <dependency>
       <groupId>commons-cli</groupId>
@@ -322,7 +329,46 @@
           <additionalClasspathElements>
             <additionalClasspathElement>${project.parent.basedir}/src/main/resources/</additionalClasspathElement>
           </additionalClasspathElements>
+          <excludes>
+              <exclude>**/Test*.java</exclude>
+          </excludes>
         </configuration>
+        <executions>
+            <execution>
+                <id>integration-test</id>
+                <goals>
+                    <goal>test</goal>
+                </goals>
+                <phase>integration-test</phase>
+                <configuration>
+                    <excludes>
+                        <exclude>none</exclude>
+                    </excludes>
+                    <includes>
+                        <include>**/Test*.java</include>
+                    </includes>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.0.0</version>
+          <executions>
+              <execution>
+                  <id>unpack-dependencies</id>
+                  <phase>pre-integration-test</phase>
+                  <goals>
+                      <goal>unpack-dependencies</goal>
+                  </goals>
+                  <configuration>
+                      <includes>cgds.sql</includes>
+                      <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                      <includeArtifactIds>db-scripts</includeArtifactIds>
+                  </configuration>
+              </execution>
+          </executions>
       </plugin>
       <!-- sql plugin - for tests -->
       <plugin>
@@ -338,7 +384,7 @@
         </dependencies>
         <executions>
           <execution>
-            <phase>test-compile</phase>
+            <phase>pre-integration-test</phase>
             <goals>
               <goal>execute</goal>
             </goals>
@@ -352,7 +398,7 @@
               <sqlCommand>SET storage_engine=INNODB</sqlCommand>
               <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
               <srcFiles>
-                <srcFile>src/main/resources/db/cgds.sql</srcFile>
+                <srcFile>${project.build.testOutputDirectory}/cgds.sql</srcFile>
                 <srcFile>src/test/resources/seed_mini.sql</srcFile>
               </srcFiles>
               <!-- added encoding to prevent Unknown initial character set index '192' received from server error -->
@@ -418,9 +464,6 @@
         <directory>src/main/resources</directory>
         <excludes>
           <exclude>sample_data/**</exclude>
-          <exclude>db/cbioportal-er-diagram.pdf</exclude>
-          <exclude>db/cbioportal-er-diagram.png</exclude>
-          <exclude>db/migration.sql</exclude>
         </excludes>
       </resource>
       <resource>

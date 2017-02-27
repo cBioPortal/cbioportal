@@ -5,6 +5,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantlyMutatedGeneRepository;
 import org.cbioportal.service.SignificantlyMutatedGeneService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class SignificantlyMutatedGeneServiceImpl implements SignificantlyMutated
     private SignificantlyMutatedGeneRepository significantlyMutatedGeneRepository;
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<MutSig> getSignificantlyMutatedGenes(String studyId, String projection, Integer pageSize,
                                                      Integer pageNumber, String sortBy, String direction) {
 
@@ -24,6 +26,7 @@ public class SignificantlyMutatedGeneServiceImpl implements SignificantlyMutated
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSignificantlyMutatedGenes(String studyId) {
         
         return significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes(studyId);

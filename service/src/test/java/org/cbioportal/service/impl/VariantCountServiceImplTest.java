@@ -1,10 +1,12 @@
 package org.cbioportal.service.impl;
 
 import junit.framework.Assert;
+import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.VariantCount;
 import org.cbioportal.model.meta.MutationMeta;
+import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.MutationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,8 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
     
     @Mock
     private MutationService mutationService;
+    @Mock
+    private GeneticProfileService geneticProfileService;
     
     @Test
     public void fetchVariantCounts() throws Exception {
@@ -33,6 +37,10 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
         mutationSampleCountByGene.setEntrezGeneId(ENTREZ_GENE_ID);
         mutationSampleCountByGene.setSampleCount(3);
         mutationSampleCountByGeneList.add(mutationSampleCountByGene);
+
+        GeneticProfile geneticProfile = new GeneticProfile();
+        geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED);
+        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
         
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID);

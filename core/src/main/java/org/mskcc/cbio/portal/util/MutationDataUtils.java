@@ -265,6 +265,7 @@ public class MutationDataUtils {
         mutationData.put(MUTATION_STATUS, mutation.getMutationStatus());
         mutationData.put(VALIDATION_STATUS, mutation.getValidationStatus());
         mutationData.put(SEQUENCING_CENTER, this.getSequencingCenter(mutation));
+        mutationData.put(GlobalProperties.getNCBIBuild(), this.getNcbiBuild(mutation));
         mutationData.put(NCBI_BUILD_NO, this.getNcbiBuild(mutation));
         mutationData.put(CHR, this.getChromosome(mutation));
         mutationData.put(START_POS, mutation.getStartPosition());

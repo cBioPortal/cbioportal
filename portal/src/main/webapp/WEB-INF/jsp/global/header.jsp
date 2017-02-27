@@ -57,6 +57,7 @@ String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "
 <jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
 
     <script type="text/javascript">
+         window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
         $(document).ready(function(){
         	window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
         	<%if(!sessionServiceUrl.equals("")){%>
@@ -77,7 +78,6 @@ String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "
                 });
                 $('#manage_cohort_button').css('display','block');
                 <%}%>
-        	
         });
     
         // Set API root variable for cbioportal-frontend repo

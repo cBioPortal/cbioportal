@@ -20,4 +20,6 @@ public class BaseServiceImplTest {
     public static final String ALIAS = "alias";
     public static final String GENE_ID_TYPE = "gene_id_type";
     public static final String KEYWORD = "keyword";
+    public static final Long GISTIC_ROI_ID = 1L;
+    public static final Integer CLINICAL_EVENT_ID = 1;
 }

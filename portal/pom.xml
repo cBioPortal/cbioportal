@@ -168,6 +168,11 @@
               <directory>reactapp</directory>
               <targetPath>reactapp</targetPath>
             </resource>
+            <resource>
+                <directory>${project.parent.basedir}/db-scripts/src/main/resources</directory>
+                <targetPath>db-scripts</targetPath>
+                <filtering>true</filtering>
+            </resource>
           </webResources>
         </configuration>
       </plugin>

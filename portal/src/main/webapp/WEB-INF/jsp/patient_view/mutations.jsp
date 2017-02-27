@@ -145,6 +145,7 @@
                                 return;
                             } else if (type === 'display') {
                                 var ret = "";
+                                var gene = mutations.getValue(source[0], 'gene');
                                 var aa = mutations.getValue(source[0], 'aa');
                                 if (aa.length > 2 && aa.substring(0, 2) == 'p.')
                                     aa = aa.substring(2);
@@ -168,6 +169,10 @@
                                     ret += "<span class='annotation-item " + table_id + "-hotspot' alteration='" + aa + "' oncokbId='" + source[0] + "'><img width='14' height='14' src='images/cancer-hotspots.svg'></span>";
                                 }else {
                                     ret += "<span class='annotation-item'></span>";
+                                }
+                                if (showCivic) {
+                                    ret += "<span class='annotation-item civic' proteinChange='" + aa + "' geneSymbol='" + gene + "' " +
+                                        "<img width='14' height='14' src='images/ajax-loader.gif' alt='Civic Variant Entry'></span>";
                                 }
                                 return ret;
                             } else if (type === 'sort') {

@@ -122,6 +122,8 @@ final class DaoGene {
      * update the given CanonicalGene with the generated 
      * geneticEntityId. 
      * 
+     * Adds a new Gene Record to the Database.
+     *
      * @param gene Canonical Gene Object.
      * @return number of records successfully added.
      * @throws DaoException Database Error.

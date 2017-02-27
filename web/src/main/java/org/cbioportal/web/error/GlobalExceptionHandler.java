@@ -11,6 +11,9 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -119,5 +122,20 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(new ErrorResponse(parameterName + " " + constraintViolation.getMessage()),
             HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        
+        FieldError fieldError = ex.getBindingResult().getFieldError();
+        return new ResponseEntity<>(new ErrorResponse(fieldError.getField() + " " + fieldError.getDefaultMessage()),
+            HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Access to the specified resource has been forbidden"),
+            HttpStatus.FORBIDDEN);
     }
 }

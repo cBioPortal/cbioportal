@@ -13,4 +13,6 @@ public interface SampleMapper {
     BaseMeta getMetaSamples(List<String> studyIds, String patientId, List<String> sampleIds);
 
     Sample getSample(String studyId, String sampleId, String projection);
+
+    List<Sample> getSamplesByInternalIds(List<Integer> internalIds, String projection);
 }

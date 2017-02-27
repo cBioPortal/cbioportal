@@ -40,38 +40,38 @@ public class StudyController {
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all studies")
     public ResponseEntity<List<CancerStudy>> getAllStudies(
-            @ApiParam("Level of detail of the response")
-            @RequestParam(defaultValue = "SUMMARY") Projection projection,
-            @ApiParam("Page size of the result list")
-            @Max(PagingConstants.MAX_PAGE_SIZE)
-            @Min(PagingConstants.MIN_PAGE_SIZE)
-            @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-            @ApiParam("Page number of the result list")
-            @Min(PagingConstants.MIN_PAGE_NUMBER)
-            @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-            @ApiParam("Name of the property that the result list is sorted by")
-            @RequestParam(required = false) StudySortBy sortBy,
-            @ApiParam("Direction of the sort")
-            @RequestParam(defaultValue = "ASC") Direction direction) {
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @ApiParam("Page size of the result list")
+        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        @ApiParam("Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        @ApiParam("Name of the property that the result list is sorted by")
+        @RequestParam(required = false) StudySortBy sortBy,
+        @ApiParam("Direction of the sort")
+        @RequestParam(defaultValue = "ASC") Direction direction) {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, studyService.getMetaStudies().getTotalCount()
-                    .toString());
+                .toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                    studyService.getAllStudies(projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+                studyService.getAllStudies(projection.name(), pageSize, pageNumber,
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
     @RequestMapping(value = "/studies/{studyId}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a study")
     public ResponseEntity<CancerStudy> getStudy(
-            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
-            @PathVariable String studyId) throws StudyNotFoundException {
+        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @PathVariable String studyId) throws StudyNotFoundException {
 
         return new ResponseEntity<>(studyService.getStudy(studyId), HttpStatus.OK);
     }

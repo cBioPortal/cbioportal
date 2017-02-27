@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.CopyNumberSegmentMapper">
+    <cache size="20000"/>
+    
+    <sql id="select">
+        copy_number_seg.SEG_ID AS segId,
+        copy_number_seg.CANCER_STUDY_ID AS cancerStudyId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier,
+        copy_number_seg.SAMPLE_ID AS sampleId,
+        sample.STABLE_ID AS sampleStableId,
+        copy_number_seg.CHR AS chr,
+        copy_number_seg.START AS start,
+        copy_number_seg.END AS end
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            copy_number_seg.NUM_PROBES AS numProbes,
+            copy_number_seg.SEGMENT_MEAN AS segmentMean
+        </if>
+    </sql>
+
+    <sql id="from">
+        FROM copy_number_seg
+        INNER JOIN cancer_study ON copy_number_seg.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN sample ON copy_number_seg.SAMPLE_ID = sample.INTERNAL_ID
+    </sql>
+    
+    <sql id="where">
+        <where>
+            <if test="sampleIds != null and !sampleIds.isEmpty()">
+                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND sample.STABLE_ID = #{sampleIds[${i}]}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+    
+    <select id="getCopyNumberSegments" resultType="org.cbioportal.model.CopyNumberSeg">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="where"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY copy_number_seg.CHR ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaCopyNumberSegments" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="from"/>
+        <include refid="where"/>
+    </select>
+</mapper>

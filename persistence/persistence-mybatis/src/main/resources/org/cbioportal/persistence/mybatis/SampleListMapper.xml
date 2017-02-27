@@ -65,10 +65,27 @@
     </select>
 
     <select id="getAllSampleIdsInSampleList" resultType="string">
-        SELECT sample.STABLE_ID
+        SELECT 
+        sample.STABLE_ID
         FROM sample_list_list
         INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
         INNER JOIN sample ON sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
         WHERE sample_list.STABLE_ID = #{sampleListId}
+    </select>
+    
+    <select id="getSampleCounts" resultType="org.cbioportal.model.SampleListSampleCount">
+        SELECT
+        sample_list_list.LIST_ID as sampleListId,
+        COUNT(*) as sampleCount
+        FROM sample_list_list
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                sample_list_list.LIST_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY sample_list_list.LIST_ID
     </select>
 </mapper>

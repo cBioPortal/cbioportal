@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.SampleList;
+import org.cbioportal.model.SampleListSampleCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,13 +12,14 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContextDatabase.xml")
 @Configurable
 public class SampleListMyBatisRepositoryTest {
-    
+
     @Autowired
     private SampleListMyBatisRepository sampleListMyBatisRepository;
     
@@ -224,5 +226,19 @@ public class SampleListMyBatisRepositoryTest {
         Assert.assertEquals("TCGA-A1-A0SF-01", result.get(3));
         Assert.assertEquals("TCGA-A1-A0SG-01", result.get(4));
         Assert.assertEquals("TCGA-A1-A0SQ-01", result.get(13));
+    }
+
+    @Test
+    public void getSampleCounts() throws Exception {
+
+        List<SampleListSampleCount> result = sampleListMyBatisRepository.getSampleCounts(Arrays.asList(1, 2));
+        
+        Assert.assertEquals(2, result.size());
+        SampleListSampleCount sampleListSampleCount1 = result.get(0);
+        Assert.assertEquals((Integer) 1, sampleListSampleCount1.getSampleListId());
+        Assert.assertEquals((Integer) 14, sampleListSampleCount1.getSampleCount());
+        SampleListSampleCount sampleListSampleCount2 = result.get(1);
+        Assert.assertEquals((Integer) 2, sampleListSampleCount2.getSampleListId());
+        Assert.assertEquals((Integer) 14, sampleListSampleCount2.getSampleCount());
     }
 }

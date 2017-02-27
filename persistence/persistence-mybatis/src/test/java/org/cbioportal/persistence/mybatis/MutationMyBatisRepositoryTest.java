@@ -2,7 +2,9 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.model.MutationSampleCountByGene;
+import org.cbioportal.model.MutationSampleCountByKeyword;
+import org.cbioportal.model.meta.MutationMeta;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +21,7 @@ import java.util.List;
 @ContextConfiguration("/testContextDatabase.xml")
 @Configurable
 public class MutationMyBatisRepositoryTest {
-
+    
     @Autowired
     private MutationMyBatisRepository mutationMyBatisRepository;
     
@@ -85,6 +88,11 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
         Assert.assertEquals("Germline", mutation.getMutationStatus());
         Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
+        Assert.assertEquals("NA", mutation.getFunctionalImpactScore());
+        Assert.assertEquals(new BigDecimal("0.0"), mutation.getFisValue());
+        Assert.assertEquals("getma.org/?cm=var&var=hg19,17,41244748,G,A&fts=all", mutation.getLinkXvar());
+        Assert.assertEquals("NA", mutation.getLinkPdb());
+        Assert.assertEquals("NA", mutation.getLinkMsa());
         Assert.assertEquals("37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
@@ -130,10 +138,11 @@ public class MutationMyBatisRepositoryTest {
     @Test
     public void getMetaMutationsInGeneticProfile() throws Exception {
 
-        BaseMeta result = mutationMyBatisRepository.getMetaMutationsInGeneticProfile("study_tcga_pub_mutations", 
+        MutationMeta result = mutationMyBatisRepository.getMetaMutationsInGeneticProfile("study_tcga_pub_mutations", 
             "TCGA-A1-A0SH-01");
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
+        Assert.assertEquals((Integer) 1, result.getSampleCount());
     }
 
     @Test
@@ -162,9 +171,36 @@ public class MutationMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SH-01");
         sampleIds.add("TCGA-A1-A0SO-01");
 
-        BaseMeta result = mutationMyBatisRepository.fetchMetaMutationsInGeneticProfile("study_tcga_pub_mutations",
+        MutationMeta result = mutationMyBatisRepository.fetchMetaMutationsInGeneticProfile("study_tcga_pub_mutations",
             sampleIds);
 
         Assert.assertEquals((Integer) 3, result.getTotalCount());
+        Assert.assertEquals((Integer) 2, result.getSampleCount());
+    }
+
+    @Test
+    public void getSampleCountByEntrezGeneIds() throws Exception {
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(672);
+        
+        List<MutationSampleCountByGene> result = mutationMyBatisRepository.getSampleCountByEntrezGeneIds(
+            "study_tcga_pub_mutations", entrezGeneIds);
+        
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals((Integer) 4, result.get(0).getSampleCount());
+    }
+
+    @Test
+    public void getSampleCountByKeywords() throws Exception {
+
+        List<String> keywords = new ArrayList<>();
+        keywords.add("BRCA1 C61 missense");
+
+        List<MutationSampleCountByKeyword> result = mutationMyBatisRepository.getSampleCountByKeywords(
+            "study_tcga_pub_mutations", keywords);
+
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals((Integer) 2, result.get(0).getSampleCount());
     }
 }

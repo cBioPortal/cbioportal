@@ -2,7 +2,6 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.MutSig;
 import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.persistence.SignificantlyMutatedGeneRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,13 +19,13 @@ import java.util.List;
 public class SignificantlyMutatedGeneMyBatisRepositoryTest {
 
     @Autowired
-    private SignificantlyMutatedGeneRepository significantlyMutatedGeneRepository;
+    private SignificantlyMutatedGeneMyBatisRepository significantlyMutatedGeneMyBatisRepository;
 
     @Test
     public void getSignificantlyMutatedGenesIdProjection() throws Exception {
 
-        List<MutSig> result = significantlyMutatedGeneRepository.getSignificantlyMutatedGenes("study_tcga_pub", "ID",
-            null, null, null, null);
+        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub", 
+            "ID", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         MutSig mutSig = result.get(0);
@@ -36,7 +35,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     @Test
     public void getSignificantlyMutatedGenesSummaryProjection() throws Exception {
 
-        List<MutSig> result = significantlyMutatedGeneRepository.getSignificantlyMutatedGenes("study_tcga_pub", 
+        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub", 
             "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
@@ -55,7 +54,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     @Test
     public void getSignificantlyMutatedGenesDetailedProjection() throws Exception {
 
-        List<MutSig> result = significantlyMutatedGeneRepository.getSignificantlyMutatedGenes("study_tcga_pub",
+        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub",
             "DETAILED", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
@@ -74,7 +73,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     @Test
     public void getSignificantlyMutatedGenesSummaryProjection1PageSize() throws Exception {
 
-        List<MutSig> result = significantlyMutatedGeneRepository.getSignificantlyMutatedGenes("study_tcga_pub",
+        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub",
             "SUMMARY", 1, 0, null, null);
 
         Assert.assertEquals(1, result.size());
@@ -83,7 +82,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     @Test
     public void getSignificantlyMutatedGenesSummaryProjectionPValueSort() throws Exception {
 
-        List<MutSig> result = significantlyMutatedGeneRepository.getSignificantlyMutatedGenes("study_tcga_pub",
+        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub",
             "SUMMARY", null, null, "pValue", "ASC");
 
         Assert.assertEquals(2, result.size());
@@ -94,7 +93,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     @Test
     public void getMetaSignificantlyMutatedGenes() throws Exception {
 
-        BaseMeta result = significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes("study_tcga_pub");
+        BaseMeta result = significantlyMutatedGeneMyBatisRepository.getMetaSignificantlyMutatedGenes("study_tcga_pub");
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
     }

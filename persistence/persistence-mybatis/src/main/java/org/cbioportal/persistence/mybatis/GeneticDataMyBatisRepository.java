@@ -21,8 +21,9 @@ public class GeneticDataMyBatisRepository implements GeneticDataRepository {
     }
 
     @Override
-    public List<GeneticAlteration> getGeneticAlterations(String geneticProfileId, List<Integer> entrezGeneIds) {
+    public List<GeneticAlteration> getGeneticAlterations(String geneticProfileId, List<Integer> entrezGeneIds, 
+                                                         String projection) {
 
-        return geneticDataMapper.getGeneticAlterations(geneticProfileId, entrezGeneIds);
+        return geneticDataMapper.getGeneticAlterations(geneticProfileId, entrezGeneIds, projection);
     }
 }

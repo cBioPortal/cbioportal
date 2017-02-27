@@ -1,8 +1,10 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.GeneticDataService;
+import org.cbioportal.service.GeneticProfileService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +25,8 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private GeneticDataService geneticDataService;
+    @Mock
+    private GeneticProfileService geneticProfileService;
 
     @Test
     public void fetchMrnaPercentile() throws Exception {
@@ -64,13 +68,17 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
         geneticData6.setSampleId("sample_id_3");
         geneticData6.setValue("-0.1234");
         geneticDataList.add(geneticData6);
+
+        GeneticProfile geneticProfile = new GeneticProfile();
+        geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.MRNA_EXPRESSION);
+        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
         
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID);
         entrezGeneIds.add(2);
 
-        Mockito.when(geneticDataService.getGeneticDataOfAllSamplesOfGeneticProfile(GENETIC_PROFILE_ID, entrezGeneIds))
-            .thenReturn(geneticDataList);
+        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, null, entrezGeneIds, 
+            "SUMMARY")).thenReturn(geneticDataList);
         
         List<MrnaPercentile> result = mrnaPercentileService.fetchMrnaPercentile(GENETIC_PROFILE_ID, "sample_id_2", 
             entrezGeneIds);

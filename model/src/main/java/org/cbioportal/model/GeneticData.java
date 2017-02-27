@@ -9,6 +9,7 @@ public class GeneticData implements Serializable {
     private Integer entrezGeneId;
     private String sampleId;
     private String value;
+    private Gene gene;
 
     public String getGeneticProfileId() {
         return geneticProfileId;
@@ -40,5 +41,13 @@ public class GeneticData implements Serializable {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public Gene getGene() {
+        return gene;
+    }
+
+    public void setGene(Gene gene) {
+        this.gene = gene;
     }
 }

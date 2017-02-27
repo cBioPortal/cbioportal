@@ -54,7 +54,12 @@ public final class ImportUniProtIdMapping {
     }
 
     public void importData() throws DaoException, IOException {
-        Set<String> swissAccessions = getSwissProtAccessionHuman();
+        Set<String> swissAccessions = null;
+        String species = GlobalProperties.getSpecies();
+    	if (!(species.equals("human") || species.equals("mouse"))){
+    		throw new Error("Species not supported: " + species);
+		} 
+    	swissAccessions = ImportUniProtIdMapping.getSwissProtAccession(species);
         
         MySQLbulkLoader.bulkLoadOn();
         
@@ -92,9 +97,17 @@ public final class ImportUniProtIdMapping {
         MySQLbulkLoader.flushAll();
     }
     
-    public static Set<String> getSwissProtAccessionHuman() throws IOException {
-        String strURL = "http://www.uniprot.org/uniprot/?query="
-                + "taxonomy%3ahuman+AND+reviewed%3ayes&force=yes&format=list";
+    public static Set<String> getSwissProtAccession(String species) throws IOException {
+    	String strURL = null;
+    	if (species.equals("human")){
+    		strURL = "http://www.uniprot.org/uniprot/?query="
+                    + "taxonomy%3ahuman+AND+reviewed%3ayes&force=yes&format=list";
+		} else if (species.equals("mouse")){
+			strURL = "http://www.uniprot.org/uniprot/?query="
+                    + "taxonomy%3amouse+AND+reviewed%3ayes&force=yes&format=list";
+		} else {
+			throw new Error("Species not supported:"+species);
+		}
         
         URL url = new URL(strURL);
 

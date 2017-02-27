@@ -831,6 +831,11 @@ function geneSetSelected() {
         //  Set the gene list text area
         $("#gene_list").val(gene_set.gene_list);
     }
+    if ($("#select_gene_set").val() !== "user-defined-list") {
+        cbio.util.toggleMainBtn("main_submit", "enable");
+    } else {
+        cbio.util.toggleMainBtn("main_submit", "disable");
+    }
 }
 
 //  Adds Meta Data to the Page.

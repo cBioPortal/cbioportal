@@ -258,7 +258,7 @@ var GeneSymbolValidator = (function($) {
 	} catch (e) {
 	    $("#genestatus").html("");
 	    $("<small>").appendTo($("#genestatus")).html("Cannot validate gene symbols because of invalid OQL. Please click 'Submit' to see location of error.");
-        cbio.util.toggleMainBtn("main_submit", "disable");
+        cbio.util.toggleMainBtn("main_submit", "enable");
 	}
     };
 

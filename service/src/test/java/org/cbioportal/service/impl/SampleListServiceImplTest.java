@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.SampleList;
+import org.cbioportal.model.SampleListSampleCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.exception.SampleListNotFoundException;
@@ -13,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,15 +31,25 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
         List<SampleList> expectedSampleLists = new ArrayList<>();
         SampleList sampleList = new SampleList();
+        sampleList.setListId(1);
         expectedSampleLists.add(sampleList);
+        
+        List<SampleListSampleCount> expectedSampleListSampleCounts = new ArrayList<>();
+        SampleListSampleCount sampleListSampleCount = new SampleListSampleCount();
+        sampleListSampleCount.setSampleListId(1);
+        sampleListSampleCount.setSampleCount(10);
+        expectedSampleListSampleCounts.add(sampleListSampleCount);
+        
+        Mockito.when(sampleListRepository.getSampleCounts(Arrays.asList(1))).thenReturn(expectedSampleListSampleCounts);
 
-        Mockito.when(sampleListRepository.getAllSampleLists(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
+        Mockito.when(sampleListRepository.getAllSampleLists("DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT,
             DIRECTION)).thenReturn(expectedSampleLists);
 
-        List<SampleList> result = sampleListService.getAllSampleLists(PROJECTION, PAGE_SIZE, PAGE_NUMBER,
+        List<SampleList> result = sampleListService.getAllSampleLists("DETAILED", PAGE_SIZE, PAGE_NUMBER,
             SORT, DIRECTION);
 
         Assert.assertEquals(expectedSampleLists, result);
+        Assert.assertEquals((Integer) 10, expectedSampleLists.get(0).getSampleCount());
     }
 
     @Test
@@ -64,12 +76,21 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
     public void getSampleList() throws Exception {
 
         SampleList expectedSampleList = new SampleList();
+        expectedSampleList.setListId(1);
 
         Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
 
+        List<SampleListSampleCount> expectedSampleListSampleCounts = new ArrayList<>();
+        SampleListSampleCount sampleListSampleCount = new SampleListSampleCount();
+        sampleListSampleCount.setSampleCount(10);
+        expectedSampleListSampleCounts.add(sampleListSampleCount);
+
+        Mockito.when(sampleListRepository.getSampleCounts(Arrays.asList(1))).thenReturn(expectedSampleListSampleCounts);
+        
         SampleList result = sampleListService.getSampleList(SAMPLE_LIST_ID);
 
         Assert.assertEquals(expectedSampleList, result);
+        Assert.assertEquals((Integer) 10, result.getSampleCount());
     }
 
     @Test
@@ -77,15 +98,25 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
         List<SampleList> expectedSampleLists = new ArrayList<>();
         SampleList sampleList = new SampleList();
+        sampleList.setListId(1);
         expectedSampleLists.add(sampleList);
 
-        Mockito.when(sampleListRepository.getAllSampleListsInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER,
+        List<SampleListSampleCount> expectedSampleListSampleCounts = new ArrayList<>();
+        SampleListSampleCount sampleListSampleCount = new SampleListSampleCount();
+        sampleListSampleCount.setSampleListId(1);
+        sampleListSampleCount.setSampleCount(10);
+        expectedSampleListSampleCounts.add(sampleListSampleCount);
+
+        Mockito.when(sampleListRepository.getSampleCounts(Arrays.asList(1))).thenReturn(expectedSampleListSampleCounts);
+
+        Mockito.when(sampleListRepository.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE, PAGE_NUMBER,
             SORT, DIRECTION)).thenReturn(expectedSampleLists);
 
-        List<SampleList> result = sampleListService.getAllSampleListsInStudy(STUDY_ID, PROJECTION,
+        List<SampleList> result = sampleListService.getAllSampleListsInStudy(STUDY_ID, "DETAILED",
             PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedSampleLists, result);
+        Assert.assertEquals((Integer) 10, expectedSampleLists.get(0).getSampleCount());
     }
 
     @Test

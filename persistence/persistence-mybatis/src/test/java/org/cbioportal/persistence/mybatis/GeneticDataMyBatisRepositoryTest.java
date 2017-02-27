@@ -37,7 +37,7 @@ public class GeneticDataMyBatisRepositoryTest {
         entrezGeneIds.add(208);
         
         List<GeneticAlteration> result = geneticDataMyBatisRepository.getGeneticAlterations("study_tcga_pub_gistic",
-            entrezGeneIds);
+            entrezGeneIds, "SUMMARY");
         
         Assert.assertEquals(2, result.size());
         GeneticAlteration geneticAlteration1 = result.get(0);

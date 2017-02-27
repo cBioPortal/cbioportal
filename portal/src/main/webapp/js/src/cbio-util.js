@@ -620,8 +620,9 @@ cbio.util = (function() {
         
         if (is3dHotspot)
         {
-            // TODO add the publication link when published
-            strBuilder.push("Gao et al., in press.");
+            strBuilder.push(
+                "<a href=\"http://genomemedicine.biomedcentral.com/articles/10.1186/s13073-016-0393-x\" target=\"_blank\">" +
+                "Gao et al., Genome Medicine, 2017</a>.");
         }
         
         strBuilder.push("<br/><br/>");

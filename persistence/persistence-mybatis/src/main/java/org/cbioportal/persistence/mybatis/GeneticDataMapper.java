@@ -8,5 +8,6 @@ public interface GeneticDataMapper {
 
     String getCommaSeparatedSampleIdsOfGeneticProfile(String geneticProfileId);
 
-    List<GeneticAlteration> getGeneticAlterations(String geneticProfileId, List<Integer> entrezGeneIds);
+    List<GeneticAlteration> getGeneticAlterations(String geneticProfileId, List<Integer> entrezGeneIds, 
+                                                  String projection);
 }

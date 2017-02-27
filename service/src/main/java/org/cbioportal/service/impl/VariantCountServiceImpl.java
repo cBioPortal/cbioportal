@@ -1,25 +1,35 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.VariantCount;
+import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.VariantCountService;
+import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VariantCountServiceImpl implements VariantCountService {
     
     @Autowired
     private MutationService mutationService;
+    @Autowired
+    private GeneticProfileService geneticProfileService;
     
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<VariantCount> fetchVariantCounts(String geneticProfileId, List<Integer> entrezGeneIds, 
-                                                 List<String> keywords) {
+                                                 List<String> keywords) throws GeneticProfileNotFoundException {
+
+        validateGeneticProfile(geneticProfileId);
 
         Integer numberOfSamplesInGeneticProfile = mutationService.fetchMetaMutationsInGeneticProfile(geneticProfileId, 
             null).getSampleCount();
@@ -38,14 +48,32 @@ public class VariantCountServiceImpl implements VariantCountService {
             variantCount.setEntrezGeneId(entrezGeneId);
             variantCount.setKeyword(keyword);
             variantCount.setNumberOfSamples(numberOfSamplesInGeneticProfile);
-            variantCount.setNumberOfSamplesWithMutationInGene(mutationSampleCountByGeneList.stream()
-                .filter(p -> p.getEntrezGeneId().equals(entrezGeneId)).findFirst().get().getSampleCount());
-            variantCount.setNumberOfSamplesWithKeyword(mutationSampleCountByKeywordList.stream()
-                .filter(p -> p.getKeyword().equals(keyword)).findFirst().get().getSampleCount());
             
+            Optional<MutationSampleCountByGene> mutationSampleCountByGene = mutationSampleCountByGeneList.stream()
+                .filter(p -> p.getEntrezGeneId().equals(entrezGeneId)).findFirst();
+            mutationSampleCountByGene.ifPresent(m -> variantCount.setNumberOfSamplesWithMutationInGene(m
+                .getSampleCount()));
+            
+            if (keyword != null) {
+                Optional<MutationSampleCountByKeyword> mutationSampleCountByKeyword = mutationSampleCountByKeywordList
+                    .stream().filter(p -> p.getKeyword().equals(keyword)).findFirst();
+                mutationSampleCountByKeyword.ifPresent(m -> variantCount.setNumberOfSamplesWithKeyword(m
+                    .getSampleCount()));
+            }
             variantCounts.add(variantCount);
         }
         
         return variantCounts;
+    }
+
+    private void validateGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException {
+
+        GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+
+        if (!geneticProfile.getGeneticAlterationType()
+            .equals(GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED)) {
+
+            throw new GeneticProfileNotFoundException(geneticProfileId);
+        }
     }
 }

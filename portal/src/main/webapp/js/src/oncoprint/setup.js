@@ -12,6 +12,15 @@ var stringListUnique = function(list) {
 };
 
 var utils = {
+    'isWebGLAvailable': function() {
+	var canvas = document.createElement("canvas");
+	var gl = canvas.getContext("webgl")
+	  || canvas.getContext("experimental-webgl");
+	return (gl && gl instanceof WebGLRenderingContext);
+    },
+    'getUnavailableMessageHTML': function() {
+	return 'Oncoprint cannot be displayed because <a href="https://get.webgl.org/">your browser does not support WebGL</a>.';
+    },
     'timeoutSeparatedLoop': function (array, loopFn) {
 	// loopFn is function(elt, index, array) {
 	var finished_promise = new $.Deferred();
@@ -318,14 +327,8 @@ var comparator_utils = {
 	var rppa_key = 'disp_prot';
 	var regulation_order = makeComparatorMetric(['up', 'down', undefined]);
 
-	return function (d1, d2) {
-	    // First, test if either is not sequenced
-	    var ns_diff = utils.sign(+(!!d1.na) - (+(!!d2.na)));
-	    if (ns_diff !== 0) {
-		return ns_diff;
-	    }
-	    
-	    // Next, test fusion
+	var mandatory = function(d1, d2) {
+	    // Test fusion
 	    if (d1[fusion_key] && !(d2[fusion_key])) {
 		return -1;
 	    } else if (!(d1[fusion_key]) && d2[fusion_key]) {
@@ -358,6 +361,19 @@ var comparator_utils = {
 
 	    // If we reach this point, there's no order difference
 	    return 0;
+	}
+	var preferred = function (d1, d2) {
+	    // First, test if either is not sequenced
+	    var ns_diff = utils.sign(+(!!d1.na) - (+(!!d2.na)));
+	    if (ns_diff !== 0) {
+		return ns_diff;
+	    }
+	    
+	    return mandatory(d1, d2);
+	};
+	return {
+	    preferred: preferred,
+	    mandatory: mandatory
 	};
     },
     'numericalClinicalComparator': function (d1, d2) {
@@ -437,6 +453,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     $('#oncoprint #everything').show();
     $('#oncoprint #oncoprint-diagram-toolbar-buttons').show();
     
+    if (!utils.isWebGLAvailable()) {
+	$(ctr_selector).append("<p>"+utils.getUnavailableMessageHTML()+"</p>");
+	$(toolbar_selector).hide();
+	return;
+    }
+    
     $(ctr_selector).css({'position':'relative'});
     
     var LoadingBar = (function() {
@@ -480,12 +502,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'msg': function(str) {
 		$loading_bar_msg[0].textContent = str;
 	    },
-	    'update': function(proportion) {
+	    'update': function(proportion, color) {
 		$loading_bar.attr('width', proportion*parseFloat($loading_bar_svg.attr('width')));
+		if (color) {
+			$loading_bar.attr('stroke', 'black');
+			$loading_bar.attr('fill', color);
+		}
 	    },
 	    'DOWNLOADING_MSG': 'Downloading data..'
 	};
     })();
+    
+    LoadingBar.hide();
     
     var oncoprint = new window.Oncoprint(ctr_selector, 1050);
     var toolbar_fade_out_timeout;
@@ -944,6 +972,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'clinical_track_legends_shown': true,
 	    'mutations_colored_by_type': true,
 	    'sorted_by_mutation_type': true,
+	    
+	    'trackIdsInOriginalOrder': {},
 	    
 	    'patient_order_loaded': new $.Deferred(),
 	    'patient_order': [],
@@ -1727,6 +1757,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	    updateButton();
 	};
+
+	var resetHeatmapTracks = function() {
+		//reset all tracks of heatmaps that were clustered to their original order:
+		for (var clusteredHeatmapGroup in State.trackIdsInOriginalOrder) {
+			if (State.trackIdsInOriginalOrder.hasOwnProperty(clusteredHeatmapGroup)) {
+				oncoprint.setTrackGroupOrder(clusteredHeatmapGroup, State.trackIdsInOriginalOrder[clusteredHeatmapGroup]);
+			}
+		}
+	};
+
 	(function setUpHeatmap() {
 		if(QuerySession.getCancerStudyIds().length == 1){
 			$('#oncoprint_diagram_heatmap_menu').css('display', 'block')
@@ -1782,46 +1822,131 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				    evt.preventDefault();
 				    evt.stopPropagation();
 
-				    // remove all heatmaps
-				    var gp_ids = Object.keys(State.heatmap_track_groups);
-				    var tracks_to_remove = [];
-				    for (var i = 0; i < gp_ids.length; i++) {
-					var track_ids = Object.keys(State.heatmap_track_groups[gp_ids[i]].gene_to_track_id).map(function (gene) {
-					    return State.heatmap_track_groups[gp_ids[i]].gene_to_track_id[gene];
-					});
-					tracks_to_remove = tracks_to_remove.concat(track_ids);
-				    }
-				    oncoprint.removeTracks(tracks_to_remove);
-				});
+		    // remove all heatmaps
+		    var gp_ids = Object.keys(State.heatmap_track_groups);
+		    var tracks_to_remove = [];
+		    for (var i = 0; i < gp_ids.length; i++) {
+			var track_ids = Object.keys(State.heatmap_track_groups[gp_ids[i]].gene_to_track_id).map(function (gene) {
+			    return State.heatmap_track_groups[gp_ids[i]].gene_to_track_id[gene];
+			});
+			tracks_to_remove = tracks_to_remove.concat(track_ids);
+		    }
+		    oncoprint.removeTracks(tracks_to_remove);
+		    
+		    //uncheck clustering option:
+		    var clusteringChk = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #cluster_heatmap_chk');
+		    clusteringChk.prop("checked", false);
+		    clusteringChk.prop("disabled", "disabled");
+		    //unset clustering state object that stores, a.o., which trackGroups should be reset in resetHeatmapTracks:
+		    State.trackIdsInOriginalOrder = {};
+		    //restore sort to "data" sorting:
+		    updateSortOption("data");
+		});
+		
+		var updateSortOption = function (sortOption) {
+			State.sortby = sortOption;
+			var sortby_radio = $('#oncoprint_diagram_sortby_group').find('input[type="radio"][name="sortby"][value="'+ sortOption + '"]');
+			if (sortOption === "clustering") {
+				sortby_radio.removeAttr("disabled");
+			    sortby_radio.click();
+			    sortby_radio.attr("disabled","disabled");
+			} else {
+				sortby_radio.click();
+				resetHeatmapTracks();
+			}
+		};
+		$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #cluster_heatmap_chk').change(function (evt) {
+			var genetic_profile_id = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles').val();
+			if (genetic_profile_id) {
+				// cluster heatmap for selected profile:
+				var grp = State.heatmap_track_groups[genetic_profile_id];
+				var heatmap_track_group_id = grp.track_group_id;
+				//when checkbox selected:
+				if (this.checked) {
+					//sort according to order found in the clustering results:
+					State.sorting_by_given_order = true;
+					//store original order before clustering:
+					var trackIdsInOriginalOrder = oncoprint.model.getTrackGroups()[heatmap_track_group_id];
+					State.trackIdsInOriginalOrder[heatmap_track_group_id] = trackIdsInOriginalOrder;
+					//get heatmap data:
+					var heatmap_data_deferred = State.using_sample_data ? getSampleHeatmapData(grp.genetic_profile_id, Object.keys(grp.gene_to_track_id)) : QuerySession.getPatientHeatmapData(grp.genetic_profile_id, Object.keys(grp.gene_to_track_id));
+					var case_ids_deferred =  State.using_sample_data ? QuerySession.getSampleIds() : QuerySession.getPatientIds();
+					//process data, call clustering:
+					$.when(grp.gene_to_track_id, heatmap_data_deferred, case_ids_deferred).then(
+							function (track_uid_map, heatmap_data, case_ids) {
+								$.when(QuerySession.getClusteringOrder(track_uid_map, heatmap_data, case_ids)).then(
+										function (clusteringResult) {
+											LoadingBar.update(0.9, "green");
+											oncoprint.setSortConfig({'type': 'order', order: clusteringResult.sampleUidsInClusteringOrder});
+											oncoprint.setTrackGroupOrder(heatmap_track_group_id, clusteringResult.entityUidsInClusteringOrder);
+											LoadingBar.hide();
+											updateSortOption("clustering");
+										});
+								//show progress bar:
+								LoadingBar.show();
+								LoadingBar.update(0.2, "yellow");
+							    LoadingBar.msg("Clustering...");
+							    //update progress bar every 0.2s:
+							    window.setInterval(function() {
+								    var d = new Date();
+								    var n = d.getMilliseconds();
+								    LoadingBar.update(n/1000, "yellow");
+							    }, 200);
+							});
+			    } else {
+					//restore original order
+					LoadingBar.update(0.9, "green");
+					updateSortOption("data");
+					LoadingBar.hide();
+			    }
+			}
+		});
 
 				$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_btn').click(function (evt) {
 				    // suppress dropdown hiding and form submit
 				    evt.preventDefault();
 				    evt.stopPropagation();
+          
+		    // add genes
+		    var genetic_profile_id = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles').val();
+		    if (genetic_profile_id) {
+			var input = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_input').val().trim().toUpperCase();
+			if (input.length > 0) {
+			    State.addAndPopulateNonexistingHeatmapTracks(genetic_profile_id, input.split(/[,\s]+/));
+			    
+			    //re-enable clustering checkbox, if disabled:
+			    var clusteringChk = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #cluster_heatmap_chk');
+			    clusteringChk.removeAttr("disabled");
+			}
+		    }
+		});
 
-				    // add genes
-				    var genetic_profile_id = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles').val();
-				    if (genetic_profile_id) {
-					var input = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_input').val().trim().toUpperCase();
-					if (input.length > 0) {
-					    State.addAndPopulateNonexistingHeatmapTracks(genetic_profile_id, input.split(/[,\s]+/));
-					}
-				    }
-				});
+		var updateButtons = function () {
+		    var add_genes_btn = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_btn');
+		    var input = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_input')
+		    var dropdown = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles');
+		    var clusteringChk = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #cluster_heatmap_chk');
 
-				var updateButtons = function () {
-				    var add_genes_btn = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_btn');
-				    var input = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_input')
-				    var dropdown = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles');
-
-				    add_genes_btn.prop("disabled", (!dropdown.val()) || (input.val().length === 0));
-				};
-				$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles').change(updateButtons);
-				$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_input').on('input', updateButtons);
-				updateButtons();
-			    });
-		}
-	    
+		    add_genes_btn.prop("disabled", (!dropdown.val()) || (input.val().length === 0));
+		    //if there is a genetic profile selected:
+		    if (dropdown.val()) {
+		    	var genetic_profile_id = dropdown.val();
+		    	//and if there are heatmap tracks, then enable clustering option:
+		    	if (State.heatmap_track_groups[genetic_profile_id]) {
+		    		clusteringChk.prop("disabled", false);
+		    	} else {
+		    		clusteringChk.prop("disabled", true);
+		    	}
+		    }
+		    else {
+		    	clusteringChk.prop("disabled", true);
+		    }
+		};
+		$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu').click(updateButtons);
+		$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles').change(updateButtons);
+		$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_input').on('input', updateButtons);
+		updateButtons();
+	    });
 	})();
 	var $zoom_slider = (function setUpZoom() {
 	    var zoom_elt = $(toolbar_selector + ' #oncoprint_diagram_slider_icon');
@@ -1959,6 +2084,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    } else {
 			sortby_recurrence_checkbox.removeAttr("disabled");
 		    }
+		    
+		    if ((State.sortby !== "clustering")) {
+				//some logic if the sorting options are not clustering and clustering checkbox is checked (which means 
+				//sorting config is moving away from clustering):
+				var clusteringChk = $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #cluster_heatmap_chk');
+		    	if (clusteringChk.is(':checked')) {
+		    		//uncheck clustering option, reorder tracks as well:
+		    		clusteringChk.prop("checked", false);
+		    		console.log("unchecking clustering option, reorder tracks as well");
+					resetHeatmapTracks();
+		    	}
+			}		    
 		};
 
 		var updateMutationColorForm = function () {
@@ -2320,6 +2457,13 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
     $('#oncoprint #everything').show();
     $('#oncoprint #oncoprint-diagram-toolbar-buttons').show();
     
+    if (!utils.isWebGLAvailable()) {
+	$(ctr_selector).append("<p>"+utils.getUnavailableMessageHTML()+"</p>");
+	$(toolbar_selector).hide();
+	$("#inner-container").hide();
+	return;
+    }
+    
     $(ctr_selector).css({'position':'relative'});
     
     var LoadingBar = (function() {
@@ -2373,6 +2517,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
     LoadingBar.hide();
     
     var oncoprint = new window.Oncoprint(ctr_selector, 1050);
+   
     var toolbar_fade_out_timeout;
     $(toolbar_selector).css({'visibility':'visible'});
     $(ctr_selector).add(toolbar_selector).on("mouseover", function(evt) {
@@ -2411,6 +2556,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 	    'unaltered_ids': [],
 	    'ids':[],
 	    
+	    'trackIdsInOriginalOrder': {},
 	    
 	    'addGeneticTracks': function (genes) {
 		genes = [].concat(genes);

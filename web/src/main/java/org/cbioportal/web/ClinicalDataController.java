@@ -142,13 +142,13 @@ public class ClinicalDataController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalDataService.getMetaAllClinicalData(studyId,
-                attributeId, clinicalDataType == null ? null : clinicalDataType.name()).getTotalCount().toString());
+                attributeId, clinicalDataType.name()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
                 clinicalDataService.getAllClinicalDataInStudy(studyId, attributeId,
-                    clinicalDataType == null ? null : clinicalDataType.name(), projection.name(), pageSize,
-                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+                    clinicalDataType.name(), projection.name(), pageSize, pageNumber, 
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
@@ -177,13 +177,12 @@ public class ClinicalDataController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalDataService.fetchMetaClinicalData(studyIds, ids,
-                attributeId, clinicalDataType == null ? null : clinicalDataType.name()).getTotalCount().toString());
+                attributeId, clinicalDataType.name()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                clinicalDataService.fetchClinicalData(studyIds, ids, attributeId,
-                    clinicalDataType == null ? null : clinicalDataType.name(), projection.name()),
-                HttpStatus.OK);
+                clinicalDataService.fetchClinicalData(studyIds, ids, attributeId, clinicalDataType.name(), 
+                    projection.name()), HttpStatus.OK);
         }
     }
 }

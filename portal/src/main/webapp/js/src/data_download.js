@@ -49,7 +49,8 @@ var DataDownloadTab = (function() {
         stat = {},
         profiles = {},
         downloadDataModel = {},
-	altered_samples = [];
+    	uid_maps = {};
+    	altered_study_sample_map = {}
         
     var _isRendered = false;
 
@@ -61,11 +62,16 @@ var DataDownloadTab = (function() {
     };
 
     var calc_alt_freq = function() {
-            strs.alt_freq = "GENE_SYMBOL" + "\t" + "NUM_CASES_ALTERED" + "\t" + "PERCENT_CASES_ALTERED" + "\n";
-	    var num_samples = window.QuerySession.getSampleIds().length;
+    	strs.alt_freq = "GENE_SYMBOL" + "\t" + "NUM_CASES_ALTERED" + "\t" + "PERCENT_CASES_ALTERED" + "\n";
+            //TODO: need to change this
+        var studySampleMap = window.QuerySession.getStudySampleMap()
+        var num_samples = 0;
+        Object.keys(studySampleMap).forEach(function(key) {
+        	num_samples += studySampleMap[key].length
+        });
 	    for (var i=0; i<data.length; i++) {
 		var oql = data[i].oql_line;
-		var num_altered = data[i].altered_samples.length;
+		var num_altered = data[i].altered_sample_uids.length;
 		var percent_altered = proportionToPercentString(num_altered/num_samples);
 		strs.alt_freq += oql + "\t" + num_altered + "\t" + percent_altered + "\n";
 	    }
@@ -106,33 +112,64 @@ var DataDownloadTab = (function() {
 		    sample_to_line_to_alt_type[sample].push(alt_type);
 		}
 	    }
-	    strs.alt_type += ["Case ID"].concat(data.map(function(line) { return line.oql_line; })).join("\t") + "\n";
-	    var sample_ids = window.QuerySession.getSampleIds();
-	    sample_ids = sample_ids.sort(function(a,b) {
-		return a.localeCompare(b);
-	    });
-	    for (var i=0; i<sample_ids.length; i++) {
-		strs.alt_type += sample_ids[i] + "\t";
-		var alt_types = sample_to_line_to_alt_type[sample_ids[i]];
-		alt_types && (strs.alt_type += alt_types.join("\t"));
-		strs.alt_type += "\n";
-	    }
+	    strs.alt_type += ["STUDY_ID", "Case ID"].concat(data.map(function(line) { return line.oql_line; })).join("\t") + "\n";
+	    var studySampleMap = window.QuerySession.getStudySampleMap();
+	    var studyIds = Object.keys(studySampleMap);
+	    studyIds = studyIds.sort(function(a,b) {
+			return a.localeCompare(b);
+		});
+	    for (var i=0; i<studyIds.length; i++) {
+	    	var sample_ids = studySampleMap[studyIds[i]];
+	    	sample_ids = sample_ids.sort(function(a,b) {
+	    		return a.localeCompare(b);
+	    	});
+	    	for (var j=0; j<sample_ids.length; j++) {
+	    		strs.alt_type += studyIds[i] + "\t";
+	    		strs.alt_type += sample_ids[j] + "\t";
+	    		var alt_types = sample_to_line_to_alt_type[sample_ids[j]];
+	    		alt_types && (strs.alt_type += alt_types.join("\t"));
+	    		strs.alt_type += "\n";
+	    	}
+		}
+	    
         },
         calc_case_affected = function() {
-	    strs.case_affected = altered_samples.sort(function(a,b) { return a.localeCompare(b); }).join("\n");
+        	strs.case_affected += 'STUDY_ID'+'\t'+'CASE_ID' + "\n";
+        	var studyIds = Object.keys(altered_study_sample_map);
+        	studyIds = studyIds.sort(function(a,b) {
+    			return a.localeCompare(b);
+    		});
+        	for (var i=0; i<studyIds.length; i++) {
+    	    	var sample_ids = Object.keys(altered_study_sample_map[studyIds[i]]);
+    	    	sample_ids = sample_ids.sort(function(a,b) {
+    	    		return a.localeCompare(b);
+    	    	});
+    	    	for (var j=0; j<sample_ids.length; j++) {
+    	    		strs.case_affected += studyIds[i] + "\t";
+    	    		strs.case_affected += sample_ids[j] + "\t";
+    	    		strs.case_affected += "\n";
+    	    	}
+    		}
         },
         calc_case_matrix = function() {
-	    var altered_samples_set = {};
-	    for (var i=0; i<altered_samples.length; i++) {
-		altered_samples_set[altered_samples[i]] = true;
-	    }
-	    var sample_ids = window.QuerySession.getSampleIds();
-	    sample_ids = sample_ids.sort(function(a,b) {
-		return a.localeCompare(b);
-	    });
-	    for (var i=0; i<sample_ids.length; i++ ) {
-		strs.case_matrix += sample_ids[i] + "\t" + (altered_samples_set[sample_ids[i]] ? "1" : "0") + "\n";
-	    }
+        	strs.case_matrix += 'STUDY_ID'+'\t'+'CASE_ID' + "\n";
+        	var study_sample_map = window.QuerySession.getStudySampleMap();
+        	var studyIds = Object.keys(study_sample_map);
+        	studyIds = studyIds.sort(function(a,b) {
+    			return a.localeCompare(b);
+    		});
+        	for (var i=0; i<studyIds.length; i++) {
+    	    	var sample_ids = study_sample_map[studyIds[i]];
+    	    	sample_ids = sample_ids.sort(function(a,b) {
+    	    		return a.localeCompare(b);
+    	    	});
+    	    	for (var j=0; j<sample_ids.length; j++) {
+    	    		strs.case_matrix += studyIds[i] + "\t";
+    	    		strs.case_matrix += sample_ids[j] + "\t";
+    	    		strs.case_matrix += (altered_study_sample_map[studyIds[i]][sample_ids[j]] ? "1" : "0") + "\t";
+    	    		strs.case_matrix += "\n";
+    	    	}
+    		}
         };
 
     function processData() {
@@ -210,9 +247,9 @@ var DataDownloadTab = (function() {
         $("#text_area_case_affected").append(strs.case_affected);
         $("#text_area_case_matrix").append(strs.case_matrix);
     }
-    //TODO : include study name(id) incase of sample id match across studies?
     function tabDelimitedData(_data) {
-    	var resultData = {'GENE_ID':['GENE_ID','COMMON']};
+    	var resultData = {'LINE_1':['GENE_ID','COMMON'],'LINE_2':['STUDY_ID','-']};
+    	//var resultData = {'STUDY_ID':['STUDY_ID','-']};
     	var def = new $.Deferred();
     	$.when(window.cbioportal_client.getGenes({'hugo_gene_symbols':window.QuerySession.getQueryGenes()})).then(function(genes){
     		var genesEntrezIdMap = genes.reduce(function(result, item){
@@ -225,7 +262,8 @@ var DataDownloadTab = (function() {
     		}, resultData);
     		$.each(_data, function(_studyId,_obj1){
     			$.each(_obj1, function(_sampleId,_obj2){
-    				resultData['GENE_ID'].push(_sampleId);
+    				resultData['LINE_1'].push(_sampleId);
+    				resultData['LINE_2'].push(_studyId);
     				$.each(_obj2, function(_geneId,_obj3){
     					resultData[_geneId].push(_obj3['profile_data']);
     				});
@@ -243,20 +281,19 @@ var DataDownloadTab = (function() {
     	
     	return def.promise();
     }
-    //TODO : include study name(id) incase of sample id match across studies?
     function transposedMatrixData(_data) {
-    	var resultData = {'GENE_ID':['GENE_ID'],'COMMON':['COMMON']};
+    	var resultData = {'LINE_1':['STUDY_ID','GENE_ID'],'LINE_2':['-','COMMON']};
     	var _genes = [];
     	var def = new $.Deferred();
     	$.when(window.cbioportal_client.getGenes({'hugo_gene_symbols':window.QuerySession.getQueryGenes()})).then(function(genes){
     		$.each(genes,function(index,item){
-    			resultData['GENE_ID'].push(item.hugo_gene_symbol.toUpperCase());
+    			resultData['LINE_1'].push(item.hugo_gene_symbol.toUpperCase());
     			_genes.push(item.hugo_gene_symbol.toUpperCase())
-    			resultData['COMMON'].push(item.entrez_gene_id);
+    			resultData['LINE_2'].push(item.entrez_gene_id);
     		});
     		$.each(_data, function(_studyId,_obj1){
     			$.each(_obj1, function(_sampleId,_obj2){
-    				resultData[_sampleId] = [];
+    				resultData[_sampleId] = [_studyId];
     				resultData[_sampleId].push(_sampleId);
     				$.each(_genes, function(_index,_geneId){
     					resultData[_sampleId].push(_obj2[_geneId]['profile_data']);
@@ -279,10 +316,13 @@ var DataDownloadTab = (function() {
 	setOncoprintData: function(_data) {
 	    data = _data;
 	},
-	setAlteredSamples: function(_samples_list) {
-	    altered_samples = _samples_list;
+	setAlteredStudySampleMap : function(_altered_study_sample_map) {
+		altered_study_sample_map = _altered_study_sample_map;
 	},
-        setInput: function(_inputData) {
+	setUIDMaps: function(_uid_maps) {
+		uid_maps = _uid_maps;
+	},
+	setInput: function(_inputData) {
             _rawDataObj = _inputData;
         },
         setStat: function(_inputData) {
@@ -348,10 +388,28 @@ var DataDownloadTab = (function() {
 $(document).ready( function() {
 
     //Sign up getting oncoprint data
-    $.when(window.QuerySession.getOncoprintSampleGenomicEventData(), window.QuerySession.getAlteredSamples()).then(function(oncoprint_data, altered_samples) {
+    $.when(window.QuerySession.getOncoprintSampleGenomicEventData(), window.QuerySession.getAlteredSampleUIDs(), window.QuerySession.computeUIDMaps()).then(function(oncoprint_data, altered_sample_uids, uid_maps) {
 	DataDownloadTab.setOncoprintData(oncoprint_data);
-	DataDownloadTab.setAlteredSamples(altered_samples);
+	var alteredStudySampleMap = {};
+	var studyIds = Object.keys(uid_maps['case_to_uid']);
+	function getMappedStudyId(case_id, case_uid) {
+		for (var i=0; i<studyIds.length; i++) {
+			if(uid_maps['case_to_uid'][studyIds[i]][case_id] === case_uid)
+				return studyIds[i];
+		}
+		return '';
+	}
 	
+	for (var i=0; i<altered_sample_uids.length; i++) {
+		var sampleid = uid_maps['uid_to_case'][altered_sample_uids[i]];
+		var studyId = getMappedStudyId(sampleid, altered_sample_uids[i]);
+		if(!alteredStudySampleMap[studyId]) {
+			alteredStudySampleMap[studyId] = {}
+		}
+		alteredStudySampleMap[studyId][sampleid]=true
+	}
+	DataDownloadTab.setUIDMaps(uid_maps);
+	DataDownloadTab.setAlteredStudySampleMap(alteredStudySampleMap);
 		var downloadDataModel = {};
 		var geneObject = window.QuerySession.getQueryGenes().reduce(function(result, item) {
 			  result[item.toUpperCase()] = {'profile_data': 'NA'};

@@ -363,7 +363,6 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return def.promise();
     };
-    
     var makeOncoprintClinicalData = function (webservice_clinical_data, attr_id, study_id, source_sample_or_patient, target_sample_or_patient,
 	    target_ids, sample_to_patient_map, case_uid_map, datatype, na_or_zero) {
 	na_or_zero = na_or_zero || "na";
@@ -695,34 +694,28 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    }
 	    if (attr_ids.indexOf('NO_CONTEXT_MUTATION_SIGNATURE') > -1) {
 		var mutation_signatures_promise = new $.Deferred();
+		var study_id = self.getCancerStudyIds()[0];
 		fetch_promises.push(mutation_signatures_promise.promise());
-		self.getGeneticProfiles().then(function (genetic_profiles) {
-		    var mutation_profiles = genetic_profiles.filter(function (x) {
-			return x.genetic_alteration_type === "MUTATION_EXTENDED";
-		    });
-		    $.when.apply($, mutation_profiles.map(function (mutation_profile) {
-			var _def = new $.Deferred();
-			$.ajax({
-			    type: 'POST',
-			    url: 'api-legacy/mutationsignatures',
-			    data: ['genetic_profile_id=', mutation_profile.id, '&', 'context_size=0', '&', 'sample_ids=', self.getSampleIds().join(",")].join(""),
-			    dataType: 'json'
-			}).then(function (response) {
-			    for (var i = 0; i < response.length; i++) {
-				// standardize
-				response[i].sample_id = response[i].id;
-				response[i].study_id = mutation_profile.study_id;
-				response[i].attr_val = response[i].counts;
-			    }
-			    clinical_data = clinical_data.concat(makeOncoprintClinicalData(response, "NO_CONTEXT_MUTATION_SIGNATURE", mutation_profile.study_id, "sample", target_sample_or_patient, study_target_ids_map[mutation_profile.study_id], sample_to_patient_map, case_uid_map, "counts_map", "na"));
-			    _def.resolve();
-			}).fail(function () {
-			    _def.reject();
-			});
-			return _def.promise();
-		    })).then(function () {
-			mutation_signatures_promise.resolve();
-		    });
+		$.ajax({
+		    type: 'POST',
+		    url: 'api-legacy/mutational-signature',
+		    data: ['study_id=', study_id, '&', 'sample_ids=', self.getSampleIds().join(",")].join(""),
+		    dataType: 'json'
+		}).then(function (response) {
+		    for (var i = 0; i < response.length; i++) {
+			// standardize
+			var types = response[i].mutationTypes;
+			response[i].sample_id = response[i].sample;
+			response[i].study_id = study_id;
+			response[i].attr_val = response[i].counts.reduce(function (map, count, index) {
+			    map[types[index]] = count;
+			    return map;
+			}, {});
+		    }
+		    clinical_data = clinical_data.concat(makeOncoprintClinicalData(response, "NO_CONTEXT_MUTATION_SIGNATURE", study_id, "sample", target_sample_or_patient, study_target_ids_map[study_id], sample_to_patient_map, case_uid_map, "counts_map", "na"));
+		    mutation_signatures_promise.resolve();
+		}).fail(function () {
+		    mutation_signatures_promise.reject();
 		});
 		attr_ids.splice(attr_ids.indexOf('NO_CONTEXT_MUTATION_SIGNATURE'), 1);
 	    }
@@ -1358,6 +1351,49 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			fetch_promise.resolve(deepCopyObject(self.external_data_status));
 		    });
 		}),
+	'getClusteringOrder': function (track_uid_map, heatmapData, case_ids) {
+			var study_id = QuerySession.getCancerStudyIds()[0];
+			var def = new $.Deferred();
+			//prepare input:
+			var cluster_input = {};
+			for (var i = 0; i < case_ids.length; i++) {
+				//case ids as key:
+				cluster_input[case_ids[i]] = {};
+				//iterate over genetic entities and get the sample data (heatmap data has genetic entityId as key):
+				for (var j = 0; j < heatmapData.length; j++) {
+					var entityId = heatmapData[j].gene;
+					//small validation/defensive programming:
+					if (!entityId) {
+						throw new Error("Unexpected error during getClusteringOrder: attribute 'gene' not found");
+					}
+					var value = heatmapData[j].oncoprint_data[i].profile_data;
+					cluster_input[case_ids[i]][entityId] = value;
+				}					
+			}
+			//do hierarchical clustering in background:
+			$.when(this.getCaseUIDMap(), cbio.stat.hclusterCases(cluster_input), cbio.stat.hclusterGeneticEntities(cluster_input)).then(
+					function (case_uid_map, sampleClusterOrder, entityClusterOrder) {
+						//get result in "uid format":
+						var uids = [];
+						for (var i = 0; i < sampleClusterOrder.length; i++) {
+							var uid_case = case_uid_map[study_id][sampleClusterOrder[i].caseId];
+							uids.push(uid_case);
+						}
+						//get entityUids in order:
+						var entityUids = [];
+						for (var i = 0; i < entityClusterOrder.length; i++) {
+							var trackUid = track_uid_map[entityClusterOrder[i].entityId];
+							entityUids.push(trackUid);
+						}
+						//setup and resolve result object:
+						var result = new Object();
+						result.sampleUidsInClusteringOrder = uids;
+						result.entityUidsInClusteringOrder = entityUids;
+						def.resolve(result);
+					}
+			);
+			return def.promise();
+		},		
 	'getWebServiceGenomicEventData': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    var profile_types = {};
@@ -1865,7 +1901,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    display_name: "Total mutations",
 				    is_patient_attribute: "0"
 				};
-				/*sample_clinical_attributes_set['NO_CONTEXT_MUTATION_SIGNATURE'] = {
+				sample_clinical_attributes_set['NO_CONTEXT_MUTATION_SIGNATURE'] = {
 				 attr_id: "NO_CONTEXT_MUTATION_SIGNATURE",
 				 datatype: "COUNTS_MAP",
 				 description: "Number of point mutations in the sample counted by different types of nucleotide changes.",
@@ -1873,7 +1909,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				 is_patient_attribute: "0",
 				 categories: ["C>A", "C>G", "C>T", "T>A", "T>C", "T>G"],
 				 fills: ['#3D6EB1', '#8EBFDC', '#DFF1F8', '#FCE08E', '#F78F5E', '#D62B23']
-				 };*/
+				 };
 			    }
 			    if (self.getCancerStudyIds().length > 0) {
 				sample_clinical_attributes_set["FRACTION_GENOME_ALTERED"] = {attr_id: "FRACTION_GENOME_ALTERED",
@@ -2002,31 +2038,6 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    return p.id;
 				})
 				);
-		    }).fail(function () {
-			fetch_promise.reject();
-		    });
-		}),
-	'getSampleNoContextMutationSignatures': makeCachedPromiseFunction(
-		function (self, fetch_promise) {
-		    var distribution_order = ["CA", "CG", "CT", "TA", "TC", "TG"];
-
-		}),
-	'getPatientNoContextMutationSignatures': makeCachedPromiseFunction(
-		function (self, fetch_promise) {
-		    $.when(self.getSampleSNPTypeDistributions(), self.getPatientSampleIdMap()).then(function (sample_snp_type_distributions, sample_to_patient_map) {
-			var ret = {};
-			var snp_types = ["CA", "CG", "CT", "TA", "TC", "TG"];
-			for (var i = 0; i < sample_snp_type_distributions; i++) {
-			    var sample_data = sample_snp_type_distributions[i];
-			    var patient = sample_to_patient_map[sample_data.sample];
-			    if (typeof patient !== "undefined") {
-				ret[patient] = ret[patient] || {"patient": patient, "CA": 0, "CG": 0, "CT": 0, "TA": 0, "TC": 0, "TG": 0};
-				for (var j = 0; j < snp_types.length; j++) {
-				    ret[patient][snp_types[j]] += sample_data[snp_types[j]];
-				}
-			    }
-			}
-			fetch_promise.resolve(objectValues(ret));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });

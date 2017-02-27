@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CosmicMutation;
 import org.cbioportal.service.CosmicCountService;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.PagingConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +24,8 @@ import java.util.List;
 @Validated
 @Api(tags = "Cosmic Counts", description = " ")
 public class CosmicCountController {
+
+    private static final int COSMIC_COUNT_MAX_PAGE_SIZE = 50000;
     
     @Autowired
     private CosmicCountService cosmicCountService;
@@ -34,7 +35,7 @@ public class CosmicCountController {
     @ApiOperation("Get counts within the COSMIC database by keywords")
     public ResponseEntity<List<CosmicMutation>> fetchCosmicCounts(
         @ApiParam(required = true, value = "List of keywords")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+        @Size(min = 1, max = COSMIC_COUNT_MAX_PAGE_SIZE)
         @RequestBody List<String> keywords) {
 
         return new ResponseEntity<>(cosmicCountService.fetchCosmicCountsByKeywords(keywords), HttpStatus.OK);

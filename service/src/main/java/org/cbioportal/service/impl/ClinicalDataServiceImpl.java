@@ -5,6 +5,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.service.ClinicalDataService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -17,6 +18,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     private ClinicalDataRepository clinicalDataRepository;
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId,
                                                                 String attributeId, String projection,
                                                                 Integer pageSize, Integer pageNumber,
@@ -27,12 +29,14 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSampleClinicalData(String studyId, String sampleId, String attributeId) {
 
         return clinicalDataRepository.getMetaSampleClinicalData(studyId, sampleId, attributeId);
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataOfPatientInStudy(String studyId, String patientId,
                                                                         String attributeId, String projection,
                                                                         Integer pageSize, Integer pageNumber,
@@ -43,12 +47,14 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaPatientClinicalData(String studyId, String patientId, String attributeId) {
 
         return clinicalDataRepository.getMetaPatientClinicalData(studyId, patientId, attributeId);
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataInStudy(String studyId, String attributeId,
                                                                          String clinicalDataType, String projection,
                                                                          Integer pageSize, Integer pageNumber,
@@ -59,12 +65,14 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType) {
 
         return clinicalDataRepository.getMetaAllClinicalData(studyId, attributeId, clinicalDataType);
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids,
                                                                  String attributeId, String clinicalDataType,
                                                                  String projection) {
@@ -73,6 +81,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, String attributeId,
                                           String clinicalDataType) {
 

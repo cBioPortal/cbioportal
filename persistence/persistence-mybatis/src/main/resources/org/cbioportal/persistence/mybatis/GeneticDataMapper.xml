@@ -15,6 +15,12 @@
         SELECT
         gene.ENTREZ_GENE_ID AS entrezGeneId,
         genetic_alteration.VALUES AS "values"
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+                <property name="prefix" value="gene."/>
+            </include>
+        </if>
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID

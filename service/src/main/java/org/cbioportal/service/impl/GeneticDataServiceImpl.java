@@ -9,8 +9,8 @@ import org.cbioportal.service.GeneticDataService;
 import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
-import org.cbioportal.service.exception.SampleNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,60 +29,69 @@ public class GeneticDataServiceImpl implements GeneticDataService {
     private GeneticProfileService geneticProfileService;
 
     @Override
-    public List<GeneticData> getGeneticData(String geneticProfileId, String sampleId, List<Integer> entrezGeneIds)
-        throws GeneticProfileNotFoundException, SampleNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<GeneticData> getGeneticData(String geneticProfileId, String sampleId, List<Integer> entrezGeneIds, 
+                                            String projection)
+        throws GeneticProfileNotFoundException {
         
-        List<Integer> sampleIds = Arrays.stream(geneticDataRepository.getCommaSeparatedSampleIdsOfGeneticProfile(
-            geneticProfileId).split(",")).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
-
-        GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
-        Sample sample = sampleService.getSampleInStudy(geneticProfile.getCancerStudyIdentifier(), sampleId);
-        int indexOfSampleId = sampleIds.indexOf(sample.getInternalId());
-
-        List<GeneticAlteration> geneticAlterations = geneticDataRepository.getGeneticAlterations(geneticProfileId,
-            entrezGeneIds);
-
-        List<GeneticData> geneticDataList = new ArrayList<>();
-        for (GeneticAlteration geneticAlteration : geneticAlterations) {
-            GeneticData geneticData = new GeneticData();
-            geneticData.setGeneticProfileId(geneticProfileId);
-            geneticData.setSampleId(sampleId);
-            geneticData.setEntrezGeneId(geneticAlteration.getEntrezGeneId());
-            geneticData.setValue(geneticAlteration.getValues().split(",")[indexOfSampleId]);
-            geneticDataList.add(geneticData);
-        }
-
-        return geneticDataList;
+        return fetchGeneticData(geneticProfileId, Arrays.asList(sampleId), entrezGeneIds, projection);
     }
-
-    @Override
-    public List<GeneticData> getGeneticDataOfAllSamplesOfGeneticProfile(String geneticProfileId, 
-                                                                        List<Integer> entrezGeneIds) 
+   
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<GeneticData> fetchGeneticData(String geneticProfileId, List<String> sampleIds, 
+                                              List<Integer> entrezGeneIds, String projection) 
         throws GeneticProfileNotFoundException {
 
-        List<Integer> sampleIds = Arrays.stream(geneticDataRepository.getCommaSeparatedSampleIdsOfGeneticProfile(
-            geneticProfileId).split(",")).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
-
-        List<GeneticAlteration> geneticAlterations = geneticDataRepository.getGeneticAlterations(geneticProfileId,
-            entrezGeneIds);
-
-        List<Sample> samples = sampleService.getSamplesByInternalIds(sampleIds);
         List<GeneticData> geneticDataList = new ArrayList<>();
 
-        for (GeneticAlteration geneticAlteration : geneticAlterations) {
-            String[] splitValues = geneticAlteration.getValues().split(",");
-            for (int i = 0; i < sampleIds.size(); i++) {
-                Integer sampleId = sampleIds.get(i);
-                GeneticData geneticData = new GeneticData();
-                geneticData.setGeneticProfileId(geneticProfileId);
-                Sample sample = samples.stream().filter(s -> s.getInternalId().equals(sampleId)).findFirst().get();
-                geneticData.setSampleId(sample.getStableId());
-                geneticData.setEntrezGeneId(geneticAlteration.getEntrezGeneId());
-                geneticData.setValue(splitValues[i]);
-                geneticDataList.add(geneticData);
+        String commaSeparatedSampleIdsOfGeneticProfile = geneticDataRepository
+            .getCommaSeparatedSampleIdsOfGeneticProfile(geneticProfileId);
+        if (commaSeparatedSampleIdsOfGeneticProfile == null) {
+            return geneticDataList;
+        }
+        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfGeneticProfile.split(","))
+            .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
+
+        List<Sample> samples;
+        if (sampleIds == null) {
+            samples = sampleService.getSamplesByInternalIds(internalSampleIds);
+        } else {
+            GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+            List<String> studyIds = new ArrayList<>();
+            sampleIds.forEach(s -> studyIds.add(geneticProfile.getCancerStudyIdentifier()));
+            samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
+        }
+
+        List<GeneticAlteration> geneticAlterations = geneticDataRepository.getGeneticAlterations(geneticProfileId,
+            entrezGeneIds, projection);
+        
+        for (Sample sample : samples) {
+            int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
+            if (indexOfSampleId != -1) {
+                for (GeneticAlteration geneticAlteration : geneticAlterations) {
+                    GeneticData geneticData = new GeneticData();
+                    geneticData.setGeneticProfileId(geneticProfileId);
+                    geneticData.setSampleId(sample.getStableId());
+                    geneticData.setEntrezGeneId(geneticAlteration.getEntrezGeneId());
+                    geneticData.setValue(geneticAlteration.getValues().split(",")[indexOfSampleId]);
+                    geneticData.setGene(geneticAlteration.getGene());
+                    geneticDataList.add(geneticData);
+                }
             }
         }
         
         return geneticDataList;
+    }
+    
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public Integer getNumberOfSamplesInGeneticProfile(String geneticProfileId) {
+
+        String commaSeparatedSampleIdsOfGeneticProfile = geneticDataRepository
+            .getCommaSeparatedSampleIdsOfGeneticProfile(geneticProfileId);
+        if (commaSeparatedSampleIdsOfGeneticProfile == null) {
+            return null;
+        }
+        
+        return commaSeparatedSampleIdsOfGeneticProfile.split(",").length;
     }
 }

@@ -207,7 +207,11 @@ function loadMetaData() {
                 		});
                 	}else{
                         virtualStudies = vcSession.utils.getVirtualCohorts();
-                        addMetaDataToPage(virtualStudies);
+                        if (window.tab_index !== 'tab_download') {
+                            addMetaDataToPage(virtualStudies);
+                        } else {
+                            addMetaDataToPage([]);
+                        }
                         showNewContent();
                 	}
                 } else {
@@ -239,7 +243,7 @@ function userClickedMainTab(tabAction) {
     window.changingTabs = true;
     //  Change hidden field value
     $("#tab_index").val(tabAction);
-    $("#main_form").get(0).elements["Action"].setAttribute("value","");
+    //$("#main_form").get(0).elements["Action"].setAttribute("value","");
 
     //  Then, submit the form
     $("#main_form").submit();
@@ -574,7 +578,7 @@ function updateDefaultCaseList() {
 //  for which no genomic profiles are available
 function genomicProfilesUnavailable(){
     $("#genomic_profiles").html("<strong>No Genomic Profiles available for this Cancer Study</strong>");
-    $('#main_submit').attr('disabled',true);
+    cbio.util.toggleMainBtn("main_submit", "disable");
 }
 
 // Show or hide mRNA threshold field based on mRNA profile selected
@@ -782,8 +786,6 @@ function updateCancerStudyInformation() {
 //  or programatically.
 function cancerStudySelected() {
 
-    //  make sure submit button is enabled unless determined otherwise by lack of data
-    $("#main_submit").attr("disabled",false);
 
     var cancerStudyId = $("#select_single_study").val() || "all";
     var _studyObject = window.metaDataJson.cancer_studies[cancerStudyId];
@@ -828,6 +830,11 @@ function geneSetSelected() {
 
         //  Set the gene list text area
         $("#gene_list").val(gene_set.gene_list);
+    }
+    if ($("#select_gene_set").val() !== "user-defined-list") {
+        cbio.util.toggleMainBtn("main_submit", "enable");
+    } else {
+        cbio.util.toggleMainBtn("main_submit", "disable");
     }
 }
 
@@ -1467,8 +1474,6 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
     if (numProfiles == 0) {
         return;
     } else if(numProfiles >1 && downloadTab == false) {
-        // enable submit button
-        $('#main_submit').attr('disabled', false);
         //  If we have more than 1 profile, output group checkbox
         //  assign a class to associate the checkbox with any subgroups (radio buttons)
         profileHtml += "<div class='checkbox'><label>"

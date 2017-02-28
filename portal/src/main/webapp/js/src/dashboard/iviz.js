@@ -334,7 +334,16 @@ window.QueryByGeneUtil = (function() {
         tab_index: 'tab_visualize',
         Action: 'Submit'
       });
-    }
+    },
+      toMultiStudiesQueryPage: function(_vcId, _selectedGenes) {
+          submitForm(window.cbioURL + 'index.do', {
+              cancer_study_list: _vcId,
+              cancer_study_id: _vcId,
+              gene_list: _selectedGenes,
+              tab_index: 'tab_visualize',
+              Action: 'Submit'
+          });
+      }
   }
 })();
 
@@ -1097,9 +1106,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           QueryByGeneTextArea.validateGenes(this.decideSubmit, false);
         }
       } else {
-        new Notification().createNotification(
-          'Querying multiple studies features is not yet ready!',
-          {message_type: 'info'});
+          var _self = this;
+          _self.selectedsamples = _.keys(iViz.getCasesMap('sample'));
+          _self.selectedpatients = _.keys(iViz.getCasesMap('patient'));
+          var _vc = vcSession.utils.buildVCObject(
+              _self.stat().filters,
+              _self.stat().selectedCases,
+              "", //name
+              "" //description
+          );
+          var _callbackFunc = function(_vcId) {
+              QueryByGeneUtil.toMultiStudiesQueryPage(_vcId, QueryByGeneTextArea.getGenes());
+          };
+          vcSession.model.saveSessionWithoutWritingLocalStorage(_vc, _callbackFunc);
       }
     },
     decideSubmit: function(allValid) {

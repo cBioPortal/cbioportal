@@ -322,7 +322,7 @@
                       	});
     				}
     			}
-    		}
+    		} else $( "#iviz-header-left-1" ).prop( "disabled", false );
         
          	$("#study-tabs").tabs({disabled: true});
          	$('#study-tab-summary-a').click(function () {

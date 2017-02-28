@@ -186,6 +186,9 @@ if (sessionError != null) {  %>
             } else {
                 $("#modify_query_btn").addClass("active");
             }
+            if (typeof window.studies !== 'undefined' && window.studies.length > 0) {
+                cbio.util.toggleMainBtn("dashboard_button", "enable");
+            }
             waitForElementToDisplay('.jstree-clicked', '5');
         });
         $("#toggle_query_form").click(function(event) {

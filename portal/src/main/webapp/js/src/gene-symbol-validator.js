@@ -45,7 +45,7 @@ var GeneSymbolValidator = (function($) {
 
     var validateGenes = function() {
         $("#gene_list").val($("#gene_list").val().replace("  ", " ").toUpperCase());
-	$("#main_submit").attr("disabled", "disabled");
+        cbio.util.toggleMainBtn("main_submit", "disable");
 	
 	if ($("#gene_list").val().length === 0) {
 	    $("#genestatus").html("");
@@ -215,7 +215,7 @@ var GeneSymbolValidator = (function($) {
 		$('.ui-validator').tipTip();
 
 		if (allValid) {
-		    $("#main_submit").removeAttr("disabled")
+            cbio.util.toggleMainBtn("main_submit", "enable");
 
 		    if (symbolResults.length > 0
 			    && !(symbolResults[0].name == "" && symbolResults[0].symbols.length == 0)) {
@@ -258,7 +258,7 @@ var GeneSymbolValidator = (function($) {
 	} catch (e) {
 	    $("#genestatus").html("");
 	    $("<small>").appendTo($("#genestatus")).html("Cannot validate gene symbols because of invalid OQL. Please click 'Submit' to see location of error.");
-	    $("#main_submit").removeAttr("disabled")
+        cbio.util.toggleMainBtn("main_submit", "enable");
 	}
     };
 

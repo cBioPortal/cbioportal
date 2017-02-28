@@ -176,7 +176,18 @@ if (sessionError != null) {  %>
                 }
             %>
             <%@ include file="query_form.jsp" %>
-
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    if (window.tab_index === "tab_download") {
+                        $("#dashboard_button").hide();
+                    }
+                    if (typeof window.cancer_study_id_selected !== 'undefined' &&
+                        window.cancer_study_id_selected.length > 0 && 
+                        window.cancer_study_id_selected !== "null") {
+                        cbio.util.toggleMainBtn("dashboard_button", "enable");
+                    }
+                });
+            </script>
             </td>
         </tr>
     </table>

@@ -162,6 +162,7 @@
     %>
 
 </script>
+
 <div class="main_query_panel">
     <div id="main_query_form">
         <form id="main_form" name="main_form" action="index.do" method="post">
@@ -178,12 +179,18 @@
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         </p>
         <p>
-        <input id="main_submit" class="btn btn-default btn-lg" onclick="submitHandler()" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>" title='Submit Query' readonly/>
-        <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
+            <input type="button" id="dashboard_button" class="btn btn-default btn-lg" name="Overview" value="Overview" />
+            <button id="main_submit" class="btn btn-default btn-lg" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>" title='Submit Query' readonly>Query</button>
+            <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
         </p>
         </form>
     </div>
-</div>      
+</div>
+
+<script>
+    cbio.util.toggleMainBtn("dashboard_button", "disable");
+    cbio.util.toggleMainBtn("main_submit", "disable");
+</script>
 
 <%!
     private void conditionallyOutputTransposeMatrixOption(String localTabIndex,

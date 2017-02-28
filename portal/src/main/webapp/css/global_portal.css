@@ -170,10 +170,7 @@ A:hover {
 }
 
 #main_submit {
-    background-color: #e6e6e6;    
-    color: transparent;     
-    display: inline-block;           
-    text-shadow: 0 0 0 black;
+    margin-top: 0px;
 }
 
 .wpasA {
@@ -1469,6 +1466,20 @@ cursor: default;
    margin-top:2px;
    margin-bottom:5px;
    font-size:90%;
+}
+
+/* main query buttons*/
+.main-btn-disabled {
+    color: lightgrey;
+}
+.main-btn-disabled:hover {
+    color: lightgrey;
+}
+.main-btn-enabled {
+    color: black;
+}
+.main-btn-enabled:hover {
+    color: black;
 }
 
 /* Z-score threshold input (hidden until appropriate radio button selected) */

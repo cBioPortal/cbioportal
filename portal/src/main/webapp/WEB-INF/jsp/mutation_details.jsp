@@ -138,7 +138,22 @@
                         annotation: annotationCol.render
                     },
                     columnVisibility: {
-                        annotation: 'visible'
+                        annotation: 'visible',
+                        "tumorType": function (util, gene) {
+                            if (isVirtualStudy) {
+                                return "visible";
+                            }
+                            else if (util.distinctTumorTypeCount(gene) > 1) {
+                                return "visible";
+                            }
+                            else {
+                                return "hidden";
+                            }
+                        },
+                        "cancerStudy": function() {
+                            if (isVirtualStudy) return "visible";
+                            else return "excluded";
+                        }
                     },
                     columns: {
                         annotation: {

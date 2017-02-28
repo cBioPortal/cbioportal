@@ -58,7 +58,6 @@
         <div class="step_header_search_result">
             <span id="jstree_selected_study_count">No studies selected.</span>
             <span><a href='javascript:void(0)' id='jstree_deselect_all_btn' onclick='$("#jstree").jstree(true).deselect_all();'>Deselect all</a></span>
-            <span><button id="dashboard_button" style="display:none;" class="btn btn-default btn-sm" onclick='$("#jstree").jstree(true).dashboard();'>Dashboard</button></span>
         </div>
         
         
@@ -121,10 +120,10 @@ $('#jstree').bind('mousewheel DOMMouseScroll', function(e) {
 });
 
 $('#jstree').on('changed.jstree', function (e, data) {
-	if($("#jstree").jstree(true).get_selected_leaves().length>1){
-		$("#dashboard_button").show();
+	if($("#jstree").jstree(true).get_selected_leaves().length > 0){
+        cbio.util.toggleMainBtn("dashboard_button", "enable");
 	}else{
-		$("#dashboard_button").hide();
+        cbio.util.toggleMainBtn("dashboard_button", "disable");
 	}
 });
 

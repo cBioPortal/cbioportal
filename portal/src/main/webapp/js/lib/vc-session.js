@@ -170,7 +170,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     };
 
     return {
-      saveSession: function(virtualCohort) {
+      saveSession: function(virtualCohort, callbackFunc) {
         $.ajax({
           type: 'POST',
           url: vcSession.URL,
@@ -180,12 +180,30 @@ window.vcSession = window.vcSession ? window.vcSession : {};
           if (virtualCohort.userID === 'DEFAULT') {
             virtualCohort.virtualCohortID = response.id;
             localStorageAdd_(virtualCohort);
+              callbackFunc(response.id);
           }
         }).fail(function() {
           virtualCohort.virtualCohortID = vcSession.utils.generateUUID();
           localStorageAdd_(virtualCohort);
+            callbackFunc(response.id);
         });
       },
+        saveSessionWithoutWritingLocalStorage: function(_virtualCohort, _callbackFunc) {
+            $.ajax({
+                type: 'POST',
+                url: vcSession.URL,
+                contentType: 'application/json;charset=UTF-8',
+                data: JSON.stringify(_virtualCohort)
+            }).done(function(response) {
+                if (_virtualCohort.userID === 'DEFAULT') {
+                    _virtualCohort.virtualCohortID = response.id;
+                    _callbackFunc(response.id);
+                }
+            }).fail(function() {
+                _virtualCohort.virtualCohortID = vcSession.utils.generateUUID();
+                _callbackFunc(response.id);
+            });
+        },
       removeSession: function(_virtualCohort) {
         $.ajax({
           type: 'DELETE',

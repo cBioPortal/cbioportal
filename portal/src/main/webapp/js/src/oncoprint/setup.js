@@ -131,6 +131,8 @@ var tooltip_utils = {
 		data_header = 'MRNA: ';
 	    } else if (genetic_alteration_type === "PROTEIN_LEVEL") {
 		data_header = 'PROT: ';
+	    } else if (genetic_alteration_type === "GENESET_SCORE") {
+		data_header = 'GSVA: ';
 	    }
 	    if (d.profile_data) {
 		profile_data = d.profile_data.toString();
@@ -697,6 +699,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			
 			var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
 						+ heatmap_data.length
+						+ Object.keys(State.geneset_tracks).length
 						+ Object.keys(State.clinical_tracks).length;
 			
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
@@ -721,7 +724,26 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					oncoprint.setTrackData(track_id, heatmap_track_data.oncoprint_data, 'uid');
 					oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeHeatmapTrackTooltip(heatmap_track_data.genetic_alteration_type, 'sample', true));
 					LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				});
+			}).then(function () {
+			    return QuerySession.getSelectedGsvaProfile();
+			}).then(function (gsva_profile) {
+			    if (gsva_profile !== null) {
+				console.log("in populateSampleData, calling QuerySession.getSampleGsvaData()");
+				return QuerySession.getSampleGsvaData()
+				.then(function (gsva_data_by_line) {
+				    return utils.timeoutSeparatedLoop(Object.keys(State.geneset_tracks), function(gs_line, i) {
+					console.log("geneset data retrieved, populating sample data for track " + gsva_data_by_line[gs_line].hugo_gene_symbol);
+					var gs_id = State.geneset_tracks[gs_line];
+					oncoprint.setTrackData(gs_id, gsva_data_by_line[gs_line].oncoprint_data, 'uid');
+					// TODO: use something more appropriate than makeHeatmapTrackTooltip
+					oncoprint.setTrackTooltipFn(gs_id, tooltip_utils.makeHeatmapTrackTooltip(gsva_profile.genetic_alteration_type, 'sample', true));
+					LoadingBar.update((i +
+						heatmap_data.length +
+						Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 				    });
+				});
+			    }
 			}).then(function () {
 			    return utils.timeoutSeparatedLoop(Object.keys(State.clinical_tracks), function(track_id, i) {
 				var attr = State.clinical_tracks[track_id];
@@ -729,7 +751,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				oncoprint.setTrackData(track_id, clinical_data[attr.attr_id], 'uid');
 				oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeClinicalTrackTooltip(attr, 'sample', true));
 				oncoprint.setTrackInfo(track_id, "");
-				LoadingBar.update((i + heatmap_data.length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				LoadingBar.update((i +
+					Object.keys(State.geneset_tracks).length +
+					heatmap_data.length +
+					Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
 			    console.log("sample data populated, releasing rendering");
@@ -776,6 +801,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			
 			var total_tracks_to_add = Object.keys(State.genetic_alteration_tracks).length
 						+ heatmap_data.length
+						+ Object.keys(State.geneset_tracks).length
 						+ Object.keys(State.clinical_tracks).length;
 			
 			utils.timeoutSeparatedLoop(Object.keys(State.genetic_alteration_tracks), function (track_line, i) {
@@ -802,13 +828,35 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					LoadingBar.update((i + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 				    });
 			}).then(function () {
+			    return QuerySession.getSelectedGsvaProfile();
+			}).then(function (gsva_profile) {
+			    if (gsva_profile !== null) {
+				console.log("in populatePatientData, calling QuerySession.getPatientGsvaData()");
+				return QuerySession.getPatientGsvaData()
+				.then(function (gsva_data_by_line) {
+				    return utils.timeoutSeparatedLoop(Object.keys(State.geneset_tracks), function(gs_line, i) {
+					console.log("gene set data retrieved, populating sample data for track " + gsva_data_by_line[gs_line].geneset_id);
+					var gs_id = State.geneset_tracks[gs_line];
+					oncoprint.setTrackData(gs_id, gsva_data_by_line[gs_line].oncoprint_data, 'uid');
+					// TODO: use something more appropriate than makeHeatmapTrackTooltip
+					oncoprint.setTrackTooltipFn(gs_id, tooltip_utils.makeHeatmapTrackTooltip(gsva_profile.genetic_alteration_type, 'patient', true));
+					LoadingBar.update((i +
+						heatmap_data.length +
+						Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				    });
+				});
+			    }
+			}).then(function () {
 			    return utils.timeoutSeparatedLoop(Object.keys(State.clinical_tracks), function(track_id, i) {
 				var attr = State.clinical_tracks[track_id];
 				console.log("populating patient data for clinical track " + attr.attr_id);
 				oncoprint.setTrackData(track_id, clinical_data[attr.attr_id], 'uid');
 				oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeClinicalTrackTooltip(attr, 'patient', true));
 				oncoprint.setTrackInfo(track_id, "");
-				LoadingBar.update((i + heatmap_data.length + Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
+				LoadingBar.update((i +
+					Object.keys(State.geneset_tracks).length +
+					heatmap_data.length +
+					Object.keys(State.genetic_alteration_tracks).length) / total_tracks_to_add);
 			    });
 			}).then(function () {
 			    console.log("patient data populated");
@@ -928,6 +976,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'first_genetic_alteration_track': null,
 	    'genetic_alteration_tracks': {}, // oql line -> track_id
 	    'heatmap_track_groups': {}, // genetic_profile_id -> {genetic_profile_id, track_group_id, gene_to_track_id}
+	    'GENESET_HEATMAP_TRACK_GROUP_INDEX': 30,
+	    'geneset_tracks': {},  // index of queried gene set -> track_id
 	    'clinical_tracks': {}, // track_id -> attr
 	    
 	    'used_clinical_attributes': [],
@@ -1139,6 +1189,61 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			return populateHeatmapTrack(genetic_profile_id, gene, track_id);
 		    }
 		}));
+	    },
+	    'addGenesetTracks': function (genetic_profile_id, geneset_ids) {
+		oncoprint.suppressRendering();
+		var track_ids = [];
+		var i, track_geneset_id, track_params, new_track_id;
+		for (i = 0; i < geneset_ids.length; i++) {
+		    track_geneset_id = geneset_ids[i];
+		    track_params = {
+			'rule_set_params': {
+			    'type': 'gradient',
+			    'legend_label': 'Geneset score',
+			    'value_key': 'profile_data',
+			    'value_range': [-1, 1],
+			    /*
+			     * The PiYG colormap is based on color specifications and designs
+			     * developed by Cynthia Brewer (http://colorbrewer.org).
+			     * The palette has been included under the terms
+			     * of an Apache-stype license (for details, see the file
+			     * OPEN-SOURCE-DOCUMENTATION in the root directory of the cBioPortal
+			     * source distribution).
+			     */
+			    'colors': [
+				[ 39, 100,  25, 1],
+				[ 77, 146,  33, 1],
+				[127, 188,  65, 1],
+				[184, 225, 134, 1],
+				[230, 245, 208, 1],
+				[247, 247, 247, 1],
+				[253, 224, 239, 1],
+				[241, 182, 218, 1],
+				[222, 119, 174, 1],
+				[197,  27, 125, 1],
+				[142,   1,  82, 1]
+			    ],
+			    'value_stop_points': [-1, -0.8, -0.6, -0.4, -0.2,
+				0, 0.2, 0.4, 0.6, 0.8, 1],
+			    'null_color': 'rgba(224,224,224,1)'
+			},
+			'track_label_color': 'grey',
+			'has_column_spacing': false,
+			'track_padding': 0,
+			'label': track_geneset_id,
+			'target_group': this.GENESET_HEATMAP_TRACK_GROUP_INDEX,
+			'removable': true,
+			'description': track_geneset_id + ' gene set scores from ' + genetic_profile_id,
+		    };
+		    new_track_id = oncoprint.addTracks([track_params])[0];
+		    track_ids.push(new_track_id);
+		    if (typeof this.geneset_tracks[0] !== 'undefined') {
+			oncoprint.shareRuleSet(this.geneset_tracks[0], new_track_id);
+		    }
+		    this.geneset_tracks[i] = new_track_id;
+		}
+		oncoprint.releaseRendering();
+		return track_ids;
 	    },
 	    'useAndAddAttribute': function(attr_id) {
 		var attr = this.useAttribute(attr_id);
@@ -1586,6 +1691,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	    var ret = $.when.apply(null, promises);
 	    return ret;
+	}).then(function () {
+	    var queried_gene_sets = QuerySession.getQueryGenesets();
+	    if (queried_gene_sets !== null && queried_gene_sets.length > 0) {
+		return QuerySession.getSelectedGsvaProfile()
+		.then(function (gsva_profile) {
+		    console.log("in initOncoprint, adding gene set tracks");
+		    State.addGenesetTracks(gsva_profile.id, queried_gene_sets);
+		});
+	    } else {
+		// nothing to do for gene set tracks; return a resolved promise
+		return $.when();
+	    }
 	}).then(function fetchClinicalAttributes() {
 	    console.log("in initOncoprint, fetching clinical attributes");
 	    QuerySession.getClinicalAttributes()

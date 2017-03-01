@@ -1519,6 +1519,28 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 	'getPatientHeatmapData': function(genetic_profile_id, genes) {
 	    return getHeatmapDataCached(this, genetic_profile_id, genes, 'patient');
 	},
+	'getSelectedGsvaProfile': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    self.getGeneticProfiles()
+		    .then(function (geneticProfiles) {
+			var genesetProfile = null;
+			for (var i = 0; i < geneticProfiles.length; i++) {
+			    var profile = geneticProfiles[i];
+			    if (profile.genetic_alteration_type === "GENESET_SCORE" &&
+				    profile.datatype === "GSVA-SCORE") {
+				if (genesetProfile !== null) {
+				    throw new Error("Programming error: " +
+					    "multiple geneset score profiles " +
+					    "were selected in the Oncoprint");
+				}
+				genesetProfile = profile;
+			    }
+			}
+			fetch_promise.resolve(genesetProfile);
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
 	/**
 	 * Fetches any sample-level GSVA data for the queried Oncoprint parameters.
 	 *

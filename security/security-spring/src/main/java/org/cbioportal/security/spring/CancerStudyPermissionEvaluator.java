@@ -119,12 +119,13 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      *   String sample list id, 
      *   List<String> of cancer study ids, 
      *   List<String> of genetic profile ids,
+     *   or List<String> of sample list ids
      * @param targetType String 'CancerStudy', 
-     *   'SampleList', 
      *   'GeneticProfile', 
      *   'SampleList',
      *   'List<CancerStudyId>', 
      *   'List<GeneticProfileId>', 
+     *   or 'List<SampleListId>'
      * @param permission
      */
     @Override
@@ -177,6 +178,15 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             for (String geneticProfileId : geneticProfileIds) {
                 GeneticProfile geneticProfile = geneticProfileRepository.getGeneticProfile(geneticProfileId);
                 if (geneticProfile == null || !hasPermission(authentication, geneticProfile, permission)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if ("List<SampleListId>".equals(targetType)) {
+            List<String> sampleListIds = (List<String>) targetId;
+            for (String sampleListId : sampleListIds) {
+                SampleList sampleList = sampleListRepository.getSampleList(sampleListId);
+                if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
                     return false;
                 }
             }

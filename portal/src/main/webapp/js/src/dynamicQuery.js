@@ -438,19 +438,17 @@ function chooseAction(evt) {
     
        
     if (selected_studies.length > 1) {
-    	if(selectedVirtualStudyList.length>0) {
-            createAnError("Cannot query virtual study(s) for now", $('#select_cancer_type_section'), "");
-            return false;
-        }
     	if ( haveExpInQuery ) {
             createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
             return false;
         }
-        $("#main_form").find("#select_multiple_studies").val("");
         if ($("#tab_index").val() == 'tab_download') {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
-        else {
+        if(selectedVirtualStudyList.length > 0) {
+            $("#main_form").get(0).setAttribute('cancer_study_list', $("#main_form").find("input[name=cancer_study_list]").val());
+            $("#main_form").get(0).setAttribute('action','index.do');
+        } else {
                 var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
                 var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
                 evt.preventDefault();

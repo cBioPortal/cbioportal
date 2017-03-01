@@ -229,7 +229,9 @@ public class GlobalProperties {
     public static final String DEFAULT_NCBI_BUILD = "37";
     public static final String UCSC_BUILD = "ucsc.build";
     public static final String DEFAULT_UCSC_BUILD = "hg19";
-    
+
+    public static final String ONCOPRINT_DEFAULTVIEW = "oncoprint.defaultview";
+
     public static final String SHOW_CIVIC = "show.civic";
     public static final String CIVIC_URL = "civic.url";
 
@@ -872,6 +874,14 @@ public class GlobalProperties {
         
         String[] tabs = disabledTabs.split("\\|");
         return (tabs.length > 0 && disabledTabs.length() > 0) ? Arrays.asList(tabs) : new ArrayList<String>();
+    }
+    
+    public static String getDefaultOncoprintView() {
+        String defaultOncoprintView = properties.getProperty(ONCOPRINT_DEFAULTVIEW);
+        if (defaultOncoprintView == null || defaultOncoprintView.isEmpty()) {
+            return "patient";
+        }
+        return defaultOncoprintView.trim();
     }
 
     public static void main(String[] args)

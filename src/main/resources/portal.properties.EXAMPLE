@@ -186,3 +186,6 @@ priority_studies=
 species=human
 ncbi.build=37
 ucsc.build=hg19
+
+# default view in oncoprint (sample, patient (default))
+oncoprint.defaultview=patient

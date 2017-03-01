@@ -18,6 +18,7 @@ var OncoprintLabelView = (function () {
 	this.cell_heights_view_space = {};
 	this.label_middles_view_space = {};
 	this.labels = {};
+	this.label_colors = {};
 	this.track_descriptions = {};
 	this.tracks = [];
 	this.minimum_track_height = Number.POSITIVE_INFINITY;
@@ -160,6 +161,10 @@ var OncoprintLabelView = (function () {
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {
+	    if (view.label_colors && view.label_colors[tracks[i]]) {
+		//override color, if set:
+		view.ctx.fillStyle = view.label_colors[tracks[i]];
+	    }
 	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[tracks[i]]), 0, view.label_middles_view_space[tracks[i]]);
 	}
 	if (view.dragged_label_track_id !== null) {
@@ -277,6 +282,7 @@ var OncoprintLabelView = (function () {
     OncoprintLabelView.prototype.addTracks = function (model, track_ids) {
 	for (var i=0; i<track_ids.length; i++) {
 	    this.labels[track_ids[i]] = model.getTrackLabel(track_ids[i]);
+	    this.label_colors[track_ids[i]] = model.getTrackLabelColor(track_ids[i]);
 	}
 	updateFromModel(this, model);
 	resizeAndClear(this, model);

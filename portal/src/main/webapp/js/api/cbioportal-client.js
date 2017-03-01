@@ -1,20 +1,32 @@
 window.cbioportal_client = (function() {
 	var raw_service = (function() {
-		var getApiCallPromise = function(endpt, args, type) {
-			var arg_strings = [];
-			for (var k in args) {
-				if (args.hasOwnProperty(k)) {
-					arg_strings.push(k + '=' + [].concat(args[k]).join(","));
+		var getApiCallPromise = function(endpt, args, type, newApi) {
+			var arg_strings, arg_string, k;
+			if (newApi) {
+				return $.ajax({
+					type: type || "POST",
+					url: endpt,
+					contentType: 'application/json; charset=utf-8',
+					data: JSON.stringify(args),
+					dataType: "json"
+				});
+			} else {
+				arg_strings = [];
+				for (k in args) {
+					if (args.hasOwnProperty(k)) {
+						arg_strings.push(k + '=' + [].concat(args[k]).join(","));
+					}
 				}
+				arg_string = arg_strings.join("&") || "?";
+				return $.ajax({
+					type: type || "POST",
+					url: endpt,
+					data: arg_string,
+					dataType: "json"
+				});
 			}
-			var arg_string = arg_strings.join("&") || "?";
-			return $.ajax({
-				type: type || "POST",
-				url: endpt,
-				data: arg_string,
-				dataType: "json"
-			});
 		};
+		//legacy API
 		var functionNameToEndpointProperties = {
 			'CancerTypes':{ endpoint: 'api-legacy/cancertypes' },
 			'SampleClinicalData': { endpoint: 'api-legacy/clinicaldata/samples' },
@@ -33,14 +45,46 @@ window.cbioportal_client = (function() {
 			'MutationCounts': { endpoint: 'api-legacy/mutation_count'},
 			'GenePanels': {endpoint: 'api-legacy/genepanel', type: 'GET'}
 		};
+		//new API
+		var newApiFunctionNameToEndpointProperties = {
+			//expected args: genetic_profile_id, genetic_entity_type, sample_ids, sample_list_id, genetic_entity_ids
+			'GenesetData': {
+				endpoint: function (args) {
+					return 'api/genetic-profiles/' +
+					args.genetic_profile_id +
+					'/geneset-genetic-data/fetch';
+				},
+				args: function (args) {
+					var result = {};
+					if (args.sample_ids) {
+						result.sampleIds = args.sample_ids;
+					} else if (args.sample_list_id) {
+						result.sampleListId = args.sample_list_id[0];
+					}
+					result.genesetIds = args.geneset_ids;
+					return result;
+				}
+			}
+		}
 		var ret = {};
+		//legacy API
 		for (var fn_name in functionNameToEndpointProperties) {
 			if (functionNameToEndpointProperties.hasOwnProperty(fn_name)) {
 				ret['get'+fn_name] = (function(props) {
 					return function(args) {
-						return getApiCallPromise(props.endpoint, $.extend(true, {}, args, props.args), props.type);
+						return getApiCallPromise(props.endpoint, $.extend(true, {}, args, props.args), props.type, false);
 					};
 				})(functionNameToEndpointProperties[fn_name]);
+			}
+		}
+		//new API
+		for (var fn_name in newApiFunctionNameToEndpointProperties) {
+			if (newApiFunctionNameToEndpointProperties.hasOwnProperty(fn_name)) {
+				ret['get'+fn_name] = (function(props) {
+					return function(args) {
+						return getApiCallPromise(props.endpoint(args), props.args(args), 'POST', true);
+					};
+				})(newApiFunctionNameToEndpointProperties[fn_name]);
 			}
 		}
 		return ret;
@@ -461,7 +505,30 @@ window.cbioportal_client = (function() {
 		getSamples: enforceRequiredArguments(makeHierIndexService(['study_id', 'sample_ids'], ['study_id', 'id'], 'getSamples'), [["study_id"], ["study_id", "sample_ids"]]),
 		getSamplesByPatient: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'patient_id'], 'getSamples'), [["study_id"], ["study_id", "patient_ids"]]),
 		getGeneticProfileDataBySample: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_ids'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_ids"]]),
-                getGeneticProfileDataBySampleList: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_list_id'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_list_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_list_id"]]),
+		getGeneticProfileDataBySampleList: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_list_id'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_list_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_list_id"]]),
+
+		//enforceRequiredArguments = function(fnPtr, list_of_arg_combinations)
+		//makeHierIndexService = function(arg_names, indexing_attrs, service_fn_name)
+		
+		//parameters: genetic_profile_id, sample_ids, sample_list_id, geneset_ids
+		getGenesetDataBySample: enforceRequiredArguments(
+				makeHierIndexService(
+						['genetic_profile_id', 'geneset_ids', 'sample_ids'],
+						['geneticProfileId', 'genesetId', 'sampleId'],
+						'getGenesetData'),
+				[
+					['genetic_profile_id', 'geneset_ids'],
+					['genetic_profile_id', 'geneset_ids', 'sample_ids']
+				]),
+		getGenesetDataBySampleList: enforceRequiredArguments(
+				// makeHierIndexService is not applicable right now,
+				// as sample_list_id does not filter a property of
+				// the objects returned by the API
+				raw_service.getGenesetData,
+				[
+					['genetic_profile_id', 'geneset_ids', 'sample_list_id']
+				]),
+
 		getSampleClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getSampleClinicalAttributes(args);
 		}, [["study_id"], ["study_id","sample_ids"]]),

@@ -152,10 +152,10 @@
     <spring.context.support.version>4.1.2.RELEASE</spring.context.support.version>
     <spring.integration.version>4.1.0.RELEASE</spring.integration.version>
     <spring.security.version>3.2.5.RELEASE</spring.security.version>
+    <!-- TODO remove from here once spring-social-google dependency is removed -->
+    <org.springframework.social.google-version>1.0.0.RELEASE</org.springframework.social.google-version>
     <spring.security.saml.version>1.0.0.RELEASE</spring.security.saml.version>
     <mybatis.spring.version>1.3.0</mybatis.spring.version>
-    <spring.social.version>1.1.0.RELEASE</spring.social.version>
-    <org.springframework.social.google-version>1.0.0.RELEASE</org.springframework.social.google-version>
     <mybatis.version>3.4.1</mybatis.version>
     <hibernate.version>3.6.9.Final</hibernate.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -179,7 +179,7 @@
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.0.0</db.version>
+    <db.version>2.0.1</db.version>
 
   </properties>
 
@@ -192,6 +192,8 @@
     <module>persistence</module>
     <module>service</module>
     <module>scripts</module>
+    <module>db-scripts</module>
+    <module>security</module>
   </modules>
 
   <dependencies>
@@ -221,6 +223,12 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
       <version>4.3.2</version>
+    </dependency>
+    <!-- Apache commons lang -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.4</version>
     </dependency>
     <!-- junit -->
     <dependency>
@@ -317,45 +325,16 @@
       <artifactId>spring-web</artifactId>
       <version>${spring.version}</version>
     </dependency>
-    <!-- spring security -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-acl</artifactId>
-      <version>${spring.security.version}</version>
-    </dependency>
+    <!-- Spring Security for core and service -->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
       <version>${spring.security.version}</version>
     </dependency>
+    <!-- needed for @PreAuthorize and @PostFilter in core and service -->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>${spring.security.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-ldap</artifactId>
-      <version>${spring.security.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-openid</artifactId>
-      <version>${spring.security.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security.extensions</groupId>
-      <artifactId>spring-security-saml2-core</artifactId>
-      <version>${spring.security.saml.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-taglibs</artifactId>
-      <version>${spring.security.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
       <version>${spring.security.version}</version>
     </dependency>
     <dependency>
@@ -368,28 +347,10 @@
       <artifactId>mybatis</artifactId>
       <version>${mybatis.version}</version>
     </dependency>
-    <!-- Spring Social -->
-    <dependency>
-      <groupId>org.springframework.social</groupId>
-      <artifactId>spring-social-config</artifactId>
-      <version>${spring.social.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.social</groupId>
-      <artifactId>spring-social-core</artifactId>
-      <version>${spring.social.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.social</groupId>
-      <artifactId>spring-social-security</artifactId>
-      <version>${spring.social.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.social</groupId>
-      <artifactId>spring-social-web</artifactId>
-      <version>${spring.social.version}</version>
-    </dependency>
     <!-- Spring Social Google-->
+    <!-- TODO remove from here, business has a depencency on com.fasterxml.jackson.annotation 
+         Jackson version 1.8.5
+         which it is getting from spring-social-google -->
     <dependency>
       <groupId>org.springframework.social</groupId>
       <artifactId>spring-social-google</artifactId>
@@ -400,6 +361,11 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>19.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math3</artifactId>
+        <version>3.2</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

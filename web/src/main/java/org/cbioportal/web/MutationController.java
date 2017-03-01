@@ -8,6 +8,7 @@ import java.util.List;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.PagingConstants;
@@ -30,13 +31,14 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Mutations", description = " ")
 public class MutationController {
 
-    private static final int MUTATION_MAX_PAGE_SIZE = 10000;
-    private static final String MUTATION_DEFAULT_PAGE_SIZE = "10000";
+    private static final int MUTATION_MAX_PAGE_SIZE = 50000;
+    private static final String MUTATION_DEFAULT_PAGE_SIZE = "50000";
 
     @Autowired
     private MutationService mutationService;
@@ -47,8 +49,8 @@ public class MutationController {
     public ResponseEntity<List<Mutation>> getMutationsInGeneticProfile(
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
         @PathVariable String geneticProfileId,
-        @ApiParam("Sample ID e.g. TCGA-OR-A5J2-01")
-        @RequestParam(required = false) String sampleId,
+        @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
+        @RequestParam String sampleId,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
@@ -82,7 +84,7 @@ public class MutationController {
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
         @PathVariable String geneticProfileId,
         @ApiParam(required = true, value = "List of Sample IDs")
-        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
+        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> sampleIds,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,

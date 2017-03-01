@@ -34,6 +34,8 @@
     boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+    boolean showCivic = (Boolean) GlobalProperties.showCivic();
+    String civicUrl = (String) GlobalProperties.getCivicUrl();
     String userName = GlobalProperties.getAuthenticatedUserName();
 %>
 
@@ -49,7 +51,10 @@
         <img width='14' height='14' src='images/mcg_logo.png' alt='My Cancer Genome Symbol'>
     </span>
     <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
-        <img width='14' height='14' src='images/cancer-hotspots.svg' alt='Recurrent Hotspot Symbol'>
+        <img width='{{hotspotsImgWidth}}' height='{{hotspotsImgHeight}}' src='{{hotspotsImgSrc}}' alt='Recurrent Hotspot Symbol'>
+    </span>
+    <span class='annotation-item civic' proteinChange='{{proteinChange}}' geneSymbol='{{geneSymbol}}'>
+        <img width='14' height='14' src='images/ajax-loader.gif' alt='Civic Variant Entry'>
     </span>
 </script>
 
@@ -58,16 +63,23 @@
     @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
     @import "css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>";
     @import "css/oncokb.css?<%=GlobalProperties.getAppVersion()%>";
+    @import "css/civic.css?<%=GlobalProperties.getAppVersion()%>";
 </style>
 
 <%@ include file="oncokb/oncokb-card-template.html" %>
+<%@ include file="civic/civic-qtip-template.html" %>
+<script type="text/javascript" src="js/src/civic/civicservice.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/oncokb/OncoKBCard.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/oncokb/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/data/Hotspots3dDataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/column/AnnotationColumn.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
 
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
+    var showCivic = <%=showCivic%>;
+    var civicUrl = '<%=civicUrl%>';
     var userName = '<%=userName%>';
     var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
 
@@ -76,6 +88,23 @@
         var sampleArray = window.QuerySession.getSampleIds();
         OncoKB.setUrl('<%=oncokbUrl%>');
         var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
+        var annotationCol = null;
+
+        if(OncoKB.getAccess()) {
+            var oncokbInstanceManager = new OncoKB.addInstanceManager();
+
+            _.each(mutationProxy.getGeneList(), function (gene) {
+                var instance = oncokbInstanceManager.addInstance(gene);
+                if (oncokbGeneStatus) {
+                    instance.setGeneStatus(oncokbGeneStatus);
+                }
+            });
+
+            annotationCol = new AnnotationColumn(oncokbInstanceManager, showHotspot, enableMyCancerGenome);
+        }
+        else {
+            annotationCol = new AnnotationColumn(null, showHotspot, enableMyCancerGenome);
+        }
 
         var columnOrder = [
             "datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",
@@ -93,6 +122,9 @@
             proxy: {
                 mutationProxy: {
                     instance: mutationProxy
+                },
+                hotspots3dProxy: {
+                    instanceClass: Hotspots3dDataProxy
                 }
             },
             view: {
@@ -102,31 +134,7 @@
                 },       
                 mutationTable: {
                     columnRender: {
-                        annotation: function (datum) {
-                            var mutation = datum.mutation;
-                            var vars = {};
-                            vars.oncokbId = mutation.get("mutationSid");
-                            vars.mcgAlt = '';
-                            vars.changHotspotAlt = '';
-
-                            if (enableMyCancerGenome &&
-                                mutation.get("myCancerGenome") instanceof Array && 
-                                mutation.get("myCancerGenome").length > 0) {
-                                vars.mcgAlt = "<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>" + mutation.get("myCancerGenome").join("</li><li>") + "</li></ul>";
-                            }
-
-                            if (showHotspot && mutation.get('isHotspot')) {
-                                vars.changHotspotAlt = cbio.util.getHotSpotDesc();
-                            }
-
-                            if (_.isUndefined(mutation.get("oncokb")))
-                            {
-                                datum.table.requestColumnData("annotation");
-                            }
-                            
-                            var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_annotation_template");
-                            return templateFn(vars);
-                        }
+                        annotation: annotationCol.render
                     },
                     columnVisibility: {
                         annotation: 'visible'
@@ -146,32 +154,7 @@
                         }
                     },
                     columnTooltips: {
-                        annotation: function (selector, helper) {
-                            $(selector).find('span.oncokb').remove();
-                            $(selector).find('span.mcg[alt=""]').empty();
-                            $(selector).find('span.chang_hotspot[alt=""]').empty();
-                            $(selector).find('span.mutation-table-additional-protein-change[alt=""]').remove();
-                            $(selector).find('span.mcg').one('mouseenter', function () {
-                                $(this).qtip({
-                                    content: {attr: 'alt'},
-                                    show: {event: "mouseover", ready: true},
-                                    hide: {fixed: true, delay: 100, event: "mouseout"},
-                                    style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                    position: {my: 'top left', at: 'bottom center', viewport: $(window)}
-                                });
-
-                            });
-
-                            $(selector).find('span.chang_hotspot').one('mouseenter', function () {
-                                $(this).qtip({
-                                    content: {attr: 'alt'},
-                                    show: {event: "mouseover", ready: true},
-                                    hide: {fixed: true, delay: 100, event: "mouseout"},
-                                    style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                    position: {my: 'top left', at: 'bottom center', viewport: $(window)}
-                                });
-                            });
-                        }
+                        annotation: annotationCol.tooltip
                     },
                     dataTableOpts: {
                         'aaSorting': [[columnOrder.indexOf('annotation'), 'asc']]
@@ -183,88 +166,17 @@
         options = jQuery.extend(true, cbio.util.baseMutationMapperOpts(), options);
         
         if(OncoKB.getAccess()) {
-            var oncokbInstanceManager = new OncoKB.addInstanceManager();
-            _.each(mutationProxy.getGeneList(), function (gene) {
-                var instance = oncokbInstanceManager.addInstance(gene);
-                if(oncokbGeneStatus) {
-                    instance.setGeneStatus(oncokbGeneStatus);
-                }
-            });
             jQuery.extend(true, options, {
                 dataManager: {
                     dataFn: {
-                        annotation: function(dataProxies, params, callback) {
-                            var indexMap = params.mutationTable.getIndexMap();
-                            var dataTable = params.mutationTable.getDataTable();
-                            var tableData = dataTable.fnGetData();
-                            var oncokbInstance = oncokbInstanceManager.getInstance(params.mutationTable.getGene());
-                            if (tableData.length > 0) {
-                                _.each(tableData, function (ele, i) {
-                                    var _mutation = ele[indexMap["datum"]].mutation;
-                                    oncokbInstance.addVariant(_mutation.get("mutationSid"), '', 
-                                                              _mutation.get("geneSymbol"),
-                                                              _mutation.get("proteinChange"),
-                                                              _mutation.get("tumorType") ? _mutation.get("tumorType") : _mutation.get("cancerType"),
-                                                              _mutation.get("mutationType"), 
-                                                              _mutation.get("cosmicCount"), 
-                                                              _mutation.get("isHotspot"),
-                                                              _mutation.get("proteinPosStart"), 
-                                                              _mutation.get("proteinPosEnd"));
-                                });
-                                oncokbInstance.getIndicator().done(function () {
-                                    var tableData = dataTable.fnGetData();
-                                    if (tableData.length > 0) {
-                                        _.each(tableData, function (ele, i) {
-                                            if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid"))) {
-                                                if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid")).hasOwnProperty('evidence')) {
-                                                    ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid"));
-                                                    ele[indexMap['datum']].mutation.set({oncokb: true});
-                                                    //dataTable.fnUpdate(null, i, indexMap["annotation"], false, false);
-                                                }
-                                            }
-                                        });
-                                        //dataTable.fnUpdate(null, 0, indexMap['annotation']);
-                                    }
-
-                                    if (_.isFunction(callback))
-                                    {
-                                        callback(params);
-                                    }
-                                });
-                            }
-                        }
+                        annotation: annotationCol.annotationData,
+                        hotspot3d: annotationCol.hotspotData
                     }
                 },
                 view: {
                     mutationTable: {
                         columnTooltips: {
-                            annotation: function (selector, helper) {
-                                $(selector).find('span.mcg[alt=""]').empty();
-                                $(selector).find('span.chang_hotspot[alt=""]').empty();
-                                oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'column');
-                                oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'alteration');
-
-                                $(selector).find('span.mcg').one('mouseenter', function () {
-                                    $(this).qtip({
-                                        content: {attr: 'alt'},
-                                        show: {event: "mouseover", ready: true},
-                                        hide: {fixed: true, delay: 100, event: "mouseout"},
-                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                        position: {my: 'top left', at: 'bottom center', viewport: $(window)}
-                                    });
-
-                                });
-
-                                $(selector).find('span.chang_hotspot').one('mouseenter', function () {
-                                    $(this).qtip({
-                                        content: {attr: 'alt'},
-                                        show: {event: "mouseover", ready: true},
-                                        hide: {fixed: true, delay: 100, event: "mouseout"},
-                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                        position: {my: 'top left', at: 'bottom center', viewport: $(window)}
-                                    });
-                                });
-                            }
+                            annotation: annotationCol.tooltipWithManager
                         }
                     }
                 }

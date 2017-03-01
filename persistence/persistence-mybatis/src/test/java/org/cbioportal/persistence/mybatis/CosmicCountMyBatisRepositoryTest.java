@@ -1,10 +1,10 @@
 package org.cbioportal.persistence.mybatis;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Assert;
 
-import org.cbioportal.model.CosmicCount;
+import org.cbioportal.model.CosmicMutation;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,54 +17,27 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @Configurable
 public class CosmicCountMyBatisRepositoryTest {
 
-	@Autowired
+    @Autowired
     private CosmicCountMyBatisRepository cosmicCountMyBatisRepository;
-	
-	@Test
-	public void getCOSMICCountsByKeywordsEmptyQuery() {
-		List<CosmicCount> result = cosmicCountMyBatisRepository.getCOSMICCountsByKeywords(new LinkedList<String>());
-		Assert.assertEquals(6, result.size());
-	}
-	
-	@Test
-	public void getCOSMICCountsByKeywordsSingleKeyword() {
-		List<String> keywords = new LinkedList<>();
-		keywords.add("OR4F5 D45 missense");
-		List<CosmicCount> result = cosmicCountMyBatisRepository.getCOSMICCountsByKeywords(keywords);
-		Assert.assertEquals(1, result.size());
-		CosmicCount count = result.get(0);
-		Assert.assertEquals("3677745", count.getCosmicMutationId());
-		Assert.assertEquals("OR4F5 D45 missense", count.getKeyword());
-		Assert.assertEquals((Integer)1, count.getCount());
-		Assert.assertEquals("D45A", count.getProteinChange());
-	}
-	
-	@Test
-	public void getCOSMICCountsByKeywordsMultipleKeywords() {
-		List<String> keywords = new LinkedList<>();
-		keywords.add("OR4F5 D45 missense");
-		keywords.add("SAMD11 P23 silent");
-		keywords.add("NOC2L S146 silent");
-		List<CosmicCount> result = cosmicCountMyBatisRepository.getCOSMICCountsByKeywords(keywords);
-		Assert.assertEquals(3, result.size());
-	}
-	
-	@Test
-	public void getCOSMICCountsByKeywordsDuplicateKeywords() {
-		List<String> keywords = new LinkedList<>();
-		keywords.add("OR4F5 D45 missense");
-		keywords.add("SAMD11 P23 silent");
-		keywords.add("SAMD11 P23 silent");
-		keywords.add("SAMD11 P23 silent");
-		List<CosmicCount> result = cosmicCountMyBatisRepository.getCOSMICCountsByKeywords(keywords);
-		Assert.assertEquals(2, result.size());
-	}
-	
-	@Test
-	public void getCOSMICCountsByKeywordsReusedKeyword() {
-		List<String> keywords = new LinkedList<>();
-		keywords.add("NOC2L truncating");
-		List<CosmicCount> result = cosmicCountMyBatisRepository.getCOSMICCountsByKeywords(keywords);
-		Assert.assertEquals(2, result.size());
-	}
+
+    @Test
+    public void getCosmicCountsByKeywords() {
+
+        List<String> keywords = new ArrayList<>();
+        keywords.add("OR4F5 D45 missense");
+        keywords.add("SAMD11 P23 silent");
+        
+        List<CosmicMutation> result = cosmicCountMyBatisRepository.fetchCosmicCountsByKeywords(keywords);
+        Assert.assertEquals(2, result.size());
+        CosmicMutation cosmicMutation1 = result.get(0);
+        Assert.assertEquals("3677745", cosmicMutation1.getCosmicMutationId());
+        Assert.assertEquals("D45A", cosmicMutation1.getProteinChange());
+        Assert.assertEquals("OR4F5 D45 missense", cosmicMutation1.getKeyword());
+        Assert.assertEquals((Integer) 1, cosmicMutation1.getCount());
+        CosmicMutation cosmicMutation2 = result.get(1);
+        Assert.assertEquals("460103", cosmicMutation2.getCosmicMutationId());
+        Assert.assertEquals("P23P", cosmicMutation2.getProteinChange());
+        Assert.assertEquals("SAMD11 P23 silent", cosmicMutation2.getKeyword());
+        Assert.assertEquals((Integer) 1, cosmicMutation2.getCount());
+    }
 }

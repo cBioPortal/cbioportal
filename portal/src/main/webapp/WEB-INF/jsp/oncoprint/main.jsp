@@ -43,8 +43,6 @@
         </div>
         
         <div id="oncoprint_whole_body">
-
-            <span id="altered_value" style="float:left; margin-top:12px"></span><br><br>
         <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           
             <div class="btn-group btn-group-sm" id="oncoprint_addclinical_attributes">
                 <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_showmorefeatures_icon" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
@@ -70,6 +68,7 @@
                        <textarea id="add_genes_input" rows="5" cols="100" wordwrap="true" placeholder="Type space- or comma-separated genes here, then click 'Add Genes to Heatmap'"></textarea><br>
                        <button id="add_genes_btn" style='font-size:13px; cursor:pointer'>Add Genes to Heatmap</button> <br/>
                        <button id="remove_heatmaps_btn" style='font-size:13px; cursor:pointer'>Remove Heatmap</button> <br/>
+                       <div class="checkbox"><label style='cursor:pointer'><input id="cluster_heatmap_chk" type="checkbox"/>Cluster Heatmap</label></div>
                    </form>
                </div>
             </div>
@@ -87,6 +86,7 @@
                        </div>
                        <div class="radio"><label><input type="radio" name="sortby" value="id" /> Sort by case id (alphabetical)</label></div>
                        <div class="radio"><label><input type="radio" name="sortby" value="custom" /> Sort by user-defined order / default</label></div>
+                       <div class="radio"><label><input type="radio" name="sortby" value="clustering" disabled/> Sorted by heatmap clustering order</label></div>
                    </form>
                </div>
             </div>
@@ -99,10 +99,10 @@
                        <div class="checkbox"><label><input type="checkbox" name="type" value="type"/> Type</label></div>
                        <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence"> Putative drivers based on:</label><i class="fa fa-md fa-info-circle" style="cursor:pointer; padding-top:0.2em;" id="putative_driver_info_icon"></i></div>
                        <div style="margin-left: 20px;">
+                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/> driver annotation</label></div>
                            <div class="checkbox"><label><input type="checkbox" name="hotspots" value="hotspots"> Hotspots <img id="colorby_hotspot_info" src="images/cancer-hotspots.svg" style="height:15px; width:15px; cursor:pointer;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cbioportal" value="cbioportal"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cosmic" value="cosmic"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/></label></div>
-                           <div class="checkbox"><label><input type="checkbox" name="oncokb" value="oncokb"> <img id="colorby_oncokb_info" src="images/oncokb.png" style="max-height:12px; cursor:pointer;"/> driver annotation</label></div>
                            <div class="checkbox"><label><input type="checkbox" name="hide_unknown" value="hide_unknown"> Hide putative passenger mutations</label></div>
                        </div>
                    </form>
@@ -139,15 +139,16 @@
             </div>
             
             <div class="btn-group btn-group-sm">
-                <button type="button" id="oncoprint_show_minimap" class="btn btn-default" style="width:20px; height:18px; background-color:#efefef;margin:0px;border-right: 0;"><img src="images/zoom-in.svg"/></button>
-                <!--<button type="button" id="oncoprint_zoomout" class="btn btn-default" style="background-color:#efefef;margin:0px;border-right: 0;"><img src="images/zoom-out.svg" alt="icon" width="18" height="18" /></button>
+                <button type="button" id="oncoprint_zoomout" class="btn btn-default" style="background-color:#efefef;margin:0px;border-right: 0;"><img src="images/zoom-out.svg" alt="icon" width="18" height="18" /></button>
                 <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 100px;display:inline;border-left: 0;border-right: 0;padding-left: 0;padding-right: 0;"></span>
                 <input type="text" id="oncoprint_zoom_scale_input" class="form-control" style="border-radius: 0;float: left;width: 35px;height: 18px;padding: 5px 10px;padding-left:0px; padding-right:0px;border-left: 0;border-right: 0;" title="Zoom scale">
                 <span type="button" id="oncoprint_zoom_scale_input_tail" class="btn btn-default" style="margin: 0px;background-color: rgb(239, 239, 239);border-left: 0;border-right: 0;padding-left:2px;">%</span>
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px;border-left: 0;"><img src="images/zoom-in.svg" alt="icon" width="18" height="18" /></button>
-                <button type="button" id="oncoprint_zoomtofit" class="btn btn-default" style="background-color:#efefef;margin:0px;border-left: 0;"><img src="images/fitalteredcases.svg" alt="icon" width="18" height="18" preserveAspectRatio="none"/></button>-->
+                <button type="button" id="oncoprint_show_minimap" class="btn btn-default" style="background-color:#efefef;margin:0px;border-left: 0;"><img src="images/fitalteredcases.svg" alt="icon" width="18" height="18" preserveAspectRatio="none"/></button>
             </div>
         </div>
+        <br>
+        <span id="altered_value" style="float:left; margin-top:12px"></span><br><br>
         <br><br>
         <div id="oncoprint_body"></div>
         </div>
@@ -172,27 +173,16 @@
 //           $('.dropdown-menu #select_clinical_attributes').click(function(){$('#clinical_dropdown').dropdown('toggle');});
         </script>
 
-        <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/events.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/utils.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/defaults.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/RuleSet.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintRenderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintSVGRenderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprint.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
-        <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/ruleset2.js"?<%=GlobalProperties.getAppVersion()%>"></script>-->
-        <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/oncoprint-analysis-setup.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/dist/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/canvas-toBlob.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/zlib.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/png.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.addimage.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.png_support.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-main.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <!--<script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-main.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </div>
 </div>

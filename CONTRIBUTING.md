@@ -45,7 +45,7 @@ A few tips:
 * Make commits in logical/cohesive units.
 * Make sure your commit messages end with a Signed-off-by string (this line can be automatically added by git if you run the git-commit command with the -s option).
 * Make sure you have added the necessary tests for your changes.
-* Run _all_ tests to assure nothing else was accidentally broken.  This is done by running:  ```mvn test```.
+* Run _all_ tests to assure nothing else was accidentally broken in the java part (data loading and front-end parts are tested by other scripts in travis). This is done by running:  ```mvn integration-test```.
 
 When you are ready to submit your pull-request:
 

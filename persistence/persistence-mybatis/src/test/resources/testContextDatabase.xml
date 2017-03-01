@@ -31,29 +31,29 @@
 -->
 
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:util="http://www.springframework.org/schema/util"
-  xmlns:context="http://www.springframework.org/schema/context"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd
                       http://www.springframework.org/schema/context
                       http://www.springframework.org/schema/context/spring-context.xsd
                       http://www.springframework.org/schema/util
                       http://www.springframework.org/schema/util/spring-util.xsd">
-  <bean id="dbcpDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <property name="url" value="jdbc:h2:mem:;MODE=MySQL;DATABASE_TO_UPPER=false;INIT=RUNSCRIPT FROM '${basedir}/src/test/resources/testSql.sql'"/>
-  </bean>
+    <bean id="dbcpDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="url" value="jdbc:h2:mem:;MODE=MySQL;DATABASE_TO_UPPER=false;INIT=RUNSCRIPT FROM 'classpath:cgds.sql'\;RUNSCRIPT FROM 'classpath:testSql.sql'"/>
+    </bean>
 
-  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-    <property name="dataSource" ref="dbcpDataSource" />
-    <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model"/>
-    <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler"/>
-  </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dbcpDataSource"/>
+        <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model"/>
+        <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler"/>
+    </bean>
 
-  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-    <property name="basePackage" value="org.cbioportal.persistence.mybatis"/>
-  </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.cbioportal.persistence.mybatis"/>
+    </bean>
 
-  <context:component-scan base-package="org.cbioportal.persistence.mybatis"/>
+    <context:component-scan base-package="org.cbioportal.persistence.mybatis"/>
 </beans>

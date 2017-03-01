@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
@@ -27,6 +28,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
 
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Sample Lists", description = " ")
@@ -65,7 +67,7 @@ public class SampleListController {
         }
     }
 
-    @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET, 
+    @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get sample list")
     public ResponseEntity<SampleList> getSampleList(

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.PatientSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
+@PublicApi
 @RestController
 @Validated
 @Api(tags = "Patients", description = " ")
@@ -83,11 +85,11 @@ public class PatientController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch patients by ID")
     public ResponseEntity<List<Patient>> fetchPatients(
-        @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam(required = true, value = "List of patient identifiers")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<PatientIdentifier> patientIdentifiers) {
+        @RequestBody List<PatientIdentifier> patientIdentifiers,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> patientIds = new ArrayList<>();

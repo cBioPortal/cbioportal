@@ -2,36 +2,41 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
-    <cache/>
+    <cache size="50000"/>
 
     <sql id="select">
-        mutation.GENETIC_PROFILE_ID as geneticProfileId,
-        genetic_profile.STABLE_ID as geneticProfileStableId,
-        mutation.SAMPLE_ID as sampleId,
-        sample.STABLE_ID as sampleStableId,
+        mutation.GENETIC_PROFILE_ID AS geneticProfileId,
+        genetic_profile.STABLE_ID AS geneticProfileStableId,
+        mutation.SAMPLE_ID AS sampleId,
+        sample.STABLE_ID AS sampleStableId,
         mutation.ENTREZ_GENE_ID as entrezGeneId
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            mutation.CENTER as center,
-            mutation.MUTATION_STATUS as mutationStatus,
-            mutation.VALIDATION_STATUS as validationStatus,
-            mutation.TUMOR_ALT_COUNT as tumorAltCount,
-            mutation.TUMOR_REF_COUNT as tumorRefCount,
-            mutation.NORMAL_ALT_COUNT as normalAltCount,
-            mutation.NORMAL_REF_COUNT as normalRefCount,
-            mutation.AMINO_ACID_CHANGE as aminoAcidChange,
-            mutation_event.START_POSITION as startPosition,
-            mutation_event.END_POSITION as endPosition,
-            mutation_event.REFERENCE_ALLELE as referenceAllele,
-            mutation_event.TUMOR_SEQ_ALLELE as tumorSeqAllele,
-            mutation_event.PROTEIN_CHANGE as proteinChange,
-            mutation_event.MUTATION_TYPE as mutationType,
-            mutation_event.NCBI_BUILD as ncbiBuild,
-            mutation_event.VARIANT_TYPE as variantType,
-            mutation_event.ONCOTATOR_REFSEQ_MRNA_ID as oncotatorRefseqMrnaId,
-            mutation_event.ONCOTATOR_PROTEIN_POS_START as oncotatorProteinPosStart,
-            mutation_event.ONCOTATOR_PROTEIN_POS_END as oncotatorProteinPosEnd,
-            mutation_event.KEYWORD as keyword
+            mutation.CENTER AS center,
+            mutation.MUTATION_STATUS AS mutationStatus,
+            mutation.VALIDATION_STATUS AS validationStatus,
+            mutation.TUMOR_ALT_COUNT AS tumorAltCount,
+            mutation.TUMOR_REF_COUNT AS tumorRefCount,
+            mutation.NORMAL_ALT_COUNT AS normalAltCount,
+            mutation.NORMAL_REF_COUNT AS normalRefCount,
+            mutation.AMINO_ACID_CHANGE AS aminoAcidChange,
+            mutation_event.START_POSITION AS startPosition,
+            mutation_event.END_POSITION AS endPosition,
+            mutation_event.REFERENCE_ALLELE AS referenceAllele,
+            mutation_event.TUMOR_SEQ_ALLELE AS tumorSeqAllele,
+            mutation_event.PROTEIN_CHANGE AS proteinChange,
+            mutation_event.MUTATION_TYPE AS mutationType,
+            mutation_event.FUNCTIONAL_IMPACT_SCORE AS functionalImpactScore,
+            mutation_event.FIS_VALUE AS fisValue,
+            mutation_event.LINK_XVAR AS linkXvar,
+            mutation_event.LINK_PDB AS linkPdb,
+            mutation_event.LINK_MSA AS linkMsa,
+            mutation_event.NCBI_BUILD AS ncbiBuild,
+            mutation_event.VARIANT_TYPE AS variantType,
+            mutation_event.ONCOTATOR_REFSEQ_MRNA_ID AS oncotatorRefseqMrnaId,
+            mutation_event.ONCOTATOR_PROTEIN_POS_START AS oncotatorProteinPosStart,
+            mutation_event.ONCOTATOR_PROTEIN_POS_END AS oncotatorProteinPosEnd,
+            mutation_event.KEYWORD AS keyword
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -51,7 +56,7 @@
         <where>
             genetic_profile.STABLE_ID = #{geneticProfileId}
             <if test="sampleIds != null and !sampleIds.isEmpty()">
-                and sample.STABLE_ID in
+                AND sample.STABLE_ID IN
                 <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -81,10 +86,44 @@
         </if>
     </select>
 
-    <select id="getMetaMutations" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaMutations" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT
-        COUNT(*) AS totalCount
+        COUNT(*) AS totalCount,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         <include refid="from"/>
         <include refid="where"/>
+    </select>
+    
+    <select id="getSampleCountByEntrezGeneIds" resultType="org.cbioportal.model.MutationSampleCountByGene">
+        SELECT
+        mutation.ENTREZ_GENE_ID AS entrezGeneId,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
+        FROM mutation
+        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+        <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+            AND mutation.ENTREZ_GENE_ID IN
+            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY mutation.ENTREZ_GENE_ID
+    </select>
+
+    <select id="getSampleCountByKeywords" resultType="org.cbioportal.model.MutationSampleCountByKeyword">
+        SELECT
+        mutation_event.KEYWORD AS keyword,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
+        FROM mutation
+        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+        <if test="keywords != null and !keywords.isEmpty()">
+            AND mutation_event.KEYWORD IN
+            <foreach item="item" collection="keywords" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY mutation_event.KEYWORD
     </select>
 </mapper>

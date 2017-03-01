@@ -32,22 +32,25 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.cbioportal.persistence.GenePanelRepository;
+import org.mskcc.cbio.portal.repository.GenePanelRepository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SpringUtil
 {
-	private static final Log log = LogFactory.getLog(SpringUtil.class);
+    private static final Log log = LogFactory.getLog(SpringUtil.class);
 
-	private static AccessControl accessControl;
-	private static ApplicationContext context;
-        private static GenericXmlApplicationContext applicationContext;
+    private static AccessControl accessControl;
+    private static ApplicationContext context;
+    private static GenericXmlApplicationContext applicationContext;
 
     public static GenePanelRepository getGenePanelRepository() {
         if (applicationContext == null) {
@@ -59,25 +62,26 @@ public class SpringUtil
         
         return (GenePanelRepository)applicationContext.getBean("genePanelRepository");
     }    
-    
-    public static void setAccessControl(AccessControl accessControl) {
-    	log.debug("Setting access control");
-		SpringUtil.accessControl = accessControl;
-	}
-
-	public static AccessControl getAccessControl()
-    {
-		return accessControl;
+ 
+    @Autowired   
+    public void setAccessControl(AccessControl accessControl) {
+        log.debug("Setting access control");
+        SpringUtil.accessControl = accessControl;
     }
 
-	public static synchronized void initDataSource()
-	{
-		if (SpringUtil.context == null) {
-			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
-		}
-	}
-	
-	/**
+    public static AccessControl getAccessControl()
+    {
+        return accessControl;
+    }
+
+    public static synchronized void initDataSource()
+    {
+        if (SpringUtil.context == null) {
+            context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
+        }
+    }
+    
+    /**
      * Get the app context as initialized or refreshed by initDataSource()
      *
      * @return the Spring Framework application context
@@ -86,24 +90,24 @@ public class SpringUtil
         return context;
     }
 
-	/**
-	 * setter to allow override by unit test classes (which run in different context, connecting
-	 * to test DB).
-	 * 
-	 * @param context
-	 */
-	public static void setApplicationContext(ApplicationContext context) {
-		SpringUtil.context = context;		
-	}
+    /**
+     * setter to allow override by unit test classes (which run in different context, connecting
+     * to test DB).
+     * 
+     * @param context
+     */
+    public static void setApplicationContext(ApplicationContext context) {
+        SpringUtil.context = context;
+    }
 
-	/**
-	 * Directly injects a context into the class, so we don't need to open 
-	 * any more XML files. 
-	 * 
-	 * @param context
-	 */
-	public static synchronized void initDataSource(ApplicationContext context)
-	{
-		SpringUtil.context = context;
-	}
+    /**
+     * Directly injects a context into the class, so we don't need to open 
+     * any more XML files. 
+     * 
+     * @param context
+     */
+    public static synchronized void initDataSource(ApplicationContext context)
+    {
+        SpringUtil.context = context;
+    }
 }

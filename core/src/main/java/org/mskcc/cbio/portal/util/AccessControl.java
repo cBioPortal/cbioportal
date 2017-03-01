@@ -50,7 +50,6 @@ import java.util.List;
 public interface AccessControl {
 
     public static final String ALL_CANCER_STUDIES_ID = "all";
-    public static final String PUBLIC_CANCER_STUDIES_GROUP = GlobalProperties.getAlwaysShowStudyGroup();
     public static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
     public static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
     public static final String MULTIPLE_CANCER_STUDIES_ID = "multiple";
@@ -61,11 +60,8 @@ public interface AccessControl {
      * @return List<CancerStudy>
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
-	 *
-	 * We use @PostFilter annotation to remove elements
-	 * in the return list inaccessible to the user.
      */
-	@PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudy', 'read')")
     List<CancerStudy> getCancerStudies() throws DaoException, ProtocolException;
 
     /**
@@ -74,14 +70,8 @@ public interface AccessControl {
      * @param stableStudyId
      * @return ListCancerStudy
      * @throws DaoException
-	 *
-	 * We use @PostFilter rather than @PreAuthorize annotation to provide 
-	 * permission evaluation on this cancer study so that we can process
-	 * invalid permissions via QueryBuilder.validateForm().  If we use @PreAuthorize,
-	 * thread execution does not return from this method call if a user has invalid permissions.
      */
-	//@PreAuthorize("hasPermission(#stableStudyId, 'read')")
-	@PostFilter("hasPermission(filterObject, 'read')")
+    @PostFilter("hasPermission(#stableStudyId, 'CancerStudy', 'read')")
     List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException;
 
     UserDetails getUserDetails();

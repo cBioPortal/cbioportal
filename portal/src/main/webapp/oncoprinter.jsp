@@ -76,7 +76,7 @@
     generates <a href="faq.jsp#what-are-oncoprints">Oncoprints</a> from you own data
     (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0.1</a>)
     
-    <div id="inner-conainter" style="width:100%;"> <%-- need to be modified by dong li  used to by 70% resize problem--%>
+    <div id="inner-container" style="width:100%;"> <%-- need to be modified by dong li  used to by 70% resize problem--%>
         <div style="margin-top:20px;">
             <p>
                 Please input <b>tab-delimited</b> genomic alteration events.&nbsp;&nbsp;
@@ -270,27 +270,16 @@
          <div id='oncoprint_body'></div>
      </div>
     <div id='oncoprint_legend' style="display: inline;"></div>
-    <!--<script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
-    <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/events.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/utils.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/defaults.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/RuleSet.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintRenderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintSVGRenderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprint.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
-    <!--<script src="js/src/oncoprint/oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/dist/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/geneticrules.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/lib/canvas-toBlob.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/lib/zlib.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/lib/png.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.addimage.js?<%=GlobalProperties.getAppVersion()%>"></script>
     <script type="text/javascript" charset="utf-8" src="js/lib/jspdf.plugin.png_support.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup-oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </script>
 </div>
         <script type="text/javascript"> 

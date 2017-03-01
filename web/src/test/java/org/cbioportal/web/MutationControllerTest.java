@@ -3,7 +3,7 @@ package org.cbioportal.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,11 @@ public class MutationControllerTest {
     private static final String TEST_TUMOR_SEQ_ALLELE_1 = "test_tumor_seq_allele_1";
     private static final String TEST_PROTEIN_CHANGE_1 = "test_protein_change_1";
     private static final String TEST_MUTATION_TYPE_1 = "test_mutation_type_1";
+    private static final String TEST_FUNCTIONAL_IMPACT_SCORE_1 = "test_functional_impact_score_1";
+    private static final BigDecimal TEST_FIS_VALUE_1 = new BigDecimal(0.1);
+    private static final String TEST_LINK_XVAR_1 = "test_link_xvar_1";
+    private static final String TEST_LINK_PDB_1 = "test_link_pdb_1";
+    private static final String TEST_LINK_MSA_1 = "test_link_msa_1";
     private static final String TEST_NCBI_BUILD_1 = "test_ncbi_build_1";
     private static final String TEST_VARIANT_TYPE_1 = "test_variant_type_1";
     private static final String TEST_ONCOTATOR_REFSEQ_MRNA_ID_1 = "test_oncotator_refseq_mrna_id_1";
@@ -82,6 +88,11 @@ public class MutationControllerTest {
     private static final String TEST_TUMOR_SEQ_ALLELE_2 = "test_tumor_seq_allele_2";
     private static final String TEST_PROTEIN_CHANGE_2 = "test_protein_change_2";
     private static final String TEST_MUTATION_TYPE_2 = "test_mutation_type_2";
+    private static final String TEST_FUNCTIONAL_IMPACT_SCORE_2 = "test_functional_impact_score_2";
+    private static final BigDecimal TEST_FIS_VALUE_2 = new BigDecimal(0.2);
+    private static final String TEST_LINK_XVAR_2 = "test_link_xvar_2";
+    private static final String TEST_LINK_PDB_2 = "test_link_pdb_2";
+    private static final String TEST_LINK_MSA_2 = "test_link_msa_2";
     private static final String TEST_NCBI_BUILD_2 = "test_ncbi_build_2";
     private static final String TEST_VARIANT_TYPE_2 = "test_variant_type_2";
     private static final String TEST_ONCOTATOR_REFSEQ_MRNA_ID_2 = "test_oncotator_refseq_mrna_id_2";
@@ -125,6 +136,7 @@ public class MutationControllerTest {
             .thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
+            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -146,6 +158,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -170,6 +188,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -189,6 +213,7 @@ public class MutationControllerTest {
             .thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
+            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -211,6 +236,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -240,6 +271,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -257,13 +294,14 @@ public class MutationControllerTest {
     @Test
     public void getMutationsInGeneticProfileMetaProjection() throws Exception {
 
-        BaseMeta baseMeta = new BaseMeta();
-        baseMeta.setTotalCount(2);
+        MutationMeta mutationMeta = new MutationMeta();
+        mutationMeta.setTotalCount(2);
 
         Mockito.when(mutationService.getMetaMutationsInGeneticProfile(Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(baseMeta);
+            .thenReturn(mutationMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
+            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -306,6 +344,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -330,6 +374,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -377,6 +427,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
@@ -406,6 +462,12 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
@@ -423,11 +485,11 @@ public class MutationControllerTest {
     @Test
     public void fetchMutationsInGeneticProfileMetaProjection() throws Exception {
 
-        BaseMeta baseMeta = new BaseMeta();
-        baseMeta.setTotalCount(2);
+        MutationMeta mutationMeta = new MutationMeta();
+        mutationMeta.setTotalCount(2);
 
         Mockito.when(mutationService.fetchMetaMutationsInGeneticProfile(Mockito.anyString(), 
-            Mockito.anyListOf(String.class))).thenReturn(baseMeta);
+            Mockito.anyListOf(String.class))).thenReturn(mutationMeta);
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
@@ -464,6 +526,11 @@ public class MutationControllerTest {
         mutation1.setTumorSeqAllele(TEST_TUMOR_SEQ_ALLELE_1);
         mutation1.setProteinChange(TEST_PROTEIN_CHANGE_1);
         mutation1.setMutationType(TEST_MUTATION_TYPE_1);
+        mutation1.setFunctionalImpactScore(TEST_FUNCTIONAL_IMPACT_SCORE_1);
+        mutation1.setFisValue(TEST_FIS_VALUE_1);
+        mutation1.setLinkXvar(TEST_LINK_XVAR_1);
+        mutation1.setLinkPdb(TEST_LINK_PDB_1);
+        mutation1.setLinkMsa(TEST_LINK_MSA_1);
         mutation1.setNcbiBuild(TEST_NCBI_BUILD_1);
         mutation1.setVariantType(TEST_VARIANT_TYPE_1);
         mutation1.setOncotatorRefseqMrnaId(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1);
@@ -491,6 +558,11 @@ public class MutationControllerTest {
         mutation2.setTumorSeqAllele(TEST_TUMOR_SEQ_ALLELE_2);
         mutation2.setProteinChange(TEST_PROTEIN_CHANGE_2);
         mutation2.setMutationType(TEST_MUTATION_TYPE_2);
+        mutation2.setFunctionalImpactScore(TEST_FUNCTIONAL_IMPACT_SCORE_2);
+        mutation2.setFisValue(TEST_FIS_VALUE_2);
+        mutation2.setLinkXvar(TEST_LINK_XVAR_2);
+        mutation2.setLinkPdb(TEST_LINK_PDB_2);
+        mutation2.setLinkMsa(TEST_LINK_MSA_2);
         mutation2.setNcbiBuild(TEST_NCBI_BUILD_2);
         mutation2.setVariantType(TEST_VARIANT_TYPE_2);
         mutation2.setOncotatorRefseqMrnaId(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2);

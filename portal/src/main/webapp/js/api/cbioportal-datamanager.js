@@ -1298,7 +1298,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 			    .then(function (profiles) {
 				fetch_promise.resolve(profiles.filter(function(profile) {
 				    return (profile.genetic_alteration_type === "MRNA_EXPRESSION" ||
-					    profile.genetic_alteration_type === "PROTEIN_LEVEL") &&
+					    profile.genetic_alteration_type === "PROTEIN_LEVEL" ||
+					    profile.genetic_alteration_type === "GENESET_SCORE") &&
 					    profile.show_profile_in_analysis_tab === "1";
 				}));
 		}).fail(function() {
@@ -1680,11 +1681,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 			for (var i = 0; i < case_ids.length; i++) {
 				//iterate over genetic entities and get the sample data (heatmap data has genetic entityId as key):
 				for (var j = 0; j < heatmapData.length; j++) {
-					var entityId = heatmapData[j].gene;
+					var entityId = heatmapData[j].gene || heatmapData[j].geneset_id;
 					var caseId = heatmapData[j].oncoprint_data[i].sample || heatmapData[j].oncoprint_data[i].patient;
 					//small validation/defensive programming:
 					if (!entityId) {
-						throw new Error("Unexpected error during getClusteringOrder: attribute 'gene' not found");
+						throw new Error("Unexpected error during getClusteringOrder: attribute 'gene' or 'geneset_id' not found");
 					}
 					var value = heatmapData[j].oncoprint_data[i].profile_data;
 					if (!cluster_input[caseId]) {

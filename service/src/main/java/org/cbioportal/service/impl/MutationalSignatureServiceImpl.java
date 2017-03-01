@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -104,6 +105,8 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 		}
 		return mutationProfile;
 	}
+
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
 	public List<MutationalSignature> getMutationalSignaturesBySampleIds(String study_id, List<String> sample_ids) {
 		GeneticProfile mutationProfile = getMutationProfile(study_id);
 		if (mutationProfile == null) {
@@ -114,6 +117,7 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 		}
 	}
 
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
 	public List<MutationalSignature> getMutationalSignatures(String study_id) {
 		GeneticProfile mutationProfile = getMutationProfile(study_id);
 		if (mutationProfile == null) {

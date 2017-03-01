@@ -1,4 +1,5 @@
 var binarysearch = require('./binarysearch.js');
+var hasElementsInInterval = require('./haselementsininterval.js');
 var CachedProperty = require('./CachedProperty.js');
 
 function ifndef(x, val) {
@@ -145,6 +146,7 @@ var OncoprintModel = (function () {
 	
 	// Rule Set Properties
 	this.rule_sets = {}; // map from rule set id to rule set
+	this.rule_set_active_rules = {}; // map from rule set id to map from rule id to use count
 	
 	// Cached and Recomputed Properties
 	this.visible_id_order = new CachedProperty([], function () {
@@ -464,6 +466,38 @@ var OncoprintModel = (function () {
 	}
     }
 
+    var clearTrackActiveRules = function(model, track_id) {
+	var rule_set_id = model.track_rule_set_id[track_id];
+	var track_active_rules = model.track_active_rules[track_id];
+	var rule_set_active_rules = model.rule_set_active_rules[rule_set_id];
+	
+	var track_active_rule_ids = Object.keys(track_active_rules);
+	for (var i=0; i<track_active_rule_ids.length; i++) {
+	    var rule_id = track_active_rule_ids[i];
+	    if (rule_set_active_rules.hasOwnProperty(rule_id)) {
+		rule_set_active_rules[rule_id] -= 1;
+		if (rule_set_active_rules[rule_id] <= 0) {
+		    delete rule_set_active_rules[rule_id];
+		}
+	    }
+	}
+	model.track_active_rules[track_id] = {};
+    };
+    
+    var setTrackActiveRules = function(model, track_id, active_rules) {
+	clearTrackActiveRules(model, track_id);
+	model.track_active_rules[track_id] = active_rules;
+	var rule_set_id = model.track_rule_set_id[track_id];
+	var rule_set_active_rules = model.rule_set_active_rules[rule_set_id];
+	
+	var track_active_rule_ids = Object.keys(active_rules);
+	for (var i=0; i<track_active_rule_ids.length; i++) {
+	    var rule_id = track_active_rule_ids[i];
+	    rule_set_active_rules[rule_id] = rule_set_active_rules[rule_id] || 0;
+	    rule_set_active_rules[rule_id] += 1;
+	}
+    };
+    
     OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_size, sort_by_z) {
 	var active_rules = {};
 	var data = this.getTrackData(track_id);
@@ -471,7 +505,9 @@ var OncoprintModel = (function () {
 	var spacing = this.getTrackHasColumnSpacing(track_id);
 	var width = this.getCellWidth(use_base_size) + (!spacing ? this.getCellPadding(use_base_size) : 0);
 	var shapes = this.getRuleSet(track_id).apply(data, width, this.getCellHeight(track_id, use_base_size), active_rules);
-	this.track_active_rules[track_id] = active_rules;
+	
+	setTrackActiveRules(this, track_id, active_rules);
+	
 	
 	var z_comparator = function(shapeA, shapeB) {
 	    var zA = parseFloat(shapeA.z);
@@ -496,16 +532,14 @@ var OncoprintModel = (function () {
     }
     
     OncoprintModel.prototype.getActiveRules = function(rule_set_id) {
-	var list_of_active_rules_maps = [];
-	for (var track_id in this.track_rule_set_id) {
-	    if (this.track_rule_set_id.hasOwnProperty(track_id) && this.track_rule_set_id[track_id] === rule_set_id) {
-		list_of_active_rules_maps.push(this.track_active_rules[track_id]);
-	    }
+	var rule_set_active_rules = this.rule_set_active_rules[rule_set_id];
+	if (rule_set_active_rules) {
+	    return this.rule_sets[rule_set_id].getRulesWithId().filter(function(rule_with_id) {
+		return !!rule_set_active_rules[rule_with_id.id];
+	    });
+	} else {
+	    return [];
 	}
-	var active_rules = setUnion(list_of_active_rules_maps);
-	return this.rule_sets[rule_set_id].getRulesWithId().filter(function(rule_with_id) {
-	    return !!active_rules[rule_with_id.id];
-	});
     }
     
     OncoprintModel.prototype.getRuleSets = function() {
@@ -673,8 +707,10 @@ var OncoprintModel = (function () {
 	
 	if (typeof rule_set !== 'undefined') {
 	    model.rule_sets[rule_set.rule_set_id] = rule_set;
+	    model.rule_set_active_rules[rule_set.rule_set_id] = {};
 	    model.track_rule_set_id[track_id] = rule_set.rule_set_id;
 	}
+	model.track_active_rules[track_id] = {};
 
 	model.track_sort_direction[track_id] = ifndef(init_sort_direction, 1);
 	
@@ -724,6 +760,11 @@ var OncoprintModel = (function () {
 	}
 	return used;
     }
+    
+    var removeRuleSet = function(model, rule_set_id) {
+	delete model.rule_sets[rule_set_id];
+	delete model.rule_set_active_rules[rule_set_id];
+    };
    
     OncoprintModel.prototype.removeTrack = function (track_id) {
 	var rule_set_id = this.track_rule_set_id[track_id];
@@ -756,7 +797,7 @@ var OncoprintModel = (function () {
 	
 	var rule_set_used = isRuleSetUsed(this, rule_set_id);
 	if (!rule_set_used) {
-	    delete this.rule_sets[rule_set_id];
+	    removeRuleSet(this, rule_set_id);
 	}
     }
     
@@ -971,31 +1012,26 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.shareRuleSet = function(source_track_id, target_track_id) {
-	var curr_rule_set_id = this.track_rule_set_id[target_track_id];
-	var should_delete_curr_rule_set = true;
-	for (var track_id in this.track_rule_set_id) {
-	    if (this.track_rule_set_id.hasOwnProperty(track_id) && track_id !== source_track_id + '') {
-		if (this.track_rule_set_id[track_id] === curr_rule_set_id) {
-		    should_delete_curr_rule_set = false;
-		    break;
-		}
-	    }
-	}
-	if (should_delete_curr_rule_set) {
-	    delete this.rule_sets[curr_rule_set_id];
-	}
-	delete this.track_active_rules[target_track_id];
+	setTrackActiveRules(this, target_track_id, {});
+	
+	var old_rule_set_id = this.track_rule_set_id[target_track_id];
 	this.track_rule_set_id[target_track_id] = this.track_rule_set_id[source_track_id];
+	if (!isRuleSetUsed(this, old_rule_set_id)) {
+	    removeRuleSet(this, old_rule_set_id);
+	}
     }
     
     OncoprintModel.prototype.setRuleSet = function(track_id, rule_set) {
+	setTrackActiveRules(this, track_id, {});
+	
 	var curr_rule_set_id = this.track_rule_set_id[track_id];
 	this.rule_sets[rule_set.rule_set_id] = rule_set;
+	this.rule_set_active_rules[rule_set.rule_set_id] = {};
 	this.track_rule_set_id[track_id] = rule_set.rule_set_id;
 	
 	var rule_set_used = isRuleSetUsed(this, curr_rule_set_id);
 	if (!rule_set_used) {
-	    delete this.rule_sets[curr_rule_set_id];
+	    removeRuleSet(this, curr_rule_set_id);
 	}
     }
 
@@ -1071,9 +1107,15 @@ var OncoprintModel = (function () {
 	var curr_id_to_index = model.getIdToIndexMap();
 	var combinedComparator = function(idA, idB) {
 	    var res = 0;
+            var abs_res = 0;
 	    for (var i=0; i<track_sort_priority.length; i++) {
-		res = precomputed_comparator[track_sort_priority[i]].compare(idA, idB);
-		if (res !== 0) {
+		var next_res = precomputed_comparator[track_sort_priority[i]].compare(idA, idB);
+                var abs_next_res = Math.abs(next_res);
+		if (abs_next_res > abs_res) {
+		    res = next_res;
+                    abs_res = abs_next_res;
+		}
+		if (abs_res === 1) {
 		    break;
 		}
 	    }
@@ -1081,7 +1123,7 @@ var OncoprintModel = (function () {
 		// stable sort
 		res = ( curr_id_to_index[idA] < curr_id_to_index[idB] ? -1 : 1); // will never be the same, no need to check for 0
 	    }
-	    return res;
+	    return (res > 0) ? 1 : -1;
 	}
 	var id_order = model.getIdOrder(true).slice();
 	id_order.sort(combinedComparator);
@@ -1107,27 +1149,46 @@ var OncoprintModel = (function () {
 
 var PrecomputedComparator = (function() {
     function PrecomputedComparator(list, comparator, sort_direction, element_identifier_key) {
-	var directed_comparator = function(d1, d2) {
-	    if (sort_direction === 0) {
-		return 0;
-	    }
-	    var res = comparator(d1, d2);
-	    if (res === 2) {
-		return 1;
-	    } else if (res === -2) {
-		return -1;
-	    } else {
-		return res*sort_direction;
-	    }
+	var preferred, mandatory;
+	if (typeof comparator === "function") {
+	    preferred = comparator;
+	    mandatory = comparator;
+	} else {
+	    preferred = comparator.preferred;
+	    mandatory = comparator.mandatory;
+	}
+	var makeDirectedComparator = function(cmp) {
+	    return function (d1, d2) {
+		if (sort_direction === 0) {
+		    return 0;
+		}
+		var res = cmp(d1, d2);
+		if (res === 2) {
+		    return 1;
+		} else if (res === -2) {
+		    return -1;
+		} else {
+		    return res * sort_direction;
+		}
+	    };
 	};
-	var sorted_list = list.sort(directed_comparator);
-	this.change_points = []; // i is a change point iff comp(elt[i], elt[i+1]) !== 0
+	var preferredComparator = makeDirectedComparator(preferred);
+	var mandatoryComparator = makeDirectedComparator(mandatory);
+	var sorted_list = list.sort(preferredComparator);
+	
+	// i is a change point iff comp(elt[i], elt[i+1]) !== 0
+	this.preferred_change_points = []; // i is a preferred change pt iff its a change pt with comp = preferredComparator but not with comp = mandatoryComparator
+	this.mandatory_change_points = []; // i is a mandatory change pt iff its a change pt with comp = mandatoryComparator
+	
+	// note that by the following process, preferred_change_points and mandatory_change_points are sorted
 	for (var i=0; i<sorted_list.length; i++) {
 	    if (i === sorted_list.length - 1) {
 		break;
 	    }
-	    if (directed_comparator(sorted_list[i], sorted_list[i+1]) !== 0) {
-		this.change_points.push(i);
+	    if (mandatoryComparator(sorted_list[i], sorted_list[i+1]) !== 0) {
+		this.mandatory_change_points.push(i);
+	    } else if (preferredComparator(sorted_list[i], sorted_list[i+1]) !== 0) {
+		this.preferred_change_points.push(i);
 	    }
 	}
 	// Note that by this process change_points is sorted
@@ -1158,22 +1219,11 @@ var PrecomputedComparator = (function() {
 	    should_negate_result = true;
 	}
 	// See if any changepoints in [indA, indB)
-	var upper_bd_excl = this.change_points.length;
-	var lower_bd_incl = 0;
-	var middle;
 	var res = 0;
-	while (true) {
-	    middle = Math.floor((lower_bd_incl + upper_bd_excl) / 2);
-	    if (lower_bd_incl === upper_bd_excl) {
-		break;
-	    } else if (this.change_points[middle] >= indB) {
-		upper_bd_excl = middle;
-	    } else if (this.change_points[middle] < indA) {
-		lower_bd_incl = middle+1;
-	    } else {
-		res = -1;
-		break;
-	    }
+	if (hasElementsInInterval(this.mandatory_change_points, function(x) { return x; }, indA, indB)) {
+	    res = -1;
+	} else if (hasElementsInInterval(this.preferred_change_points, function(x) { return x; }, indA, indB)) {
+	    res = -0.5;
 	}
 	if (should_negate_result) {
 	    res = res * -1;

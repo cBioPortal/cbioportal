@@ -1,3 +1,5 @@
+require('./polyfill.js');
+
 var OncoprintModel = require('./oncoprintmodel.js');
 var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
 var OncoprintLabelView = require('./oncoprintlabelview.js');
@@ -252,7 +254,7 @@ var Oncoprint = (function () {
 	this.target_dummy_scroll_left = 0;
 	this.target_dummy_scroll_top = 0;
 	
-	(function setUpOncoprintScroll() {
+	(function setUpOncoprintScroll(oncoprint) {
 	    $dummy_scroll_div.scroll(function (e) {
 		var dummy_scroll_left = $dummy_scroll_div.scrollLeft();
 		var dummy_scroll_top = $dummy_scroll_div.scrollTop();
@@ -280,7 +282,7 @@ var Oncoprint = (function () {
 		    doSetScroll(self, scroll_left, scroll_top);
 		}
 	    });
-	})();
+	})(self);
 	
 	this.horz_zoom_callbacks = [];
 	this.minimap_close_callbacks = [];

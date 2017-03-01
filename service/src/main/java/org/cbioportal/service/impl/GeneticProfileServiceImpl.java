@@ -6,6 +6,8 @@ import org.cbioportal.persistence.GeneticProfileRepository;
 import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,7 @@ public class GeneticProfileServiceImpl implements GeneticProfileService {
     private GeneticProfileRepository geneticProfileRepository;
 
     @Override
+    @PostFilter("hasPermission(filterObject, 'read')")
     public List<GeneticProfile> getAllGeneticProfiles(String projection, Integer pageSize, Integer pageNumber,
                                                       String sortBy, String direction) {
 
@@ -30,6 +33,7 @@ public class GeneticProfileServiceImpl implements GeneticProfileService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public GeneticProfile getGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException {
 
         GeneticProfile geneticProfile = geneticProfileRepository.getGeneticProfile(geneticProfileId);
@@ -41,6 +45,7 @@ public class GeneticProfileServiceImpl implements GeneticProfileService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<GeneticProfile> getAllGeneticProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                              Integer pageNumber, String sortBy, String direction) {
 
@@ -49,6 +54,7 @@ public class GeneticProfileServiceImpl implements GeneticProfileService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaGeneticProfilesInStudy(String studyId) {
         return geneticProfileRepository.getMetaGeneticProfilesInStudy(studyId);
     }

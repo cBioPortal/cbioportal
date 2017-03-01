@@ -10,6 +10,7 @@ import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,13 +29,15 @@ public class GeneticDataServiceImpl implements GeneticDataService {
     private GeneticProfileService geneticProfileService;
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<GeneticData> getGeneticData(String geneticProfileId, String sampleId, List<Integer> entrezGeneIds, 
                                             String projection)
         throws GeneticProfileNotFoundException {
         
         return fetchGeneticData(geneticProfileId, Arrays.asList(sampleId), entrezGeneIds, projection);
     }
-    
+   
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<GeneticData> fetchGeneticData(String geneticProfileId, List<String> sampleIds, 
                                               List<Integer> entrezGeneIds, String projection) 
         throws GeneticProfileNotFoundException {
@@ -78,5 +81,17 @@ public class GeneticDataServiceImpl implements GeneticDataService {
         }
         
         return geneticDataList;
+    }
+    
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public Integer getNumberOfSamplesInGeneticProfile(String geneticProfileId) {
+
+        String commaSeparatedSampleIdsOfGeneticProfile = geneticDataRepository
+            .getCommaSeparatedSampleIdsOfGeneticProfile(geneticProfileId);
+        if (commaSeparatedSampleIdsOfGeneticProfile == null) {
+            return null;
+        }
+        
+        return commaSeparatedSampleIdsOfGeneticProfile.split(",").length;
     }
 }

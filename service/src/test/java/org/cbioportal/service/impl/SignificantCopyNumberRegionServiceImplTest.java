@@ -57,9 +57,9 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
     public void getMetaSignificantCopyNumberRegions() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(significantCopyNumberRegionRepository.getMetaSignificantCopyNumberRegions(GENETIC_PROFILE_ID))
+        Mockito.when(significantCopyNumberRegionRepository.getMetaSignificantCopyNumberRegions(STUDY_ID))
             .thenReturn(expectedBaseMeta);
-        BaseMeta result = significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(GENETIC_PROFILE_ID);
+        BaseMeta result = significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(STUDY_ID);
 
         org.junit.Assert.assertEquals(expectedBaseMeta, result);
     }

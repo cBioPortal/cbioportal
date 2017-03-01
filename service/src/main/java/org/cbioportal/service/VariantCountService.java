@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface VariantCountService {
     
-    List<VariantCount> fetchVariantCounts(String geneticProfileId, List<Integer> entrezGeneIds, List<String> keywords) throws GeneticProfileNotFoundException;
+    List<VariantCount> fetchVariantCounts(String geneticProfileId, List<Integer> entrezGeneIds, List<String> keywords) 
+        throws GeneticProfileNotFoundException;
 }

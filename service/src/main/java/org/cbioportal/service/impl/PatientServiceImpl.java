@@ -6,6 +6,7 @@ import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class PatientServiceImpl implements PatientService {
     private PatientRepository patientRepository;
     
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Patient> getAllPatientsInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber, 
                                                String sortBy, String direction) {
         
@@ -24,12 +26,14 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaPatientsInStudy(String studyId) {
         
         return patientRepository.getMetaPatientsInStudy(studyId);
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public Patient getPatientInStudy(String studyId, String patientId) throws PatientNotFoundException {
 
         Patient patient = patientRepository.getPatientInStudy(studyId, patientId);
@@ -42,12 +46,14 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public List<Patient> fetchPatients(List<String> studyIds, List<String> patientIds, String projection) {
         
         return patientRepository.fetchPatients(studyIds, patientIds, projection);
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public BaseMeta fetchMetaPatients(List<String> studyIds, List<String> patientIds) {
         
         return patientRepository.fetchMetaPatients(studyIds, patientIds);

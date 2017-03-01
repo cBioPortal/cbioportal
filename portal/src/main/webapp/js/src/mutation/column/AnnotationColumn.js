@@ -44,6 +44,8 @@ function AnnotationColumn(oncokbInstanceManager, showHotspot, enableMyCancerGeno
         vars.hotspotsImgSrc = "images/cancer-hotspots.svg";
         vars.hotspotsImgWidth = 14;
         vars.hotspotsImgHeight = 14;
+        vars.geneSymbol = mutation.get("geneSymbol")
+        vars.proteinChange = mutation.get("proteinChange");
 
         if (enableMyCancerGenome &&
             mutation.get("myCancerGenome") instanceof Array &&

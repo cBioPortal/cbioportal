@@ -37,6 +37,7 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
 import org.codehaus.jackson.node.*;
+import org.mskcc.cbio.portal.model.EntityType;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -95,15 +96,11 @@ public class GetAlterationDataJSON extends HttpServlet {
         String sampleSetId = httpServletRequest.getParameter("case_set_id");
         String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
         
-        String rawGeneIdList;
-        if (httpServletRequest instanceof XssRequestWrapper) {
-            rawGeneIdList = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
-        } else {
-            rawGeneIdList = httpServletRequest.getParameter("gene_list");
-        }
+        String entityX = httpServletRequest.getParameter("entity_x");
+        String entityXProfileId = httpServletRequest.getParameter("entity_x_profile");
+        String entityY = httpServletRequest.getParameter("entity_y");
+        String entityYProfileId = httpServletRequest.getParameter("entity_y_profile");
         
-        String[] geneIdList = rawGeneIdList.split("\\s+");
-        String profileId = httpServletRequest.getParameter("profile_id");
         CancerStudy cancerStudy = null;
 
         try {
@@ -116,45 +113,25 @@ public class GetAlterationDataJSON extends HttpServlet {
 			} else {
 				return;
 			}
-            GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-            if(final_gp.getCancerStudyId() != cancerStudy.getInternalId()) {
-            	return;
-            }
+            GeneticProfile entityXProfile = DaoGeneticProfile.getGeneticProfileByStableId(entityXProfileId);
+            GeneticProfile entityYProfile = DaoGeneticProfile.getGeneticProfileByStableId(entityYProfileId);
+
             List<String> stableSampleIds = CoExpUtil.getSampleIds(sampleSetId, patientIdsKey);
-            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(final_gp.getCancerStudyId(), stableSampleIds);
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNodeFactory factory = JsonNodeFactory.instance;
             JsonNode _result = mapper.createObjectNode();
-            //JSONObject _result = new JSONObject();
-            DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
-            for (String geneId: geneIdList) {
-                //ArrayList<ObjectNode> _geneArr = new ArrayList();
-                ArrayNode _geneArr = new ArrayNode(factory);
-                ArrayList<String> tmpProfileDataArr = 
-                            GeneticAlterationUtil.getGeneticAlterationDataRow(
-                                daoGeneOptimized.getGene(geneId), 
-                                sampleIds, 
-                                final_gp
-                            );
-                for (int i = 0; i < sampleIds.size(); i++) {
-                    if (!tmpProfileDataArr.get(i).equals("NA") && 
-                        tmpProfileDataArr.get(i) != null &&
-                        !tmpProfileDataArr.get(i).equals("NaN") &&
-                        !tmpProfileDataArr.get(i).equals("")) {
-                        //JSONObject _datum = new JSONObject();
-                        ObjectNode _datum = mapper.createObjectNode();
-                        Sample sample = DaoSample.getSampleById(sampleIds.get(i));
-                        _datum.put("caseId", sample.getStableId());
-                        _datum.put("value", Float.parseFloat(tmpProfileDataArr.get(i)));
-                        _geneArr.add(_datum);                        
-                    }
-                }
-                ((ObjectNode)_result).put(geneId, _geneArr);
-            }
-            ((ObjectNode)_result).put("profile_name", final_gp.getProfileName());
-            ((ObjectNode)_result).put("profile_description", final_gp.getProfileDescription());
+            ArrayNode _sampleValues = getSampleValuesNodeForEntity(entityXProfile, entityX, stableSampleIds, mapper, factory);
+            ((ObjectNode)_result).put(entityX, _sampleValues);
+            _sampleValues = getSampleValuesNodeForEntity(entityYProfile, entityY, stableSampleIds, mapper, factory);
+            ((ObjectNode)_result).put(entityY, _sampleValues);
+            
+            //duplicated names in output
+            ((ObjectNode)_result).put("entity_x_profile_name", entityXProfile.getProfileName());
+            ((ObjectNode)_result).put("entity_x_profile_description", entityXProfile.getProfileDescription());
+            ((ObjectNode)_result).put("entity_y_profile_name", entityYProfile.getProfileName());
+            ((ObjectNode)_result).put("entity_y_profile_description", entityYProfile.getProfileDescription());
 
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
@@ -165,4 +142,41 @@ public class GetAlterationDataJSON extends HttpServlet {
         }
 
     }
+
+	private ArrayNode getSampleValuesNodeForEntity(GeneticProfile entityProfile, String entityId, List<String> stableSampleIds, 
+			ObjectMapper mapper, JsonNodeFactory factory) throws DaoException {
+		ArrayNode result = new ArrayNode(factory);
+		//use new API which supports geneset query:
+		EntityType entityType = null;//entityProfile
+		String entityStableId = null; 
+		
+		if (entityProfile.getGeneticAlterationType().equals(GeneticAlterationType.GENESET_SCORE)) {
+			entityType = EntityType.GENESET;
+			entityStableId = entityId;
+		} else {
+			entityType = EntityType.GENE;
+			//for gene, stableId should be entrez:
+			DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+			entityStableId = daoGeneOptimized.getGene(entityId).getEntrezGeneId()+ "";
+		}
+			
+        ArrayList<String> tmpProfileDataArr = GeneticAlterationUtil.getGeneticDataRow(
+    				entityStableId, 
+    				stableSampleIds, 
+    				entityType, 
+    				entityProfile);
+        
+        for (int i = 0; i < stableSampleIds.size(); i++) {
+            if (tmpProfileDataArr.get(i) != null &&
+                !tmpProfileDataArr.get(i).equals("NA") && 
+                !tmpProfileDataArr.get(i).equals("NaN") &&
+                !tmpProfileDataArr.get(i).equals("")) {
+                ObjectNode _datum = mapper.createObjectNode();
+                _datum.put("caseId", stableSampleIds.get(i));
+                _datum.put("value", Float.parseFloat(tmpProfileDataArr.get(i)));
+                result.add(_datum);                        
+            }
+        }
+        return result;
+	}
 }

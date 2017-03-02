@@ -132,6 +132,7 @@ public class DataSetsUtil {
 			int tumorMIRNA = getCount(cancerStudy, "_microrna");
 			int methylationHM27 = getCount(cancerStudy, "_methylation_hm27");
 			int rppa = getCount(cancerStudy, "_rppa");
+			int gsva = getCount(cancerStudy, "_gsva_scores");
 			int complete = getCount(cancerStudy, "_3way_complete");
 			int all = getCount(cancerStudy, "_all");
 			totalNumberOfSamples += all;
@@ -139,7 +140,7 @@ public class DataSetsUtil {
 			toReturn.add(new CancerStudyStats(cancerStudy.getCancerStudyStableId(), 
 											  cancerStudy.getName(), citation, all, sequenced,
 											  cna, RNASEQ, tumorMRNA, normal, tumorMIRNA,
-											  methylationHM27, rppa, complete));
+											  methylationHM27, rppa, gsva, complete));
 		}
 
 		// outta here

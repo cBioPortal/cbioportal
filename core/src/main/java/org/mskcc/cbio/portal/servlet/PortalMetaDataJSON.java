@@ -132,6 +132,7 @@ public class PortalMetaDataJSON extends HttpServlet {
             ret.put("has_cna_data", cancerStudy.hasCnaData());
             ret.put("has_mutsig_data", cancerStudy.hasMutSigData());
             ret.put("has_gistic_data", cancerStudy.hasGisticData());
+            ret.put("has_gsva_data", cancerStudy.hasGsvaData());
 
             ret.put("partial", "false");
         }

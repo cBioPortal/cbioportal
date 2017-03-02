@@ -1,0 +1,9 @@
+cancer_study_identifier: study_es_0
+genetic_alteration_type: MRNA_EXPRESSION
+datatype: Z-SCORE
+stable_id: mrna_median_Zscores
+source_stable_id: mrna
+profile_description: mRNA expression levels (Agilent microarray) Z-Score normalized (https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#z-score-instructions).
+show_profile_in_analysis_tab: true
+profile_name: mRNA expression (microarray) Z-Score normalized
+data_filename: data_expression_median_Zscores.txt

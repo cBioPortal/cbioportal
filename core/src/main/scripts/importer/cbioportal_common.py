@@ -19,6 +19,16 @@ from subprocess import Popen, PIPE, STDOUT
 ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
 
+# global variables to check `source_stable_id` for `genomic_profile_link`
+expression_stable_ids = []
+gsva_scores_stable_id = ""
+expression_zscores_source_stable_ids = {}
+gsva_scores_source_stable_id = ""
+gsva_pvalues_source_stable_id = ""
+expression_zscores_filename = ""
+gsva_scores_filename = ""
+gsva_pvalues_filename = ""
+
 IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy"
 UPDATE_STUDY_STATUS_CLASS = "org.mskcc.cbio.portal.scripts.UpdateCancerStudy"
 REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy"
@@ -46,6 +56,8 @@ class MetaFileTypes(object):
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
     MUTATION_SIGNIFICANCE = 'meta_mutsig'
+    GSVA_SCORES = 'meta_gsva_scores'
+    GSVA_PVALUES = 'meta_gsva_pvalues'
 
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
@@ -132,6 +144,7 @@ META_FIELD_MAP = {
         'genetic_alteration_type': True,
         'datatype': True,
         'stable_id': True,
+        'source_stable_id': False,
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
@@ -193,6 +206,28 @@ META_FIELD_MAP = {
         'genetic_alteration_type': True,
         'datatype': True,
         'data_filename': True
+    },
+    MetaFileTypes.GSVA_PVALUES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'source_stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+		'geneset_def_version': True
+    },
+    MetaFileTypes.GSVA_SCORES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'source_stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+		'geneset_def_version': True
     }
 }
 
@@ -213,7 +248,9 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS,
-    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
+    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData",
+    MetaFileTypes.GSVA_SCORES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData"
 }
 
 IMPORTER_REQUIRES_METADATA = {
@@ -435,6 +472,11 @@ def get_meta_file_type(metaDictionary, logger, filename):
      things here, please make sure to update there as well if it regards a
      genetic profile data type.
     """
+    # The following dictionary is required to define the MetaFileType for all
+    # combinations, which are used in validateData to determine which validator
+    # should be used. There is some redundancy with allowed_data_types.txt, which
+    # also contains genetic alteration types and datatype combinations, but is used 
+    # to check if the correct stable id is used.
     # GENETIC_ALTERATION_TYPE    DATATYPE    meta
     alt_type_datatype_to_meta = {
         # cancer type
@@ -463,7 +505,9 @@ def get_meta_file_type(metaDictionary, logger, filename):
         # cross-sample molecular statistics (for gene selection)
         ("GISTIC_GENES_AMP", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
         ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
-        ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE
+        ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE,
+        ("GENESET_SCORE", "GSVA-SCORE"): MetaFileTypes.GSVA_SCORES,
+        ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES
     }
     result = None
     if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
@@ -656,6 +700,46 @@ def parse_metadata_file(filename,
                 extra={'filename_': filename,
                        'cause': metaDictionary['swissprot_identifier']})
             meta_file_type = None
+    
+    """
+    Save information regarding `source_stable_id`, so that after all meta files are validated, 
+    we can validate fields between meta files in validate_dependencies() in validateData.py
+    """
+    global expression_stable_ids
+    global gsva_scores_stable_id
+    global expression_zscores_source_stable_ids
+    global gsva_scores_source_stable_id
+    global gsva_pvalues_source_stable_id
+    global gsva_scores_filename
+    global gsva_pvalues_filename
+    
+    # save all expression `stable_id` in list
+    if meta_file_type is MetaFileTypes.EXPRESSION:
+        if 'stable_id' in metaDictionary:
+            expression_stable_ids.append(metaDictionary['stable_id'])
+            
+            # Save all zscore expression `source_stable_id` in dictionary with their filenames.
+            # Multiple zscore expression files are possible, and we want to validate all their
+            # source_stable_ids with expression stable ids
+            if metaDictionary['datatype'] == "Z-SCORE":
+                if 'source_stable_id' in metaDictionary:
+                    expression_zscores_source_stable_ids[metaDictionary['source_stable_id']] = filename
+     
+    # save stable_id and source_stable_id of GSVA Scores 
+    if meta_file_type is MetaFileTypes.GSVA_SCORES:
+        gsva_scores_filename = filename
+        if 'source_stable_id' in metaDictionary:
+            gsva_scores_source_stable_id = metaDictionary['source_stable_id']
+
+        # save 'stable_id' to check the 'source_stable_id' in GSVA_PVALUES file
+        if 'stable_id' in metaDictionary:
+            gsva_scores_stable_id = metaDictionary['stable_id']
+         
+    # save stable_id and source_stable_id of GSVA Pvalues 
+    if meta_file_type is MetaFileTypes.GSVA_PVALUES:
+        gsva_pvalues_filename = filename
+        if 'source_stable_id' in metaDictionary:
+            gsva_pvalues_source_stable_id = metaDictionary['source_stable_id']
 
     logger.info('Validation of meta file complete', extra={'filename_': filename})
     return metaDictionary, meta_file_type

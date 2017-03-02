@@ -35,7 +35,7 @@ package org.mskcc.cbio.portal.model;
 /**
  * Encapsulates a set of genes.
  */
-public class GeneSet {
+public class SetOfGenes {
     private String name;
     private String geneList;
 

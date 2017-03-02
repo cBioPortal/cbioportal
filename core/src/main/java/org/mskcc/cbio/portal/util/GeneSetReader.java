@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.GeneSet;
+import org.mskcc.cbio.portal.model.SetOfGenes;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -54,11 +54,11 @@ public class GeneSetReader {
      * @return ArrayList of GeneSet Objects.
      * @throws IOException  IO Error.
      */
-    public static ArrayList<GeneSet> readGeneSets (InputStream in) throws IOException {
-        ArrayList<GeneSet> geneSetList = new ArrayList<GeneSet>();
+    public static ArrayList<SetOfGenes> readGeneSets (InputStream in) throws IOException {
+        ArrayList<SetOfGenes> geneSetList = new ArrayList<SetOfGenes>();
 
         //  User-Defined Gene Set Goes First
-        GeneSet g0 = new GeneSet();
+        SetOfGenes g0 = new SetOfGenes();
         g0.setName("User-defined List");
         g0.setGeneList("");
         geneSetList.add(g0);
@@ -68,7 +68,7 @@ public class GeneSetReader {
         while (line != null) {
             line = line.trim();
             String parts[] = line.split("=");
-            g0 = new GeneSet();
+            g0 = new SetOfGenes();
             String genes[] = parts[1].split("\\s");
 
             //  Store number of genes in the gene name

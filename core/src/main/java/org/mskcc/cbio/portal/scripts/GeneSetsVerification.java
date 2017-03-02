@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.mskcc.cbio.portal.model.GeneSet;
+import org.mskcc.cbio.portal.model.SetOfGenes;
 import org.mskcc.cbio.portal.util.GeneSetUtil;
 
 /**
@@ -86,11 +86,11 @@ public class GeneSetsVerification {
     
     private Map<String,List<String>> getGeneSet() throws IOException {
         GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
-        ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
+        ArrayList<SetOfGenes> geneSetList = geneSetUtil.getGeneSetList();
         Map<String,List<String>> map = new LinkedHashMap<String,List<String>>(geneSetList.size());
-        for (GeneSet geneSet : geneSetList) {
-            String geneSetName = geneSet.getName();
-            String geneList = geneSet.getGeneList();
+        for (SetOfGenes setOfGenes : geneSetList) {
+            String geneSetName = setOfGenes.getName();
+            String geneList = setOfGenes.getGeneList();
             map.put(geneSetName, Arrays.asList(geneList.split(" ")));
         }
         return map;

@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.GeneSet;
+import org.mskcc.cbio.portal.model.SetOfGenes;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +46,7 @@ import java.util.ArrayList;
  * @author Ethan Cerami
  */
 public class GeneSetUtil {
-    private ArrayList<GeneSet> geneSetList = new ArrayList<GeneSet>();
+    private ArrayList<SetOfGenes> geneSetList = new ArrayList<SetOfGenes>();
     private static GeneSetUtil geneSetUtil;
 
     /**
@@ -76,7 +76,7 @@ public class GeneSetUtil {
      *
      * @return ArrayList of GeneSet Objects.
      */
-    public ArrayList<GeneSet> getGeneSetList() {
+    public ArrayList<SetOfGenes> getGeneSetList() {
         return geneSetList;
     }
 }

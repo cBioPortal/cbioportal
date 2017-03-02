@@ -87,10 +87,8 @@ public class ImportProfileData extends ConsoleRunnable {
                 importer.importData(numLines);
             }
        }
-       catch (RuntimeException e) {
-           throw e;
-       }
        catch (Exception e) {
+    	   e.printStackTrace();
            throw new RuntimeException(e);
        }
     }

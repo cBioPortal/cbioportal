@@ -66,8 +66,10 @@ var PlotsHeader = (function() {
     }
 
     function appendControlPanel() {
-        $("#" + headerDivId).append(
-            "<input type='checkbox' id='" + showMutationsDivId + "' checked />Show Mutations&nbsp;&nbsp;&nbsp;");
+        if (append_show_mutations) {
+            $("#" + headerDivId).append(
+                    "<input type='checkbox' id='" + showMutationsDivId + "' checked />Show Mutations&nbsp;&nbsp;&nbsp;");
+        }
         if (enableLogScale) {
             $("#" + headerDivId).append(
                 "<input type='checkbox' id='" + logScaleXDivId + "' />Log Scale X&nbsp;&nbsp;&nbsp;");
@@ -77,7 +79,7 @@ var PlotsHeader = (function() {
     }
 
     return {
-        init: function(_names, _title, _fileName, _enableLogScale, _plots_obj) { //log scale x/y on/off, 
+        init: function(_names, _title, _fileName, _enableLogScale, _plots_obj, append_show_mutations) { //log scale x/y on/off, 
             headerDivId = _names.header;
             logScaleXDivId = _names.log_scale_x;
             logScaleYDivId = _names.log_scale_y;

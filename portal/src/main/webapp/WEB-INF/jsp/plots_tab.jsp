@@ -50,6 +50,7 @@
 <script type="text/javascript" src="js/src/plots-tab/util/clinicalDataInterpreter.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/profileSpec.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/genesetsSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/clinSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/optSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/scatterPlots.js"></script>
@@ -169,8 +170,15 @@
                     <div id="plots-sidebar-x-div" class="plots">
                         <h4>Horizontal Axis</h4>
                         <div id="plots-x-data-type" style="padding-left:20px;">
-                            <input type="radio" name="plots-x-data-type" value="genetic_profile" title="x data type genetic profile" checked>Genetic Profile
-                            <input type="radio" name="plots-x-data-type" value="clinical_attribute" title="x data type clinical attribute">Clinical Attribute
+                        	<span id="button-x-gene">
+                            	<input type="radio" name="plots-x-data-type" value="gene" title="x data type gene" checked>Gene
+                            </span>
+                            <span id="button-x-gene-set">
+                            	<input type="radio" name="plots-x-data-type" value="geneset" title="x data type gene set">Gene Set 
+                            </span>
+                            <span id="button-x-clinical">
+                            	<input type="radio" name="plots-x-data-type" value="clinical_attribute" title="x data type clinical attribute">Clinical Attribute
+                        	</span>
                         </div>
                         <div id="plots-x-spec"></div>
                     </div>
@@ -178,8 +186,15 @@
                     <div id="plots-sidebar-y-div" class="plots">
                         <h4>Vertical Axis</h4>
                         <div id="plots-y-data-type" style="padding-left:20px;">
-                            <input type="radio" name="plots-y-data-type" value="genetic_profile" title="y data type genetic profile" checked>Genetic Profile
-                            <input type="radio" name="plots-y-data-type" value="clinical_attribute" title="y data type clinical attribute">Clinical Attribute
+                        	<span id="button-y-gene">
+                            	<input type="radio" name="plots-y-data-type" value="gene" title="y data type gene" checked>Gene
+                            </span>
+                            <span id="button-y-gene-set">
+                            	<input type="radio" name="plots-y-data-type" value="geneset" title="y data type gene set" >Gene Set
+                            </span>
+                            <span id="button-y-clinical">
+                            	<input type="radio" name="plots-y-data-type" value="clinical_attribute" title="y data type clinical attribute">Clinical Attribute
+                        	</span>
                         </div>
                         <div id="plots-y-spec"></div>
                     </div>

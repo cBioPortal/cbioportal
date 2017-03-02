@@ -474,7 +474,7 @@ var enrichmentsTabPlots = (function() {
 
             var params_get_profile_data = {
                 cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-                gene_list: gene,
+                genetic_entity_list: gene,
                 genetic_profile_id: profile_id,
                 case_set_id: window.QuerySession.getCaseSetId(),
                 case_ids_key: window.QuerySession.getCaseIdsKey()

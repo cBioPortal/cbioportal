@@ -35,6 +35,11 @@ package org.mskcc.cbio.portal.dao;
 import java.sql.*;
 import java.util.*;
 import org.mskcc.cbio.portal.model.*;
+import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -171,6 +176,34 @@ public final class DaoGeneticProfile {
         return byStableId.get(stableId);
     }
 
+    /**
+     * This method returns the genetic profiles that are referred by to the given referringGeneticProfile.
+     *  
+     * @param referringGeneticProfile: the referred genetic profile
+     * @return
+     * @throws GeneticProfileNotFoundException 
+     */
+    public static List<GeneticProfile> getGeneticProfilesReferredBy(GeneticProfile referringGeneticProfile) throws GeneticProfileNotFoundException {
+    	//this method is already implemented in the new API, so use it here:
+    	List<org.cbioportal.model.GeneticProfile> list = GeneticProfileApi.geneticProfileService.getGeneticProfilesReferredBy(referringGeneticProfile.getStableId());
+    	List<GeneticProfile> result = list.stream().map(p -> GeneticProfileApi.getOldFormat(p)).collect(Collectors.toList());
+    	return result;
+    }
+    
+    /**
+     * This method returns the genetic profiles that are referring to the given referredGeneticProfile.
+     *  
+     * @param referredGeneticProfile: the referred genetic profile
+     * @return
+     * @throws GeneticProfileNotFoundException 
+     */
+    public static List<GeneticProfile> getGeneticProfilesReferringTo(GeneticProfile referredGeneticProfile) throws GeneticProfileNotFoundException {
+    	//this method is already implemented in the new API, so use it here:
+    	List<org.cbioportal.model.GeneticProfile> list = GeneticProfileApi.geneticProfileService.getGeneticProfilesReferringTo(referredGeneticProfile.getStableId());
+    	List<GeneticProfile> result = list.stream().map(p -> GeneticProfileApi.getOldFormat(p)).collect(Collectors.toList());
+    	return result;
+    }
+    
     public static GeneticProfile getGeneticProfileById(int geneticProfileId) {
         return byInternalId.get(geneticProfileId);
     }
@@ -242,5 +275,36 @@ public final class DaoGeneticProfile {
         } finally {
             JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
+    }
+    
+    @Component
+    static class GeneticProfileApi {
+    	//this class provides a link to the new API service layer
+    	
+    	static GeneticProfileService geneticProfileService = null;
+    	
+    	@Autowired
+    	GeneticProfileApi(GeneticProfileService geneticProfileService) {
+    		GeneticProfileApi.geneticProfileService = geneticProfileService;
+    	}
+    	
+    	//support for backwards compatibility: translate values from new to old format objects
+    	static GeneticProfile getOldFormat(org.cbioportal.model.GeneticProfile profileIn) {
+    		
+    		GeneticProfile profileOut = new GeneticProfile();
+            profileOut.setStableId(profileIn.getStableId());
+            profileOut.setCancerStudyId(profileIn.getCancerStudyId());
+            profileOut.setProfileName(profileIn.getName());
+            profileOut.setProfileDescription(profileIn.getDescription());
+            if (profileIn.getShowProfileInAnalysisTab() != null) {
+                profileOut.setShowProfileInAnalysisTab(profileIn.getShowProfileInAnalysisTab());
+            } else {
+                profileOut.setShowProfileInAnalysisTab(true);
+            }
+            profileOut.setGeneticAlterationType(GeneticAlterationType.valueOf(profileIn.getGeneticAlterationType().name()));
+            profileOut.setDatatype(profileIn.getDatatype().getValue());
+            profileOut.setGeneticProfileId(profileIn.getGeneticProfileId());
+            return profileOut;
+    	}
     }
 }

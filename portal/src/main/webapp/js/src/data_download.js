@@ -151,16 +151,17 @@ var DataDownloadTab = (function() {
 
         $.each(window.QuerySession.getGeneticProfileIds(), function(index, val) {
             var _str = "<li>" + profiles[val].NAME + ": "; 
+            var isGenesetProfile = profiles[val].GENETIC_ALTERATION_TYPE == "GENESET_SCORE";
             $.each(_formats, function(inner_index, inner_obj) {
                 // var _href_str = "<a href='#' onclick=\"DataDownloadTab.onClick('" + val + "', '" + inner_obj.value + "');\">" + inner_obj.name + "</a>";
                 // $("#data_download_links_li").append(_href_str);                 
-                var _download_form =
+        	var _download_form =
                     "<form name='download_tab_form_" + val + "_" + inner_obj.value + "' style='display:inline-block' action='getProfileData.json' method='post' target='_blank'>" +
                         "<input type='hidden' name='cancer_study_id' value='" + window.QuerySession.getCancerStudyIds()[0] + "'>" +
                         "<input type='hidden' name='case_set_id' value='" + window.QuerySession.getCaseSetId() + "'>" +
                         "<input type='hidden' name='case_ids_key' value='" + window.QuerySession.getCaseIdsKey() + "'>" + 
                         "<input type='hidden' name='genetic_profile_id' value='" + val + "'>" +
-                        "<input type='hidden' name='gene_list' value='" + window.QuerySession.getQueryGenes().join(" ") + "'>" +
+                        "<input type='hidden' name='genetic_entity_list' value='" + (isGenesetProfile ? window.QuerySession.getQueryGenesets().join(" ") : window.QuerySession.getQueryGenes().join(" ")) + "'>" +
                         "<input type='hidden' name='force_download' value='true'>" +
                         "<input type='hidden' name='file_name' value='" + window.QuerySession.getCancerStudyIds()[0] + "_" + val + ".txt'>" +
                         "<input type='hidden' name='format' value='"  + inner_obj.value + "'>" +

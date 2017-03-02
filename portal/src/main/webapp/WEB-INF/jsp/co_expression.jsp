@@ -93,7 +93,7 @@
 <div class="section" id="coexp">
     <p>
         <div id='coexp-profile-selector-dropdown' style="margin-top:10px;"></div>
-        This table lists the genes with the highest expression correlation with the query genes. Click on a row to see the corresponding correlation plot. 
+        This table lists the genes and gene sets with the highest expression correlation with the query genetic entities. The expression values from gene sets are calculated from the GSVA values. Click on a row to see the corresponding correlation plot. 
         <img src='images/help.png' id='coexp-help' alt='help'>
     </p>
     <div id="coexp-tabs" class="coexp-tabs">

@@ -45,49 +45,102 @@
 
 var CoexpPlots = function() {
 
-    function init(divName, geneX, geneY, pearson, spearman, profileId)  {
-        getAlterationData(divName, geneX, geneY, pearson, spearman, profileId);
+    function init(divName, entityX, entityY, pearson, spearman, profile1Id, profile2Id)  {
+        getAlterationData(divName, entityX, entityY, pearson, spearman, profile1Id, profile2Id);
     }
 
-    function getAlterationData(divName, geneX, geneY, pearson, spearman, profileId) {
+    function getAlterationData(divName, entityX, entityY, pearson, spearman, profile1Id, profile2Id) {
         var paramsGetAlterationData = {
             cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-            gene_list: geneX + " " + geneY,
+            entity_x: entityX, 
+            entity_y: entityY,
             case_set_id: window.QuerySession.getCaseSetId(),
             case_ids_key: window.QuerySession.getCaseIdsKey(),
-            profile_id: profileId
+            entity_x_profile: profile1Id,
+            entity_y_profile: profile2Id
         };
+        //Check if the comparison contains gene sets
+        entityXIsGeneset = false;
+        entityYIsGeneset = false;
+        if (profile1Id.indexOf("mrna") == -1) {
+        	entityXIsGeneset = true;
+        }
+        if (profile2Id.indexOf("mrna") == -1) {
+        	entityYIsGeneset = true;
+        }
         $.post(
             "getAlterationData.json", 
             paramsGetAlterationData, 
-            getAlterationDataCallBack(divName, geneX, geneY, pearson, spearman), 
+            getAlterationDataCallBack(divName, entityX, entityY, pearson, spearman, entityXIsGeneset, entityYIsGeneset), 
             "json");
     }
 
-    function getAlterationDataCallBack(_divName, _geneX, _geneY, _pearson, _spearman) {
+    function getAlterationDataCallBack(_divName, _entityX, _entityY, _pearson, _spearman, entityXIsGeneset, entityYIsGeneset) {
         return function(result) {
             var alteration_data_result = jQuery.extend(result, {}, true);
-            //get mutation data
+            //get mutation data only for the genes (and not for the gene sets)
             if (CoExpView.has_mutation_data()) {
-                var proxy = DataProxyFactory.getDefaultMutationDataProxy();
-                var _genes = _geneX + " " + _geneY;
-                proxy.getMutationData(
-                    _genes, 
-                    getMutationDataCallBack(
-                        alteration_data_result, 
-                        _divName, 
-                        _geneX, 
-                        _geneY, 
-                        _pearson, 
-                        _spearman
-                    )
-                );                
+            	var proxy = DataProxyFactory.getDefaultMutationDataProxy();
+                var _genes = null;
+            	if (entityXIsGeneset) {
+            		if (entityYIsGeneset) { //Both are Genesets: do a pseudo callback as if there were no mutations
+            			pseudo_callback(
+                                alteration_data_result, 
+                                _divName, 
+                                _entityX, 
+                                _entityY, 
+                                _pearson, 
+                                _spearman
+                            );
+            		} else { //EntityX is Gene Set and EntityY is Gene
+            			_genes = _entityY;
+            			proxy.getMutationData(
+            					_genes, 
+                                getMutationDataCallBack(
+                                    alteration_data_result, 
+                                    _divName, 
+                                    _entityX, 
+                                    _entityY, 
+                                    _pearson, 
+                                    _spearman
+                                )
+                            );
+            		}
+            	} else {
+            		if (entityYIsGeneset) { //EntityX is Gene and EntityY is Gene Set
+            			_genes = _entityX;
+            			proxy.getMutationData(
+                        		_genes, 
+                                getMutationDataCallBack(
+                                    alteration_data_result, 
+                                    _divName, 
+                                    _entityX, 
+                                    _entityY, 
+                                    _pearson, 
+                                    _spearman
+                                )
+                            );
+            		} else { //Both are genes
+                        var _genes = _entityX + " " + _entityY;
+                        proxy.getMutationData(
+                        		_genes, 
+                                getMutationDataCallBack(
+                                    alteration_data_result, 
+                                    _divName, 
+                                    _entityX, 
+                                    _entityY, 
+                                    _pearson, 
+                                    _spearman
+                                )
+                            );
+            		}
+            	}                
             } else {
                 pseudo_callback(
                     alteration_data_result, 
                     _divName, 
-                    _geneX, 
-                    _geneY, 
+                    _entityX, 
+                    _entityY, 
                     _pearson, 
                     _spearman
                 );
@@ -100,14 +153,14 @@ var CoexpPlots = function() {
         return function(result) {
             CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
             var coexpPlotsView = new CoexpPlotsView();
-            coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
+            coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr(), entityXIsGeneset, entityYIsGeneset);
         };
     }
     
     function pseudo_callback(_alteration_data_result, _divName, _geneX, _geneY, _pearson, _spearman) {
         CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
         var coexpPlotsView = new CoexpPlotsView();
-        coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
+        coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr(), entityXIsGeneset, entityYIsGeneset);
     }
 
     return {

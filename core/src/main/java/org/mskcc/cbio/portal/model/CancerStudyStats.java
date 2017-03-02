@@ -58,6 +58,7 @@ public class CancerStudyStats {
 	private Integer tumorMIRNA;
 	private Integer methylation;
 	private Integer rppa;
+	private Integer gsva;
 	private Integer complete;
 
 	/**
@@ -66,7 +67,7 @@ public class CancerStudyStats {
 	 */
 	public CancerStudyStats(String stableID, String studyName, String reference, Integer all, Integer sequenced,
 							Integer cna, Integer rnaSEQ, Integer tumorMRNA, Integer normal,
-							Integer tumorMIRNA, Integer methylation, Integer rppa, Integer complete) {
+							Integer tumorMIRNA, Integer methylation, Integer rppa, Integer gsva, Integer complete) {
 
 		this.stableID = stableID;
 		this.studyName = studyName;
@@ -80,6 +81,7 @@ public class CancerStudyStats {
 		this.tumorMIRNA = tumorMIRNA;
 		this.methylation = methylation;
 		this.rppa = rppa;
+		this.gsva = gsva;
 		this.complete = complete;
 	}
 
@@ -96,5 +98,6 @@ public class CancerStudyStats {
 	public Integer getTumorMIRNA() { return this.tumorMIRNA; }
 	public Integer getMethylation() { return this.methylation; }
 	public Integer getRPPA() { return this.rppa; }
+	public Integer getGSVA() { return this.gsva; }
 	public Integer getComplete() { return this.complete; }
 }

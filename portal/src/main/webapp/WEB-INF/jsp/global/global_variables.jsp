@@ -34,6 +34,7 @@
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="org.mskcc.cbio.portal.model.*" %>
 <%@ page import="java.text.NumberFormat" %>
@@ -174,9 +175,11 @@
     (function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
+        var genesets = '<%=WebserviceParserUtils.getGenesetIds(request)%>'.trim();
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
+                                                            genesets,
                                                             ['<%=cancerStudyId%>'.trim()],
                                                             JSON.parse('<%=studySampleMapJson%>'),
                                                             parseFloat('<%=zScoreThreshold%>'),

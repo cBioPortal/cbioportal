@@ -33,8 +33,8 @@ var mutationInterpreter = (function() {
                         return mutationStyle.getSymbol("non_mut");
                     }
                 }
-            } else if (genetic_vs_clinical()) {
-                var _gene_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? "x": "y";
+            } else if (genetic_vs_clinical() || gsva_vs_genetic()) {
+                var _gene_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)? "x": "y";
                 var _elt = document.getElementById(ids.sidebar[_gene_axis].gene);
                 var _gene_symbol = _elt.options[_elt.selectedIndex].value;
                 if (Object.keys(obj.mutation).length !== 0 && obj.mutation.hasOwnProperty(_gene_symbol)) {
@@ -48,7 +48,7 @@ var mutationInterpreter = (function() {
                     }
                     return mutationStyle.getSymbol("non");
                 }                
-            } else if (clinical_vs_clinical()) {
+            } else if (clinical_vs_clinical() || gsva_vs_gsva() || gsva_vs_clinical()) {
                 
             }
         },
@@ -69,8 +69,8 @@ var mutationInterpreter = (function() {
                         return mutationStyle.getFill("non_mut");
                     }
                 }                
-            } else if (genetic_vs_clinical()) {
-                var _gene_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? "x": "y";
+            } else if (genetic_vs_clinical() || gsva_vs_genetic()) {
+                var _gene_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)? "x": "y";
                 var _elt = document.getElementById(ids.sidebar[_gene_axis].gene);
                 var _gene_symbol = _elt.options[_elt.selectedIndex].value;
                 if (Object.keys(obj.mutation).length !== 0 && obj.mutation.hasOwnProperty(_gene_symbol)) {
@@ -78,13 +78,13 @@ var mutationInterpreter = (function() {
                 } else {
                     return mutationStyle.getFill("non");
                 }                  
-            } else if (clinical_vs_clinical()) {
+            } else if (clinical_vs_clinical() || gsva_vs_gsva() || gsva_vs_clinical()) {
             	return mutationStyle.getFill("clin_clin");
             }
 
         },
         getOpacity: function() {
-        	if (clinical_vs_clinical()) {
+        	if (clinical_vs_clinical() || gsva_vs_gsva() || gsva_vs_clinical()) {
             	return mutationStyle.getOpacity("clin_clin");
             }
         	else {
@@ -108,8 +108,8 @@ var mutationInterpreter = (function() {
                         return mutationStyle.getStroke("non_mut");
                     }
                 }
-            } else if (genetic_vs_clinical()) {
-                var _gene_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val()=== vals.data_type.genetic)? "x": "y";
+            } else if (genetic_vs_clinical() || gsva_vs_genetic()) {
+                var _gene_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val()=== vals.data_type.gene)? "x": "y";
                 var _elt = document.getElementById(ids.sidebar[_gene_axis].gene);
                 var _gene_symbol = _elt.options[_elt.selectedIndex].value;
                 if (Object.keys(obj.mutation).length !== 0 && obj.mutation.hasOwnProperty(_gene_symbol)) {
@@ -117,7 +117,7 @@ var mutationInterpreter = (function() {
                 } else {
                     return mutationStyle.getStroke("non");
                 }                  
-            } else if (clinical_vs_clinical()) {
+            } else if (clinical_vs_clinical() || gsva_vs_gsva() || gsva_vs_clinical()) {
             	return mutationStyle.getStroke("clin_clin");
             }
         }

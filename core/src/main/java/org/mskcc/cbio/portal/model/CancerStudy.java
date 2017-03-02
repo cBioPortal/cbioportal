@@ -434,6 +434,12 @@ public class CancerStudy {
         return DaoGistic.hasGistic(this);
     }
     
+    public boolean hasGsvaData() throws DaoException {
+        GeneticProfile profile = DaoGeneticProfile.getAllGeneticProfiles(this.studyID).stream().
+                filter(gp -> gp.getGeneticAlterationType().equals("GENESET_SCORE")).findAny().orElse(null);
+        return profile != null;
+    }
+    
     public boolean hasSurvivalData() throws DaoException {
         Set<String> attrs = DaoClinicalData.getDistinctParameters(studyID);
         return attrs.contains(ClinicalAttribute.OS_STATUS) ||

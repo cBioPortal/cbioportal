@@ -74,6 +74,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String SET_OF_CASE_IDS = "set_of_case_ids";
     public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
+    public static final String GENESET_LIST = "geneset_list";
     public static final String ACTION_NAME = "Action";
     public static final String XDEBUG = "xdebug";
     public static final String ACTION_SUBMIT = "Submit";
@@ -81,6 +82,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String STEP2_ERROR_MSG = "step2_error_msg";
     public static final String STEP3_ERROR_MSG = "step3_error_msg";
     public static final String STEP4_ERROR_MSG = "step4_error_msg";
+    public static final String STEP4_GENESETS_ERROR_MSG = "step4_genesets_error_msg";
     public static final String PROFILE_DATA_SUMMARY = "profile_data_summary";
     public static final String DOWNLOAD_LINKS = "download_links";
     public static final String OUTPUT = "output";
@@ -93,6 +95,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String Z_SCORE_THRESHOLD = "Z_SCORE_THRESHOLD";
     public static final String RPPA_SCORE_THRESHOLD = "RPPA_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
+    public static final String GSVA_PROFILE_SELECTED = "genetic_profile_ids_PROFILE_GSVA_SCORES";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
     public static final int MUTATION_DETAIL_LIMIT = 100;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
@@ -178,12 +181,13 @@ public class QueryBuilder extends HttpServlet {
         HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
 
         //  Get User Defined Gene List
-	    String geneList = httpServletRequest.getParameter(GENE_LIST);
-	    if (httpServletRequest instanceof XssRequestWrapper) {
-		    geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
-	    }
+        String geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
         geneList = servletXssUtil.getCleanInput(geneList);
         httpServletRequest.setAttribute(GENE_LIST, geneList);
+        //  Get User Defined Gene Sets List
+        String geneSetList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENESET_LIST);
+        geneSetList = servletXssUtil.getCleanInput(geneSetList);
+        httpServletRequest.setAttribute(GENESET_LIST, geneSetList);
 
         String dbPortalExpectedSchemaVersion = null;
         String dbActualSchemaVersion = null;
@@ -259,10 +263,10 @@ public class QueryBuilder extends HttpServlet {
                     exampleStudyQueries);
 
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet,
-                                               sampleSetId, sampleIds, httpServletRequest);
+                                               sampleSetId, sampleIds, httpServletRequest, geneList, geneSetList);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-                processData(cancerTypeId, geneList, geneticProfileIdSet, profileList, sampleSetId,
+                processData(cancerTypeId, geneList, geneSetList, geneticProfileIdSet, profileList, sampleSetId,
                             sampleIds, sampleSets, patientCaseSelect, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
@@ -343,6 +347,7 @@ public class QueryBuilder extends HttpServlet {
     */
     private void processData(String cancerStudyStableId,
                              String geneList,
+							 String geneSetList,
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
 							 String sampleSetId, String sampleIds,
@@ -452,9 +457,15 @@ public class QueryBuilder extends HttpServlet {
             if( null == profile ){
                 continue;
             }
+            ArrayList<String> geneticEntityIds;
+            if (profile.getGeneticAlterationType().equals(GeneticAlterationType.GENESET_SCORE)) {
+            	geneticEntityIds = new ArrayList<>(Arrays.asList(geneSetList.split("( )|(\\n)")));
+            } else {
+            	geneticEntityIds = new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)")));
+            }
             GetProfileData remoteCall =
-                new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), StringUtils.join(setOfSampleIds, " "));
-            DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIds,
+                new GetProfileData(profile, geneticEntityIds, StringUtils.join(setOfSampleIds, " "));
+            DownloadLink downloadLink = new DownloadLink(profile, geneticEntityIds, sampleIds,
                 remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
         }
@@ -491,7 +502,8 @@ public class QueryBuilder extends HttpServlet {
                                 ArrayList<GeneticProfile> profileList,
                                  HashSet<String> geneticProfileIdSet,
                                  String sampleSetId, String sampleIds,
-                                 HttpServletRequest httpServletRequest) throws DaoException {
+                                 HttpServletRequest httpServletRequest,
+                                 String geneList, String genesetList) throws DaoException {
         boolean errorsExist = false;
         String tabIndex = httpServletRequest.getParameter(QueryBuilder.TAB_INDEX);
         if (action != null) {
@@ -561,6 +573,54 @@ public class QueryBuilder extends HttpServlet {
                 	}
                 }
 
+                // Validate genes and gene sets
+                ArrayList<String> geneListArray = new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)")));
+                ArrayList<String> genesetListArray = new ArrayList<>(Arrays.asList(genesetList.split("( )|(\\n)")));
+
+                // Validate if box of genes and genesets are empty
+                if (
+                        geneListArray.size() == 1 &&
+                        geneListArray.get(0).equals("") &&
+                        genesetListArray.size() == 1 &&
+                        genesetListArray.get(0).equals("")
+                        ) {
+                    httpServletRequest.setAttribute(STEP4_ERROR_MSG, "Please select some genes.");
+                    errorsExist = true;
+                }
+
+                // Validate if gene sets are valid
+                if (!genesetListArray.get(0).equals("")) {
+                    if (genesetListArray.size() > 300) {
+                        httpServletRequest.setAttribute(STEP4_GENESETS_ERROR_MSG, "You have entered more than 300 gene sets.");
+                        errorsExist = true;
+                    } else {
+                        // Retrieve all valid exteral IDs from the database
+                        ArrayList<String> geneSetAllExternalIds = DaoGeneset.getAllGenesetExternalIds();
+
+                        // Create array list to store invalid gene sets
+                        ArrayList<String> invalidGenesets = new ArrayList<String>();
+
+                        // Loop over gene sets in query 
+                        for (int i = 0; i < genesetListArray.size(); i++) {
+                            String geneset = genesetListArray.get(i);
+                            // Add to list when genesets not in database
+                            if (!geneSetAllExternalIds.contains(geneset)) {
+                                invalidGenesets.add(geneset);
+                            }
+                        }
+
+                        // Check number of invalid genesets and write error message
+                        if (invalidGenesets.size() > 0) {
+                            if (invalidGenesets.size() == 1) {
+                                httpServletRequest.setAttribute(STEP4_GENESETS_ERROR_MSG, "Gene set not found in database: " + invalidGenesets.get(0));
+                            } else {
+                                httpServletRequest.setAttribute(STEP4_GENESETS_ERROR_MSG, "Gene sets not found in database: " + String.join(", ", invalidGenesets));
+                            }
+                            errorsExist = true;
+                        }
+                    }
+                }
+
                 //  Additional validation rules
                 //  If we have selected mRNA Expression Data Check Box, but failed to
                 //  select an mRNA profile, this is an error.
@@ -584,7 +644,23 @@ public class QueryBuilder extends HttpServlet {
                         errorsExist = true;
                     }
                 }
-            }
+                
+                // If we have selected the GSVA profile, check that the gene set textbox is not empty,
+                // otherwise rise an error.
+                String GSVAProfileSelected = httpServletRequest.getParameter(
+                        QueryBuilder.GSVA_PROFILE_SELECTED);
+                String geneSetList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENESET_LIST);
+                if (GSVAProfileSelected != null && geneSetList == "") {
+                    httpServletRequest.setAttribute(STEP4_GENESETS_ERROR_MSG,
+                            "Please select some gene sets.");
+                    errorsExist = true;
+                }
+                if (GSVAProfileSelected != null && geneticProfileIdSet.size() == 1 && !geneList.equals("")) {
+                    httpServletRequest.setAttribute(STEP2_ERROR_MSG,
+                            "You entered some genes to query. Please select a profile to query for these genes.");
+                    errorsExist = true;
+                }
+             }
         } 
 
         return errorsExist;

@@ -75,12 +75,12 @@ public class GetProfileData {
      * Constructor.
      *
      * @param geneticProfile    Genetic Profile Object.
-     * @param targetGeneList    Target Gene List.
+     * @param targetGeneticEntityList    Target Genetic entity ids List.
      * @param sampleIds        White-space delimited sample IDs.
      * @throws DaoException     Database Error.
      * @throws IOException      IO Error.
      */
-    public GetProfileData (GeneticProfile geneticProfile, List<String> targetGeneList,
+    public GetProfileData (GeneticProfile geneticProfile, List<String> targetGeneticEntityList,
             String sampleIds) throws DaoException, IOException {
         List<String> targetGeneticProfileIdList = new ArrayList<String>();
         targetGeneticProfileIdList.add(geneticProfile.getStableId());
@@ -90,7 +90,7 @@ public class GetProfileData {
         for (String sampleIdPart : sampleIdParts) {
             targetSampleList.add(sampleIdPart);
         }
-        execute(targetGeneticProfileIdList, targetGeneList, targetSampleList, true);
+        execute(targetGeneticProfileIdList, targetGeneticEntityList, targetSampleList, true);
     }
 
     /**
@@ -130,9 +130,9 @@ public class GetProfileData {
      * Executes the LookUp.
      */
     private void execute(List<String> targetGeneticProfileIdList,
-            List<String> targetGeneList, List<String> targetSampleList,
+            List<String> targetGeneticEntityList, List<String> targetSampleList,
             Boolean suppressMondrianHeader) throws DaoException, IOException {
-        this.rawContent = getProfileData (targetGeneticProfileIdList, targetGeneList,
+        this.rawContent = getProfileData (targetGeneticProfileIdList, targetGeneticEntityList,
                 targetSampleList, suppressMondrianHeader);
         this.matrix = WebFileConnect.parseMatrix(rawContent);
 
@@ -148,14 +148,14 @@ public class GetProfileData {
     /**
      * Gets Profile Data for Specified Target Info.
      * @param targetGeneticProfileIdList    Target Genetic Profile List.
-     * @param targetGeneList                Target Gene List.
+     * @param targetGeneticEntityList                Target Genetic entity ids List.
      * @param targetSampleList             Target Sample List.
      * @param suppressMondrianHeader        Flag to suppress the mondrian header.
      * @return Tab Delim Text String.
      * @throws DaoException Database Error.
      */
     private String getProfileData(List<String> targetGeneticProfileIdList,
-            List<String> targetGeneList, 
+            List<String> targetGeneticEntityList,
             List<String> targetSampleList,
             Boolean suppressMondrianHeader) throws DaoException {
 
@@ -186,10 +186,6 @@ public class GetProfileData {
             String geneticProfileId = targetGeneticProfileIdList.get(0);
             GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
 
-            //  Get the Gene List
-            List<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
-                    geneticProfile.getGeneticAlterationType(), buf, warningList);
-            
             //  Output DATA_TYPE and COLOR_GRADIENT_SETTINGS (Used by Mondrian Cytoscape PlugIn)
             if (!suppressMondrianHeader) {
                 buf.append("# DATA_TYPE\t ").append(geneticProfile.getProfileName()).append ("\n");
@@ -198,16 +194,33 @@ public class GetProfileData {
             }
 
             //  Ouput Column Headings
-            buf.append ("GENE_ID\tCOMMON");
+            if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.GENESET_SCORE)) {
+            	buf.append ("GENESET_ID");
+            } else {
+            	buf.append ("GENE_ID\tCOMMON");
+            }
             outputRow(targetSampleList, buf);
 
-            //  Iterate through all validated genes, and extract profile data.
-            for (Gene gene: geneList) {                
-                List<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
-                        internalSampleIds, geneticProfile);
-                outputGeneRow(dataRow, gene, buf);
+            if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.GENESET_SCORE)) {
+	            List<String> genesetIdsList = targetGeneticEntityList;
+	            //  Iterate through all validated get set ids, and extract profile data.
+	            for (String genesetId: genesetIdsList) { 
+	                List<String> dataRow = GeneticAlterationUtil.getGeneticDataRow(genesetId, 
+	                		targetSampleList, EntityType.GENESET, geneticProfile);
+	                outputGenesetRow(dataRow, genesetId, buf);
+	            }
+            } else {
+	            //  Get the Gene List
+	            List<Gene> geneList = WebApiUtil.getGeneList(targetGeneticEntityList,
+	                    geneticProfile.getGeneticAlterationType(), buf, warningList);
+	            //  Iterate through all validated genes, and extract profile data.
+	            for (Gene gene: geneList) {                
+	                List<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
+	                        internalSampleIds, geneticProfile);
+	                outputGeneRow(dataRow, gene, buf);
+	            }
             }
-        } else {
+        } else {  //DEAD CODE? Looks like if above is always true...
             //  Ouput Column Headings
             buf.append ("GENETIC_PROFILE_ID\tALTERATION_TYPE\tGENE_ID\tCOMMON");
             outputRow(targetSampleList, buf);
@@ -235,7 +248,7 @@ public class GetProfileData {
                 
                 // get data of the other profile
                 List<String> dataRow1 = null;
-                List<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
+                List<Gene> geneList = WebApiUtil.getGeneList(targetGeneticEntityList,
                         gp1.getGeneticAlterationType(), buf, warningList);
                 
                 if (geneList.size() > 0) {
@@ -248,7 +261,7 @@ public class GetProfileData {
                 }
                 
                 // get data of protein array
-                geneList = WebApiUtil.getGeneList(targetGeneList,
+                geneList = WebApiUtil.getGeneList(targetGeneticEntityList,
                         gp2.getGeneticAlterationType(), buf, warningList);
                 
                 if (geneList.size() > 0) {
@@ -263,7 +276,7 @@ public class GetProfileData {
                 //  Iterate through all genetic profiles
                 for (GeneticProfile geneticProfile : profiles) {
                     //  Get the Gene List
-                    List<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
+                    List<Gene> geneList = WebApiUtil.getGeneList(targetGeneticEntityList,
                             geneticProfile.getGeneticAlterationType(), buf, warningList);
 
                     if (geneList.size() > 0) {
@@ -317,6 +330,12 @@ public class GetProfileData {
             buf.append("-999999").append (WebApiUtil.TAB);
             buf.append (microRna.getMicroRnaId());
         }
+        outputRow (dataRow, buf);
+    }
+    
+    private static void outputGenesetRow(List<String> dataRow, String genesetId, StringBuffer buf)
+            throws DaoException {
+        buf.append(genesetId);
         outputRow (dataRow, buf);
     }
 

@@ -173,6 +173,8 @@ def process_directory(jvm_args, study_directory):
     cancer_type_filepairs = []
     sample_attr_filepair = None
     regular_filepairs = []
+    gsva_score_filepair = None
+    gsva_pvalue_filepair = None
 
     # read all meta files (excluding case lists) to determine what to import
     for f in meta_filenames:
@@ -203,6 +205,12 @@ def process_directory(jvm_args, study_directory):
                         sample_attr_filepair[0], f))
             sample_attr_filepair = (
                 f, os.path.join(study_directory, metadata['data_filename']))
+        elif meta_file_type == MetaFileTypes.GSVA_SCORES:
+            gsva_score_filepair = (
+                (f, os.path.join(study_directory, metadata['data_filename'])))
+        elif meta_file_type == MetaFileTypes.GSVA_PVALUES:
+            gsva_pvalue_filepair = (
+                (f, os.path.join(study_directory, metadata['data_filename'])))
         else:
             regular_filepairs.append(
                 (f, os.path.join(study_directory, metadata['data_filename'])))
@@ -226,9 +234,18 @@ def process_directory(jvm_args, study_directory):
         meta_filename, data_filename = sample_attr_filepair
         import_study_data(jvm_args, meta_filename, data_filename)
 
-    # Now, import everything else
+    # Now, import everything else except gsva
     for meta_filename, data_filename in regular_filepairs:
         import_study_data(jvm_args, meta_filename, data_filename)
+
+    # Now import gsva genetic profiles
+    if gsva_score_filepair is not None:
+        # First import the score data
+        meta_filename, data_filename = gsva_score_filepair
+        import_study_data(jvm_args, meta_filename, data_filename)
+        #Second import the pvalue data
+        meta_filename, data_filename = gsva_pvalue_filepair
+        import_study_data(jvm_args, gsva_pvalue_filepair[0], gsva_pvalue_filepair[1])
 
     # do the case lists
     case_list_dirname = os.path.join(study_directory, 'case_lists')

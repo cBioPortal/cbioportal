@@ -29,6 +29,12 @@
         <version>${project.version}</version>
         <scope>test</scope>
     </dependency>
+   <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>service</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+    </dependency>
 
     <!-- antisamy -->
     <dependency>
@@ -157,6 +163,13 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>2.3</version>
+    </dependency>
+    
+    <!--yaml parser-->
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.17</version>
     </dependency>
 
     <!-- BioJava 4.x -->

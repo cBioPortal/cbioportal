@@ -225,7 +225,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         self.assertEquals(1, exit_status)
         self.assertFileGenerated(out_file_name,
                                  'test_data/study_quotes/result_report.html')
-
+         
 
 if __name__ == '__main__':
     unittest.main(buffer=True)

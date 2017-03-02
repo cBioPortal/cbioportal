@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.util;
 
 
-import org.mskcc.cbio.portal.model.GeneSet;
+import org.mskcc.cbio.portal.model.SetOfGenes;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class TestGeneSetReader {
         File file = new File("target/test-classes/gene_sets.txt");
         FileInputStream fin = new FileInputStream (file);
 
-        ArrayList<GeneSet> geneSetList = GeneSetReader.readGeneSets(fin);
+        ArrayList<SetOfGenes> geneSetList = GeneSetReader.readGeneSets(fin);
         assertEquals (23, geneSetList.size());
 
         //  Verify that the correct # of genes are inserted

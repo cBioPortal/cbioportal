@@ -103,7 +103,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         expectedMutationList.add(mutation);
 
         Mockito.when(mutationRepository.getMutationsInMultipleGeneticProfiles(Arrays.asList(GENETIC_PROFILE_ID), 
-            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID), PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
             DIRECTION)).thenReturn(expectedMutationList);
         Mockito.doAnswer(invocationOnMock -> {
             ((Gene) invocationOnMock.getArguments()[0]).setChromosome("19");
@@ -111,7 +111,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         }).when(chromosomeCalculator).setChromosome(gene);
         
         List<Mutation> result = mutationService.getMutationsInMultipleGeneticProfiles(Arrays.asList(GENETIC_PROFILE_ID),
-            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID), PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
             DIRECTION);
 
         Assert.assertEquals(expectedMutationList, result);
@@ -123,9 +123,9 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
 
         MutationMeta expectedMutationMeta = new MutationMeta();
         Mockito.when(mutationRepository.getMetaMutationsInMultipleGeneticProfiles(Arrays.asList(GENETIC_PROFILE_ID),
-            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID))).thenReturn(expectedMutationMeta);
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID))).thenReturn(expectedMutationMeta);
         MutationMeta result = mutationService.getMetaMutationsInMultipleGeneticProfiles(
-            Arrays.asList(GENETIC_PROFILE_ID), Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID));
+            Arrays.asList(GENETIC_PROFILE_ID), Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID));
 
         Assert.assertEquals(expectedMutationMeta, result);
     }

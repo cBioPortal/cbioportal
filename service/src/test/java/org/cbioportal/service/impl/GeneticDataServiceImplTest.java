@@ -40,7 +40,7 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
     public void getGeneticData() throws Exception {
         
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
-            .thenReturn(Arrays.asList(SAMPLE_ID));
+            .thenReturn(Arrays.asList(SAMPLE_ID1));
         
         Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(
             "1,2,");

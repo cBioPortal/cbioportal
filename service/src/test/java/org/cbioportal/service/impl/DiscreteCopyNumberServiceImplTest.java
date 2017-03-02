@@ -267,7 +267,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
         GeneticProfile geneticProfile = new GeneticProfile();
         geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION);
-        geneticProfile.setDatatype("DISCRETE");
+        geneticProfile.setDatatype(DataType.DISCRETE);
         Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
 
         Mockito.when(geneticDataService.getNumberOfSamplesInGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(2);

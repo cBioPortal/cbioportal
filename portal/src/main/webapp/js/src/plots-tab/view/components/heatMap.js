@@ -184,7 +184,7 @@ var heat_map = (function() {
                 _row_text_set.push(gisticInterpreter.convert_to_val(j));
             }
         } else if (genetic_vs_clinical()) {
-            if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
+            if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene) {
                 for (var i = stat.x.min; i < (parseInt(stat.x.max) + 1); i++) {
                     _col_text_set.push(gisticInterpreter.convert_to_val(i));
                 }
@@ -218,14 +218,14 @@ var heat_map = (function() {
                 .text(function(d) {return d;}); 
 
         //axis titles & helps
-        var elt_x = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)?document.getElementById(ids.sidebar.x.profile_name):document.getElementById(ids.sidebar.x.clin_attr);
-        var elt_y = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)?document.getElementById(ids.sidebar.y.profile_name):document.getElementById(ids.sidebar.y.clin_attr);
-        var _x_text = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? $("#" + ids.sidebar.x.gene).val() + ", " + elt_x.options[elt_x.selectedIndex].text: elt_x.options[elt_x.selectedIndex].text;
-        var _y_text = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)? $("#" + ids.sidebar.y.gene).val() + ", " + elt_y.options[elt_y.selectedIndex].text: elt_y.options[elt_y.selectedIndex].text; 
+        var elt_x = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)?document.getElementById(ids.sidebar.x.profile_name):document.getElementById(ids.sidebar.x.clin_attr);
+        var elt_y = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene)?document.getElementById(ids.sidebar.y.profile_name):document.getElementById(ids.sidebar.y.clin_attr);
+        var _x_text = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)? $("#" + ids.sidebar.x.gene).val() + ", " + elt_x.options[elt_x.selectedIndex].text: elt_x.options[elt_x.selectedIndex].text;
+        var _y_text = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene)? $("#" + ids.sidebar.y.gene).val() + ", " + elt_y.options[elt_y.selectedIndex].text: elt_y.options[elt_y.selectedIndex].text; 
         var _x_id = elt_x.options[elt_x.selectedIndex].value;
         var _y_id = elt_y.options[elt_y.selectedIndex].value;
-        var _x_description = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? metaData.getProfileDescription($("#" + ids.sidebar.x.gene).val(), _x_id): metaData.getClinicalAttrDescription(_x_id);
-        var _y_description = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)? metaData.getProfileDescription($("#" + ids.sidebar.y.gene).val(), _y_id): metaData.getClinicalAttrDescription(_y_id);
+        var _x_description = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)? metaData.getProfileDescription($("#" + ids.sidebar.x.gene).val(), _x_id): metaData.getClinicalAttrDescription(_x_id);
+        var _y_description = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene)? metaData.getProfileDescription($("#" + ids.sidebar.y.gene).val(), _y_id): metaData.getClinicalAttrDescription(_y_id);
         //trim titles that are too long
         var _x_text_trimmed = (_x_text.length > settings.max_x_title_length)? (_x_text.substring(0, settings.max_x_title_length) + "..."): _x_text;
         var _y_text_trimmed = (_y_text.length > settings.max_y_title_length)? (_y_text.substring(0, settings.max_y_title_length) + "..."): _y_text;

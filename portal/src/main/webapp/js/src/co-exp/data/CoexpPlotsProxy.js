@@ -48,8 +48,10 @@ var CoexpPlotsProxy = (function() {
             max_x: "",
             min_y: "",
             max_y: "",
-            profile_name: "",
-            profile_description: "",
+            entity_x_profile_name: "",
+            entity_x_profile_description: "",
+            entity_y_profile_name: "",
+            entity_y_profile_description: "",
             mut_x : false, //have case(s) mutated in only gene x
             mut_y : false,  //have case(s) mutated in only gene y
             mut_both: false, //have case(s) mutated in both genes
@@ -171,9 +173,11 @@ var CoexpPlotsProxy = (function() {
         attr.max_y = Math.max.apply(Math, _yValArr);
     }
 
-    function getProfile(_result) {
-        attr.profile_description = _result["profile_description"]; 
-        attr.profile_name = _result["profile_name"];
+    function setProfileDetails(_result) {
+        attr.entity_x_profile_description = _result["entity_x_profile_description"]; 
+        attr.entity_x_profile_name = _result["entity_x_profile_name"];
+        attr.entity_y_profile_description = _result["entity_y_profile_description"]; 
+        attr.entity_y_profile_name = _result["entity_y_profile_name"];
     }
 
     function getMutationMaps() {
@@ -192,7 +196,7 @@ var CoexpPlotsProxy = (function() {
             convertData(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
             prioritizeMutatedCases();
             analyseData();
-            getProfile(_alteration_data_result);
+            setProfileDetails(_alteration_data_result);
         },
         getData: function() { return dataArr; },
         getDataAttr: function() { return attr; }

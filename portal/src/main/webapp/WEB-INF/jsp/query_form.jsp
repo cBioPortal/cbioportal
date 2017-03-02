@@ -57,11 +57,14 @@
     String localCaseIds = request.getParameter(QueryBuilder.CASE_IDS);
 	//String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 	String localGeneList = request.getParameter(QueryBuilder.GENE_LIST);
+	String localGeneSetList = request.getParameter(QueryBuilder.GENESET_LIST);
 
 	if (request instanceof XssRequestWrapper)
 	{
 		localGeneList = localXssUtil.getCleanInput(
 			((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST));
+		localGeneSetList = localXssUtil.getCleanInput(
+				((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENESET_LIST));
 	}
     
     String localTabIndex = request.getParameter(QueryBuilder.TAB_INDEX);

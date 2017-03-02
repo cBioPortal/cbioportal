@@ -53,6 +53,8 @@ var PlotsBoilerplate = {
         fill: "#58ACFA", //light blue
         stroke: "#0174DF", //dark blue
         stroke_width: "1.2",
+        geneset_fill: "#00AAF8",
+        geneset_stroke: "grey",
         size: "20",
         shape: "circle" //may vary for different mutation types
     },
@@ -96,8 +98,10 @@ var PlotsBoilerplate = {
         legends: {
             gene_x_mut: "gene_x mutated",
             gene_y_mut: "gene_y mutated",
-            gene_both_mut: "Both mutated",
-            non_mut: "Neither mutated"
+            gene_both_mut: "Both genes mutated",
+            non_mut: "Genes not mutated",
+            gene_x_not_mutated: "gene_x not mutated",
+            gene_y_not_mutated: "gene_y not mutated"
         }
     }
 };

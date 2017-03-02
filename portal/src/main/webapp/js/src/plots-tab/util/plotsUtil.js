@@ -13,6 +13,9 @@ var PlotUtilsModel = Backbone.Model.extend({
      genetic_vs_genetic: true,
      genetic_vs_clinical: false,
      clinical_vs_clinical: false,
+     gsva_vs_gsva: false,
+     gsva_vs_clinical: false,
+     gsva_vs_genetic: false,
      x_gene: "",
      y_gene: ""
   },
@@ -58,16 +61,21 @@ var PlotUtilsModel = Backbone.Model.extend({
 		};
 		var genetic_vs_genetic = function() {
 		    if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() && 
-		            $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
+		            $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene) {
 		            return true;
 		        } return false;   
 		};
 
 		var genetic_vs_clinical = function() {
-		    var _type_x = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val();
-		    var _type_y = $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val();
-		    if (_type_x !== _type_y) {
-		        return true;
+			if ((($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin || 
+			    	$("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene) &&
+			    	($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin ||
+			    	$("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene))) {
+				var _type_x = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val();
+			    var _type_y = $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val();
+			    if (_type_x !== _type_y) {
+			        return true;
+			   }
 		    } return false;
 		};
 
@@ -77,9 +85,42 @@ var PlotUtilsModel = Backbone.Model.extend({
 		        return true;
 		    } return false;
 		};
+		
+		var gsva_vs_clinical = function() {
+			if ((($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin || 
+			    	$("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset) &&
+			    	($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin ||
+			    	$("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.geneset))) {
+				var _type_x = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val();
+			    var _type_y = $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val();
+			    if (_type_x !== _type_y) {
+			        return true;
+			   }
+		    } return false;
+		};
+		
+		var gsva_vs_genetic = function() {
+			if ((($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene || 
+			    	$("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset) &&
+			    	($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene ||
+			    	$("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.geneset))) {
+				var _type_x = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val();
+			    var _type_y = $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val();
+			    if (_type_x !== _type_y) {
+			        return true;
+			   }
+		    } return false;
+		};
 
+		var gsva_vs_gsva = function() {
+		    if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() && 
+		        $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset) {
+		        return true;
+		    } return false;
+		};
+		
 		var getXGene = function() {
-			if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
+			if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene) {
 			    var elt_x = document.getElementById(ids.sidebar.x.gene);
 			    var _gene_symbol = elt_x.options[elt_x.selectedIndex].value;
 			    return _gene_symbol;
@@ -91,7 +132,7 @@ var PlotUtilsModel = Backbone.Model.extend({
 		};
 
 		var getYGene = function() {
-			if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic) {
+			if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene) {
 			    var elt_y = document.getElementById(ids.sidebar.y.gene);
 			    var _gene_symbol = elt_y.options[elt_y.selectedIndex].value;
 			    return _gene_symbol;
@@ -108,6 +149,9 @@ var PlotUtilsModel = Backbone.Model.extend({
 		this.set("genetic_vs_genetic", genetic_vs_genetic());
 		this.set("genetic_vs_clinical", genetic_vs_clinical());
 		this.set("clinical_vs_clinical", clinical_vs_clinical());
+		this.set("gsva_vs_clinical", gsva_vs_clinical());
+		this.set("gsva_vs_genetic", gsva_vs_genetic());
+		this.set("gsva_vs_gsva", gsva_vs_gsva());
 		this.set("x_gene", getXGene());
 		this.set("y_gene", getYGene());		
 	  
@@ -157,6 +201,18 @@ var genetic_vs_clinical = function() {
 
 var clinical_vs_clinical = function() {
 	return getModelVal("clinical_vs_clinical");
+};
+
+var gsva_vs_clinical = function() {
+	return getModelVal("gsva_vs_clinical");
+};
+
+var gsva_vs_genetic = function() {
+	return getModelVal("gsva_vs_genetic");
+};
+
+var gsva_vs_gsva = function() {
+	return getModelVal("gsva_vs_gsva");
 };
 
 var getXGene = function() {
@@ -383,9 +439,11 @@ var is_discretized = function(axis) {
     if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
         if (clinical_attr_is_discretized(axis)) return true;
         return false;
-    } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
+    } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.gene) {
         if (is_profile_discretized(axis)) return true;
         return false;
+    } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.geneset) {
+    	return false;
     }
 };
 

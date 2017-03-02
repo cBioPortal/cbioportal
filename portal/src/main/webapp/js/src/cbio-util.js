@@ -339,15 +339,27 @@ cbio.util = (function() {
     };
 
     /**
-     * Replaces problematic characters with an underscore for the given string.
-     * Those characters cause problems with the properties of an HTML object,
-     * especially for the id and class properties.
+     * Gives a unique id for each given string. All strings are saved in a map,
+     * so if the same string is called more than once, it returns the unique id
+     * previously assigned. This unique id does not contain characters that cause
+     * problems with the properties of an HTML object, especially for the id and
+     * class properties.
      *
      * @param property  string to be modified
      * @return {string} safe version of the given string
      */
     var safeProperty = function(property) {
-        return property.replace(/[^a-zA-Z0-9-]/g, '_');
+        return uidProperty(property);
+    };
+
+    var uidPropertyMap = {};
+    var uidCount = 0;
+    var uidProperty = function(property) {
+        if (!uidPropertyMap[property]) {
+            uidPropertyMap[property] = "uid"+uidCount;
+            uidCount++;
+        }
+        return uidPropertyMap[property];
     };
 
     /**

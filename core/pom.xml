@@ -22,7 +22,16 @@
       <artifactId>security-spring</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.mskcc.cbio</groupId>
+    	<artifactId>persistence-mybatis</artifactId>
+    	<version>${project.version}</version>
+    </dependency>
     <dependency>
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>db-scripts</artifactId>
@@ -33,7 +42,6 @@
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>service</artifactId>
         <version>${project.version}</version>
-        <scope>test</scope>
     </dependency>
 
     <!-- antisamy -->

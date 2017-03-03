@@ -2913,6 +2913,9 @@ def interface(args=None):
                                    action='store_true',
                                    help='Skip tests requiring information '
                                         'from the cBioPortal installation')
+    parser.add_argument('-P', '--portal_properties', type=str,
+                        help='portal.properties file path (default: assumed hg19)',
+                        required=False) 
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-e', '--error_file', type=str, required=False,
@@ -2925,8 +2928,6 @@ def interface(args=None):
                         action='store_true', 
                         help='Option to enable relaxed mode for validator when '
                         'validating clinical data without header definitions')
-    parser.add_argument('-P', '--portal_properties', type=str,
-                        help='portal.properties file path', required=False)                             
 
     parser = parser.parse_args(args)
     return parser

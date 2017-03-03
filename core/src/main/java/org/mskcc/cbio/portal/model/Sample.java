@@ -52,15 +52,15 @@ public class Sample {
         PRIMARY_BLOOD_TUMOR("Primary Blood Tumor"),
         RECURRENT_BLOOD_TUMOR("Recurrent Blood Tumor"),
         METASTATIC("Metastatic"),
-        BLOOD_NORMAL("Blood Derived Normal"),
-        SOLID_NORMAL("Solid Tissues Normal");
+        BLOOD_DERIVED_NORMAL("Blood Derived Normal"),
+        SOLID_TISSUES_NORMAL("Solid Tissues Normal");
 
         private String propertyName;
         
         Type(String propertyName) { this.propertyName = propertyName; }
         public String toString() { return propertyName; }
-        public boolean isNormal() { return this==BLOOD_NORMAL || this==SOLID_NORMAL; }
-        public static Set<Type> normalTypes() {return EnumSet.of(BLOOD_NORMAL, SOLID_NORMAL);}
+        public boolean isNormal() { return this==BLOOD_DERIVED_NORMAL || this==SOLID_TISSUES_NORMAL; }
+        public static Set<Type> normalTypes() { return EnumSet.of(BLOOD_DERIVED_NORMAL, SOLID_TISSUES_NORMAL); }
 
         static public boolean has(String value)
         {
@@ -80,6 +80,12 @@ public class Sample {
     private int internalPatientId;
     private String cancerTypeId;
 
+    public Sample(String stableId, int internalPatientId, String cancerTypeId, String sampleType)
+    {
+        this(stableId, internalPatientId, cancerTypeId);
+        this.sampleType = getType(stableId, sampleType);
+    }
+    
     public Sample(int internalId, String stableId, int internalPatientId, String cancerTypeId)
     {
         this(stableId, internalPatientId, cancerTypeId);
@@ -89,16 +95,19 @@ public class Sample {
     public Sample(String stableId, int internalPatientId, String cancerTypeId)
     {
         this.stableId = stableId;
-        this.sampleType = getType(stableId);
+        this.sampleType = getType(stableId, null);
         this.internalPatientId = internalPatientId;
 		this.cancerTypeId = cancerTypeId;
     }
 
-    private Type getType(String stableId)
+    private Type getType(String stableId, String sampleType)
     {
         Matcher tcgaSampleBarcodeMatcher = StableIdUtil.TCGA_SAMPLE_TYPE_BARCODE_REGEX.matcher(stableId);
         if (tcgaSampleBarcodeMatcher.find()) {
             return StableIdUtil.getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
+        }
+        else if (sampleType != null && Type.has(sampleType)) {
+            return Type.valueOf(sampleType.toUpperCase());
         }
         else {
             return Type.PRIMARY_SOLID_TUMOR;

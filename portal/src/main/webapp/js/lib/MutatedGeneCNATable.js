@@ -5,8 +5,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
   var FileGrabber = React.createClass({displayName: "FileGrabber",
     // Saves table content to a text file
     saveFile: function() {
-      var formatData = this.state.formatData || this.props.content();
-      this.state.formatData = formatData;
+      var formatData = this.props.content();
 
       var blob = new Blob([formatData], {type: 'text/plain'});
       var fileName = this.props.downloadFileName ? this.props.downloadFileName : "data.txt";
@@ -33,12 +32,6 @@ window.EnhancedFixedDataTableSpecial = (function() {
       downloadLink.click();
     },
 
-    getInitialState: function() {
-      return {
-        formatData: ''
-      };
-    },
-
     render: function() {
       return (
         React.createElement("button", {className: "btn btn-default", onClick: this.saveFile},
@@ -49,24 +42,23 @@ window.EnhancedFixedDataTableSpecial = (function() {
 
 // Copy button component
   var ClipboardGrabber = React.createClass({displayName: "ClipboardGrabber",
-    click: function() {
-      if (!this.state.formatData) {
-        var client = new ZeroClipboard($("#copy-button")), content = this.props.content();
-        this.state.formatData = content;
-        client.on("ready", function(readyEvent) {
-          client.on("copy", function(event) {
-            event.clipboardData.setData('text/plain', content);
-          });
-        });
-      }
-      this.notify();
-    },
+    notify: function(opts) {
+      // Default settings for Copied.
+      var _message = 'Copied.';
+      var _type = 'success';
 
-    notify: function() {
+      if (_.isObject(opts)) {
+        if (!_.isUndefined(opts.message)) {
+          _message = opts.message;
+        }
+        if (opts.type) {
+          _type = opts.type;
+        }
+      }
       $.notify({
-        message: 'Copied.'
+        message: _message
       }, {
-        type: 'success',
+        type: _type,
         animate: {
           enter: 'animated fadeInDown',
           exit: 'animated fadeOutUp'
@@ -75,17 +67,51 @@ window.EnhancedFixedDataTableSpecial = (function() {
       });
     },
 
+    componentDidMount: function() {
+      var client = new ZeroClipboard($("#copy-button"));
+      var self = this;
+      client.on("ready", function(readyEvent) {
+        client.on("copy", function(event) {
+          event.clipboardData.setData('text/plain', self.props.content());
+        });
+        client.on("aftercopy", function(event) {
+          self.notify();
+        });
+        client.on("error", function(event) {
+          // Error happened, disable Copy button notify the user.
+          ZeroClipboard.destroy();
+          self.notify({
+            message: 'Copy button is not availble at this moment.',
+            type: 'danger'
+          });
+          self.setState({show: false});
+        });
+      });
+    },
+
     getInitialState: function() {
+      var _show = true;
+      var _content = this.props.content();
+
+      // The current not official limitation is 1,000,000
+      // https://github.com/zeroclipboard/zeroclipboard/issues/529
+      if (!_.isString(_content) || _content.length > 1000000) {
+        _show = false;
+      }
+
       return {
+        show: _show,
         formatData: ''
       };
     },
 
     render: function() {
       return (
-        React.createElement("button", {className: "btn btn-default", id: "copy-button",
-            onClick: this.click},
-          "COPY")
+        React.createElement("div", null,
+          this.state.show ?
+            React.createElement("button", {className: "btn btn-default", id: "copy-button"},
+              "COPY") : ''
+        )
       );
     }
   });
@@ -94,7 +120,12 @@ window.EnhancedFixedDataTableSpecial = (function() {
   var DataGrabber = React.createClass({displayName: "DataGrabber",
     // Prepares table content data for download or copy button
     prepareContent: function() {
-      var content = [], cols = this.props.cols, rows = this.props.rows;
+      var content = [], cols = $.extend(true, [], this.props.cols), rows = this.props.rows;
+
+      // List fixed columns first
+      cols = cols.sort(function(x, y) {
+        return (x.fixed === y.fixed) ? 0 : x.fixed ? -1 : 1;
+      });
 
       _.each(cols, function(e) {
         content.push((e.displayName || 'Unknown'), '\t');
@@ -124,7 +155,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
           React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
 
             getData != "COPY" ? React.createElement(FileGrabber, {content: content,
-              downloadFileName: this.props.downloadFileName}) :
+                downloadFileName: this.props.downloadFileName}) :
               React.createElement("div", null)
 
           ),
@@ -154,17 +185,17 @@ window.EnhancedFixedDataTableSpecial = (function() {
         qtipFlag = true;
       }
       return (
-        React.createElement("span", {className: className + (qtipFlag?" hasQtip " : '') +
-          ((field === 'altType' && ['mutatedGene', 'cna'].indexOf(tableType) !== -1) ? (label === 'AMP' ? ' alt-type-red' : ' alt-type-blue') : ''),
+        React.createElement("span", {className: className + (qtipFlag ? " hasQtip " : '') +
+          ((field === 'alttype' && ['mutatedGene', 'cna'].indexOf(tableType) !== -1) ? (label === 'AMP' ? ' alt-type-red' : ' alt-type-blue') : ''),
             "data-qtip": label},
 
           (field === 'name' && tableType === 'pieLabel') ? (
-            React.createElement("svg", {width: "15", height: "10"},
-              React.createElement("g", null,
-                React.createElement("rect", {height: "10", width: "10", fill: color})
+              React.createElement("svg", {width: "15", height: "10"},
+                React.createElement("g", null,
+                  React.createElement("rect", {height: "10", width: "10", fill: color})
+                )
               )
-            )
-          ) : '',
+            ) : '',
 
           shortLabel
         )
@@ -218,6 +249,14 @@ window.EnhancedFixedDataTableSpecial = (function() {
           var list = ($("#hide_column_checklist").dropdownCheckbox("items"));
           hideColumns(list);
         });
+      // add title attributes to unlabeled inputs generated by
+      // .dropdownCheckbox() for accessibility, until
+      // https://github.com/Nelrohd/bootstrap-dropdown-checkbox/issues/33 is
+      // fixed upstream
+      $('#hide_column_checklist input[type="checkbox"].checkbox-all')
+        .attr('title', 'Select all');
+      $('#hide_column_checklist input[type="text"].search')
+        .attr('title', 'Search');
     },
 
     render: function() {
@@ -270,6 +309,14 @@ window.EnhancedFixedDataTableSpecial = (function() {
           var list = ($("#pin_column_checklist").dropdownCheckbox("items"));
           pinColumns(list);
         });
+      // add title attributes to unlabeled inputs generated by
+      // .dropdownCheckbox() for accessibility, until
+      // https://github.com/Nelrohd/bootstrap-dropdown-checkbox/issues/33 is
+      // fixed upstream
+      $('#pin_column_checklist input[type="checkbox"].checkbox-all')
+        .attr('title', 'Select all');
+      $('#pin_column_checklist input[type="text"].search')
+        .attr('title', 'Search');
     },
 
     render: function() {
@@ -330,23 +377,30 @@ window.EnhancedFixedDataTableSpecial = (function() {
     },
     render: function() {
       if (this.props.type === "NUMBER" || this.props.type === "PERCENTAGE") {
+        // explicitly set anchors without href for the handles, as
+        // jQuery UI 1.10 otherwise adds href="#" which may confuse
+        // assistive technologies
         return (
           React.createElement("div", {className: "EFDT-header-filters"},
-            React.createElement("span", {id: "range-"+this.props.name}),
+            React.createElement("span", {id: "range-" + this.props.name}),
 
             React.createElement("div", {className: "rangeSlider", "data-max": this.props.max,
-              "data-min": this.props.min, "data-column": this.props.name,
-              "data-type": this.props.type})
+                "data-min": this.props.min, "data-column": this.props.name,
+                "data-type": this.props.type},
+              React.createElement("a", {className: "ui-slider-handle", tabIndex: "0"}),
+              React.createElement("a", {className: "ui-slider-handle", tabIndex: "0"})
+            )
           )
         );
       } else {
         return (
           React.createElement("div", {className: "EFDT-header-filters"},
             React.createElement("input", {className: "form-control",
-              placeholder: this.props.hasOwnProperty('placeholder')?this.props.placeholder:"Search...",
+              placeholder: this.props.hasOwnProperty('placeholder') ? this.props.placeholder : "Search...",
               "data-column": this.props.name,
               value: this.state.key,
-              onChange: this.handleChange})
+              onChange: this.handleChange,
+              title: "Input a keyword"})
           )
         );
       }
@@ -388,7 +442,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
             this.props.resultInfo ?
               React.createElement("div", {className: "EFDT-result-info"},
                 React.createElement("span", {className: "EFDT-result-info-content"},
-                  "Showing ", this.props.filteredRowsSize, " cases",
+                  "Showing ", this.props.filteredRowsSize, " samples",
 
                   this.props.filteredRowsSize !== this.props.rowsSize ?
                     React.createElement("span", null, ' (filtered from ' + this.props.rowsSize + ') ',
@@ -455,8 +509,8 @@ window.EnhancedFixedDataTableSpecial = (function() {
       return (
         React.createElement(Cell, {onFocus: this.onFocus, className: 'EFDT-cell EFDT-cell-full' +
           (this.props.selectedRowIndex.indexOf(data[rowIndex].index) != -1 ? ' row-selected' : ''),
-            },
-          React.createElement("span", {style: flag ? {backgroundColor:'yellow'} : {},
+            columnKey: field},
+          React.createElement("span", {style: flag ? {backgroundColor: 'yellow'} : {},
               onClick: field === 'gene' ? this.selectGene.bind(this, data[rowIndex].index) : '',
               onMouseEnter: (tableType === 'pieLabel' && _.isFunction(this.props.pieLabelMouseEnterFunc) && field === 'name') ? this.enterPieLabel.bind(this, data[rowIndex].row) : '',
               onMouseLeave: (tableType === 'pieLabel' && _.isFunction(this.props.pieLabelMouseLeaveFunc) && field === 'name') ? this.leavePieLabel.bind(this, data[rowIndex].row) : '',
@@ -473,18 +527,20 @@ window.EnhancedFixedDataTableSpecial = (function() {
           field === 'gene' && data[rowIndex].row.qval ?
             (tableType === 'mutatedGene' ?
               React.createElement("img", {src: "images/mutsig.png", className: "hasQtip qval-icon",
-                "data-qtip": '<b>MutSig</b><br/><i>Q-value</i>: ' + data[rowIndex].row.qval}) :
+                "data-qtip": '<b>MutSig</b><br/><i>Q-value</i>: ' + data[rowIndex].row.qval,
+                alt: "MutSig"}) :
               React.createElement("img", {src: "images/gistic.png", className: "hasQtip qval-icon",
-                "data-qtip": '<b>Gistic</b><br/><i>Q-value</i>: ' + data[rowIndex].row.qval})) : '',
+                "data-qtip": '<b>Gistic</b><br/><i>Q-value</i>: ' + data[rowIndex].row.qval,
+                alt: "Gistic"})) : '',
 
 
           field === 'cases' ?
             React.createElement("input", {type: "checkbox", style: {float: 'right'},
               title: 'Select ' + data[rowIndex].row[field]
-              + ' sample' + (Number(data[rowIndex].row[field]) > 1 ? 's':'')
+              + ' sample' + (Number(data[rowIndex].row[field]) > 1 ? 's' : '')
               + (tableType === 'mutatedGene' ? (' with ' + data[rowIndex].row.gene + ' mutation') :
-                (tableType === 'cna' ? (' with ' + data[rowIndex].row.gene + ' ' + data[rowIndex].row.altType) :
-                  (tableType === 'pieLabel' ? (' in ' + data[rowIndex].row.name)  : ''))),
+                (tableType === 'cna' ? (' with ' + data[rowIndex].row.gene + ' ' + data[rowIndex].row.alttype) :
+                  (tableType === 'pieLabel' ? (' in ' + data[rowIndex].row.name) : ''))),
               checked: this.props.selectedRowIndex.indexOf(data[rowIndex].index) != -1,
               disabled: this.props.confirmedRowsIndex.indexOf(data[rowIndex].index) !== -1,
               onChange: this.selectRow.bind(this, data[rowIndex].index)}) : ''
@@ -611,10 +667,10 @@ window.EnhancedFixedDataTableSpecial = (function() {
     render: function() {
       var Table = FixedDataTable.Table, Column = FixedDataTable.Column,
         ColumnGroup = FixedDataTable.ColumnGroup, props = this.props,
-        rows = this.props.filteredRows, columnWidths = this.props.columnWidths,
+        rows = this.props.filteredRows, columnsWidth = this.props.columnsWidth,
         cellShortLabels = this.props.shortLabels.cell,
         headerShortLabels = this.props.shortLabels.header,
-        confirmedRowsIndex=this.props.confirmedRowsIndex,
+        confirmedRowsIndex = this.props.confirmedRowsIndex,
         selectedRowIndex = this.state.selectedRowIndex,
         selectedGeneRowIndex = this.state.selectedGeneRowIndex,
         self = this;
@@ -622,14 +678,14 @@ window.EnhancedFixedDataTableSpecial = (function() {
       return (
         React.createElement("div", null,
           React.createElement(Table, {
-              rowHeight: props.rowHeight?props.rowHeight:30,
+              rowHeight: props.rowHeight ? props.rowHeight : 30,
               rowGetter: this.rowGetter,
               onScrollEnd: this.onScrollEnd,
               rowsCount: props.filteredRows.length,
-              width: props.tableWidth?props.tableWidth:1230,
-              maxHeight: props.maxHeight?props.maxHeight:500,
-              headerHeight: props.headerHeight?props.headerHeight:30,
-              groupHeaderHeight: props.groupHeaderHeight?props.groupHeaderHeight:50,
+              width: props.tableWidth ? props.tableWidth : 1230,
+              maxHeight: props.maxHeight ? props.maxHeight : 500,
+              headerHeight: props.headerHeight ? props.headerHeight : 30,
+              groupHeaderHeight: props.groupHeaderHeight ? props.groupHeaderHeight : 50,
               scrollToColumn: props.goToColumn,
               isColumnResizing: false,
               onColumnResizeEndCallback: props.onColumnResizeEndCallback
@@ -638,15 +694,18 @@ window.EnhancedFixedDataTableSpecial = (function() {
             props.cols.map(function(col, index) {
               var column;
               var width = col.show ? (col.width ? col.width :
-                (columnWidths[col.name] ? columnWidths[col.name] : 200)) : 0;
+                  (columnsWidth[col.name] ? columnsWidth[col.name] : 200)) : 0;
 
               if (props.groupHeader) {
                 column = React.createElement(ColumnGroup, {
                     header:
-                      React.createElement(Filter, {type: props.filters[col.name].type, name: col.name,
-                        max: col.max, min: col.min, filter: props.filters[col.name],
+                      React.createElement(Filter, {type: props.filters[col.name].type,
+                        name: col.name,
+                        max: col.max, min: col.min,
+                        filter: props.filters[col.name],
                         placeholder: "Filter column",
-                        onFilterKeywordChange: props.onFilterKeywordChange}
+                        onFilterKeywordChange: props.onFilterKeywordChange,
+                        title: "Filter column"}
                       ),
 
                     key: col.name,
@@ -655,14 +714,21 @@ window.EnhancedFixedDataTableSpecial = (function() {
                   },
                   React.createElement(Column, {
                     header:
-                      React.createElement(HeaderWrapper, {cellDataKey: col.name, columnData: {displayName:col.displayName,sortFlag:props.sortBy === col.name,
-                        sortDirArrow:props.sortDirArrow,filterAll:props.filterAll,type:props.filters[col.name].type},
-                        sortNSet: props.sortNSet, filter: props.filters[col.name],
-                        shortLabel: headerShortLabels[col.name]}
+                      React.createElement(HeaderWrapper, {cellDataKey: col.name, columnData: {
+                          displayName: col.displayName,
+                          sortFlag: props.sortBy === col.name,
+                          sortDirArrow: props.sortDirArrow,
+                          filterAll: props.filterAll,
+                          type: props.filters[col.name].type
+                        },
+                          sortNSet: props.sortNSet,
+                          filter: props.filters[col.name],
+                          shortLabel: headerShortLabels[col.name]}
                       ),
 
                     cell: React.createElement(CustomizeCell, {data: rows, field: col.name,
-                      filterAll: props.filterAll, shortLabels: cellShortLabels,
+                      filterAll: props.filterAll,
+                      shortLabels: cellShortLabels,
                       tableType: props.tableType,
                       selectRow: self.selectRow,
                       selectGene: self.selectGene,
@@ -682,10 +748,16 @@ window.EnhancedFixedDataTableSpecial = (function() {
               } else {
                 column = React.createElement(Column, {
                   header:
-                    React.createElement(HeaderWrapper, {cellDataKey: col.name, columnData: {displayName:col.displayName,sortFlag:props.sortBy === col.name,
-                      sortDirArrow:props.sortDirArrow,filterAll:props.filterAll,type:props.filters[col.name].type},
-                      sortNSet: props.sortNSet, filter: props.filters[col.name],
-                      shortLabel: headerShortLabels[col.name]}
+                    React.createElement(HeaderWrapper, {cellDataKey: col.name, columnData: {
+                        displayName: col.displayName,
+                        sortFlag: props.sortBy === col.name,
+                        sortDirArrow: props.sortDirArrow,
+                        filterAll: props.filterAll,
+                        type: props.filters[col.name].type
+                      },
+                        sortNSet: props.sortNSet,
+                        filter: props.filters[col.name],
+                        shortLabel: headerShortLabels[col.name]}
                     ),
 
                   cell: React.createElement(CustomizeCell, {data: rows, field: col.name,
@@ -728,77 +800,45 @@ window.EnhancedFixedDataTableSpecial = (function() {
 
     rows: null,
 
-    getColumnWidth: function(cols, rows, measureMethod, columnMinWidth) {
-      var columnWidth = {};
-      var self = this;
-      if (self.props.autoColumnWidth) {
-        var rulerWidth = 0;
-        _.each(rows, function(row) {
-          _.each(row, function(data, attr) {
-            if (data) {
-              data = data.toString();
-              if (!columnWidth.hasOwnProperty(attr)) {
-                columnWidth[attr] = 0;
-              }
-              switch (measureMethod) {
-                case 'jquery':
-                  var ruler = $("#ruler");
-                  ruler.css('font-size', '14px');
-                  ruler.text(data);
-                  rulerWidth = ruler.outerWidth();
-                  break;
-                default:
-                  var upperCaseLength = data.replace(/[^A-Z]/g, "").length;
-                  var dataLength = data.length;
-                  rulerWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 15;
-                  break;
-              }
+    getRulerWidth: function(str, measureMethod, fontSize) {
+      var rulerWidth = 0;
 
-              columnWidth[attr] = columnWidth[attr] < rulerWidth ? rulerWidth : columnWidth[attr];
-            }
-          });
-        });
-
-        //20px is the padding.
-        columnWidth = _.object(_.map(columnWidth, function(length, attr) {
-          return [attr, length > self.props.columnMaxWidth ?
-            self.props.columnMaxWidth :
-            ( (length + 20) < columnMinWidth ?
-              columnMinWidth : (length + 20))];
-        }));
-      } else {
-        _.each(cols, function(col, attr) {
-          columnWidth[col.name] = col.width ? col.width : 200;
-        });
+      //TODO: what about 0
+      if (!str) {
+        return 0;
       }
-      return columnWidth;
+
+      str = str.toString();
+      switch (measureMethod) {
+      case 'jquery':
+        var ruler = $("#ruler");
+        ruler.css('font-size', fontSize);
+        ruler.text(str);
+        rulerWidth = ruler.outerWidth();
+        break;
+      default:
+        var upperCaseLength = str.replace(/[^A-Z]/g, "").length;
+        var dataLength = str.length;
+        rulerWidth = upperCaseLength * (fontSize - 4) + (dataLength - upperCaseLength) * (fontSize - 6) + 15;
+        break;
+      }
+      return rulerWidth;
     },
 
+    //TODO: need to find way shorten this time. One possible solution is to calculate the categories for each column, and only detect the width for these categories.
     getShortLabels: function(rows, cols, columnWidth, measureMethod) {
       var cellShortLabels = [];
       var headerShortLabels = {};
-
+      var self = this;
       _.each(rows, function(row) {
         var rowWidthObj = {};
         _.each(row, function(content, attr) {
           var _label = content;
           var _labelShort = _label;
-          var _labelWidth;
           if (_label) {
             _label = _label.toString();
-            switch (measureMethod) {
-              case 'jquery':
-                var ruler = $('#ruler');
-                ruler.text(_label);
-                ruler.css('font-size', '14px');
-                _labelWidth = ruler.outerWidth();
-                break;
-              default:
-                var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
-                var dataLength = _label.length;
-                _labelWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 15;
-                break;
-            }
+            var _labelWidth = self.getRulerWidth(_label, measureMethod, 14);
+
             if (_labelWidth > columnWidth[attr]) {
               var end = Math.floor(_label.length * columnWidth[attr] / _labelWidth) - 3;
               _labelShort = _label.substring(0, end) + '...';
@@ -815,26 +855,12 @@ window.EnhancedFixedDataTableSpecial = (function() {
         if (!col.hasOwnProperty('show') || col.show) {
           var _label = col.displayName;
           var _shortLabel = '';
-          var _labelWidth = _label.toString().length * 8 + 20;
 
           if (_label) {
             _label = _label.toString();
-            switch (measureMethod) {
-              case 'jquery':
-                var ruler = $('#ruler');
-                ruler.text(_label);
-                ruler.css('font-size', '14px');
-                ruler.css('font-weight', 'bold');
-                _labelWidth = ruler.outerWidth() + 20;
-                break;
-              default:
-                var upperCaseLength = _label.replace(/[^A-Z]/g, "").length;
-                var dataLength = _label.length;
-                _labelWidth = upperCaseLength * 10 + (dataLength - upperCaseLength) * 8 + 20;
-                break;
-            }
+            var _labelWidth = self.getRulerWidth(_label, measureMethod, 15);
             if (_labelWidth > columnWidth[col.name]) {
-              var end = Math.floor(_label.length * columnWidth[col.name] / _labelWidth) - 3;
+              var end = Math.floor((_label.length) * columnWidth[col.name] / _labelWidth) - 3;
               _shortLabel = _label.substring(0, end) + '...';
             } else {
               _shortLabel = _label;
@@ -858,7 +884,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
         var allFlag = false; // Current row contains the global keyword
         for (var col in filters) {
           if (!filters[col].hide) {
-            if (filters[col].type == "STRING") {
+            if (filters[col].type === "STRING") {
               if (!row[col] && hasGroupHeader) {
                 if (filters[col].key.length > 0) {
                   return false;
@@ -871,14 +897,15 @@ window.EnhancedFixedDataTableSpecial = (function() {
                   allFlag = true;
                 }
               }
-            } else if (filters[col].type === "NUMBER" || filters[col].type == 'PERCENTAGE') {
-              var cell = _.isUndefined(row[col]) ? row[col] : Number(row[col].toString().replace('%', ''));
+            } else if (filters[col].type === "NUMBER" || filters[col].type === 'PERCENTAGE') {
+              var cell = filters[col].type === 'PERCENTAGE' ? Number(row[col].toString().replace('%', '')) : row[col];
+
               if (!isNaN(cell)) {
                 if (hasGroupHeader) {
-                  if (filters[col].min !== filters[col]._min && Number(cell) < filters[col].min) {
+                  if (filters[col].min !== filters[col]._min && cell < filters[col].min) {
                     return false;
                   }
-                  if (filters[col].max !== filters[col]._max && Number(cell) > filters[col].max) {
+                  if (filters[col].max !== filters[col]._max && cell > filters[col].max) {
                     return false;
                   }
                 }
@@ -919,11 +946,11 @@ window.EnhancedFixedDataTableSpecial = (function() {
       filteredRows.sort(function(a, b) {
         var sortVal = 0, aVal = a.row[sortBy], bVal = b.row[sortBy];
 
-        if(confirmedRowsIndex.indexOf(a.index) !== -1 && confirmedRowsIndex.indexOf(b.index) === -1) {
+        if (confirmedRowsIndex.indexOf(a.index) !== -1 && confirmedRowsIndex.indexOf(b.index) === -1) {
           return -1;
         }
 
-        if(confirmedRowsIndex.indexOf(a.index) === -1 && confirmedRowsIndex.indexOf(b.index) !== -1) {
+        if (confirmedRowsIndex.indexOf(a.index) === -1 && confirmedRowsIndex.indexOf(b.index) !== -1) {
           return 1;
         }
 
@@ -932,11 +959,11 @@ window.EnhancedFixedDataTableSpecial = (function() {
           sortVal = sortDir === SortTypes.ASC ? -_sortResult : _sortResult;
         } else {
 
-          if (type == "NUMBER") {
+          if (type === "NUMBER") {
             aVal = (aVal && !isNaN(aVal)) ? Number(aVal) : aVal;
             bVal = (bVal && !isNaN(bVal)) ? Number(bVal) : bVal;
           }
-          if (type == 'PERCENTAGE') {
+          if (type === 'PERCENTAGE') {
             aVal = aVal ? Number(aVal.replace('%', '')) : aVal;
             bVal = bVal ? Number(bVal.replace('%', '')) : bVal;
           }
@@ -1015,7 +1042,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
       var self = this;
       var id = setTimeout(function() {
         var filterAll = self.state.filterAll, filters = self.state.filters;
-        if (e.target.getAttribute("data-column") == "all") {
+        if (e.target.getAttribute("data-column") === "all") {
           filterAll = e.target.value;
         } else {
           filters[e.target.getAttribute("data-column")].key = e.target.value;
@@ -1131,7 +1158,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
       state.confirmedRows = ['mutatedGene', 'cna'].indexOf(this.props.tableType) !== -1 ? state.selectedRows : [];
       state.filteredRows = null;
       state.filterAll = "";
-      state.sortBy = this.props.sortBy || 'cases';
+      state.sortBy = this.props.sortBy ? this.props.sortBy.toLowerCase() : 'cases';
       state.goToColumn = null;
       state.filterTimer = 0;
       state.sortDir = this.props.sortDir || this.SortTypes.DESC;
@@ -1141,13 +1168,13 @@ window.EnhancedFixedDataTableSpecial = (function() {
     },
 
     rowClickCallback: function(selectedRows, isSelected, allSelectedRows) {
-      var uniqueId = this.props.uniqueId;
+      var uniqueId = this.state.uniqueId;
       this.setState({
         selectedRows: allSelectedRows.map(function(item) {
           return item[uniqueId];
         })
       });
-      if(_.isFunction(this.props.rowClickFunc)) {
+      if (_.isFunction(this.props.rowClickFunc)) {
         this.props.rowClickFunc(selectedRows, isSelected, allSelectedRows);
       }
     },
@@ -1157,14 +1184,14 @@ window.EnhancedFixedDataTableSpecial = (function() {
       this.setState({
         confirmedRows: selectedRows
       });
-      if(_.isFunction(this.props.selectButtonClickCallback)) {
+      if (_.isFunction(this.props.selectButtonClickCallback)) {
         this.props.selectButtonClickCallback();
       }
     },
 
     getSelectedRowIndex: function(selectedRows) {
       var selectedRowIndex = [];
-      var uniqueId = this.props.uniqueId;
+      var uniqueId = this.state.uniqueId;
       _.each(this.rows, function(row, index) {
         if (selectedRows.indexOf(row[uniqueId]) !== -1) {
           selectedRowIndex.push(index);
@@ -1183,24 +1210,23 @@ window.EnhancedFixedDataTableSpecial = (function() {
       return selectedGeneRowIndex;
     },
 
-    // Initializes filteredRows before first rendering
-    componentWillMount: function() {
-      this.filterSortNSet(this.state.filterAll, this.state.filters, this.state.sortBy);
-    },
-
     parseInputData: function(input, uniqueId, selectedRows, groupHeader, columnSorting) {
       var cols = [], rows = [], rowsDict = {}, attributes = input.attributes,
         data = input.data, dataLength = data.length, col, cell, i, filters = {},
         uniqueId = uniqueId || 'id', newCol,
         selectedRows = selectedRows || [],
         measureMethod = (dataLength > 100000 || !this.props.autoColumnWidth) ? 'charNum' : 'jquery',
-        columnMinWidth = groupHeader ? 130 : 50; //The minimum width to at least fit in number slider.
+        autoColumnWidth = this.props.autoColumnWidth,
+        columnMinWidth = this.props.groupHeader ? 130 : 50; //The minimum width to at least fit in number slider.
+
       var selectedRowIndex = [];
+      var columnsWidth = {}, self = this;
 
       // Gets column info from input
       var colsDict = {};
       for (i = 0; i < attributes.length; i++) {
         col = attributes[i];
+        col.attr_id = col.attr_id.toLowerCase();
         newCol = {
           displayName: col.display_name,
           name: col.attr_id,
@@ -1222,21 +1248,65 @@ window.EnhancedFixedDataTableSpecial = (function() {
         }
 
         cols.push(newCol);
-        colsDict[col.attr_id] = i;
+        colsDict[col.attr_id] = newCol;
+        columnsWidth[col.attr_id] = 0;
       }
 
       // Gets data rows from input
       for (i = 0; i < dataLength; i++) {
         cell = data[i];
+        cell.attr_id = cell.attr_id.toLowerCase();
+
+        if (!colsDict.hasOwnProperty(cell.attr_id)) {
+          continue;
+        }
+
         if (!rowsDict[cell[uniqueId]]) {
           rowsDict[cell[uniqueId]] = {};
         }
-        rowsDict[cell[uniqueId]][cell.attr_id] = cell.attr_val;
+
+        //Clean up the input data
+        if (_.isUndefined(cell.attr_val)) {
+          cell.attr_val = '';
+        }
+
+        if (colsDict[cell.attr_id].type === 'NUMBER') {
+          rowsDict[cell[uniqueId]][cell.attr_id] = cell.attr_val !== '' ? Number(cell.attr_val) : NaN;
+        } else if (colsDict[cell.attr_id].type === 'STRING') {
+          rowsDict[cell[uniqueId]][cell.attr_id] = cell.attr_val.toString();
+        } else if (colsDict[cell.attr_id].type === 'PERCENTAGE') {
+          rowsDict[cell[uniqueId]][cell.attr_id] = cell.attr_val.toString();
+        } else {
+          rowsDict[cell[uniqueId]][cell.attr_id] = cell.attr_val;
+        }
+
+        if (autoColumnWidth) {
+          var val = rowsDict[cell[uniqueId]][cell.attr_id];
+          var rulerWidth = 0;
+          if (val !== 0) {
+            rulerWidth = val ? this.getRulerWidth(val, measureMethod, 14) : 0;
+          }
+          columnsWidth[cell.attr_id] = columnsWidth[cell.attr_id] < rulerWidth ? rulerWidth : columnsWidth[cell.attr_id];
+        }
+      }
+
+      if (!autoColumnWidth) {
+        _.each(cols, function(col, attr) {
+          columnsWidth[col.name] = col.width ? col.width : 200;
+        });
+      } else {
+        columnsWidth = _.object(_.map(columnsWidth, function(length, attr) {
+          return [attr, length > self.props.columnMaxWidth ?
+            self.props.columnMaxWidth :
+            ( (length + 20) < columnMinWidth ?
+              columnMinWidth : (length + 20))];
+        }));
       }
 
       var index = 0;
+      var _uniqueId = uniqueId.toLowerCase();
       _.each(rowsDict, function(item, i) {
-        rowsDict[i][uniqueId] = i;
+        rowsDict[i][_uniqueId] = i;
         rows.push(rowsDict[i]);
         if (selectedRows.indexOf(i) !== -1) {
           selectedRowIndex.push(index);
@@ -1252,12 +1322,11 @@ window.EnhancedFixedDataTableSpecial = (function() {
           hide: !col.show
         };
 
-        if (col.type == "NUMBER" || col.type == "PERCENTAGE") {
+        if (col.type === "NUMBER" || col.type === "PERCENTAGE") {
           var min = Number.MAX_VALUE, max = -Number.MAX_VALUE;
           for (var j = 0; j < rows.length; j++) {
-            cell = _.isUndefined(rows[j][col.name]) ? rows[j][col.name] : rows[j][col.name].toString().replace('%');
-            if (typeof cell != "undefined" && !isNaN(cell)) {
-              cell = Number(cell);
+            cell = col.type === "PERCENTAGE" ? Number(rows[j][col.name].replace('%')) : rows[j][col.name];
+            if (!isNaN(cell)) {
               max = cell > max ? cell : max;
               min = cell < min ? cell : min;
             }
@@ -1291,20 +1360,20 @@ window.EnhancedFixedDataTableSpecial = (function() {
       }
       this.rows = rows;
 
-      var columnWidths = this.getColumnWidth(cols, rows, measureMethod, columnMinWidth);
-      var shortLabels = this.getShortLabels(rows, cols, columnWidths, measureMethod);
+      var shortLabels = this.getShortLabels(rows, cols, columnsWidth, measureMethod);
 
       return {
         cols: cols,
         rowsSize: rows.length,
         filters: filters,
         shortLabels: shortLabels,
-        columnWidths: columnWidths,
+        columnsWidth: columnsWidth,
         columnMinWidth: columnMinWidth,
         selectedRowIndex: selectedRowIndex,
         selectedRows: selectedRows,
         dataSize: dataLength,
-        measureMethod: measureMethod
+        measureMethod: measureMethod,
+        uniqueId: _uniqueId
       };
     },
     // If properties changed
@@ -1314,8 +1383,16 @@ window.EnhancedFixedDataTableSpecial = (function() {
       state.confirmedRows = ['mutatedGene', 'cna'].indexOf(newProps.tableType) !== -1 ? state.selectedRows : [];
       state.filteredRows = null;
       state.filterAll = this.state.filterAll || '';
-      state.sortBy = this.props.sortBy || 'cases';
-      state.sortDir = this.props.sortDir || this.SortTypes.DESC;
+      if (newProps.sortBy && newProps.sortBy.toLowerCase() !== this.state.sortBy) {
+        state.sortBy = newProps.sortBy.toLowerCase();
+      } else {
+        state.sortBy = this.state.sortBy || 'cases';
+      }
+      if (newProps.sortDir && newProps.sortDir.toLowerCase() !== this.state.sortDir) {
+        state.sortDir = newProps.sortDir;
+      } else {
+        state.sortDir = this.state.sortDir || this.SortTypes.DESC;
+      }
       state.goToColumn = null;
       state.filterTimer = 0;
 
@@ -1324,6 +1401,24 @@ window.EnhancedFixedDataTableSpecial = (function() {
       state.filteredRows = result.filteredRows;
 
       this.setState(state);
+    },
+
+    // Initializes filteredRows before first rendering
+    componentWillMount: function() {
+      var rows = this.rows.map(function(item, index) {
+        return {
+          row: item,
+          index: index
+        }
+      });
+      var result = this.sortRowsBy(this.state.filters, rows, this.state.sortBy, false);
+      this.setState({
+        filteredRows: result.filteredRows,
+        sortBy: this.state.sortBy,
+        sortDir: result.sortDir,
+        filterAll: this.state.filterAll,
+        filters: this.state.filters
+      });
     },
 
     //Will be triggered if the column width has been changed
@@ -1338,11 +1433,11 @@ window.EnhancedFixedDataTableSpecial = (function() {
         }
       });
       if (foundMatch) {
-        var columnWidths = this.state.columnWidths;
-        columnWidths[key] = width;
-        var shortLabels = this.getShortLabels(this.rows, cols, columnWidths, this.state.measureMethod);
+        var columnsWidth = this.state.columnsWidth;
+        columnsWidth[key] = width;
+        var shortLabels = this.getShortLabels(this.rows, cols, columnsWidth, this.state.measureMethod);
         this.setState({
-          columnWidths: columnWidths,
+          columnsWidth: columnsWidth,
           shortLabels: shortLabels,
           cols: cols
         });
@@ -1354,6 +1449,14 @@ window.EnhancedFixedDataTableSpecial = (function() {
       if (this.props.groupHeader) {
         this.registerSliders();
       }
+    },
+
+    // Expose the current sorting settings
+    getCurrentSort: function() {
+      return {
+        sortBy: this.state.sortBy,
+        sortDir: this.state.sortDir
+      };
     },
 
     // Sets default properties
@@ -1426,7 +1529,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
               tableType: this.props.tableType,
               confirmedRowsIndex: confirmedRowsIndex,
               shortLabels: this.state.shortLabels,
-              columnWidths: this.state.columnWidths,
+              columnsWidth: this.state.columnsWidth,
               rowClickFunc: this.state.rowClickFunc,
               geneClickFunc: this.props.geneClickFunc,
               selectButtonClickCallback: this.state.selectButtonClickCallback,
@@ -1449,7 +1552,9 @@ window.EnhancedFixedDataTableSpecial = (function() {
           React.createElement("div", {className: "EFDT-finish-selection-button"},
 
             (['mutatedGene', 'cna'].indexOf(this.props.tableType) !== -1 && this.state.selectedRows.length > 0 && this.state.confirmedRows.length !== this.state.selectedRows.length ) ?
-              React.createElement("button", {className: "btn btn-default btn-xs", onClick: this.state.selectButtonClickCallback}, "Select Samples") : ''
+              React.createElement("button", {className: "btn btn-default btn-xs",
+                onClick: this.state.selectButtonClickCallback}, "Select" + ' ' +
+                "Samples") : ''
 
           )
         )

@@ -298,7 +298,6 @@
     </b:bean>
 
     <b:bean id="customUserService" class="${saml.custom.userservice.class}">
-        <b:constructor-arg ref="portalUserDAO"/>
     </b:bean>
 
     <!-- Provider of default SAML Context -->

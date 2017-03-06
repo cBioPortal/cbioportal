@@ -21,24 +21,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.authentication.saml;
+package org.cbioportal.security.spring.authentication.saml;
 
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.portal.authentication.PortalUserDetails;
-import org.mskcc.cbio.portal.dao.PortalUserDAO;
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.portal.util.GlobalProperties;
+
+import org.cbioportal.model.User;
+import org.cbioportal.model.UserAuthorities;
+import org.cbioportal.persistence.SecurityRepository;
+import org.cbioportal.security.spring.authentication.PortalUserDetails;
+
 import org.opensaml.saml2.core.Attribute;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
+import org.springframework.stereotype.Service;
 
 /**
  * Custom UserDetailsService which parses SAML messages and checks authorization of
@@ -46,21 +51,22 @@ import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
  *
  * @author Pieter Lukasse
  */
+@Service
 public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
 {
     private static final Log log = LogFactory.getLog(SAMLUserDetailsServiceImpl.class);
-    private final PortalUserDAO portalUserDAO;
+
+    private static String samlIdpMetadataEmailAttributeName;
+    @Value("${saml.idp.metadata.attribute.email:mail}")
+    public void setSamlIdpMetadataEmailAttributeName(String property) { this.samlIdpMetadataEmailAttributeName = property; }
+
+    @Autowired
+    private SecurityRepository securityRepository;
 
     /**
      * Constructor.
-     *
-     * Takes a ref to PortalUserDAO used to check authorization of registered
-     * users in the database.
-     *
-     * @param portalUserDAO PortalUserDAO
      */
-    public SAMLUserDetailsServiceImpl(PortalUserDAO portalUserDAO) {
-        this.portalUserDAO = portalUserDAO;
+    public SAMLUserDetailsServiceImpl() {
     }          
 
     /**
@@ -73,13 +79,12 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
 		PortalUserDetails toReturn = null;
 
 		String userId = null;
-		String emailAttributeName = GlobalProperties.getSamlIdpMetadataEmailAttributeName();
 		// get userid and name: iterate over attributes searching for "mail" and "displayName":
         for (Attribute cAttribute : credential.getAttributes()) {
         	log.debug("loadUserBySAML(), parsing attribute - " + cAttribute.toString());
         	log.debug("loadUserBySAML(), parsing attribute - " + cAttribute.getName());
         	log.debug("loadUserBySAML(), parsing attribute - " + credential.getAttributeAsString(cAttribute.getName()));
-        	if (userId == null && cAttribute.getName().equals(emailAttributeName))
+        	if (userId == null && cAttribute.getName().equals(samlIdpMetadataEmailAttributeName))
         	{
         		userId = credential.getAttributeAsString(cAttribute.getName());
         		//userid = credential.getNameID().getValue(); needed to support OneLogin...?? Although with OneLogin we haven't gotten this far yet...
@@ -99,12 +104,12 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
             log.debug("loadUserBySAML(), IDP successfully authenticated user, userid: " + userId);
             log.debug("loadUserBySAML(), now attempting to fetch portal user authorities for userid: " + userId);
             
-            //try to find user in DB. If not found, will go to catch (EmptyResultDataAccessException) below:
-            User user = portalUserDAO.getPortalUser(userId);
-        	if (user.isEnabled()) {
+            //try to find user in DB
+            User user = securityRepository.getPortalUser(userId);
+        	if (user != null && user.isEnabled()) {
                 log.debug("loadUserBySAML(), user is enabled; attempting to fetch portal user authorities, userid: " + userId);
 
-                UserAuthorities authorities = portalUserDAO.getPortalUserAuthorities(userId);
+                UserAuthorities authorities = securityRepository.getPortalUserAuthorities(userId);
                 if (authorities != null) {
                     List<GrantedAuthority> grantedAuthorities =
                         AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
@@ -112,26 +117,18 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
                     toReturn = new PortalUserDetails(userId, grantedAuthorities);
                     toReturn.setEmail(userId);
                     toReturn.setName(userId);
-                } else {
-                    log.debug("loadUserBySAML(), user authorities is null, userid: " + userId + ". Depending on property always_show_study_group, "
-                    		+ "he could still have default access (to PUBLIC studies)");
-                	toReturn = new PortalUserDetails(userId, getInitialEmptyAuthoritiesList());
-                    toReturn.setEmail(userId);
-                    toReturn.setName(userId);
-                }
+                } 
+          } else if (user == null) { // new user
+              log.debug("loadUserBySAML(), user authorities is null, userid: " + userId + ". Depending on property always_show_study_group, "
+                  + "he could still have default access (to PUBLIC studies)");
+              toReturn = new PortalUserDetails(userId, getInitialEmptyAuthoritiesList());
+              toReturn.setEmail(userId);
+              toReturn.setName(userId);
         	} else {
         		//user WAS found in DB but has been actively disabled:
         		throw new UsernameNotFoundException("Error: Your user access to cBioPortal has been disabled");
         	}
     		return toReturn;
-		}
-		catch (EmptyResultDataAccessException er) {
-			//user record not found at all in DB.
-			//if user is not in DB but is successfully authenticated, just give him the default empty access list.
-        	//Depending on GlobalProperties.getAlwaysShowStudyGroup() he could still have access to PUBLIC studies:
-            log.debug("loadUserBySAML(), user and user authorities is null, userid: " + userId + ". Depending on property always_show_study_group, "
-            		+ "he could still have default access (to PUBLIC studies)");
-        	return new PortalUserDetails(userId, getInitialEmptyAuthoritiesList());
 		}
 		catch (UsernameNotFoundException unnf) {
 			//throw this exception, so that the user gets redirected to the error HTML page: 

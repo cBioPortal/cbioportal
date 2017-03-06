@@ -133,7 +133,7 @@ Then, modify the section labeled `authentication`. See SAML parameters shown in 
     saml.idp.comm.binding.settings=defaultBinding
     saml.idp.comm.binding.type=
     saml.idp.metadata.attribute.email=User.email
-    saml.custom.userservice.class=org.mskcc.cbio.portal.authentication.saml.SAMLUserDetailsServiceImpl
+    saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
     # global logout (as opposed to local logout):
     saml.logout.local=false
     saml.logout.url=/
@@ -148,11 +148,11 @@ IDP required HTTP-GET requests instead of HTTP-POST, you need to set these prope
     saml.idp.comm.binding.settings=specificBinding
     saml.idp.comm.binding.type=bindings:HTTP-Redirect
 
-If you need a very different parsing of the SAML tokens than what is done at `org.mskcc.cbio.portal.authentication.saml.SAMLUserDetailsServiceImpl`, you can point the `saml.custom.userservice.class` to your own implementation: 
+If you need a very different parsing of the SAML tokens than what is done at `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl`, you can point the `saml.custom.userservice.class` to your own implementation: 
 
     saml.custom.userservice.class=<your_package.your_class_name>
 
-:warning: The property `saml.idp.metadata.attribute.email` can also vary per IDP. It is important to set this correctly since this is a required field by the cBioPortal SAML parser (that is, if `org.mskcc.cbio.portal.authentication.saml.SAMLUserDetailsServiceImpl` is chosen for property `saml.custom.userservice.class`). 
+:warning: The property `saml.idp.metadata.attribute.email` can also vary per IDP. It is important to set this correctly since this is a required field by the cBioPortal SAML parser (that is, if `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl` is chosen for property `saml.custom.userservice.class`). 
 
 :warning: Some IDPs like to provide their own logout page (e.g. when they don't support the custom SAML Single Logout protocol). For this you can adjust the  
 `saml.logout.url` property to a custom URL provided by the IDP. Also set the `saml.logout.local=true` property in this case to indicate that global logout (or Single Logout) is not supported by IDP:
@@ -165,13 +165,11 @@ If you need a very different parsing of the SAML tokens than what is done at `or
 ## More customizations
 
 If your IDP does not have the flexibility of sending the specific credential fields expected by our 
-default "user details parsers" implementation (i.e. `core/src/main/java/org/mskcc/cbio/portal/authentication/saml/SAMLUserDetailsServiceImpl.java` 
+default "user details parsers" implementation (i.e. `security/security-spring/src/main/java/org/cbioportal/security/spring/authentication/saml/SAMLUserDetailsServiceImpl.java` 
 expects field `mail` to be present in the SAML credential), then please let us know via a [new 
 issue at our issue tracking system](https://github.com/cBioPortal/cbioportal/issues/new), so we can 
 evaluate whether this is a scenario we would like to support in the default code. You can also consider 
-adding your own version of the `SAMLUserDetailsService` class. The class [MSKCCPortalUserDetailsService.java](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/portal/authentication/saml/MSKCCPortalUserDetailsService.java) is an 
-example of this.
-
+adding your own version of the `SAMLUserDetailsService` class. 
 
 ## Authorizing Users
 

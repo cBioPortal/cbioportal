@@ -100,8 +100,8 @@ saml.idp.comm.binding.settings=defaultBinding
 # Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
 # Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
 saml.idp.comm.binding.type=
-# Change this to configure your custom UserDetails parser (default: org.mskcc.cbio.portal.authentication.saml.SAMLUserDetailsServiceImpl)
-saml.custom.userservice.class=org.mskcc.cbio.portal.authentication.saml.SAMLUserDetailsServiceImpl
+# Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
+saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
 # Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
 saml.logout.url=/login.jsp?logout_success=true
 

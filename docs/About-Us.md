@@ -56,7 +56,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Dong Li
 * James Xu
 
-## Funding for the cBioPortal for Cancer Genomics is or has been provided in part from:
+## Funding for the cBioPortal for Cancer Genomics is or has been provided from:
 
 ### Current:
 * Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK

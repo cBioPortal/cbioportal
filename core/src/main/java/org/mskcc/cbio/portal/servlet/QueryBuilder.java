@@ -187,7 +187,14 @@ public class QueryBuilder extends HttpServlet {
 
         //  Get all Cancer Types
         try {
-			List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();
+            List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();
+            if ((cancerStudyList.size() == 1 &&
+                cancerStudyList.get(0).getCancerStudyStableId().equals("all")) ||
+                    cancerStudyList.size() == 0) {
+                throw new ProtocolException("No cancer studies accessible; " +
+                    "either provide credentials to access private studies, " +
+                    "or ask administrator to load public ones.");
+            }
 
             if (cancerTypeId == null) {
                 cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
@@ -274,10 +281,10 @@ public class QueryBuilder extends HttpServlet {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);
-        } catch (ProtocolException e) {
+        } catch (ProtocolException e) { // currently this is only from no studies
             xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               DB_CONNECT_ERROR, xdebug);
+                               e.getMsg(), xdebug);
         }
     }
 
@@ -565,7 +572,7 @@ public class QueryBuilder extends HttpServlet {
                     }
                 }
             }
-        } 
+        }
 
         return errorsExist;
     }

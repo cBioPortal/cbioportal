@@ -58,12 +58,13 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided in part from:
 
-Current:
+### Current:
 * Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK
 * Robertson Foundation
 * POETIC Consortium
 * Adenoid Cystic Carcinoma Research Foundation
-Past:
+
+### Past:
 * Stand Up 2 Cancer
 * American Association for Cancer Research (AACR) through Project GENIE
 * NCI, as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840)

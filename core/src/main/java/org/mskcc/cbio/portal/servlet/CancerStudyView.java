@@ -215,7 +215,7 @@ public class CancerStudyView extends HttpServlet {
 					}
 				}
 			} else {
-				addCohortToMap(studySampleMap, cohort.getId(), inputCohortMap.get(cohort.getId()));
+				addCohortToMap(studySampleMap, cohort.getId(), null);
 			}
 		}
 		// check if there are any studies in the response map, if no then check
@@ -331,25 +331,19 @@ public class CancerStudyView extends HttpServlet {
      */
 	private void addCohortToMap(Map<String, Set<String>> studySampleMap, String cancerStudyId, Set<String> sampleIds)
 			throws DaoException {
-		// check if the the study already present in the response map
-		// and if yes, find the intersection of the samples in the response map
-		// and the samples that needs to be added into the map
-		if (studySampleMap.containsKey(cancerStudyId)) {
-			Set<String> sampleIdsTemp = studySampleMap.get(cancerStudyId);
-			if (sampleIds == null || sampleIds.size() == 0) {
-				SampleList sampleList = daoSampleList.getSampleListByStableId(cancerStudyId + "_all");
-				sampleIds = new HashSet<String>(sampleList.getSampleList());
-			}
-			sampleIdsTemp.retainAll(sampleIds);
-			studySampleMap.put(cancerStudyId, sampleIdsTemp);
-		} else {
-			if (sampleIds == null || sampleIds.size() == 0) {
-				SampleList sampleList = daoSampleList.getSampleListByStableId(cancerStudyId + "_all");
-				sampleIds = new HashSet<String>(sampleList.getSampleList());
-			}
-			studySampleMap.put(cancerStudyId, sampleIds);
+		Set<String> sampleIdsToAdd = sampleIds;
+		if (sampleIdsToAdd == null) {
+			SampleList sampleList = daoSampleList.getSampleListByStableId(cancerStudyId + "_all");
+			sampleIdsToAdd = new HashSet<String>(sampleList.getSampleList());
 		}
 
+		if (studySampleMap.containsKey(cancerStudyId)) {
+			Set<String> exisitngSampleIds = studySampleMap.get(cancerStudyId);
+			exisitngSampleIds.addAll(sampleIdsToAdd);
+			studySampleMap.put(cancerStudyId, exisitngSampleIds);
+		} else {
+			studySampleMap.put(cancerStudyId, sampleIdsToAdd);
+		}
 	}
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,

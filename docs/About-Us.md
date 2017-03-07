@@ -62,6 +62,8 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK
 * Robertson Foundation
 * POETIC Consortium
+* Prostate Cancer Foundation
+* Breast Cancer Research Foundation
 * Adenoid Cystic Carcinoma Research Foundation
 
 ### Past:
@@ -70,4 +72,3 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * NCI, as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840)
 * NCRR, as the [National Resource for Network Biology (NRNB)](http://nrnb.org/) Research Resource (RR 031228-02)
 * Starr Cancer Consortium
-* Prostate Cancer Foundation

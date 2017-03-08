@@ -1676,9 +1676,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 		    }).fail(function () {
 			fetch_promise.reject();
 		    }).then(function () {
-		        var filtered_genetic_profile_ids = self.getGeneticProfileIds().filter(function(v) {
-                            return profile_types[v] !== "GENESET_SCORE";
-                        });
+			if (self.getQueryGenes() === null || self.getQueryGenes().length === 0) {
+			    // no genetic alteration tracks to populate, return with a resolved promise
+			    fetch_promise.resolve([]);
+			    return;
+			}
+			var filtered_genetic_profile_ids = self.getGeneticProfileIds().filter(function(v) {
+			    return profile_types[v] !== "GENESET_SCORE";
+			});
 			var num_calls = filtered_genetic_profile_ids.length;
 			var all_data = [];
 			for (var i = 0; i < filtered_genetic_profile_ids.length; i++) {
@@ -1888,6 +1893,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 	}),
 	'getOncoprintSampleGenomicEventData': makeCachedPromiseFunctionWithSessionFilterOption(
 		function (self, fetch_promise, use_session_filters) {
+	    // if no genes were queried, resolve with an empty list
+	    if (self.getQueryGenes() === null || self.getQueryGenes() === 0) {
+		return fetch_promise.resolve([]).promise();
+	    }
 	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), 
 	    self.getStudySampleMap(), 
 	    self.getCaseUIDMap(),
@@ -2024,6 +2033,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 	}),
 	'getOncoprintPatientGenomicEventData': makeCachedPromiseFunctionWithSessionFilterOption(
 		function (self, fetch_promise, use_session_filters) {
+	    // if no genes were queried, resolve with an empty list
+	    if (self.getQueryGenes() === null || self.getQueryGenes() === 0) {
+		fetch_promise.resolve([]);
+		return;
+	    }
 	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), 
 	    self.getStudyPatientMap(), 
 	    self.getPatientSampleIdMap(), 

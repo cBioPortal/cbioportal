@@ -950,6 +950,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 	
 	var updateAlteredPercentIndicator = function(state) {
+	    if (QuerySession.getQueryGenes() === null ||
+		    QuerySession.getQueryGenes().length === 0) {
+		return;
+	    }
 	    $.when(QuerySession.getSequencedSamples(), QuerySession.getSequencedPatients(), QuerySession.getPatientIds())
 		    .then(function(sequenced_samples, sequenced_patients, patients) {
 			var altered_ids = state.getAlteredIds();
@@ -1914,7 +1918,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    })(profiles[i]);
 		}
 
-		$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_input').val(QuerySession.getQueryGenes().join(" "));
+		var query_genes = QuerySession.getQueryGenes();
+		if (query_genes !== null && query_genes.length > 0) {
+		    $(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #add_genes_input').val(query_genes.join(" "));
+		}
 		$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu #oncoprint_diagram_heatmap_profiles').click(function (evt) {
 		    // suppress dropdown hiding
 		    evt.stopPropagation();

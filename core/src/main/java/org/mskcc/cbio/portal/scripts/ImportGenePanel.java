@@ -46,7 +46,7 @@ import org.mskcc.cbio.portal.util.SpringUtil;
  * @author heinsz
  */
 public class ImportGenePanel extends ConsoleRunnable {
-    
+
     private File genePanelFile;
 
     @Override
@@ -55,7 +55,7 @@ public class ImportGenePanel extends ConsoleRunnable {
             String progName = "ImportGenePanel";
             String description = "Import gene panel files.";
             // usage: --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
-	
+
             OptionParser parser = new OptionParser();
             OptionSpec<String> data = parser.accepts( "data",
                    "gene panel file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
@@ -77,33 +77,32 @@ public class ImportGenePanel extends ConsoleRunnable {
                         progName, description, parser,
                         "'data' argument required.");
             }
-            
-            SpringUtil.initDataSource();
+
             setFile(genePanel_f);
-            importData();            
+            importData();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     public void importData() throws Exception {
         ProgressMonitor.setCurrentMessage("Reading data from:  " + genePanelFile.getAbsolutePath());
-        Properties properties = new Properties();    
+        Properties properties = new Properties();
         properties.load(new FileInputStream(genePanelFile));
-        
-        GenePanelRepository genePanelRepository = SpringUtil.getGenePanelRepository();
-        
+
+        GenePanelRepository genePanelRepository = (GenePanelRepository)SpringUtil.getApplicationContext().getBean("genePanelRepository");
+
         String stableId = getPropertyValue("stable_id", properties, true);
         String description = getPropertyValue("description", properties, false);
-        Set<Integer> genes = getGenes("gene_list", properties, genePanelRepository);        
-        
-		GenePanel genePanel = new GenePanel();
+        Set<Integer> genes = getGenes("gene_list", properties, genePanelRepository);
+
+        GenePanel genePanel = new GenePanel();
         List<GenePanel> genePanelResult = genePanelRepository.getGenePanelByStableId(stableId);
         boolean panelUsed = false;
         if (genePanelResult != null && genePanelResult.size() > 0) {
-			genePanel = genePanelResult.get(0);
+            genePanel = genePanelResult.get(0);
             if (genePanelRepository.sampleProfileMappingExistsByPanel(genePanel.getInternalId())) {
                 ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in databasel and is being used! Cannot import the gene panel!");
                 panelUsed = true;
@@ -113,7 +112,7 @@ public class ImportGenePanel extends ConsoleRunnable {
                 ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in the database but is not being used. Overwriting old gene panel data.");
             }
         }
-        
+
         if(!panelUsed) {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("stableId", stableId);
@@ -126,30 +125,30 @@ public class ImportGenePanel extends ConsoleRunnable {
                 map.put("panelId", genePanel.getInternalId());
                 map.put("genes", genes);
                 genePanelRepository.insertGenePanelList(map);
-            }                
+            }
         }
     }
-    
+
     private static String getPropertyValue(String propertyName, Properties properties, boolean noSpaceAllowed) throws IllegalArgumentException {
         String propertyValue = properties.getProperty(propertyName).trim();
-        
+
         if (propertyValue == null || propertyValue.length() == 0) {
             throw new IllegalArgumentException(propertyName + " is not specified.");
         }
-        
+
         if (noSpaceAllowed && propertyValue.contains(" ")) {
             throw new IllegalArgumentException(propertyName + " cannot contain spaces: " + propertyValue);
         }
-        
+
         return propertyValue;
     }
-    
+
     private static Set<Integer> getGenes(String propertyName, Properties properties, GenePanelRepository genePanelRepository) {
         String propertyValue = properties.getProperty(propertyName).trim();
         if (propertyValue == null || propertyValue.length() == 0) {
             throw new IllegalArgumentException(propertyName + " is not specified.");
-        } 
-        
+        }
+
         Set<Integer> geneIds = new HashSet<>();
         String[] genes = propertyValue.split("\t");
         for (String panelGene : genes) {
@@ -169,21 +168,21 @@ public class ImportGenePanel extends ConsoleRunnable {
                 if (gene == null) {
                     gene = genePanelRepository.getGeneByAlias(panelGene);
                 }
-                
+
                 if (gene != null) {
                     geneIds.add(gene.getEntrezGeneId());
                 }
             }
         }
-        
+
         return geneIds;
     }
-            
+
     public void setFile(File genePanelFile)
     {
         this.genePanelFile = genePanelFile;
-    }    
-    
+    }
+
     /**
      * Makes an instance to run with the given command line arguments.
      *
@@ -192,7 +191,7 @@ public class ImportGenePanel extends ConsoleRunnable {
     public ImportGenePanel(String[] args) {
         super(args);
     }
-    
+
     /**
      * Runs the command as a script and exits with an appropriate exit code.
      *

@@ -52,18 +52,7 @@ public class SpringUtil
     private static ApplicationContext context;
     private static GenericXmlApplicationContext applicationContext;
 
-    public static GenePanelRepository getGenePanelRepository() {
-        if (applicationContext == null) {
-            applicationContext = new GenericXmlApplicationContext();
-            applicationContext.getEnvironment().setActiveProfiles("dbcp");
-            applicationContext.load("classpath:applicationContext-business.xml");
-            applicationContext.refresh();
-        }
-        
-        return (GenePanelRepository)applicationContext.getBean("genePanelRepository");
-    }    
- 
-    @Autowired   
+    @Autowired
     public void setAccessControl(AccessControl accessControl) {
         log.debug("Setting access control");
         SpringUtil.accessControl = accessControl;
@@ -80,7 +69,7 @@ public class SpringUtil
             context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
         }
     }
-    
+
     /**
      * Get the app context as initialized or refreshed by initDataSource()
      *
@@ -93,7 +82,7 @@ public class SpringUtil
     /**
      * setter to allow override by unit test classes (which run in different context, connecting
      * to test DB).
-     * 
+     *
      * @param context
      */
     public static void setApplicationContext(ApplicationContext context) {
@@ -101,9 +90,9 @@ public class SpringUtil
     }
 
     /**
-     * Directly injects a context into the class, so we don't need to open 
-     * any more XML files. 
-     * 
+     * Directly injects a context into the class, so we don't need to open
+     * any more XML files.
+     *
      * @param context
      */
     public static synchronized void initDataSource(ApplicationContext context)

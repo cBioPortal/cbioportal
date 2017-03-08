@@ -221,21 +221,40 @@
     }
     
 $(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getPatientIds(), window.QuerySession.getCancerStudyNames()).then(function(altered_samples, patient_ids, cancer_study_names) {
+    var any_genes_queried = (window.QuerySession.getQueryGenes() !== null &&
+            window.QuerySession.getQueryGenes().length > 0);
+    var any_genesets_queried = (window.QuerySession.getQueryGenesets() !== null &&
+            window.QuerySession.getQueryGenesets().length > 0);
+    var altered_sample_promise;
+    if (any_genes_queried) {
+        altered_sample_promise = window.QuerySession.getAlteredSamples();
+    } else {
+        // not applicable, use a resolved promise
+        altered_sample_promise = $.when([]);
+    }
+    $.when(altered_sample_promise, window.QuerySession.getPatientIds(), window.QuerySession.getCancerStudyNames()).then(function(altered_samples, patient_ids, cancer_study_names) {
             var sample_ids = window.QuerySession.getSampleIds();
             
             var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
 
             //Configure the summary line of alteration statstics
-            var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
-            $("#main_smry_stat_div").append(_stat_smry);
+            if (any_genes_queried) {
+                var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene selection / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
+                $("#main_smry_stat_div").append(_stat_smry);
+            }
 
             //Configure the summary line of query
             var _query_smry = "<h3 style='font-size:110%;'><a href='study?id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
                 cancer_study_names[0] + "</a><br>" + " " +  
-                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " + 
-                "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
+                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)";
+            if (any_genes_queried) {
+                _query_smry += " / " + "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s");
+            }
+            if (any_genesets_queried) {
+                _query_smry += " / " + "<b>" + window.QuerySession.getQueryGenesets().length + "</b>" + " Gene set" + (window.QuerySession.getQueryGenesets().length===1 ? "" : "s");
+            }
+            _query_smry += "<br /></small></h3>";
             $("#main_smry_query_div").append(_query_smry);
 
             //Append the modify query button

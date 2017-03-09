@@ -3550,7 +3550,7 @@ var OncoprintModel = (function () {
 	var data = this.getTrackData(track_id);
 	var id_key = this.getTrackDataIdKey(track_id);
 	var spacing = this.getTrackHasColumnSpacing(track_id);
-	var width = this.getCellWidth(use_base_size) + (!spacing ? this.getCellPadding(use_base_size) : 0);
+	var width = this.getCellWidth(use_base_size) + (!spacing ? this.getCellPadding(use_base_size, true) : 0);
 	var shapes = this.getRuleSet(track_id).apply(data, width, this.getCellHeight(track_id, use_base_size), active_rules);
 	
 	setTrackActiveRules(this, track_id, active_rules);

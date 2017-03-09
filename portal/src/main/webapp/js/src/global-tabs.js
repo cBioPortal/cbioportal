@@ -36,18 +36,18 @@ $(document).ready(function() {
     var filename = pathname.substring(start);
 
     $('#results').hide();
-    $('td.navigation li:first').addClass('selected');
-    $('td.navigation li').each(function(index) {
+    $('#main-nav ul li:first').addClass('selected');
+    $('#main-nav ul li').each(function(index) {
         var currentPage = $(this).find('a').attr('href');
         if (currentPage == filename) {
-            $('td.navigation li').removeClass('selected');
+            $('#main-nav ul li').removeClass('selected');
             $(this).addClass('selected');
             return false;
         }
     });
 
     if ($('#results_container').length > 0){
-        $('td.navigation li').removeClass('selected');
+        $('#main-nav ul li').removeClass('selected');
         $('#results').addClass('selected').show();
         return false;
     }

@@ -264,10 +264,8 @@
     
     	$.when(window.cbioportal_client.getStudies({ study_ids: cohortIdsList}), window.iviz.datamanager.getGeneticProfiles())
     	.then(function(_cancerStudies, _geneticProfiles){
-    		$( "#iviz-header-left-1" ).prop( "disabled", true );
     		if(cohortIdsList.length === 1){
     			if(_cancerStudies.length === 1){
-    				$( "#iviz-header-left-1" ).prop( "disabled", false );
     				$("#show_study_details").css('display','block');
     				var _cancerStudy = _cancerStudies[0]
     				document.title = _cancerStudy.name
@@ -322,7 +320,7 @@
                       	});
     				}
     			}
-    		} else $( "#iviz-header-left-1" ).prop( "disabled", false );
+    		} 
         
          	$("#study-tabs").tabs({disabled: true});
          	$('#study-tab-summary-a').click(function () {

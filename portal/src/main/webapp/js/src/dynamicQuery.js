@@ -436,6 +436,19 @@ function chooseAction(evt) {
         })
     }
     
+    // manually add back temporary cohort to query (sending to backend) parameter
+    localStorage.setItem("hasTmpVC", false);
+    localStorage.setItem("tmpVCId", "");
+    localStorage.setItem("tmpVCDescription", "");
+    _.each(selected_studies, function(_studyId) {
+        if ($("#" + _studyId)[0].innerText === "Selected patients / samples (Temporary Cohort)") {
+            selectedVirtualStudyList.push(_studyId);
+            localStorage.setItem("hasTmpVC", true);
+            localStorage.setItem("tmpVCId", _studyId);
+            localStorage.setItem("tmpVCDescription", localStorage.getItem("tmpVCDescription"));
+        }
+    });
+    
        
     if (selected_studies.length > 1) {
     	if ( haveExpInQuery ) {

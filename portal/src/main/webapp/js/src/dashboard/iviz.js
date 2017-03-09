@@ -93,6 +93,7 @@ function GeneValidator(geneAreaId, geneModel){
                 if(symbolResults.length > 100) {
                     addNotification("<b>You have entered more than 100 genes.</b><br>Please enter fewer genes for better performance", "danger");
                     allValid=false;
+                    $("#iviz-header-left-1").attr("disabled", true);
                 }
 
                 // handle each symbol found
@@ -100,8 +101,11 @@ function GeneValidator(geneAreaId, geneModel){
                     var valid = handleSymbol(symbolResults[j])
                     if(!valid) {
                         allValid = false;
+                        $("#iviz-header-left-1").attr("disabled", true);
                     }
                 }
+                
+                if (allValid) $("#iviz-header-left-1").attr("disabled", false);
             })
             .fail(function(xhr,  textStatus, errorThrown){
                 addNotification("There was a problem: "+errorThrown, "danger");
@@ -109,7 +113,10 @@ function GeneValidator(geneAreaId, geneModel){
             })
             .always(function(){
                 // if not all valid, focus on the gene array for focusin trigger
-                if(!allValid) $(geneAreaId).focus();
+                if(!allValid) {
+                    $(geneAreaId).focus();
+                    $("#iviz-header-left-1").attr("disabled", true);
+                }
                 // in case a submit was pressed, use the callback
                 if($.isFunction(callback)) callback(allValid);
             });
@@ -436,6 +443,7 @@ var QueryByGeneTextArea  = (function() {
             geneList.push(gene);
             geneModel.set("geneString", geneModel.getCleanGeneString()+" "+gene);
             new Notification().createNotification(gene+" added to your query");
+            $('#iviz-header-left-1').attr("disabled", false);
         }
         // if the gene is in the list, remove it and create a notification
         else{
@@ -504,6 +512,12 @@ var QueryByGeneTextArea  = (function() {
 
         // create the gene validator
         geneValidator = new GeneValidator(areaId, geneModel);
+
+        $('#query-by-gene-textarea').on('change',function(){
+            if (!$.trim($('#query-by-gene-textarea').val())) {
+                $('#iviz-header-left-1').attr("disabled", true);
+            }
+        });
     }
 
 
@@ -1100,25 +1114,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       });
       if (possibleTOQuery) {
         window.studyId = studyId_;
-        if (QueryByGeneTextArea.isEmpty()) {
-          QueryByGeneUtil.toMainPage(studyId_, selectedCases_);
-        } else {
+        if (!QueryByGeneTextArea.isEmpty()) {
           QueryByGeneTextArea.validateGenes(this.decideSubmit, false);
         }
       } else {
           var _self = this;
           _self.selectedsamples = _.keys(iViz.getCasesMap('sample'));
           _self.selectedpatients = _.keys(iViz.getCasesMap('patient'));
-          var _vc = vcSession.utils.buildVCObject(
-              _self.stat().filters,
-              _self.stat().selectedCases,
-              "", //name
-              "" //description
-          );
           var _callbackFunc = function(_vcId) {
               QueryByGeneUtil.toMultiStudiesQueryPage(_vcId, QueryByGeneTextArea.getGenes());
           };
-          vcSession.model.saveSessionWithoutWritingLocalStorage(_vc, _callbackFunc);
+          $.when(vcSession.utils.buildVCObject(_self.stat().filters, _self.stat().selectedCases, "Selected patients / samples (Temporary Cohort)", "")).done(function(_vc) {
+              vcSession.model.saveSessionWithoutWritingLocalStorage(_vc, _callbackFunc);
+          });
       }
     },
     decideSubmit: function(allValid) {
@@ -1129,7 +1137,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           window.cnaProfileId);
       } else {
         new Notification().createNotification(
-          'There were problems with the selected genes. Please fix.',
+          'Invalid gene symbols.',
           {message_type: 'danger'});
         $('#query-by-gene-textarea').focus();
       }

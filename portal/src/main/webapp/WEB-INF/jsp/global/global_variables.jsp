@@ -269,15 +269,18 @@ $(document).ready(function() {
                         _inserted = true;
                     } 
                     // set selection
-                    var _clickedTimer = setInterval(inspectSelected, 1000);
-                    function inspectSelected() {
-                        var _clickedElems = document.getElementsByClassName('jstree-clicked');
-                        if (_clickedElems.length > 0) {
-                            clearInterval(_clickedTimer);
-                            var treeDiv = document.getElementById('jstree');
-                            var topPos = _clickedElems[0].offsetTop;
-                            var originalPos = treeDiv.offsetTop;
-                            treeDiv.scrollTop = topPos - originalPos;                            
+                    function _setJsTreeSelection() {
+                        if (document.querySelector(".jstree-clicked") !== null) {
+                            var _elems = document.getElementsByClassName('jstree-clicked');
+                            if (_elems.length > 0) {
+                                var treeDiv = document.getElementById('jstree');
+                                var topPos = _clickedElems[0].offsetTop;
+                                var originalPos = treeDiv.offsetTop;
+                                treeDiv.scrollTop = topPos - originalPos;
+                            }
+                            return;
+                        } else {
+                            setTimeout(_setJsTreeSelection(), 5);
                         }
                     }
                 }

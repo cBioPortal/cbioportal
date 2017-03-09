@@ -214,6 +214,8 @@ function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
                 var bookmark = createBookmark(fullURL, data['id']);
                 callback(bookmark);
             }
+        }).fail(function(data) {
+            callback("An unknown error occurred. Unable to store your session.");
         });
     }
 }

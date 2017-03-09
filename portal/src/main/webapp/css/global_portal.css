@@ -4,10 +4,8 @@ body {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     table-layout: fixed;
     text-align: center;
-    margin-top: 10px !important;
-    margin-bottom: 10px !important;
+    margin: 0;
     color: #333;
-    background-color: #E0E0E0 !important;
     font-size: 14px;
     line-height: 1.42857143;
 }
@@ -62,24 +60,11 @@ td, th {
 */
 
 #page_wrapper {
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   min-width: 780px;
-  max-width: 1250px !important;
+  max-width: 1300px !important;
   text-align: left;
-  background: #FFFFFF;
-  padding: 5px;
-}
-
-#header_wrapper {
-  background: #fff ;
-  margin:0px; padding:0px;
-}
-
-#login_header_wrapper {
-  background: #fff ;
-  margin:0px; padding:0px;
-  height:50px;
+  padding: 0px;
 }
 
 fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
@@ -139,9 +124,13 @@ fieldset#patient-view-summary-fieldset > legend {
   text-align: left;
 }
 
+#page_wrapper_table {
+  border-collapse: collapse;
+  border-spacing: 0px;
+}
+
 #content {
-  /* margin-top: 10px; */
-  margin-bottom: 0px;
+  padding: 0 20px;
 }
 
 img {
@@ -220,9 +209,9 @@ A:hover {
 
 #network {
     height: 750px;
-	/* never allow setting display to none
-	   this is to fix flash (CytoWeb) repaint problem */
-	/*display: block !important;*/
+  /* never allow setting display to none
+     this is to fix flash (CytoWeb) repaint problem */
+  /*display: block !important;*/
 }
 
 .map table {
@@ -495,14 +484,14 @@ pre code{
 }
 
 .oncoprint_accordion_panel h1 {
-	margin-top:0px;margin-bottom:0px;
-	font-family: verdana, arial, sans-serif;
-	font-size: 13px;
-	font-weight: bold;
-	line-height: 12px;
-	letter-spacing: -1px;
-	color: #2153AA;
-	text-align:justify;
+  margin-top:0px;margin-bottom:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 12px;
+  letter-spacing: -1px;
+  color: #2153AA;
+  text-align:justify;
     cursor: default;
 }
 
@@ -517,7 +506,7 @@ pre code{
 }
 
 .oncoprint_accordion_panel table {
-	padding-left:15px;
+  padding-left:15px;
 }
 
 .oncoprint_accordion_panel td {
@@ -556,9 +545,9 @@ pre code{
 }
 
 .oncoprint_indicator {
-	font-size: 10px;
+  font-size: 10px;
     color: #FF0000;
-	display: none;
+  display: none;
     padding-left:25px;
 }
 
@@ -822,34 +811,34 @@ td.op_data_cell{
         COLOR: #1974b8; text-decoration: none; !important;
 }
 #content A:visited {
-	COLOR: #1974b8; text-decoration: none; !important;
+  COLOR: #1974b8; text-decoration: none; !important;
 }
 #content A:active {
-	COLOR: #1974b8; text-decoration: none; !important;
+  COLOR: #1974b8; text-decoration: none; !important;
 }
 #content A:hover {
-	COLOR: #1974b8; text-decoration: none; !important;
+  COLOR: #1974b8; text-decoration: none; !important;
 }
 
 .tip {
-	color: white;
-	width: 250px;
+  color: white;
+  width: 250px;
     background:black;
-	z-index: 13000;
+  z-index: 13000;
 }
 
 .tip-title {
-	font-size: 12px;
+  font-size: 12px;
     font-weight:bold;
-	margin: 0;
-	color: white;
-	padding: 8px 8px 4px;
+  margin: 0;
+  color: white;
+  padding: 8px 8px 4px;
         text-align:left;
 }
 
 .tip-text {
-	font-size: 11px;
-	padding: 4px 8px 8px;
+  font-size: 11px;
+  padding: 4px 8px 8px;
 }
 
 #optional_args {
@@ -867,6 +856,10 @@ td.op_data_cell{
 }
 
 #load {
+  border: 1px solid #aaaaaa;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
   display: none;
   position: relative;
   background: url(../images/ajax-loader.gif);
@@ -874,6 +867,7 @@ td.op_data_cell{
   background-position:center;
   width: 100%;
   height: 500px;
+  margin-top: 5px;
 }
 
 #plots {
@@ -968,16 +962,16 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 
 
 #content h4 A:link {
-	COLOR: #2153AA; text-decoration: underline;
+  COLOR: #2153AA; text-decoration: underline;
 }
 #content h4 A:visited {
-	COLOR: #2153AA; text-decoration: underline;
+  COLOR: #2153AA; text-decoration: underline;
 }
 #content h4 A:active {
-	COLOR: #2153AA; text-decoration: underline;
+  COLOR: #2153AA; text-decoration: underline;
 }
 #content h4 A:hover {
-	COLOR: #2153AA; text-decoration: underline;
+  COLOR: #2153AA; text-decoration: underline;
 }
 
 .float_left {
@@ -1039,12 +1033,6 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
    text-align: right;
 }
 
-#header {
-  padding:5px 0px 0px 0px;
-  background: white;
-  margin:0px;
-}
-
 #login_header_top {
   padding:5px 0px 0px 0px;
   background: white;
@@ -1052,62 +1040,96 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   height:70px;
 }
 
-#header td.navigation {
-    position:relative;
-    font: 14px verdana, arial, helvetica, sans-serif;
-    margin:0px;
-    padding:0px;
-    background:#1974b8;
-    /*border-right: 1px solid #0f3974; */
-    color:#ffffff;
-    width:100%;
-    background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+header {
+  background: linear-gradient(to bottom,  rgba(252,252,252,1) 90%, rgba(249,249,249,1) 100%);
+  border-bottom: 1px solid #f5f5f5;
+  margin: 0 0 20px 0;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: flex-end;
 }
 
-#header td.navigation ul {
-    padding:0px;
-    margin:0px;
+#cbioportal-logo {
+  padding: 15px;
 }
 
-#header td.navigation ul li {
-    height: 2.2em;
-    line-height:2.2em;
-    float:left;
-    list-style-type:none;
-    border-right:1px solid #0f3974; /*#bbb;*/
-    white-space:nowrap;
-    border-bottom: 1px solid #0f3974;
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ffffff;
-
+#institute-logo {
+  max-height: 35px;
+  padding: 4px 10px;
+  float: right;
 }
 
-#header td.navigation li a {
-    float: left;
-    display:block;
-    padding:0 10px;
-    font-size:0.8em;
-    font-weight:normal;
-    text-transform:uppercase;
-    text-decoration:none;
-    background-color:inherit;
-    color: #ffffff;
+#authentication {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
-#header td.navigation li.selected, #header td.navigation li a:hover {
-    float:left;
-    height:31px;
-    background:#8cbadc;
-    color:#ffffff;
-    text-decoration:none;
-    /*border-bottom:#6F88AC;*/
-    /*border-bottom: 1px solid #999;*/
-    /*border-top: 1px solid #ccc;*/
-    background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #8CBADC 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#8CBADC)); /* webkit */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#8CBADC',GradientType=0 ); /* ie */
+#authentication p {
+  font: normal normal 400 11px/35px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
+  display: inline-block;
+  padding: 0px 10px;
+  float: right;
+  margin: -1px 20px 0px 0;
+  background: #fff;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  box-shadow: 0px 1px 1px rgba(93, 130, 158, 0.5);
+}
+
+#authentication span {
+  padding: 4px 10px;
+  display: inline-block;
+}
+
+#authentication span.username {
+  padding: 0px;
+  font-weight: 600;
+}
+
+#authentication a:link, #authentication a:visited {
+  color: #428bca;
+}
+
+header > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#main-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 0 10px 5px;
+}
+
+#main-nav ul {
+  margin: 0 15px 0 0;
+  padding: 0;
+}
+
+#main-nav li {
+  list-style-type: none;
+  display: inline-block;
+  font: normal normal 400 14px/18px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
+  padding: 5px 7px;
+}
+
+#main-nav li a:link, #main-nav li a:visited {
+  color: #777;
+  padding: 1px;
+}
+
+#main-nav li a:hover {
+  color: #000;
+}
+
+#main-nav li.selected a:link, #main-nav li.selected a:visited {
+  color: #000;
+  border-bottom: 1px solid #ddd;
 }
 
 .welcome {
@@ -1258,35 +1280,17 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 }
 
 #footer {
-  height: 50px;
-  background-color: #1974b8;
+  border-top: 1px solid #f5f5f5;
   clear: both;
   text-align: center;
-  padding-top:12px;
-  color: #FFFFFF;
-  font-family: verdana, arial, sans-serif;
-  font-size: 13px;
-  line-height: 18px;
-  border-right:1px solid #0f3974; /*#bbb;*/
-  border-bottom: 1px solid #0f3974;
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ffffff;
-  background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+  padding: 15px 20px;
+  margin: 20px 20px 0 20px;
+  font: normal normal 12px/18px 'Helvetica Neue', Arial, sans-serif;
 }
 
-#footer A:link {
-	COLOR: #FFFFFF; text-decoration: underline;
-}
-#footer A:visited {
-	COLOR: #FFFFFF; text-decoration: underline;
-}
-#footer A:active {
-	COLOR: #FFFFFF; text-decoration: underline;
-}
-#footer A:hover {
-	COLOR: #FFFFFF; text-decoration: underline;
+#footer a:link, #footer a:visited, #footer a:active, a:hover {
+  color: #428bca;
+  text-decoration: none;
 }
 
 #right_side h3 {
@@ -1312,26 +1316,26 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 }
 
 #right_side A:link {
-	color: #1974b8;
+  color: #1974b8;
 }
 #right_side A:visited {
-	color: #1974b8;
+  color: #1974b8;
 }
 #right_side A:active {
-	color: #1974b8;
+  color: #1974b8;
 }
 
 #content A:link {
-	COLOR: #1974b8; text-decoration: none;
+  COLOR: #1974b8; text-decoration: none;
 }
 #content A:visited {
-	COLOR: #1974b8; text-decoration: none;
+  COLOR: #1974b8; text-decoration: none;
 }
 #content A:active {
-	COLOR: #1974b8; text-decoration: none;
+  COLOR: #1974b8; text-decoration: none;
 }
 #content A:hover {
-	COLOR: #1974b8; text-decoration: underline;
+  COLOR: #1974b8; text-decoration: underline;
 }
 
 /* The Cytoscape Web container must have its dimensions set. */
@@ -1407,17 +1411,6 @@ cursor: default;
 * Styles Required for Dynamic Query Sections
 */
 
-/* Main Query Panel */
-.main_query_panel {
-    border-top: 3px solid #DDDDDD;
-    border-left: 1px solid #DDDDDD;
-    border-right: 1px solid #DDDDDD;
-    border-bottom: 1px solid #DDDDDD;
-    padding:10px;
-    margin-top:6px;
-    padding-top:10px;
-}
-
 /* Main Query Form */
 #main_query_form {
     display:none; /* hide until window is loaded */
@@ -1432,6 +1425,10 @@ cursor: default;
     border:1px solid #aaaaaa;
     -moz-border-radius: 10px;
     border-radius: 10px;
+}
+
+.query_step_section:nth-of-type(1) {
+  border-top-left-radius: 0px;
 }
 
 /* Step Header */
@@ -1653,21 +1650,21 @@ cc-ie-message {
 /* Float on alright! */
 #previewContainer {
     /*z-index: 9999999;*/
-	width: 170px;
-	height: 145px;
-	float: right;
-	border: 2px solid #FFFFFF;
-	border-radius: 3px;
-	box-shadow: 0 0 7px #999999;
-	overflow-y: hidden;
-	margin-left: 15px;
+  width: 170px;
+  height: 145px;
+  float: right;
+  border: 2px solid #FFFFFF;
+  border-radius: 3px;
+  box-shadow: 0 0 7px #999999;
+  overflow-y: hidden;
+  margin-left: 15px;
 }
 
 /* This is a fix to remove the tiny bullet
  * appearing on the preview image slider
  */
 #previewContainer li {
-	list-style-type: none;
+  list-style-type: none;
 }
 
 /* right menu d3 map */
@@ -1705,9 +1702,9 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 }
 
 /* this is required because of
-	.section ul css settings*/
+  .section ul css settings*/
 .chzn-results li {
-	font-size: 12px !important;
+  font-size: 12px !important;
 }
 
 .brush .extent {

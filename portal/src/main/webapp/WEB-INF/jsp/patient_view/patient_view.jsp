@@ -1067,6 +1067,8 @@ function outputClinicalData() {
         if (caseTypeNorm==="metastasis") return "red";
         if (caseTypeNorm==="progressed") return "orange";
         if (caseTypeNorm==="recurrence") return "orange";
+        if (caseTypeNorm==="xenograft") return "pink";
+        if (caseTypeNorm==="cfdna") return "blue";
         return "black";
     }
 

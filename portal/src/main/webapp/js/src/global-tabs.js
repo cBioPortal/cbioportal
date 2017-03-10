@@ -36,7 +36,6 @@ $(document).ready(function() {
     var filename = pathname.substring(start);
 
     $('#results').hide();
-    $('#main-nav ul li:first').addClass('selected');
     $('#main-nav ul li').each(function(index) {
         var currentPage = $(this).find('a').attr('href');
         if (currentPage == filename) {

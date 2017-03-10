@@ -700,9 +700,8 @@ CREATE TABLE `clinical_event_data` (
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
 );
 
--- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24)
 ) DEFAULT CHARSET=utf8;
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.0.1');
+INSERT INTO info VALUES ('2.0.2');

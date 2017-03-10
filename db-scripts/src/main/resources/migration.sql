@@ -274,3 +274,19 @@ UPDATE info SET DB_SCHEMA_VERSION="2.0.0";
 ##version: 2.0.1
 ALTER TABLE `genetic_profile` MODIFY COLUMN `SHOW_PROFILE_IN_ANALYSIS_TAB` BOOLEAN NOT NULL;
 UPDATE info SET DB_SCHEMA_VERSION="2.0.1";
+
+
+##version 2.0.2
+-- This trigger activates following each delete row operation on table `CANCER_STUDY`.
+-- If no rows are affected (i.e., trying to delete a `CANCER_STUDY` record that doesn't exist), 
+-- then the trigger will not activate.
+DROP TRIGGER IF EXISTS cancer_study_after_delete;
+DELIMITER //
+CREATE TRIGGER cancer_study_after_delete
+AFTER DELETE ON cancer_study FOR EACH ROW
+BEGIN 
+DELETE FROM cna_event WHERE NOT EXISTS (SELECT * FROM sample_cna_event WHERE sample_cna_event.CNA_EVENT_ID = cna_event.CNA_EVENT_ID);
+DELETE FROM mutation_event WHERE NOT EXISTS (SELECT * FROM mutation WHERE mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID);
+END; //
+DELIMITER ;
+UPDATE info SET DB_SCHEMA_VERSION="2.0.2";

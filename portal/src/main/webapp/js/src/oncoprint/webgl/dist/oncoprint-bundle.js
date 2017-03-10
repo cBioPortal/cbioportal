@@ -1155,6 +1155,23 @@ var Oncoprint = (function () {
 	this.removeTracks(this.model.track_expansion_tracks[track_id].slice());
     }
 
+    Oncoprint.prototype.removeAllExpansionTracksInGroup = function (index) {
+	var tracks_in_group = this.model.getTrackGroups()[index],
+	    expanded_tracks = [],
+	    i;
+	for (i = 0; i < tracks_in_group.length ; i++) {
+	    if (this.model.isTrackExpanded(tracks_in_group[i])) {
+		expanded_tracks.push(tracks_in_group[i]);
+	    }
+	}
+	this.suppressRendering();
+	for (i = 0; i < expanded_tracks.length; i++) {
+	    // assume that the expanded tracks are not themselves removed here
+	    this.removeExpansionTracksFor(expanded_tracks[i]);
+	}
+	this.releaseRendering();
+    }
+
     Oncoprint.prototype.setHorzZoomToFit = function(ids) {
 	this.keep_horz_zoomed_to_fit = true;
 	this.updateHorzZoomToFitIds(ids);

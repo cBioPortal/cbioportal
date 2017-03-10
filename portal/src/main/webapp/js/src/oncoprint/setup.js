@@ -2022,6 +2022,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		//reset all tracks of heatmaps that were clustered to their original order:
 		for (var clusteredHeatmapGroup in State.trackIdsInOriginalOrder) {
 			if (State.trackIdsInOriginalOrder.hasOwnProperty(clusteredHeatmapGroup)) {
+				// first remove any expansion tracks, as these are not part of the saved order
+				oncoprint.removeAllExpansionTracksInGroup(clusteredHeatmapGroup);
 				oncoprint.setTrackGroupOrder(clusteredHeatmapGroup, State.trackIdsInOriginalOrder[clusteredHeatmapGroup]);
 			}
 		}
@@ -2134,6 +2136,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					State.clustered_by_profile_id = genetic_profile_id;
 					//sort according to order found in the clustering results:
 					State.sorting_by_given_order = true;
+					// remove any expansion tracks, as these are not part of the clustering order
+					oncoprint.removeAllExpansionTracksInGroup(heatmap_track_group_id);
 					//store original order before clustering:
 					var trackIdsInOriginalOrder = oncoprint.model.getTrackGroups()[heatmap_track_group_id];
 					State.trackIdsInOriginalOrder[heatmap_track_group_id] = trackIdsInOriginalOrder;

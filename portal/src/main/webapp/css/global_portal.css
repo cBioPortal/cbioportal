@@ -1125,6 +1125,7 @@ header > div {
 
 #main-nav li a:hover {
   color: #000;
+  text-decoration: none;
 }
 
 #main-nav li.selected a:link, #main-nav li.selected a:visited {

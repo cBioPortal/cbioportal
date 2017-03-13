@@ -181,6 +181,8 @@ public class GlobalProperties {
 
     // property for the saml entityid
     public static final String SAML_IDP_METADATA_ENTITYID="saml.idp.metadata.entityid";
+    // property for whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
+    public static final String SAML_IS_LOGOUT_LOCAL="saml.logout.local";
 
     // property for the custom header tabs
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
@@ -443,6 +445,13 @@ public class GlobalProperties {
     {
         return getProperty(SAML_IDP_METADATA_ENTITYID);
     }
+
+    // returns whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
+    public static String getSamlIsLogoutLocal()
+    {
+    	return properties.getProperty(SAML_IS_LOGOUT_LOCAL, "false");
+    }
+    
     public static String getTagLineImage()
     {
         String tagLineImage = properties.getProperty(SKIN_TAG_LINE_IMAGE);

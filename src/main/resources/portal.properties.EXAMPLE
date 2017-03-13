@@ -83,15 +83,28 @@ filter_groups_by_appname=true
 ## settings to connect to googleplus auth infrastructure
 googleplus.consumer.key=
 googleplus.consumer.secret=
-## settings to connect to SAML auth server
+
+## SAML settings
 saml.sp.metadata.entityid=
 saml.idp.metadata.location=
 saml.idp.metadata.entityid=
+# saml keystore settings:
 saml.keystore.location=
 saml.keystore.password=
 saml.keystore.private-key.key=
 saml.keystore.private-key.password=
 saml.keystore.default-key=
+# How to send SAML request messages to the IDP. 
+# Set to "specificBinding" to configure specific binding:
+saml.idp.comm.binding.settings=defaultBinding
+# Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
+# Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
+saml.idp.comm.binding.type=
+# Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
+saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
+# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
+saml.logout.url=/login.jsp?logout_success=true
+
 ## settings to connect to an Active Directory domain controller
 ad.domain=
 ad.url=

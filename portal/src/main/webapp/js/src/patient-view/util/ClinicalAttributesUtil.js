@@ -112,6 +112,10 @@ window.ClinicalAttributesUtil = (function() {
             caseTypeNormalized = 'recurrence';
           } else if (caseTypeLower.indexOf('progr') >= 0) {
             caseTypeNormalized = 'progressed';
+          } else if (caseTypeLower.indexOf('xeno') >= 0) {
+            caseTypeNormalized = 'xenograft';
+          } else if (caseTypeLower.indexOf('cfdna') >= 0) {
+            caseTypeNormalized = 'cfdna';
           } else if (caseTypeLower.indexOf('prim') >= 0 || 
                     caseTypeLower.indexOf('prim') >= 0) {
             caseTypeNormalized = 'primary';
@@ -125,7 +129,7 @@ window.ClinicalAttributesUtil = (function() {
       return caseTypeNormalized;
     }
 
-    var caseTypeNormalized = normalizedCaseType(clinicalData, ['SAMPLE_TYPE', 'TUMOR_TISSUE_SITE', 'TUMOR_TYPE']);
+    var caseTypeNormalized = normalizedCaseType(clinicalData, ['SAMPLE_CLASS', 'SAMPLE_TYPE', 'TUMOR_TISSUE_SITE', 'TUMOR_TYPE']);
     if (caseTypeNormalized !== null) {
       var loc;
 

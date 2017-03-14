@@ -213,7 +213,7 @@ CREATE TABLE `genetic_entity` (
 );
 -- update gene table to use genetic_element:
 ALTER TABLE `gene` 
-ADD COLUMN `GENETIC_ENTITY_ID` INT NULL;
+ADD COLUMN `GENETIC_ENTITY_ID` INT NULL AFTER `HUGO_GENE_SYMBOL`;
 
 -- add temporary column to support migration:
 ALTER TABLE `genetic_entity` 
@@ -235,11 +235,7 @@ CHANGE COLUMN `GENETIC_ENTITY_ID` `GENETIC_ENTITY_ID` INT NOT NULL,
 ADD UNIQUE INDEX `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC);
 
 ALTER TABLE `gene` 
-ADD CONSTRAINT `fk_gene_1`
-  FOREIGN KEY (`GENETIC_ENTITY_ID`)
-  REFERENCES `genetic_entity` (`ID`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+ADD FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
 
 -- migrate genetic_alteration table in a similar way, pointing to GENETIC_ENTITY_ID 
 -- instead of ENTREZ_GENE_ID (note: the INSERT part can take some time [~20 min], 

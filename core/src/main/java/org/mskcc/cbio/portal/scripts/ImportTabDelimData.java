@@ -405,8 +405,7 @@ public class ImportTabDelimData {
 	                            }
                             }                            
                         } else {
-                        	//TODO - review: is this still correct?
-                        	int otherCase = 0;
+							int otherCase = 0;
                             for (CanonicalGene gene : genes) {
                             	if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
 	                            	boolean result = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
@@ -415,25 +414,29 @@ public class ImportTabDelimData {
 	                            		nrExtraRecords++;
 	                            	}
                             	}
-                            	else {
-                            		otherCase++;
-                            	}
+								else {
+									otherCase++;
+								}
                             }
                             if (recordStored) {
                             	//skip one, to avoid double counting:
                             	nrExtraRecords--;
                             }
                             if (!recordStored) {
-		                        if (otherCase > 1) {
-		                        	//this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with 
-		                        	//the ambiguous alias list. Report this:
-		                        	ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous. Record will be skipped for this gene.");
-		                        }
-		                        else { 
-		                        	//should not occur:
-		                        	throw new RuntimeException("Unexpected error: unable to process row with gene " + geneSymbol);
-	                            }
-                        	}
+								if (otherCase == 0) {
+									// this means that miRNA or RPPA could not be stored
+									ProgressMonitor.logWarning("Could not store miRNA or RPPA data"); //TODO detect the type of of data and give specific warning
+								}
+								else if (otherCase > 1) {
+									// this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with
+									// the ambiguous alias list. Report this:
+									ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambigous. Record will be skipped for this gene.");
+								}
+								else {
+									//should not occur. It would mean something is wrong in preceding logic (see else if (genes.size()==1) ) or a configuration problem, e.g. where a symbol maps to both a miRNA and a normal gene:
+									throw new RuntimeException("Unexpected error: unable to process row with gene " + geneSymbol);
+								}
+                            }
                         }
                     }
                 }

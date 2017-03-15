@@ -171,7 +171,11 @@
     <b:beans profile="saml">
 
     <http entry-point-ref="samlEntryPoint" use-expressions="true">
-<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/auth/*" access="permitAll"/>
+        <intercept-url pattern="/favicon.ico" access="permitAll"/>
+        <intercept-url pattern="/login.jsp*" access="permitAll"/>
+        <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+        <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for saml authentication -->
         <custom-filter after="FIRST" ref="metadataGeneratorFilter"/>
         <custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
@@ -206,7 +210,7 @@
 
    <!-- Handler for successful logout -->
     <b:bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
-        <b:property name="defaultTargetUrl" value="/login.jsp?logout_success=true"/>
+        <b:property name="defaultTargetUrl" value="${saml.logout.url}"/>
     </b:bean>
 
     <authentication-manager alias="authenticationManager">
@@ -229,11 +233,16 @@
     </b:bean>
 
     <b:bean id="samlEntryPoint" class="org.springframework.security.saml.SAMLEntryPoint">
-        <b:property name="defaultProfileOptions">
-            <b:bean class="org.springframework.security.saml.websso.WebSSOProfileOptions">
-                <b:property name="includeScoping" value="false"/>
-            </b:bean>
-        </b:property>
+        <b:property name="defaultProfileOptions" ref="${saml.idp.comm.binding.settings}"/><!-- should be defaultBinding or specificBinding -->
+    </b:bean>
+
+    <b:bean id="defaultBinding" class="org.springframework.security.saml.websso.WebSSOProfileOptions">
+	<b:property name="includeScoping" value="false"/>
+    </b:bean>
+    
+    <b:bean id="specificBinding" class="org.springframework.security.saml.websso.WebSSOProfileOptions">
+	<b:property name="includeScoping" value="false"/>
+	<b:property name="binding" value="urn:oasis:names:tc:SAML:2.0:${saml.idp.comm.binding.type}"/>
     </b:bean>
 
     <!-- IDP Discovery Service -->
@@ -288,7 +297,7 @@
         <b:property name="userDetails" ref="customUserService" />
     </b:bean>
 
-    <b:bean id="customUserService" class="org.cbioportal.security.spring.authentication.saml.MSKCCPortalUserDetailsService">
+    <b:bean id="customUserService" class="${saml.custom.userservice.class}">
     </b:bean>
 
     <!-- Provider of default SAML Context -->

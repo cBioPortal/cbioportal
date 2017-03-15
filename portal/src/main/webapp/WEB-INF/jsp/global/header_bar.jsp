@@ -35,6 +35,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%
     String principal = "";
+    String samlLogoutURL = "/saml/logout?local=" + GlobalProperties.getSamlIsLogoutLocal();
     String authenticationMethod = GlobalProperties.authenticationMethod();
     if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
         principal = "principal.name";
@@ -58,7 +59,7 @@
             <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
                 <span>You are logged in as <span class="username"><sec:authentication property='<%=principal%>' /></span> | 
                 <% if (authenticationMethod.equals("saml")) { %>
-                    <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
+                    <a href="<c:url value='<%=samlLogoutURL%>'/>">Sign out</a>
                 <%} else { %>
                     <a href="j_spring_security_logout">Sign out</a>
                 <% } %>

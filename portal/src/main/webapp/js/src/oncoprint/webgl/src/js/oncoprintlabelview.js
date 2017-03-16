@@ -46,8 +46,10 @@ var OncoprintLabelView = (function () {
 	    view.$canvas.on("mousemove", function(evt) {
 		if (view.dragged_label_track_id !== null) {
 		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
-		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, view.track_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]));
-		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.track_tops[track_group[0]]-5);
+		    var max_drag_y = view.track_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]) - view.scroll_y;
+		    var min_drag_y = view.track_tops[track_group[0]] - 5 - view.scroll_y;
+		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, max_drag_y);
+		    view.drag_mouse_y = Math.max(view.drag_mouse_y, min_drag_y);
 		    renderAllLabels(view);
 		} else {
 		    var hovered_track = isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top);
@@ -181,6 +183,9 @@ var OncoprintLabelView = (function () {
 		rect_y = view.cell_tops_view_space[group[group.length-1]] + view.cell_heights_view_space[group[group.length-1]];
 		rect_height = view.ctx.measureText("m").width;
 	    }
+	    
+	    var min_rect_height = 4;
+	    rect_height = Math.max(rect_height, min_rect_height);
 	    view.ctx.fillRect(0, rect_y, view.getWidth()*view.supersampling_ratio, rect_height);
 	}
     }

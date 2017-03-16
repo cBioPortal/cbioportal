@@ -179,7 +179,7 @@
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         </p>
         <p>
-            <input type="button" id="dashboard_button" class="btn btn-default btn-lg" name="Overview" value="Overview" />
+            <input type="button" id="dashboard_button" class="btn btn-default btn-lg" name="Summery" value="Summery" />
             <button id="main_submit" class="btn btn-default btn-lg" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>" title='Submit Query' readonly>Query</button>
             <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
         </p>

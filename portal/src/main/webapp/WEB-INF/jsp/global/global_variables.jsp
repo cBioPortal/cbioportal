@@ -243,7 +243,6 @@ $(document).ready(function() {
         }
         
         // "Modify Query" button
-        var _inserted = false;
         var _modify_query_btn = "<button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
         $("#main_smry_modify_query_btn").append(_modify_query_btn);
         $("#modify_query_btn").click(function () {
@@ -253,39 +252,47 @@ $(document).ready(function() {
             } else {
                 $("#modify_query_btn").addClass("active");    
             }
-            var _treeLoadTimer = setInterval(inspectTree, 1000);
-            function inspectTree() {
-                var _elem = document.getElementsByClassName('jstree');
-                if (_elem.length > 0) {
-                    clearInterval(_treeLoadTimer);
-                    // insert temporary VC entry
-                    if (!_inserted && localStorage.getItem("hasTmpVC")) { 
-                        $('#jstree').jstree().create_node($("#virtual-study-group"), {
-                                'id': localStorage.getItem("tmpVCId"),
-                                'text': TMP_VC_DISPLAY_NAME,
-                                'li_attr': { description: localStorage.getItem("tmpVCDescription") }
-                            }, "last", null);
-                        $("#jstree").jstree("select_node", "#" + localStorage.getItem("tmpVCId"));
-                        _inserted = true;
-                    } 
-                    // set selection
-                    function _setJsTreeSelection() {
-                        if (document.querySelector(".jstree-clicked") !== null) {
-                            var _elems = document.getElementsByClassName('jstree-clicked');
-                            if (_elems.length > 0) {
-                                var treeDiv = document.getElementById('jstree');
-                                var topPos = _clickedElems[0].offsetTop;
-                                var originalPos = treeDiv.offsetTop;
-                                treeDiv.scrollTop = topPos - originalPos;
-                            }
-                            return;
-                        } else {
-                            setTimeout(_setJsTreeSelection(), 5);
+            // insert node for temporary cohort and set selection
+            var _tmpVCinserted = false; // flag to indicate if tmp VC is inserted to jsTree
+            if (!_tmpVCinserted && localStorage.getItem("hasTmpVC") === "true") { 
+                var _treeLoadTimer = setInterval(inspectTree, 1000);
+                function inspectTree() {
+                    var _elem = document.getElementsByClassName('jstree');
+                    if (_elem.length > 0) {
+                        clearInterval(_treeLoadTimer);
+                        //$("#jstree").jstree("select_node", "#virtual-study-group");
+                        if ($("#virtual-study-group").length === 0) {
+                            $("#jstree").jstree().create_node($("#tissue_anchor"), {id: "virtual-study-group", text: "Virtual Study"}, "inside", null);
                         }
+                        $('#jstree').jstree().create_node($("#virtual-study-group"), {
+                            'id': localStorage.getItem("tmpVCId"),
+                            'text': TMP_VC_DISPLAY_NAME,
+                            'li_attr': { description: localStorage.getItem("tmpVCDescription") }
+                        }, "last", null);
+                        $("#jstree").jstree("select_node", "#" + localStorage.getItem("tmpVCId"));
+                        _setJsTreeSelection();
+                        _tmpVCinserted = true;
                     }
                 }
             }
         });
+        
+        // set selection
+        function _setJsTreeSelection() {
+            var _timer = setInterval(inspectTreeSel, 1000);
+            function inspectTreeSel() {
+                if (document.querySelector(".jstree-clicked") !== null) {
+                    var _elems = document.getElementsByClassName('jstree-clicked');
+                    if (_elems.length > 0) {
+                        clearInterval(_timer);
+                        var treeDiv = document.getElementById('jstree');
+                        var topPos = _elems[0].offsetTop;
+                        var originalPos = treeDiv.offsetTop;
+                        treeDiv.scrollTop = topPos - originalPos;
+                    }
+                }
+            }
+        }
         $("#toggle_query_form").click(function(event) {
             event.preventDefault();
             $('#query_form_on_results_page').toggle();

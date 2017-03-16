@@ -1,3 +1,18 @@
+# March 24, 2017
+*   **New features**:
+    * The cBioPortal has a major style change
+    * Variant annotation from CIViC (https://civic.genome.wustl.edu/#/home) is available  on the Mutations tab and the patient view pages
+    * Per-sample Mutation spectrum is available in OncoPrint -- see [example](http://www.cbioportal.org/beta/index.do?cancer_study_list=skcm_tcga&cancer_study_id=skcm_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=skcm_tcga_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=skcm_tcga_gistic&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=skcm_tcga_cnaseq&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=BRAF%0D%0AKRAS%0D%0AEGFR&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit&show_samples=false&clinicallist=NO_CONTEXT_MUTATION_SIGNATURE&)
+    * Heat map clustering is supported in OncoPrint
+    * MDACC Next-Generation Clustered Heat Map is available in patient view page
+
+# Feburary 2, 2017
+*   **New features**:
+    * 3D hotspot mutation annotations are now available from 3dhotspots.org.
+*   **New data**:
+    * CPTAC proteomics data have been integrated for TCGA breast, ovarian, and colorectal provisional studies
+    
+
 # December 23, 2016
 *   **New features**:
     * Heat map visualization of gene expression data in the OncoPrint

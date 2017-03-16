@@ -1888,7 +1888,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				 attr_id: "NO_CONTEXT_MUTATION_SIGNATURE",
 				 datatype: "COUNTS_MAP",
 				 description: "Number of point mutations in the sample counted by different types of nucleotide changes.",
-				 display_name: "Nucleotide change of point mutations",
+				 display_name: "Mutation spectrum",
 				 is_patient_attribute: "0",
 				 categories: ["C>A", "C>G", "C>T", "T>A", "T>C", "T>G"],
 				 fills: ['#3D6EB1', '#8EBFDC', '#DFF1F8', '#FCE08E', '#F78F5E', '#D62B23']

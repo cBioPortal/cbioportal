@@ -190,7 +190,7 @@ recache_study_after_update=false
 session.service.url=
 # Only allow requests from here:
 #  e.g. session.service.origin=http://dashi-dev.cbio.mskcc.org:8080
-session.service.origin=
+session.service.origin=*
 
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV

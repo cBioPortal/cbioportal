@@ -181,6 +181,8 @@ public class GlobalProperties {
 
     // property for the saml entityid
     public static final String SAML_IDP_METADATA_ENTITYID="saml.idp.metadata.entityid";
+    // property for whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
+    public static final String SAML_IS_LOGOUT_LOCAL="saml.logout.local";
 
     // property for the custom header tabs
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
@@ -218,10 +220,10 @@ public class GlobalProperties {
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
-    public static final String DARWIN_AUTHORITY = "darwin.authority";
     public static final String CIS_USER = "cis.user";
     public static final String DISABLED_TABS = "disabled_tabs";
     public static final String BITLY_USER = "bitly.user";
+    public static final String DARWIN_REGEX = "darwin.regex";
     
     public static final String PRIORITY_STUDIES = "priority_studies";
     public static final String SPECIES = "species";
@@ -444,6 +446,13 @@ public class GlobalProperties {
     {
         return getProperty(SAML_IDP_METADATA_ENTITYID);
     }
+    
+    // returns whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
+    public static String getSamlIsLogoutLocal()
+    {
+    	return properties.getProperty(SAML_IS_LOGOUT_LOCAL, "false");
+    }
+    
     public static String getTagLineImage()
     {
         String tagLineImage = properties.getProperty(SKIN_TAG_LINE_IMAGE);
@@ -822,32 +831,24 @@ public class GlobalProperties {
     
     public static String getDarwinAuthCheckUrl() {
         String darwinAuthUrl = "";
-        try{
-            darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL).trim();            
-        }
-        catch (NullPointerException e){}
-        
+        if (properties.containsKey(DARWIN_AUTH_URL)) {
+            try{
+                darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL);
+            }
+            catch (NullPointerException e){}
+        }        
         return darwinAuthUrl;
     }
     
     public static String getDarwinResponseUrl() {
         String darwinResponseUrl = "";
-        try{
-            darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL).trim();
+        if (properties.containsKey(DARWIN_RESPONSE_URL)) {
+            try{
+                darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL);
+            }
+            catch (NullPointerException e) {}
         }
-        catch (NullPointerException e) {}
-        
         return darwinResponseUrl;
-    }
-    
-    public static String getDarwinAuthority() { 
-        String darwinAuthority = "";
-        try{
-            darwinAuthority = properties.getProperty(DARWIN_AUTHORITY).trim();
-        }
-        catch (NullPointerException e) {}
-        
-        return darwinAuthority;
     }
     
     public static List<String[]> getPriorityStudies() {
@@ -867,12 +868,25 @@ public class GlobalProperties {
     
     public static String getCisUser() {
         String cisUser = "";
-        try{
-            cisUser = properties.getProperty(CIS_USER).trim();
+        if (properties.containsKey(CIS_USER)) {
+            try{
+                cisUser = properties.getProperty(CIS_USER);
+            }
+            catch (NullPointerException e) {}            
         }
-        catch (NullPointerException e) {}
-        
         return cisUser;         
+    }
+    
+    
+    public static String getDarwinRegex() {
+        String darwinRegex = "";
+        if (properties.containsKey(DARWIN_REGEX)) {
+            try {
+                darwinRegex = properties.getProperty(DARWIN_REGEX);
+            }
+            catch (NullPointerException e) {}   
+        }
+        return darwinRegex;
     }
     
     public static List<String> getDisabledTabs() {

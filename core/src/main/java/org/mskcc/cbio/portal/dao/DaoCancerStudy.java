@@ -449,6 +449,12 @@ public final class DaoCancerStudy {
         }
     }
 
+    /**
+     * 
+     * @param cancerStudyStableId
+     * @throws DaoException 
+     * @deprecated
+     */
     public static void deleteCancerStudy(String cancerStudyStableId) throws DaoException
     {
         CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
@@ -481,14 +487,55 @@ public final class DaoCancerStudy {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
     }
+    
+    /**
+     * Calls deleteCancerStudyByCascade() if cancer study exists by stable id.
+     * @param cancerStudyStableId
+     * @throws DaoException 
+     */
+    public static void deleteCancerStudyByCascade(String cancerStudyStableId) throws DaoException {
+        CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
+        if (study != null) {
+            deleteCancerStudyByCascade(study.getInternalId());
+        }
+    }
 
+    /**
+     * Deletes a cancer study by internal id from db with foreign key constraints enforced.
+     * @param internalCancerStudyId
+     * @throws DaoException 
+     */
+    public static void deleteCancerStudyByCascade(int internalCancerStudyId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            pstmt = con.prepareStatement("DELETE FROM cancer_study WHERE cancer_study_id = ?");
+            pstmt.setInt(1, internalCancerStudyId);
+            int rows = pstmt.executeUpdate();
+            // throw dao exception if no rows affected by update
+            if (rows == 0) {
+                throw new DaoException("deleteCancerStudyByCascade() failed: No rows affected");
+            }
+            removeCancerStudyFromCache(internalCancerStudyId);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+        }
+        reCacheAll();
+        System.out.println("deleted study:\nID: "+internalCancerStudyId);
+    }
+    
     /**
      * Deletes the Specified Cancer Study.
      *
      * @param internalCancerStudyId Internal Cancer Study ID.
      * @throws DaoException Database Error.
+     * @deprecated
      */
-    static void deleteCancerStudy(int internalCancerStudyId) throws DaoException {
+    public static void deleteCancerStudy(int internalCancerStudyId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -504,7 +551,6 @@ public final class DaoCancerStudy {
                 "delete from genetic_profile_samples where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from sample_profile where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from mutation where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
-                "delete from mutation_event where MUTATION_EVENT_ID NOT IN (select MUTATION_EVENT_ID from mutation);",
                 "delete from mutation_count where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from clinical_attribute_meta where CANCER_STUDY_ID=?;",
                 "delete from clinical_event_data where CLINICAL_EVENT_ID IN (select CLINICAL_EVENT_ID from clinical_event where PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?))",
@@ -515,6 +561,7 @@ public final class DaoCancerStudy {
                 "delete from clinical_patient where INTERNAL_ID IN (select INTERNAL_ID from patient where CANCER_STUDY_ID=?);",
                 "delete from patient where CANCER_STUDY_ID=?;",
                 "delete from copy_number_seg where CANCER_STUDY_ID=?;",
+                "delete from copy_number_seg_file where CANCER_STUDY_ID=?;",
                 "delete from sample_list where CANCER_STUDY_ID=?;",
                 "delete from genetic_profile where CANCER_STUDY_ID=?;",
                 "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",

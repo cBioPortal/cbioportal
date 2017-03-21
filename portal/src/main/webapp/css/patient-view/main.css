@@ -97,6 +97,7 @@
 }
 #more-patient-info a {
     display: inline-flex;
+    flex-wrap: wrap;
 }
 .more-sample-info {
     display: inline-flex;

@@ -2551,7 +2551,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
 })();
 
 'use strict';
-window.DataManagerForIviz = (function($, _) {
+window.DataManagerForIviz = (function($, _, iViz) {
   var content = {};
 
   // Clinical attributes will be transfered into table.
@@ -2917,7 +2917,7 @@ window.DataManagerForIviz = (function($, _) {
                   }
                   if (['CANCER_TYPE', 'CANCER_TYPE_DETAILED']
                       .indexOf(_metaObj.attr_id) !== -1) {
-                    if (_.intersection(['mskimpact', 'genie', 'mskimpact_heme'],
+                    if (_.intersection(['mskimpact', 'genie'],
                         Object.keys(_studyToSampleToPatientMap)).length === 0) {
                       _metaObj.priority = _metaObj.attr_id === 'CANCER_TYPE' ?
                         4.1 : 4.2;
@@ -3076,7 +3076,7 @@ window.DataManagerForIviz = (function($, _) {
                   _MutationCountMeta.priority = 5;
                   _MutationCountMeta.show = true;
                   _MutationCountMeta.attrList = [_MutationCountMeta.attr_id];
-                  _sampleAttributes[_MutationCountMeta.attr_id] = (_MutationCountMeta);
+                  _sampleAttributes[_MutationCountMeta.attr_id] = _MutationCountMeta;
                 }
 
                 // add CNA Table
@@ -3425,56 +3425,57 @@ window.DataManagerForIviz = (function($, _) {
         return window.cbio.util.deepCopyObject(this.studyCasesMap);
       },
 
-      // The reason to separate style variable into individual json is
-      // that the scss file can also rely on this file.
-      getStyleVars: window.cbio.util.makeCachedPromiseFunction(
+      getConfigs: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
-          $.getJSON(window.cbioResourceURL + 'vars.json')
+          $.getJSON(window.cbioResourceURL + 'configs.json')
             .then(function(data) {
-              var styles = {
-                vars: {}
+              var configs = {
+                styles: {
+                  vars: {}
+                }
               };
-              styles.vars.width = {
+              configs = $.extend(true, configs, data);
+              configs.styles.vars.width = {
                 one: content.util.pxStringToNumber(data['grid-w-1']) || 195,
                 two: content.util.pxStringToNumber(data['grid-w-2']) || 400
               };
-              styles.vars.height = {
+              configs.styles.vars.height = {
                 one: content.util.pxStringToNumber(data['grid-h-1']) || 170,
                 two: content.util.pxStringToNumber(data['grid-h-2']) || 350
               };
-              styles.vars.chartHeader = 17;
-              styles.vars.borderWidth = 2;
-              styles.vars.scatter = {
+              configs.styles.vars.chartHeader = 17;
+              configs.styles.vars.borderWidth = 2;
+              configs.styles.vars.scatter = {
                 width: (
-                styles.vars.width.two -
-                styles.vars.borderWidth) || 400,
+                configs.styles.vars.width.two -
+                configs.styles.vars.borderWidth) || 400,
                 height: (
-                styles.vars.height.two -
-                styles.vars.chartHeader -
-                styles.vars.borderWidth) || 350
+                configs.styles.vars.height.two -
+                configs.styles.vars.chartHeader -
+                configs.styles.vars.borderWidth) || 350
               };
-              styles.vars.survival = {
-                width: styles.vars.scatter.width,
-                height: styles.vars.scatter.height
+              configs.styles.vars.survival = {
+                width: configs.styles.vars.scatter.width,
+                height: configs.styles.vars.scatter.height
               };
-              styles.vars.specialTables = {
-                width: styles.vars.scatter.width,
-                height: styles.vars.scatter.height - 25
+              configs.styles.vars.specialTables = {
+                width: configs.styles.vars.scatter.width,
+                height: configs.styles.vars.scatter.height - 25
               };
-              styles.vars.piechart = {
+              configs.styles.vars.piechart = {
                 width: 140,
                 height: 140
               };
-              styles.vars.barchart = {
+              configs.styles.vars.barchart = {
                 width: (
-                styles.vars.width.two -
-                styles.vars.borderWidth) || 400,
+                configs.styles.vars.width.two -
+                configs.styles.vars.borderWidth) || 400,
                 height: (
-                styles.vars.height.one -
-                styles.vars.chartHeader * 2 -
-                styles.vars.borderWidth) || 130
+                configs.styles.vars.height.one -
+                configs.styles.vars.chartHeader * 2 -
+                configs.styles.vars.borderWidth) || 130
               };
-              fetch_promise.resolve(styles);
+              fetch_promise.resolve(configs);
             })
             .fail(function() {
               fetch_promise.resolve();
@@ -3834,7 +3835,7 @@ window.DataManagerForIviz = (function($, _) {
           this.getSampleClinicalData(attribute_ids);
       },
       getAllGenePanelSampleIds: window.cbio.util.makeCachedPromiseFunction(
-        function (self, fetch_promise) {
+        function(self, fetch_promise) {
           var _map = {};
           var asyncAjaxCalls = [];
           var responses = [];
@@ -3842,8 +3843,8 @@ window.DataManagerForIviz = (function($, _) {
             asyncAjaxCalls.push(
               $.ajax({
                 url: window.cbioURL + 'api-legacy/genepanel/data',
-                contentType: "application/json",
-                data: ["profile_id=" + _studyId + "_mutations", "genes="].join("&"),
+                contentType: 'application/json',
+                data: ['profile_id=' + _studyId + '_mutations', 'genes='].join('&'),
                 type: 'GET',
                 success: function(_res) {
                   responses.push(_res);
@@ -3851,30 +3852,31 @@ window.DataManagerForIviz = (function($, _) {
               })
             );
           });
-          $.when.apply($, asyncAjaxCalls).done(function(){
+          $.when.apply($, asyncAjaxCalls).done(function() {
             var _panelMetaArr = _.flatten(responses);
             _.each(_panelMetaArr, function(_panelMeta) {
               _map[_panelMeta.stableId] = {};
-              _map[_panelMeta.stableId]["samples"] = (_panelMeta.samples);
-              _map[_panelMeta.stableId]["sel_samples"] = (_panelMeta.samples);
+              var _sorted = (_panelMeta.samples).sort();
+              _map[_panelMeta.stableId].samples = _sorted;
+              _map[_panelMeta.stableId].sel_samples = _sorted;
             });
             fetch_promise.resolve(_map);
-          }).fail(function(){
+          }).fail(function() {
             fetch_promise.reject();
           });
         }
       ),
       getGenePanelMap: window.cbio.util.makeCachedPromiseFunction(
-        function (self, fetch_promise) {
+        function(self, fetch_promise) {
           self.getAllGenePanelSampleIds().then(function(_panelSampleMap) {
             self.panelSampleMap = _panelSampleMap;
             var asyncAjaxCalls = [];
             var responses = [];
-            _.each(Object.keys(_panelSampleMap), function(_panelId){
+            _.each(Object.keys(_panelSampleMap), function(_panelId) {
               asyncAjaxCalls.push(
                 $.ajax({
                   url: window.cbioURL + 'api-legacy/genepanel',
-                  contentType: "application/json",
+                  contentType: 'application/json',
                   data: {panel_id: _panelId},
                   type: 'GET',
                   success: function(_res) {
@@ -3883,22 +3885,24 @@ window.DataManagerForIviz = (function($, _) {
                 })
               );
             });
-            $.when.apply($, asyncAjaxCalls).done(function(){
-              var _panelMetaArr = _.map(responses, function(responseArr) { return responseArr[0] });
+            $.when.apply($, asyncAjaxCalls).done(function() {
+              var _panelMetaArr = _.map(responses, function(responseArr) {
+                return responseArr[0];
+              });
               var _map = {};
               _.each(_panelMetaArr, function(_panelMeta) {
-                _.each(_panelMeta["genes"], function(_gene) {
+                _.each(_panelMeta.genes, function(_gene) {
                   if (!_map.hasOwnProperty(_gene.hugoGeneSymbol)) {
                     _map[_gene.hugoGeneSymbol] = {};
-                    _map[_gene.hugoGeneSymbol]["panel_id"] = [];
-                    _map[_gene.hugoGeneSymbol]["sample_num"] = 0;
+                    _map[_gene.hugoGeneSymbol].panel_id = [];
+                    _map[_gene.hugoGeneSymbol].sample_num = 0;
                   }
-                  _map[_gene.hugoGeneSymbol]["panel_id"].push(_panelMeta.stableId);
-                  _map[_gene.hugoGeneSymbol]["sample_num"] += _panelSampleMap[_panelMeta.stableId]["samples"].length;
+                  _map[_gene.hugoGeneSymbol].panel_id.push(_panelMeta.stableId);
+                  _map[_gene.hugoGeneSymbol].sample_num += _panelSampleMap[_panelMeta.stableId].samples.length;
                 });
               });
               fetch_promise.resolve(_map);
-            }).fail(function(){
+            }).fail(function() {
               fetch_promise.reject();
             });
           });
@@ -3906,28 +3910,29 @@ window.DataManagerForIviz = (function($, _) {
       ),
       updateGenePanelMap: function(_map, _selectedSampleIds) {
         var _self = this;
-        if (typeof _selectedSampleIds !== 'undefined') {
-          //update panel sample count map
-          _.each(Object.keys(_self.panelSampleMap), function(_panelId) {
-            _self.panelSampleMap[_panelId]["sel_samples"] = _.intersection(_self.panelSampleMap[_panelId]["samples"], _selectedSampleIds);
-          });
-          _.each(Object.keys(_map), function(_gene) {
-            var _sampleNumPerGene = 0;
-            _.each(_map[_gene]["panel_id"], function(_panelId) {
-              _sampleNumPerGene += _self.panelSampleMap[_panelId]["sel_samples"].length;
-            });
-            _map[_gene]["sample_num"] = _sampleNumPerGene;
-          });         
+        if (typeof _selectedSampleIds === 'undefined') {
           return _map;
-        } else {
-          return _map
         }
+        // update panel sample count map
+        _selectedSampleIds = _selectedSampleIds.sort();
+        _.each(Object.keys(_self.panelSampleMap), function(_panelId) {
+          _self.panelSampleMap[_panelId].sel_samples =
+            iViz.util.intersection(_self.panelSampleMap[_panelId].samples, _selectedSampleIds);
+        });
+        _.each(Object.keys(_map), function(_gene) {
+          var _sampleNumPerGene = 0;
+          _.each(_map[_gene].panel_id, function(_panelId) {
+            _sampleNumPerGene += _self.panelSampleMap[_panelId].sel_samples.length;
+          });
+          _map[_gene].sample_num = _sampleNumPerGene;
+        });
+        return _map;
       }
     };
   };
 
   return content;
-})(window.$, window._);
+})(window.$, window._, window.iViz);
 
 window.cbioportal_client = (function() {
   var raw_service = (function() {

@@ -528,38 +528,44 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   var patientData_;
   var sampleData_;
   var charts = {};
-  var styles_ = {
-    vars: {
-      width: {
-        one: 195,
-        two: 400
-      },
-      height: {
-        one: 170,
-        two: 350
-      },
-      chartHeader: 17,
-      borderWidth: 2,
-      scatter: {
-        width: 398,
-        height: 331
-      },
-      survival: {
-        width: 398,
-        height: 331
-      },
-      specialTables: {
-        width: 398,
-        height: 306
-      },
-      piechart: {
-        width: 140,
-        height: 140
-      },
-      barchart: {
-        width: 398,
-        height: 134
+  var configs_ = {
+    styles: {
+      vars: {
+        width: {
+          one: 195,
+          two: 400
+        },
+        height: {
+          one: 170,
+          two: 350
+        },
+        chartHeader: 17,
+        borderWidth: 2,
+        scatter: {
+          width: 398,
+          height: 331
+        },
+        survival: {
+          width: 398,
+          height: 331
+        },
+        specialTables: {
+          width: 398,
+          height: 306
+        },
+        piechart: {
+          width: 140,
+          height: 140
+        },
+        barchart: {
+          width: 398,
+          height: 134
+        }
       }
+    },
+    numOfSurvivalCurveLimit: 20,
+    dc: {
+      transitionDuration: 400
     }
   };
 
@@ -581,15 +587,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
   return {
 
-    init: function(_rawDataJSON, opts) {
+    init: function(_rawDataJSON, configs) {
       vm_ = iViz.vue.manage.getInstance();
 
       data_ = _rawDataJSON;
 
-      if (_.isObject(opts)) {
-        if (_.isObject(opts.styles)) {
-          styles_ = _.extend(styles_, opts.styles);
-        }
+      if (_.isObject(configs)) {
+        configs_ = $.extend(true, configs_, configs);
       }
 
       hasPatientAttrDataMap_ = data_.groups.patient.hasAttrData;
@@ -1185,13 +1189,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       component: {}
     },
     util: {},
-    opts: {
-      dc: {
-        transitionDuration: 400
-      }
-    },
+    opts: configs_,
     data: {},
-    styles: styles_,
+    styles: configs_.styles,
     applyVC: function(_vc) {
       var _selectedSamples = [];
       var _selectedPatients = [];
@@ -2132,23 +2132,23 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
     function barChartDownload(fileType, content) {
       switch (fileType) {
-        case 'tsv':
-          csvDownload(content.fileName || 'data', content.data);
-          break;
-        case 'svg':
-          barChartCanvasDownload(content, {
-            filename: content.fileName + '.svg'
-          });
-          break;
-        case 'pdf':
-          barChartCanvasDownload(content, {
-            filename: content.fileName + '.pdf',
-            contentType: 'application/pdf',
-            servletName: window.cbioURL + 'svgtopdf.do'
-          });
-          break;
-        default:
-          break;
+      case 'tsv':
+        csvDownload(content.fileName || 'data', content.data);
+        break;
+      case 'svg':
+        barChartCanvasDownload(content, {
+          filename: content.fileName + '.svg'
+        });
+        break;
+      case 'pdf':
+        barChartCanvasDownload(content, {
+          filename: content.fileName + '.pdf',
+          contentType: 'application/pdf',
+          servletName: window.cbioURL + 'svgtopdf.do'
+        });
+        break;
+      default:
+        break;
       }
     }
 
@@ -2212,6 +2212,28 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       return string.join('<br/>');
     };
 
+    content.getCaseIdsGroupByCategories = function(groupType, dcDimension, attrId) {
+      var _cases = [];
+      var _caseIds = {};
+
+      if (!groupType || !dcDimension) {
+        return _caseIds;
+      }
+
+      _cases = dcDimension.top(Infinity);
+
+      for (var i = 0; i < _cases.length; i++) {
+        var _key = _cases[i][attrId];
+
+        if (!_caseIds.hasOwnProperty(_key)) {
+          _caseIds[_key] = [];
+        }
+        var _groupKey = groupType === 'patient' ? 'patient_id' : 'sample_id';
+        _caseIds[_key].push(_cases[i][_groupKey]);
+      }
+
+      return _caseIds;
+    };
     return content;
   })();
 })(window.iViz,
@@ -2439,7 +2461,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           self_.samplesync = _casesSync;
           self_.patientsync = _counterCasesSync;
           if (self_.hasfilters) {
-            self_.selectedsamples = iViz.util.intersection(_selectedCasesByFilters, _resultSelectedCases);;
+            self_.selectedsamples = iViz.util.intersection(_selectedCasesByFilters, _resultSelectedCases);
             self_.selectedpatients = _resultCounterSelectedCases;
           } else {
             self_.selectedsamples = self_.completeSamplesList;
@@ -2462,6 +2484,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
         this.selectedsamples = this.samplesync;
         this.selectedpatients = this.patientsync;
+      },
+      'create-rainbow-survival': function(opts) {
+        this.$broadcast('create-rainbow-survival', opts);
+        this.$broadcast('resetBarColor', [opts.attrId]);
+      },
+      'remove-rainbow-survival': function() {
+        this.$broadcast('resetBarColor', []);
       }
     }
   });
@@ -2701,6 +2730,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     'use strict';
     this.chartType = chartType || 'generalChart';
     this.dataForDownload = {};
+    this.getCurrentCategories = function() {
+      return [];
+    };
     this.getChartType = function() {
       return this.chartType;
     };
@@ -2760,7 +2792,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '<i v-if="showPieIcon" class="fa fa-pie-chart icon hover" ' +
     'aria-hidden="true" @click="changeView()"></i>' +
     '<img v-if="showSurvivalIcon" src="images/survival_icon.svg" ' +
-    'class="icon hover"/>' +
+    'class="icon hover" @click="getRainbowSurvival" />' +
     '<div id="{{chartId}}-download-icon-wrapper" class="download">' +
     '<i class="fa fa-download icon hover" alt="download" ' +
     'id="{{chartId}}-download"></i>' +
@@ -2817,6 +2849,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         this.showTableIcon = !this.showTableIcon;
         this.showPieIcon = !this.showPieIcon;
         this.$dispatch('toTableView');
+      },
+      getRainbowSurvival: function() {
+        this.$dispatch('getRainbowSurvival');
       },
       hasTitleTooltip: function() {
         return _.isObject(this.attributes) ?
@@ -3119,6 +3154,35 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       updateQtip = false;
     };
 
+    content.getCurrentCategories = function(sortBy) {
+      var categories = [];
+
+      sortBy = sortBy || 'value';
+      _.each(_.sortBy(dcGroup_.top(Infinity), sortBy), function(label) {
+        var _labelDatum = {};
+        var _labelValue = Number(label.value);
+        if (_labelValue > 0) {
+          _labelDatum.id = labelInitData[label.key].id;
+          _labelDatum.index = labelInitData[label.key].index;
+          _labelDatum.name = label.key;
+          _labelDatum.color = labelInitData[label.key].color;
+          _labelDatum.cases = _labelValue;
+          categories.push(_labelDatum);
+        }
+      });
+      return categories;
+    };
+
+    function getCurrentSampleSizeFromCategories(categories) {
+      var currentSampleSize = 0;
+      for (var key in categories) {
+        if (categories.hasOwnProperty(key)) {
+          currentSampleSize += categories[key].cases;
+        }
+      }
+      return currentSampleSize;
+    }
+
     /**
      * This is the function to initialize dc pie chart instance.
      */
@@ -3287,26 +3351,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     }
 
     function updateCurrentLabels() {
-      var _labels = {};
-      var _currentSampleSize = 0;
-      _.each(dcGroup_.top(Infinity), function(label) {
-        var _labelDatum = {};
-        var _labelValue = Number(label.value);
-        if (_labelValue > 0) {
-          _labelDatum.id = labelInitData[label.key].id;
-          _labelDatum.index = labelInitData[label.key].index;
-          _labelDatum.name = label.key;
-          _labelDatum.color = labelInitData[label.key].color;
-          _labelDatum.cases = _labelValue;
-          _currentSampleSize += _labelValue;
-          _labels[_labelDatum.id] = _labelDatum;
-        }
-      });
+      var _labels = content.getCurrentCategories();
+      var _currentSampleSize = getCurrentSampleSizeFromCategories(_labels);
 
+      labels = {};
       _.each(_labels, function(label) {
         label.sampleRate = (_currentSampleSize <= 0 ? 0 : (Number(label.cases) * 100 / _currentSampleSize).toFixed(1).toString()) + '%';
+        labels[label.id] = label;
       });
-      labels = _labels;
     }
 
     function initReactData() {
@@ -3528,6 +3580,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ':display-name="displayName" :show-table-icon.sync="showTableIcon" ' +
     ' :show-pie-icon.sync="showPieIcon" :chart-id="chartId" ' +
     ':show-operations="showOperations" :groupid="attributes.group_id" ' +
+    ':show-survival-icon.sync="showSurvivalIcon"' +
     ':reset-btn-id="resetBtnId" :chart-ctrl="piechart" ' +
     ' :filters.sync="attributes.filter" ' +
     ':attributes="attributes"></chart-operations>' +
@@ -3558,7 +3611,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         showTableIcon: true,
         showPieIcon: false,
         filtersUpdated: false,
-        addingChart: false
+        addingChart: false,
+        numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
+        showSurvivalIcon: true
       };
     },
     watch: {
@@ -3598,6 +3653,32 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             }
           }
         }
+      },
+      getRainbowSurvival: function() {
+        var groups = [];
+        var categories = this.piechart.getCurrentCategories('key');
+        var dataForCategories = iViz.util.getCaseIdsGroupByCategories(
+          this.attributes.group_type,
+          this.chartInst.dimension(),
+          this.attributes.attr_id
+        );
+        _.each(categories, function(category) {
+          if (dataForCategories.hasOwnProperty(category.name) &&
+            // Remove pie chart NA group by default
+            category.name !== 'NA') {
+            groups.push({
+              name: category.name,
+              caseIds: dataForCategories[category.name],
+              curveHex: category.color
+            });
+          }
+        });
+        this.$dispatch('create-rainbow-survival', {
+          attrId: this.attributes.attr_id,
+          subtitle: ' (' + this.attributes.display_name + ')',
+          groups: groups,
+          groupType: this.attributes.group_type
+        });
       }
     },
     methods: {
@@ -3662,6 +3743,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _self.piechart.filtered();
         }
       });
+
+      // Disable rainbow survival if only one group present
+      if (_self.piechart.getCurrentCategories().length < 2 ||
+        _self.piechart.getCurrentCategories().length > this.numOfSurvivalCurveLimit) {
+        this.showSurvivalIcon = false;
+      }
       _self.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
   });
@@ -3681,24 +3768,27 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     var data_ = {};// Chart related data. Such as attr_id.
     var colors_;
     var ndx_;
-    var hasEmptyValue_ = false;
+    var dcDimension;
+    var mapTickToCaseIds = {}; // Save the related caseIds under tick value.
 
     var initDc_ = function(logScale) {
       var tickVal = [];
-      var barColor = {};
       var i = 0;
 
-      var cluster = ndx_.dimension(function(d) {
+      dcDimension = ndx_.dimension(function(d) {
         var val = d[data_.attrId];
+        var _min;
+        var _max;
         if (typeof val === 'undefined' || val === 'NA' || val === '' ||
           val === 'NaN') {
-          hasEmptyValue_ = true;
           val = opts_.xDomain[opts_.xDomain.length - 1];
         } else if (logScale) {
           for (i = 1; i < opts_.xDomain.length; i++) {
             if (d[data_.attrId] < opts_.xDomain[i] &&
               d[data_.attrId] >= opts_.xDomain[i - 1]) {
               val = parseInt(Math.pow(10, i / 2 - 0.25), 10);
+              _min = opts_.xDomain[i - 1];
+              _max = opts_.xDomain[i];
               break;
             }
           }
@@ -3707,17 +3797,30 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         } else if (d[data_.attrId] > opts_.xDomain[opts_.xDomain.length - 3]) {
           val = opts_.xDomain[opts_.xDomain.length - 2];
         } else {
-          // minus half of seperateDistance to make the margin values
+          // minus half of separateDistance to make the margin values
           // always map to the left side. Thus for any value x, it is in the
           // range of (a, b] which means a < x <= b
           val = Math.ceil((d[data_.attrId] - opts_.startPoint) / opts_.gutter) *
             opts_.gutter + opts_.startPoint - opts_.gutter / 2;
+          _min = val - opts_.gutter / 2;
+          _max = val + opts_.gutter / 2;
         }
 
         if (tickVal.indexOf(val) === -1) {
           tickVal.push(Number(val));
         }
 
+        if (!mapTickToCaseIds.hasOwnProperty(val)) {
+          mapTickToCaseIds[val] = {
+            caseIds: [],
+            tick: getTickFormat(val, logScale)
+          };
+          if (!_.isUndefined(_min) && !_.isUndefined(_max)) {
+            mapTickToCaseIds[val].range = _min + '< ~ <=' + _max;
+          }
+        }
+        mapTickToCaseIds[val].caseIds.push(
+          data_.groupType === 'patient' ? d.patient_id : d.sample_id);
         return val;
       });
 
@@ -3725,24 +3828,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         return a < b ? -1 : 1;
       });
 
-      var tickL = tickVal.length - 1;
-
-      for (i = 0; i < tickL; i++) {
-        barColor[tickVal[i]] = colors_[i];
-      }
-
-      if (hasEmptyValue_) {
-        barColor.NA = '#CCCCCC';
-      } else {
-        barColor[tickVal[tickL]] = colors_[tickL];
-      }
-
       chartInst_
         .width(opts_.width)
         .height(opts_.height)
         .margins({top: 10, right: 20, bottom: 30, left: 40})
-        .dimension(cluster)
-        .group(cluster.group())
+        .dimension(dcDimension)
+        .group(dcDimension.group())
         .centerBar(true)
         .elasticY(true)
         .elasticX(false)
@@ -3889,7 +3980,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         max: data_.max
       }, opts.logScaleChecked));
       ndx_ = ndx;
-      hasEmptyValue_ = false;
 
       colors_ = $.extend(true, {}, iViz.util.getColors());
 
@@ -3917,6 +4007,71 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     };
     // return content;
+
+    /**
+     * sortBy {String} sort category by 'key' (key, value are supported)
+     * @return {Array} the list of current bar categories.
+     */
+    content.getCurrentCategories = function(sortBy) {
+      var groups = dcDimension.group().top(Infinity);
+      var groupTypeId =
+        data_.groupType === 'patient' ? 'patient_id' : 'sample_id';
+      var selectedCases = _.pluck(dcDimension.top(Infinity), groupTypeId);
+      var categories = [];
+      var colorCounter = 0;
+
+      sortBy = sortBy || 'value';
+
+      groups = _.sortBy(groups, sortBy);
+      _.each(groups, function(group) {
+        if (group.value > 0 && mapTickToCaseIds.hasOwnProperty(group.key)) {
+          var color;
+          var name = mapTickToCaseIds[group.key].range || mapTickToCaseIds[group.key].tick;
+          if (name === 'NA') {
+            color = '#ccc';
+          } else {
+            color = colors_[colorCounter];
+            colorCounter++;
+          }
+          categories.push({
+            key: group.key,
+            name: mapTickToCaseIds[group.key].range || mapTickToCaseIds[group.key].tick,
+            color: color,
+            caseIds: _.intersection(selectedCases, mapTickToCaseIds[group.key].caseIds)
+          });
+        }
+      });
+      return categories;
+    };
+
+    /**
+     * Color bar based on categories info.
+     * @param {Array} categories The current bar categories, can be calculated by
+     * using getCurrentCategories method.
+     */
+    content.colorBars = function(categories) {
+      if (!_.isArray(categories)) {
+        categories = this.getCurrentCategories();
+      }
+      chartInst_.selectAll('g rect').style('fill', function(d) {
+        var color = 'grey';
+        for (var i = 0; i < categories.length; i++) {
+          var category = categories[i];
+          if (_.isObject(d.data) && category.key === d.data.key) {
+            color = category.color;
+            break;
+          }
+        }
+        return color;
+      });
+    };
+
+    /**
+     * Reset bar color by removing fill attribute.
+     */
+    content.resetBarColor = function() {
+      chartInst_.selectAll('g rect').style('fill', '');
+    };
   };
 
   iViz.view.component.BarChart.prototype =
@@ -4084,6 +4239,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-log-scale="settings.showLogScale"' +
     ':show-operations="showOperations" :groupid="attributes.group_id" ' +
+    ':show-survival-icon.sync="showSurvivalIcon"' +
     ':reset-btn-id="resetBtnId" :chart-ctrl="barChart" ' +
     ':chart-id="chartId" :show-log-scale="showLogScale" ' +
     ':attributes="attributes"' +
@@ -4117,6 +4273,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           transitionDuration: iViz.opts.dc.transitionDuration
         },
         opts: {},
+        numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
         addingChart: false
       };
     }, watch: {
@@ -4130,6 +4287,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             this.$dispatch('update-filters', true);
           }
         }
+        this.barChart.resetBarColor();
       }
     }, events: {
       closeChart: function() {
@@ -4157,6 +4315,31 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               this.addingChart = val;
             }
           }
+        }
+      },
+      getRainbowSurvival: function() {
+        var groups = [];
+        var categories = this.barChart.getCurrentCategories('key');
+        _.each(categories, function(category) {
+          if (category.name !== 'NA') {
+            groups.push({
+              name: category.name,
+              caseIds: category.caseIds,
+              curveHex: category.color
+            });
+          }
+        });
+        this.barChart.colorBars(categories);
+        this.$dispatch('create-rainbow-survival', {
+          attrId: this.attributes.attr_id,
+          subtitle: ' (' + this.attributes.display_name + ')',
+          groups: groups,
+          groupType: this.attributes.group_type
+        });
+      },
+      resetBarColor: function(exceptionAttrIds) {
+        if (_.isArray(exceptionAttrIds) && exceptionAttrIds.indexOf(this.attributes.attr_id) === -1) {
+          this.barChart.resetBarColor();
         }
       }
     },
@@ -4226,11 +4409,23 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       this.data.min = findExtremeResult[0];
       this.data.max = findExtremeResult[1];
       this.data.attrId = this.attributes.attr_id;
+      this.data.groupType = this.attributes.group_type;
 
       if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1)) {
         this.settings.showLogScale = true;
       }
       this.initChart(this.settings.showLogScale);
+
+      // Disable rainbow survival if only one group present
+      if (this.barChart.getCurrentCategories().length < 2) {
+        this.showSurvivalIcon = false;
+      }
+      // Disable rainbow survival if only one group present
+      if (this.barChart.getCurrentCategories().length < 2 ||
+        this.barChart.getCurrentCategories().length > this.numOfSurvivalCurveLimit) {
+        this.showSurvivalIcon = false;
+      }
+      
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
   });
@@ -4618,64 +4813,60 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 (function(iViz, _) {
   iViz.view.component.Survival = function() {
     var content_ = this;
-    var data_ = {};
     var opts_ = {};
+    var groups_ = [];
 
-    content_.init = function(_data, _opts) {
+    content_.init = function(groups, _data, _opts) {
       opts_ = $.extend(true, {}, _opts);
       $('#' + opts_.chartId).empty();
-      data_ = _data;
       var _dataProxy = new iViz.data.SurvivalChartProxy(_data, opts_.attrId);
       this.chartInst_ =
         new iViz.view.component
           .SurvivalCurve(opts_.chartId, _dataProxy.get(), opts_);
-      this.chartInst_.addCurve(_dataProxy.get(), 0, '#2986e2');
+      this.chartInst_.addCurve(_dataProxy.get(), 0, opts_.curveHex || '#2986e2');
+      groups_ = groups;
     };
 
     // _attrId here indicates chart type (OS or DFS)
-    content_.update = function(_selectedPatients, _chartId, _attrId) {
+    content_.update = function(groups, _chartId, _attrId) {
       // remove previous curves
-      this.chartInst_.removeCurves();
+      var _chartInst_ = this.chartInst_;
+      _chartInst_.removeCurves();
 
-      // separate selected and unselected data
-      var _selectedData = [];
-      var _unselectedData = [];
-      var _tmpSelectedPatientIdMap = {};
-      _.each(_selectedPatients, function(_patientId) {
-        _tmpSelectedPatientIdMap[_patientId] = '';
+      // Calculate proxy data for each group
+      _.each(groups, function(group) {
+        group.proxyData =
+          new iViz.data.SurvivalChartProxy(group.data, _attrId).get();
       });
-      _.each(Object.keys(iViz.getCaseIndices(opts_.type)),
-        function(_patientId) {
-          var _index = iViz.getCaseIndices(opts_.type)[_patientId];
-          if (_tmpSelectedPatientIdMap.hasOwnProperty(_patientId)) {
-            _selectedData.push(data_[_index]);
-          } else {
-            _unselectedData.push(data_[_index]);
-          }
-        });
 
-      // settings for different curves
-      var _selectedDataProxy =
-        new iViz.data.SurvivalChartProxy(_selectedData, _attrId);
-      var _unselectedDataProxy =
-        new iViz.data.SurvivalChartProxy(_unselectedData, _attrId);
-
-      // add curves
-      if (_selectedDataProxy.get().length === 0) {
-        this.chartInst_.addCurve(_unselectedDataProxy.get(), 0, '#2986e2');
-        this.chartInst_.removePval();
+      if (groups.length === 1) {
+        _chartInst_.addCurve(
+          groups[0].proxyData, 0, groups[0].curveHex || '#2986e2');
       } else {
-        this.chartInst_.addCurve(_selectedDataProxy.get(), 0, 'red');
-        this.chartInst_.addCurve(_unselectedDataProxy.get(), 1, '#2986e2');
-        this.chartInst_.addPval(
-          _selectedDataProxy.get(), _unselectedDataProxy.get());
+        _.each(groups, function(group, index) {
+          _chartInst_.addCurve(group.proxyData, index, group.curveHex);
+        });
       }
+      if (groups.length === 2) {
+        _chartInst_.addPval(groups[0].proxyData, groups[1].proxyData);
+      } else {
+        _chartInst_.removePval();
+      }
+      groups_ = groups;
     };
 
     content_.updateDataForDownload = function(fileType) {
       if (['pdf', 'svg'].indexOf(fileType) !== -1) {
         initCanvasDownloadData();
       }
+    };
+
+    content_.getGroups = function() {
+      return groups_;
+    };
+
+    content_.highlightCurve = function(curveId) {
+      this.chartInst_.highlightCurve(curveId);
     };
 
     function initCanvasDownloadData() {
@@ -4739,7 +4930,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         fromFilter: false,
         hasChartTitle: true,
         showLoad: true,
-        invisibleDimension: {}
+        invisibleDimension: {},
+        mainDivQtip: ''
       };
     },
     events: {
@@ -4747,16 +4939,49 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         this.showLoad = true;
       },
       'update-special-charts': function(hasFilters) {
-        var attrId =
-          this.attributes.group_type === 'patient' ? 'patient_id' : 'sample_id';
+        var _type = this.attributes.group_type;
+        var attrId = _type === 'patient' ? 'patient_id' : 'sample_id';
         var _selectedCases = [];
+        var _allCases = Object.keys(iViz.getCaseIndices(_type));
+        var groups = [];
+
         if (hasFilters) {
           _selectedCases =
             _.pluck(this.invisibleDimension.top(Infinity), attrId);
         }
+
+        if (_selectedCases.length === 0) {
+          groups.push({
+            id: 0,
+            caseIds: _allCases,
+            curveHex: '#2986e2',
+            name: 'All Patients'
+          });
+        } else {
+          groups = [{
+            id: 0,
+            caseIds: _selectedCases,
+            curveHex: 'red',
+            name: 'Selected Patients'
+          }, {
+            id: 1,
+            caseIds: _.difference(
+              _allCases, _selectedCases),
+            curveHex: '#2986e2',
+            name: 'Unselected Patients'
+          }];
+        }
+
+        groups = this.calcCurvesData(groups);
+
+        // Display name may be changed due to the rainbow survival
+        this.displayName = this.attributes.display_name;
+
         this.chartInst.update(
-          _selectedCases, this.chartId, this.attributes.attr_id);
+          groups, this.chartId, this.attributes.attr_id);
         this.showLoad = false;
+        this.updateQtipContent();
+        this.$dispatch('remove-rainbow-survival');
       },
       'closeChart': function() {
         this.invisibleDimension.dispose();
@@ -4780,13 +5005,92 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             }
           }
         }
+      },
+      'create-rainbow-survival': function(opts) {
+        var _opts = $.extend(true, {}, opts);
+        _opts.groups = this.calcCurvesData(
+          _opts.groups, _opts.groupType);
+
+        if (_opts.subtitle) {
+          this.displayName = this.attributes.display_name + _opts.subtitle;
+        }
+        this.chartInst.update(
+          _opts.groups, this.chartId, this.attributes.attr_id);
+
+        this.updateQtipContent();
       }
     },
     methods: {
+      updateQtipContent: function() {
+        if (this.mainDivQtip) {
+          var qtipContent = ['<div>'];
+          var groups = this.chartInst.getGroups();
+          _.each(groups, function(group) {
+            qtipContent.push(
+              '<div class="category-item" curve-id="' + group.id + '">' +
+              '<svg width="12" height="12">' +
+              '<rect height="12" width="12" fill="' +
+              group.curveHex + '"></rect>' +
+              '</svg><span>' + group.name + '</span></div>');
+          });
+          qtipContent.push('</div>');
+          this.mainDivQtip.qtip('api').set('content.text', qtipContent.join(''));
+        }
+      },
       mouseEnter: function() {
         this.showOperations = true;
+        this.$emit('initMainDivQtip');
       }, mouseLeave: function() {
         this.showOperations = false;
+      },
+      calcCurvesData: function(groups, groupType) {
+        var data_ = iViz.getGroupNdx(this.attributes.group_id);
+        var survivalType = this.attributes.group_type;
+        _.each(groups, function(group, index) {
+          group.id = index;
+          group.data = [];
+
+          // If group type is sample, need to convert sample ID to patient ID.
+          if (groupType === 'sample') {
+            group.caseIds = iViz.util.idMapping(iViz.getCasesMap('sample'),
+              group.caseIds);
+          }
+          _.each(group.caseIds, function(id) {
+            var _index = iViz.getCaseIndices(survivalType)[id];
+            group.data.push(data_[_index]);
+          });
+        });
+        return groups;
+      },
+      initMainDivQtip: function() {
+        var self_ = this;
+        var chartDivId = self_.chartDivId;
+        self_.mainDivQtip = $('#' + chartDivId).qtip({
+          id: chartDivId + '-qtip',
+          style: {
+            classes: 'qtip-light qtip-rounded qtip-shadow forceZindex qtip-max-width dc-survival-chart-qtip'
+          },
+          show: {event: 'mouseover', delay: 300, ready: true},
+          hide: {fixed: true, delay: 300, event: 'mouseleave'},
+          // hide: false,
+          position: {
+            my: 'left center',
+            at: 'center right',
+            viewport: $(window)
+          },
+          content: '<div>Loading...</div>',
+          events: {
+            show: function(event, api) {
+              var tooltip = api.elements.tooltip;
+              tooltip.find('.category-item').unbind('click');
+              tooltip.find('.category-item').click(function() {
+                var curveId = $(this).attr('curve-id');
+                self_.chartInst.highlightCurve(curveId);
+              });
+            }
+          }
+        });
+        self_.updateQtipContent();
       }
     },
     ready: function() {
@@ -4809,8 +5113,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       _self.chartInst.setDownloadDataTypes(['pdf', 'svg']);
 
       var data = iViz.getGroupNdx(this.attributes.group_id);
-      _self.chartInst.init(data, _opts);
+      var groups = [{
+        id: 0,
+        name: 'All Patients',
+        curveHex: '#2986e2'
+      }];
+      _self.chartInst.init(groups, data, _opts);
       _self.showLoad = false;
+
+      _self.$once('initMainDivQtip', _self.initMainDivQtip);
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
   });
@@ -4972,7 +5283,10 @@ window.LogRankTest = (function(jStat) {
     _self.elem_ = '';
     _self.divId_ = _divId;
     _self.data_ = _data;
-    _self.opts_ = _opts;
+    _self.opts_ = {
+      curves: {}
+    };
+    _self.opts_ = $.extend(true, _self.opts_, _opts);
     var formatAsPercentage_ = d3.format('%');
 
     var leftMargin_ = 60;
@@ -5104,6 +5418,9 @@ window.LogRankTest = (function(jStat) {
         .y(function(d) {
           return _self.elem_.yScale(d.survival_rate);
         });
+
+      // Init opts for the curve
+      _self.opts_.curves[_curveIndex] = {};
     }
 
     // draw line
@@ -5241,6 +5558,23 @@ window.LogRankTest = (function(jStat) {
     var _self = this;
     _self.elem_.svg.selectAll('.pval').remove();
   };
+
+  iViz.view.component.SurvivalCurve.prototype.highlightCurve =
+    function(curveIndex) {
+      var _self = this;
+      if (_self.elem_.curves.hasOwnProperty(curveIndex)) {
+        var opacity = '0.5';
+        if (_self.opts_.curves[curveIndex].highlighted) {
+          opacity = '0';
+          _self.opts_.curves[curveIndex].highlighted = false;
+        } else {
+          _self.opts_.curves[curveIndex].highlighted = true;
+        }
+        _self.elem_.curves[curveIndex].invisibleDots
+          .selectAll('path')
+          .style('opacity', opacity);
+      }
+    };
 })(
   window.iViz,
   window.dc,
@@ -5494,6 +5828,10 @@ window.LogRankTest = (function(jStat) {
       if (fileType === 'tsv') {
         initTsvDownloadData();
       }
+    };
+
+    content.getCurrentCategories = function() {
+      return _.values(categories_);
     };
 
     function initReactTable(_reloadData, _selectedMap, _selectedSampleIds) {
@@ -5964,6 +6302,7 @@ window.LogRankTest = (function(jStat) {
     ':display-name="displayName" :chart-ctrl="chartInst"' +
     ':has-chart-title="true" :groupid="attributes.group_id" ' +
     ':reset-btn-id="resetBtnId" :chart-id="chartId" :attributes="attributes" ' +
+    ':show-survival-icon.sync="showSurvivalIcon"' +
     ':filters.sync="attributes.filter"> ' +
     '</chart-operations><div class="dc-chart dc-table-plot" ' +
     ':class="{\'start-loading\': showLoad}" align="center" ' +
@@ -5991,7 +6330,9 @@ window.LogRankTest = (function(jStat) {
         isMutatedGeneCna: false,
         classTableHeight: 'grid-item-h-2',
         madeSelection: false,
-        genePanelMap: {}
+        showSurvivalIcon: true,
+        genePanelMap: {},
+        numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20
       };
     },
     watch: {
@@ -6026,6 +6367,7 @@ window.LogRankTest = (function(jStat) {
           this.chartInst.update(_selectedCases, this.selectedRows);
           this.setDisplayTitle(this.chartInst.getCases().length);
           this.showLoad = false;
+          this.showSurvivalIcon = this.showRainbowSurvival();
         }
       },
       'closeChart': function() {
@@ -6050,6 +6392,32 @@ window.LogRankTest = (function(jStat) {
             }
           }
         }
+      },
+      getRainbowSurvival: function() {
+        var groups = [];
+        var categories = this.chartInst.getCurrentCategories();
+        var dataForCategories = iViz.util.getCaseIdsGroupByCategories(
+          this.attributes.group_type,
+          this.invisibleDimension,
+          this.attributes.attr_id
+        );
+        _.each(categories, function(category) {
+          if (dataForCategories.hasOwnProperty(category.name) &&
+            // Remove pie chart NA group by default
+            category.name !== 'NA') {
+            groups.push({
+              name: category.name,
+              caseIds: dataForCategories[category.name],
+              curveHex: category.color
+            });
+          }
+        });
+        this.$dispatch('create-rainbow-survival', {
+          attrId: this.attributes.attr_id,
+          subtitle: ' (' + this.attributes.display_name + ')',
+          groups: groups,
+          groupType: this.attributes.group_type
+        });
       }
     },
     methods: {
@@ -6121,6 +6489,19 @@ window.LogRankTest = (function(jStat) {
           this.classTableHeight = 'grid-item-h-1';
         }
         this.showLoad = false;
+      },
+      showRainbowSurvival: function() {
+        if (this.isMutatedGeneCna) {
+          return false;
+        }
+
+        var categories = this.chartInst.getCurrentCategories();
+        if (_.isArray(categories) &&
+          (categories.length > 1 &&
+          categories.length <= this.numOfSurvivalCurveLimit)) {
+          return true;
+        }
+        return false;
       }
     },
     ready: function() {
@@ -6151,8 +6532,8 @@ window.LogRankTest = (function(jStat) {
       _self.chartInst.setDownloadDataTypes(['tsv']);
       if (_self.isMutatedGeneCna) {
         $.when(iViz.getTableData(_self.attributes.attr_id)).then(function(_tableData) {
-          $.when(window.iviz.datamanager.getGenePanelMap()).then(function (_genePanelMap) {
-            //create gene panel map
+          $.when(window.iviz.datamanager.getGenePanelMap()).then(function(_genePanelMap) {
+            // create gene panel map
             _self.genePanelMap = _genePanelMap;
             _self.processTableData(_tableData);
           });
@@ -6160,6 +6541,7 @@ window.LogRankTest = (function(jStat) {
       } else {
         _self.processTableData();
       }
+      this.showSurvivalIcon = this.showRainbowSurvival();
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
   });

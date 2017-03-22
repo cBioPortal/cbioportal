@@ -111,6 +111,16 @@ If you need to export the public certificate associated within your keystore, ru
 
     keytool -export -keystore samlKeystore.jks -alias secure-key -file cBioPortal.cer
 
+##### HTTPS and Tomcat
+
+:warning: If you already have an official (non-self-signed) SSL certificate, and need to get your site 
+running on HTTPS directly from Tomcat, then you need to import your certificate into the keystore instead. 
+See [this Tomcat documentation page](https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html) for more details.
+
+:warning: An extra warning for when configuring HTTPS for Tomcat: use the same password for 
+both keystore and secure-key. This seems to be an extra restriction by Tomcat.
+
+
 ## Modifying portal.properties
 
 Within portal.properties, make sure that:

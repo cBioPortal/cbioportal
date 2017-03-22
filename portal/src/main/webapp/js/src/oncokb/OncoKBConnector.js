@@ -166,6 +166,8 @@ var OncoKB = (function(_, $) {
         this.evidence = {};
         this.id = id || 'OncoKB-Instance-' + new Date().getTime();
         this.variantUniqueIds = {}; // Unique variant list.
+        this.civicService = CivicService();
+        this.civicGenes = {};
     }
 
     function EvidenceRequestItem(variant) {
@@ -856,12 +858,12 @@ OncoKB.Instance.prototype = {
         };
         var oncokbEvidenceRequestItems = {};
         var oncokbSummaryData = {};
-        var deferred = $.Deferred();
         var str = this.getVariantStr();
         var self = this;
 
         self.setVariantUniqueIds();
 
+        var geneSymbols = []
         for (var key in this.variants) {
             var variant = this.variants[key];
             var uniqueStr = variant.gene + variant.alteration + variant.tumorType + variant.consequence;
@@ -869,6 +871,9 @@ OncoKB.Instance.prototype = {
                 oncokbEvidenceRequestItems[uniqueStr] = new OncoKB.EvidenceRequestItem(variant);
             }
             oncokbEvidenceRequestItems[uniqueStr].ids.push(variant.id);
+            if (geneSymbols.indexOf(variant.gene) == -1) {
+                geneSymbols.push(variant.gene);
+            }
         }
 
         oncokbServiceData.queries = $.map(oncokbEvidenceRequestItems, function(value, index) {
@@ -877,7 +882,7 @@ OncoKB.Instance.prototype = {
             return value;
         });
 
-        $.ajax({
+        var oncokbPromise = $.ajax({
             type: 'POST',
             url: 'api-legacy/proxy/oncokb',
             dataType: 'json',
@@ -911,15 +916,31 @@ OncoKB.Instance.prototype = {
                 });
             }
             self.dataReady = true;
-
-            deferred.resolve();
         })
             .fail(function() {
                 console.log('POST failed.');
-                deferred.reject();
             });
 
-        return deferred.promise();
+        var promises = [oncokbPromise];
+        if (showCivic) {
+            var civicPromise = self.civicService.getCivicGenes(geneSymbols)
+                .then(function (result) {
+                    self.civicGenes = result;
+                });
+            promises.push(civicPromise);
+        }
+        
+        // We're explicitly waiting for all promises to finish (done or fail).
+        // We are wrapping them in another promise separately, to make sure we also 
+        // wait in case one of the promises fails and the other is still busy.
+        var mainPromise = $.when.apply($, $.map(promises, function(promise) {
+            var wrappingDeferred = $.Deferred();
+            promise.always(function () {
+                wrappingDeferred.resolve();
+            });
+            return wrappingDeferred.promise();
+        }));
+        return mainPromise;
     },
     setVariantUniqueIds: function() {
         var uniqueIds = {};
@@ -1129,6 +1150,31 @@ OncoKB.Instance.prototype = {
                     }
                     }
                 });
+                $(target).find('.annotation-item.civic-cna').each(function() {
+                    var geneSymbol = $(this).attr('geneSymbol');
+                    $(this).empty(); // remove spinner image
+                    if (geneSymbol != null) {
+                        var civicGene = self.civicGenes[geneSymbol];
+                        if (civicGene) {
+
+                            // Determine which CNAs are available
+                            var cnas = ['AMPLIFICATION', 'DELETION'];
+                            var matchingCivicVariants = [];
+                            cnas.forEach(function(cna) {
+                                if (civicGene.variants.hasOwnProperty(cna)) {
+                                    matchingCivicVariants.push(civicGene.variants[cna]);
+                                }
+                            });
+
+                            // Show an icon if
+                            // * there is CNA info or
+                            // * the gene has a description (grayed-out icon)
+                            if (matchingCivicVariants.length > 0 || civicGene.description) {
+                                self.createCivicIcon($(this), civicGene, matchingCivicVariants);
+                            }
+                        }
+                    }
+                });
             }
 
             if (typeof  type === 'undefined' || type === 'alteration') {
@@ -1192,7 +1238,7 @@ OncoKB.Instance.prototype = {
                                                                 return Number(article.pmid);
                                                             }).sort().join(', ') : '',
                                                         mutationEffect: variant.evidence.mutationEffect.knownEffect,
-                                                        mutationEffectCitations: _.isArray(variant.evidence.mutationEffectRefs) ?
+                                                        mutationEffectPmids: _.isArray(variant.evidence.mutationEffectRefs) ?
                                                             variant.evidence.mutationEffectRefs.map(function(article) {
                                                                 return Number(article.pmid);
                                                             }).sort().join(', ') : '',
@@ -1324,12 +1370,103 @@ OncoKB.Instance.prototype = {
                         }
                     }
                 });
+                $(target).find('.annotation-item.civic').each(function() {
+                    var geneSymbol = $(this).attr('geneSymbol');
+                    var proteinChange = $(this).attr('proteinChange');
+                    $(this).empty(); // remove spinner image
+                    if (geneSymbol != null && proteinChange != null) {
+
+                        var civicGene = self.civicGenes[geneSymbol];
+                        if (civicGene) {
+                            // Look up matching civic variants
+                            var matchingCivicVariants = self.civicService.getMatchingCivicVariants(
+                                civicGene.variants, proteinChange);
+
+                            if (matchingCivicVariants.length > 0) {
+                                self.createCivicIcon($(this), civicGene, matchingCivicVariants);
+                            }
+                        }
+                    }
+                });
             }
         }
     },
 
     getId: function() {
         return this.id;
+    },
+
+    createCivicIcon: function(target, civicGene, matchingCivicVariants) {
+        var self = this;
+
+        // Construct element for icon
+        var imageClass = 'civic-image';
+        if (matchingCivicVariants.length == 0) {
+            // Show a grayed-out icon when no CNA info is available
+            imageClass += ' civic-image-disabled';
+        }
+        target.append('<i class="' + imageClass + '"></i>');
+
+        // Create popup on mouse-over
+        target.one('mouseenter', function () {
+            target.qtip({
+                content: {text: '<span><img src="images/loader.gif" alt="loading" /></span>'},
+                show: {ready: true},
+                hide: {fixed: true, delay: 500},
+                style: {
+                    classes: 'qtip-light qtip-shadow oncokb-card-qtip',
+                    tip: true
+                },
+                position: {
+                    my: 'center left',
+                    at: 'center right'
+                },
+                events: {
+                    render: function (event, api) {
+                        // Load variant information for all matching civicVariants,
+                        // after which we construct the html for the qtip
+                        var promises = matchingCivicVariants.map(self.civicService.getCivicVariant, self);
+                        // Use apply, because 'when' doesn't support arrays
+                        $.when.apply($, promises)
+                            .done(function () {
+                                var url = matchingCivicVariants.length > 0 ?
+                                    matchingCivicVariants[0].url : civicGene.url;
+
+                                // Build html for list of variants
+                                var variantsHTML = matchingCivicVariants.length > 0 ?
+                                    '' : _.template($('#civic-qtip-variant-item-not-available').html())();
+                                matchingCivicVariants.forEach(function(variant) {
+
+                                    // Build entry types text
+                                    var entries = [];
+                                    $.each(variant.evidence, function (key, value) {
+                                        entries.push(key.toLowerCase() + ': ' + value);
+                                    });
+                                    variant.entryTypes = entries.join(', ') + '.';
+
+                                    // Build the html from the variant and the template
+                                    var templateFn = _.template($('#civic-qtip-variant-item').html());
+                                    variantsHTML += templateFn(variant);
+                                });
+
+                                //Build main html and update the qtip
+                                var vars = {
+                                    title: "CIViC Variants",
+                                    gene: civicGene,
+                                    variantsHTML: variantsHTML,
+                                    url: url
+                                };
+                                var templateFn = _.template($('#civic-qtip').html());
+                                var civicHTML = templateFn(vars);
+                                api.set('content.text', civicHTML);
+                            })
+                            .fail(function() {
+                                api.set('content.text', 'Civic service is not available at this moment.');
+                            });
+                    }
+                }
+            });
+        });
     }
 };
 

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.ClinicalEventMapper">
+    <cache/>
+
+    <sql id="select">
+        clinical_event.CLINICAL_EVENT_ID AS clinicalEventId,
+        clinical_event.EVENT_TYPE AS eventType,
+        patient.STABLE_ID AS patientId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            clinical_event.START_DATE AS startDate,
+            clinical_event.STOP_DATE AS stopDate
+        </if>
+    </sql>
+
+    <sql id="from">
+        FROM clinical_event
+        INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="where">
+        <where>
+            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            AND patient.STABLE_ID = #{patientId}
+        </where>
+    </sql>
+
+    <select id="getPatientClinicalEvent" resultType="org.cbioportal.model.ClinicalEvent">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="where"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_event.PATIENT_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaPatientClinicalEvent" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="from"/>
+        <include refid="where"/>
+    </select>
+
+    <select id="getDataOfClinicalEvents" resultType="org.cbioportal.model.ClinicalEventData">
+        SELECT
+        clinical_event_data.CLINICAL_EVENT_ID AS clinicalEventId,
+        clinical_event_data.KEY AS "key",
+        clinical_event_data.VALUE AS value
+        FROM clinical_event_data
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                clinical_event_data.CLINICAL_EVENT_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

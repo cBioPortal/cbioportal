@@ -365,7 +365,7 @@ window.DataManagerForIviz = (function($, _) {
                   }
                   if (['CANCER_TYPE', 'CANCER_TYPE_DETAILED']
                       .indexOf(_metaObj.attr_id) !== -1) {
-                    if (_.intersection(['mskimpact', 'genie'],
+                    if (_.intersection(['mskimpact', 'genie', 'mskimpact_heme'],
                         Object.keys(_studyToSampleToPatientMap)).length === 0) {
                       _metaObj.priority = _metaObj.attr_id === 'CANCER_TYPE' ?
                         4.1 : 4.2;

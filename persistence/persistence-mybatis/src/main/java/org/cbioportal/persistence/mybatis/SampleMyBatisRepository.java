@@ -66,4 +66,10 @@ public class SampleMyBatisRepository implements SampleRepository {
 
         return sampleMapper.getMetaSamples(studyIds, null, sampleIds);
     }
+
+    @Override
+    public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
+
+        return sampleMapper.getSamplesByInternalIds(internalIds, PersistenceConstants.ID_PROJECTION);
+    }
 }

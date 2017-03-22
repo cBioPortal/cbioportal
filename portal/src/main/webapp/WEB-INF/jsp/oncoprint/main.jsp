@@ -30,7 +30,10 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-        
+<script type="text/javascript">
+    var defaultOncoprintView = "<%=(String) GlobalProperties.getDefaultOncoprintView()%>";
+</script>
+
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <p id="oncoprint_progress_indicator"></p>
     <div style="display:none;" id="everything">
@@ -68,6 +71,7 @@
                        <textarea id="add_genes_input" rows="5" cols="100" wordwrap="true" placeholder="Type space- or comma-separated genes here, then click 'Add Genes to Heatmap'"></textarea><br>
                        <button id="add_genes_btn" style='font-size:13px; cursor:pointer'>Add Genes to Heatmap</button> <br/>
                        <button id="remove_heatmaps_btn" style='font-size:13px; cursor:pointer'>Remove Heatmap</button> <br/>
+                       <div class="checkbox"><label style='cursor:pointer'><input id="cluster_heatmap_chk" type="checkbox"/>Cluster Heatmap</label></div>
                    </form>
                </div>
             </div>
@@ -85,6 +89,7 @@
                        </div>
                        <div class="radio"><label><input type="radio" name="sortby" value="id" /> Sort by case id (alphabetical)</label></div>
                        <div class="radio"><label><input type="radio" name="sortby" value="custom" /> Sort by user-defined order / default</label></div>
+                       <div class="radio"><label><input type="radio" name="sortby" value="clustering" disabled/> Sorted by heatmap clustering order</label></div>
                    </form>
                </div>
             </div>

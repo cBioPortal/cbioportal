@@ -40,10 +40,12 @@ import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import org.apache.commons.logging.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -52,10 +54,11 @@ import java.util.*;
  *
  * @author Benjamin Gross
  */
+@Component
 public class AccessControlImpl implements AccessControl {
 
-	// ref to log
-	private static Log log = LogFactory.getLog(AccessControlImpl.class);
+    // ref to log
+    private static Log log = LogFactory.getLog(AccessControlImpl.class);
 
     /**
      * Gets Cancer Studies. Used by QueryBuilder.
@@ -63,33 +66,32 @@ public class AccessControlImpl implements AccessControl {
      * @return List<CancerStudy>
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
-	 *
-	 * We use @PostFilter annotation to remove elements
-	 * in the return list inaccessible to the user.
+     *
+     * We use @PostFilter annotation to remove elements
+     * in the return list inaccessible to the user.
      */
     public List<CancerStudy> getCancerStudies() throws DaoException, ProtocolException {
 
-		if (log.isDebugEnabled()) {
-			log.debug("getCancerStudies(), getting accessible cancer studies.");
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("getCancerStudies(), getting accessible cancer studies.");
+        }
 
-		// get list of accessible cancer studies
-        List<CancerStudy> accessibleCancerStudies = DaoCancerStudy.getAllCancerStudies();
+        // get list of all cancer studies
+        List<CancerStudy> allCancerStudies = DaoCancerStudy.getAllCancerStudies();
 
-        if (accessibleCancerStudies.size() > 0) {
+        //  sort the list
+        Collections.sort(allCancerStudies, new CancerStudiesComparator());
 
-            //  sort the list
-            Collections.sort(accessibleCancerStudies, new CancerStudiesComparator());
+        //  Then, insert "All" Cancer Types at beginning  //TODO - fix this! It conflicts with ALL (Acute Lymphoid Leukemia)!
+        ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
+        String allCancerStudyTitle = (GlobalProperties.usersMustBeAuthorized()) ?
+            "All Authorized Cancer Studies" : "All Cancer Studies";
+        CancerStudy allCancerStudy = new CancerStudy(allCancerStudyTitle, allCancerStudyTitle,
+             "all", "all", true);
+        finalCancerStudiesList.add(allCancerStudy);
+        finalCancerStudiesList.addAll(allCancerStudies);
 
-            //  Then, insert "All" Cancer Types at beginning  //TODO - fix this! It conflicts with ALL (Acute Lymphoid Leukemia)!
-            ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
-			String allCancerStudyTitle = (GlobalProperties.usersMustBeAuthorized()) ?
-				"All Authorized Cancer Studies" : "All Cancer Studies";
-            CancerStudy cancerStudy = new CancerStudy(allCancerStudyTitle, allCancerStudyTitle,
-                                                      "all", "all", true);
-            finalCancerStudiesList.add(cancerStudy);
-            finalCancerStudiesList.addAll(accessibleCancerStudies);
-            
+        if (finalCancerStudiesList.size() > 1) {
             return finalCancerStudiesList;
         } else {
             throw new ProtocolException("No cancer studies accessible; "+
@@ -100,32 +102,32 @@ public class AccessControlImpl implements AccessControl {
 
     /**
      * Return true if the user can access the study, false otherwise.
-	 *
+     *
      * @param stableStudyId
      * @return List<CancerStudy>
      * @throws DaoException
-	 *
-	 * We use @PostFilter rather than @PreAuthorize annotation to provide 
-	 * permission evaluation on this cancer study so that we can process
-	 * invalid permissions via QueryBuilder.validateForm().  If we use @PreAuthorize,
-	 * thread execution does not return from this method call if a user has invalid permissions.
+     *
+     * We use @PostFilter rather than @PreAuthorize annotation to provide 
+     * permission evaluation on this cancer study so that we can process
+     * invalid permissions via QueryBuilder.validateForm().  If we use @PreAuthorize,
+     * thread execution does not return from this method call if a user has invalid permissions.
      */
     public List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException {
 
-		if (log.isDebugEnabled()) {
-			log.debug("hasPermission(), stableStudyId: " + stableStudyId);
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("isAccessibleCancerStudy(), stableStudyId: " + stableStudyId);
+        }
 
-		// get cancer study by stable id
-		List<CancerStudy> toReturn = new ArrayList<CancerStudy>();
+        // get cancer study by stable id
+        List<CancerStudy> toReturn = new ArrayList<CancerStudy>();
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(stableStudyId);
-		if (cancerStudy != null) {
-			toReturn.add(cancerStudy);
-		}
-		
-		// outta here
-		return toReturn;
-	}
+        if (cancerStudy != null) {
+            toReturn.add(cancerStudy);
+        }
+        
+        // outta here
+        return toReturn;
+    }
 
     public UserDetails getUserDetails()
     {

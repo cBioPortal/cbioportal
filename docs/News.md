@@ -1,10 +1,10 @@
 # March 24, 2017
 *   **New features**:
-    * The cBioPortal has a major style change
-    * Variant annotation from CIViC (https://civic.genome.wustl.edu/#/home) is available  on the Mutations tab and the patient view pages
-    * Per-sample Mutation spectrum is available in OncoPrint -- see [example](http://www.cbioportal.org/beta/index.do?cancer_study_list=skcm_tcga&cancer_study_id=skcm_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=skcm_tcga_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=skcm_tcga_gistic&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=skcm_tcga_cnaseq&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=BRAF%0D%0AKRAS%0D%0AEGFR&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit&show_samples=false&clinicallist=NO_CONTEXT_MUTATION_SIGNATURE&)
-    * Heat map clustering is supported in OncoPrint
-    * MDACC Next-Generation Clustered Heat Map is available in patient view page
+    * Per-sample mutation spectrua are now available in OncoPrints -- see [example](http://www.cbioportal.org/beta/index.do?cancer_study_list=ucec_tcga_pub&cancer_study_id=ucec_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ucec_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=ucec_tcga_pub_gistic&Z_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=ucec_tcga_pub_manuscript&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=POLE%0D%0AERBB2%0D%0AKRAS%0D%0ACTNNB1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit&show_samples=false&clinicallist=SUBTYPE,NO_CONTEXT_MUTATION_SIGNATURE,%23%20mutations&)
+    * mRNA heat map clustering is now supported in OncoPrints
+    * Variant annotation from CIViC (https://civic.genome.wustl.edu/#/home) is available on the Mutations tab and in the patient view
+    * cBioPortal web site style change
+    * MDACC Next-Generation Clustered Heat Maps are now available in the patient view
 
 # Feburary 2, 2017
 *   **New features**:

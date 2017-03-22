@@ -141,7 +141,7 @@ public class GlobalProperties {
 
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
-    public static final String DEFAULT_SKIN_RIGHT_LOGO = "images/mskcc_logo_3d_grey.jpg";
+    public static final String DEFAULT_SKIN_RIGHT_LOGO = "";
 
     // properties for hiding/showing tabs in the header navigation bar
     public static final String SKIN_SHOW_WEB_API_TAB = "skin.show_web_api_tab";

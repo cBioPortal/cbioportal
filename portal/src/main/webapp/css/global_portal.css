@@ -1051,6 +1051,17 @@ header {
   align-items: flex-end;
 }
 
+#header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 #cbioportal-logo {
   padding: 15px;
 }
@@ -1063,9 +1074,8 @@ header {
 }
 
 #authentication {
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: relative;
+  margin-top: -2px;
 }
 
 #authentication p {
@@ -1104,7 +1114,7 @@ header > div {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 0 10px 5px;
+  padding: 10px 0 10px 5px;
 }
 
 #main-nav ul {
@@ -1222,6 +1232,22 @@ header > div {
 #whats-new input[type="submit"]:hover {
   cursor: pointer;
   background: #2893e2;
+}
+
+@media screen and (max-width: 1000px) {
+  #authentication {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  #main-nav {
+    padding-top: 0;
+  }
+
+  #header-right {
+    position: unset;
+  }
 }
 
 /* IE11 specific styling */

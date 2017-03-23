@@ -1,0 +1,102 @@
+#login_header_top {
+    padding:5px 0px 0px 0px;
+    background: white;
+    margin:0px;
+    height:70px;
+}
+
+header {
+    background: linear-gradient(to bottom,  rgba(252,252,252,1) 90%, rgba(249,249,249,1) 100%);
+    border-bottom: 1px solid #f5f5f5;
+    margin: 0 0 20px 0;
+    position: relative;
+    display: flex !important;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.cbioportal-frontend header * {
+    box-sizing:border-box !important;
+}
+
+#cbioportal-logo {
+    padding: 15px;
+}
+
+#institute-logo {
+    max-height: 35px;
+    padding: 4px 10px;
+    float: right;
+}
+
+#authentication {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#authentication p {
+    font: normal normal 400 11px/35px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
+    display: inline-block;
+    padding: 0px 10px;
+    float: right;
+    margin: -1px 20px 0px 0;
+    background: #fff;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    box-shadow: 0px 1px 1px rgba(93, 130, 158, 0.5);
+}
+
+#authentication span {
+    padding: 4px 10px;
+    display: inline-block;
+}
+
+#authentication span.username {
+    padding: 0px;
+    font-weight: 600;
+}
+
+#authentication a:link, #authentication a:visited {
+    color: #428bca;
+}
+
+header > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#main-nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 0 10px 5px;
+}
+
+#main-nav ul {
+    margin: 0 15px 0 0;
+    padding: 0;
+}
+
+#main-nav li {
+    list-style-type: none;
+    display: inline-block;
+    font: normal normal 400 14px/18px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
+    padding: 5px 7px;
+}
+
+#main-nav li a:link, #main-nav li a:visited {
+    color: #777;
+    padding: 1px;
+}
+
+#main-nav li a:hover {
+    color: #000;
+}
+
+#main-nav li.selected a:link, #main-nav li.selected a:visited {
+    color: #000;
+    border-bottom: 1px solid #ddd;
+}

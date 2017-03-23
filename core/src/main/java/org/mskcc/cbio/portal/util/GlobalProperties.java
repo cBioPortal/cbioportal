@@ -786,7 +786,7 @@ public class GlobalProperties {
     public static boolean showCivic() {
         String showCivic = properties.getProperty(SHOW_CIVIC);
         if (showCivic == null || showCivic.isEmpty())
-            return true;  // show CIVIC by default
+            return false;  // hide CIVIC by default
         return Boolean.parseBoolean(showCivic);
     }
 

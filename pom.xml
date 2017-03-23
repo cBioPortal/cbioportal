@@ -179,7 +179,7 @@
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.0.1</db.version>
+    <db.version>2.1.0</db.version>
 
   </properties>
 

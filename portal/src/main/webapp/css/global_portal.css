@@ -129,8 +129,15 @@ fieldset#patient-view-summary-fieldset > legend {
   border-spacing: 0px;
 }
 
-#content {
-  padding: 0 20px;
+@media (max-width: 1299px) {
+    #content {
+        padding: 0 10px;
+    }
+}
+@media (min-width: 1300px) {
+    #content {
+        padding: 0 20px;
+    }
 }
 
 img {

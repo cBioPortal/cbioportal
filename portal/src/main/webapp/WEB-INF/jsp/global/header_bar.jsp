@@ -53,9 +53,9 @@
 <header>
     <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" height="55px" alt="cBioPortal Logo" /></a>    
     <div id="header-right">
-        <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
-        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
-            <div id="authentication">
+        <div id="authentication">
+            <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
+            <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
                 <p>
                     <span>You are logged in as <span class="username"><sec:authentication property='<%=principal%>' /></span> | 
                     <% if (authenticationMethod.equals("saml")) { %>
@@ -64,13 +64,13 @@
                         <a href="j_spring_security_logout">Sign out</a>
                     <% } %>
                     </span>
-
-                    <% if (rightLogo != "") { %>
-                        <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
-                    <% } %>
                 </p>
-            </div>
-        </sec:authorize>
+            </sec:authorize>
+
+            <% if (rightLogo != "") { %>
+                <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
+            <% } %>
+        </div>
 
         <nav id="main-nav">
             <ul>

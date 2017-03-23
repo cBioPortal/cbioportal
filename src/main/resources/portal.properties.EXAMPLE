@@ -30,7 +30,7 @@ skin.documentation.about=About-Us.md
 skin.documentation.skin.news=News.md
 
 # setting controlling the logos
-skin.right_logo=mskcc_logo_3d_grey.jpg
+skin.right_logo=
 skin.tag_line_image=tag_line.png
 
 # setting controlling which tabs to hide.
@@ -146,7 +146,7 @@ show.oncokb=true
 show.hotspot=true
 
 # Enable Civic variant annotation (true, false)
-show.civic=true
+show.civic=false
 
 # Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
 mycancergenome.show=true
@@ -190,7 +190,7 @@ recache_study_after_update=false
 session.service.url=
 # Only allow requests from here:
 #  e.g. session.service.origin=http://dashi-dev.cbio.mskcc.org:8080
-session.service.origin=
+session.service.origin=*
 
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV

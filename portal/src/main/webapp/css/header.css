@@ -115,3 +115,9 @@ header > div {
     width:1300px;
     margin:0 auto;
 }
+
+#footer {
+    text-align:center;
+    padding:30px;
+    opacity:.5
+}

@@ -1196,7 +1196,8 @@ header > div {
 }
 
 #whats-new input[type="text"] {
-  width: 60%;
+  box-sizing: border-box;
+  width: 100%;
   display: inline-block;
   padding: 0 10px;
   font-size: 12px;
@@ -1206,12 +1207,12 @@ header > div {
   float: left;
   height: 30px;
   line-height: 30px;
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
+  border-radius: 2px;
   margin: 5px 0px;
 }
 
 #whats-new input[type="submit"] {
+  box-sizing: border-box;
   color: #fff;
   font-size: 11px;
   text-transform: uppercase;
@@ -1220,15 +1221,14 @@ header > div {
   border-left: 0px;
   font-weight: 700;
   display: inline-block;
-  width: 25%;
-  margin: 5px 0px;
+  width: 100%;
+  margin: 0 0 5px 0;
   text-align: center;
   line-height: 30px;
-  float: left;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
+  float: right;
+  border-radius: 2px;
   height: 30px;
-  padding: 0 5px;
+  padding: 0;
 }
 
 #whats-new input[type="submit"]:hover {

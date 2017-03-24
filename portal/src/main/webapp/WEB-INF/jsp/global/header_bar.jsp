@@ -96,9 +96,6 @@
                 </li>
                 <% } %>
                 <% } %>
-                <li class="internal" id="results">
-                    <a href="#">Results</a>
-                </li>
                 <!-- Added call GlobalProperties to check whether to show the Tutorials tab -->
                 <% if (GlobalProperties.showTutorialsTab()) { %>
                 <li class="internal">

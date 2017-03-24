@@ -103,9 +103,9 @@ window.loadReactApp({ defaultRoute: 'patient' });
 </div>
 
 
-<div id="reactRoot"></div>    
-
-<!-- Add script and style files for cbioportal-frontend -->
+<div id="reactRoot"></div>
+    
+<jsp:include page="../global/footer.jsp" flush="true" />
 
 </body>
 </html>

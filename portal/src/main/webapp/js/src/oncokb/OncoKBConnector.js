@@ -173,6 +173,7 @@ var OncoKB = (function(_, $) {
 
     function EvidenceRequestItem(variant) {
         this.ids = [];
+        this.type = 'web';
         this.hugoSymbol = variant.gene || '';
         this.alteration = variant.alteration || '';
         if (variant.tumorType) {
@@ -595,6 +596,17 @@ var OncoKB = (function(_, $) {
                                 '</a>');
                         }
                     })
+                }
+                return str;
+            },
+            placeLinkWithIcon: function(str) {
+                var linkReg = /https?:\/\/[^\s^(^)]+/g;
+                if (str) {
+                    str = str.replace(linkReg, function(url) {
+                        return ' <a href="' + url + '" target="_blank">' +
+                            '<i class="fa fa-external-link" aria-hidden="true">' +
+                            '</i></a> ';
+                    });
                 }
                 return str;
             }
@@ -1213,10 +1225,7 @@ OncoKB.Instance.prototype = {
                                                             }).sort().join(', ') : '',
                                                         clinicalSummary: '<div>' + variant.evidence.geneSummary +
                                                         '</div><div style="margin-top: 6px">' +
-                                                        OncoKB.utils.attachLinkInStr(variant.evidence.variantSummary, [{
-                                                            keyword: 'Chang et al. 2016',
-                                                            link: 'https://www.ncbi.nlm.nih.gov/pubmed/26619011'
-                                                        }]) +
+                                                        OncoKB.utils.placeLinkWithIcon(variant.evidence.variantSummary) +
                                                         '</div><div style="margin-top: 6px">' + variant.evidence.tumorTypeSummary +
                                                         '</div>',
                                                         biologicalSummary: variant.evidence.mutationEffect.description,

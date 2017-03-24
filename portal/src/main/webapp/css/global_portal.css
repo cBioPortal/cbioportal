@@ -314,8 +314,15 @@ A:hover {
 }
 
 .main_smry {
-    padding-top:10px;
-    padding-left: 10px;
+    padding: 0;
+}
+
+.main_smry table {
+  border-collapse: collapse;
+}
+
+#main_smry_modify_query_btn button {
+  margin-left: 0px;
 }
 
 .warning h4{

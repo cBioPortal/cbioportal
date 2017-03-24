@@ -55,69 +55,57 @@
 <html lang="eng" class="cbioportal-frontend">
 <head>
     
-    <style>
+<style>
+
     
-    .pageContainer {
-        width:1300px;
-        margin:0 auto;
-    }
-    
-    </style>
+</style>
     
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    
 
-    <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
-    
-    <script src="/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    
-    <script>
 
-    window.loadReactApp({ defaultRoute: 'patient' });
+<title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 
-    window.onReactAppReady(function(){
+<script src="/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-    });
+<script>
 
-    </script>
+window.loadReactApp({ defaultRoute: 'patient' });
+    
+</script>
     
     
-    <script type="text/javascript">
+<script type="text/javascript">
 
-        window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 
-        // Set API root variable for cbioportal-frontend repo
-        <%
-        String url = request.getRequestURL().toString();
-        String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath() + "/";
-        baseURL = baseURL.replace("https://", "").replace("http://", "");
-        %>
-        __API_ROOT__ = '<%=baseURL%>' + '/api';
+    // Set API root variable for cbioportal-frontend repo
+    <%
+    String url = request.getRequestURL().toString();
+    String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath() + "/";
+    baseURL = baseURL.replace("https://", "").replace("http://", "");
+    %>
+    __API_ROOT__ = '<%=baseURL%>' + '/api';
 
-    </script>
+</script>
+    
+<link rel="stylesheet" href="/css/header.css?<%=GlobalProperties.getAppVersion()%>" />
 
-  
-    <link rel="stylesheet" href="/css/header.css?<%=GlobalProperties.getAppVersion()%>" />
-    
-    </head>
-    
-    <body>
-    
-    <div>
-    
-    
+</head>
 
-    
-    
-    <body>
+<body>
 
-    <div class="pageContainer">
-    <jsp:include page="../global/header_bar.jsp" flush="true" />
-    
-    <div id="reactRoot"></div>    
+
+<div class="pageTopContainer">
+    <div class="contentWidth">
+        <jsp:include page="../global/header_bar.jsp" flush="true" />
     </div>
-    <!-- Add script and style files for cbioportal-frontend -->
-    
+</div>
+
+
+<div id="reactRoot"></div>    
+
+<!-- Add script and style files for cbioportal-frontend -->
+
 </body>
 </html>

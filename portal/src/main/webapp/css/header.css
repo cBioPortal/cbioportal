@@ -16,12 +16,22 @@ header {
     align-items: flex-end;
 }
 
-.cbioportal-frontend header * {
-    box-sizing:border-box !important;
+.pageTopContainer {
+    background:#f5f5f5;
 }
 
+/* overrid efor new layout */
+.pageTopContainer header {
+    background:none;
+}
+
+.pageTopContainer header #authentication p {
+    margin-right:0;
+}
+
+
 #cbioportal-logo {
-    padding: 15px;
+    padding: 15px 0;
 }
 
 #institute-logo {
@@ -99,4 +109,9 @@ header > div {
 #main-nav li.selected a:link, #main-nav li.selected a:visited {
     color: #000;
     border-bottom: 1px solid #ddd;
+}
+
+.contentWidth {
+    width:1300px;
+    margin:0 auto;
 }

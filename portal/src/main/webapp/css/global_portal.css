@@ -359,13 +359,13 @@ A:hover {
 }
 
 h1 {
-  /* margin:0px; */
-  font-family: verdana, arial, sans-serif;
+  font-family: helvetica, verdana, arial, sans-serif;
   font-size: 28px;
-  color:gray;
+  color: #333;
   letter-spacing: -1px;
   text-align: left;
-  padding-bottom:7px;
+  padding-bottom: 7px;
+  font-weight: 300;
 }
 
 .map h5 {
@@ -423,42 +423,44 @@ table td {
 }
 
 .markdown h1 {
-  font-family: verdana, arial, sans-serif;
-  font-size: 16px;
-  color:#555555;
-  background: #DDDDDD;
-  padding-left:5px;
-  padding-top:4px;
-  margin:0px;
-  padding-bottom:5px;
+  font-family: helvetica, verdana, arial, sans-serif;
+  font-size: 18px;
+  color: #555555;
+  margin: 15px 0px;
+  padding: 15px 0 5px 0px;
+  border-bottom: 1px solid #ccc;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .markdown h2 {
-  font-family: verdana, arial, sans-serif;
-  font-size: 12px;
-  color:#555555;
-  background: #EEEEEE;
-  padding-left:5px;
-  padding-top:4px;
-  padding-bottom:4px;
-  margin:0px;
-  margin-top:5px;
+  font-family: helvetica, verdana, arial, sans-serif;
+  font-size: 15px;
+  color: #555;
+  margin: 0px;
+  margin-top: 5px;
+  font-weight: 600;
 }
 
 .markdown h3 {
-  font-family: verdana, arial, sans-serif;
-  font-size: 12px !important;
-  padding-left:5px;
-  margin:0px;
-  margin-top:5px;
+  font-family: helvetica, verdana, arial, sans-serif;
+  font-size: 13px !important;
+  padding-left: 5px;
+  margin: 0px;
+  margin-top: 5px;
 }
 
 .markdown h4 {
-  font-family: verdana, arial, sans-serif;
-  font-size: 14px !important;
-  padding-left:5px;
-  margin:0px;
-  margin-top:5px;
+  font-family: helvetica, verdana, arial, sans-serif !important;
+  font-size: 13px !important;
+  padding-left: 5px;
+  margin: 0px;
+  margin-top: 5px;
+  color: #333;
+  padding: 0px;
+  margin: 5px 0px;
+  padding-top: 10px;
+  letter-spacing: 0 !important;
 }
 
 .markdown p {
@@ -937,13 +939,14 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 
 
 #content h3 {
-  margin-top:5px; margin-bottom: 10px;
-  font-family: verdana, arial, sans-serif;
+  font-family: helvetica, verdana, arial, sans-serif;
   font-size: 17px;
   font-weight: bold;
-  letter-spacing: -1px;
+  letter-spacing: 0;
   line-height: 18px;
-  color: #2153AA;
+  text-transform: uppercase;
+  margin: 15px 0 0 0;
+  padding: 0px;
 }
 
 #content h4 {

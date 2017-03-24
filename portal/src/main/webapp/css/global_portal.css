@@ -1,6 +1,7 @@
 /* CSS THAT APPLIES TO ALLLLLL PORTALS */
 
 body {
+  background-color: #f5f5f5;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     table-layout: fixed;
     text-align: center;
@@ -60,9 +61,10 @@ td, th {
 */
 
 #page_wrapper {
+  background-color: #fff;
   margin: 0 auto;
   min-width: 780px;
-  max-width: 1300px !important;
+  max-width: 1320px !important;
   text-align: left;
   padding: 0px;
 }
@@ -1151,7 +1153,7 @@ header > div {
 }
 
 #right_side {
-  margin: 10px 0 0 10px;
+  margin: 5px 20px 0 10px;
   padding: 5px 15px;
   background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
   text-align: left;

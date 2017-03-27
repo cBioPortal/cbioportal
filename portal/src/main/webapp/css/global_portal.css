@@ -106,24 +106,6 @@ fieldset#patient-view-summary-fieldset > legend {
   color:#1974b8;
 }
 
-#header h1 {
-  margin:0px;
-  font-family: verdana, arial, sans-serif;
-  font-size: 28px;
-  color:#1974b8;
-  letter-spacing: -1px;
-  text-align: left;
-}
-
-#header h2 {
-  margin:0px;
-  font-family: verdana, arial, sans-serif;
-  font-size: 14px;
-  color:#B1C6EB;
-  letter-spacing: 1px;
-  text-align: left;
-}
-
 #page_wrapper_table {
   border-collapse: collapse;
   border-spacing: 0px;
@@ -1058,7 +1040,7 @@ header {
   align-items: flex-end;
 }
 
-#header-right {
+#header {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -1252,7 +1234,7 @@ header > div {
     padding-top: 0;
   }
 
-  #header-right {
+  #header {
     position: unset;
   }
 }

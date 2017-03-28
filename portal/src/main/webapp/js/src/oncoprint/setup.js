@@ -294,7 +294,7 @@ var comparator_utils = {
 	    } else if (distinguish_mutation_types && !distinguish_recurrent) {
 		_order = makeComparatorMetric([['trunc', 'trunc_rec'], ['inframe','inframe_rec'], ['promoter', 'promoter_rec'], ['missense', 'missense_rec'], undefined, true, false]);
 	    } else if (distinguish_mutation_types && distinguish_recurrent) {
-		_order = makeComparatorMetric([['trunc', 'trunc_rec'], 'inframe_rec', 'promoter_rec', 'missense_rec', 'inframe', 'promoter', 'missense',  undefined, true, false]);
+		_order = makeComparatorMetric(['trunc_rec', 'inframe_rec', 'promoter_rec', 'missense_rec', 'trunc', 'inframe', 'promoter', 'missense',  undefined, true, false]);
 	    }
 	    return function(m) {
 		return _order[m];
@@ -2267,7 +2267,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			window.open("http://www.oncokb.org");
 		    });
 		    addQTipTo($('#oncoprint_diagram_mutation_color').find('#putative_driver_info_icon'), {
-			content: {text: "For missense mutations."},
+			content: {text: "For missense, inframe, and truncating mutations."},
 			position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
 			show: {event: "mouseover"},

@@ -131,6 +131,7 @@ HotspotSet = (function() {
     return HotspotSet;
 })();
 
-if (module) {
+if (typeof module !== "undefined") {
+    // if running in Node, i.e. if running tests
     module.exports = HotspotSet;
 }

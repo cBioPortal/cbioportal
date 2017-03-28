@@ -461,6 +461,15 @@
             <session-management session-fixation-protection="none"/>
         </http>
 
+        <b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+            <b:property name="arguments">
+                <b:list>
+                    <b:ref bean="accessControl"/>
+                </b:list>
+            </b:property>
+        </b:bean>
+
         <!-- Add Authentication Manager -->
         <authentication-manager>
             <authentication-provider ref="adAuthenticationProvider" />

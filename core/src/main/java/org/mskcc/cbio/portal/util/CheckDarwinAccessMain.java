@@ -70,7 +70,7 @@ public class CheckDarwinAccessMain {
         public static String checkAccess(HttpServletRequest request) {
             if (!existsDarwinProperties()) return "";
             // if sample id does not match regex or username matches cis username then return empty string
-            String userName = GlobalProperties.getAuthenticatedUserName().split("@")[0];            
+            String userName = GlobalProperties.getAuthenticatedUserName().split("@")[0];
             String darwinResponse = "";            
             try {
                 List<String> sampleIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);

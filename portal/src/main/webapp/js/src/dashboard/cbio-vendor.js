@@ -423,11 +423,11 @@ cbio.util = (function() {
   }
 
   function getLinkToPatientView(cancerStudyId, patientId) {
-    return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
+    return "case.do#/patient?studyId=" + cancerStudyId + "&caseId=" + patientId;
   }
 
   function getLinkToSampleView(cancerStudyId, sampleId) {
-    return "case.do?cancer_study_id=" + cancerStudyId + "&sample_id=" + sampleId;
+    return "case.do#/patient?studyId=" + cancerStudyId + "&sampleId=" + sampleId;
   }
 
   /**

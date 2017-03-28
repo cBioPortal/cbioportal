@@ -456,16 +456,16 @@
         <servlet-name>MutationsJSON</servlet-name>
         <url-pattern>/mutations.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
-        <servlet-name>CnaJSON</servlet-name>
+    <servlet-name>CnaJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CnaJSON</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
     </servlet-mapping>
-
+    
     <servlet>
         <servlet-name>SVGtoPDFConverter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.SvgConverter</servlet-class>

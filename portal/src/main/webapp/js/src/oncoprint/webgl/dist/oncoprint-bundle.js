@@ -3432,15 +3432,20 @@ var OncoprintModel = (function () {
 	    return 1;
 	}
 	var id_to_index_map = this.getVisibleIdToIndexMap();
-	var indexes = ids.map(function(id) { return id_to_index_map[id]; });
-	var max = Number.NEGATIVE_INFINITY;
-	var min = Number.POSITIVE_INFINITY;
-	for (var i=0; i<indexes.length; i++) {
-	    max = Math.max(indexes[i], max);
-	    min = Math.min(indexes[i], min);
+	var indexes = ids.map(function(id) { return id_to_index_map[id]; })
+			 .filter(function(index) { return (typeof index !== "undefined"); });
+	if (indexes.length) {
+	    var max = Number.NEGATIVE_INFINITY;
+	    var min = Number.POSITIVE_INFINITY;
+	    for (var i = 0; i < indexes.length; i++) {
+		max = Math.max(indexes[i], max);
+		min = Math.min(indexes[i], min);
+	    }
+	    var num_cols = max - min + 1;
+	    return this.getHorzZoomToFitNumCols(width, num_cols);
+	} else {
+	    return 1;
 	}
-	var num_cols = max - min + 1;
-	return this.getHorzZoomToFitNumCols(width, num_cols);
     }
     
     OncoprintModel.prototype.getMinHorzZoom = function() {
@@ -6610,6 +6615,9 @@ var OncoprintWebGLCellView = (function () {
 	for (var i=0; i<id_and_first_vertex.length; i++) {
 	    var num_to_add = (i === id_and_first_vertex.length - 1 ? num_items : id_and_first_vertex[i+1][1]) - id_and_first_vertex[i][1];
 	    var column = id_to_index[id_and_first_vertex[i][0]];
+	    if (typeof column === "undefined") {
+		column = -1000; // render offscreen if vertex not supposed to be visible
+	    }
 	    for (var j=0; j<num_to_add; j++) {
 		vertex_column_array.push(column);
 	    }

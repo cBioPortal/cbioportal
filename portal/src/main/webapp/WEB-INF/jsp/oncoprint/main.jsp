@@ -112,7 +112,7 @@
                </div>
             </div>
             <div class="btn-group btn-group-sm"   id="oncoprint_diagram_view_menu">
-               <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
+               <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_view_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span>View</span>&nbsp;<span class="caret"></span>
                </button>
                <div class="dropdown-menu" style="padding: 10px 5px; width: 270px;min-width: 270px;">
@@ -122,7 +122,8 @@
                            <div class="radio"><label><input type="radio" name="datatype"  value="sample"> Events per sample</label></div>
                            <div class="radio"><label><input type="radio" name="datatype"  value="patient"> Events per patient</label></div>
                        </fieldset>
-                       <div class="checkbox"><label><input type="checkbox" name="show_unaltered" value="show_unaltered"> Show unaltered columns</label></div>
+                       <div class="checkbox"><label><input type="checkbox" name="show_unsequenced" value="show_unsequenced"><span id="show_unsequenced_label"> Show unsequenced columns</span></label></div>
+                       <div class="checkbox"><label><input type="checkbox" name="show_unaltered" value="show_unaltered"><span id="show_unaltered_label">Show unaltered columns</span></label></div>
                        <div class="checkbox"><label><input type="checkbox" name="show_whitespace" value="show_whitespace"> Show whitespace between columns</label></div>
                        <div class="checkbox"><label><input type="checkbox" name="show_clinical_legends" value="show_clinical_legends"> Show legends for clinical tracks</label></div>
                    </form>
@@ -130,7 +131,7 @@
             </div>
             
             <div class="btn-group btn-group-sm"   id="oncoprint_diagram_download_menu">
-               <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
+               <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_download_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span>Download</span>&nbsp;<span class="caret"></span>
                </button>
                <div class="dropdown-menu" style="padding: 10px 5px; width: 70px;min-width: 70px;">

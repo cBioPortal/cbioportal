@@ -710,14 +710,13 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}).then(function () {
 			    console.log("sample data populated, releasing rendering");
 			    oncoprint.keepSorted();
-			    if (State.unaltered_cases_hidden) {
-				oncoprint.hideIds(unaltered_sample_uids, true);
-			    }
+			    oncoprint.updateHorzZoomToFitIds(altered_sample_uids);
+			    State.updateHiddenColumns();
 			    oncoprint.releaseRendering();
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
 			    updateAlteredPercentIndicator(State);
-			    oncoprint.updateHorzZoomToFitIds(altered_sample_uids);
+			    updateViewMenuLabels(State);
 			    done.resolve();
 			});
 		    }).fail(function() {
@@ -791,17 +790,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    console.log("patient data populated");
 			    console.log("sorting");
 			    oncoprint.keepSorted();
-			    if (State.unaltered_cases_hidden) {
-				console.log("hiding unaltered cases");
-				oncoprint.hideIds(unaltered_patient_uids, true);
-			    }
+			    console.log("setting horz zoom to fit");
+			    oncoprint.updateHorzZoomToFitIds(altered_patient_uids);
+			    State.updateHiddenColumns();
 			    console.log("releasing rendering");
 			    oncoprint.releaseRendering();
 			    LoadingBar.msg("");
 			    LoadingBar.hide();
-			    updateAlteredPercentIndicator(State);   					
-			    console.log("setting horz zoom to fit");
-			    oncoprint.updateHorzZoomToFitIds(altered_patient_uids);
+			    updateAlteredPercentIndicator(State);
+			    updateViewMenuLabels(State);
 			    done.resolve();
 			});
 		    }).fail(function() {
@@ -869,6 +866,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 	var setSortOrder = function(order) {
 	    oncoprint.setSortConfig({'type':'order', 'order':order});
+	};
+	
+	var updateViewMenuLabels = function(state) {
+	    var columns = (state.using_sample_data ? "samples" : "patients");
+	    $(toolbar_selector).find('#oncoprint_diagram_view_menu #show_unsequenced_label')
+		    .text("Show unsequenced "+columns);
+	    $(toolbar_selector).find('#oncoprint_diagram_view_menu #show_unaltered_label')
+		    .text("Show unaltered "+columns);
 	};
 	
 	var updateAlteredPercentIndicator = function(state) {
@@ -952,6 +957,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'cell_padding_on': true,
 	    'using_sample_data': (URL.getInitDataType() === 'sample'),
 	    'unaltered_cases_hidden': false,
+	    'unsequenced_cases_hidden': false,
 	    'clinical_track_legends_shown': true,
 	    'mutations_colored_by_type': true,
 	    'sorted_by_mutation_type': true,
@@ -1044,16 +1050,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			return case_uid_map[study_id][id];
 		    };
 		    var proxy_promise;
+		    updateAlteredPercentIndicator(self);
+		    updateViewMenuLabels(self);
 		    if (sample_or_patient === 'sample') {
 			self.using_sample_data = true;
 			URL.update();
-			updateAlteredPercentIndicator(self);
 			console.log("in setDataType, calling populateSampleData()");
 			proxy_promise = populateSampleData();
 		    } else if (sample_or_patient === 'patient') {
 			self.using_sample_data = false;
 			URL.update();
-			updateAlteredPercentIndicator(self);
 			console.log("in setDataType, calling populatePatientData()");
 			proxy_promise = populatePatientData();
 		    }
@@ -1298,6 +1304,42 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 		return Object.keys(unaltered).filter(function(x) { return !!unaltered[x]; });
 	    },
+	    'updateHiddenColumns': function() {
+		var to_hide = {};
+		var unaltered_promise = new $.Deferred();
+		var unsequenced_promise = new $.Deferred();
+		if (this.unaltered_cases_hidden) {
+		    (this.using_sample_data ? 
+			QuerySession.getUnalteredSampleUIDs(true) : 
+			QuerySession.getUnalteredPatientUIDs(true)).then(function(unaltered_uids) {
+			    for (var i=0; i<unaltered_uids.length; i++) {
+				to_hide[unaltered_uids[i]] = true;
+			    }
+			    unaltered_promise.resolve();
+			}, function() {
+			    unaltered_promise.resolve();
+			});
+		} else {
+		    unaltered_promise.resolve();
+		}
+		if (this.unsequenced_cases_hidden) {
+		    (this.using_sample_data ? 
+			QuerySession.getUnsequencedSampleUIDsBasedOnSequencedSampleList() : 
+			QuerySession.getUnsequencedPatientUIDsBasedOnSequencedSampleList()).then(function(unsequenced_uids) {
+			    for (var i=0; i<unsequenced_uids.length; i++) {
+				to_hide[unsequenced_uids[i]] = true;
+			    }
+			    unsequenced_promise.resolve();
+			}, function() {
+			    unsequenced_promise.resolve();
+			});
+		} else {
+		    unsequenced_promise.resolve();
+		}
+		$.when(unaltered_promise, unsequenced_promise).then(function() {
+		    oncoprint.hideIds(Object.keys(to_hide), true);
+		});
+	    }
 	};
 	
 	loadFromLocalStorage(State);
@@ -2015,26 +2057,22 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		oncoprint.setCellPaddingOn(State.cell_padding_on);
 	    });
 	})();
+	(function setUpHideUnsequencedCases() {
+	    var $show_unsequenced_checkbox = $(toolbar_selector).find('#oncoprint_diagram_view_menu')
+		    .find('input[type="checkbox"][name="show_unsequenced"]');
+	    $show_unsequenced_checkbox[0].checked = !State.unsequenced_cases_hidden;
+	    $show_unsequenced_checkbox.change(function () {
+		State.unsequenced_cases_hidden = !($show_unsequenced_checkbox.is(":checked"));
+		State.updateHiddenColumns();
+	    });
+	})();
 	(function setUpHideUnalteredCases() {
 	    var $show_unaltered_checkbox = $(toolbar_selector).find('#oncoprint_diagram_view_menu')
 		    .find('input[type="checkbox"][name="show_unaltered"]');
 	    $show_unaltered_checkbox[0].checked = !State.unaltered_cases_hidden;
 	    $show_unaltered_checkbox.change(function () {
 		State.unaltered_cases_hidden = !($show_unaltered_checkbox.is(":checked"));
-		if (State.unaltered_cases_hidden) {
-		    (State.using_sample_data ? QuerySession.getUnalteredSampleUIDs(true) : QuerySession.getUnalteredPatientUIDs(true)).then(function (unaltered_uids) {
-			oncoprint.hideIds(unaltered_uids, true);
-		    });
-		} else {
-		    oncoprint.hideIds([], true);
-		}
-	    });
-	})();
-	(function setUpZoomToFit() {
-	    setUpButton($(toolbar_selector + ' #oncoprint_zoomtofit'), [], ["Zoom to fit altered cases in screen"], null, function () {
-		// TODO: assume multiple studies
-		oncoprint.setHorzZoomToFit(State.getAlteredIds());
-		oncoprint.scrollTo(0);
+		State.updateHiddenColumns();
 	    });
 	})();
 	(function setUpSortByAndColorBy() {

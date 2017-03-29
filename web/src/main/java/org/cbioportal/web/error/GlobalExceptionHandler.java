@@ -1,12 +1,6 @@
 package org.cbioportal.web.error;
 
-import org.cbioportal.service.exception.CancerTypeNotFoundException;
-import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
-import org.cbioportal.service.exception.PatientNotFoundException;
-import org.cbioportal.service.exception.SampleListNotFoundException;
-import org.cbioportal.service.exception.SampleNotFoundException;
-import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.exception.*;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,6 +75,13 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(new ErrorResponse("Sample list not found: " + ex.getSampleListId()),
             HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ClinicalAttributeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleClinicalAttributeNotFound(ClinicalAttributeNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Clinical attribute not found in study " + ex.getStudyId() + 
+            ": " + ex.getClinicalAttributeId()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

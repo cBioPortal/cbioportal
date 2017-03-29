@@ -36,8 +36,10 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -48,6 +50,7 @@ import java.net.URL;
 /**
  * Utility class for getting / setting global properties.
  */
+@Component
 public class GlobalProperties {
 
     public static final String HOME_DIR = "PORTAL_HOME";
@@ -132,11 +135,12 @@ public class GlobalProperties {
     public static final String ONCOKB_API_URL = "oncokb.api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
-    public static final String SESSION_SERVICE_URL = "session.service.url";
+    private static String sessionServiceURL;
+    @Value("${session.service.url:}") // default is empty string
+    public void setSessionServiceURL(String property) { sessionServiceURL = property; }
 
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
-    public static final String DEFAULT_SKIN_RIGHT_LOGO = "images/mskcc_logo_3d_grey.jpg";
 
     // properties for hiding/showing tabs in the header navigation bar
     public static final String SKIN_SHOW_WEB_API_TAB = "skin.show_web_api_tab";
@@ -176,6 +180,8 @@ public class GlobalProperties {
 
     // property for the saml entityid
     public static final String SAML_IDP_METADATA_ENTITYID="saml.idp.metadata.entityid";
+    // property for whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
+    public static final String SAML_IS_LOGOUT_LOCAL="saml.logout.local";
 
     // property for the custom header tabs
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
@@ -213,12 +219,23 @@ public class GlobalProperties {
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
-    public static final String DARWIN_AUTHORITY = "darwin.authority";
     public static final String CIS_USER = "cis.user";
     public static final String DISABLED_TABS = "disabled_tabs";
+    public static final String DARWIN_REGEX = "darwin.regex";
     
     public static final String PRIORITY_STUDIES = "priority_studies";
-    
+    public static final String SPECIES = "species";
+    public static final String DEFAULT_SPECIES = "human";
+    public static final String NCBI_BUILD = "ncbi.build";
+    public static final String DEFAULT_NCBI_BUILD = "37";
+    public static final String UCSC_BUILD = "ucsc.build";
+    public static final String DEFAULT_UCSC_BUILD = "hg19";
+
+    public static final String ONCOPRINT_DEFAULTVIEW = "oncoprint.defaultview";
+
+    public static final String SHOW_CIVIC = "show.civic";
+    public static final String CIVIC_URL = "civic.url";
+
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -427,6 +444,13 @@ public class GlobalProperties {
     {
         return getProperty(SAML_IDP_METADATA_ENTITYID);
     }
+    
+    // returns whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
+    public static String getSamlIsLogoutLocal()
+    {
+    	return properties.getProperty(SAML_IS_LOGOUT_LOCAL, "false");
+    }
+    
     public static String getTagLineImage()
     {
         String tagLineImage = properties.getProperty(SKIN_TAG_LINE_IMAGE);
@@ -437,7 +461,7 @@ public class GlobalProperties {
     public static String getRightLogo()
     {
         String rightLogo = properties.getProperty(SKIN_RIGHT_LOGO);
-        return (rightLogo == null) ? DEFAULT_SKIN_RIGHT_LOGO : "images/" + rightLogo;
+        return (rightLogo == null || "".equals(rightLogo)) ? "" : "images/" + rightLogo;
     }
 
     // function for retrieving the footer text
@@ -596,6 +620,21 @@ public class GlobalProperties {
         String dataSetsFooter = properties.getProperty(SKIN_DATASETS_FOOTER);
         return dataSetsFooter == null ? DEFAULT_SKIN_DATASETS_FOOTER : dataSetsFooter;
     }
+    
+    public static String getSpecies(){
+    	String species = properties.getProperty(SPECIES);
+    	return species == null ? DEFAULT_SPECIES : species;
+    	}
+
+    public static String getNCBIBuild(){
+    	String NCBIBuild = properties.getProperty(NCBI_BUILD);
+    	return NCBIBuild == null ? DEFAULT_NCBI_BUILD : NCBIBuild;
+    	}
+   
+    public static String getGenomicBuild(){
+    	String genomicBuild = properties.getProperty(UCSC_BUILD);
+    	return genomicBuild == null ? DEFAULT_UCSC_BUILD : genomicBuild;
+    	}
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
@@ -687,7 +726,7 @@ public class GlobalProperties {
    
     public static String getSessionServiceUrl()
     {
-        return properties.getProperty(SESSION_SERVICE_URL);
+        return sessionServiceURL;
     }
  
     public static String getOncoKBApiUrl()
@@ -721,6 +760,16 @@ public class GlobalProperties {
         return "";
     }
 
+    public static String getCivicUrl() {
+        String civicUrl = properties.getProperty(CIVIC_URL);
+        if (civicUrl == null || civicUrl.isEmpty())
+            return "https://civic.genome.wustl.edu/api/";
+        civicUrl = civicUrl.trim();
+        if (!civicUrl.endsWith("/"))
+            civicUrl += "/";
+        return civicUrl;
+    }
+
     public static boolean showHotspot() {
         String hotspot = properties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
@@ -734,20 +783,13 @@ public class GlobalProperties {
         }
     }
 
-    public static boolean filterGroupsByAppName() {
-        String filterGroupsByNameFlag = properties.getProperty(FILTER_GROUPS_BY_APPNAME);
-        return filterGroupsByNameFlag == null || Boolean.parseBoolean(filterGroupsByNameFlag);
+    public static boolean showCivic() {
+        String showCivic = properties.getProperty(SHOW_CIVIC);
+        if (showCivic == null || showCivic.isEmpty())
+            return false;  // hide CIVIC by default
+        return Boolean.parseBoolean(showCivic);
     }
-    
-    public static String getAlwaysShowStudyGroup() {
-        String group = properties.getProperty(ALWAYS_SHOW_STUDY_GROUP);
-        if (group!=null && group.trim().isEmpty()) {
-            return null;
-        }
-        
-        return group;
-    }
-    
+
     public static boolean showMyCancerGenomeUrl()
     {
         String show = properties.getProperty(MYCANCERGENOME_SHOW);
@@ -778,32 +820,24 @@ public class GlobalProperties {
     
     public static String getDarwinAuthCheckUrl() {
         String darwinAuthUrl = "";
-        try{
-            darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL).trim();            
-        }
-        catch (NullPointerException e){}
-        
+        if (properties.containsKey(DARWIN_AUTH_URL)) {
+            try{
+                darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL);
+            }
+            catch (NullPointerException e){}
+        }        
         return darwinAuthUrl;
     }
     
     public static String getDarwinResponseUrl() {
         String darwinResponseUrl = "";
-        try{
-            darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL).trim();
+        if (properties.containsKey(DARWIN_RESPONSE_URL)) {
+            try{
+                darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL);
+            }
+            catch (NullPointerException e) {}
         }
-        catch (NullPointerException e) {}
-        
         return darwinResponseUrl;
-    }
-    
-    public static String getDarwinAuthority() { 
-        String darwinAuthority = "";
-        try{
-            darwinAuthority = properties.getProperty(DARWIN_AUTHORITY).trim();
-        }
-        catch (NullPointerException e) {}
-        
-        return darwinAuthority;
     }
     
     public static List<String[]> getPriorityStudies() {
@@ -823,12 +857,25 @@ public class GlobalProperties {
     
     public static String getCisUser() {
         String cisUser = "";
-        try{
-            cisUser = properties.getProperty(CIS_USER).trim();
+        if (properties.containsKey(CIS_USER)) {
+            try{
+                cisUser = properties.getProperty(CIS_USER);
+            }
+            catch (NullPointerException e) {}            
         }
-        catch (NullPointerException e) {}
-        
         return cisUser;         
+    }
+    
+    
+    public static String getDarwinRegex() {
+        String darwinRegex = "";
+        if (properties.containsKey(DARWIN_REGEX)) {
+            try {
+                darwinRegex = properties.getProperty(DARWIN_REGEX);
+            }
+            catch (NullPointerException e) {}   
+        }
+        return darwinRegex;
     }
     
     public static List<String> getDisabledTabs() {
@@ -840,6 +887,14 @@ public class GlobalProperties {
         
         String[] tabs = disabledTabs.split("\\|");
         return (tabs.length > 0 && disabledTabs.length() > 0) ? Arrays.asList(tabs) : new ArrayList<String>();
+    }
+    
+    public static String getDefaultOncoprintView() {
+        String defaultOncoprintView = properties.getProperty(ONCOPRINT_DEFAULTVIEW);
+        if (defaultOncoprintView == null || defaultOncoprintView.isEmpty()) {
+            return "patient";
+        }
+        return defaultOncoprintView.trim();
     }
 
     public static void main(String[] args)

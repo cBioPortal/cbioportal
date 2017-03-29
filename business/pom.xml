@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.4.3</version>
+    <version>1.5.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>business</artifactId>
@@ -19,7 +19,7 @@
     </dependency>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
-      <artifactId>service</artifactId>
+      <artifactId>model</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

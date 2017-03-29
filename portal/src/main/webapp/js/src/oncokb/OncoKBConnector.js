@@ -1192,7 +1192,7 @@ OncoKB.Instance.prototype = {
                                                                 return Number(article.pmid);
                                                             }).sort().join(', ') : '',
                                                         mutationEffect: variant.evidence.mutationEffect.knownEffect,
-                                                        mutationEffectCitations: _.isArray(variant.evidence.mutationEffectRefs) ?
+                                                        mutationEffectPmids: _.isArray(variant.evidence.mutationEffectRefs) ?
                                                             variant.evidence.mutationEffectRefs.map(function(article) {
                                                                 return Number(article.pmid);
                                                             }).sort().join(', ') : '',

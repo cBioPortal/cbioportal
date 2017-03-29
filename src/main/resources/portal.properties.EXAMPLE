@@ -23,7 +23,7 @@ skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Fireh
 skin.examples_right_column=examples.html
 
 # documentation pages
-skin.documentation.baseurl=https://github.com/cBioPortal/cbioportal/wiki/
+skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/
 skin.documentation.markdown=true
 skin.documentation.faq=FAQ.md
 skin.documentation.about=About-Us.md

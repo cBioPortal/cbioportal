@@ -11,7 +11,7 @@ public class BaseServiceImplTest {
     public static final String GENETIC_PROFILE_ID = "genetic_profile_id";
     public static final String SAMPLE_ID = "sample_id";
     public static final String PATIENT_ID = "patient_id";
-    public static final String ATTRIBUTE_ID = "attributeId";
+    public static final String CLINICAL_ATTRIBUTE_ID = "attributeId";
     public static final String CANCER_TYPE_ID = "cancer_type_id";
     public static final String CLINICAL_DATA_TYPE = "clinical_data_type";
     public static final Integer ENTREZ_GENE_ID = 1;

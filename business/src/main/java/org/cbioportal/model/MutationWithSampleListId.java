@@ -2,6 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import org.mskcc.cbio.portal.model.Mutation;
 
 public class MutationWithSampleListId implements Serializable {
 

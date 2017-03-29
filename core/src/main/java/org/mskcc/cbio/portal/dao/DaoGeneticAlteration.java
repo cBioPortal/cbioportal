@@ -40,6 +40,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -92,6 +93,12 @@ public class DaoGeneticAlteration {
      */
     public int addGeneticAlterations(int geneticProfileId, long entrezGeneId, String[] values)
             throws DaoException {
+    	return addGeneticAlterationsForGeneticEntity(geneticProfileId, DaoGeneOptimized.getGeneticEntityId(entrezGeneId), values);
+    }
+    
+    public int addGeneticAlterationsForGeneticEntity(int geneticProfileId, int geneticEntityId, String[] values)
+            throws DaoException {
+    
         StringBuffer valueBuffer = new StringBuffer();
         for (String value:  values) {
             if (value.contains(DELIM)) {
@@ -104,7 +111,7 @@ public class DaoGeneticAlteration {
        if (MySQLbulkLoader.isBulkLoad() ) {
           //  write to the temp file maintained by the MySQLbulkLoader
           MySQLbulkLoader.getMySQLbulkLoader("genetic_alteration").insertRecord(Integer.toString( geneticProfileId ),
-                  Long.toString( entrezGeneId ), valueBuffer.toString());
+        		  Integer.toString( geneticEntityId ), valueBuffer.toString());
           // return 1 because normal insert will return 1 if no error occurs
           return 1;
         } 
@@ -117,11 +124,11 @@ public class DaoGeneticAlteration {
             con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_alteration (GENETIC_PROFILE_ID, " +
-                            " ENTREZ_GENE_ID," +
+                            " GENETIC_ENTITY_ID," +
                             " `VALUES`) "
                             + "VALUES (?,?,?)");
             pstmt.setInt(1, geneticProfileId);
-            pstmt.setLong(2, entrezGeneId);
+            pstmt.setLong(2, geneticEntityId);
             pstmt.setString(3, valueBuffer.toString());
             return pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -168,6 +175,8 @@ public class DaoGeneticAlteration {
     }
 
     /**
+     * Returns the map of entrezGeneId as key and map with all
+     * respective CaseId and Values as value. 
      * 
      * @param geneticProfileId  Genetic Profile ID.
      * @param entrezGeneIds      Entrez Gene IDs.
@@ -175,10 +184,39 @@ public class DaoGeneticAlteration {
      * @throws DaoException Database Error.
      */
     public HashMap<Long,HashMap<Integer, String>> getGeneticAlterationMap(int geneticProfileId, Collection<Long> entrezGeneIds) throws DaoException {
+    	Collection<Integer> geneticEntityIds = null;
+    	if (entrezGeneIds != null) {
+    		//translate entrezGeneIds to corresponding geneticEntityIds:
+        	geneticEntityIds = new ArrayList<Integer>();
+	    	for (Long entrezGeneId : entrezGeneIds) {
+	    		geneticEntityIds.add(DaoGeneOptimized.getGeneticEntityId(entrezGeneId));
+	    	}
+    	}
+    	HashMap<Integer, HashMap<Integer, String>> intermediateMap = getGeneticAlterationMapForEntityIds(geneticProfileId, geneticEntityIds);
+    	//translate back to entrez, since intermediateMap is keyed by geneticEntityIds:
+    	HashMap<Long, HashMap<Integer, String>> resultMap = new HashMap<Long, HashMap<Integer, String>>();
+    	Iterator<Entry<Integer, HashMap<Integer, String>>> mapIterator = intermediateMap.entrySet().iterator();
+    	while (mapIterator.hasNext()) {
+    		Entry<Integer, HashMap<Integer, String>> mapEntry = mapIterator.next();
+    		resultMap.put(DaoGeneOptimized.getEntrezGeneId(mapEntry.getKey()), mapEntry.getValue());
+    	}    	
+    	return resultMap;
+    }
+    
+    /**
+     * Returns the map of geneticEntityIds as key and map with all
+     * respective CaseId and Values as value. 
+     * 
+     * @param geneticProfileId
+     * @param geneticEntityIds
+     * @return Map<GeneticEntityId, Map<CaseId, Value>>.
+     * @throws DaoException
+     */
+    public HashMap<Integer,HashMap<Integer, String>> getGeneticAlterationMapForEntityIds(int geneticProfileId, Collection<Integer> geneticEntityIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        HashMap<Long,HashMap<Integer, String>> map = new HashMap<Long,HashMap<Integer, String>>();
+        HashMap<Integer,HashMap<Integer, String>> map = new HashMap<Integer,HashMap<Integer, String>>();
         ArrayList<Integer> orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(geneticProfileId);
         if (orderedSampleList == null || orderedSampleList.size() ==0) {
             throw new IllegalArgumentException ("Could not find any samples for genetic" +
@@ -186,26 +224,27 @@ public class DaoGeneticAlteration {
         }
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
-            if (entrezGeneIds == null) {
+            if (geneticEntityIds == null) {
                 pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
                         + " GENETIC_PROFILE_ID = " + geneticProfileId);
             } else {
                 pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
                         + " GENETIC_PROFILE_ID = " + geneticProfileId
-                        + " AND ENTREZ_GENE_ID IN ("+StringUtils.join(entrezGeneIds, ",")+")");
+                        + " AND GENETIC_ENTITY_ID IN ("+StringUtils.join(geneticEntityIds, ",")+")");
             }
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 HashMap<Integer, String> mapSampleValue = new HashMap<Integer, String>();
-                long entrez = rs.getLong("ENTREZ_GENE_ID");
+                int geneticEntityId = rs.getInt("GENETIC_ENTITY_ID");
                 String values = rs.getString("VALUES");
+                //hm.debug..
                 String valueParts[] = values.split(DELIM);
                 for (int i=0; i<valueParts.length; i++) {
                     String value = valueParts[i];
                     Integer sampleId = orderedSampleList.get(i);
                     mapSampleValue.put(sampleId, value);
                 }
-                map.put(entrez, mapSampleValue);
+                map.put(geneticEntityId, mapSampleValue);
             }
             return map;
         } catch (SQLException e) {
@@ -251,7 +290,7 @@ public class DaoGeneticAlteration {
 
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
+                long entrezGeneId = DaoGeneOptimized.getEntrezGeneId(rs.getInt("GENETIC_ENTITY_ID"));
                 String[] values = rs.getString("VALUES").split(DELIM);
                 ObjectNode datum = processor.process(
                         entrezGeneId,
@@ -289,7 +328,7 @@ public class DaoGeneticAlteration {
 
             rs = pstmt.executeQuery();
             while  (rs.next()) {
-                Long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
+                Long entrezGeneId = DaoGeneOptimized.getEntrezGeneId(rs.getInt("GENETIC_ENTITY_ID"));
                 geneList.add(daoGene.getGene(entrezGeneId));
             }
             return geneList;
@@ -306,12 +345,11 @@ public class DaoGeneticAlteration {
      * @return Set of Canonical Genes.
      * @throws DaoException Database Error.
      */
-    public static Set<Long> getGenesIdInProfile(int geneticProfileId) throws DaoException {
+    public static Set<Integer> getEntityIdsInProfile(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Set<Long> geneList = new HashSet<>();
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        Set<Integer> geneticEntityList = new HashSet<>();
 
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
@@ -321,10 +359,10 @@ public class DaoGeneticAlteration {
 
             rs = pstmt.executeQuery();
             while  (rs.next()) {
-                Long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
-                geneList.add(entrezGeneId);
+            	int geneticEntityId = rs.getInt("GENETIC_ENTITY_ID");
+                geneticEntityList.add(geneticEntityId);
             }
-            return geneList;
+            return geneticEntityList;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

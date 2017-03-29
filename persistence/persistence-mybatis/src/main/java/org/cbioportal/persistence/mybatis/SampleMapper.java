@@ -1,6 +1,5 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.apache.ibatis.annotations.Param;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 
@@ -8,20 +7,12 @@ import java.util.List;
 
 public interface SampleMapper {
 
-    List<Sample> getSamples(@Param("studyIds") List<String> studyIds,
-                            @Param("patientId") String patientId,
-                            @Param("sampleIds") List<String> sampleIds,
-                            @Param("projection") String projection,
-                            @Param("limit") Integer limit,
-                            @Param("offset") Integer offset,
-                            @Param("sortBy") String sortBy,
-                            @Param("direction") String direction);
+    List<Sample> getSamples(List<String> studyIds, String patientId, List<String> sampleIds, String projection, 
+                            Integer limit, Integer offset, String sortBy, String direction);
 
-    BaseMeta getMetaSamples(@Param("studyIds") List<String> studyIds,
-                            @Param("patientId") String patientId,
-                            @Param("sampleIds") List<String> sampleIds);
+    BaseMeta getMetaSamples(List<String> studyIds, String patientId, List<String> sampleIds);
 
-    Sample getSample(@Param("studyId") String studyId,
-                     @Param("sampleId") String sampleId,
-                     @Param("projection") String projection);
+    Sample getSample(String studyId, String sampleId, String projection);
+
+    List<Sample> getSamplesByInternalIds(List<Integer> internalIds, String projection);
 }

@@ -10,7 +10,7 @@
         genetic_profile.STABLE_ID as genetic_profile_id,
         genetic_alteration.VALUES as `values`,
         cancer_study.CANCER_STUDY_IDENTIFIER as study_id
-    from genetic_alteration inner join gene on genetic_alteration.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+    from genetic_alteration inner join gene on genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
                             inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = genetic_alteration.GENETIC_PROFILE_ID
                             inner join cancer_study on genetic_profile.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
     where genetic_profile.STABLE_ID in <foreach item="item" collection="genetic_profile_ids" open="(" separator="," close=")">#{item}</foreach> and

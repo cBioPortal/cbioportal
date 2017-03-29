@@ -1,11 +1,11 @@
 package org.mskcc.cbio.portal.model.converter;
 
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCount;
-import org.cbioportal.model.MutationEvent;
-import org.cbioportal.persistence.dto.KeywordSampleCount;
-import org.cbioportal.persistence.dto.MutatedGeneSampleCount;
-import org.cbioportal.persistence.dto.SignificantlyMutatedGene;
+import org.mskcc.cbio.portal.model.Mutation;
+import org.mskcc.cbio.portal.model.MutationCount;
+import org.mskcc.cbio.portal.model.MutationEvent;
+import org.mskcc.cbio.portal.model.KeywordSampleCount;
+import org.mskcc.cbio.portal.model.MutatedGeneSampleCount;
+import org.mskcc.cbio.portal.model.SignificantlyMutatedGene;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.springframework.stereotype.Component;

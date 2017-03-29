@@ -76,7 +76,7 @@ script:
                 -Ddb.password=somepassword \
                 -Ddb.host=127.0.0.1 \
                 -Ddb.connection_string=jdbc:mysql://127.0.0.1:3306/ \
-                clean test
+                clean integration-test
         fi
     # end-to-end tests
     # compile war to use amazon db

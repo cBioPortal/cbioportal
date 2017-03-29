@@ -41,13 +41,16 @@ import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.CopyNumberSegment;
+import org.cbioportal.model.ClinicalEvent;
+import org.cbioportal.model.ClinicalEventData;
+import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneticData;
 import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.Gistic;
+import org.cbioportal.model.GisticToGene;
+import org.cbioportal.model.MutSig;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCount;
-import org.cbioportal.model.MutationEvent;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
@@ -55,12 +58,15 @@ import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeMixin;
 import org.cbioportal.web.mixin.ClinicalDataMixin;
-import org.cbioportal.web.mixin.CopyNumberSegmentMixin;
+import org.cbioportal.web.mixin.ClinicalEventDataMixin;
+import org.cbioportal.web.mixin.ClinicalEventMixin;
+import org.cbioportal.web.mixin.CopyNumberSegMixin;
 import org.cbioportal.web.mixin.GeneMixin;
 import org.cbioportal.web.mixin.GeneticDataMixin;
 import org.cbioportal.web.mixin.GeneticProfileMixin;
-import org.cbioportal.web.mixin.MutationCountMixin;
-import org.cbioportal.web.mixin.MutationEventMixin;
+import org.cbioportal.web.mixin.GisticMixin;
+import org.cbioportal.web.mixin.GisticToGeneMixin;
+import org.cbioportal.web.mixin.MutSigMixin;
 import org.cbioportal.web.mixin.MutationMixin;
 import org.cbioportal.web.mixin.PatientMixin;
 import org.cbioportal.web.mixin.SampleListMixin;
@@ -68,24 +74,30 @@ import org.cbioportal.web.mixin.SampleMixin;
 import org.cbioportal.web.mixin.TypeOfCancerMixin;
 
 public class CustomObjectMapper extends ObjectMapper {
+
     public CustomObjectMapper() {
+
         super.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         super.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
         mixinMap.put(CancerStudy.class, CancerStudyMixin.class);
         mixinMap.put(ClinicalAttribute.class, ClinicalAttributeMixin.class);
         mixinMap.put(ClinicalData.class, ClinicalDataMixin.class);
-        mixinMap.put(CopyNumberSegment.class, CopyNumberSegmentMixin.class);
+        mixinMap.put(ClinicalEvent.class, ClinicalEventMixin.class);
+        mixinMap.put(ClinicalEventData.class, ClinicalEventDataMixin.class);
+        mixinMap.put(CopyNumberSeg.class, CopyNumberSegMixin.class);
         mixinMap.put(Gene.class, GeneMixin.class);
         mixinMap.put(GeneticData.class, GeneticDataMixin.class);
         mixinMap.put(GeneticProfile.class, GeneticProfileMixin.class);
-        mixinMap.put(MutationCount.class, MutationCountMixin.class);
-        mixinMap.put(MutationEvent.class, MutationEventMixin.class);
+        mixinMap.put(Gistic.class, GisticMixin.class);
+        mixinMap.put(GisticToGene.class, GisticToGeneMixin.class);
         mixinMap.put(Mutation.class, MutationMixin.class);
+        mixinMap.put(MutSig.class, MutSigMixin.class);
         mixinMap.put(Patient.class, PatientMixin.class);
         mixinMap.put(Sample.class, SampleMixin.class);
         mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
         mixinMap.put(SampleList.class, SampleListMixin.class);
+        mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
         super.setMixInAnnotations(mixinMap);
     }
 }

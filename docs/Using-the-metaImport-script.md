@@ -27,6 +27,8 @@ optional arguments:
   -p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
                         Path to a directory of cBioPortal info files to be
                         used instead of contacting the web API
+  -P PORTAL_PROPERTIES, --portal_properties PORTAL_PROPERTIES
+                        portal.properties file path (default: assumed hg19)
   -jar JAR_PATH, --jar_path JAR_PATH
                         path to core jar file. You can set PORTAL_HOME variable instead.
   -html HTML_TABLE, --html_table HTML_TABLE

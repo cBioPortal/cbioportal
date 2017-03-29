@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
@@ -72,9 +73,12 @@ public class FetchPfamGraphicsData
 		// 2. check if a certain uniprot id is already mapped in the file
 		// 3. populate key set if incremental option is selected
 		Set<String> keySet = initKeySet(outputFilename, incremental);
-                
-                Set<String> uniprotAccs = ImportUniProtIdMapping.getSwissProtAccessionHuman();
-                
+				Set<String> uniprotAccs = null;
+				String species = GlobalProperties.getSpecies();
+		    	if (!(species.equals("human") || species.equals("mouse"))){
+		    		throw new Error("Species not supported: " + species);
+				} 
+		    	uniprotAccs = ImportUniProtIdMapping.getSwissProtAccession(species);
                 ProgressMonitor.setMaxValue(uniprotAccs.size());
 
 		// read all

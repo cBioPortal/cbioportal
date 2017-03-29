@@ -20,9 +20,14 @@ header {
     background:#f5f5f5;
 }
 
-/* overrid efor new layout */
+.pageTopContainer, #reactRoot {
+    min-width:1270px;
+}
+
+/* override for new layout */
 .pageTopContainer header {
     background:none;
+   
 }
 
 .pageTopContainer header #authentication p {

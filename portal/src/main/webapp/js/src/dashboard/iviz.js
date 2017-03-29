@@ -2392,15 +2392,18 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             self_.completePatientsList : self_.completeSamplesList;
         }
         self_.hasfilters = _hasFilters;
+
+        _selectedCasesByFilters = _selectedCasesByFilters.sort()
+
         if (updateType_ === 'patient') {
-          self_.selectedPatientsByFilters = _selectedCasesByFilters.sort();
+          self_.selectedPatientsByFilters = _selectedCasesByFilters;
           // _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
           //   self_.completePatientsList : _selectedCasesByFilters;
           _counterSelectedCasesByFilters =
             this.selectedSamplesByFilters.length === 0 ?
               self_.completeSamplesList : this.selectedSamplesByFilters;
         } else {
-          self_.selectedSamplesByFilters = _selectedCasesByFilters.sort();
+          self_.selectedSamplesByFilters = _selectedCasesByFilters;
           // _selectedCasesByFilters = _selectedCasesByFilters.length === 0 ?
           //   self_.completeSamplesList : _selectedCasesByFilters;
           _counterSelectedCasesByFilters =
@@ -2415,6 +2418,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var _resultCounterSelectedCases =
           iViz.util.intersection(_mappedCounterSelectedCases,
             _counterSelectedCasesByFilters);
+        var _resultSelectedCases =
+          iViz.util.idMapping(iViz.getCasesMap(_counterCaseType),
+            _resultCounterSelectedCases).sort();
         var _casesSync = iViz.util.idMapping(iViz.getCasesMap(_counterCaseType),
           _counterSelectedCasesByFilters);
         var _counterCasesSync = _mappedCounterSelectedCases;
@@ -2424,7 +2430,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           self_.samplesync = _counterCasesSync;
           if (self_.hasfilters) {
             self_.selectedsamples = _resultCounterSelectedCases;
-            self_.selectedpatients = _selectedCasesByFilters;
+            self_.selectedpatients = iViz.util.intersection(_selectedCasesByFilters, _resultSelectedCases);
           } else {
             self_.selectedsamples = self_.completeSamplesList;
             self_.selectedpatients = self_.completePatientsList;
@@ -2433,7 +2439,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           self_.samplesync = _casesSync;
           self_.patientsync = _counterCasesSync;
           if (self_.hasfilters) {
-            self_.selectedsamples = _selectedCasesByFilters;
+            self_.selectedsamples = iViz.util.intersection(_selectedCasesByFilters, _resultSelectedCases);;
             self_.selectedpatients = _resultCounterSelectedCases;
           } else {
             self_.selectedsamples = self_.completeSamplesList;
@@ -3438,15 +3444,22 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         rowClickFunc: pieLabelClick
       }, opts);
 
+      // Check whether the react table has been initialized
+      if (v.renderedReactTable) {
+        // Get sort settings from the initialized react table
+        var sort_ = v.renderedReactTable.getCurrentSort();
+        opts_ = $.extend(opts_, sort_);
+      }
+
       var testElement = React.createElement(EnhancedFixedDataTableSpecial, opts_);
 
-      ReactDOM.render(testElement, document.getElementById(targetId));
+      v.renderedReactTable = ReactDOM.render(testElement, document.getElementById(targetId));
     }
 
     function pieLabelClick(selectedData) {
       v.chart.onClick({
-        key: labels[selectedData.id].name,
-        value: labels[selectedData.id].value
+        key: labels[selectedData.uniqueid].name,
+        value: labels[selectedData.uniqueid].value
       });
     }
   };
@@ -5358,6 +5371,7 @@ window.LogRankTest = (function(jStat) {
     var labelInitData = {};
     var opts = {};
     var genePanelMap = {};
+    var renderedReactTable;
 
     // Category based color assignment. Avoid color changing
     var assignedColors = {
@@ -5524,10 +5538,18 @@ window.LogRankTest = (function(jStat) {
           selectButtonClickCallback: reactSubmitClickCallback
         });
       }
+
+      // Check whether the react table has been initialized
+      if (renderedReactTable) {
+        // Get sort settings from the initialized react table
+        var sort_ = renderedReactTable.getCurrentSort();
+        _opts = $.extend(_opts, sort_);
+      }
+
       var testElement = React.createElement(EnhancedFixedDataTableSpecial,
         _opts);
 
-      ReactDOM.render(testElement, document.getElementById(chartId_));
+      renderedReactTable = ReactDOM.render(testElement, document.getElementById(chartId_));
     }
 
     function initRegularTableData() {
@@ -6039,14 +6061,14 @@ window.LogRankTest = (function(jStat) {
       },
       submitClick: function(_selectedRowData) {
         var selectedSamplesUnion = [];
-        var selectedRowsUids = _.pluck(_selectedRowData, 'uniqueId');
+        var selectedRowsUids = _.pluck(_selectedRowData, 'uniqueid');
 
         this.madeSelection = true;
 
         if (this.isMutatedGeneCna) {
           this.selectedRows = _.union(this.selectedRows, selectedRowsUids);
           _.each(_selectedRowData, function(item) {
-            var casesIds = item.caseIds.split(',');
+            var casesIds = item.caseids.split(',');
             selectedSamplesUnion = selectedSamplesUnion.concat(casesIds);
           });
           if (this.attributes.filter.length === 0) {

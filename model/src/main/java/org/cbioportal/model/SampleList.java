@@ -12,6 +12,7 @@ public class SampleList implements Serializable {
     private CancerStudy cancerStudy;
     private String name;
     private String description;
+    private Integer sampleCount;
 
     public Integer getListId() {
         return listId;
@@ -75,5 +76,13 @@ public class SampleList implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getSampleCount() {
+        return sampleCount;
+    }
+
+    public void setSampleCount(Integer sampleCount) {
+        this.sampleCount = sampleCount;
     }
 }

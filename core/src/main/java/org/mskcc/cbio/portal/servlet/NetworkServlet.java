@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.cbioportal.persistence.MutationRepository;
+import org.mskcc.cbio.portal.repository.MutationRepositoryLegacy;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.model.converter.MutationModelConverter;
@@ -68,7 +68,7 @@ public class NetworkServlet extends HttpServlet {
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_DOWN = "PERCENT_MRNA_WAY_DOWN";
 
     @Autowired
-    private MutationRepository mutationRepository;
+    private MutationRepositoryLegacy mutationRepositoryLegacy;
 
     @Autowired
     private MutationModelConverter mutationModelConverter;
@@ -672,7 +672,7 @@ public class NetworkServlet extends HttpServlet {
             long entrezGeneId) throws DaoException {
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
         List <ExtendedMutation> mutationList = mutationModelConverter.convert(
-                    mutationRepository.getMutations(internalSampleIds, (int) entrezGeneId, geneticProfileId));
+                    mutationRepositoryLegacy.getMutations(internalSampleIds, (int) entrezGeneId, geneticProfileId));
         Set<String> samples = new HashSet<String>();
         for (ExtendedMutation mutation : mutationList) {
             Sample sample = DaoSample.getSampleById(mutation.getSampleId());

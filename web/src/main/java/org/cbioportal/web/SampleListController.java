@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
@@ -16,15 +17,20 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
+@PublicApi
 @RestController
+@Validated
 @Api(tags = "Sample Lists", description = " ")
 public class SampleListController {
 
@@ -38,8 +44,11 @@ public class SampleListController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
+        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleListSortBy sortBy,
@@ -58,7 +67,7 @@ public class SampleListController {
         }
     }
 
-    @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET, 
+    @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get sample list")
     public ResponseEntity<SampleList> getSampleList(
@@ -77,8 +86,11 @@ public class SampleListController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
+        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleListSortBy sortBy,

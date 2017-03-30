@@ -57,8 +57,11 @@ def interface():
                                        action='store_true',
                                        help='Skip tests requiring information '
                                             'from the cBioPortal installation')
+    parser.add_argument('-P', '--portal_properties', type=str,
+                        help='portal.properties file path (default: assumed hg19)',
+                        required=False) 
     parser.add_argument('-jar', '--jar_path', type=str, required=False,
-                        help='Path to scripts JAR file')
+                        help='Path to scripts JAR file (default: $PORTAL_HOME/scripts/target/scripts-*.jar)')
     parser.add_argument('-html', '--html_table', type=str,
                         help='path to html report')
     parser.add_argument('-v', '--verbose', action='store_true',

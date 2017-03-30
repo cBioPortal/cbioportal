@@ -89,21 +89,6 @@
 		}
 	}
 })();
-
-$(document).ready(function(){
-    $('#td-content').width("70%");
-
-	// TODO IE detection doesn't work inside document.ready because jQuery 2.0 functions
-	// don't work with IE8 or below! So, the check is moved outside document.ready
-//	if (cbio.util.browser.msie) {
-//        var version = cbio.util.browser.version;
-//        //version = /^([0-9]+)/.exec(version);
-//        if (version && version.length && parseInt(version) <= 10)
-//        {
-//            $('#ie10-warning').show();
-//        }
-//    }
-});
 </script>
 
 <p id="ie10-warning" style="background-color:red;display:none;">
@@ -119,7 +104,14 @@ if (dbError != null && userMessage != null) {  %>
     <img src="images/warning.gif" alt="warning"/>
     The version of the portal is out of sync with the database! Please contact the site administrator to update the database.<br/><%= dbError %>
 </p>
-<% } 
+<% }
+String species = GlobalProperties.getSpecies();
+if (!(species.equals("human") || species.equals("mouse"))) { %>
+<p id="species-warning" style="background-color:red;display:block;">
+    <img src="images/warning.gif" alt="warning"/>
+    The species defined is not supported. Please check the portal.properties file.<br/><%= species %>
+</p>
+<% }
 String sessionError = (String) request.getAttribute(SessionServiceRequestWrapper.SESSION_ERROR);
 if (sessionError != null) {  %>
 <p id="session-warning" style="background-color:red;display:block;">

@@ -36,6 +36,7 @@ import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.cbioportal.service.StructuralVariantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,6 +48,7 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
     StructuralVariantRepository structuralVariantRepository;
     
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileStableIds, 'List<GeneticProfileId>', 'read')")
     public List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds){
         return structuralVariantRepository.getStructuralVariant(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     }

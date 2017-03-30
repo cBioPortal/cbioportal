@@ -88,14 +88,14 @@ public class TestWebService {
       expect(control.isAccessibleCancerStudy(isA(String.class))).andStubReturn(mockTrue);
       expect(control.getUserDetails()).andStubReturn(mockUserDetails);
       replay(control);
-      SpringUtil.setAccessControl(control);
+      new SpringUtil().setAccessControl(control);
       
       DaoCancerStudy.reCacheAll();
    }
    
    @After
    public void tearDown() {
-	   SpringUtil.setAccessControl(oldAccessControl);
+	   new SpringUtil().setAccessControl(oldAccessControl);
    }
    
    @Test

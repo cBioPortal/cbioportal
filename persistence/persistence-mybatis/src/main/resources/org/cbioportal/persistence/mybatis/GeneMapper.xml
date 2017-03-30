@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.GeneMapper">
-    <cache/>
+    <cache size="100000"/>
 
     <sql id="select">
         gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
@@ -21,6 +21,10 @@
             <property name="prefix" value=""/>
         </include>
         FROM gene
+        <if test="alias != null">
+            INNER JOIN gene_alias ON gene.ENTREZ_GENE_ID = gene_alias.ENTREZ_GENE_ID
+            WHERE gene_alias.GENE_ALIAS = #{alias}
+        </if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
@@ -36,6 +40,10 @@
         SELECT
         COUNT(*) AS totalCount
         FROM gene
+        <if test="_parameter != null">
+            INNER JOIN gene_alias ON gene.ENTREZ_GENE_ID = gene_alias.ENTREZ_GENE_ID
+            WHERE gene_alias.GENE_ALIAS = #{alias}
+        </if>
     </select>
 
     <select id="getGeneByEntrezGeneId" resultType="org.cbioportal.model.Gene">
@@ -57,17 +65,15 @@
     </select>
 
     <select id="getAliasesOfGeneByEntrezGeneId" resultType="string">
-        SELECT
-        gene_alias.GENE_ALIAS
+        SELECT gene_alias.GENE_ALIAS
         FROM gene_alias
         WHERE gene_alias.ENTREZ_GENE_ID = #{entrezGeneId}
     </select>
 
     <select id="getAliasesOfGeneByHugoGeneSymbol" resultType="string">
-        SELECT
-        gene_alias.GENE_ALIAS
+        SELECT gene_alias.GENE_ALIAS
         FROM gene_alias
-        INNER JOIN gene ON gene_alias.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN gene ON gene_alias.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         WHERE gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
     </select>
 
@@ -77,10 +83,34 @@
             <property name="prefix" value=""/>
         </include>
         FROM gene
-        WHERE gene.ENTREZ_GENE_ID IN
-        <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        <where>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                gene.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="entrezGeneIds == null or entrezGeneIds.isEmpty()">
+                FALSE
+            </if>
+        </where>
+    </select>
+
+    <select id="getMetaGenesByEntrezGeneIds" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM gene
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                gene.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="list == null or list.isEmpty()">
+                FALSE
+            </if>
+        </where>
     </select>
 
     <select id="getGenesByHugoGeneSymbols" resultType="org.cbioportal.model.Gene">
@@ -89,30 +119,34 @@
             <property name="prefix" value=""/>
         </include>
         FROM gene
-        WHERE gene.HUGO_GENE_SYMBOL IN
-        <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">
-            #{item}
-        </foreach>
-    </select>
-
-    <select id="getMetaGenesByEntrezGeneIds" resultType="org.cbioportal.model.meta.BaseMeta">
-        SELECT
-        COUNT(*) AS totalCount
-        FROM gene
-        WHERE gene.ENTREZ_GENE_ID IN
-        <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        <where>
+            <if test="hugoGeneSymbols != null and !hugoGeneSymbols.isEmpty()">
+                gene.HUGO_GENE_SYMBOL IN
+                <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="hugoGeneSymbols == null or hugoGeneSymbols.isEmpty()">
+                FALSE
+            </if>
+        </where>
     </select>
 
     <select id="getMetaGenesByHugoGeneSymbols" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         FROM gene
-        WHERE gene.HUGO_GENE_SYMBOL IN
-        <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                gene.HUGO_GENE_SYMBOL IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="list == null or list.isEmpty()">
+                FALSE
+            </if>
+        </where>
     </select>
-    
+
 </mapper>

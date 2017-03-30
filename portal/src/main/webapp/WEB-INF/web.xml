@@ -453,7 +453,7 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>MutationsJSON</servlet-name>
+        <servlet-name>CheckDarwinAccessServlet</servlet-name>
         <url-pattern>/checkDarwinAccess.do</url-pattern>
     </servlet-mapping>
 

@@ -43,30 +43,45 @@
 <%@ page import="java.util.List" %>
 
 <%
+    /*
+     *
+     * Parse results from Query Builder
+     * In cases that the query form is not initialized
+     *
+     */
+    
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
-    String localSampleSetId =
-		    (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String localCancerStudyList = (String) request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
-    String localCancerTypeId = null;
-   
-                    if (localCancerStudyList == null) {
-                        localCancerStudyList = "";
-                        } else {
-                        	localCancerTypeId =  (localCancerStudyList).split(",")[0];
-                        }
-    HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute
-            (QueryBuilder.GENETIC_PROFILE_IDS);
-    String localCaseIds = request.getParameter(QueryBuilder.CASE_IDS);
-	//String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-	String localGeneList = request.getParameter(QueryBuilder.GENE_LIST);
+    
+    // get tab index (query form or data download form)
+    String localTabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
+    if (localTabIndex == null) {
+        localTabIndex = QueryBuilder.TAB_VISUALIZE;
+    } else {
+        localTabIndex = URLEncoder.encode(localTabIndex);
+    }
 
+    // get cancer study
+    String localCancerStudyList = (String) request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+    String selectedCancerStudyId = (String) request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+    Boolean isVirtualCohort = (Boolean)request.getAttribute(QueryBuilder.IS_VIRTUAL_STUDY);
+
+    // get genetic profile
+    HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
+    
+    // get case set / cases
+    String localSampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+    String localCaseIds = (String)request.getAttribute(QueryBuilder.CASE_IDS);
+    
+    // get gene list
+    String localGeneList = request.getParameter(QueryBuilder.GENE_LIST);
 	if (request instanceof XssRequestWrapper)
 	{
 		localGeneList = localXssUtil.getCleanInput(
 			((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST));
 	}
+    String localGeneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
     
-    String localTabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
+    // get zscore threshold
     String localzScoreThreshold = request.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
     if (localzScoreThreshold == null) {
         localzScoreThreshold = "2.0";
@@ -75,47 +90,15 @@
     if (localRppaScoreThreshold == null) {
         localRppaScoreThreshold = "2.0";
     }
-    if (localTabIndex == null) {
-        localTabIndex = QueryBuilder.TAB_VISUALIZE;
-    } else {
-        localTabIndex = URLEncoder.encode(localTabIndex);
-    }
-
-    String localGeneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
-    //String clientTranspose = localXssUtil.getCleanInput(request, QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
+    
+    // get client transpost matrix
 	String clientTranspose = request.getParameter(QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
     if (localGeneSetChoice == null) {
         localGeneSetChoice = "user-defined-list";
     }
-    // Get prioritized studies for study selector
     
+    // Get prioritized studies for study selector
     List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
-%>
-
-<%
-    /**
-     * Put together global parameters
-     *
-     */
-//    HashSet<String> geneticProfileIdSet =
-//            (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
-
-    // put geneticProfileIds into the proper form for the JSON request
-//    HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute
-//            (QueryBuilder.GENETIC_PROFILE_IDS);
-//    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-//    geneticProfiles = geneticProfiles.trim();
-//
-//    // put gene string into a form that javascript can swallow
-//    String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
-//    genes = StringEscapeUtils.escapeJavaScript(genes);
-//
-//    // get cases
-//    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-//    cases = StringEscapeUtils.escapeJavaScript(cases);
-//
-//    String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-//    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
 %>
 
 <script type="text/javascript" src="js/lib/oql/oql-parser.js" charset="utf-8"></script>
@@ -140,11 +123,15 @@
         } %>
             
     // Store the currently selected options as global variables;
-    window.cancer_study_id_selected = '<%= localCancerTypeId%>';
+    window.cancer_study_id_selected = '<%= selectedCancerStudyId %>';
     window.cancer_study_list_param = '<%= QueryBuilder.CANCER_STUDY_LIST%>';
     window.cancer_study_list_selected = '<%= localCancerStudyList %>';
     window.case_set_id_selected = '<%= localSampleSetId %>';
-    window.case_ids_selected = '<%= (localCaseIds == null ? "" : localCaseIds).trim() %>';
+    window.is_virtual_cohort = '<%= isVirtualCohort %>';
+    var _str = '<%= localCaseIds %>' === 'null'? '': '<%= localCaseIds %>'.trim();
+    _str = _str.replace(/\+/g, '\n');
+    _str = _str.replace(/\|\|/g, '\t');
+    window.case_ids_selected = _str;
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
     window.zscore_threshold = '<%= localzScoreThreshold %>';
@@ -179,7 +166,7 @@
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         </p>
         <p>
-            <input type="button" id="dashboard_button" class="btn btn-default btn-lg" name="Summery" value="Summery" />
+            <input type="button" id="dashboard_button" class="btn btn-default btn-lg" name="Summary" value="Summary" />
             <button id="main_submit" class="btn btn-default btn-lg" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>" title='Submit Query' readonly>Query</button>
             <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
         </p>
@@ -188,8 +175,13 @@
 </div>
 
 <script>
+    // work around for bug: using HTML disabling would disable tooltip as well, therefore self-defined disable css / functions
     cbio.util.toggleMainBtn("dashboard_button", "disable");
     cbio.util.toggleMainBtn("main_submit", "disable");
+
+    // fill form 
+    
+    
 </script>
 
 <%!

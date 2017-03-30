@@ -66,7 +66,7 @@
             if(genes.length > 0 && $("#igvList").html().length === 0){
                 $("#igvList").append('<li><a style="font-size:11px"  href="#home">' + genes[0] + '</a></li>');
                 $("#igvContent").append('<div id="home" class="tab-pane fade in active"></div>');
-                generateHTML('<%= cancerStudyIdList[0] %>', genes[0], "home");
+                generateHTML(window.cohortIdsList[0], genes[0], "home");
                 for(var i = 1;i < genes.length;i++){
                     $("#igvList").append('<li class="geneList" value="' + i +  '"><a style="font-size:11px" href="#menu'+ i +'">' + genes[i] + '</a></li>');
                     $("#igvContent").append('<div id="menu' + i + '"></div>');
@@ -75,21 +75,21 @@
                 $(".geneList").click(function(event){
                     var index = $(this).val();
                     if($("#menu"+index).html().length === 0){
-                        generateHTML('<%= cancerStudyIdList[0] %>', genes[index], "menu"+index);
+                        generateHTML(window.cohortIdsList[0], genes[index], "menu"+index);
                     }
                 });
             }
 
             $("#downloadSegment").click(function(){
                 var xhr = new XMLHttpRequest(),
-                sendData = "cancerStudyId=<%= cancerStudyIdList[0] %>&sampleIds=" + sampleIds;
+                sendData = "cancerStudyId=" + window.cohortIdsList[0] + "&sampleIds=" + sampleIds;
                 xhr.onreadystatechange = function() {
                     var a;
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         // Making a downloadable link
                         a = document.createElement('a');
                         a.href = window.URL.createObjectURL(xhr.response);
-                        a.download = '<%= cancerStudyIdList[0] %>' + '_segments.seg';
+                        a.download = window.cohortIdsList[0] + '_segments.seg';
                         a.style.display = 'none';
                         document.body.appendChild(a);
                         //triger download

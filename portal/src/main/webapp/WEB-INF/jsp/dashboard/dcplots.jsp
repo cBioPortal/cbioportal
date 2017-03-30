@@ -95,7 +95,7 @@
           <i class="fa fa-arrow-right fa-lg" aria-hidden="true"></i>
         </span>
             <input type="button" id="iviz-header-left-1" value="Query" class="iviz-header-button" style="display: block;"
-                   v-on:click="submitForm" disabled>
+                   v-on:click="submitForm">
 
         </div>
 

@@ -66,7 +66,7 @@
             <form method="post" action="index.do">
                 <input type="hidden" id="cancer_study_id" name="cancer_study_id">
                 <input type="hidden" id="cancer_study_list">
-                <input type="submit" id="submit_button" value="Query this study" class="btn btn-primary btn-xs">
+                <input type="button" id="submit_button" value="Query this study" class="btn btn-primary btn-xs">
             </form>
             <form id="study-view-header-download-all-data" method="get" action="">
                 <input type="hidden" name="raw" value="ture">
@@ -314,12 +314,16 @@
                     	 	$("#show_study_details").css('display','block');
                     	  	$("#study_name").html(response['data']['studyName']);
                     	  	$("#study_desc").html(response['data']['description']);
-                    	  	$("#submit_button").css('display','none');
+                    	  	//$("#submit_button").css('display','none');
+                            $("#cancer_study_list").val(cohortIdsList[0]);
                         	var studyName = response['data']['studyName'];
                         	document.title = studyName?studyName:'Summary';
                       	});
     				}
     			}
+                $("#submit_button").click(function(){
+                    window.open(window.cbioURL + "index.do?cancer_study_list=" + $("#cancer_study_list").val(), "_blank");
+                });
     		} 
         
          	$("#study-tabs").tabs({disabled: true});

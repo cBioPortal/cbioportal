@@ -70,7 +70,6 @@
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
 
     //Info about Genetic Profiles
-    //ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
     String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
     geneticProfiles = xssUtil.getCleanerInput(geneticProfiles.trim());
@@ -85,24 +84,26 @@
         oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
     }
     oql = xssUtil.getCleanerInput(oql);
+    
     Boolean isVirtualStudy = (Boolean)request.getAttribute("is_virtual_study");
-    String cancerStudyIdsString = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
-    String[] cancerStudyIdList = (String[])(cancerStudyIdsString).split(",");
+    String cancerStudyId = (String)request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+    String cancerStudyIdListStr = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
+    
     String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String sampleSetName = request.getAttribute("case_set_name") != null ? (String) request.getAttribute("case_set_name") : "User-defined Patient List";
     String sampleSetDescription = request.getAttribute("case_set_description") != null ? (String) request.getAttribute("case_set_description") : "User-defined Patient List.";
-
     String sampleIdsKey = request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null ? (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY) : "";
-    //Vision Control Tokens
+
     Boolean showIGVtab = (Boolean) request.getAttribute("showIGVtab");
     Boolean has_mrna = (Boolean) request.getAttribute("hasMrna");
     Boolean has_methylation = (Boolean) request.getAttribute("hasMethylation");
-     Boolean has_copy_no = (Boolean) request.getAttribute("hasCopyNo");
-     Boolean has_survival = (Boolean) request.getAttribute("hasSurvival");
+    Boolean has_copy_no = (Boolean) request.getAttribute("hasCopyNo");
+    Boolean has_survival = (Boolean) request.getAttribute("hasSurvival");
     boolean includeNetworks = GlobalProperties.includeNetworks();
     boolean computeLogOddsRatio = true;
     Boolean mutationDetailLimitReached = (Boolean)request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
+    boolean showCoexpTab = false;
 
     //are we using session service for bookmarking?
     boolean useSessionServiceBookmark = !StringUtils.isBlank(GlobalProperties.getSessionServiceUrl());
@@ -116,16 +117,12 @@
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
 
     //check if show co-expression tab
-    boolean showCoexpTab = false;
-    if(!isVirtualStudy){
-    	 GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdList[0]);
-    	    if (final_gp != null) {
-    	        showCoexpTab = true;
-    	    } 
-    }
-   
-    
-    String patientCaseSelect = (String)request.getAttribute(QueryBuilder.PATIENT_CASE_SELECT);
+//    if(!isVirtualStudy){
+//        GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdList[0]);
+//        if (final_gp != null) {
+//            showCoexpTab = true;
+//        }
+//    }        
 
 %>
 
@@ -140,22 +137,23 @@
 <!-- Global variables : basic information about the main query -->
 <script type="text/javascript">
 
-    var num_total_cases = 0, num_altered_cases = 0;
-    var global_gene_data = {}, global_sample_ids = [];
+    var isVirtualStudy = <%=isVirtualStudy%>; 
+    var cancerStudyIdList = '<%=cancerStudyIdListStr%>'; // empty string if single study
+    var cancerStudyId = '<%=cancerStudyId%>'; // if multi-studies, this is always "all"
+    window.cohortIdsList = (cancerStudyIdList === 'null')? [cancerStudyId]: cancerStudyIdList.split(',');
+    window.isVirtualStudy = <%=isVirtualStudy%>; // true if: vc or multi-studies
+    
     var patientSampleIdMap = {};
-    var patientCaseSelect;
-    var TMP_VC_DISPLAY_NAME = "Selected patients / samples (Temporary Cohort)";
-
     window.PortalGlobals = {
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
     };
-    var isVirtualStudy = <%=isVirtualStudy%> ;
+    
     (function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
         var studySampleObj = JSON.parse('<%=studySampleMapJson%>');
-        var studyIdsList = Object.keys(studySampleObj)
+        var studyIdsList = Object.keys(studySampleObj);
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
                                                             studyIdsList,
@@ -170,34 +168,30 @@
                                                             },
                                                             isVirtualStudy);
     })();
+
+
+    var TMP_VC_DISPLAY_NAME = "Selected patients / samples (Temporary Cohort)";
+
+
 </script>
 
 <script>
     
 $(document).ready(function() {
-	var getCohortName = function(cohortId){
-		var def = new $.Deferred();
-        var _studyIdDescriptionMap = {};
-        if (<%=isVirtualStudy%>) {
-            if (cohortId !== "all") {
-                $.ajax({
-                    method: 'GET',
-                    url: 'api-legacy/proxy/virtual-cohort/' + cohortId
-                }).done(function(response){
-                    _studyIdDescriptionMap[response['data']['studyName']] = response['data']['description'];
-                    def.resolve(_studyIdDescriptionMap);
-                }).fail(function () {
-                    def.resolve([]);
-                }); 
-            } else {
+	var getCohortName = function(){
+        var def = new $.Deferred();
+        if (window.isVirtualStudy) {
+            $.ajax({
+                method: 'GET',
+                url: 'api-legacy/proxy/virtual-cohort/' + window.cohortIdsList[0]
+            }).done(function(response){
+                def.resolve(response['data']['studyName']);
+            }).fail(function () {
                 def.resolve([]);
-            }
+            }); 
         } else {
             window.QuerySession.getCancerStudyNames().then(function (_studies) {
-                _.each(_studies, function(_study) {
-                    _studyIdDescriptionMap[_study] = "";
-                });
-                def.resolve(_studyIdDescriptionMap);
+                def.resolve(_studies[0]);
             }).fail(function () {
                 def.resolve([]);
             });
@@ -205,7 +199,7 @@ $(document).ready(function() {
 		return def.promise();
 	}
     
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getStudyPatientMap(), getCohortName('<%=cancerStudyIdList[0]%>')).then(function(altered_samples, studyPatientMap, studyIdDescriptionMap) {
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getStudyPatientMap(), getCohortName()).then(function(altered_samples, studyPatientMap, studyName) {
 
         // alteration statistics summary line to the right     
         var sampleLength = 0;
@@ -223,26 +217,20 @@ $(document).ready(function() {
         $("#main_smry_stat_div").append(_stat_smry);
         
         // Query summary line to the left
-        var cohortDisplayName = (studyIdDescriptionMap.length === 0) ? "Selected Studies": Object.keys(studyIdDescriptionMap).join("; ");
-        var _href = "";
-        if (cohortDisplayName !== "Selected Studies") {
-            _href = "study.do?cohorts=" + "<%=cancerStudyIdList[0]%>" + " target='_blank'";
+        var cohortDisplayName = "";
+        if (window.cohortIdsList.length > 1) {
+            cohortDisplayName = "Selected Studies";
         } else {
-            _href = "study.do?cohorts=" + Object.keys(studyPatientMap).join(",") + " target='_blank'";
+            cohortDisplayName = studyName;
         }
+        var _href = "study.do?cohorts=" + window.cohortIdsList.join(",") + " target='_blank'";;
         var _query_smry = "<h3 style='font-size:110%;'><a href=" + _href + ">" + cohortDisplayName + "</a><br>" +
             "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " +
             "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>";
         $("#main_smry_query_div").append(_query_smry);
-        
-        // if tmp VC, save info to local storage
-        if (cohortDisplayName === TMP_VC_DISPLAY_NAME) {
-            localStorage.setItem("hasTmpVC", true);
-            localStorage.setItem("tmpVCId", '<%=cancerStudyIdList[0]%>');
-            localStorage.setItem("tmpVCDescription", studyIdDescriptionMap[TMP_VC_DISPLAY_NAME]);
-        }
-        
+
         // "Modify Query" button
+        var _tmpVCinserted = false; // flag to indicate if tmp VC is inserted to jsTree
         var _modify_query_btn = "<button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
         $("#main_smry_modify_query_btn").append(_modify_query_btn);
         $("#modify_query_btn").click(function () {
@@ -252,32 +240,36 @@ $(document).ready(function() {
             } else {
                 $("#modify_query_btn").addClass("active");    
             }
-            // insert node for temporary cohort and set selection
-            var _tmpVCinserted = false; // flag to indicate if tmp VC is inserted to jsTree
-            if (!_tmpVCinserted && localStorage.getItem("hasTmpVC") === "true") { 
-                var _treeLoadTimer = setInterval(inspectTree, 1000);
-                function inspectTree() {
-                    var _elem = document.getElementsByClassName('jstree');
-                    if (_elem.length > 0) {
-                        clearInterval(_treeLoadTimer);
-                        //$("#jstree").jstree("select_node", "#virtual-study-group");
-                        if ($("#virtual-study-group").length === 0) {
-                            $("#jstree").jstree().create_node($("#tissue_anchor"), {id: "virtual-study-group", text: "Virtual Study"}, "inside", null);
+            //_setJsTreeSelection();
+            if (window.cohortIdsList.length === 1 && window.isVirtualStudy) { // check if this is a temporary cohort
+                var _vcs = JSON.parse(localStorage.getItem('virtual-cohorts'));
+                var _vcIds = _.pluck(_vcs, 'virtualCohortID');
+                if (!_.contains(_vcIds, window.cohortIdsList[0])) { // is temporary cohort
+                    // insert node for temporary cohort and set selection
+                    if (!_tmpVCinserted) {
+                        var _treeLoadTimer = setInterval(inspectTree, 1000);
+                        function inspectTree() {
+                            var _elem = document.getElementsByClassName('jstree');
+                            if (_elem.length > 0) {
+                                clearInterval(_treeLoadTimer);
+                                if ($("#virtual-study-group").length === 0) {
+                                    $("#jstree").jstree().create_node($("#tissue_anchor"), {id: "virtual-study-group", text: "Virtual Study"}, "inside", null);
+                                }
+                                $('#jstree').jstree().create_node($("#virtual-study-group"), {
+                                    'id': window.cohortIdsList[0],
+                                    'text': studyName,
+                                    'li_attr': { description: "Temporary cohort from previous selection" }
+                                }, "last", null);
+                                $("#jstree").jstree("select_node", "#" + window.cohortIdsList[0]);
+                                _tmpVCinserted = true;
+                            }
                         }
-                        $('#jstree').jstree().create_node($("#virtual-study-group"), {
-                            'id': localStorage.getItem("tmpVCId"),
-                            'text': TMP_VC_DISPLAY_NAME,
-                            'li_attr': { description: localStorage.getItem("tmpVCDescription") }
-                        }, "last", null);
-                        $("#jstree").jstree("select_node", "#" + localStorage.getItem("tmpVCId"));
-                        _setJsTreeSelection();
-                        _tmpVCinserted = true;
                     }
                 }
             }
+            _setJsTreeSelection();
         });
         
-        // set selection
         function _setJsTreeSelection() {
             var _timer = setInterval(inspectTreeSel, 1000);
             function inspectTreeSel() {
@@ -285,6 +277,9 @@ $(document).ready(function() {
                     var _elems = document.getElementsByClassName('jstree-clicked');
                     if (_elems.length > 0) {
                         clearInterval(_timer);
+                        _.each(window.cohortIdsList, function(_cid) {
+                            $("#jstree").jstree("select_node", "#" + _cid);
+                        });
                         var treeDiv = document.getElementById('jstree');
                         var topPos = _elems[0].offsetTop;
                         var originalPos = treeDiv.offsetTop;
@@ -293,6 +288,7 @@ $(document).ready(function() {
                 }
             }
         }
+        
         $("#toggle_query_form").click(function(event) {
             event.preventDefault();
             $('#query_form_on_results_page').toggle();

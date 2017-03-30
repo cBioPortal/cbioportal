@@ -54,10 +54,7 @@
 <html lang="eng" class="cbioportal-frontend">
 <head>
     
-<style>
-
-    
-</style>
+<title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
     
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">

@@ -82,6 +82,8 @@ public class PatientView extends HttpServlet {
             throws ServletException, IOException {
         XDebug xdebug = new XDebug( request );
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
+                
+        request.setAttribute(QueryBuilder.HTML_TITLE, "Patient");
         
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view/patient_view.jsp");
         dispatcher.forward(request, response);

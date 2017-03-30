@@ -30,23 +30,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.portal.servlet.PatientView;
+import org.mskcc.cbio.portal.util.SpringUtil;
+import org.mskcc.cbio.portal.util.GlobalProperties;
+import org.apache.log4j.Logger;
 
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import java.io.*;
 import java.util.*;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.*;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 
 /**
  *
@@ -59,7 +66,15 @@ import javax.servlet.http.HttpServletRequest;
 "p_userName",
 "p_dmp_pid"
 })
-public class CheckDarwinAccessMain {
+public class CheckDarwinAccessServlet extends HttpServlet {
+    private static Logger logger = Logger.getLogger(CheckDarwinAccessServlet.class);
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this,
+                config.getServletContext());
+    }
     
     public static class CheckDarwinAccess {
         private static String darwinAuthUrl = GlobalProperties.getDarwinAuthCheckUrl();
@@ -70,7 +85,7 @@ public class CheckDarwinAccessMain {
         public static String checkAccess(HttpServletRequest request) {
             if (!existsDarwinProperties()) return "";
             // if sample id does not match regex or username matches cis username then return empty string
-            String userName = GlobalProperties.getAuthenticatedUserName().split("@")[0];            
+            String userName = GlobalProperties.getAuthenticatedUserName().split("@")[0];
             String darwinResponse = "";            
             try {
                 List<String> sampleIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);
@@ -81,7 +96,7 @@ public class CheckDarwinAccessMain {
             }
             catch (NullPointerException ex) {}
             
-            return darwinResponse;
+			return darwinResponse;
         }
         
         public static String getResponse(String userName, String patientId){
@@ -253,25 +268,82 @@ public class CheckDarwinAccessMain {
         System.exit(exitStatus);
     }    
 
-    public static void main(String[] args) throws Exception {
-        Options gnuOptions = CheckDarwinAccessMain.getOptions(args);
-        CommandLineParser parser = new DefaultParser();
-        CommandLine commandLine = parser.parse(gnuOptions, args);
-        if (commandLine.hasOption("h") ||
-            !commandLine.hasOption("user_name") ||
-            !commandLine.hasOption("patient_id") || 
-            !commandLine.hasOption("sample_id")) {
-            help(gnuOptions, 0);
-        }
-        if (!CheckDarwinAccess.sampleIdRegex.matcher(commandLine.getOptionValue("sample_id")).find()) {
-            System.out.println("Sample ID doesn't match pattern");
-        }
-        else {
-            System.out.println("Sample ID valid - checking if user has access");
-            String darwinAccessUrl = CheckDarwinAccess.getResponse( 
-                commandLine.getOptionValue("user_name").split("@")[0],
-                commandLine.getOptionValue("patient_id"));
-            System.out.println(!darwinAccessUrl.isEmpty()?darwinAccessUrl:"Invalid request!");
-        }
+   // public static void main(String[] args) throws Exception {
+   //     Options gnuOptions = CheckDarwinAccessMain.getOptions(args);
+   //     CommandLineParser parser = new DefaultParser();
+   //     CommandLine commandLine = parser.parse(gnuOptions, args);
+   //     if (commandLine.hasOption("h") ||
+   //         !commandLine.hasOption("user_name") ||
+   //         !commandLine.hasOption("patient_id") || 
+   //         !commandLine.hasOption("sample_id")) {
+   //         help(gnuOptions, 0);
+   //     }
+   //     if (!CheckDarwinAccess.sampleIdRegex.matcher(commandLine.getOptionValue("sample_id")).find()) {
+   //         System.out.println("Sample ID doesn't match pattern");
+   //     }
+   //     else {
+   //         System.out.println("Sample ID valid - checking if user has access");
+   //         String darwinAccessUrl = CheckDarwinAccess.getResponse( 
+   //             commandLine.getOptionValue("user_name").split("@")[0],
+   //             commandLine.getOptionValue("patient_id"));
+   //         System.out.println(!darwinAccessUrl.isEmpty()?darwinAccessUrl:"Invalid request!");
+   //     }
+   // }
+
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+		String darwinResponse = CheckDarwinAccess.checkAccess(request);
+
+		response.setContentType("text/plain");
+		PrintWriter out = response.getWriter();
+		try {
+			out.write(darwinResponse);
+		} finally {            
+			out.close();
+		}
     }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /** 
+     * Returns a short description of the servlet.
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
 }

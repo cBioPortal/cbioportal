@@ -24,6 +24,10 @@ header {
     min-width:1270px;
 }
 
+#reactRoot {
+    min-height:600px;
+}
+
 /* override for new layout */
 .pageTopContainer header {
     background:none;

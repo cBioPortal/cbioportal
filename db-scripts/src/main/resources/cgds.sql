@@ -69,6 +69,7 @@ DROP TABLE IF EXISTS `clinical_attribute_meta`;
 DROP TABLE IF EXISTS `clinical_sample`;
 DROP TABLE IF EXISTS `clinical_patient`;
 DROP TABLE IF EXISTS `mutation_count`;
+DROP TABLE IF EXISTS `mutation_count_by_keyword`;
 DROP TABLE IF EXISTS `mutation`;
 DROP TABLE IF EXISTS `mutation_event`;
 DROP TABLE IF EXISTS `structural_variant`;
@@ -404,6 +405,18 @@ CREATE TABLE `mutation_count` (
   KEY (`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `mutation_count_by_keyword` (
+    `GENETIC_PROFILE_ID` int(11) NOT NULL,
+    `KEYWORD` varchar(50) DEFAULT NULL,
+    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `KEYWORD_COUNT` int NOT NULL,
+    `GENE_COUNT` int NOT NULL,
+    KEY (`GENETIC_PROFILE_ID`,`KEYWORD`),
+    FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------

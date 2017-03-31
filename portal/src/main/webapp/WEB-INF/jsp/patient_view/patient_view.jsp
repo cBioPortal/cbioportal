@@ -54,7 +54,10 @@
 <html lang="eng" class="cbioportal-frontend">
 <head>
     
+    
 <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
+
+<link rel="icon" href="images/cbioportal_icon.png"/>
     
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -78,10 +81,10 @@ window.loadReactApp({ defaultRoute: 'patient' });
     // Set API root variable for cbioportal-frontend repo
     <%
     String url = request.getRequestURL().toString();
-    String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath() + "/";
+    String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
     baseURL = baseURL.replace("https://", "").replace("http://", "");
     %>
-    __API_ROOT__ = '<%=baseURL%>' + '/api';
+    __API_ROOT__ = '<%=baseURL%>';
 
 </script>
     

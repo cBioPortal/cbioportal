@@ -62,7 +62,7 @@
 
 <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 
-<script src="/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script>
 
@@ -85,7 +85,7 @@ window.loadReactApp({ defaultRoute: 'patient' });
 
 </script>
     
-<link rel="stylesheet" href="/css/header.css?<%=GlobalProperties.getAppVersion()%>" />
+<link rel="stylesheet" href="css/header.css?<%=GlobalProperties.getAppVersion()%>" />
 
 </head>
 

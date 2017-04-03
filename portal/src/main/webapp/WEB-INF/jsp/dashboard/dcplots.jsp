@@ -67,11 +67,13 @@
         src="images/ajax-loader.gif" alt="loading"></div>
     <div id="main-header" style="display: none" :class="{show:!isloading}">
         <div id="iviz-header-left">
-            <div class="iviz-cohort-component" style="float: left; margin-right: 10px;">
+            <div id="cohort-component" style="float: left">
+            <div style="float: left; margin-right: 10px;">
                 <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
                                    :load-user-specific-cohorts="loadUserSpecificCohorts"
                                    :stats="stats"
                                    :update-stats.sync="updateStats"></session-component>
+            </div>
             </div>
 
             <div class="iviz-header-left-case">

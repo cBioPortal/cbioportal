@@ -229,8 +229,6 @@ public class QueryBuilder extends HttpServlet {
             Boolean _isVirtualStudy = false;
             if (cancerStudyId != null || cancerStudyList != null) {
                 // is single study
-                System.out.println("cancerStudyId: " + cancerStudyId);
-                System.out.println("cancerStudyList: " + cancerStudyList);
                 if (!cancerStudyId.equals("all")) {
                     CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
                     // is virtual study
@@ -245,7 +243,6 @@ public class QueryBuilder extends HttpServlet {
                     httpServletRequest.setAttribute(CANCER_STUDY_ID, "all");
                     httpServletRequest.setAttribute(CANCER_STUDY_LIST, cancerStudyList);
                 }
-                System.out.println("_isVirtualStudy: " + _isVirtualStudy);
                 httpServletRequest.setAttribute(IS_VIRTUAL_STUDY, _isVirtualStudy);
                 httpServletRequest.setAttribute(CASE_SET_ID, httpServletRequest.getParameter(CASE_SET_ID));
                 httpServletRequest.setAttribute(CASE_IDS,
@@ -258,13 +255,11 @@ public class QueryBuilder extends HttpServlet {
                 if (httpServletRequest.getParameter(CANCER_STUDY_ID).equals("all") &&
                     httpServletRequest.getParameter(CANCER_STUDY_LIST) != null) {
                     cohortDetails = new CohortDetails(
-                        httpServletRequest.getParameter(CANCER_STUDY_LIST).split(","),
-                        _isVirtualStudy
+                        httpServletRequest.getParameter(CANCER_STUDY_LIST).split(","), _isVirtualStudy
                     );
                 } else {
-                    String[] _arr = new String[1];
-                    _arr[0] = httpServletRequest.getParameter(CANCER_STUDY_ID);
-                    cohortDetails = new CohortDetails(_arr, _isVirtualStudy);
+                    cohortDetails = new CohortDetails(
+                        new String[]{httpServletRequest.getParameter(CANCER_STUDY_ID)}, _isVirtualStudy);
                 }
                 processData(cohortDetails, geneList, geneticProfileIdSet, 
                     httpServletRequest.getParameter(CASE_SET_ID),
@@ -691,8 +686,8 @@ class CohortDetails {
 		return isVirtualStudy;
 	}
     
-    public void setIsVirtualStudy(Boolean _is) { 
-        this.isVirtualStudy = _is; 
+    public void setIsVirtualStudy(Boolean _isVirtualStudy) { 
+        this.isVirtualStudy = _isVirtualStudy; 
     }
 
 }

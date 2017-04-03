@@ -170,9 +170,6 @@
     })();
 
 
-    var TMP_VC_DISPLAY_NAME = "Selected patients / samples (Temporary Cohort)";
-
-
 </script>
 
 <script>

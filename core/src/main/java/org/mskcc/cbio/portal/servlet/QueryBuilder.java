@@ -61,7 +61,6 @@ public class QueryBuilder extends HttpServlet {
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
     public static final String CANCER_STUDY_ID = "cancer_study_id";
-    public static final String PATIENT_CASE_SELECT = "patient_case_select";
     public static final String CANCER_STUDY_LIST = "cancer_study_list";
     public static final String HAS_SURVIVAL_DATA = "has_survival_data";
     public static final String GENETIC_PROFILE_IDS = "genetic_profile_ids";
@@ -101,6 +100,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     public static final String DB_VERSION = "db_version";
     public static final String DB_ERROR = "db_error";
+    public static final String IS_VIRTUAL_STUDY = "is_virtual_study";
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
 
@@ -112,6 +112,8 @@ public class QueryBuilder extends HttpServlet {
 
 	// class which process access control to cancer studies
 	private AccessControl accessControl;
+
+    private SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
 
     /**
      * Initializes the servlet.
@@ -164,104 +166,115 @@ public class QueryBuilder extends HttpServlet {
                                             httpServletRequest.getRequestURL().toString());
         }
 
-        //  Get User Selected Action
-        String action = httpServletRequest.getParameter(ACTION_NAME);
-        
-        String patientCaseSelect = httpServletRequest.getParameter(PATIENT_CASE_SELECT);
-        httpServletRequest.setAttribute(PATIENT_CASE_SELECT, patientCaseSelect);
-        
-        //  Get User Selected Cancer Type
-        String cancerTypeId = httpServletRequest.getParameter(CANCER_STUDY_ID);
-        
-        // Get User selected Cancer studies
-       // String cancerStudyIdListString = httpServletRequest.getParameter(CANCER_STUDY_LIST);
-        
-        //  Get User Selected Genetic Profiles
-        HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
-
-        //  Get User Defined Gene List
-	    String geneList = httpServletRequest.getParameter(GENE_LIST);
-	    if (httpServletRequest instanceof XssRequestWrapper) {
-		    geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
-	    }
-        geneList = servletXssUtil.getCleanInput(geneList);
-        httpServletRequest.setAttribute(GENE_LIST, geneList);
-        
-        // Get the priority
-        Integer dataTypePriority;
         try {
-            dataTypePriority
+
+            //  Get User Selected Action
+            String action = httpServletRequest.getParameter(ACTION_NAME);
+
+            //  Get User Selected Genetic Profiles
+            HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
+
+            //  Get User Defined Gene List
+            String geneList = httpServletRequest.getParameter(GENE_LIST);
+            if (httpServletRequest instanceof XssRequestWrapper) {
+                geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
+            }
+            geneList = servletXssUtil.getCleanInput(geneList);
+            httpServletRequest.setAttribute(GENE_LIST, geneList);
+
+            // Get data priority
+            Integer dataTypePriority;
+            try {
+                dataTypePriority
                     = Integer.parseInt(httpServletRequest.getParameter(DATA_PRIORITY).trim());
-        } catch (NumberFormatException | NullPointerException e) {
-            dataTypePriority = 0;
-        } 
-        httpServletRequest.setAttribute(DATA_PRIORITY, dataTypePriority);
-
-        //  Get all Cancer Types
-        try {
-			List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();
-
-            if (cancerTypeId == null) {
-            	cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
+            } catch (NumberFormatException | NullPointerException e) {
+                dataTypePriority = 0;
             }
-            
-            httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerTypeId);
-            httpServletRequest.setAttribute(CANCER_STUDY_LIST, cancerTypeId);
+            httpServletRequest.setAttribute(DATA_PRIORITY, dataTypePriority);
 
-            xdebug.logMsg(this, "Using Cancer Study ID(s):  " + cancerTypeId);
-            
-            CohortDetails cohortDetails = new CohortDetails(cancerTypeId);
-
-            //  Get User Selected Patient Set
-            String sampleSetId = httpServletRequest.getParameter(CASE_SET_ID);
-            if (sampleSetId != null && !cohortDetails.getIsVirtualStudy()) {
-                httpServletRequest.setAttribute(CASE_SET_ID, sampleSetId);
-            } else {
-            	httpServletRequest.setAttribute(CASE_SET_ID, "-1");
-            }
-            String sampleIds = httpServletRequest.getParameter(CASE_IDS);
-	        // TODO allowing only new line and tab chars, getRawParameter may be vulnerable here...
-	        if (sampleIds != null)
-	        {
-		        sampleIds = sampleIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
-	        }
-         
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
-            
+
+            // Check current if database version is up to date
             String dbPortalVersion = GlobalProperties.getDbVersion();
             String dbVersion = DaoInfo.getVersion();
             LOG.info("version - "+dbPortalVersion);
             LOG.info("version - "+dbVersion);
-            if (!dbPortalVersion.equals(dbVersion))
-            {
-            	String extraMessage = "";
-            	//extra message for the cases where property is missing (will happen often in transition period to this new versioning model):
-            	if (dbPortalVersion.equals("0"))
-            		extraMessage = "The db.version property also not found in your portal.properties file. This new property needs to be added by the administrator.";
-                httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
+            if (!dbPortalVersion.equals(dbVersion)) {
+                //extra message for the cases where property is missing (will happen often in transition period to this new versioning model):
+                String extraMessage = "";
+                if (dbPortalVersion.equals("0"))
+                    extraMessage = "The db.version property also not found in your portal.properties file. " +
+                        "This new property needs to be added by the administrator.";
+                httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" +
+                    "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
             }
 
             // Get the example study queries configured as a skin property
             String[] exampleStudyQueries = GlobalProperties.getExampleStudyQueries().split("\n");
-            httpServletRequest.setAttribute(
-                    "exampleStudyQueries",
-                    exampleStudyQueries);
-            boolean errorsExist = validateForm(action, cohortDetails, geneticProfileIdSet,
-                                               sampleSetId, sampleIds, httpServletRequest);
-            if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
+            httpServletRequest.setAttribute("exampleStudyQueries", exampleStudyQueries);
 
-                processData(cohortDetails, geneList, geneticProfileIdSet, sampleSetId,
-                            sampleIds, patientCaseSelect, dataTypePriority, getServletContext(), httpServletRequest,
-                            httpServletResponse, xdebug);
+            // Validate query
+//            boolean errorsExist = validateForm(action, cohortDetails, 
+//                geneticProfileIdSet, sampleSetId, sampleIds, httpServletRequest);
+            boolean errorsExist = false;
+            
+            // Query single / multiple studies?
+            // --> Single study
+            // -----> regular study
+            // -----> virtual study
+            // --> Multiple studies
+            // -----> always build temporary cohort
+            String cancerStudyId = httpServletRequest.getParameter(CANCER_STUDY_ID);
+            String cancerStudyList = httpServletRequest.getParameter(CANCER_STUDY_LIST);
+            Boolean _isVirtualStudy = false;
+            if (cancerStudyId != null || cancerStudyList != null) {
+                // is single study
+                if (!cancerStudyId.equals("all")) {
+                    CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+                    // is virtual study
+                    if (cancerStudy == null) _isVirtualStudy = true;
+                    // is regular study
+                    else _isVirtualStudy = false;
+                    httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerStudyId);
+                    httpServletRequest.setAttribute(CANCER_STUDY_LIST, null);
+                // multi studies
+                } else {
+                    _isVirtualStudy = true;
+                    httpServletRequest.setAttribute(CANCER_STUDY_ID, "all");
+                    httpServletRequest.setAttribute(CANCER_STUDY_LIST, cancerStudyList);
+                }
+                httpServletRequest.setAttribute(IS_VIRTUAL_STUDY, _isVirtualStudy);
+                httpServletRequest.setAttribute(CASE_SET_ID, httpServletRequest.getParameter(CASE_SET_ID));
+                httpServletRequest.setAttribute(CASE_IDS,
+                    (httpServletRequest.getParameter(CASE_IDS)).replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t"));
+            }
+            
+            // Dispatch to query result page
+            if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
+                CohortDetails cohortDetails;
+                if (httpServletRequest.getParameter(CANCER_STUDY_ID).equals("all") &&
+                    httpServletRequest.getParameter(CANCER_STUDY_LIST) != null) {
+                    cohortDetails = new CohortDetails(
+                        httpServletRequest.getParameter(CANCER_STUDY_LIST).split(","), _isVirtualStudy
+                    );
+                } else {
+                    cohortDetails = new CohortDetails(
+                        new String[]{httpServletRequest.getParameter(CANCER_STUDY_ID)}, _isVirtualStudy);
+                }
+                processData(cohortDetails, geneList, geneticProfileIdSet, 
+                    httpServletRequest.getParameter(CASE_SET_ID),
+                    httpServletRequest.getParameter(CASE_IDS), 
+                    dataTypePriority, getServletContext(), 
+                    httpServletRequest, httpServletResponse, xdebug);
+            // Dispatch to home page (main query form)
             } else {
                 if (errorsExist) {
-                   httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE,
-                           "Please fix the errors below.");
+                   httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
                 }
-                RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                 dispatcher.forward(httpServletRequest, httpServletResponse);
             }
+            
         } catch (RemoteException e) {
             xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
@@ -270,11 +283,8 @@ public class QueryBuilder extends HttpServlet {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);
-        } catch (ProtocolException e) {
-            xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
-            forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               DB_CONNECT_ERROR, xdebug);
         }
+        
     }
     
     /**
@@ -321,13 +331,11 @@ public class QueryBuilder extends HttpServlet {
                              String geneList,
 							 HashSet<String> geneticProfileIdSet,
 							 String sampleSetId, String sampleIds,
-							 String patientCaseSelect, Integer dataTypePriority,
-							 ServletContext servletContext, HttpServletRequest request,
+							 Integer dataTypePriority,
+							 ServletContext servletContext, 
+                             HttpServletRequest request,
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
-        
-        
-        //HashSet<String> setOfSampleIds = new HashSet<>();
         
         String sampleIdsKey = null;
         String sampleSetName = "User-defined Patient List";
@@ -339,6 +347,7 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasMethylation = false;
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
+        
         // user-specified patients, but patient_ids parameter is missing,
         // so try to retrieve sample_ids by using sample_ids_key parameter.
         // this is required for survival plot requests  
@@ -353,14 +362,15 @@ public class QueryBuilder extends HttpServlet {
 			hasMethylation = hasMethylation || countProfiles(geneticProfileList, GeneticAlterationType.METHYLATION) > 0;
 		    hasCopyNo = hasCopyNo || countProfiles(geneticProfileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
 		    hasSurvival = hasSurvival || selectedCancerStudy.hasSurvivalData();
+            
+            // single regular study
 			if (!cohortDetails.getIsVirtualStudy()) {
-				if (sampleSetId.equals("-1") && sampleIds == null) {
+				if (sampleSetId.equals("-1") && sampleIds == null) { 
 					sampleIdsKey = request.getParameter(CASE_IDS_KEY);
 					if (sampleIdsKey != null) {
 						sampleIds = SampleSetUtil.getSampleIds(sampleIdsKey);
 					}
 				}
-				
 				if (!sampleSetId.equals("-1")) {
 					for (SampleList sampleSet : GetSampleLists.getSampleLists(cancerStudyId)) {
 						if (sampleSet.getStableId().equals(sampleSetId)) {
@@ -393,7 +403,9 @@ public class QueryBuilder extends HttpServlet {
 
 		        // retrieve information about the cancer types
 		       cancerTypeInfo = DaoClinicalData.getCancerTypeInfo(selectedCancerStudy.getInternalId());
-			} else {
+            
+            // multiple studies OR single virtual study
+            } else { 
 				if (dataTypePriority != null) {
 					AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
 					SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
@@ -436,8 +448,8 @@ public class QueryBuilder extends HttpServlet {
 		request.setAttribute("hasMethylation", hasMethylation);
 		request.setAttribute("hasCopyNo", hasCopyNo);
 		request.setAttribute("hasSurvival", hasSurvival);
-		request.setAttribute("is_virtual_study", cohortDetails.getIsVirtualStudy());
-		ObjectMapper mapper = new ObjectMapper();
+		
+        ObjectMapper mapper = new ObjectMapper();
 		String studySampleMapString = mapper.writeValueAsString(studySampleMap);
 		request.setAttribute("STUDY_SAMPLE_MAP", studySampleMapString);
         
@@ -495,8 +507,9 @@ public class QueryBuilder extends HttpServlet {
 
             	if (cohortDetails.getStudySampleMap().keySet().size() == 0) {
                     httpServletRequest.setAttribute(STEP1_ERROR_MSG,
-													"You are not authorized to view the cancer study with id: '" +
-															cohortDetails.getCohortId() + "'. ");
+													//"You are not authorized to view the cancer study with id: '" +
+													//		cohortDetails.getCohortId() + "'. ");
+                                                    "You are not authorized to view the cancer study."); //TODO: how to specify the Id(s) here?
 					errorsExist = true;
 				}
                 else {
@@ -587,40 +600,56 @@ public class QueryBuilder extends HttpServlet {
 }
 
 class CohortDetails {
-	private Map<String, Set<String>> studySampleMap = new HashMap<>();
+    
+	private Map<String, Set<String>> studySampleMap = new HashMap<>(); // <cancer study Id: set of samples>
 	private String cohortId;
 	private Boolean isVirtualStudy = false;
 
-	public CohortDetails(String inputCohortId) {
-		cohortId = inputCohortId;
-		studySampleMap = filterStudySampleMap(getInputStudySampleMap(inputCohortId));
+	public CohortDetails(String[] inputCohortIds, Boolean _isVirtualStudy) {
+        isVirtualStudy = _isVirtualStudy;
+		studySampleMap = filterStudySampleMap(getInputStudySampleMap(inputCohortIds));
 	}
 
-	private Map<String, Set<String>> getInputStudySampleMap(String inputCohortId) {
+	private Map<String, Set<String>> getInputStudySampleMap(String[] inputCohortIds) {
 		Map<String, Set<String>> studySampleMap = new HashMap<>();
-		if(!inputCohortId.toLowerCase().equals("all")){
-			try {
-				SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
-				CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
-				if (cancerStudy == null) {
-					Cohort virtualCohort = sessionServiceUtil.getVirtualCohortData(inputCohortId);
-					if (virtualCohort != null && virtualCohort.getCohortStudyCasesMap().size() > 0) {
-						isVirtualStudy = true;
-						for (CohortStudyCasesMap cohortStudyCasesMap : virtualCohort.getCohortStudyCasesMap()) {
-							studySampleMap.put(cohortStudyCasesMap.getStudyID(), cohortStudyCasesMap.getSamples());
-						}
-					} else {
-						System.out.println("virtual study is null");
-					}
-				} else {
-					studySampleMap.put(cancerStudy.getCancerStudyStableId(), new HashSet<String>());
-				}
-			} catch (DaoException e) {
-				e.printStackTrace();
-			}
-		}
+        SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
+        for (String inputCohortId: inputCohortIds) {
+            try {
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
+                // is virtual study
+                if (cancerStudy == null) { 
+                    Cohort virtualCohort = sessionServiceUtil.getVirtualCohortData(inputCohortId);
+                    if (virtualCohort != null && virtualCohort.getCohortStudyCasesMap().size() > 0) {
+                        for (CohortStudyCasesMap cohortStudyCasesMap : virtualCohort.getCohortStudyCasesMap()) {
+                            if (studySampleMap.containsKey(cohortStudyCasesMap.getStudyID())) {
+                                String _sharedStudyId = cohortStudyCasesMap.getStudyID();
+                                if (studySampleMap.get(_sharedStudyId).size() != 0) { // original entry does not contain all samples
+                                    Set<String> mergedSet = mergeSets(studySampleMap.get(_sharedStudyId), cohortStudyCasesMap.getSamples());
+                                    studySampleMap.put(cohortStudyCasesMap.getStudyID(), mergedSet);                                        
+                                } // otherwise keep the value as empty set
+                            //create new entry/key
+                            } else { 
+                                studySampleMap.put(cohortStudyCasesMap.getStudyID(), cohortStudyCasesMap.getSamples());
+                            }
+                        }
+                    }
+                // is regular study
+                } else { 
+                    studySampleMap.put(cancerStudy.getCancerStudyStableId(), new HashSet<String>());
+                }
+            } catch (DaoException e) {
+                e.printStackTrace();
+            }
+        }
 		return studySampleMap;
 	}
+
+    private static Set<String> mergeSets(Set<String> a, Set<String> b) {
+        Set<String> resultSet = new HashSet<String>(a.size() + b.size());
+        for (String i : a) { resultSet.add(i); }
+        for (String i : b) { resultSet.add(i); }
+        return resultSet;
+    }
 
 	private Map<String, Set<String>> filterStudySampleMap(Map<String, Set<String>> studySampleMap) {
 		Map<String, Set<String>> resultMap = new HashMap<>();
@@ -656,8 +685,9 @@ class CohortDetails {
 	public Boolean getIsVirtualStudy() {
 		return isVirtualStudy;
 	}
+    
+    public void setIsVirtualStudy(Boolean _isVirtualStudy) { 
+        this.isVirtualStudy = _isVirtualStudy; 
+    }
 
-	public void setIsVirtualStudy(Boolean isVirtualStudy) {
-		this.isVirtualStudy = isVirtualStudy;
-	}
 }

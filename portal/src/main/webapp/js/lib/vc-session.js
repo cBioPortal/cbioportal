@@ -10,9 +10,10 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   vcSession.events = (function() {
     return {
       saveCohort: function(stats, name, description) {
-        var _virtualCohort = vcSession.utils.buildVCObject(stats.filters, stats.selectedCases,
-          name, description);
-        vcSession.model.saveSession(_virtualCohort);
+          $.when(vcSession.utils.buildVCObject(stats.filters, stats.selectedCases,
+              name, description)).done(function(_vc) {
+              vcSession.model.saveSession(_vc);
+          });
       },
       removeVirtualCohort: function(virtualCohort) {
         vcSession.model.removeSession(virtualCohort);
@@ -107,17 +108,31 @@ window.vcSession = window.vcSession ? window.vcSession : {};
 
     var buildVCObject_ = function(filters, cases, name,
                                   description) {
+        var _def = new $.Deferred();
       var _virtualCohort = $.extend(true, {}, virtualCohort_);
       _virtualCohort.filters = filters;
       _virtualCohort.selectedCases = cases;
       _virtualCohort.created = new Date().getTime();
       if (name) {
         _virtualCohort.studyName = name;
+      } else {
+          _virtualCohort.studyName = "Custom Cohort (" + new Date().toISOString().replace(/T/, ' ') + ")";
       }
       if (description) {
         _virtualCohort.description = description;
+          _def.resolve(_virtualCohort);
+      } else {
+          $.when(window.iviz.datamanager.getCancerStudyDisplayName(_.pluck(cases, "studyID"))).then(function(_studyIdNameMap) {
+              var _desp = "";
+              _.each(cases, function(_i) {
+                  _desp += _studyIdNameMap[_i.studyID] + ": " + _i.samples.length + " samples / " + _i.patients.length + " patients;";
+                  _desp += "\n";
+              });
+              _virtualCohort.description = _desp;
+              _def.resolve(_virtualCohort);
+          });
       }
-      return _virtualCohort;
+        return _def.promise();
     };
     var buildCaseListObject_ = function(selectedCases, cancerStudyID,
                                         sampleID) {
@@ -170,7 +185,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     };
 
     return {
-      saveSession: function(virtualCohort, callbackFunc) {
+      saveSession: function(virtualCohort) {
         $.ajax({
           type: 'POST',
           url: vcSession.URL,
@@ -180,12 +195,10 @@ window.vcSession = window.vcSession ? window.vcSession : {};
           if (virtualCohort.userID === 'DEFAULT') {
             virtualCohort.virtualCohortID = response.id;
             localStorageAdd_(virtualCohort);
-              callbackFunc(response.id);
           }
         }).fail(function() {
           virtualCohort.virtualCohortID = vcSession.utils.generateUUID();
           localStorageAdd_(virtualCohort);
-            callbackFunc(response.id);
         });
       },
         saveSessionWithoutWritingLocalStorage: function(_virtualCohort, _callbackFunc) {
@@ -275,7 +288,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     template: '<div v-if="edit"><div v-if="type==\'text\'"><input' +
     ' type="text" v-model="name" placeholder="My Virtual' +
     ' Study"/></div><div v-if="type==\'textarea\'"><textarea rows="4"' +
-    ' cols="50" v-model="name"></textarea></div></div><div' +
+    ' cols="50" v-model="name"></textarea></div></div><div style="white-space:pre-line !important;"' +
     ' v-else="edit"><span>{{ name }}</span></div>'
   });
 })(window.Vue);
@@ -320,7 +333,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     ], created: function() {
       var _selectedSamplesNum = 0;
       var _selectedPatientsNum = 0;
-      console.log(this.data);
       if (_.isObject(this.data.selectedCases)) {
         _.each(this.data.selectedCases, function(studyCasesMap) {
           _selectedSamplesNum += studyCasesMap.samples.length;
@@ -464,10 +476,9 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     ' class="form-group"><label>Number of Patients' +
     ' :&nbsp;</label><span>{{selectedPatientsNum}}</span></div><br><div' +
     ' class="form-group"><label for="name">Name:</label><input' +
-    ' type="text" class="form-control" v-model="name"  placeholder="My' +
-    ' Virtual Cohort"></div><br><div' +
+    ' type="text" class="form-control" v-model="name"  placeholder="Name cohort..."></div><br><div' +
     ' class="form-group"><label' +
-    ' for="description">Decription:</label><textarea placeholder="Virtual Cohort Description" class="form-control popup-textarea"' +
+    ' for="description">Decription:</label><textarea placeholder="Add description ..." class="form-control popup-textarea"' +
     ' rows="4" cols="50"' +
     ' v-model="description"></textarea></div></div><div' +
     ' slot="footer"><button type="button" class="btn btn-default"' +
@@ -502,7 +513,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       saveCohort: function() {
         if (_.isObject(vcSession)) {
           var self_ = this;
-          vcSession.events.saveCohort(self_.stats, self_.name || 'My Virtual Cohort',
+          vcSession.events.saveCohort(self_.stats, self_.name || '',
             self_.description || '');
           self_.addNewVc = false;
           jQuery.notify('Added to new Virtual Study', 'success');
@@ -530,7 +541,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       ' <modaltemplate :show.sync="showVCList" size="modal-xlg"> <div' +
       ' slot="header"> <h4 class="modal-title">Virtual Cohorts</h4> </div>' +
       ' <div slot="body"> <table class="table table-bordered table-hover' +
-      ' table-condensed"> <thead> <tr style="font-weight: bold"> <td' +
+      ' table-condensed"> <thead> <tr style="font-weight: bold;"> <td' +
       ' style="width:20%">Name</td> <td style="width:40%">Description</td>' +
       ' <td style="width:10%">Patients</td> <td' +
       ' style="width:10%">Samples</td> <td' +

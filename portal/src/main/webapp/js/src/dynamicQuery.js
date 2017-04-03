@@ -45,22 +45,16 @@
       gene set text area.
 ******************************************************************************************/
 
-// Create Constants
 var PROFILE_MUTATION = "PROFILE_MUTATION";
 var PROFILE_MUTATION_EXTENDED = "PROFILE_MUTATION_EXTENDED";
 var PROFILE_COPY_NUMBER_ALTERATION = "PROFILE_COPY_NUMBER_ALTERATION"
 var PROFILE_MRNA_EXPRESSION = "PROFILE_MRNA_EXPRESSION";
-var PROFILE_PROTEIN = "PROFILE_PROTEIN";
 var PROFILE_PROTEIN_EXPRESSION = "PROFILE_PROTEIN_EXPRESSION";
 var PROFILE_METHYLATION = "PROFILE_METHYLATION"
 
 var caseSetSelectionOverriddenByUser = false;
 var selectedStudiesStorageKey = "cbioportal_selected_studies";
 var virtualStudies = "";
-
-//  Create Log Function, if FireBug is not Installed.
-if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
-    var console = { log: function() { } };
 
 //  Triggered only when document is ready.
 $(document).ready(function(){
@@ -71,23 +65,21 @@ $(document).ready(function(){
      //  Set up Event Handler for User Selecting Cancer Study from Pull-Down Menu
      $("#select_single_study").change(function() {
          caseSetSelectionOverriddenByUser = false; // reset
-         console.log("#select_single_study change ( cancerStudySelected() )");
-         cancerStudySelected();
-         
-         caseSetSelected();
+         cancerStudySelectedEventListener();
+         caseSetSelectedEventListener();
          $('#custom_case_set_ids').empty(); // reset the custom case set textarea
 	 $('#select_single_study').trigger('doneChanging');
      });
 
     // Set up Event Handler for User Selecting a Case Set
     $("#select_case_set").change(function() {
-        caseSetSelected();
+        caseSetSelectedEventListener();
         caseSetSelectionOverriddenByUser = true;
     });
 
     // Set up Event Handler for User Selecting a Get Set
     $("#select_gene_set").change(function() {
-        geneSetSelected();
+        geneSetSelectedEventListener();
     });
 
     //  Set up Event Handler for View/Hide JSON Debug Information
@@ -135,41 +127,8 @@ $(document).ready(function(){
     $.cookie("results-tab",null);
 
 });  //  end document ready function
-
-
-function supportsHTML5Storage() {
-	// from diveintohtml5.info/storage.html
-	try {
-		return 'localStorage' in window && window['localStorage'] !== null;
-	} catch (e) {
-		return false;
-	}
-}
-//  Load study Meta Data, i.e. everything except the name, which we load earlier to
-//  	populate the dropdown menu.
-function loadStudyMetaData(cancerStudyId) {
-    console.log("loadStudyMetaData ("+cancerStudyId+")");
-    $('.main_query_panel').fadeTo("fast",0.6);
 	
-    $.getJSON("portal_meta_data.json?study_id="+cancerStudyId, function(json){
-        window.metaDataJson.cancer_studies[cancerStudyId] = json;
-        updateCancerStudyInformation();
-        $('.main_query_panel').stop().fadeTo("fast",1);
-    });
-}
-
-// Load geneset gene list
-function loadGeneList(geneSetId) {
-    $('.main_query_panel').fadeTo("fast",0.6);
-
-    $.getJSON("portal_meta_data.json?geneset_id="+geneSetId.replace(/\//g,""), function(json){
-        window.metaDataJson.gene_sets[geneSetId].gene_list = json.list;
-        $("#gene_list").val(json.list);
-        $('.main_query_panel').stop().fadeTo("fast",1);
-    });
-}
-	
-//  Load Portal JSON Meta Data, while showing loader image
+//  Load Meta Data from backend
 function loadMetaData() {
     $('#load').remove();
     //  show ajax loader image; loader is background image of div 'load' as set in css
@@ -190,8 +149,6 @@ function loadMetaData() {
 
             // Load data of selected study right at the outset before continuing
             $.getJSON("portal_meta_data.json?study_id="+window.cancer_study_id_selected, function(json) {
-                console.log("Loading metadata for "+window.cancer_study_id_selected);
-                // this code should be about the same as in loadStudyMetaData
                 window.metaDataJson.cancer_studies[window.cancer_study_id_selected] = json;
                 //  Add Meta Data to current page
                 var username = $('#header_bar_table span').text() || '';
@@ -202,20 +159,20 @@ function loadMetaData() {
                 			addMetaDataToPage(virtualStudies);
                 			showNewContent();
                 		}).fail(function () {
-                			addMetaDataToPage([]);
+                            addJsTree([]);
                 			showNewContent();
                 		});
                 	}else{
                         virtualStudies = vcSession.utils.getVirtualCohorts();
                         if (window.tab_index !== 'tab_download') {
-                            addMetaDataToPage(virtualStudies);
+                            addJsTree(virtualStudies);
                         } else {
-                            addMetaDataToPage([]);
+                            addJsTree([]);
                         }
                         showNewContent();
                 	}
                 } else {
-                	addMetaDataToPage([]);
+                    addJsTree([]);
                 	showNewContent();
                 }
             });
@@ -237,34 +194,617 @@ function loadMetaData() {
     }
 }
 
-//  Triggered when the User Selects one of the Main Query or Download Tabs
-function userClickedMainTab(tabAction) {
+function addJsTree(virtualStudies) {
+    json = window.metaDataJson;
 
-    window.changingTabs = true;
-    //  Change hidden field value
-    $("#tab_index").val(tabAction);
-    //$("#main_form").get(0).elements["Action"].setAttribute("value","");
+    // Construct oncotree
+    var oncotree = {'tissue':{code:'tissue', studies:[], children:[], parent: false, desc_studies_count:0, tissue:''}};
+    var parents = json.parent_type_of_cancers;
+    // First add everything to the tree
+    for (var tumortype in parents) {
+        if (parents.hasOwnProperty(tumortype)) {
+            oncotree[tumortype] = {code:tumortype, studies:[], children:[], parent: false, desc_studies_count: 0, tissue: false};
+        }
+    }
+    // Link parents and insert initial tissue info
+    for (var tumortype in oncotree) {
+        if (oncotree.hasOwnProperty(tumortype) && tumortype !== 'tissue') {
+            oncotree[tumortype].parent = oncotree[parents[tumortype]];
+            oncotree[tumortype].parent.children.push(oncotree[tumortype]);
+            if (parents[tumortype] === "tissue") {
+                oncotree[tumortype].tissue = tumortype;
+            }
+        }
+    }
+    // Insert tissue information in a "union-find" type way
+    for (var elt in oncotree) {
+        if (oncotree.hasOwnProperty(elt) && elt !== 'tissue') {
+            var to_modify = [];
+            var currelt = oncotree[elt];
+            while (!currelt.tissue && currelt.code !== 'tissue') {
+                to_modify.push(currelt);
+                currelt = currelt.parent;
+            }
+            for (var i=0; i<to_modify.length; i++) {
+                to_modify[i].tissue = currelt.tissue;
+            }
+        }
+    }
+    // Add studies to tree, and climb up adding one to each level's descendant studies
+    // Insert priority studies
+    // 
+    var priority_study_ids = {};
+    for (var i=0; i<window.priority_studies.length; i++) {
+        for (var j=0; j<window.priority_studies[i].studies.length; j++) {
+            priority_study_ids[window.priority_studies[i].studies[j]] = true;
+        }
+    }
+    // 
+    for (var study in json.cancer_studies) {
+        if (priority_study_ids.hasOwnProperty(study)) {
+            continue;
+        } else if (study !== 'all') { // don't re-add 'all'
+            try {
+                var code = json.cancer_studies[study].type_of_cancer.toLowerCase();
+                var lineage = [];
+                var currCode = code;
+                while (currCode !== 'tissue') {
+                    lineage.push(currCode);
+                    currCode = oncotree[currCode].parent.code;
+                }
+                oncotree[code].studies.push({id:study, lineage:lineage});
+                var node = oncotree[code];
+                while (node) {
+                    node.desc_studies_count += 1;
+                    node = node.parent;
+                }
+            } catch (err) {
+            }
+        }
+    }
+    // Sort all the children alphabetically
+    for (var node in oncotree) {
+        if (oncotree.hasOwnProperty(node)) {
+            oncotree[node].children.sort(function(a,b) {
+                try {
+                    return json.type_of_cancers[a.code].localeCompare(json.type_of_cancers[b.code]);
+                } catch(err) {
+                    return a.code.localeCompare(b.code);
+                }
+            });
+            oncotree[node].studies.sort(function(a,b) {
+                return a.id.localeCompare(b.id);
+            });
+        }
+    }
+    var splitAndCapitalize = function(s) {
+        return s.split("_").map(function(x) { return (x.length > 0 ? x[0].toUpperCase()+x.slice(1) : x);}).join(" ");
+    };
+    var truncateStudyName = function(n) {
+        var maxLength = 80;
+        if (n.length < maxLength) {
+            return n;
+        } else {
+            var suffix = '';
+            var suffixStart = n.lastIndexOf('(');
+            if (suffixStart !== -1) {
+                suffix = n.slice(suffixStart);
+            }
+            var ellipsis = '... ';
+            return n.slice(0,maxLength-suffix.length-ellipsis.length)+ellipsis+suffix;
+        }
+    };
+    window.jstree_root_id = 'tissue';
+    var jstree_data = [];
+    var flat_jstree_data = [];
+    jstree_data.push({'id': jstree_root_id, parent: '#', text: 'All', state: {opened: true}, li_attr: {name: 'All'}});
+    flat_jstree_data.push({'id': jstree_root_id, parent: '#', text: 'All', state: {opened: true}, li_attr: {name: 'All'}});
+    var node_queue = [].concat(oncotree['tissue'].children);
+    var currNode;
+    if (window.priority_studies.length > 0) {
+        for (var i = 0; i < window.priority_studies.length; i++) {
+            var priority_study_obj = window.priority_studies[i];
+            if (priority_study_obj.studies.filter(function(s) { return json.cancer_studies.hasOwnProperty(s); }).length > 0) {
+                var category_id = 'priority-group-' + i;
+                jstree_data.push({'id': category_id, 'parent': jstree_root_id, 'text': priority_study_obj.category, 'li_attr': {name: priority_study_obj.category}});
+                $.each(priority_study_obj.studies, function (ind, id) {
+                    if (json.cancer_studies.hasOwnProperty(id)) {
+                        studyName = truncateStudyName(json.cancer_studies[id].name);
+                        numSamplesInStudy = json.cancer_studies[id].num_samples;
+                        if (numSamplesInStudy == 1) {
+                            samplePlurality = 'sample';
+                        } else if (numSamplesInStudy > 1) {
+                            samplePlurality = 'samples';
+                        } else {
+                            samplePlurality = '';
+                            numSamplesInStudy = '';
+                        }
+                        jstree_data.push({'id': id, 'parent': category_id, 'text': studyName.concat('<span style="font-weight:normal;font-style:italic;"> ' + numSamplesInStudy + ' ' + samplePlurality + '</span>'),
+                            'li_attr': {name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: priority_study_obj.category}});
 
-    //  Then, submit the form
-    $("#main_form").submit();
-}
+                        flat_jstree_data.push({'id': id, 'parent': jstree_root_id, 'text': truncateStudyName(json.cancer_studies[id].name),
+                            'li_attr': {name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: priority_study_obj.category}});
+                    }
+                });
+            }
+        }
+    }
+    if(_.isArray(virtualStudies) && virtualStudies.length > 0){
+        jstree_data.push({'id':'virtual-study-group', 'parent':jstree_root_id, 'text':'Virtual Studies', 'li_attr':{name:'VIRTUAL STUDY'}});
+        var studyName;
+        var numSamplesInStudy;
+        var samplePlurality;
+        $.each(virtualStudies, function(ind, val) {
+            studyName = truncateStudyName(val.studyName);
+            numSamplesInStudy = val.samplesLength;
+            if (numSamplesInStudy == 1) {
+                samplePlurality = 'sample';
+            }
+            else if (numSamplesInStudy > 1) {
+                samplePlurality = 'samples';
+            }
+            else {
+                samplePlurality = '';
+                numSamplesInStudy = '';
+            }
+            jstree_data.push({'id':val.virtualCohortID, 'parent':'virtual-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
+                'li_attr':{name: studyName, description: val.description}});
 
-//  When the page is first loaded, the default query will be a cross-cancer type
-//  search in which the user will enter ONLY a gene list; Also when "All Cancer Studies"
-//  is selected in Step 1
-function crossCancerStudySelected() {
-     $('#step2').hide();
-     $('#step2cross').show();
-     $('#step3').hide();
-     $('#step5').hide();
-}
+            flat_jstree_data.push({'id':val.virtualCohortID, 'parent':jstree_root_id, 'text':truncateStudyName(val.studyName),
+                'li_attr':{name: studyName, description: val.description, search_terms: 'VIRTUAL STUDY'}});
+        });
+    } 
+    // insert a node if temporary cohort
+    if (window.cancer_study_id_selected !== 'null' && window.is_virtual_cohort === 'true') {
+        var _vcs = JSON.parse(localStorage.getItem('virtual-cohorts'));
+        var _vcIds = _.pluck(_vcs, 'virtualCohortID');
+        if (!_.contains(_vcIds, window.cancer_study_id_selected)) { // is temporary cohort
+            if ($("#virtual-study-group").length === 0) {
+                jstree_data.push({'id':'virtual-study-group', 'parent':jstree_root_id, 'text':'Virtual Studies', 'li_attr':{name:'VIRTUAL STUDY'}});
+            }
+            jstree_data.push({'id': window.cancer_study_id_selected, 'parent':'virtual-study-group', 'text': 'Selected patients / samples',
+                'li_attr':{name: 'studyName', description: 'description'}});
+        }
+    }
+    while (node_queue.length > 0) {
+        currNode = node_queue.shift();
+        if (currNode.desc_studies_count > 0) {
+            var name = splitAndCapitalize(metaDataJson.type_of_cancers[currNode.code] || currNode.code);
+            jstree_data.push({'id':currNode.code,
+                'parent':((currNode.parent && currNode.parent.code) || '#'),
+                'text':name,
+                'li_attr':{name:name}
+            });
+            var numSamplesInStudy;
+            var samplePlurality;
+            $.each(currNode.studies, function(ind, elt) {
+                name = truncateStudyName(splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name));
+                numSamplesInStudy = json.cancer_studies[elt.id].num_samples;
+                if (numSamplesInStudy == 1) {
+                    samplePlurality = 'sample';
+                }
+                else if (numSamplesInStudy > 1) {
+                    samplePlurality = 'samples';
+                }
+                else {
+                    samplePlurality = '';
+                    numSamplesInStudy = '';
+                }
+                jstree_data.push({'id':elt.id,
+                    'parent':currNode.code,
+                    'text':name.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
+                    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
 
-//  Display extra steps when an individual cancer study is selected
-function singleCancerStudySelected() {
-    $("#step2").show();
-    $('#step2cross').hide();
-    $("#step3").show();
-    //$("#step5").show();
+                flat_jstree_data.push({'id':elt.id,
+                    'parent':jstree_root_id,
+                    'text':name,
+                    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
+            });
+            node_queue = node_queue.concat(currNode.children);
+        }
+    }
+    var precomputed_search = {query: '', results: {}};
+    var parse_search_query = function(query) {
+        // First eliminate trailing whitespace and reduce every whitespace
+        //	to a single space.
+        query = query.toLowerCase().trim().split(/\s+/g).join(' ');
+        // Now factor out quotation marks and inter-token spaces
+        var phrases = [];
+        var currInd = 0;
+        var nextSpace, nextQuote;
+        while (currInd < query.length) {
+            if (query[currInd] === '"') {
+                nextQuote = query.indexOf('"', currInd+1);
+                if (nextQuote === -1) {
+                    phrases.push(query.substring(currInd + 1));
+                    currInd = query.length;
+                } else {
+                    phrases.push(query.substring(currInd + 1, nextQuote));
+                    currInd = nextQuote + 1;
+                }
+            } else if (query[currInd] === ' ') {
+                currInd += 1;
+            } else if (query[currInd] === '-') {
+                phrases.push('-');
+                currInd += 1;
+            } else {
+                nextSpace = query.indexOf(' ', currInd);
+                if (nextSpace === -1) {
+                    phrases.push(query.substring(currInd));
+                    currInd = query.length;
+                } else {
+                    phrases.push(query.substring(currInd, nextSpace));
+                    currInd = nextSpace + 1;
+                }
+            }
+        }
+        // Now get the conjunctive clauses, and the negative clauses
+        var clauses = [];
+        currInd = 0;
+        var nextOr, nextDash;
+        while (currInd < phrases.length) {
+            if (phrases[currInd] === '-') {
+                if (currInd < phrases.length - 1) {
+                    clauses.push({"type":"not", "data":phrases[currInd+1]});
+                }
+                currInd = currInd + 2;
+            } else {
+                nextOr = phrases.indexOf('or', currInd);
+                nextDash = phrases.indexOf('-', currInd);
+                if (nextOr === -1 && nextDash === -1) {
+                    clauses.push({"type":"and","data":phrases.slice(currInd)});
+                    currInd = phrases.length;
+                } else if (nextOr === -1 && nextDash > 0) {
+                    clauses.push({"type":"and", "data":phrases.slice(currInd, nextDash)});
+                    currInd = nextDash;
+                } else if (nextOr > 0 && nextDash === -1) {
+                    clauses.push({"type":"and", "data":phrases.slice(currInd, nextOr)});
+                    currInd = nextOr + 1;
+                } else {
+                    if (nextOr < nextDash) {
+                        clauses.push({"type":"and", "data":phrases.slice(currInd, nextOr)});
+                        currInd = nextOr + 1;
+                    } else {
+                        clauses.push({"type":"and", "data":phrases.slice(currInd, nextDash)});
+                        currInd = nextDash;
+                    }
+                }
+            }
+        }
+        return clauses;
+    };
+    var matchPhrase = function(phrase, node) {
+        phrase = phrase.toLowerCase();
+        return !!((node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1)
+        || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1)
+        || (node.li_attr && node.li_attr.search_terms && node.li_attr.search_terms.toLowerCase().indexOf(phrase) > -1));
+    };
+    var perform_search_single = function(parsed_query, node) {
+        // in: a jstree node
+        // text to search is node.text and node.li_attr.description and node.li_attr.search_terms
+        // return true iff the query, considering quotation marks, 'and' and 'or' logic, matches
+        var match = false;
+        var hasPositiveClauseType = false;
+        var forced = false;
+
+        $.each(parsed_query, function(ind, clause) {
+            if (clause.type !== 'not') {
+                hasPositiveClauseType = true;
+                return 0;
+            }
+        });
+        if (!hasPositiveClauseType) {
+            // if only negative clauses, match by default
+            match = true;
+        }
+        $.each(parsed_query, function(ind, clause) {
+            if (clause.type === 'not') {
+                if (matchPhrase(clause.data, node)) {
+                    match = false;
+                    forced = true;
+                    return 0;
+                }
+            } else if (clause.type === 'and') {
+                hasPositiveClauseType = true;
+                var clauseMatch = true;
+                $.each(clause.data, function(ind2, phrase) {
+                    clauseMatch = clauseMatch && matchPhrase(phrase, node);
+                });
+                match = match || clauseMatch;
+            }
+        });
+        return {result:match, forced:forced};
+    };
+    var perform_search = function(query) {
+        // IN: query, a string
+        // void method
+        // when this ends, the object precomputed_search has been updated
+        //	so that results[node.id] = true iff the query directly matches it
+        var parsed_query = parse_search_query(query);
+        $.each($('#jstree').jstree(true)._model.data, function(key, node) {
+            precomputed_search.results[node.id] = perform_search_single(parsed_query, node);
+        });
+        precomputed_search.query = query;
+    };
+    var jstree_search = function(query, node) {
+        if (query === "") {
+            return true;
+        }
+        if (precomputed_search.query !== query) {
+            perform_search(query);
+        }
+        if (!precomputed_search.results[node.id].result && precomputed_search.results[node.id].forced) {
+            return false;
+        }
+        var nodes_to_consider = [node.id].concat(node.parents.slice());
+        var ret = false;
+        $.each(nodes_to_consider, function(ind, elt) {
+            if (elt === jstree_root_id || elt === '#') {
+                return 0;
+            }
+            if (!precomputed_search.results[elt].result && precomputed_search.results[elt].forced) {
+                ret = false;
+                return 0;
+            }
+            ret = ret || precomputed_search.results[elt].result;
+        });
+        return ret;
+    };
+    var initialize_jstree = function (data) {
+        $("#jstree").jstree({
+            "themes": {
+                "theme": "default",
+                "dots": false,
+                "icons": false,
+                "url": "../../css/jstree.style.css"
+            },
+            "plugins": ['checkbox','search'],
+            "search": {'show_only_matches': true,
+                'search_callback': jstree_search,
+                'search_leaves_only': true},
+            "checkbox": {},
+            'core': {'data': data, 'check_callback': true, 'dblclick_toggle': false, 'multiple': (window.tab_index !== "tab_download")}
+        });
+        $('#jstree').on('ready.jstree', function () {
+            $('#jstree').jstree(true).num_leaves = $('#jstree').jstree(true).get_leaves().length;
+            $('#jstree').jstree(true).get_matching_nodes = function (phrase) {
+                var ret = [];
+                $.each($('#jstree').jstree(true)._model.data, function (key, node) {
+                    if (matchPhrase(phrase, node)) {
+                        ret.push(key);
+                    }
+                });
+                return ret;
+            };
+
+            $('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
+            $('#jstree').jstree(true).open_all();
+        });
+        $('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
+        $('#jstree').jstree(true).hide_icons();
+    }
+    initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstree_data);
+    var jstree_is_flat = false;
+    var $jstree_flatten_btn = (function() {
+        if (window.tab_index === "tab_download") {
+            return false;
+        }
+        var ret = $('<i class="fa fa-lg fa-code-fork jstree-external-node-decorator" style="display:none; cursor:pointer; padding-left:0.6em"></i>');
+        ret.mouseenter(function () {
+            ret.fadeTo('fast', 0.7);
+        });
+        ret.mouseleave(function () {
+            ret.fadeTo('fast', 1);
+        });
+        ret.click(function () {
+            var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+            $('#jstree').jstree(true).destroy();
+            jstree_is_flat = !jstree_is_flat;
+            initialize_jstree((jstree_is_flat ? flat_jstree_data : jstree_data));
+            $('#jstree').on('ready.jstree', function () {
+                $('#jstree').jstree(true).select_node(selected_studies);
+                if ($("#jstree_search_input").val() !== "") {
+                    precomputed_search.query = false; // force re-search
+                    do_jstree_search();
+                }
+            });
+        });
+        ret.qtip({
+            content: {text: (jstree_is_flat ? "Unflatten tree" : "Flatten tree")},
+            style: {classes: 'qtip-light qtip-rounded'},
+            position: {my: 'bottom center', at: 'top center', viewport: $(window)},
+            show: {delay: 600},
+            hide: {delay: 10, fixed: true},
+        });
+        return ret;
+    });
+
+    var do_jstree_search = function() {
+        $("#jstree").jstree(true).search($("#jstree_search_input").val());
+        $('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
+    }
+    var jstree_search_timeout = null;
+    $("#jstree_search_input").on('input', function () {
+        if (jstree_search_timeout) {
+            clearTimeout(jstree_search_timeout);
+        }
+        jstree_search_timeout = setTimeout(function () {
+            if ($("#jstree_search_input").val() === "") {
+                $("#step_header_first_line_empty_search").css("display", "none");
+                $("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All";
+            } else {
+                $("#step_header_first_line_empty_search").css("display", "block");
+                $("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All Search Results";
+            }
+            $("#jstree").fadeTo(100, 0.5, function () {
+                $('#jstree_search_none_found_msg').hide();
+                do_jstree_search();
+                if ($('#jstree_search_input').val() !== "" && $('#jstree').jstree(true)._data.search.res.length === 0) {
+                    $('#jstree_search_none_found_msg').show();
+                }
+                $("#jstree").fadeTo(100, 1);
+            });
+        }, 400); // wait for a bit with no typing before searching
+    });
+    $('#step_header_first_line_empty_search').click(function() {
+        $("#jstree_search_input").val("");
+        $("#step_header_first_line_empty_search").css("display", "none");
+        $("#jstree").fadeTo(100, 0.5, function () {
+            do_jstree_search();
+            $("#jstree").fadeTo(100, 1);
+        });
+    });
+    var saveSelectedStudiesLocalStorage = function() {
+        if (!supportsHTML5Storage()) {
+            return false;
+        }
+        var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+        // selectedStudiesStorageKey
+        window.localStorage.setItem(selectedStudiesStorageKey, selected_studies.join(","));
+        //$.removeCookie(selectedStudiesCookieName);
+        //$.cookie(selectedStudiesCookieName, selected_studies.join(","), {expires:10});
+        return true;
+    };
+    var getSelectedStudiesLocalStorage = function() {
+        if (!supportsHTML5Storage()) {
+            return false;
+        }
+        return window.localStorage.getItem(selectedStudiesStorageKey);
+    }
+    var onJSTreeChange = function () {
+        $(".error_box").remove();
+        var select_single_study = $("#main_form").find("#select_single_study");
+        var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
+        var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+        var selected_ct = selected_studies.length;
+        $('#jstree_selected_study_count').html((selected_ct === 0 ? "No" : (selected_ct === $('#jstree').jstree(true).num_leaves ? "All" : selected_ct)) + " stud" + (selected_ct === 1 ? "y" : "ies") + " selected.");
+        $('#jstree_deselect_all_btn')[selected_ct > 0 ? 'show' : 'hide']();
+        var old_select_single_study_val = select_single_study.val();
+        if (selected_studies.length === 1) {
+            select_single_study.val(selected_studies[0]);
+        } else {
+            select_single_study.val("all");
+        }
+        select_multiple_studies.val(selected_studies.join(","));
+        if (select_single_study.val() !== old_select_single_study_val) {
+            select_single_study.trigger('change');
+        }
+        select_multiple_studies.trigger('change');
+    };
+
+
+    //  Add Gene Sets to Pull-down Menu
+    jQuery.each(json.gene_sets,function(key,gene_set){
+        $("#select_gene_set").append("<option value='" + key + "'>"
+            + gene_set.name + "</option>");
+    });  //  end for each gene set loop
+
+    // Set the placeholder for the autocomplete select box
+    $("#example_gene_set").children("span:first").children("input:first")
+        .attr("placeholder", $("#select_gene_set").children("option:first").text());
+
+    //  Set things up, based on currently selected cancer type
+    // hacky; order of preference
+    var selected_study_map = {};
+    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
+        var windowParams = window.location.search.substring(1).split("&");
+        $.each(windowParams, function(ind, elt) {
+            var pair = elt.split("=");
+            if (pair[0] === window.cancer_study_list_param) {
+                window.cancer_study_list_selected = pair[1];
+                return 0;
+            }
+        });
+    }
+    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
+        var split_url_on_hash = window.location.href.split('#');
+        if (split_url_on_hash.length > 1) {
+            window.cancer_study_list_selected = split_url_on_hash[1].split("/")[4];
+        }
+    }
+    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
+        var windowParams = window.location.search.substring(1).split("&");
+        $.each(windowParams, function(ind, elt) {
+            var pair = elt.split("=");
+            if (pair[0] === 'cancer_study_id') {
+                window.cancer_study_list_selected = pair[1];
+                return 0;
+            }
+        });
+    }
+
+    //var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || ( getSelectedStudiesLocalStorage() || '')).split(",");
+    var selected_study_list = (window.tab_index !== "tab_download" ? decodeURIComponent(window.cancer_study_list_selected || '').split(",") : []);
+    $.each(selected_study_list, function(ind, elt) {
+        if (elt !== '') {
+            selected_study_map[elt] = false;
+        }
+    });
+    if (window.cancer_study_id_selected !== 'all') {
+        selected_study_map[window.cancer_study_id_selected] = false;
+    }
+    jQuery.each(json.cancer_studies,function(key,cancer_study){
+        // Set Selected Cancer Type, Based on User Parameter
+        if (selected_study_map.hasOwnProperty(key)) {
+            selected_study_map[key] = true;
+        }
+    });
+    $("#jstree").on('ready.jstree', function() {
+        // Chosenize the select boxes
+        var minSearchableItems = 10;
+        $("#select_gene_set").chosen({ width: '620px', search_contains: true});
+        $("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
+        // add a title to the text input fields generated by Chosen for
+        // Section 508 accessibility compliance
+        $("div.chzn-search > input:first-child").attr("title", "Search");
+        $.each(selected_study_map, function(key, val) {
+            if (val) {
+                $("#jstree").jstree(true).select_node(key, true);
+            }
+        });
+        //   Set things up, based on currently selected case set id
+        $('#select_single_study').one('doneChanging', function() {
+            if (window.case_set_id_selected != null && window.case_set_id_selected != "") {
+                $("#select_case_set").val(window.case_set_id_selected);
+                $("#select_case_set").trigger('liszt:updated');
+                caseSetSelectionOverriddenByUser = true;
+            }
+            caseSetSelectedEventListener();
+            if (window.case_ids_selected !== '') {
+                $('#custom_case_set_ids').val(window.case_ids_selected);
+            }
+
+            //  Set things up, based on currently selected gene set id
+            if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
+                $("#select_gene_set").val(window.gene_set_id_selected);
+            } else {
+                $("#select_gene_set").val("user-defined-list");
+            }
+            $("#select_gene_set").trigger('liszt:updated');
+            //  Set things up, based on all currently selected genomic profiles
+
+            //  To do so, we iterate through all input elements with the name = 'genetic_profile_ids*'
+            $("input[name^=genetic_profile_ids]").each(function (index) {
+                //  val() is the value that or stable ID of the genetic profile ID
+                var currentValue = $(this).val();
+
+                //  if the user has this stable ID already selected, mark it as checked
+                if (window.genomic_profile_id_selected[currentValue] == 1) {
+                    $(this).prop('checked', true);
+                    //  Select the surrounding checkbox
+                    genomicProfileRadioButtonSelected($(this));
+                }
+            });  //  end for each genomic profile option
+
+
+            // HACK TO DEAL WITH ASYNCHRONOUS STUFF
+            window.metaDataAdded = true;
+            // determine whether any selections have already been made
+            // to make sure all of the fields are shown/hidden as appropriate
+            reviewCurrentSelections();
+        });
+        onJSTreeChange();
+    });
 }
 
 //  Select default genomic profiles
@@ -299,7 +839,6 @@ function reviewCurrentSelections(){
          });
 
          if (setDefaults){
-             console.log("reviewCurrentSelections ( makeDefaultSelections() )");
              makeDefaultSelections();
          }
     } 
@@ -313,22 +852,8 @@ function reviewCurrentSelections(){
     // similarly with RPPA
     toggleThresholdPanel($("." + PROFILE_PROTEIN_EXPRESSION+"[type=checkbox]"), PROFILE_PROTEIN_EXPRESSION, "#rppa_score_threshold");
 
-    // determine whether optional arguments section should be shown or hidden
- //   if ($("#optional_args > input").length >= 1){
- //       $("#optional_args > input").each(function(){
- //           if ($(this).prop('checked')){
- //               // hide/show is ugly, but not sure exactly how toggle works
- //               // and couldn't get it to work.. this will do for now
- //               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
- //               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
- //               $("#optional_args").toggle();
- //               return;
- //           }
- //       });
- //   }
    }
 }
-
 
 var submitHandler = (function() {
 	var sample_mapping_completed = false;
@@ -344,45 +869,7 @@ var submitHandler = (function() {
 		}
 	};
 })();
-// Get mapping if necessary
-function getMapping() {
-    function setPatientSampleIdMap(_sampleMap) {
-        var samples_string = "";
-        for (var i=0,_len=_sampleMap.length; i<_len; i++) 
-        {
-            var d = _sampleMap[i];
-            samples_string += d.id + "\n";
-        };
-        return samples_string;
-    }
-    
-    function getMap() {
-	var def = new $.Deferred();
-        // Get input selection
-        var caseIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
-        // Get study selection
-        var studyId = $("#select_single_study").val();
-        if (caseIds[0] !== "")
-        {
-            window.cbioportal_client.getSamplesByPatient({study_id: [studyId],patient_ids: caseIds}).then(function(sampleMap){
-                $("#custom_case_set_ids").val(setPatientSampleIdMap(sampleMap));
-		def.resolve();
-            });                
-        }
-        else {
-            def.resolve();
-        }
-        
-        return def;
-    }
-    if ($("#main_form").find("input[name=patient_case_select]:checked").val() === "patient") {
-	    return getMap();
-    } else {	
-	var def = new $.Deferred();
-	def.resolve();
-	return def.promise();
-    }
-}
+
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
 function chooseAction(evt) {
@@ -435,36 +922,27 @@ function chooseAction(evt) {
         	return _.indexOf(virtualStudiesIdsList,_id) !== -1;
         })
     }
-    
        
     if (selected_studies.length > 1) {
-    	if(selectedVirtualStudyList.length>0) {
-            createAnError("Cannot query virtual study(s) for now", $('#select_cancer_type_section'), "");
-            return false;
-        }
     	if ( haveExpInQuery ) {
             createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
             return false;
         }
-        $("#main_form").find("#select_multiple_studies").val("");
         if ($("#tab_index").val() == 'tab_download') {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
-        else {
-                var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
-                var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
-                evt.preventDefault();
-                window.location = 'cross_cancer.do?' + newSearch;
-            //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
-        }
-        
+        $("#main_form").get(0).setAttribute('cancer_study_id', 'all');
+        $("#main_form").get(0).setAttribute('cancer_study_list', $('#main_form').find('input[name=cancer_study_list]').val());
+        $("#main_form").get(0).setAttribute('action','index.do');
     } else if (selected_studies.length === 1) {
         $("#main_form").find("#select_single_study").val(selected_studies[0]);
+        $('#main_form').find('input[name=cancer_study_list]').val(null);
+        $("#main_form").get(0).setAttribute('cancer_study_id', selected_studies[0]);
+        $("#main_form").get(0).setAttribute('cancer_study_list', null);
         $("#main_form").get(0).setAttribute('action','index.do');
 
         if ( haveExpInQuery ) {
             var expCheckBox = $("." + PROFILE_MRNA_EXPRESSION);
-
             if( expCheckBox.length > 0 && expCheckBox.prop('checked') == false) {
                     createAnError("Expression specified in the list of genes, but not selected in the" +
                                         " Genetic Profile Checkboxes.",  $('#gene_list'));
@@ -574,57 +1052,6 @@ function updateDefaultCaseList() {
     updateCaseListSmart();
 }
 
-//  Print message and disable submit if use choosed a cancer type
-//  for which no genomic profiles are available
-function genomicProfilesUnavailable(){
-    $("#genomic_profiles").html("<strong>No Genomic Profiles available for this Cancer Study</strong>");
-    cbio.util.toggleMainBtn("main_submit", "disable");
-}
-
-// Show or hide mRNA threshold field based on mRNA profile selected
-function toggleThresholdPanel(profileClicked, profile, threshold_div) {
-    var selectedProfile = profileClicked.val();
-    var inputType = profileClicked.attr('type');
-
-    // when a radio button is clicked, show threshold input unless user chooses expression outliers
-    if(inputType == 'radio'){
-        if(selectedProfile.indexOf("outlier")==-1){
-            $(threshold_div).slideDown();
-        } else {
-            $(threshold_div).slideUp();
-        }
-    } else if(inputType == 'checkbox'){
-
-        // if there are NO subgroups, show threshold input when mRNA checkbox is selected.
-        if (profileClicked.prop('checked')){
-            $(threshold_div).slideDown();
-        }
-        // if checkbox is unselected, hide threshold input regardless of whether there are subgroups
-        else {
-            $(threshold_div).slideUp();
-        }
-    }
-}
-
-// toggle:
-//      gistic button
-//      mutsig button
-// according to the cancer_study
-function toggleByCancerStudy(cancer_study) {
-    var mutsig = $('#toggle_mutsig_dialog');
-    var gistic = $('#toggle_gistic_dialog_button');
-    if (cancer_study.has_mutsig_data) {
-        mutsig.show();
-    } else {
-        mutsig.hide();
-    }
-    if (cancer_study.has_gistic_data) {
-        gistic.show();
-    } else {
-        gistic.hide();
-    }
-}
-
 function updateCaseListSmart() {
     $("#select_case_set").trigger("liszt:updated");
     $("#select_case_set_chzn .chzn-drop ul.chzn-results li")
@@ -639,18 +1066,13 @@ function updateCaseListSmart() {
       });
 }
 
-// Called when and only when a cancer study is selected from the dropdown menu
+// Called when and only when a cancer study is selected 
 function updateCancerStudyInformation() {
     var cancerStudyId = $("#main_form").find("#select_single_study").val();
     var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
 
     // toggle every time a new cancer study is selected
     toggleByCancerStudy(cancer_study);
-
-    if (cancerStudyId=='all' || (_.isObject(cancer_study) && _.keys(cancer_study).length ==0)){
-        crossCancerStudySelected();
-        return;
-    }
 
     //  Update Cancer Study Description
     var citation = cancer_study.citation;
@@ -669,20 +1091,17 @@ function updateCancerStudyInformation() {
     //  First, clear all existing options
     $("#genomic_profiles").html("");
 
-    //  Add Genomic Profiles, in this order
+    //  Add Genomic Profiles, in this particular order
     addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION", PROFILE_MUTATION, "Mutation");
     addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION_EXTENDED", PROFILE_MUTATION_EXTENDED, "Mutation");
     addGenomicProfiles(cancer_study.genomic_profiles, "COPY_NUMBER_ALTERATION", PROFILE_COPY_NUMBER_ALTERATION, "Copy Number");
     addGenomicProfiles(cancer_study.genomic_profiles, "MRNA_EXPRESSION", PROFILE_MRNA_EXPRESSION, "mRNA Expression");
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION", PROFILE_METHYLATION, "DNA Methylation");
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION_BINARY", PROFILE_METHYLATION, "DNA Methylation");
-    //addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN, "Protein Level");
     addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN_EXPRESSION, "Protein/phosphoprotein level");
-
 
     //  if no genomic profiles available, set message and disable submit button
     if ($("#genomic_profiles").html()==""){
-        console.log("cancerStudySelected ( genomicProfilesUnavailable() )");
         genomicProfilesUnavailable();
     }
 
@@ -731,84 +1150,56 @@ function updateCancerStudyInformation() {
     });
 
     // Set default selections and make sure all steps are visible
-    console.log("cancerStudySelected ( singleCancerStudySelected() )");
-    singleCancerStudySelected();
-    console.log("cancerStudySelected ( reviewCurrentSelections() )");
+    $("#step2").show();
+    $('#step2cross').hide();
+    $("#step3").show();
     reviewCurrentSelections();
-    // check if cancer study has a clinical_free_form data to filter,
-    // if there is data to filter, then enable "build custom case set" link,
-    // otherwise disable the button
-    /*jQuery.getJSON("ClinicalFreeForm.json",
-		{studyId: $("#select_single_study").val()},
-		function(json){
-			var noDataToFilter = false;
-			
-			if (json.freeFormData.length == 0)
-			{
-				noDataToFilter = true;
-			}
-			else
-			{
-				noDataToFilter = true;
-				
-				var categorySet = json.categoryMap;
-				
-				// check if there is at least one category to filter
-		    	for (var category in categorySet)
-		    	{
-		    		// continue if the category is qualified as a filter parameter
-		    		if (isEligibleForFiltering(categorySet[category]))
-		    		{
-		    			noDataToFilter = false;
-		    			break;
-		    		}
-		    	}
-			}
-			
-			if (noDataToFilter)
-			{
-				// no clinical_free_form data to filter for the current
-	*/			// cancer study, so disable the button
-				$("#build_custom_case_set").hide();
-	/*		}
-			else
-			{
-				$("#build_custom_case_set").tipTip({defaultPosition: "right",
-					delay:"100",
-					edgeOffset: 10,
-					maxWidth: 100});
-				
-				$("#build_custom_case_set").hide();//.show(); temporarily disabled build case list
-			}
-		});*/
+    $("#build_custom_case_set").hide();
+
 }
-//  Triggered when a cancer study has been selected, either by the user
-//  or programatically.
-function cancerStudySelected() {
 
-
+function cancerStudySelectedEventListener() {
     var cancerStudyId = $("#select_single_study").val() || "all";
     var _studyObject = window.metaDataJson.cancer_studies[cancerStudyId];
-    if(_.isObject(_studyObject)) {
+    // multiple studies
+    if (cancerStudyId === 'all' || (_.isObject(_studyObject) && _.keys(_studyObject).length === 0)){
+        $("#select_case_set").html("");
+        $("#select_case_set").append("<option class='case_set_option' value='all' title='All'>All</option>");
+        $("#select_case_set").append("<option class='case_set_option' value='-1' title='Specify you own case list'>User-defined Case List</option>");
+        updateCaseListSmart();
+        $('#step2').hide();
+        $('#step2cross').show();
+        $('#step3').show();
+        $('#step5').hide();
+        toggleByCancerStudy();
+    // single regular study
+    } else if(_.isObject(_studyObject) && Object.keys(_studyObject).length !== 0) {
     	if (_.keys(_studyObject).length >0 && _studyObject.partial==="true") {
-            console.log("cancerStudySelected( loadStudyMetaData )");
-            loadStudyMetaData(cancerStudyId);
+            $('.main_query_panel').fadeTo("fast",0.6);
+            $.getJSON("portal_meta_data.json?study_id="+cancerStudyId, function(json){
+                window.metaDataJson.cancer_studies[cancerStudyId] = json;
+                updateCancerStudyInformation();
+                $('.main_query_panel').stop().fadeTo("fast",1);
+            });
     	} else {
     		updateCancerStudyInformation();
     	}
-    }
+    //single virtual study
+    } else { 
+        $("#select_case_set").html("");
+        $("#select_case_set").append("<option class='case_set_option' value='all' title='All'>All</option>");
+        $("#select_case_set").append("<option class='case_set_option' value='-1' title='Specify you own case list'>User-defined Case List</option>");
+        updateCaseListSmart();
+        $('#step2').hide();
+        $('#step2cross').show();
+        $('#step3').show();
+    } 
 }
 
-//  Triggered when a case set has been selected, either by the user
-//  or programatically.
-function caseSetSelected() {
+function caseSetSelectedEventListener() {
     var caseSetId = $("#select_case_set").val();
-
-    //  If user has selected the user-defined option, show the case list div
-    //  Otherwise, make sure to hide it.
     if (caseSetId == "-1") {
         $("#custom_case_list_section").show();
-        // if custom case list was selected, post to avoid long url problem.
         $("#main_form").attr("method","post");
     } else {
         $("#custom_case_list_section").hide();
@@ -816,18 +1207,18 @@ function caseSetSelected() {
     }
 }
 
-//  Triggered when a gene set has been selected, either by the user
-//  or programatically.
-function geneSetSelected() {
-    //  Get the selected ID from the pull-down menu
+function geneSetSelectedEventListener() {
     var geneSetId = $("#select_gene_set").val();
-
     if (window.metaDataJson.gene_sets[geneSetId].gene_list == "") {
-        loadGeneList(geneSetId);
+        $('.main_query_panel').fadeTo("fast",0.6);
+        $.getJSON("portal_meta_data.json?geneset_id="+geneSetId.replace(/\//g,""), function(json){
+            window.metaDataJson.gene_sets[geneSetId].gene_list = json.list;
+            $("#gene_list").val(json.list);
+            $('.main_query_panel').stop().fadeTo("fast",1);
+        });
     } else {
         //  Get the gene set meta data from global JSON variable
         var gene_set = window.metaDataJson.gene_sets[geneSetId];
-
         //  Set the gene list text area
         $("#gene_list").val(gene_set.gene_list);
     }
@@ -836,615 +1227,6 @@ function geneSetSelected() {
     } else {
         cbio.util.toggleMainBtn("main_submit", "disable");
     }
-}
-
-//  Adds Meta Data to the Page.
-//  Tiggered at the end of successful AJAX/JSON request.
-function addMetaDataToPage(virtualStudies) {
-    console.log("Adding Meta Data to Query Form");
-    json = window.metaDataJson;
-
-    // Construct oncotree
-    var oncotree = {'tissue':{code:'tissue', studies:[], children:[], parent: false, desc_studies_count:0, tissue:''}};
-    var parents = json.parent_type_of_cancers;
-    // First add everything to the tree
-    for (var tumortype in parents) {
-	if (parents.hasOwnProperty(tumortype)) {
-		oncotree[tumortype] = {code:tumortype, studies:[], children:[], parent: false, desc_studies_count: 0, tissue: false};
-	}
-    }
-    // Link parents and insert initial tissue info
-    for (var tumortype in oncotree) {
-	if (oncotree.hasOwnProperty(tumortype) && tumortype !== 'tissue') {
-		oncotree[tumortype].parent = oncotree[parents[tumortype]];
-		oncotree[tumortype].parent.children.push(oncotree[tumortype]);
-		if (parents[tumortype] === "tissue") {
-			oncotree[tumortype].tissue = tumortype;
-		}
-	}
-    }
-    // Insert tissue information in a "union-find" type way
-    for (var elt in oncotree) {
-        if (oncotree.hasOwnProperty(elt) && elt !== 'tissue') {
-            var to_modify = [];
-            var currelt = oncotree[elt];
-            while (!currelt.tissue && currelt.code !== 'tissue') {
-                to_modify.push(currelt);
-                currelt = currelt.parent;
-            }
-            for (var i=0; i<to_modify.length; i++) {
-                to_modify[i].tissue = currelt.tissue;
-            }
-        }
-    }
-    // Add studies to tree, and climb up adding one to each level's descendant studies
-    // Insert priority studies
-    // 
-    var priority_study_ids = {};
-    for (var i=0; i<window.priority_studies.length; i++) {
-	for (var j=0; j<window.priority_studies[i].studies.length; j++) {
-	    priority_study_ids[window.priority_studies[i].studies[j]] = true;
-	}
-    }
-    // 
-    for (var study in json.cancer_studies) {
-	if (priority_study_ids.hasOwnProperty(study)) {
-	    continue;
-	} else if (study !== 'all') { // don't re-add 'all'
-            try {
-                var code = json.cancer_studies[study].type_of_cancer.toLowerCase();
-		var lineage = [];
-		var currCode = code;
-		while (currCode !== 'tissue') {
-			lineage.push(currCode);
-			currCode = oncotree[currCode].parent.code;
-		}
-                oncotree[code].studies.push({id:study, lineage:lineage});
-                var node = oncotree[code];
-                while (node) {
-                    node.desc_studies_count += 1;
-                    node = node.parent;
-                }
-            } catch (err) {
-                console.log("Unable to add study");
-                console.log(json.cancer_studies[study]);
-            }
-        }
-    }
-    // Sort all the children alphabetically
-    for (var node in oncotree) {
-        if (oncotree.hasOwnProperty(node)) {
-            oncotree[node].children.sort(function(a,b) {
-                try {
-                    return json.type_of_cancers[a.code].localeCompare(json.type_of_cancers[b.code]);
-                } catch(err) {
-                    return a.code.localeCompare(b.code);
-                }
-            });
-            oncotree[node].studies.sort(function(a,b) {
-                return a.id.localeCompare(b.id);
-            });
-        }
-    }
-    var splitAndCapitalize = function(s) {
-	    return s.split("_").map(function(x) { return (x.length > 0 ? x[0].toUpperCase()+x.slice(1) : x);}).join(" ");
-    };
-    var truncateStudyName = function(n) {
-	    var maxLength = 80;
-	    if (n.length < maxLength) {
-		    return n;
-	    } else {
-		    var suffix = '';
-		    var suffixStart = n.lastIndexOf('(');
-		    if (suffixStart !== -1) {
-			    suffix = n.slice(suffixStart);
-		    }
-		    var ellipsis = '... ';
-		    return n.slice(0,maxLength-suffix.length-ellipsis.length)+ellipsis+suffix;
-	    }			    
-    };
-    window.jstree_root_id = 'tissue';
-    var jstree_data = [];
-    var flat_jstree_data = [];
-    jstree_data.push({'id': jstree_root_id, parent: '#', text: 'All', state: {opened: true}, li_attr: {name: 'All'}});
-    flat_jstree_data.push({'id': jstree_root_id, parent: '#', text: 'All', state: {opened: true}, li_attr: {name: 'All'}});
-    var node_queue = [].concat(oncotree['tissue'].children);
-    var currNode;
-    if (window.priority_studies.length > 0) {
-	for (var i = 0; i < window.priority_studies.length; i++) {
-	    var priority_study_obj = window.priority_studies[i];
-	    if (priority_study_obj.studies.filter(function(s) { return json.cancer_studies.hasOwnProperty(s); }).length > 0) {
-		var category_id = 'priority-group-' + i;
-		jstree_data.push({'id': category_id, 'parent': jstree_root_id, 'text': priority_study_obj.category, 'li_attr': {name: priority_study_obj.category}});
-		$.each(priority_study_obj.studies, function (ind, id) {
-		    if (json.cancer_studies.hasOwnProperty(id)) {
-			studyName = truncateStudyName(json.cancer_studies[id].name);
-			numSamplesInStudy = json.cancer_studies[id].num_samples;
-			if (numSamplesInStudy == 1) {
-			    samplePlurality = 'sample';
-			} else if (numSamplesInStudy > 1) {
-			    samplePlurality = 'samples';
-			} else {
-			    samplePlurality = '';
-			    numSamplesInStudy = '';
-			}
-			jstree_data.push({'id': id, 'parent': category_id, 'text': studyName.concat('<span style="font-weight:normal;font-style:italic;"> ' + numSamplesInStudy + ' ' + samplePlurality + '</span>'),
-			    'li_attr': {name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: priority_study_obj.category}});
-
-			flat_jstree_data.push({'id': id, 'parent': jstree_root_id, 'text': truncateStudyName(json.cancer_studies[id].name),
-			    'li_attr': {name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: priority_study_obj.category}});
-		    }
-		});
-	    }
-	}
-    }
-    if(_.isArray(virtualStudies) && virtualStudies.length > 0){
-        jstree_data.push({'id':'virtual-study-group', 'parent':jstree_root_id, 'text':'Virtual Studies', 'li_attr':{name:'VIRTUAL STUDY'}});
-        var studyName;
-        var numSamplesInStudy;
-        var samplePlurality;
-        $.each(virtualStudies, function(ind, val) {
-            studyName = truncateStudyName(val.studyName);
-            numSamplesInStudy = val.samplesLength;
-            if (numSamplesInStudy == 1) {
-                        samplePlurality = 'sample';
-                    }
-                    else if (numSamplesInStudy > 1) {
-                        samplePlurality = 'samples';
-                    }
-                    else {
-                        samplePlurality = '';
-                        numSamplesInStudy = '';
-                    }
-            jstree_data.push({'id':val.virtualCohortID, 'parent':'virtual-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'), 
-                'li_attr':{name: studyName, description: val.description}});
-            
-            flat_jstree_data.push({'id':val.virtualCohortID, 'parent':jstree_root_id, 'text':truncateStudyName(val.studyName), 
-                'li_attr':{name: studyName, description: val.description, search_terms: 'VIRTUAL STUDY'}});
-        });
-    }
-    while (node_queue.length > 0) {
-	    currNode = node_queue.shift();
-	    if (currNode.desc_studies_count > 0) {
-		var name = splitAndCapitalize(metaDataJson.type_of_cancers[currNode.code] || currNode.code);
-		jstree_data.push({'id':currNode.code, 
-			'parent':((currNode.parent && currNode.parent.code) || '#'), 
-			'text':name,
-			'li_attr':{name:name}
-		});
-		var numSamplesInStudy;
-		var samplePlurality;
-		$.each(currNode.studies, function(ind, elt) {
-			    name = truncateStudyName(splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name));
-		            numSamplesInStudy = json.cancer_studies[elt.id].num_samples;
-			    if (numSamplesInStudy == 1) {
-			        samplePlurality = 'sample';
-			    }
-			    else if (numSamplesInStudy > 1) {
-				samplePlurality = 'samples';
-			    }
-			    else {
-				samplePlurality = '';
-				numSamplesInStudy = '';
-			    }
-			    jstree_data.push({'id':elt.id, 
-				    'parent':currNode.code, 
-				    'text':name.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
-				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
-			    
-			    flat_jstree_data.push({'id':elt.id, 
-				    'parent':jstree_root_id,
-				    'text':name,
-				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
-		});
-		node_queue = node_queue.concat(currNode.children);
-	    }
-    }
-    var precomputed_search = {query: '', results: {}};
-    var parse_search_query = function(query) {
-		// First eliminate trailing whitespace and reduce every whitespace
-		//	to a single space.
-		query = query.toLowerCase().trim().split(/\s+/g).join(' ');
-		// Now factor out quotation marks and inter-token spaces
-		var phrases = [];
-		var currInd = 0;
-		var nextSpace, nextQuote;
-		while (currInd < query.length) {
-			if (query[currInd] === '"') {
-				nextQuote = query.indexOf('"', currInd+1);
-				if (nextQuote === -1) {
-					phrases.push(query.substring(currInd + 1));
-					currInd = query.length;
-				} else {
-					phrases.push(query.substring(currInd + 1, nextQuote));
-					currInd = nextQuote + 1;
-				}
-			} else if (query[currInd] === ' ') {
-				currInd += 1;
-			} else if (query[currInd] === '-') {
-				phrases.push('-');
-				currInd += 1;
-			} else {
-				nextSpace = query.indexOf(' ', currInd);
-				if (nextSpace === -1) {
-					phrases.push(query.substring(currInd));
-					currInd = query.length;
-				} else {
-					phrases.push(query.substring(currInd, nextSpace));
-					currInd = nextSpace + 1;
-				}
-			}
-		}
-		// Now get the conjunctive clauses, and the negative clauses
-		var clauses = [];
-		currInd = 0;
-		var nextOr, nextDash;
-		while (currInd < phrases.length) {
-			if (phrases[currInd] === '-') {
-				if (currInd < phrases.length - 1) {
-					clauses.push({"type":"not", "data":phrases[currInd+1]});
-				}
-				currInd = currInd + 2;
-			} else {
-				nextOr = phrases.indexOf('or', currInd);
-				nextDash = phrases.indexOf('-', currInd);
-				if (nextOr === -1 && nextDash === -1) {
-					clauses.push({"type":"and","data":phrases.slice(currInd)});
-					currInd = phrases.length;
-				} else if (nextOr === -1 && nextDash > 0) {
-					clauses.push({"type":"and", "data":phrases.slice(currInd, nextDash)});
-					currInd = nextDash;
-				} else if (nextOr > 0 && nextDash === -1) {
-					clauses.push({"type":"and", "data":phrases.slice(currInd, nextOr)});
-					currInd = nextOr + 1;
-				} else {
-					if (nextOr < nextDash) {
-						clauses.push({"type":"and", "data":phrases.slice(currInd, nextOr)});
-						currInd = nextOr + 1;
-					} else {
-						clauses.push({"type":"and", "data":phrases.slice(currInd, nextDash)});
-						currInd = nextDash;
-					}
-				}
-			}
-		}	
-		return clauses;
-    };
-    var matchPhrase = function(phrase, node) {
-	    phrase = phrase.toLowerCase();
-		return !!((node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1) 
-			    || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1)
-			    || (node.li_attr && node.li_attr.search_terms && node.li_attr.search_terms.toLowerCase().indexOf(phrase) > -1));
-	};
-    var perform_search_single = function(parsed_query, node) {
-	    // in: a jstree node
-	    // text to search is node.text and node.li_attr.description and node.li_attr.search_terms
-	    // return true iff the query, considering quotation marks, 'and' and 'or' logic, matches
-	    var match = false;
-	    var hasPositiveClauseType = false;
-	    var forced = false;
-	    
-	    $.each(parsed_query, function(ind, clause) {
-		    if (clause.type !== 'not') {
-			    hasPositiveClauseType = true;
-			    return 0;
-		    }
-	    });
-	    if (!hasPositiveClauseType) {
-		    // if only negative clauses, match by default
-		    match = true;
-	    }
-	    $.each(parsed_query, function(ind, clause) {
-		    if (clause.type === 'not') {
-			    if (matchPhrase(clause.data, node)) {
-				    match = false;
-				    forced = true;
-				    return 0;
-			    }
-		    } else if (clause.type === 'and') {
-			    hasPositiveClauseType = true;
-			    var clauseMatch = true;
-			    $.each(clause.data, function(ind2, phrase) {
-				    clauseMatch = clauseMatch && matchPhrase(phrase, node);
-			    });
-			    match = match || clauseMatch;
-		    }
-	    });
-	    return {result:match, forced:forced};
-    };
-    var perform_search = function(query) {
-	    // IN: query, a string
-	    // void method
-	    // when this ends, the object precomputed_search has been updated
-	    //	so that results[node.id] = true iff the query directly matches it
-	    var parsed_query = parse_search_query(query);
-	    $.each($('#jstree').jstree(true)._model.data, function(key, node) {
-		    precomputed_search.results[node.id] = perform_search_single(parsed_query, node);
-	    });
-	    precomputed_search.query = query;
-    };
-    var jstree_search = function(query, node) {
-	    if (query === "") {
-		    return true;
-	    }
-	    if (precomputed_search.query !== query) {
-		    perform_search(query);
-	    }
-	    if (!precomputed_search.results[node.id].result && precomputed_search.results[node.id].forced) {
-		    return false;
-	    }
-	    var nodes_to_consider = [node.id].concat(node.parents.slice());
-	    var ret = false;
-	    $.each(nodes_to_consider, function(ind, elt) {
-		    if (elt === jstree_root_id || elt === '#') {
-			    return 0;
-		    }
-		    if (!precomputed_search.results[elt].result && precomputed_search.results[elt].forced) {
-			    ret = false;
-			    return 0;
-		    }
-		    ret = ret || precomputed_search.results[elt].result;
-	    });
-	    return ret;
-    };
-	var initialize_jstree = function (data) {
-		console.log("Initializing jstree");
-		$("#jstree").jstree({
-			"themes": {
-				"theme": "default",
-				"dots": false,
-				"icons": false,
-				"url": "../../css/jstree.style.css"
-			},
-			"plugins": ['checkbox','search'],
-			"search": {'show_only_matches': true,
-				'search_callback': jstree_search,
-				'search_leaves_only': true},
-			"checkbox": {},
-			'core': {'data': data, 'check_callback': true, 'dblclick_toggle': false, 'multiple': (window.tab_index !== "tab_download")}
-		});
-		$('#jstree').on('ready.jstree', function () {
-			$('#jstree').jstree(true).num_leaves = $('#jstree').jstree(true).get_leaves().length;
-			$('#jstree').jstree(true).get_matching_nodes = function (phrase) {
-				var ret = [];
-				$.each($('#jstree').jstree(true)._model.data, function (key, node) {
-					if (matchPhrase(phrase, node)) {
-						ret.push(key);
-					}
-				});
-				return ret;
-			};
-			
-			$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
-			$('#jstree').jstree(true).open_all();
-		});
-		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
-		$('#jstree').jstree(true).hide_icons();
-	}	
-initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstree_data);
-	var jstree_is_flat = false;
-	var $jstree_flatten_btn = (function() {
-		if (window.tab_index === "tab_download") {
-			return false;
-		}
-		var ret = $('<i class="fa fa-lg fa-code-fork jstree-external-node-decorator" style="display:none; cursor:pointer; padding-left:0.6em"></i>');
-		ret.mouseenter(function () {
-			ret.fadeTo('fast', 0.7);
-		});
-		ret.mouseleave(function () {
-			ret.fadeTo('fast', 1);
-		});
-		ret.click(function () {
-			var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-			$('#jstree').jstree(true).destroy();
-			jstree_is_flat = !jstree_is_flat;
-			initialize_jstree((jstree_is_flat ? flat_jstree_data : jstree_data));
-			$('#jstree').on('ready.jstree', function () {
-				$('#jstree').jstree(true).select_node(selected_studies);
-				if ($("#jstree_search_input").val() !== "") {
-					precomputed_search.query = false; // force re-search
-					do_jstree_search();
-				}
-			});
-		});
-		ret.qtip({
-			content: {text: (jstree_is_flat ? "Unflatten tree" : "Flatten tree")},
-			style: {classes: 'qtip-light qtip-rounded'},
-			position: {my: 'bottom center', at: 'top center', viewport: $(window)},
-			show: {delay: 600},
-			hide: {delay: 10, fixed: true},
-		});
-		return ret;
-	});
-	
-	var do_jstree_search = function() {
-		$("#jstree").jstree(true).search($("#jstree_search_input").val());
-		$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
-	}
-	var jstree_search_timeout = null;
-	$("#jstree_search_input").on('input', function () {
-		if (jstree_search_timeout) {
-			clearTimeout(jstree_search_timeout);
-		}
-		jstree_search_timeout = setTimeout(function () {
-			if ($("#jstree_search_input").val() === "") {
-                                $("#step_header_first_line_empty_search").css("display", "none");
-				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All";
-			} else {
-                                $("#step_header_first_line_empty_search").css("display", "block");
-				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All Search Results";
-			}
-			$("#jstree").fadeTo(100, 0.5, function () {
-				$('#jstree_search_none_found_msg').hide();
-				do_jstree_search();
-				if ($('#jstree_search_input').val() !== "" && $('#jstree').jstree(true)._data.search.res.length === 0) {
-					$('#jstree_search_none_found_msg').show();
-				}
-				$("#jstree").fadeTo(100, 1);
-			});
-		}, 400); // wait for a bit with no typing before searching
-	});
-        $('#step_header_first_line_empty_search').click(function() { 
-            $("#jstree_search_input").val("");
-            $("#step_header_first_line_empty_search").css("display", "none");
-            $("#jstree").fadeTo(100, 0.5, function () {
-                do_jstree_search();
-                $("#jstree").fadeTo(100, 1);
-            });
-        });
-	var saveSelectedStudiesLocalStorage = function() {
-		if (!supportsHTML5Storage()) {
-			return false;
-		}
-		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-		// selectedStudiesStorageKey
-		window.localStorage.setItem(selectedStudiesStorageKey, selected_studies.join(","));
-		//$.removeCookie(selectedStudiesCookieName);
-		//$.cookie(selectedStudiesCookieName, selected_studies.join(","), {expires:10});
-		return true;
-	};
-	var getSelectedStudiesLocalStorage = function() {
-		if (!supportsHTML5Storage()) {
-			return false;
-		}
-		return window.localStorage.getItem(selectedStudiesStorageKey);
-	}
-	var onJSTreeChange = function () {
-		$(".error_box").remove();
-		var select_single_study = $("#main_form").find("#select_single_study");
-		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
-		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-		var selected_ct = selected_studies.length;
-		$('#jstree_selected_study_count').html((selected_ct === 0 ? "No" : (selected_ct === $('#jstree').jstree(true).num_leaves ? "All" : selected_ct)) + " stud" + (selected_ct === 1 ? "y" : "ies") + " selected.");
-		$('#jstree_deselect_all_btn')[selected_ct > 0 ? 'show' : 'hide']();
-		var old_select_single_study_val = select_single_study.val();
-		if (selected_studies.length === 1) {
-			select_single_study.val(selected_studies[0]);
-		} else {
-			select_single_study.val("all");
-		}
-		select_multiple_studies.val(selected_studies.join(","));
-		if (select_single_study.val() !== old_select_single_study_val) {
-			select_single_study.trigger('change');
-		}
-		select_multiple_studies.trigger('change');
-	};
-	
-
-    //  Add Gene Sets to Pull-down Menu
-    jQuery.each(json.gene_sets,function(key,gene_set){
-        $("#select_gene_set").append("<option value='" + key + "'>"
-                + gene_set.name + "</option>");
-    });  //  end for each gene set loop
-
-    // Set the placeholder for the autocomplete select box
-    $("#example_gene_set").children("span:first").children("input:first")
-        .attr("placeholder", $("#select_gene_set").children("option:first").text());
-
-    //  Set things up, based on currently selected cancer type
-    // hacky; order of preference
-    var selected_study_map = {};
-    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
-	var windowParams = window.location.search.substring(1).split("&");
-	$.each(windowParams, function(ind, elt) {
-		var pair = elt.split("=");
-		if (pair[0] === window.cancer_study_list_param) {
-			window.cancer_study_list_selected = pair[1];
-			return 0;
-		}
-	});
-    }
-    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
-	    var split_url_on_hash = window.location.href.split('#');
-	    if (split_url_on_hash.length > 1) {
-		window.cancer_study_list_selected = split_url_on_hash[1].split("/")[4];
-		}
-    }
-    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
-	var windowParams = window.location.search.substring(1).split("&");
-	$.each(windowParams, function(ind, elt) {
-		var pair = elt.split("=");
-		if (pair[0] === 'cancer_study_id') {
-			window.cancer_study_list_selected = pair[1];
-			return 0;
-		}
-	});
-    }
-	    
-    //var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || ( getSelectedStudiesLocalStorage() || '')).split(",");
-    var selected_study_list = (window.tab_index !== "tab_download" ? decodeURIComponent(window.cancer_study_list_selected || '').split(",") : []);
-	    $.each(selected_study_list, function(ind, elt) {
-		    if (elt !== '') {
-			selected_study_map[elt] = false;
-		}
-	    });
-    if (window.cancer_study_id_selected !== 'all') {
-	    selected_study_map[window.cancer_study_id_selected] = false;
-    }
-    jQuery.each(json.cancer_studies,function(key,cancer_study){
-        // Set Selected Cancer Type, Based on User Parameter
-        if (selected_study_map.hasOwnProperty(key)) {
-		selected_study_map[key] = true;
-	}
-    });
-	$("#jstree").on('ready.jstree', function() {
-		// Chosenize the select boxes
-		var minSearchableItems = 10;
-		$("#select_gene_set").chosen({ width: '620px', search_contains: true});
-		$("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
-		// add a title to the text input fields generated by Chosen for
-		// Section 508 accessibility compliance
-		$("div.chzn-search > input:first-child").attr("title", "Search");
-		$.each(selected_study_map, function(key, val) {
-			if (val) {
-				$("#jstree").jstree(true).select_node(key, true);
-			}
-		});
-			//   Set things up, based on currently selected case set id
-		$('#select_single_study').one('doneChanging', function() {
-			if (window.case_set_id_selected != null && window.case_set_id_selected != "") {
-				$("#select_case_set").val(window.case_set_id_selected);
-				$("#select_case_set").trigger('liszt:updated');
-				caseSetSelectionOverriddenByUser = true;
-			}
-			caseSetSelected();
-			if (window.case_ids_selected !== '') {
-				$('#custom_case_set_ids').val(window.case_ids_selected);
-			}
-
-			//  Set things up, based on currently selected gene set id
-			if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
-				$("#select_gene_set").val(window.gene_set_id_selected);
-			} else {
-				$("#select_gene_set").val("user-defined-list");
-			}
-			$("#select_gene_set").trigger('liszt:updated');
-			//  Set things up, based on all currently selected genomic profiles
-
-			//  To do so, we iterate through all input elements with the name = 'genetic_profile_ids*'
-			$("input[name^=genetic_profile_ids]").each(function (index) {
-				//  val() is the value that or stable ID of the genetic profile ID
-				var currentValue = $(this).val();
-
-				//  if the user has this stable ID already selected, mark it as checked
-				if (window.genomic_profile_id_selected[currentValue] == 1) {
-					console.log("Checking " + $(this).attr('id') + "... (inside addMetaDataToPage())");
-					$(this).prop('checked', true);
-					//  Select the surrounding checkbox
-					genomicProfileRadioButtonSelected($(this));
-				}
-			});  //  end for each genomic profile option
-
-
-			// HACK TO DEAL WITH ASYNCHRONOUS STUFF
-			window.metaDataAdded = true;
-			// determine whether any selections have already been made
-			// to make sure all of the fields are shown/hidden as appropriate
-			console.log("addMetaDataToPage ( reviewCurrentSelections() )");
-			reviewCurrentSelections();
-		});
-		onJSTreeChange();
-	});
 }
 
 // Adds the specified genomic profiles to the page.
@@ -1561,3 +1343,122 @@ function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, n
     return html;
 }
 
+// Get sample <-> patient mapping
+function getMapping() {
+    function setPatientSampleIdMap(_sampleMap) {
+        var samples_string = "";
+        for (var i=0,_len=_sampleMap.length; i<_len; i++)
+        {
+            var d = _sampleMap[i];
+            samples_string += d.id + "\n";
+        };
+        return samples_string;
+    }
+
+    function getMap() {
+        var def = new $.Deferred();
+        // Get input selection
+        var caseIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
+        // Get study selection
+        var studyId = $("#select_single_study").val();
+        if (caseIds[0] !== "")
+        {
+            window.cbioportal_client.getSamplesByPatient({study_id: [studyId],patient_ids: caseIds}).then(function(sampleMap){
+                $("#custom_case_set_ids").val(setPatientSampleIdMap(sampleMap));
+                def.resolve();
+            });
+        }
+        else {
+            def.resolve();
+        }
+
+        return def;
+    }
+    if ($("#main_form").find("input[name=patient_case_select]:checked").val() === "patient") {
+        return getMap();
+    } else {
+        var def = new $.Deferred();
+        def.resolve();
+        return def.promise();
+    }
+}
+
+function supportsHTML5Storage() {
+    // from diveintohtml5.info/storage.html
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+        return false;
+    }
+}
+
+//  Triggered when the User Selects one of the Main Query or Download Tabs
+function userClickedMainTab(tabAction) {
+
+    window.changingTabs = true;
+    //  Change hidden field value
+    $("#tab_index").val(tabAction);
+    //$("#main_form").get(0).elements["Action"].setAttribute("value","");
+
+    //  Then, submit the form
+    $("#main_form").submit();
+}
+
+//  Print message and disable submit if use choosed a cancer type
+//  for which no genomic profiles are available
+function genomicProfilesUnavailable(){
+    $("#genomic_profiles").html("<strong>No Genomic Profiles available for this Cancer Study</strong>");
+    cbio.util.toggleMainBtn("main_submit", "disable");
+}
+
+// toggle:
+//      gistic button
+//      mutsig button
+// according to the cancer_study
+function toggleByCancerStudy(cancer_study) {
+
+    var mutsig = $('#toggle_mutsig_dialog');
+    var gistic = $('#toggle_gistic_dialog_button');
+
+    if (typeof cancer_study === 'undefined') {
+        mutsig.hide();
+        gistic.hide();
+    } else {
+        if (cancer_study.has_mutsig_data) {
+            mutsig.show();
+        } else {
+            mutsig.hide();
+        }
+        if (cancer_study.has_gistic_data) {
+            gistic.show();
+        } else {
+            gistic.hide();
+        }        
+    }
+
+}
+
+// Show or hide mRNA threshold field based on mRNA profile selected
+function toggleThresholdPanel(profileClicked, profile, threshold_div) {
+    var selectedProfile = profileClicked.val();
+    var inputType = profileClicked.attr('type');
+
+    // when a radio button is clicked, show threshold input unless user chooses expression outliers
+    if(inputType == 'radio'){
+        if(selectedProfile.indexOf("outlier")==-1){
+            $(threshold_div).slideDown();
+        } else {
+            $(threshold_div).slideUp();
+        }
+    } else if(inputType == 'checkbox'){
+
+        // if there are NO subgroups, show threshold input when mRNA checkbox is selected.
+        if (profileClicked.prop('checked')){
+            $(threshold_div).slideDown();
+        }
+        // if checkbox is unselected, hide threshold input regardless of whether there are subgroups
+        else {
+            $(threshold_div).slideUp();
+        }
+    }
+}

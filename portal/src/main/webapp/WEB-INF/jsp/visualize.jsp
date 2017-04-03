@@ -164,7 +164,6 @@
             }
             
             if(isVirtualStudy){
-            	showMutTab = true;
             	showCoexpTab = false;
             	showIGVtab = false;
             	showEnrichmentsTab = false;
@@ -175,16 +174,8 @@
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values
-            Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
-            if(cancerTypesMap.keySet().size() > 1) {
-            	showCancerTypesSummary = true;
-            }
-            else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
-            	showCancerTypesSummary = true;
-            }
-            if (disabledTabs.contains("cancer_types_summary")) {
-                showCancerTypesSummary = false;
-            }
+            showCancerTypesSummary = (Boolean) request.getAttribute(QueryBuilder.HAS_CANCER_TYPES);
+            
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
             // if showCancerTypesSummary is try, add the list item
             if(showCancerTypesSummary){
@@ -257,8 +248,8 @@
 
         <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
         <% if(showCancerTypesSummary) { %>
-        <%@ include file="pancancer_study_summary.jsp" %>
-        <%}%>
+		<%@ include file="pancancer_study_summary.jsp"%>
+		<%}%>
  <% if(showPlotsTab) { %>
         <%@ include file="plots_tab.jsp" %>
 <%}%>

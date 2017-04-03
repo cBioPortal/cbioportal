@@ -626,8 +626,8 @@ public final class DaoClinicalData {
     }
 
     // get cancerType from the clinical_sample table to determine whether we have multiple cancer types
-    // in one study
-    public static Map<String, List<String>> getCancerTypeInfo(int studyID) throws DaoException {
+    // for given samples
+    public static Map<String, Set<String>> getCancerTypeInfoBySamples(List<String> samplesList) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -635,40 +635,22 @@ public final class DaoClinicalData {
         try{
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
             pstmt = con.prepareStatement("select " +
-                    "distinct attr_value as attributeValue, " +
-                    "attr_id as attributeID " +
-                    "from clinical_sample " +
-                    "where attr_id in (?, ?) " +
-                    "and INTERNAL_ID in ( " +
-                    "   select INTERNAL_ID " +
-                    "   from sample " +
-                    "   where PATIENT_ID in ( " +
-                    "       select INTERNAL_ID " +
-                    "       from patient " +
-                    "       where CANCER_STUDY_ID = ? " +
-                    "       )" +
-                    "   )");
+                    "distinct ATTR_VALUE as attributeValue, " +
+                    "ATTR_ID as attributeID from clinical_sample " +
+                    "where ATTR_ID in (?, ?) and INTERNAL_ID in (" +
+                    "select INTERNAL_ID from sample where STABLE_ID in ('"
+                    + StringUtils.join(samplesList,"','")+"'))");
             pstmt.setString(1, ClinicalAttribute.CANCER_TYPE);
             pstmt.setString(2, ClinicalAttribute.CANCER_TYPE_DETAILED);
-            pstmt.setInt(3, studyID);
             rs = pstmt.executeQuery();
 
             // create a map for the results
-            Map<String, List<String>> result = new LinkedHashMap<String, List<String>>();
-            String attributeValue, attributeID;
-            List<String> attributeValues;
+            Map<String, Set<String>> result = new LinkedHashMap<String, Set<String>>();
+            result.put( ClinicalAttribute.CANCER_TYPE, new HashSet<String>());
+            result.put( ClinicalAttribute.CANCER_TYPE_DETAILED, new HashSet<String>());
             while (rs.next())
             {
-                attributeValue = rs.getString("attributeValue");
-                attributeID = rs.getString("attributeID");
-                attributeValues = result.get(attributeID);
-                // if no attributeValues exists for the attributeID, add a new list
-                if(attributeValues==null){
-                    attributeValues = new ArrayList<String>();
-                    result.put(attributeID, attributeValues);
-                }
-                // add the attributeValue to the list
-                attributeValues.add(attributeValue);
+            	result.get(rs.getString("attributeID")).add(rs.getString("attributeValue"));
             }
 
             return result;

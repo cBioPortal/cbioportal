@@ -5,21 +5,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
 import org.mskcc.cbio.portal.scripts.ImportCancerStudy;
 import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 import org.mskcc.cbio.portal.scripts.ImportSampleList;
 import org.mskcc.cbio.portal.scripts.ImportProfileData;
 import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.GetSampleLists;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -137,13 +142,18 @@ public class TestPanCancerStudySummaryImport {
 
     public void runChecksForGetCancerTypeInfo() throws Exception{
         String studyName="multi_cancer_study";
-        int studyID = DaoCancerStudy.getCancerStudyByStableId(studyName).getInternalId();
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyName);
+        List<Sample> samples = DaoSample.getSamplesByCancerStudy(study.getInternalId());
+        List<String> sampleList = new ArrayList<>();
+        for(Sample sample:samples){
+        	sampleList.add(sample.getStableId());
+        }
 
         // retrieve the cancerTypeInfoMap for the study
         // this should contain:
         // 'CANCER_TYPE' - 'cns', 'cervix'
         // 'CANCER_TYPE_DETAILED' - 'byst', 'bimt', 'cead', 'cene', 'cacc'
-        Map<String, List<String>> cancerTypeInfoMap = DaoClinicalData.getCancerTypeInfo(studyID);
+        Map<String, Set<String>> cancerTypeInfoMap = DaoClinicalData.getCancerTypeInfoBySamples(sampleList);
         assertEquals(cancerTypeInfoMap.keySet().size(), 2);
         assertEquals(cancerTypeInfoMap.containsKey(ClinicalAttribute.CANCER_TYPE), true);
         assertEquals(cancerTypeInfoMap.containsKey(ClinicalAttribute.CANCER_TYPE_DETAILED), true);

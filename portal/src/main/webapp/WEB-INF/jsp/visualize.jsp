@@ -189,7 +189,9 @@
             }
             if (showPlotsTab) {
                 out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
-            }            
+            } else {
+                out.println ("<li><a href='#cc-plots' class='result-tab' id='cc-plots-result-tab'>Expression</a></li>");
+            }           
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
@@ -250,9 +252,13 @@
         <% if(showCancerTypesSummary) { %>
 		<%@ include file="pancancer_study_summary.jsp"%>
 		<%}%>
- <% if(showPlotsTab) { %>
-        <%@ include file="plots_tab.jsp" %>
-<%}%>
+        
+        <% if(showPlotsTab) { %>
+            <%@ include file="plots_tab.jsp" %>
+        <% } else { %>
+            <%@ include file="cross_cancer_plots_tab.jsp" %>
+        <% }%>
+        
         <% if (showIGVtab) { %>
             <%@ include file="igv.jsp" %>
         <% } %>

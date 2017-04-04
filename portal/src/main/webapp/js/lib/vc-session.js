@@ -378,7 +378,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       clickSave: function(_virtualStudy) {
         this.edit = false;
         if (_virtualStudy.studyName === '') {
-          _virtualStudy.studyName = 'My virtual study';
+            _virtualStudy.studyName = "Custom Cohort (" + new Date().toISOString().replace(/T/, ' ') + ")";
         }
         if (_.isObject(vcSession)) {
           vcSession.events.editVirtualCohort(_virtualStudy);

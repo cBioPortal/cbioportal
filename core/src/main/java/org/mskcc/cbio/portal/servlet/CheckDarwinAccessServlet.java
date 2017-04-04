@@ -86,11 +86,11 @@ public class CheckDarwinAccessServlet extends HttpServlet {
             if (!existsDarwinProperties()) return "";
             // if sample id does not match regex or username matches cis username then return empty string
             String userName = GlobalProperties.getAuthenticatedUserName().split("@")[0];
-            String darwinResponse = "";            
+            String darwinResponse = "";
             try {
-                List<String> sampleIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);
-                if (sampleIdRegex.matcher(sampleIds.get(0)).find() && !cisUser.equals(userName)) {
-                    String patientId = (String)request.getAttribute(PatientView.PATIENT_ID);
+                String[] sampleIds = request.getParameter(PatientView.SAMPLE_ID).split(",");
+                if (sampleIdRegex.matcher(sampleIds[0]).find() && !cisUser.equals(userName)) {
+                    String patientId = request.getParameter(PatientView.PATIENT_ID);
                     darwinResponse = getResponse(userName, patientId);
                 }
             }
@@ -116,7 +116,7 @@ public class CheckDarwinAccessServlet extends HttpServlet {
             return new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
         }
         
-        private static boolean existsDarwinProperties() {
+        public static boolean existsDarwinProperties() {
             return (!darwinAuthUrl.isEmpty() && !darwinResponseUrl.isEmpty() && !cisUser.isEmpty() && !GlobalProperties.getDarwinRegex().isEmpty());
         }
     }   
@@ -267,28 +267,6 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         helpFormatter.printHelp("CheckDarwinAccess", gnuOptions);
         System.exit(exitStatus);
     }    
-
-   // public static void main(String[] args) throws Exception {
-   //     Options gnuOptions = CheckDarwinAccessMain.getOptions(args);
-   //     CommandLineParser parser = new DefaultParser();
-   //     CommandLine commandLine = parser.parse(gnuOptions, args);
-   //     if (commandLine.hasOption("h") ||
-   //         !commandLine.hasOption("user_name") ||
-   //         !commandLine.hasOption("patient_id") || 
-   //         !commandLine.hasOption("sample_id")) {
-   //         help(gnuOptions, 0);
-   //     }
-   //     if (!CheckDarwinAccess.sampleIdRegex.matcher(commandLine.getOptionValue("sample_id")).find()) {
-   //         System.out.println("Sample ID doesn't match pattern");
-   //     }
-   //     else {
-   //         System.out.println("Sample ID valid - checking if user has access");
-   //         String darwinAccessUrl = CheckDarwinAccess.getResponse( 
-   //             commandLine.getOptionValue("user_name").split("@")[0],
-   //             commandLine.getOptionValue("patient_id"));
-   //         System.out.println(!darwinAccessUrl.isEmpty()?darwinAccessUrl:"Invalid request!");
-   //     }
-   // }
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

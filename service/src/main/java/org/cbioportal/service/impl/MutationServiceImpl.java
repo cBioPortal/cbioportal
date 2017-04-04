@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.meta.MutationMeta;
@@ -23,12 +24,13 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<Mutation> getMutationsInGeneticProfile(String geneticProfileId, String sampleId, String projection, 
-                                                       Integer pageSize, Integer pageNumber, String sortBy, 
-                                                       String direction) {
+    public List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
+                                                                     String projection, Integer pageSize, 
+                                                                     Integer pageNumber, String sortBy, 
+                                                                     String direction) {
 
-        List<Mutation> mutationList = mutationRepository.getMutationsInGeneticProfile(geneticProfileId, sampleId, 
-            projection, pageSize, pageNumber, sortBy, direction);
+        List<Mutation> mutationList = mutationRepository.getMutationsInGeneticProfileBySampleListId(geneticProfileId, 
+            sampleListId, projection, pageSize, pageNumber, sortBy, direction);
         
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;
@@ -36,9 +38,9 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public MutationMeta getMetaMutationsInGeneticProfile(String geneticProfileId, String sampleId) {
+    public MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId) {
         
-        return mutationRepository.getMetaMutationsInGeneticProfile(geneticProfileId, sampleId);
+        return mutationRepository.getMetaMutationsInGeneticProfileBySampleListId(geneticProfileId, sampleListId);
     }
 
     @Override
@@ -74,5 +76,20 @@ public class MutationServiceImpl implements MutationService {
     public List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords) {
         
         return mutationRepository.getSampleCountByKeywords(geneticProfileId, keywords);
+    }
+
+    @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId, 
+                                                                               String sampleListId) {
+        
+        return mutationRepository.getMutationCountsInGeneticProfileBySampleListId(geneticProfileId, sampleListId);
+    }
+
+    @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds) {
+
+        return mutationRepository.fetchMutationCountsInGeneticProfile(geneticProfileId, sampleIds);
     }
 }

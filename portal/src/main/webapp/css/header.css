@@ -17,10 +17,12 @@ header {
 
 .pageTopContainer {
     background:#f5f5f5;
+    padding-left:20px;
+    padding-right:20px;
 }
 
 .pageTopContainer, #reactRoot {
-    min-width:1270px;
+ 
 }
 
 #reactRoot {
@@ -44,7 +46,6 @@ header {
 
 #institute-logo {
     max-height: 35px;
-    padding: 4px 10px;
     float: right;
 }
 
@@ -87,27 +88,19 @@ header > div {
 }
 
 #main-nav {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0 0 10px 5px;
-}
-
-#main-nav ul {
-    margin: 0 15px 0 0;
-    padding: 0;
+    position:relative;
+    top:-14px;
 }
 
 #main-nav li {
     list-style-type: none;
     display: inline-block;
     font: normal normal 400 14px/18px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
-    padding: 5px 7px;
+    margin-left:15px;
 }
 
 #main-nav li a:link, #main-nav li a:visited {
     color: #777;
-    padding: 1px;
 }
 
 #main-nav li a:hover {
@@ -120,8 +113,7 @@ header > div {
 }
 
 .contentWidth {
-    width:1240px;
-    margin:0 auto;
+  
 }
 
 #footer {

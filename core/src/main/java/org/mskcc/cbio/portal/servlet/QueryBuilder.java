@@ -106,7 +106,7 @@ public class QueryBuilder extends HttpServlet {
 
     private static Log LOG = LogFactory.getLog(QueryBuilder.class);
 
-    public static final String CANCER_TYPES_MAP = "cancer_types_map"; 
+    public static final String HAS_CANCER_TYPES = "has_cancer_types"; 
 
     private ServletXssUtil servletXssUtil;
 
@@ -351,7 +351,7 @@ public class QueryBuilder extends HttpServlet {
         // user-specified patients, but patient_ids parameter is missing,
         // so try to retrieve sample_ids by using sample_ids_key parameter.
         // this is required for survival plot requests  
-        Map<String, List<String>> cancerTypeInfo = new HashMap<>();
+       
         Map<String, Set<String>> inputStudySampleMap = cohortDetails.getStudySampleMap();
 		for (String cancerStudyId : inputStudySampleMap.keySet()) {
 			CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
@@ -401,9 +401,6 @@ public class QueryBuilder extends HttpServlet {
 		            sampleIdsKey = SampleSetUtil.shortenSampleIds(sampleIds);
 		        }
 
-		        // retrieve information about the cancer types
-		       cancerTypeInfo = DaoClinicalData.getCancerTypeInfo(selectedCancerStudy.getInternalId());
-            
             // multiple studies OR single virtual study
             } else { 
 				if (dataTypePriority != null) {
@@ -461,8 +458,20 @@ public class QueryBuilder extends HttpServlet {
                     remoteCall.getRawContent());
                 downloadLinkSet.add(downloadLink);
         }
-        
-        request.setAttribute(CANCER_TYPES_MAP, cancerTypeInfo);
+        // retrieve information about the cancer types
+        List<String> samples = new ArrayList<>();
+        for (List<String> samplesList : studySampleMap.values()) {
+        	samples.addAll(samplesList);
+        }
+        Boolean showCancerTypesSummary = false;
+        Map<String, Set<String>> cancerTypesMap = DaoClinicalData.getCancerTypeInfoBySamples(samples);
+        if(cancerTypesMap.keySet().size() > 1) {
+        	showCancerTypesSummary = true;
+        }
+        else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
+        	showCancerTypesSummary = true;
+        }
+        request.setAttribute(HAS_CANCER_TYPES, showCancerTypesSummary);
 
         request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
         String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);

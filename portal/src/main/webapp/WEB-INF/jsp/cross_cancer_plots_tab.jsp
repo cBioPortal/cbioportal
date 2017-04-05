@@ -30,6 +30,9 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<script type="text/javascript" src="js/src/cc-plots/cross-cancer-plotly-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cc-plots/mutation-translator.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <style>
     #cc-plots-sidebar {
         /*height: 25px;*/
@@ -53,38 +56,67 @@
     }
 </style>
 
-<table>
-    <tr>
-        <div id="cc-plots-sidebar">
-            <h5>Gene</h5>
-            <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
-                <select disabled id="cc_plots_gene_list" style="width:80px" title="Select gene"></select>
-            </span>
-            <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" title="Sort by cancer study" checked/> Cancer Study
-            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="median" title="Sort by median"/> Median
-            <h5>Log Scale</h5>
-            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.update()" title="Log scale" checked/>
-            <h5>Show Mutations</h5>
-            <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.update()" title="Show mutations" checked/>
-            <h5>Download</h5>
-            <button class="btn btn-default btn-xs" type="button" id="cc_plots_pdf_download">PDF</button>
-            <button class="btn btn-default btn-xs" type="button" id="cc_plots_svg_download">SVG</button>
-            <button class="btn btn-default btn-xs" type="button" id="cc_plots_data_download">Data</button>
-            <button class="btn btn-default btn-sm disabled" type="button" data-target="#cc_plots_select_study_collapse" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
-                <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span> &nbsp;Select Studies
-            </button>
-            <div class="collapse" id="cc_plots_select_study_collapse">
-                <div class="well" id="cc_plots_select_study_box"></div>
+<div class="section" id="cc-plots">
+    <table>
+        <tr>
+            <div id="cc-plots-sidebar">
+                <h5>Gene</h5>
+                <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
+                    <select disabled id="cc_plots_gene_list" style="width:80px" title="Select gene"></select>
+                </span>
+                <h5>Sort By</h5>
+                <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" title="Sort by cancer study" checked/> Cancer Study
+                <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="median" title="Sort by median"/> Median
+                <h5>Log Scale</h5>
+                <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.update()" title="Log scale" checked/>
+                <h5>Show Mutations</h5>
+                <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.update()" title="Show mutations" checked/>
+                <h5>Download</h5>
+                <button class="btn btn-default btn-xs" type="button" id="cc_plots_pdf_download">PDF</button>
+                <button class="btn btn-default btn-xs" type="button" id="cc_plots_svg_download">SVG</button>
+                <button class="btn btn-default btn-xs" type="button" id="cc_plots_data_download">Data</button>
+                <button class="btn btn-default btn-sm disabled" type="button" data-target="#cc_plots_select_study_collapse" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
+                    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span> &nbsp;Select Studies
+                </button>
+                <div class="collapse" id="cc_plots_select_study_collapse">
+                    <div class="well" id="cc_plots_select_study_box"></div>
+                </div>
             </div>
-        </div>
-    </tr>
-    <tr>
-        <div id="cc_plots_box"><img style='padding:250px;' src='images/ajax-loader.gif' alt='loading'></div>
-    </tr>
-</table>
+        </tr>
+        <tr>
+            <div id="cc_plots_box"><img style='padding:250px;' src='images/ajax-loader.gif' alt='loading'></div>
+        </tr>
+    </table>
+</div>
 
-
+<script>
+    var cc_plots_tab_init = false;
+    if ($("#cc-plots").is(":visible")) {
+        _.each(window.QuerySession.getQueryGenes(), function (_gene) {
+            $("#cc_plots_gene_list").append(
+                "<option value='" + _gene + "'>" + _gene + "</option>");
+        });
+        ccPlots.init();
+        cc_plots_tab_init = true;
+    } else {
+        $(window).trigger("resize");
+    }
+    $("#tabs").bind("tabsactivate", function(event, ui) {
+        if (ui.newTab.text().trim().toLowerCase() === "expression") {
+            if (cc_plots_tab_init === false) {
+                _.each(window.QuerySession.getQueryGenes(), function (_gene) {
+                    $("#cc_plots_gene_list").append(
+                        "<option value='" + _gene + "'>" + _gene + "</option>");
+                });
+                ccPlots.init();
+                cc_plots_tab_init = true;
+                $(window).trigger("resize");
+            } else {
+                $(window).trigger("resize");
+            }
+        }
+    });
+</script>
 
 
 

@@ -384,8 +384,15 @@ public class QueryBuilder extends HttpServlet {
 				// if user specifies patients, add these to hashset, and send to
 				// GetMutationData
 				else if (sampleIds != null && sampleIds.length()>0) {
-					sampleIds = sampleIds.replaceAll("\\s+", " ");
-				}
+                    // TODO: temporary solution
+				    String[] _keys = sampleIds.split("\\+");
+                    List<String> _arr = new ArrayList<String>();
+                    for (String _key: _keys) {
+                        String[] _tmp = _key.split("\\|");
+                        _arr.add(_tmp[1]);
+                    }
+                    sampleIds = StringUtils.join(_arr, " ");
+                }
 				else {
 					redirectStudyUnavailable(request, response);
 				}

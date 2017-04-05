@@ -89,7 +89,7 @@
 <script type="text/javascript" src="js/src/mutation/data/Hotspots3dDataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/mutation/column/AnnotationColumn.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/cross-cancer-plotly-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
 <link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
@@ -444,41 +444,7 @@ if (sessionError != null) {  %>
 
 <script>
     $(document).ready(function() {
-        var _cc_plots_gene_list = "";
-        var tmp = setInterval(function () {timer();}, 1000);
-        function timer() {
-            if (window.ccQueriedGenes !== undefined) {
-                clearInterval(tmp);
-                var cc_plots_tab_init = false;
-                if ($("#cc-plots").is(":visible")) {
-                    _cc_plots_gene_list = _cc_plots_gene_list;
-                    _.each(window.ccQueriedGenes, function (_gene) {
-                        $("#cc_plots_gene_list").append(
-                            "<option value='" + _gene + "'>" + _gene + "</option>");
-                    });
-                    ccPlots.init();
-                    cc_plots_tab_init = true;
-                } else {
-                    $(window).trigger("resize");
-                }
-                $("#tabs").bind("tabsactivate", function(event, ui) {
-                    if (ui.newTab.text().trim().toLowerCase() === "expression") {
-                        if (cc_plots_tab_init === false) {
-                            _cc_plots_gene_list = _cc_plots_gene_list;
-                            _.each(window.ccQueriedGenes, function (_gene) {
-                                $("#cc_plots_gene_list").append(
-                                    "<option value='" + _gene + "'>" + _gene + "</option>");
-                            });
-                            ccPlots.init();
-                            cc_plots_tab_init = true;
-                            $(window).trigger("resize");
-                        } else {
-                            $(window).trigger("resize");
-                        }
-                    }
-                });
-            }
-        }
+
     });
 </script>
 

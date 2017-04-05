@@ -487,80 +487,78 @@ var ccPlots = (function (Plotly, _, $) {
 
     return {
         init: function() {
-            var tmp = setInterval(function () {timer();}, 1000);
-            function timer() {
-                if (window.studies !== undefined) {
-                    
-                    clearInterval(tmp);
-                    
-                    document.getElementById("cc_plots_gene_list").disabled = false;
-                    
-                    // default settings
-                    gene = [];
-                    gene.length = 0;
-                    gene.push($("#cc_plots_gene_list").val());
-                    apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
-                    show_mutations = document.getElementById("cc_plots_show_mutations").checked;
-                    study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
 
-                    // init download buttons
-                    $("#cc_plots_svg_download").click(function() {
-                        var xmlSerializer = new XMLSerializer();
-                        var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
-                        main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
-                        var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
-                        legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
-                        cbio.download.clientSideDownload([main_plots_str + legend_str], "cross-cancer-plots-download.svg", "application/svg+xml");
-                    });
-                    $("#cc_plots_pdf_download").click(function() {
-                        var xmlSerializer = new XMLSerializer();
-                        var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
-                        main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
-                        var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
-                        legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
-                        var final_pdf_str = main_plots_str + legend_str;
+            $.when( window.QuerySession.getStudySampleMap()).then(function(_result) { 
+                
+                var _studySampleMap = _result;
+                document.getElementById("cc_plots_gene_list").disabled = false;
 
-                        final_pdf_str = final_pdf_str.replace(/"/g, "'");
-                        final_pdf_str = final_pdf_str.replace("xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'", "");
-                        final_pdf_str = final_pdf_str.replace(/text-anchor='end'/g, "");
-                        final_pdf_str = final_pdf_str.replace(/text-anchor='start'/g, "");
-                        final_pdf_str = final_pdf_str.replace(/text-anchor='middle'/g, "");
-                        final_pdf_str = final_pdf_str.replace(/text-anchor: start;/g, "");
-                        final_pdf_str = final_pdf_str.replace(/font-family: 'Open Sans',/g, "");
-                        final_pdf_str = final_pdf_str.replace(/fill: transparent;/g, "fill-opacity: 0;");
-                        final_pdf_str = final_pdf_str.replace(/'/g, "\"");
+                // default settings
+                gene = [];
+                gene.length = 0;
+                gene.push($("#cc_plots_gene_list").val());
+                apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
+                show_mutations = document.getElementById("cc_plots_show_mutations").checked;
+                study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
 
-                        var downloadOptions = {
-                            filename: "cross-cancer-plots.pdf",
-                            contentType: "application/pdf",
-                            servletName: "svgtopdf.do"
-                        };
-                        cbio.download.initDownload(final_pdf_str, downloadOptions);
+                // init download buttons
+                $("#cc_plots_svg_download").click(function() {
+                    var xmlSerializer = new XMLSerializer();
+                    var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
+                    main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
+                    var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
+                    legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
+                    cbio.download.clientSideDownload([main_plots_str + legend_str], "cross-cancer-plots-download.svg", "application/svg+xml");
+                });
+                $("#cc_plots_pdf_download").click(function() {
+                    var xmlSerializer = new XMLSerializer();
+                    var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
+                    main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
+                    var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
+                    legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
+                    var final_pdf_str = main_plots_str + legend_str;
 
-                    });
-                    $("#cc_plots_data_download").click(function() {
-                        var get_tab_delimited_data = function() {
-                            var result_str = "Sample Id" + "\t" + "Cancer Study" + "\t" + "Profile Name" + "\t" + "Gene" + "\t" + "Mutation" + "\t" + "Value" + "\n";
-                            _.each(formatted_data, function(_obj) {
-                                if ( _obj.sequenced) {
-                                    if (_obj.mutation_type === "non" ) {
-                                        result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Mutated" + "\t" + _obj.profile_data + "\n";
-                                    } else {
-                                        result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + _obj.mutation_details + "\t" + _obj.profile_data + "\n";
-                                    }
+                    final_pdf_str = final_pdf_str.replace(/"/g, "'");
+                    final_pdf_str = final_pdf_str.replace("xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'", "");
+                    final_pdf_str = final_pdf_str.replace(/text-anchor='end'/g, "");
+                    final_pdf_str = final_pdf_str.replace(/text-anchor='start'/g, "");
+                    final_pdf_str = final_pdf_str.replace(/text-anchor='middle'/g, "");
+                    final_pdf_str = final_pdf_str.replace(/text-anchor: start;/g, "");
+                    final_pdf_str = final_pdf_str.replace(/font-family: 'Open Sans',/g, "");
+                    final_pdf_str = final_pdf_str.replace(/fill: transparent;/g, "fill-opacity: 0;");
+                    final_pdf_str = final_pdf_str.replace(/'/g, "\"");
+
+                    var downloadOptions = {
+                        filename: "cross-cancer-plots.pdf",
+                        contentType: "application/pdf",
+                        servletName: "svgtopdf.do"
+                    };
+                    cbio.download.initDownload(final_pdf_str, downloadOptions);
+
+                });
+                $("#cc_plots_data_download").click(function() {
+                    var get_tab_delimited_data = function() {
+                        var result_str = "Sample Id" + "\t" + "Cancer Study" + "\t" + "Profile Name" + "\t" + "Gene" + "\t" + "Mutation" + "\t" + "Value" + "\n";
+                        _.each(formatted_data, function(_obj) {
+                            if ( _obj.sequenced) {
+                                if (_obj.mutation_type === "non" ) {
+                                    result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Mutated" + "\t" + _obj.profile_data + "\n";
                                 } else {
-                                    result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Sequenced" + "\t" + _obj.profile_data + "\n";
+                                    result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + _obj.mutation_details + "\t" + _obj.profile_data + "\n";
                                 }
-                            });
-                            return result_str;
-                        };
-                        cbio.download.clientSideDownload([get_tab_delimited_data()], "plots-data.txt");
-                    });
-                    
-                    // fetch data and init view
-                    fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
-                }
-            }
+                            } else {
+                                result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Sequenced" + "\t" + _obj.profile_data + "\n";
+                            }
+                        });
+                        return result_str;
+                    };
+                    cbio.download.clientSideDownload([get_tab_delimited_data()], "plots-data.txt");
+                });
+
+                // fetch data and init view
+                fetch_profile_data(Object.keys(_studySampleMap));
+            });
+            
         },
         update: function() {
             
@@ -586,222 +584,7 @@ var ccPlots = (function (Plotly, _, $) {
 
 }(window.Plotly, window._, window.jQuery));
 
-var mutationStyle = (function() {  //Key and "typeName" are always identical
-    var styleSheet = [
-        {
-            typeName : "Frameshift",
-            symbol : "triangle-down",
-            fill : "#1C1C1C",
-            stroke : "#B40404",
-            legendText : "Frameshift"
-        },
-        {
-            typeName: "Nonsense",
-            symbol : "diamond",
-            fill : "#1C1C1C",
-            stroke : "#B40404",
-            legendText : "Nonsense"
-        },
-        {
-            typeName : "Splice",
-            symbol : "triangle-up",
-            fill : "#A4A4A4",
-            stroke : "#B40404",
-            legendText : "Splice"
-        },
-        {
-            typeName : "In_frame",
-            symbol : "square",
-            fill : "#DF7401",
-            stroke : "#B40404",
-            legendText : "In_frame"
-        },
-        {
-            typeName : "Nonstart",
-            symbol : "cross",
-            fill : "#DF7401",
-            stroke : "#B40404",
-            legendText : "Nonstart"
-        },
-        {
-            typeName : "Nonstop",
-            symbol : "triangle-up",
-            fill : "#1C1C1C",
-            stroke : "#B40404",
-            legendText : "Nonstop"
-        },
-        {
-            typeName : "Missense",
-            symbol : "circle",
-            fill : "#DF7401",
-            stroke : "#B40404",
-            legendText : "Missense"
-        },
-        {
-            typeName: "Other",
-            symbol: "square",
-            fill : "#1C1C1C",
-            stroke : "#B40404",
-            legendText : "Other"
-        },
-        {
-            typeName : "non",
-            symbol : "circle",
-            fill : "#00AAF8",
-            stroke : "#0089C6",
-            legendText : "Not mutated"
-        },
-        {
-            typeName: "one_mut",
-            symbol : "circle",
-            fill : "#DBA901",
-            stroke : "#886A08",
-            legendText : "One Gene mutated"
-        },
-        {
-            typeName : "both_mut",
-            symbol : "circle",
-            fill : "#FF0000",
-            stroke : "#B40404",
-            legendText : "Both mutated"
-        },
-        {
-            typeName : "non_mut",
-            symbol : "circle",
-            fill : "#00AAF8",
-            stroke : "#0089C6",
-            legendText : "Neither mutated"
-        },
-        {
-            typeName: "non_sequenced",
-            symbol : "circle",
-            fill : "white",
-            stroke : "gray",
-            legendText : "Not sequenced"
-        }
 
-    ];
 
-    return {
-        getSymbol: function(_typeName) {
-            var _result = "";
-            $.each(styleSheet, function(index, obj) {
-                if (obj.typeName === _typeName) {
-                    _result = obj.symbol;
-                }
-            });
-            return _result;
-        },
-        getFill: function(_typeName) {
-            var _result = "";
-            $.each(styleSheet, function(index, obj) {
-                if (obj.typeName === _typeName) {
-                    _result = obj.fill;
-                }
-            });
-            return _result;
-        },
-        getStroke: function(_typeName) {
-            var _result = "";
-            $.each(styleSheet, function(index, obj) {
-                if (obj.typeName === _typeName) {
-                    _result = obj.stroke;
-                }
-            });
-            return _result;
-        },
-        getText: function(_typeName) {
-            var _result = "";
-            $.each(styleSheet, function(index, obj) {
-                if (obj.typeName === _typeName) {
-                    _result = obj.legendText;
-                }
-            });
-            return _result;
-        },
-        getGlyph: function(_typeName) { //retrieve the whole object
-            var _result = {};
-            $.each(styleSheet, function(index, obj) {
-                if (obj.typeName === _typeName) {
-                    _result = obj;
-                }
-            });
-            return _result;
-        }
-    };
 
-}());
-
-var mutationTranslator = function(mutationDetail) {
-
-    vocabulary = {
-        frameshift : {
-            type : "Frameshift",
-            vals: [
-                "Frame_Shift_Del",
-                "Frame_Shift_Ins",
-                "frameshift insertion",
-                "frameshift",
-                "frameshift_insertion",
-                "Frameshift deletion",
-                "FRAMESHIFT_CODING"
-            ]
-        },
-        nonsense : {
-            type : "Nonsense",
-            vals: ["Nonsense_Mutation", "Nonsense"]
-        },
-        splice : {
-            type : "Splice",
-            vals : [
-                "Splice_Site",
-                "Splice_Site_SNP",
-                "splicing",
-                "splice",
-                "ESSENTIAL_SPLICE_SITE"
-            ]
-        },
-        in_frame : {
-            type : "In_frame",
-            vals : [
-                "In_Frame_Del",
-                "In_Frame_Ins"
-            ]
-        },
-        nonstart : {
-            type : "Nonstart",
-            vals : ["Translation_Start_Site"]
-        },
-        nonstop : {
-            type : "Nonstop",
-            vals : ["NonStop_Mutation"]
-        },
-        missense : {
-            type : "Missense",
-            vals : [
-                "Missense_Mutation",
-                "Missense"
-            ]
-        },
-        other: {
-            type : "Other",
-            vals : [
-                "COMPLEX_INDEL",
-                "5'Flank",
-                "Fusion",
-                "vIII deletion",
-                "Exon skipping",
-                "exon14skip"
-            ]
-        }
-    };
-
-    for(var key in vocabulary) {
-        if ($.inArray(mutationDetail, vocabulary[key].vals) !== -1) {
-            return vocabulary[key].type;
-        }
-    }
-    return vocabulary.other.type; //categorize all other mutations as other
-
-};
 

@@ -227,7 +227,7 @@ public class MutationDataUtils {
         String typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId()).getName();
         String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
         Sample sample = DaoSample.getSampleById(mutation.getSampleId());
-        String linkToPatientView = GlobalProperties.getLinkToPatientView(sample.getStableId(), cancerStudyStableId);
+        String linkToPatientView = GlobalProperties.getLinkToSampleView(sample.getStableId(), cancerStudyStableId);
         List<String> mcgLinks;
         Boolean isHotspot;
         if (mutation.getMutationType().equalsIgnoreCase("Fusion")) {

@@ -34,6 +34,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.DrugsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -75,7 +76,7 @@ window.loadReactApp({ defaultRoute: 'patient' });
     
     
 <script type="text/javascript">
-
+    window.enableDarwin = <%=CheckDarwinAccessServlet.CheckDarwinAccess.existsDarwinProperties()%>;
     window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 
     // Set API root variable for cbioportal-frontend repo

@@ -322,7 +322,7 @@ window.QueryByGeneUtil = (function() {
         _.each(selectedCases, function(_obj) {
             var _studyId = _obj.studyID;
             _.each(_obj.samples, function(_sampleId) {
-                _arr.push(_studyId + "||" + _sampleId); 
+                _arr.push(_studyId + "|" + _sampleId); 
             });
         });
         submitForm(window.cbioURL + 'index.do', {
@@ -337,7 +337,7 @@ window.QueryByGeneUtil = (function() {
         _.each(selectedCases, function(_obj) {
             var _studyId = _obj.studyID;
             _.each(_obj.samples, function(_sampleId) {
-                _arr.push(_studyId + "||" + _sampleId);
+                _arr.push(_studyId + "|" + _sampleId);
             });
         });
       submitForm(window.cbioURL + 'index.do', {
@@ -361,7 +361,7 @@ window.QueryByGeneUtil = (function() {
           _.each(_selectedCases, function(_obj) {
               var _studyId = _obj.studyID;
               _.each(_obj.samples, function(_sampleId) {
-                  _arr.push(_studyId + "||" + _sampleId);
+                  _arr.push(_studyId + "|" + _sampleId);
               });
           });
           submitForm(window.cbioURL + 'index.do', {

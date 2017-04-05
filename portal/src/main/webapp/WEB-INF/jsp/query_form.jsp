@@ -130,7 +130,7 @@
     window.is_virtual_cohort = '<%= isVirtualCohort %>';
     var _str = '<%= localCaseIds %>' === 'null'? '': '<%= localCaseIds %>'.trim();
     _str = _str.replace(/\+/g, '\n');
-    _str = _str.replace(/\|\|/g, '\t');
+    _str = _str.replace(/\|/g, '\t');
     window.case_ids_selected = _str;
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';

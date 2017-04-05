@@ -1414,6 +1414,8 @@ window.DataManagerForIviz = (function($, _, iViz) {
             }));
           $.when.apply($, fetch_promises).then(function() {
             fetch_promise.resolve(_mutDataStudyIdArr);
+          }, function() {
+            fetch_promise.reject();
           });
         }),
       getSampleClinicalData: function(attribute_ids) {

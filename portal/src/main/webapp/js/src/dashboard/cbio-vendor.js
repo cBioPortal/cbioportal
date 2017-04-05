@@ -104,6 +104,8 @@ cbio.util = (function() {
       }
       fetch_promise.then(function(data) {
         def.resolve(deepCopyObject(data));
+      }, function() {
+        def.reject();
       });
       return def.promise();
     };
@@ -3966,6 +3968,8 @@ window.DataManagerForIviz = (function($, _, iViz) {
             }));
           $.when.apply($, fetch_promises).then(function() {
             fetch_promise.resolve(_mutDataStudyIdArr);
+          }, function() {
+            fetch_promise.reject();
           });
         }),
       getSampleClinicalData: function(attribute_ids) {

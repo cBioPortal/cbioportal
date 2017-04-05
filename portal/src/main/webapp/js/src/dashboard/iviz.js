@@ -940,13 +940,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var self = this;
       if (tableData_[attrId] === undefined) {
         if (attrId === 'mutated_genes') {
-          $.when(window.iviz.datamanager.getMutData()).then(function(_data) {
-            def.resolve(self.extractMutationData(_data));
-          });
+          $.when(window.iviz.datamanager.getMutData())
+            .then(function(_data) {
+              def.resolve(self.extractMutationData(_data));
+            }, function() {
+              def.reject();
+            });
         } else if (attrId === 'cna_details') {
-          $.when(window.iviz.datamanager.getCnaData()).then(function(_data) {
-            def.resolve(self.extractCnaData(_data));
-          });
+          $.when(window.iviz.datamanager.getCnaData())
+            .then(function(_data) {
+              def.resolve(self.extractCnaData(_data));
+            }, function() {
+              def.reject();
+            });
         }
       } else {
         def.resolve(tableData_[attrId]);
@@ -2791,18 +2797,17 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     template: '<div class="chart-header">' +
     '<div class="chart-title" ' +
     ':class="[showOperations?chartTitleActive:chartTitle]" ' +
-    'v-if="hasChartTitle&&((showTableIcon===undefined)||showTableIcon)">' +
+    'v-if="hasChartTitle">' +
     '<span class="chart-title-span" id="{{chartId}}-title">{{displayName}}' +
     '</span></div>' +
     '<div :class="[showOperations?chartOperationsActive:chartOperations]">' +
+    '<div class="log-scale" v-if="showLogScale">' +
+    '<input type="checkbox" value="" id="" ' +
+    'class="checkbox" v-model="logChecked">' +
+    '<span id="scale-span-{{chartId}}">' +
+    'Log Scale X</span></div>' +
     '<i v-show="hasFilters" class="fa fa-undo icon hover" ' +
     'aria-hidden="true" @click="reset()"></i>' +
-    '<div style="float:left" v-if="showLogScale"></input style="float:left">' +
-    '<input type="checkbox" value="" id="" ' +
-    'class="bar-x-log" v-model="logChecked">' +
-    '<span id="scale-span-{{chartId}}" ' +
-    'style="float:left; font-size:10px; margin-right: 15px; color: grey">' +
-    'Log Scale X</span></div>' +
     '<i v-if="hasTitleTooltip()" ' +
     'class="fa fa-info-circle icon hover" ' +
     'id="{{chartId}}-description-icon"' +
@@ -2813,7 +2818,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     'aria-hidden="true" @click="changeView()"></i>' +
     '<img v-if="showSurvivalIcon" src="images/survival_icon.svg" ' +
     'class="icon hover" @click="getRainbowSurvival" alt="Survival Analysis"/>' +
-    '<div id="{{chartId}}-download-icon-wrapper" class="download">' +
+    '<div v-if="showDownloadIcon" id="{{chartId}}-download-icon-wrapper" class="download">' +
     '<i class="fa fa-download icon hover" alt="download" ' +
     'id="{{chartId}}-download"></i>' +
     '</div>' +
@@ -2822,25 +2827,57 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '@click="close()"></i></div>' +
     '</div>' +
     '</div>',
-    props: [
-      'showOperations', 'resetBtnId', 'chartCtrl', 'groupid',
-      'hasChartTitle', 'showTable', 'displayName', 'chartId', 'showPieIcon',
-      'showTableIcon', 'showLogScale', 'showSurvivalIcon', 'filters',
-      'attributes'
-    ],
+    props: {
+      showOperations: {
+        type: Boolean,
+        default: true
+      }, resetBtnId: {
+        type: String
+      }, chartCtrl: {
+        type: Object
+      }, groupid: {
+        type: Number
+      }, hasChartTitle: {
+        type: Boolean,
+        default: false
+      }, showTable: {
+        type: Boolean
+      }, displayName: {
+        type: String
+      }, chartId: {
+        type: String
+      }, showPieIcon: {
+        type: Boolean
+      }, showTableIcon: {
+        type: Boolean
+      }, showLogScale: {
+        type: Boolean,
+        default: false
+      }, showSurvivalIcon: {
+        type: Boolean,
+        default: false
+      }, filters: {
+        type: Array
+      }, attributes: {
+        type: Object
+      }, showDownloadIcon: {
+        type: Boolean,
+        default: true
+      }
+    },
     data: function() {
       return {
         chartOperationsActive: 'chart-operations-active',
         chartOperations: 'chart-operations',
         chartTitle: 'chart-title',
-        chartTitleActive: 'chart-title-active',
+        chartTitleActive: 'chart-title-active chart-title-active-' + 3,
         logChecked: true,
         hasFilters: false,
         titleTooltip: {
           content: _.isObject(this.attributes) ?
             iViz.util.getClinicalAttrTooltipContent(this.attributes) : ''
         },
-        numOfIcons: 4
+        numOfIcons: 3
       };
     },
     watch: {
@@ -2850,11 +2887,17 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }, filters: function(newVal) {
         this.hasFilters = newVal.length > 0;
       },
-      // Only set up the watcher for survival icon for now. This is the only icon known maybe changed so far.
       showSurvivalIcon: function(newVal) {
-        if(newVal) {
+        if (newVal) {
           this.numOfIcons++;
-        }else {
+        } else {
+          this.numOfIcons--;
+        }
+      },
+      showDownloadIcon: function(newVal) {
+        if (newVal) {
+          this.numOfIcons++;
+        } else {
           this.numOfIcons--;
         }
       },
@@ -2977,6 +3020,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
 
       if (self.showLogScale) {
+        _numOfIcons++;
+      }
+      
+      if(self.showDownloadIcon) {
         _numOfIcons++;
       }
       this.numOfIcons = _numOfIcons;
@@ -3674,7 +3721,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         component: '',
         showOperations: false,
         cluster: '',
-        piechart: '',
+        piechart: {},
         hasChartTitle: true,
         showTableIcon: true,
         showPieIcon: false,
@@ -4336,8 +4383,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         '-reset',
         chartId: 'chart-new-' + this.attributes.attr_id.replace(/\(|\)| /g, ''),
         displayName: this.attributes.display_name,
-        chartInst: '',
-        barChart: '',
+        chartInst: {},
+        barChart: {},
         showOperations: false,
         filtersUpdated: false,
         showSurvivalIcon: false,
@@ -4895,7 +4942,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 (function(iViz, _) {
   iViz.view.component.Survival = function() {
     var content_ = this;
-    var opts_ = {};
+    var opts_ = {
+      downloadIsEnabled: true
+    };
     var groups_ = [];
 
     content_.init = function(groups, _data, _opts) {
@@ -4935,15 +4984,17 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _.each(_newGroups, function(group, index) {
             _chartInst_.addCurve(group.proxyData, index, group.curveHex);
           });
+          opts_.downloadIsEnabled = true;
         } else {
           _chartInst_.addNoInfo();
+          opts_.downloadIsEnabled = false;
         }
       }
       groups_ = _newGroups;
     };
 
     content_.updateDataForDownload = function(fileType) {
-      if (['pdf', 'svg'].indexOf(fileType) !== -1) {
+      if (opts_.downloadIsEnabled && ['pdf', 'svg'].indexOf(fileType) !== -1) {
         initCanvasDownloadData();
       }
     };
@@ -4954,6 +5005,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
     content_.highlightCurve = function(curveId) {
       this.chartInst_.highlightCurve(curveId);
+    };
+    
+    content_.downloadIsEnabled = function() {
+      return opts_.downloadIsEnabled;
     };
 
     function initCanvasDownloadData() {
@@ -4988,6 +5043,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ':data-number="attributes.priority" @mouseenter="mouseEnter" ' +
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-operations="showOperations" ' +
+    ':show-download-icon.sync="showDownloadIcon" ' +
     ':has-chart-title="hasChartTitle" :display-name="displayName" ' +
     ':groupid="attributes.group_id" :reset-btn-id="resetBtnId" :chart-ctrl="chartInst" ' +
     ' :chart-id="chartId" ' +
@@ -5011,12 +5067,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         this.attributes.attr_id.replace(/\(|\)| /g, '') + '-reset',
         chartId: 'chart-new-' + this.attributes.attr_id.replace(/\(|\)| /g, ''),
         displayName: this.attributes.display_name,
-        chartInst: '',
+        chartInst: {},
         showOperations: false,
         fromWatch: false,
         fromFilter: false,
         hasChartTitle: true,
         showLoad: true,
+        showDownloadIcon: false,
         invisibleDimension: {},
         mainDivQtip: ''
       };
@@ -5066,6 +5123,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
         this.chartInst.update(
           groups, this.chartId, this.attributes.attr_id);
+        this.checkDownloadableStatus();
         this.showLoad = false;
         this.updateQtipContent();
         this.$dispatch('remove-rainbow-survival');
@@ -5103,7 +5161,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         }
         this.chartInst.update(
           _opts.groups, this.chartId, this.attributes.attr_id);
-
+        this.checkDownloadableStatus();
         this.updateQtipContent();
       }
     },
@@ -5183,6 +5241,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           }
         });
         self_.updateQtipContent();
+      },
+      checkDownloadableStatus: function() {
+        if (this.chartInst.downloadIsEnabled()) {
+          this.showDownloadIcon = true;
+        } else {
+          this.showDownloadIcon = false;
+        }
       }
     },
     ready: function() {
@@ -5202,7 +5267,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         type: this.attributes.group_type
       };
       var _type = this.attributes.group_type;
-      
+
       _self.chartInst = new iViz.view.component.Survival();
       _self.chartInst.setDownloadDataTypes(['pdf', 'svg']);
 
@@ -5216,8 +5281,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       groups = this.calcCurvesData(groups, _type);
 
       _self.chartInst.init(groups, data, _opts);
+      _self.checkDownloadableStatus();
       _self.showLoad = false;
-
       _self.$once('initMainDivQtip', _self.initMainDivQtip);
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
@@ -6412,7 +6477,7 @@ window.LogRankTest = (function(jStat) {
 (function(Vue, dc, iViz, $, QueryByGeneTextArea, _) {
   Vue.component('tableView', {
     template: '<div id={{chartDivId}} ' +
-    ':class="[\'grid-item\', classTableHeight, \'grid-item-w-2\']" ' +
+    ':class="[\'grid-item\', classTableHeight, \'grid-item-w-2\', \'react-table\']" ' +
     ':data-number="attributes.priority" @mouseenter="mouseEnter" ' +
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-operations="showOperations" ' +
@@ -6420,13 +6485,17 @@ window.LogRankTest = (function(jStat) {
     ':has-chart-title="true" :groupid="attributes.group_id" ' +
     ':reset-btn-id="resetBtnId" :chart-id="chartId" :attributes="attributes" ' +
     ':show-survival-icon.sync="showSurvivalIcon"' +
+    ':show-download-icon="!failedToInit"' +
     ':filters.sync="attributes.filter"> ' +
     '</chart-operations><div class="dc-chart dc-table-plot" ' +
     ':class="{\'start-loading\': showLoad}" align="center" ' +
     'style="float:none !important;" id={{chartId}} ></div>' +
     '<div id="chart-loader"  :class="{\'show-loading\': showLoad}" ' +
     'class="chart-loader" style="top: 30%; left: 30%; display: none;">' +
-    '<img src="images/ajax-loader.gif" alt="loading"></div></div>',
+    '<img src="images/ajax-loader.gif" alt="loading"></div>' +
+    '<div :class="{\'error-init\': failedToInit}" ' +
+    'style="display: none;">' +
+    '<span class="content">Failed to load data, refresh the page may help</span></div></div>',
     props: [
       'ndx', 'attributes', 'options', 'showedSurvivalPlot'
     ],
@@ -6441,6 +6510,7 @@ window.LogRankTest = (function(jStat) {
         displayName: '',
         showOperations: false,
         chartInst: {},
+        failedToInit: false,
         showLoad: true,
         selectedRows: [],
         invisibleDimension: {},
@@ -6587,9 +6657,14 @@ window.LogRankTest = (function(jStat) {
         QueryByGeneTextArea.addRemoveGene(clickedRowData.gene);
       },
       setDisplayTitle: function(numOfCases) {
-        this.displayName = this.isMutatedGeneCna ?
-          (this.attributes.display_name +
-          ' (' + numOfCases + ' profiled samples)') : '';
+        var arr = [];
+        if (this.isMutatedGeneCna) {
+          arr.push(this.attributes.display_name);
+          if (!isNaN(numOfCases)) {
+            arr.push(' (' + numOfCases + ' profiled samples)');
+          }
+        }
+        this.displayName = arr.join('');
       },
       processTableData: function(_data) {
         var data = iViz.getGroupNdx(this.attributes.group_id);
@@ -6648,13 +6723,22 @@ window.LogRankTest = (function(jStat) {
       _self.chartInst = new iViz.view.component.TableView();
       _self.chartInst.setDownloadDataTypes(['tsv']);
       if (_self.isMutatedGeneCna) {
-        $.when(iViz.getTableData(_self.attributes.attr_id)).then(function(_tableData) {
-          $.when(window.iviz.datamanager.getGenePanelMap()).then(function(_genePanelMap) {
-            // create gene panel map
-            _self.genePanelMap = _genePanelMap;
-            _self.processTableData(_tableData);
+        $.when(iViz.getTableData(_self.attributes.attr_id))
+          .then(function(_tableData) {
+            $.when(window.iviz.datamanager.getGenePanelMap()).then(function(_genePanelMap) {
+              // create gene panel map
+              _self.genePanelMap = _genePanelMap;
+              _self.processTableData(_tableData);
+            });
+          }, function() {
+            _self.setDisplayTitle();
+            if (!_self.isMutatedGeneCna &&
+              Object.keys(_self.attributes.keys).length <= 3) {
+              _self.classTableHeight = 'grid-item-h-1';
+            }
+            _self.failedToInit = true;
+            _self.showLoad = false;
           });
-        });
       } else {
         _self.processTableData();
       }

@@ -51,8 +51,9 @@
 %>
 
 <header>
-    <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" height="55px" alt="cBioPortal Logo" /></a>    
-    <div id="header">
+    <a href="index.do">
+        <img id="cbioportal-logo" src="<c:url value="/images/cbioportal_logo.png"/>" height="55px" alt="cBioPortal Logo" />
+    </a>
         <div id="authentication">
             <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
             <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
@@ -149,5 +150,4 @@
                 <% } %>
             </ul>
         </nav>
-    </div>
 </header>

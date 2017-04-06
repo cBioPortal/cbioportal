@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -85,7 +86,7 @@ public class ClinicalAttributeController {
             @ApiParam("Name of the property that the result list is sorted by")
             @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
             @ApiParam("Direction of the sort")
-            @RequestParam(defaultValue = "ASC") Direction direction) {
+            @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -107,7 +108,7 @@ public class ClinicalAttributeController {
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam(required = true, value= "Clinical Attribute ID e.g. CANCER_TYPE")
-            @PathVariable String clinicalAttributeId) throws ClinicalAttributeNotFoundException {
+            @PathVariable String clinicalAttributeId) throws ClinicalAttributeNotFoundException, StudyNotFoundException {
 
         return new ResponseEntity<>(clinicalAttributeService.getClinicalAttribute(studyId, clinicalAttributeId),
                 HttpStatus.OK);

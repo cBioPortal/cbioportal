@@ -5,6 +5,8 @@ import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantCopyNumberRegionRepository;
 import org.cbioportal.service.SignificantCopyNumberRegionService;
+import org.cbioportal.service.StudyService;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,16 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
     
     @Autowired
     private SignificantCopyNumberRegionRepository significantCopyNumberRegionRepository;
+    @Autowired
+    private StudyService studyService;
     
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Gistic> getSignificantCopyNumberRegions(String studyId, String projection, Integer pageSize, 
-                                                        Integer pageNumber, String sortBy, String direction) {
+                                                        Integer pageNumber, String sortBy, String direction) 
+        throws StudyNotFoundException {
+        
+        studyService.getStudy(studyId);
         
         List<Gistic> gisticList = significantCopyNumberRegionRepository.getSignificantCopyNumberRegions(studyId, 
             projection, pageSize, pageNumber, sortBy, direction);
@@ -40,7 +47,9 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaSignificantCopyNumberRegions(String studyId) {
+    public BaseMeta getMetaSignificantCopyNumberRegions(String studyId) throws StudyNotFoundException {
+
+        studyService.getStudy(studyId);
         
         return significantCopyNumberRegionRepository.getMetaSignificantCopyNumberRegions(studyId);
     }

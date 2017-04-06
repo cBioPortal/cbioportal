@@ -88,7 +88,7 @@ public class GeneController {
     @ApiOperation("Get aliases of a gene")
     public ResponseEntity<List<String>> getAliasesOfGene(
         @ApiParam(required = true, value = "Entrez Gene ID or Hugo Gene Symbol e.g. 1 or A1BG")
-        @PathVariable String geneId) {
+        @PathVariable String geneId) throws GeneNotFoundException {
 
         return new ResponseEntity<>(geneService.getAliasesOfGene(geneId), HttpStatus.OK);
     }

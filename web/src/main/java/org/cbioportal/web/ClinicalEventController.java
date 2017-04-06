@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -56,7 +58,8 @@ public class ClinicalEventController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalEventSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();

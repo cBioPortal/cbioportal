@@ -106,7 +106,7 @@ CREATE TABLE `type_of_cancer` (
 CREATE TABLE `cancer_study` (
   `CANCER_STUDY_ID` int(11) NOT NULL auto_increment,
   `CANCER_STUDY_IDENTIFIER` varchar(255),
-  `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
+  `TYPE_OF_CANCER_ID` varchar(63) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `SHORT_NAME` varchar(64) NOT NULL,
   `DESCRIPTION` varchar(1024) NOT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE `users` (
   `NAME` varchar(255) NOT NULL,
   `ENABLED` BOOLEAN NOT NULL,
   PRIMARY KEY (`EMAIL`)
-) DEFAULT CHARSET=utf8;
+);
 
 -- --------------------------------------------------------
 CREATE TABLE `authorities` (
@@ -150,7 +150,7 @@ CREATE TABLE `sample` (
   `STABLE_ID` varchar(50) NOT NULL,
   `SAMPLE_TYPE` varchar(255) NOT NULL,
   `PATIENT_ID` int(11) NOT NULL,
-  `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
+  `TYPE_OF_CANCER_ID` varchar(63) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
   FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`)
@@ -703,6 +703,6 @@ CREATE TABLE `clinical_event_data` (
 -- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24)
-) DEFAULT CHARSET=utf8;
+);
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.0.1');
+INSERT INTO info VALUES ('2.1.0');

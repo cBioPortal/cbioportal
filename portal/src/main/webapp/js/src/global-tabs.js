@@ -35,8 +35,6 @@ $(document).ready(function() {
     var start = pathname.lastIndexOf("/")+1;
     var filename = pathname.substring(start);
 
-    $('#results').hide();
-    $('#main-nav ul li:first').addClass('selected');
     $('#main-nav ul li').each(function(index) {
         var currentPage = $(this).find('a').attr('href');
         if (currentPage == filename) {
@@ -46,11 +44,6 @@ $(document).ready(function() {
         }
     });
 
-    if ($('#results_container').length > 0){
-        $('#main-nav ul li').removeClass('selected');
-        $('#results').addClass('selected').show();
-        return false;
-    }
     return false;
 });
 

@@ -1499,6 +1499,8 @@ window.DataManagerForIviz = (function($, _, iViz) {
             }).fail(function() {
               fetch_promise.reject();
             });
+          }, function() {
+            fetch_promise.reject();
           });
         }
       ),

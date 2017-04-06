@@ -758,9 +758,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         def.resolve(toReturn);
       });
       if (attrDataToGet.length > 0) {
-        $.when(this.updateDataObject(type, attrDataToGet)).then(function() {
-          _def.resolve();
-        });
+        $.when(this.updateDataObject(type, attrDataToGet))
+          .then(function() {
+            _def.resolve();
+          }, function() {
+            _def.reject();
+          });
       } else {
         _def.resolve();
       }
@@ -772,13 +775,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         return _chart.group_type === _type;
       }), 'attr_id');
       if (_processData) {
-        $.when(iViz.getDataWithAttrs(_type, _attrIds)).then(function() {
-          _def.resolve();
-        });
+        $.when(iViz.getDataWithAttrs(_type, _attrIds))
+          .then(function() {
+            _def.resolve();
+          }, function() {
+            _def.reject();
+          });
       } else {
-        $.when(window.iviz.datamanager.getClinicalData(_attrIds, (_type === 'patient'))).then(function() {
-          _def.resolve();
-        });
+        $.when(window.iviz.datamanager.getClinicalData(_attrIds, (_type === 'patient')))
+          .then(function() {
+            _def.resolve();
+          }, function() {
+            _def.reject();
+          });
       }
       return _def.promise();
     },
@@ -839,6 +848,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           });
 
           def.resolve();
+        }, function() {
+          def.reject();
         });
       return def.promise();
     },
@@ -1083,6 +1094,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         };
 
         cbio.download.initDownload(content, downloadOpts);
+      }, function() {
+        // TODO: give warning/error message to user if the download is failed
       });
     },
     submitForm: function() {
@@ -6725,11 +6738,15 @@ window.LogRankTest = (function(jStat) {
       if (_self.isMutatedGeneCna) {
         $.when(iViz.getTableData(_self.attributes.attr_id))
           .then(function(_tableData) {
-            $.when(window.iviz.datamanager.getGenePanelMap()).then(function(_genePanelMap) {
-              // create gene panel map
-              _self.genePanelMap = _genePanelMap;
-              _self.processTableData(_tableData);
-            });
+            $.when(window.iviz.datamanager.getGenePanelMap())
+              .then(function(_genePanelMap) {
+                // create gene panel map
+                _self.genePanelMap = _genePanelMap;
+                _self.processTableData(_tableData);
+              }, function() {
+                _self.genePanelMap = {};
+                _self.processTableData(_tableData);
+              });
           }, function() {
             _self.setDisplayTitle();
             if (!_self.isMutatedGeneCna &&

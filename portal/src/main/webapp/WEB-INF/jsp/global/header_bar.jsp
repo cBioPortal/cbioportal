@@ -52,7 +52,7 @@
 
 <header>
     <a href="index.do">
-        <img id="cbioportal-logo" src="<c:url value="/images/cbioportal_logo.png"/>" height="55px" alt="cBioPortal Logo" />
+        <img id="cbioportal-logo" src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" />
     </a>
         <div id="authentication">
             <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
@@ -72,9 +72,8 @@
                 <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
             <% } %>
         </div>
-
-        <nav id="main-nav">
-            <ul>
+    
+            <ul id="main-nav">
                 <% if (GlobalProperties.showDataTab()) { %>
                 <li class="internal">
                     <a href="data_sets.jsp">Data Sets</a>
@@ -149,5 +148,4 @@
                 </li>
                 <% } %>
             </ul>
-        </nav>
 </header>

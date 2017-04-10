@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.PatientSortBy;
@@ -55,7 +56,7 @@ public class PatientController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) PatientSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -76,7 +77,7 @@ public class PatientController {
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
         @ApiParam(required = true, value = "Patient ID e.g. TCGA-OR-A5J2")
-        @PathVariable String patientId) throws PatientNotFoundException {
+        @PathVariable String patientId) throws PatientNotFoundException, StudyNotFoundException {
 
         return new ResponseEntity<>(patientService.getPatientInStudy(studyId, patientId), HttpStatus.OK);
     }

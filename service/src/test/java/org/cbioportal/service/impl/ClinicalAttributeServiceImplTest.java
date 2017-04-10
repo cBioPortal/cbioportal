@@ -1,9 +1,12 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalAttributeRepository;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +26,8 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
     
     @Mock
     private ClinicalAttributeRepository clinicalAttributeRepository;
+    @Mock
+    private StudyService studyService;
     
     @Test
     public void getAllClinicalAttributes() throws Exception {
@@ -58,6 +63,13 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
         clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID);
     }
 
+    @Test(expected = StudyNotFoundException.class)
+    public void getClinicalAttributeStudyNotFound() throws Exception {
+        
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID);
+    }
+
     @Test
     public void getClinicalAttribute() throws Exception {
         
@@ -85,7 +97,14 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
             PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedClinicalAttributeList, result);
-        
+    }
+
+    @Test(expected = StudyNotFoundException.class)
+    public void getAllClinicalAttributesInStudyNotFound() throws Exception {
+
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        clinicalAttributeService.getAllClinicalAttributesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
+            DIRECTION);
     }
 
     @Test
@@ -96,5 +115,12 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
         BaseMeta result = clinicalAttributeService.getMetaClinicalAttributesInStudy(STUDY_ID);
 
         Assert.assertEquals(expectedBaseMeta, result);
+    }
+
+    @Test(expected = StudyNotFoundException.class)
+    public void getMetaClinicalAttributesInStudyNotFound() throws Exception {
+        
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        clinicalAttributeService.getMetaClinicalAttributesInStudy(STUDY_ID);
     }
 }

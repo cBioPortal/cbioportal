@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.Direction;
@@ -64,7 +65,7 @@ public class MutationController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) MutationSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws GeneticProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -101,7 +102,7 @@ public class MutationController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) MutationSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws GeneticProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -122,7 +123,7 @@ public class MutationController {
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
         @PathVariable String geneticProfileId,
         @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
-        @RequestParam String sampleListId) {
+        @RequestParam String sampleListId) throws GeneticProfileNotFoundException {
 
         return new ResponseEntity<>(mutationService.getMutationCountsInGeneticProfileBySampleListId(
             geneticProfileId, sampleListId), HttpStatus.OK);
@@ -136,7 +137,7 @@ public class MutationController {
         @PathVariable String geneticProfileId,
         @ApiParam(required = true, value = "List of Sample IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<String> sampleIds) {
+        @RequestBody List<String> sampleIds) throws GeneticProfileNotFoundException {
         
             return new ResponseEntity<>(mutationService.fetchMutationCountsInGeneticProfile(geneticProfileId, 
                 sampleIds), HttpStatus.OK);

@@ -5,7 +5,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.SampleSortBy;
@@ -55,7 +57,7 @@ public class SampleController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -76,7 +78,7 @@ public class SampleController {
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
         @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
-        @PathVariable String sampleId) throws SampleNotFoundException {
+        @PathVariable String sampleId) throws SampleNotFoundException, StudyNotFoundException {
 
         return new ResponseEntity<>(sampleService.getSampleInStudy(studyId, sampleId), HttpStatus.OK);
     }
@@ -101,7 +103,8 @@ public class SampleController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();

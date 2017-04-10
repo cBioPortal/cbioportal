@@ -939,7 +939,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
         if (sortBy === this.state.sortBy) {
           sortDir = this.state.sortDir === SortTypes.ASC ? SortTypes.DESC : SortTypes.ASC;
         } else {
-          sortDir = SortTypes.ASC;
+          sortDir = SortTypes.DESC;
         }
       }
 

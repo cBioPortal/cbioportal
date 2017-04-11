@@ -1063,12 +1063,12 @@ function outputClinicalData() {
 
     function getCaseColor(caseTypeNorm) {
         if (!caseTypeNorm) return "black";
-        if (caseTypeNorm==="primary") return "black";
-        if (caseTypeNorm==="metastasis") return "red";
-        if (caseTypeNorm==="progressed") return "orange";
-        if (caseTypeNorm==="recurrence") return "orange";
-        if (caseTypeNorm==="xenograft") return "pink";
-        if (caseTypeNorm==="cfdna") return "blue";
+        if (caseTypeNorm==="Primary") return "black";
+        if (caseTypeNorm==="Metastasis") return "red";
+        if (caseTypeNorm==="Progressed") return "orange";
+        if (caseTypeNorm==="Recurrence") return "orange";
+        if (caseTypeNorm==="Xenograft") return "pink";
+        if (caseTypeNorm==="cfDNA") return "blue";
         return "black";
     }
 

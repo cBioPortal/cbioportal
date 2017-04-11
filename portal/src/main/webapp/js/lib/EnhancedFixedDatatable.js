@@ -124,7 +124,7 @@ var EnhancedFixedDataTable = (function() {
 
             // List fixed columns first
             cols = cols.sort(function(x, y) {
-                return (x.fixed === y.fixed)? 0 : x.fixed? -1 : 1;
+                return (x.fixed === y.fixed) ? 0 : x.fixed ? -1 : 1;
             });
 
             _.each(cols, function(e) {
@@ -155,7 +155,7 @@ var EnhancedFixedDataTable = (function() {
                     React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
 
                         getData != "COPY" ? React.createElement(FileGrabber, {content: content,
-                            downloadFileName: this.props.downloadFileName}) :
+                                downloadFileName: this.props.downloadFileName}) :
                             React.createElement("div", null)
 
                     ),
@@ -176,7 +176,7 @@ var EnhancedFixedDataTable = (function() {
         render: function() {
             var label = this.props.label, qtipFlag = false, attr = this.props.attr;
             var studyId = this.props.arrs ? (this.props.arrs['study_id'] ?
-                this.props.arrs['study_id'] : window.cancerStudyId) : '';
+                    this.props.arrs['study_id'] : window.cancerStudyId) : '';
             var shortLabel = this.props.shortLabel;
             var className = this.props.className || '';
 
@@ -592,7 +592,7 @@ var EnhancedFixedDataTable = (function() {
                         props.cols.map(function(col, index) {
                             var column;
                             var width = col.show ? (col.width ? col.width :
-                                (columnsWidth[col.name] ? columnsWidth[col.name] : 200)) : 0;
+                                    (columnsWidth[col.name] ? columnsWidth[col.name] : 200)) : 0;
 
                             if (props.groupHeader) {
                                 column = React.createElement(ColumnGroup, {
@@ -820,13 +820,19 @@ var EnhancedFixedDataTable = (function() {
                 if (sortBy === this.state.sortBy) {
                     sortDir = this.state.sortDir === SortTypes.ASC ? SortTypes.DESC : SortTypes.ASC;
                 } else {
-                    sortDir = SortTypes.DESC;
+                    sortDir = SortTypes.ASC;
                 }
             }
 
             filteredRows.sort(function(a, b) {
                 var sortVal = 0, aVal = a.row[sortBy], bVal = b.row[sortBy];
 
+                if (_.isUndefined(aVal)) {
+                    aVal = '';
+                }
+                if (_.isUndefined(bVal)) {
+                    bVal = '';
+                }
                 if (type === 'PERCENTAGE') {
                     aVal = aVal ? Number(aVal.replace('%', '')) : aVal;
                     bVal = bVal ? Number(bVal.replace('%', '')) : bVal;
@@ -839,13 +845,13 @@ var EnhancedFixedDataTable = (function() {
                         sortVal = -1;
                     }
 
-                    if (sortDir === SortTypes.ASC) {
+                    if (sortDir === SortTypes.DESC) {
                         sortVal = sortVal * -1;
                     }
                 } else {
-                    if (!isNaN(aVal)) {
+                    if (!isNaN(aVal) && aVal != '') {
                         sortVal = -1;
-                    } else if (!isNaN(bVal)) {
+                    } else if (!isNaN(bVal) && bVal != '') {
                         sortVal = 1;
                     }
                     else {
@@ -856,12 +862,19 @@ var EnhancedFixedDataTable = (function() {
                             sortVal = -1;
                         }
 
-                        if (sortDir === SortTypes.ASC) {
+                        if (sortDir === SortTypes.DESC) {
                             sortVal = sortVal * -1;
                         }
                     }
                 }
 
+                if(aVal == '') {
+                    sortVal = 1;
+                }
+
+                if(bVal == '') {
+                    sortVal = -1;
+                }
                 return sortVal;
             });
 
@@ -1024,7 +1037,7 @@ var EnhancedFixedDataTable = (function() {
             var colsDict = {};
             for (i = 0; i < attributes.length; i++) {
                 col = attributes[i];
-                col.attr_id = col.attr_id !== uniqueId ? col.attr_id.toUpperCase() : uniqueId;
+                col.attr_id = col.attr_id.toLowerCase();
                 newCol = {
                     displayName: col.display_name,
                     name: col.attr_id,
@@ -1053,7 +1066,12 @@ var EnhancedFixedDataTable = (function() {
             // Gets data rows from input
             for (i = 0; i < dataLength; i++) {
                 cell = data[i];
-                cell.attr_id = cell.attr_id.toUpperCase();
+                cell.attr_id = cell.attr_id.toLowerCase();
+
+                if (!colsDict.hasOwnProperty(cell.attr_id)) {
+                    continue;
+                }
+
                 if (!rowsDict[cell[uniqueId]]) {
                     rowsDict[cell[uniqueId]] = {};
                 }
@@ -1096,8 +1114,9 @@ var EnhancedFixedDataTable = (function() {
                 }));
             }
 
+            var _uniqueId = uniqueId.toLowerCase();
             _.each(rowsDict, function(item, i) {
-                rowsDict[i][uniqueId] = i;
+                rowsDict[i][_uniqueId] = i;
                 rows.push(rowsDict[i]);
             });
 
@@ -1155,8 +1174,8 @@ var EnhancedFixedDataTable = (function() {
                 filteredRows: null,
                 filterAll: "",
                 filters: filters,
-                sortBy: uniqueId,
-                sortDir: this.SortTypes.DESC,
+                sortBy: this.props.sortBy ? this.props.sortBy.toLowerCase() : _uniqueId,
+                sortDir: this.SortTypes.ASC,
                 goToColumn: null,
                 filterTimer: 0,
                 shortLabels: shortLabels,
@@ -1212,6 +1231,14 @@ var EnhancedFixedDataTable = (function() {
             if (this.props.groupHeader) {
                 this.registerSliders();
             }
+        },
+
+        // Expose the current sorting settings
+        getCurrentSort: function() {
+            return {
+                sortBy: this.state.sortBy,
+                sortDir: this.state.sortDir
+            };
         },
 
         // Sets default properties

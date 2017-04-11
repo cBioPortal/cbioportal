@@ -2553,7 +2553,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
 })();
 
 'use strict';
-window.DataManagerForIviz = (function($, _, iViz) {
+window.DataManagerForIviz = (function($, _) {
   var content = {};
 
   // Clinical attributes will be transfered into table.
@@ -2802,6 +2802,35 @@ window.DataManagerForIviz = (function($, _, iViz) {
       }
     });
     return hiddenAttrs;
+  };
+
+  /**
+   * Finds the intersection elements between two arrays in a simple fashion.
+   * Should have O(n) operations, where n is n = MIN(a.length, b.length)
+   *
+   * @param {array} a First array, must already be sorted
+   * @param {array} b Second array, must already be sorted
+   * @return {array} The interaction elements between a and b
+   */
+  content.util.intersection = function(a, b) {
+    var result = [];
+    var i = 0;
+    var j = 0;
+    var aL = a.length;
+    var bL = b.length;
+    while (i < aL && j < bL) {
+      if (a[i] < b[j]) {
+        ++i;
+      } else if (a[i] > b[j]) {
+        ++j;
+      } else {
+        result.push(a[i]);
+        ++i;
+        ++j;
+      }
+    }
+
+    return result;
   };
 
   content.init = function(_portalUrl, _study_cases_map) {
@@ -4067,7 +4096,7 @@ window.DataManagerForIviz = (function($, _, iViz) {
         _selectedSampleIds = _selectedSampleIds.sort();
         _.each(Object.keys(_self.panelSampleMap), function(_panelId) {
           _self.panelSampleMap[_panelId].sel_samples =
-            iViz.util.intersection(_self.panelSampleMap[_panelId].samples, _selectedSampleIds);
+            content.util.intersection(_self.panelSampleMap[_panelId].samples, _selectedSampleIds);
         });
         _.each(Object.keys(_map), function(_gene) {
           var _sampleNumPerGene = 0;
@@ -4082,7 +4111,7 @@ window.DataManagerForIviz = (function($, _, iViz) {
   };
 
   return content;
-})(window.$, window._, window.iViz);
+})(window.$, window._);
 
 window.cbioportal_client = (function() {
   var raw_service = (function() {

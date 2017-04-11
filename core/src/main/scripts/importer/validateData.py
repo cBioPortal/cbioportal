@@ -67,7 +67,7 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:'PatientClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
     cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
-    cbioportal_common.MetaFileTypes.RPPA:'RPPAValidator',
+    cbioportal_common.MetaFileTypes.PROTEIN:'ProteinLevelValidator',
     cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
     cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator',
     cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator'
@@ -2078,7 +2078,7 @@ class MutationSignificanceValidator(Validator):
     pass
 
 
-class RPPAValidator(FeaturewiseFileValidator):
+class ProteinLevelValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
     ALLOW_BLANKS = True
@@ -2094,7 +2094,7 @@ class RPPAValidator(FeaturewiseFileValidator):
         # products if the antibody name has a particular format.
         value = nonsample_col_vals[0].strip()
         if '|' not in value:
-            self.logger.error('No pipe symbol in RPPA probe column',
+            self.logger.error('No pipe symbol in Composite.Element.REF probe column',
                               extra={'line_number': self.line_number,
                                      'column_number': 1,
                                      'cause': nonsample_col_vals[0]})

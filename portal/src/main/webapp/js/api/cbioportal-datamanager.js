@@ -211,7 +211,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	// Collect genes and alterations to query
 	for (var i = 0; i < webservice_data.length; i++) {
 	    var datum = webservice_data[i];
-	    if (datum.genetic_alteration_type === "MUTATION_EXTENDED" && datum.simplified_mutation_type === "missense") {
+	    if (datum.genetic_alteration_type === "MUTATION_EXTENDED" && 
+		    (datum.oncoprint_mutation_type === "missense" || datum.oncoprint_mutation_type === "inframe"
+		    || datum.oncoprint_mutation_type === "trunc")) {
 		var gene = datum.hugo_gene_symbol.toUpperCase();
 		var alteration = datum.amino_acid_change.toUpperCase();
 		oncogenic[gene] = oncogenic[gene] || {};
@@ -299,22 +301,19 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	 * Out: promise, which resolves when the data has been in-place modified,
 	 *	    the mutation data given the boolean attribute 'cancer_hotspots_hotspot'
 	 */
-	var sortedNumListHasElementInRange = function (sorted_list, lower_inc, upper_exc) {
-	    /* In: list, list of numbers
-	     *	    lower_inc, inclusive lower bound of range
-	     *	    upper_exc, exclusive upper bound of range
-	     * Out; boolean, whether there is an element in list within the given range
-	     */
-	    // Locate smallest element >= the lower inc
-	    var smallest_element_in_range_index = insertionIndex(sorted_list, lower_inc);
-	    return (smallest_element_in_range_index < sorted_list.length
-		    && sorted_list[smallest_element_in_range_index] < upper_exc);
-	}
 	var def = new $.Deferred();
-	var missense_mutation_webservice_data = webservice_data.filter(function (d) {
-	    return d.genetic_alteration_type === "MUTATION_EXTENDED" && d.simplified_mutation_type === "missense";
+	var genes = {};
+	var annotatable_webservice_data = webservice_data.filter(function (d) {
+	    var ret = d.genetic_alteration_type === "MUTATION_EXTENDED" && 
+		    (d.oncoprint_mutation_type === "missense" || d.oncoprint_mutation_type === "inframe");
+	    if (ret) {
+		genes[d.hugo_gene_symbol] = true;
+	    }
+	    return ret;
 	});
-	if (missense_mutation_webservice_data.length > 0) {
+	genes = Object.keys(genes);
+	
+	if (annotatable_webservice_data.length > 0) {
 	    var attribute_name = 'cancer_hotspots_hotspot';
 	    var get_promise = $.ajax({
 		type: 'GET',
@@ -322,30 +321,41 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    get_promise.then(function (response) {
 		response = JSON.parse(response);
-		// Gather hotspot codons into sorted order for querying
-		var gene_to_hotspot_codons = {};
-		for (var i = 0; i < response.length; i++) {
-		    var gene = response[i].hugoSymbol.toUpperCase();
-		    var codon = parseInt(response[i].residue.substring(1), 10);
-		    gene_to_hotspot_codons[gene] = gene_to_hotspot_codons[gene] || {};
-		    gene_to_hotspot_codons[gene][codon] = true;
+		// Gather hotspots into data structures for querying
+		var gene_to_hotspots = {};// { [hugoSymbol:string]:{ missense: [number,number][], indel: [number,number][] } }
+		for (var i=0; i<genes.length; i++) {
+		    gene_to_hotspots[genes[i]] = { missense:[], indel:[]};
 		}
-		var genes = Object.keys(gene_to_hotspot_codons);
-		for (var i = 0; i < genes.length; i++) {
-		    gene_to_hotspot_codons[genes[i]] = Object.keys(gene_to_hotspot_codons[genes[i]])
-			    .map(function (x) {
-				return parseInt(x, 10);
-			    })
-			    .sort(function(a,b) { return signOfDiff(a,b); });
+		for (var i=0; i<response.length; i++) {
+		    var gene = response[i].hugoSymbol;
+		    if (gene_to_hotspots.hasOwnProperty(gene)) {
+			var position = response[i].aminoAcidPosition;
+			var range = [position.start, position.end];
+			if (response[i].type === "single residue") {
+			    gene_to_hotspots[gene].missense.push(range);
+			} else if (response[i].type === "in-frame indel") {
+			    gene_to_hotspots[gene].indel.push(range);
+			}
+		    }   
 		}
-		for (var i = 0; i < missense_mutation_webservice_data.length; i++) {
-		    var datum = missense_mutation_webservice_data[i];
+		for (var i=0; i<genes.length; i++) {
+		    var gene = genes[i];
+		    gene_to_hotspots[gene] = { 
+			missense: new HotspotSet(gene_to_hotspots[gene].missense),
+			indel: new HotspotSet(gene_to_hotspots[gene].indel)
+		    };
+		}
+		// Annotate
+		for (var i = 0; i < annotatable_webservice_data.length; i++) {
+		    var datum = annotatable_webservice_data[i];
 		    var gene = datum.hugo_gene_symbol;
 		    gene && (gene = gene.toUpperCase());
 		    var start_pos = datum.protein_start_position;
 		    var end_pos = datum.protein_end_position;
-		    if (gene && !isNaN(start_pos) && !isNaN(end_pos) && typeof gene_to_hotspot_codons[gene] !== "undefined") {
-			if (sortedNumListHasElementInRange(gene_to_hotspot_codons[gene], parseInt(start_pos, 10), parseInt(end_pos, 10) + 1)) {
+		    if (gene && !isNaN(start_pos) && !isNaN(end_pos)) {
+			var hotspot_sets = gene_to_hotspots[gene];
+			if ((datum.oncoprint_mutation_type === "missense" && hotspot_sets.missense.check(start_pos))
+			    || (datum.oncoprint_mutation_type === "inframe" && hotspot_sets.indel.check(start_pos, end_pos))) {
 			    datum[attribute_name] = true;
 			}
 		    }
@@ -830,7 +840,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     var applyKnownMutationSettings = function (ws_data, known_mutation_settings, getters) {
 	return ws_data.filter(function (d) {
 	    if (d.genetic_alteration_type !== "MUTATION_EXTENDED"
-		    || d.simplified_mutation_type !== "missense") {
+		    || (d.oncoprint_mutation_type !== "missense" && d.oncoprint_mutation_type !== "inframe")) {
 		return true;
 	    } else {
 		var ret = (known_mutation_settings.recognize_hotspot && d.cancer_hotspots_hotspot)
@@ -1471,7 +1481,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var cbioportal_promise = new $.Deferred();
 		self.getCBioPortalMutationCounts().then(function(counts_map) {
 		    getters.cbioportalCount = function(datum) {
-			if (datum.genetic_alteration_type !== "MUTATION_EXTENDED" || datum.simplified_mutation_type !== "missense") {
+			if (datum.genetic_alteration_type !== "MUTATION_EXTENDED" || 
+				(datum.oncoprint_mutation_type !== "missense" && datum.oncoprint_mutation_type !== "inframe")) {
 			    return undefined;
 			}
 			var gene = datum.hugo_gene_symbol;
@@ -1494,7 +1505,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var cosmic_promise = new $.Deferred();
 		self.getCOSMICCounts().then(function (cosmic_counts) {
 		    getters.cosmicCount = function (datum) {
-			if (datum.genetic_alteration_type === "MUTATION_EXTENDED" && datum.simplified_mutation_type === "missense" && typeof cosmic_counts[datum.keyword] !== "undefined") {
+			if (datum.genetic_alteration_type === "MUTATION_EXTENDED" && 
+				(datum.oncoprint_mutation_type === "missense" || datum.oncoprint_mutation_type === "inframe") && 
+				typeof cosmic_counts[datum.keyword] !== "undefined") {
 			    return cosmic_counts[datum.keyword].map(function (count_record) {
 				return parseInt(count_record.count, 10);
 			    })
@@ -1522,7 +1535,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		function(self, fetch_promise) {
 		    self.getWebServiceGenomicEventData().then(function (webservice_data) {
 			var keywords = webservice_data.filter(function (datum) {
-			    return datum.genetic_alteration_type === "MUTATION_EXTENDED" && datum.simplified_mutation_type === "missense" && typeof datum.keyword !== 'undefined' && datum.keyword !== null;
+			    return datum.genetic_alteration_type === "MUTATION_EXTENDED" && 
+				    (datum.oncoprint_mutation_type === "missense" || datum.oncoprint_mutation_type === "inframe") && 
+				    typeof datum.keyword !== 'undefined' && datum.keyword !== null;
 			})
 				.map(function (mutation_datum_with_keyword) {
 				    return mutation_datum_with_keyword.keyword;
@@ -1556,7 +1571,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			var to_query = {};
 			for (var i = 0; i < webservice_data.length; i++) {
 			    var datum = webservice_data[i];
-			    if (datum.genetic_alteration_type !== "MUTATION_EXTENDED" || datum.simplified_mutation_type !== "missense") {
+			    if (datum.genetic_alteration_type !== "MUTATION_EXTENDED" || 
+				    (datum.oncoprint_mutation_type !== "missense" && datum.oncoprint_mutation_type !== "inframe")) {
 				continue;
 			    }
 			    var gene = datum.hugo_gene_symbol;

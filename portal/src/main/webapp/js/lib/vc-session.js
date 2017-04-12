@@ -11,15 +11,16 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     return {
       saveCohort: function(stats, name, description) {
         var def = new $.Deferred();
-        var _virtualCohort = vcSession.utils.buildVCObject(stats.filters, stats.selectedCases,
-          name, description);
-        vcSession.model.saveSession(_virtualCohort)
-          .done(function(response) {
-            def.resolve(response);
-          })
-          .fail(function() {
-            def.reject();
-          });
+        $.when(vcSession.utils.buildVCObject(stats.filters, stats.selectedCases,
+          name, description)).done(function(_virtualCohort) {
+          vcSession.model.saveSession(_virtualCohort)
+            .done(function(response) {
+              def.resolve(response);
+            })
+            .fail(function() {
+              def.reject();
+            });
+        });
         return def.promise();
       },
       removeVirtualCohort: function(virtualCohort) {
@@ -115,6 +116,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
 
     var buildVCObject_ = function(filters, cases, name,
                                   description) {
+      var def = new $.Deferred();
       var _virtualCohort = $.extend(true, {}, virtualCohort_);
       _virtualCohort.filters = filters;
       _virtualCohort.selectedCases = cases;
@@ -126,16 +128,14 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       }
       if (description) {
         _virtualCohort.description = description;
+        def.resolve(_virtualCohort);
       } else {
-        $.when(window.iviz.datamanager.getCancerStudyDisplayName(_.pluck(cases, "studyID"))).then(function(_studyIdNameMap) {
-          var _desp = "";
-          _.each(cases, function(_i) {
-            _desp += _studyIdNameMap[_i.studyID] + ": " + _i.samples.length + " samples / " + _i.patients.length + " patients\n";
-          });
+        $.when(_generateCohortDescription(cases)).done(function(_desp) {
           _virtualCohort.description = _desp;
+          def.resolve(_virtualCohort);
         });
       }
-      return _virtualCohort;
+      return def.promise();
     };
     var buildCaseListObject_ = function(selectedCases, cancerStudyID,
                                         sampleID) {
@@ -146,6 +146,17 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       _selectedCases.push(_selectedCase);
       return _selectedCases;
     };
+    
+    var _generateCohortDescription = function(_cases) {
+      var def = new $.Deferred(), _desp = "";
+      $.when(window.iviz.datamanager.getCancerStudyDisplayName(_.pluck(_cases, "studyID"))).done(function(_studyIdNameMap) {
+        _.each(_cases, function (_i) {
+          _desp += _studyIdNameMap[_i.studyID] + ": " + _i.samples.length + " samples / " + _i.patients.length + " patients\n";
+        });
+        def.resolve(_desp);
+      });
+      return def.promise();
+    }
 
     return {
       buildVCObject: buildVCObject_,
@@ -340,7 +351,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     ], created: function() {
       var _selectedSamplesNum = 0;
       var _selectedPatientsNum = 0;
-      console.log(this.data);
       if (_.isObject(this.data.selectedCases)) {
         _.each(this.data.selectedCases, function(studyCasesMap) {
           _selectedSamplesNum += studyCasesMap.samples.length;

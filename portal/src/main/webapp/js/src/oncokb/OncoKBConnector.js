@@ -157,6 +157,7 @@ var OncoKB = (function(_, $) {
     function Instance(id) {
         this.initialized = false;
         this.dataReady = false;
+        this.civicDataReady = false;
         this.tumorType = ''; //Global tumor types
         this.source = 'cbioportal';
         this.geneStatus = 'Complete';
@@ -863,7 +864,6 @@ OncoKB.Instance.prototype = {
 
         self.setVariantUniqueIds();
 
-        var geneSymbols = []
         for (var key in this.variants) {
             var variant = this.variants[key];
             var uniqueStr = variant.gene + variant.alteration + variant.tumorType + variant.consequence;
@@ -871,9 +871,6 @@ OncoKB.Instance.prototype = {
                 oncokbEvidenceRequestItems[uniqueStr] = new OncoKB.EvidenceRequestItem(variant);
             }
             oncokbEvidenceRequestItems[uniqueStr].ids.push(variant.id);
-            if (geneSymbols.indexOf(variant.gene) == -1) {
-                geneSymbols.push(variant.gene);
-            }
         }
 
         oncokbServiceData.queries = $.map(oncokbEvidenceRequestItems, function(value, index) {
@@ -920,27 +917,24 @@ OncoKB.Instance.prototype = {
             .fail(function() {
                 console.log('POST failed.');
             });
-
-        var promises = [oncokbPromise];
-        if (showCivic) {
-            var civicPromise = self.civicService.getCivicGenes(geneSymbols)
-                .then(function (result) {
-                    self.civicGenes = result;
-                });
-            promises.push(civicPromise);
-        }
         
-        // We're explicitly waiting for all promises to finish (done or fail).
-        // We are wrapping them in another promise separately, to make sure we also 
-        // wait in case one of the promises fails and the other is still busy.
-        var mainPromise = $.when.apply($, $.map(promises, function(promise) {
-            var wrappingDeferred = $.Deferred();
-            promise.always(function () {
-                wrappingDeferred.resolve();
+        return oncokbPromise;
+    },
+    getCivicIndicator: function() {
+        var self = this;
+        geneSymbols = [];
+        for (var key in this.variants) {
+            var variant = this.variants[key];
+            if (geneSymbols.indexOf(variant.gene) == -1) {
+                geneSymbols.push(variant.gene);
+            }
+        }
+        var civicPromise = self.civicService.getCivicGenes(geneSymbols)
+            .then(function (result) {
+                self.civicGenes = result;
+                self.civicDataReady = true;
             });
-            return wrappingDeferred.promise();
-        }));
-        return mainPromise;
+        return civicPromise;
     },
     setVariantUniqueIds: function() {
         var uniqueIds = {};
@@ -1150,31 +1144,6 @@ OncoKB.Instance.prototype = {
                     }
                     }
                 });
-                $(target).find('.annotation-item.civic-cna').each(function() {
-                    var geneSymbol = $(this).attr('geneSymbol');
-                    $(this).empty(); // remove spinner image
-                    if (geneSymbol != null) {
-                        var civicGene = self.civicGenes[geneSymbol];
-                        if (civicGene) {
-
-                            // Determine which CNAs are available
-                            var cnas = ['AMPLIFICATION', 'DELETION'];
-                            var matchingCivicVariants = [];
-                            cnas.forEach(function(cna) {
-                                if (civicGene.variants.hasOwnProperty(cna)) {
-                                    matchingCivicVariants.push(civicGene.variants[cna]);
-                                }
-                            });
-
-                            // Show an icon if
-                            // * there is CNA info or
-                            // * the gene has a description (grayed-out icon)
-                            if (matchingCivicVariants.length > 0 || civicGene.description) {
-                                self.createCivicIcon($(this), civicGene, matchingCivicVariants);
-                            }
-                        }
-                    }
-                });
             }
 
             if (typeof  type === 'undefined' || type === 'alteration') {
@@ -1370,6 +1339,37 @@ OncoKB.Instance.prototype = {
                         }
                     }
                 });
+            }
+        }
+        if (self.civicDataReady) {
+            if (typeof  type === 'undefined' || type === 'gene') {
+                $(target).find('.annotation-item.civic-cna').each(function() {
+                    var geneSymbol = $(this).attr('geneSymbol');
+                    $(this).empty(); // remove spinner image
+                    if (geneSymbol != null) {
+                        var civicGene = self.civicGenes[geneSymbol];
+                        if (civicGene) {
+
+                            // Determine which CNAs are available
+                            var cnas = ['AMPLIFICATION', 'DELETION'];
+                            var matchingCivicVariants = [];
+                            cnas.forEach(function(cna) {
+                                if (civicGene.variants.hasOwnProperty(cna)) {
+                                    matchingCivicVariants.push(civicGene.variants[cna]);
+                                }
+                            });
+
+                            // Show an icon if
+                            // * there is CNA info or
+                            // * the gene has a description (grayed-out icon)
+                            if (matchingCivicVariants.length > 0 || civicGene.description) {
+                                self.createCivicIcon($(this), civicGene, matchingCivicVariants);
+                            }
+                        }
+                    }
+                });
+            }
+            if (typeof  type === 'undefined' || type === 'alteration') {
                 $(target).find('.annotation-item.civic').each(function() {
                     var geneSymbol = $(this).attr('geneSymbol');
                     var proteinChange = $(this).attr('proteinChange');

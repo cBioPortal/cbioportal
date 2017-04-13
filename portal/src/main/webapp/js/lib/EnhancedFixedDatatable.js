@@ -186,16 +186,16 @@ var EnhancedFixedDataTable = (function() {
 
             if (window.hasOwnProperty('cbio') && cbio.hasOwnProperty('util') &&
                 studyId) {
-                if (attr === 'CASE_ID') {
+                if (attr === 'case_id') {
                     shortLabel = React.createElement("a", {target: "_blank",
                         href: cbio.util.getLinkToSampleView(studyId, label)}, shortLabel)
-                } else if (attr === 'PATIENT_ID') {
+                } else if (attr === 'patient_id') {
                     shortLabel = React.createElement("a", {target: "_blank",
                         href: cbio.util.getLinkToPatientView(studyId, label)}, shortLabel)
                 }
             }
 
-            if (attr === 'COPY_NUMBER_ALTERATIONS' && !isNaN(label)) {
+            if (attr === 'copy_number_alterations' && !isNaN(label)) {
                 if (Number(label) < 0.01) {
                     shortLabel = '< 0.01';
                 } else {

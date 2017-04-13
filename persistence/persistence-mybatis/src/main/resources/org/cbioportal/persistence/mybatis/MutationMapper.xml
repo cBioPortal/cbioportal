@@ -61,6 +61,12 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND mutation.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
         </where>
     </sql>
     
@@ -68,11 +74,17 @@
         <where>
             genetic_profile.STABLE_ID = #{geneticProfileId}
             AND mutation.SAMPLE_ID IN
-                (
-                    SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-                    INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-                    WHERE sample_list.STABLE_ID = #{sampleListId}
-                )
+            (
+                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                WHERE sample_list.STABLE_ID = #{sampleListId}
+            )
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND mutation.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
         </where>
     </sql>
 
@@ -179,11 +191,11 @@
         INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
         WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
         AND mutation_count.SAMPLE_ID IN
-            (
-                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-                WHERE sample_list.STABLE_ID = #{sampleListId}
-            )
+        (
+            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+            WHERE sample_list.STABLE_ID = #{sampleListId}
+        )
     </select>
 
     <select id="getMutationCountsBySampleIds" resultType="org.cbioportal.model.MutationCount">
@@ -194,6 +206,12 @@
         FROM mutation_count
         INNER JOIN genetic_profile ON mutation_count.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
-        <include refid="where"/>
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+        <if test="sampleIds != null and !sampleIds.isEmpty()">
+            AND sample.STABLE_ID IN
+            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
     </select>
 </mapper>

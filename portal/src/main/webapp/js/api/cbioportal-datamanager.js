@@ -202,32 +202,31 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     };
     
     var getOncoKBAnnotations = function (webservice_data) {
-	/* In: - webservice_data, a list of data obtained from the webservice API
-	 * Out: Promise which resolves with map from gene.toUpperCase() to amino acid change.toUpperCase() to one of ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
+	/* In: - webservice_data, a list of data obtained from the webservice API,
+	 *	 modified to have the attribute oncokb_mutation_id
+	 * Out: Promise which resolves with map from oncokbMutationId to one of ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
 	 */
 	var def = new $.Deferred();
 	var oncogenic = {}; // See Out above
 
-	// Collect genes and alterations to query
+	// Collect queries
+	var queries = {};
 	for (var i = 0; i < webservice_data.length; i++) {
 	    var datum = webservice_data[i];
 	    if (datum.genetic_alteration_type === "MUTATION_EXTENDED" && 
 		    (datum.oncoprint_mutation_type === "missense" || datum.oncoprint_mutation_type === "inframe"
 		    || datum.oncoprint_mutation_type === "trunc")) {
-		var gene = datum.hugo_gene_symbol.toUpperCase();
-		var alteration = datum.amino_acid_change.toUpperCase();
-		oncogenic[gene] = oncogenic[gene] || {};
-		oncogenic[gene][alteration] = false;
+		queries[datum.oncokb_mutation_id] = {
+		    'hugoSymbol': datum.hugo_gene_symbol.toUpperCase(),
+		    'alteration': datum.amino_acid_change,
+		    'consequence': datum.mutation_type,
+		    'proteinStart': datum.protein_start_position,
+		    'proteinEnd': datum.protein_end_position,
+		    'id': datum.oncokb_mutation_id
+		};
 	    }
 	}
-	var queries = [];
-	var query_genes = Object.keys(oncogenic);
-	for (var i = 0; i < query_genes.length; i++) {
-	    var query_alterations = Object.keys(oncogenic[query_genes[i]]);
-	    for (var j = 0; j < query_alterations.length; j++) {
-		queries.push({'hugoSymbol': query_genes[i], 'alteration': query_alterations[j]});
-	    }
-	}
+	queries = objectValues(queries);
 	if (queries.length > 0) {
 	    // Execute query
 	    var query = {
@@ -250,9 +249,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    }).then(function (response) {
 		response = JSON.parse(response);
 		for (var i = 0; i < response.length; i++) {
-		    var gene = response[i].query.hugoSymbol.toUpperCase();
-		    var alteration = response[i].query.alteration.toUpperCase();
-		    oncogenic[gene][alteration] = response[i].oncogenic;
+		    oncogenic[response[i].query.id] = response[i].oncogenic;
 		}
 		def.resolve(oncogenic);
 	    }).fail(function () {
@@ -263,27 +260,44 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return def.promise();
     };
+    var addOncoKBMutationId = function(webservice_data) {
+	/* in-place, idempotent
+	 * In: webservice_data, a list of data obtained from the webservice API
+	 * Out: webservice_data, modified in-place, with the new added attribute
+	 *	oncokb_mutation_id,
+	 *	which uniquely identifies a mutation for oncokb querying
+	 */
+	
+	for (var i=0; i<webservice_data.length; i++) {
+	    var datum = webservice_data[i];
+	    if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
+		continue;
+	    }
+	    datum.oncokb_mutation_id = [datum.hugo_gene_symbol, datum.amino_acid_change, datum.mutation_type,
+					datum.protein_start_position, datum.protein_end_position].join(",");
+	}
+	return webservice_data;
+    };
+    
     var annotateOncoKBMutationOncogenic = function (self, webservice_data) {
 	/* in-place, idempotent
-	 * In: - webservice_data, a list of data obtained from the webservice API
+	 * In: - webservice_data, a list of data obtained from the webservice API,
 	 * Out: promise, which resolves when it's done (data is modified in place, with
 	 *	the mutation data given the string attribute 'oncokb_oncogenic', with value
 	 *	in ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
+	 *	The data now also has the attribute 'oncokb_mutation_id'
 	 */
 	var def = new $.Deferred();
 	var attribute_name = 'oncokb_oncogenic';
-	getOncoKBAnnotations(webservice_data).then(function (oncogenic) {
+	getOncoKBAnnotations(addOncoKBMutationId(webservice_data)).then(function (oncogenic) {
 	    for (var i = 0; i < webservice_data.length; i++) {
 		var datum = webservice_data[i];
 		if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
 		    continue;
 		}
-		var gene = datum.hugo_gene_symbol;
-		gene && (gene = gene.toUpperCase());
-		var alteration = datum.amino_acid_change;
-		alteration && (alteration = alteration.toUpperCase());
-		if (gene && alteration && oncogenic[gene] && oncogenic[gene][alteration]) {
-		    datum[attribute_name] = oncogenic[gene][alteration];
+		var datum_oncogenic_value = oncogenic[datum.oncokb_mutation_id];
+		if (datum_oncogenic_value) {
+		    datum[attribute_name] = datum_oncogenic_value;
 		}
 	    }
 	    self.external_data_status.oncokb = true;

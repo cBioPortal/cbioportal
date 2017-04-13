@@ -718,4 +718,4 @@ CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.1.0');
+INSERT INTO info VALUES ('2.2.0');

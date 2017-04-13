@@ -54,6 +54,11 @@ import java.util.Map;
 @RequestMapping("/proxy")
 public class ProxyController
 {
+	
+  private String hotspotsURL;
+  @Value("${hotspots.url:http://cancerhotspots.org/api/}")
+  public void setHotspotsURL(String property) { this.hotspotsURL = property; }
+  
   private String bitlyURL;
   @Value("${bitly.url}")
   public void setBitlyURL(String property) { this.bitlyURL = property; }
@@ -98,7 +103,7 @@ public class ProxyController
       Map<String, String> pathToUrl = new HashMap<>();
       
       pathToUrl.put("bitly", bitlyURL);
-      pathToUrl.put("cancerHotSpots", "http://cancerhotspots.org/api/hotspots/single/");
+      pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
       pathToUrl.put("3dHotspots", "http://3dhotspots.org/3d/api/hotspots/3d");
       pathToUrl.put("oncokbAccess", oncokbApiURL + "access");
       pathToUrl.put("oncokbSummary", oncokbApiURL + "summary.json");

@@ -1380,7 +1380,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'track_padding': 0,
 			'label': track_geneset_id,
 			'target_group': this.GENESET_HEATMAP_TRACK_GROUP_INDEX,
-			'removable': true,
 			'description': track_geneset_id + ' gene set scores from ' + genetic_profile_id,
 			'removeCallback': makeRemoveGenesetTrackHandler(track_geneset_id),
 			'expandCallback': makeGenesetExpandHandler(track_geneset_id),

@@ -249,47 +249,6 @@ var OncoKB = (function(_, $) {
             return str;
         }
 
-        /**
-         * Convert cBioPortal consequence to OncoKB consequence
-         *
-         * @param consequence cBioPortal consequence
-         * @returns
-         */
-        function consequenceConverter(consequence) {
-            var matrix = {
-                '3\'Flank': ['any'],
-                '5\'Flank ': ['any'],
-                'Targeted_Region': ['inframe_deletion', 'inframe_insertion'],
-                'COMPLEX_INDEL': ['inframe_deletion', 'inframe_insertion'],
-                'ESSENTIAL_SPLICE_SITE': ['feature_truncation'],
-                'Exon skipping': ['inframe_deletion'],
-                'Frameshift deletion': ['frameshift_variant'],
-                'Frameshift insertion': ['frameshift_variant'],
-                'FRAMESHIFT_CODING': ['frameshift_variant'],
-                'Frame_Shift_Del': ['frameshift_variant'],
-                'Frame_Shift_Ins': ['frameshift_variant'],
-                'Fusion': ['fusion'],
-                'Indel': ['frameshift_variant', 'inframe_deletion', 'inframe_insertion'],
-                'In_Frame_Del': ['inframe_deletion'],
-                'In_Frame_Ins': ['inframe_insertion'],
-                'Missense': ['missense_variant'],
-                'Missense_Mutation': ['missense_variant'],
-                'Nonsense_Mutation': ['stop_gained'],
-                'Nonstop_Mutation': ['stop_lost'],
-                'Splice_Site': ['splice_region_variant'],
-                'Splice_Site_Del': ['splice_region_variant'],
-                'Splice_Site_SNP': ['splice_region_variant'],
-                'splicing': ['splice_region_variant'],
-                'Translation_Start_Site': ['start_lost'],
-                'vIII deletion': ['any']
-            };
-            if (matrix.hasOwnProperty(consequence)) {
-                return matrix[consequence].join(',');
-            } else {
-                return 'any';
-            }
-        }
-
         function getLevel(level) {
             if (level) {
                 var _level = level.match(/LEVEL_(R?\d[AB]?)/);
@@ -574,7 +533,6 @@ var OncoKB = (function(_, $) {
         }
         return {
             findRegex: findRegex,
-            consequenceConverter: consequenceConverter,
             getLevel: getLevel,
             getNumberLevel: getNumberLevel,
             compareHighestLevel: compareHighestLevel,
@@ -808,7 +766,7 @@ OncoKB.Instance.prototype = {
         _variant.entrezGeneId = Number(entrezGeneId);
         _variant.gene = gene || '';
         _variant.alteration = mutation || '';
-        _variant.consequence = _.isString(consequence) ? OncoKB.utils.consequenceConverter(consequence) : '';
+        _variant.consequence = _.isString(consequence) ? consequence : '';
         _variant.proteinStart = proteinStart || '';
         _variant.proteinEnd = proteinEnd || '';
 

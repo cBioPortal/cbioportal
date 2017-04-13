@@ -1,6 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.GeneticDataService;
@@ -31,38 +31,38 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
     @Test
     public void fetchMrnaPercentile() throws Exception {
 
-        List<GeneticData> geneticDataList = new ArrayList<>();
-        GeneticData geneticData1 = new GeneticData();
+        List<GeneGeneticData> geneticDataList = new ArrayList<>();
+        GeneGeneticData geneticData1 = new GeneGeneticData();
         geneticData1.setGeneticProfileId(GENETIC_PROFILE_ID);
         geneticData1.setEntrezGeneId(ENTREZ_GENE_ID);
-        geneticData1.setSampleId(SAMPLE_ID);
+        geneticData1.setSampleId(SAMPLE_ID1);
         geneticData1.setValue("0.3456");
         geneticDataList.add(geneticData1);
-        GeneticData geneticData2 = new GeneticData();
+        GeneGeneticData geneticData2 = new GeneGeneticData();
         geneticData2.setGeneticProfileId(GENETIC_PROFILE_ID);
         geneticData2.setEntrezGeneId(ENTREZ_GENE_ID);
         geneticData2.setSampleId("sample_id_2");
         geneticData2.setValue("0.2456");
         geneticDataList.add(geneticData2);
-        GeneticData geneticData3 = new GeneticData();
+        GeneGeneticData geneticData3 = new GeneGeneticData();
         geneticData3.setGeneticProfileId(GENETIC_PROFILE_ID);
         geneticData3.setEntrezGeneId(ENTREZ_GENE_ID);
         geneticData3.setSampleId("sample_id_3");
         geneticData3.setValue("0.2457");
         geneticDataList.add(geneticData3);
-        GeneticData geneticData4 = new GeneticData();
+        GeneGeneticData geneticData4 = new GeneGeneticData();
         geneticData4.setGeneticProfileId(GENETIC_PROFILE_ID);
         geneticData4.setEntrezGeneId(2);
-        geneticData4.setSampleId(SAMPLE_ID);
+        geneticData4.setSampleId(SAMPLE_ID1);
         geneticData4.setValue("NA");
         geneticDataList.add(geneticData4);
-        GeneticData geneticData5 = new GeneticData();
+        GeneGeneticData geneticData5 = new GeneGeneticData();
         geneticData5.setGeneticProfileId(GENETIC_PROFILE_ID);
         geneticData5.setEntrezGeneId(2);
         geneticData5.setSampleId("sample_id_2");
         geneticData5.setValue("0.1456");
         geneticDataList.add(geneticData5);
-        GeneticData geneticData6 = new GeneticData();
+        GeneGeneticData geneticData6 = new GeneGeneticData();
         geneticData6.setGeneticProfileId(GENETIC_PROFILE_ID);
         geneticData6.setEntrezGeneId(2);
         geneticData6.setSampleId("sample_id_3");

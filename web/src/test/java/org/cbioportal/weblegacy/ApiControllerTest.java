@@ -38,6 +38,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneticProfile.DataType;
 import org.mskcc.cbio.portal.model.Mutation;
 import org.mskcc.cbio.portal.model.MutationEvent;
 import org.cbioportal.model.Patient;
@@ -583,7 +584,7 @@ public class ApiControllerTest {
         geneticProfile_brca_tcga_mutations.setCancerStudyId(188);
         geneticProfile_brca_tcga_mutations.setCancerStudy(cancerStudy_brca_tcga);
         geneticProfile_brca_tcga_mutations.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED);
-        geneticProfile_brca_tcga_mutations.setDatatype("MAF");
+        geneticProfile_brca_tcga_mutations.setDatatype(DataType.MAF);
         geneticProfile_brca_tcga_mutations.setName("Mutations");
         geneticProfile_brca_tcga_mutations.setDescription("Mutation data from whole exome sequencing.");
         geneticProfile_brca_tcga_mutations.setShowProfileInAnalysisTab(true);

@@ -70,7 +70,9 @@
 
 <script>
 
-window.loadReactApp({ defaultRoute: 'patient' });
+    window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    
+    window.loadReactApp({ defaultRoute: 'patient' });
     
 </script>
     

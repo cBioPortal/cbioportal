@@ -22,33 +22,36 @@ public class MutationMyBatisRepository implements MutationRepository {
 
     @Override
     public List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
-                                                                     String projection, Integer pageSize, 
-                                                                     Integer pageNumber, String sortBy, 
-                                                                     String direction) {
+                                                                     List<Integer> entrezGeneIds, String projection, 
+                                                                     Integer pageSize, Integer pageNumber, 
+                                                                     String sortBy, String direction) {
 
-        return mutationMapper.getMutationsBySampleListId(geneticProfileId, sampleListId, projection, pageSize, 
+        return mutationMapper.getMutationsBySampleListId(geneticProfileId, sampleListId, entrezGeneIds, projection, 
+            pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+    }
+
+    @Override
+    public MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
+                                                                       List<Integer> entrezGeneIds) {
+
+        return mutationMapper.getMetaMutationsBySampleListId(geneticProfileId, sampleListId, entrezGeneIds);
+    }
+
+    @Override
+    public List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
+                                                         List<Integer> entrezGeneIds, String projection, 
+                                                         Integer pageSize, Integer pageNumber, String sortBy, 
+                                                         String direction) {
+
+        return mutationMapper.getMutationsBySampleIds(geneticProfileId, sampleIds, entrezGeneIds, projection, pageSize,
             offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
-    public MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId) {
+    public MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
+                                                           List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsBySampleListId(geneticProfileId, sampleListId);
-    }
-
-    @Override
-    public List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                         String projection, Integer pageSize, Integer pageNumber,
-                                                         String sortBy, String direction) {
-
-        return mutationMapper.getMutationsBySampleIds(geneticProfileId, sampleIds, projection, pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
-    }
-
-    @Override
-    public MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds) {
-
-        return mutationMapper.getMetaMutationsBySampleIds(geneticProfileId, sampleIds);
+        return mutationMapper.getMetaMutationsBySampleIds(geneticProfileId, sampleIds, entrezGeneIds);
     }
 
     @Override

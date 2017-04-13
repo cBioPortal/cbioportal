@@ -1,16 +1,10 @@
 package org.cbioportal.persistence.mybatis;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.SNPCount;
-import org.cbioportal.persistence.dto.AltCount;
-import org.cbioportal.persistence.dto.KeywordSampleCount;
-import org.cbioportal.persistence.dto.MutatedGeneSampleCount;
-import org.cbioportal.persistence.dto.SignificantlyMutatedGene;
+
 import org.junit.Test;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
@@ -57,7 +51,7 @@ public class MutationalSignatureMyBatisRepositoryTest {
 		Assert.assertTrue(snpCounts.get(0).getSampleId().equals("TCGA-A1-A0SI-01"));
 		Assert.assertTrue(snpCounts.get(0).getReferenceAllele().equals("G"));
 		Assert.assertTrue(snpCounts.get(0).getTumorAllele().equals("A"));
-		Assert.assertTrue(snpCounts.get(0).getCount() == 2);
+		Assert.assertTrue(snpCounts.get(0).getCount() == 1);
 		
 		List<String> sampleIds4 = new LinkedList<>();
 		sampleIds4.add("TCGA-A1-A0SP-01");

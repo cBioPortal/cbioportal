@@ -36,7 +36,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     private GeneticProfileService geneticProfileService;
     
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileHomdelOrAmp() throws Exception {
+    public void getDiscreteCopyNumbersInGeneticProfileBySampleListIdHomdelOrAmp() throws Exception {
 
         createGeneticProfile();
 
@@ -47,17 +47,19 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-2);
         
-        Mockito.when(discreteCopyNumberRepository.getDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID, SAMPLE_ID, 
-            alterations, PROJECTION)).thenReturn(expectedDiscreteCopyNumberDataList);
+        Mockito.when(discreteCopyNumberRepository.getDiscreteCopyNumbersInGeneticProfileBySampleListId(
+            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations, PROJECTION))
+            .thenReturn(expectedDiscreteCopyNumberDataList);
         
-        List<DiscreteCopyNumberData> result = discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, SAMPLE_ID, alterations, PROJECTION);
+        List<DiscreteCopyNumberData> result = discreteCopyNumberService
+            .getDiscreteCopyNumbersInGeneticProfileBySampleListId(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations, 
+                PROJECTION);
 
         Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
     }
 
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileNonHomdelOrAmp() throws Exception {
+    public void getDiscreteCopyNumbersInGeneticProfileBySampleListIdNonHomdelOrAmp() throws Exception {
 
         createGeneticProfile();
         
@@ -71,14 +73,15 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         geneticData.setGene(gene);
         expectedGeneticDataList.add(geneticData);
         
-        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_ID, null, PROJECTION))
+        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, null, PROJECTION))
             .thenReturn(expectedGeneticDataList);
 
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-1);
         
-        List<DiscreteCopyNumberData> result = discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, SAMPLE_ID, alterations, PROJECTION);
+        List<DiscreteCopyNumberData> result = discreteCopyNumberService
+            .getDiscreteCopyNumbersInGeneticProfileBySampleListId(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations, 
+                PROJECTION);
         
         Assert.assertEquals(1, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
@@ -90,7 +93,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getMetaDiscreteCopyNumbersInGeneticProfileHomdelOrAmp() throws Exception {
+    public void getMetaDiscreteCopyNumbersInGeneticProfileBySampleListIdHomdelOrAmp() throws Exception {
 
         createGeneticProfile();
 
@@ -98,17 +101,17 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         alterations.add(-2);
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID, 
-            SAMPLE_ID, alterations)).thenReturn(expectedBaseMeta);
+        Mockito.when(discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
+            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations)).thenReturn(expectedBaseMeta);
 
-        BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, SAMPLE_ID, alterations);
+        BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
+            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations);
         
         Assert.assertEquals(expectedBaseMeta, result);
     }
 
     @Test
-    public void getMetaDiscreteCopyNumbersInGeneticProfileNonHomdelOrAmp() throws Exception {
+    public void getMetaDiscreteCopyNumbersInGeneticProfileBySampleListIdNonHomdelOrAmp() throws Exception {
 
         createGeneticProfile();
 
@@ -117,14 +120,14 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         geneticData.setValue("-1");
         expectedGeneticDataList.add(geneticData);
 
-        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_ID, null, "ID"))
+        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, null, "ID"))
             .thenReturn(expectedGeneticDataList);
 
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-1);
 
-        BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, SAMPLE_ID, alterations);
+        BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
+            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations);
         
         Assert.assertEquals((Integer) 1, result.getTotalCount());
     }
@@ -142,7 +145,8 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         alterations.add(-2);
 
         Mockito.when(discreteCopyNumberRepository.fetchDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID, 
-            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION)).thenReturn(expectedDiscreteCopyNumberDataList);
+            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION))
+            .thenReturn(expectedDiscreteCopyNumberDataList);
 
         List<DiscreteCopyNumberData> result = discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(
             GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION);

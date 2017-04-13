@@ -5,7 +5,9 @@ import org.cbioportal.model.SampleListSampleCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
@@ -20,6 +22,8 @@ public class SampleListServiceImpl implements SampleListService {
 
     @Autowired
     private SampleListRepository sampleListRepository;
+    @Autowired
+    private StudyService studyService;
 
     @Override
     @PostFilter("hasPermission(filterObject, 'read')")
@@ -61,7 +65,10 @@ public class SampleListServiceImpl implements SampleListService {
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<SampleList> getAllSampleListsInStudy(String studyId, String projection, Integer pageSize,
-                                                     Integer pageNumber, String sortBy, String direction) {
+                                                     Integer pageNumber, String sortBy, String direction) 
+        throws StudyNotFoundException {
+        
+        studyService.getStudy(studyId);
 
         List<SampleList> sampleLists = sampleListRepository.getAllSampleListsInStudy(studyId, projection, pageSize, 
             pageNumber, sortBy, direction);
@@ -75,14 +82,18 @@ public class SampleListServiceImpl implements SampleListService {
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaSampleListsInStudy(String studyId) {
+    public BaseMeta getMetaSampleListsInStudy(String studyId) throws StudyNotFoundException {
+
+        studyService.getStudy(studyId);
 
         return sampleListRepository.getMetaSampleListsInStudy(studyId);
     }
 
     @Override
     @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
-    public List<String> getAllSampleIdsInSampleList(String sampleListId) {
+    public List<String> getAllSampleIdsInSampleList(String sampleListId) throws SampleListNotFoundException {
+        
+        getSampleList(sampleListId);
 
         return sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
     }

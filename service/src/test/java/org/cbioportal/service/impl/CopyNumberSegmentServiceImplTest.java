@@ -4,6 +4,8 @@ import junit.framework.Assert;
 import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
+import org.cbioportal.service.SampleService;
+import org.cbioportal.service.exception.SampleNotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -23,6 +25,8 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
     
     @Mock
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
+    @Mock
+    private SampleService sampleService;
 
     @Test
     public void getCopyNumberSegmentsInSampleInStudy() throws Exception {
@@ -40,6 +44,15 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedCopyNumberSegList, result);
     }
 
+    @Test(expected = SampleNotFoundException.class)
+    public void getCopyNumberSegmentsInSampleInStudySampleNotFound() throws Exception {
+        
+        Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID)).thenThrow(new SampleNotFoundException(
+            STUDY_ID, SAMPLE_ID));
+        copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(STUDY_ID, SAMPLE_ID, PROJECTION, PAGE_SIZE, 
+            PAGE_NUMBER, SORT, DIRECTION);
+    }
+
     @Test
     public void getMetaCopyNumberSegmentsInSampleInStudy() throws Exception {
 
@@ -51,6 +64,14 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
         BaseMeta result = copyNumberSegmentService.getMetaCopyNumberSegmentsInSampleInStudy(STUDY_ID, SAMPLE_ID);
 
         Assert.assertEquals(expectedBaseMeta, result);
+    }
+
+    @Test(expected = SampleNotFoundException.class)
+    public void getMetaCopyNumberSegmentsInSampleInStudySampleNotFound() throws Exception {
+        
+        Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID)).thenThrow(new SampleNotFoundException(
+            STUDY_ID, SAMPLE_ID));
+        copyNumberSegmentService.getMetaCopyNumberSegmentsInSampleInStudy(STUDY_ID, SAMPLE_ID);
     }
 
     @Test

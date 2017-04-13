@@ -3,7 +3,9 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.PatientRepository;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,8 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private PatientRepository patientRepository;
+    @Mock
+    private StudyService studyService;
 
     @Test
     public void getAllPatientsInStudy() throws Exception {
@@ -40,6 +44,13 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedPatientList, result);
     }
+    
+    @Test(expected = StudyNotFoundException.class)
+    public void getAllPatientsInStudyNotFound() throws Exception {
+        
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        patientService.getAllPatientsInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+    }
 
     @Test
     public void getMetaPatientsInStudy() throws Exception {
@@ -51,10 +62,24 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedBaseMeta, result);
     }
 
+    @Test(expected = StudyNotFoundException.class)
+    public void getMetaPatientsInStudyNotFound() throws Exception {
+        
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        patientService.getMetaPatientsInStudy(STUDY_ID);
+    }
+
     @Test(expected = PatientNotFoundException.class)
-    public void getPatientInStudyNotFound() throws Exception {
+    public void getPatientInStudyPatientNotFound() throws Exception {
 
         Mockito.when(patientRepository.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenReturn(null);
+        patientService.getPatientInStudy(STUDY_ID, PATIENT_ID);
+    }
+
+    @Test(expected = StudyNotFoundException.class)
+    public void getPatientInStudyNotFound() throws Exception {
+
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
         patientService.getPatientInStudy(STUDY_ID, PATIENT_ID);
     }
 

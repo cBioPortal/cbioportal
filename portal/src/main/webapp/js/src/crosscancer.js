@@ -1274,7 +1274,8 @@
                                                 sTitle: "Annotation",
                                                 tip: "",
                                                 sType: "sort-icons",
-                                                sClass: "left-align-td"
+                                                sClass: "left-align-td",
+                                                sWidth: "100px"
                                             }
                                         },
                                         columnOrder: columnOrder,

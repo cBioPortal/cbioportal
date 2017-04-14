@@ -77,7 +77,6 @@
 /* Order sample clinical attributes */
 .more-sample-info .clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"] {
     order: 1;
-    text-transform: capitalize;
 }
 .more-sample-info .clinical-attribute[attr-id="DERIVED_SAMPLE_LOCATION"] {
     order: 2;
@@ -132,13 +131,13 @@
 .clinical-attribute[attr-id="DFS_STATUS"][attr-value="Yes"] {
     color: rgb(0, 128, 0);
 }
-.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value='primary'] {
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value='Primary'] {
   color: black;
 }
-.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="progressed"],
-.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="recurrence"] {
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="Progressed"],
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="Recurrence"] {
   color: orange;
 }
-.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="metastasis"] {
+.clinical-attribute[attr-id="DERIVED_NORMALIZED_CASE_TYPE"][attr-value="Metastasis"] {
   color: red;
 }

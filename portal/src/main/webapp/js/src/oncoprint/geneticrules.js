@@ -3,9 +3,10 @@
 // Mutation colors
 var MUT_COLOR_MISSENSE = '#008000';
 var MUT_COLOR_MISSENSE_PASSENGER = '#53D400';
-var MUT_COLOR_INFRAME = '#708090';
-var MUT_COLOR_INFRAME_PASSENGER = '#A9A9A9';
+var MUT_COLOR_INFRAME = '#993404';
+var MUT_COLOR_INFRAME_PASSENGER = '#fe9929';
 var MUT_COLOR_TRUNC = '#000000';
+var MUT_COLOR_TRUNC_PASSENGER = '#708090';
 var MUT_COLOR_FUSION = '#8B00C9';
 var MUT_COLOR_PROMOTER = '#FFA942';
 
@@ -184,8 +185,7 @@ window.geneticrules.genetic_rule_set_same_color_for_all_recurrence = {
     'legend_label': 'Genetic Alteration',
     'rule_params': $.extend({}, non_mutation_rule_params, {
 	'disp_mut': {
-	    // only need to show recurrence for missense
-	    'missense_rec': {
+	    'missense_rec,inframe_rec,trunc_rec': {
 		shapes: [{
 			'type': 'rectangle',
 			'fill': MUT_COLOR_MISSENSE,
@@ -197,7 +197,7 @@ window.geneticrules.genetic_rule_set_same_color_for_all_recurrence = {
 		}],
 		legend_label: 'Mutation (putative driver)'
 	    },
-	    'missense,inframe,inframe_rec,trunc,trunc_rec,promoter,promoter_rec': { 
+	    'missense,inframe,trunc,promoter,promoter_rec': { 
 		shapes: [{
 			'type': 'rectangle',
 			'fill': MUT_COLOR_MISSENSE_PASSENGER,
@@ -285,7 +285,7 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 		    }],
 		legend_label: 'Promoter Mutation'
 	    },
-	    'trunc,trunc_rec': {
+	    'trunc_rec': {
 		shapes: [{
 			'type': 'rectangle',
 			'fill': MUT_COLOR_TRUNC,
@@ -295,9 +295,21 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 			'height': '33.33%',
 			'z': 6,
 		    }],
-		legend_label: 'Truncating Mutation',
+		legend_label: 'Truncating Mutation (putative driver)',
 	    },
-	    'inframe,inframe_rec': {
+	    'trunc': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': MUT_COLOR_TRUNC_PASSENGER,
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+			'z': 6,
+		    }],
+		legend_label: 'Truncating Mutation (putative passenger)',
+	    },
+	    'inframe_rec': {
 		shapes: [{
 			'type': 'rectangle',
 			'fill': MUT_COLOR_INFRAME,
@@ -307,7 +319,19 @@ window.geneticrules.genetic_rule_set_different_colors_recurrence = {
 			'height': '33.33%',
 			'z': 6,
 		    }],
-		legend_label: 'Inframe Mutation',
+		legend_label: 'Inframe Mutation (putative driver)',
+	    },
+	    'inframe': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': MUT_COLOR_INFRAME_PASSENGER,
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+			'z': 6,
+		    }],
+		legend_label: 'Inframe Mutation (putative passenger)',
 	    },
 	    'missense_rec': {
 		shapes: [{

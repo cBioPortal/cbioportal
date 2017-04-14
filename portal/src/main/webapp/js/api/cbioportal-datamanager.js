@@ -208,7 +208,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	 */
 	var def = new $.Deferred();
 	var oncogenic = {}; // See Out above
-
+	var cna_to_alteration = {
+	    '-2': 'deletion',
+	    '-1': 'loss',
+	    '1': 'gain',
+	    '2': 'amplification'
+	};
 	// Collect queries
 	var queries = {};
 	for (var i = 0; i < webservice_data.length; i++) {
@@ -216,14 +221,23 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    if (datum.genetic_alteration_type === "MUTATION_EXTENDED" && 
 		    (datum.oncoprint_mutation_type === "missense" || datum.oncoprint_mutation_type === "inframe"
 		    || datum.oncoprint_mutation_type === "trunc")) {
-		queries[datum.oncokb_mutation_id] = {
+		queries[datum.oncokb_query_id] = {
 		    'hugoSymbol': datum.hugo_gene_symbol.toUpperCase(),
 		    'alteration': datum.amino_acid_change,
 		    'consequence': datum.mutation_type,
 		    'proteinStart': datum.protein_start_position,
 		    'proteinEnd': datum.protein_end_position,
-		    'id': datum.oncokb_mutation_id
+		    'id': datum.oncokb_query_id
 		};
+	    } else if (datum.genetic_alteration_type === "COPY_NUMBER_ALTERATION") {
+		var alteration = cna_to_alteration[datum.profile_data];
+		if (alteration) {
+		    queries[datum.oncokb_query_id] = {
+			'hugoSymbol': datum.hugo_gene_symbol.toUpperCase(),
+			'alteration': alteration, 
+			'id': datum.oncokb_query_id
+		    };
+		}
 	    }
 	}
 	queries = objectValues(queries);
@@ -260,21 +274,24 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return def.promise();
     };
-    var addOncoKBMutationId = function(webservice_data) {
+    var addOncoKBQueryId = function(webservice_data) {
 	/* in-place, idempotent
 	 * In: webservice_data, a list of data obtained from the webservice API
 	 * Out: webservice_data, modified in-place, with the new added attribute
-	 *	oncokb_mutation_id,
+	 *	oncokb_query_id,
 	 *	which uniquely identifies a mutation for oncokb querying
 	 */
 	
 	for (var i=0; i<webservice_data.length; i++) {
 	    var datum = webservice_data[i];
-	    if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
-		continue;
-	    }
-	    datum.oncokb_mutation_id = [datum.hugo_gene_symbol, datum.amino_acid_change, datum.mutation_type,
+	    var genetic_alteration_type = datum.genetic_alteration_type;
+	    if (genetic_alteration_type === "MUTATION_EXTENDED") {
+		datum.oncokb_query_id = [datum.hugo_gene_symbol, datum.amino_acid_change, datum.mutation_type,
 					datum.protein_start_position, datum.protein_end_position].join(",");
+	    } else if (genetic_alteration_type === "COPY_NUMBER_ALTERATION") {
+		datum.oncokb_query_id = [datum.hugo_gene_symbol, datum.profile_data].join(",");
+	    }
+	    
 	}
 	return webservice_data;
     };
@@ -285,17 +302,15 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	 * Out: promise, which resolves when it's done (data is modified in place, with
 	 *	the mutation data given the string attribute 'oncokb_oncogenic', with value
 	 *	in ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
-	 *	The data now also has the attribute 'oncokb_mutation_id'
+	 *	The data now also has the attribute 'oncokb_query_id'
 	 */
 	var def = new $.Deferred();
 	var attribute_name = 'oncokb_oncogenic';
-	getOncoKBAnnotations(addOncoKBMutationId(webservice_data)).then(function (oncogenic) {
+	getOncoKBAnnotations(addOncoKBQueryId(webservice_data)).then(function (oncogenic) {
 	    for (var i = 0; i < webservice_data.length; i++) {
 		var datum = webservice_data[i];
-		if (datum.genetic_alteration_type !== "MUTATION_EXTENDED") {
-		    continue;
-		}
-		var datum_oncogenic_value = oncogenic[datum.oncokb_mutation_id];
+		var oncokb_query_id = datum.oncokb_query_id;
+		var datum_oncogenic_value = oncokb_query_id && oncogenic[oncokb_query_id];
 		if (datum_oncogenic_value) {
 		    datum[attribute_name] = datum_oncogenic_value;
 		}

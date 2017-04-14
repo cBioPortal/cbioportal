@@ -154,6 +154,16 @@ var tooltip_utils = {
 		return ret;
 	    });
 	};
+	var listOfCNAToHTML = function(data) {
+	    return data.map(function(d) {
+		var ret = $('<span>');
+		ret.append('<b>'+d.cna+'</b>');
+		if (d.oncokb_oncogenic) {
+		    ret.append('<img src="images/oncokb-oncogenic-1.svg" title="'+d.oncokb_oncogenic+'" style="height:11px; width:11px;margin-left:3px"/>');
+		}
+		return ret;
+	    });
+	};
 	return function (d) {
 	    var ret = $('<div>');
 	    var mutations = [];
@@ -175,7 +185,13 @@ var tooltip_utils = {
 		} else if (datum.genetic_alteration_type === "COPY_NUMBER_ALTERATION") {
 		    var disp_cna = {'-2': 'HOMODELETED', '-1': 'HETLOSS', '1': 'GAIN', '2': 'AMPLIFIED'};
 		    if (disp_cna.hasOwnProperty(datum.profile_data)) {
-			cna.push(disp_cna[datum.profile_data]);
+			var tooltip_datum = {
+			    cna: disp_cna[datum.profile_data]
+			};
+			if (typeof datum.oncokb_oncogenic !== "undefined" && ["Likely Oncogenic", "Oncogenic"].indexOf(datum.oncokb_oncogenic) > -1) {
+			    tooltip_datum.oncokb_oncogenic = datum.oncokb_oncogenic;
+			}
+			cna.push(tooltip_datum);
 		    }
 		} else if (datum.genetic_alteration_type === "MRNA_EXPRESSION" || datum.genetic_alteration_type === "PROTEIN_LEVEL") {
 		    if (datum.oql_regulation_direction) {
@@ -207,7 +223,15 @@ var tooltip_utils = {
 		ret.append('<br>');
 	    }
 	    if (cna.length > 0) {
-		ret.append('Copy Number Alteration: <b>' + cna.join(", ") + '</b><br>');
+		ret.append('Copy Number Alteration: ');
+		cna = listOfCNAToHTML(cna);
+		for (var i = 0; i < cna.length; i++) {
+		    if (i > 0) {
+			ret.append(",");
+		    }
+		    ret.append(cna[i]);
+		}
+		ret.append('<br>');
 	    }
 	    if (mrna.length > 0) {
 		ret.append('MRNA: <b>' + mrna.join(", ") + '</b><br>');

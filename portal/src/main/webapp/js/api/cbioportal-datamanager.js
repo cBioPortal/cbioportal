@@ -523,7 +523,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return data;
     };
-    var makeOncoprintData = function (webservice_data, genes, study_to_id_map, sample_or_patient, sample_to_patient_map, case_uid_map, sequencing_data) {
+    var makeOncoprintData = function (webservice_data, genes, study_to_id_map, sample_or_patient, sample_to_patient_map, case_uid_map, sequencing_data, use_putative_driver) {
 	// To fill in for non-existent data, need genes and samples to do so for
 	genes = genes || [];
 	study_to_id_map = study_to_id_map || {}; // to make blank data
@@ -574,7 +574,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    "1": "gain",
 	    "2": "amp"
 	};
-	var mut_rendering_priority = {'trunc': 1, 'inframe': 2, 'missense': 3};
+	var mut_rendering_priority = {'trunc_rec':1, 'inframe_rec':2, 'missense_rec':3, 'trunc': 4, 'inframe': 5, 'missense': 6};
 	var cna_rendering_priority = {'amp': 0, 'homdel': 0, 'gain': 1, 'hetloss': 1};
 	var mrna_rendering_priority = {'up': 0, 'down': 0};
 	var prot_rendering_priority = {'up': 0, 'down': 0};
@@ -633,6 +633,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    }
 		} else if (event.genetic_alteration_type === "MUTATION_EXTENDED") {
 		    var oncoprint_mutation_type = event.oncoprint_mutation_type;
+		    if (use_putative_driver && event.putative_driver) {
+			oncoprint_mutation_type += "_rec";
+		    }
 		    if (oncoprint_mutation_type === "fusion") {
 			disp_fusion = true;
 		    } else {
@@ -651,11 +654,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}
 	return data;
     };
-    var makeOncoprintSampleData = function (webservice_data, genes, study_sample_map, case_uid_map, sequenced_samples_by_gene) {
-	return makeOncoprintData(webservice_data, genes, study_sample_map, "sample", null, case_uid_map, sequenced_samples_by_gene);
+    var makeOncoprintSampleData = function (webservice_data, genes, study_sample_map, case_uid_map, sequenced_samples_by_gene, use_putative_driver) {
+	return makeOncoprintData(webservice_data, genes, study_sample_map, "sample", null, case_uid_map, sequenced_samples_by_gene, use_putative_driver);
     };
-    var makeOncoprintPatientData = function (webservice_data, genes, study_patient_map, sample_to_patient_map, case_uid_map, sequenced_patients_by_gene) {
-	return makeOncoprintData(webservice_data, genes, study_patient_map, "patient", sample_to_patient_map, case_uid_map, sequenced_patients_by_gene);
+    var makeOncoprintPatientData = function (webservice_data, genes, study_patient_map, sample_to_patient_map, case_uid_map, sequenced_patients_by_gene, use_putative_driver) {
+	return makeOncoprintData(webservice_data, genes, study_patient_map, "patient", sample_to_patient_map, case_uid_map, sequenced_patients_by_gene, use_putative_driver);
     };
 
     var default_oql = '';
@@ -865,11 +868,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return def.promise();
 	};
     };
-
+    
     var applyKnownMutationSettings = function (ws_data, known_mutation_settings, getters) {
+	var filtered_mutation_types = ["missense", "inframe", "trunc"];
 	return ws_data.filter(function (d) {
 	    if (d.genetic_alteration_type !== "MUTATION_EXTENDED"
-		    || (d.oncoprint_mutation_type !== "missense" && d.oncoprint_mutation_type !== "inframe")) {
+		    || (filtered_mutation_types.indexOf(d.oncoprint_mutation_type) === -1)) {
 		return true;
 	    } else {
 		var ret = (known_mutation_settings.recognize_hotspot && d.cancer_hotspots_hotspot)
@@ -884,6 +888,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    var cosmic_count = getters.cosmicCount(d);
 		    d.cosmic_count = cosmic_count;
 		    ret = ret || ((typeof cosmic_count !== "undefined") && (cosmic_count >= known_mutation_settings.cosmic_count_thresh));
+		}
+		if (ret) {
+		    d.putative_driver = true;
+		} else {
+		    d.putative_driver = false;
 		}
 		return ret || !known_mutation_settings.ignore_unknown;
 	    }
@@ -1657,7 +1666,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		function (self, fetch_promise, use_session_filters) {
 	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), self.getStudySampleMap(), self.getCaseUIDMap(), self.getSampleSequencingData()).then(function (ws_data, study_sample_map, case_uid_map, sample_sequencing_data) {
 		var filtered_ws_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, false, false);
-		fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), study_sample_map, case_uid_map, sample_sequencing_data));
+		fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), study_sample_map, case_uid_map, sample_sequencing_data, use_session_filters));
 	    }).fail(function () {
 		fetch_promise.reject();
 	    });
@@ -1672,7 +1681,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true, true);
 		for (var i = 0; i < ws_data_by_oql_line.length; i++) {
 		    var line = ws_data_by_oql_line[i];
-		    var oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], study_sample_map, case_uid_map, sample_sequencing_data);
+		    var oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], study_sample_map, case_uid_map, sample_sequencing_data, use_session_filters);
 		    var sequenced_samples = {};
 		    var altered_samples = {};
 		    var altered_sample_uids = {};
@@ -1808,7 +1817,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true, true);
 		for (var i = 0; i < ws_data_by_oql_line.length; i++) {
 		    var line = ws_data_by_oql_line[i];
-		    var oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], study_patient_map, sample_to_patient_map, case_uid_map, patient_sequencing_data);
+		    var oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], study_patient_map, sample_to_patient_map, case_uid_map, patient_sequencing_data, use_session_filters);
 		    var sequenced_patients = {};
 		    var altered_patients = {};
 		    var altered_patient_uids = {};

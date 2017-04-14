@@ -85,6 +85,7 @@
 				 out.println("<th scope='col'>Tumor miRNA</th>");
 				 out.println("<th scope='col'>Methylation (HM27)</th>");
 				 out.println("<th scope='col'>RPPA</th>");
+         out.println("<th scope='col'>Mass Spectrometry</th>");
 				 out.println("<th scope='col'>Complete</th>");
 				 out.println("</tr></thead>");
 				 out.println("<tbody>");
@@ -142,6 +143,9 @@
 					 // rppa
 					 String rppa = (stats.getRPPA() != 0) ? stats.getRPPA().toString() : "";
 					 out.println("<td style=\"text-align: center;\">" + rppa + "</td>");
+					 // mass spec
+					 String massSpec = (stats.getMassSpec() != 0) ? stats.getMassSpec().toString() : "";
+					 out.println("<td style=\"text-align: center;\">" + massSpec + "</td>");
 					 // complete
 					 String complete = (stats.getComplete() != 0) ? stats.getComplete().toString() : "";
 					 out.println("<td style=\"text-align: center;\"><b>" + complete + "<b></td>");

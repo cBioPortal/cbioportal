@@ -29,6 +29,8 @@ optional arguments:
   -n, --no_portal_checks
                         Skip tests requiring information from the cBioPortal
                         installation
+  -P PORTAL_PROPERTIES, --portal_properties PORTAL_PROPERTIES
+                        portal.properties file path (default: assumed hg19)
   -html HTML_TABLE, --html_table HTML_TABLE
                         path to html report output file
   -e ERROR_FILE, --error_file ERROR_FILE
@@ -38,7 +40,7 @@ optional arguments:
                         warnings
 ```
 
-For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below.
+For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below. If your cBioPortal is not using `hg19`, you must use the `--portal_properties` option. For more information, see [Validation of non-human data](#validation-of-non-human-data).
 
 ### Example 1
 As an example, you can try the validator with one of the test studies found in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
@@ -389,4 +391,19 @@ INFO: case_lists/cases_custom.txt: Validation of meta file complete
 INFO: -: Validation of case lists complete
 INFO: -: Validation complete
 Validation of study succeeded with warnings.
+```
+
+## Validation of non-human data ##
+When importing a study, the validator assumes by default that the following parameters from `portal.properties` are set to:
+```
+species=human
+ncbi.build=37
+ucsc.build=hg19
+```
+
+If your `portal.properties` has different settings for these variables, you should introduce a new parameter `-P` in your command. This parameter should point to either `portal.properties` or a file which contains the new global variables. 
+
+As an example, the command for the "Example 1" listed above incorporating the `-P` parameter is given:
+```
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080/cbioportal -v
 ```

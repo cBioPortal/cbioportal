@@ -1,28 +1,35 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.meta.MutationMeta;
+import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 
 import java.util.List;
 
 public interface MutationService {
     
-    List<Mutation> getMutationsInGeneticProfile(String geneticProfileId, String sampleId, String projection,
-                                                Integer pageSize, Integer pageNumber, String sortBy, String direction);
+    List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
+                                                              String projection, Integer pageSize, Integer pageNumber,
+                                                              String sortBy, String direction) throws GeneticProfileNotFoundException;
 
 
-    MutationMeta getMetaMutationsInGeneticProfile(String geneticProfileId, String sampleId);
+    MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId) throws GeneticProfileNotFoundException;
 
     List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, String projection,
                                                   Integer pageSize, Integer pageNumber, String sortBy,
-                                                  String direction);
+                                                  String direction) throws GeneticProfileNotFoundException;
 
-    MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds);
+    MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds) throws GeneticProfileNotFoundException;
 
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, List<Integer> entrezGeneIds);
+    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, List<Integer> entrezGeneIds) throws GeneticProfileNotFoundException;
 
-    List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords);
+    List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords) throws GeneticProfileNotFoundException;
+
+    List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId) throws GeneticProfileNotFoundException;
+
+    List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds) throws GeneticProfileNotFoundException;
 }

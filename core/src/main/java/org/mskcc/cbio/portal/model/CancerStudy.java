@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import org.mskcc.cbio.portal.dao.*;
@@ -64,6 +65,7 @@ public class CancerStudy {
     private String citation;
     private Set<String> groups;
     private String shortName;
+    private Date importDate;
     
 
     /**
@@ -451,5 +453,19 @@ public class CancerStudy {
     
     public String getTypeOfCancer() throws DaoException {
         return DaoTypeOfCancer.getTypeOfCancerById(this.typeOfCancerId).getName();
+    }
+
+    /**
+     * @return the importDate
+     */
+    public Date getImportDate() {
+        return importDate;
+    }
+
+    /**
+     * @param importDate the importDate to set
+     */
+    public void setImportDate(Date importDate) {
+        this.importDate = importDate;
     }
 }

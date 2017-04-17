@@ -1,8 +1,9 @@
 # Change INFO to DEBUG, if you want to see debugging info on underlying libraries we use.
 log4j.rootLogger=INFO, a
 
-# Change INFO to DEBUG, if you want see debugging info on our packages only.
+# Change INFO to DEBUG, if you want see debugging info on our packages and spring security packages.
 log4j.category.org.mskcc=INFO
+log4j.logger.org.springframework.security=INFO
 
 # Use the JVM option, e.g.: "java -DPORTAL_HOME=/pathto/portal_homedir",
 # or - "java -DPORTAL_HOME=$PORTAL_HOME", where PORTAL_HOME is shell (environment) variable.

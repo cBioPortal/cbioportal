@@ -101,6 +101,8 @@ cbio.util = (function() {
             }
             fetch_promise.then(function(data) {
                 def.resolve(deepCopyObject(data));
+            }, function() {
+                def.reject();
             });
             return def.promise();
         };

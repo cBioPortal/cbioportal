@@ -210,8 +210,6 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	var oncogenic = {}; // See Out above
 	var cna_to_alteration = {
 	    '-2': 'deletion',
-	    '-1': 'loss',
-	    '1': 'gain',
 	    '2': 'amplification'
 	};
 	// Collect queries

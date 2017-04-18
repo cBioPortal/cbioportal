@@ -35,7 +35,7 @@ public class ExternalPageController {
         URLConnection connection = url.openConnection();
 
         // create a reader
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 
         // read
         while ((decodedString = in.readLine()) != null) {

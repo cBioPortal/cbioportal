@@ -107,18 +107,18 @@ window.ClinicalAttributesUtil = (function() {
           caseTypeLower = caseType.toLowerCase();
 
           if (caseTypeLower.indexOf('metasta') >= 0) {
-            caseTypeNormalized = 'metastasis';
+            caseTypeNormalized = 'Metastasis';
           } else if (caseTypeLower.indexOf('recurr') >= 0) {
-            caseTypeNormalized = 'recurrence';
+            caseTypeNormalized = 'Recurrence';
           } else if (caseTypeLower.indexOf('progr') >= 0) {
-            caseTypeNormalized = 'progressed';
+            caseTypeNormalized = 'Progressed';
           } else if (caseTypeLower.indexOf('xeno') >= 0) {
-            caseTypeNormalized = 'xenograft';
+            caseTypeNormalized = 'Xenograft';
           } else if (caseTypeLower.indexOf('cfdna') >= 0) {
-            caseTypeNormalized = 'cfdna';
+            caseTypeNormalized = 'cfDNA';
           } else if (caseTypeLower.indexOf('prim') >= 0 || 
                     caseTypeLower.indexOf('prim') >= 0) {
-            caseTypeNormalized = 'primary';
+            caseTypeNormalized = 'Primary';
           }
           if (!cbio.util.checkNullOrUndefined(caseTypeNormalized)) {
             break;

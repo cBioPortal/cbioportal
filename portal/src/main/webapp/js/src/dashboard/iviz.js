@@ -5875,7 +5875,7 @@ window.LogRankTest = (function(jStat) {
   iViz.view.component.TableView = function() {
     var content = this;
     var chartId_;
-    var data_;
+    var data_ = [];
     var type_ = '';
     var attr_ = [];
     var attributes_ = [];
@@ -5922,7 +5922,7 @@ window.LogRankTest = (function(jStat) {
 
     content.init =
       function(_attributes, _opts, _selectedSamples, _selectedGenes,
-        _data, _callbacks, _geneData, _dimension, _genePanelMap) {
+               _data, _callbacks, _geneData, _dimension, _genePanelMap) {
         initialized = false;
         allSamplesIds = _selectedSamples;
         selectedSamples = _selectedSamples;
@@ -5968,43 +5968,47 @@ window.LogRankTest = (function(jStat) {
         } else {
           _.each(_selectedSamples, function(caseId) {
             var caseIndex_ = caseIndices[caseId];
-            var caseData_ = data_[caseIndex_];
-            var tempData_ = '';
-            switch (type_) {
-              case 'mutatedGene':
-                tempData_ = caseData_.mutated_genes;
-                includeMutationCount = true;
-                break;
-              case 'cna':
-                tempData_ = caseData_.cna_details;
-                includeMutationCount = false;
-                break;
-              default:
-                var category = caseData_[attributes_.attr_id];
-                if (!category) {
-                  category = 'NA';
-                }
-                if (!selectedMap_.hasOwnProperty(category)) {
-                  selectedMap_[category] = [];
-                }
-                selectedMap_[category].push(caseId);
-                break;
-            }
-            if (isMutatedGeneCna) {
-              _.each(tempData_, function(geneIndex) {
-                if (selectedMap_[geneIndex] === undefined) {
-                  selectedMap_[geneIndex] = {};
-                  if (includeMutationCount) {
-                    selectedMap_[geneIndex].num_muts = 1;
+            if (_.isNumber(caseIndex_)) {
+              var caseData_ = data_[caseIndex_];
+              if (_.isObject(caseData_)) {
+                var tempData_ = '';
+                switch (type_) {
+                case 'mutatedGene':
+                  tempData_ = caseData_.mutated_genes;
+                  includeMutationCount = true;
+                  break;
+                case 'cna':
+                  tempData_ = caseData_.cna_details;
+                  includeMutationCount = false;
+                  break;
+                default:
+                  var category = caseData_[attributes_.attr_id];
+                  if (!category) {
+                    category = 'NA';
                   }
-                  selectedMap_[geneIndex].caseIds = [caseId];
-                } else {
-                  if (includeMutationCount) {
-                    selectedMap_[geneIndex].num_muts += 1;
+                  if (!selectedMap_.hasOwnProperty(category)) {
+                    selectedMap_[category] = [];
                   }
-                  selectedMap_[geneIndex].caseIds.push(caseId);
+                  selectedMap_[category].push(caseId);
+                  break;
                 }
-              });
+                if (isMutatedGeneCna) {
+                  _.each(tempData_, function(geneIndex) {
+                    if (selectedMap_[geneIndex] === undefined) {
+                      selectedMap_[geneIndex] = {};
+                      if (includeMutationCount) {
+                        selectedMap_[geneIndex].num_muts = 1;
+                      }
+                      selectedMap_[geneIndex].caseIds = [caseId];
+                    } else {
+                      if (includeMutationCount) {
+                        selectedMap_[geneIndex].num_muts += 1;
+                      }
+                      selectedMap_[geneIndex].caseIds.push(caseId);
+                    }
+                  });
+                }
+              }
             }
           });
           initReactTable(true, selectedMap_, selectedSamples);
@@ -6150,7 +6154,7 @@ window.LogRankTest = (function(jStat) {
     function mutatedGenesData(_selectedGenesMap, _selectedSampleIds) {
 
       genePanelMap = window.iviz.datamanager.updateGenePanelMap(genePanelMap, _selectedSampleIds);
-      
+
       selectedGeneData.length = 0;
       var numOfCases_ = content.getCases().length;
 
@@ -6549,7 +6553,7 @@ window.LogRankTest = (function(jStat) {
     },
     events: {
       'show-loader': function() {
-        if (!this.madeSelection || this.isMutatedGeneCna) {
+        if (!this.failedToInit && (!this.madeSelection || this.isMutatedGeneCna)) {
           this.showLoad = true;
         }
       },
@@ -6559,18 +6563,20 @@ window.LogRankTest = (function(jStat) {
       },
       'update-special-charts': function() {
         // Do not update chart if the selection is made on itself
-        if (this.madeSelection && !this.isMutatedGeneCna) {
-          this.madeSelection = false;
-        } else {
-          var attrId =
-            this.attributes.group_type === 'patient' ?
-              'patient_id' : 'sample_id';
-          var _selectedCases =
-            _.pluck(this.invisibleDimension.top(Infinity), attrId);
-          this.chartInst.update(_selectedCases, this.selectedRows);
-          this.setDisplayTitle(this.chartInst.getCases().length);
-          this.showLoad = false;
-          this.showRainbowSurvival();
+        if(!this.failedToInit) {
+          if (this.madeSelection && !this.isMutatedGeneCna) {
+            this.madeSelection = false;
+          } else {
+            var attrId =
+              this.attributes.group_type === 'patient' ?
+                'patient_id' : 'sample_id';
+            var _selectedCases =
+              _.pluck(this.invisibleDimension.top(Infinity), attrId);
+            this.chartInst.update(_selectedCases, this.selectedRows);
+            this.setDisplayTitle(this.chartInst.getCases().length);
+            this.showLoad = false;
+            this.showRainbowSurvival();
+          }
         }
       },
       'closeChart': function() {

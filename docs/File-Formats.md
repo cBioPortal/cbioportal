@@ -618,7 +618,7 @@ The methylation data file follows the same format as expression data files. See 
 
 ## Protein level Data
 
-Protein expression measured by reverse-phase protein array or mass spectrometry (CPTAC). Antibody-sample pairs, with a real number representing the protein level for that sample. 
+Protein expression measured by reverse-phase protein array or mass spectrometry. Antibody-sample pairs, with a real number representing the protein level for that sample.
 
 #### Meta file
 
@@ -661,7 +661,7 @@ profile_name: Protein expression Z-scores (RPPA)
 
 #### Data file
 
-An protein level data file is a two dimensional matrix with a RPPA antibody per row and a sample per column. For each antibody-sample pair, a real number represents the protein level for that sample.  The antibody information can contain one or more HUGO gene symbols and/or entrez gene identifiers, separated by a space, and an antibody ID pair separated by the "|" symbol. 
+A protein level data file is a two dimensional matrix with a RPPA antibody per row and a sample per column. For each antibody-sample pair, a real number represents the protein level for that sample.  The antibody information can contain one or more HUGO gene symbols and/or entrez gene identifiers, separated by a space, and an antibody ID pair separated by the "|" symbol.
 
 #### Example 
 

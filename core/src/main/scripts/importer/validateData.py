@@ -2094,7 +2094,7 @@ class ProteinLevelValidator(FeaturewiseFileValidator):
         # products if the antibody name has a particular format.
         value = nonsample_col_vals[0].strip()
         if '|' not in value:
-            self.logger.error('No pipe symbol in Composite.Element.REF probe column',
+            self.logger.error('No pipe symbol in Composite.Element.REF column',
                               extra={'line_number': self.line_number,
                                      'column_number': 1,
                                      'cause': nonsample_col_vals[0]})

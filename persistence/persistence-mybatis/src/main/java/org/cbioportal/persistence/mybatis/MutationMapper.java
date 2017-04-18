@@ -11,15 +11,19 @@ import java.util.List;
 
 public interface MutationMapper {
 
-    List<Mutation> getMutationsBySampleListId(String geneticProfileId, String sampleListId, String projection,
-                                           Integer limit, Integer offset, String sortBy, String direction);
+    List<Mutation> getMutationsBySampleListId(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds,
+                                              String projection, Integer limit, Integer offset, String sortBy, 
+                                              String direction);
 
-    MutationMeta getMetaMutationsBySampleListId(String geneticProfileId, String sampleListId);
+    MutationMeta getMetaMutationsBySampleListId(String geneticProfileId, String sampleListId, 
+                                                List<Integer> entrezGeneIds);
 
-    List<Mutation> getMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, String projection, 
-                                           Integer limit, Integer offset, String sortBy, String direction);
+    List<Mutation> getMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, List<Integer> entrezGeneIds,
+                                           String projection, Integer limit, Integer offset, String sortBy, 
+                                           String direction);
 
-    MutationMeta getMetaMutationsBySampleIds(String geneticProfileId, List<String> sampleIds);
+    MutationMeta getMetaMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, 
+                                             List<Integer> entrezGeneIds);
     
     List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, List<Integer> entrezGeneIds);
     

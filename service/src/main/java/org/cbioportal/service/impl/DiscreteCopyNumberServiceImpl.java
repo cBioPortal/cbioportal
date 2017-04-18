@@ -29,36 +29,38 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
-                                                                               List<Integer> alterations,
-                                                                               String projection)
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, 
+                                                                                             String sampleListId, 
+                                                                                             List<Integer> alterations, 
+                                                                                             String projection)
         throws GeneticProfileNotFoundException {
 
         validateGeneticProfile(geneticProfileId);
         if (isHomdelOrAmpOnly(alterations)) {
 
-            return discreteCopyNumberRepository.getDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleId,
-                alterations, projection);
+            return discreteCopyNumberRepository.getDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, 
+                sampleListId, alterations, projection);
         }
 
-        return geneticDataService.getGeneticData(geneticProfileId, sampleId, null, projection).stream()
+        return geneticDataService.getGeneticData(geneticProfileId, sampleListId, null, projection).stream()
             .filter(g -> isValidAlteration(alterations, g)).map(this::convert)
             .collect(Collectors.toList());
     }
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
-                                                               List<Integer> alterations)
+    public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, 
+                                                                             String sampleListId, 
+                                                                             List<Integer> alterations)
         throws GeneticProfileNotFoundException {
 
         validateGeneticProfile(geneticProfileId);
         if (isHomdelOrAmpOnly(alterations)) {
-            return discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleId,
-                alterations);
+            return discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
+                geneticProfileId, sampleListId, alterations);
         }
 
-        long totalCount = geneticDataService.getGeneticData(geneticProfileId, sampleId, null, "ID").stream()
+        long totalCount = geneticDataService.getGeneticData(geneticProfileId, sampleListId, null, "ID").stream()
             .filter(g -> isValidAlteration(alterations, g)).count();
 
         BaseMeta baseMeta = new BaseMeta();

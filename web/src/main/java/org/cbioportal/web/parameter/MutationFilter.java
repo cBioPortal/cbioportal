@@ -4,16 +4,14 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-public class DiscreteCopyNumberFilter {
-
-    private static final int DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE = 50000;
+public class MutationFilter {
     
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> sampleIds;
     private String sampleListId;
-    @Size(min = 1, max = DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE)
+    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<Integer> entrezGeneIds;
-
+    
     @AssertTrue
     private boolean isEitherSampleListIdOrSampleIdsPresent() {
         return sampleListId != null ^ sampleIds != null;

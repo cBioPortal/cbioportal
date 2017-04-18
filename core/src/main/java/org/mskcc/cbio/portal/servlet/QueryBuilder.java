@@ -253,11 +253,11 @@ public class QueryBuilder extends HttpServlet {
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
                 CohortDetails cohortDetails;
                 if (httpServletRequest.getParameter(CANCER_STUDY_ID).equals("all") &&
-                    httpServletRequest.getParameter(CANCER_STUDY_LIST) != null) {
+                    httpServletRequest.getParameter(CANCER_STUDY_LIST) != null) { // multiple studies
                     cohortDetails = new CohortDetails(
                         httpServletRequest.getParameter(CANCER_STUDY_LIST).split(","), _isVirtualStudy
                     );
-                } else {
+                } else { // single study (can be VC here)
                     cohortDetails = new CohortDetails(
                         new String[]{httpServletRequest.getParameter(CANCER_STUDY_ID)}, _isVirtualStudy);
                 }
@@ -330,7 +330,8 @@ public class QueryBuilder extends HttpServlet {
     private void processData(CohortDetails cohortDetails,
                              String geneList,
 							 HashSet<String> geneticProfileIdSet,
-							 String sampleSetId, String sampleIds,
+							 String sampleSetId, 
+                             String sampleIdsStr, //raw string from "user custom case ids" box
 							 Integer dataTypePriority,
 							 ServletContext servletContext, 
                              HttpServletRequest request,
@@ -365,16 +366,16 @@ public class QueryBuilder extends HttpServlet {
             
             // single regular study
 			if (!cohortDetails.getIsVirtualStudy()) {
-				if (sampleSetId.equals("-1") && sampleIds == null) { 
+				if (sampleSetId.equals("-1") && sampleIdsStr == null) { 
 					sampleIdsKey = request.getParameter(CASE_IDS_KEY);
 					if (sampleIdsKey != null) {
-						sampleIds = SampleSetUtil.getSampleIds(sampleIdsKey);
+                        sampleIdsStr = SampleSetUtil.getSampleIds(sampleIdsKey);
 					}
 				}
 				if (!sampleSetId.equals("-1")) {
 					for (SampleList sampleSet : GetSampleLists.getSampleLists(cancerStudyId)) {
 						if (sampleSet.getStableId().equals(sampleSetId)) {
-							sampleIds = sampleSet.getSampleListAsString();
+                            sampleIdsStr = sampleSet.getSampleListAsString();
 							sampleSetName = sampleSet.getName();
 							sampleSetDescription = sampleSet.getDescription();
 							break;
@@ -383,15 +384,22 @@ public class QueryBuilder extends HttpServlet {
 				}
 				// if user specifies patients, add these to hashset, and send to
 				// GetMutationData
-				else if (sampleIds != null && sampleIds.length()>0) {
-                    // TODO: temporary solution
-				    String[] _keys = sampleIds.split("\\+");
-                    List<String> _arr = new ArrayList<String>();
-                    for (String _key: _keys) {
-                        String[] _tmp = _key.split("\\|");
-                        _arr.add(_tmp[1]);
+				else if (sampleIdsStr != null && sampleIdsStr.length() > 0) {
+                    List<String> sampleIds = new ArrayList<>();
+				    if (sampleIdsStr.contains("|")) { //TODO: a better way to distinguish input from "Case Ids" box or "Summary" page
+                        String[] _segs = sampleIdsStr.split("\\+");
+                        for (String _seg: _segs) { // _seg => study_id|sampleId
+                            sampleIds.add(_seg.split("\\|")[1]);
+                        }
+                    } else {
+                        sampleIdsStr = sampleIdsStr.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
+                        sampleIdsStr = sampleIdsStr.replaceAll("\n", "+").replaceAll("\t", "|");
+                        String[] _segs = sampleIdsStr.split("\\+"); // _seg => a line in "Case Ids" box: study_id\tsampleId
+                        for (String _seg: _segs) {
+                            sampleIds.add(_seg.split("\\|")[1]);
+                        }
                     }
-                    sampleIds = StringUtils.join(_arr, " ");
+                    sampleIdsStr = StringUtils.join(sampleIds, " ");
                 }
 				else {
 					redirectStudyUnavailable(request, response);
@@ -400,27 +408,48 @@ public class QueryBuilder extends HttpServlet {
 					geneticProfileMap.put(profileId, GeneticProfileUtil.getProfile(profileId, geneticProfileList));
 				}
 				
-				List<String> samplesList = new ArrayList<>(Arrays.asList(sampleIds.split(" ")));
+				List<String> samplesList = new ArrayList<>(Arrays.asList(sampleIdsStr.split(" ")));
 				studySampleMap.put(cancerStudyId,samplesList);
 				
 				if (sampleIdsKey == null)
 		        {
-		            sampleIdsKey = SampleSetUtil.shortenSampleIds(sampleIds);
+		            sampleIdsKey = SampleSetUtil.shortenSampleIds(sampleIdsStr);
 		        }
 
             // multiple studies OR single virtual study
             } else { 
 				if (dataTypePriority != null) {
-					AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
-					SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
-					if (defaultSampleSet == null) {
-						continue;
-					}
-					List<String> sampleList = defaultSampleSet.getSampleList();
-					if(inputStudySampleMap.get(cancerStudyId).size()>0){
-						sampleList.retainAll(inputStudySampleMap.get(cancerStudyId));
-					}
-					studySampleMap.put(cancerStudyId, sampleList);
+                    if (sampleSetId.equals("-1") && sampleIdsStr != null && sampleIdsStr.length() > 0) { //using user customized case list
+                        sampleIdsStr = sampleIdsStr.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
+                        sampleIdsStr = sampleIdsStr.replaceAll("\n", "+").replaceAll("\t", "|");
+                        String[] _segs = sampleIdsStr.split("\\+"); // _seg => a line in "Case Ids" box: study_id\tsampleId
+                        for (String _seg: _segs) {
+                            String _studyId = _seg.split("\\|")[0];
+                            String _sampleId = _seg.split("\\|")[1];
+                            if (studySampleMap.containsKey(_studyId)) {
+                                List<String> _tmpSampleList = studySampleMap.get(_studyId);
+                                if (!_tmpSampleList.contains(_sampleId)) {
+                                    _tmpSampleList.add(_sampleId);
+                                }
+                                studySampleMap.put(_studyId, _tmpSampleList);
+                            } else {
+                                List<String> _tmpSampleList = new ArrayList<>(Arrays.asList(_sampleId));
+                                studySampleMap.put(_studyId, _tmpSampleList);
+                            }
+                        }
+                    } else { // using all cases (defualt)
+                        AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
+                        SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
+                        if (defaultSampleSet == null) {
+                            continue;
+                        }
+                        List<String> sampleList = defaultSampleSet.getSampleList();
+                        if(inputStudySampleMap.get(cancerStudyId).size()>0){
+                            sampleList.retainAll(inputStudySampleMap.get(cancerStudyId));
+                        }
+                        studySampleMap.put(cancerStudyId, sampleList);
+                    }
+
 					// Get the default genomic profiles
 					CategorizedGeneticProfileSet categorizedGeneticProfileSet = new CategorizedGeneticProfileSet(
 							geneticProfileList);
@@ -461,7 +490,7 @@ public class QueryBuilder extends HttpServlet {
         for(GeneticProfile profile : geneticProfileMap.values()){
         	GetProfileData remoteCall =
                     new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), StringUtils.join(studySampleMap.get(DaoCancerStudy.getCancerStudyByInternalId(profile.getCancerStudyId()).getCancerStudyStableId()), " "));
-                DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIds,
+                DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIdsStr,
                     remoteCall.getRawContent());
                 downloadLinkSet.add(downloadLink);
         }

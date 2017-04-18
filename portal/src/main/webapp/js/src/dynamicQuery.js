@@ -928,17 +928,19 @@ function chooseAction(evt) {
             createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
             return false;
         }
-        if ($("#tab_index").val() == 'tab_download') {
+        if ($("#tab_index").val() === 'tab_download') {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
         $("#main_form").get(0).setAttribute('cancer_study_id', 'all');
         $("#main_form").get(0).setAttribute('cancer_study_list', $('#main_form').find('input[name=cancer_study_list]').val());
+        $("#main_form").get(0).setAttribute('case_ids', $('#custom_case_set_ids').val());
         $("#main_form").get(0).setAttribute('action','index.do');
     } else if (selected_studies.length === 1) {
         $("#main_form").find("#select_single_study").val(selected_studies[0]);
         $('#main_form').find('input[name=cancer_study_list]').val(null);
         $("#main_form").get(0).setAttribute('cancer_study_id', selected_studies[0]);
         $("#main_form").get(0).setAttribute('cancer_study_list', null);
+        $("#main_form").get(0).setAttribute('case_ids', $('#custom_case_set_ids').val());
         $("#main_form").get(0).setAttribute('action','index.do');
 
         if ( haveExpInQuery ) {

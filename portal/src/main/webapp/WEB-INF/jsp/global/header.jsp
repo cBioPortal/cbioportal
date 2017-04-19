@@ -58,6 +58,13 @@ String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "
 
     <script type="text/javascript">
          window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+         $(document).ready(function(){
+        	 window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
+        	 <%if(!sessionServiceUrl.equals("")){%>
+        	 	vcSession.URL = 'api-legacy/proxy/virtual-cohort';
+             <%}%>
+        	 
+         });
         
         // Set API root variable for cbioportal-frontend repo
         <%

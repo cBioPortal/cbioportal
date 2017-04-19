@@ -10,7 +10,7 @@
     * [Mutation Data](#mutation-data)
     * [Fusion Data](#fusion-data)
     * [Methylation Data](#methylation-data)
-    * [RPPA Data](#rppa-data)
+    * [Protein level Data](#protein-level-data)
     * [Case Lists](#case-lists)
     * [Timeline Data](#timeline-data)
     * [Gistic Data](#gistic-data)
@@ -616,18 +616,18 @@ data_filename: data_methylation_hm27.txt
 The methylation data file follows the same format as expression data files. See [Expression Data](#expression-data) for a description of the expression data file format. The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.
 
 
-## RPPA Data
+## Protein level Data
 
-Protein expression measured by reverse-phase protein array. Antibody-sample pairs, with a real number representing the RPPA level for that sample. 
+Protein expression measured by reverse-phase protein array or mass spectrometry. Antibody-sample pairs, with a real number representing the protein level for that sample.
 
 #### Meta file
 
-The RPPA metadata file should contain the following fields:
+The protein level metadata file should contain the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
 2. **genetic_alteration_type**: PROTEIN_LEVEL
 3. **datatype**: LOG2-VALUE or Z-SCORE
-4. **stable_id**: rppa or rppa_Zscores
+4. **stable_id**: rppa, rppa_Zscores, protein_quantification or protein_quantification_zscores 
 5. **show_profile_in_analysis_tab**: false (**true** for Z-SCORE datatype)
 6. **profile_name**: A name for the RPPA data, e.g., "RPPA data".
 7. **profile_description**: A description of the RPPA data, e.g., "RPPA levels.".
@@ -646,7 +646,7 @@ profile_name: Protein expression (RPPA)
 data_filename: data_rppa.txt
 ```
 
-**NB:** You also need a Z-SCORE file if you want RPPA to be available in query UI and in [Oncoprint visualization](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&genetic_profile_ids_PROFILE_PROTEIN_EXPRESSION=brca_tcga_pub_rppa_Zscores&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53+SOX9+RAN+TNK2+EP300+PXN+NCOA2+AR+NRIP1+NCOR1+NCOR2&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit). E.g.:
+**NB:** You also need a Z-SCORE file if you want protein levels to be available in query UI and in [Oncoprint visualization](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&genetic_profile_ids_PROFILE_PROTEIN_EXPRESSION=brca_tcga_pub_rppa_Zscores&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53+SOX9+RAN+TNK2+EP300+PXN+NCOA2+AR+NRIP1+NCOR1+NCOR2&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit). E.g.:
 
 ```
 cancer_study_identifier: brca_tcga
@@ -661,7 +661,7 @@ profile_name: Protein expression Z-scores (RPPA)
 
 #### Data file
 
-An RPPA data file is a two dimensional matrix with an antibody per row and a sample per column.  For each antibody-sample pair, a real number represents the RPPA level for that sample.  The antibody information can contain one or more HUGO gene symbols and/or entrez gene identifiers, separated by a space, and an antibody ID pair separated by the "|" symbol. 
+A protein level data file is a two dimensional matrix with a RPPA antibody per row and a sample per column. For each antibody-sample pair, a real number represents the protein level for that sample.  The antibody information can contain one or more HUGO gene symbols and/or entrez gene identifiers, separated by a space, and an antibody ID pair separated by the "|" symbol.
 
 #### Example 
 

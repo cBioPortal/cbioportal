@@ -41,7 +41,7 @@ class MetaFileTypes(object):
     MUTATION = 'meta_mutations_extended'
     METHYLATION = 'meta_methylation'
     FUSION = 'meta_fusions'
-    RPPA = 'meta_rppa'
+    PROTEIN = 'meta_protein'
     GISTIC_GENES = 'meta_gistic_genes'
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
@@ -147,7 +147,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True
     },
-    MetaFileTypes.RPPA: {
+    MetaFileTypes.PROTEIN: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -209,7 +209,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.PROTEIN: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS,
@@ -438,9 +438,10 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("CLINICAL", "PATIENT_ATTRIBUTES"): MetaFileTypes.PATIENT_ATTRIBUTES,
         ("CLINICAL", "SAMPLE_ATTRIBUTES"): MetaFileTypes.SAMPLE_ATTRIBUTES,
         ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
-        # rppa
-        ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.RPPA,
-        ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
+        # rppa and mass spectrometry
+        ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.PROTEIN,
+        ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.PROTEIN,
+        ("PROTEIN_LEVEL", "CONTINUOUS"): MetaFileTypes.PROTEIN,
         # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS, 

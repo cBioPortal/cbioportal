@@ -316,7 +316,7 @@ public class PatientView extends HttpServlet {
             return;
         }
         try {
-            Collections.sort(sampleIds);
+            Collections.sort(sampleIds, new NaturalOrderComparator());
 
             if (DaoClinicalEvent.timeEventsExistForPatient(patientId)) {
                 List<ClinicalEvent> events = DaoClinicalEvent.getClinicalEvent(patientId, "SPECIMEN");

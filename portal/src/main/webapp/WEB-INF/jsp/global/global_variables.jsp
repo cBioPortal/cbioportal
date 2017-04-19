@@ -130,9 +130,10 @@
 <script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>">
     //needed for data manager
 </script>
-<script type="text/javascript" src="js/lib/oql/oql-parser.js"></script>
-<script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
-<script type="text/javascript" src="js/src/oql/oqlfilter.js"></script>
+<script type="text/javascript" src="js/lib/oql/oql-parser.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/api/HotspotSet.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/api/cbioportal-datamanager.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/oql/oqlfilter.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <!-- Global variables : basic information about the main query -->
 <script type="text/javascript">

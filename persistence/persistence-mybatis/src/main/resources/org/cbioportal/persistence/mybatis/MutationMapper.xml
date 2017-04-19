@@ -63,8 +63,50 @@
             </if>
         </where>
     </sql>
+    
+    <sql id="whereBySampleListId">
+        <where>
+            genetic_profile.STABLE_ID = #{geneticProfileId}
+            AND mutation.SAMPLE_ID IN
+                (
+                    SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                    INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                    WHERE sample_list.STABLE_ID = #{sampleListId}
+                )
+        </where>
+    </sql>
 
-    <select id="getMutations" resultType="org.cbioportal.model.Mutation">
+    <select id="getMutationsBySampleListId" resultType="org.cbioportal.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        </if>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        </if>
+        <include refid="whereBySampleListId"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY genetic_profile.STABLE_ID ASC, sample.STABLE_ID ASC, mutation.ENTREZ_GENE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaMutationsBySampleListId" resultType="org.cbioportal.model.meta.MutationMeta">
+        SELECT
+        COUNT(*) AS totalCount,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
+        <include refid="from"/>
+        <include refid="whereBySampleListId"/>
+    </select>
+
+    <select id="getMutationsBySampleIds" resultType="org.cbioportal.model.Mutation">
         SELECT
         <include refid="select"/>
         <include refid="from"/>
@@ -86,7 +128,7 @@
         </if>
     </select>
 
-    <select id="getMetaMutations" resultType="org.cbioportal.model.meta.MutationMeta">
+    <select id="getMetaMutationsBySampleIds" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT
         COUNT(*) AS totalCount,
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
@@ -125,5 +167,33 @@
             </foreach>
         </if>
         GROUP BY mutation_event.KEYWORD
+    </select>
+
+    <select id="getMutationCountsBySampleListId" resultType="org.cbioportal.model.MutationCount">
+        SELECT
+        genetic_profile.STABLE_ID AS geneticProfileId,
+        sample.STABLE_ID AS sampleId,
+        mutation_count.MUTATION_COUNT AS mutationCount
+        FROM mutation_count
+        INNER JOIN genetic_profile ON mutation_count.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+        AND mutation_count.SAMPLE_ID IN
+            (
+                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                WHERE sample_list.STABLE_ID = #{sampleListId}
+            )
+    </select>
+
+    <select id="getMutationCountsBySampleIds" resultType="org.cbioportal.model.MutationCount">
+        SELECT
+        genetic_profile.STABLE_ID AS geneticProfileId,
+        sample.STABLE_ID AS sampleId,
+        mutation_count.MUTATION_COUNT AS mutationCount
+        FROM mutation_count
+        INNER JOIN genetic_profile ON mutation_count.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
+        <include refid="where"/>
     </select>
 </mapper>

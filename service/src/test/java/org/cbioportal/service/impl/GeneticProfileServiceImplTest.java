@@ -1,9 +1,12 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneticProfileRepository;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +26,8 @@ public class GeneticProfileServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private GeneticProfileRepository geneticProfileRepository;
+    @Mock
+    private StudyService studyService;
 
     @Test
     public void getAllGeneticProfiles() throws Exception {
@@ -89,6 +94,14 @@ public class GeneticProfileServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedGeneticProfileList, result);
     }
 
+    @Test(expected = StudyNotFoundException.class)
+    public void getAllGeneticProfilesInStudyNotFound() throws Exception {
+        
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        geneticProfileService.getAllGeneticProfilesInStudy(STUDY_ID, PROJECTION,
+            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+    }
+
     @Test
     public void getMetaGeneticProfilesInStudy() throws Exception {
 
@@ -99,5 +112,12 @@ public class GeneticProfileServiceImplTest extends BaseServiceImplTest {
         BaseMeta result = geneticProfileService.getMetaGeneticProfilesInStudy(STUDY_ID);
 
         Assert.assertEquals(expectedBaseMeta, result);
+    }
+
+    @Test(expected = StudyNotFoundException.class)
+    public void getMetaGeneticProfilesInStudyNotFound() throws Exception {
+
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        geneticProfileService.getMetaGeneticProfilesInStudy(STUDY_ID);
     }
 }

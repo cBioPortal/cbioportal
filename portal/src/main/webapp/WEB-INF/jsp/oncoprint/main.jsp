@@ -30,7 +30,10 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-        
+<script type="text/javascript">
+    var defaultOncoprintView = "<%=(String) GlobalProperties.getDefaultOncoprintView()%>";
+</script>
+
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <p id="oncoprint_progress_indicator"></p>
     <div style="display:none;" id="everything">

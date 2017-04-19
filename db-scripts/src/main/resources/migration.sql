@@ -55,8 +55,6 @@ UPDATE info SET DB_SCHEMA_VERSION="1.2.1";
 ##version: 1.3.0
 DROP TABLE IF EXISTS `clinical_trial_keywords`;
 DROP TABLE IF EXISTS `clinical_trials`;
-ALTER TABLE `users` CONVERT TO CHARACTER SET utf8;
-ALTER TABLE `info` CONVERT TO CHARACTER SET utf8;
 ALTER TABLE `gene` MODIFY COLUMN `ENTREZ_GENE_ID` int(11) NOT NULL;
 ALTER TABLE `gene_alias` MODIFY COLUMN `ENTREZ_GENE_ID` int(11) NOT NULL;
 ALTER TABLE `uniprot_id_mapping` MODIFY COLUMN `ENTREZ_GENE_ID` int(11) NOT NULL;
@@ -211,9 +209,9 @@ CREATE TABLE `genetic_entity` (
   `ENTITY_TYPE` varchar(45) NOT NULL,
   PRIMARY KEY (`ID`)
 );
+
 -- update gene table to use genetic_element:
-ALTER TABLE `gene` 
-ADD COLUMN `GENETIC_ENTITY_ID` INT NULL;
+ALTER TABLE `gene` ADD COLUMN `GENETIC_ENTITY_ID` INT NULL AFTER `HUGO_GENE_SYMBOL`;
 
 -- add temporary column to support migration:
 ALTER TABLE `genetic_entity` 
@@ -221,13 +219,11 @@ ADD COLUMN `TMP_GENE_ID` INT NOT NULL AFTER `ENTITY_TYPE`,
 ADD UNIQUE INDEX `TMP_GENE_ID_UNIQUE` (`TMP_GENE_ID` ASC);
 
 -- populate genetic_entity
-insert into genetic_entity (entity_type, tmp_gene_id)
-(Select 'GENE', ENTREZ_GENE_ID from gene);
+INSERT INTO genetic_entity (entity_type, tmp_gene_id)
+(SELECT 'GENE', ENTREZ_GENE_ID FROM gene);
 
 -- update gene table to have GENETIC_ENTITY_ID point to the correct one:
-UPDATE gene
-INNER JOIN genetic_entity ON gene.ENTREZ_GENE_ID = genetic_entity.TMP_GENE_ID
-SET GENETIC_ENTITY_ID = genetic_entity.ID;
+UPDATE gene INNER JOIN genetic_entity ON gene.ENTREZ_GENE_ID = genetic_entity.TMP_GENE_ID SET GENETIC_ENTITY_ID = genetic_entity.ID;
 
 -- add UQ and FK constraint for GENETIC_ENTITY_ID in gene table:
 ALTER TABLE `gene` 
@@ -235,11 +231,7 @@ CHANGE COLUMN `GENETIC_ENTITY_ID` `GENETIC_ENTITY_ID` INT NOT NULL,
 ADD UNIQUE INDEX `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC);
 
 ALTER TABLE `gene` 
-ADD CONSTRAINT `fk_gene_1`
-  FOREIGN KEY (`GENETIC_ENTITY_ID`)
-  REFERENCES `genetic_entity` (`ID`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+ADD FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
 
 -- migrate genetic_alteration table in a similar way, pointing to GENETIC_ENTITY_ID 
 -- instead of ENTREZ_GENE_ID (note: the INSERT part can take some time [~20 min], 
@@ -256,8 +248,7 @@ CREATE TABLE `genetic_alteration_new` (
 INSERT INTO genetic_alteration_new
 (GENETIC_PROFILE_ID, GENETIC_ENTITY_ID, `VALUES`)
 SELECT genetic_alteration.GENETIC_PROFILE_ID, genetic_entity.ID, genetic_alteration.`VALUES`
-FROM genetic_alteration 
-INNER JOIN genetic_entity ON genetic_alteration.ENTREZ_GENE_ID = genetic_entity.TMP_GENE_ID;
+FROM genetic_alteration INNER JOIN genetic_entity ON genetic_alteration.ENTREZ_GENE_ID = genetic_entity.TMP_GENE_ID;
 
 -- drop old genetic_alteration
 DROP TABLE genetic_alteration;
@@ -265,12 +256,40 @@ DROP TABLE genetic_alteration;
 RENAME TABLE `genetic_alteration_new` TO `genetic_alteration`;
 -- drop temporary column:
 ALTER TABLE `genetic_entity` DROP COLUMN `TMP_GENE_ID`;
-
-
 -- ========================== end of genetic_entity related migration =============================================
-
 UPDATE info SET DB_SCHEMA_VERSION="2.0.0";
 
 ##version: 2.0.1
 ALTER TABLE `genetic_profile` MODIFY COLUMN `SHOW_PROFILE_IN_ANALYSIS_TAB` BOOLEAN NOT NULL;
 UPDATE info SET DB_SCHEMA_VERSION="2.0.1";
+
+##version: 2.1.0
+ALTER TABLE `cancer_study` MODIFY COLUMN `TYPE_OF_CANCER_ID` varchar(63) NOT NULL;
+ALTER TABLE `sample` MODIFY COLUMN `TYPE_OF_CANCER_ID` varchar(63) NOT NULL;
+UPDATE info SET DB_SCHEMA_VERSION="2.1.0";
+
+##version: 2.2.0
+CREATE TABLE `mutation_count_by_keyword` (
+    `GENETIC_PROFILE_ID` int(11) NOT NULL,
+    `KEYWORD` varchar(50) DEFAULT NULL,
+    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `KEYWORD_COUNT` int NOT NULL,
+    `GENE_COUNT` int NOT NULL,
+    KEY (`GENETIC_PROFILE_ID`,`KEYWORD`),
+    FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+INSERT INTO mutation_count_by_keyword
+    SELECT g2.`GENETIC_PROFILE_ID`, mutation_event.`KEYWORD`, m2.`ENTREZ_GENE_ID`,
+        IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(*)) AS KEYWORD_COUNT, 
+        (SELECT COUNT(*) FROM `mutation` AS m1 , `genetic_profile` AS g1
+        WHERE m1.`GENETIC_PROFILE_ID` = g1.`GENETIC_PROFILE_ID`
+        AND g1.`GENETIC_PROFILE_ID`= g2.`GENETIC_PROFILE_ID` AND m1.`ENTREZ_GENE_ID` = m2.`ENTREZ_GENE_ID`
+        GROUP BY g1.`GENETIC_PROFILE_ID` , m1.`ENTREZ_GENE_ID`) AS GENE_COUNT
+    FROM `mutation` AS m2 , `genetic_profile` AS g2 , `mutation_event`
+    WHERE m2.`GENETIC_PROFILE_ID` = g2.`GENETIC_PROFILE_ID`
+          AND m2.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID`
+          AND g2.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
+    GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;
+UPDATE info SET DB_SCHEMA_VERSION="2.2.0";

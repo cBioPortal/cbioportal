@@ -5,11 +5,13 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 public class DiscreteCopyNumberFilter {
+
+    private static final int DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE = 50000;
     
     @NotNull
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> sampleIds;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+    @Size(min = 1, max = DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE)
     private List<Integer> entrezGeneIds;
 
     public List<String> getSampleIds() {

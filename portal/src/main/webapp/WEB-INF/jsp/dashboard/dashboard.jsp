@@ -330,18 +330,18 @@
         		if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         			$("#study-tabs-loading-wait").css('display', 'none');
         	        if(!_.isObject(window.iviz.datamanager.initialSetupResult)) {
-        	            $.when(window.iviz.datamanager.initialSetup(), window.iviz.datamanager.getStyleVars() ).then(function(_data, styles){
+        	            $.when(window.iviz.datamanager.initialSetup(), window.iviz.datamanager.getConfigs() ).then(function(_data, configs){
         	            	 var opts = {};
-        	            	 if(_.isObject(styles)) {
-        	                 	opts.styles = styles;
+        	            	 if(_.isObject(configs)) {
+        	                 	opts = configs;
         	                 }
         	            	 initdcplots(_data, opts);
         	            });
         	        }else {
-        	        	$.when(window.iviz.datamanager.getStyleVars()).then(function(styles){
+        	        	$.when(window.iviz.datamanager.getConfigs()).then(function(configs){
                             var opts = {};
-                            if(_.isObject(styles)) {
-                                opts.styles = styles;
+                            if(_.isObject(configs)) {
+                                opts = configs;
                             }
                             initdcplots(window.iviz.datamanager.initialSetupResult, opts);
                         });

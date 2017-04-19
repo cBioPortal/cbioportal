@@ -32,6 +32,8 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.portal.servlet.PatientView;
+
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
@@ -39,21 +41,12 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import javax.annotation.Generated;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.mskcc.cbio.portal.servlet.PatientView;
-import org.mskcc.cbio.portal.model.CancerStudy;
 
 /**
  *
@@ -71,25 +64,31 @@ public class CheckDarwinAccessMain {
     public static class CheckDarwinAccess {
         private static String darwinAuthUrl = GlobalProperties.getDarwinAuthCheckUrl();
         private static String darwinResponseUrl = GlobalProperties.getDarwinResponseUrl();
-        private static String darwinAuthority = GlobalProperties.getDarwinAuthority();
         private static String cisUser = GlobalProperties.getCisUser();
+        public static Pattern sampleIdRegex = Pattern.compile(GlobalProperties.getDarwinRegex());
 
         public static String checkAccess(HttpServletRequest request) {
-            CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
-            String userName = GlobalProperties.getAuthenticatedUserName().split("@")[0];
-            String patientId = (String)request.getAttribute(PatientView.PATIENT_ID);
-
-            return getResponse(cancerStudy.getCancerStudyStableId(), userName, patientId);
+            if (!existsDarwinProperties()) return "";
+            // if sample id does not match regex or username matches cis username then return empty string
+            String userName = GlobalProperties.getAuthenticatedUserName().split("@")[0];            
+            String darwinResponse = "";            
+            try {
+                List<String> sampleIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);
+                if (sampleIdRegex.matcher(sampleIds.get(0)).find() && !cisUser.equals(userName)) {
+                    String patientId = (String)request.getAttribute(PatientView.PATIENT_ID);
+                    darwinResponse = getResponse(userName, patientId);
+                }
+            }
+            catch (NullPointerException ex) {}
+            
+            return darwinResponse;
         }
         
-        public static String getResponse(String cancerStudy, String userName, String patientId){   
-            if (!darwinAuthority.equals(cancerStudy) || cisUser.equals(userName)) return "";
-            
-            RestTemplate restTemplate = new RestTemplate();                 
-            HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity(userName, patientId);  
-            ResponseEntity<DarwinAccess> responseEntity = restTemplate.exchange(darwinAuthUrl, HttpMethod.POST, requestEntity, DarwinAccess.class);  
+        public static String getResponse(String userName, String patientId){
+            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity(userName, patientId);
+            ResponseEntity<DarwinAccess> responseEntity = restTemplate.exchange(darwinAuthUrl, HttpMethod.POST, requestEntity, DarwinAccess.class);
             String darwinResponse = responseEntity.getBody().getDarwinAuthResponse();
-
             return darwinResponse.equals("valid")?darwinResponseUrl+patientId:"";
         }
 
@@ -101,7 +100,11 @@ public class CheckDarwinAccessMain {
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             return new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
         }
-    }
+        
+        private static boolean existsDarwinProperties() {
+            return (!darwinAuthUrl.isEmpty() && !darwinResponseUrl.isEmpty() && !cisUser.isEmpty() && !GlobalProperties.getDarwinRegex().isEmpty());
+        }
+    }   
 
     public static class DarwinAccess {
         /**
@@ -238,9 +241,9 @@ public class CheckDarwinAccessMain {
     private static Options getOptions(String[] args) {
         Options gnuOptions = new Options();
         gnuOptions.addOption("h", "help", false, "shows this help document and quits.")
-            .addOption("c", "cancer_study", true, "cancer_study")
-            .addOption("u", "user_name", true, "user_name")
-            .addOption("p", "patient_id", true, "patient_id");
+            .addOption("u", "user_name", true, "Username")
+            .addOption("p", "patient_id", true, "Patient ID")
+            .addOption("s", "sample_id", true, "Sample ID");
 
         return gnuOptions;
     }
@@ -252,19 +255,23 @@ public class CheckDarwinAccessMain {
 
     public static void main(String[] args) throws Exception {
         Options gnuOptions = CheckDarwinAccessMain.getOptions(args);
-        CommandLineParser parser = new GnuParser();
+        CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = parser.parse(gnuOptions, args);
         if (commandLine.hasOption("h") ||
-            !commandLine.hasOption("cancer_study") ||
             !commandLine.hasOption("user_name") ||
-            !commandLine.hasOption("patient_id")) {
+            !commandLine.hasOption("patient_id") || 
+            !commandLine.hasOption("sample_id")) {
             help(gnuOptions, 0);
         }
-
-        String darwinAccessUrl = CheckDarwinAccess.getResponse( 
-                commandLine.getOptionValue("cancer_study"),
+        if (!CheckDarwinAccess.sampleIdRegex.matcher(commandLine.getOptionValue("sample_id")).find()) {
+            System.out.println("Sample ID doesn't match pattern");
+        }
+        else {
+            System.out.println("Sample ID valid - checking if user has access");
+            String darwinAccessUrl = CheckDarwinAccess.getResponse( 
                 commandLine.getOptionValue("user_name").split("@")[0],
                 commandLine.getOptionValue("patient_id"));
-        System.out.println(!darwinAccessUrl.isEmpty()?darwinAccessUrl:"Invalid request!");
+            System.out.println(!darwinAccessUrl.isEmpty()?darwinAccessUrl:"Invalid request!");
+        }
     }
 }

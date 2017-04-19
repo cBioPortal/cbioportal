@@ -1,6 +1,7 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.meta.BaseMeta;
@@ -10,11 +11,12 @@ import java.util.List;
 
 public interface MutationRepository {
 
-    List<Mutation> getMutationsInGeneticProfile(String geneticProfileId, String sampleId, String projection,
-                                                Integer pageSize, Integer pageNumber, String sortBy, String direction);
+    List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
+                                                              String projection, Integer pageSize, Integer pageNumber, 
+                                                              String sortBy, String direction);
 
 
-    MutationMeta getMetaMutationsInGeneticProfile(String geneticProfileId, String sampleId);
+    MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId);
 
     List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
                                                   String projection, Integer pageSize, Integer pageNumber,
@@ -25,4 +27,8 @@ public interface MutationRepository {
     List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, List<Integer> entrezGeneIds);
 
     List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords);
+
+    List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId);
+
+    List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds);
 }

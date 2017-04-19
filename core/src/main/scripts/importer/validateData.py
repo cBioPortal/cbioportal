@@ -1158,34 +1158,34 @@ class MutationsExtendedValidator(Validator):
     
     def checkVerificationStatus(self, value):
         # if value is not blank, then it should be one of these:
-        if self.checkNotBlank(value) and value.lower() not in ('verified', 'unknown'):
+        if self.checkNotBlank(value) and value.lower() not in ('verified', 'unknown', 'na'):
             return False
         return True
     
     def checkValidationStatus(self, value):
         # if value is not blank, then it should be one of these:
         if self.checkNotBlank(value) and value.lower() not in ('untested', 'inconclusive',
-                                 'valid', 'invalid'):
+                                 'valid', 'invalid', 'na'):
             return False
         return True
     
     def check_t_alt_count(self, value):
-        if not self.checkInt(value) and value != '':
+        if not self.checkInt(value) and value not in ('', '.'):
             return False
         return True
     
     def check_t_ref_count(self, value):
-        if not self.checkInt(value) and value != '':
+        if not self.checkInt(value) and value not in ('', '.'):
             return False
         return True
     
     def check_n_alt_count(self, value):
-        if not self.checkInt(value) and value != '':
+        if not self.checkInt(value) and value not in ('', '.'):
             return False
         return True
 
     def check_n_ref_count(self, value):
-        if not self.checkInt(value) and value != '':
+        if not self.checkInt(value) and value not in ('', '.'):
             return False
         return True
 
@@ -1915,6 +1915,12 @@ class SegValidator(Validator):
                                'cause': value})
             elif col_name in ('loc.start', 'loc.end'):
                 try:
+                    # convert possible scientific notation to python scientific notation
+                    if "e+" in value:
+                        value = float(value.replace("e+", "e"))
+                        if not value.is_integer():
+                            # raise value error 'Genomic position is not an integer'
+                            raise ValueError()
                     parsed_coords[col_name] = int(value)
                 except ValueError:
                     self.logger.error(

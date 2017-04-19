@@ -144,6 +144,30 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>umlgraph</id>
+      <reporting>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9</version>
+            <configuration>
+              <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+              <docletArtifact>
+                <groupId>org.umlgraph</groupId>
+                <artifactId>umlgraph</artifactId>
+                <version>5.6</version>
+              </docletArtifact>
+              <additionalparam>-views -all</additionalparam>
+              <useStandardDocletOptions>true</useStandardDocletOptions>
+              <additionalparam>-Xdoclint:none</additionalparam>
+              <failOnError>false</failOnError>
+            </configuration>
+          </plugin>
+        </plugins>
+      </reporting>
+    </profile>
   </profiles>
 
   <properties>
@@ -436,14 +460,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.9</version>
         <configuration>
-          <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-          <docletArtifact>
-            <groupId>org.umlgraph</groupId>
-            <artifactId>umlgraph</artifactId>
-            <version>5.6</version>
-          </docletArtifact>
-          <additionalparam>-views -all</additionalparam>
-          <useStandardDocletOptions>true</useStandardDocletOptions>
+          <additionalparam>-Xdoclint:none</additionalparam>
+          <failOnError>false</failOnError>
         </configuration>
       </plugin>
       <plugin>
@@ -455,6 +473,11 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
         <version>2.7</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.19.1</version>
       </plugin>
     </plugins>
   </reporting>

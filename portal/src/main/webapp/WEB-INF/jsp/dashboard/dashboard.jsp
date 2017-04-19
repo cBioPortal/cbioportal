@@ -51,7 +51,6 @@
     String reqCohortIds = StringUtils.join((Set<String>)request.getAttribute("cohorts"),",");
     String studySampleMap = (String)request.getAttribute(CancerStudyView.STUDY_SAMPLE_MAP);
     String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
-    String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
 
     if (cancerStudyViewError!=null) {
         out.print(cancerStudyViewError);
@@ -211,7 +210,6 @@
 <script type="text/javascript">
 	var username = $('#header_bar_table span').text()||'';
 	var studyCasesMap = '<%=studySampleMap%>';
-	var sessionServiceUrl = '<%=sessionServiceUrl%>'
 	studyCasesMapTemp = JSON.parse(studyCasesMap);
 	studyCasesMap = {};
 	_.each(studyCasesMapTemp,function(casesList,studyId){
@@ -262,11 +260,7 @@
     	window.cbioURL = window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2)) + '/';
     	window.cbioResourceURL = 'js/src/dashboard/resources/';
 		window.iviz.datamanager = new DataManagerForIviz.init(window.cbioURL, studyCasesMap);
-		
-        if(sessionServiceUrl) {
-            vcSession.URL = 'api-legacy/proxy/virtual-cohort';
-        }
-
+        
         $.when(window.cbioportal_client.getStudies({ study_ids: cohortIdsList}), window.iviz.datamanager.getGeneticProfiles())
     	.then(function(_cancerStudies, _geneticProfiles){
     		if(cohortIdsList.length === 1){

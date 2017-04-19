@@ -233,8 +233,11 @@ var tooltip_utils = {
 		}
 		ret.append("<br>");
 	    }
-	    if (d.na) {
-		ret.append('Not sequenced');
+	    if (d.case_not_sequenced) {
+		ret.append((data_type === "sample" ? "Sample" : "Patient") + " not sequenced");
+		ret.append('<br>');
+	    } else if (d.na) {
+		ret.append(d.gene.toUpperCase()+" not sequenced in this "+data_type);
 		ret.append('<br>');
 	    }
 	    ret.append((data_type === 'sample' ? (link_id ? tooltip_utils.sampleViewAnchorTag(d.study_id, d.sample) : d.sample) : (link_id ? tooltip_utils.patientViewAnchorTag(d.study_id, d.patient) : d.patient)));

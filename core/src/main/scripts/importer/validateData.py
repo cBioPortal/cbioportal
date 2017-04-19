@@ -39,6 +39,7 @@ import csv
 import itertools
 import requests
 import json
+import xml.etree.ElementTree as ET
 
 import cbioportal_common
 
@@ -136,10 +137,11 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
 
-    def __init__(self, study_dir, output_filename, *args, **kwargs):
+    def __init__(self, study_dir, output_filename, cbio_version, *args, **kwargs):
         """Set study directory name, output filename and buffer size."""
         self.study_dir = study_dir
         self.output_filename = output_filename
+        self.cbio_version = cbio_version
         self.max_level = logging.NOTSET
         self.closed = False
         # get the directory name of the currently running script,
@@ -175,6 +177,7 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         template = j_env.get_template('validation_report_template.html.jinja')
         doc = template.render(
             study_dir=self.study_dir,
+            cbio_version=self.cbio_version,
             record_list=self.buffer,
             max_level=logging.getLevelName(self.max_level))
         with open(self.output_filename, 'w') as f:
@@ -3065,6 +3068,14 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
     logger.info('Validation complete')
 
 
+def get_pom_path():
+    """
+    Get location of pom.xml. In system and integration test this is mocked.
+    """
+    pom_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))) + "/pom.xml"
+    return pom_path
+
+
 def main_validate(args):
 
     """Main function: process parsed arguments and validate the study."""
@@ -3105,6 +3116,27 @@ def main_validate(args):
     collapsing_text_handler.setLevel(output_loglevel)
     logger.addHandler(collapsing_text_handler)
 
+    # set default to unknown because validator can be run independently from cBioPortal
+    cbio_version = "unknown"
+    
+    # get pom path to retrieve cBioPortal version
+    pom_path = get_pom_path()
+
+    try:
+        # parse xml
+        xml_root = ET.parse(pom_path).getroot()
+    except IOError:
+        logger.warning('Unable to read xml containing cBioPortal version.')
+    else:
+        for xml_child in xml_root:
+
+            # to circumvent the default namespace (possibly varying apache url) split on '}'
+            if xml_child.tag.split("}")[1] == "version":
+                cbio_version = xml_child.text
+
+                # output cBioPortal version
+                logger.info("Running validation from cBioPortal version %s" % cbio_version)
+
     collapsing_html_handler = None
     html_handler = None
     # add html table handler if applicable
@@ -3115,6 +3147,7 @@ def main_validate(args):
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,
+            cbio_version = cbio_version,
             capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here

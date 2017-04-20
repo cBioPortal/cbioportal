@@ -7,6 +7,7 @@ import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.MutationFilter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,8 +137,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
         
         Mockito.when(mutationService.getMutationsInGeneticProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), 
-            Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(), 
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -213,8 +214,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGene();
 
         Mockito.when(mutationService.getMutationsInGeneticProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), 
-            Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(), 
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -302,7 +303,7 @@ public class MutationControllerTest {
         mutationMeta.setTotalCount(2);
 
         Mockito.when(mutationService.getMetaMutationsInGeneticProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString())).thenReturn(mutationMeta);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -317,17 +318,19 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
 
         Mockito.when(mutationService.fetchMutationsInGeneticProfile(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), 
-            Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(), 
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
         
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
+        MutationFilter mutationFilter = new MutationFilter();
+        mutationFilter.setSampleIds(sampleIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/test_genetic_profile_id/mutations/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIds)))
+            .content(objectMapper.writeValueAsString(mutationFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -399,18 +402,20 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGene();
 
         Mockito.when(mutationService.fetchMutationsInGeneticProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-            Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(), 
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
+        MutationFilter mutationFilter = new MutationFilter();
+        mutationFilter.setSampleIds(sampleIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/test_genetic_profile_id/mutations/fetch")
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIds)))
+            .content(objectMapper.writeValueAsString(mutationFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -493,16 +498,18 @@ public class MutationControllerTest {
         mutationMeta.setTotalCount(2);
 
         Mockito.when(mutationService.fetchMetaMutationsInGeneticProfile(Mockito.anyString(), 
-            Mockito.anyListOf(String.class))).thenReturn(mutationMeta);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
+        MutationFilter mutationFilter = new MutationFilter();
+        mutationFilter.setSampleIds(sampleIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/test_genetic_profile_id/mutations/fetch")
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIds)))
+            .content(objectMapper.writeValueAsString(mutationFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }

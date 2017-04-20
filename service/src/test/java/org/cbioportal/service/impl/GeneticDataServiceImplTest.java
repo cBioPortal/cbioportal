@@ -6,6 +6,7 @@ import org.cbioportal.model.GeneticData;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.GeneticDataRepository;
+import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.SampleService;
 import org.junit.Test;
@@ -32,9 +33,14 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
     private SampleService sampleService;
     @Mock
     private GeneticProfileService geneticProfileService;
+    @Mock
+    private SampleListRepository sampleListRepository;
 
     @Test
     public void getGeneticData() throws Exception {
+        
+        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+            .thenReturn(Arrays.asList(SAMPLE_ID));
         
         Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(
             "1,2,");
@@ -62,7 +68,7 @@ public class GeneticDataServiceImplTest extends BaseServiceImplTest {
         Mockito.when(geneticDataRepository.getGeneticAlterations(GENETIC_PROFILE_ID, entrezGeneIds, PROJECTION))
             .thenReturn(geneticAlterationList);
 
-        List<GeneticData> result = geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_ID, entrezGeneIds, 
+        List<GeneticData> result = geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, entrezGeneIds, 
             PROJECTION);
 
         Assert.assertEquals(1, result.size());

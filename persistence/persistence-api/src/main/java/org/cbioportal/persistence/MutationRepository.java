@@ -12,17 +12,20 @@ import java.util.List;
 public interface MutationRepository {
 
     List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
-                                                              String projection, Integer pageSize, Integer pageNumber, 
-                                                              String sortBy, String direction);
+                                                              List<Integer> entrezGeneIds, String projection, 
+                                                              Integer pageSize, Integer pageNumber, String sortBy, 
+                                                              String direction);
 
 
-    MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId);
+    MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
+                                                                List<Integer> entrezGeneIds);
 
-    List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                  String projection, Integer pageSize, Integer pageNumber,
-                                                  String sortBy, String direction);
+    List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
+                                                  List<Integer> entrezGeneIds, String projection, Integer pageSize, 
+                                                  Integer pageNumber, String sortBy, String direction);
 
-    MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds);
+    MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
+                                                    List<Integer> entrezGeneIds);
 
     List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, List<Integer> entrezGeneIds);
 

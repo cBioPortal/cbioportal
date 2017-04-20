@@ -146,17 +146,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       _selectedCases.push(_selectedCase);
       return _selectedCases;
     };
-    
-    var _generateCohortDescription = function(_cases) {
-      var def = new $.Deferred(), _desp = "";
-      $.when(window.iviz.datamanager.getCancerStudyDisplayName(_.pluck(_cases, "studyID"))).done(function(_studyIdNameMap) {
-        _.each(_cases, function (_i) {
-          _desp += _studyIdNameMap[_i.studyID] + ": " + _i.samples.length + " samples / " + _i.patients.length + " patients\n";
-        });
-        def.resolve(_desp);
-      });
-      return def.promise();
-    }
 
     var generateCohortDescription_ = function(_cases) {
       var def = new $.Deferred();

@@ -89,7 +89,7 @@ public class GeneticProfileUtil {
     }
     
     public static int getGenePanelId(String panelId) {
-        GenePanelRepository genePanelRepository = (GenePanelRepository)SpringUtil.getApplicationContext().getBean("geenPanelRepository");  
+        GenePanelRepository genePanelRepository = (GenePanelRepository)SpringUtil.getApplicationContext().getBean("genePanelRepository");  
         GenePanel genePanel = genePanelRepository.getGenePanelByStableId(panelId).get(0);
         return genePanel.getInternalId();
     }

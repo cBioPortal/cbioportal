@@ -53,9 +53,11 @@
     <span class='annotation-item chang_hotspot' alt='{{changHotspotAlt}}'>
         <img width='{{hotspotsImgWidth}}' height='{{hotspotsImgHeight}}' src='{{hotspotsImgSrc}}' alt='Recurrent Hotspot Symbol'>
     </span>
+    <% if (showCivic) { %>
     <span class='annotation-item civic' proteinChange='{{proteinChange}}' geneSymbol='{{geneSymbol}}'>
         <img width='14' height='14' src='images/ajax-loader.gif' alt='Civic Variant Entry'>
     </span>
+    <% } %>
 </script>
 
 <style type="text/css" title="currentStyle">

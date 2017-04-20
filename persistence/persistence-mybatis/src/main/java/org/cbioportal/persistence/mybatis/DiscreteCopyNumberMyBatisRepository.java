@@ -17,20 +17,22 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
     private DiscreteCopyNumberMapper discreteCopyNumberMapper;
 
     @Override
-    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
-                                                                               List<Integer> alterations,
-                                                                               String projection) {
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, 
+                                                                                             String sampleListId, 
+                                                                                             List<Integer> alterations, 
+                                                                                             String projection) {
 
-        return discreteCopyNumberMapper.getDiscreteCopyNumbers(geneticProfileId,
-            sampleId == null ? null : Arrays.asList(sampleId), null, alterations, projection);
+        return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleListId(geneticProfileId, sampleListId, null, 
+            alterations, projection);
     }
 
     @Override
-    public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
-                                                               List<Integer> alterations) {
+    public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, 
+                                                                             String sampleListId, 
+                                                                             List<Integer> alterations) {
 
-        return discreteCopyNumberMapper.getMetaDiscreteCopyNumbers(geneticProfileId,
-            sampleId == null ? null : Arrays.asList(sampleId), null, alterations);
+        return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersBySampleListId(geneticProfileId, sampleListId, null, 
+            alterations);
     }
 
     @Override
@@ -40,8 +42,8 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
                                                                                  List<Integer> alterations,
                                                                                  String projection) {
 
-        return discreteCopyNumberMapper.getDiscreteCopyNumbers(geneticProfileId, sampleIds, entrezGeneIds, alterations, 
-            projection);
+        return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleIds(geneticProfileId, sampleIds, entrezGeneIds, 
+            alterations, projection);
     }
 
     @Override
@@ -49,8 +51,8 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
                                                                  List<Integer> entrezGeneIds, 
                                                                  List<Integer> alterations) {
 
-        return discreteCopyNumberMapper.getMetaDiscreteCopyNumbers(geneticProfileId, sampleIds, entrezGeneIds, 
-            alterations);
+        return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersBySampleIds(geneticProfileId, sampleIds, 
+            entrezGeneIds, alterations);
     }
 
     @Override

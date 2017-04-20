@@ -3,6 +3,7 @@ package org.cbioportal.service;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface GeneticProfileService {
     GeneticProfile getGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException;
 
     List<GeneticProfile> getAllGeneticProfilesInStudy(String studyId, String projection, Integer pageSize,
-                                                      Integer pageNumber, String sortBy, String direction);
+                                                      Integer pageNumber, String sortBy, String direction) throws StudyNotFoundException;
 
-    BaseMeta getMetaGeneticProfilesInStudy(String studyId);
+    BaseMeta getMetaGeneticProfilesInStudy(String studyId) throws StudyNotFoundException;
 }

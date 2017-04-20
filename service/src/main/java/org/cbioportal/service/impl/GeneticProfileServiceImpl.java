@@ -4,7 +4,9 @@ import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneticProfileRepository;
 import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,8 @@ public class GeneticProfileServiceImpl implements GeneticProfileService {
 
     @Autowired
     private GeneticProfileRepository geneticProfileRepository;
+    @Autowired
+    private StudyService studyService;
 
     @Override
     @PostFilter("hasPermission(filterObject, 'read')")
@@ -47,15 +51,21 @@ public class GeneticProfileServiceImpl implements GeneticProfileService {
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<GeneticProfile> getAllGeneticProfilesInStudy(String studyId, String projection, Integer pageSize,
-                                                             Integer pageNumber, String sortBy, String direction) {
+                                                             Integer pageNumber, String sortBy, String direction) 
+        throws StudyNotFoundException {
 
+        studyService.getStudy(studyId);
+        
         return geneticProfileRepository.getAllGeneticProfilesInStudy(studyId, projection, pageSize, pageNumber, sortBy,
                 direction);
     }
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaGeneticProfilesInStudy(String studyId) {
+    public BaseMeta getMetaGeneticProfilesInStudy(String studyId) throws StudyNotFoundException {
+
+        studyService.getStudy(studyId);
+        
         return geneticProfileRepository.getMetaGeneticProfilesInStudy(studyId);
     }
 }

@@ -5,6 +5,9 @@ import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalEventRepository;
 import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.service.PatientService;
+import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -17,12 +20,17 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
     
     @Autowired
     private ClinicalEventRepository clinicalEventRepository;
+    @Autowired
+    private PatientService patientService;
     
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalEvent> getAllClinicalEventsOfPatientInStudy(String studyId, String patientId, String projection, 
                                                                     Integer pageSize, Integer pageNumber, String sortBy, 
-                                                                    String direction) {
+                                                                    String direction) throws PatientNotFoundException, 
+        StudyNotFoundException {
+        
+        patientService.getPatientInStudy(studyId, patientId);
 
         List<ClinicalEvent> clinicalEvents = clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(studyId,
             patientId, projection, pageSize, pageNumber, sortBy, direction);
@@ -41,7 +49,10 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaPatientClinicalEvents(String studyId, String patientId) {
+    public BaseMeta getMetaPatientClinicalEvents(String studyId, String patientId) throws PatientNotFoundException, 
+        StudyNotFoundException {
+
+        patientService.getPatientInStudy(studyId, patientId);
         
         return clinicalEventRepository.getMetaPatientClinicalEvents(studyId, patientId);
     }

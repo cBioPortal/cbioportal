@@ -68,9 +68,11 @@ public class SessionServiceFilter <W extends HttpServletRequestWrapper> implemen
         FilterChain aChain)
             throws IOException, ServletException {
         LOG.debug("SessionServiceFilter.doFilter()");
+        LOG.info("SessionServiceFilter.doFilter() -- calling request.getSession() to create a valid session which is a requirement for the session service API proxy");
+        HttpServletRequest request = (HttpServletRequest) aRequest;
+        request.getSession();
         String sessionServiceURL = GlobalProperties.getSessionServiceUrl();
         if (!StringUtils.isBlank(sessionServiceURL)) {
-            HttpServletRequest request = (HttpServletRequest) aRequest;
             SessionServiceRequestWrapper wrapper = new SessionServiceRequestWrapper(request);
             // do not get this parameter from the SessionServiceRequestWrapper -- it was not stored as part of the session
             String foundSession = request.getParameter(RETRIEVED_SESSION_PARAM);

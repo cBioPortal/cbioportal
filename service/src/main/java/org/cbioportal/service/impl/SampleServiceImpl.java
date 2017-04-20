@@ -3,8 +3,12 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleRepository;
+import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StudyService;
+import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -16,26 +20,37 @@ public class SampleServiceImpl implements SampleService {
 
     @Autowired
     private SampleRepository sampleRepository;
+    @Autowired
+    private StudyService studyService;
+    @Autowired
+    private PatientService patientService;
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
-                                             String sortBy, String direction) {
+                                             String sortBy, String direction) throws StudyNotFoundException {
+        
+        studyService.getStudy(studyId);
 
         return sampleRepository.getAllSamplesInStudy(studyId, projection, pageSize, pageNumber, sortBy, direction);
     }
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaSamplesInStudy(String studyId) {
+    public BaseMeta getMetaSamplesInStudy(String studyId) throws StudyNotFoundException {
+
+        studyService.getStudy(studyId);
 
         return sampleRepository.getMetaSamplesInStudy(studyId);
     }
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException {
+    public Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException, 
+        StudyNotFoundException {
 
+        studyService.getStudy(studyId);
+        
         Sample sample = sampleRepository.getSampleInStudy(studyId, sampleId);
 
         if (sample == null) {
@@ -49,7 +64,10 @@ public class SampleServiceImpl implements SampleService {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Sample> getAllSamplesOfPatientInStudy(String studyId, String patientId, String projection,
                                                       Integer pageSize, Integer pageNumber, String sortBy,
-                                                      String direction) {
+                                                      String direction) throws StudyNotFoundException, 
+        PatientNotFoundException {
+        
+        patientService.getPatientInStudy(studyId, patientId);
 
         return sampleRepository.getAllSamplesOfPatientInStudy(studyId, patientId, projection, pageSize, pageNumber,
                 sortBy, direction);
@@ -57,7 +75,10 @@ public class SampleServiceImpl implements SampleService {
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) {
+    public BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) throws StudyNotFoundException, 
+        PatientNotFoundException {
+
+        patientService.getPatientInStudy(studyId, patientId);
 
         return sampleRepository.getMetaSamplesOfPatientInStudy(studyId, patientId);
     }

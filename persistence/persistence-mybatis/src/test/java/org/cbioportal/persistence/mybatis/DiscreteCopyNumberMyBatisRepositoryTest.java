@@ -25,16 +25,17 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     private DiscreteCopyNumberMyBatisRepository discreteCopyNumberMyBatisRepository;
     
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileSummaryProjection() throws Exception {
+    public void getDiscreteCopyNumbersInGeneticProfileBySampleListIdSummaryProjection() throws Exception {
 
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-2);
         alterations.add(2);
         
         List<DiscreteCopyNumberData> result =  discreteCopyNumberMyBatisRepository
-            .getDiscreteCopyNumbersInGeneticProfile("study_tcga_pub_gistic", "TCGA-A1-A0SB-01", alterations, "SUMMARY");
+            .getDiscreteCopyNumbersInGeneticProfileBySampleListId("study_tcga_pub_gistic", "study_tcga_pub_all", 
+                alterations, "SUMMARY");
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
         Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberData.getGeneticProfileId());
         Assert.assertEquals("TCGA-A1-A0SB-01", discreteCopyNumberData.getSampleId());
@@ -44,17 +45,17 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     }
 
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileDetailedProjection() throws Exception {
+    public void getDiscreteCopyNumbersInGeneticProfileBySampleListIdDetailedProjection() throws Exception {
 
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-2);
         alterations.add(2);
 
         List<DiscreteCopyNumberData> result =  discreteCopyNumberMyBatisRepository
-            .getDiscreteCopyNumbersInGeneticProfile("study_tcga_pub_gistic", "TCGA-A1-A0SB-01", alterations, 
-                "DETAILED");
+            .getDiscreteCopyNumbersInGeneticProfileBySampleListId("study_tcga_pub_gistic", "study_tcga_pub_all", 
+                alterations, "DETAILED");
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
         Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberData.getGeneticProfileId());
         Assert.assertEquals("TCGA-A1-A0SB-01", discreteCopyNumberData.getSampleId());
@@ -69,16 +70,16 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     }
 
     @Test
-    public void getMetaDiscreteCopyNumbersInGeneticProfile() throws Exception {
+    public void getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId() throws Exception {
 
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-2);
         alterations.add(2);
 
-        BaseMeta result = discreteCopyNumberMyBatisRepository.getMetaDiscreteCopyNumbersInGeneticProfile(
-            "study_tcga_pub_gistic", "TCGA-A1-A0SB-01", alterations);
+        BaseMeta result = discreteCopyNumberMyBatisRepository.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
+            "study_tcga_pub_gistic", "study_tcga_pub_all", alterations);
         
-        Assert.assertEquals((Integer) 2, result.getTotalCount());
+        Assert.assertEquals((Integer) 3, result.getTotalCount());
     }
 
     @Test

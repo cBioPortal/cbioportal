@@ -294,7 +294,7 @@ var comparator_utils = {
 	    } else if (distinguish_mutation_types && !distinguish_recurrent) {
 		_order = makeComparatorMetric([['trunc', 'trunc_rec'], ['inframe','inframe_rec'], ['promoter', 'promoter_rec'], ['missense', 'missense_rec'], undefined, true, false]);
 	    } else if (distinguish_mutation_types && distinguish_recurrent) {
-		_order = makeComparatorMetric([['trunc', 'trunc_rec'], 'inframe_rec', 'promoter_rec', 'missense_rec', 'inframe', 'promoter', 'missense',  undefined, true, false]);
+		_order = makeComparatorMetric(['trunc_rec', 'inframe_rec', 'promoter_rec', 'missense_rec', 'trunc', 'inframe', 'promoter', 'missense',  undefined, true, false]);
 	    }
 	    return function(m) {
 		return _order[m];
@@ -841,9 +841,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var makeRemoveHeatmapHandler = function(genetic_profile_id, gene) {
 	    return function(track_id) {
 		var track_group = State.heatmap_track_groups[genetic_profile_id];
+		//update State.trackIdsInOriginalOrder (if this has been initialized before by clustering):
+		var heatmap_track_group_id = track_group.track_group_id;
+		if (State.trackIdsInOriginalOrder[heatmap_track_group_id]) {
+		    var idx = State.trackIdsInOriginalOrder[heatmap_track_group_id].indexOf(track_id);
+		    State.trackIdsInOriginalOrder[heatmap_track_group_id].splice(idx, 1);
+		}
+		//update track_group
 		delete track_group.gene_to_track_id[gene];
 		if (Object.keys(track_group.gene_to_track_id).length === 0) {
+		    //if no more tracks are left, delete the whole group
 		    delete State.heatmap_track_groups[genetic_profile_id];
+		    delete State.trackIdsInOriginalOrder[heatmap_track_group_id];
 		}
 		URL.update();
 	    };
@@ -1135,6 +1144,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			return $.when();
 		    } else {
 			var track_id = self.addHeatmapTrack(genetic_profile_id, gene);
+			//update State.trackIdsInOriginalOrder (if this has been initialized before by clustering):
+			var heatmap_track_group_id = State.heatmap_track_groups[genetic_profile_id].track_group_id;
+			if (State.trackIdsInOriginalOrder[heatmap_track_group_id]) {
+			    State.trackIdsInOriginalOrder[heatmap_track_group_id].push(track_id);
+			}
 			return populateHeatmapTrack(genetic_profile_id, gene, track_id);
 		    }
 		}));
@@ -2253,7 +2267,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			window.open("http://www.oncokb.org");
 		    });
 		    addQTipTo($('#oncoprint_diagram_mutation_color').find('#putative_driver_info_icon'), {
-			content: {text: "For missense mutations."},
+			content: {text: "For missense, inframe, and truncating mutations."},
 			position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
 			show: {event: "mouseover"},

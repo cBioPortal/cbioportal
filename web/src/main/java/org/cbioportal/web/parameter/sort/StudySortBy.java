@@ -2,7 +2,7 @@ package org.cbioportal.web.parameter.sort;
 
 public enum StudySortBy {
 
-    cancerStudyId("cancerStudyIdentifier"),
+    studyId("cancerStudyIdentifier"),
     cancerTypeId("typeOfCancerId"),
     name("name"),
     shortName("shortName"),

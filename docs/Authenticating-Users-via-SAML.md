@@ -2,9 +2,9 @@
 
 The cBioPortal includes support for SAML (Security Assertion Markup Language).  This document explains why you might find SAML useful, and how to configure SAML within your own instance of cBioPortal.
 
-Please note that configuring your local instance to support SAML requires many steps.  This includes configuration changes, a small amount of debugging and modest code changes.  If you follow the steps below, you should be up and running relatively quickly, but be forewarned that you may have do a few trial runs to get everything working.
+Please note that configuring your local instance to support SAML requires many steps.  This includes configuration changes and a small amount of debugging.  If you follow the steps below, you should be up and running relatively quickly, but be forewarned that you may have do a few trial runs to get everything working.
 
-In the documentation below, we also provide details on how to preform SAML authentication via a commercial company:  [OneLogin](https://www.onelogin.com/).  OneLogin provides a free tier for testing out SAML authentication, and is one of the easier options to get a complete SAML workflow set-up.  Once you have OneLogin working, you should then have enough information to transition to your final authentication service.
+In the documentation below, we also provide details on how to perform SAML authentication via a commercial company:  [OneLogin](https://www.onelogin.com/).  OneLogin provides a free tier for testing out SAML authentication, and is one of the easier options to get a complete SAML workflow set-up.  Once you have OneLogin working, you should then have enough information to transition to your final authentication service.
 
 ## What is SAML?
 
@@ -18,7 +18,7 @@ In its simplest terms, SAML boils down to four terms:
 
 * **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login form, and matching this with information stored in a database.
 
-* **authorization**:  defines resources a user can access.  When authorization is turned on with cBioPortal, users can only access cancer studies they are specifically authorized to view.  This enables one to store multiple cancer studies within a single instance of cBioPortal, but provide fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and not the identify provider.
+* **authorization**:  defines resources a user can access.  When authorization is turned on with cBioPortal, users can only access cancer studies they are specifically authorized to view (or PUBLIC studies, [if the server has been configured to contain these](User-Authorization.md#configuring-public-studies)).  This enables one to store multiple cancer studies within a single instance of cBioPortal, but provide fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and not the identify provider.
 
 ## Why is SAML Relevant to cBioPortal?
 
@@ -26,7 +26,10 @@ The cBioPortal code has no means of storing user name and passwords and no means
 
 # Setting up an Identity Provider
 
-As noted above, we provide details on how to preform SAML authentication via a commercial company:  [OneLogin](https://www.onelogin.com/).  OneLogin provides a free tier for testing out SAML authentication, and is one of the easier options to get a complete SAML workflow set-up.  Once you have OneLogin working, you should then have enough information to transition to your final authentication service.  As you follow the steps below, the following link may be helpful: [How to Use the OneLogin SAML Test Connector](https://support.onelogin.com/hc/en-us/articles/202673944-How-to-Use-the-OneLogin-SAML-Test-Connector).
+As noted above, we provide details on how to perform SAML authentication via a commercial company:  [OneLogin](https://www.onelogin.com/).  
+If you already have an IDP set up, you can skip this part and go to [Configuring SAML within cBioPortal](#configuring-saml-within-cbioportal).
+
+OneLogin provides a free tier for testing out SAML authentication, and is one of the easier options to get a complete SAML workflow set-up.  Once you have OneLogin working, you should then have enough information to transition to your final authentication service.  As you follow the steps below, the following link may be helpful: [How to Use the OneLogin SAML Test Connector](https://support.onelogin.com/hc/en-us/articles/202673944-How-to-Use-the-OneLogin-SAML-Test-Connector).
 
 To get started:
 
@@ -37,16 +40,38 @@ To get started:
 * [Login to OneLogin.com](https://app.onelogin.com/login).
 * Under Apps, Select Add Apps.
 * Search for SAML.
-* Select the option labeled: OneLogin SAML Test (IdP).
+* Select the option labeled: OneLogin SAML Test (IdP w/attr).
+* "SAVE" the app, then select the Configuration Tab.
+
+* Under the Configuration Tab for OneLogin SAML Test (IdP w/attr), paste the following fields (this is assuming you are testing everything via localhost).
+
+    * Audience: cbioportal
+    * Recipient: http://localhost:8080/cbioportal/saml/SSO
+    * ACS (Consumer) URL Validator*:  ^http:\/\/localhost\:8080\/cbioportal\/saml\/SSO$
+    * ACS (Consumer) URL*:  http://localhost:8080/cbioportal/saml/SSO
 
 ![](images/previews/onelogin-config.png)
 
-* Under the Configuration Tab for OneLogin SAML Test (IdP), paste the following fields (this is assuming you are testing everything via localhost).
 
-    * ACS (Consumer) URL Validator*:  ^http:\/\/localhost\:8080\/cbioportal\/$
-    * ACS (Consumer) URL*:  http://localhost:8080/cbioportal/
+* Add at least the parameters: 
+    * Email (Attribute)
+    * Email (SAML NameID)
 
-![](https://cloud.githubusercontent.com/assets/366003/17789818/ce5eb1c2-6561-11e6-9887-c373023e1acd.png)
+![](images/previews/onelogin-config-parameters.png)
+
+* Find your user in the "Users" menu
+
+![](images/previews/onelogin-users-search.png)
+
+* Link the SAML app to your user (click "New app" on the **+** icon found on the top right of the "Applications" table to do this - see screenshot below): 
+
+![](images/previews/onelogin-add-app.png)
+
+* Configure these **email** parameters in the Users menu:
+
+![](images/previews/onelogin-users.png)
+ 
+
 
 ## Downloading the SAML Test Connector Meta Data
 
@@ -86,58 +111,82 @@ If you need to export the public certificate associated within your keystore, ru
 
     keytool -export -keystore samlKeystore.jks -alias secure-key -file cBioPortal.cer
 
+##### HTTPS and Tomcat
+
+:warning: If you already have an official (non-self-signed) SSL certificate, and need to get your site 
+running on HTTPS directly from Tomcat, then you need to import your certificate into the keystore instead. 
+See [this Tomcat documentation page](https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html) for more details.
+
+:warning: An extra warning for when configuring HTTPS for Tomcat: use the same password for 
+both keystore and secure-key. This seems to be an extra restriction by Tomcat.
+
+
 ## Modifying portal.properties
 
 Within portal.properties, make sure that:
 
     app.name=cbioportal
 
-Then, modify the section labeled `authentication`.  For example:
+Then, modify the section labeled `authentication`. See SAML parameters shown in example below:
 
     # authentication
     authenticate=saml
     authorization=true
-    googleplus.consumer.key=
-    googleplus.consumer.secret=
     saml.sp.metadata.entityid=cbioportal
-    saml.idp.metadata.location=classpath:/onelogin_metadata_448340.xml
-    saml.idp.metadata.entityid=https://app.onelogin.com/saml/metadata/448340
+    saml.idp.metadata.location=classpath:/onelogin_metadata_620035.xml
+    saml.idp.metadata.entityid=https://app.onelogin.com/saml/metadata/620035
     saml.keystore.location=classpath:/samlKeystore.jks
     saml.keystore.password=apollo1
     saml.keystore.private-key.key=secure-key
     saml.keystore.private-key.password=apollo2
     saml.keystore.default-key=secure-key
+    saml.idp.comm.binding.settings=defaultBinding
+    saml.idp.comm.binding.type=
+    saml.idp.metadata.attribute.email=User.email
+    saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
+    # global logout (as opposed to local logout):
+    saml.logout.local=false
+    saml.logout.url=/
 
-Please note that you will have to modify all the above to match your own settings.
+Please note that you will have to modify all the above to match your own settings. `saml.idp.comm.binding.type` can be left empty if `saml.idp.comm.binding.settings=defaultBinding`. The `saml.logout.*` settings above reflect the settings of an IDP that supports Single Logout (hopefully the default in most cases - more details in section below).
+
+### Custom scenarios
+
+:information_source: Some settings may need to be adjusted to non-default values, depending on your IDP. For example, if your 
+IDP required HTTP-GET requests instead of HTTP-POST, you need to set these properties as such:
+ 
+    saml.idp.comm.binding.settings=specificBinding
+    saml.idp.comm.binding.type=bindings:HTTP-Redirect
+
+If you need a very different parsing of the SAML tokens than what is done at `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl`, you can point the `saml.custom.userservice.class` to your own implementation: 
+
+    saml.custom.userservice.class=<your_package.your_class_name>
+
+:warning: The property `saml.idp.metadata.attribute.email` can also vary per IDP. It is important to set this correctly since this is a required field by the cBioPortal SAML parser (that is, if `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl` is chosen for property `saml.custom.userservice.class`). 
+
+:warning: Some IDPs like to provide their own logout page (e.g. when they don't support the custom SAML Single Logout protocol). For this you can adjust the  
+`saml.logout.url` property to a custom URL provided by the IDP. Also set the `saml.logout.local=true` property in this case to indicate that global logout (or Single Logout) is not supported by IDP:
+
+    # local logout followed by a redirect to a global logout page:
+    saml.logout.local=true
+    saml.logout.url=<idp specific logout URL, e.g. https://idp.logoutpage.com >
+    
+
+## More customizations
+
+If your IDP does not have the flexibility of sending the specific credential fields expected by our 
+default "user details parsers" implementation (i.e. `security/security-spring/src/main/java/org/cbioportal/security/spring/authentication/saml/SAMLUserDetailsServiceImpl.java` 
+expects field `mail` to be present in the SAML credential), then please let us know via a [new 
+issue at our issue tracking system](https://github.com/cBioPortal/cbioportal/issues/new), so we can 
+evaluate whether this is a scenario we would like to support in the default code. You can also consider 
+adding your own version of the `SAMLUserDetailsService` class. 
 
 ## Authorizing Users
 
 Next, please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
 
-## Modifying MSKCCPortalUserDetailsService.java
 
-This step requires that you make a modest amount of code changes.  You can either choose to modify:  [MSKCCPortalUserDetailsService.java](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/portal/authentication/saml/MSKCCPortalUserDetailsService.java), or copy it and use as a reference.
-
-To get MSKCCPortalUserDetailsService.java working with OneLogin, you only need to make two changes:
-
-1.  Within ```initializeDefaultEmailSuffixes()```, add your email suffixes.  For example:
-
-```
-toReturn.add("harvard.edu");
-```
-
-2.  Modify user id and name.
-
-For example:
-
-```
--        String userid = credential.getAttributeAsString("/UserAttribute[@ldap:targetAttribute=\"mail\"]");
--        String name = credential.getAttributeAsString("/UserAttribute[@ldap:targetAttribute=\"displayName\"]");
-+        String userid = credential.getNameID().getValue();
-+        String name = credential.getNameID().getValue();
-```
-
-## Configuring the Login.jsp Page
+## Configuring the Login.jsp Page (not applicable to most external IDPs)
 
 The login page is configurable via the `portal.properties` properties `skin.authorization_message` and `skin.login.saml.registration_htm`. 
 For example in `skin.authorization_message` you can be set to something like this:
@@ -189,11 +238,16 @@ Getting this to work requires many steps, and can be a bit tricky.  If you get s
 # Change INFO to DEBUG, if you want to see debugging info on underlying libraries we use.
 log4j.rootLogger=DEBUG, a
 
-# Change INFO to DEBUG, if you want see debugging info on our packages only.
+# Change INFO to DEBUG, if you want see debugging info on our packages and spring security packages.
 log4j.category.org.mskcc=DEBUG
+log4j.logger.org.springframework.security=DEBUG
 ```
 
 Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.
+
+### Seeing the SAML messages
+
+Another tool we can use to troubleshoot is SAML tracer (https://addons.mozilla.org/en-US/firefox/addon/saml-tracer/ ). You can add this to Firefox and it will give you an extra menu item in "Tools". Go through the loging steps and you will see the SAML messages that are sent by the IDP. 
 
 ### Obtaining the Service Provider Meta Data File
 

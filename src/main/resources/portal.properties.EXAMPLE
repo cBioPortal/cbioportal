@@ -23,14 +23,14 @@ skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Fireh
 skin.examples_right_column=examples.html
 
 # documentation pages
-skin.documentation.baseurl=https://github.com/cBioPortal/cbioportal/wiki/
+skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/
 skin.documentation.markdown=true
 skin.documentation.faq=FAQ.md
 skin.documentation.about=About-Us.md
 skin.documentation.skin.news=News.md
 
 # setting controlling the logos
-skin.right_logo=mskcc_logo_3d_grey.jpg
+skin.right_logo=
 skin.tag_line_image=tag_line.png
 
 # setting controlling which tabs to hide.
@@ -75,7 +75,7 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 authorization=false
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
-## which method of authentication to use (false, googleplus, saml, openid, ad, ldap)
+## which method of authentication to use (false, googleplus, saml, openid, ad, ldap, noauthsessionservice)
 authenticate=false
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
@@ -83,15 +83,28 @@ filter_groups_by_appname=true
 ## settings to connect to googleplus auth infrastructure
 googleplus.consumer.key=
 googleplus.consumer.secret=
-## settings to connect to SAML auth server
+
+## SAML settings
 saml.sp.metadata.entityid=
 saml.idp.metadata.location=
 saml.idp.metadata.entityid=
+# saml keystore settings:
 saml.keystore.location=
 saml.keystore.password=
 saml.keystore.private-key.key=
 saml.keystore.private-key.password=
 saml.keystore.default-key=
+# How to send SAML request messages to the IDP. 
+# Set to "specificBinding" to configure specific binding:
+saml.idp.comm.binding.settings=defaultBinding
+# Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
+# Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
+saml.idp.comm.binding.type=
+# Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
+saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
+# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
+saml.logout.url=/login.jsp?logout_success=true
+
 ## settings to connect to an Active Directory domain controller
 ad.domain=
 ad.url=
@@ -131,9 +144,10 @@ show.oncokb=true
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true
+hotspots.url=http://cancerhotspots.org/api/
 
 # Enable Civic variant annotation (true, false)
-show.civic=true
+show.civic=false
 
 # Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
 mycancergenome.show=true
@@ -172,7 +186,12 @@ recache_study_after_update=false
 # example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
 # see: https://github.com/cBioPortal/session-service
 # excluding this value or setting it to an empty string will revert to the previous bookmarking method
+# WARNING: do not use session service with authenticate=false
+#  either use authentication or change to authenticate=noauthsessionservice
 session.service.url=
+# Only allow requests from here:
+#  e.g. session.service.origin=http://dashi-dev.cbio.mskcc.org:8080
+session.service.origin=*
 
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV

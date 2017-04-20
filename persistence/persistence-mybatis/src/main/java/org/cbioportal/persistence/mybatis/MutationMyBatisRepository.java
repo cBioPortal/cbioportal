@@ -1,16 +1,15 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
-import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -22,18 +21,19 @@ public class MutationMyBatisRepository implements MutationRepository {
     private OffsetCalculator offsetCalculator;
 
     @Override
-    public List<Mutation> getMutationsInGeneticProfile(String geneticProfileId, String sampleId, String projection,
-                                                       Integer pageSize, Integer pageNumber, String sortBy,
-                                                       String direction) {
+    public List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
+                                                                     String projection, Integer pageSize, 
+                                                                     Integer pageNumber, String sortBy, 
+                                                                     String direction) {
 
-        return mutationMapper.getMutations(geneticProfileId, sampleId == null ? null : Arrays.asList(sampleId),
-            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        return mutationMapper.getMutationsBySampleListId(geneticProfileId, sampleListId, projection, pageSize, 
+            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
-    public MutationMeta getMetaMutationsInGeneticProfile(String geneticProfileId, String sampleId) {
+    public MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId) {
 
-        return mutationMapper.getMetaMutations(geneticProfileId, sampleId == null ? null : Arrays.asList(sampleId));
+        return mutationMapper.getMetaMutationsBySampleListId(geneticProfileId, sampleListId);
     }
 
     @Override
@@ -41,14 +41,14 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                          String projection, Integer pageSize, Integer pageNumber,
                                                          String sortBy, String direction) {
 
-        return mutationMapper.getMutations(geneticProfileId, sampleIds, projection, pageSize,
+        return mutationMapper.getMutationsBySampleIds(geneticProfileId, sampleIds, projection, pageSize,
             offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
     public MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds) {
 
-        return mutationMapper.getMetaMutations(geneticProfileId, sampleIds);
+        return mutationMapper.getMetaMutationsBySampleIds(geneticProfileId, sampleIds);
     }
 
     @Override
@@ -62,5 +62,18 @@ public class MutationMyBatisRepository implements MutationRepository {
     public List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords) {
         
         return mutationMapper.getSampleCountByKeywords(geneticProfileId, keywords);
+    }
+
+    @Override
+    public List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId, 
+                                                                               String sampleListId) {
+        
+        return mutationMapper.getMutationCountsBySampleListId(geneticProfileId, sampleListId);
+    }
+    
+    @Override
+    public List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds) {
+
+        return mutationMapper.getMutationCountsBySampleIds(geneticProfileId, sampleIds);
     }
 }

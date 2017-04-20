@@ -121,10 +121,10 @@ public class StableIdUtil
             return Sample.Type.METASTATIC;
         }
         else if (tcgaCode.equals("10")) {
-            return Sample.Type.BLOOD_NORMAL;
+            return Sample.Type.BLOOD_DERIVED_NORMAL;
         }
         else if (tcgaCode.equals("11")) {
-            return Sample.Type.SOLID_NORMAL;
+            return Sample.Type.SOLID_TISSUES_NORMAL;
         }
         else {
             return Sample.Type.PRIMARY_SOLID_TUMOR;
@@ -136,7 +136,7 @@ public class StableIdUtil
         Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_TYPE_BARCODE_REGEX.matcher(barcode);
         if (tcgaSampleBarcodeMatcher.find()) {
             Sample.Type type = getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
-            return (type.equals(Sample.Type.BLOOD_NORMAL) || type.equals(Sample.Type.SOLID_NORMAL));
+            return (type.equals(Sample.Type.BLOOD_DERIVED_NORMAL) || type.equals(Sample.Type.SOLID_TISSUES_NORMAL));
         }
         return false;
     }

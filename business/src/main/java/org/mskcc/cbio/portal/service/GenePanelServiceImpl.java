@@ -18,15 +18,17 @@ import java.util.ArrayList;
 
 import org.mskcc.cbio.portal.repository.GenePanelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GenePanelServiceImpl implements GenePanelService {
-    
+
     @Autowired
     private GenePanelRepository genePanelRepository;
 
     @Override
+    @PreAuthorize("hasPermission(#profileId, 'GeneticProfile', 'read')")
     public List<GenePanelWithSamples> getGenePanelDataByProfileAndGenes(String profileId, List<String> submittedGenes) {
         List<GenePanelWithSamples> genePanels =  genePanelRepository.getGenePanelsByProfile(profileId);
         for (GenePanelWithSamples genePanel : genePanels) {

@@ -354,18 +354,7 @@ function addJsTree(virtualStudies) {
                 'li_attr':{name: studyName, description: val.description, search_terms: 'VIRTUAL STUDY'}});
         });
     } 
-    // insert a node if temporary cohort
-    if (window.cancer_study_id_selected !== 'null' && window.is_virtual_cohort === 'true') {
-        var _vcs = JSON.parse(localStorage.getItem('virtual-cohorts'));
-        var _vcIds = _.pluck(_vcs, 'virtualCohortID');
-        if (!_.contains(_vcIds, window.cancer_study_id_selected)) { // is temporary cohort
-            if ($("#virtual-study-group").length === 0) {
-                jstree_data.push({'id':'virtual-study-group', 'parent':jstree_root_id, 'text':'Virtual Studies', 'li_attr':{name:'VIRTUAL STUDY'}});
-            }
-            jstree_data.push({'id': window.cancer_study_id_selected, 'parent':'virtual-study-group', 'text': 'Selected patients / samples',
-                'li_attr':{name: 'studyName', description: 'description'}});
-        }
-    }
+
     while (node_queue.length > 0) {
         currNode = node_queue.shift();
         if (currNode.desc_studies_count > 0) {

@@ -146,6 +146,7 @@
                            :selectedsamples.sync="selectedsamples"
                            :hasfilters.sync="hasfilters"
                            :customfilter.sync="customfilter"
+                           :showed-survival-plot="showedSurvivalPlot"
                            :clear-all="clearAll"></main-template>
         </div>
     </div>

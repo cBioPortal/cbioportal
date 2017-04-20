@@ -61,6 +61,11 @@ authorization=true
 ```
 app.name should be set to the name of the portal instance referenced in the "AUTHORITY" column of the "AUTHORITIES" table.  See the [User Authorization](User-Authorization.md) for more information.
 
+# OncoPrint
+
+The default view in OncoPrint ("patient" or "sample") can be set with the following option. The default is "patient".
+```
+oncoprint.defaultview=sample
 # Civic integration
 
 Civic integration can be turned on or off with the following property (default: true):

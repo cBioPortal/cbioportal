@@ -1,3 +1,4 @@
+group: deprecated
 sudo: required
 language: java
 jdk: oraclejdk8

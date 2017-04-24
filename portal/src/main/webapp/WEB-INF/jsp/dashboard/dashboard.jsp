@@ -272,7 +272,14 @@
 <script src="js/src/download-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
+    var emailContact_ = '<%=GlobalProperties.getEmailContact()%>';
 
+    if (emailContact_) {
+        var span = $.parseHTML(emailContact_);
+        $(span).mailme(true);
+        emailContact_ = $(span).prop('outerHTML');
+    }
+    
     $('#study-tab-summary-a').click(function () {
         if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
             $("#study-tabs-loading-wait").css('display', 'none');
@@ -284,8 +291,11 @@
                 ).then(function(_data, configs) {
                     var opts = {};
 
-                    if(_.isObject(configs)) {
+                    if (_.isObject(configs)) {
                         opts = configs;
+                    }
+                    if (emailContact_) {
+                        opts.emailContact = emailContact_;
                     }
                     initdcplots(_data, opts);
                 });
@@ -293,8 +303,11 @@
                 $.when(window.iviz.datamanager.getConfigs()).then(function(configs){
                     var opts = {};
 
-                    if(_.isObject(configs)) {
+                    if (_.isObject(configs)) {
                         opts = configs;
+                    }
+                    if (emailContact_) {
+                        opts.emailContact = emailContact_;
                     }
                     initdcplots(window.iviz.datamanager.initialSetupResult, opts);
                 });

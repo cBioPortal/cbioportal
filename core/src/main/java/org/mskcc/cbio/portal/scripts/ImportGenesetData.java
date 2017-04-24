@@ -245,11 +245,15 @@ public class ImportGenesetData extends ConsoleRunnable {
             // Add a new gene
         	} else {
         		ProgressMonitor.setCurrentMessage("Adding gene set: " + geneset.getExternalId());
-                DaoGeneset.addGeneset(geneset);            
+                Geneset newGeneset = DaoGeneset.addGeneset(geneset);
+                // add geneset genes (adding to bulkloader for performance reasons):
+                DaoGeneset.addGenesetGenesToBulkLoader(newGeneset);
         	}
 
             line = buf.readLine();
         }
+        //flush bulkloader to commit geneset genes:
+        MySQLbulkLoader.flushAll();
         // close file
         reader.close();
 

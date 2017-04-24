@@ -58,13 +58,11 @@ public class DaoGeneset {
      * @return number of records successfully added
      * @throws DaoException 
      */
-    public static int addGeneset(Geneset geneset) throws DaoException {
+    public static Geneset addGeneset(Geneset geneset) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            int rows = 0;
-            
             // new geneset so add genetic entity first
             int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(DaoGeneticEntity.EntityTypes.GENESET);
             geneset.setGeneticEntityId(geneticEntityId);
@@ -78,17 +76,14 @@ public class DaoGeneset {
             pstmt.setString(3, geneset.getName());
             pstmt.setString(4, geneset.getDescription());
             pstmt.setString(5, geneset.getRefLink());
-            rows += pstmt.executeUpdate();
+            pstmt.executeUpdate();
             //get the auto generated key:
             rs = pstmt.getGeneratedKeys();
             rs.next();
             int newId = rs.getInt(1);
             geneset.setId(newId);
             
-            // add geneset genes
-            rows += addGenesetGenes(geneset);
-            
-            return rows;
+            return geneset;
         }
         catch (SQLException e) {
             throw new DaoException(e);
@@ -99,46 +94,32 @@ public class DaoGeneset {
     }
     
     /**
-     * Adds list of Gene records from Geneset object to database.
+     * Prepares a list of Gene records from Geneset object to be added to database via MySQLbulkLoader.
      * @param geneset
-     * @return number of records successfully added
-     * @throws DaoException 
+     * @return number of records where entrez gene id is found in db
      */
-    public static int addGenesetGenes(Geneset geneset) throws DaoException {
-    	DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+    public static int addGenesetGenesToBulkLoader(Geneset geneset) {
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoGeneset.class);
-            Set<Long> entrezGeneIds = geneset.getGenesetGeneIds();
-            int rows = 0;
-            for (Long entrezGeneId : entrezGeneIds) {
-            	//validate:
-            	if (daoGeneOptimized.getGene(entrezGeneId.intValue()) == null) {
-            		//throw error with clear message:
-            		ProgressMonitor.logWarning(geneset.getExternalId() + " contains Entrez gene ID not found in local gene table: " + entrezGeneId);
-            		ImportGenesetData.skippedGenes++;
-            		continue;
-            	}
-                pstmt = con.prepareStatement("INSERT INTO geneset_gene "
-                        + "(`GENESET_ID`, `ENTREZ_GENE_ID`)"
-                        + "VALUES(?,?)");
-                pstmt.setInt(1, geneset.getId());
-                pstmt.setLong(2, entrezGeneId);
-                rows += pstmt.executeUpdate();
-            }       
-            return rows;
+        Set<Long> entrezGeneIds = geneset.getGenesetGeneIds();
+        int rows = 0;
+        for (Long entrezGeneId : entrezGeneIds) {
+            //validate:
+            if (daoGeneOptimized.getGene(entrezGeneId.intValue()) == null) {
+                //throw error with clear message:
+                ProgressMonitor.logWarning(geneset.getExternalId() + " contains Entrez gene ID not found in local gene table: " + entrezGeneId);
+                ImportGenesetData.skippedGenes++;
+                continue;
+            }
+            // use this code if bulk loading
+            // write to the temp file maintained by the MySQLbulkLoader
+            MySQLbulkLoader.getMySQLbulkLoader("geneset_gene").insertRecord(
+                    Integer.toString(geneset.getId()),
+                    Long.toString(entrezGeneId));
+            rows ++;
         }
-        catch (SQLException e) {
-            throw new DaoException(e);
-        } 
-        finally {
-            JdbcUtil.closeAll(DaoGeneset.class, con, pstmt, rs);
-        }
-        
-    }   
+        return rows;
+    }
     
     /**
      * Given a Geneset record, returns list of CanonicalGene records.

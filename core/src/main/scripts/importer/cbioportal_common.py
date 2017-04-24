@@ -700,19 +700,15 @@ def parse_metadata_file(filename,
                 extra={'filename_': filename,
                        'cause': metaDictionary['swissprot_identifier']})
             meta_file_type = None
-    
-    """
-    Save information regarding `source_stable_id`, so that after all meta files are validated, 
-    we can validate fields between meta files in validate_dependencies() in validateData.py
-    """
-    global expression_stable_ids
+
+    #Save information regarding `source_stable_id`, so that after all meta files are validated,
+    #we can validate fields between meta files in validate_dependencies() in validateData.py
     global gsva_scores_stable_id
-    global expression_zscores_source_stable_ids
     global gsva_scores_source_stable_id
     global gsva_pvalues_source_stable_id
     global gsva_scores_filename
     global gsva_pvalues_filename
-    
+
     # save all expression `stable_id` in list
     if meta_file_type is MetaFileTypes.EXPRESSION:
         if 'stable_id' in metaDictionary:

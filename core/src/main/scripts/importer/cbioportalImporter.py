@@ -173,6 +173,7 @@ def process_directory(jvm_args, study_directory):
     cancer_type_filepairs = []
     sample_attr_filepair = None
     regular_filepairs = []
+    zscore_filepairs = []
     gsva_score_filepair = None
     gsva_pvalue_filepair = None
 
@@ -205,6 +206,9 @@ def process_directory(jvm_args, study_directory):
                         sample_attr_filepair[0], f))
             sample_attr_filepair = (
                 f, os.path.join(study_directory, metadata['data_filename']))
+        elif meta_file_type == MetaFileTypes.EXPRESSION and metadata['datatype'] == "Z-SCORE":
+            zscore_filepairs.append(
+                (f, os.path.join(study_directory, metadata['data_filename'])))
         elif meta_file_type == MetaFileTypes.GSVA_SCORES:
             gsva_score_filepair = (
                 (f, os.path.join(study_directory, metadata['data_filename'])))
@@ -234,8 +238,15 @@ def process_directory(jvm_args, study_directory):
         meta_filename, data_filename = sample_attr_filepair
         import_study_data(jvm_args, meta_filename, data_filename)
 
-    # Now, import everything else except gsva
+    # Now, import everything else except gsva & z-score expression
+    # These data types have to be imported last, because they both refer to expression by
+    # source_stable_id. If in the future more types refer to each other, (like
+    # in a tree structure) this could be programmed in a recursive fashion.
     for meta_filename, data_filename in regular_filepairs:
+        import_study_data(jvm_args, meta_filename, data_filename)
+
+    # Now import expression z-score
+    for meta_filename, data_filename in zscore_filepairs:
         import_study_data(jvm_args, meta_filename, data_filename)
 
     # Now import gsva genetic profiles
@@ -245,7 +256,7 @@ def process_directory(jvm_args, study_directory):
         import_study_data(jvm_args, meta_filename, data_filename)
         #Second import the pvalue data
         meta_filename, data_filename = gsva_pvalue_filepair
-        import_study_data(jvm_args, gsva_pvalue_filepair[0], gsva_pvalue_filepair[1])
+        import_study_data(jvm_args, meta_filename, data_filename)
 
     # do the case lists
     case_list_dirname = os.path.join(study_directory, 'case_lists')

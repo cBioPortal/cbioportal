@@ -780,7 +780,7 @@ public class GlobalProperties {
         if(!hotspot.isEmpty()) {
             return Boolean.parseBoolean(hotspot);
         }else{
-            return false;
+            return true;
         }
     }
 

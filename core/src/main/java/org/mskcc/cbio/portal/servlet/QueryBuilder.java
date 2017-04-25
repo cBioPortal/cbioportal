@@ -263,6 +263,7 @@ public class QueryBuilder extends HttpServlet {
                 }
                 processData(cohortDetails, geneList, geneticProfileIdSet, 
                     httpServletRequest.getParameter(CASE_SET_ID),
+                    httpServletRequest.getParameter(CASE_IDS_KEY),
                     httpServletRequest.getParameter(CASE_IDS), 
                     dataTypePriority, getServletContext(), 
                     httpServletRequest, httpServletResponse, xdebug);
@@ -331,6 +332,7 @@ public class QueryBuilder extends HttpServlet {
                              String geneList,
 							 HashSet<String> geneticProfileIdSet,
 							 String sampleSetId, 
+                             String sampleIdsKey,
                              String sampleIdsStr, //raw string from "user custom case ids" box
 							 Integer dataTypePriority,
 							 ServletContext servletContext, 
@@ -338,7 +340,6 @@ public class QueryBuilder extends HttpServlet {
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
         
-        String sampleIdsKey = null;
         String sampleSetName = "User-defined Patient List";
         String sampleSetDescription = "User defined patient list.";
         HashMap<String, GeneticProfile> geneticProfileMap = new HashMap<>();
@@ -348,128 +349,86 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasMethylation = false;
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
-        
-        // user-specified patients, but patient_ids parameter is missing,
-        // so try to retrieve sample_ids by using sample_ids_key parameter.
-        // this is required for survival plot requests  
-       
+
+        // retrieve samples
         Map<String, Set<String>> inputStudySampleMap = cohortDetails.getStudySampleMap();
+        if (inputStudySampleMap.keySet().size() == 1 && !cohortDetails.getIsVirtualStudy()) { // single study
+            String _cancerStudyId = inputStudySampleMap.keySet().iterator().next();
+            if (!sampleSetId.equals("-1")) {
+                for (SampleList sampleSet : GetSampleLists.getSampleLists(_cancerStudyId)) {
+                    if (sampleSet.getStableId().equals(sampleSetId)) {
+                        sampleIdsStr = sampleSet.getSampleListAsString();
+                        sampleSetName = sampleSet.getName();
+                        sampleSetDescription = sampleSet.getDescription();
+                        break;
+                    }
+                }
+                List<String> samplesList = new ArrayList<>(Arrays.asList(sampleIdsStr.split(" ")));
+                studySampleMap.put(_cancerStudyId,samplesList);
+            } else if (sampleSetId.equals("-1") && sampleIdsKey != null) {
+                sampleIdsStr = SampleSetUtil.getSampleIds(sampleIdsKey);
+                List<String> samplesList = new ArrayList<>(Arrays.asList(sampleIdsStr.split(" ")));
+                studySampleMap.put(_cancerStudyId,samplesList);
+            } else if (sampleSetId.equals("-1") && sampleIdsKey == null &&
+                sampleIdsStr != null && sampleIdsStr.length() > 0) {
+                studySampleMap = parseCaseIdsTextBoxStr(sampleIdsStr);
+            } else {
+                redirectStudyUnavailable(request, response);
+            }
+            if (sampleIdsKey == null) {
+                sampleIdsKey = SampleSetUtil.shortenSampleIds(sampleIdsStr);
+            }
+        } else { // multiple studies OR single virtual study
+            if (sampleSetId.equals("-1") && sampleIdsStr != null && sampleIdsStr.length() > 0) { //using user customized case list
+                studySampleMap = parseCaseIdsTextBoxStr(sampleIdsStr);
+            } else { // using all cases (default)
+                for (String _cancerStudyId : inputStudySampleMap.keySet()) {
+                    ArrayList<SampleList> sampleSetList = GetSampleLists.getSampleLists(_cancerStudyId);
+                    AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
+                    SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
+                    if (defaultSampleSet == null) {
+                        continue;
+                    }
+                    List<String> sampleList = defaultSampleSet.getSampleList();
+                    if(inputStudySampleMap.get(_cancerStudyId).size()>0){
+                        sampleList.retainAll(inputStudySampleMap.get(_cancerStudyId));
+                    }
+                    studySampleMap.put(_cancerStudyId, sampleList);                    
+                }
+            }
+        }
+        
+
+        // retrieve genetic profiles
 		for (String cancerStudyId : inputStudySampleMap.keySet()) {
 			CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
 			ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
-			ArrayList<SampleList> sampleSetList = GetSampleLists.getSampleLists(cancerStudyId);
 			showIGVtab = showIGVtab || selectedCancerStudy.hasCnaSegmentData();
 			hasMrna = hasMrna || countProfiles(geneticProfileList, GeneticAlterationType.MRNA_EXPRESSION) > 0;
 			hasMethylation = hasMethylation || countProfiles(geneticProfileList, GeneticAlterationType.METHYLATION) > 0;
 		    hasCopyNo = hasCopyNo || countProfiles(geneticProfileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
 		    hasSurvival = hasSurvival || selectedCancerStudy.hasSurvivalData();
-            
-            // single regular study
-			if (!cohortDetails.getIsVirtualStudy()) {
-				if (sampleSetId.equals("-1") && sampleIdsStr == null) { 
-					sampleIdsKey = request.getParameter(CASE_IDS_KEY);
-					if (sampleIdsKey != null) {
-                        sampleIdsStr = SampleSetUtil.getSampleIds(sampleIdsKey);
-					}
-				}
-				if (!sampleSetId.equals("-1")) {
-					for (SampleList sampleSet : GetSampleLists.getSampleLists(cancerStudyId)) {
-						if (sampleSet.getStableId().equals(sampleSetId)) {
-                            sampleIdsStr = sampleSet.getSampleListAsString();
-							sampleSetName = sampleSet.getName();
-							sampleSetDescription = sampleSet.getDescription();
-							break;
-						}
-					}
-				}
-				// if user specifies patients, add these to hashset, and send to
-				// GetMutationData
-				else if (sampleIdsStr != null && sampleIdsStr.length() > 0) {
-                    List<String> sampleIds = new ArrayList<>();
-				    if (sampleIdsStr.contains("|")) { //TODO: a better way to distinguish input from "Case Ids" box or "Summary" page
-                        String[] _segs = sampleIdsStr.split("\\+");
-                        for (String _seg: _segs) { // _seg => study_id|sampleId
-                            sampleIds.add(_seg.split("\\|")[1]);
-                        }
-                    } else {
-                        sampleIdsStr = sampleIdsStr.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
-                        sampleIdsStr = sampleIdsStr.replaceAll("\n", "+").replaceAll("\t", "|");
-                        String[] _segs = sampleIdsStr.split("\\+"); // _seg => a line in "Case Ids" box: study_id\tsampleId
-                        for (String _seg: _segs) {
-                            sampleIds.add(_seg.split("\\|")[1]);
-                        }
-                    }
-                    sampleIdsStr = StringUtils.join(sampleIds, " ");
+            for(String profileId : geneticProfileIdSet){
+                geneticProfileMap.put(profileId, GeneticProfileUtil.getProfile(profileId, geneticProfileList));
+            }
+			if (cohortDetails.getIsVirtualStudy() && dataTypePriority != null) {
+                // Get the default genomic profiles
+                CategorizedGeneticProfileSet categorizedGeneticProfileSet = new CategorizedGeneticProfileSet(
+                        geneticProfileList);
+                HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
+                switch (dataTypePriority) {
+                case 2:
+                    defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultCopyNumberMap();
+                    break;
+                case 1:
+                    defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationMap();
+                    break;
+                case 0:
+                default:
+                    defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
                 }
-				else {
-					redirectStudyUnavailable(request, response);
-				}
-				for(String profileId : geneticProfileIdSet){
-					geneticProfileMap.put(profileId, GeneticProfileUtil.getProfile(profileId, geneticProfileList));
-				}
-				
-				List<String> samplesList = new ArrayList<>(Arrays.asList(sampleIdsStr.split(" ")));
-				studySampleMap.put(cancerStudyId,samplesList);
-				
-				if (sampleIdsKey == null)
-		        {
-		            sampleIdsKey = SampleSetUtil.shortenSampleIds(sampleIdsStr);
-		        }
-
-            // multiple studies OR single virtual study
-            } else { 
-				if (dataTypePriority != null) {
-                    if (sampleSetId.equals("-1") && sampleIdsStr != null && sampleIdsStr.length() > 0) { //using user customized case list
-                        sampleIdsStr = sampleIdsStr.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
-                        sampleIdsStr = sampleIdsStr.replaceAll("\n", "+").replaceAll("\t", "|");
-                        String[] _segs = sampleIdsStr.split("\\+"); // _seg => a line in "Case Ids" box: study_id\tsampleId
-                        for (String _seg: _segs) {
-                            String _studyId = _seg.split("\\|")[0];
-                            String _sampleId = _seg.split("\\|")[1];
-                            if (studySampleMap.containsKey(_studyId)) {
-                                List<String> _tmpSampleList = studySampleMap.get(_studyId);
-                                if (!_tmpSampleList.contains(_sampleId)) {
-                                    _tmpSampleList.add(_sampleId);
-                                }
-                                studySampleMap.put(_studyId, _tmpSampleList);
-                            } else {
-                                List<String> _tmpSampleList = new ArrayList<>(Arrays.asList(_sampleId));
-                                studySampleMap.put(_studyId, _tmpSampleList);
-                            }
-                        }
-                    } else { // using all cases (defualt)
-                        AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
-                        SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
-                        if (defaultSampleSet == null) {
-                            continue;
-                        }
-                        List<String> sampleList = defaultSampleSet.getSampleList();
-                        if(inputStudySampleMap.get(cancerStudyId).size()>0){
-                            sampleList.retainAll(inputStudySampleMap.get(cancerStudyId));
-                        }
-                        studySampleMap.put(cancerStudyId, sampleList);
-                    }
-
-					// Get the default genomic profiles
-					CategorizedGeneticProfileSet categorizedGeneticProfileSet = new CategorizedGeneticProfileSet(
-							geneticProfileList);
-					HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
-					switch (dataTypePriority) {
-					case 2:
-						defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultCopyNumberMap();
-						break;
-					case 1:
-						defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationMap();
-						break;
-					case 0:
-					default:
-						defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
-					}
-					geneticProfileMap.putAll(defaultGeneticProfileSet);
-				}
+                geneticProfileMap.putAll(defaultGeneticProfileSet);
 			}
-			
-			
 		}
 		// this will create a key even if the patient set is a predefined set,
         // because it is required to build a patient id string in any case
@@ -536,6 +495,28 @@ public class QueryBuilder extends HttpServlet {
 		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
 		dispatcher.forward(request, response);
 	}
+
+    private Map<String,List<String>> parseCaseIdsTextBoxStr(String _inputStr) {
+        Map<String,List<String>> _resultMap = new HashMap<>();
+        _inputStr = _inputStr.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
+        _inputStr = _inputStr.replaceAll("\n", "+").replaceAll("\t", "|");
+        String[] _segs = _inputStr.split("\\+"); // _seg => a line in "Case Ids" box: study_id\tsampleId
+        for (String _seg: _segs) {
+            String _studyId = _seg.split("\\|")[0];
+            String _sampleId = _seg.split("\\|")[1];
+            if (_resultMap.containsKey(_studyId)) {
+                List<String> _tmpSampleList = _resultMap.get(_studyId);
+                if (!_tmpSampleList.contains(_sampleId)) {
+                    _tmpSampleList.add(_sampleId);
+                }
+                _resultMap.put(_studyId, _tmpSampleList);
+            } else {
+                List<String> _tmpSampleList = new ArrayList<>(Arrays.asList(_sampleId));
+                _resultMap.put(_studyId, _tmpSampleList);
+            }
+        }
+        return _resultMap;
+    }
 
     /**
      * validate the portal web input form.

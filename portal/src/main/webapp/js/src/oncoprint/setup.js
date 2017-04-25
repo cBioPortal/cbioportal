@@ -983,10 +983,127 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		if (Object.keys(State.clinical_tracks).length === 0) {
 		    $(toolbar_selector + ' #oncoprint-diagram-showlegend-icon').hide();
 		}
-	    }
+	    };
 	};
 	var setSortOrder = function(order) {
 	    oncoprint.setSortConfig({'type':'order', 'order':order});
+	};
+	
+	var makeGenesetExpandHandler = function (geneset_id) {
+	    var gene_promise,
+		expansion_promise,
+		next_gene_index = 0,
+		num_expansion_tracks = 0;
+	    var makeRemoveExpTrackHandler = function (set_track_id) {
+		return function (track_id) {
+		    num_expansion_tracks--;
+		    // if this was the last expansion of the group track,
+		    // make it start from the first one when re-expanding
+		    if (num_expansion_tracks === 0) {
+			next_gene_index = 0;
+			oncoprint.model.enableTrackExpansion(set_track_id);
+		    }
+		};
+	    };
+	    var addExpansionTrack = function (genetic_profile_id, gene, correlation, set_track_id, set_track_group) {
+		var track_params = {
+			'rule_set_params': HEATMAP_RULE_SET_PARAMS,
+			'has_column_spacing': false,
+			'track_padding': 0,
+			'removable': true,
+			'label': gene,
+			'track_info': Number(correlation).toFixed(2),
+			'target_group': set_track_group,
+			'expansion_of': set_track_id,
+			'removeCallback': makeRemoveExpTrackHandler(set_track_id),
+			'description': gene + ' data from ' + genetic_profile_id,
+		};
+		oncoprint.suppressRendering();
+		var track_id = oncoprint.addTracks([track_params])[0];
+		num_expansion_tracks++;
+		useExistingHeatmapRuleSet(track_id);
+		oncoprint.releaseRendering();
+		return track_id;
+	    };
+	    var addExpansionTracksUnder = function (geneset_track_id, source_genes) {
+		// identify the track group the gene set track is in
+		var i, group_index = null, track_order_in_group = null, track_index = null;
+		var all_groups = oncoprint.model.getTrackGroups();
+		for (i = 0; i < all_groups.length; i++) {
+		    track_index = all_groups[i].indexOf(geneset_track_id);
+		    if (track_index !== -1) {
+			group_index = i;
+			track_order_in_group = all_groups[i].slice();
+			break;
+		    }
+		}
+		// find the index of the track after which to insert new track;
+		// this is the bottom-most expansion track if any are below the
+		// gene set track itself
+		for (i = track_order_in_group.length - 1; i > track_index; i--) {
+		    if (oncoprint.model.isExpansionOf(
+			    track_order_in_group[i], geneset_track_id)) {
+			track_index = i;
+			break;
+		    }
+		}
+		// add the gene tracks to the Oncoprint and the ordering
+		var symbol, correlation, profile_id, subtrack_id, promise_list = [];
+		oncoprint.suppressRendering();
+		for (i = 0; i < source_genes.length; i++) {
+		    symbol = source_genes[i].hugoGeneSymbol;
+		    profile_id = source_genes[i].zScoreGeneticProfileId;
+		    correlation = source_genes[i].correlationValue;
+		    subtrack_id = addExpansionTrack(
+			    profile_id, symbol, correlation, geneset_track_id, group_index);
+		    promise_list.push(populateHeatmapTrack(profile_id, symbol, subtrack_id));
+		    // insert subtrack id after existing track index
+		    track_order_in_group.splice(track_index + 1, 0, subtrack_id);
+		    track_index++;
+		}
+		// register a callback to set the order once all tracks
+		// are populated
+		return $.when.apply(null, promise_list)
+		.then(function() {
+		    oncoprint.setTrackGroupOrder(group_index, track_order_in_group);
+		}).then(function () {
+		    oncoprint.releaseRendering();
+		}, function() {
+		    oncoprint.releaseRendering();
+		}).promise();
+	    };
+	    return function (track_id) {
+		// request data if not already done so
+		if (gene_promise === undefined || gene_promise.state() === "rejected") {
+		    LoadingBar.msg('Fetching genes..');
+		    LoadingBar.update(0.1, 'yellow');
+		    LoadingBar.show();
+		    gene_promise = QuerySession.getGenesetGeneCorrelations(geneset_id);
+		}
+		// add gene tracks if not already waiting for them
+		if (expansion_promise === undefined || expansion_promise.state() !== "pending") {
+		    expansion_promise = gene_promise.then(function (correlated_genes) {
+			LoadingBar.msg('Expanding..');
+			LoadingBar.update(0.9, 'green');
+			LoadingBar.show();
+			// select the first 5 genes starting from the index,
+			// up to the end of the array
+			var genes_to_expand = correlated_genes.slice(
+				next_gene_index, next_gene_index + 5);
+			next_gene_index += genes_to_expand.length;
+			if (next_gene_index >= correlated_genes.length) {
+			    oncoprint.model.disableTrackExpansion(track_id);
+			}
+			return addExpansionTracksUnder(track_id, genes_to_expand);
+		    });
+		    expansion_promise.done(function () {
+			LoadingBar.hide();
+		    }).fail(function () {
+			LoadingBar.update(0.5, 'red');
+		    });
+		}
+		return expansion_promise;
+	    };
 	};
 	
 	var updateAlteredPercentIndicator = function(state) {
@@ -1266,6 +1383,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'removable': true,
 			'description': track_geneset_id + ' gene set scores from ' + genetic_profile_id,
 			'removeCallback': makeRemoveGenesetTrackHandler(track_geneset_id),
+			'expandCallback': makeGenesetExpandHandler(track_geneset_id),
+			'expandButtonTextGetter': function (is_expanded) {
+			    return (is_expanded ? 'More' : 'Show') + ' genes';
+			}
 		    };
 		    new_track_id = oncoprint.addTracks([track_params])[0];
 		    track_ids.push(new_track_id);

@@ -1586,6 +1586,29 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 			fetch_promise.reject();
 		    });
 		}),
+	'getGenesetGeneCorrelations': function(geneset_id) {
+	    var self = this;
+	    return this.getSelectedGsvaProfile()
+	    .then(function(geneset_profile) {
+		var result, sample_list_id = self.getCaseSetId();
+		if (!sample_list_id || sample_list_id === "-1") {
+		    result = window.cbioportal_client.getGenesetCorrelationsBySample({
+			genetic_profile_id: [geneset_profile.id],
+			correlation_threshold: [0.3],
+			geneset_id: [geneset_id],
+			sample_id: self.getSampleIds
+		    });
+		} else {
+		    result = window.cbioportal_client.getGenesetCorrelationsBySampleList({
+			genetic_profile_id: [geneset_profile.id],
+			correlation_threshold: [0.3],
+			geneset_id: [geneset_id],
+			sample_list_id: [sample_list_id]
+		    });
+		}
+		return result;
+	    });
+	},
 	'getExternalDataStatus': makeCachedPromiseFunction(
 		function(self, fetch_promise) {
 		    self.getWebServiceGenomicEventData().then(function() {

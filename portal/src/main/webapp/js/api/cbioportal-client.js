@@ -64,6 +64,25 @@ window.cbioportal_client = (function() {
 					result.genesetIds = args.geneset_ids;
 					return result;
 				}
+			},
+			'GenesetCorrelations': {
+				endpoint: function (args) {
+					return 'api/genesets/' +
+						args.geneset_id +
+						'/expression-correlation/fetch?geneticProfileId=' +
+						args.genetic_profile_id +
+						'&correlationThreshold=' +
+						args.correlation_threshold +
+						(args.sample_list_id ?
+							'&sampleListId=' + args.sample_list_id : '');
+				},
+				args: function (args) {
+					var result = [];
+					if (!args.sample_list_id) {
+						result = args.sample_ids;
+					}
+					return result;
+				}
 			}
 		}
 		var ret = {};
@@ -527,6 +546,18 @@ window.cbioportal_client = (function() {
 				raw_service.getGenesetData,
 				[
 					['genetic_profile_id', 'geneset_ids', 'sample_list_id']
+				]),
+		getGenesetCorrelationsBySample: enforceRequiredArguments(
+				raw_service.getGenesetCorrelations,
+				[
+					['genetic_profile_id', 'correlation_threshold', 'geneset_id'],
+					['genetic_profile_id', 'correlation_threshold', 'geneset_id', 'sample_ids'],
+				]),
+		getGenesetCorrelationsBySampleList: enforceRequiredArguments(
+				raw_service.getGenesetCorrelations,
+				[
+					['genetic_profile_id', 'correlation_threshold', 'geneset_id'],
+					['genetic_profile_id', 'correlation_threshold', 'geneset_id', 'sample_list_id'],
 				]),
 
 		getSampleClinicalAttributes: enforceRequiredArguments(function(args) {

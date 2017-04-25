@@ -208,7 +208,7 @@ var Oncoprint = (function () {
 	}*/
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div,
-								function(track_id) { 
+								function (track_id) {
 								    // move up
 								    var tracks = self.model.getContainingTrackGroup(track_id);
 								    var index = tracks.indexOf(track_id);
@@ -220,7 +220,7 @@ var Oncoprint = (function () {
 									self.moveTrack(track_id, new_previous_track);
 								    }
 								},
-								function(track_id) {
+								function (track_id) {
 								    // move down
 								    var tracks = self.model.getContainingTrackGroup(track_id);
 								    var index = tracks.indexOf(track_id);
@@ -228,8 +228,9 @@ var Oncoprint = (function () {
 									self.moveTrack(track_id, tracks[index+1]);
 								    }
 								},
-								function(track_id) { self.removeTrack(track_id); }, 
-								function(track_id, dir) { self.setTrackSortDirection(track_id, dir); });
+								function (track_id) { self.removeTrack(track_id); },
+								function (track_id, dir) { self.setTrackSortDirection(track_id, dir); },
+								function (track_id) { self.removeExpansionTracksFor(track_id); });
 	this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 								
 	//this.track_info_view = new OncoprintTrackInfoView($track_info_div);
@@ -479,6 +480,11 @@ var Oncoprint = (function () {
     Oncoprint.prototype.removeAllTracks = function() {
 	var track_ids = this.model.getTracks();
 	this.removeTracks(track_ids);
+    }
+
+    Oncoprint.prototype.removeExpansionTracksFor = function (track_id) {
+	// remove all expansion tracks for this track
+	this.removeTracks(this.model.track_expansion_tracks[track_id].slice());
     }
 
     Oncoprint.prototype.setHorzZoomToFit = function(ids) {

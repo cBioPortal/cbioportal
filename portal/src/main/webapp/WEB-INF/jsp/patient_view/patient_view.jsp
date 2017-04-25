@@ -475,6 +475,15 @@ function initOncoKB(instanceId, ids, mapData, type, indicatorCallback) {
                     indicatorCallback(instance);
                 }
             });
+            if (showCivic) {
+                instance.getCivicIndicator().then(function () {
+                    if(_.isFunction(indicatorCallback)) {
+                        indicatorCallback(instance);
+                    }
+                }).fail(function() {
+                    console.log('getCivicIndicator failed.');
+                });
+            }
         }
     }
     return instance;

@@ -58,8 +58,31 @@
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
     String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
-
+    
 <jsp:include page="global/header.jsp" flush="true" />
+
+
+<script>
+window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    
+window.historyType = 'memory';
+
+// Set API root variable for cbioportal-frontend repo
+<%
+String url = request.getRequestURL().toString();
+String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
+baseURL = baseURL.replace("https://", "").replace("http://", "");
+%>
+__API_ROOT__ = '<%=baseURL%>';
+    
+window.loadReactApp({ defaultRoute: 'home' });
+
+window.onReactAppReady(function(){
+    window.renderQuerySelector(document.getElementById("querySelector"));
+});   
+
+    
+</script>
 
 <script type="text/javascript">
 
@@ -90,7 +113,7 @@
 	}
 })();
 </script>
-
+    
 <p id="ie10-warning" style="background-color:red;display:none;">
     <img src="images/warning.gif" alt="warning"/>
     You are using an old version of Internet Explorer. For better performance, we recommend
@@ -149,22 +172,16 @@ if (sessionError != null) {  %>
                     <strong><%= userMessage %></strong></p>
                 </div>
             <% } %>
-
-            <%
-                //  Outputs Query and Download Tabs
-                if (tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
-                    out.println ("<span class='tab_active'>Query</span>");
-                    out.println ("<span class='tab_inactive'><a id='download_tab' href=''>Download Data</a></span>");
-                } else {
-                    out.println ("<span class='tab_inactive'><a id='query_tab' href=''>Query</a></span></span>");
-                    out.println ("<span class='tab_active'>Download Data</span>");
-                }
-            %>
-            <%@ include file="query_form.jsp" %>
-
+    
             </td>
         </tr>
     </table>
+
+
+    <div id="reactRoot" class="cbioportal-frontend hidden"></div>
+    <div id="querySelector" class="cbioportal-frontend"></div>
+
+
     </td>
     <td>
 	<jsp:include page="global/right_column.jsp" flush="true" />

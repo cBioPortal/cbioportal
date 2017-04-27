@@ -69,6 +69,7 @@ DROP TABLE IF EXISTS `clinical_attribute_meta`;
 DROP TABLE IF EXISTS `clinical_sample`;
 DROP TABLE IF EXISTS `clinical_patient`;
 DROP TABLE IF EXISTS `mutation_count`;
+DROP TABLE IF EXISTS `mutation_count_by_keyword`;
 DROP TABLE IF EXISTS `mutation`;
 DROP TABLE IF EXISTS `mutation_event`;
 DROP TABLE IF EXISTS `structural_variant`;
@@ -407,6 +408,18 @@ CREATE TABLE `mutation_count` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `mutation_count_by_keyword` (
+    `GENETIC_PROFILE_ID` int(11) NOT NULL,
+    `KEYWORD` varchar(50) DEFAULT NULL,
+    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `KEYWORD_COUNT` int NOT NULL,
+    `GENE_COUNT` int NOT NULL,
+    KEY (`GENETIC_PROFILE_ID`,`KEYWORD`),
+    FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `clinical_patient` (
   `INTERNAL_ID` int(11) NOT NULL,
   `ATTR_ID` varchar(255) NOT NULL,
@@ -705,4 +718,4 @@ CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.1.0');
+INSERT INTO info VALUES ('2.2.0');

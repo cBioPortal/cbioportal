@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
@@ -42,8 +43,8 @@ public class DiscreteCopyNumberController {
     public ResponseEntity<List<DiscreteCopyNumberData>> getDiscreteCopyNumbersInGeneticProfile(
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_gistic")
         @PathVariable String geneticProfileId,
-        @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
-        @RequestParam String sampleId,
+        @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
+        @RequestParam String sampleListId,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
         @ApiParam("Level of detail of the response")
@@ -52,13 +53,13 @@ public class DiscreteCopyNumberController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, discreteCopyNumberService
-                .getMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleId,
+                .getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, sampleListId,
                     discreteCopyNumberEventType.getAlterations()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleId,
-                    discreteCopyNumberEventType.getAlterations(), projection.name()), HttpStatus.OK);
+                discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, 
+                    sampleListId, discreteCopyNumberEventType.getAlterations(), projection.name()), HttpStatus.OK);
         }
     }
 
@@ -71,7 +72,7 @@ public class DiscreteCopyNumberController {
         @PathVariable String geneticProfileId,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
-        @ApiParam(required = true, value = "List of Sample IDs and Entrez Gene IDs")
+        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody DiscreteCopyNumberFilter discreteCopyNumberFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection)
@@ -79,16 +80,34 @@ public class DiscreteCopyNumberController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, discreteCopyNumberService
-                .fetchMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, discreteCopyNumberFilter.getSampleIds(),
-                    discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterations())
-                .getTotalCount().toString());
+            BaseMeta baseMeta;
+
+            if (discreteCopyNumberFilter.getSampleListId() != null) {
+                baseMeta = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
+                    geneticProfileId, discreteCopyNumberFilter.getSampleListId(), 
+                    discreteCopyNumberEventType.getAlterations());
+            } else {
+                baseMeta = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, 
+                    discreteCopyNumberFilter.getSampleIds(), discreteCopyNumberFilter.getEntrezGeneIds(), 
+                    discreteCopyNumberEventType.getAlterations());
+            }
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(
-                discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(geneticProfileId,
-                    discreteCopyNumberFilter.getSampleIds(), discreteCopyNumberFilter.getEntrezGeneIds(),
-                    discreteCopyNumberEventType.getAlterations(), projection.name()), HttpStatus.OK);
+            List<DiscreteCopyNumberData> discreteCopyNumberDataList;
+            if (discreteCopyNumberFilter.getSampleListId() != null) {
+                discreteCopyNumberDataList = discreteCopyNumberService
+                    .getDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, 
+                        discreteCopyNumberFilter.getSampleListId(), discreteCopyNumberEventType.getAlterations(), 
+                        projection.name());
+            } else {
+                discreteCopyNumberDataList = discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(
+                    geneticProfileId, discreteCopyNumberFilter.getSampleIds(), 
+                    discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterations(), 
+                    projection.name());
+            }
+            
+            return new ResponseEntity<>(discreteCopyNumberDataList, HttpStatus.OK);
         }
     }
 }

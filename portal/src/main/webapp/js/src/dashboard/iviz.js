@@ -1021,10 +1021,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       });
       if (possible) {
         var _selectedCaseIds = selectedCases_.sort();
-        var _url = window.cbioURL + 'case.do?cancer_study_id=' +
-          studyId + '&' + (type === 'patient' ? 'case_id' : 'sample_id') +
+        var _url = window.cbioURL + 'case.do#/patient?studyId=' +
+          studyId + '&' + (type === 'patient' ? 'caseId' : 'sampleId') +
           '=' + _selectedCaseIds[0] +
-          '#nav_case_ids=' + _selectedCaseIds.join(',');
+          '&navCaseIds=' + _selectedCaseIds.join(',');
         window.open(_url);
       } else {
         new Notification().createNotification(

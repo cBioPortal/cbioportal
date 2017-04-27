@@ -192,7 +192,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     };
 
     var localStorageEdit_ = function(updateVirtualCohort) {
-      var _virtualCohorts = vcSession.utils.getVirtualCohorts();3
+      var _virtualCohorts = vcSession.utils.getVirtualCohorts();
       _.extend(_.findWhere(_virtualCohorts, {
         virtualCohortID: updateVirtualCohort.virtualCohortID
       }), updateVirtualCohort);

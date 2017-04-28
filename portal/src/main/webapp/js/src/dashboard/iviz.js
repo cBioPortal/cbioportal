@@ -104,8 +104,6 @@ function GeneValidator(geneAreaId, geneModel){
                         $("#iviz-header-left-1").attr("disabled", true);
                     }
                 }
-                
-                if (allValid) $("#iviz-header-left-1").attr("disabled", false);
             })
             .fail(function(xhr,  textStatus, errorThrown){
                 addNotification("There was a problem: "+errorThrown, "danger");
@@ -114,8 +112,8 @@ function GeneValidator(geneAreaId, geneModel){
             .always(function(){
                 // if not all valid, focus on the gene array for focusin trigger
                 if(!allValid) {
-                    $(geneAreaId).focus();
-                    $("#iviz-header-left-1").attr("disabled", true);
+                  $(geneAreaId).focus();
+                  $("#iviz-header-left-1").attr("disabled", true);
                 }
                 // in case a submit was pressed, use the callback
                 if($.isFunction(callback)) callback(allValid);
@@ -318,28 +316,28 @@ window.QueryByGeneUtil = (function() {
 
   return {
     toMainPage: function(studyId, selectedCases) {
-        var _arr = [];
-        _.each(selectedCases, function(_obj) {
-            var _studyId = _obj.studyID;
-            _.each(_obj.samples, function(_sampleId) {
-                _arr.push(_studyId + "|" + _sampleId); 
-            });
+      var _arr = [];
+      _.each(selectedCases, function(_obj) {
+        var _studyId = _obj.studyID;
+        _.each(_obj.samples, function(_sampleId) {
+          _arr.push(_studyId + "|" + _sampleId);
         });
-        submitForm(window.cbioURL + 'index.do', {
-            'cancer_study_id': studyId,
-            'case_ids': _arr.join('+'),
-            'case_set_id': -1
-        }); 
+      });
+      submitForm(window.cbioURL + 'index.do', {
+        'cancer_study_id': studyId,
+        'case_ids': _arr.join('+'),
+        'case_set_id': -1
+      });
     },
     toQueryPageSingleCohort: function(studyId, selectedCases,
-                          selectedGenes, mutationProfileId, cnaProfileId) {
-        var _arr = [];
-        _.each(selectedCases, function(_obj) {
-            var _studyId = _obj.studyID;
-            _.each(_obj.samples, function(_sampleId) {
-                _arr.push(_studyId + "|" + _sampleId);
-            });
+                                      selectedGenes, mutationProfileId, cnaProfileId) {
+      var _arr = [];
+      _.each(selectedCases, function(_obj) {
+        var _studyId = _obj.studyID;
+        _.each(_obj.samples, function(_sampleId) {
+          _arr.push(_studyId + "|" + _sampleId);
         });
+      });
       submitForm(window.cbioURL + 'index.do', {
         cancer_study_id: studyId,
         cancer_study_list: null,
@@ -356,24 +354,24 @@ window.QueryByGeneUtil = (function() {
         Action: 'Submit'
       });
     },
-      toMultiStudiesQueryPage: function(_vcId, _selectedCases, _selectedGenes) {
-          var _arr = [];
-          _.each(_selectedCases, function(_obj) {
-              var _studyId = _obj.studyID;
-              _.each(_obj.samples, function(_sampleId) {
-                  _arr.push(_studyId + "|" + _sampleId);
-              });
-          });
-          submitForm(window.cbioURL + 'index.do', {
-              cancer_study_list: null,
-              cancer_study_id: _vcId,
-              gene_list: _selectedGenes,
-              case_set_id: '-1',
-              case_ids: _arr.join('+'),
-              tab_index: 'tab_visualize',
-              Action: 'Submit'
-          });
-      }
+    toMultiStudiesQueryPage: function(_vcId, _selectedCases, _selectedGenes) {
+      var _arr = [];
+      _.each(_selectedCases, function(_obj) {
+        var _studyId = _obj.studyID;
+        _.each(_obj.samples, function(_sampleId) {
+          _arr.push(_studyId + "|" + _sampleId);
+        });
+      });
+      submitForm(window.cbioURL + 'index.do', {
+        cancer_study_list: null,
+        cancer_study_id: _vcId,
+        gene_list: _selectedGenes,
+        case_set_id: '-1',
+        case_ids: _arr.join('+'),
+        tab_index: 'tab_visualize',
+        Action: 'Submit'
+      });
+    }
   }
 })();
 
@@ -466,7 +464,6 @@ var QueryByGeneTextArea  = (function() {
             geneList.push(gene);
             geneModel.set("geneString", geneModel.getCleanGeneString()+" "+gene);
             new Notification().createNotification(gene+" added to your query");
-            $('#iviz-header-left-1').attr("disabled", false);
         }
         // if the gene is in the list, remove it and create a notification
         else{
@@ -535,12 +532,6 @@ var QueryByGeneTextArea  = (function() {
 
         // create the gene validator
         geneValidator = new GeneValidator(areaId, geneModel);
-
-        // $('#query-by-gene-textarea').on('change',function(){
-        //     if (!$.trim($('#query-by-gene-textarea').val())) {
-        //         $('#iviz-header-left-1').attr("disabled", true);
-        //     }
-        // });
     }
 
 
@@ -1146,31 +1137,31 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     },
     submitForm: function() {
 
-        var _self = this;
-        _self.selectedsamples = _.keys(iViz.getCasesMap('sample'));
-        _self.selectedpatients = _.keys(iViz.getCasesMap('patient'));
-        _self.cohorts_ = window.cohortIdsList; // queried cohorts (vc or regular study)
-        
-        // Remove all hidden inputs
-        $('#iviz-form input:not(:first)').remove();
-        
-        if (_self.cohorts_.length === 1) { // to query single study
-            if (QueryByGeneTextArea.isEmpty()) {
-                QueryByGeneUtil.toMainPage(_self.cohorts_[0], _self.stat().selectedCases); 
-            } else {
-                QueryByGeneTextArea.validateGenes(this.decideSubmitSingleCohort, false);
-            }
-        } else { // to query multiple studies, always generate a tmp VC and save to session service only. 
-            $.when(vcSession.utils.buildVCObject(_self.stat().filters, _self.stat().selectedCases, "Selected patients / samples", "")).done(function (_vc) {
-                vcSession.model.saveSessionWithoutWritingLocalStorage(_vc, function (_vcId) {
-                    if (QueryByGeneTextArea.isEmpty()) {
-                        QueryByGeneUtil.toMainPage(_vcId, _self.stat().selectedCases);
-                    } else {
-                        QueryByGeneUtil.toMultiStudiesQueryPage(_vcId, _self.stat().selectedCases, QueryByGeneTextArea.getGenes());
-                    }
-                });
-            });
+      var _self = this;
+      _self.selectedsamples = _.keys(iViz.getCasesMap('sample'));
+      _self.selectedpatients = _.keys(iViz.getCasesMap('patient'));
+      _self.cohorts_ = window.cohortIdsList; // queried cohorts (vc or regular study)
+
+      // Remove all hidden inputs
+      $('#iviz-form input:not(:first)').remove();
+
+      if (_self.cohorts_.length === 1) { // to query single study
+        if (QueryByGeneTextArea.isEmpty()) {
+          QueryByGeneUtil.toMainPage(_self.cohorts_[0], _self.stat().selectedCases);
+        } else {
+          QueryByGeneTextArea.validateGenes(this.decideSubmitSingleCohort, false);
         }
+      } else { // to query multiple studies, always generate a tmp VC and save to session service only. 
+        $.when(vcSession.utils.buildVCObject(_self.stat().filters, _self.stat().selectedCases, "Selected patients / samples", "")).done(function (_vc) {
+          vcSession.model.saveSessionWithoutWritingLocalStorage(_vc, function (_vcId) {
+            if (QueryByGeneTextArea.isEmpty()) {
+              QueryByGeneUtil.toMainPage(_vcId, _self.stat().selectedCases);
+            } else {
+              QueryByGeneUtil.toMultiStudiesQueryPage(_vcId, _self.stat().selectedCases, QueryByGeneTextArea.getGenes());
+            }
+          });
+        });
+      }
     },
     decideSubmitSingleCohort: function(allValid) {
       // if all genes are valid, submit, otherwise show a notification
@@ -1276,6 +1267,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   window.cbio,
   window.QueryByGeneUtil,
   window.QueryByGeneTextArea);
+
 
 'use strict';
 (function(Vue, iViz, dc, _) {
@@ -1644,8 +1636,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     bind: function() {
       var self = this;
       $(this.el).chosen({
-        width: '30%'
-      })
+          width: '30%'
+        })
         .change(
           function() {
             var value = self.el.value;
@@ -1656,39 +1648,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     }
   });
 
-  // This is an example to add sample to a virtual cohort from scatter plot
-  /*  iViz.vue.vmScatter = (function() {
-   var vmInstance_;
-
-   return {
-   init: function() {
-   vmInstance_ = new Vue({
-   el: '#scatter-container',
-   data: {
-   showList: false,
-   virtualCohorts: null,
-   sampleID: null,
-   cancerStudyID: null,
-   addNewVC: false
-   }, ready: function() {
-   this.$watch('showList', function() {
-   if (_.isObject(iViz.session)) {
-   this.virtualCohorts = iViz.session.utils.getVirtualCohorts();
-   }
-   });
-   }
-   });
-   },
-   getInstance: function() {
-   if (typeof vmInstance_ === 'undefined') {
-   this.init();
-   }
-   return vmInstance_;
-   }
-   };
-   })();*/
 })(window.Vue, window.iViz, window.dc, window._);
-
 'use strict';
 (function(iViz, _, cbio) {
   iViz.util = (function() {

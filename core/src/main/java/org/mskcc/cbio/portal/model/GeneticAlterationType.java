@@ -36,6 +36,7 @@ package org.mskcc.cbio.portal.model;
 // don't forget to change the other one too
 public enum GeneticAlterationType {
     MUTATION_EXTENDED,
+    MUTATION_EXTENDED_UNCALLED, // uncalled mutations for cfDNA
     FUSION,
     STRUCTURAL_VARIANT,
     COPY_NUMBER_ALTERATION,

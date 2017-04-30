@@ -33,6 +33,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Date;
 import joptsimple.*;
 import org.mskcc.cbio.portal.model.*;
@@ -70,7 +71,7 @@ public class ImportProfileData extends ConsoleRunnable {
                     "\n --> profile name:  " + geneticProfile.getProfileName() +
                     "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType().name());
             ProgressMonitor.setMaxValue(numLines);
-            if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
+            if (Arrays.asList(GeneticAlterationType.MUTATION_EXTENDED, GeneticAlterationType.MUTATION_EXTENDED_UNCALLED).contains(geneticProfile.getGeneticAlterationType())) {
                 ImportExtendedMutationData importer = new ImportExtendedMutationData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
                 String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
                 if (swissprotIdType != null && swissprotIdType.equals("accession")) {

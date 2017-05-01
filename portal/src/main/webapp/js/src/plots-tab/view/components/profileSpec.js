@@ -33,7 +33,7 @@ var profileSpec = (function() {
 
     function appendProfileTypeList(axis) {
         $("#" + ids.sidebar[axis].spec_div).append("<label for='" + ids.sidebar[axis].profile_type + "'><h5>Profile Type</h5></label>");
-        $("#" + ids.sidebar[axis].spec_div).append("<select id='" + ids.sidebar[axis].profile_type + "'></select>");
+        $("#" + ids.sidebar[axis].spec_div).append("<select id='" + ids.sidebar[axis].profile_type + "'></select><br/>");
         append();
 
         function append() {
@@ -67,7 +67,7 @@ var profileSpec = (function() {
     }
 
     function appendProfileNameList(axis) {
-        $("#" + ids.sidebar[axis].spec_div).append("<br><label for='" + ids.sidebar[axis].profile_name + "'><h5>Profile Name</h5></label>");
+        $("#" + ids.sidebar[axis].spec_div).append("<label for='" + ids.sidebar[axis].profile_name + "'><h5>Profile Name</h5></label>");
         $("#" + ids.sidebar[axis].spec_div).append("<select id='" + ids.sidebar[axis].profile_name + "'></select>");
         append();
 
@@ -150,7 +150,7 @@ var profileSpec = (function() {
         //basically same check as genetic_vs_genetic() but here we do it directly as genetic_vs_genetic is initialized together 
         //with other variables in plotsUtils which are not available yet (so a call to genetic_vs_genetic would fail here):
         if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() && 
-	            $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
+	            $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene) {
             $("#" + ids.sidebar.y.lock_gene + "-div").append(
                     "<input type='checkbox' id='" + 
                     ids.sidebar.y.lock_gene +

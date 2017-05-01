@@ -61,7 +61,7 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
         symbol : "circle",
         fill : "#00AAF8",
         stroke : "#0089C6",
-        legendText : "Not mutated"
+        legendText : "Gene not mutated"
     },
     {
         typeName: "one_mut",

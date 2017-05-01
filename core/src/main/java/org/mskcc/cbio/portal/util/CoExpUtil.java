@@ -87,8 +87,24 @@ public class CoExpUtil {
 			return null;
 		}
     }
-
-    public static Map<Long,double[]> getExpressionMap(int profileId, String sampleSetId, String sampleIdsKeys) throws DaoException {
+	
+	public static double[] getExpressionList(int profileId, String sampleSetId, String sampleIdsKeys, Integer entityId) throws DaoException {
+		
+        List<Integer> entityIds = Arrays.asList(entityId);
+        Map<Integer, double[]> resultMap = getExpressionMap(profileId, sampleSetId, sampleIdsKeys, entityIds);
+        return resultMap.get(entityId);
+	}
+	
+	/**
+	 * 
+	 * @param profileId
+	 * @param sampleSetId
+	 * @param sampleIdsKeys
+	 * @param entityId: (optional) 
+	 * @return
+	 * @throws DaoException
+	 */
+    public static Map<Integer,double[]> getExpressionMap(int profileId, String sampleSetId, String sampleIdsKeys, List<Integer> entityIds) throws DaoException {
         
         GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
         List<String> stableSampleIds = getSampleIds(sampleSetId, sampleIdsKeys);
@@ -100,10 +116,12 @@ public class CoExpUtil {
         sampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(profileId));
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        Map<Long, HashMap<Integer, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
-        Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
-        for (Map.Entry<Long, HashMap<Integer, String>> entry : mapStr.entrySet()) {
-            Long gene = entry.getKey();
+        
+        Map<Integer, HashMap<Integer, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMapForEntityIds(profileId, 
+        		entityIds);
+        Map<Integer, double[]> map = new HashMap<Integer, double[]>(mapStr.size());
+        for (Map.Entry<Integer, HashMap<Integer, String>> entry : mapStr.entrySet()) {
+        	Integer geneticEntityId = entry.getKey();
             Map<Integer, String> mapCaseValueStr = entry.getValue();
             double[] values = new double[sampleIds.size()];
             for (int i = 0; i < sampleIds.size(); i++) {
@@ -118,10 +136,9 @@ public class CoExpUtil {
                 values[i]=d;
             }
                  
-            map.put(gene, values);
+            map.put(geneticEntityId, values);
         }
 
         return map;
     }
-	
 }

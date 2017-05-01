@@ -1545,8 +1545,8 @@ cursor: default;
     font-weight: normal;
 }
 
-/* This is the gene_list input text area */
-#gene_list {
+/* These are the gene_list and geneset_list input text areas */
+#gene_list, #geneset_list {
   background-color:#eeeeee;
   width:75%;
   font-weight:bold;

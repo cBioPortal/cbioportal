@@ -33,13 +33,16 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.util.XDebug;
+import org.owasp.validator.html.PolicyException;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Central Servlet for performing Cross-Cancer Study Queries.
@@ -48,6 +51,21 @@ import java.io.IOException;
  */
 public class CrossCancerStudyServlet extends HttpServlet {
 
+	// Set variables for gene list and error if gene list is empty.
+    public static final String GENE_LIST = "gene_list";
+    public static final String STEP4_ERROR_MSG = "step4_error_msg";
+    private ServletXssUtil servletXssUtil;
+
+    // Instanciate servletXssUtil
+    public void init() throws ServletException {
+        super.init();
+        try {
+            servletXssUtil = ServletXssUtil.getInstance();
+        } catch (PolicyException e) {
+            throw new ServletException (e);
+        }
+    }
+    
     /**
      * Handles HTTP GET Request.
      */
@@ -77,9 +95,27 @@ public class CrossCancerStudyServlet extends HttpServlet {
 
             String action = httpServletRequest.getParameter(QueryBuilder.ACTION_NAME);
 
-            if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
+            // Validate if gene box is filled
+            boolean errorsExist = false;
+
+            //  Get User Defined Gene List
+    	    String geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
+            geneList = servletXssUtil.getCleanInput(geneList);
+            httpServletRequest.setAttribute(GENE_LIST, geneList);
+            
+            ArrayList<String> geneListArray = new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)")));
+            
+            if (geneListArray.size() == 1 && geneListArray.get(0).equals("")) {
+            	httpServletRequest.setAttribute(STEP4_ERROR_MSG, "Please make a selection to query.");
+        		errorsExist = true;
+            }
+                        
+            if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT) && (!errorsExist)) {
                 dispatchToResultsJSP(httpServletRequest, httpServletResponse);
             } else {
+            	if (errorsExist) {
+                    httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
+            	}
                 dispatchToIndexJSP(httpServletRequest, httpServletResponse);
             }
         } catch (Exception e) {

@@ -71,7 +71,7 @@
                        <textarea id="add_genes_input" rows="5" cols="100" wordwrap="true" placeholder="Type space- or comma-separated genes here, then click 'Add Genes to Heatmap'"></textarea><br>
                        <button id="add_genes_btn" style='font-size:13px; cursor:pointer'>Add Genes to Heatmap</button> <br/>
                        <button id="remove_heatmaps_btn" style='font-size:13px; cursor:pointer'>Remove Heatmap</button> <br/>
-                       <div class="checkbox"><label style='cursor:pointer'><input id="cluster_heatmap_chk" type="checkbox"/>Cluster Heatmap</label></div>
+                       <div class="checkbox"><label id="cluster_heatmap_chk_lbl" style="cursor:pointer"><input id="cluster_heatmap_chk" type="checkbox"/>Cluster Heatmap</label></div>
                    </form>
                </div>
             </div>

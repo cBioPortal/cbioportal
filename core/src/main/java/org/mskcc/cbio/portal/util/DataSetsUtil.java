@@ -126,7 +126,7 @@ public class DataSetsUtil {
 			// get genetic profiles
 			int sequenced = getCount(cancerStudy, "_sequenced");
 			int cna = getCount(cancerStudy, "_cna");
-			int RNASEQ = getCount(cancerStudy, "_rna_seq_v2_mrna");
+			int RNASEQ = getRNASEQ(cancerStudy);
 			int tumorMRNA = getCount(cancerStudy, "_mrna");
 			int normal = getCount(cancerStudy, "_normal_mrna");
 			int tumorMIRNA = getCount(cancerStudy, "_microrna");
@@ -145,6 +145,17 @@ public class DataSetsUtil {
 		// outta here
 		return toReturn;
 	}
+	
+	private int getRNASEQ(CancerStudy cancerStudy) throws DaoException {
+	    // Looking for RNA SEQ V2
+        Integer count = getCount(cancerStudy, "_rna_seq_v2_mrna");
+        
+        // Looking for RNA SEQ if there is no data in v2
+        if(count == null || count == 0) {
+            count = getCount(cancerStudy, "_rna_seq_mrna");
+        }
+        return count;
+    }
 
 	private int getCount(CancerStudy cancerStudy, String sampleListSuffix) throws DaoException
 	{

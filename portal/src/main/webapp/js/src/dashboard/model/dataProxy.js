@@ -516,7 +516,7 @@ window.DataManagerForIviz = (function($, _) {
                 _cnaAttrMeta.view_type = 'table';
                 _cnaAttrMeta.display_name = 'CNA Genes';
                 _cnaAttrMeta.description = 'This table only shows ' +
-                  'cbio cancer genes in the cohort.';
+                  '<a href="cancer_gene_list.jsp" target="_blank">cbio cancer genes</a> in the cohort.';
                 _cnaAttrMeta.attr_id = 'cna_details';
                 _cnaAttrMeta.filter = [];
                 _cnaAttrMeta.show = true;
@@ -538,8 +538,8 @@ window.DataManagerForIviz = (function($, _) {
                 _mutDataAttrMeta.type = 'mutatedGene';
                 _mutDataAttrMeta.view_type = 'table';
                 _mutDataAttrMeta.display_name = 'Mutated Genes';
-                _mutDataAttrMeta.description = 'This table shows cbio ' +
-                  'cancer genes with 1 or more mutations, as well as any ' +
+                _mutDataAttrMeta.description = 'This table shows ' +
+                  '<a href="cancer_gene_list.jsp" target="_blank" target="_blank">cbio cancer genes</a> with 1 or more mutations, as well as any ' +
                   'gene with 2 or more mutations';
                 _mutDataAttrMeta.attr_id = 'mutated_genes';
                 _mutDataAttrMeta.filter = [];
@@ -724,7 +724,7 @@ window.DataManagerForIviz = (function($, _) {
                     _cnaAttrMeta.view_type = 'table';
                     _cnaAttrMeta.display_name = 'CNA Genes';
                     _cnaAttrMeta.description = 'This table only shows ' +
-                      'cbio cancer genes in the cohort.';
+                      '<a href="cancer_gene_list.jsp" target="_blank">cbio cancer genes</a> in the cohort.';
                     _cnaAttrMeta.attr_id = 'cna_details';
                     _cnaAttrMeta.filter = [];
                     _cnaAttrMeta.show = true;
@@ -1535,46 +1535,24 @@ window.DataManagerForIviz = (function($, _) {
       ),
       updateGenePanelMap: function(_map, _selectedSampleIds) {
         var _self = this;
-        if (typeof _selectedSampleIds !== 'undefined') {
-          //update panel sample count map
-          _.each(Object.keys(_self.panelSampleMap), function(_panelId) {
-            _self.panelSampleMap[_panelId]["sel_samples"] = content.util.intersection(_self.panelSampleMap[_panelId]["samples"], _selectedSampleIds);
-          });
-          _.each(Object.keys(_map), function(_gene) {
-            var _sampleNumPerGene = 0;
-            _.each(_map[_gene]["panel_id"], function(_panelId) {
-              _sampleNumPerGene += _self.panelSampleMap[_panelId]["sel_samples"].length;
-            });
-            _map[_gene]["sample_num"] = _sampleNumPerGene;
-          });         
+        if (typeof _selectedSampleIds === 'undefined') {
           return _map;
-        } else {
-          return _map
         }
-      },
-        getCancerStudyDisplayName: function(_cancerStudyStableIds) {
-            var _def = new $.Deferred();
-            var _asyncAjaxCalls = [];
-            var _responses = [];
-            _.each(_cancerStudyStableIds, function(_csId) {
-                _asyncAjaxCalls.push(
-                    $.ajax({
-                        url: window.cbioURL + 'api/studies/' + _csId ,
-                        contentType: "application/json",
-                        type: 'GET',
-                        success: function(_res) { _responses.push(_res); }
-                    })
-                );
-            });
-            var _map = {};
-            $.when.apply($, _asyncAjaxCalls).done(function() {
-                _.each(_responses, function(_res) {
-                    _map[_res.studyId] = _res.shortName;
-                });
-                _def.resolve(_map);
-            });
-            return _def.promise();
-        }
+        // update panel sample count map
+        _selectedSampleIds = _selectedSampleIds.sort();
+        _.each(Object.keys(_self.panelSampleMap), function(_panelId) {
+          _self.panelSampleMap[_panelId].sel_samples =
+            content.util.intersection(_self.panelSampleMap[_panelId].samples, _selectedSampleIds);
+        });
+        _.each(Object.keys(_map), function(_gene) {
+          var _sampleNumPerGene = 0;
+          _.each(_map[_gene].panel_id, function(_panelId) {
+            _sampleNumPerGene += _self.panelSampleMap[_panelId].sel_samples.length;
+          });
+          _map[_gene].sample_num = _sampleNumPerGene;
+        });
+        return _map;
+      }
     };
   };
 

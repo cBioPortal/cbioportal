@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiParam;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Gene Set Genetic Data", description = " ")
+@Api(tags = "Gene Set Scores", description = " ")
 public class GenesetDataController {
 
 

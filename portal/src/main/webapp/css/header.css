@@ -16,9 +16,8 @@ header {
 }
 
 .legacy header {
-    max-width:1320px;
+    max-width:1270px;
     margin:0 auto;
-    padding:0 20px;
     box-sizing:border-box !important;
 }
 

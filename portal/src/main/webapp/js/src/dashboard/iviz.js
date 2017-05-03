@@ -4538,6 +4538,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     },
     ready: function() {
+      var _dataIssue = false;
       this.settings.width = window.iViz.styles.vars.barchart.width;
       this.settings.height = window.iViz.styles.vars.barchart.height;
 
@@ -4554,26 +4555,36 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
       this.data.meta = _.map(_.filter(_.pluck(
         iViz.getGroupNdx(this.opts.groupid), this.opts.attrId), function(d) {
+        if (typeof d === 'undefined' || d === 'na' || d === '' ||
+          d === 'NaN' || d == null) {
+          d = 'NA';
+        }
         return d !== 'NA';
       }), function(d) {
-        return parseFloat(d);
+        var number = parseFloat(d);
+        if (isNaN(number)) {
+          _dataIssue = true;
+        }
+        return number;
       });
-      var findExtremeResult = cbio.util.findExtremes(this.data.meta);
-      this.data.min = findExtremeResult[0];
-      this.data.max = findExtremeResult[1];
-      this.data.attrId = this.attributes.attr_id;
-      this.data.groupType = this.attributes.group_type;
-
-      if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1)) {
-        this.settings.showLogScale = true;
-      }
       
-      if (isNaN(this.data.min) || isNaN(this.data.max)) {
+      if (_dataIssue) {
         this.failedToInit = true;
-      }else{
+      } else {
+        var findExtremeResult = cbio.util.findExtremes(this.data.meta);
+        this.data.min = findExtremeResult[0];
+        this.data.max = findExtremeResult[1];
+        this.data.attrId = this.attributes.attr_id;
+        this.data.groupType = this.attributes.group_type;
+        
+        if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1)) {
+          this.settings.showLogScale = true;
+        }
+
         this.barChart = new iViz.view.component.BarChart();
         this.barChart.setDownloadDataTypes(['tsv', 'pdf', 'svg']);
         this.initChart(this.settings.showLogScale);
+        this.updateShowSurvivalIcon();
         this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
       }
     }

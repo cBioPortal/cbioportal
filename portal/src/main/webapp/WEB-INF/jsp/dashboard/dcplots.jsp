@@ -47,7 +47,7 @@
 		font-size: 1.1em !important;
 		background: 0 0;
 		font-weight: 400;
-		color: #555;
+		color: #555; 
 		padding: 5px 10px !important;
 		border: 1px solid #a9a9a9;
 		border-radius: 5px;
@@ -68,7 +68,7 @@
     <div id="main-header" style="display: none" :class="{show:!isloading}">
         <div id="iviz-header-left">
             <div id="cohort-component" style="float: left">
-            <div style="float: left; margin-right: 10px;">
+            <div style="float: left; margin-right: 10px; ">
                 <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
                                    :load-user-specific-cohorts="loadUserSpecificCohorts"
                                    :stats="stats"

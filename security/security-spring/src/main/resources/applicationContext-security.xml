@@ -37,7 +37,7 @@
     </b:bean>
     <b:bean id="customPermissionEvaluator" class="org.cbioportal.security.spring.CancerStudyPermissionEvaluator"/>
 
-    <!-- static resources not processed by spring security filters -->
+    <!-- fstatic resources not processed by spring security filters -->
     <http pattern="/css/**" security="none"/>
     <http pattern="/saml/css/**" security="none"/>
     <http pattern="/images/**" security="none"/>
@@ -46,7 +46,8 @@
     <http pattern="/saml/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
     <http pattern="/saml/gfx/**" security="none"/>
-
+    <http pattern="/reactapp/**" security="none"/>
+        
     <!-- this must come before the default entry point which will capture everything not matched by pattern -->
     <http use-expressions="true" pattern="/api/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
         <intercept-url pattern="/**" access="isAuthenticated()"/>

@@ -13,6 +13,13 @@ header {
     justify-content: space-between;
     flex-wrap: wrap;
     align-items: flex-end;
+    min-width:780px;
+}
+
+.legacy header {
+    max-width:1270px;
+    margin:0 auto;
+    box-sizing:border-box !important;
 }
 
 .pageTopContainer {
@@ -47,6 +54,9 @@ header {
 #institute-logo {
     max-height: 35px;
     float: right;
+    margin-right:5px;
+    margin-top:3px;
+    opacity:0.5;
 }
 
 #authentication {
@@ -89,7 +99,11 @@ header > div {
 
 #main-nav {
     position:relative;
-    top:-14px;
+    top:-1px;
+}
+
+#main-nav:first-child {
+    top:-22px;
 }
 
 #main-nav li {
@@ -121,3 +135,12 @@ header > div {
     padding:30px;
     opacity:.5
 }
+
+.legacy #page_wrapper {
+    max-width:1320px;
+    margin:0 auto;
+}
+
+
+
+

@@ -36,8 +36,8 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
 
         validateGeneticProfile(geneticProfileId);
 
-        List<GeneticData> allGeneticDataList = geneticDataService.fetchGeneticData(
-            geneticProfileId, null, entrezGeneIds, "SUMMARY");
+        List<GeneticData> allGeneticDataList = geneticDataService.fetchGeneticData(geneticProfileId, null, 
+            entrezGeneIds, "SUMMARY");
 
         List<GeneticData> geneticDataList = allGeneticDataList.stream().filter(g -> g.getSampleId().equals(sampleId))
             .collect(Collectors.toList());

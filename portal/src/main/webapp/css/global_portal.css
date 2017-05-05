@@ -61,7 +61,6 @@ td, th {
 */
 
 #page_wrapper {
-  background-color: #fff;
   margin: 0 auto;
   min-width: 780px;
   max-width: 1320px !important;
@@ -122,6 +121,11 @@ fieldset#patient-view-summary-fieldset > legend {
     #content {
         padding: 0 20px;
     }
+}
+
+#content {
+    padding: 0 20px;  
+    background-color:#f5f5f5;
 }
 
 img {
@@ -1034,8 +1038,6 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 
 .welcome {
     padding: 3px;
-    /*height: 200px;*/
-    min-height: 200px;
 }
 
 #right_side {

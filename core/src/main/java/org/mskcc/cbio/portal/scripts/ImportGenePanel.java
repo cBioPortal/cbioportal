@@ -54,7 +54,6 @@ public class ImportGenePanel extends ConsoleRunnable {
         try {
             String progName = "ImportGenePanel";
             String description = "Import gene panel files.";
-            // usage: --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
 
             OptionParser parser = new OptionParser();
             OptionSpec<String> data = parser.accepts( "data",

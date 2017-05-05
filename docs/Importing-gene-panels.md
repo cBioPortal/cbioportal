@@ -9,7 +9,7 @@ This page describes how to import a gene panel into the cBioPortal database.  It
 
 The following command is used to import a gene panel into the cBioPortal database:
 ```
-$JAVA_HOME/bin/java -cp $PORTAL_HOME/scripts/target/scripts-*.jar org.mskcc.cbio.portal.scripts.ImportGenePanel --data core/src/test/scripts/test_data/study_es_0/gene_panel_example.txt
+$JAVA_HOME/bin/java -Dspring.profiles.active=dbcp -cp $PORTAL_HOME/scripts/target/scripts-*.jar org.mskcc.cbio.portal.scripts.ImportGenePanel --data core/src/test/scripts/test_data/study_es_0/gene_panel_example.txt
 ```
 In this example, we are loading the example gene panel which resides in the sample dataset study_es_0.
 

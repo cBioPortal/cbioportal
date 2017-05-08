@@ -32,7 +32,7 @@ public class VariantCountServiceImpl implements VariantCountService {
         validateGeneticProfile(geneticProfileId);
 
         Integer numberOfSamplesInGeneticProfile = mutationService.fetchMetaMutationsInGeneticProfile(geneticProfileId, 
-            null).getSampleCount();
+            null, null).getSampleCount();
         List<MutationSampleCountByGene> mutationSampleCountByGeneList = mutationService.getSampleCountByEntrezGeneIds(
             geneticProfileId, entrezGeneIds);
         List<MutationSampleCountByKeyword> mutationSampleCountByKeywordList = mutationService.getSampleCountByKeywords(

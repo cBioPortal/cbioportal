@@ -4,6 +4,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.SampleNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.service.ClinicalDataService;
@@ -63,7 +66,8 @@ public class ClinicalDataController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalDataSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws SampleNotFoundException, 
+        StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -100,7 +104,8 @@ public class ClinicalDataController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalDataSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -137,7 +142,7 @@ public class ClinicalDataController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalDataSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -95,7 +96,7 @@ public class SampleListController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleListSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -114,7 +115,7 @@ public class SampleListController {
     @ApiOperation("Get all sample IDs in a sample list")
     public ResponseEntity<List<String>> getAllSampleIdsInSampleList(
         @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
-        @PathVariable String sampleListId) {
+        @PathVariable String sampleListId) throws SampleListNotFoundException {
 
         return new ResponseEntity<>(sampleListService.getAllSampleIdsInSampleList(sampleListId), HttpStatus.OK);
     }

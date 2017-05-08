@@ -5,8 +5,10 @@ import org.cbioportal.model.GeneticData;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.GeneticDataRepository;
+import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.GeneticDataService;
 import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +29,17 @@ public class GeneticDataServiceImpl implements GeneticDataService {
     private SampleService sampleService;
     @Autowired
     private GeneticProfileService geneticProfileService;
+    @Autowired
+    private SampleListRepository sampleListRepository;
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GeneticData> getGeneticData(String geneticProfileId, String sampleId, List<Integer> entrezGeneIds, 
+    public List<GeneticData> getGeneticData(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds, 
                                             String projection)
         throws GeneticProfileNotFoundException {
         
-        return fetchGeneticData(geneticProfileId, Arrays.asList(sampleId), entrezGeneIds, projection);
+        return fetchGeneticData(geneticProfileId, sampleListRepository.getAllSampleIdsInSampleList(sampleListId), 
+            entrezGeneIds, projection);
     }
    
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")

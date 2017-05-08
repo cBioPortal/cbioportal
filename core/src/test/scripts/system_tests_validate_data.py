@@ -26,8 +26,17 @@ class ValidateDataSystemTester(unittest.TestCase):
     the html report when requested?", etc)
     '''
 
+    def setUp(self):
+        def dummy_get_pom_path():
+            return "test_data/test.xml"
+        self.orig_get_pom_path = validateData.get_pom_path
+        validateData.get_pom_path = dummy_get_pom_path
+
     def tearDown(self):
         """Close logging handlers after running validator and remove tmpdir."""
+        # restore original function
+        validateData.get_pom_path = self.orig_get_pom_path
+
         # get the logger used in validateData.main_validate()
         validator_logger = logging.getLogger(validateData.__name__)
         # flush and close all handlers of this logger

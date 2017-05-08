@@ -37,7 +37,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <!DOCTYPE HTML>
-<html ng-app="menu" lang="eng">
+<html ng-app="menu" lang="eng" class="legacy">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -70,13 +70,17 @@
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 </head>
-
-<center>
+    
+<div class="pageTopContainer">      
+    <div class="contentWidth"><jsp:include page="header_bar.jsp" flush="true" /></div>
+</div>
+    
+    <center style="background:#fff; padding-top:15px">
     <div id="page_wrapper">
         <table id="page_wrapper_table" width=100% cellpadding="0px" cellspacing="5px" border="0px">
             <tr valign="top">
                 <td colspan="3">
-                    <jsp:include page="header_bar.jsp" flush="true" />
+                    
                 </td>
             </tr>
 

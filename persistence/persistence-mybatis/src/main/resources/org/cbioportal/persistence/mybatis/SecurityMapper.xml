@@ -4,6 +4,7 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.SecurityMapper">
     <!-- do not cache these queries -->
 
+    <!-- user authorities are grouped by email and grouping is CASE SENSITIVE -->
     <resultMap id="userAuthoritiesResultMap" type="org.cbioportal.model.UserAuthorities">
         <result property="email" column="email"/>
         <collection property="authorities" ofType="String">
@@ -13,7 +14,7 @@
 
     <select id="getPortalUser" resultType="org.cbioportal.model.User">
         SELECT
-            email,
+            LOWER(email) AS email,
             name,
             enabled
         FROM users
@@ -22,7 +23,7 @@
 
     <select id="getPortalUserAuthorities" resultMap="userAuthoritiesResultMap">
         SELECT
-            email,
+            LOWER(email) AS email,
             authority
         FROM authorities
         WHERE email = #{username}
@@ -30,12 +31,12 @@
 
     <insert id="addPortalUser">
         INSERT INTO users (email, name, enabled)
-        VALUES (#{email}, #{name}, #{enabled})
+        VALUES (LOWER(#{email}), #{name}, #{enabled})
     </insert>
 
     <insert id="addPortalUserAuthority">
         INSERT INTO authorities (email, authority)
-        VALUES (#{email}, #{authority})
+        VALUES (LOWER(#{email}), #{authority})
     </insert>
 
     <select id="getCancerStudyGroups" resultType="String">

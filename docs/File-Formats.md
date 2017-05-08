@@ -336,7 +336,6 @@ The segmented metadata file should contain the following fields:
 4. **reference_genome_id**: Reference genome version. Supported values: "hg19"
 5. **description**: A description of the segmented data, e.g., "Segment data for the XYZ cancer study.".
 6. **data_filename**: your datafile
-7. **gene_panel**: optional gene panel stable id
 
 #### Example:
 An example metadata file, e.g. meta_cna_seg.txt, would be:
@@ -1009,7 +1008,7 @@ description: Targeted (410 cancer genes) sequencing of various tumor types via M
 gene_list: ABL1    ACVR1   AKT1    AKT3 ...
 ```
 
-For information on importing gene panels please visit: [Importering-gene-panels](Importing-gene-panels.md).
+For information on importing gene panels please visit: [Importing-gene-panels](Importing-gene-panels.md).
 
 #### Sample-Profile Matrix
 

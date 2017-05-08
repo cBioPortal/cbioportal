@@ -79,7 +79,7 @@
 				 out.println("<th scope='col'>All</th>");
 				 out.println("<th scope='col'>Sequenced</th>");
 				 out.println("<th scope='col'>CNA</th>");
-				 out.println("<th scope='col'>Tumor mRNA (RNA-Seq V2)</th>");
+				 out.println("<th scope='col'>Tumor mRNA (RNA-Seq)</th>");
 				 out.println("<th scope='col'>Tumor mRNA (microarray)</th>");
 				 //out.println("<th scope='col'>Normal mRNA</th>");
 				 out.println("<th scope='col'>Tumor miRNA</th>");

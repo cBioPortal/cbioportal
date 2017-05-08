@@ -41,7 +41,7 @@ window.DataManagerForIviz = (function($, _) {
    * @return {boolean} Whether input attribute passed the criteria.
    */
   content.util.isPreSelectedClinicalAttr = function(attr) {
-    return attr.toLowerCase().match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
+    return attr.toLowerCase().match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(sample_type)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(mutation_count)|(copy_number_alterations)/);
   };
 
   /**
@@ -516,7 +516,7 @@ window.DataManagerForIviz = (function($, _) {
                 _cnaAttrMeta.view_type = 'table';
                 _cnaAttrMeta.display_name = 'CNA Genes';
                 _cnaAttrMeta.description = 'This table only shows ' +
-                  'cbio cancer genes in the cohort.';
+                  '<a href="cancer_gene_list.jsp" target="_blank">cbio cancer genes</a> in the cohort.';
                 _cnaAttrMeta.attr_id = 'cna_details';
                 _cnaAttrMeta.filter = [];
                 _cnaAttrMeta.show = true;
@@ -538,8 +538,8 @@ window.DataManagerForIviz = (function($, _) {
                 _mutDataAttrMeta.type = 'mutatedGene';
                 _mutDataAttrMeta.view_type = 'table';
                 _mutDataAttrMeta.display_name = 'Mutated Genes';
-                _mutDataAttrMeta.description = 'This table shows cbio ' +
-                  'cancer genes with 1 or more mutations, as well as any ' +
+                _mutDataAttrMeta.description = 'This table shows ' +
+                  '<a href="cancer_gene_list.jsp" target="_blank" target="_blank">cbio cancer genes</a> with 1 or more mutations, as well as any ' +
                   'gene with 2 or more mutations';
                 _mutDataAttrMeta.attr_id = 'mutated_genes';
                 _mutDataAttrMeta.filter = [];
@@ -724,7 +724,7 @@ window.DataManagerForIviz = (function($, _) {
                     _cnaAttrMeta.view_type = 'table';
                     _cnaAttrMeta.display_name = 'CNA Genes';
                     _cnaAttrMeta.description = 'This table only shows ' +
-                      'cbio cancer genes in the cohort.';
+                      '<a href="cancer_gene_list.jsp" target="_blank">cbio cancer genes</a> in the cohort.';
                     _cnaAttrMeta.attr_id = 'cna_details';
                     _cnaAttrMeta.filter = [];
                     _cnaAttrMeta.show = true;

@@ -5,37 +5,51 @@ var EnhancedFixedDataTable = (function() {
     var FileGrabber = React.createClass({displayName: "FileGrabber",
         // Saves table content to a text file
         saveFile: function() {
-            var formatData = this.props.content();
+            var _self = this;
+            _self.setState({saving: true});
 
-            var blob = new Blob([formatData], {type: 'text/plain'});
-            var fileName = this.props.downloadFileName ? this.props.downloadFileName : "data.txt";
+            setTimeout(function() {
+                var formatData = _self.props.content();
 
-            var downloadLink = document.createElement("a");
-            downloadLink.download = fileName;
-            downloadLink.innerHTML = "Download File";
-            if (window.webkitURL) {
-                // Chrome allows the link to be clicked
-                // without actually adding it to the DOM.
-                downloadLink.href = window.webkitURL.createObjectURL(blob);
+                var blob = new Blob([formatData], {type: 'text/plain'});
+                var fileName = _self.props.downloadFileName ? _self.props.downloadFileName : "data.txt";
+
+                var downloadLink = document.createElement("a");
+                downloadLink.download = fileName;
+                downloadLink.innerHTML = "Download File";
+                if (window.webkitURL) {
+                    // Chrome allows the link to be clicked
+                    // without actually adding it to the DOM.
+                    downloadLink.href = window.webkitURL.createObjectURL(blob);
+                }
+                else {
+                    // Firefox requires the link to be added to the DOM
+                    // before it can be clicked.
+                    downloadLink.href = window.URL.createObjectURL(blob);
+                    downloadLink.onclick = function(event) {
+                        document.body.removeChild(event.target);
+                    };
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                }
+
+                downloadLink.click();
+                _self.setState({saving: false});
+            }, 0);
+        },
+
+        getInitialState: function() {
+            return {
+                saving: false
             }
-            else {
-                // Firefox requires the link to be added to the DOM
-                // before it can be clicked.
-                downloadLink.href = window.URL.createObjectURL(blob);
-                downloadLink.onclick = function(event) {
-                    document.body.removeChild(event.target);
-                };
-                downloadLink.style.display = "none";
-                document.body.appendChild(downloadLink);
-            }
-
-            downloadLink.click();
         },
 
         render: function() {
             return (
                 React.createElement("button", {className: "btn btn-default", onClick: this.saveFile},
-                    "DATA")
+                    this.state.saving ? React.createElement("i", {className: "fa fa-spinner fa-spin"}) :
+                        React.createElement("span", null, "DATA")
+                )
             );
         }
     });
@@ -81,7 +95,7 @@ var EnhancedFixedDataTable = (function() {
                     // Error happened, disable Copy button notify the user.
                     ZeroClipboard.destroy();
                     self.notify({
-                        message: 'Copy button is not availble at this moment.',
+                        message: 'Copy button is not available at this moment.',
                         type: 'danger'
                     });
                     self.setState({show: false});
@@ -91,11 +105,18 @@ var EnhancedFixedDataTable = (function() {
 
         getInitialState: function() {
             var _show = true;
-            var _content = this.props.content();
 
-            // The current not official limitation is 1,000,000
-            // https://github.com/zeroclipboard/zeroclipboard/issues/529
-            if (!_.isString(_content) || _content.length > 1000000) {
+            // Only do precise calculation if the table matrix smaller than 100000
+            // This number is just an estimation
+            if (this.props.matrix < 100000) {
+                var _content = this.props.content();
+
+                // The current not official limitation is 1,000,000
+                // https://github.com/zeroclipboard/zeroclipboard/issues/529
+                if (!_.isString(_content) || _content.length > 1000000) {
+                    _show = false;
+                }
+            } else {
                 _show = false;
             }
 
@@ -149,6 +170,10 @@ var EnhancedFixedDataTable = (function() {
             }
 
             var content = this.prepareContent;
+            var numCols = _.isArray(this.props.cols) ? this.props.cols.length : 0;
+            var numRows = _.isArray(this.props.rows) ? this.props.rows.length : 0;
+
+            var matrix = numCols * numRows;
 
             return (
                 React.createElement("div", null,
@@ -161,7 +186,9 @@ var EnhancedFixedDataTable = (function() {
                     ),
                     React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
 
-                        getData != "DOWNLOAD" ? React.createElement(ClipboardGrabber, {content: content}) :
+                        getData != "DOWNLOAD" ? React.createElement(ClipboardGrabber, {
+                                matrix: matrix,
+                                content: content}) :
                             React.createElement("div", null)
 
                     )
@@ -868,11 +895,11 @@ var EnhancedFixedDataTable = (function() {
                     }
                 }
 
-                if(aVal == '') {
+                if (aVal == '') {
                     sortVal = 1;
                 }
 
-                if(bVal == '') {
+                if (bVal == '') {
                     sortVal = -1;
                 }
                 return sortVal;
@@ -1077,7 +1104,7 @@ var EnhancedFixedDataTable = (function() {
                 }
 
                 //Clean up the input data
-                if (_.isUndefined(cell.attr_val)) {
+                if (_.isUndefined(cell.attr_val) || cell.attr_val === null) {
                     cell.attr_val = '';
                 }
 

@@ -124,7 +124,6 @@ public class GlobalProperties {
     public static final double[] DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF = new double[]{0.2,1.5};
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
-    public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
 
     public static final String PATIENT_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.meta.url";
     public static final String PATIENT_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.patient.url";
@@ -639,15 +638,14 @@ public class GlobalProperties {
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
-        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 //+ "&"+ org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID + "=" + caseId;
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+        return "case.do#/patient?caseId=" + caseId
+                 + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToSampleView(String caseId, String cancerStudyId)
     {
-        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+        return "case.do#/patient?sampleId=" + caseId
+                 + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
@@ -703,16 +701,6 @@ public class GlobalProperties {
         String url = properties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_URL);
         if (url == null || url.length() == 0) return null;
         return url + caseId;
-    }
-
-    public static String getTCGAPathReportUrl()
-    {
-        String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
-        if (url == null) {
-            return null;
-        }       
-        
-        return url;
     }
 
     // function for getting the custom tabs for the header

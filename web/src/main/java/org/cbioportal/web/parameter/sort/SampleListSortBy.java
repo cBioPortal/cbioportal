@@ -4,7 +4,7 @@ public enum SampleListSortBy {
 
     sampleListId("stableId"),
     category("category"),
-    cancerStudyId("cancerStudyIdentifier"),
+    studyId("cancerStudyIdentifier"),
     name("name"),
     description("description");
     

@@ -92,7 +92,9 @@ public class GeneServiceImpl implements GeneService {
     }
 
     @Override
-    public List<String> getAliasesOfGene(String geneId) {
+    public List<String> getAliasesOfGene(String geneId) throws GeneNotFoundException {
+        
+        getGene(geneId);
 
         if (isInteger(geneId)) {
             return geneRepository.getAliasesOfGeneByEntrezGeneId(Integer.valueOf(geneId));

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface GeneticDataService {
 
-    List<GeneticData> getGeneticData(String geneticProfileId, String sampleId, List<Integer> entrezGeneIds, 
+    List<GeneticData> getGeneticData(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds, 
                                      String projection) 
         throws GeneticProfileNotFoundException;
     

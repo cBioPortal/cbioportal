@@ -1,0 +1,146 @@
+#login_header_top {
+    padding:5px 0px 0px 0px;
+    background: white;
+    margin:0px;
+    height:70px;
+}
+
+header {
+    background: linear-gradient(to bottom,  rgba(252,252,252,1) 90%, rgba(249,249,249,1) 100%);
+    border-bottom: 1px solid #f5f5f5;
+    position: relative;
+    display: flex !important;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    min-width:780px;
+}
+
+.legacy header {
+    max-width:1270px;
+    margin:0 auto;
+    box-sizing:border-box !important;
+}
+
+.pageTopContainer {
+    background:#f5f5f5;
+    padding-left:20px;
+    padding-right:20px;
+}
+
+.pageTopContainer, #reactRoot {
+ 
+}
+
+#reactRoot {
+    min-height:600px;
+}
+
+/* override for new layout */
+.pageTopContainer header {
+    background:none;
+   
+}
+
+.pageTopContainer header #authentication p {
+    margin-right:0;
+}
+
+
+#cbioportal-logo {
+    padding: 15px 0;
+}
+
+#institute-logo {
+    max-height: 35px;
+    float: right;
+    margin-right:5px;
+    margin-top:3px;
+    opacity:0.5;
+}
+
+#authentication {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#authentication p {
+    font: normal normal 400 11px/35px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
+    display: inline-block;
+    padding: 0px 10px;
+    float: right;
+    margin: -1px 20px 0px 0;
+    background: #fff;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    box-shadow: 0px 1px 1px rgba(93, 130, 158, 0.5);
+}
+
+#authentication span {
+    padding: 4px 10px;
+    display: inline-block;
+}
+
+#authentication span.username {
+    padding: 0px;
+    font-weight: 600;
+}
+
+#authentication a:link, #authentication a:visited {
+    color: #428bca;
+}
+
+header > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#main-nav {
+    position:relative;
+    top:-1px;
+}
+
+#main-nav:first-child {
+    top:-22px;
+}
+
+#main-nav li {
+    list-style-type: none;
+    display: inline-block;
+    font: normal normal 400 14px/18px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
+    margin-left:15px;
+}
+
+#main-nav li a:link, #main-nav li a:visited {
+    color: #777;
+}
+
+#main-nav li a:hover {
+    color: #000;
+}
+
+#main-nav li.selected a:link, #main-nav li.selected a:visited {
+    color: #000;
+    border-bottom: 1px solid #ddd;
+}
+
+.contentWidth {
+  
+}
+
+#footer {
+    text-align:center;
+    padding:30px;
+    opacity:.5
+}
+
+.legacy #page_wrapper {
+    max-width:1320px;
+    margin:0 auto;
+}
+
+
+
+

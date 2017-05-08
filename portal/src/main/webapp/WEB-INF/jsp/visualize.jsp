@@ -234,8 +234,11 @@
                 out.println("<br>");
                 out.println("<div id='session-id'></div>");
                 out.println("<br>");
-                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
-                out.println("<div id='bitly'></div>");
+                if (GlobalProperties.getBitlyUser() != null) {
+	                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
+	                out.println("<div id='bitly'></div>");
+                }
+
             }
             out.println("</div>");
     %>

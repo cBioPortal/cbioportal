@@ -321,8 +321,10 @@ if (sessionError != null) {  %>
             <div id='session-id'></div>
             <br/>
 
+        <% if (GlobalProperties.getBitlyUser() != null) { %>
             If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>
             <div id='bitly'></div>
+        <% } %>
         </div>
 
     </div>

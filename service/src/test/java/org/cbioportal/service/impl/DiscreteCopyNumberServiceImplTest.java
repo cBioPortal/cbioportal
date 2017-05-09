@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
 import junit.framework.Assert;
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.DiscreteCopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneticData;
@@ -48,12 +48,12 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         alterations.add(-2);
         
         Mockito.when(discreteCopyNumberRepository.getDiscreteCopyNumbersInGeneticProfileBySampleListId(
-            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations, PROJECTION))
+            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION))
             .thenReturn(expectedDiscreteCopyNumberDataList);
         
         List<DiscreteCopyNumberData> result = discreteCopyNumberService
-            .getDiscreteCopyNumbersInGeneticProfileBySampleListId(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations, 
-                PROJECTION);
+            .getDiscreteCopyNumbersInGeneticProfileBySampleListId(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, 
+                Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION);
 
         Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
     }
@@ -73,15 +73,15 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         geneticData.setGene(gene);
         expectedGeneticDataList.add(geneticData);
         
-        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, null, PROJECTION))
-            .thenReturn(expectedGeneticDataList);
+        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, 
+            Arrays.asList(ENTREZ_GENE_ID), PROJECTION)).thenReturn(expectedGeneticDataList);
 
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-1);
         
         List<DiscreteCopyNumberData> result = discreteCopyNumberService
-            .getDiscreteCopyNumbersInGeneticProfileBySampleListId(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations, 
-                PROJECTION);
+            .getDiscreteCopyNumbersInGeneticProfileBySampleListId(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, 
+                Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION);
         
         Assert.assertEquals(1, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
@@ -102,10 +102,11 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
         Mockito.when(discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
-            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations)).thenReturn(expectedBaseMeta);
+            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID), alterations))
+            .thenReturn(expectedBaseMeta);
 
         BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
-            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations);
+            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID), alterations);
         
         Assert.assertEquals(expectedBaseMeta, result);
     }
@@ -120,14 +121,14 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         geneticData.setValue("-1");
         expectedGeneticDataList.add(geneticData);
 
-        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, null, "ID"))
-            .thenReturn(expectedGeneticDataList);
+        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, 
+            Arrays.asList(ENTREZ_GENE_ID), "ID")).thenReturn(expectedGeneticDataList);
 
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-1);
 
         BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
-            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, alterations);
+            GENETIC_PROFILE_ID, SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID), alterations);
         
         Assert.assertEquals((Integer) 1, result.getTotalCount());
     }
@@ -230,16 +231,18 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getSampleCountByGeneAndAlteration() throws Exception {
         
-        List<CopyNumberSampleCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
-        expectedCopyNumberSampleCountByGeneList.add(new CopyNumberSampleCountByGene());
+        List<DiscreteCopyNumberSampleCountByGene> expectedDiscreteCopyNumberSampleCountByGeneList = new ArrayList<>();
+        expectedDiscreteCopyNumberSampleCountByGeneList.add(new DiscreteCopyNumberSampleCountByGene());
 
-        Mockito.when(discreteCopyNumberRepository.getSampleCountByGeneAndAlteration(GENETIC_PROFILE_ID, 
-            Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(-2))).thenReturn(expectedCopyNumberSampleCountByGeneList);
+        Mockito.when(discreteCopyNumberRepository.getSampleCountByGeneAndAlterationAndSampleIds(GENETIC_PROFILE_ID, 
+            null, Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(-2)))
+            .thenReturn(expectedDiscreteCopyNumberSampleCountByGeneList);
         
-        List<CopyNumberSampleCountByGene> result = discreteCopyNumberService.getSampleCountByGeneAndAlteration(
-            GENETIC_PROFILE_ID, Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(-2));
+        List<DiscreteCopyNumberSampleCountByGene> result = discreteCopyNumberService
+            .getSampleCountByGeneAndAlterationAndSampleIds(GENETIC_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID), 
+                Arrays.asList(-2));
         
-        Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
+        Assert.assertEquals(expectedDiscreteCopyNumberSampleCountByGeneList, result);
     }
 
     private void createGeneticProfile() throws GeneticProfileNotFoundException {

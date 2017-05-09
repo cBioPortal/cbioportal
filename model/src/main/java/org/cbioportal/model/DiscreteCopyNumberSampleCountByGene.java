@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class CopyNumberSampleCountByGene implements Serializable {
+public class DiscreteCopyNumberSampleCountByGene implements Serializable {
     
     private Integer entrezGeneId;
     private Integer alteration;
@@ -15,7 +15,7 @@ public class CopyNumberSampleCountByGene implements Serializable {
     public void setEntrezGeneId(Integer entrezGeneId) {
         this.entrezGeneId = entrezGeneId;
     }
-
+    
     public Integer getAlteration() {
         return alteration;
     }

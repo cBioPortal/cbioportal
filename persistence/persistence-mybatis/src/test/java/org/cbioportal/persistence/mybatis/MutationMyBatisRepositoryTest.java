@@ -234,8 +234,8 @@ public class MutationMyBatisRepositoryTest {
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(672);
         
-        List<MutationSampleCountByGene> result = mutationMyBatisRepository.getSampleCountByEntrezGeneIds(
-            "study_tcga_pub_mutations", entrezGeneIds);
+        List<MutationSampleCountByGene> result = mutationMyBatisRepository.getSampleCountByEntrezGeneIdsAndSampleIds(
+            "study_tcga_pub_mutations", null, entrezGeneIds);
         
         Assert.assertEquals(1, result.size());
         Assert.assertEquals((Integer) 4, result.get(0).getSampleCount());

@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CopyNumberCount;
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.DiscreteCopyNumberSampleCountByGene;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.service.CopyNumberCountService;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -36,8 +36,8 @@ public class CopyNumberCountServiceImpl implements CopyNumberCountService {
 
         Integer numberOfSamplesInGeneticProfile = geneticDataService.getNumberOfSamplesInGeneticProfile(
             geneticProfileId);
-        List<CopyNumberSampleCountByGene> copyNumberSampleCountByGeneList = discreteCopyNumberService
-            .getSampleCountByGeneAndAlteration(geneticProfileId, entrezGeneIds, alterations);
+        List<DiscreteCopyNumberSampleCountByGene> discreteCopyNumberSampleCountByGeneList = discreteCopyNumberService
+            .getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, null, entrezGeneIds, alterations);
 
         List<CopyNumberCount> copyNumberCounts = new ArrayList<>();
         for (int i = 0; i < alterations.size(); i++) {
@@ -50,7 +50,7 @@ public class CopyNumberCountServiceImpl implements CopyNumberCountService {
             copyNumberCount.setAlteration(alteration);
             copyNumberCount.setNumberOfSamples(numberOfSamplesInGeneticProfile);
 
-            Optional<CopyNumberSampleCountByGene> copyNumberSampleCountByGene = copyNumberSampleCountByGeneList.stream()
+            Optional<DiscreteCopyNumberSampleCountByGene> copyNumberSampleCountByGene = discreteCopyNumberSampleCountByGeneList.stream()
                 .filter(p -> p.getEntrezGeneId().equals(entrezGeneId) && p.getAlteration().equals(alteration))
                 .findFirst();
             copyNumberSampleCountByGene.ifPresent(m -> copyNumberCount.setNumberOfSamplesWithAlterationInGene(m

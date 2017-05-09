@@ -4,7 +4,6 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
-import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 
@@ -31,7 +30,14 @@ public interface MutationService {
     MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
                                                     List<Integer> entrezGeneIds) throws GeneticProfileNotFoundException;
 
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, List<Integer> entrezGeneIds) 
+    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleListId(String geneticProfileId,
+                                                                                 String sampleListId,
+                                                                                 List<Integer> entrezGeneIds) 
+        throws GeneticProfileNotFoundException;
+
+    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                              List<String> sampleIds,
+                                                                              List<Integer> entrezGeneIds)
         throws GeneticProfileNotFoundException;
 
     List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords) 

@@ -53,13 +53,14 @@ public class DiscreteCopyNumberController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, discreteCopyNumberService
-                .getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, sampleListId,
+                .getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, sampleListId, null,
                     discreteCopyNumberEventType.getAlterations()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
                 discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, 
-                    sampleListId, discreteCopyNumberEventType.getAlterations(), projection.name()), HttpStatus.OK);
+                    sampleListId, null, discreteCopyNumberEventType.getAlterations(), projection.name()), 
+                HttpStatus.OK);
         }
     }
 
@@ -85,7 +86,7 @@ public class DiscreteCopyNumberController {
             if (discreteCopyNumberFilter.getSampleListId() != null) {
                 baseMeta = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
                     geneticProfileId, discreteCopyNumberFilter.getSampleListId(), 
-                    discreteCopyNumberEventType.getAlterations());
+                    discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterations());
             } else {
                 baseMeta = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, 
                     discreteCopyNumberFilter.getSampleIds(), discreteCopyNumberFilter.getEntrezGeneIds(), 
@@ -98,8 +99,8 @@ public class DiscreteCopyNumberController {
             if (discreteCopyNumberFilter.getSampleListId() != null) {
                 discreteCopyNumberDataList = discreteCopyNumberService
                     .getDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, 
-                        discreteCopyNumberFilter.getSampleListId(), discreteCopyNumberEventType.getAlterations(), 
-                        projection.name());
+                        discreteCopyNumberFilter.getSampleListId(), discreteCopyNumberFilter.getEntrezGeneIds(), 
+                        discreteCopyNumberEventType.getAlterations(), projection.name());
             } else {
                 discreteCopyNumberDataList = discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(
                     geneticProfileId, discreteCopyNumberFilter.getSampleIds(), 

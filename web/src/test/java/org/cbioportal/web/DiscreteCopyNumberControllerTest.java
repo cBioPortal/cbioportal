@@ -82,8 +82,8 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
 
         Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString()))
-            .thenReturn(discreteCopyNumberDataList);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class), 
+            Mockito.anyString())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -110,8 +110,8 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
 
         Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfileBySampleListId(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString()))
-            .thenReturn(discreteCopyNumberDataList);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class), 
+            Mockito.anyString())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -150,7 +150,8 @@ public class DiscreteCopyNumberControllerTest {
         baseMeta.setTotalCount(2);
 
         Mockito.when(discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class), 
+            Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)

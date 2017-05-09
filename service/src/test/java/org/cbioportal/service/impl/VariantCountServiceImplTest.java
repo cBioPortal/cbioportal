@@ -45,7 +45,7 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID);
 
-        Mockito.when(mutationService.getSampleCountByEntrezGeneIds(GENETIC_PROFILE_ID, entrezGeneIds))
+        Mockito.when(mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(GENETIC_PROFILE_ID, null, entrezGeneIds))
             .thenReturn(mutationSampleCountByGeneList);
         
         List<MutationSampleCountByKeyword> mutationSampleCountByKeywordList = new ArrayList<>();

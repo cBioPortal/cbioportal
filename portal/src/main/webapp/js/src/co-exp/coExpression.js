@@ -508,7 +508,7 @@ var CoExpView = (function() {
                         } else if (entityProfileMap[entityXId].hasOwnProperty("GENESET") && entityProfileMap[entityXId]["GENESET"].hasOwnProperty(entityYId)) {
                             entityYProfileId = entityProfileMap[entityXId]["GENESET"][entityYId];
                         }   
-                        coexpPlots.init(Names.plotId, entityXId, entityYId, aData[1], aData[2], entityXProfileId, entityYProfileId);
+                        coexpPlots.init(Names.plotId, entityXId, entityYId, aData[2], aData[3], entityXProfileId, entityYProfileId);
                     }
                 });
             }

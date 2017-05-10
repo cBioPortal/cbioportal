@@ -32,7 +32,7 @@ __API_ROOT__ = '<%=baseURL%>';
 </script>
 
 <script src="js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
+    
 <jsp:invoke fragment="head_area"/>
     
 </head>
@@ -42,8 +42,15 @@ __API_ROOT__ = '<%=baseURL%>';
         <jsp:include page="/WEB-INF/jsp/global/header_bar.jsp" />
     </div>
     </div>
-    <jsp:invoke fragment="body_area"/>
-
+    
+    <div class="contentWrapper">
+        <div id="mainColumn"><jsp:invoke fragment="body_area"/></div>
+        <div id="rightColumn">
+        </div>
+    </div>
+    
+    </div>
+    
     <jsp:include page="/WEB-INF/jsp/global/footer.jsp" />
     
     </body>

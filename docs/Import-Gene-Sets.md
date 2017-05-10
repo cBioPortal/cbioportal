@@ -1,6 +1,6 @@
 # Import Gene Sets in cBioPortal
 
-Gene sets are collections of genes that are grouped together based on higher level function or system characteristics, such as being part of the same molecular process or found to be co-regulated for example. Assessing gene sets in cBioPortal is useful when the user wants to visualize the number of mutations in sets of genes, or wants to see if all genes in a set are up- or down-regulated. To visualize gene set variation in a sample, the user can calculate scores per gene set per sample using the Gene Set Variation Analysis (GSVA) algorithm ([Hänzelmann, 2013](#references)). 
+Gene sets are collections of genes that are grouped together based on higher level function or system characteristics, such as being part of the same molecular process or found to be co-regulated for example. Assessing gene sets in cBioPortal is useful when the user wants to visualize the number of mutations in sets of genes, or wants to see if all genes in a set are up- or down-regulated. To visualize gene set variation in a sample, the user can calculate scores per gene set per sample using the Gene Set Variation Analysis (GSVA) algorithm ([Hänzelmann, 2013](#references)).
 
 Before loading a study with gene set data, gene set definitions have to be added to the database. These can be custom user-defined sets, or sets downloaded from external sources such as [MSigDB](#references). Additionally, a gene set hierarchy can be imported which is used on the cBioPortal Query page for selecting gene sets.
 
@@ -43,9 +43,9 @@ Note: This removes existing gene set, gene set hierarchy and gene set genetic pr
 	-v \
 	-o
 ```
- 
+
 ## Requirements for gene sets in cBioPortal
-Gene set functionality was added in cBioPortal x.x.x. Please use this or a later version. In addition, the database has to be updated to version 2.1.0 or higher, depending on the cBioPortal version. This can be done by running the python wrapper `migrate_db.py` for `migration.sql`. 
+Gene set functionality was added in cBioPortal 1.7.0. Please use this or a later version. In addition, the database has to be updated to version 2.3.0 or higher, depending on the cBioPortal version. This can be done by running the python wrapper `migrate_db.py` for `migration.sql`.
 
 Updating the database is described [here](https://github.com/cBioPortal/cbioportal/blob/master/docs/Updating-your-cBioPortal-installation.md#running-the-migration-script).
 
@@ -63,7 +63,7 @@ E2F1_UP.V1_DN<TAB>http://...<TAB>7041<TAB>6374<TAB>5460
 
 GMT files contain a row for every gene set. The first column contains the EXTERNAL_ID or `stable id` (MsigDB calls this "standard name"), e.g. GO_POTASSIUM_ION_TRANSPORT, not longer than 100 characters. The second column contains the REF_LINK. This is an optional URL linking to external information about this gene set. Column 3 to N contain the Entrez gene IDs that belong to this gene set.
 
-Additional information can be placed in a supplementary file. This file should be a .txt, containing columns for the `stable id`, the long name (max 100 characters) and description of the gene set (max 300 characters). 
+Additional information can be placed in a supplementary file. This file should be a .txt, containing columns for the `stable id`, the long name (max 100 characters) and description of the gene set (max 300 characters).
 
 Sample of supplementary .txt file:
 ```
@@ -82,7 +82,7 @@ required:     --data <data_file.gmt>
               --new-version <Version> OR --update-info
 optional:     --supp <supp_file.txt>
 ```
-The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `v1.0` or `Oncogenic_2017`. Running the script with `--new-version` does **remove all previous gene sets, gene set hierarchy and gene set genetic profiles.** A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless. 
+The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `v1.0` or `Oncogenic_2017`. Running the script with `--new-version` does **remove all previous gene sets, gene set hierarchy and gene set genetic profiles.** A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless.
 
 The `--update info` can be used only to update only the long name, description and reference URL.
 
@@ -126,7 +126,7 @@ required:     --data <data_file.yaml>
 
 ## Import a study with gene set data
 
-Gene set data can be added to a study folder and subsequently import the whole study with `metaImport.py`. cBioPortal supports GSVA Scores and p-values (from bootstrapping) calculated using Gene Set Variation Analysis (GSVA, [Hänzelmann, 2013](#references)). 
+Gene set data can be added to a study folder and subsequently import the whole study with `metaImport.py`. cBioPortal supports GSVA Scores and p-values (from bootstrapping) calculated using Gene Set Variation Analysis (GSVA, [Hänzelmann, 2013](#references)).
 A description of GSVA study data can be found in the [cBioPortal File Formats documentation](File-Formats.md#gene-set-data).
 
 ## References

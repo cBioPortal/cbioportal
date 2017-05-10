@@ -217,9 +217,12 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 		if (referredNodes.size() > 0) {
 			//recursion: also add the parents of the referredNodes
 			List<GenesetHierarchyInfo> parents = getFilteredHierarchySuperNodes(hierarchySuperNodes, referredNodes);
-			referredNodes.addAll(parents);
+			for (GenesetHierarchyInfo parent: parents) {
+				if(!referredNodes.contains(parent))
+					referredNodes.add(parent);
+			}
 		}
-		return referredNodes;		
+		return referredNodes;
 	}
 
 	private List<GenesetHierarchyInfo> getFilteredHierarchyGenesetParents(

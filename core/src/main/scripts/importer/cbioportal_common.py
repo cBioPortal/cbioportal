@@ -46,6 +46,7 @@ class MetaFileTypes(object):
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
     MUTATION_SIGNIFICANCE = 'meta_mutsig'
+    GENE_PANEL_MATRIX = 'meta_gene_panel_matrix'
 
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
@@ -85,7 +86,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.CNA_LOG2: {
         'cancer_study_identifier': True,
@@ -125,7 +127,8 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True,
         'normal_samples_list': False,
-        'swissprot_identifier': False
+        'swissprot_identifier': False,
+        'gene_panel': False
     },
     MetaFileTypes.EXPRESSION: {
         'cancer_study_identifier': True,
@@ -155,7 +158,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.FUSION: {
         'cancer_study_identifier': True,
@@ -165,7 +169,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.GISTIC_GENES: {
         'cancer_study_identifier': True,
@@ -193,6 +198,12 @@ META_FIELD_MAP = {
         'genetic_alteration_type': True,
         'datatype': True,
         'data_filename': True
+    },
+    MetaFileTypes.GENE_PANEL_MATRIX: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'data_filename': True
     }
 }
 
@@ -213,7 +224,8 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS,
-    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
+    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData",
+    MetaFileTypes.GENE_PANEL_MATRIX: "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap"
 }
 
 IMPORTER_REQUIRES_METADATA = {
@@ -222,7 +234,8 @@ IMPORTER_REQUIRES_METADATA = {
     "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
     "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
     "org.mskcc.cbio.portal.scripts.ImportProfileData" : True,
-    "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True
+    "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True,
+    "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap" : False
 }
 
 # ------------------------------------------------------------------------------
@@ -456,6 +469,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         # others
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
         ("FUSION", "FUSION"): MetaFileTypes.FUSION,
+        ("GENE_PANEL_MATRIX", "GENE_PANEL_MATRIX"): MetaFileTypes.GENE_PANEL_MATRIX,
         # cross-sample molecular statistics (for gene selection)
         ("GISTIC_GENES_AMP", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
         ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,

@@ -71,7 +71,8 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.PROTEIN:'ProteinLevelValidator',
     cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
     cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator',
-    cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator'
+    cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator',
+    cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX:'GenePanelMatrixValidator'
 }
 
 
@@ -368,7 +369,7 @@ class Validator(object):
                     self.logger.info('Ignoring missing or invalid header comments. '
                         'Continuing with validation...')                    
                     self.fill_in_attr_defs = True
-
+            
             # read five data lines to detect quotes in the tsv file
             first_data_lines = []
             for i, line in enumerate(data_file):
@@ -455,7 +456,7 @@ class Validator(object):
         parsed, True otherwise.
         """
         return True
-
+    
     def checkHeader(self, cols):
 
         """Check that the header has the correct items and set self.cols.
@@ -2086,6 +2087,12 @@ class MutationSignificanceValidator(Validator):
     ALLOW_BLANKS = True
     pass
 
+class GenePanelMatrixValidator(Validator):
+
+    REQUIRED_HEADERS = ['SAMPLE_ID']
+    # TODO check that other column headers are valid profile stable ids
+    # TODO check that sample ids are references in clincal data file
+    # TODO check that referenced gene panel stable id is valid
 
 class ProteinLevelValidator(FeaturewiseFileValidator):
 

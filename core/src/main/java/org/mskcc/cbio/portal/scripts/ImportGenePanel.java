@@ -79,6 +79,7 @@ public class ImportGenePanel extends ConsoleRunnable {
             }
 
             setFile(genePanel_f);
+            SpringUtil.initDataSource();
             importData();
         } catch (RuntimeException e) {
             throw e;

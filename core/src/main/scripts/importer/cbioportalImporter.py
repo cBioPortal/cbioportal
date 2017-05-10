@@ -108,6 +108,11 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append(data_filename)
         args.append("--study")
         args.append(meta_file_dict['cancer_study_identifier'])
+    elif importer == "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap":
+        args.append("--meta")
+        args.append(meta_filename)
+        args.append("--data")				
+        args.append(data_filename)
     else:
         args.append("--data")
         args.append(data_filename)
@@ -173,6 +178,7 @@ def process_directory(jvm_args, study_directory):
     cancer_type_filepairs = []
     sample_attr_filepair = None
     regular_filepairs = []
+    gene_panel_matrix_filepair = None
 
     # read all meta files (excluding case lists) to determine what to import
     for f in meta_filenames:
@@ -203,6 +209,9 @@ def process_directory(jvm_args, study_directory):
                         sample_attr_filepair[0], f))
             sample_attr_filepair = (
                 f, os.path.join(study_directory, metadata['data_filename']))
+        elif meta_file_type == MetaFileTypes.GENE_PANEL_MATRIX:
+            gene_panel_matrix_filepair = (
+                (f, os.path.join(study_directory, metadata['data_filename'])))
         else:
             regular_filepairs.append(
                 (f, os.path.join(study_directory, metadata['data_filename'])))
@@ -229,6 +238,9 @@ def process_directory(jvm_args, study_directory):
     # Now, import everything else
     for meta_filename, data_filename in regular_filepairs:
         import_study_data(jvm_args, meta_filename, data_filename)
+
+    if gene_panel_matrix_filepair is not None:
+        import_study_data(jvm_args, gene_panel_matrix_filepair[0], gene_panel_matrix_filepair[1])
 
     # do the case lists
     case_list_dirname = os.path.join(study_directory, 'case_lists')

@@ -206,7 +206,7 @@ def process_directory(jvm_args, study_directory):
             if sample_attr_filepair is not None:
                 raise RuntimeError(
                     'Multiple sample attribute files found: {} and {}'.format(
-                        sample_attr_filepair[0], f))
+                        sample_attr_filepair[0], f))   # pylint: disable=unsubscriptable-object
             sample_attr_filepair = (
                 f, os.path.join(study_directory, metadata['data_filename']))
         elif meta_file_type == MetaFileTypes.GENE_PANEL_MATRIX:

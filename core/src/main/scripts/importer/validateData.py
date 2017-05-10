@@ -176,7 +176,8 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         # refer to this function so that it can be used in the template:
         j_env.filters['os.path.relpath'] = os.path.relpath
         template = j_env.get_template('validation_report_template.html.jinja')
-        doc = template.render(
+        # pylint falsely infers template to be a string -- trust me, it's not
+        doc = template.render(   # pylint: disable=no-member
             study_dir=self.study_dir,
             cbio_version=self.cbio_version,
             record_list=self.buffer,

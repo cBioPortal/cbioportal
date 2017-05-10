@@ -1873,6 +1873,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           break;
         case 'chartId':
           domId = 'chart-new-' + attrId;
+          break;
         case 'chartTableId':
           domId = 'table-' + attrId;
           break;

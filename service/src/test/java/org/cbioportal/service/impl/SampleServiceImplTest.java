@@ -3,7 +3,11 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleRepository;
+import org.cbioportal.service.PatientService;
+import org.cbioportal.service.StudyService;
+import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +28,10 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private SampleRepository sampleRepository;
+    @Mock
+    private StudyService studyService;
+    @Mock
+    private PatientService patientService;
 
     @Test
     public void getAllSamplesInStudy() throws Exception {
@@ -41,6 +49,13 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedSampleList, result);
     }
 
+    @Test(expected = StudyNotFoundException.class)
+    public void getAllSamplesInStudyNotFound() throws Exception {
+
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        sampleService.getAllSamplesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+    }
+
     @Test
     public void getMetaSamplesInStudy() throws Exception {
 
@@ -51,10 +66,24 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedBaseMeta, result);
     }
 
+    @Test(expected = StudyNotFoundException.class)
+    public void getMetaSamplesInStudyNotFound() throws Exception {
+        
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        sampleService.getMetaSamplesInStudy(STUDY_ID);
+    }
+
     @Test(expected = SampleNotFoundException.class)
-    public void getSampleInStudyNotFound() throws Exception {
+    public void getSampleInStudySampleNotFound() throws Exception {
 
         Mockito.when(sampleRepository.getSampleInStudy(STUDY_ID, SAMPLE_ID)).thenReturn(null);
+        sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID);
+    }
+
+    @Test(expected = StudyNotFoundException.class)
+    public void getSampleInStudyNotFound() throws Exception {
+
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
         sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID);
     }
 
@@ -84,14 +113,31 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedSampleList, result);
     }
 
+    @Test(expected = PatientNotFoundException.class)
+    public void getAllSamplesOfPatientInStudyPatientNotFound() throws Exception {
+
+        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenThrow(new PatientNotFoundException(
+            STUDY_ID, PATIENT_ID));
+        sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
+            DIRECTION);
+    }
+
     @Test
     public void getMetaSamplesOfPatientInStudy() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(sampleRepository.getMetaSamplesOfPatientInStudy(STUDY_ID, SAMPLE_ID)).thenReturn(expectedBaseMeta);
-        BaseMeta result = sampleService.getMetaSamplesOfPatientInStudy(STUDY_ID, SAMPLE_ID);
+        Mockito.when(sampleRepository.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID)).thenReturn(expectedBaseMeta);
+        BaseMeta result = sampleService.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID);
 
         Assert.assertEquals(expectedBaseMeta, result);
+    }
+
+    @Test(expected = PatientNotFoundException.class)
+    public void getMetaSamplesOfPatientInStudyPatientNotFound() throws Exception {
+        
+        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenThrow(new PatientNotFoundException(
+            STUDY_ID, PATIENT_ID));
+        sampleService.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID);
     }
 
     @Test

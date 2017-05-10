@@ -656,7 +656,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         """Check a valid RPPA file that should yield no errors."""
         self.logger.setLevel(logging.DEBUG)
         record_list = self.validate('data_rppa_valid.txt',
-                                    validateData.RPPAValidator)
+                                    validateData.ProteinLevelValidator)
         # expecting only status messages about the file being validated
         self.assertEqual(len(record_list), 3)
         for record in record_list:
@@ -666,7 +666,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         """Check an RPPA file with values that should yield errors."""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_rppa_invalid_values.txt',
-                                    validateData.RPPAValidator)
+                                    validateData.ProteinLevelValidator)
         # expecting several errors
         self.assertEqual(len(record_list), 3)
         for record in record_list:
@@ -689,7 +689,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         """Test if a warning is issued and the line is skipped if duplicate."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_rppa_duplicate_entries.txt',
-                                    validateData.RPPAValidator)
+                                    validateData.ProteinLevelValidator)
         # expecting only a warning
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
@@ -701,7 +701,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         """Test if a warning is issued if the gene symbol NA occurs in RPPA."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_rppa_na_gene.txt',
-                                    validateData.RPPAValidator)
+                                    validateData.ProteinLevelValidator)
         # expecting only a warning for each NA line
         self.assertEqual(len(record_list), 9)
         for record in record_list:

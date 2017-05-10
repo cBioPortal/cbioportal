@@ -9,13 +9,14 @@ import java.util.List;
 
 public interface DiscreteCopyNumberService {
 
-    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
-                                                                        List<Integer> alterations,
-                                                                        String projection)
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, 
+                                                                                      String sampleListId, 
+                                                                                      List<Integer> alterations, 
+                                                                                      String projection)
         throws GeneticProfileNotFoundException;
 
-    BaseMeta getMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
-                                                        List<Integer> alterations)
+    BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
+                                                                      List<Integer> alterations)
         throws GeneticProfileNotFoundException;
 
     List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,

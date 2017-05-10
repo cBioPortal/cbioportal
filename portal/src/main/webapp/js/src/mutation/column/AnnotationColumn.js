@@ -172,6 +172,29 @@ function AnnotationColumn(oncokbInstanceManager, showHotspot, enableMyCancerGeno
                     callback(params);
                 }
             });
+            if (showCivic) {
+                oncokbInstance.getCivicIndicator().done(function () {
+                    var tableData = dataTable.fnGetData();
+                    if (tableData.length > 0) {
+                        _.each(tableData, function (ele, i) {
+                            if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid"))) {
+                                if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid")).hasOwnProperty('evidence')) {
+                                    ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.get("mutationSid"));
+                                    ele[indexMap['datum']].mutation.set({oncokb: true});
+                                    //dataTable.fnUpdate(null, i, indexMap["annotation"], false, false);
+                                }
+                            }
+                        });
+                        //dataTable.fnUpdate(null, 0, indexMap['annotation']);
+                    }
+
+                    if (_.isFunction(callback)) {
+                        callback(params);
+                    }
+                }).fail(function() {
+                    console.log('getCivicIndicator failed.');
+                });
+            }
         }
     }
 

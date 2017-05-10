@@ -38,8 +38,12 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## The Hyve
 * Pieter Lukasse
 * Fedde Schaeffer
+* Sander Tan
+* Oleguer Plantalech
+* Irina Pulyakhina
+* Piotr Zakrzewski
+* Peter Kok
 * Sjoerd van Hagen
-* Sander de Ridder
 * Kees van Bochove
 
 ## Bilkent University

@@ -10,6 +10,6 @@ public class ClinicalAttributeMixin {
     private String attrId;
     @JsonIgnore
     private Integer cancerStudyId;
-    @JsonIgnore
-    private CancerStudy cancerStudy;
+    @JsonProperty("studyId")
+    private String cancerStudyIdentifier;
 }

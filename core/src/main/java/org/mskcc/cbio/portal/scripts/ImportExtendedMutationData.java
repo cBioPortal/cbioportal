@@ -453,6 +453,7 @@ public class ImportExtendedMutationData{
                 
                 // calculate mutation count for every sample
                 DaoMutation.calculateMutationCount(geneticProfileId);
+                DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
 		
                 if (entriesSkipped > 0) {
                 	ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);

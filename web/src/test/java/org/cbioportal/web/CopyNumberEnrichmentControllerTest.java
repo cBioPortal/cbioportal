@@ -2,7 +2,7 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.service.MutationEnrichmentService;
+import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.web.parameter.EnrichmentFilter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -31,7 +31,7 @@ import java.util.List;
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web.xml")
 @Configuration
-public class MutationEnrichmentControllerTest {
+public class CopyNumberEnrichmentControllerTest {
 
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
@@ -49,30 +49,30 @@ public class MutationEnrichmentControllerTest {
     private static final String TEST_LOG_RATIO_2 = "2";
     private static final BigDecimal TEST_P_VALUE_2 = new BigDecimal(2.1);
     private static final BigDecimal TEST_Q_VALUE_2 = new BigDecimal(2.1);
-    
+
     @Autowired
     private WebApplicationContext wac;
 
     @Autowired
-    private MutationEnrichmentService mutationEnrichmentService;
+    private CopyNumberEnrichmentService copyNumberEnrichmentService;
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
-    public MutationEnrichmentService mutationEnrichmentService() {
-        return Mockito.mock(MutationEnrichmentService.class);
+    public CopyNumberEnrichmentService copyNumberEnrichmentService() {
+        return Mockito.mock(CopyNumberEnrichmentService.class);
     }
 
     @Before
     public void setUp() throws Exception {
 
-        Mockito.reset(mutationEnrichmentService);
+        Mockito.reset(copyNumberEnrichmentService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
     
     @Test
-    public void fetchMutationEnrichments() throws Exception {
+    public void fetchCopyNumberEnrichments() throws Exception {
 
         List<AlterationEnrichment> alterationEnrichments = new ArrayList<>();
         AlterationEnrichment alterationEnrichment1 = new AlterationEnrichment();
@@ -95,10 +95,10 @@ public class MutationEnrichmentControllerTest {
         alterationEnrichment2.setpValue(TEST_P_VALUE_2);
         alterationEnrichment2.setqValue(TEST_Q_VALUE_2);
         alterationEnrichments.add(alterationEnrichment2);
-        
-        Mockito.when(mutationEnrichmentService.getMutationEnrichments(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class)))
-            .thenReturn(alterationEnrichments);
+
+        Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(Mockito.anyString(),
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), 
+            Mockito.anyListOf(Integer.class))).thenReturn(alterationEnrichments);
 
         EnrichmentFilter enrichmentFilter = new EnrichmentFilter();
         enrichmentFilter.setAlteredSampleIds(Arrays.asList("test_sample_id_1"));
@@ -106,7 +106,7 @@ public class MutationEnrichmentControllerTest {
         enrichmentFilter.setEntrezGeneIds(Arrays.asList(1));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/genetic-profiles/test_genetic_profile_id/mutation-enrichments/fetch")
+            "/genetic-profiles/test_genetic_profile_id/copy-number-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(enrichmentFilter)))

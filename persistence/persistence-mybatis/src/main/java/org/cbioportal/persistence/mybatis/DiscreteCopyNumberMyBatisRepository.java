@@ -1,6 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.DiscreteCopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
@@ -20,45 +20,45 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
         String geneticProfileId,
         String sampleListId,
         List<Integer> entrezGeneIds,
-        List<Integer> alterations,
+        List<Integer> alterationTypes,
         String projection) {
 
         return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleListId(geneticProfileId, sampleListId, 
-            entrezGeneIds, alterations, projection);
+            entrezGeneIds, alterationTypes, projection);
     }
 
     @Override
     public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId,
                                                                              String sampleListId,
                                                                              List<Integer> entrezGeneIds,
-                                                                             List<Integer> alterations) {
+                                                                             List<Integer> alterationTypes) {
 
         return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersBySampleListId(geneticProfileId, sampleListId, 
-            entrezGeneIds, alterations);
+            entrezGeneIds, alterationTypes);
     }
 
     @Override
     public List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
                                                                                  List<String> sampleIds,
                                                                                  List<Integer> entrezGeneIds,
-                                                                                 List<Integer> alterations,
+                                                                                 List<Integer> alterationTypes,
                                                                                  String projection) {
 
         return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleIds(geneticProfileId, sampleIds, entrezGeneIds,
-            alterations, projection);
+            alterationTypes, projection);
     }
 
     @Override
     public BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds,
                                                                  List<Integer> entrezGeneIds,
-                                                                 List<Integer> alterations) {
+                                                                 List<Integer> alterationTypes) {
 
         return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersBySampleIds(geneticProfileId, sampleIds,
-            entrezGeneIds, alterations);
+            entrezGeneIds, alterationTypes);
     }
 
     @Override
-    public List<DiscreteCopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleListId(
+    public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleListId(
         String geneticProfileId,
         String sampleListId,
         List<Integer> entrezGeneIds,
@@ -69,7 +69,7 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
     }
 
     @Override
-    public List<DiscreteCopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(
+    public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(
         String geneticProfileId,
         List<String> sampleIds,
         List<Integer> entrezGeneIds,

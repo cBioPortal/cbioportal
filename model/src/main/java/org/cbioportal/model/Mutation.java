@@ -3,13 +3,8 @@ package org.cbioportal.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class Mutation implements Serializable {
-
-    private Integer geneticProfileId;
-    private String geneticProfileStableId;
-    private Integer sampleId;
-    private String sampleStableId;
-    private Integer entrezGeneId;
+public class Mutation extends Alteration implements Serializable {
+    
     private String center;
     private String mutationStatus;
     private String validationStatus;
@@ -35,48 +30,7 @@ public class Mutation implements Serializable {
     private Integer oncotatorProteinPosStart;
     private Integer oncotatorProteinPosEnd;
     private String keyword;
-    private Gene gene;
-
-    public Integer getGeneticProfileId() {
-        return geneticProfileId;
-    }
-
-    public void setGeneticProfileId(Integer geneticProfileId) {
-        this.geneticProfileId = geneticProfileId;
-    }
-
-    public String getGeneticProfileStableId() {
-        return geneticProfileStableId;
-    }
-
-    public void setGeneticProfileStableId(String geneticProfileStableId) {
-        this.geneticProfileStableId = geneticProfileStableId;
-    }
-
-    public Integer getSampleId() {
-        return sampleId;
-    }
-
-    public void setSampleId(Integer sampleId) {
-        this.sampleId = sampleId;
-    }
-
-    public String getSampleStableId() {
-        return sampleStableId;
-    }
-
-    public void setSampleStableId(String sampleStableId) {
-        this.sampleStableId = sampleStableId;
-    }
-
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
-
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
-
+    
     public String getCenter() {
         return center;
     }
@@ -275,13 +229,5 @@ public class Mutation implements Serializable {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
-    }
-    
-    public Gene getGene() {
-        return gene;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
     }
 }

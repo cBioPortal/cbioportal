@@ -5,10 +5,8 @@
     <cache size="50000"/>
 
     <sql id="select">
-        mutation.GENETIC_PROFILE_ID AS geneticProfileId,
-        genetic_profile.STABLE_ID AS geneticProfileStableId,
-        mutation.SAMPLE_ID AS sampleId,
-        sample.STABLE_ID AS sampleStableId,
+        genetic_profile.STABLE_ID AS geneticProfileId,
+        sample.STABLE_ID AS sampleId,
         mutation.ENTREZ_GENE_ID as entrezGeneId
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,

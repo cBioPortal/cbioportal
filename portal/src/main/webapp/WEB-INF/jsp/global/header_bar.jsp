@@ -53,8 +53,8 @@
 <header>
     <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" height="55px" alt="cBioPortal Logo" /></a>    
     <div id="header">
-        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
-        <div id="authentication">
+        <div id="login-message-and-institute-logo">
+            <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
             <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
            
                 <p>
@@ -66,13 +66,12 @@
                     <% } %>
                     </span>
                 </p>
-            
+            </sec:authorize>
 
             <% if (rightLogo != "") { %>
                 <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
             <% } %>
         </div>
-        </sec:authorize>
 
         <nav id="main-nav">
             <ul>

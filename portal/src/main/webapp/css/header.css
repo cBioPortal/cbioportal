@@ -42,7 +42,7 @@ header {
    
 }
 
-.pageTopContainer header #authentication p {
+.pageTopContainer header #login-message-and-institute-logo p {
     margin-right:0;
 }
 
@@ -59,13 +59,13 @@ header {
     opacity:0.5;
 }
 
-#authentication {
+#login-message-and-institute-logo {
     position: absolute;
     top: 0;
     right: 0;
 }
 
-#authentication p {
+#login-message-and-institute-logo p {
     font: normal normal 400 11px/35px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
     display: inline-block;
     padding: 0px 10px;
@@ -77,17 +77,17 @@ header {
     box-shadow: 0px 1px 1px rgba(93, 130, 158, 0.5);
 }
 
-#authentication span {
+#login-message-and-institute-logo span {
     padding: 4px 10px;
     display: inline-block;
 }
 
-#authentication span.username {
+#login-message-and-institute-logo span.username {
     padding: 0px;
     font-weight: 600;
 }
 
-#authentication a:link, #authentication a:visited {
+#login-message-and-institute-logo a:link, #login-message-and-institute-logo a:visited {
     color: #428bca;
 }
 

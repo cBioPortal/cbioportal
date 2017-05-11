@@ -36,7 +36,7 @@ __API_ROOT__ = '<%=baseURL%>';
 <jsp:invoke fragment="head_area"/>
     
 </head>
-<body>
+<body class="fixedWidth">
     <div class="pageTopContainer">
     <div class="contentWidth">
         <jsp:include page="/WEB-INF/jsp/global/header_bar.jsp" />
@@ -44,9 +44,10 @@ __API_ROOT__ = '<%=baseURL%>';
     </div>
     
     <div class="contentWrapper">
-        <div id="mainColumn"><jsp:invoke fragment="body_area"/></div>
-        <div id="rightColumn">
-        </div>
+            <div class="contentWidth">
+            <div id="mainColumn"><jsp:invoke fragment="body_area"/></div>
+            <div id="rightColumn"></div>
+            </div>
     </div>
     
     </div>

@@ -34,62 +34,47 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::Tools"); %>
+<%
+    String siteTitle = GlobalProperties.getTitle() + "::Tools";
+%>
 
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<style>
-  .tile {
-    float: left;
-    margin-left: 20px;
-    background-color: #ecf0f5;
-    border-radius: 6px;
-    padding: 14px;
-    position: relative;
-    text-align: center;
-    width: 270px;
-    height: 290px;}
-  .tile p {
-    font-size: 15px;
-    margin-top: 10px !important;
-    margin-bottom: 33px; }
-  .tile-image {
-    width: 200px;
-    vertical-align: bottom; }
-  .btn {
-      color: white !important;
-  }
-</style>
+<t:template title="<%= siteTitle %>">
 
-<h1>cBioPortal Tools</h1>
+    <jsp:attribute name="head_area">
+        <script>
+        window.loadReactApp({ defaultRoute: 'home' });
+        window.onReactAppReady(function(){
+        window.renderRightBar(document.getElementById('rightColumn'));
+        });
+        </script>
+    </jsp:attribute>
 
-<div id="container">
+    <jsp:attribute name="body_area">
+        <div id="reactRoot" class="hidden"></div>
 
-<p>The following tools are for visualization and analysis of custom datasets. When using these tools in your publication,
-    <b>please cite</b> <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210">Gao et al. <i>Sci. Signal.</i> 2013</a> 
- &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.</p>
+        <h1>cBioPortal Tools</h1>
+        
+        <p>The following tools are for visualization and analysis of custom datasets. When using these tools in your publication,
+        <b>please cite</b> <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210">Gao et al. <i>Sci. Signal.</i> 2013</a>
+        &amp;amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.</p>
 
-    <div class="tile">
-      <a class="btn btn-large btn-block btn-primary" href="oncoprinter.jsp">OncoPrinter</a>
-      <p>Generates oncoprints from your own data</p>
-      <img class="tile-image top-image" alt="Oncoprint" src="images/oncoprint_example_small.png">
-    </div>
+        <hr />
+   
+        <h3><a href="oncoprinter.jsp">OncoPrinter</a></h3>
+        <p>Generates oncoprints from your own data. <a href="oncoprinter.jsp">Try it!</a></p>
+        <a href="oncoprinter.jsp"><img class="tile-image top-image" alt="Oncoprint" src="images/oncoprint_example_small.png"></a>
 
-    <div class="tile">
-      <a class="btn btn-large btn-block btn-primary" href="mutation_mapper.jsp">MutationMapper</a>
-      <p>Maps mutations on a linear protein and its domains (lollipop plots)</p>
-      <img class="tile-image top-image" alt="lollipop" src="images/lollipop_example.png">
-    </div>
-</div>
+        <hr />
+ 
+        <h3><a href="mutation_mapper.jsp">MutationMapper</a></h3>
+        <p>Maps mutations on a linear protein and its domains (lollipop plots). <a href="mutation_mapper.jsp">Try it!</a></p>
+        <a href="mutation_mapper.jsp"><img alt="lollipop" style="width:250px" src="images/lollipop_example.png"></a>
+        
+    </jsp:attribute>
 
-</td>
-    <td width="172">
-	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
-    </td>
-</tr>
-</table>
-<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-</div>
-</body>
-</html>
+
+</t:template>

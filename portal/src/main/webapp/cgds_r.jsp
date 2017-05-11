@@ -31,41 +31,34 @@
 --%>
 
 <%
-    String siteTitle = GlobalProperties.getTitle();
+    String siteTitle = GlobalProperties.getTitle() + "::CGDS R Library";
 %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+    
+<t:template title="<%= siteTitle %>">
+
+    <jsp:attribute name="head_area">
+        <script>
+        window.loadReactApp({ defaultRoute: 'home' });
+
+        window.onReactAppReady(function(){
+        //window.renderQuerySelector(document.getElementById('querySelectorTarget'));
+        window.renderRightBar(document.getElementById('rightColumn'));
+        });
+
+        </script>
+    </jsp:attribute>
+
+    <jsp:attribute name="body_area">
+        <div id="reactRoot" class="hidden"></div>
+        <%@ include file="content/cgds_r.html" %>
+    </jsp:attribute>
 
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::CGDS R Library"); %>
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
-   <div id="main">
-       <table cellspacing="2px">
-        <tr>
-            <td>
-            <h1>R/MATLAB Packages</h1>
-            <div class="markdown">
-            <p><%@ include file="content/cgds_r.html" %></p>
-            </div>
-            </td>
-        </tr>
-    </table>
-       </div>
-    </td>
-    <td width="172">
-	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
-    </td>
-  </tr>
-  <tr>
-    <td colspan="3">
-	<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-    </td>
-  </tr>
-</table>
-</center>
-</div>
-</form>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
-</body>
-</html>
+</t:template>
+
+
+

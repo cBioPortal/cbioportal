@@ -5145,7 +5145,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         fromFilter: false,
         hasChartTitle: true,
         showLoad: true,
-        showDownloadIcon: false,
+        showDownloadIcon: true,
         invisibleDimension: {},
         mainDivQtip: ''
       };

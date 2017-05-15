@@ -46,184 +46,252 @@ var ccPlots = (function (Plotly, _, $) {
         threshold_up = 1.2676506e+30,
         jitter_value = 0.4;
 
-    var fetch_profile_data = function(_queried_study_ids) {
-
-        var _param_mrna_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"; });
-        var _param_mut_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_mutations"; });
-        var _get_genetic_profile_params = {
-            genes: gene,
-            genetic_profile_ids: _param_mrna_profile_arr.concat(_param_mut_profile_arr)
-        };
-
-        window.cbioportal_client.getGeneticProfileDataBySample(_get_genetic_profile_params).then(
-            function(_result) {
-
-                profile_data = _result;
-
-                //calculate median profile value for each study
-                var _study_id_median_val_objs = [];
-                var _profile_data_objs = _.filter(_result, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); })
-                var _study_groups = _.groupBy(_profile_data_objs, "study_id");
-                _.each(_study_groups, function(_study_group) {
-                    var _vals = _.filter(_.pluck(_study_group, "profile_data"), function(_val) { return _val !== "NaN"; });
-                    _vals = _.map(_vals, function(_val) { return parseFloat(_val); });
-                    var _median_val = findMedian(_vals);
-                    _study_id_median_val_objs.push({study_id: _study_group[0].study_id, median_val: _median_val});
+    
+    var getGeneticProfiles_ = function(_sids) {
+        var def_ = new $.Deferred();
+        var fetchPromises_ = [];
+        var profiles_ = [];
+        fetchPromises_ = fetchPromises_.concat(
+            _sids.map(function(_sid) {
+                var _def = new $.Deferred();
+                window.cbioportal_client.getGeneticProfiles({study_id: [_sid]}).then(function(_ret) {
+                    profiles_ = profiles_.concat(_ret);
+                    _def.resolve();
                 });
-                function findMedian(_input_data) {
-                    var m = _input_data.map(function(v) {
-                        return v;
-                    }).sort(function(a, b) {
-                        return a - b;
-                    });
-                    var middle = Math.floor((m.length - 1) / 2); // NB: operator precedence
-                    if (m.length % 2) {
-                        return m[middle];
-                    } else {
-                        return (m[middle] + m[middle + 1]) / 2.0;
-                    }
-                }
-
-                var _get_study_params = {
-                    study_ids : _.uniq(_.pluck(_profile_data_objs, "study_id"))
-                };
-                window.cbioportal_client.getStudies(_get_study_params).then(
-                    function(_study_meta) {
-                        
-                        study_meta = _study_meta;
+                return _def.promise();
+            })
+        );
+        $.when.apply($, fetchPromises_).done(function() {
+            def_.resolve(profiles_);
+        });
+        return def_.promise();
+    }
     
-                        //map study full name to each sample
-                        _.each(_.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }), function(_profile_data_obj) {
-                            _.each(study_meta, function(_study_meta_obj) {
-                                if(_study_meta_obj.id === _profile_data_obj.study_id) {
-                                    _profile_data_obj.study_name = _study_meta_obj.name;
-                                    _profile_data_obj.study_description = _study_meta_obj.description;
-                                    _profile_data_obj.study_short_name = _study_meta_obj.short_name;
-                                }
-                            });
-                        });
+    var fetch_profile_data = function(_queriedStudyIds) {
+        
+        $.when(getGeneticProfiles_(_queriedStudyIds)).then(function(_profiles) {
 
-                        //sort by study short name or median
-                        if (study_order === "median") {
-                            _study_id_median_val_objs = _.sortBy(_study_id_median_val_objs, "median_val");
-                            study_ids = _.pluck(_study_id_median_val_objs, "study_id");
-                            study_meta = _.sortBy(study_meta, function(_meta_obj){ return study_ids.indexOf(_meta_obj.id); });
-                        } else {
-                            study_ids = _.uniq(_.pluck(_.sortBy(profile_data, "study_short_name"), "study_id"));
-                            study_meta = _.sortBy(study_meta, "short_name");
-                        }
-    
-                        //map study full name to each sample
-                        _.each(_.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }), function(_profile_data_obj) {
-                            _.each(study_meta, function(_study_meta_obj) {
-                                if(_study_meta_obj.id === _profile_data_obj.study_id) {
-                                    _profile_data_obj.study_name = _study_meta_obj.name;
-                                    _profile_data_obj.study_description = _study_meta_obj.description;
-                                    _profile_data_obj.study_short_name = _study_meta_obj.short_name;
-                                }
-                            });
-                        });
-
-                        //TODO: apply legit ways to extract profiles, now it's a hack, assuming every study has ONE rna seq v2 profile, and named under the SAME convention
-                        mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
-
-                        //get sequenced sample lists
-                        var _sample_list_ids = _.map(study_ids, function(_study_id) { return _study_id + "_sequenced"; });
-                        window.cbioportal_client.getSampleLists({sample_list_ids: _sample_list_ids}).then(function(_sequenced_sample_lists) {
-
-                            //merge genomic profile data into mutation profile data for mutated samples
-                            var _mut_data = _.filter(profile_data, function(_obj) { return _obj.hasOwnProperty("mutation_status"); });
-                            var _tmp_profile_group = _.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }); //profile data only
-                            _.each(_tmp_profile_group, function(_profile_obj) {
-                                var mutation_type = "non";
-                                var mutation_details = "";
-                                _.each(_mut_data, function(_mut_obj) {
-                                    if (_profile_obj.study_id === _mut_obj.study_id &&
-                                        _profile_obj.sample_id === _mut_obj.sample_id) {
-                                        mutation_type = _mut_obj.mutation_type; //TODO: set a priority list for mutation type
-                                        mutation_details += _mut_obj.amino_acid_change + ", ";
-                                    }
-                                });
-                                _profile_obj.mutation_type = mutation_type;
-                                _profile_obj.mutation_details = mutation_details.substring(0, mutation_details.length - 2);
-                            });
-
-                            //separate groups
-                            var _non_mut_or_not_sequenced_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type === "non"; });
-                            var _mix_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type !== "non"; });
-
-                            //calculate log values
-                            _.map(_non_mut_or_not_sequenced_group, function(_non_mut_obj){
-                                var _ori_val = _non_mut_obj.profile_data;
-                                if (_ori_val <= threshold_down) {
-                                    _non_mut_obj.logged_profile_data = Math.log(threshold_down) / Math.log(2);
-                                } else if (_ori_val >= threshold_up) {
-                                    _non_mut_obj.logged_profile_data = Math.log(threshold_up) / Math.log(2);
-                                } else {
-                                    _non_mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
-                                }
-                                return _non_mut_obj;
-                            });
-                            _.map(_mix_mut_group, function(_mut_obj){
-                                var _ori_val = _mut_obj.profile_data;
-                                if (_ori_val <= threshold_down) {
-                                    _mut_obj.logged_profile_data = Math.log(threshold_down) / Math.log(2);
-                                } else if (_ori_val >= threshold_up) {
-                                    _mut_obj.logged_profile_data = Math.log(threshold_up) / Math.log(2);
-                                } else {
-                                    _mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
-                                }
-                                return _mut_obj;
-                            });
-
-                            //mark sequenced/non-sequenced samples
-                            var _non_mut_study_groups = _.groupBy(_non_mut_or_not_sequenced_group, "study_id"); //only samples without mutation can be possibly not sequenced, therefore skip the mix_mut_group
-                            _.each(_non_mut_study_groups, function(_non_mut_study_group) {
-                                //for studies that non of the samples are sequenced
-                                if ($.inArray(_non_mut_study_group[0].study_id, _.uniq(_.pluck(_sequenced_sample_lists, "study_id"))) === -1) {
-                                    _.each(_non_mut_study_group, function(_non_mut_obj) {
-                                        _non_mut_obj.sequenced = false;
-                                    });
-                                }
-                                //for studies that part of the samples are sequenced
-                                _.each(_sequenced_sample_lists, function(_sequenced_sample_list) {
-                                    if (_sequenced_sample_list.study_id === _non_mut_study_group[0].study_id) {
-                                        var _sequenced_sample_ids = _sequenced_sample_list.sample_ids;
-                                        _.each(_non_mut_study_group, function(_non_mut_obj) {
-                                            if(_.contains(_sequenced_sample_ids, _non_mut_obj.sample_id)) {
-                                                _non_mut_obj.sequenced = true;
-                                            } else {
-                                                _non_mut_obj.sequenced = false;
-                                            }
-                                        });
-                                    }
-                                });
-                            });
-                            _.each(_mix_mut_group, function(_mut_obj) {
-                                _mut_obj.sequenced = true;
-                            });
-                            var _non_mut_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === true; });
-                            var _not_sequenced_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === false; });
-
-                            // exclude non provisional study
-                            _non_mut_group = _.filter(_non_mut_group, function(_obj) { return _obj.study_name.toLowerCase().indexOf("tcga") !== -1 && _obj.study_name.toLowerCase().indexOf("provisional") !== -1; });
-                            _not_sequenced_group = _.filter(_not_sequenced_group, function(_obj) { return _obj.study_name.toLowerCase().indexOf("tcga") !== -1 && _obj.study_name.toLowerCase().indexOf("provisional") !== -1; });
-                            _mix_mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.study_name.toLowerCase().indexOf("tcga") !== -1 && _obj.study_name.toLowerCase().indexOf("provisional") !== -1; });
-                            study_meta = _.filter(study_meta, function(_obj) { return _obj.name.toLowerCase().indexOf("tcga") !== -1 && _obj.name.toLowerCase().indexOf("provisional") !== -1; });
-                            study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf("tcga") !== -1 && study_id.indexOf("pub") === -1 });
-                            mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf("tcga") !== -1 && mrna_profile.indexOf("pub") === -1  });
-                            
-                            //join groups
-                            formatted_data = _non_mut_group.concat(_mix_mut_group, _not_sequenced_group);
-
-                            render(_non_mut_group, _not_sequenced_group, _mix_mut_group);
-
-                        });
-
-                    }
-                );
+            
+            var _param_mrna_profile_arr = _.map(_queriedStudyIds, function (_sid) {
+                return _sid + "_rna_seq_v2_mrna";
+            });
+            var _param_mut_profile_arr = _.map(_queriedStudyIds, function (_sid) {
+                return _sid + "_mutations";
             });
 
+            var _get_genetic_profile_params = {
+                genes: gene,
+                genetic_profile_ids: _.intersection(_param_mrna_profile_arr.concat(_param_mut_profile_arr), _.pluck(_profiles, "id"))
+            };
+            window.cbioportal_client.getGeneticProfileDataBySample(_get_genetic_profile_params).then(
+                function (_result) {
+
+                    profile_data = _result;
+
+                    //calculate median profile value for each study
+                    var _study_id_median_val_objs = [];
+                    var _profile_data_objs = _.filter(_result, function (_obj) {
+                        return !(_obj.hasOwnProperty("mutation_status"));
+                    })
+                    var _study_groups = _.groupBy(_profile_data_objs, "study_id");
+                    _.each(_study_groups, function (_study_group) {
+                        var _vals = _.filter(_.pluck(_study_group, "profile_data"), function (_val) {
+                            return _val !== "NaN";
+                        });
+                        _vals = _.map(_vals, function (_val) {
+                            return parseFloat(_val);
+                        });
+                        var _median_val = findMedian(_vals);
+                        _study_id_median_val_objs.push({study_id: _study_group[0].study_id, median_val: _median_val});
+                    });
+                    function findMedian(_input_data) {
+                        var m = _input_data.map(function (v) {
+                            return v;
+                        }).sort(function (a, b) {
+                            return a - b;
+                        });
+                        var middle = Math.floor((m.length - 1) / 2); // NB: operator precedence
+                        if (m.length % 2) {
+                            return m[middle];
+                        } else {
+                            return (m[middle] + m[middle + 1]) / 2.0;
+                        }
+                    }
+
+                    var _get_study_params = {
+                        study_ids: _.uniq(_.pluck(_profile_data_objs, "study_id"))
+                    };
+                    window.cbioportal_client.getStudies(_get_study_params).then(
+                        function (_study_meta) {
+
+                            study_meta = _study_meta;
+
+                            //map study full name to each sample
+                            _.each(_.filter(profile_data, function (_obj) {
+                                return !(_obj.hasOwnProperty("mutation_status"));
+                            }), function (_profile_data_obj) {
+                                _.each(study_meta, function (_study_meta_obj) {
+                                    if (_study_meta_obj.id === _profile_data_obj.study_id) {
+                                        _profile_data_obj.study_name = _study_meta_obj.name;
+                                        _profile_data_obj.study_description = _study_meta_obj.description;
+                                        _profile_data_obj.study_short_name = _study_meta_obj.short_name;
+                                    }
+                                });
+                            });
+
+                            //sort by study short name or median
+                            if (study_order === "median") {
+                                _study_id_median_val_objs = _.sortBy(_study_id_median_val_objs, "median_val");
+                                study_ids = _.pluck(_study_id_median_val_objs, "study_id");
+                                study_meta = _.sortBy(study_meta, function (_meta_obj) {
+                                    return study_ids.indexOf(_meta_obj.id);
+                                });
+                            } else {
+                                study_ids = _.uniq(_.pluck(_.sortBy(profile_data, "study_short_name"), "study_id"));
+                                study_meta = _.sortBy(study_meta, "short_name");
+                            }
+
+                            //map study full name to each sample
+                            _.each(_.filter(profile_data, function (_obj) {
+                                return !(_obj.hasOwnProperty("mutation_status"));
+                            }), function (_profile_data_obj) {
+                                _.each(study_meta, function (_study_meta_obj) {
+                                    if (_study_meta_obj.id === _profile_data_obj.study_id) {
+                                        _profile_data_obj.study_name = _study_meta_obj.name;
+                                        _profile_data_obj.study_description = _study_meta_obj.description;
+                                        _profile_data_obj.study_short_name = _study_meta_obj.short_name;
+                                    }
+                                });
+                            });
+
+                            //TODO: apply legit ways to extract profiles, now it's a hack, assuming every study has ONE rna seq v2 profile, and named under the SAME convention
+                            mrna_profiles = _.map(study_ids, function (_study_id) {
+                                return _study_id + "_rna_seq_v2_mrna"
+                            });
+
+                            //get sequenced sample lists
+                            var _sample_list_ids = _.map(study_ids, function (_study_id) {
+                                return _study_id + "_sequenced";
+                            });
+                            window.cbioportal_client.getSampleLists({sample_list_ids: _sample_list_ids}).then(function (_sequenced_sample_lists) {
+
+                                //merge genomic profile data into mutation profile data for mutated samples
+                                var _mut_data = _.filter(profile_data, function (_obj) {
+                                    return _obj.hasOwnProperty("mutation_status");
+                                });
+                                var _tmp_profile_group = _.filter(profile_data, function (_obj) {
+                                    return !(_obj.hasOwnProperty("mutation_status"));
+                                }); //profile data only
+                                _.each(_tmp_profile_group, function (_profile_obj) {
+                                    var mutation_type = "non";
+                                    var mutation_details = "";
+                                    _.each(_mut_data, function (_mut_obj) {
+                                        if (_profile_obj.study_id === _mut_obj.study_id &&
+                                            _profile_obj.sample_id === _mut_obj.sample_id) {
+                                            mutation_type = _mut_obj.mutation_type; //TODO: set a priority list for mutation type
+                                            mutation_details += _mut_obj.amino_acid_change + ", ";
+                                        }
+                                    });
+                                    _profile_obj.mutation_type = mutation_type;
+                                    _profile_obj.mutation_details = mutation_details.substring(0, mutation_details.length - 2);
+                                });
+
+                                //separate groups
+                                var _non_mut_or_not_sequenced_group = _.filter(_tmp_profile_group, function (_obj) {
+                                    return _obj.mutation_type === "non";
+                                });
+                                var _mix_mut_group = _.filter(_tmp_profile_group, function (_obj) {
+                                    return _obj.mutation_type !== "non";
+                                });
+
+                                //calculate log values
+                                _.map(_non_mut_or_not_sequenced_group, function (_non_mut_obj) {
+                                    var _ori_val = _non_mut_obj.profile_data;
+                                    if (_ori_val <= threshold_down) {
+                                        _non_mut_obj.logged_profile_data = Math.log(threshold_down) / Math.log(2);
+                                    } else if (_ori_val >= threshold_up) {
+                                        _non_mut_obj.logged_profile_data = Math.log(threshold_up) / Math.log(2);
+                                    } else {
+                                        _non_mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+                                    }
+                                    return _non_mut_obj;
+                                });
+                                _.map(_mix_mut_group, function (_mut_obj) {
+                                    var _ori_val = _mut_obj.profile_data;
+                                    if (_ori_val <= threshold_down) {
+                                        _mut_obj.logged_profile_data = Math.log(threshold_down) / Math.log(2);
+                                    } else if (_ori_val >= threshold_up) {
+                                        _mut_obj.logged_profile_data = Math.log(threshold_up) / Math.log(2);
+                                    } else {
+                                        _mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+                                    }
+                                    return _mut_obj;
+                                });
+
+                                //mark sequenced/non-sequenced samples
+                                var _non_mut_study_groups = _.groupBy(_non_mut_or_not_sequenced_group, "study_id"); //only samples without mutation can be possibly not sequenced, therefore skip the mix_mut_group
+                                _.each(_non_mut_study_groups, function (_non_mut_study_group) {
+                                    //for studies that non of the samples are sequenced
+                                    if ($.inArray(_non_mut_study_group[0].study_id, _.uniq(_.pluck(_sequenced_sample_lists, "study_id"))) === -1) {
+                                        _.each(_non_mut_study_group, function (_non_mut_obj) {
+                                            _non_mut_obj.sequenced = false;
+                                        });
+                                    }
+                                    //for studies that part of the samples are sequenced
+                                    _.each(_sequenced_sample_lists, function (_sequenced_sample_list) {
+                                        if (_sequenced_sample_list.study_id === _non_mut_study_group[0].study_id) {
+                                            var _sequenced_sample_ids = _sequenced_sample_list.sample_ids;
+                                            _.each(_non_mut_study_group, function (_non_mut_obj) {
+                                                if (_.contains(_sequenced_sample_ids, _non_mut_obj.sample_id)) {
+                                                    _non_mut_obj.sequenced = true;
+                                                } else {
+                                                    _non_mut_obj.sequenced = false;
+                                                }
+                                            });
+                                        }
+                                    });
+                                });
+                                _.each(_mix_mut_group, function (_mut_obj) {
+                                    _mut_obj.sequenced = true;
+                                });
+                                var _non_mut_group = _.filter(_non_mut_or_not_sequenced_group, function (_obj) {
+                                    return _obj.sequenced === true;
+                                });
+                                var _not_sequenced_group = _.filter(_non_mut_or_not_sequenced_group, function (_obj) {
+                                    return _obj.sequenced === false;
+                                });
+
+                                // exclude non provisional study
+                                _non_mut_group = _.filter(_non_mut_group, function (_obj) {
+                                    return _obj.study_name.toLowerCase().indexOf("tcga") !== -1 && _obj.study_name.toLowerCase().indexOf("provisional") !== -1;
+                                });
+                                _not_sequenced_group = _.filter(_not_sequenced_group, function (_obj) {
+                                    return _obj.study_name.toLowerCase().indexOf("tcga") !== -1 && _obj.study_name.toLowerCase().indexOf("provisional") !== -1;
+                                });
+                                _mix_mut_group = _.filter(_mix_mut_group, function (_obj) {
+                                    return _obj.study_name.toLowerCase().indexOf("tcga") !== -1 && _obj.study_name.toLowerCase().indexOf("provisional") !== -1;
+                                });
+                                study_meta = _.filter(study_meta, function (_obj) {
+                                    return _obj.name.toLowerCase().indexOf("tcga") !== -1 && _obj.name.toLowerCase().indexOf("provisional") !== -1;
+                                });
+                                study_ids = _.filter(study_ids, function (study_id) {
+                                    return study_id.indexOf("tcga") !== -1 && study_id.indexOf("pub") === -1
+                                });
+                                mrna_profiles = _.filter(mrna_profiles, function (mrna_profile) {
+                                    return mrna_profile.indexOf("tcga") !== -1 && mrna_profile.indexOf("pub") === -1
+                                });
+
+                                //join groups
+                                formatted_data = _non_mut_group.concat(_mix_mut_group, _not_sequenced_group);
+
+                                render(_non_mut_group, _not_sequenced_group, _mix_mut_group);
+
+                            });
+                        }
+                    );
+                }
+            );
+        });
     }
 
     var render = function(_non_mut_group, _not_sequenced_group, _mix_mut_group) {

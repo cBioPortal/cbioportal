@@ -38,7 +38,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
     
-<t:template title="<%= siteTitle %>">
+<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true">
 
     <jsp:attribute name="head_area">
         <script>

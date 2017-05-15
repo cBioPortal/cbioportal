@@ -1,11 +1,15 @@
 <%@ tag import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ tag import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
 <%@tag description="Simple Template" pageEncoding="UTF-8" %>
 
 <%@attribute name="title" %>
-<%@attribute name="head_area" fragment="true" %>
+<%@attribute name="defaultRightColumn" %>
+<%@attribute name="fixedWidth" %>
+
+    <%@attribute name="head_area" fragment="true" %>
 <%@attribute name="body_area" fragment="true" %>
 
 <html class="cbioportal-frontend">
@@ -26,8 +30,17 @@ window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 String url = request.getRequestURL().toString();
 String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
 baseURL = baseURL.replace("https://", "").replace("http://", "");
+
+String fixedClass = "";
+
+if (fixedWidth == "true") {
+    fixedClass = "fixedWidth";
+} 
+fixedClass = "aaron";
+
 %>
 __API_ROOT__ = '<%=baseURL%>';
+    
 
 </script>
 
@@ -36,7 +49,15 @@ __API_ROOT__ = '<%=baseURL%>';
 <jsp:invoke fragment="head_area"/>
     
 </head>
-<body class="fixedWidth">
+
+
+    <c:if test="${fixedWidth == true}">
+        <body class="fixedWidth">
+    </c:if>
+    <c:if test="${fixedWidth == false}">
+        <body>
+    </c:if>
+
     <div class="pageTopContainer">
     <div class="contentWidth">
         <jsp:include page="/WEB-INF/jsp/global/header_bar.jsp" />
@@ -46,7 +67,11 @@ __API_ROOT__ = '<%=baseURL%>';
     <div class="contentWrapper">
             <div class="contentWidth">
             <div id="mainColumn"><jsp:invoke fragment="body_area"/></div>
-            <div id="rightColumn"></div>
+            
+            <c:if test="${defaultRightColumn == true}">
+                <div id="rightColumn"></div>
+            </c:if>
+           
             </div>
     </div>
     

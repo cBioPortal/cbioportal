@@ -9,11 +9,9 @@ header {
     background: linear-gradient(to bottom,  rgba(252,252,252,1) 90%, rgba(249,249,249,1) 100%);
     border-bottom: 1px solid #f5f5f5;
     position: relative;
-    display: flex !important;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    align-items: flex-end;
     min-width:780px;
+    padding:10px 0;
+    width:100%;
 }
 
 .legacy header {
@@ -48,7 +46,7 @@ header {
 
 
 #cbioportal-logo {
-    padding: 15px 0;
+
 }
 
 #institute-logo {
@@ -98,8 +96,8 @@ header > div {
 }
 
 #main-nav {
-    position:relative;
-    top:-1px;
+  padding-top:18px;  
+  float:right;
 }
 
 #main-nav:first-child {

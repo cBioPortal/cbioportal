@@ -1,6 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.DiscreteCopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberSampleCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
@@ -147,18 +147,18 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     @Test
     public void getSampleCountByGeneAndAlteration() throws Exception {
 
-        List<DiscreteCopyNumberSampleCountByGene> result  = discreteCopyNumberMyBatisRepository
+        List<CopyNumberSampleCountByGene> result  = discreteCopyNumberMyBatisRepository
             .getSampleCountByGeneAndAlterationAndSampleIds("study_tcga_pub_gistic", null, Arrays.asList(207, 208), 
                 Arrays.asList(-2, 2));
         
         Assert.assertEquals(2, result.size());
-        DiscreteCopyNumberSampleCountByGene discreteCopyNumberSampleCountByGene1 = result.get(0);
-        Assert.assertEquals((Integer) 207, discreteCopyNumberSampleCountByGene1.getEntrezGeneId());
-        Assert.assertEquals((Integer) (-2), discreteCopyNumberSampleCountByGene1.getAlteration());
-        Assert.assertEquals((Integer) 1, discreteCopyNumberSampleCountByGene1.getSampleCount());
-        DiscreteCopyNumberSampleCountByGene discreteCopyNumberSampleCountByGene2 = result.get(1);
-        Assert.assertEquals((Integer) 208, discreteCopyNumberSampleCountByGene2.getEntrezGeneId());
-        Assert.assertEquals((Integer) (2), discreteCopyNumberSampleCountByGene2.getAlteration());
-        Assert.assertEquals((Integer) 1, discreteCopyNumberSampleCountByGene2.getSampleCount());
+        CopyNumberSampleCountByGene copyNumberSampleCountByGene1 = result.get(0);
+        Assert.assertEquals((Integer) 207, copyNumberSampleCountByGene1.getEntrezGeneId());
+        Assert.assertEquals((Integer) (-2), copyNumberSampleCountByGene1.getAlteration());
+        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene1.getSampleCount());
+        CopyNumberSampleCountByGene copyNumberSampleCountByGene2 = result.get(1);
+        Assert.assertEquals((Integer) 208, copyNumberSampleCountByGene2.getEntrezGeneId());
+        Assert.assertEquals((Integer) (2), copyNumberSampleCountByGene2.getAlteration());
+        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene2.getSampleCount());
     }
 }

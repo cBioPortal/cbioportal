@@ -35,8 +35,7 @@ import java.util.List;
 @ContextConfiguration("/applicationContext-web.xml")
 @Configuration
 public class MutationControllerTest {
-
-    private static final int TEST_GENETIC_PROFILE_ID_1 = 1;
+    
     private static final String TEST_GENETIC_PROFILE_STABLE_ID_1 = "test_genetic_profile_stable_id_1";
     private static final int TEST_SAMPLE_ID_1 = 1;
     private static final String TEST_SAMPLE_STABLE_ID_1 = "test_sample_stable_id_1";
@@ -584,10 +583,8 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = new ArrayList<>();
         Mutation mutation1 = new Mutation();
-        mutation1.setGeneticProfileId(TEST_GENETIC_PROFILE_ID_1);
-        mutation1.setGeneticProfileStableId(TEST_GENETIC_PROFILE_STABLE_ID_1);
-        mutation1.setSampleId(TEST_SAMPLE_ID_1);
-        mutation1.setSampleStableId(TEST_SAMPLE_STABLE_ID_1);
+        mutation1.setGeneticProfileId(TEST_GENETIC_PROFILE_STABLE_ID_1);
+        mutation1.setSampleId(TEST_SAMPLE_STABLE_ID_1);
         mutation1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         mutation1.setCenter(TEST_CENTER_1);
         mutation1.setMutationStatus(TEST_MUTATION_STATUS_1);
@@ -616,10 +613,8 @@ public class MutationControllerTest {
         mutation1.setKeyword(TEST_KEYWORD_1);
         mutationList.add(mutation1);
         Mutation mutation2 = new Mutation();
-        mutation2.setGeneticProfileId(TEST_GENETIC_PROFILE_ID_2);
-        mutation2.setGeneticProfileStableId(TEST_GENETIC_PROFILE_STABLE_ID_2);
-        mutation2.setSampleId(TEST_SAMPLE_ID_2);
-        mutation2.setSampleStableId(TEST_SAMPLE_STABLE_ID_2);
+        mutation2.setGeneticProfileId(TEST_GENETIC_PROFILE_STABLE_ID_2);
+        mutation2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
         mutation2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         mutation2.setCenter(TEST_CENTER_2);
         mutation2.setMutationStatus(TEST_MUTATION_STATUS_2);

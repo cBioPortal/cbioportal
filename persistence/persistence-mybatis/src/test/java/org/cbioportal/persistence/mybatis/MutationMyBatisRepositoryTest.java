@@ -30,8 +30,8 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(8, result.size());
         Mutation mutation = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mutations", mutation.getGeneticProfileStableId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleStableId());
+        Assert.assertEquals("study_tcga_pub_mutations", mutation.getGeneticProfileId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleId());
         Assert.assertEquals((Integer) 207, mutation.getEntrezGeneId());
     }
     
@@ -43,8 +43,8 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(8, result.size());
         Mutation mutation = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mutations", mutation.getGeneticProfileStableId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleStableId());
+        Assert.assertEquals("study_tcga_pub_mutations", mutation.getGeneticProfileId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleId());
         Assert.assertEquals((Integer) 207, mutation.getEntrezGeneId());
         Assert.assertEquals("cyclases/Protein", mutation.getAminoAcidChange());
         Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
@@ -80,8 +80,8 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(3, result.size());
         Mutation mutation = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mutations", mutation.getGeneticProfileStableId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleStableId());
+        Assert.assertEquals("study_tcga_pub_mutations", mutation.getGeneticProfileId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleId());
         Assert.assertEquals((Integer) 207, mutation.getEntrezGeneId());
         Assert.assertEquals("cyclases/Protein", mutation.getAminoAcidChange());
         Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
@@ -113,8 +113,8 @@ public class MutationMyBatisRepositoryTest {
 
         Assert.assertEquals(8, result.size());
         Mutation mutation = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mutations", mutation.getGeneticProfileStableId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleStableId());
+        Assert.assertEquals("study_tcga_pub_mutations", mutation.getGeneticProfileId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleId());
         Assert.assertEquals((Integer) 207, mutation.getEntrezGeneId());
         Assert.assertEquals("cyclases/Protein", mutation.getAminoAcidChange());
         Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
@@ -206,12 +206,12 @@ public class MutationMyBatisRepositoryTest {
             sampleIds, null, "SUMMARY", null, null, null, null);
         
         Assert.assertEquals(3, result.size());
-        Assert.assertEquals("study_tcga_pub_mutations", result.get(0).getGeneticProfileStableId());
-        Assert.assertEquals("TCGA-A1-A0SH-01", result.get(0).getSampleStableId());
-        Assert.assertEquals("study_tcga_pub_mutations", result.get(1).getGeneticProfileStableId());
-        Assert.assertEquals("TCGA-A1-A0SH-01", result.get(1).getSampleStableId());
-        Assert.assertEquals("study_tcga_pub_mutations", result.get(2).getGeneticProfileStableId());
-        Assert.assertEquals("TCGA-A1-A0SO-01", result.get(2).getSampleStableId());
+        Assert.assertEquals("study_tcga_pub_mutations", result.get(0).getGeneticProfileId());
+        Assert.assertEquals("TCGA-A1-A0SH-01", result.get(0).getSampleId());
+        Assert.assertEquals("study_tcga_pub_mutations", result.get(1).getGeneticProfileId());
+        Assert.assertEquals("TCGA-A1-A0SH-01", result.get(1).getSampleId());
+        Assert.assertEquals("study_tcga_pub_mutations", result.get(2).getGeneticProfileId());
+        Assert.assertEquals("TCGA-A1-A0SO-01", result.get(2).getSampleId());
     }
 
     @Test

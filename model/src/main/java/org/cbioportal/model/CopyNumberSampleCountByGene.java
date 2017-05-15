@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class DiscreteCopyNumberData extends Alteration implements Serializable {
+public class CopyNumberSampleCountByGene extends AlterationSampleCountByGene implements Serializable {
     
     private Integer alteration;
     

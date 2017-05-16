@@ -57,7 +57,7 @@ var ccPlots = (function (Plotly, _, $) {
                 window.cbioportal_client.getGeneticProfiles({study_id: [_sid]}).then(function(_ret) {
                     profiles_ = profiles_.concat(_ret);
                     _def.resolve();
-                });
+                }, function() { _def.resolve([]); });
                 return _def.promise();
             })
         );
@@ -70,7 +70,6 @@ var ccPlots = (function (Plotly, _, $) {
     var fetch_profile_data = function(_queriedStudyIds) {
         
         $.when(getGeneticProfiles_(_queriedStudyIds)).then(function(_profiles) {
-
             
             var _param_mrna_profile_arr = _.map(_queriedStudyIds, function (_sid) {
                 return _sid + "_rna_seq_v2_mrna";

@@ -44,11 +44,7 @@
             <jsp:attribute name="head_area">
                 <script>
                 window.loadReactApp({ defaultRoute: 'datasets' });
-
-                window.onReactAppReady(function(){
-                    window.renderRightBar(document.getElementById('rightColumn'));
-                });
-
+                
                 </script>
             </jsp:attribute>
 

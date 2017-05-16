@@ -8,6 +8,7 @@
 <%@attribute name="title" %>
 <%@attribute name="defaultRightColumn" %>
 <%@attribute name="fixedWidth" %>
+<%@attribute name="twoColumn" %>  
 
     <%@attribute name="head_area" fragment="true" %>
 <%@attribute name="body_area" fragment="true" %>
@@ -31,12 +32,14 @@ String url = request.getRequestURL().toString();
 String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
 baseURL = baseURL.replace("https://", "").replace("http://", "");
 
-String fixedClass = "";
+String bodyClasses = "";
 
 if (fixedWidth == "true") {
-    fixedClass = "fixedWidth";
+    bodyClasses += "fixedWidth ";
 } 
-fixedClass = "aaron";
+if (twoColumn == "true" ||  defaultRightColumn == "true") {
+    bodyClasses += "twoColumn";
+} 
 
 %>
 __API_ROOT__ = '<%=baseURL%>';
@@ -49,15 +52,10 @@ __API_ROOT__ = '<%=baseURL%>';
 <jsp:invoke fragment="head_area"/>
     
 </head>
+    
+    <body class="<%=bodyClasses%>">
 
-
-    <c:if test="${fixedWidth == true}">
-        <body class="fixedWidth">
-    </c:if>
-    <c:if test="${fixedWidth == false}">
-        <body>
-    </c:if>
-
+    
     <div class="pageTopContainer">
     <div class="contentWidth">
         <jsp:include page="/WEB-INF/jsp/global/header_bar.jsp" />
@@ -68,7 +66,7 @@ __API_ROOT__ = '<%=baseURL%>';
             <div class="contentWidth">
             <div id="mainColumn"><jsp:invoke fragment="body_area"/></div>
             
-            <c:if test="${defaultRightColumn == true}">
+            <c:if test="${defaultRightColumn == true || twoColumn==true}">
                 <div id="rightColumn"></div>
             </c:if>
            

@@ -54,7 +54,7 @@
 %>
 
 
-<t:template title="<%=siteTitle%>" defaultRightColumn="true" fixedWidth="true">
+<t:template title="<%=siteTitle%>" defaultRightColumn="true" twoColumn="true" fixedWidth="true">
 
     <jsp:attribute name="head_area" >
         <script>

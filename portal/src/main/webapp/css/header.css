@@ -7,7 +7,6 @@
 
 header {
     background: linear-gradient(to bottom,  rgba(252,252,252,1) 90%, rgba(249,249,249,1) 100%);
-
     position: relative;
     min-width:780px;
     padding:10px 0;
@@ -19,13 +18,10 @@ header {
     margin:0 auto;
     box-sizing:border-box !important;
     text-align:left;
-    border-bottom:1px solid #ddd;
 }
 
 .pageTopContainer {
     background:#edeaea;
-    padding-left:20px;
-    padding-right:20px;
     border-bottom: 1px solid #ddd;
 }
 

@@ -21,6 +21,7 @@ public class CancerStudy implements Serializable {
     private Integer allSampleCount;
     private Integer sequencedSampleCount;
     private Integer cnaSampleCount;
+    private Integer mrnaRnaSeqSampleCount;
     private Integer mrnaRnaSeqV2SampleCount;
     private Integer mrnaMicroarraySampleCount;
     private Integer miRnaSampleCount;
@@ -154,6 +155,14 @@ public class CancerStudy implements Serializable {
 
     public void setCnaSampleCount(Integer cnaSampleCount) {
         this.cnaSampleCount = cnaSampleCount;
+    }
+
+    public Integer getMrnaRnaSeqSampleCount() {
+        return mrnaRnaSeqSampleCount;
+    }
+
+    public void setMrnaRnaSeqSampleCount(Integer mrnaRnaSeqSampleCount) {
+        this.mrnaRnaSeqSampleCount = mrnaRnaSeqSampleCount;
     }
 
     public Integer getMrnaRnaSeqV2SampleCount() {

@@ -78,7 +78,7 @@ public class GeneticDataServiceImpl implements GeneticDataService {
                     geneticData.setGeneticProfileId(geneticProfileId);
                     geneticData.setSampleId(sample.getStableId());
                     geneticData.setEntrezGeneId(geneticAlteration.getEntrezGeneId());
-                    geneticData.setValue(geneticAlteration.getValues().split(",")[indexOfSampleId]);
+                    geneticData.setValue(geneticAlteration.getSplitValues()[indexOfSampleId]);
                     geneticData.setGene(geneticAlteration.getGene());
                     geneticDataList.add(geneticData);
                 }

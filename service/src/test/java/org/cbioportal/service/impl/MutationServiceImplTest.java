@@ -94,6 +94,43 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
+    public void getMutationsInMultipleGeneticProfiles() throws Exception {
+
+        List<Mutation> expectedMutationList = new ArrayList<>();
+        Mutation mutation = new Mutation();
+        Gene gene = new Gene();
+        mutation.setGene(gene);
+        expectedMutationList.add(mutation);
+
+        Mockito.when(mutationRepository.getMutationsInMultipleGeneticProfiles(Arrays.asList(GENETIC_PROFILE_ID), 
+            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
+            DIRECTION)).thenReturn(expectedMutationList);
+        Mockito.doAnswer(invocationOnMock -> {
+            ((Gene) invocationOnMock.getArguments()[0]).setChromosome("19");
+            return null;
+        }).when(chromosomeCalculator).setChromosome(gene);
+        
+        List<Mutation> result = mutationService.getMutationsInMultipleGeneticProfiles(Arrays.asList(GENETIC_PROFILE_ID),
+            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
+            DIRECTION);
+
+        Assert.assertEquals(expectedMutationList, result);
+        Assert.assertEquals("19", result.get(0).getGene().getChromosome());
+    }
+
+    @Test
+    public void getMetaMutationsInMultipleGeneticProfiles() throws Exception {
+
+        MutationMeta expectedMutationMeta = new MutationMeta();
+        Mockito.when(mutationRepository.getMetaMutationsInMultipleGeneticProfiles(Arrays.asList(GENETIC_PROFILE_ID),
+            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID))).thenReturn(expectedMutationMeta);
+        MutationMeta result = mutationService.getMetaMutationsInMultipleGeneticProfiles(
+            Arrays.asList(GENETIC_PROFILE_ID), Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID));
+
+        Assert.assertEquals(expectedMutationMeta, result);
+    }
+
+    @Test
     public void fetchMutationsInGeneticProfile() throws Exception {
 
         GeneticProfile geneticProfile = new GeneticProfile();

@@ -85,6 +85,28 @@
             </if>
         </where>
     </sql>
+    
+    <sql id="whereInMultipleGeneticProfiles">
+        <where>
+            <if test="sampleIds != null">
+                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
+                    sample.STABLE_ID = #{sampleIds[${i}]} AND genetic_profile.STABLE_ID = #{geneticProfileIds[${i}]}
+                </foreach>
+            </if>
+            <if test="sampleIds == null">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="geneticProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND mutation.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
 
     <select id="getMutationsBySampleListId" resultType="org.cbioportal.model.Mutation">
         SELECT
@@ -114,6 +136,36 @@
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         <include refid="from"/>
         <include refid="whereBySampleListId"/>
+    </select>
+    
+    <select id="getMutationsInMultipleGeneticProfiles" resultType="org.cbioportal.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        </if>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        </if>
+        <include refid="whereInMultipleGeneticProfiles"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY genetic_profile.STABLE_ID ASC, sample.STABLE_ID ASC, mutation.ENTREZ_GENE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaMutationsInMultipleGeneticProfiles" resultType="org.cbioportal.model.meta.MutationMeta">
+        SELECT
+        COUNT(*) AS totalCount,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
+        <include refid="from"/>
+        <include refid="whereInMultipleGeneticProfiles"/>
     </select>
 
     <select id="getMutationsBySampleIds" resultType="org.cbioportal.model.Mutation">

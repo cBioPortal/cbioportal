@@ -17,10 +17,17 @@ public interface MutationService {
                                                               String sortBy, String direction) 
         throws GeneticProfileNotFoundException;
 
-
     MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
                                                                 List<Integer> entrezGeneIds) 
         throws GeneticProfileNotFoundException;
+
+    List<Mutation> getMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
+                                                         List<Integer> entrezGeneIds, String projection,
+                                                         Integer pageSize, Integer pageNumber,
+                                                         String sortBy, String direction);
+
+    MutationMeta getMetaMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
+                                                           List<Integer> entrezGeneIds);
 
     List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
                                                   List<Integer> entrezGeneIds, String projection, Integer pageSize, 

@@ -25,6 +25,7 @@ package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +55,7 @@ import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.mskcc.cbio.portal.service.ApiService;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.TransactionalScripts;
@@ -84,12 +86,14 @@ public class TestIntegrationTest {
     private ApplicationContext applicationContext;
     
     @Before
-    public void setUp() throws DaoException, JsonParseException, JsonMappingException, IOException {
+    public void setUp() throws DaoException, JsonParseException, JsonMappingException, IOException, Exception {
+        SpringUtil.setApplicationContext(applicationContext);
         ProgressMonitor.setConsoleMode(false);
         ProgressMonitor.resetWarnings();
         DaoCancerStudy.reCacheAll();
         DaoGeneOptimized.getInstance().reCache();
         loadGenes();
+        loadGenePanel();
     }
     
     /**
@@ -325,6 +329,16 @@ public class TestIntegrationTest {
 
         MySQLbulkLoader.flushAll();
         
+    }
+
+    /**
+     * Loads a gene panel used by this test.
+     * 
+     */
+    private void loadGenePanel() throws Exception {
+        ImportGenePanel gp = new ImportGenePanel(null);
+        gp.setFile(new File("src/test/scripts/test_data/study_es_0/gene_panel_example.txt"));
+        gp.importData();
     }
     
     @JsonIgnoreProperties(ignoreUnknown = true)

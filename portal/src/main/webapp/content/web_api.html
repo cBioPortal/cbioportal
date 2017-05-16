@@ -45,10 +45,16 @@
 
 <h3 id="commands">Commands</h3>
 
+<h4>&gt; Get All Types of Cancer</h4>
 
 <table class="table table-bordered">
+    
     <tr>
         <td>Description</td>
+        <td>Retrieves a list of all the clinical types of cancer stored on the server.</td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
         <td><strong>cmd=getTypesOfCancer</strong> (required)</td>
     </tr>
     <tr>
@@ -65,226 +71,336 @@
     </tr>
 </table>
 
+<hr>
+<h4 id="get-all-cancer-studies">&gt; Get All Cancer Studies</h4>
+<table class="table table-bordered">
+    <tr>
+        <td>Description</td>
+        <td>Retrieves meta-data regarding cancer studies stored on the server.</td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
+        <td><strong>cmd=getCancerStudies</strong> (required)</td>
+    </tr>
+    <tr>
+        <td>Response Format</td>
+        <td><p>A tab-delimited file with three columns:</p>
+            <ul>
+                <li><strong>cancer_study_id:</strong>  a unique ID that should be used to identify the cancer study in subsequent interface calls.  </li>
+                <li><strong>name:</strong>  short name of the cancer study.</li>
+                <li><strong>description:</strong>  short description of the cancer study.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Example</td>
+        <td><a href="webservice.do?cmd=getCancerStudies">Get all Cancer Studies.</a></td>
+    </tr>
+</table>
 
-<h2 id="get-all-types-of-cancer">Get All Types of Cancer</h2>
+<hr>
+<h4 id="get-all-genetic-profiles-for-a-specific-cancer-study">&gt; Get All Genetic Profiles for a Specific Cancer Study</h4>
 
-<h3 id="description">Description</h3>
-<p>Retrieves a list of all the clinical types of cancer stored on the server.</p>
-<h3 id="query-format">Query Format</h3>
-<ul>
-<li></li>
-</ul>
-<h3 id="response-format">Response Format</h3>
-<p>A tab-delimited file with two columns:</p>
-<ul>
-<li><strong>type_of_cancer_id:</strong>  a unique text identifier used to identify the type of cancer.  For example, "gbm" identifies Glioblastoma multiforme.</li>
-<li><strong>name:</strong>  short name of the type of cancer.</li>
-</ul>
-<h3 id="example">Example</h3>
-<p><a href="webservice.do?cmd=getTypesOfCancer">Get all Types of Cancer.</a></p>
-<h2 id="get-all-cancer-studies">Get All Cancer Studies</h2>
-<h3 id="description_1">Description</h3>
-<p>Retrieves meta-data regarding cancer studies stored on the server.</p>
-<h3 id="query-format_1">Query Format</h3>
-<ul>
-<li><strong>cmd=getCancerStudies</strong> (required)</li>
-</ul>
-<h3 id="response-format_1">Response Format</h3>
-<p>A tab-delimited file with three columns:</p>
-<ul>
-<li><strong>cancer_study_id:</strong>  a unique ID that should be used to identify the cancer study in subsequent interface calls.  </li>
-<li><strong>name:</strong>  short name of the cancer study.</li>
-<li><strong>description:</strong>  short description of the cancer study.</li>
-</ul>
-<h3 id="example_1">Example</h3>
-<p><a href="webservice.do?cmd=getCancerStudies">Get all Cancer Studies.</a></p>
-<h2 id="get-all-genetic-profiles-for-a-specific-cancer-study">Get All Genetic Profiles for a Specific Cancer Study</h2>
-<h3 id="description_2">Description</h3>
-<p>Retrieves meta-data regarding all genetic profiles, e.g. mutation or copy number profiles, stored about a specific cancer study.</p>
-<h3 id="query-format_2">Query Format</h3>
-<ul>
-<li><strong>cmd</strong>=getGeneticProfiles (required)</li>
-<li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
-</ul>
-<h3 id="response-format_2">Response Format</h3>
-<p>A tab-delimited file with six columns:</p>
-<ul>
-<li><strong>genetic_profile_id</strong>:  a unique ID used to identify the genetic profile ID in subsequent interface calls.  This is a human readable ID.  For example, "gbm_mutations" identifies the TCGA GBM mutation genetic profile.</li>
-<li><strong>genetic_profile_name</strong>:  short profile name.</li>
-<li><strong>genetic_profile_description</strong>:  short profile description.</li>
-<li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.  </li>
-<li><strong>genetic_alteration_type</strong>:  indicates the profile type.  Will be one of:<ul>
-<li>MUTATION</li>
-<li>MUTATION_EXTENDED</li>
-<li>COPY_NUMBER_ALTERATION</li>
-<li>MRNA_EXPRESSION</li>
-<li>METHYLATION</li>
-</ul>
-</li>
-<li><strong>show_profile_in_analysis_tab</strong>:  a boolean flag used for internal purposes (you can safely ignore it).</li>
-</ul>
-<h3 id="example_2">Example</h3>
-<p><a href="webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=gbm_tcga">Get all Genetic Profiles for Glioblastoma (TCGA).</a></p>
-<h2 id="get-all-case-lists-for-a-specific-cancer-study">Get All Case Lists for a Specific Cancer Study</h2>
-<h3 id="description_3">Description</h3>
-<p>Retrieves meta-data regarding all case lists stored about a specific cancer study.  For example, a within a particular study, only some cases may have sequence data, and another subset of cases may have been sequenced and treated with a specific therapeutic protocol.  Multiple case lists may be associated with each cancer study, and this method enables you to retrieve meta-data regarding all of these case lists.</p>
-<h3 id="query-format_3">Query Format</h3>
-<ul>
-<li><strong>cmd</strong>=getCaseLists (required)</li>
-<li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
-</ul>
-<h3 id="response-format_3">Response Format</h3>
-<p>A tab-delimited file with five columns:</p>
-<ul>
-<li><strong>case_list_id</strong>:  a unique ID used to identify the case list ID in subsequent interface calls.  This is a human readable ID.  For example, "gbm_all" identifies all cases profiles in the TCGA GBM study.</li>
-<li><strong>case_list_name</strong>:  short name for the case list.</li>
-<li><strong>case_list_description</strong>:  short description of the case list.</li>
-<li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.  </li>
-<li><strong>case_ids</strong>:  space delimited list of all case IDs that make up this case list.</li>
-</ul>
-<h3 id="example_3">Example</h3>
-<p><a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=gbm_tcga">Get all Case Lists for Glioblastoma (TCGA).</a></p>
-<h2 id="get-profile-data">Get Profile Data</h2>
-<h3 id="description_4">Description</h3>
-<p>Retrieves genomic profile data for one or more genes.</p>
-<h3 id="query-format_4">Query Format</h3>
-<ul>
-<li><strong>cmd</strong>=getProfileData (required)</li>
-<li><strong>case_set_id</strong>= [case set ID] (required)</li>
-<li><strong>genetic_profile_id</strong>= [one or more genetic profile IDs] (required). Multiple genetic profile IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
-<li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs] (required). Multiple genes must be separated by comma (,) characters, or  URL encoded spaces, e.g. +</li>
-</ul>
-<p>You can either:</p>
-<ul>
-<li><a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_mutations&amp;gene_list=BRCA1+BRCA2+TP53">Specify multiple genes and a single genetic profile ID.</a></li>
-<li><a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_log2CNA,gbm_tcga_gistic&amp;gene_list=EGFR">Specify a single gene and multiple genetic profile IDs.</a></li>
-</ul>
-<h4 id="response-format-1">Response Format 1</h4>
-<p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a tab-delimited matrix with the following columns:</p>
-<ol>
-<li><strong>GENE_ID</strong>:  Entrez Gene ID   </li>
-<li><strong>COMMON</strong>:  HUGO Gene Symbol</li>
-<li><strong>Columns 3 - N</strong>:  Data for each case</li>
-</ol>
-<h4 id="response-format-2">Response Format 2</h4>
-<p>When requesting a single gene and multiple genetic profile IDs (see above), you will receive a tab-delimited matrix with the following columns:</p>
-<ol>
-<li><strong>GENETIC_PROFILE_ID</strong>:  The Genetic Profile ID.   </li>
-<li><strong>ALTERATION_TYPE</strong>:  The Genetic Alteration Type, e.g. MUTATION, MUTATION_EXTENDED, COPY_NUMBER_ALTERATION, or MRNA_EXPRESSION.</li>
-<li><strong>GENE_ID</strong>:  Entrez Gene ID.   </li>
-<li><strong>COMMON</strong>:  HUGO Gene Symbol.</li>
-<li><strong>Columns 5 - N</strong>:  Data for each case.</li>
-</ol>
-<h3 id="examples">Examples</h3>
-<p>See Query Format above.</p>
-<h2 id="get-extended-mutation-data">Get Extended Mutation Data</h2>
-<h3 id="description_5">Description</h3>
-<p>For data of type EXTENDED_MUTATION, you can request the full set of annotated extended mutation data.  This enables you to, for example, determine which sequencing center sequenced the mutation, the amino acid change that results from the mutation, or gather links to predicted functional consequences of the mutation.</p>
-<h3 id="query-format_5">Query Format</h3>
-<ul>
-<li><strong>cmd</strong>=getMutationData (required)</li>
-<li><strong>genetic_profile_id</strong>= [one or more mutation profile IDs] (required). Multiple genetic profile IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
-<li><strong>case_set_id</strong>= [case set ID] (optional). If not provided, all cases that have data in the specified mutation profiles will be queried.</li>
-<li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs] (required). Multiple genes must be separated by comma (,) characters, or  URL encoded spaces, e.g. +</li>
-</ul>
-<h3 id="response-format_4">Response Format</h3>
-<p>A tab-delimited file with the following columns:</p>
-<ul>
-<li><strong>entrez_gene_id</strong>:  Entrez Gene ID.</li>
-<li><strong>gene_symbol</strong>:  HUGO Gene Symbol.</li>
-<li><strong>case_id</strong>:  Case ID.</li>
-<li><strong>sequencing_center</strong>:  Sequencer Center responsible for identifying this mutation.  For example:  broad.mit.edu.</li>
-<li><strong>mutation_status</strong>:  somatic or germline mutation status.  all mutations returned will be of type somatic.</li>
-<li><strong>mutation_type</strong>:  mutation type, such as nonsense, missense, or frameshift_ins.</li>
-<li><strong>validation_status</strong>:  validation status.  Usually valid, invalid, or unknown.</li>
-<li><strong>amino_acid_change</strong>:  amino acid change resulting from the mutation.</li>
-<li><strong>functional_impact_score</strong>:  predicted functional impact score, as predicted by:  <a href="http://mutationassessor.org/">Mutation Assessor</a>.</li>
-<li><strong>xvar_link</strong>:  Link to the Mutation Assessor web site.</li>
-<li><strong>xvar_link_pdb</strong>:  Link to the Protein Data Bank (PDB) View within Mutation Assessor web site.</li>
-<li><strong>xvar_link_msa</strong>:  Link the Multiple Sequence Alignment (MSA) view within the  Mutation Assessor web site.</li>
-<li><strong>chr</strong>:  chromosome where mutation occurs.</li>
-<li><strong>start_position</strong>:  start position of mutation.</li>
-<li><strong>end_position</strong>:  end position of mutation.</li>
-<li><strong>genetic_profile_id</strong>:  mutation profile id.</li>
-</ul>
-<h3 id="example_4">Example</h3>
-<ul>
-<li><a href="webservice.do?cmd=getMutationData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_mutations&amp;gene_list=EGFR+PTEN">Get Extended Mutation Data for EGFR and PTEN in TCGA GBM.</a></li>
-<li><a href="webservice.do?cmd=getMutationData&amp;genetic_profile_id=ov_tcga_mutations+ucec_tcga_mutations&amp;gene_list=BRCA1">Get Extended Mutation Data for BRCA1 in TCGA OV and UCEC.</a></li>
-</ul>
-<h2 id="get-clinical-data">Get Clinical Data</h2>
-<h3 id="description_6">Description</h3>
-<p>Retrieves overall survival, disease free survival and age at diagnosis for specified cases.  Due to patient privacy restrictions, no other clinical data is available.</p>
-<h3 id="query-format_6">Query Format</h3>
-<ul>
-<li><strong>cmd</strong>=getClinicalData (required)</li>
-<li><strong>case_set_id</strong>= [case set ID] (required)</li>
-</ul>
-<h3 id="response-format_5">Response Format</h3>
-<p>A tab-delimited file with the following columns:</p>
-<ul>
-<li><strong>case_id</strong>:  Unique Case Identifier.</li>
-<li><strong>overall_survival_months</strong>:  Overall survival, in months.</li>
-<li><strong>overall_survival_status</strong>:  Overall survival status, usually indicated as "LIVING" or "DECEASED".</li>
-<li><strong>disease_free_survival_months</strong>:  Disease free survival, in months.</li>
-<li><strong>disease_free_survival_status</strong>:  Disease free survival status, usually indicated as "DiseaseFree" or "Recurred/Progressed".</li>
-<li><strong>age_at_diagnosis</strong>:  Age at diagnosis.</li>
-</ul>
-<h3 id="example_5">Example</h3>
-<p><a href="webservice.do?cmd=getClinicalData&amp;case_set_id=ov_tcga_all">Get Clinical Data for All TCGA Ovarian Cases.</a></p>
-<h2 id="get-proteinphosphoprotein-antibody-information">Get Protein/Phosphoprotein Antibody Information</h2>
-<h3 id="description_7">Description</h3>
-<p>Retrieves information on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.</p>
-<h3 id="query-format_7">Query Format</h3>
-<ul>
-<li><strong>cmd</strong>=getProteinArrayInfo (required)</li>
-<li><strong>cancer_study_id</strong>= [cancer study ID] (required)</li>
-<li><strong>protein_array_type</strong>= [protein_level or phosphorylation]</li>
-<li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs]. Multiple genes must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
-</ul>
-<h3 id="response-format_6">Response Format</h3>
-<p>You will receive a tab-delimited matrix with the following 4 columns:</p>
-<ul>
-<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
-<li><strong>ARRAY_TYPE</strong>: The protein array antibody type, i.e. protein_level or phosphorylation.</li>
-<li><strong>GENE</strong>: The targeted gene name (HUGO gene symbol).</li>
-<li><strong>RESIDUE</strong>: The targeted resdue(s).</li>
-</ul>
-<h3 id="example_6">Example</h3>
-<ul>
-<li><a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread_tcga">Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases.</a></li>
-<li><a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread_tcga&amp;protein_array_type=phosphorylation">Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases.</a></li>
-<li><a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread_tcga&amp;protein_array_type=protein_level&amp;gene_list=ERBB2+TP53">Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases.</a></li>
-</ul>
-<h2 id="get-rppa-based-proteomics-data">Get RPPA-based Proteomics Data</h2>
-<h3 id="description_8">Description</h3>
-<p>Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).</p>
-<h3 id="query-format_8">Query Format</h3>
-<ul>
-<li><strong>cmd</strong>=getProteinArrayData (required)</li>
-<li><strong>case_set_id</strong>= [case set ID] (required)</li>
-<li><strong>array_info</strong>= [1 or 0]. If 1, antibody information will also be exported. </li>
-</ul>
-<h4 id="response-format-1_1">Response Format 1</h4>
-<p>If the parameter of array_info is not specified or it is not 1, you will receive a tab-delimited matrix with the following columns:</p>
-<ul>
-<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
-<li><strong>Columns 2 - N</strong>: Data for each case.</li>
-</ul>
-<h4 id="response-format-2_1">Response Format 2</h4>
-<p>If the parameter of array_info is 1, you will receive a tab-delimited matrix with the following columns:</p>
-<ul>
-<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
-<li><strong>ARRAY_TYPE</strong>: The protein array antibody type, i.e. protein_level or phosphorylation.</li>
-<li><strong>GENE</strong>: The targeted gene name (HUGO gene symbol).</li>
-<li><strong>RESIDUE</strong>: The targeted resdue(s).</li>
-<li><strong>Columns 5 - N</strong>: Data for each case.</li>
-</ul>
-<h3 id="example_7">Example</h3>
-<ul>
-<li><a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_tcga_RPPA">Get All RPPA Data in TCGA Colorectal Cases.</a></li>
-<li><a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_tcga_RPPA&amp;array_info=1">Get All RPPA Data with antibody information in TCGA Colorectal Cases.</a></li>
-</ul>
+<table class="table table-bordered">
+    <tr>
+        <td>Description</td>
+        <td>Retrieves meta-data regarding all genetic profiles, e.g. mutation or copy number profiles, stored about a specific cancer study.</td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
+        <td><ul>
+            <li><strong>cmd</strong>=getGeneticProfiles (required)</li>
+            <li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
+        </ul></td>
+    </tr>
+    <tr>
+        <td>Response Format</td>
+        <td>
+            <p>A tab-delimited file with six columns:</p>
+            <ul>
+                <li><strong>genetic_profile_id</strong>:  a unique ID used to identify the genetic profile ID in subsequent interface calls.  This is a human readable ID.  For example, "gbm_mutations" identifies the TCGA GBM mutation genetic profile.</li>
+                <li><strong>genetic_profile_name</strong>:  short profile name.</li>
+                <li><strong>genetic_profile_description</strong>:  short profile description.</li>
+                <li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.  </li>
+                <li><strong>genetic_alteration_type</strong>:  indicates the profile type.  Will be one of:<ul>
+                    <li>MUTATION</li>
+                    <li>MUTATION_EXTENDED</li>
+                    <li>COPY_NUMBER_ALTERATION</li>
+                    <li>MRNA_EXPRESSION</li>
+                    <li>METHYLATION</li>
+                </ul>
+                </li>
+                <li><strong>show_profile_in_analysis_tab</strong>:  a boolean flag used for internal purposes (you can safely ignore it).</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Example</td>
+        <td><a href="webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=gbm_tcga">Get all Genetic Profiles for Glioblastoma (TCGA).</a></td>
+    </tr>
+</table>
+
+
+<hr>
+
+
+<h4>&gt; Get All Genetic Profiles for a Specific Cancer Study</h4>
+
+<table class="table table-bordered">
+    <tr>
+        <td>Description</td>
+        <td>Retrieves meta-data regarding all case lists stored about a specific cancer study.  For example, a within a particular study, only some cases may have sequence data, and another subset of cases may have been sequenced and treated with a specific therapeutic protocol.  Multiple case lists may be associated with each cancer study, and this method enables you to retrieve meta-data regarding all of these case lists.
+        </td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
+        <td><ul>
+            <li><strong>cmd</strong>=getCaseLists (required)</li>
+            <li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
+        </ul></td>
+    </tr>
+    <tr>
+        <td>Response Format</td>
+        <td><p>A tab-delimited file with five columns:</p>
+            <ul>
+                <li><strong>case_list_id</strong>:  a unique ID used to identify the case list ID in subsequent interface calls.  This is a human readable ID.  For example, "gbm_all" identifies all cases profiles in the TCGA GBM study.</li>
+                <li><strong>case_list_name</strong>:  short name for the case list.</li>
+                <li><strong>case_list_description</strong>:  short description of the case list.</li>
+                <li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.  </li>
+                <li><strong>case_ids</strong>:  space delimited list of all case IDs that make up this case list.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Example</td>
+        <td><a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=gbm_tcga">Get all Case Lists for Glioblastoma (TCGA).</a></td>
+    </tr>
+</table>
+
+<hr>
+
+<h4 id="get-profile-data">&gt; Get Profile Data</h4>
+<table class="table table-bordered">
+    <tr>
+        <td>Description</td>
+        <td>Retrieves genomic profile data for one or more genes.</td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
+        <td><ul>
+            <li><strong>cmd</strong>=getProfileData (required)</li>
+            <li><strong>case_set_id</strong>= [case set ID] (required)</li>
+            <li><strong>genetic_profile_id</strong>= [one or more genetic profile IDs] (required). Multiple genetic profile IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
+            <li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs] (required). Multiple genes must be separated by comma (,) characters, or  URL encoded spaces, e.g. +</li>
+        </ul>
+            <p>You can either:</p>
+            <ul>
+                <li><a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_mutations&amp;gene_list=BRCA1+BRCA2+TP53">Specify multiple genes and a single genetic profile ID.</a></li>
+                <li><a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_log2CNA,gbm_tcga_gistic&amp;gene_list=EGFR">Specify a single gene and multiple genetic profile IDs.</a></li>
+            </ul></td>
+    </tr>
+    <tr>
+        <td>Response Format</td>
+        <td><p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a tab-delimited matrix with the following columns:</p>
+            <ol>
+                <li><strong>GENE_ID</strong>:  Entrez Gene ID   </li>
+                <li><strong>COMMON</strong>:  HUGO Gene Symbol</li>
+                <li><strong>Columns 3 - N</strong>:  Data for each case</li>
+            </ol>
+            <h4 id="response-format-2">Response Format 2</h4>
+            <p>When requesting a single gene and multiple genetic profile IDs (see above), you will receive a tab-delimited matrix with the following columns:</p>
+            <ol>
+                <li><strong>GENETIC_PROFILE_ID</strong>:  The Genetic Profile ID.   </li>
+                <li><strong>ALTERATION_TYPE</strong>:  The Genetic Alteration Type, e.g. MUTATION, MUTATION_EXTENDED, COPY_NUMBER_ALTERATION, or MRNA_EXPRESSION.</li>
+                <li><strong>GENE_ID</strong>:  Entrez Gene ID.   </li>
+                <li><strong>COMMON</strong>:  HUGO Gene Symbol.</li>
+                <li><strong>Columns 5 - N</strong>:  Data for each case.</li>
+            </ol>
+        </td>
+    </tr>
+    <tr>
+        <td>Example</td>
+        <td>See Query Format above.</td>
+    </tr>
+</table>
+
+
+<hr>
+
+<h4 id="get-extended-mutation-data">&gt; Get Extended Mutation Data</h4>
+<table class="table table-bordered">
+    <tr>
+        <td>Description</td>
+        <td>For data of type EXTENDED_MUTATION, you can request the full set of annotated extended mutation data.  
+            This enables you to, for example, determine which sequencing center sequenced the mutation, the 
+            amino acid change that results from the mutation, or gather links to predicted functional consequences of the 
+            mutation.</td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
+        <td><ul>
+            <li><strong>cmd</strong>=getMutationData (required)</li>
+            <li><strong>genetic_profile_id</strong>= [one or more mutation profile IDs] (required). Multiple genetic profile IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
+            <li><strong>case_set_id</strong>= [case set ID] (optional). If not provided, all cases that have data in the specified mutation profiles will be queried.</li>
+            <li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs] (required). Multiple genes must be separated by comma (,) characters, or  URL encoded spaces, e.g. +</li>
+        </ul></td>
+    </tr>
+    <tr>
+        <td>Response Format</td>
+        <td><p>A tab-delimited file with the following columns:</p>
+            <ul>
+                <li><strong>entrez_gene_id</strong>:  Entrez Gene ID.</li>
+                <li><strong>gene_symbol</strong>:  HUGO Gene Symbol.</li>
+                <li><strong>case_id</strong>:  Case ID.</li>
+                <li><strong>sequencing_center</strong>:  Sequencer Center responsible for identifying this mutation.  For example:  broad.mit.edu.</li>
+                <li><strong>mutation_status</strong>:  somatic or germline mutation status.  all mutations returned will be of type somatic.</li>
+                <li><strong>mutation_type</strong>:  mutation type, such as nonsense, missense, or frameshift_ins.</li>
+                <li><strong>validation_status</strong>:  validation status.  Usually valid, invalid, or unknown.</li>
+                <li><strong>amino_acid_change</strong>:  amino acid change resulting from the mutation.</li>
+                <li><strong>functional_impact_score</strong>:  predicted functional impact score, as predicted by:  <a href="http://mutationassessor.org/">Mutation Assessor</a>.</li>
+                <li><strong>xvar_link</strong>:  Link to the Mutation Assessor web site.</li>
+                <li><strong>xvar_link_pdb</strong>:  Link to the Protein Data Bank (PDB) View within Mutation Assessor web site.</li>
+                <li><strong>xvar_link_msa</strong>:  Link the Multiple Sequence Alignment (MSA) view within the  Mutation Assessor web site.</li>
+                <li><strong>chr</strong>:  chromosome where mutation occurs.</li>
+                <li><strong>start_position</strong>:  start position of mutation.</li>
+                <li><strong>end_position</strong>:  end position of mutation.</li>
+                <li><strong>genetic_profile_id</strong>:  mutation profile id.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Example</td>
+        <td><ul>
+            <li><a href="webservice.do?cmd=getMutationData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_mutations&amp;gene_list=EGFR+PTEN">Get Extended Mutation Data for EGFR and PTEN in TCGA GBM.</a></li>
+            <li><a href="webservice.do?cmd=getMutationData&amp;genetic_profile_id=ov_tcga_mutations+ucec_tcga_mutations&amp;gene_list=BRCA1">Get Extended Mutation Data for BRCA1 in TCGA OV and UCEC.</a></li>
+        </ul></td>
+    </tr>
+</table>
+
+
+<hr>
+<h4 id="get-clinical-data">&gt; Get Clinical Data</h4>
+<table class="table table-bordered">
+    <tr>
+        <td>Description</td>
+        <td>Retrieves overall survival, disease free survival and age at diagnosis for specified cases.  Due to patient privacy restrictions, no other clinical data is available.</td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
+        <td><ul>
+            <li><strong>cmd</strong>=getClinicalData (required)</li>
+            <li><strong>case_set_id</strong>= [case set ID] (required)</li>
+        </ul></td>
+    </tr>
+    <tr>
+        <td>Response Format</td>
+        <td><p>A tab-delimited file with the following columns:</p>
+            <ul>
+                <li><strong>case_id</strong>:  Unique Case Identifier.</li>
+                <li><strong>overall_survival_months</strong>:  Overall survival, in months.</li>
+                <li><strong>overall_survival_status</strong>:  Overall survival status, usually indicated as "LIVING" or "DECEASED".</li>
+                <li><strong>disease_free_survival_months</strong>:  Disease free survival, in months.</li>
+                <li><strong>disease_free_survival_status</strong>:  Disease free survival status, usually indicated as "DiseaseFree" or "Recurred/Progressed".</li>
+                <li><strong>age_at_diagnosis</strong>:  Age at diagnosis.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Example</td>
+        <td><a href="webservice.do?cmd=getClinicalData&amp;case_set_id=ov_tcga_all">Get Clinical Data for All TCGA Ovarian Cases.</a></td>
+    </tr>
+</table>
+
+<hr>
+<h4 id="get-proteinphosphoprotein-antibody-information">&gt; Get Protein/Phosphoprotein Antibody Information</h4>
+
+<table class="table table-bordered">
+    <tr>
+        <td>Description</td>
+        <td>Retrieves information on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.</td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
+        <td><ul>
+            <li><strong>cmd</strong>=getProteinArrayInfo (required)</li>
+            <li><strong>cancer_study_id</strong>= [cancer study ID] (required)</li>
+            <li><strong>protein_array_type</strong>= [protein_level or phosphorylation]</li>
+            <li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs]. Multiple genes must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
+        </ul></td>
+    </tr>
+    <tr>
+        <td>Response Format</td>
+        <td><p>You will receive a tab-delimited matrix with the following 4 columns:</p>
+            <ul>
+                <li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+                <li><strong>ARRAY_TYPE</strong>: The protein array antibody type, i.e. protein_level or phosphorylation.</li>
+                <li><strong>GENE</strong>: The targeted gene name (HUGO gene symbol).</li>
+                <li><strong>RESIDUE</strong>: The targeted resdue(s).</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Example</td>
+        <td><ul>
+            <li><a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread_tcga">Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases.</a></li>
+            <li><a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread_tcga&amp;protein_array_type=phosphorylation">Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases.</a></li>
+            <li><a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread_tcga&amp;protein_array_type=protein_level&amp;gene_list=ERBB2+TP53">Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases.</a></li>
+        </ul></td>
+    </tr>
+</table>
+
+<hr>
+<h4 id="get-rppa-based-proteomics-data">&gt; Get RPPA-based Proteomics Data</h4>
+
+<table class="table table-bordered">
+    <tr>
+        <td>Description</td>
+        <td>Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).</td>
+    </tr>
+    <tr>
+        <td>Query Format</td>
+        <td><ul>
+            <li><strong>cmd</strong>=getProteinArrayData (required)</li>
+            <li><strong>case_set_id</strong>= [case set ID] (required)</li>
+            <li><strong>array_info</strong>= [1 or 0]. If 1, antibody information will also be exported. </li>
+        </ul>                                                                                                 
+        </td>
+    </tr>
+    <tr>
+        <td>Response Format 1</td>
+        <td>
+            <p>If the parameter of array_info is not specified or it is not 1, you will receive a tab-delimited matrix with the following columns:</p>
+            <ul>
+                <li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+                <li><strong>Columns 2 - N</strong>: Data for each case.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Response Format 2</td>
+        <td>
+            <p>If the parameter of array_info is 1, you will receive a tab-delimited matrix with the following columns:</p>
+            <ul>
+                <li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+                <li><strong>ARRAY_TYPE</strong>: The protein array antibody type, i.e. protein_level or phosphorylation.</li>
+                <li><strong>GENE</strong>: The targeted gene name (HUGO gene symbol).</li>
+                <li><strong>RESIDUE</strong>: The targeted resdue(s).</li>
+                <li><strong>Columns 5 - N</strong>: Data for each case.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Example</td>
+        <td><ul>
+            <li><a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_tcga_RPPA">Get All RPPA Data in TCGA Colorectal Cases.</a></li>
+            <li><a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_tcga_RPPA&amp;array_info=1">Get All RPPA Data with antibody information in TCGA Colorectal Cases.</a></li>
+        </ul></td>
+    </tr>
+</table>
+
+
+<hr>
+
 <h3 id="linking-to-us">Linking to Us</h3>
 <p>Once you have a cancer_study_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to ln, and can include the following parameters:</p>
 <ul>

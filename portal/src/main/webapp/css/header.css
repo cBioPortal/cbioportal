@@ -9,7 +9,7 @@ header {
     background: linear-gradient(to bottom,  rgba(252,252,252,1) 90%, rgba(249,249,249,1) 100%);
     position: relative;
     min-width:780px;
-    padding:10px 0;
+    padding:6px 0;
     width:100%;
 }
 
@@ -44,8 +44,8 @@ header {
 }
 
 
-#cbioportal-logo {
-
+#cbioportal-logo img {
+    height:35px;
 }
 
 #institute-logo {
@@ -54,6 +54,7 @@ header {
     margin-right:5px;
     margin-top:3px;
     opacity:0.5;
+
 }
 
 #authentication {
@@ -88,15 +89,11 @@ header {
     color: #428bca;
 }
 
-header > div {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
 #main-nav {
-  padding-top:18px;  
+  position:relative;
+    top:9px;
   float:right;
+    padding-bottom:0;
 }
 
 #main-nav:first-child {

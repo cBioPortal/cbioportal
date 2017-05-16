@@ -12,6 +12,7 @@
 
     <%@attribute name="head_area" fragment="true" %>
 <%@attribute name="body_area" fragment="true" %>
+    <%@attribute name="right_column" fragment="true" %>
 
 <html class="cbioportal-frontend">
 <head>
@@ -67,7 +68,7 @@ __API_ROOT__ = '<%=baseURL%>';
             <div id="mainColumn"><jsp:invoke fragment="body_area"/></div>
             
             <c:if test="${defaultRightColumn == true || twoColumn==true}">
-                <div id="rightColumn"></div>
+                <div id="rightColumn"><jsp:invoke fragment="right_column"/></div>
             </c:if>
            
             </div>

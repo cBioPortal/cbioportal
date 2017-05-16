@@ -51,7 +51,7 @@
 %>
 
 <header>
-    <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" height="55px" alt="cBioPortal Logo" /></a>    
+    <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
    
         <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
         <div id="authentication">
@@ -118,7 +118,7 @@
                 <!-- Added call GlobalProperties to check whether to show the Tools tab -->
                 <% if (GlobalProperties.showToolsTab()) { %>
                 <li class="internal">
-                    <a href="tools.jsp">Tools</a>
+                    <a href="tools.jsp">Visualization Tools</a>
                 </li>
                 <% } %>
                 <!-- Added call GlobalProperties to check whether to show the About tab -->
@@ -144,11 +144,11 @@
                 }%>
 
                 <!-- Added call GlobalProperties to check whether to show the Visualize tab -->
-                <% if (GlobalProperties.showVisualizeYourDataTab()) { %>
-                <li class="internal">
-                    <a href="visualize_your_data.jsp" float="left">Visualize Your Data</a>
-                </li>
-                <% } %>
+                <%--<% if (GlobalProperties.showVisualizeYourDataTab()) { %>--%>
+                <%--<li class="internal">--%>
+                    <%--<a href="visualize_your_data.jsp" float="left">Visualize Your Data</a>--%>
+                <%--</li>--%>
+                <%--<% } %>--%>
             </ul>
         </nav>
 </header>

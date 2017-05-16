@@ -518,7 +518,7 @@ A minimal mutation annotations file can contain just three of the MAF columns pl
 
 * **Hugo_Symbol**: (MAF column) A [HUGO](http://www.genenames.org/) gene symbol.
 * **Tumor_Sample_Barcode**: (MAF column) This is the sample ID as listed in the clinical data file.
-* **Variant_Classification**: (MAF column) Translational effect of variant allele, e.g. Missense_Mutation, Silent, etc. cBioPortal skips the following types during the import: _Silent_, _Intron_, _3'UTR_, _3'Flank_, _5'UTR_, _5'Flank_, _IGR_ and _RNA_
+* **Variant_Classification**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR1 , Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
 * **HGVSp_Short**: (annotation column) Amino Acid Change, e.g. p.V600E.
 
 Note: next to Hugo_Symbol, it is recommended to have the Entrez gene ID:

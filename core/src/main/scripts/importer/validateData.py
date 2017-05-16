@@ -983,6 +983,22 @@ class MutationsExtendedValidator(Validator):
 
     NULL_AA_CHANGE_VALUES = ('', 'NULL', 'NA')
 
+    # MAF values for Variant_Classification column
+    # from https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification + Unknown:
+    VARIANT_CLASSIFICATION_VALUES = [
+       'Frame_Shift_Del',
+       'Frame_Shift_Ins',
+       'In_Frame_Del',
+       'In_Frame_Ins',
+       'Missense_Mutation',
+       'Nonsense_Mutation',
+       'Splice_Site',
+       'Translation_Start_Site',
+       'Nonstop_Mutation',
+       'Targeted_Region',
+       'De_novo_Start_InFrame',
+       'De_novo_Start_OutOfFrame'] + SKIP_VARIANT_TYPES + ['Unknown']
+
     # Used for mapping column names to the corresponding function that does a check on the value.
     CHECK_FUNCTION_MAP = {
         'Matched_Norm_Sample_Barcode':'checkMatchedNormSampleBarcode',
@@ -997,7 +1013,7 @@ class MutationsExtendedValidator(Validator):
         'Hugo_Symbol': 'checkNotBlank', 
         'HGVSp_Short': 'checkAminoAcidChange',
         'Amino_Acid_Change': 'checkAminoAcidChange',
-        'Variant_Classification': 'checkNotBlank',
+        'Variant_Classification': 'checkVariantClassification',
         'SWISSPROT': 'checkSwissProt'
     }
 
@@ -1197,6 +1213,14 @@ class MutationsExtendedValidator(Validator):
         # may require bundling the hgvs package:
         # https://pypi.python.org/pypi/hgvs/
         if value not in self.NULL_AA_CHANGE_VALUES:
+            # give error if a white space is found in value (this leads to errors in
+            # other layers, e.g. COSMIC keywords will not be matched)
+            if ' ' in value:
+                # return with an error message
+                self.extra = 'White space found in amino acid change column'
+                self.extra_exists = True
+                return False
+
             value = value.strip()
             # there should only be a 'p.' prefix at the very start
             if len(value) > 1 and 'p.' in value[1:]:
@@ -1258,6 +1282,25 @@ class MutationsExtendedValidator(Validator):
         """Test whether a string is blank."""
         if value is None or value.strip() == '':
             return False
+        return True
+
+    def checkVariantClassification(self, value):
+        """Validate according to MAF standard list and give warning when value is not recognized."""
+        #if blank, return False:
+        if not self.checkNotBlank(value):
+            return False
+        else:
+            # check whether value conforms to MAF list of values, give warning otherwise:
+            if value not in self.VARIANT_CLASSIFICATION_VALUES:
+                self.logger.warning(
+                    'Given value for Variant_Classification column is not one of the expected values. This '
+                    'can result in mapping issues and subsequent missing features in the mutation view UI, '
+                    'such as missing COSMIC information.',
+                    extra={'line_number': self.line_number,
+                           'cause':value})
+                # return without error (just warning above)
+                return True
+        # if no reasons to return with a message were found, return valid
         return True
 
     def checkSwissProt(self, value):

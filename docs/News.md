@@ -1,3 +1,20 @@
+# May 12, 2017
+*   **Added data** of 12,211 samples from 11 published studies:
+    *   [MSK-IMPACT Clinical Sequencing Cohort (MSK, Nat Med 2017)](http://www.cbioportal.org/study?id=msk_impact_2017)   *10,945 samples*
+    *   [Whole-genome sequencing of pilocytic astrocytomasatic (DKFZ, Nat Genetics, 2013)](http://www.cbioportal.org/study?id=past_dkfz_heidelberg_2013) *96 samples*
+    *   [Hepatocellular Carcinomas (INSERM, Nat Genet 2015)](http://www.cbioportal.org/study?id=hcc_inserm_fr_2015) *243 samples*
+    *   [Cystic Tumor of the Pancreas (Johns Hopkins, PNAS 2011)](http://www.cbioportal.org/study?id=pact_jhu_2011) *32 samples*
+    *   [Whole-Genome Sequencing of Pancreatic Neuroendocrine Tumors (
+ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *98 samples*
+    *   [Medulloblastoma (Sickkids, Nature 2016)](http://www.cbioportal.org/study?id=mbl_sickkids_2016) *46 samples*
+    *   [Genetic Characterization of NSCLC young adult patients (University of Turin, Lung Cancer 2016)](http://www.cbioportal.org/study?id=nsclc_unito_2016) *41 samples*
+    *   [Genomic Profile of Patients with Advanced Germ Cell Tumors (MSK, JCO 2016).](http://www.cbioportal.org/study?id=gct_msk_2016) *180 samples*
+    *   [Ampullary Carcinoma (Baylor, Cell Reports 2016)](http://www.cbioportal.org/study?id=ampca_bcm_2016) *160 samples*
+    *   [Mutational profiles of metastatic breast cancer (INSERM, 2016)](http://www.cbioportal.org/study?id=brca_igr_2015) *216 samples*
+    *   [Prostate Adenocarcinoma (Fred Hutchinson CRC, Nat Med 2016)](http://www.cbioportal.org/study?id=prad_fhcrc) *154 samples*
+# May 5, 2017
+*   First phase of cBioPortal architectural upgrade complete: Patient view now has fresh look and faster performance. [example](http://bit.ly/2pNY961)
+
 # March 28, 2017
 *   **New features**:
     * Per-sample mutation spectra are now available in OncoPrints -- see [example](http://www.cbioportal.org/index.do?cancer_study_list=ucec_tcga_pub&cancer_study_id=ucec_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ucec_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=ucec_tcga_pub_gistic&Z_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=ucec_tcga_pub_manuscript&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=POLE%0D%0AERBB2%0D%0AKRAS%0D%0ACTNNB1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit&show_samples=false&clinicallist=SUBTYPE,NO_CONTEXT_MUTATION_SIGNATURE,%23%20mutations&)

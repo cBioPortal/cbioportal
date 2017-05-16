@@ -156,9 +156,8 @@ public abstract class ConsoleRunnable implements Runnable {
         }
         catch (Throwable t) {
             ConsoleUtil.showWarnings();
-            System.err.println ("\nABORTED! " + t.toString());
-            if (t.getMessage() == null)
-                t.printStackTrace();
+            System.err.println ("\nABORTED!");
+            t.printStackTrace();
             status = SysExit.select(t);
         }
         System.exit(status.getStatusCode());

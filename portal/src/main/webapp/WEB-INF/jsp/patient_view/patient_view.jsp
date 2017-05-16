@@ -72,6 +72,8 @@
 
     window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
     
+    window.oncoKBApiUrl = '<%=GlobalProperties.getOncoKBPublicApiUrl()%>';
+    
     window.loadReactApp({ defaultRoute: 'patient' });
     
 </script>

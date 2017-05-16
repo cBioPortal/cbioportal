@@ -57,6 +57,7 @@
         
         <jsp:attribute name="head_area">
             <script>
+                window.historyType = "hash";
                 window.loadReactApp({ defaultRoute: 'patient' });
             </script>
         </jsp:attribute>

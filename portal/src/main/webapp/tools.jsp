@@ -46,10 +46,7 @@
 
     <jsp:attribute name="head_area">
         <script>
-        window.loadReactApp({ defaultRoute: 'home' });
-        window.onReactAppReady(function(){
-        //window.renderRightBar(document.getElementById('rightColumn'));
-        });
+        window.loadReactApp({ defaultRoute: 'blank' });
         </script>
     </jsp:attribute>
 

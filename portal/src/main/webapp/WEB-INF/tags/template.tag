@@ -26,6 +26,10 @@
 window.enableDarwin = <%=CheckDarwinAccessServlet.CheckDarwinAccess.existsDarwinProperties()%>;
 
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    
+// this prevents react router from messing with hash in a way that could is unecessary (static pages)
+// or could conflict
+window.historyType = 'memory';
 
 // Set API root variable for cbioportal-frontend repo
 <%
@@ -77,6 +81,14 @@ __API_ROOT__ = '<%=baseURL%>';
     </div>
     
     <jsp:include page="/WEB-INF/jsp/global/footer.jsp" />
+
+    <c:if test="${defaultRightColumn == true}">
+        <script>
+
+        window.renderRightBar(document.getElementById('rightColumn'));
+
+        </script>
+    </c:if>
     
     </body>
 </html>

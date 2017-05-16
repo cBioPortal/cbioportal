@@ -62,7 +62,6 @@
         
         window.onReactAppReady(function(){
             window.renderQuerySelector(document.getElementById('querySelectorTarget'));
-            window.renderRightBar(document.getElementById('rightColumn'));
         });
         
         </script>

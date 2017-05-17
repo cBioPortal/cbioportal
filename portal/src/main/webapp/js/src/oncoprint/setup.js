@@ -164,6 +164,7 @@ var tooltip_utils = {
 		return ret;
 	    });
 	};
+	var oncogenic = ["likely oncogenic", "predicted oncogenic", "oncogenic"];
 	return function (d) {
 	    var ret = $('<div>');
 	    var mutations = [];
@@ -178,7 +179,7 @@ var tooltip_utils = {
 		    if (datum.cancer_hotspots_hotspot) {
 			tooltip_datum.cancer_hotspots_hotspot = true;
 		    }
-		    if (typeof datum.oncokb_oncogenic !== "undefined" && ["Likely Oncogenic", "Oncogenic"].indexOf(datum.oncokb_oncogenic) > -1) {
+		    if (typeof datum.oncokb_oncogenic !== "undefined" && oncogenic.indexOf(datum.oncokb_oncogenic) > -1) {
 			tooltip_datum.oncokb_oncogenic = datum.oncokb_oncogenic;
 		    }
 		    (datum.oncoprint_mutation_type === "fusion" ? fusions : mutations).push(tooltip_datum);
@@ -188,7 +189,7 @@ var tooltip_utils = {
 			var tooltip_datum = {
 			    cna: disp_cna[datum.profile_data]
 			};
-			if (typeof datum.oncokb_oncogenic !== "undefined" && ["Likely Oncogenic", "Oncogenic"].indexOf(datum.oncokb_oncogenic) > -1) {
+			if (typeof datum.oncokb_oncogenic !== "undefined" && oncogenic.indexOf(datum.oncokb_oncogenic) > -1) {
 			    tooltip_datum.oncokb_oncogenic = datum.oncokb_oncogenic;
 			}
 			cna.push(tooltip_datum);

@@ -204,7 +204,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     var getOncoKBAnnotations = function (webservice_data) {
 	/* In: - webservice_data, a list of data obtained from the webservice API,
 	 *	 modified to have the attribute oncokb_mutation_id
-	 * Out: Promise which resolves with map from oncokbMutationId to one of ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
+	 * Out: Promise which resolves with map from oncokbMutationId to one of ['unknown', 'likely neutral', 'likely oncogenic', 'predicted oncogenic', 'oncogenic']
 	 */
 	var def = new $.Deferred();
 	var oncogenic = {}; // See Out above
@@ -261,7 +261,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    }).then(function (response) {
 		response = JSON.parse(response);
 		for (var i = 0; i < response.length; i++) {
-		    oncogenic[response[i].query.id] = response[i].oncogenic;
+		    oncogenic[response[i].query.id] = response[i].oncogenic.toLowerCase();
 		}
 		def.resolve(oncogenic);
 	    }).fail(function () {
@@ -299,7 +299,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	 * In: - webservice_data, a list of data obtained from the webservice API,
 	 * Out: promise, which resolves when it's done (data is modified in place, with
 	 *	the mutation data given the string attribute 'oncokb_oncogenic', with value
-	 *	in ['Unknown', 'Likely Neutral', 'Likely Oncogenic', 'Oncogenic']
+	 *	in ['unknown', 'likely neutral', 'likely oncogenic', 'predicted oncogenic', 'oncogenic']
 	 *	The data now also has the attribute 'oncokb_query_id'
 	 */
 	var def = new $.Deferred();
@@ -869,13 +869,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
     
     var applyKnownMutationSettings = function (ws_data, known_mutation_settings, getters) {
 	var filtered_mutation_types = ["missense", "inframe", "trunc"];
+	var oncogenic = ["likely oncogenic", "predicted oncogenic", "oncogenic"];
 	return ws_data.filter(function (d) {
 	    if (d.genetic_alteration_type !== "MUTATION_EXTENDED"
 		    || (filtered_mutation_types.indexOf(d.oncoprint_mutation_type) === -1)) {
 		return true;
 	    } else {
 		var ret = (known_mutation_settings.recognize_hotspot && d.cancer_hotspots_hotspot)
-			|| (known_mutation_settings.recognize_oncokb_oncogenic && (typeof d.oncokb_oncogenic !== "undefined") && (["likely oncogenic", "oncogenic"].indexOf(d.oncokb_oncogenic.toLowerCase()) > -1));
+			|| (known_mutation_settings.recognize_oncokb_oncogenic && (typeof d.oncokb_oncogenic !== "undefined") && (oncogenic.indexOf(d.oncokb_oncogenic) > -1));
 		
 		if (known_mutation_settings.recognize_cbioportal_count) {
 		    var cbioportal_mutation_count = getters.cbioportalCount(d);

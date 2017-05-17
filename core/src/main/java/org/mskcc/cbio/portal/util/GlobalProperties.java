@@ -132,6 +132,7 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
     public static final String ONCOKB_API_URL = "oncokb.api.url";
+    public static final String ONCOKB_PUBLIC_API_URL = "oncokb.public_api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
     private static String sessionServiceURL;
@@ -716,6 +717,29 @@ public class GlobalProperties {
     public static String getSessionServiceUrl()
     {
         return sessionServiceURL;
+    }
+    
+    public static String getOncoKBPublicApiUrl()
+    {
+        String oncokbApiUrl = properties.getProperty(ONCOKB_PUBLIC_API_URL);
+        String showOncokb = properties.getProperty(SHOW_ONCOKB);
+        
+        if(showOncokb == null || showOncokb.isEmpty()) {
+                    showOncokb = "true";
+        }
+        
+        // This only applies if there is no oncokb.api.url property in the portal.properties file.
+        // Empty string should be used if you want to disable the OncoKB annotation.
+        if(oncokbApiUrl == null || oncokbApiUrl.isEmpty()) {
+            oncokbApiUrl = "oncokb.org/api/v1";
+        }
+        
+        if(showOncokb.equals("true")) {
+           return oncokbApiUrl;
+        } else {
+           return "";
+        }
+        
     }
  
     public static String getOncoKBApiUrl()

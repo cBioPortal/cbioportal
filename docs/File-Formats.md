@@ -336,7 +336,6 @@ The segmented metadata file should contain the following fields:
 4. **reference_genome_id**: Reference genome version. Supported values: "hg19"
 5. **description**: A description of the segmented data, e.g., "Segment data for the XYZ cancer study.".
 6. **data_filename**: your datafile
-7. **gene_panel**: optional gene panel stable id
 
 #### Example:
 An example metadata file, e.g. meta_cna_seg.txt, would be:
@@ -1009,6 +1008,8 @@ description: Targeted (410 cancer genes) sequencing of various tumor types via M
 gene_list: ABL1    ACVR1   AKT1    AKT3 ...
 ```
 
+For information on importing gene panels please visit: [Importing-gene-panels](Importing-gene-panels.md).
+
 #### Sample-Profile Matrix
 
 The second component to gene panel data is associating samples and profile to the panel which applies. The following column is required :
@@ -1034,7 +1035,9 @@ SAMPLE_ID_2<TAB>NA<TAB>NA<TAB> ...
 The sample-profile matrix requires a meta file should contain the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
-2. **data_filename**: your datafile
+2. **genetic_alteration_type**: GENE_PANEL_MATRIX
+3. **datatype**: GENE_PANEL_MATRIX
+4. **data_filename**: your datafile
 
 If all samples in a genetic profile will have the same gene panel associated with them, an optional field can be specified in the meta data file of that datatype called **gene_panel**. If this is present, the sample-profile matrix will automatically be generated and the gene panel applied if it exists in the database already.
 

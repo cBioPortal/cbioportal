@@ -176,6 +176,10 @@ pdb.database.url=http://rcsb.org/pdb/files/
 # google analytics
 google_analytics_profile_id=
 
+#piwik tracking
+piwik.site_id=
+piwik.server_url=
+
 # genomespace linking
 genomespace=true
 

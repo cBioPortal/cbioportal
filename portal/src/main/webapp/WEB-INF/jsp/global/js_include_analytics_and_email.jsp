@@ -51,6 +51,27 @@ if (googleAnalyticsProfileId!=null && !googleAnalyticsProfileId.isEmpty()) {
 </script>
 <% } %>
 
+<%
+String piwikSiteId = GlobalProperties.getPiwikSiteId();
+String piwikServerUrl = GlobalProperties.getPiwikServerUrl();
+if (piwikSiteId!=null && !piwikSiteId.isEmpty() && piwikServerUrl!=null && !piwikServerUrl.isEmpty()) {
+%>
+<!-- Piwik open source tracking -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//<%=piwikServerUrl%>/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '<%=piwikSiteId%>']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Piwik Code -->
+<% } %>
+
 <!-- De-obfuscate All Email Addresses -->
 <script type="text/javascript">
     <!-- When the document is ready, de-obfuscate the email addresses -->

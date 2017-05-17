@@ -42,7 +42,7 @@
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true">
+<t:template title="<%= siteTitle %>" twoColumn="true" fixedWidth="true">
 
     <jsp:attribute name="head_area">
         <script>

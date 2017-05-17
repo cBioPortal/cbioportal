@@ -136,6 +136,18 @@ header {
     margin:0 auto;
 }
 
+.legacy body {
+    background-color:#f5f5f5;
+}
+
+.legacy #td-content {
+    background-color:#f5f5f5;
+}
+
+.legacy #content > table {
+    width:100%;
+}
+
 
 
 

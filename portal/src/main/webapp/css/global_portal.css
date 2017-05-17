@@ -124,7 +124,8 @@ fieldset#patient-view-summary-fieldset > legend {
 }
 
 #content {
-  padding: 0 20px;
+    padding: 0 20px;  
+    background-color:#f5f5f5;
 }
 
 img {

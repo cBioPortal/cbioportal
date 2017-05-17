@@ -196,6 +196,7 @@
         <where>
             gene.HUGO_GENE_SYMBOL = #{symbol}
         </where>
+        limit 1
     </select>
 
     <select id="getGeneByEntrezGeneId" resultMap="geneResultMap">

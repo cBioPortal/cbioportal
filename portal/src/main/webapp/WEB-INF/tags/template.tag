@@ -8,7 +8,8 @@
 <%@attribute name="title" %>
 <%@attribute name="defaultRightColumn" %>
 <%@attribute name="fixedWidth" %>
-<%@attribute name="twoColumn" %>  
+<%@attribute name="twoColumn" %>
+<%@attribute name="noMargin" %>
 
     <%@attribute name="head_area" fragment="true" %>
 <%@attribute name="body_area" fragment="true" %>
@@ -40,10 +41,13 @@ baseURL = baseURL.replace("https://", "").replace("http://", "");
 String bodyClasses = "";
 
 if (fixedWidth == "true") {
-    bodyClasses += "fixedWidth ";
+    bodyClasses += "fixedWidth";
 } 
 if (twoColumn == "true" ||  defaultRightColumn == "true") {
-    bodyClasses += "twoColumn";
+    bodyClasses += " twoColumn";
+} 
+if (noMargin == "true") {
+    bodyClasses += " noMargin";
 } 
 
 %>
@@ -58,7 +62,7 @@ __API_ROOT__ = '<%=baseURL%>';
     
 </head>
     
-    <body class="<%=bodyClasses%>">
+    <body class="<%=bodyClasses.trim()%>">
 
     
     <div class="pageTopContainer">

@@ -9,7 +9,7 @@ header {
     background: linear-gradient(to bottom,  rgba(252,252,252,1) 90%, rgba(249,249,249,1) 100%);
     position: relative;
     min-width:780px;
-    padding:6px 0;
+    padding:10px 0;
     width:100%;
 }
 
@@ -45,7 +45,7 @@ header {
 
 
 #cbioportal-logo img {
-    height:35px;
+    height:40px;
 }
 
 #institute-logo {
@@ -90,9 +90,9 @@ header {
 }
 
 #main-nav {
-  position:relative;
-    top:9px;
-  float:right;
+    position:relative;
+    top:11px;
+    float:right;
     padding-bottom:0;
 }
 
@@ -120,9 +120,6 @@ header {
     border-bottom: 1px solid #ddd;
 }
 
-.contentWidth {
-  
-}
 
 #footer {
     text-align:center;
@@ -146,6 +143,11 @@ header {
 
 .legacy #content > table {
     width:100%;
+}
+
+.legacy .contentWidth {
+    padding-left:20px;
+    padding-right:20px;
 }
 
 

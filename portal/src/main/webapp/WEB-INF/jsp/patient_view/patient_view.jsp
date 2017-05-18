@@ -53,7 +53,7 @@
 
     <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-    <t:template title="My page" defaultRightColumn="false">
+    <t:template title="My page" defaultRightColumn="false" noMargin="true">
         
         <jsp:attribute name="head_area">
             <script>

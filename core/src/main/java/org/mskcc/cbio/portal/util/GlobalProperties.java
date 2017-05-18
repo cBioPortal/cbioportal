@@ -124,7 +124,6 @@ public class GlobalProperties {
     public static final double[] DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF = new double[]{0.2,1.5};
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
-    public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
 
     public static final String PATIENT_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.meta.url";
     public static final String PATIENT_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.patient.url";
@@ -133,6 +132,7 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
     public static final String ONCOKB_API_URL = "oncokb.api.url";
+    public static final String ONCOKB_PUBLIC_API_URL = "oncokb.public_api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
     private static String sessionServiceURL;
@@ -639,15 +639,14 @@ public class GlobalProperties {
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
-        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 //+ "&"+ org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID + "=" + caseId;
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+        return "case.do#/patient?caseId=" + caseId
+                 + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToSampleView(String caseId, String cancerStudyId)
     {
-        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+        return "case.do#/patient?sampleId=" + caseId
+                 + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
@@ -705,16 +704,6 @@ public class GlobalProperties {
         return url + caseId;
     }
 
-    public static String getTCGAPathReportUrl()
-    {
-        String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
-        if (url == null) {
-            return null;
-        }       
-        
-        return url;
-    }
-
     // function for getting the custom tabs for the header
     public static String[] getCustomHeaderTabs(){
         String customPagesString = GlobalProperties.getProperty(SKIN_CUSTOM_HEADER_TABS);
@@ -728,6 +717,29 @@ public class GlobalProperties {
     public static String getSessionServiceUrl()
     {
         return sessionServiceURL;
+    }
+    
+    public static String getOncoKBPublicApiUrl()
+    {
+        String oncokbApiUrl = properties.getProperty(ONCOKB_PUBLIC_API_URL);
+        String showOncokb = properties.getProperty(SHOW_ONCOKB);
+        
+        if(showOncokb == null || showOncokb.isEmpty()) {
+                    showOncokb = "true";
+        }
+        
+        // This only applies if there is no oncokb.api.url property in the portal.properties file.
+        // Empty string should be used if you want to disable the OncoKB annotation.
+        if(oncokbApiUrl == null || oncokbApiUrl.isEmpty()) {
+            oncokbApiUrl = "oncokb.org/api/v1";
+        }
+        
+        if(showOncokb.equals("true")) {
+           return oncokbApiUrl;
+        } else {
+           return "";
+        }
+        
     }
  
     public static String getOncoKBApiUrl()

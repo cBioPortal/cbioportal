@@ -41,7 +41,7 @@ window.DataManagerForIviz = (function($, _) {
    * @return {boolean} Whether input attribute passed the criteria.
    */
   content.util.isPreSelectedClinicalAttr = function(attr) {
-    return attr.toLowerCase().match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
+    return attr.toLowerCase().match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(sample_type)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(mutation_count)|(copy_number_alterations)/);
   };
 
   /**
@@ -389,7 +389,7 @@ window.DataManagerForIviz = (function($, _) {
                 }
                 if (['CANCER_TYPE', 'CANCER_TYPE_DETAILED']
                     .indexOf(_metaObj.attr_id) !== -1) {
-                  if (_.intersection(['mskimpact', 'genie', 'mskimpact_heme'],
+                  if (_.intersection(['mskimpact', 'genie', 'mskimpact_heme', 'mixedpact'],
                       Object.keys(_studyToSampleToPatientMap)).length === 0) {
                     _metaObj.priority = _metaObj.attr_id === 'CANCER_TYPE' ?
                       4.1 : 4.2;

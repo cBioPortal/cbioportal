@@ -53,6 +53,7 @@ public class DiscreteCopyNumberControllerTest {
     private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
     private static final int TEST_LENGTH_2 = 200;
     private static final String TEST_CHROMOSOME_2 = "test_chromosome_2";
+    private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
 
     @Autowired
     private WebApplicationContext wac;
@@ -76,16 +77,16 @@ public class DiscreteCopyNumberControllerTest {
     }
     
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileDefaultProjection() throws Exception {
+    public void getDiscreteCopyNumbersInGeneticProfileBySampleListIdDefaultProjection() throws Exception {
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
 
-        Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfile(Mockito.anyString(), 
+        Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfileBySampleListId(Mockito.anyString(), 
             Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString()))
             .thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/discrete-copy-number")
-            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
+            .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -104,16 +105,16 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileDetailedProjection() throws Exception {
+    public void getDiscreteCopyNumbersInGeneticProfileBySampleListIdDetailedProjection() throws Exception {
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
 
-        Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfile(Mockito.anyString(),
+        Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfileBySampleListId(Mockito.anyString(),
             Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString()))
             .thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/discrete-copy-number")
-            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
+            .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON))
@@ -143,16 +144,16 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileMetaProjection() throws Exception {
+    public void getDiscreteCopyNumbersInGeneticProfileBySampleListIdMetaProjection() throws Exception {
 
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfile(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
+        Mockito.when(discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/discrete-copy-number")
-            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
+            .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())

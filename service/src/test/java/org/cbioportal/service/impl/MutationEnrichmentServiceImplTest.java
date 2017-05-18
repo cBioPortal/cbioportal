@@ -1,15 +1,10 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationSampleCountByGene;
-import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
-import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
-import org.cbioportal.service.util.FisherExactTestCalculator;
-import org.cbioportal.service.util.LogRatioCalculator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,9 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,7 +52,7 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
             mutations)).thenReturn(expectedAlterationEnrichments);
         
         List<AlterationEnrichment> result = mutationEnrichmentService.getMutationEnrichments(GENETIC_PROFILE_ID, 
-            alteredSampleIds, unalteredSampleIds, Arrays.asList(ENTREZ_GENE_ID));
+            alteredSampleIds, unalteredSampleIds);
 
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }

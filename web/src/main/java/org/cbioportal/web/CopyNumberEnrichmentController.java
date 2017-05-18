@@ -43,11 +43,11 @@ public class CopyNumberEnrichmentController {
         @PathVariable String geneticProfileId,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL") CopyNumberEnrichmentEventType copyNumberEnrichmentEventType,
-        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
+        @ApiParam(required = true, value = "List of altered and unaltered Sample IDs and Entrez Gene IDs")
         @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws GeneticProfileNotFoundException {
 
         return new ResponseEntity<>(copyNumberEnrichmentService.getCopyNumberEnrichments(geneticProfileId,
-            enrichmentFilter.getAlteredSampleIds(), enrichmentFilter.getUnalteredSampleIds(),
-            enrichmentFilter.getEntrezGeneIds(), copyNumberEnrichmentEventType.getAlterationTypes()), HttpStatus.OK);
+            enrichmentFilter.getAlteredSampleIds(), enrichmentFilter.getUnalteredSampleIds(), 
+            copyNumberEnrichmentEventType.getAlterationTypes()), HttpStatus.OK);
     }
 }

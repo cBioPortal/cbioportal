@@ -8,7 +8,6 @@ import java.util.List;
 public interface CopyNumberEnrichmentService {
     
     List<AlterationEnrichment> getCopyNumberEnrichments(String geneticProfileId, List<String> alteredSampleIds, 
-                                                        List<String> unalteredSampleIds, List<Integer> entrezGeneIds, 
-                                                        List<Integer> alterationTypes) 
+                                                        List<String> unalteredSampleIds, List<Integer> alterationTypes) 
         throws GeneticProfileNotFoundException;
 }

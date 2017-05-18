@@ -59,6 +59,10 @@ if (piwikSiteId!=null && !piwikSiteId.isEmpty() && piwikServerUrl!=null && !piwi
 <!-- Piwik open source tracking -->
 <script type="text/javascript">
   var _paq = _paq || [];
+  var username = '<%=((org.mskcc.cbio.portal.authentication.PortalUserDetails)org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getName()%>';
+  if (username != '') {
+    _paq.push(['setUserId', username])
+  }
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
   (function() {

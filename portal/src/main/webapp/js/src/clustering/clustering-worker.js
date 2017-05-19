@@ -45,6 +45,20 @@ onmessage = function(m) {
 }
 
 /**
+ * Returns false if any value is a valid number != 0.0, 
+ * and true otherwise.
+ */
+var isAllNaNs = function(values) {
+	for (var i = 0; i < values.length; i++) {
+		var val = values[i];
+		if (!isNaN(val) && val != null && val != 0.0 ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
  * Distance measure using 1-spearman's correlation. This function does expect that item1 and item2
  * are an item than contains a item.preProcessedValueList attribute which is the ranked version
  * of item.orderedValueList.
@@ -54,11 +68,26 @@ var preRankedSpearmanDist = function(item1, item2) {
 	//take the arrays from the preProcessedValueList:
 	var ranks1 = item1.preProcessedValueList;
 	var ranks2 = item2.preProcessedValueList;
+	var item1AllNaNs = isAllNaNs(item1.orderedValueList);
+	var item2AllNaNs = isAllNaNs(item2.orderedValueList);
+	//rules for NaN values:
+	if (item1AllNaNs && item2AllNaNs) {
+		//return distance 0
+		return 0;
+	}
+	else if (item1AllNaNs || item2AllNaNs) {
+		//return large distance:
+		return 3;
+	}
 	//calculate spearman's rank correlation coefficient, using pearson's distance
 	//for correlation of the ranks:
-	var r = jStat.corrcoeff(ranks1, ranks2); 
+	var r = jStat.corrcoeff(ranks1, ranks2);
 	if (isNaN(r)) {
-		r = 0; //will result in same distance as no correlation //TODO - calculate correlation only on items where there is data...?
+		//assuming the ranks1 and ranks2 lists do not contain NaN entries (and this code DOES assume all missing values have been imputed by a valid number), 
+		//this specific scenario should not occur, unless all values are the same (and given the same rank). In this case, there is no variation, and 
+		//correlation returns NaN. In theory this could happen on small number of entities being clustered. We give this a large distance:
+		console.log("NaN in correlation calculation");
+		r = -2;
 	}
 	return 1 - r;
 }
@@ -68,7 +97,7 @@ var preRankedSpearmanDist = function(item1, item2) {
  * It will pre-calculate ranks and deviation and store this in inputItems[x].preProcessedValueList.
  * This pre-calculation significantly improves the performance of the clustering step itself.
  */
-var _prepareForAndGetDistanceFunction = function(inputItems) {
+var _prepareForDistanceFunction = function(inputItems) {
 	//pre-calculate ranks and configure to use last step of SPEARMAN as distance function:
 	for (var i = 0; i < inputItems.length; i++) {
 		var inputItem = inputItems[i];
@@ -110,14 +139,34 @@ var hclusterCases = function(casesAndEntitites) {
 				refEntityList = getRefList(caseObj);
 			}
 			for (var j = 0; j < refEntityList.length; j++) {
-    			var entityId = refEntityList[j];
-    			var value = caseObj[entityId];
-    			inputItem.orderedValueList.push(value);
-    		}
+				var entityId = refEntityList[j];
+				var value = caseObj[entityId];
+				inputItem.orderedValueList.push(value);
+			}
 			inputItems.push(inputItem);
 		}
 	}
-	_prepareForAndGetDistanceFunction(inputItems);
+	if (refEntityList.length == 1) {
+		//this is a special case, where the "clustering" becomes a simple sorting in 1 dimension:
+		//so, just sort and return inputItems:
+		inputItems.sort(function (i1, i2) {
+			var val1 = i1.orderedValueList[0];
+			var val2 = i2.orderedValueList[0];
+			//ensure NaNs are moved out (NaN or null which are seen here as equivalents to NA (not available)) to the end of the list:
+			val1 = (val1 == null || isNaN(val1) ? Number.MAX_VALUE : val1);
+			val2 = (val2 == null || isNaN(val2) ? Number.MAX_VALUE : val2);
+			if (val1 > val2) {
+				return 1;
+			}
+			else if (val1 < val2) {
+				return -1;
+			}
+			return 0;
+		});
+		return inputItems;
+	}
+	//else, normal clustering:
+	_prepareForDistanceFunction(inputItems);
 	var clusters = clusterfck.hcluster(inputItems, preRankedSpearmanDist);
 	return clusters.clusters(1)[0];
 }
@@ -167,7 +216,7 @@ var hclusterGeneticEntities = function(casesAndEntitites) {
     	}
     	inputItems.push(inputItem);
 	}
-	_prepareForAndGetDistanceFunction(inputItems);
+	_prepareForDistanceFunction(inputItems);
 	var clusters = clusterfck.hcluster(inputItems, preRankedSpearmanDist);
 	return clusters.clusters(1)[0];
 }

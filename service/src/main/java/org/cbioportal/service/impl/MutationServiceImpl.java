@@ -53,6 +53,29 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileIds, 'List<GeneticProfileId>', 'read')")
+    public List<Mutation> getMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds, 
+                                                                List<Integer> entrezGeneIds, String projection, 
+                                                                Integer pageSize, Integer pageNumber, String sortBy, 
+                                                                String direction) {
+
+        List<Mutation> mutationList = mutationRepository.getMutationsInMultipleGeneticProfiles(geneticProfileIds, 
+            sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
+
+        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        return mutationList;
+    }
+
+    @Override
+    @PreAuthorize("hasPermission(#geneticProfileIds, 'List<GeneticProfileId>', 'read')")
+    public MutationMeta getMetaMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, 
+                                                                  List<String> sampleIds, List<Integer> entrezGeneIds) {
+        
+        return mutationRepository.getMetaMutationsInMultipleGeneticProfiles(geneticProfileIds, sampleIds, 
+            entrezGeneIds);
+    }
+
+    @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
                                                          List<Integer> entrezGeneIds, String projection,

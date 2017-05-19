@@ -3,6 +3,7 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.annotations.ApiParam;
@@ -15,8 +16,10 @@ import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MutationFilter;
+import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleGeneticIdentifier;
 import org.cbioportal.web.parameter.sort.MutationSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -135,6 +138,65 @@ public class MutationController {
         }
     }
 
+    @RequestMapping(value = "/mutations/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch mutations in multiple genetic profiles by sample IDs")
+    public ResponseEntity<List<Mutation>> fetchMutationsInMultipleGeneticProfiles(
+        @ApiParam(required = true, value = "List of Genetic Profile ID and Sample ID pairs and Entrez Gene IDs")
+        @Valid @RequestBody MutationMultipleStudyFilter mutationMultipleStudyFilter,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @ApiParam("Page size of the result list")
+        @Max(MUTATION_MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
+        @RequestParam(defaultValue = MUTATION_DEFAULT_PAGE_SIZE) Integer pageSize,
+        @ApiParam("Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        @ApiParam("Name of the property that the result list is sorted by")
+        @RequestParam(required = false) MutationSortBy sortBy,
+        @ApiParam("Direction of the sort")
+        @RequestParam(defaultValue = "ASC") Direction direction) {
+
+        if (projection == Projection.META) {
+            HttpHeaders responseHeaders = new HttpHeaders();
+            MutationMeta mutationMeta;
+
+            if (mutationMultipleStudyFilter.getGeneticProfileIds() != null) {
+                mutationMeta = mutationService.getMetaMutationsInMultipleGeneticProfiles(
+                    mutationMultipleStudyFilter.getGeneticProfileIds(), null, 
+                    mutationMultipleStudyFilter.getEntrezGeneIds());
+            } else {
+
+                List<String> geneticProfileIds = new ArrayList<>();
+                List<String> sampleIds = new ArrayList<>();
+                extractGeneticProfileAndSampleIds(mutationMultipleStudyFilter, geneticProfileIds, sampleIds);
+                mutationMeta = mutationService.getMetaMutationsInMultipleGeneticProfiles(geneticProfileIds,
+                    sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds());
+            }
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
+            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+        } else {
+            List<Mutation> mutations;
+            if (mutationMultipleStudyFilter.getGeneticProfileIds() != null) {
+                mutations = mutationService.getMutationsInMultipleGeneticProfiles(
+                    mutationMultipleStudyFilter.getGeneticProfileIds(), null, 
+                    mutationMultipleStudyFilter.getEntrezGeneIds(), projection.name(), pageSize, pageNumber, 
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+            } else {
+
+                List<String> geneticProfileIds = new ArrayList<>();
+                List<String> sampleIds = new ArrayList<>();
+                extractGeneticProfileAndSampleIds(mutationMultipleStudyFilter, geneticProfileIds, sampleIds);
+                mutations = mutationService.getMutationsInMultipleGeneticProfiles(geneticProfileIds,
+                    sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds(), projection.name(), pageSize,
+                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+            }
+
+            return new ResponseEntity<>(mutations, HttpStatus.OK);
+        }
+    }
+
     @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/mutation-counts", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get mutation counts in a genetic profile by Sample List ID")
@@ -160,5 +222,16 @@ public class MutationController {
 
         return new ResponseEntity<>(mutationService.fetchMutationCountsInGeneticProfile(geneticProfileId,
             sampleIds), HttpStatus.OK);
+    }
+
+    private void extractGeneticProfileAndSampleIds(MutationMultipleStudyFilter mutationMultipleStudyFilter, 
+                                                   List<String> geneticProfileIds, List<String> sampleIds) {
+        
+        for (SampleGeneticIdentifier sampleGeneticIdentifier :
+            mutationMultipleStudyFilter.getSampleGeneticIdentifiers()) {
+
+            geneticProfileIds.add(sampleGeneticIdentifier.getGeneticProfileId());
+            sampleIds.add(sampleGeneticIdentifier.getSampleId());
+        }
     }
 }

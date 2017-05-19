@@ -17,6 +17,14 @@ public interface MutationMapper {
     MutationMeta getMetaMutationsBySampleListId(String geneticProfileId, String sampleListId, 
                                                 List<Integer> entrezGeneIds);
 
+    List<Mutation> getMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
+                                                         List<Integer> entrezGeneIds, String projection,
+                                                         Integer limit, Integer offset,
+                                                         String sortBy, String direction);
+
+    MutationMeta getMetaMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
+                                                           List<Integer> entrezGeneIds);
+
     List<Mutation> getMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, List<Integer> entrezGeneIds,
                                            String projection, Integer limit, Integer offset, String sortBy, 
                                            String direction);

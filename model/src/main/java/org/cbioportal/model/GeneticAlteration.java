@@ -6,6 +6,7 @@ public class GeneticAlteration implements Serializable {
     
     private Integer entrezGeneId;
     private String values;
+    private String[] splitValues;
     private Gene gene;
 
     public Integer getEntrezGeneId() {
@@ -22,6 +23,14 @@ public class GeneticAlteration implements Serializable {
 
     public void setValues(String values) {
         this.values = values;
+    }
+
+    public String[] getSplitValues() {
+
+        if (splitValues == null) {
+            splitValues = values.split(",");
+        }
+        return splitValues;
     }
 
     public Gene getGene() {

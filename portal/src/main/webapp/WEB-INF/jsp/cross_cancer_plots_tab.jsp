@@ -36,7 +36,7 @@
         width: 1160px;
     }
     #cc-plots-sidebar h5 {
-        margin-left: 20px;
+        margin-left: 10px;
         padding-left: 5px;
         padding-right: 5px;
         display: inline-block;
@@ -60,6 +60,13 @@
             <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
                 <select disabled id="cc_plots_gene_list" style="width:80px" title="Select gene"></select>
             </span>
+            <h5>Profile</h5>
+            <span id="cc_plots_profile_list_select" onchange="ccPlots.update();">
+                <select id="cc_plots_profile_list" style="width:80px" title="Select profile">
+                    <option value='v2'>RNA Seq V2</option>
+                    <option value='v1'>RNA Seq</option>
+                </select>
+            </span>
             <h5>Sort By</h5>
             <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" title="Sort by cancer study" checked/> Cancer Study
             <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="median" title="Sort by median"/> Median
@@ -71,7 +78,8 @@
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_pdf_download">PDF</button>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_svg_download">SVG</button>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_data_download">Data</button>
-            <button class="btn btn-default btn-sm disabled" type="button" data-target="#cc_plots_select_study_collapse" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
+            <button class="btn btn-default btn-sm disabled" type="button" data-target="#cc_plots_select_study_collapse" 
+                    style="margin-left:10px" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
                 <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span> &nbsp;Select Studies
             </button>
             <div class="collapse" id="cc_plots_select_study_collapse">

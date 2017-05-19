@@ -25,8 +25,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<AlterationEnrichment> getCopyNumberEnrichments(String geneticProfileId, List<String> alteredSampleIds,
-                                                               List<String> unalteredSampleIds,
-                                                               List<Integer> entrezGeneIds, 
+                                                               List<String> unalteredSampleIds, 
                                                                List<Integer> alterationTypes)
         throws GeneticProfileNotFoundException {
 
@@ -34,8 +33,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
         allSampleIds.addAll(unalteredSampleIds);
         List<CopyNumberSampleCountByGene> copyNumberSampleCountByGeneList = discreteCopyNumberService
             .getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, allSampleIds, null, null);
-        copyNumberSampleCountByGeneList.removeIf(m -> entrezGeneIds.contains(m.getEntrezGeneId()) || 
-            !alterationTypes.contains(m.getAlteration()));
+        copyNumberSampleCountByGeneList.removeIf(m -> !alterationTypes.contains(m.getAlteration()));
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = discreteCopyNumberService
             .fetchDiscreteCopyNumbersInGeneticProfile(geneticProfileId, alteredSampleIds, null, alterationTypes, "ID");

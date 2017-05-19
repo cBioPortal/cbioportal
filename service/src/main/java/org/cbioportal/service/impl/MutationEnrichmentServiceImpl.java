@@ -25,15 +25,13 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<AlterationEnrichment> getMutationEnrichments(String geneticProfileId, List<String> alteredSampleIds,
-                                                             List<String> unalteredSampleIds, 
-                                                             List<Integer> entrezGeneIds)
+                                                             List<String> unalteredSampleIds)
         throws GeneticProfileNotFoundException {
 
         List<String> allSampleIds = new ArrayList<>(alteredSampleIds);
         allSampleIds.addAll(unalteredSampleIds);
         List<MutationSampleCountByGene> mutationSampleCountByGeneList = mutationService
             .getSampleCountByEntrezGeneIdsAndSampleIds(geneticProfileId, allSampleIds, null);
-        mutationSampleCountByGeneList.removeIf(m -> entrezGeneIds.contains(m.getEntrezGeneId()));
 
         List<Mutation> mutations = mutationService.fetchMutationsInGeneticProfile(geneticProfileId,
             alteredSampleIds, null, "ID", null, null, null, null);

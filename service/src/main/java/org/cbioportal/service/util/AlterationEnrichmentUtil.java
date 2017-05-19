@@ -40,16 +40,16 @@ public class AlterationEnrichmentUtil {
 
         alterationSampleCountByGenes.sort(Comparator.comparing(AlterationSampleCountByGene::getEntrezGeneId));
         genes.sort(Comparator.comparing(Gene::getEntrezGeneId));
-        List<AlterationEnrichment> result = new ArrayList<>();
+        List<AlterationEnrichment> alterationEnrichments = new ArrayList<>();
         for (int i = 0; i < alterationSampleCountByGenes.size(); i++) {
             AlterationSampleCountByGene copyNumberSampleCountByGene = alterationSampleCountByGenes.get(i);
-            result.add(createAlterationEnrichment(discreteCopyNumberDataMap.get(
+            alterationEnrichments.add(createAlterationEnrichment(discreteCopyNumberDataMap.get(
                 copyNumberSampleCountByGene.getEntrezGeneId()), copyNumberSampleCountByGene, genes.get(i),
                 alteredSampleCount, unalteredSampleCount));
         }
 
-        assignQValue(result);
-        return result;
+        assignQValue(alterationEnrichments);
+        return alterationEnrichments;
     }
 
     private AlterationEnrichment createAlterationEnrichment(List<? extends Alteration> alterations,

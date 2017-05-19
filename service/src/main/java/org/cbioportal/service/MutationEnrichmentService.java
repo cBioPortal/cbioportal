@@ -8,6 +8,6 @@ import java.util.List;
 public interface MutationEnrichmentService {
 
     List<AlterationEnrichment> getMutationEnrichments(String geneticProfileId, List<String> alteredSampleIds,
-                                                      List<String> unalteredSampleIds, List<Integer> entrezGeneIds)
+                                                      List<String> unalteredSampleIds)
         throws GeneticProfileNotFoundException;
 }

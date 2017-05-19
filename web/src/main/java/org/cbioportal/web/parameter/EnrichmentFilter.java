@@ -11,10 +11,7 @@ public class EnrichmentFilter {
     private List<String> alteredSampleIds;
     @NotNull
     @Size(min = 1)
-    private List<String> unalteredSampleIds;
-    @NotNull
-    @Size(min = 1)
-    private List<Integer> entrezGeneIds;
+    private List<String> unalteredSampleIds;;
 
     public List<String> getAlteredSampleIds() {
         return alteredSampleIds;
@@ -30,13 +27,5 @@ public class EnrichmentFilter {
 
     public void setUnalteredSampleIds(List<String> unalteredSampleIds) {
         this.unalteredSampleIds = unalteredSampleIds;
-    }
-
-    public List<Integer> getEntrezGeneIds() {
-        return entrezGeneIds;
-    }
-
-    public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
-        this.entrezGeneIds = entrezGeneIds;
     }
 }

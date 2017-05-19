@@ -97,13 +97,12 @@ public class MutationEnrichmentControllerTest {
         alterationEnrichments.add(alterationEnrichment2);
         
         Mockito.when(mutationEnrichmentService.getMutationEnrichments(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class)))
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
             .thenReturn(alterationEnrichments);
 
         EnrichmentFilter enrichmentFilter = new EnrichmentFilter();
         enrichmentFilter.setAlteredSampleIds(Arrays.asList("test_sample_id_1"));
         enrichmentFilter.setUnalteredSampleIds(Arrays.asList("test_sample_id_2"));
-        enrichmentFilter.setEntrezGeneIds(Arrays.asList(1));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/genetic-profiles/test_genetic_profile_id/mutation-enrichments/fetch")

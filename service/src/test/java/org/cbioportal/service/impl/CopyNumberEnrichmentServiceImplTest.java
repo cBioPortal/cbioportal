@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,7 +55,7 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
             discreteCopyNumberDataList)).thenReturn(expectedAlterationEnrichments);
 
         List<AlterationEnrichment> result = copyNumberEnrichmentService.getCopyNumberEnrichments(GENETIC_PROFILE_ID,
-            alteredSampleIds, unalteredSampleIds, Arrays.asList(ENTREZ_GENE_ID), alterationTypes);
+            alteredSampleIds, unalteredSampleIds, alterationTypes);
 
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }

@@ -215,9 +215,9 @@ name='<%= QueryBuilder.GENE_LIST %>' title='Enter Gene Symbols or Gene Aliases' 
     
 	<textarea rows='5' cols='80' id='geneset_list' placeholder="Enter Gene Sets" required
 	name='<%= QueryBuilder.GENESET_LIST %>' title='Enter Gene Sets' style='display: none; color:#333'><%
-	    if (localGeneSetList != null && localGeneSetList.length() > 0) {
+	    if (localGenesetList != null && localGenesetList.length() > 0) {
 		    String geneSetListWithSemis =
-				    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneSetList);
+				    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGenesetList);
 		    // this is for xss security
 		    geneSetListWithSemis = StringEscapeUtils.escapeJavaScript(geneSetListWithSemis);
 		    // ...but we want to keep newlines, and slashes so unescape them

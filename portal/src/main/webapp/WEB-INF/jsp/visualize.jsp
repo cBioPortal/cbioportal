@@ -78,7 +78,7 @@
         Set<String> disabledTabs = new HashSet<String>(GlobalProperties.getDisabledTabs());
         List<String> disabledTabsForGenesets = Arrays.asList("IGV", "mutual_exclusivity", "enrichments", "survival", "network", "download", "bookmark", "mutations");
         //If we have a query with only gene sets (and no genes), we only want three tabs displayed: Oncoprint, Plots and Co-Expression
-        Boolean genesetQuery = localGeneSetList.length() > 0 && localGeneList.length() == 0;
+        Boolean genesetQuery = localGenesetList != null && localGenesetList.length() > 0 && localGeneList.length() == 0;
         if (genesetQuery) {
             disabledTabs.addAll(disabledTabsForGenesets);
         }

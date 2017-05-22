@@ -72,14 +72,14 @@
     <beans profile="dbcp">
         <!-- business data source -->
         <!-- setting minIdle/maxIdle to 1 doesn't limit the number of active -->
-        <bean id="businessDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <bean id="businessDataSource" destroy-method="close" class="org.apache.commons.dbcp2.BasicDataSource">
             <property name="driverClassName" value="${db.driver}"/>
             <property name="url" value="${db.connection_string}${db.portal_db_name}?zeroDateTimeBehavior=convertToNull"/>
             <property name="username" value="${db.user}"/>
             <property name="password" value="${db.password}"/>
             <property name="minIdle" value="0"/>
             <property name="maxIdle" value="10"/>
-            <property name="maxActive" value="100"/>
+            <property name="maxTotal" value="100"/>
             <property name="poolPreparedStatements" value="true"/>
         </bean>
         <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">

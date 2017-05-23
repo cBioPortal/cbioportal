@@ -399,15 +399,14 @@ var ccPlots = (function (Plotly, _, $) {
         }
 
         //box plots
-        var _joint_profile_group = nonMutGrp_.concat(mixMutGrp_, nonSeqGrp_);
         _.each(mrna_profiles, function(_profile_id) {
             var _y = [];
             if (apply_log_scale) {
-                _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id === _profile_id; }), "logged_profile_data");
+                _y = _.pluck(_.filter(formatted_data, function(_result_obj) { return _result_obj.genetic_profile_id === _profile_id; }), "logged_profile_data");
             } else {
-                _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id === _profile_id; }), "profile_data");
+                _y = _.pluck(_.filter(formatted_data, function(_result_obj) { return _result_obj.genetic_profile_id === _profile_id; }), "profile_data");
             }
-            
+           
             var _box = {
                 y: _y,
                 x0: mrna_profiles.indexOf(_profile_id),
@@ -495,6 +494,8 @@ var ccPlots = (function (Plotly, _, $) {
                 if (_study_meta_obj.name.toLowerCase().indexOf("tcga") !== -1 && _study_meta_obj.name.toLowerCase().indexOf("provisional") !== -1) _checked = 'checked';
                 $("#cc_plots_select_study_box").append("<input type='checkbox' id='cc_plots_" + _study_meta_obj.id + "_sel' name='cc_plots_selected_studies' value='" + _study_meta_obj.id + "' title='Select "+_study_meta_obj.name+"' " + _checked + ">" + _study_meta_obj.name + "<br>");
             });
+            
+            // event listener
             $("#cc_plots_select_tcga_provisional").click(function() {
                 _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) {
                     if (elem.id.toLowerCase().indexOf("tcga") !== -1 && elem.title.toLowerCase().indexOf("provisional") !== -1) {
@@ -511,8 +512,6 @@ var ccPlots = (function (Plotly, _, $) {
                 _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) { elem.checked = false; });
                 ccPlots.update();
             });
-
-            // attach event listener
             $("input[name='cc_plots_selected_studies']").change(function() {
                 ccPlots.update();
             });
@@ -527,7 +526,6 @@ var ccPlots = (function (Plotly, _, $) {
                 document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
             }
 
-            //ccPlots.update();
         }
     }
 
@@ -625,10 +623,13 @@ var ccPlots = (function (Plotly, _, $) {
             show_mutations = document.getElementById("cc_plots_show_mutations").checked;
             $("#cc_plots_box").empty();
             $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:250px;' alt='loading' />");
-            var _selected_study_ids = $("input[name=cc_plots_selected_studies]:checked").map(function() { return this.value; }).get();
+            var _selSids = $("input[name=cc_plots_selected_studies]:checked").map(function() { return this.value; }).get();
             
             // re-generate the view
-            //fetchProfileData_(_selected_study_ids);
+            $.when(fetchProfileData_(_selSids)).then(function(_d) {
+                renderStudySelBox(); // render study selection dropdown box
+                renderPlots(_d); // render main plots
+            });
         },
         include_all: function() {
             $("#cc_plots_study_selection_btn").click();

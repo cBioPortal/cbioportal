@@ -58,6 +58,7 @@
 
     <jsp:attribute name="body_area">
         <div id="reactRoot" class="hidden"></div>
+        <h1>About Us</h1>
         <div id="aboutPage"></div>
         
         

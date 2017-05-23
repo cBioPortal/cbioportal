@@ -31,7 +31,7 @@
 --%>
     
 <%
-String siteTitle = GlobalProperties.getTitle() + "::Video Tutorial";
+String siteTitle = GlobalProperties.getTitle() + "::Tutorials";
 %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
@@ -49,9 +49,9 @@ String siteTitle = GlobalProperties.getTitle() + "::Video Tutorial";
     <jsp:attribute name="body_area">
         <div id="reactRoot" class="hidden"></div>
         
-        <h1>Tutorials &amp; Guides</h1>
+        <h1>Tutorials</h1>
         
-        <h3>Step-by-step Guide to cBioPortal: a Protocol Paper</h3>
+        <h2>Step-by-step Guide to cBioPortal: a Protocol Paper</h2>
         <p>Gao, Aksoy, Dogrusoz, Dresdner, Gross, Sumer, Sun, Jacobsen, Sinha, Larsson, Cerami, Sander, Schultz. <br/>
         <b>Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal.</b> <br/>
         <i>Sci. Signal.</i> 6, pl1 (2013).
@@ -59,7 +59,7 @@ String siteTitle = GlobalProperties.getTitle() + "::Video Tutorial";
 
         <hr/>
         
-        <h3>Tutorial:  Getting Started</h3>
+        <h2>Tutorial:  Getting Started</h2>
        
         <p>
             <a href="http://www.slideshare.net/EthanCerami/cbio-cancer-genomics-portal-getting-started" title="cBioPortal for Cancer Genomics: Getting started" target="_blank">cBioPortal for Cancer Genomics: Getting started</a>
@@ -70,7 +70,7 @@ String siteTitle = GlobalProperties.getTitle() + "::Video Tutorial";
 
         <hr/>
         
-        <h3>Tutorial:  Network View</h3>
+        <h2>Tutorial:  Network View</h2>
         <p><a href="http://www.slideshare.net/EthanCerami/network-view" title="cBioPortal for Cancer Genomics: Network View" target="_blank">cBioPortal for Cancer Genomics: Network View</a>
         </p>
         <iframe style="border:1px solid #999" src="https://www.slideshare.net/slideshow/embed_code/10579031" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> 

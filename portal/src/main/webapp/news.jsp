@@ -59,7 +59,7 @@
 
     <jsp:attribute name="body_area">
         <div id="reactRoot" class="hidden"></div>
-
+        <h1>News</h1>
         <div id="newsPage"></div>
     </jsp:attribute>
 

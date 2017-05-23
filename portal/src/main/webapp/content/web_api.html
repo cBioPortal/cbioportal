@@ -1,6 +1,6 @@
 <h1>Web API</h1>
 
-<h3 id="introduction">Introduction</h3>
+<h2 id="introduction">Introduction</h2>
 <p>The Cancer Genomic Data Server (CGDS) web service interface provides direct programmatic access to all genomic data stored within the server.  This enables you to easily access data from your favorite programming language, such as Python, Java, Perl, R or MatLab.  The CGDS web service is REST-based, meaning that client applications create a query consisting of parameters appended to a URL, and receive back either either text or an XML response.  For CGDS, all responses are currently tab-delimited text.  Clients of the CGDS web service can issue the following types of queries:</p>
 <ul>
 <li>What cancer studies are stored on the server?</li>
@@ -9,9 +9,9 @@
 </ul>
 <p>Additionally, clients can easily retrieve "slices" of genomic data.  For example, a client can retrieve all mutation data from PTEN and EGFR in the TCGA Glioblastoma data.</p>
 <p>Please note that the example queries below are accurate, but they are not guaranteed to return data, as our database is constantly being updated.</p>
-<h3 id="the-cgds-r-package">The CGDS R Package</h3>
+<h2 id="the-cgds-r-package">The CGDS R Package</h2>
 <p>If you are interested in accessing CGDS via R, please check out our <a href="cgds_r.jsp">CGDS-R library</a>.</p>
-<h3 id="basic-query-syntax">Basic Query Syntax</h3>
+<h2 id="basic-query-syntax">Basic Query Syntax</h2>
 <p>All web queries are available at: <a href="webservice.do">webservice.do</a>. All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:</p>
 <ul>
 <li><strong>cmd</strong> = the command that you wish to execute.  The command must be equal to one of the following: getTypesOfCancer, getNetwork, getCancerStudies, getGeneticProfiles, getProfileData, getCaseLists, getClinicalData, or getMutationData.</li>
@@ -19,7 +19,7 @@
 </ul>
 <p>For example, the following query will request all case lists for the TCGA GBM data:</p>
 <p><a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=gbm_tcga">webservice.do?cmd=getCaseLists&amp;cancer_study_id=gbm_tcga</a></p>
-<h3 id="response-header-and-error-messages">Response Header and Error Messages</h3>
+<h2 id="response-header-and-error-messages">Response Header and Error Messages</h2>
 <p>The first line of each response begins with a hash mark (#), and will contain data regarding the server status.  For example:</p>
 <pre><code> # CGDS Kernel:  Data served up fresh at:  Wed Oct 27 13:02:30 EDT 2010
 </code></pre>
@@ -32,7 +32,7 @@
  # Warning:  Unknown gene:  EGFR11
  # Warning:  Unknown gene:  EGFR12
 </code></pre>
-<h3 id="deprecated-api">Deprecated API</h3>
+<h2 id="deprecated-api">Deprecated API</h2>
 <p>As of August, 2011:</p>
 <ul>
 <li>
@@ -43,12 +43,12 @@
 </li>
 </ul>
 
-<h3 id="commands">Commands</h3>
-
-<h4>&gt; Get All Types of Cancer</h4>
-
+<h2 id="commands">Commands</h2>
+<div class="commandDocumentation">
 <table class="table table-bordered">
-    
+    <tr>
+        <th colspan="2">Get All Types of Cancer</th>
+    </tr>
     <tr>
         <td>Description</td>
         <td>Retrieves a list of all the clinical types of cancer stored on the server.</td>
@@ -71,9 +71,11 @@
     </tr>
 </table>
 
-<hr>
-<h4 id="get-all-cancer-studies">&gt; Get All Cancer Studies</h4>
 <table class="table table-bordered">
+    <tr>
+        <th colspan="2">Get All Cancer Studies</th>
+    </tr>
+    
     <tr>
         <td>Description</td>
         <td>Retrieves meta-data regarding cancer studies stored on the server.</td>
@@ -98,10 +100,12 @@
     </tr>
 </table>
 
-<hr>
-<h4 id="get-all-genetic-profiles-for-a-specific-cancer-study">&gt; Get All Genetic Profiles for a Specific Cancer Study</h4>
-
 <table class="table table-bordered">
+
+    <tr>
+        <th colspan="2">Get All Genetic Profiles for a Specific Cancer Study</th>
+    </tr>
+    
     <tr>
         <td>Description</td>
         <td>Retrieves meta-data regarding all genetic profiles, e.g. mutation or copy number profiles, stored about a specific cancer study.</td>
@@ -140,13 +144,12 @@
     </tr>
 </table>
 
-
-<hr>
-
-
-<h4>&gt; Get All Genetic Profiles for a Specific Cancer Study</h4>
-
 <table class="table table-bordered">
+
+    <tr>
+        <th colspan="2">Get All Case Lists for a Specific Cancer Study</th>
+    </tr>
+    
     <tr>
         <td>Description</td>
         <td>Retrieves meta-data regarding all case lists stored about a specific cancer study.  For example, a within a particular study, only some cases may have sequence data, and another subset of cases may have been sequenced and treated with a specific therapeutic protocol.  Multiple case lists may be associated with each cancer study, and this method enables you to retrieve meta-data regarding all of these case lists.
@@ -177,10 +180,14 @@
     </tr>
 </table>
 
-<hr>
-
-<h4 id="get-profile-data">&gt; Get Profile Data</h4>
 <table class="table table-bordered">
+
+
+    <tr>
+        <th colspan="2">Get Profile Data</th>
+    </tr>
+    
+    
     <tr>
         <td>Description</td>
         <td>Retrieves genomic profile data for one or more genes.</td>
@@ -224,11 +231,13 @@
     </tr>
 </table>
 
-
-<hr>
-
-<h4 id="get-extended-mutation-data">&gt; Get Extended Mutation Data</h4>
 <table class="table table-bordered">
+    
+    <tr>
+        <th colspan="2">Get Extended Mutation Data</th>
+    </tr>
+
+
     <tr>
         <td>Description</td>
         <td>For data of type EXTENDED_MUTATION, you can request the full set of annotated extended mutation data.  
@@ -277,10 +286,11 @@
     </tr>
 </table>
 
-
-<hr>
-<h4 id="get-clinical-data">&gt; Get Clinical Data</h4>
 <table class="table table-bordered">
+    <tr>
+        <th colspan="2">Get Clinical Data</th>
+    </tr>
+    
     <tr>
         <td>Description</td>
         <td>Retrieves overall survival, disease free survival and age at diagnosis for specified cases.  Due to patient privacy restrictions, no other clinical data is available.</td>
@@ -311,10 +321,12 @@
     </tr>
 </table>
 
-<hr>
-<h4 id="get-proteinphosphoprotein-antibody-information">&gt; Get Protein/Phosphoprotein Antibody Information</h4>
-
 <table class="table table-bordered">
+
+    <tr>
+        <th colspan="2">Get Protein/Phosphoprotein Antibody Information</th>
+    </tr>
+    
     <tr>
         <td>Description</td>
         <td>Retrieves information on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.</td>
@@ -349,10 +361,12 @@
     </tr>
 </table>
 
-<hr>
-<h4 id="get-rppa-based-proteomics-data">&gt; Get RPPA-based Proteomics Data</h4>
-
 <table class="table table-bordered">
+
+    <tr>
+        <th colspan="2">Get RPPA-based Proteomics Data</th>
+    </tr>
+    
     <tr>
         <td>Description</td>
         <td>Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).</td>
@@ -397,11 +411,10 @@
         </ul></td>
     </tr>
 </table>
-
-
+</div>
 <hr>
 
-<h3 id="linking-to-us">Linking to Us</h3>
+<h2 id="linking-to-us">Linking to Us</h2>
 <p>Once you have a cancer_study_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to ln, and can include the following parameters:</p>
 <ul>
 <li><strong>q</strong>=[a query following <a href="onco_query_lang_desc.jsp">Onco Query Language</a>, e.g. a space separated list of HUGO gene symbols] (required)</li>

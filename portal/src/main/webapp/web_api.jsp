@@ -38,15 +38,22 @@
 <%
     String siteTitle = GlobalProperties.getTitle()+"::Web Interface";
 %>
-    
 
-<t:template title="<%=siteTitle%>" defaultRightColumn="true" twoColumn="true" fixedWidth="true">
+
+    
+<t:template title="<%=siteTitle%>" defaultRightColumn="true" twoColumn="true" fixedWidth="false">
 
     <jsp:attribute name="head_area">
         <script>
         window.loadReactApp({ defaultRoute: 'blank' });
         </script>
+        <style>
+        .commandDocumentation table {
+            margin-bottom:30px !important;
+        }
+        </style>
     </jsp:attribute>
+
 
     <jsp:attribute name="body_area">
         <div id="reactRoot" class="hidden"></div>

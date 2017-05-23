@@ -44,7 +44,6 @@
             <jsp:attribute name="head_area">
                 <script>
                 window.loadReactApp({ defaultRoute: 'datasets' });
-                
                 </script>
                 <style>
                     h1 {

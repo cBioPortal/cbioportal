@@ -54,6 +54,7 @@
             </jsp:attribute>
 
             <jsp:attribute name="body_area">
+                <h1>Datasets</h1>
                 <div id="reactRoot"></div>
             </jsp:attribute>
 

@@ -10,6 +10,7 @@
 <%@attribute name="fixedWidth" %>
 <%@attribute name="twoColumn" %>
 <%@attribute name="noMargin" %>
+<%@attribute name="cssClass" %>
 
     <%@attribute name="head_area" fragment="true" %>
 <%@attribute name="body_area" fragment="true" %>
@@ -49,6 +50,9 @@ if (twoColumn == "true" ||  defaultRightColumn == "true") {
 if (noMargin == "true") {
     bodyClasses += " noMargin";
 } 
+if (cssClass != null) {
+    bodyClasses += " " + cssClass;
+}
 
 %>
 __API_ROOT__ = '<%=baseURL%>';

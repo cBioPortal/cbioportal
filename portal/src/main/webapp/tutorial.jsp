@@ -64,7 +64,7 @@ String siteTitle = GlobalProperties.getTitle() + "::Video Tutorial";
         <p>
             <a href="http://www.slideshare.net/EthanCerami/cbio-cancer-genomics-portal-getting-started" title="cBioPortal for Cancer Genomics: Getting started" target="_blank">cBioPortal for Cancer Genomics: Getting started</a>
         </p>
-        <iframe style="border:1px solid #999" src="http://www.slideshare.net/slideshow/embed_code/10438088" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> 
+        <iframe style="border:1px solid #999" src="https://www.slideshare.net/slideshow/embed_code/10438088" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> 
         
         <p>View more <a href="http://www.slideshare.net/" target="_blank">presentations</a> from <a href="http://www.slideshare.net/EthanCerami" target="_blank">Ethan Cerami</a> </p>
 
@@ -73,7 +73,7 @@ String siteTitle = GlobalProperties.getTitle() + "::Video Tutorial";
         <h3>Tutorial:  Network View</h3>
         <p><a href="http://www.slideshare.net/EthanCerami/network-view" title="cBioPortal for Cancer Genomics: Network View" target="_blank">cBioPortal for Cancer Genomics: Network View</a>
         </p>
-        <iframe style="border:1px solid #999" src="http://www.slideshare.net/slideshow/embed_code/10579031" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> 
+        <iframe style="border:1px solid #999" src="https://www.slideshare.net/slideshow/embed_code/10579031" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> 
         <p>View more <a href="http://www.slideshare.net/" target="_blank">presentations</a> from <a href="http://www.slideshare.net/EthanCerami" target="_blank">Ethan Cerami</a> </p>
   
     </jsp:attribute>

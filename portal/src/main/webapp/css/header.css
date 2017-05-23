@@ -16,8 +16,7 @@ header {
 }
 
 .legacy header {
-    max-width:1270px;
-    margin:0 auto;
+    margin:0;
     box-sizing:border-box !important;
     text-align:left;
 }
@@ -71,6 +70,11 @@ header {
     overflow:hidden;
     white-space:nowrap;
 }
+
+#rightContent .userControls a {
+    color:#3786C2 !important;
+}
+
 
 .userControls .identity {
     position:absolute; 
@@ -131,16 +135,15 @@ header {
 }
 
 .legacy #page_wrapper {
-    max-width:1320px;
-    margin:0 auto;
+    margin:0;
 }
 
 .legacy body {
-    background-color:#f5f5f5;
+    background-color:#fff;
 }
 
 .legacy #td-content {
-    background-color:#f5f5f5;
+    background-color:#fff;
 }
 
 .legacy #content > table {
@@ -154,4 +157,8 @@ header {
 
 .noMargin .pageTopContainer header {
     margin-right:20px;
+}
+
+.legacy body > center {
+    text-align:right;
 }

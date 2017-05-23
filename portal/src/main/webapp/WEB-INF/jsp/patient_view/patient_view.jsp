@@ -55,7 +55,7 @@
 
     <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-    <t:template title="Patient" defaultRightColumn="false" noMargin="true">
+    <t:template title="Patient" defaultRightColumn="false" noMargin="true" cssClass="patientView">
         
         <jsp:attribute name="head_area">
             <script>

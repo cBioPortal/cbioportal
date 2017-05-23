@@ -31,7 +31,7 @@
 --%>
 
 <%
-    String siteTitle = GlobalProperties.getTitle() + "::CGDS R Library";
+    String siteTitle = GlobalProperties.getTitle() + "::R/MATLAB";
 %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>

@@ -7,8 +7,8 @@ As of release **1.1.0** cBioPortal has a Database schema update mechanism which 
 The first time you update from release **1.0.4** (or lower) to release **1.1.0** (or higher), you should get a an error banner page after restarting your webserver. The error should state something like: 
 
 ```
-Current DB Version: xxx 
-DB version expected by Portal: yyy
+Current DB schema version: xxx 
+DB schema version expected by Portal: yyy
 ```
 where `xxx` and `yyy` will be different version numbers. 
 

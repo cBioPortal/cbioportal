@@ -12,6 +12,8 @@ db.connection_string=jdbc:mysql://localhost/
 db.tomcat_resource_name=jdbc/cbioportal
 # this is the *expected* DB version (expected by the code). Don't set it manually, it is filled by maven:
 db.version=${db.version}
+# this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
+db.suppress_schema_version_mismatch_errors=false
 
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics

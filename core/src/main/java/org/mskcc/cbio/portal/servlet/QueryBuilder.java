@@ -185,6 +185,8 @@ public class QueryBuilder extends HttpServlet {
         geneList = servletXssUtil.getCleanInput(geneList);
         httpServletRequest.setAttribute(GENE_LIST, geneList);
 
+        String dbPortalExpectedSchemaVersion = null;
+        String dbActualSchemaVersion = null;
         //  Get all Cancer Types
         try {
 			List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();
@@ -231,18 +233,23 @@ public class QueryBuilder extends HttpServlet {
          
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
             
-            String dbPortalVersion = GlobalProperties.getDbVersion();
-            String dbVersion = DaoInfo.getVersion();
-            LOG.info("version - "+dbPortalVersion);
-            LOG.info("version - "+dbVersion);
-            if (!dbPortalVersion.equals(dbVersion))
+            dbPortalExpectedSchemaVersion = GlobalProperties.getDbVersion();
+            dbActualSchemaVersion = DaoInfo.getVersion();
+            LOG.info("version - "+dbPortalExpectedSchemaVersion);
+            LOG.info("version - "+dbActualSchemaVersion);
+            if (!dbPortalExpectedSchemaVersion.equals(dbActualSchemaVersion))
             {
-            	String extraMessage = "";
-            	//extra message for the cases where property is missing (will happen often in transition period to this new versioning model):
-            	if (dbPortalVersion.equals("0")) {
-            		extraMessage = "The db.version property also not found in your portal.properties file. This new property needs to be added by the administrator.";
-            	}
-                throw new DbVersionException("Current DB Version: " + dbVersion + "<br/>" + "DB version expected by Portal: " + dbPortalVersion + "<br/>" + extraMessage);
+                String extraMessage = "";
+                //extra message for the cases where property is missing (will happen often in transition period to this new versioning model):
+                if (dbPortalExpectedSchemaVersion.equals("0")) {
+                    extraMessage = "The db.version property also not found in your portal.properties file. This new property needs to be added by the administrator.";
+                }
+                String finalMessage = "Current DB schema version: " + dbActualSchemaVersion + "<br/>" +
+                        "DB schema version expected by Portal: " + dbPortalExpectedSchemaVersion + "<br/>" + extraMessage;
+                LOG.warn(finalMessage);
+                if (!GlobalProperties.isSuppressSchemaVersionMismatchErrors()) {
+                    throw new DbVersionException(finalMessage);
+                }
             }
 
             // Get the example study queries configured as a skin property
@@ -272,11 +279,17 @@ public class QueryBuilder extends HttpServlet {
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);
         } catch (DaoException e) {
-            xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
+            String errorMessage = "";
+            if (dbPortalExpectedSchemaVersion != null && !dbPortalExpectedSchemaVersion.equals(dbActualSchemaVersion)) {
+                errorMessage += "Error could also be related to incompatible DB schema version: DB is at schema version " + dbActualSchemaVersion +
+                                " while portal expects schema version " + dbPortalExpectedSchemaVersion + ". ";
+            }
+            errorMessage += "Got Database Exception:  " + e.getMessage();
+            xdebug.logMsg(this, errorMessage);
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               DB_CONNECT_ERROR, xdebug);
+                               DB_CONNECT_ERROR + " " + errorMessage, xdebug);
         } catch (DbVersionException e) {
-            String errorMessage = "Mismatch between DB version and portal version. " + e.getMessage();
+            String errorMessage = "Mismatch between current DB schema version and DB schema version expected by portal. " + e.getMessage();
             xdebug.logMsg(this, errorMessage);
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                errorMessage, xdebug);

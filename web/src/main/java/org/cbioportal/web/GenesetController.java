@@ -8,7 +8,7 @@ import javax.validation.constraints.Min;
 import org.cbioportal.model.Geneset;
 import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.exception.GenesetNotFoundException;
-import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
@@ -28,7 +28,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@PublicApi
+@InternalApi
 @RestController
 @Validated
 @Api(tags = "Gene Sets", description = " ")

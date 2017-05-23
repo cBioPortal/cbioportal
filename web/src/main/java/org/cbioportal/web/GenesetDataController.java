@@ -6,7 +6,7 @@ import org.cbioportal.model.GenesetGeneticData;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
-import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.GenesetDataFilterCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@PublicApi
+@InternalApi
 @RestController
 @Validated
 @Api(tags = "Gene Set Scores", description = " ")

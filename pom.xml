@@ -223,7 +223,7 @@
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.2.0</db.version>
+    <db.version>2.3.0</db.version>
 
   </properties>
 
@@ -273,6 +273,11 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>2.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.5</version>
     </dependency>
     <!-- junit -->
     <dependency>

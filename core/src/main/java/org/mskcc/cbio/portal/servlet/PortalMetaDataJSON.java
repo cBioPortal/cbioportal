@@ -158,10 +158,10 @@ public class PortalMetaDataJSON extends HttpServlet {
             if (geneSetId != null) {
                 String geneList = "";
                 GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
-                ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
-                for (GeneSet geneSet : geneSetList) {
-                    if (geneSet.getId().replace("/", "").equals(geneSetId)) {
-                        geneList = geneSet.getGeneList();
+                ArrayList<SetOfGenes> geneSetList = geneSetUtil.getGeneSetList();
+                for (SetOfGenes setOfGenes : geneSetList) {
+                    if (setOfGenes.getId().replace("/", "").equals(geneSetId)) {
+                        geneList = setOfGenes.getGeneList();
                         break;
                     }
                 }
@@ -280,19 +280,19 @@ public class PortalMetaDataJSON extends HttpServlet {
                 GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
                 Map jsonGeneSetMap = new LinkedHashMap();
                 rootMap.put("gene_sets", jsonGeneSetMap);
-                ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
+                ArrayList<SetOfGenes> geneSetList = geneSetUtil.getGeneSetList();
                 String partial_genesets_s = httpServletRequest.getParameter(PARTIAL_GENESETS);
                 boolean full_genesets_data = (partial_genesets_s == null || partial_genesets_s.equals("false"));
                 
-                for (GeneSet geneSet : geneSetList) {
+                for (SetOfGenes setOfGenes : geneSetList) {
                     Map geneSetMap = new LinkedHashMap();
-                    geneSetMap.put("name", geneSet.getName());
+                    geneSetMap.put("name", setOfGenes.getName());
                     if (full_genesets_data) {
-                        geneSetMap.put("gene_list", geneSet.getGeneList());
+                        geneSetMap.put("gene_list", setOfGenes.getGeneList());
                     } else {
                         geneSetMap.put("gene_list", "");
                     }
-                    jsonGeneSetMap.put(geneSet.getId(), geneSetMap);
+                    jsonGeneSetMap.put(setOfGenes.getId(), geneSetMap);
                 }
 
                 httpServletResponse.setContentType("application/json");

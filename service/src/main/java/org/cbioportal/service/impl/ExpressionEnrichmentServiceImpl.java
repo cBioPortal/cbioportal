@@ -6,7 +6,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.TestUtils;
 import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.GeneticDataService;
@@ -40,11 +40,11 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                                                                List<String> unalteredSampleIds) 
         throws GeneticProfileNotFoundException {
         
-        Map<Integer, List<GeneticData>> alteredGeneticDataMap = geneticDataService.fetchGeneticData(geneticProfileId, 
-            alteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneticData::getEntrezGeneId));
+        Map<Integer, List<GeneGeneticData>> alteredGeneticDataMap = geneticDataService.fetchGeneticData(geneticProfileId, 
+            alteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneGeneticData::getEntrezGeneId));
         
-        Map<Integer, List<GeneticData>> unalteredGeneticDataMap = geneticDataService.fetchGeneticData(geneticProfileId, 
-            unalteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneticData::getEntrezGeneId));
+        Map<Integer, List<GeneGeneticData>> unalteredGeneticDataMap = geneticDataService.fetchGeneticData(geneticProfileId, 
+            unalteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneGeneticData::getEntrezGeneId));
 
         Map<Integer, List<Gene>> genes = geneService.fetchGenes(alteredGeneticDataMap.keySet().stream()
             .map(String::valueOf).collect(Collectors.toList()), "ENTREZ_GENE_ID", "SUMMARY").stream()
@@ -59,8 +59,8 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             expressionEnrichment.setCytoband(gene.getCytoband());
             expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
 
-            List<GeneticData> alteredGeneticData = alteredGeneticDataMap.get(entrezGeneId);
-            List<GeneticData> unalteredGeneticData = unalteredGeneticDataMap.get(entrezGeneId);
+            List<GeneGeneticData> alteredGeneticData = alteredGeneticDataMap.get(entrezGeneId);
+            List<GeneGeneticData> unalteredGeneticData = unalteredGeneticDataMap.get(entrezGeneId);
             if (alteredGeneticData.stream().filter(a -> !NumberUtils.isNumber(a.getValue())).count() > 0 || 
                 unalteredGeneticData.stream().filter(a -> !NumberUtils.isNumber(a.getValue())).count() > 0) {
                 continue;
@@ -92,7 +92,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         return expressionEnrichments;
     }
     
-    private double[] getAlterationValues(List<GeneticData> geneticDataList, String geneticProfileId) {
+    private double[] getAlterationValues(List<GeneGeneticData> geneticDataList, String geneticProfileId) {
         
         if (geneticProfileId.contains(RNA_SEQ)) {
             return geneticDataList.stream().mapToDouble(g -> Math.log(Double.parseDouble(g.getValue())) / LOG2)

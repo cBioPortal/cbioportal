@@ -1,0 +1,10 @@
+UNITTEST_GENESET1	UNITTEST_GENESET1	Genes down-regulated in RK3E cells (kidney epithelium) over-expressing GLI1 [GeneID=2735].
+UNITTEST_GENESET2	UNITTEST_GENESET2	Genes up-regulated in RK3E cells (kidney epithelium) over-expressing GLI1 [GeneID=2735].
+UNITTEST_GENESET3	UNITTEST_GENESET3	Genes down-regulated in mouse fibroblasts over-expressing E2F1 [GeneID=1869] gene.
+UNITTEST_GENESET4	UNITTEST_GENESET4	Genes up-regulated in mouse fibroblasts over-expressing E2F1 [GeneID=1869] gene.
+UNITTEST_GENESET5	UNITTEST_GENESET5	Genes down-regulated in MCF-7 cells (breast cancer) positive for ESR1 [GeneID=2099] and engineered to express ligand-activatable EGFR [GeneID=1956].
+UNITTEST_GENESET6	UNITTEST_GENESET6	Genes up-regulated in MCF-7 cells (breast cancer) positive for ESR1 [GeneID=2099] and engineered to express ligand-activatable EGFR [GeneID=1956].
+UNITTEST_GENESET7	UNITTEST_GENESET7	Genes down-regulated in MCF-7 cells (breast cancer) positive for ESR1 [GeneID=2099] and engineered to express ligand-activatable ERBB2 [GeneID=2064].
+UNITTEST_GENESET8	UNITTEST_GENESET8	Genes up-regulated in MCF-7 cells (breast cancer) positive for ESR1 [GeneID=2099] and engineered to express ligand-activatable ERBB2 [GeneID=2064].
+UNITTEST_GENESET9	UNITTEST_GENESET9	Genes down-regulated in granule cell neuron precursors (GCNPs) after stimulation with Shh for 3h.
+UNITTEST_GENESET10	UNITTEST_GENESET10	Genes up-regulated in granule cell neuron precursors (GCNPs) after stimulation with Shh for 3h.

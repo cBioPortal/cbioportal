@@ -1387,17 +1387,20 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			//prepare input:
 			var cluster_input = {};
 			for (var i = 0; i < case_ids.length; i++) {
-				//case ids as key:
-				cluster_input[case_ids[i]] = {};
 				//iterate over genetic entities and get the sample data (heatmap data has genetic entityId as key):
 				for (var j = 0; j < heatmapData.length; j++) {
 					var entityId = heatmapData[j].gene;
+					var caseId = heatmapData[j].oncoprint_data[i].sample || heatmapData[j].oncoprint_data[i].patient;
 					//small validation/defensive programming:
 					if (!entityId) {
 						throw new Error("Unexpected error during getClusteringOrder: attribute 'gene' not found");
 					}
 					var value = heatmapData[j].oncoprint_data[i].profile_data;
-					cluster_input[case_ids[i]][entityId] = value;
+					if (!cluster_input[caseId]) {
+						//initialize with case ids as key:
+						cluster_input[caseId] = {};
+					}
+					cluster_input[caseId][entityId] = value;
 				}					
 			}
 			//do hierarchical clustering in background:

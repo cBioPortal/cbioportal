@@ -320,6 +320,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     private DiscreteCopyNumberFilter createDiscreteCopyNumberFilter() {
+        
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);

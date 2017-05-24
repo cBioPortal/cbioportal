@@ -983,8 +983,10 @@ class MutationsExtendedValidator(Validator):
 
     NULL_AA_CHANGE_VALUES = ('', 'NULL', 'NA')
 
+    # extra unofficial Variant classification values from https://github.com/mskcc/vcf2maf/issues/88:
+    EXTRA_VARIANT_CLASSIFICATION_VALUES = ['Splice_Region']
     # MAF values for Variant_Classification column
-    # from https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification + Unknown:
+    # from https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification + EXTRA values + Unknown:
     VARIANT_CLASSIFICATION_VALUES = [
        'Frame_Shift_Del',
        'Frame_Shift_Ins',
@@ -997,7 +999,7 @@ class MutationsExtendedValidator(Validator):
        'Nonstop_Mutation',
        'Targeted_Region',
        'De_novo_Start_InFrame',
-       'De_novo_Start_OutOfFrame'] + SKIP_VARIANT_TYPES + ['Unknown']
+       'De_novo_Start_OutOfFrame'] + SKIP_VARIANT_TYPES + EXTRA_VARIANT_CLASSIFICATION_VALUES + ['Unknown']
 
     # Used for mapping column names to the corresponding function that does a check on the value.
     CHECK_FUNCTION_MAP = {

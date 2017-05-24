@@ -61,8 +61,6 @@
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
-        <div id="reactRoot" class="hidden"></div>
-        
         <h1>Visualization Tools</h1>
         
         <p>The following tools are for visualization and analysis of custom datasets. </p>
@@ -88,6 +86,8 @@
                 <a href="mutation_mapper.jsp"><img alt="lollipop" style="height:147px" src="images/lollipop_example.png"></a>
             </div>
         </div>
+
+        <div id="reactRoot" class="hidden"></div>
     </jsp:attribute>
     
     <jsp:attribute name="right_column">

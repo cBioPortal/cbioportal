@@ -41,7 +41,7 @@
 
 
     
-<t:template title="<%=siteTitle%>" defaultRightColumn="true" twoColumn="true" fixedWidth="false">
+<t:template title="<%=siteTitle%>" defaultRightColumn="true" twoColumn="true" fixedWidth="true">
 
     <jsp:attribute name="head_area">
         <script>
@@ -56,8 +56,8 @@
 
 
     <jsp:attribute name="body_area">
-        <div id="reactRoot" class="hidden"></div>
         <%@ include file="content/web_api.html" %>
+        <div id="reactRoot" class="hidden"></div>
     </jsp:attribute>
 
 

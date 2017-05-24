@@ -49,7 +49,7 @@
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="false">
+<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true" cssClass="newsPage">
 
     <jsp:attribute name="head_area">
         <script>
@@ -58,9 +58,9 @@
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
-        <div id="reactRoot" class="hidden"></div>
         <h1>News</h1>
         <div id="newsPage"></div>
+        <div id="reactRoot" class="hidden"></div>
     </jsp:attribute>
 
 
@@ -73,7 +73,7 @@
     $(document).ready( function() {
         // retrieve link for News and generate the page
         var newsLink = '<%= GlobalProperties.getNewsHtml()%>';
-        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
+        var baseUrl = 'https://raw.githubusercontent.com/alisman/cbioportal/newsEdits/docs/'; //'<%= GlobalProperties.getBaseUrl()%>';
         var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
         var generatePage = new GeneratePage(baseUrl, newsLink, markdownDocumentation, "#newsPage");
         generatePage.init();

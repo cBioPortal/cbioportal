@@ -98,5 +98,23 @@ __API_ROOT__ = '<%=baseURL%>';
         </script>
     </c:if>
     
+    
+    <script>
+    // mark nav item as selected
+    $(document).ready(function() {
+        var pathname = window.location.pathname;
+        var start = pathname.lastIndexOf("/")+1;
+        var filename = pathname.substring(start);
+        $('#main-nav ul li').each(function(index) {
+            var currentPage = $(this).find('a').attr('href');
+            if (currentPage === filename) {
+                $('#main-nav ul li').removeClass('selected');
+                $(this).addClass('selected');
+                return false;
+            }
+        });
+    });
+    </script>
+    
     </body>
 </html>

@@ -48,7 +48,7 @@
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="false">
+<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true">
 
     <jsp:attribute name="head_area">
         <script>
@@ -57,12 +57,9 @@
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
-        <div id="reactRoot" class="hidden"></div>
         <h1>About Us</h1>
         <div id="aboutPage"></div>
-        
-        
-
+        <div id="reactRoot" class="hidden"></div>
     </jsp:attribute>
 
 

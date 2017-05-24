@@ -38,7 +38,7 @@ String siteTitle = GlobalProperties.getTitle() + "::Tutorials";
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="false">
+<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true">
 
     <jsp:attribute name="head_area">
         <script>
@@ -47,8 +47,7 @@ String siteTitle = GlobalProperties.getTitle() + "::Tutorials";
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
-        <div id="reactRoot" class="hidden"></div>
-        
+       
         <h1>Tutorials</h1>
         
         <h2>Step-by-step Guide to cBioPortal: a Protocol Paper</h2>
@@ -75,7 +74,11 @@ String siteTitle = GlobalProperties.getTitle() + "::Tutorials";
         </p>
         <iframe style="border:1px solid #999" src="https://www.slideshare.net/slideshow/embed_code/10579031" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> 
         <p>View more <a href="http://www.slideshare.net/" target="_blank">presentations</a> from <a href="http://www.slideshare.net/EthanCerami" target="_blank">Ethan Cerami</a> </p>
-  
+
+
+        <div id="reactRoot" class="hidden"></div>
+
+
     </jsp:attribute>
 
 

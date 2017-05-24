@@ -65,20 +65,18 @@ var isAllNaNs = function(values) {
  *   
  */
 var preRankedSpearmanDist = function(item1, item2) {
-	//take the arrays from the preProcessedValueList:
-	var ranks1 = item1.preProcessedValueList;
-	var ranks2 = item2.preProcessedValueList;
-	var item1AllNaNs = isAllNaNs(item1.orderedValueList);
-	var item2AllNaNs = isAllNaNs(item2.orderedValueList);
 	//rules for NaN values:
-	if (item1AllNaNs && item2AllNaNs) {
+	if (item1.isAllNaNs && item2.isAllNaNs) {
 		//return distance 0
 		return 0;
 	}
-	else if (item1AllNaNs || item2AllNaNs) {
+	else if (item1.isAllNaNs || item2.isAllNaNs) {
 		//return large distance:
 		return 3;
 	}
+	//take the arrays from the preProcessedValueList:
+	var ranks1 = item1.preProcessedValueList;
+	var ranks2 = item2.preProcessedValueList;
 	//calculate spearman's rank correlation coefficient, using pearson's distance
 	//for correlation of the ranks:
 	var r = jStat.corrcoeff(ranks1, ranks2);
@@ -101,6 +99,11 @@ var _prepareForDistanceFunction = function(inputItems) {
 	//pre-calculate ranks and configure to use last step of SPEARMAN as distance function:
 	for (var i = 0; i < inputItems.length; i++) {
 		var inputItem = inputItems[i];
+		//check if all NaNs:
+		inputItem.isAllNaNs = isAllNaNs(inputItem.orderedValueList);
+		if (inputItem.isAllNaNs) {
+			continue;
+		}
 		//rank using fractional ranking:
 		var ranks = jStat.rank(inputItem.orderedValueList);
 		//calculate deviation:

@@ -35,7 +35,7 @@ package org.mskcc.cbio.portal.dao;
 import java.sql.*;
 import java.util.*;
 import javax.sql.DataSource;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.logging.*;
 import org.mskcc.cbio.portal.util.*;
 
@@ -86,7 +86,7 @@ public class JdbcUtil {
         dataSource.setUrl(url);
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         dataSource.setPoolPreparedStatements(true);
-        dataSource.setMaxActive(100);
+        dataSource.setMaxTotal(100);
         activeConnectionCount = new HashMap<String,Integer>();
         return dataSource;
     }

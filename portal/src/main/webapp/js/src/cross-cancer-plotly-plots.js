@@ -524,6 +524,7 @@ var ccPlots = (function (Plotly, _, $) {
                     apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
                     show_mutations = document.getElementById("cc_plots_show_mutations").checked;
                     study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
+                    $("#cc_plots_select_study_box").empty();
                     
                     // data fetching
                     $.when(fetchProfileData_(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"))).then(function(_d) {
@@ -607,7 +608,6 @@ var ccPlots = (function (Plotly, _, $) {
             
             // re-generate the view
             $.when(fetchProfileData_(_selSids)).then(function(_d) {
-                renderStudySelBox(); // render study selection dropdown box
                 renderPlots(_d); // render main plots
             });
         },

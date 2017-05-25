@@ -4,7 +4,111 @@
   "grid-h-1": "170px",
   "grid-h-2": "350px",
   "numOfSurvivalCurveLimit": 20,
+  "numOfChartsLimit": 30,
+  "pie2TableLimit": 20,
   "dc": {
     "transitionDuration": 400
+  },
+  "tableAttrs": [
+    "CANCER_TYPE",
+    "CANCER_TYPE_DETAILED"
+  ],
+  "priority": {
+    "CANCER_TYPE": [
+      3,
+      0,
+      0,
+      0
+    ],
+    "CANCER_TYPE_DETAILED": [
+      2,
+      0,
+      0,
+      0
+    ],
+    "OS_SURVIVAL": [
+      0,
+      4,
+      0,
+      0
+    ],
+    "DFS_SURVIVAL": [
+      0,
+      3,
+      0,
+      0
+    ],
+    "MUT_CNT_VS_CNA": [
+      0,
+      2,
+      0,
+      0
+    ],
+    "GENDER": [
+      0,
+      0,
+      0,
+      9
+    ],
+    "SEX": [
+      0,
+      0,
+      0,
+      9
+    ],
+    "AGE": [
+      0,
+      0,
+      0,
+      8
+    ],
+    "mutated_genes": [
+      0,
+      0,
+      9,
+      0
+    ],
+    "cna_details": [
+      0,
+      0,
+      8,
+      0
+    ],
+    "study_id": [
+      0,
+      0,
+      7,
+      0
+    ],
+    "sequenced": [
+      0,
+      0,
+      6,
+      0
+    ],
+    "has_cna_data": [
+      0,
+      0,
+      5,
+      0
+    ],
+    "sample_count_patient": [
+      0,
+      0,
+      4,
+      0
+    ],
+    "mutation_count": [
+      0,
+      0,
+      3,
+      0
+    ],
+    "copy_number_alterations": [
+      0,
+      0,
+      2,
+      0
+    ]
   }
 }

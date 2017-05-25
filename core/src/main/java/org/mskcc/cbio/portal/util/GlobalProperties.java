@@ -132,6 +132,7 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
     public static final String ONCOKB_API_URL = "oncokb.api.url";
+    public static final String ONCOKB_PUBLIC_API_URL = "oncokb.public_api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
     private static String sessionServiceURL;
@@ -153,7 +154,7 @@ public class GlobalProperties {
     // property for setting the news blurb in the right column
     public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
     public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
-            "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
+            "<form action=\"https://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
             "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
             "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
             "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
@@ -716,6 +717,29 @@ public class GlobalProperties {
     public static String getSessionServiceUrl()
     {
         return sessionServiceURL;
+    }
+    
+    public static String getOncoKBPublicApiUrl()
+    {
+        String oncokbApiUrl = properties.getProperty(ONCOKB_PUBLIC_API_URL);
+        String showOncokb = properties.getProperty(SHOW_ONCOKB);
+        
+        if(showOncokb == null || showOncokb.isEmpty()) {
+                    showOncokb = "true";
+        }
+        
+        // This only applies if there is no oncokb.api.url property in the portal.properties file.
+        // Empty string should be used if you want to disable the OncoKB annotation.
+        if(oncokbApiUrl == null || oncokbApiUrl.isEmpty()) {
+            oncokbApiUrl = "oncokb.org/api/v1";
+        }
+        
+        if(showOncokb.equals("true")) {
+           return oncokbApiUrl;
+        } else {
+           return "";
+        }
+        
     }
  
     public static String getOncoKBApiUrl()

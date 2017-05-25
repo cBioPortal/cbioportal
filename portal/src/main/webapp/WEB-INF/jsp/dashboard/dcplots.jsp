@@ -71,7 +71,7 @@
           </span>
             </div>
             <span id="iviz-header-left-patient-select" class="iviz-header-button"
-                  @click="openCases('patient')" class="number"
+                  @click="openCases" class="number"
                   role="button" tabindex="0" style="display: block;"><i class="fa fa-user"
                                                                         aria-hidden="true"></i></span>
             <span id="iviz-header-left-case-download" class="iviz-header-button" @click="downloadCaseData()"
@@ -109,7 +109,7 @@
             </div>
 
             <span class="breadcrumb_container"
-                  v-if="customfilter.patientIds.length>0||customfilter.sampleIds.length>0">
+                  v-if="customfilter.patientUids.length>0||customfilter.sampleUids.length>0">
           <span>{{customfilter.display_name}}</span>
           <i class="fa fa-times breadcrumb_remove"
              @click="clearAllCharts(true)"></i>
@@ -130,8 +130,8 @@
         <div class="grid" id="main-grid"
              :class="{loading:isloading}">
             <main-template :groups.sync="groups" :redrawgroups.sync="redrawgroups"
-                           :selectedpatients.sync="selectedpatients"
-                           :selectedsamples.sync="selectedsamples"
+                           :selectedpatient-uIDs.sync="selectedpatientUIDs"
+                           :selectedsample-uIDs.sync="selectedsampleUIDs"
                            :hasfilters.sync="hasfilters"
                            :customfilter.sync="customfilter"
                            :showed-survival-plot="showedSurvivalPlot"

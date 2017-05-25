@@ -417,14 +417,7 @@ var ccPlots = (function (Plotly, _, $) {
         for (var i = 0 ; i < studyIds_.length; i++) {
             vals.push(i);
         }
-        var _study_short_names = [];
-        for (var j = 0 ; j < studyIds_.length; j++) {
-            _.each(study_meta, function(_study_meta_obj) {
-                if (_study_meta_obj.id === studyIds_[j]) {
-                    _study_short_names.push(_study_meta_obj.short_name);
-                }
-            });
-        }
+
         var layout = {
             hovermode:'closest',
             showlegend: show_mutations?true:false,

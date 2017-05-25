@@ -36,7 +36,7 @@
         width: 1160px;
     }
     #cc-plots-sidebar h5 {
-        margin-left: 10px;
+        margin-left: 5px;
         padding-left: 5px;
         padding-right: 5px;
         display: inline-block;
@@ -62,7 +62,7 @@
             </span>
             <h5>Profile</h5>
             <span id="cc_plots_profile_list_select" onchange="ccPlots.update();">
-                <select id="cc_plots_profile_list" style="width:80px" title="Select profile">
+                <select id="cc_plots_profile_list" style="width:100px" title="Select profile">
                     <option value='v2'>RNA Seq V2</option>
                     <option value='v1'>RNA Seq</option>
                 </select>

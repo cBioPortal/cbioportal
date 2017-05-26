@@ -69,11 +69,6 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     }
 
     @Override
-    public Sample getSampleByStableIdAndStudyId(String stableId, String studyId) {
-        return genePanelMapper.getSampleByStableIdAndStudyId(stableId, studyId);
-    }
-
-    @Override
     public GeneticProfile getGeneticProfileByStableId(String stableId) {
         return genePanelMapper.getGeneticProfileByStableId(stableId);
     }
@@ -136,11 +131,6 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     @Override
     public void insertGenePanelListByHugo(Map<String, Object> map) {
         genePanelMapper.insertGenePanelListByHugo(map);
-    }
-
-    @Override
-    public void insertGenePanelSampleProfileMap(Map<String, Object> map) {
-        genePanelMapper.insertGenePanelSampleProfileMap(map);
     }
 
     public void setGenePanelMapper(GenePanelMapper genePanelMapper) {

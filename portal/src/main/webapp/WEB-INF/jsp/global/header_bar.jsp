@@ -51,28 +51,31 @@
 %>
 
 <header>
-    <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" height="55px" alt="cBioPortal Logo" /></a>    
-    <div id="header">
-        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
-        <div id="authentication">
+    <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
+    
+        <div id="rightContent">
             <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
-           
-                <p>
-                    <span>You are logged in as <span class="username"><sec:authentication property='<%=principal%>' /></span> | 
+                <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
+                    <div class="userControls">
+                    <span class="username"><i class="fa fa-user-o" aria-hidden="true"></i></span>&nbsp;
                     <% if (authenticationMethod.equals("saml")) { %>
                         <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
                     <%} else { %>
                         <a href="j_spring_security_logout">Sign out</a>
                     <% } %>
-                    </span>
-                </p>
-            
+                    <div class="identity">Logged in as <sec:authentication property='<%=principal%>' /></div>
+                    </div>
+                </sec:authorize>
+               
 
-            <% if (rightLogo != "") { %>
-                <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
-            <% } %>
+                <% if (rightLogo != "") { %>
+                    <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
+                <% } %>
+    
         </div>
-        </sec:authorize>
+
+
+     
 
         <nav id="main-nav">
             <ul>
@@ -118,7 +121,7 @@
                 <!-- Added call GlobalProperties to check whether to show the Tools tab -->
                 <% if (GlobalProperties.showToolsTab()) { %>
                 <li class="internal">
-                    <a href="tools.jsp">Tools</a>
+                    <a href="tools.jsp">Visualization Tools</a>
                 </li>
                 <% } %>
                 <!-- Added call GlobalProperties to check whether to show the About tab -->
@@ -144,12 +147,11 @@
                 }%>
 
                 <!-- Added call GlobalProperties to check whether to show the Visualize tab -->
-                <% if (GlobalProperties.showVisualizeYourDataTab()) { %>
-                <li class="internal">
-                    <a href="visualize_your_data.jsp" float="left">Visualize Your Data</a>
-                </li>
-                <% } %>
+                <%--<% if (GlobalProperties.showVisualizeYourDataTab()) { %>--%>
+                <%--<li class="internal">--%>
+                    <%--<a href="visualize_your_data.jsp" float="left">Visualize Your Data</a>--%>
+                <%--</li>--%>
+                <%--<% } %>--%>
             </ul>
         </nav>
-    </div>
 </header>

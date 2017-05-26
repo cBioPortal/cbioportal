@@ -32,40 +32,34 @@
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
+    
 <%
-    String siteTitle = GlobalProperties.getTitle();
+    String siteTitle = GlobalProperties.getTitle()+"::Web Interface";
 %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Web Interface"); %>
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
-<div id="main">
-    <table cellspacing="2px">
-        <tr>
-            <td>
-            <h1>Web Interface</h1>
-            <div class="markdown">
-            <P><%@ include file="content/web_api.html" %></p>
 
-            </div>
-            </td>
-        </tr>
-    </table>
-</div>
-    </td>
-    <td width="172">
-	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
-    </td>
-  </tr>
-  <tr>
-    <td colspan="3">
-	<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-    </td>
-  </tr>
-</table>
-</center>
-</div>
-</form>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
-</body>
-</html>
+    
+<t:template title="<%=siteTitle%>" defaultRightColumn="true" twoColumn="true" fixedWidth="true">
+
+    <jsp:attribute name="head_area">
+        <script>
+        window.loadReactApp({ defaultRoute: 'blank' });
+        </script>
+        <style>
+        .commandDocumentation table {
+            margin-bottom:30px !important;
+        }
+        </style>
+    </jsp:attribute>
+
+
+    <jsp:attribute name="body_area">
+        <%@ include file="content/web_api.html" %>
+        <div id="reactRoot" class="hidden"></div>
+    </jsp:attribute>
+
+
+</t:template>
+    

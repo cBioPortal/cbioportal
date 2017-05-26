@@ -1669,6 +1669,8 @@ class SampleClinicalValidator(ClinicalValidator):
 
     REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
     PROP_IS_PATIENT_ATTRIBUTE = '0'
+    INVALID_SAMPLE_ID_CHARACTERS = set(',;+/=*')
+
 
     def __init__(self, *args, **kwargs):
         """Initialize the validator to track sample ids defined."""
@@ -1700,11 +1702,12 @@ class SampleClinicalValidator(ClinicalValidator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
-                # this one gives problems in old parts of the java code such as CnaJSON.processCnaFractionsRequest(),
-                # so block commas in sample id:
-                if ',' in value:
+                # invalid characters in sample_id can cause problems in different parts of the portal code,
+                # so block them here:
+                if any((c in self.INVALID_SAMPLE_ID_CHARACTERS) for c in value):
                     self.logger.error(
-                        'Comma (,) in SAMPLE_ID is not supported',
+                        'A number of special characters, such as ' + str(list(self.INVALID_SAMPLE_ID_CHARACTERS)) +
+                        ' are not allowed in SAMPLE_ID',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})

@@ -1681,3 +1681,6 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     padding: 0;
 }
 
+.cbioportal-cancer-gene-list span{
+    margin-right: 10px;
+}

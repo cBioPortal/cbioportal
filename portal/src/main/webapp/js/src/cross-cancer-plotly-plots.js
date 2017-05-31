@@ -525,17 +525,13 @@ var ccPlots = (function (Plotly, _, $) {
                         
                         // if no v2 profile (data) available, set profile selection to v1
                         if($("#cc_plots_profile_list option").length === 0) {
-                            var _hasV2 = false;
-                            _.each(_.pluck(_profiles, "id"), function(_pid) {
-                                if (_pid.indexOf("rna_seq_v2_mrna") !== -1) _hasV2 = true;
-                            });
-                            if (!_hasV2) $("#cc_plots_profile_list").append("<option value='v1'>RNA Seq</option><option value='v2'>RNA Seq V2</option>");
-                            else $("#cc_plots_profile_list").append("<option value='v2'>RNA Seq V2</option><option value='v1'>RNA Seq</option>");                            
+                            if (_.some(_.pluck(_profiles, "id"), function(_pid) { return _pid.indexOf("rna_seq_v2_mrna") !== -1; })) 
+                                $("#cc_plots_profile_list").append("<option value='v2'>RNA Seq V2</option><option value='v1'>RNA Seq</option>");
+                            else $("#cc_plots_profile_list").append("<option value='v1'>RNA Seq</option><option value='v2'>RNA Seq V2</option>");                            
                         }
                             
                         // default menu settings
                         document.getElementById("cc_plots_gene_list").disabled = false;
-                        gene = [];
                         gene.length = 0;
                         gene.push($("#cc_plots_gene_list").val());
                         apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
@@ -547,6 +543,9 @@ var ccPlots = (function (Plotly, _, $) {
                         $.when(fetchProfileData_(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"))).then(function(_d) {
 
                             // -- init download buttons --
+                            $("#cc_plots_svg_download").unbind();
+                            $("#cc_plots_pdf_download").unbind();
+                            $("#cc_plots_data_download").unbind();
                             $("#cc_plots_svg_download").click(function() {
                                 var xmlSerializer = new XMLSerializer();
                                 var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
@@ -582,17 +581,23 @@ var ccPlots = (function (Plotly, _, $) {
 
                             });
                             $("#cc_plots_data_download").click(function() {
+                                var _profileTxt = "";
+                                if ($("#cc_plots_profile_list").val() === 'v1') {
+                                    _profileTxt = "RNA Seq";
+                                } else if ($("#cc_plots_profile_list").val() === 'v2') {
+                                    _profileTxt = "RNA Seq V2";
+                                }
                                 var get_tab_delimited_data = function() {
                                     var result_str = "Sample Id" + "\t" + "Cancer Study" + "\t" + "Profile Name" + "\t" + "Gene" + "\t" + "Mutation" + "\t" + "Value" + "\n";
                                     _.each(_d[0].concat(_d[1], _d[2]), function(_obj) {
                                         if ( _obj.sequenced) {
                                             if (_obj.mutation_type === "non" ) {
-                                                result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Mutated" + "\t" + _obj.profile_data + "\n";
+                                                result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + _profileTxt + "\t" + gene[0] + "\t" + "Not Mutated" + "\t" + _obj.profile_data + "\n";
                                             } else {
-                                                result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + _obj.mutation_details + "\t" + _obj.profile_data + "\n";
+                                                result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + _profileTxt + "\t" + gene[0] + "\t" + _obj.mutation_details + "\t" + _obj.profile_data + "\n";
                                             }
                                         } else {
-                                            result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Sequenced" + "\t" + _obj.profile_data + "\n";
+                                            result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + _profileTxt + "\t" + gene[0] + "\t" + "Not Sequenced" + "\t" + _obj.profile_data + "\n";
                                         }
                                     });
                                     return result_str;

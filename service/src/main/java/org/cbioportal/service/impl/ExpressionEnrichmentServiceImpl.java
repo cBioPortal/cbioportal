@@ -13,6 +13,7 @@ import org.cbioportal.service.GeneticDataService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,15 +37,18 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
 
     @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<ExpressionEnrichment> getExpressionEnrichments(String geneticProfileId, List<String> alteredSampleIds, 
                                                                List<String> unalteredSampleIds) 
         throws GeneticProfileNotFoundException {
         
-        Map<Integer, List<GeneGeneticData>> alteredGeneticDataMap = geneticDataService.fetchGeneticData(geneticProfileId, 
-            alteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneGeneticData::getEntrezGeneId));
+        Map<Integer, List<GeneGeneticData>> alteredGeneticDataMap = geneticDataService.fetchGeneticData(
+            geneticProfileId, alteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(
+                GeneGeneticData::getEntrezGeneId));
         
-        Map<Integer, List<GeneGeneticData>> unalteredGeneticDataMap = geneticDataService.fetchGeneticData(geneticProfileId, 
-            unalteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneGeneticData::getEntrezGeneId));
+        Map<Integer, List<GeneGeneticData>> unalteredGeneticDataMap = geneticDataService.fetchGeneticData(
+            geneticProfileId, unalteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(
+                GeneGeneticData::getEntrezGeneId));
 
         Map<Integer, List<Gene>> genes = geneService.fetchGenes(alteredGeneticDataMap.keySet().stream()
             .map(String::valueOf).collect(Collectors.toList()), "ENTREZ_GENE_ID", "SUMMARY").stream()

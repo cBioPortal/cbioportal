@@ -460,52 +460,57 @@ var ccPlots = (function (Plotly, _, $) {
     }
     
     var renderStudySelBox = function() {
+        
+            // generate the content of the study selection expendable section
+            $("#cc_plots_study_selection_btn").attr("data-toggle", "collapse");
+            $("#cc_plots_study_selection_btn").removeClass("disabled");
+            if($("#cc_plots_select_study_box").is(":empty")) {
 
-        // generate the content of the study selection expendable section
-        $("#cc_plots_study_selection_btn").attr("data-toggle", "collapse");
-        $("#cc_plots_study_selection_btn").removeClass("disabled");
-        if($("#cc_plots_select_study_box").is(":empty")) {
-
-            // html 
-            $("#cc_plots_select_study_box").append("select <a href='#' id='cc_plots_select_tcga_provisional'>TCGA provisional</a> / <a href='#' id='cc_plots_select_all'>all</a> / <a href='#' id='cc_plots_select_none'>none</a><br><br>");
-            _.each(study_meta, function(_study_meta_obj) {
-                var _checked = ''; //by default select only TCGA provisional studies
-                if (_study_meta_obj.name.toLowerCase().indexOf("tcga") !== -1 && _study_meta_obj.name.toLowerCase().indexOf("provisional") !== -1) _checked = 'checked';
-                $("#cc_plots_select_study_box").append("<input type='checkbox' id='cc_plots_" + _study_meta_obj.id + "_sel' name='cc_plots_selected_studies' value='" + _study_meta_obj.id + "' title='Select "+_study_meta_obj.name+"' " + _checked + ">" + _study_meta_obj.name + "<br>");
-            });
-            
-            // event listener
-            $("#cc_plots_select_tcga_provisional").click(function() {
-                _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) {
-                    if (elem.id.toLowerCase().indexOf("tcga") !== -1 && elem.title.toLowerCase().indexOf("provisional") !== -1) {
-                        elem.checked = true;
-                    } else elem.checked = false;
+                // html 
+                $("#cc_plots_select_study_box").append("select <a href='#' id='cc_plots_select_tcga_provisional'>TCGA provisional</a> / <a href='#' id='cc_plots_select_all'>all</a> / <a href='#' id='cc_plots_select_none'>none</a><br><br>");
+                var _fg = false; // no studies is selected in the box
+                _.each(study_meta, function(_study_meta_obj) {
+                    var _checked = ''; //by default select only TCGA provisional studies
+                    if (_study_meta_obj.name.toLowerCase().indexOf("tcga") !== -1 && _study_meta_obj.name.toLowerCase().indexOf("provisional") !== -1) {
+                        _checked = 'checked';
+                        _fg = true;
+                    }
+                    $("#cc_plots_select_study_box").append("<input type='checkbox' id='cc_plots_" + _study_meta_obj.id + "_sel' name='cc_plots_selected_studies' value='" + _study_meta_obj.id + "' title='Select "+_study_meta_obj.name+"' " + _checked + ">" + _study_meta_obj.name + "<br>");
                 });
-                ccPlots.update();
-            });
-            $("#cc_plots_select_all").click(function() {
-                _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) { elem.checked = true; });
-                ccPlots.update();
-            });
-            $("#cc_plots_select_none").click(function() {
-                _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) { elem.checked = false; });
-                ccPlots.update();
-            });
-            $("input[name='cc_plots_selected_studies']").change(function() {
-                ccPlots.update();
-            });
+                if (!_fg) $("#cc_plots_select_study_collapse").collapse('show');
 
-            // exclude certain studies
-            var _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.id === 'esca_tcga'; })[0];
-            if (_tmp_study_obj !== undefined) {
-                document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
-            }
-            _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.id === 'stad_tcga'; })[0];
-            if (_tmp_study_obj !== undefined) {
-                document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
-            }
+                // event listener
+                $("#cc_plots_select_tcga_provisional").click(function() {
+                    _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) {
+                        if (elem.id.toLowerCase().indexOf("tcga") !== -1 && elem.title.toLowerCase().indexOf("provisional") !== -1) {
+                            elem.checked = true;
+                        } else elem.checked = false;
+                    });
+                    ccPlots.update();
+                });
+                $("#cc_plots_select_all").click(function() {
+                    _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) { elem.checked = true; });
+                    ccPlots.update();
+                });
+                $("#cc_plots_select_none").click(function() {
+                    _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) { elem.checked = false; });
+                    ccPlots.update();
+                });
+                $("input[name='cc_plots_selected_studies']").change(function() {
+                    ccPlots.update();
+                });
 
-        }
+                // exclude certain studies
+                var _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.id === 'esca_tcga'; })[0];
+                if (_tmp_study_obj !== undefined) {
+                    document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
+                }
+                _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.id === 'stad_tcga'; })[0];
+                if (_tmp_study_obj !== undefined) {
+                    document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
+                }
+
+            }
     }
 
     return {
@@ -515,80 +520,97 @@ var ccPlots = (function (Plotly, _, $) {
                 if (window.studies !== undefined) {
                     
                     clearInterval(tmp);
-                    
-                    // default menu settings
-                    document.getElementById("cc_plots_gene_list").disabled = false;
-                    gene = [];
-                    gene.length = 0;
-                    gene.push($("#cc_plots_gene_list").val());
-                    apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
-                    show_mutations = document.getElementById("cc_plots_show_mutations").checked;
-                    study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
-                    $("#cc_plots_select_study_box").empty();
-                    
-                    // data fetching
-                    $.when(fetchProfileData_(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"))).then(function(_d) {
 
-                        // -- init download buttons --
-                        $("#cc_plots_svg_download").click(function() {
-                            var xmlSerializer = new XMLSerializer();
-                            var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
-                            main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
-                            var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
-                            legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
-                            cbio.download.clientSideDownload([main_plots_str + legend_str], "cross-cancer-plots-download.svg", "application/svg+xml");
-                        });
-                        $("#cc_plots_pdf_download").click(function() {
-                            var xmlSerializer = new XMLSerializer();
-                            var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
-                            main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
-                            var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
-                            legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
-                            var final_pdf_str = main_plots_str + legend_str;
+                    $.when(ccPlots.util.getGeneticProfiles_(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"))).then(function(_profiles) {
+                        
+                        // if no v2 profile (data) available, set profile selection to v1
+                        if($("#cc_plots_profile_list option").length === 0) {
+                            var _hasV2 = false;
+                            _.each(_.pluck(_profiles, "id"), function(_pid) {
+                                if (_pid.indexOf("rna_seq_v2_mrna") !== -1) _hasV2 = true;
+                            });
+                            if (!_hasV2) $("#cc_plots_profile_list").append("<option value='v1'>RNA Seq</option><option value='v2'>RNA Seq V2</option>");
+                            else $("#cc_plots_profile_list").append("<option value='v2'>RNA Seq V2</option><option value='v1'>RNA Seq</option>");                            
+                        }
+                            
+                        // default menu settings
+                        document.getElementById("cc_plots_gene_list").disabled = false;
+                        gene = [];
+                        gene.length = 0;
+                        gene.push($("#cc_plots_gene_list").val());
+                        apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
+                        show_mutations = document.getElementById("cc_plots_show_mutations").checked;
+                        study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
+                        $("#cc_plots_select_study_box").empty();
 
-                            final_pdf_str = final_pdf_str.replace(/"/g, "'");
-                            final_pdf_str = final_pdf_str.replace("xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'", "");
-                            final_pdf_str = final_pdf_str.replace(/text-anchor='end'/g, "");
-                            final_pdf_str = final_pdf_str.replace(/text-anchor='start'/g, "");
-                            final_pdf_str = final_pdf_str.replace(/text-anchor='middle'/g, "");
-                            final_pdf_str = final_pdf_str.replace(/text-anchor: start;/g, "");
-                            final_pdf_str = final_pdf_str.replace(/font-family: 'Open Sans',/g, "");
-                            final_pdf_str = final_pdf_str.replace(/fill: transparent;/g, "fill-opacity: 0;");
-                            final_pdf_str = final_pdf_str.replace(/'/g, "\"");
+                        // data fetching
+                        $.when(fetchProfileData_(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"))).then(function(_d) {
 
-                            var downloadOptions = {
-                                filename: "cross-cancer-plots.pdf",
-                                contentType: "application/pdf",
-                                servletName: "svgtopdf.do"
-                            };
-                            cbio.download.initDownload(final_pdf_str, downloadOptions);
+                            // -- init download buttons --
+                            $("#cc_plots_svg_download").click(function() {
+                                var xmlSerializer = new XMLSerializer();
+                                var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
+                                main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
+                                var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
+                                legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
+                                cbio.download.clientSideDownload([main_plots_str + legend_str], "cross-cancer-plots-download.svg", "application/svg+xml");
+                            });
+                            $("#cc_plots_pdf_download").click(function() {
+                                var xmlSerializer = new XMLSerializer();
+                                var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
+                                main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
+                                var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
+                                legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
+                                var final_pdf_str = main_plots_str + legend_str;
 
-                        });
-                        $("#cc_plots_data_download").click(function() {
-                            var get_tab_delimited_data = function() {
-                                var result_str = "Sample Id" + "\t" + "Cancer Study" + "\t" + "Profile Name" + "\t" + "Gene" + "\t" + "Mutation" + "\t" + "Value" + "\n";
-                                _.each(_d[0].concat(_d[1], _d[2]), function(_obj) {
-                                    if ( _obj.sequenced) {
-                                        if (_obj.mutation_type === "non" ) {
-                                            result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Mutated" + "\t" + _obj.profile_data + "\n";
+                                final_pdf_str = final_pdf_str.replace(/"/g, "'");
+                                final_pdf_str = final_pdf_str.replace("xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'", "");
+                                final_pdf_str = final_pdf_str.replace(/text-anchor='end'/g, "");
+                                final_pdf_str = final_pdf_str.replace(/text-anchor='start'/g, "");
+                                final_pdf_str = final_pdf_str.replace(/text-anchor='middle'/g, "");
+                                final_pdf_str = final_pdf_str.replace(/text-anchor: start;/g, "");
+                                final_pdf_str = final_pdf_str.replace(/font-family: 'Open Sans',/g, "");
+                                final_pdf_str = final_pdf_str.replace(/fill: transparent;/g, "fill-opacity: 0;");
+                                final_pdf_str = final_pdf_str.replace(/'/g, "\"");
+
+                                var downloadOptions = {
+                                    filename: "cross-cancer-plots.pdf",
+                                    contentType: "application/pdf",
+                                    servletName: "svgtopdf.do"
+                                };
+                                cbio.download.initDownload(final_pdf_str, downloadOptions);
+
+                            });
+                            $("#cc_plots_data_download").click(function() {
+                                var get_tab_delimited_data = function() {
+                                    var result_str = "Sample Id" + "\t" + "Cancer Study" + "\t" + "Profile Name" + "\t" + "Gene" + "\t" + "Mutation" + "\t" + "Value" + "\n";
+                                    _.each(_d[0].concat(_d[1], _d[2]), function(_obj) {
+                                        if ( _obj.sequenced) {
+                                            if (_obj.mutation_type === "non" ) {
+                                                result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Mutated" + "\t" + _obj.profile_data + "\n";
+                                            } else {
+                                                result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + _obj.mutation_details + "\t" + _obj.profile_data + "\n";
+                                            }
                                         } else {
-                                            result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + _obj.mutation_details + "\t" + _obj.profile_data + "\n";
+                                            result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Sequenced" + "\t" + _obj.profile_data + "\n";
                                         }
-                                    } else {
-                                        result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Sequenced" + "\t" + _obj.profile_data + "\n";
-                                    }
-                                });
-                                return result_str;
-                            };
-                            cbio.download.clientSideDownload([get_tab_delimited_data()], "plots-data.txt");
-                        }); 
-                        
-                        // render study selection dropdown box
-                        renderStudySelBox();
-                        
-                        // render main plots
-                        renderPlots(_d);
-                        ccPlots.update(); //update in accordance to initial selection
+                                    });
+                                    return result_str;
+                                };
+                                cbio.download.clientSideDownload([get_tab_delimited_data()], "plots-data.txt");
+                            });
+
+                            if (study_meta.length !== 0) {
+                                renderStudySelBox();
+                                renderPlots(_d);
+                                ccPlots.update(); //update in accordance to initial selection                        
+                            } else {
+                                $("#cc_plots_select_study_collapse").collapse('hide');
+                                $("#cc_plots_study_selection_btn").addClass("disabled");
+                                $("#cc_plots_box").empty();
+                                $("#cc_plots_box").append("<div style='color:grey;padding:150px;'>No profile data available.</div>");
+                            }
+                        });
                     });
                 }
             }

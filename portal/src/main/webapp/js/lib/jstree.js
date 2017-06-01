@@ -2799,6 +2799,35 @@
 			this.trigger('disable_node', { 'node' : obj });
 		},
 		/**
+		 * This is ported from jstree 3.3.3 to fix a bug when previous
+		 * search resulted in no hits for gene set hierarchy popup
+		 * 
+		 * shows all nodes
+		 * @name show_all()
+		 * @trigger show_all.jstree
+		 */
+		show_all : function (skip_redraw) {
+			var i, m = this._model.data, ids = [];
+			for(i in m) {
+				if(m.hasOwnProperty(i) && i !== $.jstree.root && m[i].state.hidden) {
+					m[i].state.hidden = false;
+					ids.push(i);
+				}
+			}
+			this._model.force_full_redraw = true;
+			if(!skip_redraw) {
+				this.redraw();
+			}
+			/**
+			 * triggered when all nodes are shown
+			 * @event
+			 * @name show_all.jstree
+			 * @param {Array} nodes the IDs of all shown nodes
+			 */
+			this.trigger('show_all', { 'nodes' : ids });
+			return ids;
+		},		
+		/**
 		 * called when a node is selected by the user. Used internally.
 		 * @private
 		 * @name activate_node(obj, e)
@@ -2936,7 +2965,13 @@
 				});
 				$linkOutIcon.click(function(e) {
 					e.preventDefault();
-					window.open('study?id='+node.id);
+					
+					// If ref link is specified, open this instead of default study summary
+					if (node.original.refLink) {
+						window.open(node.original.refLink);
+					} else { 
+						window.open('study?id='+node.id);
+					}
 				});
 			} else {
 				if (this.node_has_descendant_branches(node.id)) {
@@ -6637,6 +6672,9 @@
 					}, this));
 		};
 		/**
+		 * Patched according to https://github.com/vakata/jstree/commit/b3d878d75990766d2683958c5a15997641c949e7
+		 * to fix bug when search for node, node was unclickable
+		 * 
 		 * used to search the tree nodes for a given string
 		 * @name search(str [, skip_async])
 		 * @param {String} str the search string
@@ -6645,17 +6683,20 @@
 		 * @plugin search
 		 * @trigger search.jstree
 		 */
-		this.search = function (str, skip_async, show_only_matches) {
+		this.search = function (str, skip_async, show_only_matches, inside, append) {
 			if(str === false || $.trim(str.toString()) === "") {
 				return this.clear_search();
 			}
+			inside = this.get_node(inside);
+			inside = inside && inside.id ? inside.id : null;
 			str = str.toString();
 			var s = this.settings.search,
 				a = s.ajax ? s.ajax : false,
+				m = this._model.data,
 				f = null,
 				r = [],
 				p = [], i, j;
-			if(this._data.search.res.length) {
+			if(this._data.search.res.length && !append) {
 				this.clear_search();
 			}
 			if(show_only_matches === undefined) {
@@ -6666,14 +6707,17 @@
 					return a.call(this, str, $.proxy(function (d) {
 							if(d && d.d) { d = d.d; }
 							this._load_nodes(!$.isArray(d) ? [] : $.vakata.array_unique(d), function () {
-								this.search(str, true, show_only_matches);
+								this.search(str, true, show_only_matches, inside, append);
 							}, true);
-						}, this));
+						}, this), inside);
 				}
 				else {
 					a = $.extend({}, a);
 					if(!a.data) { a.data = {}; }
 					a.data.str = str;
+					if(inside) {
+						a.data.inside = inside;
+					}
 					return $.ajax(a)
 						.fail($.proxy(function () {
 							this._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'search', 'id' : 'search_01', 'reason' : 'Could not load search parents', 'data' : JSON.stringify(a) };
@@ -6682,36 +6726,38 @@
 						.done($.proxy(function (d) {
 							if(d && d.d) { d = d.d; }
 							this._load_nodes(!$.isArray(d) ? [] : $.vakata.array_unique(d), function () {
-								this.search(str, true, show_only_matches);
+								this.search(str, true, show_only_matches, inside, append);
 							}, true);
 						}, this));
 				}
 			}
-			this._data.search.str = str;
-			this._data.search.dom = $();
-			this._data.search.res = [];
-			this._data.search.opn = [];
-			this._data.search.som = show_only_matches;
+			if(!append) {
+				this._data.search.str = str;
+				this._data.search.dom = $();
+				this._data.search.res = [];
+				this._data.search.opn = [];
+				this._data.search.som = show_only_matches;
+			}
 
 			f = new $.vakata.search(str, true, { caseSensitive : s.case_sensitive, fuzzy : s.fuzzy });
-
-			$.each(this._model.data, $.proxy(function (i, v) {
+			$.each(m[inside ? inside : '#'].children_d, function (ii, i) {
+				var v = m[i];
 				if(v.text && ( (s.search_callback && s.search_callback.call(this, str, v)) || (!s.search_callback && f.search(v.text).isMatch) ) && (!s.search_leaves_only || (v.state.loaded && v.children.length === 0)) ) {
 					r.push(i);
 					p = p.concat(v.parents);
-					v.state.fixed = false;
-				} else {
-					v.state.fixed = true;
 				}
-			}, this));
+			});
 			if(r.length) {
 				p = $.vakata.array_unique(p);
 				this._search_open(p);
-				$.each(p, $.proxy(function(i, id) {
-					this._model.data[id].state.fixed = false;
-				}, this));
-				this._data.search.dom = $(this.element[0].querySelectorAll('#' + $.map(r, function (v) { return "0123456789".indexOf(v[0]) !== -1 ? '\\3' + v[0] + ' ' + v.substr(1).replace($.jstree.idregex,'\\$&') : v.replace($.jstree.idregex,'\\$&'); }).join(', #')));
-				this._data.search.res = r;
+				if(!append) {
+					this._data.search.dom = $(this.element[0].querySelectorAll('#' + $.map(r, function (v) { return "0123456789".indexOf(v[0]) !== -1 ? '\\3' + v[0] + ' ' + v.substr(1).replace($.jstree.idregex,'\\$&') : v.replace($.jstree.idregex,'\\$&'); }).join(', #')));
+					this._data.search.res = r;
+				}
+				else {
+					this._data.search.dom = this._data.search.dom.add($(this.element[0].querySelectorAll('#' + $.map(r, function (v) { return "0123456789".indexOf(v[0]) !== -1 ? '\\3' + v[0] + ' ' + v.substr(1).replace($.jstree.idregex,'\\$&') : v.replace($.jstree.idregex,'\\$&'); }).join(', #'))));
+					this._data.search.res = $.vakata.array_unique(this._data.search.res.concat(r));
+				}
 				this._data.search.dom.children(".jstree-anchor").addClass('jstree-search');
 			}
 			/**

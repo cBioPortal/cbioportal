@@ -25,9 +25,11 @@ var plotsbox = (function() {
                     heat_map.init(ids.main_view.div, data);
                 }
             }
+        } else if (gsva_vs_gsva()) {
+            scatterPlots.init(ids.main_view.div, data, false, "", true);
         } else if (genetic_vs_clinical()) {
             var _clin_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin)? "x": "y";
-            var _genetic_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin)? "y": "x";
+            var _genetic_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)? "x": "y";
             if (clinical_attr_is_discretized(_clin_axis) && is_profile_discretized(_genetic_axis)) {
                 heat_map.init(ids.main_view.div, data);
             } else if (clinical_attr_is_discretized(_clin_axis) && !is_profile_discretized(_genetic_axis)) {
@@ -46,6 +48,20 @@ var plotsbox = (function() {
                 scatterPlots.init(ids.main_view.div, data, true, "y", false);
             } else if (!clinical_attr_is_discretized("x") && !clinical_attr_is_discretized("y")) {
                 scatterPlots.init(ids.main_view.div, data, false, "", true);
+            }
+        } else if (gsva_vs_clinical()) {
+        	var _clin_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin)? "x": "y";
+            if (clinical_attr_is_discretized(_clin_axis)) {
+                scatterPlots.init(ids.main_view.div, data, true, _clin_axis, false);
+            } else {
+            	scatterPlots.init(ids.main_view.div, data, false, "", true);
+            }
+        } else if (gsva_vs_genetic()) {
+            var _genetic_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)? "x": "y";
+            if (is_profile_discretized(_genetic_axis)) {
+            	scatterPlots.init(ids.main_view.div, data, true, _genetic_axis, false);
+            } else {
+            	scatterPlots.init(ids.main_view.div, data, false, "", true);
             }
         }
     };

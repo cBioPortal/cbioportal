@@ -140,7 +140,13 @@ var optSpec = (function() {
                 } else {
                     cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "plots-data.txt");
                 } 
-            }
+            } else if (gsva_vs_clinical()) {
+            	cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "plots-data.txt");
+            } else if (gsva_vs_genetic()) {
+           	 	cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "plots-data.txt");
+	        } else if (gsva_vs_gsva()) {
+	       	 	cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "plots-data.txt");
+	    	}
         });
  
     };

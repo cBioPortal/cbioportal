@@ -39,85 +39,10 @@ var plotsData = (function() {
         dotsContent = {}; //json of datums -- final recipe for rendering the view
 
     var ajaxCall = function(axis, callback_func) {
-        if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
+        if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.gene ||
+        		$("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.geneset) {
             
-            /////// TEST for dynamic zscore calculation
-            var _mrnaProfileName = "ucec_tcga_pub_rna_seq_v2_mrna";
-            var _zscoreMrnaProfileName = _mrnaProfileName + "_median_Zscores";
-
-            if ($("#" + ids.sidebar[axis].profile_name).val() === _mrnaProfileName) {
-                
-                var _cnaProfileName = window.QuerySession.getCancerStudyIds()[0] + "_gistic";
-                var _allCaseId = window.QuerySession.getCancerStudyIds()[0] + "_all";
-
-                var refCnaData, refMrnaData;
-                
-                var paramsGetCnaData = {
-                    cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-                    gene_list: $("#" + ids.sidebar[axis].gene).val(),
-                    genetic_profile_id: _cnaProfileName,
-                    case_set_id: _allCaseId,
-                    case_ids_key: window.QuerySession.getCaseIdsKey()
-                };
-                var paramsGetMrnaData = {
-                    cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-                    gene_list: $("#" + ids.sidebar[axis].gene).val(),
-                    genetic_profile_id: _mrnaProfileName,
-                    case_set_id: _allCaseId,
-                    case_ids_key: window.QuerySession.getCaseIdsKey()
-                };
-                
-                var getCnaCall = $.post("getProfileData.json", paramsGetCnaData);
-                var getMrnaCall = $.post("getProfileData.json", paramsGetMrnaData);
-                
-                $.when(getCnaCall, getMrnaCall)
-                .done(function(cnaRes, MrnaRes) {
-                    
-                    refCnaData = cnaRes[0][$("#" + ids.sidebar[axis].gene).val()];
-                    refMrnaData = MrnaRes[0][$("#" + ids.sidebar[axis].gene).val()];
-                    
-                    // filter out all diploid samples among ALL samples
-                    var _diploidSampleMrna = [], _diploidSampleIds = [];
-                    _.each(Object.keys(refCnaData), function(_sampleId) {
-                        if (refCnaData[_sampleId][_cnaProfileName] === "0") {
-                            _diploidSampleIds.push(_sampleId);
-                        }
-                    });
-                    _.each(_diploidSampleIds, function(_sampleId) {
-                        _diploidSampleMrna.push(refMrnaData[_sampleId][_mrnaProfileName]);
-                    });
-                    _diploidSampleMrna = _.map(_.filter(_diploidSampleMrna, function(_item) { return !isNaN(_item); }), function(_num) { return parseFloat(_num)});
-                    
-                    // filter out mrna data for queried cases
-                    var _inputMrnaArr = [];
-                    _.each(window.QuerySession.getSampleIds(), function(_sampleId) {
-                        _inputMrnaArr.push(refMrnaData[_sampleId][_mrnaProfileName]);
-                    });
-                    // calculate zscores
-                    var _zscores = cbio.stat.zscore(_diploidSampleMrna, _inputMrnaArr);
-                    //console.log(_.map(_.sortBy(_zscores, function(num) { return -num; }), function(_val) { return _val.toFixed(4); }));
-                }); 
-                
-            } else if ($("#" + ids.sidebar[axis].profile_name).val() === _zscoreMrnaProfileName) {
-                var paramsGetProfileData = {  
-                    cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-                    gene_list: $("#" + ids.sidebar[axis].gene).val(),
-                    genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
-                    case_set_id: window.QuerySession.getCaseSetId(),
-                    case_ids_key: window.QuerySession.getCaseIdsKey()
-                };
-                $.post("getProfileData.json", paramsGetProfileData, function(_result) { 
-                    var _tmp = {}; //convert to json format
-                    for (var key in _result[$("#" + ids.sidebar[axis].gene).val()]) {
-                        var _obj = _result[$("#" + ids.sidebar[axis].gene).val()][key];
-                        _tmp[key] = _obj[$("#" + ids.sidebar[axis].profile_name).val()];
-                    }
-                    //console.log(_.sortBy(_.filter(_.values(_tmp), function(_val) { return !isNaN(_val); }), function(num) { return -num; })); 
-                }, "json");
-            }
-            /////// CLOSE TEST for dynamic zscore calculation
-
-            function inner_profile_callback_func(profileData) {
+            function inner_profile_callback_func(profileData) { 
                 var _tmp = {}; //convert to json format
                 for (var key in profileData[$("#" + ids.sidebar[axis].gene).val()]) {
                     var _obj = profileData[$("#" + ids.sidebar[axis].gene).val()][key];
@@ -128,7 +53,7 @@ var plotsData = (function() {
 
             var paramsGetProfileData = {  //webservice call to get profile data
                 cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-                gene_list: $("#" + ids.sidebar[axis].gene).val(),
+                genetic_entity_list: $("#" + ids.sidebar[axis].gene).val(),
                 genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
                 case_set_id: window.QuerySession.getCaseSetId(),
                 case_ids_key: window.QuerySession.getCaseIdsKey()
@@ -177,10 +102,10 @@ var plotsData = (function() {
                     }
                 }
             }
-            if (genetic_vs_genetic() || genetic_vs_clinical()) {
+            if (genetic_vs_genetic() || genetic_vs_clinical() || gsva_vs_genetic()) {
                 //get mutation data
                 var _gene_list = "";
-                if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
+                if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene) {
                     $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.x.gene).val()), function(index, profile) {
                         if (profile.type === "MUTATION_EXTENDED") {
                             _gene_list += $("#" + ids.sidebar.x.gene).val();
@@ -188,7 +113,7 @@ var plotsData = (function() {
                         }
                     });
                 }
-                if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic &&
+                if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene &&
                     $("#" + ids.sidebar.y.gene).val() !== $("#" + ids.sidebar.x.gene).val()) {
                     $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.y.gene).val()), function(index, profile) {
                         if (profile.type === "MUTATION_EXTENDED") {
@@ -203,6 +128,44 @@ var plotsData = (function() {
                 } else {
                     mutationCallback();
                 }
+            } else if (gsva_vs_clinical() || gsva_vs_gsva()) {
+            	if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
+            		if (clinical_attr_is_discretized("x")) {
+                            clinical_data_interpreter.process(dotsContent, "x");
+                            var _arr_y = [];
+                            for (var key in dotsContent) {
+                                dotsContent[key].xVal = clinical_data_interpreter.convert_to_numeric(dotsContent[key].xVal, "x");
+                                _arr_y.push(dotsContent[key].yVal);
+                            }
+            		}
+                        analyseData();
+                        stat.retrieved = true;
+                        readyCallBackFunction();
+
+            	} else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
+            		if (clinical_attr_is_discretized("y")) {
+                            clinical_data_interpreter.process(dotsContent, "y");
+                            var _arr_x = [];
+                            for (var key in dotsContent) {
+                                dotsContent[key].yVal = clinical_data_interpreter.convert_to_numeric(dotsContent[key].yVal, "y");
+                                _arr_x.push(dotsContent[key].xVal);
+                            }
+            		}
+                        analyseData();
+                        stat.retrieved = true;
+                        readyCallBackFunction();
+            	} else {
+            		var _arr_x = [], _arr_y = [];
+                    _arr_x.length = 0;
+                    _arr_y.length = 0;
+                    for(var key in dotsContent) {
+                        _arr_x.push(dotsContent[key].xVal);
+                        _arr_y.push(dotsContent[key].yVal);
+                    }
+                    analyseData();
+                    stat.retrieved = true;
+                    readyCallBackFunction();
+            	}
             } else { //clinical vs. clinical
                 //translate: assign text value a numeric value for clinical data
                 var _arr_x = [], _arr_y = [];
@@ -290,7 +253,7 @@ var plotsData = (function() {
 
                     var paramsGetProfileData = {  //webservice call to get profile data
                         cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-                        gene_list: $("#" + ids.sidebar.y.gene).val(),
+                        genetic_entity_list: $("#" + ids.sidebar.y.gene).val(),
                         genetic_profile_id: cna_annotation_profile_name,
                         case_set_id: window.QuerySession.getCaseSetId(),
                         case_ids_key: window.QuerySession.getCaseIdsKey()
@@ -330,6 +293,24 @@ var plotsData = (function() {
             }
             analyseData();
             stat.retrieved = true;
+            readyCallBackFunction();
+        } else if (gsva_vs_genetic()) {
+            //translate: assign text value a numeric value for clinical data
+            var _axis, _axis_key;
+            if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset) {
+                _axis = "x";
+                _axis_key = "xVal";
+            } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.geneset) {
+                _axis = "y";
+                _axis_key = "yVal";
+            }
+            var _arr = [];
+            _arr.length = 0;
+            for(var key in dotsContent) {
+                _arr.push(dotsContent[key][_axis_key]);
+            }
+            analyseData();
+            stat.retrieved = true; 
             readyCallBackFunction();
         }
     }

@@ -1,4 +1,4 @@
-window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, study_sample_map, z_score_threshold, rppa_score_threshold,
+window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, cancer_study_ids, study_sample_map, z_score_threshold, rppa_score_threshold,
 	case_set_properties) {
 
     var signOfDiff = function(a,b) {
@@ -951,7 +951,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    interim_datum.profile_data = parseFloat(receive_datum.profile_data);
 		} else if (sample_or_patient === "sample") {
 		    // this would be a programming error (unexpected output from getGeneticProfileDataBySample)
-		    throw Error("Unexpectedly received multiple heatmap profile data for one sample");
+		    throw new Error("Unexpectedly received multiple heatmap profile data for one sample");
 		} else {
 		    // aggregate samples for this patient by selecting the highest absolute (Z-)score
 		    if (Math.abs(parseFloat(receive_datum.profile_data)) >
@@ -1040,7 +1040,144 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return def.promise();
 	};
     })();
-    
+
+    /**
+     * One cell of sample-level gene set data for the Oncoprint
+     *
+     * @typedef {Object} OncoprintGenesetSampleDatum
+     * @property {string} geneset_id - gene set identifier for this track
+     * @property {string} study - identifier of the study to which this sample belongs
+     * @property {string} sample - identifier of the sample
+     * @property {number} uid - cross-study identifier of this sample in the current Oncoprint
+     * @property {number} profile_data - score of the sample or patient for this gene set
+     */
+    /**
+     * One cell of patient-level gene set data for the Oncoprint
+     *
+     * @typedef {Object} OncoprintGenesetPatientDatum
+     * @property {string} geneset_id - gene set identifier for this track
+     * @property {string} study - identifier of the study to which this patient belongs
+     * @property {string} patient - identifier of the patient
+     * @property {number} uid - cross-study identifier of this patient in the current Oncoprint
+     * @property {number} profile_data - score of the sample or patient for this gene set
+     */
+    /**
+     * One track of heatmap data for the Oncoprint
+     *
+     * @typedef {Object} OncoprintGenesetDataTrack
+     * @property {string} geneset_id - gene set identifier for this track
+     * @property {string} genetic_profile_id - identifier of the genetic profile used for this track
+     * @property {OncoprintGenesetSampleDatum[]|OncoprintGenesetPatientDatum[]} oncoprint_data -
+     * list of objects for individual samples or patients
+     */
+    /**
+     * Fetches Oncoprint heatmap data per gene track for the given profile per sample or patient.
+     *
+     * @param {string} genetic_profile_id - identifier of the genetic profile to query
+     * @param {string[]} geneset_ids - list of gene set identifiers for which to return data
+     * @param {string} sample_or_patient - whether to return data per sample or aggregate to patient level
+     * @returns {Promise<OncoprintGenesetDataTrack[]>}
+     */
+    var getGenesetData = function (genetic_profile_id, geneset_ids, sample_or_patient) {
+	var def = new $.Deferred();
+	// TODO: handle  more than one study
+	var study_id = this.getCancerStudyIds()[0];
+	var sample_ids = this.getSampleIds();
+	var deferred_case_ids = sample_or_patient === "sample" ? sample_ids : this.getPatientIds();
+	geneset_ids = geneset_ids || [];
+	sample_or_patient = sample_or_patient || "sample";
+	var deferred_profile_data, case_set_id = this.getCaseSetId();
+	if (!case_set_id || case_set_id === "-1") {
+	    deferred_profile_data = window.cbioportal_client.getGenesetDataBySample({
+		"genetic_profile_id": [genetic_profile_id],
+		"geneset_ids": geneset_ids,
+		"sample_ids": sample_ids
+	    });
+	} else {
+	    deferred_profile_data = new $.Deferred();
+	    window.cbioportal_client.getGenesetDataBySampleList({
+		"genetic_profile_id": [genetic_profile_id],
+		"geneset_ids": geneset_ids,
+		"sample_list_id": [case_set_id]
+	    }).then(function (data, textStatus, jqXHR) {
+		// the client function returns a jQuery jqXHR object
+		// which resolves with three arguments; the when below
+		// needs a promise that resolves with one
+		deferred_profile_data.resolve(data);
+	    });
+	}
+	$.when(
+	    deferred_profile_data,
+	    this.getPatientSampleIdMap(),
+	    deferred_case_ids,
+	    this.getCaseUIDMap()
+	).then(function (profile_data,
+		sample_to_patient_map,
+		case_ids,
+		case_uid_map) {
+	    var i, j;
+	    var geneset_id, case_id;
+	    // create an object for each sample or patient in each gene set
+	    var data_by_id = Object.create(null);
+	    for (i = 0; i < geneset_ids.length; i++) {
+		geneset_id = geneset_ids[i];
+		data_by_id[geneset_id] = Object.create(null);
+		for (j = 0; j < case_ids.length; j++) {
+		    case_id = case_ids[j];
+		    data_by_id[geneset_id][case_id] = {};
+		    data_by_id[geneset_id][case_id].geneset_id = geneset_id;
+		    data_by_id[geneset_id][case_id].study = study_id;
+		    data_by_id[geneset_id][case_id][sample_or_patient] = case_id;
+		    // index the UID map by sample or patient as appropriate
+		    data_by_id[geneset_id][case_id].uid = case_uid_map[study_id][case_id];
+		    data_by_id[geneset_id][case_id].profile_data = null;
+		}
+	    }
+
+	    // fill profile_data properties with scores
+	    var sample_id, sample_score;
+	    for (i = 0; i < profile_data.length; i++) {
+		geneset_id = profile_data[i].genesetId;
+		sample_id = profile_data[i].sampleId;
+		sample_score = parseFloat(profile_data[i].value);
+		case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[sample_id]);
+		if (data_by_id[geneset_id][case_id].profile_data === null) {
+		    // set the initial value for this sample or patient
+		    data_by_id[geneset_id][case_id].profile_data = sample_score;
+		} else if (sample_or_patient === "sample") {
+		    // this would be a programming error (unexpected output from getGeneticDataBySample)
+		    throw new Error("Unexpectedly received multiple gene set profile data for one sample");
+		} else {
+		    // aggregate samples for this patient by selecting the highest absolute (GSVA-)score
+		    if (Math.abs(sample_score) > Math.abs(data_by_id[geneset_id][case_id].profile_data)) {
+			data_by_id[geneset_id][case_id].profile_data = sample_score;
+		    }
+		}
+	    }
+
+	    // construct the list to be returned
+	    var track_list = [];
+	    var track_data, oncoprint_data;
+	    for (i = 0; i < geneset_ids.length; i++) {
+		geneset_id = geneset_ids[i];
+		track_data = {};
+		track_data.geneset_id = geneset_id;
+		track_data.genetic_profile_id = genetic_profile_id;
+		oncoprint_data = [];
+		for (j = 0; j < case_ids.length; j++) {
+		    case_id = case_ids[j];
+		    oncoprint_data.push(data_by_id[geneset_id][case_id]);
+		}
+		track_data.oncoprint_data = oncoprint_data;
+		track_list.push(track_data);
+	    }
+	    def.resolve(track_list);
+	}).fail(function () {
+	    def.reject();
+	});
+	return def.promise();
+    };
+
     return {
 	'known_mutation_settings': {
 	    'ignore_unknown': false,
@@ -1059,6 +1196,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'cancer_study_ids': cancer_study_ids,
 	'study_sample_map': study_sample_map,
 	'genetic_profile_ids': genetic_profile_ids,
+	'geneset_ids': geneset_ids,
 	'mutation_counts': {},
 	'getKnownMutationSettings': function () {
 	    return deepCopyObject(this.known_mutation_settings);
@@ -1077,7 +1215,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return this.oql_query;
 	},
 	'getQueryGenes': function () {
-	    return OQL.genes(this.oql_query);
+		if (this.oql_query.trim().length > 0) {
+		    return OQL.genes(this.oql_query);
+		} 
+		return null;
+	},
+	'getQueryGenesets': function () {
+		if (this.geneset_ids.trim().length > 0) {
+			return this.geneset_ids.split(" ");
+		}
+		return null;
 	},
 	'getGeneticProfileIds': function () {
 	    return this.genetic_profile_ids;
@@ -1088,7 +1235,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    .then(function (profiles) {
 				fetch_promise.resolve(profiles.filter(function(profile) {
 				    return (profile.genetic_alteration_type === "MRNA_EXPRESSION" ||
-					    profile.genetic_alteration_type === "PROTEIN_LEVEL") &&
+					    profile.genetic_alteration_type === "PROTEIN_LEVEL" ||
+					    profile.genetic_alteration_type === "GENESET_SCORE") &&
 					    profile.show_profile_in_analysis_tab === "1";
 				}));
 		}).fail(function() {
@@ -1373,6 +1521,95 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getPatientHeatmapData': function(genetic_profile_id, genes) {
 	    return getHeatmapDataCached(this, genetic_profile_id, genes, 'patient');
 	},
+	'getSelectedGsvaProfile': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    self.getGeneticProfiles()
+		    .then(function (geneticProfiles) {
+			var genesetProfile = null;
+			for (var i = 0; i < geneticProfiles.length; i++) {
+			    var profile = geneticProfiles[i];
+			    if (profile.genetic_alteration_type === "GENESET_SCORE" &&
+				    profile.datatype === "GSVA-SCORE") {
+				if (genesetProfile !== null) {
+				    throw new Error("Programming error: " +
+					    "multiple geneset score profiles " +
+					    "were selected in the Oncoprint");
+				}
+				genesetProfile = profile;
+			    }
+			}
+			fetch_promise.resolve(genesetProfile);
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
+	/**
+	 * Fetches any sample-level GSVA data for the queried Oncoprint parameters.
+	 *
+	 * @returns {Promise<OncoprintGenesetDataTrack[]>}
+	 */
+	'getSampleGsvaData': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    self.getSelectedGsvaProfile()
+		    .then(function (gsvaProfile) {
+			console.log("fetching uncached sample-level GSVA data.");
+			var trackListPromise = [];
+			if (gsvaProfile !== null) {
+			    trackListPromise = getGenesetData.call(
+				    self, gsvaProfile.id, self.getQueryGenesets(), "sample");
+			}
+			return trackListPromise;
+		    }).done(function (trackList) {
+			fetch_promise.resolve(trackList);
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
+	/**
+	 * Fetches any patient-level GSVA data for the queried Oncoprint parameters.
+	 *
+	 * @returns {Promise<OncoprintGenesetDataTrack[]>}
+	 */
+	'getPatientGsvaData': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    self.getSelectedGsvaProfile()
+		    .then(function (gsvaProfile) {
+			console.log("fetching uncached patient-level GSVA data.");
+			var trackListPromise = [];
+			if (gsvaProfile !== null) {
+			    trackListPromise = getGenesetData.call(
+				    self, gsvaProfile.id, self.getQueryGenesets(), "patient");
+			}
+			return trackListPromise;
+		    }).done(function (trackList) {
+			fetch_promise.resolve(trackList);
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
+	'getGenesetGeneCorrelations': function(geneset_id) {
+	    var self = this;
+	    return this.getSelectedGsvaProfile()
+	    .then(function(geneset_profile) {
+		var result, sample_list_id = self.getCaseSetId();
+		if (!sample_list_id || sample_list_id === "-1") {
+		    result = window.cbioportal_client.getGenesetCorrelationsBySample({
+			genetic_profile_id: [geneset_profile.id],
+			correlation_threshold: [0.3],
+			geneset_id: [geneset_id],
+			sample_id: self.getSampleIds
+		    });
+		} else {
+		    result = window.cbioportal_client.getGenesetCorrelationsBySampleList({
+			genetic_profile_id: [geneset_profile.id],
+			correlation_threshold: [0.3],
+			geneset_id: [geneset_id],
+			sample_list_id: [sample_list_id]
+		    });
+		}
+		return result;
+	    });
+	},
 	'getExternalDataStatus': makeCachedPromiseFunction(
 		function(self, fetch_promise) {
 		    self.getWebServiceGenomicEventData().then(function() {
@@ -1391,10 +1628,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				cluster_input[case_ids[i]] = {};
 				//iterate over genetic entities and get the sample data (heatmap data has genetic entityId as key):
 				for (var j = 0; j < heatmapData.length; j++) {
-					var entityId = heatmapData[j].gene;
+					var entityId = heatmapData[j].gene || heatmapData[j].geneset_id;
 					//small validation/defensive programming:
 					if (!entityId) {
-						throw new Error("Unexpected error during getClusteringOrder: attribute 'gene' not found");
+						throw new Error("Unexpected error during getClusteringOrder: attribute 'gene' or 'geneset_id' not found");
 					}
 					var value = heatmapData[j].oncoprint_data[i].profile_data;
 					cluster_input[case_ids[i]][entityId] = value;
@@ -1462,18 +1699,25 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    }).fail(function () {
 			fetch_promise.reject();
 		    }).then(function () {
-			var genetic_profile_ids = self.getGeneticProfileIds();
-			var num_calls = genetic_profile_ids.length;
+			if (self.getQueryGenes() === null || self.getQueryGenes().length === 0) {
+			    // no genetic alteration tracks to populate, return with a resolved promise
+			    fetch_promise.resolve([]);
+			    return;
+			}
+			var filtered_genetic_profile_ids = self.getGeneticProfileIds().filter(function(v) {
+			    return profile_types[v] !== "GENESET_SCORE";
+			});
+			var num_calls = filtered_genetic_profile_ids.length;
 			var all_data = [];
-			for (var i = 0; i < self.getGeneticProfileIds().length; i++) {
+			for (var i = 0; i < filtered_genetic_profile_ids.length; i++) {
 			    (function (I) {
 				getGeneticProfileDataForQueryCases(self,
-				    [genetic_profile_ids[I]],
+				    [filtered_genetic_profile_ids[I]],
 				    self.getQueryGenes().map(function(x) { return x.toUpperCase();})
 				).fail(function () {
 				    fetch_promise.reject();
 				}).then(function (data) {
-				    var genetic_alteration_type = profile_types[genetic_profile_ids[I]];
+				    var genetic_alteration_type = profile_types[filtered_genetic_profile_ids[I]];
 				    if (genetic_alteration_type === "MUTATION_EXTENDED") {
 					for (var j = 0; j < data.length; j++) {
 					    data[j].simplified_mutation_type = getSimplifiedMutationType(data[j].mutation_type);
@@ -1672,6 +1916,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}),
 	'getOncoprintSampleGenomicEventData': makeCachedPromiseFunctionWithSessionFilterOption(
 		function (self, fetch_promise, use_session_filters) {
+	    // if no genes were queried, resolve with an empty list
+	    if (self.getQueryGenes() === null || self.getQueryGenes() === 0) {
+		return fetch_promise.resolve([]).promise();
+	    }
 	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), 
 	    self.getStudySampleMap(), 
 	    self.getCaseUIDMap(),
@@ -1808,6 +2056,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}),
 	'getOncoprintPatientGenomicEventData': makeCachedPromiseFunctionWithSessionFilterOption(
 		function (self, fetch_promise, use_session_filters) {
+	    // if no genes were queried, resolve with an empty list
+	    if (self.getQueryGenes() === null || self.getQueryGenes() === 0) {
+		fetch_promise.resolve([]);
+		return;
+	    }
 	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), 
 	    self.getStudyPatientMap(), 
 	    self.getPatientSampleIdMap(), 

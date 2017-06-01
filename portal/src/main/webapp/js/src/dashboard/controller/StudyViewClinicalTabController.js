@@ -79,14 +79,12 @@ var StudyViewClinicalTabController = (function() {
                                 var _studyId = item.study_id;
                                 if (map.hasOwnProperty(_studyId)) {
                                     var patientToSample = map[_studyId].patient_to_sample;
-                                    _.each(patientToSample,
-                                        function(samples) {
-                                            _.each(samples, function(sample_id) {
-                                                data.push({
-                                                    attr_id: item.attr_id,
-                                                    attr_val: item.attr_val,
-                                                    CASE_ID: sample_id
-                                                });
+                                    _.each(patientToSample[item.patient_id],
+                                        function(sample_id) {
+                                            data.push({
+                                                attr_id: item.attr_id,
+                                                attr_val: item.attr_val,
+                                                CASE_ID: sample_id
                                             });
                                         });
                                 } else {

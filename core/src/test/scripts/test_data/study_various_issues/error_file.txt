@@ -6,3 +6,5 @@
 2,3,5,8,9,11,12,16
 >brca_tcga_pub.maf | ERROR: Normal sample id not in list of sample ids configured in corresponding metafile. Please check your metafile field 'normal_samples_list'.
 8,9,11,12
+>brca_tcga_pub.maf | WARNING: Given value for Variant_Classification column is not one of the expected values. This can result in mapping issues and subsequent missing features in the mutation view UI, such as missing COSMIC information.
+16

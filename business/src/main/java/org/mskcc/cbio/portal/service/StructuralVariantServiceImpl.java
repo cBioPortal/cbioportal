@@ -30,11 +30,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.service.impl;
+package org.mskcc.cbio.portal.service;
 
-import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.persistence.StructuralVariantRepository;
-import org.cbioportal.service.StructuralVariantService;
+import org.mskcc.cbio.portal.model.StructuralVariant;
+import org.mskcc.cbio.portal.repository.StructuralVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;

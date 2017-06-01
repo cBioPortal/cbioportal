@@ -12,8 +12,8 @@ import java.util.List;
 public interface MutationService {
     
     List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
-                                                              List<Integer> entrezGeneIds, String projection, 
-                                                              Integer pageSize, Integer pageNumber,
+                                                              List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                              String projection, Integer pageSize, Integer pageNumber,
                                                               String sortBy, String direction) 
         throws GeneticProfileNotFoundException;
 
@@ -30,8 +30,8 @@ public interface MutationService {
                                                            List<Integer> entrezGeneIds);
 
     List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
-                                                  List<Integer> entrezGeneIds, String projection, Integer pageSize, 
-                                                  Integer pageNumber, String sortBy, String direction) 
+                                                  List<Integer> entrezGeneIds, Boolean snpOnly, String projection, 
+                                                  Integer pageSize, Integer pageNumber, String sortBy, String direction) 
         throws GeneticProfileNotFoundException;
 
     MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 

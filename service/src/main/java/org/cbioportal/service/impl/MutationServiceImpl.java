@@ -26,15 +26,16 @@ public class MutationServiceImpl implements MutationService {
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId,
-                                                                     List<Integer> entrezGeneIds, String projection,
-                                                                     Integer pageSize, Integer pageNumber,
-                                                                     String sortBy, String direction)
+                                                                     List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                     String projection, Integer pageSize, 
+                                                                     Integer pageNumber, String sortBy, 
+                                                                     String direction)
         throws GeneticProfileNotFoundException {
 
         validateGeneticProfile(geneticProfileId);
 
         List<Mutation> mutationList = mutationRepository.getMutationsInGeneticProfileBySampleListId(geneticProfileId,
-            sampleListId, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
+            sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;
@@ -78,15 +79,15 @@ public class MutationServiceImpl implements MutationService {
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                         List<Integer> entrezGeneIds, String projection,
-                                                         Integer pageSize, Integer pageNumber, String sortBy,
-                                                         String direction)
+                                                         List<Integer> entrezGeneIds, Boolean snpOnly, 
+                                                         String projection, Integer pageSize, Integer pageNumber, 
+                                                         String sortBy, String direction)
         throws GeneticProfileNotFoundException {
 
         validateGeneticProfile(geneticProfileId);
 
         List<Mutation> mutationList = mutationRepository.fetchMutationsInGeneticProfile(geneticProfileId, sampleIds,
-            entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
+            entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;

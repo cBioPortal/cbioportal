@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.cbioportal.persistence.mybatis;
+package org.mskcc.cbio.portal.repository;
 
 import java.util.List;
-import org.cbioportal.model.SNPCount;
-import org.cbioportal.persistence.MutationalSignatureRepository;
+import org.mskcc.cbio.portal.model.SNPCount;
+import org.mskcc.cbio.portal.persistence.MutationalSignatureMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 public class MutationalSignatureMyBatisRepository implements MutationalSignatureRepository {
 	
 	@Autowired
-	MutationalSignatureMapper mutationalSignatureMapper;
+    MutationalSignatureMapper mutationalSignatureMapper;
 	
 	public List<SNPCount> getSNPCounts(String geneticProfileStableId, List<String> sampleStableIds) {
 		return mutationalSignatureMapper.getSNPCountsBySampleId(geneticProfileStableId, sampleStableIds);
@@ -23,5 +23,9 @@ public class MutationalSignatureMyBatisRepository implements MutationalSignature
 
 	public List<SNPCount> getSNPCounts(String geneticProfileStableId) {
 		return mutationalSignatureMapper.getSNPCountsBySampleId(geneticProfileStableId, null);
-	}		
+	}
+
+    public void setMutationalSignatureMapper(MutationalSignatureMapper mutationalSignatureMapper) {
+        this.mutationalSignatureMapper = mutationalSignatureMapper;
+    }
 }

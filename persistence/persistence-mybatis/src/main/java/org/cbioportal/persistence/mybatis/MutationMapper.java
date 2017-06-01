@@ -11,34 +11,36 @@ import java.util.List;
 public interface MutationMapper {
 
     List<Mutation> getMutationsBySampleListId(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds,
-                                              String projection, Integer limit, Integer offset, String sortBy, 
-                                              String direction);
+                                              Boolean snpOnly, String projection, Integer limit, Integer offset, 
+                                              String sortBy, String direction);
 
     MutationMeta getMetaMutationsBySampleListId(String geneticProfileId, String sampleListId, 
-                                                List<Integer> entrezGeneIds);
+                                                List<Integer> entrezGeneIds, Boolean snpOnly);
 
     List<Mutation> getMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
-                                                         List<Integer> entrezGeneIds, String projection,
-                                                         Integer limit, Integer offset,
+                                                         List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                         String projection, Integer limit, Integer offset,
                                                          String sortBy, String direction);
 
     MutationMeta getMetaMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
-                                                           List<Integer> entrezGeneIds);
+                                                           List<Integer> entrezGeneIds, Boolean snpOnly);
 
     List<Mutation> getMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, List<Integer> entrezGeneIds,
-                                           String projection, Integer limit, Integer offset, String sortBy, 
-                                           String direction);
+                                           Boolean snpOnly, String projection, Integer limit, Integer offset, 
+                                           String sortBy, String direction);
 
     MutationMeta getMetaMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, 
-                                             List<Integer> entrezGeneIds);
+                                             List<Integer> entrezGeneIds, Boolean snpOnly);
     
     List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleListId(String geneticProfileId,
                                                                                  String sampleListId,
-                                                                                 List<Integer> entrezGeneIds);
+                                                                                 List<Integer> entrezGeneIds,
+                                                                                 Boolean snpOnly);
 
     List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
                                                                               List<String> sampleIds,
-                                                                              List<Integer> entrezGeneIds);
+                                                                              List<Integer> entrezGeneIds,
+                                                                              Boolean snpOnly);
     
     List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords);
 

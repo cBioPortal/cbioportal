@@ -1,8 +1,9 @@
-package org.cbioportal.service;
+package org.mskcc.cbio.portal.service;
 
+
+import org.mskcc.cbio.portal.model.MutationalSignature;
 
 import java.util.List;
-import org.cbioportal.model.MutationalSignature;
 
 public interface MutationalSignatureService {
 

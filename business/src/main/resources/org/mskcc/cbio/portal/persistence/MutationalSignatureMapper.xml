@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.MutationalSignatureMapper">
+<mapper namespace="org.mskcc.cbio.portal.persistence.MutationalSignatureMapper">
     <cache/>
 
-    <select id="getSNPCountsBySampleId" resultType="org.cbioportal.model.SNPCount">
+    <select id="getSNPCountsBySampleId" resultType="org.mskcc.cbio.portal.model.SNPCount">
         select
             sample.STABLE_ID as sampleId,
             mutation_event.REFERENCE_ALLELE as referenceAllele,

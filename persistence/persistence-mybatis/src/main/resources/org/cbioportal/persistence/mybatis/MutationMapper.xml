@@ -65,6 +65,10 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="snpOnly != null and snpOnly == true">
+                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G') 
+                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
+            </if>
         </where>
     </sql>
 
@@ -82,6 +86,10 @@
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
+            </if>
+            <if test="snpOnly != null and snpOnly == true">
+                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
+                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
         </where>
     </sql>
@@ -104,6 +112,10 @@
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
+            </if>
+            <if test="snpOnly != null and snpOnly == true">
+                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
+                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
         </where>
     </sql>

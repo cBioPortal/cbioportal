@@ -1,8 +1,16 @@
-package org.cbioportal.service.impl;
+package org.mskcc.cbio.portal.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+
+import org.mskcc.cbio.portal.model.DBGeneticProfile;
+import org.mskcc.cbio.portal.model.DBSample;
+import org.mskcc.cbio.portal.model.MutationalSignature;
+import org.mskcc.cbio.portal.model.SNPCount;
+import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
+import org.mskcc.cbio.portal.persistence.SampleMapperLegacy;
+import org.mskcc.cbio.portal.repository.MutationalSignatureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -11,13 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.MutationalSignature;
-import org.cbioportal.model.SNPCount;
 import org.cbioportal.model.Sample;
-import org.cbioportal.persistence.GeneticProfileRepository;
-import org.cbioportal.persistence.MutationalSignatureRepository;
-import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.service.MutationalSignatureService;
 
 @Service
 public class MutationalSignatureServiceImpl implements MutationalSignatureService {
@@ -89,13 +91,13 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 	private MutationalSignatureRepository mutationalSignatureRepository;
 	
 	@Autowired
-	private GeneticProfileRepository geneticProfileRepository;
+	private GeneticProfileMapperLegacy geneticProfileMapperLegacy;
 	
 	@Autowired
-	private SampleRepository sampleRepository;
+	private SampleMapperLegacy sampleMapperLegacy;
 	
 	private GeneticProfile getMutationProfile(String study_id) {
-		List<GeneticProfile> geneticProfiles = geneticProfileRepository.getAllGeneticProfilesInStudy(study_id, "SUMMARY", null, null, null, null);
+		List<GeneticProfile> geneticProfiles = convertGeneticProfiles(geneticProfileMapperLegacy.getGeneticProfilesByStudy(study_id));
 		GeneticProfile mutationProfile = null;
 		for (GeneticProfile gp: geneticProfiles) {
 			if (gp.getGeneticAlterationType() == GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED) {
@@ -124,7 +126,7 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 			return new ArrayList<>();
 		} else {
 			List<SNPCount> snpCounts = mutationalSignatureRepository.getSNPCounts(mutationProfile.getStableId());
-			List<Sample> allSamples = sampleRepository.getAllSamplesInStudy(study_id, "SUMMARY", null, null, null, null);
+			List<Sample> allSamples = convertSamples(sampleMapperLegacy.getSamplesByStudy(study_id));
 			List<String> sampleIds = new LinkedList<>();
 			for (Sample sample: allSamples) {
 				sampleIds.add(sample.getStableId());
@@ -132,4 +134,29 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 			return MutationalSignatureFactory.NoContextSignatures(snpCounts, sampleIds);
 		}
 	}
+
+    private List<GeneticProfile> convertGeneticProfiles(List<DBGeneticProfile> dbGeneticProfiles) {
+        
+	    List<GeneticProfile> geneticProfiles = new ArrayList<>();
+	    for (DBGeneticProfile dbGeneticProfile : dbGeneticProfiles) {
+	        GeneticProfile geneticProfile = new GeneticProfile();
+	        geneticProfile.setStableId(dbGeneticProfile.id);
+	        geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.valueOf(dbGeneticProfile.genetic_alteration_type));
+	        geneticProfiles.add(geneticProfile);
+        }
+        
+        return geneticProfiles;
+    }
+	
+    private List<Sample> convertSamples(List<DBSample> dbSamples) {
+	    
+        List<Sample> samples = new ArrayList<>();
+        for (DBSample dbSample : dbSamples) {
+            Sample sample = new Sample();
+            sample.setStableId(dbSample.id);
+            samples.add(sample);
+        }
+        
+        return samples;
+    }
 }

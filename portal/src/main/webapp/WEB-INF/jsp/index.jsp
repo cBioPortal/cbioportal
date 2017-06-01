@@ -53,27 +53,16 @@
     //String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
 
-
 <t:template title="<%=siteTitle%>" defaultRightColumn="true" twoColumn="true" fixedWidth="false">
 
     <jsp:attribute name="head_area" >
         <script>
         window.loadReactApp({ defaultRoute: 'home' });
-        
-        window.onReactAppReady(function(){
-            window.renderQuerySelector(document.getElementById('querySelectorTarget'));
-        });
-        
         </script>
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
-        <div id="reactRoot" class="hidden"></div>
-
-        <p style="margin-bottom:20px;">The cBioPortal for Cancer Genomics provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.<br>
-        <b>Please cite</b> <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210">Gao et al. <i>Sci. Signal.</i> 2013</a> &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract"> Cerami et al. <i>Cancer Discov.</i> 2012</a> when publishing results based on cBioPortal.</p>
-        
-        <div id="querySelectorTarget"></div>
+        <div id="reactRoot"></div>
     </jsp:attribute>
     
 

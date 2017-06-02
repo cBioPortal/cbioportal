@@ -121,7 +121,7 @@
                 <!-- Added call GlobalProperties to check whether to show the Tools tab -->
                 <% if (GlobalProperties.showToolsTab()) { %>
                 <li class="internal">
-                    <a href="tools.jsp">Visualization Tools</a>
+                    <a href="tools.jsp">Visualize Your Data</a>
                 </li>
                 <% } %>
                 <!-- Added call GlobalProperties to check whether to show the About tab -->

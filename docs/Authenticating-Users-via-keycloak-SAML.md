@@ -1,10 +1,14 @@
 # Introduction
 
 The cBioPortal includes support for Keycloak SAML (Security Assertion Markup Language) authentication. This document explains why you might find keycloak SAML authentication useful for storing your user login information outside 
-the cbioportal database. It also shows you how to configure Keycloak to communicate with your instance of cBioPortal.
+the cBioPortal database. It also shows you how to configure Keycloak to communicate with your instance of cBioPortal.
 
 Please note that configuring your local instance to use keycloak SAML authentication requires a local/remote keycloak Identity Provider. For details on how to set up a keycloak server, please read online document at (https://keycloak.gitbooks.io/documentation/server_installation/index.html) .  
-This document focuses mainly on the steps to configure the keyclock for authenticating and authorizing cbioportal users.  
+This document focuses mainly on the steps to configure the keycloak for **authenticating** and **authorizing** cBioPortal users.  
+
+## Authorization configuration
+
+For just the authorization section see: [authorization with keycloak](#authorization-with-keycloak).
 
 ## Why keycloak?
 
@@ -34,13 +38,14 @@ Please Note if you are logged in the master realm, this drop down menu lists all
 3. To create a SAML client, go to the Clients left menu item. On this page you’ll see a Create button on the right. This will bring you to the Add Client page.
 Enter in the Client ID of the client e.g 'cbioportal'. 
 ![](images/previews/add-client.png)
-Enter 'http://localhost:8080/auth/realms/demo/protocol/saml' in the **Root URL** textbox (Please note this is often a URL and will be the expected issuer value in SAML requests sent by the application), then click on Save button. This will take you to the client page.
+Enter 'http://localhost:8080/auth/realms/demo/protocol/saml' in the **Root URL** textbox (Please note this is often a URL and will be the expected issuer value in SAML requests sent by the application), then click on Save button. This will take you to the client page below.
 
+![](images/previews/edit-client.png)
 
 4. Select **saml** in the Client Protocol drop down box and use **email** for your Name ID. 
 5. Next, enter a redirect URL for keycloak to use upon a successful authentication e.g http://localhost:8081/cbioportal/*, and leave everything else as it is. 
-6. Finally enter in the Client SAML Endpoint URL. Enter the URL you want the Keycloak server to send requests and responses to e.g http://localhost:8080/auth/realms/demo/protocol/saml. Click Save. 
-![](images/previews/edit-client.png)
+6. Set "Force POST Binding" and "Front Channel Logout" to "OFF" and "Force Name ID Format" to "ON"
+7. Finally enter in the Client SAML Endpoint URL. Enter the URL you want the Keycloak server to send requests and responses to e.g http://localhost:8080/auth/realms/demo/protocol/saml. Click Save. 
 
 ## Map SAML Assertion Attributes
 To specify attributes included in the SAML assertion, simply click on the **Mapper** tab, then click on either **Add Buildin** or **Create** button. 
@@ -50,10 +55,11 @@ Make sure you add at least **X500 email** User Property attribute and **roles** 
 ![](images/previews/edit-role-attribute.png)
 
 ## Export SAML Keys
-Click on **SML Keys** tab next to **Setting**, and click on **export** button, this will bring your "Export SAML Key Cbioportal" page.
- Accept everything and type a password e.g. apollo1 in the Store Password textbox and click on the **Download** button. 
-When you are done, move the jks file to portal/src/main/resources/.
+Click on **SAML Keys** tab next to **Setting**, and click on **export** button, this will bring your "Export SAML Key Cbioportal" page.
+Accept everything and type a password e.g. apollo1 in the Store Password textbox. Key Password could be apollo2 (or use the same password if you want to later also configure https directly on your cBioPortal tomcat, [see this link](Authenticating-Users-via-SAML.md#https-and-tomcat)). In the field "Key Alias" type an alias, e.g. "secure-key".
+ 
 ![](images/previews/export-SAML-keys.png)
+When done, click on the **Download** button. Move the downloaded jks file to **portal/src/main/resources/**.
 Please note you can also use the java 'keytool' to generate keystore and then import to the keycloak to customize your keystore attributes.
 ```
 keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
@@ -62,23 +68,14 @@ keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
 1. Click on **Installation** tab.
 2. From dropdown list of Format Option, select **SAML Metadata IDPSSODescriptor**
 3. Click on **Download** button
-4. Move SAML Metadata IDPSSODescriptor XML file to portal/src/main/resources/
+4. Move SAML Metadata IDPSSODescriptor XML file to **portal/src/main/resources/**
 ![](images/previews/download-IDPSSODescriptor-file.png)
 
 # Create Roles for authorizing cBioPortal users
 * To create a role, just click on the Add Role button on this page. Enter in the name e.g **brca_tcga_pub** and description of the role and hit the Save button.
-![](images/previews/add-role.png)
+![](images/previews/add-role-for-study.png)
 **To turn a regular role into a composite role, go to the role detail page and flip the Composite Role switch on.**
 
-
-## Create Users and Assign Roles to a User
-1. To create a user, click on Users in the left menu bar. This menu option brings you to the user list page. On the right side of the empty user list,
- you should see an Add User button. Click that to start creating your new user.
-![](images/previews/add-user.png)
-2. Next, assign roles to each user through the Role Mappings tab for that single user.
-**A composite role is a role that has one or more additional roles associated with it**. When a composite role is mapped to the user,
- the user also gains the roles associated with that composite. This inheritance is recursive so any composite of composites also gets inherited.
-![](images/previews/assign-role-to-user.png)
 
 ## Modifying portal.properties
 
@@ -93,7 +90,7 @@ keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
     authorization=true
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/saml-idp-metadata.xml
-    saml.idp.metadata.entityid=http://localhost:8080/auth/realms/yourdomain
+    saml.idp.metadata.entityid=http://localhost:8080/auth/realms/demo
     saml.keystore.location=classpath:/keystore.jks
     saml.keystore.password=apollo1
     saml.keystore.private-key.key=secure-key
@@ -105,8 +102,36 @@ keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
     saml.idp.metadata.attribute.role=roles
     saml.custom.userservice.class=org.cbioportal.security.spring.authentication.keycloak.SAMLUserDetailsServiceImpl
     # global logout (as opposed to local logout):
-    saml.logout.url=/login.jsp?logout_success=true
+    saml.logout.local=false
+    saml.logout.url=/
 ```
+
+## Integrating keycloak with your company-wide authentication service
+
+When integrating keycloak with your company-wide authentication service, the user credentials will reside at your institute's users directory and keycloak
+will work as a proxy between your LDAP (or SAML) service and cBioPortal.
+
+Please refer to keycloack documentation [http://www.keycloak.org/documentation.html](http://www.keycloak.org/documentation.html) for more information on how to integrate keycloak with your local LDAP/SAML service.
+
+## Authorization with keycloak
+
+### Local keycloak users: create users and assigning roles
+
+1. To create a user, click on Users in the left menu bar. This menu option brings you to the user list page. On the right side of the empty user list,
+ you should see an Add User button. Click that to start creating your new user.
+![](images/previews/add-user.png)
+2. Next, assign roles to each user through the Role Mappings tab for that single user.
+**A composite role is a role that has one or more additional roles associated with it**. When a composite role is mapped to the user,
+ the user also gains the roles associated with that composite. This inheritance is recursive so any composite of composites also gets inherited.
+![](images/previews/assign-role-to-user.png)
+
+### Institute's IDP users: assigning roles
+
+When integrating keycloak with your company-wide authentication service, the user credentials will reside at your institute's users directory and keycloak
+will work as a proxy between your LDAP (or SAML) IDP service and cBioPortal. Nevertheless, the authorization roles
+should still be configured for the users. The steps below detail how to do this.
+
+TODO
 
 ## Doing a Test Run
 

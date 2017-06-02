@@ -28,6 +28,8 @@
 window.enableDarwin = <%=CheckDarwinAccessServlet.CheckDarwinAccess.existsDarwinProperties()%>;
 
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+
+window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
     
 // this prevents react router from messing with hash in a way that could is unecessary (static pages)
 // or could conflict

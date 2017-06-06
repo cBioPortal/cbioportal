@@ -44,14 +44,14 @@
 	</bean>
 	
 	<!-- Values are for testing only, so need to correspond to the cgds in the pom.xml -->
-	<bean id="dbcpDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+	<bean id="dbcpDataSource" destroy-method="close" class="org.apache.commons.dbcp2.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/cgds_test" />
 		<property name="username" value="${db.user}" />
 		<property name="password" value="${db.password}" />
 		<property name="minIdle" value="0" />
 		<property name="maxIdle" value="10" />
-		<property name="maxActive" value="100" />
+		<property name="maxTotal" value="100" />
 		<property name="poolPreparedStatements" value="true" />
 	</bean>
 	
@@ -59,6 +59,7 @@
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="businessDataSource" />
         <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+        <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" /><!-- this can prob. be multiple , separated items like other package config below -->
     </bean>
     
     <!-- scan for mappers and let them be autowired -->

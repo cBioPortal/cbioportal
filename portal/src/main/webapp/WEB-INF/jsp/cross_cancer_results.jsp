@@ -80,6 +80,28 @@
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
+
+<script>
+window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    
+window.historyType = 'memory';
+
+// Set API root variable for cbioportal-frontend repo
+    <%
+String url = request.getRequestURL().toString();
+String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
+baseURL = baseURL.replace("https://", "").replace("http://", "");
+%>
+__API_ROOT__ = '<%=baseURL%>';
+
+window.loadReactApp({ defaultRoute: 'home' });
+    
+window.onReactAppReady(function(){
+    window.renderQuerySelectorInModal(document.getElementById("querySelector"));
+});
+    
+</script>
+    
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
 <%@ include file="oncokb/oncokb-card-template.html" %>
 <%@ include file="civic/civic-qtip-template.html" %>
@@ -126,15 +148,20 @@ if (sessionError != null) {  %>
 </p>
 <% } %>
 
-<table>
+<!-- Button trigger modal -->
+
+
+
+    
+    <table>
     <tr>
         <td>
 
             <div id="results_container">
-                <div id='modify_query' style='margin:20px;'>
-                    <button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>
-                        Modify Query
-                    </button>
+                
+                <div id='modify_query'>
+                    <div id="querySelector" style="min-height:34px"></div>
+                    <div id="reactRoot" class="hidden"></div>
                     <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
                         <%@ include file="query_form.jsp" %>
                     </div>
@@ -147,7 +174,7 @@ if (sessionError != null) {  %>
         </td>
     </tr>
 </table>
-
+  
 <script>
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;

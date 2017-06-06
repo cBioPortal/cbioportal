@@ -1,7 +1,7 @@
 /* CSS THAT APPLIES TO ALLLLLL PORTALS */
 
 body {
-    background-color: #f5f5f5;
+    background-color: #fff;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     table-layout: fixed;
     text-align: center;
@@ -61,7 +61,6 @@ td, th {
 */
 
 #page_wrapper {
-  background-color: #fff;
   margin: 0 auto;
   min-width: 780px;
   max-width: 1320px !important;
@@ -125,7 +124,7 @@ fieldset#patient-view-summary-fieldset > legend {
 }
 
 #content {
-  padding: 0 20px;
+    padding: 0 20px;
 }
 
 img {
@@ -1038,8 +1037,6 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 
 .welcome {
     padding: 3px;
-    /*height: 200px;*/
-    min-height: 200px;
 }
 
 #right_side {
@@ -1200,7 +1197,7 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 }
 
 #footer {
-  border-top: 1px solid #f5f5f5;
+  background: #f5f5f5;
   clear: both;
   text-align: center;
   padding: 15px 20px;

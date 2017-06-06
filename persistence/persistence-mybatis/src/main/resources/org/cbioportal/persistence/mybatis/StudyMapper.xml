@@ -26,6 +26,7 @@
         ,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_sequenced') THEN 1 ELSE NULL END) AS sequencedSampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_cna') THEN 1 ELSE NULL END) AS cnaSampleCount,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rna_seq_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqSampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rna_seq_v2_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqV2SampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_microrna') THEN 1 ELSE NULL END) AS mrnaMicroarraySampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_mrna') THEN 1 ELSE NULL END) AS miRnaSampleCount,

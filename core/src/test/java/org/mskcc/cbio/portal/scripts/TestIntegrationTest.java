@@ -65,6 +65,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.cbioportal.model.GenesetGeneticData;
+import org.cbioportal.service.GenesetDataService;
+import org.mskcc.cbio.portal.dao.DaoGeneset;
 
 
 /**
@@ -269,6 +272,22 @@ public class TestIntegrationTest {
             //===== check mutsig
             //TODO
             
+            //===== check GSVA data
+            //...
+            String testGeneset = "GO_ATP_DEPENDENT_CHROMATIN_REMODELING";
+            assertEquals(4, DaoGeneset.getGenesetByExternalId(testGeneset).getGenesetGeneIds().size());
+            //scores:                                        TCGA-A1-A0SB-01     TCGA-A1-A0SD-01      TCGA-A1-A0SE-01     TCGA-A1-A0SH-01     TCGA-A2-A04U-01
+            //        GO_ATP_DEPENDENT_CHROMATIN_REMODELING  -0.293861251463613  -0.226227563676626  -0.546556962547473  -0.0811115513543749  0.56919171543422
+            //using new api:
+            GenesetDataService genesetDataService = applicationContext.getBean(GenesetDataService.class);
+            List<GenesetGeneticData> genesetData = genesetDataService.fetchGenesetData("study_es_0_gsva_scores", "study_es_0_all",  Arrays.asList(testGeneset));
+            assertEquals(5, genesetData.size());
+
+            genesetData = genesetDataService.fetchGenesetData("study_es_0_gsva_scores", Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testGeneset));
+            assertEquals(2, genesetData.size());
+            assertEquals(-0.293861251463613, Double.parseDouble(genesetData.get(0).getValue()), 0.00001);
+            assertEquals(-0.0811115513543749, Double.parseDouble(genesetData.get(1).getValue()), 0.00001);
+
             //===== check study status
             assertEquals(DaoCancerStudy.Status.AVAILABLE, DaoCancerStudy.getStatus("study_es_0"));
             

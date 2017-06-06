@@ -70,6 +70,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(GenesetNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGenesetNotFound(GenesetNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Gene set not found: " + ex.getGenesetId()),
+                HttpStatus.NOT_FOUND);
+    }
+    
     @ExceptionHandler(SampleListNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSampleListNotFound(SampleListNotFoundException ex) {
 

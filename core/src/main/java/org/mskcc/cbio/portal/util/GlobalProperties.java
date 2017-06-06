@@ -154,7 +154,7 @@ public class GlobalProperties {
     // property for setting the news blurb in the right column
     public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
     public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
-            "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
+            "<form action=\"https://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
             "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
             "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
             "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
@@ -203,6 +203,10 @@ public class GlobalProperties {
     
     public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
+    // property for query component
+    public static final String SKIN_QUERY_MAX_TREE_DEPTH="skin.query.max_tree_depth";
+    public static final Number DEFAULT_QUERY_MAX_TREE_DEPTH=3;
+    
     // property for text shown at the right side of the Select Patient/Case set, which
     // links to the study view
     public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
@@ -415,6 +419,13 @@ public class GlobalProperties {
     {
         String markdownFlag = properties.getProperty(SKIN_DOCUMENTATION_MARKDOWN);
         return markdownFlag == null || Boolean.parseBoolean(markdownFlag);
+    }
+
+    //get max tree depth
+    public static Number getMaxTreeDepth()
+    {
+        String maxTreeDepth = properties.getProperty(SKIN_QUERY_MAX_TREE_DEPTH);
+        return (maxTreeDepth == null) ? DEFAULT_QUERY_MAX_TREE_DEPTH : Integer.parseInt(maxTreeDepth);
     }
 
     // get custom Example Queries for the right column html or the default

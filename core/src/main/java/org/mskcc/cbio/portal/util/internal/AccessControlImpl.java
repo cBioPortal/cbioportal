@@ -133,6 +133,12 @@ public class AccessControlImpl implements AccessControl {
     {
         if (GlobalProperties.usersMustBeAuthorized()) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null) {
+                String errorMessage = "Possible configuration error detected: authorization=true but no authentication found. "
+                        + "If authentication is turned off, authorization should be set to false";
+                log.error(errorMessage);
+                throw new RuntimeException(errorMessage);
+            }
             return !(auth instanceof AnonymousAuthenticationToken) ? (UserDetails)auth.getPrincipal() : null;
         }
         return null;

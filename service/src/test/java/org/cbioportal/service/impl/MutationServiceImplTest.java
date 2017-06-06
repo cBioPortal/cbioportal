@@ -305,4 +305,18 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
             new GeneticProfileNotFoundException(GENETIC_PROFILE_ID));
         mutationService.fetchMutationCountsInGeneticProfile(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_LIST_ID));
     }
+
+    @Test
+    public void fetchMutationCountsByPosition() throws Exception {
+
+        MutationCountByPosition expectedMutationCountByPosition = new MutationCountByPosition();
+        Mockito.when(mutationRepository.getMutationCountByPosition(ENTREZ_GENE_ID,
+            PROTEIN_POS_START, PROTEIN_POS_END)).thenReturn(expectedMutationCountByPosition);
+        
+        List<MutationCountByPosition> result = mutationService.fetchMutationCountsByPosition(
+            Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(PROTEIN_POS_START), Arrays.asList(PROTEIN_POS_END));
+        
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(expectedMutationCountByPosition, result.get(0));
+    }
 }

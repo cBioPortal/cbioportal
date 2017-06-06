@@ -327,4 +327,15 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("TCGA-A1-A0SH-01", mutationCount.getSampleId());
         Assert.assertEquals((Integer) 2, mutationCount.getMutationCount());
     }
+
+    @Test
+    public void getMutationCountByPosition() throws Exception {
+        
+        MutationCountByPosition result = mutationMyBatisRepository.getMutationCountByPosition(672, 61, 936);
+        
+        Assert.assertEquals((Integer) 672, result.getEntrezGeneId());
+        Assert.assertEquals((Integer) 61, result.getProteinPosStart());
+        Assert.assertEquals((Integer) 936, result.getProteinPosEnd());
+        Assert.assertEquals((Integer) 3, result.getCount());
+    }
 }

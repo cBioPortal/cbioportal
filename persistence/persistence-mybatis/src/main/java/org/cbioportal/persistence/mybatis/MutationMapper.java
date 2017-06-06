@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
+import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.meta.MutationMeta;
@@ -47,4 +48,7 @@ public interface MutationMapper {
     List<MutationCount> getMutationCountsBySampleListId(String geneticProfileId, String sampleListId);
     
     List<MutationCount> getMutationCountsBySampleIds(String geneticProfileId, List<String> sampleIds);
+    
+    MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart, 
+                                                       Integer proteinPosEnd);
 }

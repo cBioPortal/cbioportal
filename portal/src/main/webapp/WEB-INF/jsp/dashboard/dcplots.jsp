@@ -72,7 +72,7 @@
             </div>
             <span id="iviz-header-left-patient-select" class="iviz-header-button"
                   @click="openCases" class="number"
-                  role="button" tabindex="0" style="display: block;"><i class="fa fa-user"
+                  role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"
                                                                         aria-hidden="true"></i></span>
             <span id="iviz-header-left-case-download" class="iviz-header-button" @click="downloadCaseData()"
                   role="button"

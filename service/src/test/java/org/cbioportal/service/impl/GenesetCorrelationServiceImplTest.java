@@ -9,7 +9,6 @@ import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GenesetCorrelation;
 import org.cbioportal.model.GenesetGeneticData;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.GeneticDataService;
@@ -80,7 +79,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
             .thenReturn(Arrays.asList(geneticProfile));
         GeneticProfile zscoreGeneticProfile = new GeneticProfile();
         zscoreGeneticProfile.setStableId(GENETIC_PROFILE_ID);
-        zscoreGeneticProfile.setDatatype(DataType.Z_SCORE);
+        zscoreGeneticProfile.setDatatype("Z_SCORE");
         Mockito.when(geneticProfileService.getGeneticProfilesReferringTo(GENETIC_PROFILE_ID))
             .thenReturn(Arrays.asList(zscoreGeneticProfile));
         

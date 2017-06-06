@@ -3,7 +3,6 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.GeneGeneticAlteration;
 import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.model.GeneticProfile.GeneticAlterationType;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
@@ -129,7 +128,7 @@ public class GeneticDataServiceImpl implements GeneticDataService {
         GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
 
         if ((geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.COPY_NUMBER_ALTERATION) && 
-            geneticProfile.getDatatype().equals(DataType.DISCRETE)) || geneticProfile.getGeneticAlterationType()
+            geneticProfile.getDatatype().equals("DISCRETE")) || geneticProfile.getGeneticAlterationType()
             .equals(GeneticAlterationType.MUTATION_EXTENDED) || geneticProfile.getGeneticAlterationType()
             .equals(GeneticAlterationType.FUSION)) {
 

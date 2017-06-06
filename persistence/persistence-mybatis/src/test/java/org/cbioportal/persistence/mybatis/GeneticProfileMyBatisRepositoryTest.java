@@ -2,7 +2,6 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,7 +48,7 @@ public class GeneticProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub", geneticProfile.getCancerStudyIdentifier());
         Assert.assertEquals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
-        Assert.assertEquals(DataType.DISCRETE, geneticProfile.getDatatype());
+        Assert.assertEquals("DISCRETE", geneticProfile.getDatatype());
         Assert.assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getName());
         Assert.assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous " +
                 "deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.",
@@ -72,7 +71,7 @@ public class GeneticProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub", geneticProfile.getCancerStudyIdentifier());
         Assert.assertEquals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
-        Assert.assertEquals(DataType.DISCRETE, geneticProfile.getDatatype());
+        Assert.assertEquals("DISCRETE", geneticProfile.getDatatype());
         Assert.assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getName());
         Assert.assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous " +
                         "deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.",
@@ -146,7 +145,7 @@ public class GeneticProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub", geneticProfile.getCancerStudyIdentifier());
         Assert.assertEquals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
-        Assert.assertEquals(DataType.DISCRETE, geneticProfile.getDatatype());
+        Assert.assertEquals("DISCRETE", geneticProfile.getDatatype());
         Assert.assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getName());
         Assert.assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous " +
                         "deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.",
@@ -182,7 +181,7 @@ public class GeneticProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub", geneticProfile.getCancerStudyIdentifier());
         Assert.assertEquals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
-        Assert.assertEquals(DataType.DISCRETE, geneticProfile.getDatatype());
+        Assert.assertEquals("DISCRETE", geneticProfile.getDatatype());
         Assert.assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getName());
         Assert.assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous " +
                         "deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.",

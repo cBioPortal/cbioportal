@@ -39,7 +39,6 @@ import org.cbioportal.model.GenesetGeneticData;
 import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Sample;
-import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.GenesetCorrelationService;
@@ -144,7 +143,7 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
 		GeneticProfile zscoresProfile = null;
 		for (GeneticProfile referringProfile : referringProfiles) {
 			//use the first z-score profile we can find in this list of referring profiles (normally there should be only 1 anyway):
-			if (referringProfile.getDatatype().equals(DataType.Z_SCORE)) {
+			if (referringProfile.getDatatype().equals("Z_SCORE")) {
 				zscoresProfile = referringProfile;
 				break;
 			}

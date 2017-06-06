@@ -26,11 +26,13 @@
 <script type="text/javascript">
 
 window.enableDarwin = <%=CheckDarwinAccessServlet.CheckDarwinAccess.existsDarwinProperties()%>;
-
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
-
 window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
-    
+window.showOncoKB = <%=GlobalProperties.showOncoKB()%>;
+window.showCivic = <%=GlobalProperties.showCivic()%>;
+window.showHotspot = <%=GlobalProperties.showHotspot()%>;
+window.showMyCancerGenome = <%=GlobalProperties.showMyCancerGenomeUrl()%>;
+
 // this prevents react router from messing with hash in a way that could is unecessary (static pages)
 // or could conflict
 window.historyType = 'memory';

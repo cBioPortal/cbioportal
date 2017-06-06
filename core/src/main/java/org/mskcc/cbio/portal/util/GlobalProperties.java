@@ -729,7 +729,7 @@ public class GlobalProperties {
     {
         return sessionServiceURL;
     }
-    
+
     public static String getOncoKBPublicApiUrl()
     {
         String oncokbApiUrl = properties.getProperty(ONCOKB_PUBLIC_API_URL);
@@ -792,6 +792,15 @@ public class GlobalProperties {
         if (!civicUrl.endsWith("/"))
             civicUrl += "/";
         return civicUrl;
+    }
+
+    public static boolean showOncoKB() {
+        String showOncokb = properties.getProperty(SHOW_ONCOKB);
+        if (showOncokb==null || showOncokb.isEmpty()) {
+            return true; // show oncoKB by default
+        } else {
+            return Boolean.parseBoolean(showOncokb);
+        }
     }
 
     public static boolean showHotspot() {

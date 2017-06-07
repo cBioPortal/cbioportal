@@ -7,7 +7,6 @@ import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.GeneticDataService;
@@ -251,7 +250,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         
         GeneticProfile geneticProfile = new GeneticProfile();
         geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION);
-        geneticProfile.setDatatype(DataType.DISCRETE);
+        geneticProfile.setDatatype("DISCRETE");
         Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
     }
 
@@ -267,7 +266,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
         GeneticProfile geneticProfile = new GeneticProfile();
         geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION);
-        geneticProfile.setDatatype(DataType.DISCRETE);
+        geneticProfile.setDatatype("DISCRETE");
         Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
 
         Mockito.when(geneticDataService.getNumberOfSamplesInGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(2);

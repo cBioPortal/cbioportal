@@ -36,7 +36,6 @@ import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GenesetGeneticData;
 import org.cbioportal.model.GenesetHierarchyInfo;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.GenesetHierarchyRepository;
 import org.cbioportal.service.SampleListService;
@@ -92,8 +91,8 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 		//validate: 
 		GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
 		//also validate if profile is of geneset_score type:
-		if (!geneticProfile.getDatatype().equals(DataType.GSVA_SCORE)) {
-			throw new IllegalArgumentException("Genetic profile should be of DATA_TYPE = " + DataType.GSVA_SCORE + ", but found: " +
+		if (!geneticProfile.getDatatype().equals("GSVA_SCORE")) {
+			throw new IllegalArgumentException("Genetic profile should be of DATA_TYPE = GSVA_SCORE, but found: " +
 					geneticProfile.getDatatype());
 		}
 		
@@ -121,8 +120,8 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 			throw new RuntimeException("The given gene set profile [" + scoresGeneticProfileId + "] should have (at least) 1 and only 1 linked p-values profile in DB");
 		}
 		//validate if profile is of pvalue type:
-		if (!pvaluesGeneticProfiles.get(0).getDatatype().equals(DataType.P_VALUE)) {
-			throw new IllegalArgumentException("Genetic profile should be of DATA_TYPE = " + DataType.P_VALUE);
+		if (!pvaluesGeneticProfiles.get(0).getDatatype().equals("P_VALUE")) {
+			throw new IllegalArgumentException("Genetic profile should be of DATA_TYPE = P_VALUE");
 		}
 
 		List<GenesetGeneticData> genesetPvalues = genesetDataService.fetchGenesetData(pvaluesGeneticProfiles.get(0).getStableId(), sampleIds, null);  

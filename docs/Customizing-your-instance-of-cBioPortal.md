@@ -216,6 +216,12 @@ Below you can find the complete list of all the available skin properties.
 			<td>cBioPortal for Cancer Genomics</td>
 			<td>text</td>
 		</tr>
+		<tr>
+            <td>skin.query.max_tree_depth</td>
+            <td>sets the maximum number of subcategories shown in the query component hierarchy before each study. E.g. when set to 0, the hierarchy is flat, meaning only the study elements show in the component, without any tissue or cancer type sorting.</td>
+            <td>3</td>
+            <td>integer</td>
+        </tr>
    </tbody>
 </table>
 

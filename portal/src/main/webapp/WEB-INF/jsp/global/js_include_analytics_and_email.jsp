@@ -69,6 +69,8 @@ if (piwikSiteId!=null && !piwikSiteId.isEmpty() && piwikServerUrl!=null && !piwi
   }
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
+  //cbioportal URLs can get too long for GET
+  _paq.push(['setRequestMethod', 'POST']);
   (function() {
     var u="//<%=piwikServerUrl%>/";
     _paq.push(['setTrackerUrl', u+'piwik.php']);

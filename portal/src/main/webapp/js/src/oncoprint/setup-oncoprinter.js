@@ -118,7 +118,7 @@ $(document).ready(function () {
 	    gene_order = null;
 	}
 	
-	var sample_order = $('#sample_order').val().trim().split(/\s+/g);
+	var sample_order = $('#sample_order').val().trim().split(/[,\s]+/g);
 	if (sample_order.length === 0 || sample_order[0].length === 0) {
 	    sample_order = null;
 	}

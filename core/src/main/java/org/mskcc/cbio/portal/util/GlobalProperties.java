@@ -154,7 +154,7 @@ public class GlobalProperties {
     // property for setting the news blurb in the right column
     public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
     public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
-            "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
+            "<form action=\"https://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
             "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
             "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
             "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
@@ -216,6 +216,7 @@ public class GlobalProperties {
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
     
     public static final String DB_VERSION = "db.version";
+    public static final String SUPPRESS_SCHEMA_VERSION_MISMATCH_ERRORS = "db.suppress_schema_version_mismatch_errors";
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
@@ -718,7 +719,7 @@ public class GlobalProperties {
     {
         return sessionServiceURL;
     }
-    
+
     public static String getOncoKBPublicApiUrl()
     {
         String oncokbApiUrl = properties.getProperty(ONCOKB_PUBLIC_API_URL);
@@ -783,6 +784,15 @@ public class GlobalProperties {
         return civicUrl;
     }
 
+    public static boolean showOncoKB() {
+        String showOncokb = properties.getProperty(SHOW_ONCOKB);
+        if (showOncokb==null || showOncokb.isEmpty()) {
+            return true; // show oncoKB by default
+        } else {
+            return Boolean.parseBoolean(showOncokb);
+        }
+    }
+
     public static boolean showHotspot() {
         String hotspot = properties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
@@ -840,6 +850,11 @@ public class GlobalProperties {
         return version;
     }
     
+    public static boolean isSuppressSchemaVersionMismatchErrors() {
+        String isSuppressSchemaVersionMismatchErrors = properties.getProperty(SUPPRESS_SCHEMA_VERSION_MISMATCH_ERRORS, "false");
+        return Boolean.parseBoolean(isSuppressSchemaVersionMismatchErrors);
+    }
+
     public static String getDarwinAuthCheckUrl() {
         String darwinAuthUrl = "";
         if (properties.containsKey(DARWIN_AUTH_URL)) {

@@ -174,7 +174,7 @@
 	        <Arg><Ref refid="webapp"/></Arg>
 	        <Arg>jdbc/cbioportal</Arg>
 	        <Arg>
-	            <New class="org.apache.commons.dbcp.BasicDataSource">
+	            <New class="org.apache.commons.dbcp2.BasicDataSource">
 	                <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
 	                <Set name="url">jdbc:mysql://localhost/cbioportal</Set>
 	                <Set name="username">cbioportal</Set>

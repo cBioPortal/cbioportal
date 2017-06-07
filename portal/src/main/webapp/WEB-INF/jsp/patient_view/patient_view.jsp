@@ -73,6 +73,10 @@
     window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
     
     window.oncoKBApiUrl = '<%=GlobalProperties.getOncoKBPublicApiUrl()%>';
+    window.showOncoKB = <%=GlobalProperties.showOncoKB()%>;
+    window.showCivic = <%=GlobalProperties.showCivic()%>;
+    window.showHotspot = <%=GlobalProperties.showHotspot()%>;
+    window.showMyCancerGenome = <%=GlobalProperties.showMyCancerGenomeUrl()%>;
     
     window.loadReactApp({ defaultRoute: 'patient' });
     

@@ -57,14 +57,13 @@
     <tr>
         <div id="cc-plots-sidebar">
             <h5>Gene</h5>
-            <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
+            <span id="cc_plots_gene_list_select" onchange="ccPlots.init();">
                 <select disabled id="cc_plots_gene_list" style="width:80px" title="Select gene"></select>
             </span>
             <h5>Profile</h5>
             <span id="cc_plots_profile_list_select" onchange="ccPlots.init();">
                 <select id="cc_plots_profile_list" style="width:100px" title="Select profile">
-                    <option value='v2'>RNA Seq V2</option>
-                    <option value='v1'>RNA Seq</option>
+  
                 </select>
             </span>
             <h5>Sort By</h5>

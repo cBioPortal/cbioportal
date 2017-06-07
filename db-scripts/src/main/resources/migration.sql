@@ -356,3 +356,19 @@ UPDATE info SET DB_SCHEMA_VERSION="2.3.0";
 
 -- ========================== end of geneset related tables =============================================
 
+##version: 2.3.1
+TRUNCATE TABLE mutation_count_by_keyword;
+
+INSERT INTO mutation_count_by_keyword
+    SELECT g2.`GENETIC_PROFILE_ID`, mutation_event.`KEYWORD`, m2.`ENTREZ_GENE_ID`,
+        IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(DISTINCT(m2.SAMPLE_ID))) AS KEYWORD_COUNT,
+        (SELECT COUNT(DISTINCT(m1.SAMPLE_ID)) FROM `mutation` AS m1 , `genetic_profile` AS g1
+        WHERE m1.`GENETIC_PROFILE_ID` = g1.`GENETIC_PROFILE_ID`
+              AND g1.`GENETIC_PROFILE_ID`= g2.`GENETIC_PROFILE_ID` AND m1.`ENTREZ_GENE_ID` = m2.`ENTREZ_GENE_ID`
+        GROUP BY g1.`GENETIC_PROFILE_ID` , m1.`ENTREZ_GENE_ID`) AS GENE_COUNT
+    FROM `mutation` AS m2 , `genetic_profile` AS g2 , `mutation_event`
+    WHERE m2.`GENETIC_PROFILE_ID` = g2.`GENETIC_PROFILE_ID`
+          AND m2.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID`
+          AND g2.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
+    GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;
+UPDATE info SET DB_SCHEMA_VERSION="2.3.1";

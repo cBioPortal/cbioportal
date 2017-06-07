@@ -674,9 +674,6 @@ var OncoprintWebGLCellView = (function () {
 	return this.ctx !== null;
     }
     OncoprintWebGLCellView.prototype.removeTrack = function (model, track_id) {
-	if (this.rendering_suppressed) {
-	    return;
-	};
 	delete this.identified_shape_list_list[track_id];
 	delete this.vertex_data[track_id];
 	delete this.vertex_column_array[track_id];
@@ -685,16 +682,16 @@ var OncoprintWebGLCellView = (function () {
 	clearTrackPositionAndColorBuffers(this, model, track_id);
 	clearTrackColumnBuffers(this, model, track_id);
 	
-	renderAllTracks(this, model);
+	if (!this.rendering_suppressed) {
+	    renderAllTracks(this, model);
+	};
     }
     OncoprintWebGLCellView.prototype.moveTrack = function (model) {
-	if (this.rendering_suppressed) {
-	    return;
+	if (!this.rendering_suppressed) {
+	    renderAllTracks(this, model);
 	};
-	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.setTrackGroupOrder = function(model) {
-	clearZoneBuffers(this, model);
 	renderAllTracks(this, model);
     }
     
@@ -792,26 +789,19 @@ var OncoprintWebGLCellView = (function () {
     }
     
     OncoprintWebGLCellView.prototype.setHorzScroll = function(model) {
-	if (this.rendering_suppressed) {
-	    return;
-	};
 	this.setScroll(model);
     }
     
     OncoprintWebGLCellView.prototype.setVertScroll = function(model) {
-	if (this.rendering_suppressed) {
-	    return;
-	};
 	this.setScroll(model);
     }
     
     OncoprintWebGLCellView.prototype.setScroll = function(model) {
-	if (this.rendering_suppressed) {
-	    return;
-	};
 	this.scroll_x = model.getHorzScroll();
 	this.scroll_y = model.getVertScroll();
-	renderAllTracks(this, model, true);
+	if (!this.rendering_suppressed) {
+	    renderAllTracks(this, model, true);
+	};
     }
     
     var updateAntialiasSetting = function(view, model) {
@@ -830,19 +820,17 @@ var OncoprintWebGLCellView = (function () {
     };
     
     OncoprintWebGLCellView.prototype.setZoom = function(model) {
-	if (this.rendering_suppressed) {
-	    return;
-	};
 	updateAntialiasSetting(this, model);
-	renderAllTracks(this, model);
+	if (!this.rendering_suppressed) {
+	    renderAllTracks(this, model);
+	};
     }
     
     OncoprintWebGLCellView.prototype.setHorzZoom = function(model) {
-	if (this.rendering_suppressed) {
-	    return;
-	};
 	updateAntialiasSetting(this, model);
-	renderAllTracks(this, model);
+	if (!this.rendering_suppressed) {
+	    renderAllTracks(this, model);
+	};
     }
     
     OncoprintWebGLCellView.prototype.setVertZoom = function(model) {
@@ -853,13 +841,12 @@ var OncoprintWebGLCellView = (function () {
     }
     
     OncoprintWebGLCellView.prototype.setViewport = function(model) {
-	if (this.rendering_suppressed) {
-	    return;
-	};
 	this.scroll_x = model.getHorzScroll();
 	this.scroll_y = model.getVertScroll();
 	updateAntialiasSetting(this, model);
-	renderAllTracks(this, model);
+	if (!this.rendering_suppressed) {
+	    renderAllTracks(this, model);
+	};
     }
     
     OncoprintWebGLCellView.prototype.getTotalWidth = function(model, base) {

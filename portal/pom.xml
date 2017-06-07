@@ -50,30 +50,6 @@
           ${tomcat.catalina.scope}
       </scope>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-taglibs</artifactId>
-      <version>${spring.security.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-ldap</artifactId>
-      <version>${spring.security.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-openid</artifactId>
-      <version>${spring.security.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security.extensions</groupId>
-      <artifactId>spring-security-saml2-core</artifactId>
-      <version>${spring.security.saml.version}</version>
-      <scope>runtime</scope>
-    </dependency>
   </dependencies>
 
   <repositories>
@@ -119,7 +95,7 @@
                 <artifactItem>
                   <groupId>com.github.cbioportal</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>4ddbfdd8c7adb53991ba1761c10fff408736d48f</version>
+                  <version>f3a7c404888c77ecbdb5a4a2ed2788bd21a244d6</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

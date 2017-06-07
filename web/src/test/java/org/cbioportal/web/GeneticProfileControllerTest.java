@@ -2,7 +2,6 @@ package org.cbioportal.web;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
@@ -40,7 +39,7 @@ public class GeneticProfileControllerTest {
     private static final String TEST_STUDY_IDENTIFIER_1 = "test_study_identifier_1";
     private static final GeneticProfile.GeneticAlterationType TEST_GENETIC_ALTERATION_TYPE_1 =
             GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED;
-    private static final DataType TEST_DATATYPE_1 = DataType.MAF;
+    private static final String TEST_DATATYPE_1 = "MAF";
     private static final String TEST_NAME_1 = "test_name_1";
     private static final String TEST_DESCRIPTION_1 = "test_description_1";
     private static final boolean TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1 = true;
@@ -55,7 +54,7 @@ public class GeneticProfileControllerTest {
     private static final String TEST_STUDY_IDENTIFIER_2 = "test_study_identifier_2";
     private static final GeneticProfile.GeneticAlterationType TEST_GENETIC_ALTERATION_TYPE_2 =
             GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION;
-    private static final DataType TEST_DATATYPE_2 = DataType.CONTINUOUS;
+    private static final String TEST_DATATYPE_2 = "CONTINUOUS";
     private static final String TEST_NAME_2 = "test_name_2";
     private static final String TEST_DESCRIPTION_2 = "test_description_2";
     private static final boolean TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2 = false;
@@ -97,7 +96,7 @@ public class GeneticProfileControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticAlterationType")
                         .value(TEST_GENETIC_ALTERATION_TYPE_1.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1.getValue()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
@@ -107,7 +106,7 @@ public class GeneticProfileControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticAlterationType")
                         .value(TEST_GENETIC_ALTERATION_TYPE_2.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2.getValue()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
@@ -176,7 +175,7 @@ public class GeneticProfileControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_STUDY_IDENTIFIER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.geneticAlterationType")
                         .value(TEST_GENETIC_ALTERATION_TYPE_1.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.datatype").value(TEST_DATATYPE_1.getValue()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.datatype").value(TEST_DATATYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.showProfileInAnalysisTab")
@@ -210,7 +209,7 @@ public class GeneticProfileControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticAlterationType")
                         .value(TEST_GENETIC_ALTERATION_TYPE_1.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1.getValue()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
@@ -220,7 +219,7 @@ public class GeneticProfileControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticAlterationType")
                         .value(TEST_GENETIC_ALTERATION_TYPE_2.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2.getValue()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")

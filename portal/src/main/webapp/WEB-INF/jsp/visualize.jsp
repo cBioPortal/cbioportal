@@ -33,6 +33,34 @@
 
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
+
+
+<script>
+window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+
+window.historyType = 'memory';
+
+// Set API root variable for cbioportal-frontend repo
+    <%
+String url = request.getRequestURL().toString();
+String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
+baseURL = baseURL.replace("https://", "").replace("http://", "");
+%>
+__API_ROOT__ = '<%=baseURL%>';
+
+window.loadReactApp({ defaultRoute: 'home' });
+
+window.onReactAppReady(function(){
+    setTimeout(function(){
+        window.renderQuerySelectorInModal(document.getElementById("querySelector"));
+    },2000);
+});
+
+
+</script>
+
+<div id="reactRoot" class="hidden"></div>
+    
 <%@ page import="java.util.Map" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
@@ -51,15 +79,14 @@
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
     <div id='main_smry_info_div'>
-        <table style='margin-left:0px;width:40%;margin-top:-10px;margin-bottom:-5px;' >
+        <table style='margin-left:0px;margin-top:-10px;margin-bottom:-5px;' >
             <tr>
-                <td><div id='main_smry_modify_query_btn'><div></td>
+                <td>
+                    <div id="querySelector"></div>
+                </td>
                 <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
             </tr>
         </table>
-    </div>
-    <div style="margin-left:5px;display:none;margin-top:-5px;" id="query_form_on_results_page">
-        <%@ include file="query_form.jsp" %>
     </div>
 </div>
 

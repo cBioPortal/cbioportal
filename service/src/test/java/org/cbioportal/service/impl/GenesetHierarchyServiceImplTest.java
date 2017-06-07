@@ -8,7 +8,6 @@ import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GenesetGeneticData;
 import org.cbioportal.model.GenesetHierarchyInfo;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.GeneticProfile.DataType;
 import org.cbioportal.persistence.GenesetHierarchyRepository;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.GenesetService;
@@ -57,7 +56,7 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
 
         GeneticProfile geneticProfile = new GeneticProfile();
         geneticProfile.setCancerStudyIdentifier(STUDY_ID);
-        geneticProfile.setDatatype(DataType.GSVA_SCORE);
+        geneticProfile.setDatatype("GSVA_SCORE");
         Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
         
         //stub for geneset scores:
@@ -75,7 +74,7 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         //stubs for related p-values:
         GeneticProfile pvalueGeneticProfile = new GeneticProfile();
         pvalueGeneticProfile.setStableId(PVALUE_GENETIC_PROFILE_ID);
-        pvalueGeneticProfile.setDatatype(DataType.P_VALUE);
+        pvalueGeneticProfile.setDatatype("P_VALUE");
         Mockito.when(geneticProfileService.getGeneticProfilesReferringTo(GENETIC_PROFILE_ID))
             .thenReturn(Arrays.asList(pvalueGeneticProfile));
 

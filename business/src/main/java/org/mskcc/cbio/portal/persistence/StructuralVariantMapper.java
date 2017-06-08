@@ -30,9 +30,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.persistence.mybatis;
+package org.mskcc.cbio.portal.persistence;
 
-import org.cbioportal.model.StructuralVariant;
+import org.mskcc.cbio.portal.model.StructuralVariant;
 
 import java.util.List;
 /**

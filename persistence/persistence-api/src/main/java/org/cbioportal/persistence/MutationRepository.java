@@ -11,9 +11,9 @@ import java.util.List;
 public interface MutationRepository {
 
     List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
-                                                              List<Integer> entrezGeneIds, String projection, 
-                                                              Integer pageSize, Integer pageNumber, String sortBy, 
-                                                              String direction);
+                                                              List<Integer> entrezGeneIds, Boolean snpOnly, 
+                                                              String projection, Integer pageSize, Integer pageNumber, 
+                                                              String sortBy, String direction);
 
 
     MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
@@ -28,8 +28,9 @@ public interface MutationRepository {
                                                            List<Integer> entrezGeneIds);
 
     List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
-                                                  List<Integer> entrezGeneIds, String projection, Integer pageSize, 
-                                                  Integer pageNumber, String sortBy, String direction);
+                                                  List<Integer> entrezGeneIds, Boolean snpOnly, String projection, 
+                                                  Integer pageSize, Integer pageNumber, String sortBy, 
+                                                  String direction);
 
     MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
                                                     List<Integer> entrezGeneIds);

@@ -138,8 +138,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
         
         Mockito.when(mutationService.getMutationsInGeneticProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(), 
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(), 
+            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -215,8 +215,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGene();
 
         Mockito.when(mutationService.getMutationsInGeneticProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(), 
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(), 
+            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genetic-profiles/test_genetic_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -409,8 +409,9 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
 
         Mockito.when(mutationService.fetchMutationsInGeneticProfile(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(), 
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), 
+            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(mutationList);
         
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
@@ -493,8 +494,9 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGene();
 
         Mockito.when(mutationService.fetchMutationsInGeneticProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(), 
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), 
+            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(mutationList);
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);

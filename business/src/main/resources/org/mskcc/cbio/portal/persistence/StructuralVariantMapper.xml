@@ -31,10 +31,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<mapper namespace="org.cbioportal.persistence.mybatis.StructuralVariantMapper">
+<mapper namespace="org.mskcc.cbio.portal.persistence.StructuralVariantMapper">
     <cache/>
 
-    <select id="getStructuralVariant" resultType="org.cbioportal.model.StructuralVariant">
+    <select id="getStructuralVariant" resultType="org.mskcc.cbio.portal.model.StructuralVariant">
         select
         structural_variant.SAMPLE_ID as sampleId,
         structural_variant.ANNOTATION as annotation,

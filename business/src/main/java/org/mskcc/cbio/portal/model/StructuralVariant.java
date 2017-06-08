@@ -30,7 +30,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.mskcc.cbio.portal.model;
+
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.Sample;
 
 import java.io.Serializable;
 

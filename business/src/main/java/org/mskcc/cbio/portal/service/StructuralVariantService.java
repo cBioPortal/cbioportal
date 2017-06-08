@@ -30,10 +30,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.service;
+package org.mskcc.cbio.portal.service;
 
 import java.util.List;
-import org.cbioportal.model.StructuralVariant;
+import org.mskcc.cbio.portal.model.StructuralVariant;
 
 public interface StructuralVariantService {
     List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds);

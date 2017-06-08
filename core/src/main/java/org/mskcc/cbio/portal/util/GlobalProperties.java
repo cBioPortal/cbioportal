@@ -149,7 +149,6 @@ public class GlobalProperties {
     public static final String SKIN_SHOW_FAQS_TAB = "skin.show_faqs_tab";
     public static final String SKIN_SHOW_TOOLS_TAB = "skin.show_tools_tab";
     public static final String SKIN_SHOW_ABOUT_TAB = "skin.show_about_tab";
-    public static final String SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB = "skin.show_visualize_your_data_tab";
 
     // property for setting the news blurb in the right column
     public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
@@ -170,9 +169,6 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_LOGIN_CONTACT_HTML = "If you think you have received this message in " +
             "error, please contact us at <a style=\"color:#FF0000\" href=\"mailto:cbioportal-access@cbio.mskcc.org\">" +
             "cbioportal-access@cbio.mskcc.org</a>";
-
-    // properties for hiding/showing tabs in the patient view
-    public static final String SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB="skin.patient_view.show_drugs_tab";
 
     // property for setting the saml registration html
     public static final String SKIN_LOGIN_SAML_REGISTRATION_HTML = "skin.login.saml.registration_html";
@@ -198,8 +194,7 @@ public class GlobalProperties {
     public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
 
-    public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
-    public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
+    public static final String SKIN_EXAMPLES_RIGHT_COLUMN_HTML="skin.examples_right_column_html";
     
     public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
@@ -431,8 +426,8 @@ public class GlobalProperties {
     // get custom Example Queries for the right column html or the default
     public static String getExamplesRightColumnHtml()
     {
-        String examplesRightColumnHtml = properties.getProperty(SKIN_EXAMPLES_RIGHT_COLUMN);
-        return (examplesRightColumnHtml == null) ? DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN : "../../../content/"+examplesRightColumnHtml;
+        String examplesRightColumnHtml = properties.getProperty(SKIN_EXAMPLES_RIGHT_COLUMN_HTML);
+        return examplesRightColumnHtml == null? "": examplesRightColumnHtml;
     }
 
     private static String getContentString(String contentString){
@@ -572,18 +567,6 @@ public class GlobalProperties {
     {
         String showFlag = properties.getProperty(SKIN_SHOW_ABOUT_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
-    }
-    // show or hide the visualize your data tab in header navigation bar
-    public static boolean showVisualizeYourDataTab()
-    {
-        String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
-    }
-    // show the drugs tab in the patient view
-    public static boolean showDrugsTab()
-    {
-        String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
-        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // get the text for the What's New in the right navigation bar
     public static String getRightNavWhatsNewBlurb(){

@@ -145,13 +145,6 @@
                         </li>
                     <%}
                 }%>
-
-                <!-- Added call GlobalProperties to check whether to show the Visualize tab -->
-                <%--<% if (GlobalProperties.showVisualizeYourDataTab()) { %>--%>
-                <%--<li class="internal">--%>
-                    <%--<a href="visualize_your_data.jsp" float="left">Visualize Your Data</a>--%>
-                <%--</li>--%>
-                <%--<% } %>--%>
             </ul>
         </nav>
 </header>

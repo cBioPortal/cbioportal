@@ -11,7 +11,7 @@
         WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
     </select>
     
-    <select id="getGeneticAlterations" resultType="org.cbioportal.model.GeneticAlteration">
+    <select id="getGeneGeneticAlterations" resultType="org.cbioportal.model.GeneGeneticAlteration">
         SELECT
         gene.ENTREZ_GENE_ID AS entrezGeneId,
         genetic_alteration.VALUES AS "values"
@@ -34,5 +34,30 @@
             </if>
         </where>
     </select>
+
+    <select id="getGenesetGeneticAlterations" resultType="org.cbioportal.model.GenesetGeneticAlteration">
+        SELECT
+        geneset.EXTERNAL_ID AS genesetId,
+        <if test="projection == 'ID'">
+        NULL AS "values"
+        </if>
+        <if test="projection != 'ID'">
+        genetic_alteration.VALUES AS "values"
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN geneset ON genetic_alteration.GENETIC_ENTITY_ID = geneset.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{geneticProfileId}
+            <if test="genesetIds != null and genesetIds">
+                AND geneset.EXTERNAL_ID IN
+                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
 
 </mapper>

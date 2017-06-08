@@ -37,35 +37,26 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
+    <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::CGDS R Library"); %>
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
-   <div id="main">
-       <table cellspacing="2px">
-        <tr>
-            <td>
-            <h1>Visualize your own data</h1>
-            <div class="markdown">
-            <p><%@ include file="content/visualize_your_data.html" %></p>
-            </div>
-            </td>
-        </tr>
-    </table>
-       </div>
-    </td>
-    <td width="172">
-	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
-    </td>
-  </tr>
-  <tr>
-    <td colspan="3">
-	<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-    </td>
-  </tr>
-</table>
-</center>
-</div>
-</form>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
-</body>
-</html>
+    <t:template title="<%= siteTitle %>">
+
+        <jsp:attribute name="head_area">
+            <script>
+            window.loadReactApp({ defaultRoute: 'home' });
+
+            window.onReactAppReady(function(){
+                window.renderRightBar(document.getElementById('rightColumn'));
+            });
+
+            </script>
+        </jsp:attribute>
+
+        <jsp:attribute name="body_area">
+            <div id="reactRoot" class="hidden"></div>
+
+            <%@ include file="content/visualize_your_data.html" %>
+        </jsp:attribute>
+
+
+    </t:template>

@@ -8,6 +8,8 @@ import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MutationFilter;
+import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
+import org.cbioportal.web.parameter.SampleGeneticIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +38,6 @@ import java.util.List;
 @Configuration
 public class MutationControllerTest {
 
-    private static final int TEST_GENETIC_PROFILE_ID_1 = 1;
     private static final String TEST_GENETIC_PROFILE_STABLE_ID_1 = "test_genetic_profile_stable_id_1";
     private static final int TEST_SAMPLE_ID_1 = 1;
     private static final String TEST_SAMPLE_STABLE_ID_1 = "test_sample_stable_id_1";
@@ -313,6 +314,96 @@ public class MutationControllerTest {
     }
 
     @Test
+    public void fetchMutationsInMultipleGeneticProfiles() throws Exception {
+
+        List<Mutation> mutationList = createExampleMutations();
+
+        Mockito.when(mutationService.getMutationsInMultipleGeneticProfiles(Mockito.anyListOf(String.class),
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(),
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
+
+        List<SampleGeneticIdentifier> sampleGeneticIdentifiers = new ArrayList<>();
+        SampleGeneticIdentifier sampleGeneticIdentifier1 = new SampleGeneticIdentifier();
+        sampleGeneticIdentifier1.setGeneticProfileId(TEST_GENETIC_PROFILE_STABLE_ID_1);
+        sampleGeneticIdentifier1.setSampleId(TEST_SAMPLE_STABLE_ID_1);
+        sampleGeneticIdentifiers.add(sampleGeneticIdentifier1);
+        SampleGeneticIdentifier sampleGeneticIdentifier2 = new SampleGeneticIdentifier();
+        sampleGeneticIdentifier2.setGeneticProfileId(TEST_GENETIC_PROFILE_STABLE_ID_2);
+        sampleGeneticIdentifier2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
+        sampleGeneticIdentifiers.add(sampleGeneticIdentifier2);
+        MutationMultipleStudyFilter mutationMultipleStudyFilter = new MutationMultipleStudyFilter();
+        mutationMultipleStudyFilter.setSampleGeneticIdentifiers(sampleGeneticIdentifiers);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/mutations/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(mutationMultipleStudyFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].center").value(TEST_CENTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationStatus").value(TEST_MUTATION_STATUS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].validationStatus").value(TEST_VALIDATION_STATUS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorAltCount").value(TEST_TUMOR_ALT_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorRefCount").value(TEST_TUMOR_REF_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalAltCount").value(TEST_NORMAL_ALT_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalRefCount").value(TEST_NORMAL_REF_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].aminoAcidChange").value(TEST_AMINO_ACID_CHANGE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].startPosition").value((int) TEST_START_POSITION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].endPosition").value((int) TEST_END_POSITION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].referenceAllele").value(TEST_REFERENCE_ALLELE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkXvar").value(TEST_LINK_XVAR_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkPdb").value(TEST_LINK_PDB_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].linkMsa").value(TEST_LINK_MSA_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantType").value(TEST_VARIANT_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].center").value(TEST_CENTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationStatus").value(TEST_MUTATION_STATUS_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].validationStatus").value(TEST_VALIDATION_STATUS_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].tumorAltCount").value(TEST_TUMOR_ALT_COUNT_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].tumorRefCount").value(TEST_TUMOR_REF_COUNT_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].normalAltCount").value(TEST_NORMAL_ALT_COUNT_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].normalRefCount").value(TEST_NORMAL_REF_COUNT_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].aminoAcidChange").value(TEST_AMINO_ACID_CHANGE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].startPosition").value((int) TEST_START_POSITION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].endPosition").value((int) TEST_END_POSITION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].referenceAllele").value(TEST_REFERENCE_ALLELE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
+                .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkXvar").value(TEST_LINK_XVAR_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkPdb").value(TEST_LINK_PDB_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].linkMsa").value(TEST_LINK_MSA_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId").value(TEST_ONCOTATOR_REFSEQ_MRNA_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
+    }
+
+    @Test
     public void fetchMutationsInGeneticProfileDefaultProjection() throws Exception {
 
         List<Mutation> mutationList = createExampleMutations();
@@ -584,10 +675,8 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = new ArrayList<>();
         Mutation mutation1 = new Mutation();
-        mutation1.setGeneticProfileId(TEST_GENETIC_PROFILE_ID_1);
-        mutation1.setGeneticProfileStableId(TEST_GENETIC_PROFILE_STABLE_ID_1);
-        mutation1.setSampleId(TEST_SAMPLE_ID_1);
-        mutation1.setSampleStableId(TEST_SAMPLE_STABLE_ID_1);
+        mutation1.setGeneticProfileId(TEST_GENETIC_PROFILE_STABLE_ID_1);
+        mutation1.setSampleId(TEST_SAMPLE_STABLE_ID_1);
         mutation1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         mutation1.setCenter(TEST_CENTER_1);
         mutation1.setMutationStatus(TEST_MUTATION_STATUS_1);
@@ -616,10 +705,8 @@ public class MutationControllerTest {
         mutation1.setKeyword(TEST_KEYWORD_1);
         mutationList.add(mutation1);
         Mutation mutation2 = new Mutation();
-        mutation2.setGeneticProfileId(TEST_GENETIC_PROFILE_ID_2);
-        mutation2.setGeneticProfileStableId(TEST_GENETIC_PROFILE_STABLE_ID_2);
-        mutation2.setSampleId(TEST_SAMPLE_ID_2);
-        mutation2.setSampleStableId(TEST_SAMPLE_STABLE_ID_2);
+        mutation2.setGeneticProfileId(TEST_GENETIC_PROFILE_STABLE_ID_2);
+        mutation2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
         mutation2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         mutation2.setCenter(TEST_CENTER_2);
         mutation2.setMutationStatus(TEST_MUTATION_STATUS_2);

@@ -172,6 +172,10 @@ bitly.url=http://api.bit.ly/shorten?login=[bitly.user]&apiKey=[bitly.apiKey]&
 # google analytics
 google_analytics_profile_id=
 
+#piwik tracking
+piwik.site_id=
+piwik.server_url=
+
 # genomespace linking
 genomespace=true
 

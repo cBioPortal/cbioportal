@@ -71,6 +71,8 @@ public class GlobalProperties {
     public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
+    public static final String PIWIK_SITE_ID = "piwik.site_id";
+    public static final String PIWIK_SERVER_URL = "piwik.server_url";
     public static final String GENOMESPACE = "genomespace";
 
     public static final String APP_NAME = "app.name";
@@ -504,6 +506,17 @@ public class GlobalProperties {
         return properties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
     }
 
+    public static String getPiwikSiteId()
+    {
+        return properties.getProperty(PIWIK_SITE_ID);
+    }
+
+    public static String getPiwikServerUrl()
+    {
+        return properties.getProperty(PIWIK_SERVER_URL);
+    }
+
+    
     public static boolean genomespaceEnabled()
     {
         return Boolean.parseBoolean(properties.getProperty(GENOMESPACE));

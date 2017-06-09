@@ -2,7 +2,7 @@ This manual is intended for users that have knowledge about the structure of the
 
 When loading studies into cBioPortal it is possible for warnings to occur that are caused by an outdated seed database. Gene symbols can be deprecated or be assigned to a different Entrez Gene in a new release. Also Entrez Gene IDs can be added. This markdown explains how to update the seed database, in order to use the most recent Entrez Gene IDs. 
 
-The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables. This requires the latest version of the [NCBI Gene Info](ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz).
+The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables. This requires the latest version of the NCBI Gene Info: ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz.
 
 ## Updating the gene names and aliases
 

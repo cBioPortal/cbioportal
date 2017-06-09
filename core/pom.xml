@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.6.1</version>
+    <version>1.6.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
@@ -57,9 +57,9 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>1.4</version>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-dbcp2</artifactId>
+        <version>2.1.1</version>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>

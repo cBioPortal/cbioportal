@@ -571,6 +571,44 @@ public final class DaoMutation {
         return events;
     }
 
+    /*
+     * Returns an existing MutationEvent record from the database or null.
+     */
+    public static ExtendedMutation.MutationEvent getMutationEvent(ExtendedMutation.MutationEvent event) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            pstmt = con.prepareStatement("SELECT * from mutation_event WHERE" +
+                                         " `ENTREZ_GENE_ID`=?" +
+                                         " AND `CHR`=?" +
+                                         " AND `START_POSITION`=?" +
+                                         " AND `END_POSITION`=?" +
+                                         " AND `TUMOR_SEQ_ALLELE`=?" +
+                                         " AND `PROTEIN_CHANGE`=?" +
+                                         " AND `MUTATION_TYPE`=?");
+            pstmt.setLong(1, event.getGene().getEntrezGeneId());
+            pstmt.setString(2, event.getChr());
+            pstmt.setLong(3, event.getStartPosition());
+            pstmt.setLong(4, event.getEndPosition());
+            pstmt.setString(5, event.getTumorSeqAllele());
+            pstmt.setString(6, event.getProteinChange());
+            pstmt.setString(7, event.getMutationType());
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return extractMutationEvent(rs);
+            }
+            else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
+
     public static long getLargestMutationEventId() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

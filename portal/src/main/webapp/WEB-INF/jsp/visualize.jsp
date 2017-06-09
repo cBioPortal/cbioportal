@@ -34,11 +34,14 @@
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 
+<script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script>
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 
 window.historyType = 'memory';
+
+window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
 
 // Set API root variable for cbioportal-frontend repo
     <%
@@ -48,12 +51,10 @@ baseURL = baseURL.replace("https://", "").replace("http://", "");
 %>
 __API_ROOT__ = '<%=baseURL%>';
 
-window.loadReactApp({ defaultRoute: 'home' });
+window.loadReactApp({ defaultRoute: 'blank' });
 
-window.onReactAppReady(function(){
-    setTimeout(function(){
-        window.renderQuerySelectorInModal(document.getElementById("querySelector"));
-    },2000);
+window.onReactAppReady(function() {
+    window.initModifyQueryComponent("modifyQueryButton", "querySelector");
 });
 
 
@@ -82,12 +83,13 @@ window.onReactAppReady(function(){
         <table style='margin-left:0px;margin-top:-10px;margin-bottom:-5px;' >
             <tr>
                 <td>
-                    <div id="querySelector"></div>
+                    <button id="modifyQueryButton" class="btn btn-primary" style="display: none;">Modify Query</button>
                 </td>
                 <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
             </tr>
         </table>
     </div>
+    <div id="querySelector" class="cbioportal-frontend" style="margin-top: 10px"></div>
 </div>
 
 <div id="tabs">

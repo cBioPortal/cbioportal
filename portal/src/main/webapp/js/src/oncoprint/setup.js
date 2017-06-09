@@ -2565,16 +2565,23 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 		    if (data_by_gene.hasOwnProperty(gene)) {
 			var data = data_by_gene[gene];
 			for (var i=0; i<data.length; i++) {
-			    present_ids[data[i][id_key]] = true;
+			    present_ids[data[i][id_key]] = false;
 			}
 		    }
 		}
-		this.ids = Object.keys(present_ids);
+		id_order = id_order || Object.keys(present_ids);
+		for (var i=0; i<id_order.length; i++) {
+		    if (present_ids.hasOwnProperty(id_order[i])) {
+			present_ids[id_order[i]] = true;
+		    }
+		}
+		this.ids = Object.keys(present_ids).filter(function(x) { return !!present_ids[x]; });
 		
 		var altered_percentage_by_gene = {};
 		for (var gene in altered_ids_by_gene) {
 		    if (altered_ids_by_gene.hasOwnProperty(gene)) {
-			altered_percentage_by_gene[gene] = Math.round(100*altered_ids_by_gene[gene].length/this.ids.length);
+			var altered_id_count = altered_ids_by_gene[gene].filter(function(x) { return !!present_ids[x]; }).length;
+			altered_percentage_by_gene[gene] = Math.round(100*altered_id_count/this.ids.length);
 		    }
 		}
 		
@@ -2587,7 +2594,7 @@ window.CreateOncoprinterWithToolbar = function (ctr_selector, toolbar_selector) 
 			}
 		    }
 		}
-		this.altered_ids = Object.keys(altered_ids);
+		this.altered_ids = Object.keys(altered_ids).filter(function(x) { return !!present_ids[x]; });
 		
 		this.unaltered_ids = [];
 		for (var i=0; i<this.ids.length; i++) {

@@ -53,7 +53,7 @@
     //String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
 
-<t:template title="<%=siteTitle%>" defaultRightColumn="true" twoColumn="true" fixedWidth="false">
+<t:template title="<%=siteTitle%>" cssClass="homePage" defaultRightColumn="true" twoColumn="true" fixedWidth="true">
 
     <jsp:attribute name="head_area" >
         <script>

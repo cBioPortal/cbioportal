@@ -42,7 +42,7 @@
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:template title="<%= siteTitle %>" twoColumn="true" fixedWidth="false">
+<t:template title="<%= siteTitle %>" twoColumn="false" fixedWidth="false">
 
     <jsp:attribute name="head_area">
         <script>
@@ -61,17 +61,30 @@
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
-        <h1>Visualization Tools</h1>
+        <h1>Visualize Your Data</h1>
+
+        <h2 id="download-and-install-a-local-version-of-cbioportal">1. Download and install a local version of cBioPortal</h2>
+        <ul>
+        <li>The source code of cBioPortal is available on <a href="https://github.com/cBioPortal/cbioportal">GitHub</a> under the terms of Affero GPL V3. </li>
+        <li>Please note that, installing a local version requires system administration skills, for example, installing and configuring Tomcat and MySQL. With limited resources, we cannot provide technical support on system administration.</li>
+        </ul>
         
-        <p>The following tools are for visualization and analysis of custom datasets. </p>
+        <h2>2. We host data for you (academic use)</h2>
+        <ul>
+        <li>MSKCC users can send us their data. Please <a href="mailto:cbioportal@cbio.mskcc.org?subject=Uploading public data">contact us</a> for details.</li>
+        <li>Public data will be available to everyone. Suggestions on data sets are welcome.</li>
+        <li>Private data will be accessible by you and your collaborators</li>
+        </ul>
+        
+        <hr>
+        
+        <h2>The following tools are for visualization and analysis of custom datasets</h2>
 
         <div class="alert alert-info" role="alert">
         When using these tools in your publication,
         <b>please cite</b> <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210">Gao et al. <i>Sci. Signal.</i> 2013</a>
         &amp;amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.
         </div>
-        
-      
         
         <div style="display:flex;" class="toolArray">
             <div style="margin-right:60px">
@@ -90,32 +103,5 @@
         <div id="reactRoot" class="hidden"></div>
     </jsp:attribute>
     
-    <jsp:attribute name="right_column">
-        <div class="rightBarSection">
-        <h3>Visualize Your Own Data</h3>
-        <p>If you want to visualize your own data in cBioPortal, you have the following options:</p>
-        <p>1. We host data for you (academic use)</p>
-        <ul>
-        <li><b>MSKCC users can send us their data by filling out this <a href="https://docs.google.com/forms/d/1UPQF-T9HQStHK87UEYzgf-hTiKT-ok6fZDxxw_lANr8/viewform">form</a>.</b></li>
-        <li>Public data will be available to everyone. Suggestions on data sets are welcome. Please <a href="mailto:cbioportal@cbio.mskcc.org?subject=Uploading public data">contact us</a> for details.</li>
-        <li>Private data will be accessible by you and your collaborators. Please <a href="mailto:cbioportal@cbio.mskcc.org?subject=Uploading private data">contact us</a> for details.</li>
-        </ul>
-        <p id="use-our-tools-to-visualize-your-data">2. Use our tools to visualize your data</p>
-        <ul>
-        <li><a href="oncoprinter.jsp">Oncoprinter</a> lets you create Oncoprints from your own, custom data.</li>
-        <li><a href="mutation_mapper.jsp">MutationMapper</a> draws mutation diagrams (lollipop plots) from your custom data.</li>
-        </ul>
-        <p id="download-and-install-a-local-version-of-cbioportal">3. Download and install a local version of cBioPortal</p>
-        <ul>
-        <li>The source code of cBioPortal is available on <a href="https://github.com/cBioPortal/cbioportal">GitHub</a> under the terms of Affero GPL V3. </li>
-        <li>Please note that, installing a local version requires system administration skills, for example, installing and configuring Tomcat and MySQL. With limit resources, we cannot provide technical support on system administration.</li>
-        </ul>
-
-        <hr>
-
-        <p>Please email any questions to <a href="mailto:cbioportal@cbio.mskcc.org?subject=Questions about downloading software or hosting data">cbioportal@cbio.mskcc.org</a>.</p>
-        </div>
-    </jsp:attribute>
-
 
 </t:template>

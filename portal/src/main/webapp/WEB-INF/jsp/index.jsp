@@ -55,7 +55,7 @@
 
 <t:template title="<%=siteTitle%>" cssClass="homePage" defaultRightColumn="true" twoColumn="true" fixedWidth="true">
 
-    <jsp:attribute name="head_area" >
+    <jsp:attribute name="head_area">
         <script>
         window.loadReactApp({ defaultRoute: 'home' });
         </script>

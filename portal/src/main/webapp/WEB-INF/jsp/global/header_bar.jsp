@@ -53,30 +53,6 @@
 <header>
     <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
     
-        <div id="rightContent">
-            <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
-                <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
-                    <div class="userControls">
-                    <span class="username"><i class="fa fa-user-o" aria-hidden="true"></i></span>&nbsp;
-                    <% if (authenticationMethod.equals("saml")) { %>
-                        <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
-                    <%} else { %>
-                        <a href="j_spring_security_logout">Sign out</a>
-                    <% } %>
-                    <div class="identity">Logged in as <sec:authentication property='<%=principal%>' /></div>
-                    </div>
-                </sec:authorize>
-               
-
-                <% if (rightLogo != "") { %>
-                    <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
-                <% } %>
-    
-        </div>
-
-
-     
-
         <nav id="main-nav">
             <ul>
                 <% if (GlobalProperties.showDataTab()) { %>
@@ -147,4 +123,29 @@
                 }%>
             </ul>
         </nav>
-</header>
+
+        <div id="rightContent">
+        <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
+        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
+            <div class="userControls">
+            <span class="username"><i class="fa fa-user-o" aria-hidden="true"></i></span>&nbsp;
+                <% if (authenticationMethod.equals("saml")) { %>
+            <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
+                <%} else { %>
+            <a href="j_spring_security_logout">Sign out</a>
+                <% } %>
+            <div class="identity">Logged in as <sec:authentication property='<%=principal%>' /></div>
+            </div>
+        </sec:authorize>
+    
+    
+            <% if (rightLogo != "") { %>
+            <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
+            <% } %>
+    
+        </div>
+    
+    
+
+
+    </header>

@@ -94,9 +94,7 @@ public class AccessControlImpl implements AccessControl {
         if (finalCancerStudiesList.size() > 1) {
             return finalCancerStudiesList;
         } else {
-            throw new ProtocolException("No cancer studies accessible; "+
-                                        "either provide credentials to access private studies, " +
-                                        "or ask administrator to load public ones.\n");
+            throw new ProtocolException("No cancer studies.");
         }
     }
 

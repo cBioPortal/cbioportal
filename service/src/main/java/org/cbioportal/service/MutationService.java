@@ -2,6 +2,7 @@ package org.cbioportal.service;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
+import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.meta.MutationMeta;
@@ -55,4 +56,8 @@ public interface MutationService {
 
     List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds) 
         throws GeneticProfileNotFoundException;
+
+    List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds, 
+                                                                List<Integer> proteinPosStarts, 
+                                                                List<Integer> proteinPosEnds);
 }

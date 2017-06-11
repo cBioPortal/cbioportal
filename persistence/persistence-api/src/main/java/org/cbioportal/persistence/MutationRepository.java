@@ -2,6 +2,7 @@ package org.cbioportal.persistence;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
+import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.meta.MutationMeta;
@@ -48,4 +49,7 @@ public interface MutationRepository {
     List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId);
 
     List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds);
+
+    MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart, 
+                                                       Integer proteinPosEnd);
 }

@@ -29,13 +29,14 @@
  - You should have received a copy of the GNU Affero General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
-
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.SessionServiceRequestWrapper" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
+<%@ page import="org.apache.commons.lang.*" %>
+<%@ page import="java.util.List" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -88,6 +89,28 @@ window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 window.historyType = 'memory';
 
 window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
+
+window.priorityStudies = {};
+<%
+List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
+for (String[] group : priorityStudies) {
+    if (group.length > 1) {
+        out.println("window.priorityStudies['"+group[0]+"'] = ");
+        out.println("[");
+        int i = 1;
+        while (i < group.length) {
+            if (i >= 2) {
+                out.println(",");
+            }
+            out.println("'"+group[i]+"'");
+            i++;
+        }
+        out.println("];");
+    }
+}
+%>
+    
+    
 
 // Set API root variable for cbioportal-frontend repo
     <%
@@ -162,7 +185,7 @@ if (sessionError != null) {  %>
                     <div id="querySelector" class="cbioportal-frontend"></div>
                     <div id="reactRoot" class="hidden"></div>
                     <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
-                        <%@ include file="query_form.jsp" %>
+                     
                     </div>
                 </div>
                 <div id="crosscancer-container">

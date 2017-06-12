@@ -1,5 +1,6 @@
 <%@ tag import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ tag import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
+<%@ tag import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
@@ -36,6 +37,35 @@ window.showMyCancerGenome = <%=GlobalProperties.showMyCancerGenomeUrl()%>;
 // this prevents react router from messing with hash in a way that could is unecessary (static pages)
 // or could conflict
 window.historyType = 'memory';
+
+window.skinBlurb = '<%=GlobalProperties.getBlurb()%>';
+window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
+window.skinDatasetHeader = '<%=GlobalProperties.getDataSetsHeader()%>';
+window.skinDatasetFooter = '<%=GlobalProperties.getDataSetsFooter()%>';
+window.skinRightNavShowDatasets = <%=GlobalProperties.showRightNavDataSets()%>;
+window.skinRightNavShowExamples = <%=GlobalProperties.showRightNavExamples()%>;
+window.skinRightNavShowTestimonials = <%=GlobalProperties.showRightNavTestimonials()%>;
+window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
+// Prioritized studies for study selector
+window.priorityStudies = {};
+<%
+List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
+for (String[] group : priorityStudies) {
+    if (group.length > 1) {
+        out.println("window.priorityStudies['"+group[0]+"'] = ");
+        out.println("[");
+        int i = 1;
+        while (i < group.length) {
+            if (i >= 2) {
+                out.println(",");
+            }
+            out.println("'"+group[i]+"'");
+            i++;
+        }
+        out.println("];");
+    }
+}
+%>
 
 // Set API root variable for cbioportal-frontend repo
 <%

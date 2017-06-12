@@ -7,7 +7,6 @@
 
 header {
     position: relative;
-    min-width:780px;
     padding:10px 0;
     width:100%;
     display:flex !important;
@@ -94,6 +93,7 @@ header {
 #main-nav {
     padding-bottom:0;
     margin-left:40px;
+    white-space:nowrap;
 }
 
 #main-nav ul {
@@ -147,6 +147,10 @@ header {
 
 .legacy #content > table {
     width:100%;
+}
+
+.contentWidth {
+    min-width:1200px;
 }
 
 .legacy .contentWidth {

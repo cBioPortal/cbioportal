@@ -80,11 +80,14 @@
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
+<script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script>
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
     
 window.historyType = 'memory';
+
+window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
 
 // Set API root variable for cbioportal-frontend repo
     <%
@@ -94,10 +97,10 @@ baseURL = baseURL.replace("https://", "").replace("http://", "");
 %>
 __API_ROOT__ = '<%=baseURL%>';
 
-window.loadReactApp({ defaultRoute: 'home' });
+window.loadReactApp({ defaultRoute: 'blank' });
     
 window.onReactAppReady(function(){
-    window.renderQuerySelectorInModal(document.getElementById("querySelector"));
+    window.initModifyQueryComponent("modifyQueryButton", "querySelector");
 });
     
 </script>
@@ -148,11 +151,6 @@ if (sessionError != null) {  %>
 </p>
 <% } %>
 
-<!-- Button trigger modal -->
-
-
-
-    
     <table>
     <tr>
         <td>
@@ -160,7 +158,8 @@ if (sessionError != null) {  %>
             <div id="results_container">
                 
                 <div id='modify_query'>
-                    <div id="querySelector" style="min-height:34px"></div>
+                    <button id="modifyQueryButton" class="btn btn-primary" style="display: none;">Modify Query</button>
+                    <div id="querySelector" class="cbioportal-frontend"></div>
                     <div id="reactRoot" class="hidden"></div>
                     <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
                         <%@ include file="query_form.jsp" %>

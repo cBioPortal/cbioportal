@@ -265,6 +265,28 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.assertEqual(record.line_number, 11)
         self.assertEqual(record.column_number, 2)
 
+    def test_sample_with_invalid_characters_in_sample_id(self):
+        """Test when a invalid characters are found in SAMPLE_ID."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clin_wrong_ids.txt',
+                                    validateData.SampleClinicalValidator)
+        self.assertEqual(len(record_list), 5)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 6)
+        self.assertIn('White space', record.getMessage())
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 7)
+        self.assertIn('special characters', record.getMessage())
+        # last one:
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 11)
+        self.assertIn('special characters', record.getMessage())
+
+
 
 class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
 

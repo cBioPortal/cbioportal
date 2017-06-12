@@ -115,12 +115,6 @@ Below you can find the complete list of all the available skin properties.
 			<td>Any HTML text</td>
 		</tr>
 		<tr>
-			<td>skin.patient_view.show_drugs_tab</td>
-			<td>show the "Drugs" tab in the patient view</td>
-			<td>true</td>
-			<td>true / false</td>
-		</tr>
-		<tr>
 			<td>skin.right_logo</td>
 			<td>sets the right logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.right_logo value has to contain the folder, e.g. skin.right_logo = myFolder/myImage.jpg</td>
 			<td>MSKCC Logo</td>
@@ -189,12 +183,6 @@ Below you can find the complete list of all the available skin properties.
 		<tr>
 			<td>skin.show_tutorials_tab</td>
 			<td>show the "TUTORIALS" tab in the header</td>
-			<td>true</td>
-			<td>true / false</td>
-		</tr>
-		<tr>
-			<td>skin.show_visualize_your_data_tab</td>
-			<td>show the "VISUALIZE YOUR DATA" tab in the header</td>
 			<td>true</td>
 			<td>true / false</td>
 		</tr>

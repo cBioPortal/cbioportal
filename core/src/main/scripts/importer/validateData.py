@@ -1741,6 +1741,8 @@ class SampleClinicalValidator(ClinicalValidator):
 
     REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
     PROP_IS_PATIENT_ATTRIBUTE = '0'
+    INVALID_SAMPLE_ID_CHARACTERS = set(',;+/=*')
+
 
     def __init__(self, *args, **kwargs):
         """Initialize the validator to track sample ids defined."""
@@ -1769,6 +1771,15 @@ class SampleClinicalValidator(ClinicalValidator):
                 if ' ' in value:
                     self.logger.error(
                         'White space in SAMPLE_ID is not supported',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                # invalid characters in sample_id can cause problems in different parts of the portal code,
+                # so block them here:
+                if any((c in self.INVALID_SAMPLE_ID_CHARACTERS) for c in value):
+                    self.logger.error(
+                        'A number of special characters, such as ' + str(list(self.INVALID_SAMPLE_ID_CHARACTERS)) +
+                        ' are not allowed in SAMPLE_ID',
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})

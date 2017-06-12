@@ -600,6 +600,9 @@ var GradientRuleSet = (function () {
 	return function(t) {
 	    // 0 <= t <= 1
 	    var begin_interval_index = binarysearch(stop_points, t, function(x) { return x; }, true);
+	    if (begin_interval_index === -1) {
+		return "rgba(0,0,0,1)";
+	    }
 	    var end_interval_index = Math.min(colors.length - 1, begin_interval_index + 1);
 	    var spread = stop_points[end_interval_index] - stop_points[begin_interval_index];
 	    if (spread === 0) {

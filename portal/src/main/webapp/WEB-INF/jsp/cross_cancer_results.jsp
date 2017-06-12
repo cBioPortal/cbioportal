@@ -159,7 +159,7 @@ if (sessionError != null) {  %>
                 
                 <div id='modify_query'>
                     <button id="modifyQueryButton" class="btn btn-primary" style="display: none;">Modify Query</button>
-                    <div id="querySelector" class="cbioportal-frontend" style="min-height:34px"></div>
+                    <div id="querySelector" class="cbioportal-frontend"></div>
                     <div id="reactRoot" class="hidden"></div>
                     <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
                         <%@ include file="query_form.jsp" %>

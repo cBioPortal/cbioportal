@@ -127,10 +127,8 @@ public class GeneticDataServiceImpl implements GeneticDataService {
 
         GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
 
-        if ((geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.COPY_NUMBER_ALTERATION) && 
-            geneticProfile.getDatatype().equals("DISCRETE")) || geneticProfile.getGeneticAlterationType()
-            .equals(GeneticAlterationType.MUTATION_EXTENDED) || geneticProfile.getGeneticAlterationType()
-            .equals(GeneticAlterationType.FUSION)) {
+        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED) || 
+            geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
 
             throw new GeneticProfileNotFoundException(geneticProfileId);
         }

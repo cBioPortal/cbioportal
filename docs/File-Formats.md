@@ -1008,7 +1008,7 @@ description: Targeted (410 cancer genes) sequencing of various tumor types via M
 gene_list: ABL1    ACVR1   AKT1    AKT3 ...
 ```
 
-For information on importing gene panels please visit: [Importing-gene-panels](Importing-gene-panels.md).
+For information on importing gene panels please visit: [Import-Gene-Panels](Import-Gene-Panels.md).
 
 #### Sample-Profile Matrix
 

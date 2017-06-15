@@ -150,7 +150,7 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
     If later chart can fit into the first matrix, then its priority will be promoted.
     
     Please see [here](Study-View.md) for more detailed information about how study view utilize priority and how the layout is calculated based on priority.
-- Row 5: **The attribute name for the database**: This name should be in upper case.
+- Row 5: **The attribute name for the database**: This name must be in upper case and can only contain alpha numeric characters and underscores.
     
 
 #### Example metadata rows

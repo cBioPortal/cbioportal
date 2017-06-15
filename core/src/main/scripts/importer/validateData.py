@@ -1792,6 +1792,15 @@ class ClinicalValidator(Validator):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': col_name})
+            # do not allow special characters in attribute names
+            if not re.match(
+                    # regex to allow only alpha numerics and _ underscore:
+                    r'^[A-Za-z0-9_]+$', col_name):
+                self.logger.error(
+                    'Attribute ID is empty or contains invalid characters. Only alphanumeric and _ underscores are allowed',
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': col_name})
             # do not check the special ID columns as attributes,
             # just parse them with the correct data type
             if col_name in ('PATIENT_ID', 'SAMPLE_ID'):

@@ -89,6 +89,7 @@ window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 window.historyType = 'memory';
 
 window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
+window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
 
 window.priorityStudies = {};
 <%

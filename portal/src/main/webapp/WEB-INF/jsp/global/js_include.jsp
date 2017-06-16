@@ -103,3 +103,9 @@
 <script type="text/javascript" src="js/src/download-data-form-validation.js"></script>
 <script type="text/javascript" src="js/lib/jstree.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/api/cbioportal-client.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<!-- iViz session integration libraries START-->
+<script type="text/javascript" src="js/lib/vc-session-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script>$.noConflict();</script>
+<script type="text/javascript" src="js/lib/vc-session.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<!-- iViz session integration libraries END-->

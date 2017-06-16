@@ -93,9 +93,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.cbioportal</groupId>
+                  <groupId>com.github.adamabeshouse</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>1d7da0d2b81b10307b04ecc0fd30802bfa4cf70e</version>
+                  <version>virtual-cohort-SNAPSHOT</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

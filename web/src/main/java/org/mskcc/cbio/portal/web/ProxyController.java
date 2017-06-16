@@ -115,7 +115,6 @@ public class ProxyController
         if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
           URL += "?" + request.getQueryString();
         }
-        
         return respProxy(URL, method, body, response);
   }
 
@@ -172,6 +171,15 @@ public class ProxyController
       return respProxy(bitlyURL + request.getQueryString(), method, body, response);
   }
 
+    @RequestMapping(value = "/session-service/{type}/{key}", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getSessionService(@PathVariable String type, @PathVariable String key,
+                             @RequestBody String body,  HttpMethod method,HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        System.out.println(sessionServiceURL + type + "/" + key);
+        return respProxy(sessionServiceURL + type + "/" + key, method, body, response);
+    }
+    
   @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
   public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
                                                 HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
@@ -179,12 +187,17 @@ public class ProxyController
     RestTemplate restTemplate = new RestTemplate();
     URI uri = new URI(sessionServiceURL + type);
 
+      System.out.println(sessionServiceURL + type);
     // returns {"id":"5799648eef86c0e807a2e965"}
     // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
     // was String when default converter StringHttpMessageConverter was used
-    ResponseEntity<HashMap> responseEntity =
-      restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
-
-    return responseEntity.getBody();
+      try {
+          ResponseEntity<HashMap> responseEntity =
+              restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
+          return responseEntity.getBody();
+      }catch (Exception exp){
+          System.out.println(exp);
+          return null;
+      }
   }
 }

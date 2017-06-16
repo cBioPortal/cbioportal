@@ -42,6 +42,17 @@
         padding-left: 5px;
         padding-right: 0;
     }
+    .cohort-save-button {
+        float: left;
+        font-size: 1.1em !important;
+        background: 0 0;
+        font-weight: 400;
+        color: #555;
+        padding: 5px 10px !important;
+        border: 1px solid #a9a9a9;
+        border-radius: 5px;
+        line-height: 18px;
+    }
 </style>
 
 <!-- This loading is used to before all JS/CSS files loaded -->
@@ -56,12 +67,13 @@
         src="images/ajax-loader.gif" alt="loading"></div>
     <div id="main-header" style="display: none" :class="{show:!isloading}">
         <div id="iviz-header-left">
-            <div class="iviz-cohort-component" style="float: left; margin-right: 10px;">
-                <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
-                                   :selected-patients-num="selectedPatientsNum"
-                                   :selected-samples-num="selectedSamplesNum"
-                                   :userid="userid" :stats="stats"
-                                   :update-stats.sync="updateStats"></session-component>
+            <div id="cohort-component" style="float: left">
+                <div style="float: left; margin-right: 10px; ">
+                    <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
+                                       :load-user-specific-cohorts="loadUserSpecificCohorts"
+                                       :stats="stats"
+                                       :update-stats.sync="updateStats"></session-component>
+                </div>
             </div>
 
             <div class="iviz-header-left-case">
@@ -78,7 +90,7 @@
                   role="button"
                   tabindex="0"><i class="fa fa-download" alt="download"></i></span>
 
-            <span id="query-by-gene-span">
+            <span id="query-by-gene-span" style="padding: 0 !important;">
           <textarea id="query-by-gene-textarea" class="expand expandFocusOut" rows="1" cols="10"></textarea>
       </span>
             <span class="iviz-header-arrow">
@@ -144,7 +156,6 @@
 <script>
     function initdcplots(data, opts) {
         iViz.init(data, opts);
-
         QueryByGeneTextArea.init('#query-by-gene-textarea', function(genes) {
             iViz.vue.manage.getInstance().$broadcast('gene-list-updated', genes);
         });

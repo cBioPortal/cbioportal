@@ -91,6 +91,13 @@ public class GlobalExceptionHandler {
             ": " + ex.getClinicalAttributeId()), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(GenePanelNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGenePanelNotFound(GenePanelNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Gene panel not found: " + ex.getGenePanelId()),
+            HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex) {

@@ -43,7 +43,7 @@ import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 
 import java.util.*;
 
-public interface GenePanelRepository {
+public interface GenePanelRepositoryLegacy {
     
         List<GenePanelWithSamples> getGenePanelsByProfile(String profileId);
         // TODO: All of the below methods are for importing purposes only. They should be

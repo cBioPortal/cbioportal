@@ -14,7 +14,7 @@ import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 import java.util.List;
 
-public interface GenePanelService {
+public interface GenePanelServiceLegacy {
     List<GenePanelWithSamples> getGenePanelDataByProfileAndGenes(String profileId, List<String> genes);
     List<GenePanel> getGenePanelByStableId(String panelId);
     List<GenePanel> getGenePanels();

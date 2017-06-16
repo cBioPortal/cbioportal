@@ -41,15 +41,15 @@ import java.util.*;
 import org.cbioportal.model.*;
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GenePanelWithSamples;
-import org.mskcc.cbio.portal.persistence.GenePanelMapper;
+import org.mskcc.cbio.portal.persistence.GenePanelMapperLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class GenePanelMyBatisRepository implements GenePanelRepository {
+public class GenePanelMyBatisRepositoryLegacy implements GenePanelRepositoryLegacy {
 
     @Autowired
-    GenePanelMapper genePanelMapper;
+    GenePanelMapperLegacy genePanelMapper;
 
     @Override
     public List<GenePanelWithSamples> getGenePanelsByProfile(String profileId) {       
@@ -143,7 +143,7 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
         genePanelMapper.insertGenePanelSampleProfileMap(map);
     }
 
-    public void setGenePanelMapper(GenePanelMapper genePanelMapper) {
+    public void setGenePanelMapper(GenePanelMapperLegacy genePanelMapper) {
         this.genePanelMapper = genePanelMapper;
     }
 }

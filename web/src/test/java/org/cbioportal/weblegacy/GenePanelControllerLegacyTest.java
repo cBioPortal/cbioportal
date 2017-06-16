@@ -36,7 +36,7 @@ import java.util.List;
 import org.cbioportal.model.*;
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GenePanelWithSamples;
-import org.mskcc.cbio.portal.service.GenePanelService;
+import org.mskcc.cbio.portal.service.GenePanelServiceLegacy;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -61,12 +61,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {GenePanelControllerConfig.class, CustomObjectMapper.class})
-public class GenePanelControllerTest {
+@ContextConfiguration(classes = {GenePanelControllerLegacyConfig.class, CustomObjectMapper.class})
+public class GenePanelControllerLegacyTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
     @Autowired
-    private GenePanelService genePanelServiceMock;
+    private GenePanelServiceLegacy genePanelServiceLegacyMock;
     private MockMvc mockMvc;
     private GenePanel genePanel1;
     private GenePanel genePanel2;
@@ -75,7 +75,7 @@ public class GenePanelControllerTest {
     
     @Before
     public void setup() {
-        Mockito.reset(genePanelServiceMock);
+        Mockito.reset(genePanelServiceLegacyMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         genePanel1 = new GenePanel();
         genePanel1.setStableId("GENEPANEL2");
@@ -110,7 +110,7 @@ public class GenePanelControllerTest {
     public void genePanelByStableIdTest() throws Exception {
         List<GenePanel> mockResponse = new ArrayList<>();
         mockResponse.add(genePanel1);
-        Mockito.when(genePanelServiceMock.getGenePanelByStableId(org.mockito.Matchers.anyString())).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelByStableId(org.mockito.Matchers.anyString())).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -135,7 +135,7 @@ public class GenePanelControllerTest {
         String[] genesquery = {"OFFPANEL1", "OFFPANEL2"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -163,7 +163,7 @@ public class GenePanelControllerTest {
         String[] genesquery = {"OFFPANEL1", "BRAF"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -193,7 +193,7 @@ public class GenePanelControllerTest {
         String[] genesquery = {"EGFR", "BRAF"};
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel/data")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
@@ -213,7 +213,7 @@ public class GenePanelControllerTest {
         List<GenePanel> mockResponse = new ArrayList<>();
         mockResponse.add(genePanel1);
         mockResponse.add(genePanel2);
-        Mockito.when(genePanelServiceMock.getGenePanels()).thenReturn(mockResponse);
+        Mockito.when(genePanelServiceLegacyMock.getGenePanels()).thenReturn(mockResponse);
         this.mockMvc.perform(
         MockMvcRequestBuilders.get("/genepanel")
         .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))

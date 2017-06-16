@@ -36,7 +36,7 @@ package org.cbioportal.weblegacy;
  * @author heinsz
  */
 
-import org.mskcc.cbio.portal.service.GenePanelService;
+import org.mskcc.cbio.portal.service.GenePanelServiceLegacy;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -47,11 +47,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = {"org.cbioportal.weblegacy", "org.mskcc.cbio.portal.service"},
-    resourcePattern = "**/*GenePanelController.class")
-public class GenePanelControllerConfig extends WebMvcConfigurerAdapter {
+    resourcePattern = "**/*GenePanelControllerLegacy.class")
+public class GenePanelControllerLegacyConfig extends WebMvcConfigurerAdapter {
 
     @Bean
-    public GenePanelService genePanelService() {
-        return Mockito.mock(GenePanelService.class);
+    public GenePanelServiceLegacy genePanelService() {
+        return Mockito.mock(GenePanelServiceLegacy.class);
     }
 }

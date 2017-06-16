@@ -16,21 +16,21 @@ import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.mskcc.cbio.portal.repository.GenePanelRepository;
+import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GenePanelServiceImpl implements GenePanelService {
+public class GenePanelServiceImplLegacy implements GenePanelServiceLegacy {
 
     @Autowired
-    private GenePanelRepository genePanelRepository;
+    private GenePanelRepositoryLegacy genePanelRepositoryLegacy;
 
     @Override
     @PreAuthorize("hasPermission(#profileId, 'GeneticProfile', 'read')")
     public List<GenePanelWithSamples> getGenePanelDataByProfileAndGenes(String profileId, List<String> submittedGenes) {
-        List<GenePanelWithSamples> genePanels =  genePanelRepository.getGenePanelsByProfile(profileId);
+        List<GenePanelWithSamples> genePanels =  genePanelRepositoryLegacy.getGenePanelsByProfile(profileId);
         for (GenePanelWithSamples genePanel : genePanels) {
             List<Gene> genes = genePanel.getGenes();
             List<Gene> genesToSet = new ArrayList<>();
@@ -47,7 +47,7 @@ public class GenePanelServiceImpl implements GenePanelService {
     @Override
     public List<GenePanel> getGenePanelByStableId(String panelId) {
         // TODO: create proper mixin to not expose the internal id to external user.
-        List<GenePanel> genePanels = genePanelRepository.getGenePanelByStableId(panelId);
+        List<GenePanel> genePanels = genePanelRepositoryLegacy.getGenePanelByStableId(panelId);
         for (GenePanel genePanel : genePanels) {
             genePanel.setInternalId(null);
         }
@@ -56,6 +56,6 @@ public class GenePanelServiceImpl implements GenePanelService {
     
     @Override
     public List<GenePanel> getGenePanels() {
-        return genePanelRepository.getGenePanels();
+        return genePanelRepositoryLegacy.getGenePanels();
     }
 }

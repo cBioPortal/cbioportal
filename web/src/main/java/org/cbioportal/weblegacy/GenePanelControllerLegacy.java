@@ -36,7 +36,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GenePanelWithSamples;
-import org.mskcc.cbio.portal.service.GenePanelService;
+import org.mskcc.cbio.portal.service.GenePanelServiceLegacy;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +49,10 @@ import org.springframework.web.bind.annotation.*;
  */
 
 @RestController
-public class GenePanelController {
+public class GenePanelControllerLegacy {
 
     @Autowired
-    private GenePanelService genePanelService;
+    private GenePanelServiceLegacy genePanelServiceLegacy;
 
     @ApiOperation(value = "Get gene panel information",
             nickname = "getGenePanel",
@@ -64,10 +64,10 @@ public class GenePanelController {
             + "be shown for all gene panels in the database.")
             @RequestParam(required = false) String panel_id) {
         if (panel_id != null) {
-            return genePanelService.getGenePanelByStableId(panel_id);
+            return genePanelServiceLegacy.getGenePanelByStableId(panel_id);
         }
         else {
-            return genePanelService.getGenePanels();
+            return genePanelServiceLegacy.getGenePanels();
         }
     }
 
@@ -80,6 +80,6 @@ public class GenePanelController {
             @RequestParam(required = true) String profile_id,
             @ApiParam(required = true, value = "List of gene hugo symbols")
             @RequestParam(required = true) List<String> genes) {
-        return genePanelService.getGenePanelDataByProfileAndGenes(profile_id, genes);
+        return genePanelServiceLegacy.getGenePanelDataByProfileAndGenes(profile_id, genes);
     }
 }

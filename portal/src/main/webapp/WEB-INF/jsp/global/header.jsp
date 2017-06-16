@@ -39,8 +39,8 @@
 <!DOCTYPE HTML>
 <html ng-app="menu" lang="eng" class="legacy">
 <head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <%if(request.getAttribute("standard-js-css")!=null){%>
 <jsp:include page="css_include_standard.jsp" flush="true" />
@@ -53,11 +53,13 @@
 <jsp:include page="frontend_config.jsp" flush="true" />
 
     <script type="text/javascript">
-    
-    window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
-    
-    $(document).ready(function(){
-            $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+        window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+        $(document).ready(function(){
+            window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
+            <%if(!sessionServiceUrl.equals("")){%>
+            vcSession.URL ='api-legacy/proxy/session-service/virtual_cohort';
+            <%}%>
+
         });
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
@@ -66,13 +68,13 @@
 <div class="pageTopContainer">      
     <div class="contentWidth"><jsp:include page="header_bar.jsp" flush="true" /></div>
 </div>
-    
-    <center style="padding-top:15px">
+
+<center style="padding-top:15px">
     <div id="page_wrapper">
         <table id="page_wrapper_table" width=100% cellpadding="0px" cellspacing="5px" border="0px">
             <tr valign="top">
                 <td colspan="3">
-                    
+
                 </td>
             </tr>
 

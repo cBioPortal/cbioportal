@@ -84,12 +84,13 @@
     var civicUrl = '<%=civicUrl%>';
     var userName = '<%=userName%>';
     var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
+    var isVirtualStudy = <%=isVirtualStudy%>;
 
     // Set up Mutation View
     $(document).ready(function () {
         var sampleArray = window.QuerySession.getSampleIds();
         OncoKB.setUrl('<%=oncokbUrl%>');
-        var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
+        var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy(isVirtualStudy);
         var annotationCol = null;
 
         if(OncoKB.getAccess()) {
@@ -131,15 +132,30 @@
             },
             view: {
                 vis3d: {
-	                // use https for all portal instances
+                    // use https for all portal instances
                     pdbUri: "https://files.rcsb.org/view/"
-                },       
+                },
                 mutationTable: {
                     columnRender: {
                         annotation: annotationCol.render
                     },
                     columnVisibility: {
-                        annotation: 'visible'
+                        annotation: 'visible',
+                        "tumorType": function (util, gene) {
+                            if (isVirtualStudy) {
+                                return "visible";
+                            }
+                            else if (util.distinctTumorTypeCount(gene) > 1) {
+                                return "visible";
+                            }
+                            else {
+                                return "hidden";
+                            }
+                        },
+                        "cancerStudy": function() {
+                            if (isVirtualStudy) return "visible";
+                            else return "excluded";
+                        }
                     },
                     columns: {
                         annotation: {
@@ -166,7 +182,7 @@
         };
 
         options = jQuery.extend(true, cbio.util.baseMutationMapperOpts(), options);
-        
+
         if(OncoKB.getAccess()) {
             jQuery.extend(true, options, {
                 dataManager: {
@@ -186,9 +202,9 @@
         }
 
         var defaultView = MutationViewsUtil.initMutationMapper("#mutation_details",
-                options,
-                "#tabs",
-                "Mutations");
+            options,
+            "#tabs",
+            "Mutations");
     });
 
 </script>

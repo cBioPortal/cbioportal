@@ -115,7 +115,6 @@ public class ProxyController
         if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
           URL += "?" + request.getQueryString();
         }
-        
         return respProxy(URL, method, body, response);
   }
 
@@ -179,12 +178,17 @@ public class ProxyController
     RestTemplate restTemplate = new RestTemplate();
     URI uri = new URI(sessionServiceURL + type);
 
+      System.out.println(sessionServiceURL + type);
     // returns {"id":"5799648eef86c0e807a2e965"}
     // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
     // was String when default converter StringHttpMessageConverter was used
-    ResponseEntity<HashMap> responseEntity =
-      restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
-
-    return responseEntity.getBody();
+      try {
+          ResponseEntity<HashMap> responseEntity =
+              restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
+          return responseEntity.getBody();
+      }catch (Exception exp){
+          System.out.println(exp);
+          return null;
+      }
   }
 }

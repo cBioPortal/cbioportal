@@ -46,6 +46,8 @@
 <link href="css/chosen.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="css/header.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" />
+<link rel="stylesheet" href="css/vc-session.css?<%=GlobalProperties.getAppVersion()%>"/>
+<link rel="stylesheet" href="css/vc-session-vendor.css?<%=GlobalProperties.getAppVersion()%>"/>
 <%
     String global_style = GlobalProperties.getProperty("global_css");
     String special_style = GlobalProperties.getProperty("special_css");

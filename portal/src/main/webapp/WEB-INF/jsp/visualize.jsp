@@ -37,32 +37,33 @@
 <script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script>
-window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
-    
-window.historyType = 'memory';
+    window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 
-window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
-window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
+    window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
+    window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
+    window.historyType = 'memory';
 
-window.priorityStudies = {};
-<%
-List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
-for (String[] group : priorityStudies) {
-    if (group.length > 1) {
-        out.println("window.priorityStudies['"+group[0]+"'] = ");
-        out.println("[");
-        int i = 1;
-        while (i < group.length) {
-            if (i >= 2) {
-                out.println(",");
+    window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
+
+    window.priorityStudies = {};
+    <%
+    List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
+    for (String[] group : priorityStudies) {
+        if (group.length > 1) {
+            out.println("window.priorityStudies['"+group[0]+"'] = ");
+            out.println("[");
+            int i = 1;
+            while (i < group.length) {
+                if (i >= 2) {
+                    out.println(",");
+                }
+                out.println("'"+group[i]+"'");
+                i++;
             }
-            out.println("'"+group[i]+"'");
-            i++;
+            out.println("];");
         }
-        out.println("];");
     }
-}
-%>
+    %>
 
 
     // Set API root variable for cbioportal-frontend repo
@@ -71,19 +72,19 @@ String url = request.getRequestURL().toString();
 String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
 baseURL = baseURL.replace("https://", "").replace("http://", "");
 %>
-__API_ROOT__ = '<%=baseURL%>';
+    __API_ROOT__ = '<%=baseURL%>';
 
-window.loadReactApp({ defaultRoute: 'blank' });
+    window.loadReactApp({ defaultRoute: 'blank' });
 
-window.onReactAppReady(function() {
-    window.initModifyQueryComponent("modifyQueryButton", "querySelector");
-});
+    window.onReactAppReady(function() {
+        window.initModifyQueryComponent("modifyQueryButton", "querySelector");
+    });
 
 
 </script>
 
 <div id="reactRoot" class="hidden"></div>
-    
+
 <%@ page import="java.util.Map" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
@@ -92,11 +93,11 @@ window.onReactAppReady(function() {
     // then modify URL to include session service id so bookmarking will work
     if (useSessionServiceBookmark && "POST".equals(request.getMethod())) {
 %>
-    <script>
-        changeURLToSessionServiceURL(window.location.href, 
-            window.location.pageTitle, 
-            <%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>);
-   </script>
+<script>
+    changeURLToSessionServiceURL(window.location.href,
+        window.location.pageTitle,
+        <%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>);
+</script>
 <% } // end if isPost and we have session service running %>
 
 <div class='main_smry'>
@@ -116,7 +117,7 @@ window.onReactAppReady(function() {
 
 <div id="tabs">
     <ul>
-    <%
+            <%
         Boolean showMutTab = false;
         Boolean showCancerTypesSummary = false;
         Boolean showEnrichmentsTab = true;
@@ -213,19 +214,20 @@ window.onReactAppReady(function() {
                     }
                 }
             }
+            
+            if(isVirtualStudy){
+            	showCoexpTab = false;
+            	showIGVtab = false;
+            	showEnrichmentsTab = false;
+            	has_survival = false;
+            	includeNetworks = false;
+            	showPlotsTab = false;
+            }
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values
-            Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
-            if(cancerTypesMap.keySet().size() > 1) {
-            	showCancerTypesSummary = true;
-            }
-            else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
-            	showCancerTypesSummary = true;
-            }
-            if (disabledTabs.contains("cancer_types_summary")) {
-                showCancerTypesSummary = false;
-            }
+            showCancerTypesSummary = (Boolean) request.getAttribute(QueryBuilder.HAS_CANCER_TYPES);
+            
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
             // if showCancerTypesSummary is try, add the list item
             if(showCancerTypesSummary){
@@ -239,14 +241,16 @@ window.onReactAppReady(function() {
             }
             if (showPlotsTab) {
                 out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
-            }            
+            } else {
+                out.println ("<li><a href='#cc-plots' class='result-tab' id='cc-plots-result-tab'>Expression</a></li>");
+            }           
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
             if (showCoexpTab) {
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
-            if (has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) {
+            if ((has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) && !isVirtualStudy) {
                 out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
@@ -300,47 +304,52 @@ window.onReactAppReady(function() {
         </div>
 
         <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
-        <% if(showCancerTypesSummary) { %>
-        <%@ include file="pancancer_study_summary.jsp" %>
-        <%}%>
+            <% if(showCancerTypesSummary) { %>
+        <%@ include file="pancancer_study_summary.jsp"%>
+            <%}%>
 
+            <% if(showPlotsTab) { %>
         <%@ include file="plots_tab.jsp" %>
+            <% } else { %>
+        <%@ include file="cross_cancer_plots_tab.jsp" %>
+            <% }%>
 
-        <% if (showIGVtab) { %>
-            <%@ include file="igv.jsp" %>
-        <% } %>
+            <% if (showIGVtab) { %>
+        <%@ include file="igv.jsp" %>
+            <% } %>
 
-        <% if (has_survival) { %>
-            <%@ include file="survival_tab.jsp" %>
-        <% } %>
+            <% if (has_survival) { %>
+        <%@ include file="survival_tab.jsp" %>
+            <% } %>
 
-        <% if (computeLogOddsRatio) { %>
-            <%@ include file="mutex_tab.jsp" %>
-        <% } %>
+            <% if (computeLogOddsRatio) { %>
+        <%@ include file="mutex_tab.jsp" %>
+            <% } %>
 
-        <% if (mutationDetailLimitReached != null) {
+            <% if (mutationDetailLimitReached != null) {
             out.println("<div class=\"section\" id=\"mutation_details\">");
             out.println("<P>To retrieve mutation details, please specify "
             + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
             out.println("</div>");
         } else if (showMutTab) { %>
-            <%@ include file="mutation_views.jsp" %>
-            <%@ include file="mutation_details.jsp" %>
-        <%  } %>
+        <%@ include file="mutation_views.jsp" %>
+        <%@ include file="mutation_details.jsp" %>
+            <%  } %>
 
-        <% if (includeNetworks) { %>
-            <%@ include file="networks.jsp" %>
-        <% } %>
+            <% if (includeNetworks) { %>
+        <%@ include file="networks.jsp" %>
+            <% } %>
 
-        <% if (showCoexpTab) { %>
-            <%@ include file="co_expression.jsp" %>
-        <% } %>
+            <% if (showCoexpTab) { %>
+        <%@ include file="co_expression.jsp" %>
+            <% } %>
 
-        <% if (has_mrna || has_copy_no || showMutTab) { %>
-            <%@ include file="enrichments_tab.jsp" %>
-        <% } %>
-
+            <% if ((has_mrna || has_copy_no || showMutTab) && !isVirtualStudy) { %>
+        <%@ include file="enrichments_tab.jsp" %>
+            <% } %>
+            <% if(showDownloadTab) { %>
         <%@ include file="data_download.jsp" %>
+            <% } %>
 
 </div> <!-- end tabs div -->
 
@@ -369,56 +378,58 @@ window.onReactAppReady(function() {
         if ($("div.section#network").is(":visible"))
         {
             // init the network tab
-	        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-	        //firstTime = false;
+            //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+            //firstTime = false;
 
-	        // TODO window.networkGraphJSON is null at this point,
-	        // this is a workaround to wait for graphJSON to get ready
-	        var interval = setInterval(function() {
-		        if (window.networkGraphJSON != null)
-		        {
-			        clearInterval(interval);
-			        if (firstTime)
-			        {
-                $(window).resize();
-				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-				        firstTime = false;
-			        }
-		        }
-	        }, 50);
+            // TODO window.networkGraphJSON is null at this point,
+            // this is a workaround to wait for graphJSON to get ready
+            var interval = setInterval(function() {
+                if (window.networkGraphJSON != null)
+                {
+                    clearInterval(interval);
+                    if (firstTime)
+                    {
+                        $(window).resize();
+                        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                        firstTime = false;
+                    }
+                }
+            }, 50);
         }
+
+        //cbio.util.toggleMainBtn("dashboard_button", "enable");
 
         $("a.result-tab").click(function(){
 
             if($(this).attr("href")=="#network")
             {
-              var interval = setInterval(function() {
-                if (window.networkGraphJSON != null)
-                {
-                  clearInterval(interval);
-                  if(firstTime)
-                  {
-                    $(window).resize();
-                    send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-                    firstTime = false;
-                  }
-                else
-                  {
-                    // TODO this is a workaround to adjust cytoscape canvas
-                    // and probably not the best way to do it...
-                    $(window).resize();
-                  }
+                var interval = setInterval(function() {
+                    if (window.networkGraphJSON != null)
+                    {
+                        clearInterval(interval);
+                        if(firstTime)
+                        {
+                            $(window).resize();
+                            send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                            firstTime = false;
+                        }
+                        else
+                        {
+                            // TODO this is a workaround to adjust cytoscape canvas
+                            // and probably not the best way to do it...
+                            $(window).resize();
+                        }
 
-                }
-              }, 50);
+                    }
+                }, 50);
             }
         });
 
         $("#bookmark-result-tab").parent().click(function() {
             <% if (useSessionServiceBookmark) { %>
-                addSessionServiceBookmark(window.location.href, $(this).children("#bookmark-result-tab").data('session'));
+            addSessionServiceBookmark(window.location.href, $(this).children("#bookmark-result-tab").data('session'));
             <% } else { %>
-                addURLBookmark();
+            addURLBookmark();
             <% } %>
         });
 

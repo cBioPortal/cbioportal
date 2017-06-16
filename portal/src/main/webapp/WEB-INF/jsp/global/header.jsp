@@ -39,26 +39,33 @@
 <!DOCTYPE HTML>
 <html ng-app="menu" lang="eng" class="legacy">
 <head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<%if(request.getAttribute("standard-js-css")!=null){%>
-<jsp:include page="css_include_standard.jsp" flush="true" />
-<jsp:include page="js_include_standard.jsp" flush="true" />
-<%} else {%>
-<jsp:include page="css_include.jsp" flush="true" />
-<jsp:include page="js_include.jsp" flush="true" />
-<%}%>
-<jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
+    <%if(request.getAttribute("standard-js-css")!=null){%>
+    <jsp:include page="css_include_standard.jsp" flush="true" />
+    <jsp:include page="js_include_standard.jsp" flush="true" />
+    <%} else {%>
+    <jsp:include page="css_include.jsp" flush="true" />
+    <jsp:include page="js_include.jsp" flush="true" />
+    <%}%>
+    <%
+        String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
+//to disable virtual cohort feature uncomment this line
+//sessionServiceUrl ="";
+    %>
+    <jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
 
     <script type="text/javascript">
-    
-    window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
-    
-    $(document).ready(function(){
-            $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+        window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+        $(document).ready(function(){
+            window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
+            <%if(!sessionServiceUrl.equals("")){%>
+            vcSession.URL ='api-legacy/proxy/session-service/virtual_cohort';
+            <%}%>
+
         });
-    
+
         // Set API root variable for cbioportal-frontend repo
         <%
         String url = request.getRequestURL().toString();
@@ -66,7 +73,7 @@
         baseURL = baseURL.replace("https://", "").replace("http://", "");
         %>
         __API_ROOT__ = '<%=baseURL%>' + '/api';
-    
+
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 </head>
@@ -74,13 +81,13 @@
 <div class="pageTopContainer">      
     <div class="contentWidth"><jsp:include page="header_bar.jsp" flush="true" /></div>
 </div>
-    
-    <center style="padding-top:15px">
+
+<center style="padding-top:15px">
     <div id="page_wrapper">
         <table id="page_wrapper_table" width=100% cellpadding="0px" cellspacing="5px" border="0px">
             <tr valign="top">
                 <td colspan="3">
-                    
+
                 </td>
             </tr>
 

@@ -32,6 +32,8 @@
 
 <!-- Collection of all global variables for the result pages of single cancer study query-->
 
+<%@ include file="selected_study_variables.jsp" %>
+
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashSet" %>
@@ -39,6 +41,7 @@
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.text.DecimalFormat" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="java.util.*" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="java.util.Enumeration" %>
@@ -69,14 +72,13 @@
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
 
     //Info about Genetic Profiles
-    ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
     String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
     geneticProfiles = xssUtil.getCleanerInput(geneticProfiles.trim());
 
     //Info about threshold settings
-    double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-    double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
+    double zScoreThreshold = Double.parseDouble(String.valueOf(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD)));
+    double rppaScoreThreshold = Double.parseDouble(String.valueOf(request.getAttribute(QueryBuilder.RPPA_SCORE_THRESHOLD)));
 
     //Onco Query Language Parser Instance
     String oql = request.getParameter(QueryBuilder.GENE_LIST);
@@ -85,44 +87,21 @@
     }
     oql = xssUtil.getCleanerInput(oql);
 
-    //Info about queried cancer study
-    ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
-    String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    CancerStudy cancerStudy = cancerStudies.get(0);
-    for (CancerStudy cs : cancerStudies){
-        if (cancerStudyId.equals(cs.getCancerStudyStableId())){
-            cancerStudy = cs;
-            break;
-        }
-    }
-    String cancerStudyName = cancerStudy.getName(); 
-    GeneticProfile mutationProfile = cancerStudy.getMutationProfile();
-    String mutationProfileID = mutationProfile==null ? null : mutationProfile.getStableId();
-
-    //Info about Patient Set(s)/Patients
-    ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String sampleSetName = "";
-    String sampleSetDescription = "";
-    for (SampleList sampleSet:  sampleSets) {
-        if (sampleSetId.equals(sampleSet.getStableId())) {
-            sampleSetName = sampleSet.getName();
-            sampleSetDescription = sampleSet.getDescription();
-        }
-    }
-    String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-    String sampleIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+    String sampleSetName = request.getAttribute("case_set_name") != null ? (String) request.getAttribute("case_set_name") : "User-defined Patient List";
+    String sampleSetDescription = request.getAttribute("case_set_description") != null ? (String) request.getAttribute("case_set_description") : "User-defined Patient List.";
+    String sampleIdsKey = request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null ? (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY) : "";
 
-    //Vision Control Tokens
-    boolean showIGVtab = cancerStudy.hasCnaSegmentData();
-    boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0;
-    boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
-    boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
-    boolean has_survival = cancerStudy.hasSurvivalData();
+    Boolean showIGVtab = (Boolean) request.getAttribute("showIGVtab");
+    Boolean has_mrna = (Boolean) request.getAttribute("hasMrna");
+    Boolean has_methylation = (Boolean) request.getAttribute("hasMethylation");
+    Boolean has_copy_no = (Boolean) request.getAttribute("hasCopyNo");
+    Boolean has_survival = (Boolean) request.getAttribute("hasSurvival");
     boolean includeNetworks = GlobalProperties.includeNetworks();
     boolean computeLogOddsRatio = true;
     Boolean mutationDetailLimitReached = (Boolean)request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
+    boolean showCoexpTab = false;
 
     //are we using session service for bookmarking?
     boolean useSessionServiceBookmark = !StringUtils.isBlank(GlobalProperties.getSessionServiceUrl());
@@ -132,22 +111,17 @@
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
 
-    //Escape quotes in the returned strings
-    samples = samples.replaceAll("'", "\\'");
-    samples = samples.replaceAll("\"", "\\\"");
     sampleSetName = sampleSetName.replaceAll("'", "\\'");
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
 
     //check if show co-expression tab
-    boolean showCoexpTab = false;
-    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyId);
-    if (final_gp != null) {
-        showCoexpTab = true;
-    } 
-    Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    
-    String patientCaseSelect = (String)request.getAttribute(QueryBuilder.PATIENT_CASE_SELECT);
-
+//    if(!isVirtualStudy){
+//        GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdList[0]);
+//        if (final_gp != null) {
+//            showCoexpTab = true;
+//        }
+//    }        
+    String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
 %>
 
 <!--Global Data Objects Manager-->
@@ -162,118 +136,183 @@
 <!-- Global variables : basic information about the main query -->
 <script type="text/javascript">
 
-    var num_total_cases = 0, num_altered_cases = 0;
-    var global_gene_data = {}, global_sample_ids = [];
     var patientSampleIdMap = {};
-    var patientCaseSelect;
-
     window.PortalGlobals = {
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
     };
-    
+
     (function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
+        var studySampleObj = JSON.parse('<%=studySampleMapJson%>');
+        var studyIdsList = Object.keys(studySampleObj);
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
-                                                            converted_oql,
-                                                            ['<%=cancerStudyId%>'.trim()],
-                                                            JSON.parse('<%=studySampleMapJson%>'),
-                                                            parseFloat('<%=zScoreThreshold%>'),
-                                                            parseFloat('<%=rppaScoreThreshold%>'),
-                                                            {
-                                                                case_set_id: '<%=sampleSetId%>',
-                                                                case_ids_key: '<%=sampleIdsKey%>',
-                                                                case_set_name: '<%=sampleSetName%>',
-                                                                case_set_description: '<%=sampleSetDescription%>'
-                                                            });
+            converted_oql,
+            studyIdsList,
+            studySampleObj,
+            parseFloat('<%=zScoreThreshold%>'),
+            parseFloat('<%=rppaScoreThreshold%>'),
+            {
+                case_set_id: '<%=sampleSetId%>',
+                case_ids_key: '<%=sampleIdsKey%>',
+                case_set_name: '<%=sampleSetName%>',
+                case_set_description: '<%=sampleSetDescription%>'
+            },
+            isVirtualStudy);
     })();
+
+
 </script>
 
 <script>
-//Jiaojiao Dec/21/2015
-//The program won't be able to get clicked checkbox elements before they got initialized and displayed. 
-//Need to check every 5ms to see if checkboxes are ready or not. 
-//If not ready keep waiting, if ready, then scroll to the first selected study
 
- function waitForElementToDisplay(selector, time) {
-        if(document.querySelector(selector) !== null) {
-            
-           var chosenElements = document.getElementsByClassName('jstree-clicked');
-            if(chosenElements.length > 0)
-            {
-                var treeDiv = document.getElementById('jstree');
-                var topPos = chosenElements[0].offsetTop;
-                var originalPos = treeDiv.offsetTop;
-                treeDiv.scrollTop = topPos - originalPos;
+    $(document).ready(function() {
+        window.sessionServiceUrl = '<%=sessionServiceUrl%>';
+        if(window.sessionServiceUrl) {
+            window.sessionServiceUrl = window.sessionServiceUrl.replace(/http(s)*:\/+/, '');
+        }
+        var getCohortName = function(){
+            var def = new $.Deferred();
+            if (window.isVirtualStudy) {
+                if (window.cohortIdsList.length === 1) {
+                    $.ajax({
+                        method: 'GET',
+                        url: 'proxy/' + window.sessionServiceUrl + 'virtual_cohort/' + window.cohortIdsList[0]
+                    }).done(function(response){
+                        response = JSON.parse(response);
+                        def.resolve(response['data']['studyName']);
+                    }).fail(function () {
+                        def.resolve([]);
+                    });                    
+                } else {
+                    def.resolve([]);
+                }
+            } else {
+                window.QuerySession.getCancerStudyNames().then(function (_studies) {
+                    def.resolve(_studies[0]);
+                }).fail(function () {
+                    def.resolve([]);
+                });
             }
-           
-            return;
+            return def.promise();
         }
-        else {
-            setTimeout(function() {
-                waitForElementToDisplay(selector, time);
-            }, time);
-        }
-    }
-    
-$(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getPatientIds(), window.QuerySession.getCancerStudyNames()).then(function(altered_samples, patient_ids, cancer_study_names) {
-            var sample_ids = window.QuerySession.getSampleIds();
-            
-            var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
 
-            //Configure the summary line of alteration statstics
+        $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getStudyPatientMap(), getCohortName()).then(function(altered_samples, studyPatientMap, studyName) {
+
+            // alteration statistics summary line to the right     
+            var sampleLength = 0;
+            var sample_ids = window.QuerySession.getSampleIds();
+            var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
+            $.each(window.QuerySession.getStudySampleMap(), function(studyId,cases){
+                sampleLength += cases.length;
+            })
+            var patientLength = 0;
+            $.each(studyPatientMap, function(studyId,cases){
+                patientLength += cases.length;
+            })
+            var altered_samples_percentage = (100 * altered_samples.length / sampleLength).toFixed(1);
             var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
             $("#main_smry_stat_div").append(_stat_smry);
 
-            //Configure the summary line of query
-            var _query_smry = "<h3 style='font-size:110%;'><a href='study?id=" + 
-                window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
-                cancer_study_names[0] + "</a><br>" + " " +  
-                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " + 
-                "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
+            // Query summary line to the left
+            var cohortDisplayName = "";
+            if (window.cohortIdsList.length > 1) {
+                cohortDisplayName = "Selected Studies";
+            } else {
+                cohortDisplayName = studyName;
+            }
+            var _href = "study.do?cohorts=" + window.cohortIdsList.join(",") + " target='_blank'";;
+            var _query_smry = "<h3 style='font-size:110%;'><a href=" + _href + ">" + cohortDisplayName + "</a><br>" +
+                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " +
+                "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>";
             $("#main_smry_query_div").append(_query_smry);
 
-            //Append the modify query button
+            // "Modify Query" button
+            var _tmpVCinserted = false; // flag to indicate if tmp VC is inserted to jsTree
             var _modify_query_btn = "<button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
             $("#main_smry_modify_query_btn").append(_modify_query_btn);
-
-            //Set Event listener for the modify query button (expand the hidden form)
             $("#modify_query_btn").click(function () {
                 $("#query_form_on_results_page").toggle();
                 if($("#modify_query_btn").hasClass("active")) {
                     $("#modify_query_btn").removeClass("active");
                 } else {
-                    $("#modify_query_btn").addClass("active");    
+                    $("#modify_query_btn").addClass("active");
                 }
-                 waitForElementToDisplay('.jstree-clicked', '5');
+                //_setJsTreeSelection();
+                if (window.cohortIdsList.length === 1 && window.isVirtualStudy) { // check if this is a temporary cohort
+                    var _vcs = JSON.parse(localStorage.getItem('virtual-cohorts'));
+                    var _vcIds = _.pluck(_vcs, 'virtualCohortID');
+                    if (!_.contains(_vcIds, window.cohortIdsList[0])) { // is temporary cohort
+                        // insert node for temporary cohort and set selection
+                        if (!_tmpVCinserted) {
+                            var _treeLoadTimer = setInterval(inspectTree, 1000);
+                            function inspectTree() {
+                                var _elem = document.getElementsByClassName('jstree');
+                                if (_elem.length > 0) {
+                                    clearInterval(_treeLoadTimer);
+                                    if ($("#virtual-study-group").length === 0) {
+                                        $("#jstree").jstree().create_node($("#tissue_anchor"), {id: "virtual-study-group", text: "Virtual Study"}, "inside", null);
+                                    }
+                                    $('#jstree').jstree().create_node($("#virtual-study-group"), {
+                                        'id': window.cohortIdsList[0],
+                                        'text': studyName,
+                                        'li_attr': { description: "Temporary cohort from previous selection" }
+                                    }, "last", null);
+                                    $("#jstree").jstree("select_node", "#" + window.cohortIdsList[0]);
+                                    _tmpVCinserted = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                _setJsTreeSelection();
             });
+
+            function _setJsTreeSelection() {
+                var _timer = setInterval(inspectTreeSel, 1000);
+                function inspectTreeSel() {
+                    if (document.querySelector(".jstree-clicked") !== null) {
+                        var _elems = document.getElementsByClassName('jstree-clicked');
+                        if (_elems.length > 0) {
+                            clearInterval(_timer);
+                            _.each(window.cohortIdsList, function(_cid) {
+                                $("#jstree").jstree("select_node", "#" + _cid);
+                            });
+                            var treeDiv = document.getElementById('jstree');
+                            var topPos = _elems[0].offsetTop;
+                            var originalPos = treeDiv.offsetTop;
+                            treeDiv.scrollTop = topPos - originalPos;
+                        }
+                    }
+                }
+            }
+
             $("#toggle_query_form").click(function(event) {
                 event.preventDefault();
                 $('#query_form_on_results_page').toggle();
                 //  Toggle the icons
                 $(".query-toggle").toggle();
             });
+
             //Oncoprint summary lines
             $("#oncoprint_sample_set_description").append("Case Set: " + window.QuerySession.getSampleSetName()
-							+ " "
-							+ "("+patient_ids.length + " patients / " + sample_ids.length + " samples)");
-            $("#oncoprint_sample_set_name").append("Case Set: "+window.QuerySession.getSampleSetName());
-            if (patient_ids.length !== sample_ids.length) {
+                + " "
+                + "("+patientLength + " patients / " + sampleLength + " samples)");
+            $("#oncoprint_sample_set_name").append("Case Set: "+ window.QuerySession.getSampleSetName());
+            if (patientLength !== sampleLength) {
                 $("#switchPatientSample").css("display", "inline-block");
             }
-            
+
         });
-   
-         
+
         $("#toggle_query_form").click(function(event) {
             event.preventDefault();
             $('#query_form_on_results_page').toggle();
             //  Toggle the icons
             $(".query-toggle").toggle();
         });
-});
+    });
 
 
 </script>

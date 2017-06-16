@@ -30,16 +30,16 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <div class="section" id="igv_tab">
-<script type="text/javascript">
-    $(document).ready(function(){
-        var sampleIds = window.QuerySession.getSampleIds().join(",");
-        function generateHTML(cancerStudyId, hugoSymbol, id){
-            $.when($.ajax({
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var sampleIds = window.QuerySession.getSampleIds().join(",");
+            function generateHTML(cancerStudyId, hugoSymbol, id){
+                $.when($.ajax({
                     method : "GET",
                     url : "api/genes/" + hugoSymbol
                 })).then(
                     function(response) {
-                        
+
                         var height = 300 + 2*window.QuerySession.getSampleIds().length;
                         height = Math.min(height, 800);
                         var headerContent = '<head>    <link rel="stylesheet" type="text/css"  href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/>'
@@ -59,60 +59,60 @@
                         iframe.contentWindow.document.write(fullContent);
                         iframe.contentWindow.document.close();
                     });
-        }
-
-        $("#igv-result-tab").click(function(){
-            var genes = window.QuerySession.getQueryGenes();
-            if(genes.length > 0 && $("#igvList").html().length === 0){
-                $("#igvList").append('<li><a style="font-size:11px"  href="#home">' + genes[0] + '</a></li>');
-                $("#igvContent").append('<div id="home" class="tab-pane fade in active"></div>');
-                generateHTML('<%= cancerStudyId %>', genes[0], "home");
-                for(var i = 1;i < genes.length;i++){
-                    $("#igvList").append('<li class="geneList" value="' + i +  '"><a style="font-size:11px" href="#menu'+ i +'">' + genes[i] + '</a></li>');
-                    $("#igvContent").append('<div id="menu' + i + '"></div>');
-                }
-                $("#segment_tabs").tabs();
-                $(".geneList").click(function(event){
-                    var index = $(this).val();
-                    if($("#menu"+index).html().length === 0){
-                        generateHTML('<%= cancerStudyId %>', genes[index], "menu"+index);
-                    }
-                });
             }
 
-            $("#downloadSegment").click(function(){
-                var xhr = new XMLHttpRequest(),
-                sendData = "cancerStudyId=<%= cancerStudyId %>&sampleIds=" + sampleIds;
-                xhr.onreadystatechange = function() {
-                    var a;
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        // Making a downloadable link
-                        a = document.createElement('a');
-                        a.href = window.URL.createObjectURL(xhr.response);
-                        a.download = '<%= cancerStudyId %>' + '_segments.seg';
-                        a.style.display = 'none';
-                        document.body.appendChild(a);
-                        //triger download
-                        a.click();
+            $("#igv-result-tab").click(function(){
+                var genes = window.QuerySession.getQueryGenes();
+                if(genes.length > 0 && $("#igvList").html().length === 0){
+                    $("#igvList").append('<li><a style="font-size:11px"  href="#home">' + genes[0] + '</a></li>');
+                    $("#igvContent").append('<div id="home" class="tab-pane fade in active"></div>');
+                    generateHTML(window.cohortIdsList[0], genes[0], "home");
+                    for(var i = 1;i < genes.length;i++){
+                        $("#igvList").append('<li class="geneList" value="' + i +  '"><a style="font-size:11px" href="#menu'+ i +'">' + genes[i] + '</a></li>');
+                        $("#igvContent").append('<div id="menu' + i + '"></div>');
                     }
-                };
-                // Post data to URL which handles post request
-                xhr.open("POST", "api-legacy/segmentfile");
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.responseType = 'blob';
-                xhr.send(sendData);
-            });
- 
-                    
-        });
-        
-    });
-</script>
+                    $("#segment_tabs").tabs();
+                    $(".geneList").click(function(event){
+                        var index = $(this).val();
+                        if($("#menu"+index).html().length === 0){
+                            generateHTML(window.cohortIdsList[0], genes[index], "menu"+index);
+                        }
+                    });
+                }
 
-<div id="segment_tabs">
-  <ul id="igvList"></ul>
-  <div id="igvContent"></div>
-</div>
-<br/>
-Download a copy number segment file for the selected samples<button id="downloadSegment" class="btn btn-default btn-sm">Download</button>
+                $("#downloadSegment").click(function(){
+                    var xhr = new XMLHttpRequest(),
+                        sendData = "cancerStudyId=" + window.cohortIdsList[0] + "&sampleIds=" + sampleIds;
+                    xhr.onreadystatechange = function() {
+                        var a;
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            // Making a downloadable link
+                            a = document.createElement('a');
+                            a.href = window.URL.createObjectURL(xhr.response);
+                            a.download = window.cohortIdsList[0] + '_segments.seg';
+                            a.style.display = 'none';
+                            document.body.appendChild(a);
+                            //triger download
+                            a.click();
+                        }
+                    };
+                    // Post data to URL which handles post request
+                    xhr.open("POST", "api-legacy/segmentfile");
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.responseType = 'blob';
+                    xhr.send(sendData);
+                });
+
+
+            });
+
+        });
+    </script>
+
+    <div id="segment_tabs">
+        <ul id="igvList"></ul>
+        <div id="igvContent"></div>
+    </div>
+    <br/>
+    Download a copy number segment file for the selected samples<button id="downloadSegment" class="btn btn-default btn-sm">Download</button>
 </div>

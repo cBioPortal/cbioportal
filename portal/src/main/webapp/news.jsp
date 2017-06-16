@@ -73,7 +73,7 @@
     $(document).ready( function() {
         // retrieve link for News and generate the page
         var newsLink = '<%= GlobalProperties.getNewsHtml()%>';
-        var baseUrl = 'https://raw.githubusercontent.com/alisman/cbioportal/newsEdits/docs/'; //'<%= GlobalProperties.getBaseUrl()%>';
+        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
         var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
         var generatePage = new GeneratePage(baseUrl, newsLink, markdownDocumentation, "#newsPage");
         generatePage.init();

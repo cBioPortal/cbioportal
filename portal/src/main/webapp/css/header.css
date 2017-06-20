@@ -11,6 +11,7 @@ header {
     width:100%;
     display:flex !important;
     align-items: center;
+    justify-content: space-between;
 }
 
 .legacy header {
@@ -54,40 +55,55 @@ header {
     opacity:0.5;
 }
 
-#rightContent {
-    position: absolute;
-    right: 0;
+#rightHeaderContent {
     display:flex;
     align-items:center;
     color:#777;
 }
 
-#rightContent .username {
+#rightHeaderContent .username {
     max-width:150px;
     text-overflow:ellipsis;
     overflow:hidden;
     white-space:nowrap;
 }
 
-#rightContent .userControls a {
+#rightHeaderContent .userControls a {
     color:#3786C2 !important;
 }
 
+#leftHeaderContent {
+    display:flex;
+    align-items:center;
+}
+
+.userControls {
+    position:relative;
+}
+
+.userControls i.fa {
+    font-size:31px;
+    color:#999;
+    vertical-align:middle;
+}
 
 .userControls .identity {
     position:absolute; 
     display:none;
     white-space:nowrap; 
-    top:30px;
-    left:-50%;
+    display:none;
+    align-items:center;
+    top:-6px;
+    right:-7px;
     z-index:2;
     border:1px solid #ddd;
-    padding:5px; background:#fff; 
+    padding:5px 10px; 
+    background:#fff; 
     font-size:12px; border-radius:4px
 }
 
 .userControls:hover .identity {
-    display:inline-block;
+    display:block;
 }
 
 #main-nav {
@@ -175,7 +191,7 @@ header {
 }
 
 .legacy body > center {
-    text-align:right;
+    text-align:left;
 }
 
 .legacy #footer {

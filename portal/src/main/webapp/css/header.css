@@ -149,6 +149,18 @@ header {
     width:100%;
 }
 
+.legacy .modal-header .close span {
+    display:none;
+}
+
+.legacy .modal-header .close:before {
+    content: "✖";
+}
+
+.legacy #querySelector {
+    font-size:14px;
+}
+
 .contentWidth {
     min-width:1200px;
 }

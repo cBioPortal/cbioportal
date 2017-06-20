@@ -136,7 +136,7 @@ def import_case_list(jvm_args, meta_filename):
     args.append(meta_filename)
     args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
-    
+
 def add_global_case_list(jvm_args, study_id):
     args = jvm_args.split(' ')
     args.append(ADD_CASE_LIST_CLASS)
@@ -327,7 +327,7 @@ def process_directory(jvm_args, study_directory):
 
     if study_meta_dictionary[study_meta_filename].get('add_global_case_list', 'false').lower() == 'true':
         add_global_case_list(jvm_args, study_id)
-        
+
     # enable study
     update_study_status(jvm_args, study_id)
 
@@ -353,7 +353,7 @@ def check_files(meta_filename, data_filename):
     if data_filename  and not os.path.exists(data_filename):
         print >> ERROR_FILE, 'data-file cannot be found:' + data_filename
         sys.exit(2)
-        
+
 def check_dir(study_directory):
     # check existence of directory
     if not os.path.exists(study_directory) and study_directory != '':
@@ -398,10 +398,10 @@ def main(args):
     if args.jar_path is None:
         portal_home = os.environ.get('PORTAL_HOME', None)
         if portal_home is None:
-            # PORTAL_HOME also not set...quit trying with error: 
+            # PORTAL_HOME also not set...quit trying with error:
             print 'Error: either --jar_path needs to be given or environment variable PORTAL_HOME needs to be set'
             sys.exit(2)
-        else: 
+        else:
             #find jar files in lib folder and add them to classpath:
             import glob
             jars = glob.glob(portal_home + "/scripts/target/scripts-*.jar")
@@ -410,7 +410,7 @@ def main(args):
                 sys.exit(2)
             args.jar_path = jars[0]
             print 'Data loading step using: {}\n'.format(args.jar_path)
-        
+
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path
     study_directory = args.study_directory

@@ -251,7 +251,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
     MetaFileTypes.SAMPLE_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.PATIENT_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData", 
+    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
@@ -492,7 +492,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
     # The following dictionary is required to define the MetaFileType for all
     # combinations, which are used in validateData to determine which validator
     # should be used. There is some redundancy with allowed_data_types.txt, which
-    # also contains genetic alteration types and datatype combinations, but is used 
+    # also contains genetic alteration types and datatype combinations, but is used
     # to check if the correct stable id is used.
     # GENETIC_ALTERATION_TYPE    DATATYPE    meta
     alt_type_datatype_to_meta = {
@@ -508,7 +508,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("PROTEIN_LEVEL", "CONTINUOUS"): MetaFileTypes.PROTEIN,
         # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
-        ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS, 
+        ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS,
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
         # expression
@@ -616,14 +616,14 @@ def parse_metadata_file(filename,
 
     :param filename: name of the meta file
     :param logger: the logging.Logger instance to log warnings and errors to
-    :param study_id: (optional - set if you want study_id to be validated) 
+    :param study_id: (optional - set if you want study_id to be validated)
                     cancer study id found in previous files (or None). All subsequent
                     meta files should comply to this in the field 'cancer_study_identifier'
     :param genome_name: (optional - set if you want this to be validated)
                     supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
     """
-    
+
     logger.debug('Starting validation of meta file', extra={'filename_': filename})
 
     # Read meta file

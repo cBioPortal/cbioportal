@@ -134,11 +134,13 @@ header {
 
 #main-nav li a:hover {
     color: #000;
+    text-decoration:none;
 }
 
 #main-nav li.selected a:link, #main-nav li.selected a:visited {
-    color: #000;
-    border-bottom: 1px solid #ddd;
+    color: #3786C2;
+    border-bottom: 2px solid #3786C2;
+    padding-bottom:4px;
 }
 
 

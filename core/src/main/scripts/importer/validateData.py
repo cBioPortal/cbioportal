@@ -2127,6 +2127,13 @@ class ContinuousValuesValidator(GenewiseFileValidator):
 
 class FusionValidator(Validator):
 
+    """Basic validation for fusion data. Validates:
+
+    1. Required column headers and the order
+    2. Values of Hugo_Symbol, Entrez_Gene_Id, Fusion and Tumor_Sample_Barcode
+    3. Uniqueness of lines
+    """
+
     REQUIRED_HEADERS = [
         'Hugo_Symbol',
         'Entrez_Gene_Id',
@@ -2138,11 +2145,46 @@ class FusionValidator(Validator):
         'Method',
         'Frame']
     REQUIRE_COLUMN_ORDER = True
+    ALLOW_BLANKS = True
+
+    def __init__(self, *args, ** kwargs):
+        super(FusionValidator, self).__init__(*args, **kwargs)
+        self.fusion_entries = {}
 
     def checkLine(self, data):
-        super(FusionValidator, self).checkLine(data)
-        # TODO check the values
 
+        super(FusionValidator, self).checkLine(data)
+
+        # parse hugo and entrez to validate them together
+        hugo_symbol = None
+        entrez_id = None
+        if 'Hugo_Symbol' in self.cols:
+            hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
+            # treat the empty string or 'Unknown' as a missing value
+            if hugo_symbol == '':
+                hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.cols:
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
+            # treat the empty string or 0 as a missing value
+            if entrez_id == '':
+                entrez_id = None
+        # validate hugo and entrez together:
+        self.checkGeneIdentification(hugo_symbol, entrez_id)
+
+        # validate uniqueness based on Hugo_Symbol, Entrez_Gene_Id, Tumor_Sample_Barcode and Fusion
+        fusion_entry = "\t".join([data[self.cols.index('Hugo_Symbol')],
+                                  data[self.cols.index('Entrez_Gene_Id')],
+                                  data[self.cols.index('Tumor_Sample_Barcode')],
+                                  data[self.cols.index('Fusion')]])
+        if fusion_entry in self.fusion_entries:
+            self.logger.warning(
+                'Duplicate entry in fusion data.',
+                extra = {'line_number': self.line_number,
+                         'cause': '%s (already defined on line %d)' % (
+                             fusion_entry,
+                             self.fusion_entries[fusion_entry])})
+        else:
+            self.fusion_entries[fusion_entry] = self.line_number
 
 class MutationSignificanceValidator(Validator):
 

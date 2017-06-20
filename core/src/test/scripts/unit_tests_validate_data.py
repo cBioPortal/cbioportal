@@ -1112,6 +1112,19 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertIn("implies intergenic", record_list[2].getMessage().lower())
         self.assertEqual(record_list[2].levelno, logging.WARNING)
 
+class FusionValidationTestCase(PostClinicalDataFileTestCase):
+
+    """Tests for the various validations of data in Fusion data files."""
+
+    def test_duplicate_line(self):
+        """Test if duplicate lines are detected"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_fusion_duplicate_entry.txt',
+                                    validateData.FusionValidator)
+
+        self.assertEqual(len(record_list), 1)
+        self.assertIn("duplicate entry in fusion data", record_list[0].getMessage().lower())
 
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 

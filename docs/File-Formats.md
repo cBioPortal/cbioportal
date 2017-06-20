@@ -701,7 +701,7 @@ stable_id: mutations
 profile_description: Fusions.
 show_profile_in_analysis_tab: true
 profile_name: Fusions
-data_filename: data_fusions.txt
+data_filename: data_fusion.txt
 ```
 
 #### Data file

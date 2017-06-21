@@ -216,7 +216,9 @@ public class GlobalProperties {
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
     
     public static final String DB_VERSION = "db.version";
-    public static final String SUPPRESS_SCHEMA_VERSION_MISMATCH_ERRORS = "db.suppress_schema_version_mismatch_errors";
+    private static boolean suppressSchemaVersionMismatchErrors;
+    @Value("${db.suppress_schema_version_mismatch_errors:false}") // default is false
+    public void setSuppressSchemaVersionMismatchErrors(String property) { suppressSchemaVersionMismatchErrors = Boolean.parseBoolean(property); }
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
@@ -851,8 +853,7 @@ public class GlobalProperties {
     }
     
     public static boolean isSuppressSchemaVersionMismatchErrors() {
-        String isSuppressSchemaVersionMismatchErrors = properties.getProperty(SUPPRESS_SCHEMA_VERSION_MISMATCH_ERRORS, "false");
-        return Boolean.parseBoolean(isSuppressSchemaVersionMismatchErrors);
+        return suppressSchemaVersionMismatchErrors;
     }
 
     public static String getDarwinAuthCheckUrl() {

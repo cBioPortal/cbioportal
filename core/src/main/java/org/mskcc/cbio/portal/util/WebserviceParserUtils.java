@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.mskcc.cbio.portal.servlet.WebService;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
@@ -92,6 +93,15 @@ public final class WebserviceParserUtils {
         return sampleList;
     }
 
+    public static  String getGenesetIds(HttpServletRequest request) throws ProtocolException,
+    DaoException {
+
+        String genesetIds = request.getParameter(QueryBuilder.GENESET_LIST);
+        if (genesetIds != null) {
+            return genesetIds;
+        }
+        return "";
+    }
     /**
      * Given an HttpServletRequest, determine all cancer_study_ids associated with it.
      * cancer study identifiers can be inferred from profile_ids, case_list_ids, or case_ids.

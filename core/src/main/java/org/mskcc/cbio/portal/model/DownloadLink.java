@@ -39,7 +39,7 @@ import java.util.ArrayList;
  */
 public class DownloadLink {
     private GeneticProfile profile;
-    private ArrayList<String> geneList;
+    private ArrayList<String> geneticEntityList;
     private String caseIds;
     private String content;
 
@@ -47,14 +47,14 @@ public class DownloadLink {
      * Constructor.
      *
      * @param profile  GeneticProfile Object.
-     * @param geneList ArrayList of Gene Symbols.
+     * @param geneticEntityList ArrayList of genetic entity ids  such as Gene Symbols or gene set ids.
      * @param caseIds  Whitespace-delimited list of case Ids.
      * @param content  Content from the CGDS Server.
      */
-    public DownloadLink(GeneticProfile profile, ArrayList<String> geneList,
+    public DownloadLink(GeneticProfile profile, ArrayList<String> geneticEntityList,
                         String caseIds, String content) {
         this.profile = profile;
-        this.geneList = geneList;
+        this.geneticEntityList = geneticEntityList;
         this.caseIds = caseIds;
         this.content = content;
     }
@@ -69,12 +69,12 @@ public class DownloadLink {
     }
 
     /**
-     * Gets the Gene List.
+     * Gets the list of genetic entity ids  such as Gene Symbols or gene set ids.
      *
-     * @return ArrayList of Gene Symbols.
+     * @return ArrayList of Genetic entity ids.
      */
-    public ArrayList<String> getGeneList() {
-        return geneList;
+    public ArrayList<String> getGeneticEntityList() {
+        return geneticEntityList;
     }
 
     /**

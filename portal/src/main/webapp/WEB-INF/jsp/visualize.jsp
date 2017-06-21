@@ -62,6 +62,7 @@ window.onReactAppReady(function() {
 
 <div id="reactRoot" class="hidden"></div>
     
+<%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
@@ -102,7 +103,13 @@ window.onReactAppReady(function() {
         Boolean showPlotsTab = true;
         Boolean showDownloadTab = true;
         Boolean showBookmarkTab = true;
-        List<String> disabledTabs = GlobalProperties.getDisabledTabs();
+        Set<String> disabledTabs = new HashSet<String>(GlobalProperties.getDisabledTabs());
+        List<String> disabledTabsForGenesets = Arrays.asList("IGV", "mutual_exclusivity", "enrichments", "survival", "network", "download", "bookmark", "mutations");
+        //If we have a query with only gene sets (and no genes), we only want three tabs displayed: Oncoprint, Plots and Co-Expression
+        Boolean genesetQuery = localGeneSetList.length() > 0 && localGeneList.length() == 0;
+        if (genesetQuery) {
+            disabledTabs.addAll(disabledTabsForGenesets);
+        }
 
             Enumeration paramEnum = request.getParameterNames();
             StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
@@ -114,14 +121,13 @@ window.onReactAppReady(function() {
 
                 if (values != null && values.length >0)
                 {
-                    for (int i=0; i<values.length; i++)
-                    {
+                    for (int i=0; i<values.length; i++) {
+                    	
                         String currentValue = values[i].trim();
 
-                        if (currentValue.contains("mutation") && !disabledTabs.contains("mutations"))
-                        {
+                        if (currentValue.contains("mutation") && !disabledTabs.contains("mutations")) {
                             showMutTab = true;
-                        }                        
+                        }
                         if (disabledTabs.contains("co_expression")) 
                         {
                             showCoexpTab = false;
@@ -224,7 +230,7 @@ window.onReactAppReady(function() {
             if (showCoexpTab) {
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
-            if (has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) {
+            if ((has_mrna || has_copy_no || showMutTab) && showEnrichmentsTab) {
                 out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
@@ -247,29 +253,28 @@ window.onReactAppReady(function() {
 	                out.print ("'");
                 } 
 	            out.println (">Bookmark</a></li>");
-            }            
-            out.println ("</ul>");
-
-            out.println ("<div class=\"section\" id=\"bookmark_email\">");
-
-            if (!useSessionServiceBookmark && sampleSetId.equals("-1"))
-            {
-                out.println("<br>");
-                out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
+	
+	            out.println ("<div class=\"section\" id=\"bookmark_email\">");
+	
+	            if (!useSessionServiceBookmark && sampleSetId.equals("-1"))
+	            {
+	                out.println("<br>");
+	                out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
+	            } 
+	            else 
+	            {
+	                out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
+	                out.println("<br>");
+	                out.println("<div id='session-id'></div>");
+	                out.println("<br>");
+	                if (GlobalProperties.getBitlyUser() != null) {
+	                    out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
+	                    out.println("<div id='bitly'></div>");
+	                }
+	            }
+	            out.println("</div>");
             } 
-            else 
-            {
-                out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
-                out.println("<br>");
-                out.println("<div id='session-id'></div>");
-                out.println("<br>");
-                if (GlobalProperties.getBitlyUser() != null) {
-	                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
-	                out.println("<div id='bitly'></div>");
-                }
-
-            }
-            out.println("</div>");
+            out.println ("</ul>");
     %>
 
         <div class="section" id="summary">
@@ -314,11 +319,13 @@ window.onReactAppReady(function() {
             <%@ include file="co_expression.jsp" %>
         <% } %>
 
-        <% if (has_mrna || has_copy_no || showMutTab) { %>
+        <% if ((has_mrna || has_copy_no || showMutTab) && showEnrichmentsTab) { %>
             <%@ include file="enrichments_tab.jsp" %>
         <% } %>
 
-        <%@ include file="data_download.jsp" %>
+        <% if (showDownloadTab) { %>
+	        <%@ include file="data_download.jsp" %>
+        <% } %>
 
 </div> <!-- end tabs div -->
 

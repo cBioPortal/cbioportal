@@ -101,7 +101,7 @@ var scatterPlots = (function() {
             bottom_y = 0;
         }
 
-        if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
+        if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.gene) {
             if (is_profile_discretized(axis)) {
                 function sort_by_cna(a, b){
                     var _attr_name = (stat.box_plots_axis === "x")? "xVal": "yVal";
@@ -124,6 +124,8 @@ var scatterPlots = (function() {
             if (clinical_attr_is_discretized(axis)) {
                 discretized_axis(clinical_data_interpreter.get_text_labels(axis), true);
             } else continuous_axis(true);
+        } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.geneset) {
+            continuous_axis(true);
         } else {
             continuous_axis(false);
         }
@@ -238,7 +240,7 @@ var scatterPlots = (function() {
             }
         });
         
-        if (genetic_vs_genetic()) {
+        if (genetic_vs_genetic() || (gsva_vs_gsva()) || (gsva_vs_genetic())) {
             if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) {
                 //gistic view (only apply to one gene and having cna profile data case)
                 elem.dotsGroup.selectAll("path")
@@ -346,7 +348,7 @@ var scatterPlots = (function() {
                     })
                     .attr("stroke-width", 1.2); 
             } 
-        } else if (genetic_vs_clinical()) {
+        }  else if ((genetic_vs_clinical()) || (gsva_vs_clinical())) {
             elem.dotsGroup.selectAll("path")
                 .data(data)
                 .enter()
@@ -570,7 +572,7 @@ var scatterPlots = (function() {
             }
         };
         
-        if (genetic_vs_genetic()) {
+        if (genetic_vs_genetic() || (gsva_vs_genetic()) || (gsva_vs_gsva())) {
             if ($("#" + ids.sidebar.x.log_scale).is(':checked') && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
 
                 var _new_x_scale = re_scale("x");
@@ -647,8 +649,8 @@ var scatterPlots = (function() {
                     });
             }           
         } else if (genetic_vs_clinical()) {
-            var _profile_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? "x": "y";
-            var _clin_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? "y": "x";
+            var _profile_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)? "x": "y";
+            var _clin_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene)? "y": "x";
             
             if ($("#" + ids.sidebar[_profile_axis].log_scale).is(":checked")) {
                 var _new_scale = re_scale(_profile_axis);
@@ -686,13 +688,21 @@ var scatterPlots = (function() {
                     }); 
             }
             
+        } else if (gsva_vs_clinical()) {
+            var _profile_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset)? "x": "y";
+            var _clin_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset)? "y": "x";
+            initAxis(_clin_axis);
+            drawAxis(_clin_axis);
+            re_draw_axis(_profile_axis);
+            update_axis_title(_clin_axis, "remove");
+            update_axis_title(_profile_axis, "append");
         }
        
     }
     
     function appendTitle(axis) { //axis titles
-        var elt = ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic)? document.getElementById(ids.sidebar[axis].profile_name):document.getElementById(ids.sidebar[axis].clin_attr);
-        var _name = ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic)? ($("#" + ids.sidebar[axis].gene).val() + ", " + elt.options[elt.selectedIndex].text): elt.options[elt.selectedIndex].text;
+        var elt = (($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.gene) || ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.geneset))? document.getElementById(ids.sidebar[axis].profile_name):document.getElementById(ids.sidebar[axis].clin_attr);
+        var _name = (($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.gene) || ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.geneset))? ($("#" + ids.sidebar[axis].gene).val() + ", " + elt.options[elt.selectedIndex].text): elt.options[elt.selectedIndex].text;
         var _id = elt.options[elt.selectedIndex].value;
         
         //trimm exceedingly long titles
@@ -747,8 +757,10 @@ var scatterPlots = (function() {
             .attr("width", "16")
             .attr("height", "16");
         var _description = "";
-        if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
-            _description = metaData.getProfileDescription($("#" + ids.sidebar[axis].gene).val(), _id); 
+        if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.gene) {
+            _description = metaData.getProfileDescription($("#" + ids.sidebar[axis].gene).val(), _id);
+        } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.geneset) {
+        	_description = metaData.getGenesetsDescription($("#" + ids.sidebar[axis].gene).val(), _id);
         } else {
             _description = metaData.getClinicalAttrDescription(_id);
         }
@@ -862,6 +874,22 @@ var scatterPlots = (function() {
                 } else if (is_profile_discretized("y")) {
                     _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + gisticInterpreter.convert_to_val(d.yVal) + "</b>";
                 }
+            } else if (gsva_vs_genetic()) {
+                if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset) {
+                	if (is_profile_discretized("y")) {
+                		_content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + gisticInterpreter.convert_to_val(d.yVal) + "</b>";
+                	} else {
+                		_content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+                	}
+                } else {
+                	if (is_profile_discretized("x")) {
+                		_content += "<br>Horizontal: <b>" + gisticInterpreter.convert_to_val(d.xVal) + "</b><br>" + "Vertical: <b>" + d.yVal  + "</b>";
+                	} else {
+                		_content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+                	}
+                }
+            } else if (gsva_vs_gsva()) {
+            	_content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
             } else {
                 if (genetic_vs_clinical()) {
                     if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
@@ -870,6 +898,16 @@ var scatterPlots = (function() {
                         _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" + "Vertical: <b>" + _text_y + "</b>";
                     } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
                         var _text_x = is_profile_discretized("x")? gisticInterpreter.convert_to_val(d.xVal, "x"): d.xVal;
+                        var _text_y = clinical_attr_is_discretized("y")? clinical_data_interpreter.convert_to_text(d.yVal, "y"): d.yVal;
+                        _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" + "Vertical: <b>" + _text_y + "</b>";
+                    }
+                } else if (gsva_vs_clinical()) {
+                    if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
+                        var _text_x = clinical_attr_is_discretized("x")? clinical_data_interpreter.convert_to_text(d.xVal, "x"): d.xVal;
+                        var _text_y = d.yVal;
+                        _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" + "Vertical: <b>" + _text_y + "</b>";
+                    } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
+                        var _text_x = d.xVal;
                         var _text_y = clinical_attr_is_discretized("y")? clinical_data_interpreter.convert_to_text(d.yVal, "y"): d.yVal;
                         _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" + "Vertical: <b>" + _text_y + "</b>";
                     }
@@ -929,10 +967,10 @@ var scatterPlots = (function() {
     
     function get_tab_delimited_data() {
         var result_str = "";
-        var elt_x = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? document.getElementById(ids.sidebar.x.profile_name):document.getElementById(ids.sidebar.x.clin_attr);
-        var elt_y = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)? document.getElementById(ids.sidebar.y.profile_name):document.getElementById(ids.sidebar.y.clin_attr);
-        var _title_x = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? ($("#" + ids.sidebar.x.gene).val() + ", " + elt_x.options[elt_x.selectedIndex].text): elt_x.options[elt_x.selectedIndex].text;
-        var _title_y = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)? ($("#" + ids.sidebar.y.gene).val() + ", " + elt_y.options[elt_y.selectedIndex].text): elt_y.options[elt_y.selectedIndex].text;            
+        var elt_x = (($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene) || ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset))? document.getElementById(ids.sidebar.x.profile_name):document.getElementById(ids.sidebar.x.clin_attr);
+        var elt_y = (($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene) || ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset))? document.getElementById(ids.sidebar.y.profile_name):document.getElementById(ids.sidebar.y.clin_attr);
+        var _title_x = (($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.gene) || ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset))? ($("#" + ids.sidebar.x.gene).val() + ", " + elt_x.options[elt_x.selectedIndex].text): elt_x.options[elt_x.selectedIndex].text;
+        var _title_y = (($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.gene) || ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.geneset))? ($("#" + ids.sidebar.y.gene).val() + ", " + elt_y.options[elt_y.selectedIndex].text): elt_y.options[elt_y.selectedIndex].text;            
         //titles
         if (clinical_vs_clinical()) {
             result_str += "Sample Id" + "\t" + _title_x + "\t" + _title_y + "\n";
@@ -944,7 +982,7 @@ var scatterPlots = (function() {
             //case Id
             var _current_line = _obj.caseId + "\t";
             //x,y value
-            if (genetic_vs_genetic()) {
+            if (genetic_vs_genetic() || gsva_vs_gsva() || gsva_vs_genetic()) {
                 if (stat.applied_box_plots) {
                     if (stat.box_plots_axis === "x") {
                         _current_line += gisticInterpreter.convert_to_val(_obj.xVal) + "\t" + _obj.yVal + "\t";
@@ -955,7 +993,7 @@ var scatterPlots = (function() {
                     _current_line += _obj.xVal + "\t" + _obj.yVal + "\t";
                 }                    
             } else {
-                if (genetic_vs_clinical()) {
+                if (genetic_vs_clinical() || gsva_vs_clinical()) {
                     if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
                         var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
                         if (_type === "STRING") {

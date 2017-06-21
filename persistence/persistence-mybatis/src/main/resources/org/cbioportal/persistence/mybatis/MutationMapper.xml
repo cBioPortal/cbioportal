@@ -77,9 +77,9 @@
             genetic_profile.STABLE_ID = #{geneticProfileId}
             AND mutation.SAMPLE_ID IN
             (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID = #{sampleListId}
+                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                WHERE sample_list.STABLE_ID = #{sampleListId}
             )
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND mutation.ENTREZ_GENE_ID IN

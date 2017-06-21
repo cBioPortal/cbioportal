@@ -46,7 +46,7 @@ import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.Sample;
 
-public interface GenePanelMapper {
+public interface GenePanelMapperLegacy {
 
     List<GenePanelWithSamples> getGenePanelsByProfile(String profileId);
     // TODO: All of the below methods are for importing purposes only. They should be

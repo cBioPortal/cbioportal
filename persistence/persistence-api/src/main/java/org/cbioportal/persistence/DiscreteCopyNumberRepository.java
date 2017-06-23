@@ -8,24 +8,34 @@ import java.util.List;
 
 public interface DiscreteCopyNumberRepository {
 
-    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, 
-                                                                                      String sampleListId, 
-                                                                                      List<Integer> alterations, 
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId,
+                                                                                      String sampleListId,
+                                                                                      List<Integer> entrezGeneIds,
+                                                                                      List<Integer> alterationTypes,
                                                                                       String projection);
 
 
-    BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
-                                                                      List<Integer> alterations);
+    BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId,
+                                                                      List<Integer> entrezGeneIds, 
+                                                                      List<Integer> alterationTypes);
 
     List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
                                                                           List<String> sampleIds,
                                                                           List<Integer> entrezGeneIds,
-                                                                          List<Integer> alterations, String projection);
+                                                                          List<Integer> alterationTypes, 
+                                                                          String projection);
 
     BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                          List<Integer> entrezGeneIds, List<Integer> alterations);
+                                                          List<Integer> entrezGeneIds, List<Integer> alterationTypes);
 
-    List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlteration(String geneticProfileId,
-                                                                        List<Integer> entrezGeneIds,
-                                                                        List<Integer> alterations);
+    List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleListId(
+        String geneticProfileId,
+        String sampleListId,
+        List<Integer> entrezGeneIds,
+        List<Integer> alterations);
+
+    List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String geneticProfileId,
+                                                                                    List<String> sampleIds,
+                                                                                    List<Integer> entrezGeneIds,
+                                                                                    List<Integer> alterations);
 }

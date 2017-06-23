@@ -31,9 +31,13 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         alterations.add(-2);
         alterations.add(2);
         
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(207);
+        entrezGeneIds.add(208);
+        
         List<DiscreteCopyNumberData> result =  discreteCopyNumberMyBatisRepository
             .getDiscreteCopyNumbersInGeneticProfileBySampleListId("study_tcga_pub_gistic", "study_tcga_pub_all", 
-                alterations, "SUMMARY");
+                entrezGeneIds, alterations, "SUMMARY");
 
         Assert.assertEquals(3, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
@@ -50,10 +54,14 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         List<Integer> alterations = new ArrayList<>();
         alterations.add(-2);
         alterations.add(2);
+        
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(207);
+        entrezGeneIds.add(208);
 
         List<DiscreteCopyNumberData> result =  discreteCopyNumberMyBatisRepository
             .getDiscreteCopyNumbersInGeneticProfileBySampleListId("study_tcga_pub_gistic", "study_tcga_pub_all", 
-                alterations, "DETAILED");
+                entrezGeneIds, alterations, "DETAILED");
 
         Assert.assertEquals(3, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
@@ -76,8 +84,12 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         alterations.add(-2);
         alterations.add(2);
 
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(207);
+        entrezGeneIds.add(208);
+
         BaseMeta result = discreteCopyNumberMyBatisRepository.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
-            "study_tcga_pub_gistic", "study_tcga_pub_all", alterations);
+            "study_tcga_pub_gistic", "study_tcga_pub_all", entrezGeneIds, alterations);
         
         Assert.assertEquals((Integer) 3, result.getTotalCount());
     }
@@ -136,7 +148,8 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     public void getSampleCountByGeneAndAlteration() throws Exception {
 
         List<CopyNumberSampleCountByGene> result  = discreteCopyNumberMyBatisRepository
-            .getSampleCountByGeneAndAlteration("study_tcga_pub_gistic", Arrays.asList(207, 208), Arrays.asList(-2, 2));
+            .getSampleCountByGeneAndAlterationAndSampleIds("study_tcga_pub_gistic", null, Arrays.asList(207, 208), 
+                Arrays.asList(-2, 2));
         
         Assert.assertEquals(2, result.size());
         CopyNumberSampleCountByGene copyNumberSampleCountByGene1 = result.get(0);

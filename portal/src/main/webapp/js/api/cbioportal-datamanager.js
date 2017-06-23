@@ -2069,5 +2069,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			fetch_promise.reject();
 		    });
 		}),
+	'getZScoreThreshold':function() {
+	    return z_score_threshold;
+	},
+	'getRppaScoreThreshold':function() {
+	    return rppa_score_threshold;
+	}
     };
 };

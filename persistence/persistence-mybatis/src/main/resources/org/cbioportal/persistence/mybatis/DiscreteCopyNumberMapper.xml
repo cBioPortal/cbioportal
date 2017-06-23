@@ -39,9 +39,9 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="alterations != null and !alterations.isEmpty()">
+            <if test="alterationTypes != null and !alterationTypes.isEmpty()">
                 AND cna_event.ALTERATION IN
-                <foreach item="item" collection="alterations" open="(" separator="," close=")">
+                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
@@ -63,9 +63,9 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="alterations != null and !alterations.isEmpty()">
+            <if test="alterationTypes != null and !alterationTypes.isEmpty()">
                 AND cna_event.ALTERATION IN
-                <foreach item="item" collection="alterations" open="(" separator="," close=")">
+                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
@@ -106,7 +106,7 @@
         <include refid="where"/>
     </select>
     
-    <select id="getSampleCountByGeneAndAlteration" resultType="org.cbioportal.model.CopyNumberSampleCountByGene">
+    <select id="getSampleCountByGeneAndAlterationAndSampleListId" resultType="org.cbioportal.model.CopyNumberSampleCountByGene">
         SELECT
         cna_event.ENTREZ_GENE_ID AS entrezGeneId,
         cna_event.ALTERATION AS alteration,
@@ -115,9 +115,41 @@
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         WHERE genetic_profile.STABLE_ID = #{geneticProfileId} AND
+        sample_cna_event.SAMPLE_ID IN
+        (
+            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+            WHERE sample_list.STABLE_ID = #{sampleListId}
+        )
         <if test="entrezGeneIds != null">
+            AND
             <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">
                 cna_event.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]} AND cna_event.ALTERATION = #{alterations[${i}]}
+            </foreach>
+        </if>
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION
+    </select>
+
+    <select id="getSampleCountByGeneAndAlterationAndSampleIds" resultType="org.cbioportal.model.CopyNumberSampleCountByGene">
+        SELECT
+        cna_event.ENTREZ_GENE_ID AS entrezGeneId,
+        cna_event.ALTERATION AS alteration,
+        COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS sampleCount
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+        <if test="entrezGeneIds != null">
+            AND
+            <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">
+                cna_event.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]} AND cna_event.ALTERATION = #{alterations[${i}]}
+            </foreach>
+        </if>
+        <if test="sampleIds != null and !sampleIds.isEmpty()">
+            AND sample.STABLE_ID IN
+            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                #{item}
             </foreach>
         </if>
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION

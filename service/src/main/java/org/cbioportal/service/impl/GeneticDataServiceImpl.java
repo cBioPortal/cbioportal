@@ -1,14 +1,15 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GeneticAlteration;
-import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneGeneticAlteration;
+import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneticProfile.GeneticAlterationType;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneticDataRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.GeneticDataService;
 import org.cbioportal.service.GeneticProfileService;
-import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +35,32 @@ public class GeneticDataServiceImpl implements GeneticDataService {
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GeneticData> getGeneticData(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds, 
-                                            String projection)
+    public List<GeneGeneticData> getGeneticData(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds,
+                                                String projection)
         throws GeneticProfileNotFoundException {
         
+        validateGeneticProfile(geneticProfileId);
         return fetchGeneticData(geneticProfileId, sampleListRepository.getAllSampleIdsInSampleList(sampleListId), 
             entrezGeneIds, projection);
     }
-   
+
+    @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GeneticData> fetchGeneticData(String geneticProfileId, List<String> sampleIds, 
+    public BaseMeta getMetaGeneticData(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds) 
+        throws GeneticProfileNotFoundException {
+        
+        BaseMeta baseMeta = new BaseMeta();
+        baseMeta.setTotalCount(getGeneticData(geneticProfileId, sampleListId, entrezGeneIds, "ID").size());
+        return baseMeta;
+    }
+
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<GeneGeneticData> fetchGeneticData(String geneticProfileId, List<String> sampleIds, 
                                               List<Integer> entrezGeneIds, String projection) 
         throws GeneticProfileNotFoundException {
 
-        List<GeneticData> geneticDataList = new ArrayList<>();
+        validateGeneticProfile(geneticProfileId);
+        List<GeneGeneticData> geneticDataList = new ArrayList<>();
 
         String commaSeparatedSampleIdsOfGeneticProfile = geneticDataRepository
             .getCommaSeparatedSampleIdsOfGeneticProfile(geneticProfileId);
@@ -67,18 +80,18 @@ public class GeneticDataServiceImpl implements GeneticDataService {
             samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
         }
 
-        List<GeneticAlteration> geneticAlterations = geneticDataRepository.getGeneticAlterations(geneticProfileId,
+        List<GeneGeneticAlteration> geneticAlterations = geneticDataRepository.getGeneGeneticAlterations(geneticProfileId,
             entrezGeneIds, projection);
         
         for (Sample sample : samples) {
             int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
             if (indexOfSampleId != -1) {
-                for (GeneticAlteration geneticAlteration : geneticAlterations) {
-                    GeneticData geneticData = new GeneticData();
+                for (GeneGeneticAlteration geneticAlteration : geneticAlterations) {
+                    GeneGeneticData geneticData = new GeneGeneticData();
                     geneticData.setGeneticProfileId(geneticProfileId);
                     geneticData.setSampleId(sample.getStableId());
                     geneticData.setEntrezGeneId(geneticAlteration.getEntrezGeneId());
-                    geneticData.setValue(geneticAlteration.getValues().split(",")[indexOfSampleId]);
+                    geneticData.setValue(geneticAlteration.getSplitValues()[indexOfSampleId]);
                     geneticData.setGene(geneticAlteration.getGene());
                     geneticDataList.add(geneticData);
                 }
@@ -87,7 +100,17 @@ public class GeneticDataServiceImpl implements GeneticDataService {
         
         return geneticDataList;
     }
-    
+
+    @Override
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public BaseMeta fetchMetaGeneticData(String geneticProfileId, List<String> sampleIds, List<Integer> entrezGeneIds) 
+        throws GeneticProfileNotFoundException {
+        
+        BaseMeta baseMeta = new BaseMeta();
+        baseMeta.setTotalCount(fetchGeneticData(geneticProfileId, sampleIds, entrezGeneIds, "ID").size());
+        return baseMeta;
+    }
+
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public Integer getNumberOfSamplesInGeneticProfile(String geneticProfileId) {
 
@@ -98,5 +121,16 @@ public class GeneticDataServiceImpl implements GeneticDataService {
         }
         
         return commaSeparatedSampleIdsOfGeneticProfile.split(",").length;
+    }
+
+    private void validateGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException {
+
+        GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+
+        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED) || 
+            geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
+
+            throw new GeneticProfileNotFoundException(geneticProfileId);
+        }
     }
 }

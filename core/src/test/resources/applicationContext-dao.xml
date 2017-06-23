@@ -59,6 +59,7 @@
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="businessDataSource" />
         <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+        <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" /><!-- this can prob. be multiple , separated items like other package config below -->
     </bean>
     
     <!-- scan for mappers and let them be autowired -->

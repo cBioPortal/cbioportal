@@ -42,11 +42,11 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         ClinicalData sampleClinicalData = new ClinicalData();
         expectedSampleClinicalDataList.add(sampleClinicalData);
 
-        Mockito.when(clinicalDataRepository.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID, CLINICAL_ATTRIBUTE_ID,
+        Mockito.when(clinicalDataRepository.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID1, CLINICAL_ATTRIBUTE_ID,
                 PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
                 .thenReturn(expectedSampleClinicalDataList);
 
-        List<ClinicalData> result = clinicalDataService.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID,
+        List<ClinicalData> result = clinicalDataService.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID1,
             CLINICAL_ATTRIBUTE_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedSampleClinicalDataList, result);
@@ -55,9 +55,9 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     @Test(expected = SampleNotFoundException.class)
     public void getAllClinicalDataOfSampleInStudySampleNotFound() throws Exception {
         
-        Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID)).thenThrow(new SampleNotFoundException(
-            STUDY_ID, SAMPLE_ID));
-        clinicalDataService.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID, CLINICAL_ATTRIBUTE_ID, PROJECTION, 
+        Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID1)).thenThrow(new SampleNotFoundException(
+            STUDY_ID, SAMPLE_ID1));
+        clinicalDataService.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID1, CLINICAL_ATTRIBUTE_ID, PROJECTION, 
             PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
     }
 
@@ -66,10 +66,10 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
 
-        Mockito.when(clinicalDataRepository.getMetaSampleClinicalData(STUDY_ID, SAMPLE_ID, CLINICAL_ATTRIBUTE_ID))
+        Mockito.when(clinicalDataRepository.getMetaSampleClinicalData(STUDY_ID, SAMPLE_ID1, CLINICAL_ATTRIBUTE_ID))
                 .thenReturn(expectedBaseMeta);
 
-        BaseMeta result = clinicalDataService.getMetaSampleClinicalData(STUDY_ID, SAMPLE_ID, CLINICAL_ATTRIBUTE_ID);
+        BaseMeta result = clinicalDataService.getMetaSampleClinicalData(STUDY_ID, SAMPLE_ID1, CLINICAL_ATTRIBUTE_ID);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
@@ -77,9 +77,9 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     @Test(expected = SampleNotFoundException.class)
     public void getMetaSampleClinicalDataSampleNotFound() throws Exception {
 
-        Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID)).thenThrow(new SampleNotFoundException(
-            STUDY_ID, SAMPLE_ID));
-        clinicalDataService.getMetaSampleClinicalData(STUDY_ID, SAMPLE_ID, CLINICAL_ATTRIBUTE_ID);
+        Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID1)).thenThrow(new SampleNotFoundException(
+            STUDY_ID, SAMPLE_ID1));
+        clinicalDataService.getMetaSampleClinicalData(STUDY_ID, SAMPLE_ID1, CLINICAL_ATTRIBUTE_ID);
     }
 
     @Test

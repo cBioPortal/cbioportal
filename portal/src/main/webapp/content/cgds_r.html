@@ -1,24 +1,25 @@
-<h1 id="cgds-r-package">CGDS-R Package</h1>
-<h2 id="description">Description</h2>
+<h1>R/MATLAB</h1>
+
+<h2 id="cgds-r-package">CGDS-R Package</h2>
+<h3 id="description">Description</h3>
 <p>The CGDS-R package provides a basic set of functions for querying the Cancer Genomic Data Server (CGDS) via the <a href="http://www.r-project.org/">R platform for statistical computing</a>.  </p>
 <p>Maintained by <a href="http://cbio.mskcc.org/people/info/anders_jacobsen.html">Anders Jacobsen</a> at the Computational Biology Center, MSKCC.</p>
-<h2 id="documentation">Documentation</h2>
+<h3 id="documentation">Documentation</h3>
 <ul>
 <li><a href="http://cran.r-project.org/web/packages/cgdsr/index.html">CGDS-R Package on CRAN</a>.</li>
 <li>The <a href="http://cran.r-project.org/web/packages/cgdsr/cgdsr.pdf">CGDS-R reference manual</a>.</li>
 <li>The <a href="http://cran.r-project.org/web/packages/cgdsr/vignettes/cgdsr.pdf">CGDS-R documentation vignette</a>.</li>
 </ul>
-<h2 id="installation">Installation</h2>
+<h3 id="installation">Installation</h3>
 <ol>
 <li>
 <p>The CDGS-R package currently <strong>only works with R Version 2.12 or higher</strong>.</p>
 </li>
 <li>
-<p>Then install the cgds-R package from within R:</p>
-<p>install.packages('cgdsr')</p>
+<p>Then install the cgds-R package from within R: <code>install.packages('cgdsr')</code></p>
 </li>
 </ol>
-<h2 id="example-usage">Example usage</h2>
+<h3 id="example-usage">Example usage</h3>
 <pre><code># Create CGDS object
 mycgds = CGDS("http://www.cbioportal.org/public-portal/")
 
@@ -44,16 +45,19 @@ myclinicaldata = getClinicalData(mycgds,mycaselist)
 help('cgdsr')
 help('CGDS')
 </code></pre>
-<h1 id="matlab-cgds-cancer-genomics-toolbox">MATLAB CGDS Cancer Genomics Toolbox</h1>
-<h2 id="description_1">Description</h2>
+
+<hr>
+
+<h2 id="matlab-cgds-cancer-genomics-toolbox">MATLAB CGDS Cancer Genomics Toolbox</h2>
+<h3 id="description_1">Description</h3>
 <p>This toolbox provides direct access to cancer genomics data from within the MATLAB environment. The toolbox will query the Cancer Genomics Data Server Web API, and return data in a structured format.</p>
 <p>Maintained by <a href="http://cbio.mskcc.org/people/info/erik_larsson.html">Erik Larsson</a> at the Computational Biology Center, MSKCC.</p>
 <p>A tutorial ('showdemo cgdstutorial') makes it easy to get started. </p>
-<h2 id="download">Download</h2>
+<h3 id="download">Download</h3>
 <p><a href="http://www.mathworks.com/matlabcentral/fileexchange/31297-mskcc-cgds-cancer-genomics-toolbox">CGDS Toolbox @ MATLAB Central</a></p>
-<h2 id="documentation_1">Documentation</h2>
+<h3 id="documentation_1">Documentation</h3>
 <p><a href="http://www.mathworks.com/matlabcentral/fileexchange/31297-mskcc-cgds-cancer-genomics-toolbox/content/html/cgdstutorial.html">Complete CGDS Tutorial</a></p>
-<h2 id="example-usage_1">Example Usage</h2>
+<h3 id="example-usage_1">Example Usage</h3>
 <p>Like the R package, the CGDS MATLAB toolbox provides a set of functions for direct retrieval of portal data from within the MATLAB (MathWorks Inc.) environment. Each toolbox function has a direct counterpart in the CGDS Web API. Data is returned as structured arrays, in a format that is easy to interpret and ready for subsequent visualization and statistical analysis. </p>
 <p>An included tutorial ("showdemo cgdstutorial") shows how to use all the functions, as well as how to make basic plots.</p>
 <pre><code>% Get started by adding the CGDS toolbox directory to the path (this will depend

@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalAttributeRepository;

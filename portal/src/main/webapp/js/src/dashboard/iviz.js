@@ -931,11 +931,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         return (_uid === undefined) ? a : a.concat(_uid);
       }, []);
     },
-    getCaseIdUsingUID: function(type, study_id, case_uid) {
+    getCaseIdUsingUID: function(type, case_uid) {
       if (type === 'sample') {
-        return data_.groups.group_mapping.studyMap[study_id].uid_to_sample[case_uid];
+        return data_.groups.sample.data[parseInt(case_uid, 10)].sample_id;
       }
-      return data_.groups.group_mapping.studyMap[study_id].uid_to_patient[case_uid];
+      return data_.groups.patient.data[parseInt(case_uid, 10)].patient_id;
     },
     getPatientUIDs: function(sampleUID) {
       return this.getCasesMap('sample')[sampleUID];
@@ -4048,7 +4048,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var row = [];
         if (opts_.groupType === 'patient') {
           var patientUID = _cases[i].patient_uid;
-          var patientId = iViz.getCaseIdUsingUID('patient', _cases[i].study_id, patientUID);
+          var patientId = iViz.getCaseIdUsingUID('patient', patientUID);
           var sampleIds = iViz.getSampleIds(_cases[i].study_id, patientId);
           if (_.isArray(sampleIds)) {
             sampleIds = sampleIds.join(', ');
@@ -4059,7 +4059,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           row.push(sampleIds);
         } else {
           var sampleUID = _cases[i].sample_uid;
-          var sampleId = iViz.getCaseIdUsingUID('sample', _cases[i].study_id, sampleUID);
+          var sampleId = iViz.getCaseIdUsingUID('sample', sampleUID);
           var patientId = iViz.getPatientId(_cases[i].study_id, sampleId);
           
           row.push(sampleId);
@@ -4597,7 +4597,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     var layout_;
     var getQtipString = function(_data) {
       var toReturn = 'Cancer Study:' + _data.study_id + '<br>Sample Id: ' +
-        iViz.getCaseIdUsingUID('sample', _data.study_id, _data.sample_uid) + '<br>CNA fraction: ';
+        iViz.getCaseIdUsingUID('sample', _data.sample_uid) + '<br>CNA fraction: ';
       if (isNaN(_data.cna_fraction)) {
         toReturn += _data.cna_fraction;
       } else {
@@ -4679,7 +4679,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var _pts_sample_uid =
           data.points[0].data.sample_uid[data.points[0].pointNumber];
         window.open(
-          cbio.util.getLinkToSampleView(_pts_study_id, iViz.getCaseIdUsingUID('sample', _pts_study_id, _pts_sample_uid)));
+          cbio.util.getLinkToSampleView(_pts_study_id, iViz.getCaseIdUsingUID('sample', _pts_sample_uid)));
       });
 
       groups_ = [{
@@ -4781,7 +4781,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       _data = [_data.join('\t')];
       _.each(groups_, function(group) {
         _.each(group.data, function(item) {
-          var _sampleId = iViz.getCaseIdUsingUID('sample', item.study_id, item.sample_uid);
+          var _sampleId = iViz.getCaseIdUsingUID('sample', item.sample_uid);
           var _patientId = iViz.getPatientId(item.study_id, _sampleId);
           var _txt = (_patientId ? _patientId : 'NA') +
             '\t' + _sampleId + '\t' + item.mutation_count + '\t' +
@@ -5863,7 +5863,7 @@ window.LogRankTest = (function(jStat) {
         typeof _status !== 'undefined' && typeof _time !== 'undefined') {
         var _datum = jQuery.extend(true, {}, datum_);
         _datum.patient_uid = _dataObj.patient_uid;
-        _datum.patient_id = iViz.getCaseIdUsingUID('patient', _dataObj.study_id, _dataObj.patient_uid);
+        _datum.patient_id = iViz.getCaseIdUsingUID('patient', _dataObj.patient_uid);
         _datum.study_id = _dataObj.study_id;
         _datum.time = parseFloat(_time);
         _datum.status = _status;
@@ -6077,9 +6077,9 @@ window.LogRankTest = (function(jStat) {
       return _.values(categories_);
     };
 
-    function initReactTable(_reloadData, _selectedMap, _selectedSampleIds) {
+    function initReactTable(_reloadData, _selectedMap, _selectedSampleUids) {
       if (_reloadData) {
-        reactTableData = initReactData(_selectedMap, _selectedSampleIds);
+        reactTableData = initReactData(_selectedMap, _selectedSampleUids);
       }
       var _opts = {
         input: reactTableData,
@@ -6195,8 +6195,14 @@ window.LogRankTest = (function(jStat) {
       categories_ = _labels;
     }
 
-    function mutatedGenesData(_selectedGenesMap, _selectedSampleIds) {
-
+    function mutatedGenesData(_selectedGenesMap, _selectedSampleUids) {
+      var _selectedSampleIds;
+      if (_.isArray(_selectedSampleUids)) {
+        _selectedSampleIds = [];
+        _.each(_selectedSampleUids, function(uid) {
+          _selectedSampleIds.push(iViz.getCaseIdUsingUID('sample', uid));
+        });
+      }
       genePanelMap = window.iviz.datamanager.updateGenePanelMap(genePanelMap, _selectedSampleIds);
 
       selectedGeneData.length = 0;
@@ -6274,7 +6280,7 @@ window.LogRankTest = (function(jStat) {
       return selectedGeneData;
     }
 
-    function initReactData(_selectedMap, _selectedSampleIds) {
+    function initReactData(_selectedMap, _selectedSampleUids) {
       attr_ = iViz.util.tableView.getAttributes(type_);
       var result = {
         data: [],
@@ -6282,7 +6288,7 @@ window.LogRankTest = (function(jStat) {
       };
 
       if (isMutatedGeneCna) {
-        var _mutationData = mutatedGenesData(_selectedMap, _selectedSampleIds);
+        var _mutationData = mutatedGenesData(_selectedMap, _selectedSampleUids);
         _.each(_mutationData, function(item) {
           for (var key in item) {
             if (item.hasOwnProperty(key)) {

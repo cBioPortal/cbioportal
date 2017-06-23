@@ -38,12 +38,34 @@
 
 <script>
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
-
+    
 window.historyType = 'memory';
 
 window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
+window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
 
-// Set API root variable for cbioportal-frontend repo
+window.priorityStudies = {};
+<%
+List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
+for (String[] group : priorityStudies) {
+    if (group.length > 1) {
+        out.println("window.priorityStudies['"+group[0]+"'] = ");
+        out.println("[");
+        int i = 1;
+        while (i < group.length) {
+            if (i >= 2) {
+                out.println(",");
+            }
+            out.println("'"+group[i]+"'");
+            i++;
+        }
+        out.println("];");
+    }
+}
+%>
+
+
+    // Set API root variable for cbioportal-frontend repo
     <%
 String url = request.getRequestURL().toString();
 String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();

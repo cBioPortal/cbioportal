@@ -42,6 +42,9 @@
  
     String selectedCancerStudyId =
 		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+    
+    String selectedSampleIds = 
+                    (String) request.getParameter(QueryBuilder.CASE_IDS);
     if (siteTitle == null) {
         siteTitle = "cBioPortal for Cancer Genomics";
     }
@@ -51,6 +54,7 @@
 <%
     request.setAttribute("index.jsp", Boolean.TRUE);
     request.setAttribute("selectedCancerStudyId", selectedCancerStudyId);
+    request.setAttribute("selectedSampleIds", selectedSampleIds);
     //request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
     //String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
@@ -64,6 +68,8 @@
                 // This means no study selected
                 window.selectedCancerStudyId = "";
             }
+            
+            window.selectedSampleIds = '${selectedSampleIds}';
 
             window.loadReactApp({ defaultRoute: 'home' });
         </script>

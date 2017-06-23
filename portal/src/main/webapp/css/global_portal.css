@@ -908,16 +908,6 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   text-align: justify;
 }
 
-#content ul {
-  margin-top:5px; margin-bottom: 5px;
-  font-family: verdana, arial, sans-serif;
-  font-size: 12px;
-  line-height: 18px;
-  color: #333333;
-  text-align: justify;
-  list-style-type:disc;
-}
-
 #content ol {
   margin-top:15px; margin-bottom: 15px;
   font-family: verdana, arial, sans-serif;
@@ -1684,4 +1674,9 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 
 .cbioportal-cancer-gene-list span{
     margin-right: 10px;
+}
+
+/* fixes style clash */
+#content .dropdown-menu li.active a {
+    color:#fff !important;
 }
